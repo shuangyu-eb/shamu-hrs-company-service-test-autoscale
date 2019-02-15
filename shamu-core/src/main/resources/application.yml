@@ -1,0 +1,15 @@
+server:
+  servlet:
+    session:
+      timeout: 30d
+
+spring:
+  application:
+    name: shamu-core
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+      config:
+        enabled: true
+        profileSeparator: ','

@@ -1,0 +1,6 @@
+spring:
+  cloud:
+    consul:
+      discovery:
+        instance-id: shamu-core
+        serviceName: shamu-core-service
