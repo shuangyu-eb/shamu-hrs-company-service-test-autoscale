@@ -8,7 +8,8 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 @Component
-public class AuthenticationGlobalFilter implements GlobalFilter, Ordered {
+public class HystrixGlobalFilter implements GlobalFilter, Ordered {
+
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         return chain.filter(exchange);
@@ -16,6 +17,6 @@ public class AuthenticationGlobalFilter implements GlobalFilter, Ordered {
 
     @Override
     public int getOrder() {
-        return -2147482649;
+        return -2147482650;
     }
 }
