@@ -5,7 +5,6 @@
  * @author Scott Andrews
  */
 
-'use strict';
 
 /**
  * Create a new JSON converter with custom reviver/replacer.
@@ -21,21 +20,21 @@
 function createConverter(reviver, replacer) {
   return {
 
-    read: function (str) {
-      var result;
+    read(str) {
+      let result;
       try {
-        result=JSON.parse(str, reviver);
-      }catch (e) {
+        result = JSON.parse(str, reviver);
+      } catch (e) {
         result = str;
       }
       return result;
     },
 
-    write: function (obj) {
+    write(obj) {
       return JSON.stringify(obj, replacer);
     },
 
-    extend: createConverter
+    extend: createConverter,
 
   };
 }

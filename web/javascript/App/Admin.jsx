@@ -1,15 +1,30 @@
 import React from 'react';
-import { getResource } from './Common/Rest';
+import { getResource } from './Rest';
+
 class Admin extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      data: '',
+    };
+  }
+
   componentDidMount() {
-    getResource('/').then(data => {
-      console.log(data);
-    }).catch(e => console.log(e, 'admin'));
+    getResource('/').then((data) => {
+      this.setState({
+        data: data.entity,
+      });
+    }).catch(e => console.log(e, 'error'));
   }
 
   render() {
-    console.log(ORIGIN);
-    return <div>this is admin page!</div>;
+    const { data } = this.state;
+    return (
+      <div>
+        this is the home page!
+        <div>{data}</div>
+      </div>
+    );
   }
 }
 

@@ -3,6 +3,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const HtmlWebpackHarddiskPlugin = require('html-webpack-harddisk-plugin');
 
 const path = require('path');
+
 const rootPath = path.resolve(__dirname, './../');
 const webpack = require('webpack');
 const fs = require('fs');
@@ -13,13 +14,13 @@ Validate('ORIGIN');
 
 // the path(s) that should be cleaned
 const pathsToClean = [
-  'dist'
+  'dist',
 ];
 
 // the clean options to use
 const cleanOptions = {
   root: path.resolve(rootPath),
-  verbose: true
+  verbose: true,
 };
 
 const templateChunks = {
@@ -33,27 +34,25 @@ const templateDistDir = path.resolve(rootPath, 'public/');
 const isDirectory = path => fs.statSync(path).isDirectory();
 const isFile = path => fs.statSync(path).isFile();
 
-const getDirectories = p =>
-  fs.readdirSync(p).map(name => path.resolve(p, name)).filter(isDirectory);
-const getFiles = p =>
-  fs.readdirSync(p).map(name => path.resolve(p, name)).filter(isFile);
+const getDirectories = p => fs.readdirSync(p).map(name => path.resolve(p, name)).filter(isDirectory);
+const getFiles = p => fs.readdirSync(p).map(name => path.resolve(p, name)).filter(isFile);
 
 const getFilesRecursively = (p) => {
-  let dirs = getDirectories(p);
-  let files = dirs
+  const dirs = getDirectories(p);
+  const files = dirs
     .map(dir => getFilesRecursively(dir)) // go through each directory
-    .reduce((a,b) => a.concat(b), []);    // map returns a 2d array (array of file arrays) so flatten
+    .reduce((a, b) => a.concat(b), []); // map returns a 2d array (array of file arrays) so flatten
   return files.concat(getFiles(p));
 };
 
-const htmlWebpackPlugins = getFilesRecursively(templatesSrcDir).map(template => {
+const htmlWebpackPlugins = getFilesRecursively(templatesSrcDir).map((template) => {
   let relPath = template.replace(path.resolve(templatesSrcDir, ''), '');
   relPath = relPath.replace('/', '');
   return new HtmlWebpackPlugin({
     inject: true,
-    template: template,
+    template,
     filename: template.replace(templatesSrcDir, templateDistDir),
-    chunks: relPath in templateChunks ? templateChunks[relPath]: [],
+    chunks: relPath in templateChunks ? templateChunks[relPath] : [],
     alwaysWriteToDisk: true,
   });
 });
@@ -61,8 +60,8 @@ const htmlWebpackPlugins = getFilesRecursively(templatesSrcDir).map(template => 
 let plugins = [
   new CleanWebpackPlugin(pathsToClean, cleanOptions),
   new webpack.ProvidePlugin({
-    $: "jquery",
-    jQuery: "jquery"
+    $: 'jquery',
+    jQuery: 'jquery',
   }),
   new webpack.DefinePlugin({
     ORIGIN: JSON.stringify(process.env.ORIGIN),
@@ -71,7 +70,7 @@ let plugins = [
 plugins = [
   ...plugins,
   ...htmlWebpackPlugins,
-  new HtmlWebpackHarddiskPlugin()
+  new HtmlWebpackHarddiskPlugin(),
 ];
 
 module.exports = plugins;

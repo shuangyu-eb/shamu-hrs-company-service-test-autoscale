@@ -1,41 +1,24 @@
 import client from './Client';
 
-const loginUri = '/account/login';
-
 function processResponse(response) {
-  // const { request: { path } = {}, raw: { responseURL = null } = {} } = response || {};
-  // if (path && !path.endsWith('/account/login')
-  //   && responseURL && path.endsWith('/account/login')) {
-  //   window.location.href = loginUri;
-  //   return Promise.resolve();
-  // }
   return Promise.resolve(response);
 }
 
 function processException(exception) {
-  // const { status: { code } } = exception;
-  // if (code === 401) {
-  //   window.location.href = loginUri;
-  //   return Promise.resolve();
-  // }
-
   return Promise.reject(exception);
 }
 
-
-
+const getUrl = resource => `${ORIGIN}${resource}`;
 
 export function createResource(resource, payload) {
-  const url = `${resource}`;
   const options = {
-    path: url,
+    path: getUrl(resource),
     method: 'POST',
-    origin: ORIGIN,
     entity: payload,
     headers: {
       'Content-Type': ((typeof payload) === 'string') ? 'text/plain' : 'application/json',
     },
-    credentials: 'same-origin',
+    credentials: 'include',
   };
   return client(options)
     .then(response => processResponse(response))
@@ -43,15 +26,14 @@ export function createResource(resource, payload) {
 }
 
 export function updateResource(resource, payload) {
-  const url = `${resource}`;
   const options = {
-    path: url,
+    path: getUrl(resource),
     method: 'PATCH',
     entity: payload,
     headers: {
       'Content-Type': 'application/json',
     },
-    credentials: 'same-origin',
+    credentials: 'include',
   };
   return client(options)
     .then(response => processResponse(response))
@@ -59,12 +41,11 @@ export function updateResource(resource, payload) {
 }
 
 export function uploadResource(resource, formData) {
-  const url = `${resource}`;
   const options = {
-    path: url,
+    path: getUrl(resource),
     method: 'POST',
     entity: formData,
-    credentials: 'same-origin',
+    credentials: 'include',
     headers: { 'Content-Type': 'multipart/form-data', Accept: '*/*' },
   };
   return client(options)
@@ -73,16 +54,15 @@ export function uploadResource(resource, formData) {
 }
 
 export function destroyResource(resource, payload) {
-  const url = `${resource}`;
   const options = {
-    path: url,
+    path: getUrl(resource),
     method: 'DELETE',
     entity: payload,
     headers: {
       Accept: 'application/json',
       'Content-Type': 'application/json',
     },
-    credentials: 'same-origin',
+    credentials: 'include',
   };
   return client(options)
     .then(response => processResponse(response))
@@ -90,17 +70,15 @@ export function destroyResource(resource, payload) {
 }
 
 export function getResource(resource, data) {
-
-  const url = `${ORIGIN}${resource}`;
   const options = {
-    path: url,
+    path: getUrl(resource),
     method: 'GET',
     params: data,
     dataType: 'json',
     headers: {
       'Content-Type': 'application/json',
     },
-    // credentials: 'same-origin',
+    credentials: 'include',
   };
   return client(options)
     .then(response => processResponse(response))
@@ -108,12 +86,11 @@ export function getResource(resource, data) {
 }
 
 export function submitResource(resource, payload) {
-  const url = `${resource}`;
   const options = {
-    path: url,
+    path: getUrl(resource),
     method: 'POST',
     entity: payload,
-    credentials: 'same-origin',
+    credentials: 'include',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
   };
   return client(options)
@@ -121,16 +98,15 @@ export function submitResource(resource, payload) {
 }
 
 export function putResource(resource, payload) {
-  const url = `${resource}`;
   const options = {
-    path: url,
+    path: getUrl(resource),
     method: 'PUT',
     body: JSON.stringify(payload),
     headers: {
       Accept: 'application/json',
       'Content-Type': 'application/json',
     },
-    credentials: 'same-origin',
+    credentials: 'include',
   };
   return client(options)
     .then(response => processResponse(response))
@@ -139,16 +115,15 @@ export function putResource(resource, payload) {
 
 
 export function downloadResource(resource, payload) {
-  const url = `${resource}`;
   const options = {
-    path: url,
+    path: getUrl(resource),
     method: 'POST',
     entity: payload,
     headers: {
       'Content-Type': 'application/json',
       Accept: '*/*',
     },
-    credentials: 'same-origin',
+    credentials: 'include',
   };
   return client(options)
     .then(response => processResponse(response))

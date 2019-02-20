@@ -1,28 +1,30 @@
 import React from 'react';
-import { getResource } from './Common/Rest';
+import { getResource } from './Rest';
 
 class Home extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      data: ''
+      data: '',
     };
   }
 
   componentDidMount() {
-    getResource('/').then(data => {
+    getResource('/').then((data) => {
       this.setState({
-        data: data.entity
+        data: data.entity,
       });
     }).catch(e => console.log(e, 'error'));
   }
 
   render() {
+    const { data } = this.state;
     return (
       <div>
         this is the home page!
-        <div>{this.state.data}</div>
-      </div>);
+        <div>{data}</div>
+      </div>
+    );
   }
 }
 
