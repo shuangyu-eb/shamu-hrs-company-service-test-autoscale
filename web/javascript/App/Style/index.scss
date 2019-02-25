@@ -2,18 +2,10 @@
 @import url("https://fonts.googleapis.com/css?family=Roboto");
 
 // Set your brand colors
-//$purple: #8A4D76;
-//$pink: #FA7C91;
-//$brown: #757763;
-//$beige-light: #D0D1CD;
-//$beige-lighter: #EFF0EB;
-
 $blue: #488eff !default;
 
 // Update Bulma's global variables
 $family-sans-serif: "Roboto", sans-serif;
-//$grey-light: $beige-light;
-//$primary: $purple;
 $link: $blue;
 
 // Update some of Bulma's component variables

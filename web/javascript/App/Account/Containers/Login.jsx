@@ -55,36 +55,6 @@ class NormalLoginForm extends React.Component {
               </div>
             </div>
           </div>
-          {/* <div onSubmit={() => console.log('login')} className="login-form"> */}
-          {/* <h1 className="p-style">Sign In</h1> */}
-          {/* <div className="field"> */}
-          {/* <p className="control has-icons-left has-icons-right"> */}
-          {/* <Input className="input" type="email" placeholder="Email" /> */}
-          {/* <span className="icon is-small is-left"> */}
-          {/* <i className="fas fa-envelope"></i> */}
-          {/* </span> */}
-          {/* <span className="icon is-small is-right"> */}
-          {/* <i className="fas fa-check"></i> */}
-          {/* </span> */}
-          {/* </p> */}
-          {/* </div> */}
-          {/* <div className="field"> */}
-          {/* <p className="control has-icons-left"> */}
-          {/* <Input className="input" type="password" placeholder="Password" /> */}
-          {/* <span className="icon is-small is-left"> */}
-          {/* <i className="fas fa-lock" /> */}
-          {/* </span> */}
-          {/* </p> */}
-          {/* </div> */}
-          {/* <div> */}
-          {/* <Button type="submit" isColor="primary" className="login-form-button"> */}
-          {/* Sign in */}
-          {/* </Button> */}
-          {/* <p className="login-form-link">Forgot your password? <Link to="/account/password/reset">Click here</Link> */}
-          {/* </p> */}
-          {/* <p className="login-form-link">Don&apos;t have an account? <a href="/onboarding/signUp">Sign Up</a></p> */}
-          {/* </div> */}
-          {/* </div> */}
         </div>
       </div>
     );

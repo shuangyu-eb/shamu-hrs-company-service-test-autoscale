@@ -30,14 +30,9 @@ class NavBar extends React.Component {
               <Field>
                 <Control hasIcons="right">
                   <input className="input is-medium search-input" onChange={this.onSearCh} type="text" placeholder="Search employees & documents" />
-                  {/* <Icon isSize="small" isAlign="right" className="material-icons"> */}
                   <span className="icon is-small is-right">
                     <img src={search} alt="search" className="search-icon" />
                   </span>
-                  {/* <Icon isSize="small" isAlign="right" src={search}> */}
-                  {/* /!*<FontAwesomeIcon icon="search"/>*!/ */}
-                  {/* <img src={search} alt="search" /> */}
-                  {/* </Icon> */}
                 </Control>
               </Field>
             </NavbarItem>

@@ -9,7 +9,6 @@ import Content from './Content';
 
 const store = configureStore();
 
-
 const Admin = () => (
   <Provider store={store}>
     <ConnectedRouter history={history}>
