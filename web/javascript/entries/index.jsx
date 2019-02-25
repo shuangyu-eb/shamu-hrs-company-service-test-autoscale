@@ -1,5 +1,5 @@
 import ReactDom from 'react-dom';
 import React from 'react';
-import Home from '../App/Home';
+import Index from '../App/Home/index';
 
-ReactDom.render(<Home />, document.getElementById('div'));
+ReactDom.render(<Index />, document.getElementById('div'));

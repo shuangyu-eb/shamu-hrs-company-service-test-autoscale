@@ -15,7 +15,7 @@ module.exports = {
   mode: 'development',
   entry: {
     index: path.resolve(srcPath, 'entries/index.jsx'),
-    admin: path.resolve(srcPath, 'entries/admin.jsx'),
+    account: path.resolve(srcPath, 'entries/account.jsx'),
   },
   output: {
     path: path.resolve(rootPath, 'public'),
@@ -89,6 +89,10 @@ module.exports = {
   resolve: {
     modules: [srcPath, 'node_modules'],
     extensions: ['.js', '.jsx', '.css', '.scss', '.png', '.svg', '.jpeg', 'jpg'],
+    alias: {
+      App: path.resolve(srcPath, 'App/'),
+      Image: path.resolve(srcPath, 'Image/'),
+    },
   },
 
   watchOptions: { // for watch mode

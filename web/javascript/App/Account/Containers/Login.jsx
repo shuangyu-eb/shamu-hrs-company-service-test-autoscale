@@ -1,0 +1,96 @@
+/* eslint-disable */
+import React from 'react';
+import Logo from 'App/Logo';
+import { Link } from 'react-router-dom';
+import PropTypes from 'prop-types';
+import EmailIcon from 'App/Image/Icon/icon-email.svg';
+import LockIcon from 'App/Image/Icon/icon-lock.svg';
+import {
+  Input, Button, Field, Label, Control, Icon, Help, Select, TextArea, Radio, Checkbox,
+} from 'bloomer';
+import './Login.scss';
+
+class NormalLoginForm extends React.Component {
+  render() {
+    return (
+      <div className="login">
+        <Logo />
+        <div className="sign-in">
+          <div onSubmit={() => console.log('login')} className="login-form">
+
+            <h1 className="p-style">Sign In</h1>
+
+            <div className="field">
+              <label htmlFor="email" className="label">
+                Email Address
+                <p className="control has-icons-left has-icons-right">
+                  <input className="input" type="email" placeholder="Email" />
+                  <span className="icon is-small is-left">
+                    <i className="fas fa-envelope" />
+                  </span>
+                  <span className="icon is-small is-right">
+                    <i className="fas fa-check" />
+                  </span>
+                </p>
+              </label>
+            </div>
+            <div className="field">
+              <label htmlFor="password" className="label">
+                Password
+                <p className="control has-icons-left">
+                  <input className="input" type="password" placeholder="Password" />
+                  <span className="icon is-small is-left">
+                    <i className="fas fa-lock" />
+                  </span>
+                </p>
+              </label>
+            </div>
+
+            <div className="field is-grouped">
+              <div className="control">
+                <button type="submit" className="button is-link">Submit</button>
+              </div>
+              <div className="control">
+                <button type="button" className="button is-text">Cancel</button>
+              </div>
+            </div>
+          </div>
+          {/* <div onSubmit={() => console.log('login')} className="login-form"> */}
+          {/* <h1 className="p-style">Sign In</h1> */}
+          {/* <div className="field"> */}
+          {/* <p className="control has-icons-left has-icons-right"> */}
+          {/* <Input className="input" type="email" placeholder="Email" /> */}
+          {/* <span className="icon is-small is-left"> */}
+          {/* <i className="fas fa-envelope"></i> */}
+          {/* </span> */}
+          {/* <span className="icon is-small is-right"> */}
+          {/* <i className="fas fa-check"></i> */}
+          {/* </span> */}
+          {/* </p> */}
+          {/* </div> */}
+          {/* <div className="field"> */}
+          {/* <p className="control has-icons-left"> */}
+          {/* <Input className="input" type="password" placeholder="Password" /> */}
+          {/* <span className="icon is-small is-left"> */}
+          {/* <i className="fas fa-lock" /> */}
+          {/* </span> */}
+          {/* </p> */}
+          {/* </div> */}
+          {/* <div> */}
+          {/* <Button type="submit" isColor="primary" className="login-form-button"> */}
+          {/* Sign in */}
+          {/* </Button> */}
+          {/* <p className="login-form-link">Forgot your password? <Link to="/account/password/reset">Click here</Link> */}
+          {/* </p> */}
+          {/* <p className="login-form-link">Don&apos;t have an account? <a href="/onboarding/signUp">Sign Up</a></p> */}
+          {/* </div> */}
+          {/* </div> */}
+        </div>
+      </div>
+    );
+  }
+}
+
+NormalLoginForm.propTypes = {};
+
+export default NormalLoginForm;
