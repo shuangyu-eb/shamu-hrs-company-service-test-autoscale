@@ -89,10 +89,6 @@ module.exports = {
   resolve: {
     modules: [srcPath, 'node_modules'],
     extensions: ['.js', '.jsx', '.css', '.scss', '.png', '.svg', '.jpeg', 'jpg'],
-    alias: {
-      App: path.resolve(srcPath, 'App/'),
-      Image: path.resolve(srcPath, 'Image/'),
-    },
   },
 
   watchOptions: { // for watch mode
@@ -101,6 +97,7 @@ module.exports = {
   devServer: {
     port: 3000,
     contentBase: path.resolve(rootPath, 'public'),
+    historyApiFallback: true, // refresh page to return index.html
     watchOptions: {
       ignored: /node_modules/,
     },

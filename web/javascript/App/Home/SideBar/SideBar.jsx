@@ -2,16 +2,9 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import { MODULE } from '../Contants';
 import './SideBar.scss';
 
-const MODULE = {
-  DASHBOARD: 'dashboard',
-  MY_INFO: 'info',
-  TIME_OFF: 'time',
-  DOCUMENTS: 'documents',
-  BENEFITS: 'benefits',
-  EMPLOYEES: 'employees',
-};
 
 const mapStateToProps = (store) => {
   const module = store.router.location.pathname.split('/')[1] || MODULE.DASHBOARD;

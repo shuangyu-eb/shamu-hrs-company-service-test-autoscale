@@ -5,7 +5,7 @@ import {
   NavbarStart, NavbarEnd, Field, Control, Button, DropdownContent,
   Dropdown, DropdownMenu, DropdownItem, DropdownTrigger,
 } from 'bloomer';
-import { search } from 'App/Image/Icon';
+import { search } from 'Image/Icon';
 import logo from './logo.svg';
 import './NavBar.scss';
 

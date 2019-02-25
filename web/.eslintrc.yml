@@ -20,3 +20,9 @@ settings:
   import/resolver:
     webpack:
       config: ./config/webpack.config.js
+    babel-module:
+      root: ./javascript
+      alias:
+        Image: ./javascript/App/Image
+        Style: ./javascript/App/Style
+

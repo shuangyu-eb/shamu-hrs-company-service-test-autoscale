@@ -1,5 +1,7 @@
 .navbar {
-  border-bottom: 1px solid #DFE2E9;;
+  position: fixed;
+  width: 100%;
+  border-bottom: 1px solid #DFE2E9;
 
   .logo {
     align-items: center;
@@ -20,8 +22,7 @@
     width: 412px;
   }
 
-
-  input::-webkit-input-placeholder {  /* WebKit browsers */
+  input::-webkit-input-placeholder { /* WebKit browsers */
     font-size: medium;
   }
 
