@@ -11,7 +11,6 @@ import './NavBar.scss';
 
 
 class NavBar extends React.Component {
-
   onSearCh = () => {
 
   }
