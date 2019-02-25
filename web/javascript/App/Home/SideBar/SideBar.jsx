@@ -1,33 +1,35 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
-import history from 'App/history';
 import PropTypes from 'prop-types';
 import './SideBar.scss';
 
+const MODULE = {
+  DASHBOARD: 'dashboard',
+  MY_INFO: 'info',
+  TIME_OFF: 'time',
+  DOCUMENTS: 'documents',
+  BENEFITS: 'benefits',
+  EMPLOYEES: 'employees',
+};
 
-const mapStateToProps = () => {
-  console.log(history.location.pathname.split('/')[0]);
-  const module = history.location.pathname.split('/')[0] || 'dashboard';
+const mapStateToProps = (store) => {
+  const module = store.router.location.pathname.split('/')[1] || MODULE.DASHBOARD;
   return { module };
 };
 
 class SideBar extends React.Component {
-  componentWillReceiveProps(nextProps) {
-    const { module } = nextProps;
-    console.log(module,'nex');
-
+  getClassName = (key) => {
+    const { module } = this.props;
+    return module === key ? 'item-selected' : '';
   }
 
   render() {
-    const { module } = this.props;
-    console.log(module);
-
     return (
       <div className="sidebar">
         <div className="sidebar-inner">
           <div>
-            <div className="menu-item">
+            <div className={`menu-item ${this.getClassName(MODULE.DASHBOARD)}`}>
               <Link to="/">
                 <div className="menu-item-icon">
                   <svg width="24px" height="22px" viewBox="0 0 24 22">
@@ -46,8 +48,8 @@ class SideBar extends React.Component {
                 <span>Dashboard</span>
               </Link>
             </div>
-            <div className="menu-item">
-              <Link to="/jobs" onClick={event => this.changeMenu(event, 'jobs')}>
+            <div className={`menu-item ${this.getClassName(MODULE.MY_INFO)}`}>
+              <Link to={`/${MODULE.MY_INFO}`}>
                 <div className="menu-item-icon">
                   <svg width="20" height="17" viewBox="0 0 20 17">
                     <g fill="none" fillRule="evenodd" transform="translate(-2 -3)">
@@ -63,8 +65,8 @@ class SideBar extends React.Component {
                 <span>My Info</span>
               </Link>
             </div>
-            <div className="menu-item">
-              <Link to="/applicants" onClick={event => this.changeMenu(event, 'applicants')}>
+            <div className={`menu-item ${this.getClassName(MODULE.TIME_OFF)}`}>
+              <Link to={`/${MODULE.TIME_OFF}`}>
                 <div className="menu-item-icon">
                   <svg width="20" height="18" viewBox="0 0 20 18">
                     <g fill="none" fillRule="evenodd" transform="translate(-2 -3)">
@@ -86,8 +88,8 @@ class SideBar extends React.Component {
                 <span>Time Off</span>
               </Link>
             </div>
-            <div className="menu-item">
-              <Link to="/reports" onClick={event => this.changeMenu(event, 'reports')}>
+            <div className={`menu-item ${this.getClassName(MODULE.DOCUMENTS)}`}>
+              <Link to={`/${MODULE.DOCUMENTS}`}>
                 <div className="menu-item-icon">
                   <svg width="20" height="18" viewBox="0 0 20 18">
                     <g fill="none" fillRule="evenodd" transform="translate(-2 -4)">
@@ -116,8 +118,8 @@ class SideBar extends React.Component {
                 <span>Documents</span>
               </Link>
             </div>
-            <div className="menu-item">
-              <Link to="/settings">
+            <div className={`menu-item ${this.getClassName(MODULE.BENEFITS)}`}>
+              <Link to={`/${MODULE.BENEFITS}`}>
                 <div className="menu-item-icon">
                   <svg width="22" height="22" viewBox="0 0 22 22">
                     <g fill="none" fillRule="evenodd" transform="translate(-1 -1)">
@@ -136,8 +138,8 @@ class SideBar extends React.Component {
                 <span>Benefits</span>
               </Link>
             </div>
-            <div className="menu-item">
-              <Link to="/admin/organizations" onClick={event => this.changeMenu(event, 'admin')}>
+            <div className={`menu-item ${this.getClassName(MODULE.EMPLOYEES)}`}>
+              <Link to={`/${MODULE.EMPLOYEES}`}>
                 <div className="menu-item-icon">
                   {/* <Icon type="usergroup-add" theme="outlined" /> */}
                 </div>
@@ -152,7 +154,7 @@ class SideBar extends React.Component {
 }
 
 SideBar.defaultProps = {
-  module: 'dashboard',
+  module: MODULE.DASHBOARD,
 };
 
 SideBar.propTypes = {

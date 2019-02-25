@@ -2,14 +2,20 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import {
   Navbar, NavbarBrand, NavbarItem, NavbarMenu,
-  NavbarStart, NavbarEnd, Field, Control, Icon, Button, DropdownContent,
-  Dropdown, DropdownMenu, DropdownItem, DropdownTrigger, DropdownDivider,
+  NavbarStart, NavbarEnd, Field, Control, Button, DropdownContent,
+  Dropdown, DropdownMenu, DropdownItem, DropdownTrigger,
 } from 'bloomer';
 import { search } from 'App/Image/Icon';
 import logo from './logo.svg';
 import './NavBar.scss';
 
+
 class NavBar extends React.Component {
+
+  onSearCh = () => {
+
+  }
+
   render() {
     return (
       <Navbar role="navigation" aria-label="main navigation">
@@ -24,7 +30,7 @@ class NavBar extends React.Component {
             <NavbarItem>
               <Field>
                 <Control hasIcons="right">
-                  <input className="input is-medium search-input" type="text" placeholder="Search employees & documents" />
+                  <input className="input is-medium search-input" onChange={this.onSearCh} type="text" placeholder="Search employees & documents" />
                   {/* <Icon isSize="small" isAlign="right" className="material-icons"> */}
                   <span className="icon is-small is-right">
                     <img src={search} alt="search" className="search-icon" />
