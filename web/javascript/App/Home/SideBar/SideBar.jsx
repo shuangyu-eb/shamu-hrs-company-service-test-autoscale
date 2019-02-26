@@ -40,7 +40,7 @@ const getIcon = (module, active) => {
 };
 
 const mapStateToProps = (store) => {
-  const module = store.router.location.pathname.split('/')[1] || MODULE.DASHBOARD;
+  const module = store.router.location.pathname.split('/')[1];
   return { module };
 };
 
@@ -55,58 +55,27 @@ class SideBar extends React.Component {
     return getIcon(key, module === key);
   }
 
+  getItem = (module, name) => ((
+    <div className={`menu-item ${this.getClassName(module)}`}>
+      <Link to={`/${module}`}>
+        <div className="menu-item-icon">
+          <img src={this.getIconByModule(module)} alt="icon-dashboard" />
+        </div>
+        <span>{name}</span>
+      </Link>
+    </div>
+  ));
+
   render() {
     return (
       <div className="sidebar">
         <div className="sidebar-inner">
-          <div>
-            <div className={`menu-item ${this.getClassName(MODULE.DASHBOARD)}`}>
-              <Link to="/">
-                <div className="menu-item-icon">
-                  <img src={this.getIconByModule(MODULE.DASHBOARD)} alt="icon-dashboard" />
-                </div>
-                <span>Dashboard</span>
-              </Link>
-            </div>
-            <div className={`menu-item ${this.getClassName(MODULE.MY_INFO)}`}>
-              <Link to={`/${MODULE.MY_INFO}`}>
-                <div className="menu-item-icon">
-                  <img src={this.getIconByModule(MODULE.MY_INFO)} alt="icon-dashboard" />
-                </div>
-                <span>My Info</span>
-              </Link>
-            </div>
-            <div className={`menu-item ${this.getClassName(MODULE.TIME_OFF)}`}>
-              <Link to={`/${MODULE.TIME_OFF}`}>
-                <img src={this.getIconByModule(MODULE.TIME_OFF)} alt="icon-dashboard" />
-                <span>Time Off</span>
-              </Link>
-            </div>
-            <div className={`menu-item ${this.getClassName(MODULE.DOCUMENTS)}`}>
-              <Link to={`/${MODULE.DOCUMENTS}`}>
-                <div className="menu-item-icon">
-                  <img src={this.getIconByModule(MODULE.DOCUMENTS)} alt="icon-dashboard" />
-                </div>
-                <span>Documents</span>
-              </Link>
-            </div>
-            <div className={`menu-item ${this.getClassName(MODULE.BENEFITS)}`}>
-              <Link to={`/${MODULE.BENEFITS}`}>
-                <div className="menu-item-icon">
-                  <img src={this.getIconByModule(MODULE.BENEFITS)} alt="icon-dashboard" />
-                </div>
-                <span>Benefits</span>
-              </Link>
-            </div>
-            <div className={`menu-item ${this.getClassName(MODULE.EMPLOYEES)}`}>
-              <Link to={`/${MODULE.EMPLOYEES}`}>
-                <div className="menu-item-icon">
-                  <img src={this.getIconByModule(MODULE.EMPLOYEES)} alt="icon-dashboard" />
-                </div>
-                <span>Employee</span>
-              </Link>
-            </div>
-          </div>
+          {this.getItem(MODULE.DASHBOARD, 'Dashboard')}
+          {this.getItem(MODULE.MY_INFO, 'My Info')}
+          {this.getItem(MODULE.TIME_OFF, 'Time Off')}
+          {this.getItem(MODULE.DOCUMENTS, 'Documents')}
+          {this.getItem(MODULE.BENEFITS, 'Benefits')}
+          {this.getItem(MODULE.EMPLOYEES, 'Employees')}
         </div>
       </div>
     );
