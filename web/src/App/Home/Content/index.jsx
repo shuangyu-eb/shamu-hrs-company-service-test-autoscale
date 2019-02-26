@@ -1,12 +1,12 @@
 import React from 'react';
 import { Route, Switch, Redirect } from 'react-router-dom';
+import Dashboard from 'App/Dashboard';
+import TimeOff from 'App/TimeOff';
+import Benefits from 'App/Benefits';
+import Employees from 'App/Employees';
+import Documents from 'App/Documents';
+import Info from 'App/Info';
 import { MODULE } from '../Contants';
-import Dashboard from '../../Dashboard';
-import TimeOff from '../../TimeOff';
-import Benefits from '../../Benefits/index';
-import Employees from '../../Employees';
-import Documents from '../../Documents';
-import Info from '../../Info';
 import './Content.scss';
 
 const Index = () => ((
@@ -22,6 +22,5 @@ const Index = () => ((
     </Switch>
   </div>
 ));
-
 
 export default Index;
