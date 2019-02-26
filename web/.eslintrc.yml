@@ -2,6 +2,7 @@ env:
   browser: true
   es6: true
 extends: airbnb
+parser: 'babel-eslint'
 globals:
   Atomics: readonly
   SharedArrayBuffer: readonly
@@ -14,3 +15,13 @@ parserOptions:
 plugins:
   - react
 rules: {}
+
+settings:
+  import/resolver:
+    webpack:
+      config: ./config/webpack.dev.js
+    babel-module:
+      root: ./src
+      alias:
+        Style: ./src/App/Style
+

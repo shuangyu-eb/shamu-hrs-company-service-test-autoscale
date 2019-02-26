@@ -1,0 +1,17 @@
+// Import a Google Font
+@import url("https://fonts.googleapis.com/css?family=Roboto");
+
+// Set your brand colors
+$blue: #488eff !default;
+
+// Update Bulma's global variables
+$family-sans-serif: "Roboto", sans-serif;
+$link: $blue;
+
+// Update some of Bulma's component variables
+$control-border-width: 1px;
+$body-background-color: #f0f2f5;
+$input-shadow: none;
+
+// Import the rest of Bulma
+@import "~bulma";

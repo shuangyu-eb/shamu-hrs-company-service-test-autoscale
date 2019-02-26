@@ -1,0 +1,52 @@
+.navbar {
+  position: fixed;
+  width: 100%;
+  border-bottom: 1px solid #DFE2E9;
+
+  .logo {
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0px;
+    height: 72px;
+    width: 72px;
+    border-right: 1px solid #DFE2E9;
+
+    img {
+      max-height: 37px;
+      width: 40px;
+    }
+  }
+
+  .search-input {
+    width: 412px;
+  }
+
+  input::-webkit-input-placeholder { /* WebKit browsers */
+    font-size: medium;
+  }
+
+  input:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+    font-size: medium;
+  }
+
+  input::-moz-placeholder { /* Mozilla Firefox 19+ */
+    font-size: medium;
+  }
+
+  input :-ms-input-placeholder { /* Internet Explorer 10+ */
+    font-size: medium;
+  }
+
+  .profile-picture {
+    margin: 0 30px;
+    border-radius: 25px;
+    width: 50px;
+    height: 50px;
+  }
+
+  .notifications {
+    max-height: 72px;
+  }
+
+}

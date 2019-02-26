@@ -14,7 +14,7 @@ Validate('ORIGIN');
 
 // the path(s) that should be cleaned
 const pathsToClean = [
-  'dist',
+  'public',
 ];
 
 // the clean options to use
@@ -25,7 +25,7 @@ const cleanOptions = {
 
 const templateChunks = {
   'index.html': ['vendor', 'index'],
-  'admin.html': ['vendor', 'admin'],
+  'account.html': ['vendor', 'account'],
 };
 
 const templatesSrcDir = path.resolve(rootPath, 'html/');
@@ -49,6 +49,7 @@ const htmlWebpackPlugins = getFilesRecursively(templatesSrcDir).map((template) =
   let relPath = template.replace(path.resolve(templatesSrcDir, ''), '');
   relPath = relPath.replace('/', '');
   return new HtmlWebpackPlugin({
+    favicon: path.resolve(rootPath, 'html/image/favicon.ico'),
     inject: true,
     template,
     filename: template.replace(templatesSrcDir, templateDistDir),
