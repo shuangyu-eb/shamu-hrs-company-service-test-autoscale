@@ -1,15 +1,15 @@
-import dashboard from './dashboard.svg';
-import dashboardActive from './dashboardActive.svg';
-import info from './myInfo.svg';
-import benefits from './benefit.svg';
-import documents from './document.svg';
-import timeOff from './timeOff.svg';
-import employees from './employees.svg';
-import benefitsActive from './benefitActive.svg';
-import documentsActive from './documentActive.svg';
-import employeesActive from './employeesActive.svg';
-import timeOffActive from './timeOffActive.svg';
-import infoActive from './myInfoActive.svg';
+import dashboard from './Dashboard.svg';
+import dashboardActive from './DashboardActive.svg';
+import info from './MyInfo.svg';
+import benefits from './Benefit.svg';
+import documents from './Document.svg';
+import timeOff from './TimeOff.svg';
+import employees from './Employees.svg';
+import benefitsActive from './BenefitActive.svg';
+import documentsActive from './DocumentActive.svg';
+import employeesActive from './EmployeesActive.svg';
+import timeOffActive from './TimeOffActive.svg';
+import infoActive from './MyInfoActive.svg';
 
 export {
   benefits,

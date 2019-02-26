@@ -3,7 +3,7 @@ import { Provider } from 'react-redux';
 import { Router } from 'react-router';
 import App from './Containers/Login';
 import ConfigureStore from './Store';
-import history from './history';
+import history from './History';
 
 const store = ConfigureStore();
 

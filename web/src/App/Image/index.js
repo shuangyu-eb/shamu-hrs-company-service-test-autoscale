@@ -1,4 +1,4 @@
-import logo from './bgLogo.png';
-import background from './bg.png';
+import logo from './BgLogo.png';
+import background from './Bg.png';
 
 export { background, logo };

@@ -1,4 +1,4 @@
-import client from './Client';
+import axios from 'axios';
 
 function processResponse(response) {
   return Promise.resolve(response);
@@ -14,13 +14,13 @@ export function createResource(resource, payload) {
   const options = {
     path: getUrl(resource),
     method: 'POST',
-    entity: payload,
+    data: payload,
     headers: {
       'Content-Type': ((typeof payload) === 'string') ? 'text/plain' : 'application/json',
     },
-    credentials: 'include',
+    withCredentials: true,
   };
-  return client(options)
+  return axios(options)
     .then(response => processResponse(response))
     .catch(exception => processException(exception));
 }
@@ -29,13 +29,13 @@ export function updateResource(resource, payload) {
   const options = {
     path: getUrl(resource),
     method: 'PATCH',
-    entity: payload,
+    data: payload,
     headers: {
       'Content-Type': 'application/json',
     },
-    credentials: 'include',
+    withCredentials: true,
   };
-  return client(options)
+  return axios(options)
     .then(response => processResponse(response))
     .catch(exception => processException(exception));
 }
@@ -44,11 +44,11 @@ export function uploadResource(resource, formData) {
   const options = {
     path: getUrl(resource),
     method: 'POST',
-    entity: formData,
-    credentials: 'include',
+    data: formData,
+    withCredentials: true,
     headers: { 'Content-Type': 'multipart/form-data', Accept: '*/*' },
   };
-  return client(options)
+  return axios(options)
     .then(response => processResponse(response))
     .catch(exception => processException(exception));
 }
@@ -57,30 +57,30 @@ export function destroyResource(resource, payload) {
   const options = {
     path: getUrl(resource),
     method: 'DELETE',
-    entity: payload,
+    data: payload,
     headers: {
       Accept: 'application/json',
       'Content-Type': 'application/json',
     },
-    credentials: 'include',
+    withCredentials: true,
   };
-  return client(options)
+  return axios(options)
     .then(response => processResponse(response))
     .catch(exception => processException(exception));
 }
 
 export function getResource(resource, data) {
   const options = {
-    path: getUrl(resource),
+    url: getUrl(resource),
     method: 'GET',
-    params: data,
-    dataType: 'json',
+    baseUrl: ORIGIN,
+    data,
     headers: {
       'Content-Type': 'application/json',
     },
-    credentials: 'include',
+    withCredentials: true,
   };
-  return client(options)
+  return axios(options)
     .then(response => processResponse(response))
     .catch(exception => processException(exception));
 }
@@ -89,11 +89,11 @@ export function submitResource(resource, payload) {
   const options = {
     path: getUrl(resource),
     method: 'POST',
-    entity: payload,
-    credentials: 'include',
+    data: payload,
+    withCredentials: true,
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
   };
-  return client(options)
+  return axios(options)
     .catch(exception => Promise.reject(exception));
 }
 
@@ -101,14 +101,14 @@ export function putResource(resource, payload) {
   const options = {
     path: getUrl(resource),
     method: 'PUT',
-    body: JSON.stringify(payload),
+    data: JSON.stringify(payload),
     headers: {
       Accept: 'application/json',
       'Content-Type': 'application/json',
     },
-    credentials: 'include',
+    withCredentials: true,
   };
-  return client(options)
+  return axios.put(options)
     .then(response => processResponse(response))
     .catch(exception => processException(exception));
 }
@@ -118,14 +118,14 @@ export function downloadResource(resource, payload) {
   const options = {
     path: getUrl(resource),
     method: 'POST',
-    entity: payload,
+    data: payload,
     headers: {
       'Content-Type': 'application/json',
       Accept: '*/*',
     },
-    credentials: 'include',
+    withCredentials: true,
   };
-  return client(options)
+  return axios(options)
     .then(response => processResponse(response))
     .catch(exception => processException(exception));
 }

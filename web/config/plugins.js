@@ -14,7 +14,7 @@ Validate('ORIGIN');
 
 // the path(s) that should be cleaned
 const pathsToClean = [
-  'dist',
+  'public',
 ];
 
 // the clean options to use

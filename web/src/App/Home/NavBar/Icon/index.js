@@ -1,5 +1,5 @@
-import notifications from './notifications.svg';
-import search from './search.svg';
-import logo from './logo.svg';
+import notifications from './Notifications.svg';
+import search from './Search.svg';
+import logo from './Logo.svg';
 
 export { notifications, logo, search };
