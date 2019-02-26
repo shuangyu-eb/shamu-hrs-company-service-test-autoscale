@@ -6,8 +6,8 @@
   "author": "eastbay",
   "license": "MIT",
   "scripts": {
-    "eslint": "eslint ./javascript --ext js,jsx",
-    "stylelint": "stylelint --color -s scss \"./javascript/**/*.scss\";",
+    "eslint": "eslint ./src --ext js,jsx",
+    "stylelint": "stylelint --color -s scss \"./src/**/*.scss\";",
     "webpack": "yarn install;webpack-dev-server --config ./config/webpack.dev.js --watch --color",
     "build": "yarn install;webpack --config ./config/webpack.dev.js --color"
   },

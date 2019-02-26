@@ -1,5 +1,5 @@
 import React from 'react';
-import { background } from 'Image';
+import { background } from '../Image';
 import './Logo.scss';
 
 export default () => (
