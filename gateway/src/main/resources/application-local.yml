@@ -1,23 +1,30 @@
 server:
   port: 8080
 
-  spring:
-    cloud:
-      gateway:
-        globalcors:
-          corsConfigurations:
-            '[/**]':
-              allowedHeaders:
-              - x-requested-with
-              - authorization
-              - Content-Type
-              - Authorization
-              - credential
-              - X-XSRF-TOKEN
-              - token
-              - username
-              - client
-              allowedOrigins:
-              - "http://localhost:3000"
-              allowedMethods:
-              - GET
+spring:
+  cloud:
+    gateway:
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedHeaders:
+            - x-requested-with
+            - authorization
+            - Content-Type
+            - Content-Length
+            - Date
+            - Authorization
+            - credential
+            - X-XSRF-TOKEN
+            - token
+            - username
+            - client
+            allowCredentials: true
+            allowedOrigins:
+            - "http://localhost:3000"
+            allowedMethods:
+            - GET
+            - PUT
+            - POST
+            - DELETE
+            - OPTIONS
