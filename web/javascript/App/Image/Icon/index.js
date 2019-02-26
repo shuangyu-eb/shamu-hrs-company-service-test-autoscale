@@ -1,5 +1,6 @@
 import email from './icon-email.svg';
 import lock from './icon-lock.svg';
+import logo from './logo.svg';
 import search from './SVG/36px/icon-search-grey-36px.svg';
 import notifications from './SVG/36px/icon-notifications-grey-36px.svg';
 import dashboard from './SVG/36px/icon-dashboard-grey-36px.svg';
@@ -16,6 +17,7 @@ import dashboardActive from './SVG/36px/icon-dashboard-blue-36px.svg';
 import infoActive from './SVG/36px/icon-employee-blue-36px.svg';
 
 export {
+  logo,
   email,
   lock,
   search,

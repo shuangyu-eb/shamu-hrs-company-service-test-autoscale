@@ -1,14 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import {
-  Navbar, NavbarBrand, NavbarItem, NavbarMenu,
-  NavbarStart, NavbarEnd, Field, Control, Button, DropdownContent,
-  Dropdown, DropdownMenu, DropdownItem, DropdownTrigger,
-} from 'bloomer';
 import { search, notifications } from 'Image/Icon';
-import logo from './logo.svg';
+import logo from 'Image/Icon/logo.svg';
 import './NavBar.scss';
-
 
 class NavBar extends React.Component {
   onSearCh = () => {
