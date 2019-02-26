@@ -15,7 +15,7 @@ import {
   documents,
   benefitsActive,
   benefits,
-} from 'Image/Icon';
+} from './Icon';
 import { MODULE } from '../Contants';
 import './SideBar.scss';
 
@@ -44,7 +44,7 @@ const mapStateToProps = (store) => {
   return { module };
 };
 
-class SideBar extends React.Component {
+class Index extends React.Component {
   getClassName = (key) => {
     const { module } = this.props;
     return module === key ? 'item-selected' : '';
@@ -82,12 +82,12 @@ class SideBar extends React.Component {
   }
 }
 
-SideBar.defaultProps = {
+Index.defaultProps = {
   module: MODULE.DASHBOARD,
 };
 
-SideBar.propTypes = {
+Index.propTypes = {
   module: PropTypes.string,
 };
 
-export default connect(mapStateToProps)(SideBar);
+export default connect(mapStateToProps)(Index);

@@ -1,13 +1,6 @@
 /* eslint-disable */
 import React from 'react';
 import Logo from 'App/Logo';
-import { Link } from 'react-router-dom';
-import PropTypes from 'prop-types';
-import EmailIcon from 'App/Image/Icon/icon-email.svg';
-import LockIcon from 'App/Image/Icon/icon-lock.svg';
-import {
-  Input, Button, Field, Label, Control, Icon, Help, Select, TextArea, Radio, Checkbox,
-} from 'bloomer';
 import './Login.scss';
 
 class NormalLoginForm extends React.Component {

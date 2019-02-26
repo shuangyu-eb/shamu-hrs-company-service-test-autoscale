@@ -6,10 +6,9 @@
   "plugins": [
     "@babel/plugin-proposal-class-properties",
     ["module-resolver", {
-      "root": ["./javascript"],
+      "root": ["./src"],
       "alias": {
-        "Image": "./javascript/App/Image",
-        "Style": "./javascript/App/Style"
+        "Style": "./src/App/Style"
       }
     }]
   ]

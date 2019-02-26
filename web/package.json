@@ -8,8 +8,8 @@
   "scripts": {
     "eslint": "eslint ./javascript --ext js,jsx",
     "stylelint": "stylelint --color -s scss \"./javascript/**/*.scss\";",
-    "webpack": "yarn install;webpack-dev-server --config ./config/webpack.config.js --watch --color",
-    "build": "yarn install;webpack --config ./config/webpack.config.js --color"
+    "webpack": "yarn install;webpack-dev-server --config ./config/webpack.dev.js --watch --color",
+    "build": "yarn install;webpack --config ./config/webpack.dev.js --color"
   },
   "devDependencies": {
     "@babel/core": "^7.3.3",

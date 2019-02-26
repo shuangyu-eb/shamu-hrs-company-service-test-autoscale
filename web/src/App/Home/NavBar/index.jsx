@@ -1,11 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { search, notifications } from 'Image/Icon';
-import logo from 'Image/Icon/logo.svg';
+import { search, notifications, logo } from './Icon';
 import './NavBar.scss';
 
 class NavBar extends React.Component {
-  onSearCh = () => {
+  onSearch = () => {
 
   }
 
@@ -23,7 +22,7 @@ class NavBar extends React.Component {
             <div className="navbar-item">
               <div className="field">
                 <div className="control has-icons-right">
-                  <input className="input is-medium search-input" onChange={this.onSearCh} type="text" placeholder="Search employees & documents" />
+                  <input className="input is-medium search-input" onChange={this.onSearch} type="text" placeholder="Search employees & documents" />
                   <span className="icon is-small is-right">
                     <img src={search} alt="search" />
                   </span>

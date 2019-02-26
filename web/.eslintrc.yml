@@ -19,10 +19,9 @@ rules: {}
 settings:
   import/resolver:
     webpack:
-      config: ./config/webpack.config.js
+      config: ./config/webpack.dev.js
     babel-module:
-      root: ./javascript
+      root: ./src
       alias:
-        Image: ./javascript/App/Image
-        Style: ./javascript/App/Style
+        Style: ./src/App/Style
 
