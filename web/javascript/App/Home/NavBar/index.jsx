@@ -5,7 +5,7 @@ import {
   NavbarStart, NavbarEnd, Field, Control, Button, DropdownContent,
   Dropdown, DropdownMenu, DropdownItem, DropdownTrigger,
 } from 'bloomer';
-import { search } from 'Image/Icon';
+import { search, notifications } from 'Image/Icon';
 import logo from './logo.svg';
 import './NavBar.scss';
 
@@ -31,7 +31,7 @@ class NavBar extends React.Component {
                 <Control hasIcons="right">
                   <input className="input is-medium search-input" onChange={this.onSearCh} type="text" placeholder="Search employees & documents" />
                   <span className="icon is-small is-right">
-                    <img src={search} alt="search" className="search-icon" />
+                    <img src={search} alt="search" />
                   </span>
                 </Control>
               </Field>
@@ -40,8 +40,8 @@ class NavBar extends React.Component {
 
           <NavbarEnd>
             <NavbarItem>
-              <span className="icon is-small">
-                <i className="fal fa-bell" />
+              <span className="icon is-large">
+                <img src={notifications} alt="notifications" className="notifications" />
               </span>
             </NavbarItem>
             <NavbarItem>

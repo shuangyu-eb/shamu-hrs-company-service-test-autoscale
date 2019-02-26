@@ -1,0 +1,12 @@
+<svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icon-email-grey-24px</title>
+    <defs>
+        <path d="M22,5.98048649 L12,14.2678912 L2,5.98048649 L2,5.5 C2,4.67157288 2.67157288,4 3.5,4 L20.5,4 C21.3284271,4 22,4.67157288 22,5.5 L22,5.98048649 Z M22,17.4540488 L16.7070615,11.6657317 L22,7.27925928 L22,17.4540488 Z M7.29294158,11.6657342 L2,17.4540547 L2,7.27925928 L7.29294158,11.6657342 Z M20.5,20 L3.5,20 C2.80365543,20 2.21813544,19.5255036 2.04912881,18.8821996 L7.95913457,12.4190625 L12,15.7678912 L16.0408685,12.41906 L21.9508724,18.8821951 C21.7818673,19.5255014 21.1963462,20 20.5,20 Z" id="path-1"></path>
+    </defs>
+    <g id="icon-email-grey-24px" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <mask id="mask-2" fill="white">
+            <use xlink:href="#path-1"></use>
+        </mask>
+        <use id="email" fill="#9C9FA6" fill-rule="nonzero" xlink:href="#path-1"></use>
+    </g>
+</svg>

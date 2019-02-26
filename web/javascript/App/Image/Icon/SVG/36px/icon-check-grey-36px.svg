@@ -1,0 +1,12 @@
+<svg width="36px" height="36px" viewBox="0 0 36 36" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icon-check-grey-36px</title>
+    <defs>
+        <path d="M14.6619297,24.9119836 L28.7925956,9.36825104 C29.2105409,8.90851122 29.9220453,8.87463006 30.3817851,9.29257535 C30.8415249,9.71052065 30.8754061,10.422025 30.4574608,10.8817648 L15.4574608,27.3817648 C14.9980502,27.8871165 14.1980015,27.8698821 13.7607793,27.3452154 L6.26077927,18.3452154 C5.86301968,17.8679039 5.92750925,17.1585186 6.40482076,16.760759 C6.88213227,16.3629994 7.59151756,16.427489 7.98927715,16.9048005 L14.6619297,24.9119836 Z" id="path-1"></path>
+    </defs>
+    <g id="icon-check-grey-36px" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <mask id="mask-2" fill="white">
+            <use xlink:href="#path-1"></use>
+        </mask>
+        <use id="check" fill="#9C9FA6" fill-rule="nonzero" xlink:href="#path-1"></use>
+    </g>
+</svg>
