@@ -9,7 +9,7 @@ import Documents from '../../Documents';
 import Info from '../../Info';
 import './Content.scss';
 
-const Content = () => ((
+const Index = () => ((
   <div className="content">
     <Switch>
       <Redirect from="/account/login" to="/" />
@@ -24,4 +24,4 @@ const Content = () => ((
 ));
 
 
-export default Content;
+export default Index;
