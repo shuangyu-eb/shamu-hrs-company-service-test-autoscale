@@ -32,21 +32,22 @@ class NavBar extends React.Component {
           </div>
 
           <div className="navbar-end">
-            <div className="navbar-item">
+            <div className="navbar-item notifications">
               <span className="icon is-large">
-                <img src={notifications} alt="notifications" className="notifications" />
+                <img src={notifications} alt="notifications" />
+                <span className="notification-number">3</span>
               </span>
             </div>
-            <div className="navbar-item">
+            <div className="navbar-item profile">
               <div className="dropdown">
                 <div className="dropdown-trigger">
                   <button type="button" className="button profile-picture" aria-haspopup="true" aria-controls="dropdown-menu">
-                    <span>picture</span>
+                    <span>F P</span>
                   </button>
                 </div>
                 <div className="dropdown-menu" id="dropdown-menu" role="menu">
                   <div className="dropdown-content">
-                    <button type="button" className="dropdown-item">First item</button>
+                    <button type="button" className="dropdown-item">First</button>
                   </div>
                 </div>
               </div>
