@@ -4,8 +4,8 @@
 // Set your brand colors
 $blue: #488eff !default;
 
+$border-color: #dfe2e9 !default;
 
-$border-color: #dfe2e9;
 // Update Bulma's global variables
 $family-sans-serif: "Roboto", sans-serif;
 $link: $blue;
@@ -14,7 +14,7 @@ $link: $blue;
 $control-border-width: 1px;
 $body-background-color: #f0f2f5;
 $input-shadow: none;
-$input-border-color: #dfe2e9;
+$input-border-color: $border-color;
 
 // Import the rest of Bulma
 @import "~bulma";
