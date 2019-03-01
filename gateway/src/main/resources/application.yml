@@ -1,8 +1,0 @@
-server:
-  servlet:
-    session:
-      timeout: 30d
-
-spring:
-  profiles:
-    include: routes,local

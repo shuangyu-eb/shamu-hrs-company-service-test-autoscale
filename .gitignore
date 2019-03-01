@@ -23,8 +23,3 @@
 /nbdist/
 /.nb-gradle/
 /build/
-
-
-
-/web/node_modules/
-/web/public/
