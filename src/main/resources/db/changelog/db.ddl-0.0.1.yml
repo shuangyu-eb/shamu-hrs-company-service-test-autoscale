@@ -13,7 +13,7 @@ databaseChangeLog:
               primaryKey: true
         - column:
             name: employee_number
-            type: int
+            type: varchar(255)
         - column:
             name: email_work
             type: varchar(255)
