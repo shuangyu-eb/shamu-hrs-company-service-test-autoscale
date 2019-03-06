@@ -1,0 +1,40 @@
+version: '3.1'
+
+services:
+  backend:
+    image: maven:3.6.0-jdk-8-alpine
+    network_mode: host
+    depends_on:
+      - mysql
+      - redis
+    working_dir: /app
+    volumes:
+      - .:/app
+      - ~/.m2:/root/.m2
+    ports:
+      - 8081:8080
+    command:
+      mvn spring-boot:run -Dspring-boot.run.profiles=local
+  mysql:
+    image: mysql
+    environment:
+      MYSQL_USER: shamuhrs
+      MYSQL_PASSWORD: shamuhrs
+      MYSQL_DATABASE: shamuhrs
+      MYSQL_ROOT_PASSWORD: shamuhrs
+    ports:
+      - 3306:3306
+    volumes:
+      - mysql:/var/lib/mysql
+
+  redis:
+    image: redis:5.0.3-alpine
+    ports:
+      - 6379:6379
+
+volumes:
+  mysql:
+
+
+
+
