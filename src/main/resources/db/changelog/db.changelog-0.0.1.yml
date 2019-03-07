@@ -13,7 +13,7 @@ databaseChangeLog:
               primaryKey: true
         - column:
             name: employee_number
-            type: int
+            type: varchar(255)
         - column:
             name: email_work
             type: varchar(255)
@@ -1015,3 +1015,63 @@ databaseChangeLog:
             name: user_id
             type: BIGINT
         tableName: benefit_plans_users
+- changeSet:
+    id: 1550646329776-39
+    author: Max-Zhao
+    changes:
+    - insert:
+        columns:
+        - column:
+           name: name
+           value: ACTIVE
+        tableName: user_statuses
+- changeSet:
+    id: 1550646329776-40
+    author: Max-Zhao
+    changes:
+    - insert:
+        columns:
+        - column:
+           name: name
+           value: DISABLED
+        tableName: user_statuses
+- changeSet:
+    id: 1550646329776-41
+    author: Max-Zhao
+    changes:
+    - insert:
+        columns:
+        - column:
+           name: name
+           value: PENDING_VERIFICATION
+        tableName: user_statuses
+- changeSet:
+    id: 1550646329776-42
+    author: Max-Zhao
+    changes:
+    - insert:
+        columns:
+        - column:
+           name: name
+           value: ADMIN
+        tableName: user_roles
+- changeSet:
+    id: 1550646329776-43
+    author: Max-Zhao
+    changes:
+    - insert:
+        columns:
+        - column:
+           name: name
+           value: MANAGER
+        tableName: user_roles
+- changeSet:
+    id: 1550646329776-44
+    author: Max-Zhao
+    changes:
+    - insert:
+        columns:
+        - column:
+           name: name
+           value: NON_MANAGER
+        tableName: user_roles
