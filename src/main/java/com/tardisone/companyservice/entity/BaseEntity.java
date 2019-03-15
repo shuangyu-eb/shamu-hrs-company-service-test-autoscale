@@ -9,7 +9,6 @@ import java.sql.Timestamp;
 @Data
 public abstract class BaseEntity {
 
-  private Timestamp deletedAt;
-
   public abstract Long getId();
+
 }

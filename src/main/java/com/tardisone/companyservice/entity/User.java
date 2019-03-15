@@ -32,14 +32,8 @@ public class User extends BaseEntity implements Serializable {
   @Column(unique = true)
   private String emailWork;
 
-  private String jobTitle;
-
-  private String location;
-
-  private String phone;
-
   @JsonIgnore
-  private String encryptedPassword;
+  private String password;
 
   private Timestamp latestLogin;
 
@@ -57,6 +51,9 @@ public class User extends BaseEntity implements Serializable {
   private String verificationToken;
 
   private Timestamp verifiedAt;
+
+  @ManyToOne
+  private UserStatuses userStatus;
 
   @Override
   public boolean equals(Object object) {
