@@ -23,13 +23,12 @@ public class AccountRestController {
   UserService userService;
 
 
-  @GetMapping("/account/password/reset")
-  public HttpEntity resetPassword(HttpServletRequest request,  String emailWork) {
+  @PostMapping("/account/password/reset")
+  public HttpEntity resetPassword(HttpServletRequest request, @RequestBody  UserDto userDto) {
     String emailAddress = "";
-//    if (userDto != null) {
-//      emailAddress = userDto.getEmailWork();
-//    }
-    emailAddress=emailWork;
+    if (userDto != null) {
+      emailAddress = userDto.getEmailWork();
+    }
     Optional<User> userOptional = userService.findByEmailIgnoreCase(emailAddress);
     if (userOptional.isPresent()) {
       User user = userOptional.get();
@@ -51,10 +50,10 @@ public class AccountRestController {
     return null;
   }
 
-  @GetMapping("/account/password/reset/key")
-  public HttpEntity resetPassword(String resetPasswordTokend) {
-    User user = userService.findByResetPasswordToken(resetPasswordTokend);
-    //user.setPassword(password);
+  @PostMapping("/account/password/reset/key/{resetPasswordToken}")
+  public HttpEntity resetPassword(@PathVariable String resetPasswordToken,@RequestBody String password) {
+    User user = userService.findByResetPasswordToken(resetPasswordToken);
+    user.setPassword(password);
     user.setResetPasswordToken(null);
     userService.save(user);
     return new ResponseEntity(HttpStatus.NO_CONTENT);
