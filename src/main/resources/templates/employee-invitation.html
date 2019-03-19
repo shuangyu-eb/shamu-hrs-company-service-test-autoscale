@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Welcome to Champion Solutions!</title>
+</head>
+<body>
+    <table style="background-color: #edeef2; padding-left: 125px; padding-right: 135px; padding-bottom: 119px;">
+        <tr>
+            <td>
+                <table style="width: 600px; height: 459px; border-collapse: collapse;">
+                    <tr>
+                        <td style="padding-top: 58px; height: 44px; padding-bottom: 30px; text-align: center;">
+                            <img style="width: 189px; height: 100%; margin-left: auto; margin-right: auto; display: block;" alt="logo" title="logo" th:src="@{${createPasswordUrl} + '/images/logo.png'}">
+                        </td>
+                    </tr>
+                    <tr style="width: 600px; height: 385px;">
+                        <td>
+                            <table style="width: 100%; height: 100%; border-collapse: collapse;">
+                                <tr style="width: 100%; height: 233px; background-color: #FFFFFF;">
+                                    <td>
+                                        <table style="width: 100%;height: 100%; border-collapse: collapse;">
+                                            <tr>
+                                                <td style="padding-top: 47px; font-size: 24px; width: 355px; height: 28px; text-align: center;">Welcome to Champion Solutions!</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding-top: 17px; height: 21px; width: 230px; text-align: center; color: #7B7E84;">Let's get your account set up</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding-top: 33px; height: 40px; text-align: center; padding-bottom: 47px;"><a th:href="@{${createPasswordUrl}}" style="background-color: #488eff; color: #ffffff; outline: none; box-shadow: none; border: 0; width: 153px; height: 40px; font-size: 14px; border-radius: 400px; cursor: pointer; display: inline-block; line-height: 42px; text-decoration: none">Get Started</a></td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                                <tr style="width: 100%; background-color: #f7f8fa; padding: 1px;">
+                                    <td>
+                                        <table style="font-size: 14px; color: #7b7e84; height: 100%;">
+                                            <tr>
+                                                <td style="padding: 35px 45px 18px 55px;">
+                                                    <table style="height: 100%; width: 100%; border-collapse: collapse;">
+                                                        <tr>
+                                                            <p th:text="'Hi ' + ${firstName} + ','"></p>
+                                                        </tr>
+                                                        <tr>
+                                                            <p th:text="'We\'re really excited to have you start. See you!'"></p>
+                                                        </tr>
+                                                        <tr>
+                                                            <p th:text="${username}"></p>
+                                                        </tr>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
