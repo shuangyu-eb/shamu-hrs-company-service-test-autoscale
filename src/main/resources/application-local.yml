@@ -3,10 +3,17 @@ server:
 
 logging:
   level:
-    root: INFO
+    root: DEBUG
 
 spring:
   datasource:
     url: jdbc:mysql://hrs.cenqdgeoqsjh.ap-northeast-1.rds.amazonaws.com/company
     username: shamuhrs
     password: 4eD852HheH9DLykD
+  thymeleaf:
+    cache: false
+
+application:
+  serverAddress: http://localhost:8081/
+  gatewayAddress: http://localhost:8080/
+  systemEmailAddress: noreply@interviewed.com
