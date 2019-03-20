@@ -77,9 +77,15 @@
 
     <profiles>
         <profile>
+            <id>local</id>
+            <properties>
+                <profiles.active>local</profiles.active>
+            </properties>
+        </profile>
+        <profile>
             <id>qa</id>
             <properties>
-                <profileActive>qa</profileActive>
+                <profiles.active>qa</profiles.active>
             </properties>
             <activation>
                 <activeByDefault>true</activeByDefault>
@@ -90,20 +96,22 @@
     <build>
         <resources>
             <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
+                <directory>${project.basedir}/src/main/resources</directory>
             </resource>
             <resource>
-                <directory>config</directory>
+                <directory>${project.basedir}/config</directory>
+                <includes>
+                    <include>application-${profiles.active}.yml</include>
+                </includes>
             </resource>
         </resources>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <fork>true</fork>
-                </configuration>
+                <!--<configuration>-->
+                    <!--<fork>true</fork>-->
+                <!--</configuration>-->
             </plugin>
         </plugins>
     </build>
