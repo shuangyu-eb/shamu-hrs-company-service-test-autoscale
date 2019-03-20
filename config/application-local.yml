@@ -6,3 +6,7 @@ spring:
     url: jdbc:mysql://hrs.cenqdgeoqsjh.ap-northeast-1.rds.amazonaws.com/company
     username: shamuhrs
     password: 4eD852HheH9DLykD
+  cloud:
+    consul:
+      host: localhost
+      port: 8500

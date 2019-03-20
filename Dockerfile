@@ -1,3 +1,5 @@
-FROM maven:3.6.0-jdk-8-alpine
-WORKDIR /app
-EXPOSE 8081
+FROM openjdk:8-jdk-alpine
+VOLUME /tmp
+COPY target/*.jar app.jar
+ENTRYPOINT ["java","-jar","/app.jar"]
+EXPOSE 80

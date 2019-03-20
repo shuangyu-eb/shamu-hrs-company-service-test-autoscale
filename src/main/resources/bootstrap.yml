@@ -2,9 +2,6 @@ spring:
   application:
     name: company-service
   cloud:
-    consul:
-      host: localhost
-      port: 8500
       config:
         enabled: true
         profileSeparator: ','
