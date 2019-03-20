@@ -38,7 +38,8 @@ public class User {
     @OneToOne
     private UserContactInformation userContactInformation;
 
-//    private UserCompensation userCompensation;
+    @OneToOne
+    private UserCompensation userCompensation;
 
     @OneToOne
     private UserRole userRole;
