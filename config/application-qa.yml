@@ -9,5 +9,5 @@ spring:
 
   cloud:
     consul:
-      host: 172.31.127.169
+      host: ip-172-31-127-240.ap-northeast-1.compute.internal
       port: 8500
