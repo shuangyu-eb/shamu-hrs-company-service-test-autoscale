@@ -16,7 +16,7 @@ public class Company {
 
     private String imageUrl;
 
-    private String ein;
+    private String EIN;
 
     @OneToOne
     private CompanySize companySize;
