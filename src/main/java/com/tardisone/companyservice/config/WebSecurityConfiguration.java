@@ -29,6 +29,5 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                .antMatchers("/actuator/**").permitAll()
                .antMatchers("/company/user/verify/*", "/company/user/register/email").permitAll()
                .anyRequest().authenticated();
-
     }
 }
