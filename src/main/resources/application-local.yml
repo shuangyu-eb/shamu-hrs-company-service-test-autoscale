@@ -3,7 +3,7 @@ server:
 
 logging:
   level:
-    root: DEBUG
+    root: INFO
 
 spring:
   datasource:
@@ -17,3 +17,4 @@ application:
   serverAddress: http://localhost:8081/
   gatewayAddress: http://localhost:8080/
   systemEmailAddress: noreply@interviewed.com
+  frontEndAddress: http://localhost:3000/

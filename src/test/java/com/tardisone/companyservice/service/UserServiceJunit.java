@@ -1,11 +1,9 @@
 package com.tardisone.companyservice.service;
 
-import com.tardisone.companyservice.CompanyServiceApplication;
 import com.tardisone.companyservice.service.impl.UserServiceImpl;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
@@ -27,14 +25,14 @@ public class UserServiceJunit {
     UserServiceImpl userService;
 
     @Test
-    public void testSendVerifyEmail() {
-        Boolean result = userService.sendVerifyEmail("zhaojian@easternbay.cn");
-        Assert.assertTrue(result);
-    }
-
-    @Test
     public void testGetActivationEmail() {
         String result = userService.getActivationEmail(UUID.randomUUID().toString());
         Assert.assertNotNull(result);
+    }
+
+    @Test
+    public void testFinishUserVerification() {
+        Boolean result = userService.finishUserVerification(UUID.randomUUID().toString());
+        Assert.assertFalse(result);
     }
 }
