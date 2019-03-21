@@ -26,8 +26,9 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                .formLogin().disable()
                .addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class)
                .authorizeRequests()
-               .anyRequest().permitAll();
+               .antMatchers("/actuator/**").permitAll()
+               .antMatchers("/company/user/verify/*", "/company/user/register/email").permitAll()
+               .anyRequest().authenticated();
 
     }
-
 }
