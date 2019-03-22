@@ -9,7 +9,7 @@ import javax.persistence.Table;
 
 @Data
 @Entity
-@Table(name = "offices")
+@Table(name = "office_addresses")
 public class OfficeAddresses {
 
     @Id
@@ -21,7 +21,7 @@ public class OfficeAddresses {
 
     private String city;
 
-    private String postal_code;
+    private String postalCode;
 
 
 

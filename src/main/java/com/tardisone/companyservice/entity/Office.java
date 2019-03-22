@@ -24,7 +24,7 @@ public class Office {
     private String email;
 
     @OneToOne
-    private OfficeAddresses address;
+    private OfficeAddresses officeAddress;
 
     @ManyToOne
     private Company company;

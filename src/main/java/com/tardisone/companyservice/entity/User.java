@@ -45,9 +45,6 @@ public class User  extends BaseEntity implements Serializable {
     private User managerUser;
 
     @OneToOne
-    private JobUser jobUser;
-
-    @OneToOne
     private UserPersonalInformation userPersonalInformation;
 
     @OneToOne

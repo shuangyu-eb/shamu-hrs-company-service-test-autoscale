@@ -12,21 +12,33 @@ public class JobUser {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
-    private Integer employmentTypeId;
+    private Long employmentTypeId;
+
+    private Long userId;
+
+    private Long jobId;
 
     private Date startDate;
 
     private Date endDate;
 
-    private Integer officeId;
+    @OneToOne
+    private Office office;
 
     @OneToOne
     private Department department;
 
     @OneToOne
     private Company company;
+
+    @OneToOne
+    @JoinColumn(name = "id")
+    private User managerId;
+
+
+
 
 
 }
