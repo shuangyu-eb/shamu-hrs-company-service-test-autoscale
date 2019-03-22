@@ -24,14 +24,14 @@ public class UserServiceImpl implements UserService {
     @Autowired
     UserRepository userRepository;
 
-    @Value("${application.serverAddress}")
-    String serverAddress;
-
     @Value("${application.systemEmailAddress}")
     String systemEmailAddress;
 
     @Value("${application.gatewayAddress}")
     String gatewayAddress;
+
+    @Value("${application.frontEndAddress}")
+    String frontEndAddress;
 
     @Autowired
     EmailUtil emailUtil;
@@ -70,7 +70,7 @@ public class UserServiceImpl implements UserService {
 
     public String getActivationEmail(String accountVerifyToken) {
         Context context = new Context();
-        context.setVariable("serverAddress", serverAddress);
+        context.setVariable("frontEndAddress", frontEndAddress);
         context.setVariable("gatewayAddress", gatewayAddress);
         context.setVariable("accountVerifyAddress", String.format("company/user/verify/%s", accountVerifyToken));
         return templateEngine.process("account_verify_email.html", context);
