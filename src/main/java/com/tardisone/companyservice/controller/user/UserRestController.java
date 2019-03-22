@@ -1,6 +1,5 @@
 package com.tardisone.companyservice.controller.user;
 
-import com.tardisone.companyservice.pojo.Email;
 import com.tardisone.companyservice.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
@@ -15,8 +14,8 @@ public class UserRestController {
     UserService userService;
 
     @PostMapping(value = "user/register/email")
-    public HttpEntity sendVerifyEmail(@RequestBody Email email) {
-        userService.sendVerifyEmail(email.getTo());
+    public HttpEntity sendVerifyEmail(@RequestBody String email) {
+        userService.sendVerifyEmail(email);
         return new ResponseEntity(HttpStatus.OK);
     }
 }
