@@ -1,43 +1,67 @@
 package com.tardisone.companyservice.model;
 
+import javax.persistence.*;
+
+@Entity
+@Table(name = "users")
 public class User {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(name = "employee_number")
     private Integer employeeNumber;
 
+    @Column(name = "email_work")
     private String emailWork;
 
+    @Column(name = "password")
     private String password;
 
+    @Column(name = "last_login")
     private String lastLogin;
 
+    @Column(name = "user_status_id")
     private Integer userStatusId;
 
+    @Column(name = "image_url")
     private String imageUrl;
 
+    @Column(name = "company_id")
     private Integer companyId;
 
+    @Column(name = "manager_user_id")
     private Integer managerUserId;
 
-    private Integer userPersonInformationId;
+    @Column(name = "user_personal_information_id")
+    private Integer userPersonalInformationId;
 
+    @Column(name = "user_contact_information_id")
     private Integer userContactInformationId;
 
+    @Column(name = "user_compensation_id")
     private Integer userCompensationId;
 
+    @Column(name = "user_role_id")
     private Integer userRoleId;
 
-    private String invitationEmailToker;
+    @Column(name = "invitation_email_token")
+    private String invitationEmailToken;
 
+    @Column(name = "invited_at")
     private String invitedAt;
 
+    @Column(name = "reset_password_sent_at")
     private String resetPasswordSentAt;
 
+    @Column(name = "reset_password_token")
     private String resetPasswordToken;
 
+    @Column(name = "verification_token")
     private String verificationToken;
 
+    @Column(name = "verified_at")
     private String verifiedAt;
 
     public Integer getId() {
@@ -112,12 +136,12 @@ public class User {
         this.managerUserId = managerUserId;
     }
 
-    public Integer getUserPersonInformationId() {
-        return userPersonInformationId;
+    public Integer getUserPersonalInformationId() {
+        return userPersonalInformationId;
     }
 
-    public void setUserPersonInformationId(Integer userPersonInformationId) {
-        this.userPersonInformationId = userPersonInformationId;
+    public void setUserPersonalInformationId(Integer userPersonInformationId) {
+        this.userPersonalInformationId = userPersonInformationId;
     }
 
     public Integer getUserContactInformationId() {
@@ -144,12 +168,12 @@ public class User {
         this.userRoleId = userRoleId;
     }
 
-    public String getInvitationEmailToker() {
-        return invitationEmailToker;
+    public String getInvitationEmailToken() {
+        return invitationEmailToken;
     }
 
-    public void setInvitationEmailToker(String invitationEmailToker) {
-        this.invitationEmailToker = invitationEmailToker;
+    public void setInvitationEmailToken(String invitationEmailToker) {
+        this.invitationEmailToken = invitationEmailToker;
     }
 
     public String getInvitedAt() {

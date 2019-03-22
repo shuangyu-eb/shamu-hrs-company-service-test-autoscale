@@ -1,25 +1,41 @@
 package com.tardisone.companyservice.model;
 
+import javax.persistence.*;
+import java.sql.Date;
+
+@Entity
+@Table(name = "jobs_users")
 public class JobUser {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(name = "user_id")
     private Integer userId;
 
+    @Column(name = "job_id")
     private Integer jobId;
 
+    @Column(name = "employment_type_id")
     private Integer employmentTypeId;
 
-    private String startDate;
+    @Column(name = "start_date")
+    private Date startDate;
 
-    private String endDate;
+    @Column(name = "end_date")
+    private Date endDate;
 
+    @Column(name = "office_id")
     private Integer officeId;
 
+    @Column(name = "department_id")
     private Integer departmentId;
 
+    @Column(name = "company_id")
     private Integer companyId;
 
+    @Column(name = "manager_id")
     private Integer managerId;
 
     public Integer getId() {
@@ -54,19 +70,19 @@ public class JobUser {
         this.employmentTypeId = employmentTypeId;
     }
 
-    public String getStartDate() {
+    public Date getStartDate() {
         return startDate;
     }
 
-    public void setStartDate(String startDate) {
+    public void setStartDate(Date startDate) {
         this.startDate = startDate;
     }
 
-    public String getEndDate() {
+    public Date getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(String endDate) {
+    public void setEndDate(Date endDate) {
         this.endDate = endDate;
     }
 

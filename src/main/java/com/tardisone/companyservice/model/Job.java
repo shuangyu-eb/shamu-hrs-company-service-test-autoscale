@@ -1,11 +1,20 @@
 package com.tardisone.companyservice.model;
 
+
+import javax.persistence.*;
+
+@Entity
+@Table(name = "jobs")
 public class Job {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(name = "title", nullable = false)
     private String title;
 
+    @Column(name = "department_id", nullable = false)
     private Integer departmentId;
 
     public Integer getId() {

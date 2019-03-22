@@ -38,7 +38,9 @@ public class Constants {
 
     public static final String EMAIL_REGEX = "^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+(\\.[a-zA-Z0-9-]+)*\\.[a-zA-Z0-9]{2,6}$";
 
-    public static final String PHONE_NUMBER_REGEX = "^\\+[0-9]{0,3}\\S[0-9]*$";
+//    public static final String PHONE_NUMBER_REGEX = "^\\+[0-9]{0,3}\\S[0-9]*$";
+
+    public static final String PHONE_NUMBER_REGEX = "^[0-9]*$";
 
     public static final String LONG_INTEGER_REGEX = "^[0-9]+[\\.]?[0-9]{0,2}$";
 

@@ -1,22 +1,31 @@
 package com.tardisone.companyservice.model;
 
-import javax.persistence.Entity;
+import javax.persistence.*;
 
 @Entity
+@Table(name = "user_contact_information")
 public class UserContactInformation {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(name = "phone_work")
     private String phoneWork;
 
+    @Column(name = "phone_work_extension")
     private Integer phoneWorkExtension;
 
+    @Column(name = "phone_mobile")
     private String phoneMobile;
 
+    @Column(name = "phone_home")
     private String phoneHome;
 
+    @Column(name = "email_work")
     private String emailWork;
 
+    @Column(name = "email_home")
     private String emailHome;
 
     public Integer getId() {
