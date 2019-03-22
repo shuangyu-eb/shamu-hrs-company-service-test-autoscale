@@ -1,12 +1,10 @@
 package com.tardisone.companyservice.service.impl;
 
 import java.sql.Timestamp;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import com.tardisone.companyservice.entity.User;
-import com.tardisone.companyservice.repository.UserRepository;
+import com.tardisone.companyservice.repository.*;
 import com.tardisone.companyservice.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +18,21 @@ public class UserServiceImpl implements UserService {
 
   @Autowired
   UserRepository userRepository;
+
+  @Autowired
+  private UserPersonalInformationRepository userPersonalInformationRepository;
+
+  @Autowired
+  private UserContactlInformationRepository userContactlInformationRepository;
+
+  @Autowired
+  private JobRepository jobRepository;
+
+  @Autowired
+  private JobUserReposiory jobUserReposiory;
+
+  @Autowired DepartmentRepository departmentRepository;
+
 
   @Override
   public Optional<User> findByEmailWork(String emailWork) {
@@ -75,6 +88,8 @@ public class UserServiceImpl implements UserService {
   public Boolean isExistByResetPasswordToken(String resetPasswordToken) {
     return userRepository.existsByResetPasswordToken(resetPasswordToken);
   }
+
+
 
 }
 

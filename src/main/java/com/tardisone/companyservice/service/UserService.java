@@ -4,6 +4,7 @@ package com.tardisone.companyservice.service;
 import com.tardisone.companyservice.entity.User;
 import org.springframework.data.domain.Page;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,4 +28,7 @@ public interface UserService {
   Boolean sendInvitationEmail(User user);
 
   Boolean isExistByResetPasswordToken(String resetPasswordToken);
+
+
+
 }
