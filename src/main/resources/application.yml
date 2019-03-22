@@ -11,7 +11,3 @@ spring:
   liquibase:
     enabled: true
     change-log: classpath:/db/changelog/db.changelog-master.yml
-  cloud:
-    consul:
-      discovery:
-        health-check-url: ${server.address}
