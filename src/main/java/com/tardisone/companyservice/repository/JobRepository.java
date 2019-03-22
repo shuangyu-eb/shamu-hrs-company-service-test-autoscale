@@ -1,12 +1,12 @@
 package com.tardisone.companyservice.repository;
 
-import com.tardisone.companyservice.model.Job;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import com.tardisone.companyservice.entity.Job;
 
 
-public interface JobRepository extends JpaRepository<Job, Integer>{
+public interface JobRepository extends BaseRepository<Job, Long>{
 
     public Job findByTitle(String title);
+
+
 
 }

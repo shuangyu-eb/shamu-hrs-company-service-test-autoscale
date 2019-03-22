@@ -11,10 +11,10 @@ import java.util.Optional;
 
 public interface UserRepository extends BaseRepository<User, Long> {
 
-  Optional<User> findByEmailWork(String emailWork);
+  User findByEmailWork(String emailWork);
 
   @Query(value = "SELECT * FROM users WHERE  LOWER(?1) = LOWER(email_work)",
-      nativeQuery = true)
+          nativeQuery = true)
   Optional<User> findByEmailIgnoreCase(String email);
 
   Optional<User> findByResetPasswordToken(String resetPasswordToken);

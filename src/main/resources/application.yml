@@ -11,3 +11,11 @@ spring:
   liquibase:
     enabled: true
     change-log: classpath:/db/changelog/db.changelog-master.yml
+
+sendGrid:
+  apiKey: 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
+
+auth0:
+  jwks: https://eastbay.auth0.com/.well-known/jwks.json
+  algorithm: RS256
+  authDomain: https://eastbay.auth0.com/

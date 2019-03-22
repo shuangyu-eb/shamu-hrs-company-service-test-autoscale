@@ -29,13 +29,13 @@ public class UserServiceImpl implements UserService {
   private JobRepository jobRepository;
 
   @Autowired
-  private JobUserReposiory jobUserReposiory;
+  private JobUserRepository jobUserReposiory;
 
   @Autowired DepartmentRepository departmentRepository;
 
 
   @Override
-  public Optional<User> findByEmailWork(String emailWork) {
+  public User findUserByEmail(String emailWork) {
     return userRepository.findByEmailWork(emailWork);
   }
 
@@ -90,6 +90,4 @@ public class UserServiceImpl implements UserService {
   }
 
 
-
 }
-

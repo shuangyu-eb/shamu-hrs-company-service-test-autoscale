@@ -1,6 +1,6 @@
 package com.tardisone.companyservice.repository;
 
-import com.tardisone.companyservice.model.Department;
+import com.tardisone.companyservice.entity.Department;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface DepartmentRepository extends JpaRepository<Department, Integer> {
