@@ -1,0 +1,28 @@
+package com.tardisone.companyservice.entity;
+
+
+import lombok.Data;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Data
+@Entity
+@Table(name = "offices")
+public class OfficeAddresses {
+
+    @Id
+    private  Long id;
+
+    private String street_1;
+
+    private String street_2;
+
+    private String city;
+
+    private String postal_code;
+
+
+
+}
