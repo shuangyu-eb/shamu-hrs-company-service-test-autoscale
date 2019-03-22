@@ -22,5 +22,11 @@ public class JobUserServiceImpl implements JobUserService {
         return jobUserRepository.findByUserId(userId);
     }
 
+    @Override
+    public void updateJobUser(JobUser jobUser){
+        jobUserRepository.save(jobUser);
+    }
+
+
 
 }

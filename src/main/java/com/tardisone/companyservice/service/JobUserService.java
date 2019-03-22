@@ -10,5 +10,7 @@ public interface JobUserService {
 
   public JobUser findJobUserByUserId(Long userId);
 
+  public void updateJobUser(JobUser job);
+
 
 }
