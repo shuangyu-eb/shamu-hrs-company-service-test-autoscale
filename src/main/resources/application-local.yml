@@ -17,6 +17,5 @@ spring:
     cache: false
 
 application:
-  gatewayAddress: http://localhost:8080/
   systemEmailAddress: noreply@interviewed.com
   frontEndAddress: http://localhost:3000/

@@ -27,9 +27,6 @@ public class UserServiceImpl implements UserService {
     @Value("${application.systemEmailAddress}")
     String systemEmailAddress;
 
-    @Value("${application.gatewayAddress}")
-    String gatewayAddress;
-
     @Value("${application.frontEndAddress}")
     String frontEndAddress;
 
@@ -43,18 +40,21 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Boolean sendVerifyEmail(String email) {
+        User user = userRepository.findByEmailWork(email);
+        if (user == null) {
+            return false;
+        }
 
         String accountVerifyToken = UUID.randomUUID().toString();
         String emailContent = getActivationEmail(accountVerifyToken);
         Boolean emailResult = emailUtil.send(systemEmailAddress, email, "Please activate your account!", emailContent);
-        User user = userRepository.findByEmailWork(email);
-
-        if (emailResult && user != null) {
-            user.setVerificationToken(accountVerifyToken);
-            userRepository.save(user);
-            return true;
+        if (!emailResult) {
+            throw new EmailException("Error when sending out verify email!");
         }
-        throw new EmailException("Error when sending out verify email!");
+
+        user.setVerificationToken(accountVerifyToken);
+        userRepository.save(user);
+        return true;
     }
 
     @Override
@@ -71,8 +71,7 @@ public class UserServiceImpl implements UserService {
     public String getActivationEmail(String accountVerifyToken) {
         Context context = new Context();
         context.setVariable("frontEndAddress", frontEndAddress);
-        context.setVariable("gatewayAddress", gatewayAddress);
-        context.setVariable("accountVerifyAddress", String.format("company/user/verify/%s", accountVerifyToken));
+        context.setVariable("accountVerifyAddress", String.format("account/verify/%s", accountVerifyToken));
         return templateEngine.process("account_verify_email.html", context);
     }
 }

@@ -15,7 +15,19 @@ public class UserRestController {
 
     @PostMapping(value = "user/register/email")
     public HttpEntity sendVerifyEmail(@RequestBody String email) {
-        userService.sendVerifyEmail(email);
-        return new ResponseEntity(HttpStatus.OK);
+        Boolean emailResult = userService.sendVerifyEmail(email);
+        if (emailResult) {
+            return new ResponseEntity(HttpStatus.OK);
+        }
+        return new ResponseEntity(HttpStatus.BAD_REQUEST);
+    }
+
+    @PostMapping(value = "user/verify")
+    public HttpEntity finishUserVerification(@RequestBody String token) {
+        Boolean result = userService.finishUserVerification(token);
+        if (result) {
+            return new ResponseEntity(HttpStatus.OK);
+        }
+        return new ResponseEntity(HttpStatus.BAD_REQUEST);
     }
 }
