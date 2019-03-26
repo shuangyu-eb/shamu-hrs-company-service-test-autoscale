@@ -65,6 +65,15 @@ databaseChangeLog:
         - column:
             name: verified_at
             type: datetime
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
         tableName: users
 - changeSet:
     id: 1550646329776-2
@@ -81,6 +90,15 @@ databaseChangeLog:
         - column:
             name: name
             type: varchar(32)
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
         tableName: user_statuses
 - changeSet:
     id: 1550646329776-3
@@ -97,6 +115,15 @@ databaseChangeLog:
         - column:
             name: name
             type: varchar(32)
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
         tableName: user_roles
 - changeSet:
     id: 1550646329776-4
@@ -111,10 +138,157 @@ databaseChangeLog:
             constraints:
               primaryKey: true
         - column:
-            name: first_name
-            type: varchar(255)
+            name: name
+            type: varchar(32)
         - column:
-            name: email_work
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
+        tableName: genders
+- changeSet:
+    id: 1550646329776-5
+    author: Max-Zhao
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+        - column:
+            name: name
+            type: varchar(32)
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
+        tableName: ethnicities
+- changeSet:
+    id: 1550646329776-6
+    author: Max-Zhao
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+        - column:
+            name: name
+            type: varchar(32)
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
+        tableName: martial_status
+- changeSet:
+    id: 1550646329776-7
+    author: Max-Zhao
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+        - column:
+            name: name
+            type: varchar(32)
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
+        tableName: citizenship_statuses
+- changeSet:
+    id: 1550646329776-8
+    author: Max-Zhao
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+        - column:
+            name: name
+            type: varchar(32)
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
+        tableName: countries
+- changeSet:
+    id: 1550646329776-9
+    author: Max-Zhao
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+        - column:
+            name: name
+            type: varchar(32)
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
+        tableName: employment_types
+- changeSet:
+    id: 1550646329776-10
+    author: Max-Zhao
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+        - column:
+            name: first_name
             type: varchar(255)
         - column:
             name: middle_name
@@ -143,9 +317,18 @@ databaseChangeLog:
         - column:
             name: citizenship_status_id
             type: BIGINT
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
         tableName: user_personal_information
 - changeSet:
-    id: 1550646329776-5
+    id: 1550646329776-11
     author: Max-Zhao
     changes:
     - createTable:
@@ -174,9 +357,18 @@ databaseChangeLog:
         - column:
             name: email_home
             type: varchar(255)
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
         tableName: user_contact_information
 - changeSet:
-    id: 1550646329776-6
+    id: 1550646329776-12
     author: Max-Zhao
     changes:
     - createTable:
@@ -212,11 +404,17 @@ databaseChangeLog:
             name: company_id
             type: BIGINT
         - column:
-            name: manager_id
-            type: BIGINT
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
         tableName: jobs_users
 - changeSet:
-    id: 1550646329776-7
+    id: 1550646329776-13
     author: Max-Zhao
     changes:
     - createTable:
@@ -233,9 +431,18 @@ databaseChangeLog:
         - column:
             name: department_id
             type: BIGINT
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
         tableName: jobs
 - changeSet:
-    id: 1550646329776-8
+    id: 1550646329776-14
     author: Max-Zhao
     changes:
     - createTable:
@@ -247,14 +454,17 @@ databaseChangeLog:
             constraints:
               primaryKey: true
         - column:
-            name: amount
+            name: user_id
+            type: BIGINT
+        - column:
+            name: wage
             type: INT
         - column:
-            name: frequency
-            type: INT
+            name: compensation_frequency_id
+            type: BIGINT
         - column:
-            name: currency
-            type: INT
+            name: compensation_type_id
+            type: BIGINT
         - column:
             name: start_date
             type: DATETIME
@@ -262,26 +472,51 @@ databaseChangeLog:
             name: end_date
             type: DATETIME
         - column:
-            name: user_id
-            type: BIGINT
-        - column:
-            name: compensation_period_id
-            type: BIGINT
-        - column:
-            name: compensation_type_id
-            type: BIGINT
-        - column:
-            name: compensation_schedule_id
-            type: BIGINT
+            name: overtime_status
+            type: varchar(255)
         - column:
             name: compensation_change_reason_id
             type: BIGINT
         - column:
             name: comment
             type: TEXT
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
         tableName: user_compensations
 - changeSet:
-    id: 1550646329776-9
+    id: 1550646329776-15
+    author: Max-Zhao
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+        - column:
+            name: name
+            type: varchar(32)
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
+        tableName: compensation_overtime_statuses
+- changeSet:
+    id: 1550646329776-16
     author: Max-Zhao
     changes:
     - createTable:
@@ -298,9 +533,18 @@ databaseChangeLog:
         - column:
             name: name
             type: varchar(32)
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
         tableName: compensation_types
 - changeSet:
-    id: 1550646329776-10
+    id: 1550646329776-17
     author: Max-Zhao
     changes:
     - createTable:
@@ -317,9 +561,18 @@ databaseChangeLog:
         - column:
             name: name
             type: varchar(32)
-        tableName: compensation_periods
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
+        tableName: compensation_frequency
 - changeSet:
-    id: 1550646329776-11
+    id: 1550646329776-18
     author: Max-Zhao
     changes:
     - createTable:
@@ -336,9 +589,18 @@ databaseChangeLog:
         - column:
             name: name
             type: varchar(32)
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
         tableName: compensation_change_reasons
 - changeSet:
-    id: 1550646329776-12
+    id: 1550646329776-19
     author: Max-Zhao
     changes:
     - createTable:
@@ -361,9 +623,18 @@ databaseChangeLog:
         - column:
             name: user_id
             type: BIGINT
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
         tableName: user_employment_statuses
 - changeSet:
-    id: 1550646329776-13
+    id: 1550646329776-20
     author: Max-Zhao
     changes:
     - createTable:
@@ -377,9 +648,18 @@ databaseChangeLog:
         - column:
             name: name
             type: varchar(255)
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
         tableName: user_employment_status_types
 - changeSet:
-    id: 1550646329776-14
+    id: 1550646329776-21
     author: Max-Zhao
     changes:
     - createTable:
@@ -411,9 +691,18 @@ databaseChangeLog:
         - column:
             name: end_date
             type: DATETIME
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
         tableName: user_educations
 - changeSet:
-    id: 1550646329776-15
+    id: 1550646329776-22
     author: Max-Zhao
     changes:
     - createTable:
@@ -463,9 +752,18 @@ databaseChangeLog:
         - column:
             name: postal_code
             type: varchar(64)
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
         tableName: user_emergency_contacts
 - changeSet:
-    id: 1550646329776-16
+    id: 1550646329776-23
     author: Max-Zhao
     changes:
     - createTable:
@@ -479,9 +777,18 @@ databaseChangeLog:
         - column:
             name: name
             type: varchar(255)
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
         tableName: user_emergency_contact_relationships
 - changeSet:
-    id: 1550646329776-17
+    id: 1550646329776-24
     author: Max-Zhao
     changes:
     - createTable:
@@ -513,9 +820,18 @@ databaseChangeLog:
         - column:
             name: postal_code
             type: varchar(64)
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
         tableName: user_addresses
 - changeSet:
-    id: 1550646329776-18
+    id: 1550646329776-25
     author: Max-Zhao
     changes:
     - createTable:
@@ -547,9 +863,18 @@ databaseChangeLog:
         - column:
             name: company_id
             type: BIGINT
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
         tableName: offices
 - changeSet:
-    id: 1550646329776-19
+    id: 1550646329776-26
     author: Max-Zhao
     changes:
     - createTable:
@@ -581,28 +906,18 @@ databaseChangeLog:
         - column:
             name: postal_code
             type: varchar(64)
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
         tableName: office_addresses
 - changeSet:
-    id: 1550646329776-20
-    author: Max-Zhao
-    changes:
-    - createTable:
-        columns:
-        - column:
-            name: id
-            type: BIGINT
-            autoIncrement: true
-            constraints:
-              primaryKey: true
-        - column:
-            name: name
-            type: varchar(255)
-        - column:
-            name: country_code
-            type: varchar(64)
-        tableName: countries
-- changeSet:
-    id: 1550646329776-21
+    id: 1550646329776-27
     author: Max-Zhao
     changes:
     - createTable:
@@ -619,9 +934,18 @@ databaseChangeLog:
         - column:
             name: name
             type: varchar(255)
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
         tableName: states_provinces
 - changeSet:
-    id: 1550646329776-22
+    id: 1550646329776-28
     author: Max-Zhao
     changes:
     - createTable:
@@ -638,9 +962,18 @@ databaseChangeLog:
         - column:
             name: name
             type: varchar(255)
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
         tableName: departments
 - changeSet:
-    id: 1550646329776-23
+    id: 1550646329776-29
     author: Max-Zhao
     changes:
     - createTable:
@@ -654,9 +987,18 @@ databaseChangeLog:
         - column:
             name: name
             type: varchar(32)
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
         tableName: company_sizes
 - changeSet:
-    id: 1550646329776-24
+    id: 1550646329776-30
     author: Max-Zhao
     changes:
     - createTable:
@@ -680,14 +1022,23 @@ databaseChangeLog:
             name: company_size_id
             type: BIGINT
         - column:
-            name: country
-            type: varchar(255)
+            name: country_id
+            type: BIGINT
         - column:
             name: subdomain_name
             type: varchar(255)
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
         tableName: companies
 - changeSet:
-    id: 1550646329776-25
+    id: 1550646329776-31
     author: Max-Zhao
     changes:
     - createTable:
@@ -704,9 +1055,18 @@ databaseChangeLog:
         - column:
             name: is_limited
             type: tinyint(1)
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
         tableName: time_off_policies
 - changeSet:
-    id: 1550646329776-26
+    id: 1550646329776-32
     author: Max-Zhao
     changes:
     - createTable:
@@ -747,9 +1107,18 @@ databaseChangeLog:
         - column:
             name: next_time_off_policy_accrual_schedule_id
             type: BIGINT
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
         tableName: time_off_policy_accrual_schedules
 - changeSet:
-    id: 1550646329776-27
+    id: 1550646329776-33
     author: Max-Zhao
     changes:
     - createTable:
@@ -769,9 +1138,18 @@ databaseChangeLog:
         - column:
             name: time_off_policy_accrual_happenings_id
             type: BIGINT
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
         tableName: time_off_policy_accrual_options
 - changeSet:
-    id: 1550646329776-28
+    id: 1550646329776-34
     author: Max-Zhao
     changes:
     - createTable:
@@ -785,9 +1163,18 @@ databaseChangeLog:
         - column:
             name: name
             type: varchar(255)
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
         tableName: time_off_policy_accrual_happenings
 - changeSet:
-    id: 1550646329776-29
+    id: 1550646329776-35
     author: Max-Zhao
     changes:
     - createTable:
@@ -804,9 +1191,18 @@ databaseChangeLog:
         - column:
             name: name
             type: varchar(32)
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
         tableName: time_off_types
 - changeSet:
-    id: 1550646329776-30
+    id: 1550646329776-36
     author: Max-Zhao
     changes:
     - createTable:
@@ -838,9 +1234,18 @@ databaseChangeLog:
         - column:
             name: expires_at
             type: DATETIME
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
         tableName: time_off_requests
 - changeSet:
-    id: 1550646329776-31
+    id: 1550646329776-37
     author: Max-Zhao
     changes:
     - createTable:
@@ -860,9 +1265,18 @@ databaseChangeLog:
         - column:
             name: hours
             type: INT
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
         tableName: time_off_request_dates
 - changeSet:
-    id: 1550646329776-32
+    id: 1550646329776-38
     author: Max-Zhao
     changes:
     - createTable:
@@ -879,9 +1293,18 @@ databaseChangeLog:
         - column:
             name: benefit_plan_id
             type: BIGINT
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
         tableName: employee_benefit_plans
 - changeSet:
-    id: 1550646329776-33
+    id: 1550646329776-39
     author: Max-Zhao
     changes:
     - createTable:
@@ -898,9 +1321,18 @@ databaseChangeLog:
         - column:
             name: company_id
             type: BIGINT
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
         tableName: benefit_plan_types
 - changeSet:
-    id: 1550646329776-34
+    id: 1550646329776-40
     author: Max-Zhao
     changes:
     - createTable:
@@ -926,9 +1358,18 @@ databaseChangeLog:
         - column:
             name: benefit_plan_type_id
             type: BIGINT
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
         tableName: benefit_plans
 - changeSet:
-    id: 1550646329776-35
+    id: 1550646329776-41
     author: Max-Zhao
     changes:
     - createTable:
@@ -942,9 +1383,18 @@ databaseChangeLog:
         - column:
             name: benefit_plan_id
             type: BIGINT
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
         tableName: benefit_plan_coverages
 - changeSet:
-    id: 1550646329776-36
+    id: 1550646329776-42
     author: Max-Zhao
     changes:
     - createTable:
@@ -979,9 +1429,18 @@ databaseChangeLog:
         - column:
             name: email
             type: varchar(255)
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
         tableName: benefit_plan_dependents
 - changeSet:
-    id: 1550646329776-37
+    id: 1550646329776-43
     author: Max-Zhao
     changes:
     - createTable:
@@ -995,9 +1454,18 @@ databaseChangeLog:
         - column:
             name: name
             type: varchar(32)
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
         tableName: benefit_plan_dependent_relationships
 - changeSet:
-    id: 1550646329776-38
+    id: 1550646329776-44
     author: Max-Zhao
     changes:
     - createTable:
@@ -1014,64 +1482,38 @@ databaseChangeLog:
         - column:
             name: user_id
             type: BIGINT
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
         tableName: benefit_plans_users
 - changeSet:
-    id: 1550646329776-39
+    id: 1550646329776-45
     author: Max-Zhao
     changes:
-    - insert:
+    - createTable:
         columns:
         - column:
-           name: name
-           value: ACTIVE
-        tableName: user_statuses
-- changeSet:
-    id: 1550646329776-40
-    author: Max-Zhao
-    changes:
-    - insert:
-        columns:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
         - column:
-           name: name
-           value: DISABLED
-        tableName: user_statuses
-- changeSet:
-    id: 1550646329776-41
-    author: Max-Zhao
-    changes:
-    - insert:
-        columns:
+            name: name
+            type: varchar(32)
         - column:
-           name: name
-           value: PENDING_VERIFICATION
-        tableName: user_statuses
-- changeSet:
-    id: 1550646329776-42
-    author: Max-Zhao
-    changes:
-    - insert:
-        columns:
+            name: created_at
+            type: datetime
         - column:
-           name: name
-           value: ADMIN
-        tableName: user_roles
-- changeSet:
-    id: 1550646329776-43
-    author: Max-Zhao
-    changes:
-    - insert:
-        columns:
+            name: updated_at
+            type: datetime
         - column:
-           name: name
-           value: MANAGER
-        tableName: user_roles
-- changeSet:
-    id: 1550646329776-44
-    author: Max-Zhao
-    changes:
-    - insert:
-        columns:
-        - column:
-           name: name
-           value: NON_MANAGER
-        tableName: user_roles
+            name: deleted_at
+            type: datetime
+        tableName: cities

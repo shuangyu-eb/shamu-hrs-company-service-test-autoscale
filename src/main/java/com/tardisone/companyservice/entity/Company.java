@@ -1,16 +1,15 @@
 package com.tardisone.companyservice.entity;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
 @Data
 @Entity
 @Table(name = "companies")
-public class Company {
-
-    @Id
-    private Long id;
+@NoArgsConstructor
+public class Company extends BaseEntity {
 
     private String name;
 
