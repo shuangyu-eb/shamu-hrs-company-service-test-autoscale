@@ -4,5 +4,6 @@ import com.tardisone.companyservice.entity.UserPersonalInformation;
 
 public interface UserPersonalInformationService {
     UserPersonalInformation findUserPersonalInformationByEmailWork(String emailWork);
-    void updateUserPersonalInformation(UserPersonalInformation userPersonalInformation);
+    UserPersonalInformation findUserPersonalInformationById(Long id);
+    void update(UserPersonalInformation userPersonalInformation);
 }

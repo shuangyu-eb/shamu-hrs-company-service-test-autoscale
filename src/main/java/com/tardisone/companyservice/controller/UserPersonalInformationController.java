@@ -16,9 +16,14 @@ public class UserPersonalInformationController {
         return service.findUserPersonalInformationByEmailWork(emailWork);
     }
 
+    @GetMapping("userPersonalInfo/findById/{id}")
+    public UserPersonalInformation findUserPersonalInformationById(@PathVariable Long id){
+        return service.findUserPersonalInformationById(id);
+    }
+
     @PostMapping("userPersonalInfo/update")
     public void update(@RequestBody UserPersonalInformation UserPersonalInformation) {
-         service.updateUserPersonalInformation(UserPersonalInformation);
+         service.update(UserPersonalInformation);
     }
 
 }

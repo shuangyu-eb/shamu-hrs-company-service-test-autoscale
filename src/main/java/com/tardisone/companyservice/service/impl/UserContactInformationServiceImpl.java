@@ -15,4 +15,9 @@ public class UserContactInformationServiceImpl implements UserContactInformation
     public UserContactInformation findUserContactInformationByEmailWork(String emailWork) {
         return repository.findUserContactInformationByEmailWork(emailWork);
     }
+
+    @Override
+    public void update(UserContactInformation userContactInformation) {
+        repository.save(userContactInformation);
+    }
 }

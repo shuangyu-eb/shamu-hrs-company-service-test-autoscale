@@ -18,7 +18,12 @@ public class UserPersonalInformationServiceImpl implements UserPersonalInformati
     }
 
     @Override
-    public void updateUserPersonalInformation(UserPersonalInformation userPersonalInformation) {
+    public UserPersonalInformation findUserPersonalInformationById(Long id) {
+        return repository.findUserPersonalInformationById(id);
+    }
+
+    @Override
+    public void update(UserPersonalInformation userPersonalInformation) {
         repository.save(userPersonalInformation);
     }
 }
