@@ -18,7 +18,6 @@ public class JobUserServiceImpl implements JobUserService {
 
     @Override
     public JobUser findJobUserByUserId(Long userId) {
-
         return jobUserRepository.findByUserId(userId);
     }
 

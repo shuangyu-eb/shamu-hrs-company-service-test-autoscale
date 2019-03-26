@@ -1,18 +1,20 @@
 package com.tardisone.companyservice.entity;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
-import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
 @Data
 @Table(name = "user_statuses")
-public class UserStatus {
+@NoArgsConstructor
+public class UserStatus extends BaseEntity {
 
-    @Id
-    private Long id;
+    public UserStatus(String name) {
+        this.name = name;
+    }
 
     private String name;
 }

@@ -64,8 +64,8 @@ public class JobController {
         map.put("hireDate",jobUser.getStartDate());
         map.put("manager",jobUser.getManagerId().getId());
         map.put("department",jobUser.getDepartment().getId());
-        map.put("compensation",user.getUserCompensation().getAmount());
-        map.put("frequency",user.getUserCompensation().getFrequency());
+        map.put("compensation",user.getUserCompensation().getWage());
+        map.put("frequency",user.getUserCompensation().getCompensation_frequency_id());
         map.put("location",jobUser.getOffice().getOfficeAddress().getId());
         return map;
     }

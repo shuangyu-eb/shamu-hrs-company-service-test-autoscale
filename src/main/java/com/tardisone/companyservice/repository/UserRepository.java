@@ -11,8 +11,7 @@ import java.util.Map;
 import java.util.Optional;
 
 public interface UserRepository extends BaseRepository<User, Long> {
-
-  User findByEmailWork(String emailWork);
+    User findByEmailWork(String emailWork);
 
   @Query(value = "SELECT * FROM users WHERE  LOWER(?1) = LOWER(email_work)",
           nativeQuery = true)
@@ -20,7 +19,7 @@ public interface UserRepository extends BaseRepository<User, Long> {
 
   Optional<User> findByResetPasswordToken(String resetPasswordToken);
 
-  Optional<User> findByVerificationToken(String verificationToken);
+  User findByVerificationToken(String verificationToken);
 
   Boolean existsByResetPasswordToken(String resetPasswordToken);
 

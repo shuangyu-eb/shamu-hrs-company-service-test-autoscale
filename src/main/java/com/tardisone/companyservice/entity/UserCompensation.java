@@ -1,6 +1,7 @@
 package com.tardisone.companyservice.entity;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -11,19 +12,23 @@ import java.sql.Timestamp;
 @Data
 @Entity
 @Table(name = "user_compensations")
-public class UserCompensation {
+@NoArgsConstructor
+public class UserCompensation extends BaseEntity {
 
-    @Id
-    private Long id;
+    private Integer wage;
 
-    private Integer amount;
-
-    private Integer frequency;
-
-    private Integer currency;
+    private Long compensation_frequency_id;
 
     private Timestamp startDate;
 
     private Timestamp endDate;
 
+    @OneToOne
+    private User user;
+
+    @OneToOne
+    private CompensationType compensationType;
+
+    @OneToOne
+    private CompensationChangeReason compensationChangeReason;
 }

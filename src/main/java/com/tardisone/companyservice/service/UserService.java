@@ -10,6 +10,10 @@ import java.util.Optional;
 
 public interface UserService {
 
+    Boolean sendVerifyEmail(String email);
+
+    Boolean finishUserVerification(String activationToken);
+
   User findUserByEmail(String email);
 
   Optional<User> findByEmailIgnoreCase(String email);
