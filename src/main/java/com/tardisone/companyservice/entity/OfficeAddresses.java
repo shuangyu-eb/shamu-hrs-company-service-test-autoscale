@@ -3,9 +3,7 @@ package com.tardisone.companyservice.entity;
 
 import lombok.Data;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Data
 @Entity
@@ -22,6 +20,13 @@ public class OfficeAddresses {
     private String city;
 
     private String postalCode;
+
+    @ManyToOne
+    private Country country;
+
+    @ManyToOne
+    @JoinColumn(name="state_province_id")
+    private StatesProvince statesProvince;
 
 
 

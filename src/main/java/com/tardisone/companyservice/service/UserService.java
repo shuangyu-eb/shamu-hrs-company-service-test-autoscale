@@ -3,6 +3,9 @@ package com.tardisone.companyservice.service;
 
 import com.tardisone.companyservice.entity.JobUser;
 import com.tardisone.companyservice.entity.User;
+
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface UserService {
@@ -25,6 +28,9 @@ public interface UserService {
   Boolean sendInvitationEmail(User user);
 
   Boolean isExistByResetPasswordToken(String resetPasswordToken);
+
+  List<Map> getAllManager();
+
 
 
 }

@@ -89,5 +89,10 @@ public class UserServiceImpl implements UserService {
     return userRepository.existsByResetPasswordToken(resetPasswordToken);
   }
 
+  @Override
+  public List<Map> getAllManager() {
+    return userRepository.getAllManager();
+  }
+
 
 }

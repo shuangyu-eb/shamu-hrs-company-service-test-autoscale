@@ -26,15 +26,4 @@ public class UserCompensation {
 
     private Timestamp endDate;
 
-    @OneToOne
-    private User user;
-
-    @OneToOne
-    private CompensationPeriod compensationPeriod;
-
-    @OneToOne
-    private CompensationType compensationType;
-
-    @OneToOne
-    private CompensationChangeReason compensationChangeReason;
 }

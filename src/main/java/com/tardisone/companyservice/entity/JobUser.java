@@ -14,7 +14,8 @@ public class JobUser {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long employmentTypeId;
+    @ManyToOne
+    private EmploymentType employmentType;
 
     private Long userId;
 
