@@ -1,6 +1,7 @@
 package com.tardisone.companyservice.entity;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
@@ -8,10 +9,8 @@ import java.sql.Timestamp;
 @Entity
 @Data
 @Table(name = "users")
-public class User {
-
-    @Id
-    private Long id;
+@NoArgsConstructor
+public class User extends BaseEntity {
 
     private String employeeNumber;
 

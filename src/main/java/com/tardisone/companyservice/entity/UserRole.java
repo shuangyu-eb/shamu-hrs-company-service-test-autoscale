@@ -1,18 +1,20 @@
 package com.tardisone.companyservice.entity;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
-import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
 @Data
 @Table(name = "user_roles")
-public class UserRole {
+@NoArgsConstructor
+public class UserRole extends BaseEntity {
 
-    @Id
-    private Long id;
+    public UserRole(String name) {
+        this.name = name;
+    }
 
     private String name;
 }
