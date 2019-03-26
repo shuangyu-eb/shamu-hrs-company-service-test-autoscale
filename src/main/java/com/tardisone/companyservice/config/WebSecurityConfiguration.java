@@ -20,10 +20,11 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
        http
+               .cors().disable()
+               .csrf().disable()
                .addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class)
                .authorizeRequests()
-               .anyRequest().authenticated();
-
+               .anyRequest().permitAll();
     }
 
 }

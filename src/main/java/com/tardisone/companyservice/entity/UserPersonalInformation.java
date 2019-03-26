@@ -21,6 +21,8 @@ public class UserPersonalInformation {
 
     private String preferredName;
 
+    private String emailWork;
+
     private Timestamp birthDate;
 
     private String ssn;
