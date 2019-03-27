@@ -21,28 +21,32 @@ public class User {
 
     private Timestamp latestLogin;
 
-    @OneToOne
-    private UserStatus userStatus;
+//    @OneToOne
+//    private UserStatus userStatus;
 
     private String imageUrl;
 
     @ManyToOne
     private Company company;
 
-    @OneToOne
-    private User managerUser;
+//    @OneToOne
+//    private User managerUser;
 
     @OneToOne
+    @JoinColumn(name = "user_personal_information_id", referencedColumnName = "id")
     private UserPersonalInformation userPersonalInformation;
 
     @OneToOne
+    @JoinColumn(name = "user_contact_information_id", referencedColumnName = "id")
     private UserContactInformation userContactInformation;
 
-    @OneToOne
-    private UserCompensation userCompensation;
-
-    @OneToOne
-    private UserRole userRole;
+//    @OneToOne
+//    @JoinColumn(name = "user_compensation_id", referencedColumnName = "id")
+//    private UserCompensation userCompensation;
+//
+//    @OneToOne
+//    @JoinColumn(name = "user_role_id", referencedColumnName = "id")
+//    private UserRole userRole;
 
     private String invitationEmailToken;
 

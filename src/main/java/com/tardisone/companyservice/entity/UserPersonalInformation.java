@@ -4,6 +4,8 @@ import lombok.Data;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 import java.sql.Timestamp;
 
 @Entity
@@ -25,9 +27,13 @@ public class UserPersonalInformation {
 
     private String ssn;
 
-    private Long genderId;
+    @OneToOne
+    @JoinColumn(name = "gender_id", referencedColumnName = "id")
+    private Gender gender;
 
-    private Long maritalStatusId;
+    @OneToOne
+    @JoinColumn(name = "marital_status_id", referencedColumnName = "id")
+    private MartialStatus martialStatus;
 
     private Long ethnicityId;
 
