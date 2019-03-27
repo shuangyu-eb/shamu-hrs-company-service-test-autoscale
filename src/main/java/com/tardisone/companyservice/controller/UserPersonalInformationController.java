@@ -11,14 +11,14 @@ public class UserPersonalInformationController {
     @Autowired
     UserPersonalInformationService service;
 
-    @GetMapping("userPersonalInfo/{emailWork}")
-    public UserPersonalInformation findUserPersonalInformationByEmailWork(@PathVariable(name = "emailWork") String emailWork){
-        return service.findUserPersonalInformationByEmailWork(emailWork);
-    }
-
     @GetMapping("userPersonalInfo/findById/{id}")
     public UserPersonalInformation findUserPersonalInformationById(@PathVariable Long id){
         return service.findUserPersonalInformationById(id);
+    }
+
+    @GetMapping("userPersonalInfo/findByFirstName/{firstName}")
+    public UserPersonalInformation findUserPersonalInformationByFirstName(@PathVariable String firstName){
+        return service.findUserPersonalInformationByFirstName(firstName);
     }
 
     @PostMapping("userPersonalInfo/update")

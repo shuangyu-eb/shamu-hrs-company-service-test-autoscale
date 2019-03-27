@@ -13,13 +13,13 @@ public class UserPersonalInformationServiceImpl implements UserPersonalInformati
     UserPersonalInformationRepository repository;
 
     @Override
-    public UserPersonalInformation findUserPersonalInformationByEmailWork(String emailWork){
-        return repository.findUserPersonalInformationByEmailWork(emailWork);
+    public UserPersonalInformation findUserPersonalInformationById(Long id) {
+        return repository.findUserPersonalInformationById(id);
     }
 
     @Override
-    public UserPersonalInformation findUserPersonalInformationById(Long id) {
-        return repository.findUserPersonalInformationById(id);
+    public UserPersonalInformation findUserPersonalInformationByFirstName(String firstName) {
+        return repository.findUserPersonalInformationByFirstName(firstName);
     }
 
     @Override

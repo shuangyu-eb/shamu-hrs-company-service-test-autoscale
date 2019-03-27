@@ -35,6 +35,6 @@ public class UserCompensation {
     @OneToOne
     private CompensationType compensationType;
 
-    @OneToOne
-    private CompensationChangeReason compensationChangeReason;
+//    @OneToOne
+//    private CompensationChangeReason compensationChangeReason;
 }

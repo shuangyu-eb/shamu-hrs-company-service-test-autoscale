@@ -13,3 +13,9 @@ spring:
     hikari:
       maximum-pool-size: 4
       minimum-idle: 2
+  thymeleaf:
+    cache: false
+
+application:
+  systemEmailAddress: noreply@interviewed.com
+  frontEndAddress: http://localhost:3000/

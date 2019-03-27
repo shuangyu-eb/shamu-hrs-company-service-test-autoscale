@@ -11,6 +11,8 @@ spring:
   liquibase:
     enabled: true
     change-log: classpath:/db/changelog/db.changelog-master.yml
+  thymeleaf:
+    prefix: classpath:templates/
 
 sendGrid:
   apiKey: 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
