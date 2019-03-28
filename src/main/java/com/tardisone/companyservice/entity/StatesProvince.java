@@ -14,7 +14,5 @@ public class StatesProvince {
 
     private String name;
 
-    @OneToOne
-    @JoinColumn(name = "country_id", referencedColumnName = "id")
-    private Country country;
+    private Long countryId;
 }
