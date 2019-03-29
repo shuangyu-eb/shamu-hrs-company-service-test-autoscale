@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+
+
+REPOSITORY_NAME=`sed -n 's/.*"repository-name": "\(.*\)",/\1/p' bin/config.json`
+REPOSITORY_TAG=`jq -r '."repository-tag"' bin/config.json`
+CLUSTER=`jq -r '."cluster"' bin/config.json`
+SERVICE_NAME=`jq -r '."service-name"' bin/config.json`
+
+while [ -n "$1" ]
+do
+  case "$1" in
+    -repository-name)
+        REPOSITORY_TAG=$2
+        shift
+        ;;
+    -repository-tag)
+        REPOSITORY_TAG=$2
+        shift
+        ;;
+    -cluster)
+        CLUSTER=$2
+        shift
+        ;;
+    -service-name)
+        SERVICE_NAME=$2
+        shift
+        ;;
+    *)
+        echo "$1 is not an option"
+        exit 0
+        ;;
+  esac
+  shift
+done
+
+
+DOCKER_LOGIN=`aws ecr get-login --no-include-email --region ap-northeast-1`
+${DOCKER_LOGIN}
+
+mvn clean package -Dmaven.test.skip=true -e
+
+docker build -t ${REPOSITORY_NAME} .
+
+REPOSITORY_URI=`aws ecr describe-repositories --repository-names ${REPOSITORY_NAME} | jq .repositories[].repositoryUri | tr -d '"'`
+
+docker tag ${REPOSITORY_NAME}:${REPOSITORY_TAG} ${REPOSITORY_URI}:${REPOSITORY_TAG}
+
+docker push ${REPOSITORY_URI}:${REPOSITORY_TAG}
+
+aws ecs update-service --cluster ${CLUSTER} --service ${SERVICE_NAME} --task-definition company-service:4 --desired-count 1 --force-new-deployment
+
