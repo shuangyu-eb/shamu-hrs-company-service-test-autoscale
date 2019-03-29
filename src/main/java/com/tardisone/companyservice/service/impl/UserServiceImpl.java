@@ -1,7 +1,9 @@
 package com.tardisone.companyservice.service.impl;
 
+import com.tardisone.companyservice.dto.JobUserDTO;
 import com.tardisone.companyservice.entity.User;
 import com.tardisone.companyservice.exception.EmailException;
+import com.tardisone.companyservice.repository.JobUserRepository;
 import com.tardisone.companyservice.repository.UserRepository;
 import com.tardisone.companyservice.service.UserService;
 import com.tardisone.companyservice.utils.EmailUtil;
@@ -13,6 +15,7 @@ import org.thymeleaf.context.Context;
 
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -23,6 +26,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    JobUserRepository jobUserRepository;
 
     @Value("${application.systemEmailAddress}")
     String systemEmailAddress;
@@ -66,6 +72,11 @@ public class UserServiceImpl implements UserService {
         user.setVerifiedAt(new Timestamp(new Date().getTime()));
         userRepository.save(user);
         return true;
+    }
+
+    @Override
+    public List<JobUserDTO> findAllEmployees(Long id) {
+        return jobUserRepository.findAllEmployees(id);
     }
 
     public String getActivationEmail(String accountVerifyToken) {

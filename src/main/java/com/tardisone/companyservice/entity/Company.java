@@ -20,7 +20,8 @@ public class Company extends BaseEntity {
     @OneToOne
     private CompanySize companySize;
 
-    private String country;
+    @ManyToOne
+    private Country country;
 
     private String subdomainName;
 }

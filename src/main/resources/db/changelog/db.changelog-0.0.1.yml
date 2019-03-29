@@ -1517,3 +1517,49 @@ databaseChangeLog:
             name: deleted_at
             type: datetime
         tableName: cities
+- changeSet:
+    id: 1550646329776-46
+    author: Max-Zhao
+    changes:
+    - dropColumn:
+        columnName: city
+        tableName: office_addresses
+- changeSet:
+    id: 1550646329776-47
+    author: Max-Zhao
+    changes:
+    - addColumn:
+        columns:
+        - column:
+            name: city_id
+            type: BIGINT
+        tableName: office_addresses
+- changeSet:
+    id: 1550646329776-48
+    author: Max-Zhao
+    changes:
+    - dropColumn:
+        columnName: organization_id
+        tableName: offices
+- changeSet:
+    id: 1550646329776-49
+    author: Max-Zhao
+    changes:
+    - addColumn:
+        columns:
+        - column:
+            name: street_1
+            type: varchar(255)
+        - column:
+            name: street_2
+            type: varchar(255)
+        - column:
+            name: city_id
+            type: BIGINT
+        - column:
+            name: country_id
+            type: BIGINT
+        - column:
+            name: postal_code
+            type: varchar(32)
+        tableName: user_personal_information
