@@ -3,9 +3,9 @@ server:
 
 spring:
   datasource:
-    url: jdbc:mysql://hrs.cenqdgeoqsjh.ap-northeast-1.rds.amazonaws.com/company
-    username: shamuhrs
-    password: 4eD852HheH9DLykD
+    url: jdbc:mysql://shamu-hrs-qa.cenqdgeoqsjh.ap-northeast-1.rds.amazonaws.com/shamu_hrs_qa
+    username: shamu_hrs_qa
+    password: shamu_hrs_qa
     hikari:
       maximum-pool-size: 4
       minimum-idle: 2
