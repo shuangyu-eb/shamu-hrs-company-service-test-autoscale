@@ -8,10 +8,7 @@ import javax.persistence.*;
 @Data
 @Entity
 @Table(name = "office_addresses")
-public class OfficeAddresses {
-
-    @Id
-    private  Long id;
+public class OfficeAddresses  extends  BaseEntity{
 
     private String street_1;
 

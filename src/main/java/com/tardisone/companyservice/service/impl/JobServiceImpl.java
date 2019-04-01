@@ -121,8 +121,6 @@ public class JobServiceImpl implements JobService {
         company.setId(companyId);
         office.setCompany(company);
         officeRepository.save(office);
-
-
     }
 
 

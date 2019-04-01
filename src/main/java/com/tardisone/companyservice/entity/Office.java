@@ -8,10 +8,7 @@ import java.util.List;
 @Data
 @Entity
 @Table(name = "offices")
-public class Office {
-
-    @Id
-    private Long id;
+public class Office extends BaseEntity{
 
     private Long organization_id;
 

@@ -12,10 +12,6 @@ import java.sql.Timestamp;
 @NoArgsConstructor
 public class User extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
     private String employeeNumber;
 
     private String emailWork;
@@ -59,7 +55,5 @@ public class User extends BaseEntity {
 
     private Timestamp verifiedAt;
 
-    public User(Long id) {
-        this.id = id;
-    }
+
 }

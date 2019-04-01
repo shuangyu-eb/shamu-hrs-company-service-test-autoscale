@@ -34,10 +34,11 @@ public class JobController {
     @Autowired
     DepartmentService departmentService;
 
-
     @GetMapping(value = {"info/job/{userId}"})
     public JobInfomationPojo getJobInfo(@PathVariable("userId") Long userId) {
-        JobUser jobUser= jobUserService.findJobUserByUser(new User(userId));
+        User u=new User();
+        u.setId(userId);
+        JobUser jobUser= jobUserService.findJobUserByUser(u);
         Job job=jobUser.getJob();
         User user=jobUser.getUser();
         String jobTitle=job.getTitle();
@@ -55,7 +56,9 @@ public class JobController {
 
     @GetMapping(value = {"info/editJobInfoBefore/{userId}"})
     public Map editJobInfoBefore(@PathVariable("userId") Long userId) {
-        JobUser jobUser=jobUserService.findJobUserByUser(new User(userId));
+        User u=new User();
+        u.setId(userId);
+        JobUser jobUser=jobUserService.findJobUserByUser(u);
         Job job=jobUser.getJob();
         User user=jobUser.getUser();
         Map jobInfo=new HashMap();
@@ -91,7 +94,9 @@ public class JobController {
     @PostMapping(value = {"info/editJobInfo"})
     public HttpEntity editJobInfo(JobInfoEditPojo jobInfoEditPojo) {
         Long userId=jobInfoEditPojo.getUserId();
-        JobUser jobUser=jobUserService.findJobUserByUser(new User(userId));
+        User u=new User();
+        u.setId(userId);
+        JobUser jobUser=jobUserService.findJobUserByUser(u);
         jobService.saveCompensatios(jobInfoEditPojo.getCompensation(),jobInfoEditPojo.getFrequency(),userId);
         jobService.saveJob(jobInfoEditPojo.getJobTitle(),userId);
         EmploymentType employmentType=jobService.findEmployTypeById(jobInfoEditPojo.getEmploymentType());
@@ -119,7 +124,9 @@ public class JobController {
     public HttpEntity addOfficeAddress(OfficeAddressPojo addressPojo) {
         Long userId=addressPojo.getUserId();
         System.out.println("userId:"+userId);
-        JobUser jobUser=jobUserService.findJobUserByUser(new User(userId));
+        User u=new User();
+        u.setId(userId);
+        JobUser jobUser=jobUserService.findJobUserByUser(u);
         jobService.saveOfficeAddress(addressPojo,jobUser.getCompany().getId());
         return new ResponseEntity(HttpStatus.OK);
     }

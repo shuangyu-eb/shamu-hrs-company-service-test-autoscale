@@ -9,10 +9,7 @@ import javax.persistence.Table;
 @Data
 @Entity
 @Table(name = "countries")
-public class Country {
-
-    @Id
-    private Long id;
+public class Country extends BaseEntity{
 
     private String name;
 

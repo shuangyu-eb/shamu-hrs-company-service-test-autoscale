@@ -11,8 +11,6 @@ import java.util.Date;
 @Entity
 @Table(name = "employment_types")
 public class EmploymentType extends  BaseEntity{
-    @Id
-    private Long id;
 
     private String name;
 }
