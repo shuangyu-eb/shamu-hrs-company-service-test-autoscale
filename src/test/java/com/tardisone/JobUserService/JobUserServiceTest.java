@@ -24,20 +24,20 @@ public class JobUserServiceTest {
     @Autowired
     JobUserService jobUserService;
 
-    @Test
-    public void findJobUser() {
-        Integer userId=1;
-        JobUser jobUser=jobUserService.findJobUserByUserId(userId.longValue());
-        System.out.println(jobUser);
-    }
-
-    @Test
-    public void generateInboxMessage() {
-        Integer userId=1;
-        JobUser jobUser=jobUserService.findJobUserByUserId(userId.longValue());
-        jobUserService.updateJobUser(jobUser);
-        System.out.println(jobUser);
-    }
+//    @Test
+//    public void findJobUser() {
+//        Integer userId=1;
+//        JobUser jobUser=jobUserService.findJobUserByUserId(userId.longValue());
+//        System.out.println(jobUser);
+//    }
+//
+//    @Test
+//    public void generateInboxMessage() {
+//        Integer userId=1;
+//        JobUser jobUser=jobUserService.findJobUserByUserId(userId.longValue());
+//        jobUserService.updateJobUser(jobUser);
+//        System.out.println(jobUser);
+//    }
 
 
 

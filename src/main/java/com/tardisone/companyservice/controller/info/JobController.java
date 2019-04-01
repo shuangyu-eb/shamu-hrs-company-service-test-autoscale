@@ -1,23 +1,23 @@
 package com.tardisone.companyservice.controller.info;
 
 import com.tardisone.companyservice.entity.*;
+import com.tardisone.companyservice.pojo.JobInfoEditPojo;
 import com.tardisone.companyservice.pojo.JobInfomationPojo;
+import com.tardisone.companyservice.pojo.OfficeAddressPojo;
 import com.tardisone.companyservice.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.ParsePosition;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @RestController
 @RequestMapping("/company")
 public class JobController {
-
 
     @Autowired
     JobUserService jobUserService;
@@ -37,13 +37,13 @@ public class JobController {
 
     @GetMapping(value = {"info/job/{userId}"})
     public JobInfomationPojo getJobInfo(@PathVariable("userId") Long userId) {
-        JobUser jobUser=jobUserService.findJobUserByUserId(userId);
-        Job job=jobService.findJobById(jobUser.getJobId());
-        User user=userService.findById(jobUser.getUserId());
+        JobUser jobUser= jobUserService.findJobUserByUser(new User(userId));
+        Job job=jobUser.getJob();
+        User user=jobUser.getUser();
         String jobTitle=job.getTitle();
         String employmentType=jobUser.getEmploymentType().getName();
         Date hireDate=jobUser.getStartDate();
-        UserPersonalInformation information=jobUser.getManagerId().getUserPersonalInformation();
+        UserPersonalInformation information=user.getManagerUser().getUserPersonalInformation();
         String manager=information.getFirstName()+" "+information.getLastName();
         String department=jobUser.getDepartment().getName();
         String compensation="show";
@@ -55,43 +55,74 @@ public class JobController {
 
     @GetMapping(value = {"info/editJobInfoBefore/{userId}"})
     public Map editJobInfoBefore(@PathVariable("userId") Long userId) {
-        JobUser jobUser=jobUserService.findJobUserByUserId(userId);
-        Job job=jobService.findJobById(jobUser.getJobId());
-        User user=userService.findById(jobUser.getUserId());
-        Map map=new HashMap();
-        map.put("jobTitle",job.getTitle());
-        map.put("employmentType",jobUser.getEmploymentType().getId());
-        map.put("hireDate",jobUser.getStartDate());
-        map.put("manager",jobUser.getManagerId().getId());
-        map.put("department",jobUser.getDepartment().getId());
-        map.put("compensation",user.getUserCompensation().getWage());
-        map.put("frequency",user.getUserCompensation().getCompensation_frequency_id());
-        map.put("location",jobUser.getOffice().getOfficeAddress().getId());
-        return map;
+        JobUser jobUser=jobUserService.findJobUserByUser(new User(userId));
+        Job job=jobUser.getJob();
+        User user=jobUser.getUser();
+        Map jobInfo=new HashMap();
+        jobInfo.put("jobTitle",job.getTitle());
+        jobInfo.put("employmentType",jobUser.getEmploymentType().getId());
+        SimpleDateFormat simpleDateFormat=new SimpleDateFormat("MM/dd/yyyy");
+        String hireDate=simpleDateFormat.format(jobUser.getStartDate());
+        jobInfo.put("hireDate",hireDate);
+        jobInfo.put("manager",user.getManagerUser().getId());
+        jobInfo.put("department",jobUser.getDepartment().getId());
+        jobInfo.put("compensation",user.getUserCompensation().getWage());
+        jobInfo.put("frequency",user.getUserCompensation().getCompensation_frequency_id());
+        jobInfo.put("location",jobUser.getOffice().getOfficeAddress().getId());
+        List<EmploymentType> employmentTypes=employmentTypeService.getAllEmploymentType();
+        List<Map> managers= userService.getAllManager();
+        List<Map> newManagers=new LinkedList<>();
+        for (int i=0;i<managers.size();i++){
+            Map manager=new HashMap<String,String>();
+            manager.put("id",managers.get(i).get("id"));
+            manager.put("name",managers.get(i).get("first_name")+" "+managers.get(i).get("last_name"));
+            newManagers.add(manager);
+        }
+        List<Department> departments  =departmentService.getAllDepartments(jobUser.getCompany().getId());
+        List locations  =jobService.getAllByCompanyId(jobUser.getCompany().getId());
+        Map result=new HashMap();
+        result.put("jobInfo",jobInfo);
+        result.put("employmentTypes",employmentTypes);
+        result.put("managers",newManagers);
+        result.put("departments",departments);
+        result.put("locations",locations);
+        return result;
+    }
+    @PostMapping(value = {"info/editJobInfo"})
+    public HttpEntity editJobInfo(JobInfoEditPojo jobInfoEditPojo) {
+        Long userId=jobInfoEditPojo.getUserId();
+        JobUser jobUser=jobUserService.findJobUserByUser(new User(userId));
+        jobService.saveCompensatios(jobInfoEditPojo.getCompensation(),jobInfoEditPojo.getFrequency(),userId);
+        jobService.saveJob(jobInfoEditPojo.getJobTitle(),userId);
+        EmploymentType employmentType=jobService.findEmployTypeById(jobInfoEditPojo.getEmploymentType());
+        jobService.saveOffice(jobInfoEditPojo.getLocation(),jobUser.getOffice().getId());
+        jobService.saveUserManager(jobInfoEditPojo.getManager(),userId);
+        SimpleDateFormat sf=new SimpleDateFormat("MM/dd/yyyy");
+        Date startDate=sf.parse(jobInfoEditPojo.getHireDate().trim(),new ParsePosition(0));
+        jobService.saveJobUser(jobInfoEditPojo.getEmploymentType(),startDate,userId);
+        return new ResponseEntity(HttpStatus.OK);
     }
 
-    @GetMapping(value = {"info/getAllEmploymentType"})
-    public List<EmploymentType> getAllEmploymentType() {
-        return employmentTypeService.getAllEmploymentType();
+    @PostMapping(value = {"info/addEmploymentType"})
+    public HttpEntity addEmploymentType(String name) {
+        jobService.saveEmploymentType(name);
+        return new ResponseEntity(HttpStatus.OK);
     }
 
-    @GetMapping(value = {"info/getAllManager"})
-    public List<Map> getAllManager() {
-        return userService.getAllManager();
+    @PostMapping(value = {"info/addDepartment"})
+    public HttpEntity addDepartment(String name,Long companyId) {
+        jobService.saveDepartment(name,companyId);
+        return new ResponseEntity(HttpStatus.OK);
     }
 
-    @GetMapping(value = {"info/getAllDepartment/{userId}"})
-    public List getAllDepartment(@PathVariable("userId") Long userId) {
-        JobUser jobUser=jobUserService.findJobUserByUserId(userId);
-        return departmentService.getAllDepartments(jobUser.getCompany().getId());
+    @PostMapping(value = {"info/addOfficeAddress"})
+    public HttpEntity addOfficeAddress(OfficeAddressPojo addressPojo) {
+        Long userId=addressPojo.getUserId();
+        System.out.println("userId:"+userId);
+        JobUser jobUser=jobUserService.findJobUserByUser(new User(userId));
+        jobService.saveOfficeAddress(addressPojo,jobUser.getCompany().getId());
+        return new ResponseEntity(HttpStatus.OK);
     }
-
-    @GetMapping(value = {"info/getAllLocations/{userId}"})
-    public List getAllLocations(@PathVariable("userId") Long userId) {
-        JobUser jobUser=jobUserService.findJobUserByUserId(userId);
-        return jobService.getAllByCompanyId(jobUser.getCompany().getId());
-    }
-
 
 
 }

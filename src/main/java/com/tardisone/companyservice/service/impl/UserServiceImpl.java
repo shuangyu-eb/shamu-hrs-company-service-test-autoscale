@@ -24,13 +24,13 @@ import java.util.UUID;
 public class UserServiceImpl implements UserService {
 
     @Autowired
-    UserRepository userRepository;
+    private UserRepository userRepository;
 
     @Autowired
-    ITemplateEngine templateEngine;
+    private ITemplateEngine templateEngine;
 
     @Autowired
-    private UserPersonalInformationRepository userPersonalInformationRepository;
+    UserPersonalInformationRepository userPersonalInformationRepository;
 
     @Autowired
     private UserContactlInformationRepository userContactlInformationRepository;
@@ -42,7 +42,7 @@ public class UserServiceImpl implements UserService {
     private JobUserRepository jobUserReposiory;
 
     @Autowired
-    DepartmentRepository departmentRepository;
+    private DepartmentRepository departmentRepository;
 
 
     @Value("${application.systemEmailAddress}")

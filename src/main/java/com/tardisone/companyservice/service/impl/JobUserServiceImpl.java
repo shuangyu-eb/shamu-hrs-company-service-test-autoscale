@@ -17,8 +17,8 @@ public class JobUserServiceImpl implements JobUserService {
     JobUserRepository jobUserRepository;
 
     @Override
-    public JobUser findJobUserByUserId(Long userId) {
-        return jobUserRepository.findByUserId(userId);
+    public JobUser findJobUserByUser(User user) {
+        return jobUserRepository.findJobUserByUser(user);
     }
 
     @Override

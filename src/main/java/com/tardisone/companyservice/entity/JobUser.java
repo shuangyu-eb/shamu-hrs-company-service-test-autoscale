@@ -1,45 +1,37 @@
 package com.tardisone.companyservice.entity;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.Date;
 
-@Data
 @Entity
+@Getter
+@Setter
 @Table(name = "jobs_users")
-public class JobUser {
+public class JobUser extends BaseEntity  {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
     @ManyToOne
     private EmploymentType employmentType;
 
-    private Long userId;
+    @OneToOne
+    private User user;
 
-    private Long jobId;
+    @OneToOne
+    private Job job;
 
     private Date startDate;
 
     private Date endDate;
 
-    @OneToOne
+    @ManyToOne
     private Office office;
 
-    @OneToOne
+    @ManyToOne
     private Department department;
 
-    @OneToOne
+    @ManyToOne
     private Company company;
-
-    @OneToOne
-    @JoinColumn(name = "id")
-    private User managerId;
-
-
-
-
-
 }

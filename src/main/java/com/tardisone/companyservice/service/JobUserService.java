@@ -1,14 +1,12 @@
 package com.tardisone.companyservice.service;
 
 
-import com.tardisone.companyservice.entity.Job;
 import com.tardisone.companyservice.entity.JobUser;
-
-import java.util.Optional;
+import com.tardisone.companyservice.entity.User;
 
 public interface JobUserService {
 
-  public JobUser findJobUserByUserId(Long userId);
+  public JobUser findJobUserByUser(User user);
 
   public void updateJobUser(JobUser job);
 

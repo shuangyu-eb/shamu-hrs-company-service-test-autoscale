@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 import java.util.Map;
 
-public interface OfficeAddressRepository extends JpaRepository<Department, Integer> {
+public interface OfficeAddressRepository extends JpaRepository<OfficeAddresses, Integer> {
 
     @Query(value = "SELECT id,name FROM offices where company_id=?1",
             nativeQuery = true)

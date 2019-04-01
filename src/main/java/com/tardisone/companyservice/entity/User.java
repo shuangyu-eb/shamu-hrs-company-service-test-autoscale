@@ -10,7 +10,7 @@ import java.sql.Timestamp;
 @Data
 @Table(name = "users")
 @NoArgsConstructor
-public class User  extends BaseEntity {
+public class User extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -58,4 +58,8 @@ public class User  extends BaseEntity {
     private String verificationToken;
 
     private Timestamp verifiedAt;
+
+    public User(Long id) {
+        this.id = id;
+    }
 }

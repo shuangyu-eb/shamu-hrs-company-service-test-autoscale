@@ -7,10 +7,7 @@ import javax.persistence.*;
 @Data
 @Entity
 @Table(name = "departments")
-public class Department {
-
-    @Id
-    private Long id;
+public class Department extends BaseEntity{
 
     @ManyToOne
     private Company company;
