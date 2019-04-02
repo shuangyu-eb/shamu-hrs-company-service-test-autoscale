@@ -75,8 +75,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<JobUserDTO> findAllEmployees(Long id) {
-        return jobUserRepository.findAllEmployees(id);
+    public List<JobUserDTO> findAllEmployees() {
+        return jobUserRepository.findAllEmployees();
     }
 
     public String getActivationEmail(String accountVerifyToken) {
