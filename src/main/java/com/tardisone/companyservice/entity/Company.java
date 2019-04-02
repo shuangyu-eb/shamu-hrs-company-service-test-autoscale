@@ -2,6 +2,7 @@ package com.tardisone.companyservice.entity;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 
@@ -9,6 +10,7 @@ import javax.persistence.*;
 @Entity
 @Table(name = "companies")
 @NoArgsConstructor
+@Where(clause = "deleted_at IS NULL")
 public class Company extends BaseEntity {
 
     private String name;

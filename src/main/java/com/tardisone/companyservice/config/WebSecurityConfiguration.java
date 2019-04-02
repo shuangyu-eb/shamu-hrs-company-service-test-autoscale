@@ -28,6 +28,6 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                .authorizeRequests()
                .antMatchers("/actuator/**").permitAll()
                .antMatchers("/company/user/verify", "/company/user/register/email").permitAll()
-               .anyRequest().authenticated();
+               .anyRequest().permitAll();
     }
 }

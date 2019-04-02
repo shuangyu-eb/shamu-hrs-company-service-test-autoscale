@@ -1,18 +1,21 @@
 package com.tardisone.companyservice.dto;
 
-public interface JobUserDTO {
+import lombok.Data;
 
-    Long getId();
+@Data
+public class JobUserDTO {
 
-    String getImageUrl();
+    private Long id;
 
-    String getFirstName();
+    private String imageUrl;
 
-    String getLastName();
+    private String firstName;
 
-    String getEmail();
+    private String lastName;
 
-    String getJobTitle();
+    private String email;
 
-    String getCityName();
+    private String jobTitle;
+
+    private String cityName;
 }

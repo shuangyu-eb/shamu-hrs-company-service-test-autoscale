@@ -1,9 +1,10 @@
 package com.tardisone.companyservice.service.impl;
 
 import com.tardisone.companyservice.dto.JobUserDTO;
-import com.tardisone.companyservice.entity.User;
+import com.tardisone.companyservice.entity.*;
 import com.tardisone.companyservice.exception.EmailException;
 import com.tardisone.companyservice.repository.JobUserRepository;
+import com.tardisone.companyservice.repository.UserAddressRepository;
 import com.tardisone.companyservice.repository.UserRepository;
 import com.tardisone.companyservice.service.UserService;
 import com.tardisone.companyservice.utils.EmailUtil;
@@ -14,6 +15,7 @@ import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.Context;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -29,6 +31,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     JobUserRepository jobUserRepository;
+
+    @Autowired
+    UserAddressRepository userAddressRepository;
 
     @Value("${application.systemEmailAddress}")
     String systemEmailAddress;
@@ -76,7 +81,43 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<JobUserDTO> findAllEmployees() {
-        return jobUserRepository.findAllEmployees();
+        List<User> employees = userRepository.findAllEmployees();
+        List<UserAddress> userAddresses = userAddressRepository.findAllByUserIn(employees);
+        List<JobUser> jobUserList = jobUserRepository.findAllByUserIn(employees);
+
+        List<JobUserDTO> jobUserDTOList = new ArrayList<>();
+        employees.forEach((employee) -> {
+            JobUserDTO jobUserDTO = new JobUserDTO();
+            jobUserDTO.setEmail(employee.getEmailWork());
+            jobUserDTO.setImageUrl(employee.getImageUrl());
+            jobUserDTO.setId(employee.getId());
+
+            UserPersonalInformation userPersonalInformation = employee.getUserPersonalInformation();
+            if (userPersonalInformation != null) {
+                jobUserDTO.setFirstName(userPersonalInformation.getFirstName());
+                jobUserDTO.setLastName(userPersonalInformation.getLastName());
+            }
+
+            userAddresses.forEach((userAddress -> {
+                User userWithAddress = userAddress.getUser();
+                if (userWithAddress != null
+                        && userWithAddress.getId().equals(employee.getId())
+                        && userAddress.getCity() != null) {
+                    jobUserDTO.setCityName(userAddress.getCity().getName());
+                }
+            }));
+
+            jobUserList.forEach((jobUser -> {
+                User userWithJob = jobUser.getUser();
+                if (userWithJob != null && userWithJob.getId().equals(employee.getId())) {
+                    Job job = jobUser.getJob();
+                    jobUserDTO.setJobTitle(job.getTitle());
+                }
+            }));
+            jobUserDTOList.add(jobUserDTO);
+        });
+
+        return jobUserDTOList;
     }
 
     public String getActivationEmail(String accountVerifyToken) {
