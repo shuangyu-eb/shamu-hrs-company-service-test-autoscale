@@ -3,9 +3,7 @@ package com.tardisone.companyservice.entity;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
@@ -14,8 +12,9 @@ import javax.persistence.Table;
 @NoArgsConstructor
 public class UserEmergencyContact extends BaseEntity {
 
-	@ManyToOne
-	private User user;
+	private Long user_id;
+
+	private Boolean isPrimary = false;
 
 	private String firstName;
 
@@ -27,18 +26,4 @@ public class UserEmergencyContact extends BaseEntity {
 
 	private String email;
 
-	@Column(name = "street_1")
-	private String street1;
-
-	@Column(name = "street_2")
-	private String street2;
-
-	private String city;
-
-	@ManyToOne
-	private State state;
-
-	private String postalCode;
-
-	private Boolean isPrimary = false;
 }
