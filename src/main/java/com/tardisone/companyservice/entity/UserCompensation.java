@@ -2,6 +2,7 @@ package com.tardisone.companyservice.entity;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.Entity;
 import javax.persistence.OneToOne;
@@ -12,17 +13,16 @@ import java.sql.Timestamp;
 @Entity
 @Table(name = "user_compensations")
 @NoArgsConstructor
+@Where(clause = "deleted_at IS NULL")
 public class UserCompensation extends BaseEntity {
 
-    private Integer amount;
-
-    private Integer frequency;
-
-    private Integer currency;
+    private Integer wage;
 
     private Timestamp startDate;
 
     private Timestamp endDate;
+
+    private String overtimeStatus;
 
     @OneToOne
     private User user;
@@ -32,4 +32,6 @@ public class UserCompensation extends BaseEntity {
 
     @OneToOne
     private CompensationChangeReason compensationChangeReason;
+
+    private String comment;
 }

@@ -19,10 +19,10 @@ public class BaseEntity {
     private Long id;
 
     @CreationTimestamp
-    private Timestamp created_at;
+    private Timestamp createdAt;
 
     @UpdateTimestamp
-    private Timestamp updated_at;
+    private Timestamp updatedAt;
 
-    private Timestamp deleted_at;
+    private Timestamp deletedAt;
 }
