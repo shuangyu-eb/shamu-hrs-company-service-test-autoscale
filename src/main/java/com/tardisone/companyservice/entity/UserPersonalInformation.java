@@ -3,7 +3,6 @@ package com.tardisone.companyservice.entity;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import java.sql.Timestamp;
@@ -36,18 +35,4 @@ public class UserPersonalInformation extends BaseEntity{
 
     @ManyToOne
     private CitizenshipStatus citizenshipStatus;
-
-    @Column(name = "street_1")
-    private String street1;
-
-    @Column(name = "street_2")
-    private String street2;
-
-    @ManyToOne
-    private City city;
-
-    @ManyToOne
-    private Country country;
-
-    private String postalCode;
 }
