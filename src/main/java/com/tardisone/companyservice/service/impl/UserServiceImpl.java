@@ -15,10 +15,10 @@ import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.Context;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -89,8 +89,7 @@ public class UserServiceImpl implements UserService {
     }
 
     private List<JobUserDTO> getJobUserDTOList(List<User> employees, List<UserAddress> userAddresses, List<JobUser> jobUsers) {
-        List<JobUserDTO> jobUserDTOList = new ArrayList<>();
-        employees.forEach((employee) -> {
+        return employees.stream().map((employee) -> {
             JobUserDTO jobUserDTO = new JobUserDTO();
             jobUserDTO.setEmail(employee.getEmailWork());
             jobUserDTO.setImageUrl(employee.getImageUrl());
@@ -119,10 +118,8 @@ public class UserServiceImpl implements UserService {
                     jobUserDTO.setJobTitle(jobUser.getJob().getTitle());
                 }
             }));
-            jobUserDTOList.add(jobUserDTO);
-        });
-
-        return jobUserDTOList;
+            return jobUserDTO;
+        }).collect(Collectors.toList());
     }
 
     public String getActivationEmail(String accountVerifyToken) {
