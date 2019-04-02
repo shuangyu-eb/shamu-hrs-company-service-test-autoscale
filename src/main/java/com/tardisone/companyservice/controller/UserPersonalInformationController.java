@@ -11,17 +11,17 @@ public class UserPersonalInformationController {
     @Autowired
     UserPersonalInformationService service;
 
-    @GetMapping("userPersonalInfo/findById/{id}")
+    @GetMapping("user-personal-info/{id}")
     public UserPersonalInformation findUserPersonalInformationById(@PathVariable Long id){
         return service.findUserPersonalInformationById(id);
     }
 
-    @GetMapping("userPersonalInfo/findByFirstName/{firstName}")
+    @GetMapping("user-personal-info/findByFirstName/{firstName}")
     public UserPersonalInformation findUserPersonalInformationByFirstName(@PathVariable String firstName){
         return service.findUserPersonalInformationByFirstName(firstName);
     }
 
-    @PostMapping("userPersonalInfo/update")
+    @PostMapping("user-personal-info")
     public void update(@RequestBody UserPersonalInformation UserPersonalInformation) {
          service.update(UserPersonalInformation);
     }

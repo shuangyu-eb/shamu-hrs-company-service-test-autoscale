@@ -12,13 +12,14 @@ public class UserContactInformationController {
     @Autowired
     UserContactInformationService service;
 
-    @GetMapping("userContactInfo/{emailWork}")
-    public UserContactInformation findUserContactInformationByEmailWork(@PathVariable("emailWork") String emailWork){
-        return service.findUserContactInformationByEmailWork(emailWork);
-    }
 
-    @PostMapping("userContactInfo/update")
+    @PostMapping("user-contact-info")
     public void update(@RequestBody UserContactInformation userContactInformation){
         service.update(userContactInformation);
+    }
+
+    @GetMapping("user-contact-info/{id}")
+    public UserContactInformation findUserContactInformationById(@PathVariable("id") Long id){
+        return service.findUserContactInformationById(id);
     }
 }

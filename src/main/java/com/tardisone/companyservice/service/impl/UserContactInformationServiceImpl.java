@@ -20,4 +20,9 @@ public class UserContactInformationServiceImpl implements UserContactInformation
     public void update(UserContactInformation userContactInformation) {
         repository.save(userContactInformation);
     }
+
+    @Override
+    public UserContactInformation findUserContactInformationById(Long id) {
+        return repository.findUserContactInformationById(id);
+    }
 }

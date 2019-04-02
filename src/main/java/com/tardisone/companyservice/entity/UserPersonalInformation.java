@@ -2,10 +2,7 @@ package com.tardisone.companyservice.entity;
 
 import lombok.Data;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
+import javax.persistence.*;
 import java.sql.Timestamp;
 
 @Entity

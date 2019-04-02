@@ -4,4 +4,5 @@ import com.tardisone.companyservice.entity.Country;
 
 public interface CountryRepository extends BaseRepository<Country, Long>{
     Country findCountryById(Long id);
+    Country findCountryByName(String name);
 }

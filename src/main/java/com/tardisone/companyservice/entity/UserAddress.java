@@ -1,4 +1,5 @@
 package com.tardisone.companyservice.entity;
+
 import lombok.Data;
 
 import javax.persistence.*;
@@ -21,14 +22,11 @@ public class UserAddress {
     @JoinColumn(name = "city_id", referencedColumnName = "id")
     private City city;
 
-    @OneToOne
-    @JoinColumn(name = "state_province_id", referencedColumnName = "id")
-    private StatesProvince statesProvince;
+    private Long stateProvinceId;
 
     @OneToOne
     @JoinColumn(name = "country_id", referencedColumnName = "id")
     private Country country;
 
     private String postalCode;
-
 }
