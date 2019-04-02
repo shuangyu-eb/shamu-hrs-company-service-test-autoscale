@@ -85,6 +85,10 @@ public class UserServiceImpl implements UserService {
         List<UserAddress> userAddresses = userAddressRepository.findAllByUserIn(employees);
         List<JobUser> jobUserList = jobUserRepository.findAllByUserIn(employees);
 
+        return getJobUserDTOList(employees, userAddresses, jobUserList);
+    }
+
+    private List<JobUserDTO> getJobUserDTOList(List<User> employees, List<UserAddress> userAddresses, List<JobUser> jobUsers) {
         List<JobUserDTO> jobUserDTOList = new ArrayList<>();
         employees.forEach((employee) -> {
             JobUserDTO jobUserDTO = new JobUserDTO();
@@ -107,11 +111,12 @@ public class UserServiceImpl implements UserService {
                 }
             }));
 
-            jobUserList.forEach((jobUser -> {
+            jobUsers.forEach((jobUser -> {
                 User userWithJob = jobUser.getUser();
-                if (userWithJob != null && userWithJob.getId().equals(employee.getId())) {
-                    Job job = jobUser.getJob();
-                    jobUserDTO.setJobTitle(job.getTitle());
+                if (userWithJob != null
+                        && userWithJob.getId().equals(employee.getId())
+                        && jobUser.getJob() != null) {
+                    jobUserDTO.setJobTitle(jobUser.getJob().getTitle());
                 }
             }));
             jobUserDTOList.add(jobUserDTO);
