@@ -23,3 +23,6 @@
 /nbdist/
 /.nb-gradle/
 /build/
+
+### deploy
+/bin/config.json
