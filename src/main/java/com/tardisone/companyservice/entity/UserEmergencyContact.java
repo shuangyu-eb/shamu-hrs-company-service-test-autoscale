@@ -12,7 +12,7 @@ import javax.persistence.Table;
 @NoArgsConstructor
 public class UserEmergencyContact extends BaseEntity {
 
-	private Long user_id;
+	private Long userId;
 
 	private Boolean isPrimary = false;
 
