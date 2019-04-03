@@ -16,11 +16,6 @@ public class UserPersonalInformationController {
         return service.findUserPersonalInformationById(id);
     }
 
-    @GetMapping("user-personal-info/findByFirstName/{firstName}")
-    public UserPersonalInformation findUserPersonalInformationByFirstName(@PathVariable String firstName){
-        return service.findUserPersonalInformationByFirstName(firstName);
-    }
-
     @PostMapping("user-personal-info")
     public void update(@RequestBody UserPersonalInformation UserPersonalInformation) {
          service.update(UserPersonalInformation);

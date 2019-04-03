@@ -18,11 +18,6 @@ public class UserPersonalInformationServiceImpl implements UserPersonalInformati
     }
 
     @Override
-    public UserPersonalInformation findUserPersonalInformationByFirstName(String firstName) {
-        return repository.findUserPersonalInformationByFirstName(firstName);
-    }
-
-    @Override
     public void update(UserPersonalInformation userPersonalInformation) {
         repository.save(userPersonalInformation);
     }
