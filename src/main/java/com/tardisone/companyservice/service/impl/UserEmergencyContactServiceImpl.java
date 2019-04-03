@@ -23,4 +23,9 @@ public class UserEmergencyContactServiceImpl implements UserEmergencyContactServ
 	public void deleteEmergencyContact(Long id) {
 		userEmergencyContactRepository.delete(id);
 	}
+
+	@Override
+	public void updateEmergencyContact(UserEmergencyContact emergencyContact) {
+		userEmergencyContactRepository.save(emergencyContact);
+	}
 }
