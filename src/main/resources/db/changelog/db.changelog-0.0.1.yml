@@ -1562,8 +1562,14 @@ databaseChangeLog:
     author: Max-Zhao
     changes:
     - modifyDataType:
-        columnName: is_first_accrual_prorated
-        newDataType: boolean
         columnName: does_carryover_at_start_of_year
+        newDataType: boolean
+        tableName: time_off_policy_accrual_options
+- changeSet:
+    id: 1550646329776-52
+    author: Max-Zhao
+    changes:
+    - modifyDataType:
+        columnName: is_first_accrual_prorated
         newDataType: boolean
         tableName: time_off_policy_accrual_options
