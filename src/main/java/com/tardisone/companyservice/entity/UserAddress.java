@@ -22,7 +22,9 @@ public class UserAddress {
     @JoinColumn(name = "city_id", referencedColumnName = "id")
     private City city;
 
-    private Long stateProvinceId;
+    @OneToOne
+    @JoinColumn(name = "state_province_id", referencedColumnName = "id")
+    private StatesProvince stateProvince;
 
     @OneToOne
     @JoinColumn(name = "country_id", referencedColumnName = "id")

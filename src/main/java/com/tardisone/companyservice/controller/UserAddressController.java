@@ -30,6 +30,7 @@ public class UserAddressController {
     public void update(@RequestBody UserAddress userAddress){
 
         UserAddress entity = new UserAddress();
+
         entity.setId(userAddress.getId());
         entity.setUserId(userAddress.getUserId());
         entity.setStreet_1(userAddress.getStreet_1());
@@ -44,7 +45,7 @@ public class UserAddressController {
         entity.setCountry(country);
 
 
-        entity.setStateProvinceId(userAddress.getStateProvinceId());
+        entity.setStateProvince(userAddress.getStateProvince());
         entity.setPostalCode(userAddress.getPostalCode());
         service.update(entity);
     }
