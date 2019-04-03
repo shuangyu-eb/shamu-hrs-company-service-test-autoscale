@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
 
-
-REPOSITORY_NAME=`sed -n 's/.*"repository-name": "\(.*\)",/\1/p' bin/config.json`
-REPOSITORY_TAG=`jq -r '."repository-tag"' bin/config.json`
-CLUSTER=`jq -r '."cluster"' bin/config.json`
-SERVICE_NAME=`jq -r '."service-name"' bin/config.json`
+REPOSITORY_NAME=`sed -n 's/REPOSITORY_NAME\(.*\)/\1/p' config/deploy.env`
+REPOSITORY_TAG=`sed -n 's/REPOSITORY_TAG=\(.*\)/\1/p' config/deploy.env`
+CLUSTER=`sed -n 's/CLUSTER=\(.*\)/\1/p' config/deploy.env`
+SERVICE_NAME=`sed -n 's/SERVICE_NAME=\(.*\)/\1/p' config/deploy.env`
 
 while [ -n "$1" ]
 do

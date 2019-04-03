@@ -25,4 +25,5 @@
 /build/
 
 ### deploy
-/bin/config.json
+/config/deploy.env
+/config/application-qa.yml
