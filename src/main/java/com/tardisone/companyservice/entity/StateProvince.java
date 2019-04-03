@@ -1,22 +1,20 @@
 package com.tardisone.companyservice.entity;
 
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-@Entity
 @Data
-@Table(name = "user_statuses")
-@NoArgsConstructor
+@Entity
+@Table(name = "states_provinces")
 @Where(clause = "deleted_at IS NULL")
-public class UserStatus extends BaseEntity {
+public class StateProvince extends BaseEntity {
 
-    public UserStatus(String name) {
-        this.name = name;
-    }
+    @ManyToOne
+    private Country country;
 
     private String name;
 }

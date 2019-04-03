@@ -2,13 +2,16 @@ package com.tardisone.companyservice.entity;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
 import java.sql.Timestamp;
 
 @Entity
 @Data
 @NoArgsConstructor
+@Where(clause = "deleted_at IS NULL")
 public class UserPersonalInformation extends BaseEntity{
 
     private String firstName;
@@ -23,11 +26,15 @@ public class UserPersonalInformation extends BaseEntity{
 
     private String ssn;
 
-    private Long genderId;
+    @ManyToOne
+    private Gender gender;
 
-    private Long maritalStatusId;
+    @ManyToOne
+    private MaritalStatus maritalStatus;
 
-    private Long ethnicityId;
+    @ManyToOne
+    private Ethnicity ethnicity;
 
-    private Long citizenshipStatusId;
+    @ManyToOne
+    private CitizenshipStatus citizenshipStatus;
 }
