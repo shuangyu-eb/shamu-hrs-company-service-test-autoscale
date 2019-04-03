@@ -7,4 +7,6 @@ import java.util.List;
 public interface UserEmergencyContactService {
 
 	List<UserEmergencyContact> getUserEmergencyContacts(Long id);
+
+	void deleteEmergencyContact(Long id);
 }
