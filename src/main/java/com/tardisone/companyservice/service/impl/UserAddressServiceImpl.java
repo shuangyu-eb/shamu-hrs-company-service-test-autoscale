@@ -18,7 +18,7 @@ public class UserAddressServiceImpl implements UserAddressService {
     }
 
     @Override
-    public void update(UserAddress userAddress) {
-        repository.save(userAddress);
+    public UserAddress update(UserAddress userAddress) {
+        return repository.save(userAddress);
     }
 }

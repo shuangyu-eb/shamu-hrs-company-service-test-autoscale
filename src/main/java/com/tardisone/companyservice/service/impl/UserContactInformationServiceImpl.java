@@ -17,8 +17,8 @@ public class UserContactInformationServiceImpl implements UserContactInformation
     }
 
     @Override
-    public void update(UserContactInformation userContactInformation) {
-        repository.save(userContactInformation);
+    public UserContactInformation update(UserContactInformation userContactInformation) {
+        return repository.save(userContactInformation);
     }
 
     @Override

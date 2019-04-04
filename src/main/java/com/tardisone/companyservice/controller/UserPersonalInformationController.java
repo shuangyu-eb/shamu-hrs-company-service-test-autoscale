@@ -17,8 +17,8 @@ public class UserPersonalInformationController {
     }
 
     @PostMapping("user-personal-info")
-    public void update(@RequestBody UserPersonalInformation UserPersonalInformation) {
-         service.update(UserPersonalInformation);
+    public UserPersonalInformation update(@RequestBody UserPersonalInformation UserPersonalInformation) {
+         return service.update(UserPersonalInformation);
     }
 
 }

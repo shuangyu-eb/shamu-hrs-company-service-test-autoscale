@@ -27,7 +27,7 @@ public class UserAddressController {
     }
 
     @PostMapping("user-address")
-    public void update(@RequestBody UserAddress userAddress){
+    public UserAddress update(@RequestBody UserAddress userAddress){
 
         UserAddress entity = new UserAddress();
 
@@ -47,6 +47,6 @@ public class UserAddressController {
 
         entity.setStateProvince(userAddress.getStateProvince());
         entity.setPostalCode(userAddress.getPostalCode());
-        service.update(entity);
+        return service.update(entity);
     }
 }

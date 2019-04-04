@@ -18,7 +18,7 @@ public class UserPersonalInformationServiceImpl implements UserPersonalInformati
     }
 
     @Override
-    public void update(UserPersonalInformation userPersonalInformation) {
-        repository.save(userPersonalInformation);
+    public UserPersonalInformation update(UserPersonalInformation userPersonalInformation) {
+        return repository.save(userPersonalInformation);
     }
 }

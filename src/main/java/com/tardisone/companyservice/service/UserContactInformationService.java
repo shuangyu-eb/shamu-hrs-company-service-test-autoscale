@@ -4,6 +4,6 @@ import com.tardisone.companyservice.entity.UserContactInformation;
 
 public interface UserContactInformationService {
     UserContactInformation findUserContactInformationByEmailWork(String emailWork);
-    void update(UserContactInformation userContactInformation);
+    UserContactInformation update(UserContactInformation userContactInformation);
     UserContactInformation findUserContactInformationById(Long id);
 }

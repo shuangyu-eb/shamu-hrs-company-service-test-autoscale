@@ -14,8 +14,8 @@ public class UserContactInformationController {
 
 
     @PostMapping("user-contact-info")
-    public void update(@RequestBody UserContactInformation userContactInformation){
-        service.update(userContactInformation);
+    public UserContactInformation update(@RequestBody UserContactInformation userContactInformation){
+        return service.update(userContactInformation);
     }
 
     @GetMapping("user-contact-info/{id}")
