@@ -13,7 +13,7 @@ public class UserRestController {
     @Autowired
     UserService userService;
 
-    @PostMapping(value = "user/register/email")
+    @PostMapping(value = "user/sign-up/email")
     public HttpEntity sendVerifyEmail(@RequestBody String email) {
         Boolean emailResult = userService.sendVerifyEmail(email);
         if (emailResult) {
