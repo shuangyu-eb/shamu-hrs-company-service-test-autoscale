@@ -18,7 +18,7 @@ public class UserContactInformationController {
         return service.update(userContactInformation);
     }
 
-    @GetMapping("user-contact-info/{id}")
+    @PatchMapping("user-contact-info/{id}")
     public UserContactInformation findUserContactInformationById(@PathVariable("id") Long id){
         return service.findUserContactInformationById(id);
     }

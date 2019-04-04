@@ -24,12 +24,10 @@ public class UserPersonalInformation {
 
     private String ssn;
 
-    @OneToOne
-    @JoinColumn(name = "gender_id", referencedColumnName = "id")
+    @ManyToOne
     private Gender gender;
 
     @OneToOne
-    @JoinColumn(name = "marital_status_id", referencedColumnName = "id")
     private MartialStatus martialStatus;
 
     private Long ethnicityId;

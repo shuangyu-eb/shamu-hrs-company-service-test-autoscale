@@ -16,7 +16,7 @@ public class UserPersonalInformationController {
         return service.findUserPersonalInformationById(id);
     }
 
-    @PostMapping("user-personal-info")
+    @PatchMapping("user-personal-info")
     public UserPersonalInformation update(@RequestBody UserPersonalInformation UserPersonalInformation) {
          return service.update(UserPersonalInformation);
     }
