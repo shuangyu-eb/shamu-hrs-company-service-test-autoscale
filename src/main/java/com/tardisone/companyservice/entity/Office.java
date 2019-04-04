@@ -10,7 +10,7 @@ import java.util.List;
 @Table(name = "offices")
 public class Office extends BaseEntity{
 
-    private Long organization_id;
+//    private Long organization_id;
 
     private Long office_id;
 

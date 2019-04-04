@@ -14,6 +14,7 @@ public class OfficeAddresses  extends  BaseEntity{
 
     private String street_2;
 
+    @Column(name = "city_id")
     private String city;
 
     private String postalCode;

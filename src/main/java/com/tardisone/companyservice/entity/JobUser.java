@@ -34,4 +34,13 @@ public class JobUser extends BaseEntity  {
 
     @ManyToOne
     private Company company;
+
+    public EmploymentType getEmploymentType() {
+        return employmentType;
+    }
+
+    public void setEmploymentType(EmploymentType employmentType) {
+        this.employmentType = employmentType;
+    }
+
 }

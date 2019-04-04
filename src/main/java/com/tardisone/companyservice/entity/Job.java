@@ -13,5 +13,4 @@ public class Job extends BaseEntity{
 
     @ManyToOne
     private Department department;
-
 }

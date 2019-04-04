@@ -29,6 +29,6 @@ public class UserCompensation extends BaseEntity {
     @OneToOne
     private CompensationType compensationType;
 
-    @OneToOne
-    private CompensationChangeReason compensationChangeReason;
+//    @OneToOne
+//    private CompensationChangeReason compensationChangeReason;
 }
