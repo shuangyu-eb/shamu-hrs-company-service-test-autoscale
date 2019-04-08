@@ -2,7 +2,7 @@
 
 ## Local Setup
 
-#### **preparation**
+### preparation
 
 Before running it locally, you should run the consul in local.
 Here is the [document](https://github.com/tardisone/shamu-hrs/blob/master/consul-setup-in-local.md).
@@ -11,7 +11,7 @@ Here is the [document](https://github.com/tardisone/shamu-hrs/blob/master/consul
 
 If you want run the project shamu-hrs, you should also run the shamu-hrs-gateway.
 
-#### Using maven to serve the application
+### Using maven to serve the application
 
 The following packages are being required if you want to deploy the code to an environment.
 
