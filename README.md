@@ -13,10 +13,9 @@ If you want run the project shamu-hrs, you should also run the shamu-hrs-gateway
 
 ### Using maven to serve the application
 
-The following packages are being required if you want to deploy the code to an environment.
 
-   - Install Java jdk-8(open jdk or oracle jdk) depending on the system. If you install openjdk on mac, you can take a look at [this](https://apple.stackexchange.com/questions/334384/how-can-i-install-java-openjdk-8-on-high-sierra).
-   - Install maven, here's the [documentation](https://maven.apache.org/install.html)
+1. Install Java jdk-8(open jdk or oracle jdk) depending on the system. If you install openjdk on mac, you can take a look at [this](https://apple.stackexchange.com/questions/334384/how-can-i-install-java-openjdk-8-on-high-sierra).
+2. Install maven, here's the [documentation](https://maven.apache.org/install.html)
 
 3. Go to your project root, run the following command to build images for the project.
 
