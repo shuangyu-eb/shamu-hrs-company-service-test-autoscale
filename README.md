@@ -2,7 +2,7 @@
 
 ## Local Setup
 
-#### preparation
+#### **preparation**
 
 Before running it locally, you should run the consul in local.
 Here is the [document](https://github.com/tardisone/shamu-hrs/blob/master/consul-setup-in-local.md).
@@ -24,7 +24,7 @@ The following packages are being required if you want to deploy the code to an e
    $ mvn spring-boot:run -Dspring-boot.run.profiles=local
    ```
 
-**Note:**
+    **Note:**
     You can also use the java IDE(e.g. IntelliJ IDEA) to set up it locally.
 
 4. Visit [http://localhost:8500](http://localhost:8500), then you'll find the company service in **Services**.
