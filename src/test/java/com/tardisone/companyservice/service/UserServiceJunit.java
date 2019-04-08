@@ -29,10 +29,4 @@ public class UserServiceJunit {
         String result = userService.getActivationEmail(UUID.randomUUID().toString());
         Assert.assertNotNull(result);
     }
-
-    @Test
-    public void testFinishUserVerification() {
-        Boolean result = userService.finishUserVerification(UUID.randomUUID().toString());
-        Assert.assertFalse(result);
-    }
 }
