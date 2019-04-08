@@ -5,13 +5,14 @@ import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 
-@Entity
 @Data
-@Table(name = "user_addresses")
+@Entity
+@Table(name = "office_addresses")
 @Where(clause = "deleted_at IS NULL")
-public class UserAddress extends BaseEntity {
+public class OfficeAddress extends BaseEntity {
+
     @OneToOne
-    private User user;
+    private Office office;
 
     @Column(name = "street_1")
     private String street1;
@@ -29,4 +30,5 @@ public class UserAddress extends BaseEntity {
     private Country country;
 
     private String postalCode;
+
 }

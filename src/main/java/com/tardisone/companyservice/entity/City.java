@@ -1,18 +1,16 @@
 package com.tardisone.companyservice.entity;
 
 import lombok.Data;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.Entity;
-import javax.persistence.Id;
 import javax.persistence.Table;
 
-@Entity
 @Data
+@Entity
 @Table(name = "cities")
-public class City {
-
-    @Id
-    private Long id;
+@Where(clause = "deleted_at IS NULL")
+public class City extends BaseEntity {
 
     private String name;
 }

@@ -20,11 +20,14 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
        http
-               .cors().disable()
                .csrf().disable()
+               .cors().disable()
+               .httpBasic().disable()
+               .formLogin().disable()
                .addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class)
                .authorizeRequests()
-               .anyRequest().permitAll();
+               .antMatchers("/actuator/**").permitAll()
+               .antMatchers("/company/user/verify", "/company/user/sign-up/email").permitAll()
+               .anyRequest().authenticated();
     }
-
 }

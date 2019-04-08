@@ -28,25 +28,6 @@ public class UserAddressController {
 
     @PostMapping("user-address")
     public UserAddress update(@RequestBody UserAddress userAddress){
-
-        UserAddress entity = new UserAddress();
-
-        entity.setId(userAddress.getId());
-        entity.setUserId(userAddress.getUserId());
-        entity.setStreet_1(userAddress.getStreet_1());
-        entity.setStreet_2(userAddress.getStreet_2());
-
-        String cityName = userAddress.getCity().getName();
-        City city = cityService.findCityByName(cityName);
-        entity.setCity(city);
-
-        String countryName = userAddress.getCountry().getName();
-        Country country = countryService.findCountryByName(countryName);
-        entity.setCountry(country);
-
-
-        entity.setStateProvince(userAddress.getStateProvince());
-        entity.setPostalCode(userAddress.getPostalCode());
-        return service.update(entity);
+        return service.update(userAddress);
     }
 }

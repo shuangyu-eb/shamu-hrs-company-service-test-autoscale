@@ -1,16 +1,16 @@
 package com.tardisone.companyservice.entity;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.Entity;
-import javax.persistence.Id;
 
 @Entity
 @Data
-public class UserContactInformation {
-
-    @Id
-    private Long id;
+@NoArgsConstructor
+@Where(clause = "deleted_at IS NULL")
+public class UserContactInformation extends BaseEntity {
 
     private String phoneWork;
 

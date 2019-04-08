@@ -1517,3 +1517,59 @@ databaseChangeLog:
             name: deleted_at
             type: datetime
         tableName: cities
+- changeSet:
+    id: 1550646329776-46
+    author: Max-Zhao
+    changes:
+    - dropColumn:
+        columnName: city
+        tableName: office_addresses
+- changeSet:
+    id: 1550646329776-47
+    author: Max-Zhao
+    changes:
+    - addColumn:
+        columns:
+        - column:
+            name: city_id
+            type: BIGINT
+        tableName: office_addresses
+- changeSet:
+    id: 1550646329776-48
+    author: Max-Zhao
+    changes:
+    - dropColumn:
+        columnName: organization_id
+        tableName: offices
+- changeSet:
+    id: 1550646329776-49
+    author: Max-Zhao
+    changes:
+    - modifyDataType:
+        columnName: is_primary
+        newDataType: boolean
+        tableName: user_emergency_contacts
+- changeSet:
+    id: 1550646329776-50
+    author: Max-Zhao
+    changes:
+    - modifyDataType:
+        columnName: is_limited
+        newDataType: boolean
+        tableName: time_off_policies
+- changeSet:
+    id: 1550646329776-51
+    author: Max-Zhao
+    changes:
+    - modifyDataType:
+        columnName: does_carryover_at_start_of_year
+        newDataType: boolean
+        tableName: time_off_policy_accrual_options
+- changeSet:
+    id: 1550646329776-52
+    author: Max-Zhao
+    changes:
+    - modifyDataType:
+        columnName: is_first_accrual_prorated
+        newDataType: boolean
+        tableName: time_off_policy_accrual_options
