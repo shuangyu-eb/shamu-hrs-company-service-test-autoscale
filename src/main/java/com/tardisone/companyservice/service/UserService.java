@@ -13,4 +13,6 @@ public interface UserService {
     Boolean finishUserVerification(String activationToken);
 
     List<JobUserDTO> findAllEmployees();
+
+    User findById(Long id);
 }

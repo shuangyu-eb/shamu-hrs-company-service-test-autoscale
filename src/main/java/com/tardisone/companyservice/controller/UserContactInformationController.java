@@ -13,12 +13,12 @@ public class UserContactInformationController {
     UserContactInformationService service;
 
 
-    @PostMapping("user-contact-info")
+    @PatchMapping("user-contact-info")
     public UserContactInformation update(@RequestBody UserContactInformation userContactInformation){
         return service.update(userContactInformation);
     }
 
-    @PatchMapping("user-contact-info/{id}")
+    @GetMapping("user-contact-info/{id}")
     public UserContactInformation findUserContactInformationById(@PathVariable("id") Long id){
         return service.findUserContactInformationById(id);
     }

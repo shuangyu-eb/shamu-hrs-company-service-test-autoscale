@@ -88,6 +88,11 @@ public class UserServiceImpl implements UserService {
         return getJobUserDTOList(employees, userAddresses, jobUserList);
     }
 
+    @Override
+    public User findById(Long id) {
+        return userRepository.getOne(id);
+    }
+
     private List<JobUserDTO> getJobUserDTOList(List<User> employees, List<UserAddress> userAddresses, List<JobUser> jobUsers) {
         return employees.stream().map((employee) -> {
             JobUserDTO jobUserDTO = new JobUserDTO();
