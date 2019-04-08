@@ -53,7 +53,7 @@ public class UserServiceImpl implements UserService {
     public void sendVerifyEmail(String email) {
         User user = userRepository.findByEmailWork(email);
         if (user == null) {
-            throw new ForbiddenException("User account do not exist!");
+            throw new ForbiddenException("User account does not exist!");
         }
 
         String accountVerifyToken = UUID.randomUUID().toString();
@@ -67,7 +67,7 @@ public class UserServiceImpl implements UserService {
     public void finishUserVerification(String activationToken) {
         User user = userRepository.findByVerificationToken(activationToken);
         if (user == null || user.getVerifiedAt() != null) {
-            throw new ForbiddenException("User account do not exist or already activated!");
+            throw new ForbiddenException("User account does not exist or already activated!");
         }
         user.setVerifiedAt(new Timestamp(new Date().getTime()));
         userRepository.save(user);
