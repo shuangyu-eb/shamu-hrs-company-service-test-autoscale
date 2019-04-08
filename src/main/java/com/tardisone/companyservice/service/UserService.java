@@ -8,9 +8,11 @@ import java.util.List;
 public interface UserService {
     User findUserByEmail(String email);
 
-    Boolean sendVerifyEmail(String email);
+    void sendVerifyEmail(String email);
 
-    Boolean finishUserVerification(String activationToken);
+    void finishUserVerification(String activationToken);
 
     List<JobUserDTO> findAllEmployees();
+
+    Boolean existsByEmailWork(String email);
 }
