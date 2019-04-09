@@ -12,21 +12,10 @@ public class UserAddressController {
     @Autowired
     UserAddressService service;
 
-    @Autowired
-    CityService cityService;
-
-    @Autowired
-    CountryService countryService;
-
-    @Autowired
-    UserService userService;
-
-    @Autowired
-    StateProvinceService stateProvinceService;
-
     @GetMapping("user-address/{userId}")
     public UserAddress findUserAddressByUserId(@PathVariable Long userId){
-        return service.findUserAddressByUserId(userId);
+        UserAddress userAddress = service.findUserAddressByUserId(userId);
+        return userAddress;
     }
 
     @PatchMapping("user-address")

@@ -14,9 +14,6 @@ public class UserAddressServiceImpl implements UserAddressService {
     UserAddressRepository repository;
 
     @Autowired
-    CityRepository cityRepository;
-
-    @Autowired
     StateProvinceRepository stateProvinceRepository;
 
     @Autowired
@@ -35,8 +32,7 @@ public class UserAddressServiceImpl implements UserAddressService {
     public UserAddress update(UserAddressDto userAddressDto) {
         UserAddress userAddress = new UserAddress();
 
-        String cityName = userAddressDto.getCityName();
-        City city = cityRepository.findCityByName(cityName);
+        String city = userAddressDto.getCity();
 
         String countryName = userAddressDto.getCountryName();
         Country country = countryRepository.findCountryByName(countryName);

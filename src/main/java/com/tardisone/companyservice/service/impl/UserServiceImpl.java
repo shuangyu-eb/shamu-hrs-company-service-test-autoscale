@@ -106,7 +106,7 @@ public class UserServiceImpl implements UserService {
                 if (userWithAddress != null
                         && userWithAddress.getId().equals(employee.getId())
                         && userAddress.getCity() != null) {
-                    jobUserDTO.setCityName(userAddress.getCity().getName());
+                    jobUserDTO.setCityName(userAddress.getCity());
                 }
             }));
 

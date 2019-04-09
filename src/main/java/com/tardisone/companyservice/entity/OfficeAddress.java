@@ -20,8 +20,7 @@ public class OfficeAddress extends BaseEntity {
     @Column(name = "street_2")
     private String street2;
 
-    @ManyToOne
-    private City city;
+    private String city;
 
     @ManyToOne
     private StateProvince stateProvince;
