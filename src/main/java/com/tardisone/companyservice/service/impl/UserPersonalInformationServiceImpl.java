@@ -13,11 +13,6 @@ public class UserPersonalInformationServiceImpl implements UserPersonalInformati
     UserPersonalInformationRepository repository;
 
     @Override
-    public UserPersonalInformation findUserPersonalInformationById(Long id) {
-        return repository.findUserPersonalInformationById(id);
-    }
-
-    @Override
     public UserPersonalInformation update(UserPersonalInformation userPersonalInformation) {
         return repository.save(userPersonalInformation);
     }

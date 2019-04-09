@@ -11,11 +11,6 @@ public class UserPersonalInformationController {
     @Autowired
     UserPersonalInformationService service;
 
-    @GetMapping("user-personal-info/{id}")
-    public UserPersonalInformation findUserPersonalInformationById(@PathVariable Long id){
-        return service.findUserPersonalInformationById(id);
-    }
-
     @PatchMapping("user-personal-info")
     public UserPersonalInformation update(@RequestBody UserPersonalInformation UserPersonalInformation) {
          return service.update(UserPersonalInformation);

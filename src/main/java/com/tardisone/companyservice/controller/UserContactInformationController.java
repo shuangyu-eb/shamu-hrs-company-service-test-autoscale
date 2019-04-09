@@ -12,14 +12,8 @@ public class UserContactInformationController {
     @Autowired
     UserContactInformationService service;
 
-
     @PatchMapping("user-contact-info")
     public UserContactInformation update(@RequestBody UserContactInformation userContactInformation){
         return service.update(userContactInformation);
-    }
-
-    @GetMapping("user-contact-info/{id}")
-    public UserContactInformation findUserContactInformationById(@PathVariable("id") Long id){
-        return service.findUserContactInformationById(id);
     }
 }

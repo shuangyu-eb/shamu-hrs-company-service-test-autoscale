@@ -11,7 +11,4 @@ public interface UserAddressRepository extends BaseRepository<UserAddress, Long>
     UserAddress findUserAddressByUserId(Long userId);
 
     UserAddress findUserAddressById(Long id);
-
-    List<UserAddress> findAllById(Long id);
-
 }
