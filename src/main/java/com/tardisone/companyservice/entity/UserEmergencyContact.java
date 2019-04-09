@@ -38,5 +38,7 @@ public class UserEmergencyContact extends BaseEntity {
 	@ManyToOne
 	private State state;
 
-	private Boolean isPrimary;
+	private String postalCode;
+
+	private Boolean isPrimary = false;
 }

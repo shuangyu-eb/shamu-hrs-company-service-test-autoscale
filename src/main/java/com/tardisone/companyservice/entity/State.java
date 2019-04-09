@@ -8,7 +8,7 @@ import javax.persistence.Table;
 
 @Data
 @Entity
-@Table(name = "cities")
+@Table(name = "states")
 @Where(clause = "deleted_at IS NULL")
 public class State extends BaseEntity {
 
