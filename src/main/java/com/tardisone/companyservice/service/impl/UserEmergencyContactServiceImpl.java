@@ -16,7 +16,19 @@ public class UserEmergencyContactServiceImpl implements UserEmergencyContactServ
 
 	@Override
 	public List<UserEmergencyContact> getUserEmergencyContacts(Long id) {
-
 		return userEmergencyContactRepository.findByUserId(id);
+	}
+
+	@Override
+	public void deleteEmergencyContact(Long id) {
+		userEmergencyContactRepository.delete(id);
+	}
+
+	@Override
+	public void updateEmergencyContact(UserEmergencyContact emergencyContact) {
+		if (emergencyContact.getIsPrimary()) {
+			userEmergencyContactRepository.releasePrimaryContact(emergencyContact.getUser().getId());
+		}
+		userEmergencyContactRepository.save(emergencyContact);
 	}
 }
