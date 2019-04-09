@@ -1,13 +1,13 @@
 package com.tardisone.companyservice.controller;
 
+import com.tardisone.companyservice.config.annotations.RestApiController;
 import com.tardisone.companyservice.dto.UserAddressDto;
 import com.tardisone.companyservice.entity.*;
 import com.tardisone.companyservice.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
-@RequestMapping("/company")
+@RestApiController
 public class UserAddressController {
     @Autowired
     UserAddressService service;

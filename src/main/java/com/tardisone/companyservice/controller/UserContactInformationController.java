@@ -1,12 +1,12 @@
 package com.tardisone.companyservice.controller;
 
+import com.tardisone.companyservice.config.annotations.RestApiController;
 import com.tardisone.companyservice.entity.UserContactInformation;
 import com.tardisone.companyservice.service.UserContactInformationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
-@RequestMapping("/company")
+@RestApiController
 public class UserContactInformationController {
 
     @Autowired
