@@ -54,7 +54,6 @@ public class UserAddressController {
         userAddress.setStreet2(userAddressDto.getStreet2());
         userAddress.setId(userAddressDto.getId());
 
-        return userAddress;
-        // return service.update(userAddressDto);
+        return service.update(userAddress);
     }
 }
