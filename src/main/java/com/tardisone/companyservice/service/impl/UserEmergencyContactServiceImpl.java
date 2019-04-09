@@ -21,6 +21,14 @@ public class UserEmergencyContactServiceImpl implements UserEmergencyContactServ
 	}
 
 	@Override
+	public void createUserEmergencyContact(UserEmergencyContact userEmergencyContact) {
+		if (userEmergencyContact.getIsPrimary()) {
+			userEmergencyContactRepository.releasePrimaryContact(userEmergencyContact.getUser().getId());
+		}
+		userEmergencyContactRepository.save(userEmergencyContact);
+	}
+
+	@Override
 	public void deleteEmergencyContact(Long id) {
 		Optional<UserEmergencyContact> userEmergencyContact = userEmergencyContactRepository.findById(id);
 		if (userEmergencyContact.get().getIsPrimary()) {
@@ -30,10 +38,10 @@ public class UserEmergencyContactServiceImpl implements UserEmergencyContactServ
 	}
 
 	@Override
-	public void updateEmergencyContact(UserEmergencyContact emergencyContact) {
-		if (emergencyContact.getIsPrimary()) {
-			userEmergencyContactRepository.releasePrimaryContact(emergencyContact.getUser().getId());
+	public void updateEmergencyContact(UserEmergencyContact userEmergencyContact) {
+		if (userEmergencyContact.getIsPrimary()) {
+			userEmergencyContactRepository.releasePrimaryContact(userEmergencyContact.getUser().getId());
 		}
-		userEmergencyContactRepository.save(emergencyContact);
+		userEmergencyContactRepository.save(userEmergencyContact);
 	}
 }
