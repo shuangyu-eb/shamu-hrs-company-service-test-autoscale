@@ -15,7 +15,7 @@ spring:
     prefix: classpath:templates/
 
 sendGrid:
-  apiKey: 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
+  apiKey: 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
 
 auth0:
   jwks: https://eastbay.auth0.com/.well-known/jwks.json

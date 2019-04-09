@@ -2,7 +2,7 @@ package com.tardisone.companyservice.service.impl;
 
 import com.tardisone.companyservice.dto.JobUserDTO;
 import com.tardisone.companyservice.entity.*;
-import com.tardisone.companyservice.exception.EmailException;
+import com.tardisone.companyservice.exception.ForbiddenException;
 import com.tardisone.companyservice.repository.JobUserRepository;
 import com.tardisone.companyservice.repository.UserAddressRepository;
 import com.tardisone.companyservice.repository.UserRepository;
@@ -50,33 +50,27 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Boolean sendVerifyEmail(String email) {
+    public void sendVerifyEmail(String email) {
         User user = userRepository.findByEmailWork(email);
         if (user == null) {
-            return false;
+            throw new ForbiddenException("User account does not exist!");
         }
 
         String accountVerifyToken = UUID.randomUUID().toString();
         String emailContent = getActivationEmail(accountVerifyToken);
-        Boolean emailResult = emailUtil.send(systemEmailAddress, email, "Please activate your account!", emailContent);
-        if (!emailResult) {
-            throw new EmailException("Error when sending out verify email!");
-        }
-
+        emailUtil.send(systemEmailAddress, email, "Please activate your account!", emailContent);
         user.setVerificationToken(accountVerifyToken);
         userRepository.save(user);
-        return true;
     }
 
     @Override
-    public Boolean finishUserVerification(String activationToken) {
+    public void finishUserVerification(String activationToken) {
         User user = userRepository.findByVerificationToken(activationToken);
         if (user == null || user.getVerifiedAt() != null) {
-            return false;
+            throw new ForbiddenException("User account does not exist or already activated!");
         }
         user.setVerifiedAt(new Timestamp(new Date().getTime()));
         userRepository.save(user);
-        return true;
     }
 
     @Override
@@ -86,6 +80,11 @@ public class UserServiceImpl implements UserService {
         List<JobUser> jobUserList = jobUserRepository.findAllByUserIn(employees);
 
         return getJobUserDTOList(employees, userAddresses, jobUserList);
+    }
+
+    @Override
+    public Boolean existsByEmailWork(String email) {
+        return userRepository.existsByEmailWork(email);
     }
 
     @Override
