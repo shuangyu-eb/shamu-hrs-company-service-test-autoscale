@@ -14,6 +14,11 @@ public interface UserEmergencyContactRepository extends BaseRepository<UserEmerg
 
 	@Modifying
 	@Transactional
-	@Query(value = "UPDATE user_emergency_contacts SET is_primary = FALSE WHERE user_id = ?1", nativeQuery = true)
+	@Query(value = "UPDATE user_emergency_contacts SET is_primary = FALSE WHERE deleted_at IS NULL AND user_id = ?1", nativeQuery = true)
 	void releasePrimaryContact(Long id);
+
+	@Modifying
+	@Transactional
+	@Query(value = "UPDATE user_emergency_contacts SET is_primary = TRUE WHERE deleted_at IS NULL AND user_id = ?1 ORDER BY id Limit 1", nativeQuery = true)
+	void resetPrimaryContact(Long id);
 }
