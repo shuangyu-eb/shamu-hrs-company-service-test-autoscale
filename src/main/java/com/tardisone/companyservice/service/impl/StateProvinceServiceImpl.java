@@ -11,8 +11,4 @@ public class StateProvinceServiceImpl implements StateProvinceService {
 
     @Autowired
     StateProvinceRepository repository;
-    @Override
-    public StateProvince findById(Long id) {
-        return repository.getOne(id);
-    }
 }

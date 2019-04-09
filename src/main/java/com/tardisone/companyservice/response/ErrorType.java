@@ -20,5 +20,7 @@ public enum ErrorType {
 
   ENCODING_ERROR,
 
-  DECODING_ERROR
+  DECODING_ERROR,
+
+  GENERAL_EXCEPTION,
 }

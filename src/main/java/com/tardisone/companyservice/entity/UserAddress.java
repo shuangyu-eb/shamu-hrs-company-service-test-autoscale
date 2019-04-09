@@ -9,7 +9,6 @@ import javax.persistence.*;
 @Entity
 @Data
 @Table(name = "user_addresses")
-@NoArgsConstructor
 @Where(clause = "deleted_at IS NULL")
 public class UserAddress extends BaseEntity {
     @OneToOne

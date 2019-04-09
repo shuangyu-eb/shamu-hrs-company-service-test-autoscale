@@ -15,6 +15,4 @@ public interface UserService {
     List<JobUserDTO> findAllEmployees();
 
     Boolean existsByEmailWork(String email);
-
-    User findById(Long id);
 }
