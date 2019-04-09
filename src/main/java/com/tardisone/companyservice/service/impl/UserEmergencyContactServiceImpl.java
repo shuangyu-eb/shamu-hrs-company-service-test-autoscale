@@ -26,6 +26,9 @@ public class UserEmergencyContactServiceImpl implements UserEmergencyContactServ
 
 	@Override
 	public void updateEmergencyContact(UserEmergencyContact emergencyContact) {
+		if (emergencyContact.getIsPrimary()) {
+			userEmergencyContactRepository.releasePrimaryContact(emergencyContact.getUser().getId());
+		}
 		userEmergencyContactRepository.save(emergencyContact);
 	}
 }
