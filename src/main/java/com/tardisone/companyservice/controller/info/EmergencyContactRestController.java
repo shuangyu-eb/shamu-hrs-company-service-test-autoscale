@@ -22,6 +22,12 @@ public class EmergencyContactRestController {
 		return userEmergencyContactService.getUserEmergencyContacts(id);
 	}
 
+	@PostMapping("user-emergency-contacts")
+	public HttpEntity createEmergencyContacts(@RequestBody UserEmergencyContact emergencyContact) {
+		userEmergencyContactService.createUserEmergencyContact(emergencyContact);
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
+
 	@DeleteMapping("user-emergency-contacts/{id}")
 	public HttpEntity deleteEmergencyContacts(@PathVariable Long id) {
 		userEmergencyContactService.deleteEmergencyContact(id);
