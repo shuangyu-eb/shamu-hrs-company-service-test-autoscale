@@ -6,13 +6,18 @@ import com.tardisone.companyservice.service.CountryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class CountryServiceImpl implements CountryService {
     @Autowired
-    CountryRepository repository;
+    CountryRepository countryRepository;
 
     @Override
-    public Country findCountryByName(String name) {
-        return repository.findCountryByName(name);
+    public Country getCountry(String name) {
+        Optional<Country> optionalCountry = countryRepository.findCountryByName(name);
+        if (optionalCountry.isPresent())
+            return optionalCountry.get();
+        return null;
     }
 }

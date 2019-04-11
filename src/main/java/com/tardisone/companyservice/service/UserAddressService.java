@@ -5,5 +5,6 @@ import com.tardisone.companyservice.entity.UserAddress;
 
 public interface UserAddressService {
     UserAddress getUserAddress(Long userId);
-    UserAddress update(UserAddressDto userAddressDto);
+
+    UserAddress updateUserAddress(UserAddressDto userAddressDto);
 }

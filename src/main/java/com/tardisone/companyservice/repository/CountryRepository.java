@@ -2,6 +2,8 @@ package com.tardisone.companyservice.repository;
 
 import com.tardisone.companyservice.entity.Country;
 
+import java.util.Optional;
+
 public interface CountryRepository extends BaseRepository<Country, Long>{
-    Country findCountryByName(String name);
+    Optional<Country> findCountryByName(String name);
 }

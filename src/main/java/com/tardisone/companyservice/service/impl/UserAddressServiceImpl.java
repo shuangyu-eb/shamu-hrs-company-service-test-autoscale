@@ -3,7 +3,10 @@ package com.tardisone.companyservice.service.impl;
 import com.tardisone.companyservice.dto.UserAddressDto;
 import com.tardisone.companyservice.entity.*;
 import com.tardisone.companyservice.repository.*;
+import com.tardisone.companyservice.service.CountryService;
+import com.tardisone.companyservice.service.StateProvinceService;
 import com.tardisone.companyservice.service.UserAddressService;
+import com.tardisone.companyservice.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,13 +17,13 @@ public class UserAddressServiceImpl implements UserAddressService {
     UserAddressRepository repository;
 
     @Autowired
-    StateProvinceRepository stateProvinceRepository;
+    StateProvinceService stateProvinceService;
 
     @Autowired
-    CountryRepository countryRepository;
+    CountryService countryService;
 
     @Autowired
-    UserRepository userRepository;
+    UserService userService;
 
 
     @Override
@@ -29,28 +32,26 @@ public class UserAddressServiceImpl implements UserAddressService {
     }
 
     @Override
-    public UserAddress update(UserAddressDto userAddressDto) {
-        UserAddress userAddress = new UserAddress();
-
+    public UserAddress updateUserAddress(UserAddressDto userAddressDto) {
         String city = userAddressDto.getCity();
 
         String countryName = userAddressDto.getCountryName();
-        Country country = countryRepository.findCountryByName(countryName);
+        Country country = countryService.getCountry(countryName);
 
         Long userId = userAddressDto.getUserId();
-        User user = userRepository.getOne(userId);
+        User user = userService.getUser(userId);
 
         Long stateProvinceId = userAddressDto.getStateProvinceId();
-        StateProvince stateProvince = stateProvinceRepository.getOne(stateProvinceId);
+        StateProvince stateProvince = stateProvinceService.getStateProvince(stateProvinceId);
 
-        userAddress.setCity(city);
-        userAddress.setCountry(country);
-        userAddress.setPostalCode(userAddressDto.getPostalCode());
-        userAddress.setStateProvince(stateProvince);
-        userAddress.setUser(user);
-        userAddress.setStreet1(userAddressDto.getStreet1());
-        userAddress.setStreet2(userAddressDto.getStreet2());
-        userAddress.setId(userAddressDto.getId());
+        String postalCode = userAddressDto.getPostalCode();
+
+        String street1 = userAddressDto.getStreet1();
+
+        String street2 = userAddressDto.getStreet2();
+
+        UserAddress userAddress = new UserAddress(user,street1,street2,city,stateProvince,country,postalCode);
+
         return repository.save(userAddress);
     }
 }

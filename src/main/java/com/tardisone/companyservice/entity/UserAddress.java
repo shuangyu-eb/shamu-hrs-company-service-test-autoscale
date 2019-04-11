@@ -1,5 +1,6 @@
 package com.tardisone.companyservice.entity;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Where;
@@ -10,6 +11,7 @@ import javax.persistence.*;
 @Data
 @Table(name = "user_addresses")
 @Where(clause = "deleted_at IS NULL")
+@AllArgsConstructor
 public class UserAddress extends BaseEntity {
     @OneToOne
     private User user;

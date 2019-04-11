@@ -87,6 +87,11 @@ public class UserServiceImpl implements UserService {
         return userRepository.existsByEmailWork(email);
     }
 
+    @Override
+    public User getUser(Long id) {
+        return userRepository.getOne(id);
+    }
+
 
     private List<JobUserDTO> getJobUserDTOList(List<User> employees, List<UserAddress> userAddresses, List<JobUser> jobUsers) {
         return employees.stream().map((employee) -> {

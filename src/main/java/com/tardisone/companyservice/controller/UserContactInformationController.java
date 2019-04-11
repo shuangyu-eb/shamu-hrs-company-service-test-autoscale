@@ -10,10 +10,10 @@ import org.springframework.web.bind.annotation.*;
 public class UserContactInformationController {
 
     @Autowired
-    UserContactInformationService service;
+    UserContactInformationService contactInformationService;
 
     @PatchMapping("user-contact-info")
     public UserContactInformation update(@RequestBody UserContactInformation userContactInformation){
-        return service.update(userContactInformation);
+        return contactInformationService.update(userContactInformation);
     }
 }

@@ -19,7 +19,7 @@ public class UserAddressController {
     }
 
     @PatchMapping("user-address")
-    public UserAddress update(@RequestBody UserAddressDto userAddressDto){
-        return userAddressService.update(userAddressDto);
+    public UserAddress updateUserAddress(@RequestBody UserAddressDto userAddressDto){
+        return userAddressService.updateUserAddress(userAddressDto);
     }
 }
