@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestApiController
 public class EmergencyContactRestController {
@@ -20,7 +21,9 @@ public class EmergencyContactRestController {
 
 	@GetMapping("users/{id}/user-emergency-contacts")
 	public List<UserEmergencyContactDTO> getEmergencyContacts(@PathVariable Long id) {
-		List<UserEmergencyContactDTO> userEmergencyContactDTOS = userEmergencyContactService.getUserEmergencyContacts(id);
+		List<UserEmergencyContact> userEmergencyContacts = userEmergencyContactService.getUserEmergencyContacts(id);
+		List<UserEmergencyContactDTO> userEmergencyContactDTOS = userEmergencyContacts.stream()
+			.map(userEmergencyContact -> new UserEmergencyContactDTO(userEmergencyContact)).collect(Collectors.toList());
 		return userEmergencyContactDTOS;
 	}
 

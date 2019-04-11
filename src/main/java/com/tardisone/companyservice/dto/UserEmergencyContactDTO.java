@@ -1,9 +1,13 @@
 package com.tardisone.companyservice.dto;
 
+import com.tardisone.companyservice.entity.State;
+import com.tardisone.companyservice.entity.UserEmergencyContact;
 import lombok.Data;
 
 @Data
 public class UserEmergencyContactDTO {
+
+	private Long id;
 
 	private String firstName;
 
@@ -27,19 +31,20 @@ public class UserEmergencyContactDTO {
 
 	private Boolean isPrimary;
 
-	public UserEmergencyContactDTO(String firstName, String lastName, String relationship, String phone, String email, String street1, String street2, String city, Long stateId, String postalCode, Boolean isPrimary) {
-
-		this.firstName = firstName;
-		this.lastName = lastName;
-		this.relationship = relationship;
-		this.phone = phone;
-		this.email = email;
-		this.street1 = street1;
-		this.street2 = street2;
-		this.city = city;
+	public UserEmergencyContactDTO(UserEmergencyContact userEmergencyContact) {
+		this.id = userEmergencyContact.getId();
+		this.firstName = userEmergencyContact.getFirstName();
+		this.lastName = userEmergencyContact.getLastName();
+		this.relationship = userEmergencyContact.getRelationship();
+		this.phone = userEmergencyContact.getPhone();
+		this.email = userEmergencyContact.getEmail();
+		this.street1 = userEmergencyContact.getStreet1();
+		this.street2 = userEmergencyContact.getStreet2();
+		this.city = userEmergencyContact.getCity();
+		State state = userEmergencyContact.getState();
+		Long stateId = (state != null) ? state.getId() : null;
 		this.stateId = stateId;
-		this.postalCode = postalCode;
-		this.isPrimary = isPrimary;
-
+		this.postalCode = userEmergencyContact.getPostalCode();
+		this.isPrimary = userEmergencyContact.getIsPrimary();
 	}
 }
