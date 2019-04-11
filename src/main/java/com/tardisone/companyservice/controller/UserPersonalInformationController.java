@@ -9,11 +9,11 @@ import org.springframework.web.bind.annotation.*;
 @RestApiController
 public class UserPersonalInformationController {
     @Autowired
-    UserPersonalInformationService service;
+    UserPersonalInformationService userPersonalInformationService;
 
     @PatchMapping("user-personal-info")
     public UserPersonalInformation update(@RequestBody UserPersonalInformation UserPersonalInformation) {
-         return service.update(UserPersonalInformation);
+         return userPersonalInformationService.update(UserPersonalInformation);
     }
 
 }

@@ -24,7 +24,7 @@ public class UserAddressServiceImpl implements UserAddressService {
 
 
     @Override
-    public UserAddress findUserAddressByUserId(Long userId) {
+    public UserAddress getUserAddress(Long userId) {
         return repository.findUserAddressByUserId(userId);
     }
 

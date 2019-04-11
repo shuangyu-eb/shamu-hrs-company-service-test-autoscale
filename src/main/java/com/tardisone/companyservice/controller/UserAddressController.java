@@ -10,16 +10,16 @@ import org.springframework.web.bind.annotation.*;
 @RestApiController
 public class UserAddressController {
     @Autowired
-    UserAddressService service;
+    UserAddressService userAddressService;
 
     @GetMapping("user-address/{userId}")
-    public UserAddress findUserAddressByUserId(@PathVariable Long userId){
-        UserAddress userAddress = service.findUserAddressByUserId(userId);
+    public UserAddress getUserAddress(@PathVariable Long userId){
+        UserAddress userAddress = userAddressService.getUserAddress(userId);
         return userAddress;
     }
 
     @PatchMapping("user-address")
     public UserAddress update(@RequestBody UserAddressDto userAddressDto){
-        return service.update(userAddressDto);
+        return userAddressService.update(userAddressDto);
     }
 }
