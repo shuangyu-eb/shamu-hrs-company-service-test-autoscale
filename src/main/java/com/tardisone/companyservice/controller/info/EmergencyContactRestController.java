@@ -22,9 +22,8 @@ public class EmergencyContactRestController {
 	@GetMapping("users/{id}/user-emergency-contacts")
 	public List<UserEmergencyContactDTO> getEmergencyContacts(@PathVariable Long id) {
 		List<UserEmergencyContact> userEmergencyContacts = userEmergencyContactService.getUserEmergencyContacts(id);
-		List<UserEmergencyContactDTO> userEmergencyContactDTOS = userEmergencyContacts.stream()
+		 return userEmergencyContacts.stream()
 			.map(userEmergencyContact -> new UserEmergencyContactDTO(userEmergencyContact)).collect(Collectors.toList());
-		return userEmergencyContactDTOS;
 	}
 
 	@PostMapping("user-emergency-contacts")
