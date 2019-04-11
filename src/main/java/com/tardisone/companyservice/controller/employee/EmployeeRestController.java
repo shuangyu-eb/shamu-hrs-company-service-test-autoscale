@@ -63,8 +63,9 @@ public class EmployeeRestController {
         }catch (Exception e){
             e.printStackTrace();
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+        }finally {
+            return checked;
         }
-        return checked;
     }
 
     @PostMapping(value = "saveEmploymentType")
