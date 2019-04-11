@@ -1,6 +1,7 @@
 package com.tardisone.companyservice.controller.info;
 
 import com.tardisone.companyservice.config.annotations.RestApiController;
+import com.tardisone.companyservice.dto.UserEmergencyContactDTO;
 import com.tardisone.companyservice.entity.UserEmergencyContact;
 import com.tardisone.companyservice.service.UserEmergencyContactService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +19,9 @@ public class EmergencyContactRestController {
 	UserEmergencyContactService userEmergencyContactService;
 
 	@GetMapping("users/{id}/user-emergency-contacts")
-	public List<UserEmergencyContact> getEmergencyContacts(@PathVariable Long id) {
-		return userEmergencyContactService.getUserEmergencyContacts(id);
+	public List<UserEmergencyContactDTO> getEmergencyContacts(@PathVariable Long id) {
+		List<UserEmergencyContactDTO> userEmergencyContactDTOS = userEmergencyContactService.getUserEmergencyContacts(id);
+		return userEmergencyContactDTOS;
 	}
 
 	@PostMapping("user-emergency-contacts")
