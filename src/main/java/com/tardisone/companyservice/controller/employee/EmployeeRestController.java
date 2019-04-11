@@ -53,9 +53,7 @@ public class EmployeeRestController {
         try{
             User user = userService.addNewUser(employeePojo);
             userService.handlePersonalInformation(employeePojo, user);
-            if("true".equals(employeePojo.getSetupOption())){
-                userService.handelEmergencyContacts(employeePojo, user);
-            }
+            userService.handelEmergencyContacts(employeePojo, user);
             userService.handleContactInformation(employeePojo, user);
             userService.handleJobInformation(employeePojo, user);
             userService.saveUser(user);
