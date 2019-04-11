@@ -3,7 +3,9 @@ package com.tardisone.companyservice.service;
 import com.tardisone.companyservice.dto.JobUserDTO;
 import com.tardisone.companyservice.dto.NormalObjectDTO;
 import com.tardisone.companyservice.entity.User;
+import com.tardisone.companyservice.entity.UserPersonalInformation;
 import com.tardisone.companyservice.pojo.EmployeeInfomationPojo;
+import com.tardisone.companyservice.pojo.OfficePojo;
 
 import java.util.List;
 
@@ -16,16 +18,28 @@ public interface UserService {
 
     List<JobUserDTO> findAllEmployees();
 
-    public List<NormalObjectDTO>  getJobInformation();
+    Boolean existsByEmailWork(String email);
 
-    public User addNewUser(EmployeeInfomationPojo pojo);
+    List<NormalObjectDTO>  getJobInformation();
 
-    //注册前，处理persionnalInformation
-    public void handlePersonalInformation(EmployeeInfomationPojo pojo, User user);
+    User addNewUser(EmployeeInfomationPojo pojo);
 
+    void saveUser(User user);
 
-    public void handleContactInformation(EmployeeInfomationPojo pojo, User user);
+    void handlePersonalInformation(EmployeeInfomationPojo pojo, User user);
 
-    //处理jobInformation
-    public void handleJobInformation(EmployeeInfomationPojo pojo, User user);
+    void handleFullPersonalInformation(EmployeeInfomationPojo pojo, User user, UserPersonalInformation userPersonalInformation);
+
+    void handleContactInformation(EmployeeInfomationPojo pojo, User user);
+
+    void handleJobInformation(EmployeeInfomationPojo pojo, User user);
+
+    void handelEmergencyContacts(EmployeeInfomationPojo employeePojo, User user);
+
+    Boolean saveEmploymentType(String employmentType);
+
+    Boolean saveDepartment(String department);
+
+    Boolean saveOfficeLocation(OfficePojo officePojo);
+
 }

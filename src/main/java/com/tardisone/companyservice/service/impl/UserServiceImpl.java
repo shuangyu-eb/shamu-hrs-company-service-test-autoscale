@@ -3,14 +3,22 @@ package com.tardisone.companyservice.service.impl;
 import com.tardisone.companyservice.dto.JobUserDTO;
 import com.tardisone.companyservice.dto.NormalObjectDTO;
 import com.tardisone.companyservice.entity.*;
+import com.tardisone.companyservice.pojo.EmergencyContactPojo;
+import com.tardisone.companyservice.pojo.OfficePojo;
+import com.tardisone.companyservice.repository.JobUserRepository;
+import com.tardisone.companyservice.repository.UserAddressRepository;
+import com.tardisone.companyservice.repository.UserRepository;
 import com.tardisone.companyservice.exception.EmailException;
 import com.tardisone.companyservice.pojo.EmployeeInfomationPojo;
 import com.tardisone.companyservice.repository.*;
 import com.tardisone.companyservice.service.UserService;
 import com.tardisone.companyservice.utils.EmailUtil;
+import com.tardisone.companyservice.utils.FieldCheckUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.Context;
 
@@ -42,13 +50,37 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserContactlInformationRepository userContactlInformationRepository;
 
-    @Autowired
-    private JobRepository jobRepository;
-
     @Autowired DepartmentRepository departmentRepository;
 
     @Autowired
     private EmploymentTypeRepository employmentTypeRepository;
+
+    @Autowired
+    private JobRepository jobRepository;
+
+    @Autowired
+    private UserEmergencyContactRepository userEmergencyContactRepository;
+
+    @Autowired
+    private OfficeRepository officeRepository;
+
+    @Autowired
+    private OfficeAddressRepository officeAddressRepository;
+
+    @Autowired
+    private StateProvinceRepository stateProvinceRepository;
+
+    @Autowired
+    private UserCompensationRepository userCompensationRepository;
+
+    @Autowired
+    private CompensationFrequencyRepository compensationFrequencyRepository;
+
+    @Autowired
+    private GenderRepository genderRepository;
+
+    @Autowired
+    private MartialStatusRepository martialStatusRepository;
 
     @Value("${application.systemEmailAddress}")
     String systemEmailAddress;
@@ -58,6 +90,8 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     EmailUtil emailUtil;
+
+    private static Long employeeUserRoleId = 3L;
 
     @Override
     public User findUserByEmail(String email) {
@@ -103,6 +137,11 @@ public class UserServiceImpl implements UserService {
         return getJobUserDTOList(employees, userAddresses, jobUserList);
     }
 
+    @Override
+    public Boolean existsByEmailWork(String email) {
+        return null;
+    }
+
     private List<JobUserDTO> getJobUserDTOList(List<User> employees, List<UserAddress> userAddresses, List<JobUser> jobUsers) {
         return employees.stream().map((employee) -> {
             JobUserDTO jobUserDTO = new JobUserDTO();
@@ -121,7 +160,7 @@ public class UserServiceImpl implements UserService {
                 if (userWithAddress != null
                         && userWithAddress.getId().equals(employee.getId())
                         && userAddress.getCity() != null) {
-                    jobUserDTO.setCityName(userAddress.getCity().getName());
+                    jobUserDTO.setCityName(userAddress.getCity());
                 }
             }));
 
@@ -147,21 +186,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<NormalObjectDTO> getJobInformation() {
         List<NormalObjectDTO> resultList = new ArrayList<>();
-
-        /*List<Job> jobList = jobRepository.findAll();
-        List<JobDTO> allJobs = new ArrayList<>();
-        for (Job job : jobList) {
-            JobDTO jobDto = new JobDTO();
-            String id = String.valueOf(job.getId());
-            String title = job.getTitle();
-            jobDto.setId(id);
-            jobDto.setTitle(title);
-            allJobs.add(jobDto);
-        }
-        NormalObjectDTO allJobDtos = new NormalObjectDTO();
-        allJobDtos.setId("jobTitle");
-        allJobDtos.setName(allJobs);
-        resultList.add(allJobDtos);*/
 
         List<Department> departmentList = departmentRepository.findAll();
         List<NormalObjectDTO> allDepartments = new ArrayList<>();
@@ -208,9 +232,75 @@ public class UserServiceImpl implements UserService {
             allEmploymentTypes.add(employmentTypeDto);
         }
         NormalObjectDTO allEmploymentTypeDtos = new NormalObjectDTO();
-        allEmploymentTypeDtos.setId("reportsTo");
+        allEmploymentTypeDtos.setId("employmentType");
         allEmploymentTypeDtos.setName(allEmploymentTypes);
         resultList.add(allEmploymentTypeDtos);
+
+        List<StateProvince> stateProvinces = stateProvinceRepository.findAll();
+        List<NormalObjectDTO> stateDtos = new ArrayList<>();
+        for(StateProvince state : stateProvinces) {
+            NormalObjectDTO stateDto = new NormalObjectDTO();
+            stateDto.setId(String.valueOf(state.getId()));
+            stateDto.setName(state.getName());
+            stateDtos.add(stateDto);
+        }
+        NormalObjectDTO allstateDtos = new NormalObjectDTO();
+        allstateDtos.setId("state");
+        allstateDtos.setName(stateDtos);
+        resultList.add(allstateDtos);
+
+        List<Office> offices = officeRepository.findAll();
+        List<NormalObjectDTO> officeDtos = new ArrayList<>();
+        for(Office office : offices) {
+            NormalObjectDTO officeDto = new NormalObjectDTO();
+            officeDto.setId(String.valueOf(office.getId()));
+            officeDto.setName(office.getName());
+            officeDtos.add(officeDto);
+        }
+        NormalObjectDTO allofficeDtos = new NormalObjectDTO();
+        allofficeDtos.setId("office");
+        allofficeDtos.setName(officeDtos);
+        resultList.add(allofficeDtos);
+
+        List<Gender> genders = genderRepository.findAll();
+        List<NormalObjectDTO> genderDtos = new ArrayList<>();
+        for(Gender gender : genders) {
+            NormalObjectDTO genderDto = new NormalObjectDTO();
+            genderDto.setId(String.valueOf(gender.getId()));
+            genderDto.setName(gender.getName());
+            genderDtos.add(genderDto);
+        }
+        NormalObjectDTO allGenderDtos = new NormalObjectDTO();
+        allGenderDtos.setId("gender");
+        allGenderDtos.setName(genderDtos);
+        resultList.add(allGenderDtos);
+
+
+        List<MaritalStatus> martialStatuses = martialStatusRepository.findAll();
+        List<NormalObjectDTO> martialStatusDtos = new ArrayList<>();
+        for(MaritalStatus maritalStatus : martialStatuses) {
+            NormalObjectDTO martialStatusDto = new NormalObjectDTO();
+            martialStatusDto.setId(String.valueOf(maritalStatus.getId()));
+            martialStatusDto.setName(maritalStatus.getName());
+            martialStatusDtos.add(martialStatusDto);
+        }
+        NormalObjectDTO allmartialStatusDtos = new NormalObjectDTO();
+        allmartialStatusDtos.setId("maritalStatus");
+        allmartialStatusDtos.setName(martialStatusDtos);
+        resultList.add(allmartialStatusDtos);
+
+        List<CompensationFrequency> compensationFrequencies = compensationFrequencyRepository.findAll();
+        List<NormalObjectDTO> compensationFrequenceDtos = new ArrayList<>();
+        for(CompensationFrequency compensationFrequency : compensationFrequencies) {
+            NormalObjectDTO compensationFrequenceDto = new NormalObjectDTO();
+            compensationFrequenceDto.setId(String.valueOf(compensationFrequency.getId()));
+            compensationFrequenceDto.setName(compensationFrequency.getName());
+            compensationFrequenceDtos.add(compensationFrequenceDto);
+        }
+        NormalObjectDTO allcompensationFrequenceDtos = new NormalObjectDTO();
+        allcompensationFrequenceDtos.setId("compensationUnit");
+        allcompensationFrequenceDtos.setName(compensationFrequenceDtos);
+        resultList.add(allcompensationFrequenceDtos);
 
         return resultList;
     }
@@ -218,9 +308,16 @@ public class UserServiceImpl implements UserService {
     @Override
     public User addNewUser(EmployeeInfomationPojo pojo){
         User user = new User();
+        UserRole userRole = new UserRole();
+        userRole.setId(employeeUserRoleId);
+        user.setUserRole(userRole);
         user.setEmailWork(pojo.getWorkEmail());
         return user;
+    }
 
+    @Override
+    public void saveUser(User user){
+        User userReturned = userRepository.save(user);
     }
 
     @Override
@@ -231,8 +328,44 @@ public class UserServiceImpl implements UserService {
         UserPersonalInformation userPersonalInformation = new UserPersonalInformation();
         userPersonalInformation.setFirstName(firstName);
         userPersonalInformation.setLastName(lastName);
+
+        if("true".equals(pojo.getSetupOption())){
+            handleFullPersonalInformation(pojo, user, userPersonalInformation);
+        }
+
         UserPersonalInformation returnEntity = userPersonalInformationRepository.save(userPersonalInformation);
         user.setUserPersonalInformation(returnEntity);
+    }
+
+    @Override
+    public void handleFullPersonalInformation(EmployeeInfomationPojo pojo, User user, UserPersonalInformation userPersonalInformation) {
+        String socialSecurityNumber = pojo.getSocialSecurityNumber();
+        String gender = pojo.getGender();
+        String maritalStatus = pojo.getMaritalStatus();
+        String dateOfBirth = pojo.getDateOfBirth();
+        String street1 = pojo.getStreet1();
+        String street2 = pojo.getStreet2();
+        String city = pojo.getCity();
+        String state = pojo.getState();
+        String zip = pojo.getZip();
+
+        userPersonalInformation.setSsn(socialSecurityNumber);
+        Gender saveGender = genderRepository.findById(Long.parseLong(gender)).get();
+        userPersonalInformation.setGender(saveGender);
+        MaritalStatus savemaritalStatus = martialStatusRepository.findById(Long.parseLong(maritalStatus)).get();
+        userPersonalInformation.setMaritalStatus(savemaritalStatus);
+        Timestamp birthTimestamp = FieldCheckUtil.getTimestampFromString(dateOfBirth);
+        userPersonalInformation.setBirthDate(birthTimestamp);
+
+        UserAddress userAddress = new UserAddress();
+        userAddress.setStreet1(street1);
+        userAddress.setStreet2(street2);
+        userAddress.setPostalCode(zip);
+        StateProvince stateProvince = stateProvinceRepository.findById(Long.parseLong(state)).get();
+        userAddress.setStateProvince(stateProvince);
+        userAddress.setCity(city);
+        userAddress.setUser(user);
+        userAddressRepository.save(userAddress);
     }
 
     @Override
@@ -253,7 +386,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void handleJobInformation(EmployeeInfomationPojo pojo, User user) {
-        String jobTitleId = pojo.getJobTitleId();
+        String jobTitle = pojo.getJobTitle();
         String employmentTypeId = pojo.getEmployeeType();
         String hireDate = pojo.getHireDate();
         String managerId = pojo.getManagerId();
@@ -263,27 +396,128 @@ public class UserServiceImpl implements UserService {
         String officeId = pojo.getOfficeLocation();
 
         JobUser jobUser = new JobUser();
-        if (jobTitleId != null && !jobTitleId.equals("")) {
-            Job job = new Job();
-            job.setId(Long.parseLong(jobTitleId));
-            jobUser.setJob(job);
-            jobUser.setUser(user);
-            jobUser.setStartDate(Timestamp.valueOf(hireDate));
-            Department department = new Department();
-            department.setId(Long.parseLong(departmentId));
-            jobUser.setDepartment(department);
-            EmploymentType employmentType = new EmploymentType();
-            employmentType.setId(Long.parseLong(employmentTypeId));
-            jobUser.setEmploymentType(employmentType);
-            Office office = new Office();
-            office.setOfficeId(officeId);
-            jobUser.setOffice(office);
-        }
 
+        User managerUser = userRepository.findByManagerUser(Long.parseLong(managerId));
+        user.setManagerUser(managerUser);
 
+        jobUser.setUser(user);
+        Job job = new Job();
+        job.setTitle(jobTitle);
+        Job jobReturned = jobRepository.save(job);
+        jobUser.setJob(jobReturned);
 
+        Department department = new Department();
+        department.setId(Long.parseLong(departmentId));
+        Department departmentReturned = departmentRepository.save(department);
+        jobUser.setDepartment(departmentReturned);
 
+        EmploymentType employmentType = new EmploymentType();
+        employmentType.setId(Long.parseLong(employmentTypeId));
+        EmploymentType employmentTypeReturned = employmentTypeRepository.save(employmentType);
+        jobUser.setEmploymentType(employmentTypeReturned);
+
+        Office office = officeRepository.findById(Long.parseLong(officeId)).get();
+        jobUser.setOffice(office);
+
+        jobUser.setStartDate(FieldCheckUtil.getTimestampFromString(hireDate));
 
         JobUser returnEntity = jobUserRepository.save(jobUser);
+
+        UserCompensation userCompensation = new UserCompensation();
+        userCompensation.setWage(Integer.valueOf(compensation));
+        userCompensation.setUser(user);
+        CompensationFrequency compensationFrequency = compensationFrequencyRepository.findById(Long.parseLong(compensationUnit)).get();
+        userCompensation.setCompensationFrequency(compensationFrequency);
+        userCompensationRepository.save(userCompensation);
+
+    }
+
+    @Override
+    public void handelEmergencyContacts(EmployeeInfomationPojo employeePojo, User user) {
+        if(employeePojo.getSetupOption().equals("false")){
+            return;
+        }
+        List<EmergencyContactPojo> list = employeePojo.getEmergencyContactPojoList();
+        List<UserEmergencyContact> entityList = new ArrayList<>();
+        list.forEach(contactPojo -> {
+            UserEmergencyContact contactEntity = new UserEmergencyContact();
+            contactEntity.setEmail(contactPojo.getEmergencyContactEmail());
+            contactEntity.setPhone(contactPojo.getEmergencyContactPhone());
+            contactEntity.setCity(contactPojo.getEmergencyContactCity());
+            contactEntity.setFirstName(contactPojo.getEmergencyContactFirstName());
+            contactEntity.setLastName(contactPojo.getEmergencyContactLastName());
+            contactEntity.setStreet1(contactPojo.getEmergencyContactStreet1());
+            contactEntity.setStreet2(contactPojo.getEmergencyContactStreet2());
+            contactEntity.setPostalCode(contactPojo.getEmergencyContactZip());
+            contactEntity.setUser(user);
+            entityList.add(contactEntity);
+        });
+        userEmergencyContactRepository.saveAll(entityList);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean saveEmploymentType(String employmentTypeName) {
+        boolean returnResult = false;
+        try {
+            EmploymentType employmentType = new EmploymentType();
+            employmentType.setName(employmentTypeName);
+            employmentTypeRepository.save(employmentType);
+            returnResult = true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+        } finally {
+            return returnResult;
+        }
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean saveDepartment(String departmentName) {
+        boolean returnResult = false;
+        try {
+            Department department = new Department();
+            department.setName(departmentName);
+            departmentRepository.save(department);
+            returnResult = true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+        } finally {
+            return returnResult;
+        }
+
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean saveOfficeLocation(OfficePojo officePojo) {
+        boolean returnResult = false;
+        try {
+            Office office = new Office();
+            OfficeAddress officeAddress = new OfficeAddress();
+
+            officeAddress.setCity(officePojo.getCity());
+
+            StateProvince state = stateProvinceRepository.findById(Long.parseLong(officePojo.getState())).get();
+            officeAddress.setStateProvince(state);
+            officeAddress.setPostalCode(officePojo.getZip());
+            officeAddress.setStreet1(officePojo.getStreet1());
+            officeAddress.setStreet2(officePojo.getStreet2());
+
+            OfficeAddress officeAddressReturned = officeAddressRepository.save(officeAddress);
+
+            office.setName(officePojo.getOfficeName());
+            office.setOfficeAddress(officeAddressReturned);
+
+            officeRepository.save(office);
+            returnResult = true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+        } finally {
+            return returnResult;
+        }
     }
 }

@@ -1573,3 +1573,11 @@ databaseChangeLog:
         columnName: is_first_accrual_prorated
         newDataType: boolean
         tableName: time_off_policy_accrual_options
+- changeSet:
+      id: 1554171434000-1
+      author: rex-eb
+      changes:
+          - dropTable:
+                tableName: user_emergency_contacts
+          - dropTable:
+                tableName: user_emergency_contact_relationships

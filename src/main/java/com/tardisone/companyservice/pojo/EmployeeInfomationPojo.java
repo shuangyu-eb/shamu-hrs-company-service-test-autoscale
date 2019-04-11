@@ -1,12 +1,40 @@
 package com.tardisone.companyservice.pojo;
 
 import com.tardisone.companyservice.utils.Constants;
+import lombok.Data;
+import org.junit.jupiter.api.Test;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
+@Data
 public class EmployeeInfomationPojo {
 
+    private String setupOption;
+
     private String firstName;
+
+    private String middleName;
+
+    private String preferredName;
+
+    private String socialSecurityNumber;
+
+    private String gender;
+
+    private String maritalStatus;
+
+    private String dateOfBirth;
+
+    private String street1;
+
+    private String street2;
+
+    private String city;
+
+    private String state;
+
+    private String zip;
 
     private String lastName;
 
@@ -18,7 +46,7 @@ public class EmployeeInfomationPojo {
 
     private String phonePersonal;
 
-    private String jobTitleId;
+    private String jobTitle;
 
     private String employeeType;
 
@@ -34,14 +62,35 @@ public class EmployeeInfomationPojo {
 
     private String officeLocation;
 
+    private String uploadPhoto;
+
+    private List<EmergencyContactPojo> emergencyContactPojoList;
+
     public EmployeeInfomationPojo(HttpServletRequest request){
+        setSetupOption(request.getParameter(Constants.SETUP_OPTION));
+        if(getSetupOption().equals("true")){
+            setMiddleName(request.getParameter(Constants.MIDDLE_NAME));
+            setPreferredName(request.getParameter(Constants.PREFERRED_NAME));
+            setSocialSecurityNumber(request.getParameter(Constants.SOCIAL_SECURITY_NUMBER));
+            setGender(request.getParameter(Constants.GENDER));
+            setMaritalStatus(request.getParameter(Constants.MARITAL_STATUS));
+            setDateOfBirth(request.getParameter(Constants.DATE_OF_BIRTH));
+            setStreet1(request.getParameter(Constants.STREET1));
+            setStreet1(request.getParameter(Constants.STREET2));
+            setCity(request.getParameter(Constants.CITY));
+            setState(request.getParameter(Constants.STATE));
+            setZip(request.getParameter(Constants.ZIP));
+
+            String emergencyContactsJSON = request.getParameter(Constants.EMERGENCY_CONTACTS);
+            setEmergencyContactPojoList(EmergencyContactPojo.getEmergencyContactPojoList(emergencyContactsJSON));
+        }
         setFirstName(request.getParameter(Constants.FIRST_NAME));
         setLastName(request.getParameter(Constants.LAST_NAME));
         setWorkEmail(request.getParameter(Constants.WORK_EMAIL));
         setPersonalEmail(request.getParameter(Constants.WORK_EMAIL));
         setPhoneWork(request.getParameter(Constants.PERSONAL_EMAIL));
         setPhonePersonal(request.getParameter(Constants.HOME_PHONE));
-        setJobTitleId(request.getParameter(Constants.JOB_TITLE));
+        setJobTitle(request.getParameter(Constants.JOB_TITLE));
         setEmployeeType(request.getParameter(Constants.EMPLOYEE_TYPE));
         setHireDate(request.getParameter(Constants.HIRE_DATE));
         setManagerId(request.getParameter(Constants.REPORTS_TO));
@@ -49,117 +98,8 @@ public class EmployeeInfomationPojo {
         setCompensation(request.getParameter(Constants.COMPENSATION));
         setCompensationUnit(request.getParameter(Constants.COMPENSATION_UNIT));
         setOfficeLocation(request.getParameter(Constants.OFFICE_LOCATION));
+
+
     }
 
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public String getWorkEmail() {
-        return workEmail;
-    }
-
-    public void setWorkEmail(String workEmail) {
-        this.workEmail = workEmail;
-    }
-
-    public String getPersonalEmail() {
-        return personalEmail;
-    }
-
-    public void setPersonalEmail(String personalEmail) {
-        this.personalEmail = personalEmail;
-    }
-
-    public String getPhoneWork() {
-        return phoneWork;
-    }
-
-    public void setPhoneWork(String phoneWork) {
-        this.phoneWork = phoneWork;
-    }
-
-    public String getPhonePersonal() {
-        return phonePersonal;
-    }
-
-    public void setPhonePersonal(String phonePersonal) {
-        this.phonePersonal = phonePersonal;
-    }
-
-    public String getJobTitleId() {
-        return jobTitleId;
-    }
-
-    public void setJobTitleId(String jobTitleId) {
-        this.jobTitleId = jobTitleId;
-    }
-
-    public String getEmployeeType() {
-        return employeeType;
-    }
-
-    public void setEmployeeType(String employeeType) {
-        this.employeeType = employeeType;
-    }
-
-    public String getHireDate() {
-        return hireDate;
-    }
-
-    public void setHireDate(String hireDate) {
-        this.hireDate = hireDate;
-    }
-
-    public String getManagerId() {
-        return managerId;
-    }
-
-    public void setManagerId(String managerId) {
-        this.managerId = managerId;
-    }
-
-    public String getDepartmentId() {
-        return departmentId;
-    }
-
-    public void setDepartmentId(String departmentId) {
-        this.departmentId = departmentId;
-    }
-
-    public String getCompensation() {
-        return compensation;
-    }
-
-    public void setCompensation(String compensation) {
-        this.compensation = compensation;
-    }
-
-    public String getCompensationUnit() {
-        return compensationUnit;
-    }
-
-    public void setCompensationUnit(String compensationUnit) {
-        this.compensationUnit = compensationUnit;
-    }
-
-    public String getOfficeLocation() {
-        return officeLocation;
-    }
-
-    public void setOfficeLocation(String officeLocation) {
-        this.officeLocation = officeLocation;
-    }
 }

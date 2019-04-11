@@ -33,5 +33,8 @@ public class UserCompensation extends BaseEntity {
     @OneToOne
     private CompensationChangeReason compensationChangeReason;
 
+    @OneToOne
+    private CompensationFrequency compensationFrequency;
+
     private String comment;
 }

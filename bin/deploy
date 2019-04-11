@@ -46,5 +46,5 @@ docker tag ${REPOSITORY_NAME}:${REPOSITORY_TAG} ${REPOSITORY_URI}:${REPOSITORY_T
 
 docker push ${REPOSITORY_URI}:${REPOSITORY_TAG}
 
-aws ecs update-service --cluster ${CLUSTER} --service ${SERVICE_NAME} --task-definition company-service:4 --desired-count 1 --force-new-deployment
+aws ecs update-service --cluster ${CLUSTER} --service ${SERVICE_NAME} --task-definition company-service:5 --desired-count 1 --force-new-deployment
 
