@@ -93,11 +93,14 @@ public class FieldCheckUtil {
         DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
         Timestamp timestamp = null;
         try {
-            Date simpleDate = dateFormat.parse(date);
-            timestamp = new Timestamp(simpleDate.getTime());
+            if(!"".equals(date) && null != date){
+                Date simpleDate = dateFormat.parse(date);
+                timestamp = new Timestamp(simpleDate.getTime());
+            }
         } catch (ParseException e) {
             e.printStackTrace();
+        }finally {
+            return timestamp;
         }
-        return timestamp;
     }
 }

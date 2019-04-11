@@ -394,40 +394,44 @@ public class UserServiceImpl implements UserService {
         String compensation = pojo.getCompensation();
         String compensationUnit = pojo.getCompensationUnit();
         String officeId = pojo.getOfficeLocation();
-
         JobUser jobUser = new JobUser();
-
-        User managerUser = userRepository.findByManagerUser(Long.parseLong(managerId));
-        user.setManagerUser(managerUser);
-
+        if(!"".equals(managerId) && managerId != null){
+            User managerUser = userRepository.findByManagerUser(Long.parseLong(managerId));
+            user.setManagerUser(managerUser);
+        }
         jobUser.setUser(user);
         Job job = new Job();
         job.setTitle(jobTitle);
         Job jobReturned = jobRepository.save(job);
         jobUser.setJob(jobReturned);
 
-        Department department = new Department();
-        department.setId(Long.parseLong(departmentId));
-        Department departmentReturned = departmentRepository.save(department);
-        jobUser.setDepartment(departmentReturned);
+        if(!"".equals(departmentId) && departmentId != null) {
+            Department department = new Department();
+            department.setId(Long.parseLong(departmentId));
+            Department departmentReturned = departmentRepository.save(department);
+            jobUser.setDepartment(departmentReturned);
+        }
+        if(!"".equals(employmentTypeId) && employmentTypeId != null) {
+            EmploymentType employmentType = new EmploymentType();
+            employmentType.setId(Long.parseLong(employmentTypeId));
+            EmploymentType employmentTypeReturned = employmentTypeRepository.save(employmentType);
+            jobUser.setEmploymentType(employmentTypeReturned);
 
-        EmploymentType employmentType = new EmploymentType();
-        employmentType.setId(Long.parseLong(employmentTypeId));
-        EmploymentType employmentTypeReturned = employmentTypeRepository.save(employmentType);
-        jobUser.setEmploymentType(employmentTypeReturned);
-
-        Office office = officeRepository.findById(Long.parseLong(officeId)).get();
-        jobUser.setOffice(office);
+        }
+        if(!"".equals(officeId) && officeId != null) {
+            Office office = officeRepository.findById(Long.parseLong(officeId)).get();
+            jobUser.setOffice(office);
+        }
 
         jobUser.setStartDate(FieldCheckUtil.getTimestampFromString(hireDate));
-
-        JobUser returnEntity = jobUserRepository.save(jobUser);
-
+        jobUserRepository.save(jobUser);
         UserCompensation userCompensation = new UserCompensation();
-        userCompensation.setWage(Integer.valueOf(compensation));
+        userCompensation.setWage("".equals(compensation) ? 0 : Integer.valueOf(compensation));
         userCompensation.setUser(user);
-        CompensationFrequency compensationFrequency = compensationFrequencyRepository.findById(Long.parseLong(compensationUnit)).get();
-        userCompensation.setCompensationFrequency(compensationFrequency);
+        if(!"".equals(compensationUnit) && compensationUnit != null) {
+            CompensationFrequency compensationFrequency = compensationFrequencyRepository.findById(Long.parseLong(compensationUnit)).get();
+            userCompensation.setCompensationFrequency(compensationFrequency);
+        }
         userCompensationRepository.save(userCompensation);
 
     }
@@ -503,20 +507,17 @@ public class UserServiceImpl implements UserService {
         try {
             Office office = new Office();
             OfficeAddress officeAddress = new OfficeAddress();
-
             officeAddress.setCity(officePojo.getCity());
-
-            StateProvince state = stateProvinceRepository.findById(Long.parseLong(officePojo.getState())).get();
-            officeAddress.setStateProvince(state);
+            if(!"".equals(officePojo.getState()) && null != officePojo.getState()){
+                StateProvince state = stateProvinceRepository.findById(Long.parseLong(officePojo.getState())).get();
+                officeAddress.setStateProvince(state);
+            }
             officeAddress.setPostalCode(officePojo.getZip());
             officeAddress.setStreet1(officePojo.getStreet1());
             officeAddress.setStreet2(officePojo.getStreet2());
-
             OfficeAddress officeAddressReturned = officeAddressRepository.save(officeAddress);
-
             office.setName(officePojo.getOfficeName());
             office.setOfficeAddress(officeAddressReturned);
-
             officeRepository.save(office);
             returnResult = true;
         } catch (Exception e) {
