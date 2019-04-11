@@ -16,8 +16,6 @@ public class CountryServiceImpl implements CountryService {
     @Override
     public Country getCountry(String name) {
         Optional<Country> optionalCountry = countryRepository.findCountryByName(name);
-        if (optionalCountry.isPresent())
-            return optionalCountry.get();
-        return null;
+        return optionalCountry.orElse(new Country());
     }
 }

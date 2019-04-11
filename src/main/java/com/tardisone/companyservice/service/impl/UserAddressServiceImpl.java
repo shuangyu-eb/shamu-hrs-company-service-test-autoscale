@@ -10,6 +10,8 @@ import com.tardisone.companyservice.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class UserAddressServiceImpl implements UserAddressService {
 
@@ -41,8 +43,10 @@ public class UserAddressServiceImpl implements UserAddressService {
         Long userId = userAddressDto.getUserId();
         User user = userService.getUser(userId);
 
+
         Long stateProvinceId = userAddressDto.getStateProvinceId();
         StateProvince stateProvince = stateProvinceService.getStateProvince(stateProvinceId);
+
 
         String postalCode = userAddressDto.getPostalCode();
 

@@ -17,6 +17,7 @@ import org.thymeleaf.context.Context;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -89,7 +90,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUser(Long id) {
-        return userRepository.getOne(id);
+        Optional<User> optionalUser = userRepository.findById(id);
+        return optionalUser.orElse(new User());
     }
 
 
