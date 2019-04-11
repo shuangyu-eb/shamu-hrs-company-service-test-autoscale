@@ -449,10 +449,16 @@ public class UserServiceImpl implements UserService {
             contactEntity.setStreet1(contactPojo.getEmergencyContactStreet1());
             contactEntity.setStreet2(contactPojo.getEmergencyContactStreet2());
             contactEntity.setPostalCode(contactPojo.getEmergencyContactZip());
+            boolean isPrimary = Boolean.valueOf(contactPojo.getEmergencyContactIsPrimary());
+            contactEntity.setIsPrimary((byte) (isPrimary ? 1 : 0));
+            UserEmergencyContactRelationship userEmergencyContactRelationship = new UserEmergencyContactRelationship();
+            userEmergencyContactRelationship.setName(contactPojo.getRelationship());
+            contactEntity.setRelationships(userEmergencyContactRelationship);
             contactEntity.setUser(user);
             entityList.add(contactEntity);
         });
         userEmergencyContactRepository.saveAll(entityList);
+
     }
 
     @Override

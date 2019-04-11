@@ -19,11 +19,11 @@ public class EmergencyContactPojo {
     private String emergencyContactCity;
     private String emergencyContactState;
     private String emergencyContactZip;
+    private String emergencyContactIsPrimary;
 
     public static List<EmergencyContactPojo> getEmergencyContactPojoList(String json){
         Gson gson = new Gson();
         List<EmergencyContactPojo> list = gson.fromJson(json, new TypeToken<ArrayList<EmergencyContactPojo>>(){}.getType());
-        //EmergencyContactPojo emergencyContactPojo = gson.fromJson(json, EmergencyContactPojo.class);
         return list;
     }
 }
