@@ -5,7 +5,6 @@ import shamu.company.user.dto.UserAddressDTO;
 import shamu.company.user.dto.UserContactInformationDTO;
 import shamu.company.user.dto.UserPersonalInformationDTO;
 import org.springframework.beans.BeanUtils;
-import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserAddress;
 import shamu.company.user.entity.UserContactInformation;
 import shamu.company.user.entity.UserPersonalInformation;

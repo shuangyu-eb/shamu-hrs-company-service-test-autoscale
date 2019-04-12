@@ -39,7 +39,8 @@ public class UserAddressServiceImpl implements UserAddressService {
         Country country = countryService.getCountry(countryName);
 
         Long userId = userAddressDTO.getUserId();
-        User user = userService.getUser(userId);
+        User user = new User();
+        user.setId(userId);
 
 
         Long stateProvinceId = userAddressDTO.getStateProvinceId();
