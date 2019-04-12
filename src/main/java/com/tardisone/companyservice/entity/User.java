@@ -1,7 +1,6 @@
 package com.tardisone.companyservice.entity;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Where;
@@ -9,11 +8,11 @@ import org.hibernate.annotations.Where;
 import javax.persistence.*;
 import java.sql.Timestamp;
 
-@Entity
 @Data
+@Entity
 @Table(name = "users")
 @NoArgsConstructor
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 @Where(clause = "deleted_at IS NULL")
 public class User extends BaseEntity {
 
@@ -34,6 +33,7 @@ public class User extends BaseEntity {
     private Company company;
 
     @ManyToOne
+    @JsonIgnore
     private User managerUser;
 
     @OneToOne

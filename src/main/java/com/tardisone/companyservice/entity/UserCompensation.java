@@ -1,5 +1,6 @@
 package com.tardisone.companyservice.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Where;
@@ -25,6 +26,7 @@ public class UserCompensation extends BaseEntity {
     private String overtimeStatus;
 
     @OneToOne
+    @JsonIgnore
     private User user;
 
     @OneToOne

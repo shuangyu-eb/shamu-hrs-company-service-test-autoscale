@@ -5,7 +5,6 @@ import org.hibernate.annotations.Where;
 
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import java.sql.Timestamp;
 
@@ -15,10 +14,10 @@ import java.sql.Timestamp;
 @Where(clause = "deleted_at IS NULL")
 public class JobUser extends BaseEntity {
 
-    @OneToOne
+    @ManyToOne
     private User user;
 
-    @OneToOne
+    @ManyToOne
     private Job job;
 
     @ManyToOne

@@ -1,5 +1,6 @@
 package com.tardisone.companyservice.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import org.hibernate.annotations.Where;
 
@@ -12,6 +13,7 @@ import javax.persistence.*;
 public class OfficeAddress extends BaseEntity {
 
     @OneToOne
+    @JsonIgnore
     private Office office;
 
     @Column(name = "street_1")
