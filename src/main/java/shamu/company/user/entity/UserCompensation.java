@@ -1,11 +1,13 @@
 package shamu.company.user.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Where;
 import shamu.company.common.entity.BaseEntity;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import java.sql.Timestamp;
@@ -25,7 +27,9 @@ public class UserCompensation extends BaseEntity {
 
     private String overtimeStatus;
 
-    private Long userId;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
+    private User user;
 
     @OneToOne
     private CompensationType compensationType;

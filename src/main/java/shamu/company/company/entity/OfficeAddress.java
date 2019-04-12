@@ -1,5 +1,6 @@
 package shamu.company.company.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import org.hibernate.annotations.Where;
 import shamu.company.common.entity.BaseEntity;
@@ -14,7 +15,9 @@ import javax.persistence.*;
 @Where(clause = "deleted_at IS NULL")
 public class OfficeAddress extends BaseEntity {
 
-    private Long officeId;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Office office;
 
     @Column(name = "street_1")
     private String street1;
