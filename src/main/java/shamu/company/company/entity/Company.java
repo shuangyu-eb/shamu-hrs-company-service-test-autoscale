@@ -1,12 +1,15 @@
 package shamu.company.company.entity;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Where;
 import shamu.company.common.entity.BaseEntity;
 import shamu.company.common.entity.Country;
-
-import javax.persistence.*;
 
 @Data
 @Entity
@@ -15,17 +18,18 @@ import javax.persistence.*;
 @Where(clause = "deleted_at IS NULL")
 public class Company extends BaseEntity {
 
-    private String name;
+  private String name;
 
-    private String imageUrl;
+  private String imageUrl;
 
-    private String EIN;
+  @Column(name = "EIN")
+  private String ein;
 
-    @OneToOne
-    private CompanySize companySize;
+  @OneToOne
+  private CompanySize companySize;
 
-    @ManyToOne
-    private Country country;
+  @ManyToOne
+  private Country country;
 
-    private String subdomainName;
+  private String subdomainName;
 }

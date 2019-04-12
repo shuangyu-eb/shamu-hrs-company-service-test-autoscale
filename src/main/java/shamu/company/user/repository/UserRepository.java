@@ -1,18 +1,19 @@
 package shamu.company.user.repository;
 
+import java.util.List;
 import org.springframework.data.jpa.repository.Query;
 import shamu.company.common.BaseRepository;
 import shamu.company.user.entity.User;
 
-import java.util.List;
-
 public interface UserRepository extends BaseRepository<User, Long> {
-    User findByEmailWork(String emailWork);
 
-    User findByVerificationToken(String activationToken);
+  User findByEmailWork(String emailWork);
 
-    @Query(value = "SELECT * FROM users WHERE manager_user_id IS NOT NULL AND deleted_at IS NULL", nativeQuery = true)
-    List<User> findAllEmployees();
+  User findByVerificationToken(String activationToken);
 
-    Boolean existsByEmailWork(String email);
+  @Query(value = "SELECT * FROM users WHERE manager_user_id IS NOT NULL AND deleted_at IS NULL",
+      nativeQuery = true)
+  List<User> findAllEmployees();
+
+  Boolean existsByEmailWork(String email);
 }

@@ -1,10 +1,5 @@
 package shamu.company.common.config;
 
-import shamu.company.common.exception.EmailException;
-import shamu.company.common.exception.ForbiddenException;
-import shamu.company.common.exception.UnAuthenticatedException;
-import shamu.company.common.exception.response.ErrorMessage;
-import shamu.company.common.exception.response.ErrorType;
 import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -14,7 +9,11 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
-
+import shamu.company.common.exception.EmailException;
+import shamu.company.common.exception.ForbiddenException;
+import shamu.company.common.exception.UnAuthenticatedException;
+import shamu.company.common.exception.response.ErrorMessage;
+import shamu.company.common.exception.response.ErrorType;
 
 @RestControllerAdvice
 public class SpringResponseEntityExceptionHandler {
@@ -41,7 +40,7 @@ public class SpringResponseEntityExceptionHandler {
 
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   @ExceptionHandler(EmailException.class)
-  public ErrorMessage EmailException(EmailException exception) {
+  public ErrorMessage handleEmailException(EmailException exception) {
     return new ErrorMessage(exception.getType(), exception.getMessage());
   }
 

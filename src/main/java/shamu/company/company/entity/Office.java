@@ -1,13 +1,12 @@
 package shamu.company.company.entity;
 
-import lombok.Data;
-import org.hibernate.annotations.Where;
-import shamu.company.common.entity.BaseEntity;
-
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import lombok.Data;
+import org.hibernate.annotations.Where;
+import shamu.company.common.entity.BaseEntity;
 
 @Data
 @Entity
@@ -15,17 +14,17 @@ import javax.persistence.Table;
 @Where(clause = "deleted_at IS NULL")
 public class Office extends BaseEntity {
 
-    @ManyToOne
-    private Company company;
+  @ManyToOne
+  private Company company;
 
-    private String officeId;
+  private String officeId;
 
-    private String name;
+  private String name;
 
-    private String phone;
+  private String phone;
 
-    private String email;
+  private String email;
 
-    @OneToOne
-    private OfficeAddress officeAddress;
+  @OneToOne
+  private OfficeAddress officeAddress;
 }

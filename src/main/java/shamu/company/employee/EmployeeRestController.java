@@ -1,21 +1,20 @@
 package shamu.company.employee;
 
-import shamu.company.common.config.annotations.RestApiController;
-import shamu.company.job.JobUserDTO;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
-import shamu.company.user.*;
-
-import java.util.List;
+import shamu.company.common.config.annotations.RestApiController;
+import shamu.company.job.JobUserDto;
+import shamu.company.user.UserService;
 
 @RestApiController
 public class EmployeeRestController {
 
-    @Autowired
-    UserService userService;
+  @Autowired
+  UserService userService;
 
-    @GetMapping("employees")
-    public List<JobUserDTO> getAllEmployees() {
-        return userService.findAllEmployees();
-    }
+  @GetMapping("employees")
+  public List<JobUserDto> getAllEmployees() {
+    return userService.findAllEmployees();
+  }
 }

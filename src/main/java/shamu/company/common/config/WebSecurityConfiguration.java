@@ -11,23 +11,24 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
-    @Autowired
-    JwtTokenProvider jwtTokenProvider;
+  @Autowired
+  JwtTokenProvider jwtTokenProvider;
 
-    @Autowired
-    JWTAuthorizationFilter jwtAuthorizationFilter;
+  @Autowired
+  JwtAuthorizationFilter jwtAuthorizationFilter;
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-       http
-               .csrf().disable()
-               .cors().disable()
-               .httpBasic().disable()
-               .formLogin().disable()
-               .addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class)
-               .authorizeRequests()
-               .antMatchers("/actuator/**").permitAll()
-               .antMatchers("/company/user/verify", "/company/user/sign-up/email", "/company/user/check/**").permitAll()
-               .anyRequest().authenticated();
-    }
+  @Override
+  protected void configure(HttpSecurity http) throws Exception {
+    http
+        .csrf().disable()
+        .cors().disable()
+        .httpBasic().disable()
+        .formLogin().disable()
+        .addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class)
+        .authorizeRequests()
+        .antMatchers("/actuator/**").permitAll()
+        .antMatchers("/company/user/verify", "/company/user/sign-up/email",
+            "/company/user/check/**").permitAll()
+        .anyRequest().authenticated();
+  }
 }
