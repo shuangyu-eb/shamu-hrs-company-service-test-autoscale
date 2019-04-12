@@ -15,7 +15,7 @@ import javax.persistence.*;
 @Where(clause = "deleted_at IS NULL")
 public class OfficeAddress extends BaseEntity {
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JsonIgnore
     private Office office;
 

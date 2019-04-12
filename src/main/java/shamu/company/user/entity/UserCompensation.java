@@ -7,6 +7,7 @@ import org.hibernate.annotations.Where;
 import shamu.company.common.entity.BaseEntity;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import java.sql.Timestamp;
@@ -26,7 +27,7 @@ public class UserCompensation extends BaseEntity {
 
     private String overtimeStatus;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JsonIgnore
     private User user;
 
