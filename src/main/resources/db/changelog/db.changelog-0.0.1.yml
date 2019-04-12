@@ -1675,7 +1675,7 @@ databaseChangeLog:
             type: NUMERIC
         - column:
             name: name
-            type: varchar(255)
+            type: STRING
         file: db/changelog/files/data_states.csv
         primaryKey: id
         tableName: states
