@@ -1,16 +1,16 @@
 package com.tardisone.companyservice.service.impl;
 
-import com.tardisone.companyservice.dto.UserAddressDto;
+import com.tardisone.companyservice.dto.PersonalInformationDTO;
+import com.tardisone.companyservice.dto.UserAddressDTO;
 import com.tardisone.companyservice.entity.*;
 import com.tardisone.companyservice.repository.*;
 import com.tardisone.companyservice.service.CountryService;
 import com.tardisone.companyservice.service.StateProvinceService;
 import com.tardisone.companyservice.service.UserAddressService;
 import com.tardisone.companyservice.service.UserService;
+import com.tardisone.companyservice.utils.PersonalInformationUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 public class UserAddressServiceImpl implements UserAddressService {
@@ -27,35 +27,40 @@ public class UserAddressServiceImpl implements UserAddressService {
     @Autowired
     UserService userService;
 
-
     @Override
-    public UserAddress getUserAddress(Long userId) {
-        return repository.findUserAddressByUserId(userId);
+    public PersonalInformationDTO getPersonalInformation(Long userId) {
+        UserAddress entity = repository.findUserAddressByUserId(userId);
+        PersonalInformationDTO personalInformationDTO = PersonalInformationUtil.convert(entity);
+        return personalInformationDTO;
     }
 
     @Override
-    public UserAddress updateUserAddress(UserAddressDto userAddressDto) {
-        String city = userAddressDto.getCity();
+    public UserAddressDTO updateUserAddress(UserAddressDTO userAddressDTO) {
+        String city = userAddressDTO.getCity();
 
-        String countryName = userAddressDto.getCountryName();
+        String countryName = userAddressDTO.getCountryName();
         Country country = countryService.getCountry(countryName);
 
-        Long userId = userAddressDto.getUserId();
+        Long userId = userAddressDTO.getUserId();
         User user = userService.getUser(userId);
 
 
-        Long stateProvinceId = userAddressDto.getStateProvinceId();
+        Long stateProvinceId = userAddressDTO.getStateProvinceId();
         StateProvince stateProvince = stateProvinceService.getStateProvince(stateProvinceId);
 
 
-        String postalCode = userAddressDto.getPostalCode();
-
-        String street1 = userAddressDto.getStreet1();
-
-        String street2 = userAddressDto.getStreet2();
+        String postalCode = userAddressDTO.getPostalCode();
+        String street1 = userAddressDTO.getStreet1();
+        String street2 = userAddressDTO.getStreet2();
+        Long id = userAddressDTO.getId();
 
         UserAddress userAddress = new UserAddress(user,street1,street2,city,stateProvince,country,postalCode);
+        userAddress.setId(id);
 
-        return repository.save(userAddress);
+        UserAddress userAddressUpdated = repository.save(userAddress);
+
+        UserAddressDTO userAddressDTOUpdated = PersonalInformationUtil.convertUserAddressEntityToDTO(userAddressUpdated);
+
+        return userAddressDTOUpdated;
     }
 }

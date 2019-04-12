@@ -1,10 +1,10 @@
 package com.tardisone.companyservice.service;
 
-import com.tardisone.companyservice.dto.UserAddressDto;
-import com.tardisone.companyservice.entity.UserAddress;
+import com.tardisone.companyservice.dto.PersonalInformationDTO;
+import com.tardisone.companyservice.dto.UserAddressDTO;
 
 public interface UserAddressService {
-    UserAddress getUserAddress(Long userId);
+    UserAddressDTO updateUserAddress(UserAddressDTO userAddressDto);
 
-    UserAddress updateUserAddress(UserAddressDto userAddressDto);
+    PersonalInformationDTO getPersonalInformation(Long userId);
 }

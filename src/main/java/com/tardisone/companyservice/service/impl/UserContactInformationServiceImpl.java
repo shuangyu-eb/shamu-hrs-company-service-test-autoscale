@@ -1,8 +1,10 @@
 package com.tardisone.companyservice.service.impl;
 
+import com.tardisone.companyservice.dto.UserContactInformationDTO;
 import com.tardisone.companyservice.entity.UserContactInformation;
 import com.tardisone.companyservice.repository.UserContactInformationRepository;
 import com.tardisone.companyservice.service.UserContactInformationService;
+import com.tardisone.companyservice.utils.PersonalInformationUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,8 +14,10 @@ public class UserContactInformationServiceImpl implements UserContactInformation
     UserContactInformationRepository repository;
 
     @Override
-    public UserContactInformation update(UserContactInformation userContactInformation) {
-        return repository.save(userContactInformation);
+    public UserContactInformationDTO update(UserContactInformation userContactInformation) {
+        UserContactInformation userContactInformationUpdated = repository.save(userContactInformation);
+        UserContactInformationDTO userContactInformationDTO = PersonalInformationUtil.convertUserContactInfoEntityToDTO(userContactInformationUpdated);
+        return userContactInformationDTO;
     }
 
 }

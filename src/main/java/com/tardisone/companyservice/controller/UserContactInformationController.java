@@ -1,6 +1,7 @@
 package com.tardisone.companyservice.controller;
 
 import com.tardisone.companyservice.config.annotations.RestApiController;
+import com.tardisone.companyservice.dto.UserContactInformationDTO;
 import com.tardisone.companyservice.entity.UserContactInformation;
 import com.tardisone.companyservice.service.UserContactInformationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,8 +13,8 @@ public class UserContactInformationController {
     @Autowired
     UserContactInformationService contactInformationService;
 
-    @PatchMapping("user-contact-info")
-    public UserContactInformation update(@RequestBody UserContactInformation userContactInformation){
+    @PatchMapping("users/user-contact-info")
+    public UserContactInformationDTO update(@RequestBody UserContactInformation userContactInformation){
         return contactInformationService.update(userContactInformation);
     }
 }

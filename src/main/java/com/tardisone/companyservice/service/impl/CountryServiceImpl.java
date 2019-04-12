@@ -1,6 +1,7 @@
 package com.tardisone.companyservice.service.impl;
 
 import com.tardisone.companyservice.entity.Country;
+import com.tardisone.companyservice.exception.ForbiddenException;
 import com.tardisone.companyservice.repository.CountryRepository;
 import com.tardisone.companyservice.service.CountryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,6 @@ public class CountryServiceImpl implements CountryService {
     @Override
     public Country getCountry(String name) {
         Optional<Country> optionalCountry = countryRepository.findCountryByName(name);
-        return optionalCountry.orElse(new Country());
+        return optionalCountry.orElseThrow(() -> new ForbiddenException("Country does not exist"));
     }
 }
