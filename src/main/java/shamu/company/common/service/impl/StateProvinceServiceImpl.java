@@ -1,0 +1,23 @@
+package shamu.company.common.service.impl;
+
+import shamu.company.common.entity.StateProvince;
+import shamu.company.common.exception.ForbiddenException;
+import shamu.company.common.repository.StateProvinceRepository;
+import shamu.company.common.service.StateProvinceService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.Optional;
+
+@Service
+public class StateProvinceServiceImpl implements StateProvinceService {
+
+    @Autowired
+    StateProvinceRepository stateProvinceRepository;
+
+    @Override
+    public StateProvince getStateProvince(Long id) {
+        Optional<StateProvince> optionalStateProvince = stateProvinceRepository.findById(id);
+        return optionalStateProvince.orElseThrow(() -> new ForbiddenException("StateProvince does not exist"));
+    }
+}
