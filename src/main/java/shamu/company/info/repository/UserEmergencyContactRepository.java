@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface UserEmergencyContactRepository extends BaseRepository<UserEmergencyContact, Long> {
 
-	@Query(value = "SELECT * FROM user_emergency_contacts WHERE deleted_at IS NULL AND user_id = ?1 ORDER BY id DESC", nativeQuery = true)
+	@Query(value = "SELECT * FROM user_emergency_contacts WHERE deleted_at IS NULL AND user_id = ?1 ORDER BY updated_at DESC", nativeQuery = true)
 	List<UserEmergencyContact> findByUserId(Long id);
 
 	@Modifying

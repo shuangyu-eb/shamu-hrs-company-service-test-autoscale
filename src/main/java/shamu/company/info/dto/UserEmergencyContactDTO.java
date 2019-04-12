@@ -1,6 +1,5 @@
 package shamu.company.info.dto;
 
-import shamu.company.info.entity.State;
 import shamu.company.info.entity.UserEmergencyContact;
 import lombok.Data;
 
@@ -8,6 +7,8 @@ import lombok.Data;
 public class UserEmergencyContactDTO {
 
 	private Long id;
+
+	private Long userId;
 
 	private String firstName;
 
@@ -33,6 +34,7 @@ public class UserEmergencyContactDTO {
 
 	public UserEmergencyContactDTO(UserEmergencyContact userEmergencyContact) {
 		this.id = userEmergencyContact.getId();
+		this.userId = userEmergencyContact.getUserId();
 		this.firstName = userEmergencyContact.getFirstName();
 		this.lastName = userEmergencyContact.getLastName();
 		this.relationship = userEmergencyContact.getRelationship();
@@ -41,9 +43,7 @@ public class UserEmergencyContactDTO {
 		this.street1 = userEmergencyContact.getStreet1();
 		this.street2 = userEmergencyContact.getStreet2();
 		this.city = userEmergencyContact.getCity();
-		State state = userEmergencyContact.getState();
-		Long stateId = (state != null) ? state.getId() : null;
-		this.stateId = stateId;
+		this.stateId = userEmergencyContact.getStateId();
 		this.postalCode = userEmergencyContact.getPostalCode();
 		this.isPrimary = userEmergencyContact.getIsPrimary();
 	}

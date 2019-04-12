@@ -7,7 +7,6 @@ import shamu.company.user.entity.User;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
@@ -16,8 +15,7 @@ import javax.persistence.Table;
 @NoArgsConstructor
 public class UserEmergencyContact extends BaseEntity {
 
-	@ManyToOne
-	private User user;
+	private Long userId;
 
 	private String firstName;
 
@@ -37,8 +35,7 @@ public class UserEmergencyContact extends BaseEntity {
 
 	private String city;
 
-	@ManyToOne
-	private State state;
+	private Long stateId;
 
 	private String postalCode;
 

@@ -19,29 +19,29 @@ public class EmergencyContactRestController {
 	@Autowired
 	UserEmergencyContactService userEmergencyContactService;
 
-	@GetMapping("users/{id}/user-emergency-contacts")
-	public List<UserEmergencyContactDTO> getEmergencyContacts(@PathVariable Long id) {
-		List<UserEmergencyContact> userEmergencyContacts = userEmergencyContactService.getUserEmergencyContacts(id);
+	@GetMapping("users/{userId}/user-emergency-contacts")
+	public List<UserEmergencyContactDTO> getEmergencyContacts(@PathVariable Long userId) {
+		List<UserEmergencyContact> userEmergencyContacts = userEmergencyContactService.getUserEmergencyContacts(userId);
 		List<UserEmergencyContactDTO> userEmergencyContactDTOS = userEmergencyContacts.stream()
 			.map(userEmergencyContact -> new UserEmergencyContactDTO(userEmergencyContact)).collect(Collectors.toList());
 		return userEmergencyContactDTOS;
 	}
 
-	@PostMapping("user-emergency-contacts")
-	public HttpEntity createEmergencyContacts(@RequestBody UserEmergencyContact emergencyContact) {
-		userEmergencyContactService.createUserEmergencyContact(emergencyContact);
+	@PostMapping("users/{userId}/user-emergency-contacts")
+	public HttpEntity createEmergencyContacts(@PathVariable Long userId, @RequestBody UserEmergencyContact emergencyContact) {
+		userEmergencyContactService.createUserEmergencyContact(userId, emergencyContact);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
-	@DeleteMapping("user-emergency-contacts/{id}")
-	public HttpEntity deleteEmergencyContacts(@PathVariable Long id) {
-		userEmergencyContactService.deleteEmergencyContact(id);
+	@DeleteMapping("users/{userId}/user-emergency-contacts/{id}")
+	public HttpEntity deleteEmergencyContacts(@PathVariable Long userId, @PathVariable Long id) {
+		userEmergencyContactService.deleteEmergencyContact(userId, id);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
-	@PatchMapping("user-emergency-contacts")
-	public HttpEntity updateEmergencyContact(@RequestBody UserEmergencyContact userEmergencyContact) {
-		userEmergencyContactService.updateEmergencyContact(userEmergencyContact);
+	@PatchMapping("users/{userId}/user-emergency-contacts")
+	public HttpEntity updateEmergencyContact(@PathVariable Long userId, @RequestBody UserEmergencyContact userEmergencyContact) {
+		userEmergencyContactService.updateEmergencyContact(userId, userEmergencyContact);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 }

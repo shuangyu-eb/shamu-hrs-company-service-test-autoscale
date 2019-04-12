@@ -6,11 +6,11 @@ import java.util.List;
 
 public interface UserEmergencyContactService {
 
-	List<UserEmergencyContact> getUserEmergencyContacts(Long id);
+	List<UserEmergencyContact> getUserEmergencyContacts(Long userId);
 
-	void createUserEmergencyContact(UserEmergencyContact userEmergencyContact);
+	void createUserEmergencyContact(Long userId, UserEmergencyContact userEmergencyContact);
 
-	void deleteEmergencyContact(Long id);
+	void deleteEmergencyContact(Long userId, Long id);
 
-	void updateEmergencyContact(UserEmergencyContact emergencyContact);
+	void updateEmergencyContact(Long userId, UserEmergencyContact emergencyContact);
 }
