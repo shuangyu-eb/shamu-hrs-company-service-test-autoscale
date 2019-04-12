@@ -1,6 +1,6 @@
-package com.tardisone.companyservice.service;
+package shamu.company.info.service;
 
-import com.tardisone.companyservice.entity.UserEmergencyContact;
+import shamu.company.info.entity.UserEmergencyContact;
 
 import java.util.List;
 

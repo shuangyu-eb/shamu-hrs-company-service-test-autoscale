@@ -1,8 +1,7 @@
-package com.tardisone.companyservice.service.impl;
+package shamu.company.info.service;
 
-import com.tardisone.companyservice.entity.UserEmergencyContact;
-import com.tardisone.companyservice.repository.UserEmergencyContactRepository;
-import com.tardisone.companyservice.service.UserEmergencyContactService;
+import shamu.company.info.entity.UserEmergencyContact;
+import shamu.company.info.repository.UserEmergencyContactRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

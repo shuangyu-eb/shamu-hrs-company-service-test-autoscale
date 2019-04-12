@@ -1,7 +1,9 @@
-package com.tardisone.companyservice.entity;
+package shamu.company.info.entity;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import shamu.company.common.entity.BaseEntity;
+import shamu.company.user.entity.User;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

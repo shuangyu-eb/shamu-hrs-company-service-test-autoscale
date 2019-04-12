@@ -1,7 +1,7 @@
-package com.tardisone.companyservice.dto;
+package shamu.company.info.dto;
 
-import com.tardisone.companyservice.entity.State;
-import com.tardisone.companyservice.entity.UserEmergencyContact;
+import shamu.company.info.entity.State;
+import shamu.company.info.entity.UserEmergencyContact;
 import lombok.Data;
 
 @Data

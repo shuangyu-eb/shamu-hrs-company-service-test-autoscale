@@ -1,7 +1,8 @@
-package com.tardisone.companyservice.entity;
+package shamu.company.info.entity;
 
 import lombok.Data;
 import org.hibernate.annotations.Where;
+import shamu.company.common.entity.BaseEntity;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;

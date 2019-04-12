@@ -1,14 +1,14 @@
-package com.tardisone.companyservice.controller.info;
+package shamu.company.info.controller;
 
-import com.tardisone.companyservice.config.annotations.RestApiController;
-import com.tardisone.companyservice.dto.UserEmergencyContactDTO;
-import com.tardisone.companyservice.entity.UserEmergencyContact;
-import com.tardisone.companyservice.service.UserEmergencyContactService;
+import shamu.company.common.config.annotations.RestApiController;
+import shamu.company.info.dto.UserEmergencyContactDTO;
+import shamu.company.info.entity.UserEmergencyContact;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import shamu.company.info.service.UserEmergencyContactService;
 
 import java.util.List;
 import java.util.stream.Collectors;

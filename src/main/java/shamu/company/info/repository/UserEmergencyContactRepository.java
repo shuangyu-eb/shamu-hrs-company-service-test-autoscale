@@ -1,9 +1,10 @@
-package com.tardisone.companyservice.repository;
+package shamu.company.info.repository;
 
-import com.tardisone.companyservice.entity.UserEmergencyContact;
+import shamu.company.info.entity.UserEmergencyContact;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
+import shamu.company.common.BaseRepository;
 
 import java.util.List;
 
