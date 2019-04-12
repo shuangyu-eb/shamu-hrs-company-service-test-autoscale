@@ -11,7 +11,7 @@ public class UserAddressController {
     @Autowired
     UserAddressService userAddressService;
 
-    @PatchMapping("users/user-address")
+    @PatchMapping("user-address")
     public UserAddressDTO updateUserAddress(@RequestBody UserAddressDTO userAddressDto){
         return userAddressService.updateUserAddress(userAddressDto);
     }

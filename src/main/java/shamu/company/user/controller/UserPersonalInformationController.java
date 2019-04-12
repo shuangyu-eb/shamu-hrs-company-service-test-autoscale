@@ -12,7 +12,7 @@ public class UserPersonalInformationController {
     @Autowired
     UserPersonalInformationService userPersonalInformationService;
 
-    @PatchMapping("users/user-personal-info")
+    @PatchMapping("user-personal-info")
     public UserPersonalInformationDTO update(@RequestBody UserPersonalInformation UserPersonalInformation) {
          return userPersonalInformationService.update(UserPersonalInformation);
     }

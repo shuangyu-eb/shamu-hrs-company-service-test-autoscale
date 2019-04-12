@@ -15,13 +15,13 @@ public class PersonalInformationController {
     @Autowired
     PersonalInformationService personalInformationService;
 
-    @GetMapping("users/personal-information/{userId}")
+    @GetMapping("user/personal-information/{userId}")
     public PersonalInformationDTO getPersonalInformation(@PathVariable Long userId){
         PersonalInformationDTO personalInformationDTO = personalInformationService.getPersonalInformation(userId);
         return personalInformationDTO;
     }
 
-    @PatchMapping("users/personal-information/basic-information")
+    @PatchMapping("user/personal-information/basic-information")
     public BasicInformationDTO updateBasicInformation(@RequestBody BasicInformationDTO basicInformationDTO){
         BasicInformationDTO basicInformationDTOUpdated = personalInformationService.updateBasicInformation(basicInformationDTO);
         return basicInformationDTOUpdated;
