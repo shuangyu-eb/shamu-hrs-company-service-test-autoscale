@@ -1,5 +1,7 @@
 package shamu.company.user.entity;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Where;
@@ -13,6 +15,7 @@ import java.sql.Timestamp;
 @Data
 @Table(name = "users")
 @NoArgsConstructor
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 @Where(clause = "deleted_at IS NULL")
 public class User extends BaseEntity {
 
@@ -33,7 +36,7 @@ public class User extends BaseEntity {
     private Company company;
 
     @ManyToOne
-    private ManagerUser managerUser;
+    private User managerUser;
 
     @OneToOne
     private UserPersonalInformation userPersonalInformation;
