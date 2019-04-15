@@ -1,13 +1,12 @@
 package shamu.company.user.entity;
 
+import java.sql.Timestamp;
+import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Where;
 import shamu.company.common.entity.BaseEntity;
-
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import java.sql.Timestamp;
 
 @Entity
 @Data
@@ -15,27 +14,27 @@ import java.sql.Timestamp;
 @Where(clause = "deleted_at IS NULL")
 public class UserPersonalInformation extends BaseEntity {
 
-    private String firstName;
+  private String firstName;
 
-    private String middleName;
+  private String middleName;
 
-    private String lastName;
+  private String lastName;
 
-    private String preferredName;
+  private String preferredName;
 
-    private Timestamp birthDate;
+  private Timestamp birthDate;
 
-    private String ssn;
+  private String ssn;
 
-    @ManyToOne
-    private Gender gender;
+  @ManyToOne
+  private Gender gender;
 
-    @ManyToOne
-    private MaritalStatus maritalStatus;
+  @ManyToOne
+  private MaritalStatus maritalStatus;
 
-    @ManyToOne
-    private Ethnicity ethnicity;
+  @ManyToOne
+  private Ethnicity ethnicity;
 
-    @ManyToOne
-    private CitizenshipStatus citizenshipStatus;
+  @ManyToOne
+  private CitizenshipStatus citizenshipStatus;
 }

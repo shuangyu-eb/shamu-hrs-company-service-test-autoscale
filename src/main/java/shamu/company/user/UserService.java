@@ -1,9 +1,8 @@
 package shamu.company.user;
 
-import shamu.company.job.JobUserDTO;
-import shamu.company.user.entity.User;
-
 import java.util.List;
+import shamu.company.job.JobUserDto;
+import shamu.company.user.entity.User;
 
 public interface UserService {
     User findUserByEmail(String email);
@@ -12,8 +11,7 @@ public interface UserService {
 
     void finishUserVerification(String activationToken);
 
-    List<JobUserDTO> findAllEmployees();
+  List<JobUserDto> findAllEmployees();
 
-    Boolean existsByEmailWork(String email);
-
+  Boolean existsByEmailWork(String email);
 }

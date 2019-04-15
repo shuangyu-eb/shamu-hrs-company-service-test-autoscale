@@ -1,6 +1,6 @@
 package shamu.company.employee.service;
 
-import shamu.company.employee.dto.NormalObjectDTO;
+import shamu.company.employee.dto.GeneralObjectDTO;
 import shamu.company.employee.pojo.EmployeeInfomationPojo;
 import shamu.company.employee.pojo.OfficePojo;
 import shamu.company.user.entity.User;
@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface EmployeeService {
 
-    List<NormalObjectDTO> getJobInformation();
+    List<GeneralObjectDTO> getJobInformation();
 
     User addNewUser(EmployeeInfomationPojo pojo);
 

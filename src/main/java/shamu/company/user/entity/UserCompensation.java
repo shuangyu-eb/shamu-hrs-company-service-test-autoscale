@@ -1,6 +1,7 @@
 package shamu.company.user.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.sql.Timestamp;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Where;

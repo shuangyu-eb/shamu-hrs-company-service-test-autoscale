@@ -1,9 +1,11 @@
 package shamu.company.employee.controller;
 
-import shamu.company.employee.dto.NormalObjectDTO;
+import shamu.company.employee.dto.GeneralObjectDTO;
 import shamu.company.employee.pojo.EmployeeInfomationPojo;
 import shamu.company.employee.pojo.OfficePojo;
 import shamu.company.employee.service.EmployeeService;
+import shamu.company.job.JobUserDto;
+import shamu.company.user.UserService;
 import shamu.company.utils.JobUserConstants;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -23,10 +25,18 @@ public class EmployeeRestController {
     @Autowired
     EmployeeService employeeService;
 
+    @Autowired
+    UserService userService;
+
+    @GetMapping("employees")
+    public List<JobUserDto> getAllEmployees() {
+        return userService.findAllEmployees();
+    }
+
     @GetMapping(value = {"getJobInformation"})
     @ResponseBody
     @Transactional
-    public List<NormalObjectDTO>  getJobInformation(){
+    public List<GeneralObjectDTO>  getJobInformation(){
         return employeeService.getJobInformation();
     }
 

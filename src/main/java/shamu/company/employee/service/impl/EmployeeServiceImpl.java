@@ -9,23 +9,26 @@ import shamu.company.company.entity.Department;
 import shamu.company.company.entity.Office;
 import shamu.company.company.entity.OfficeAddress;
 import shamu.company.employee.Repository.*;
-import shamu.company.employee.dto.NormalObjectDTO;
+import shamu.company.employee.dto.GeneralObjectDTO;
 import shamu.company.employee.entity.CompensationFrequency;
 import shamu.company.employee.entity.EmploymentType;
 import shamu.company.employee.pojo.EmergencyContactPojo;
 import shamu.company.employee.pojo.EmployeeInfomationPojo;
 import shamu.company.employee.pojo.OfficePojo;
 import shamu.company.employee.service.EmployeeService;
+import shamu.company.info.entity.UserEmergencyContact;
+import shamu.company.info.repository.UserEmergencyContactRepository;
 import shamu.company.job.Job;
 import shamu.company.job.JobUser;
 import shamu.company.job.JobUserRepository;
 import shamu.company.user.entity.*;
 import shamu.company.user.repository.UserAddressRepository;
-import shamu.company.user.repository.UserEmergencyContactRepository;
 import shamu.company.user.repository.UserPersonalInformationRepository;
 import shamu.company.user.repository.UserRepository;
 import shamu.company.utils.FieldCheckUtil;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
@@ -82,29 +85,55 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     private static long EMPLOYEE_ROLE_ID = 3;
 
+
+    private GeneralObjectDTO getGeneralDtos(List list, String dtoId, Class clazz) {
+        List<GeneralObjectDTO> dtos = new ArrayList<>();
+        Method idMethod = null;
+        Method nameMethod = null;
+        try {
+            idMethod = clazz.getMethod("getId");
+            nameMethod = clazz.getMethod("getName");
+            Method finalIdMethod = idMethod;
+            finalIdMethod.setAccessible(true);
+            Method finalNameMethod = nameMethod;
+            finalNameMethod.setAccessible(true);
+            list.forEach(element -> {
+                GeneralObjectDTO dto = new GeneralObjectDTO();
+                String id = null;
+                String name = null;
+                try {
+                    id = String.valueOf(finalIdMethod.invoke(element));
+                    name = (String) finalNameMethod.invoke(element);
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                } catch (InvocationTargetException e) {
+                    e.printStackTrace();
+                }
+                dto.setId(id);
+                dto.setName(name);
+                dtos.add(dto);
+            });
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+            return null;
+        }
+        GeneralObjectDTO listDto = new GeneralObjectDTO();
+        listDto.setId(dtoId);
+        listDto.setName(dtos);
+        return listDto;
+    }
+
     @Override
-    public List<NormalObjectDTO> getJobInformation() {
-        List<NormalObjectDTO> resultList = new ArrayList<>();
+    public List<GeneralObjectDTO> getJobInformation() {
+        List<GeneralObjectDTO> resultList = new ArrayList<>();
 
         List<Department> departmentList = departmentRepository.findAll();
-        List<NormalObjectDTO> allDepartments = new ArrayList<>();
-        for(Department department : departmentList) {
-            NormalObjectDTO departmentDto = new NormalObjectDTO();
-            String id = String.valueOf(department.getId());
-            String name = department.getName();
-            departmentDto.setId(id);
-            departmentDto.setName(name);
-            allDepartments.add(departmentDto);
-        }
-        NormalObjectDTO allDepartmentDtos = new NormalObjectDTO();
-        allDepartmentDtos.setId("department");
-        allDepartmentDtos.setName(allDepartments);
-        resultList.add(allDepartmentDtos);
+        resultList.add(getGeneralDtos(departmentList, "department", Department.class));
 
         List<User> managerList = userRepository.findAllManagers();
-        List<NormalObjectDTO> allManagers = new ArrayList<>();
+        List<GeneralObjectDTO> allManagers = new ArrayList<>();
         for(User manager : managerList) {
-            NormalObjectDTO managerDto = new NormalObjectDTO();
+            GeneralObjectDTO managerDto = new GeneralObjectDTO();
             String id = String.valueOf(manager.getId());
             UserPersonalInformation userInfo = manager.getUserPersonalInformation();
             String firstName = userInfo.getFirstName();
@@ -115,91 +144,28 @@ public class EmployeeServiceImpl implements EmployeeService {
             managerDto.setName(name);
             allManagers.add(managerDto);
         }
-        NormalObjectDTO allManagersDtos = new NormalObjectDTO();
+        GeneralObjectDTO allManagersDtos = new GeneralObjectDTO();
         allManagersDtos.setId("reportsTo");
         allManagersDtos.setName(allManagers);
         resultList.add(allManagersDtos);
 
         List<EmploymentType> employmentTypes = employmentTypeRepository.findAll();
-        List<NormalObjectDTO> allEmploymentTypes = new ArrayList<>();
-        for(EmploymentType employmentType : employmentTypes) {
-            NormalObjectDTO employmentTypeDto = new NormalObjectDTO();
-            String id = String.valueOf(employmentType.getId());
-            String name = employmentType.getName();
-            employmentTypeDto.setId(id);
-            employmentTypeDto.setName(name);
-            allEmploymentTypes.add(employmentTypeDto);
-        }
-        NormalObjectDTO allEmploymentTypeDtos = new NormalObjectDTO();
-        allEmploymentTypeDtos.setId("employmentType");
-        allEmploymentTypeDtos.setName(allEmploymentTypes);
-        resultList.add(allEmploymentTypeDtos);
+        resultList.add(getGeneralDtos(employmentTypes, "employmentType", EmploymentType.class));
 
         List<StateProvince> stateProvinces = stateProvinceRepository.findAll();
-        List<NormalObjectDTO> stateDtos = new ArrayList<>();
-        for(StateProvince state : stateProvinces) {
-            NormalObjectDTO stateDto = new NormalObjectDTO();
-            stateDto.setId(String.valueOf(state.getId()));
-            stateDto.setName(state.getName());
-            stateDtos.add(stateDto);
-        }
-        NormalObjectDTO allstateDtos = new NormalObjectDTO();
-        allstateDtos.setId("state");
-        allstateDtos.setName(stateDtos);
-        resultList.add(allstateDtos);
+        resultList.add(getGeneralDtos(stateProvinces, "state", StateProvince.class));
 
         List<Office> offices = officeRepository.findAll();
-        List<NormalObjectDTO> officeDtos = new ArrayList<>();
-        for(Office office : offices) {
-            NormalObjectDTO officeDto = new NormalObjectDTO();
-            officeDto.setId(String.valueOf(office.getId()));
-            officeDto.setName(office.getName());
-            officeDtos.add(officeDto);
-        }
-        NormalObjectDTO allofficeDtos = new NormalObjectDTO();
-        allofficeDtos.setId("office");
-        allofficeDtos.setName(officeDtos);
-        resultList.add(allofficeDtos);
+        resultList.add(getGeneralDtos(offices, "office", Office.class));
 
         List<Gender> genders = genderRepository.findAll();
-        List<NormalObjectDTO> genderDtos = new ArrayList<>();
-        for(Gender gender : genders) {
-            NormalObjectDTO genderDto = new NormalObjectDTO();
-            genderDto.setId(String.valueOf(gender.getId()));
-            genderDto.setName(gender.getName());
-            genderDtos.add(genderDto);
-        }
-        NormalObjectDTO allGenderDtos = new NormalObjectDTO();
-        allGenderDtos.setId("gender");
-        allGenderDtos.setName(genderDtos);
-        resultList.add(allGenderDtos);
-
+        resultList.add(getGeneralDtos(genders, "gender", Gender.class));
 
         List<MaritalStatus> martialStatuses = martialStatusRepository.findAll();
-        List<NormalObjectDTO> martialStatusDtos = new ArrayList<>();
-        for(MaritalStatus maritalStatus : martialStatuses) {
-            NormalObjectDTO martialStatusDto = new NormalObjectDTO();
-            martialStatusDto.setId(String.valueOf(maritalStatus.getId()));
-            martialStatusDto.setName(maritalStatus.getName());
-            martialStatusDtos.add(martialStatusDto);
-        }
-        NormalObjectDTO allmartialStatusDtos = new NormalObjectDTO();
-        allmartialStatusDtos.setId("maritalStatus");
-        allmartialStatusDtos.setName(martialStatusDtos);
-        resultList.add(allmartialStatusDtos);
+        resultList.add(getGeneralDtos(martialStatuses, "maritalStatus", MaritalStatus.class));
 
         List<CompensationFrequency> compensationFrequencies = compensationFrequencyRepository.findAll();
-        List<NormalObjectDTO> compensationFrequenceDtos = new ArrayList<>();
-        for(CompensationFrequency compensationFrequency : compensationFrequencies) {
-            NormalObjectDTO compensationFrequenceDto = new NormalObjectDTO();
-            compensationFrequenceDto.setId(String.valueOf(compensationFrequency.getId()));
-            compensationFrequenceDto.setName(compensationFrequency.getName());
-            compensationFrequenceDtos.add(compensationFrequenceDto);
-        }
-        NormalObjectDTO allcompensationFrequenceDtos = new NormalObjectDTO();
-        allcompensationFrequenceDtos.setId("compensationUnit");
-        allcompensationFrequenceDtos.setName(compensationFrequenceDtos);
-        resultList.add(allcompensationFrequenceDtos);
+        resultList.add(getGeneralDtos(compensationFrequencies, "compensationUnit", CompensationFrequency.class));
 
         return resultList;
     }
@@ -353,9 +319,9 @@ public class EmployeeServiceImpl implements EmployeeService {
             contactEntity.setStreet2(contactPojo.getEmergencyContactStreet2());
             contactEntity.setPostalCode(contactPojo.getEmergencyContactZip());
             boolean isPrimary = Boolean.valueOf(contactPojo.getEmergencyContactIsPrimary());
-            contactEntity.setIsPrimary((byte) (isPrimary ? 1 : 0));
-            contactEntity.setRelationships(contactPojo.getRelationship());
-            contactEntity.setUser(user);
+            contactEntity.setIsPrimary(isPrimary);
+            contactEntity.setRelationship(contactPojo.getRelationship());
+            contactEntity.setUserId(user.getId());
             entityList.add(contactEntity);
         });
         userEmergencyContactRepository.saveAll(entityList);

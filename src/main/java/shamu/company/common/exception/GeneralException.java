@@ -1,6 +1,5 @@
 package shamu.company.common.exception;
 
-
 import shamu.company.common.exception.response.ErrorType;
 
 public class GeneralException extends AbstractException {

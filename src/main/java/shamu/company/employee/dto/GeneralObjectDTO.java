@@ -3,7 +3,7 @@ package shamu.company.employee.dto;
 import lombok.Data;
 
 @Data
-public class NormalObjectDTO {
+public class GeneralObjectDTO {
 
     private String id;
 

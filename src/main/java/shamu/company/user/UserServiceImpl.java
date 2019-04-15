@@ -1,25 +1,25 @@
 package shamu.company.user;
 
-import shamu.company.employee.Repository.*;
-import shamu.company.job.JobUserDTO;
-import shamu.company.job.JobUser;
-import shamu.company.common.exception.ForbiddenException;
-import shamu.company.job.JobUserRepository;
-import shamu.company.user.entity.*;
-import shamu.company.user.repository.UserAddressRepository;
-import shamu.company.user.repository.UserRepository;
-import shamu.company.utils.EmailUtil;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.thymeleaf.ITemplateEngine;
-import org.thymeleaf.context.Context;
-
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.thymeleaf.ITemplateEngine;
+import org.thymeleaf.context.Context;
+import shamu.company.common.exception.ForbiddenException;
+import shamu.company.job.JobUser;
+import shamu.company.job.JobUserDto;
+import shamu.company.job.JobUserRepository;
+import shamu.company.user.entity.User;
+import shamu.company.user.entity.UserAddress;
+import shamu.company.user.entity.UserPersonalInformation;
+import shamu.company.user.repository.UserAddressRepository;
+import shamu.company.user.repository.UserRepository;
+import shamu.company.utils.EmailUtil;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -35,9 +35,6 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     UserAddressRepository userAddressRepository;
-
-    @Autowired
-    DepartmentRepository departmentRepository;
 
     @Value("${application.systemEmailAddress}")
     String systemEmailAddress;
@@ -78,12 +75,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<JobUserDTO> findAllEmployees() {
+    public List<JobUserDto> findAllEmployees() {
         List<User> employees = userRepository.findAllEmployees();
         List<UserAddress> userAddresses = userAddressRepository.findAllByUserIn(employees);
         List<JobUser> jobUserList = jobUserRepository.findAllByUserIn(employees);
 
-        return getJobUserDTOList(employees, userAddresses, jobUserList);
+        return getJobUserDtoList(employees, userAddresses, jobUserList);
     }
 
     @Override
@@ -91,17 +88,18 @@ public class UserServiceImpl implements UserService {
         return userRepository.existsByEmailWork(email);
     }
 
-    private List<JobUserDTO> getJobUserDTOList(List<User> employees, List<UserAddress> userAddresses, List<JobUser> jobUsers) {
+    private List<JobUserDto> getJobUserDtoList(List<User> employees, List<UserAddress> userAddresses,
+                                               List<JobUser> jobUsers) {
         return employees.stream().map((employee) -> {
-            JobUserDTO jobUserDTO = new JobUserDTO();
-            jobUserDTO.setEmail(employee.getEmailWork());
-            jobUserDTO.setImageUrl(employee.getImageUrl());
-            jobUserDTO.setId(employee.getId());
+            JobUserDto jobUserDto = new JobUserDto();
+            jobUserDto.setEmail(employee.getEmailWork());
+            jobUserDto.setImageUrl(employee.getImageUrl());
+            jobUserDto.setId(employee.getId());
 
             UserPersonalInformation userPersonalInformation = employee.getUserPersonalInformation();
             if (userPersonalInformation != null) {
-                jobUserDTO.setFirstName(userPersonalInformation.getFirstName());
-                jobUserDTO.setLastName(userPersonalInformation.getLastName());
+                jobUserDto.setFirstName(userPersonalInformation.getFirstName());
+                jobUserDto.setLastName(userPersonalInformation.getLastName());
             }
 
             userAddresses.forEach((userAddress -> {
@@ -109,7 +107,7 @@ public class UserServiceImpl implements UserService {
                 if (userWithAddress != null
                         && userWithAddress.getId().equals(employee.getId())
                         && userAddress.getCity() != null) {
-                    jobUserDTO.setCityName(userAddress.getCity());
+                    jobUserDto.setCityName(userAddress.getCity());
                 }
             }));
 
@@ -118,19 +116,18 @@ public class UserServiceImpl implements UserService {
                 if (userWithJob != null
                         && userWithJob.getId().equals(employee.getId())
                         && jobUser.getJob() != null) {
-                    jobUserDTO.setJobTitle(jobUser.getJob().getTitle());
+                    jobUserDto.setJobTitle(jobUser.getJob().getTitle());
                 }
             }));
-            return jobUserDTO;
+            return jobUserDto;
         }).collect(Collectors.toList());
     }
 
     public String getActivationEmail(String accountVerifyToken) {
         Context context = new Context();
         context.setVariable("frontEndAddress", frontEndAddress);
-        context.setVariable("accountVerifyAddress", String.format("account/verify/%s", accountVerifyToken));
+        context.setVariable("accountVerifyAddress",
+                String.format("account/verify/%s", accountVerifyToken));
         return templateEngine.process("account_verify_email.html", context);
     }
 }
-
-

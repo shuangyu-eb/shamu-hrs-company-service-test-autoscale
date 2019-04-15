@@ -3,14 +3,17 @@ package shamu.company.user.entity;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import java.sql.Timestamp;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Where;
 import shamu.company.common.entity.BaseEntity;
 import shamu.company.company.entity.Company;
-
-import javax.persistence.*;
-import java.sql.Timestamp;
 
 @Data
 @Entity
@@ -20,47 +23,47 @@ import java.sql.Timestamp;
 @Where(clause = "deleted_at IS NULL")
 public class User extends BaseEntity {
 
-    private String employeeNumber;
+  private String employeeNumber;
 
-    private String emailWork;
+  private String emailWork;
 
-    private String password;
+  private String password;
 
-    private Timestamp latestLogin;
+  private Timestamp latestLogin;
 
-    @OneToOne
-    private UserStatus userStatus;
+  @OneToOne
+  private UserStatus userStatus;
 
-    private String imageUrl;
+  private String imageUrl;
 
-    @ManyToOne
-    private Company company;
+  @ManyToOne
+  private Company company;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JsonIgnore
-    private User managerUser;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JsonIgnore
+  private User managerUser;
 
-    @OneToOne
-    private UserPersonalInformation userPersonalInformation;
+  @OneToOne
+  private UserPersonalInformation userPersonalInformation;
 
-    @OneToOne
-    private UserContactInformation userContactInformation;
+  @OneToOne
+  private UserContactInformation userContactInformation;
 
-    @OneToOne
-    private UserCompensation userCompensation;
+  @OneToOne
+  private UserCompensation userCompensation;
 
-    @OneToOne
-    private UserRole userRole;
+  @OneToOne
+  private UserRole userRole;
 
-    private String invitationEmailToken;
+  private String invitationEmailToken;
 
-    private Timestamp invitedAt;
+  private Timestamp invitedAt;
 
-    private Timestamp resetPasswordSentAt;
+  private Timestamp resetPasswordSentAt;
 
-    private String resetPasswordToken;
+  private String resetPasswordToken;
 
-    private String verificationToken;
+  private String verificationToken;
 
-    private Timestamp verifiedAt;
+  private Timestamp verifiedAt;
 }

@@ -1,34 +1,38 @@
 package shamu.company.user.entity;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
 import lombok.Data;
 import org.hibernate.annotations.Where;
 import shamu.company.common.entity.BaseEntity;
 import shamu.company.common.entity.Country;
 import shamu.company.common.entity.StateProvince;
 
-import javax.persistence.*;
-
 @Entity
 @Data
 @Table(name = "user_addresses")
 @Where(clause = "deleted_at IS NULL")
 public class UserAddress extends BaseEntity {
-    @OneToOne
-    private User user;
 
-    @Column(name = "street_1")
-    private String street1;
+  @OneToOne
+  private User user;
 
-    @Column(name = "street_2")
-    private String street2;
+  @Column(name = "street_1")
+  private String street1;
 
-    private String city;
+  @Column(name = "street_2")
+  private String street2;
 
-    @ManyToOne
-    private StateProvince stateProvince;
+  private String city;
 
-    @ManyToOne
-    private Country country;
+  @ManyToOne
+  private StateProvince stateProvince;
 
-    private String postalCode;
+  @ManyToOne
+  private Country country;
+
+  private String postalCode;
 }
