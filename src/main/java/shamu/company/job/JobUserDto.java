@@ -18,4 +18,6 @@ public class JobUserDto {
   private String jobTitle;
 
   private String cityName;
+
+  private String phoneNumber;
 }

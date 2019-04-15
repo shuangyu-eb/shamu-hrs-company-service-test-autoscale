@@ -2,6 +2,7 @@ package shamu.company.user;
 
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -86,6 +87,53 @@ public class UserServiceImpl implements UserService {
   @Override
   public Boolean existsByEmailWork(String email) {
     return userRepository.existsByEmailWork(email);
+  }
+
+  @Override
+  public User findEmployeeInfoByEmployeeNumber(String uid) {
+    return userRepository.findByEmployeeNumber(uid);
+  }
+
+  @Override
+  public JobUserDto findEmployeeInfoByEmployeeId(String id) {
+    JobUserDto jobUserDTO = new JobUserDto();
+
+    User employee = userRepository.findByEmployeeNumber(id);
+    if (employee!=null) {
+      JobUser jobUser = jobUserRepository.findJobUserByUser(employee);
+
+      jobUserDTO.setEmail(employee.getEmailWork());
+      jobUserDTO.setImageUrl(employee.getImageUrl());
+      jobUserDTO.setPhoneNumber(employee.getUserContactInformation().getPhoneWork());
+      jobUserDTO.setFirstName(employee.getUserPersonalInformation().getFirstName());
+
+      if (jobUser!=null){
+        jobUserDTO.setJobTitle(jobUser.getJob().getTitle());
+      }
+
+    }
+    return jobUserDTO;
+  }
+
+  @Override
+  public List<JobUserDto> findDirectReportsByManagerId(Long mid) {
+    List<User> directReports =  userRepository.findAllByManagerUserId(mid);
+    List<JobUserDto> reportsInfo = new LinkedList<>();
+    for (int i = 0 ; i < directReports.size() ; i++){
+      JobUserDto jobUserDTO = new JobUserDto();
+      User reporter = directReports.get(i);
+      jobUserDTO.setFirstName(reporter.getUserPersonalInformation().getFirstName());
+      jobUserDTO.setPhoneNumber(reporter.getImageUrl());
+
+      JobUser reporterWithJob = jobUserRepository.findJobUserByUser(reporter);
+      if (reporterWithJob!=null){
+        jobUserDTO.setJobTitle(reporterWithJob.getJob().getTitle());
+      }
+
+      ((LinkedList<JobUserDto>) reportsInfo).push(jobUserDTO);
+    }
+
+    return reportsInfo;
   }
 
   private List<JobUserDto> getJobUserDtoList(List<User> employees, List<UserAddress> userAddresses,

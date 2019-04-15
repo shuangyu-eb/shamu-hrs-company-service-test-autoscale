@@ -15,4 +15,10 @@ public interface UserService {
   List<JobUserDto> findAllEmployees();
 
   Boolean existsByEmailWork(String email);
+
+  User findEmployeeInfoByEmployeeNumber(String uid);
+
+  JobUserDto findEmployeeInfoByEmployeeId(String id);
+
+  List<JobUserDto> findDirectReportsByManagerId(Long mid);
 }
