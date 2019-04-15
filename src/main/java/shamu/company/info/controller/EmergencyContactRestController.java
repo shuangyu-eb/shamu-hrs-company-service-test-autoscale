@@ -20,22 +20,22 @@ import shamu.company.info.service.UserEmergencyContactService;
 @RestApiController
 public class EmergencyContactRestController {
 
-  @Autowired
-  UserEmergencyContactService userEmergencyContactService;
+  @Autowired UserEmergencyContactService userEmergencyContactService;
 
   @GetMapping("users/{userId}/user-emergency-contacts")
   public List<UserEmergencyContactDto> getEmergencyContacts(@PathVariable Long userId) {
-    List<UserEmergencyContact> userEmergencyContacts = userEmergencyContactService
-        .getUserEmergencyContacts(userId);
-    List<UserEmergencyContactDto> userEmergencyContactDtos = userEmergencyContacts.stream()
-        .map(userEmergencyContact -> new UserEmergencyContactDto(userEmergencyContact))
-        .collect(Collectors.toList());
+    List<UserEmergencyContact> userEmergencyContacts =
+        userEmergencyContactService.getUserEmergencyContacts(userId);
+    List<UserEmergencyContactDto> userEmergencyContactDtos =
+        userEmergencyContacts.stream()
+            .map(userEmergencyContact -> new UserEmergencyContactDto(userEmergencyContact))
+            .collect(Collectors.toList());
     return userEmergencyContactDtos;
   }
 
   @PostMapping("users/{userId}/user-emergency-contacts")
-  public HttpEntity createEmergencyContacts(@PathVariable Long userId,
-      @RequestBody UserEmergencyContact emergencyContact) {
+  public HttpEntity createEmergencyContacts(
+      @PathVariable Long userId, @RequestBody UserEmergencyContact emergencyContact) {
     userEmergencyContactService.createUserEmergencyContact(userId, emergencyContact);
     return new ResponseEntity<>(HttpStatus.OK);
   }
@@ -47,8 +47,8 @@ public class EmergencyContactRestController {
   }
 
   @PatchMapping("users/{userId}/user-emergency-contacts")
-  public HttpEntity updateEmergencyContact(@PathVariable Long userId,
-      @RequestBody UserEmergencyContact userEmergencyContact) {
+  public HttpEntity updateEmergencyContact(
+      @PathVariable Long userId, @RequestBody UserEmergencyContact userEmergencyContact) {
     userEmergencyContactService.updateEmergencyContact(userId, userEmergencyContact);
     return new ResponseEntity<>(HttpStatus.OK);
   }

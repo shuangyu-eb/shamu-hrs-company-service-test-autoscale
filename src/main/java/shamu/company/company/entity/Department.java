@@ -13,8 +13,7 @@ import shamu.company.common.entity.BaseEntity;
 @Where(clause = "deleted_at IS NULL")
 public class Department extends BaseEntity {
 
-  @ManyToOne
-  private Company company;
+  @ManyToOne private Company company;
 
   private String name;
 }

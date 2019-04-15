@@ -19,8 +19,12 @@ import shamu.company.common.exception.response.ErrorType;
 public class SpringResponseEntityExceptionHandler {
 
   @ResponseStatus(HttpStatus.BAD_REQUEST)
-  @ExceptionHandler({ConversionFailedException.class, MethodArgumentTypeMismatchException.class,
-      MissingPathVariableException.class, MissingServletRequestParameterException.class})
+  @ExceptionHandler({
+      ConversionFailedException.class,
+      MethodArgumentTypeMismatchException.class,
+      MissingPathVariableException.class,
+      MissingServletRequestParameterException.class
+  })
   public ErrorMessage handleBadRequestException(Exception exception) {
     return new ErrorMessage(ErrorType.BAD_REQUEST, exception.getMessage());
   }

@@ -19,26 +19,19 @@ import shamu.company.user.entity.User;
 @Where(clause = "deleted_at IS NULL")
 public class JobUser extends BaseEntity {
 
-  @ManyToOne
-  private User user;
+  @ManyToOne private User user;
 
-  @ManyToOne
-  private Job job;
+  @ManyToOne private Job job;
 
-  @ManyToOne
-  private EmploymentType employmentType;
+  @ManyToOne private EmploymentType employmentType;
 
   private Timestamp startDate;
 
   private Timestamp endDate;
 
-  @ManyToOne
-  private Office office;
+  @ManyToOne private Office office;
 
-  @ManyToOne
-  private Department department;
+  @ManyToOne private Department department;
 
-  @ManyToOne
-  private Company company;
-
+  @ManyToOne private Company company;
 }

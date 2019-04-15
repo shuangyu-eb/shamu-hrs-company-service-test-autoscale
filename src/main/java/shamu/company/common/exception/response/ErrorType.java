@@ -1,7 +1,6 @@
 package shamu.company.common.exception.response;
 
 public enum ErrorType {
-
   BAD_REQUEST,
 
   JSON_PARSE_ERROR,

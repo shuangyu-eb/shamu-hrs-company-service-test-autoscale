@@ -1,7 +1,7 @@
 package shamu.company.user.service;
 
-import shamu.company.user.dto.UserAddressDTO;
+import shamu.company.user.dto.UserAddressDto;
 
 public interface UserAddressService {
-    UserAddressDTO updateUserAddress(UserAddressDTO userAddressDto);
+  UserAddressDto updateUserAddress(UserAddressDto userAddressDto);
 }

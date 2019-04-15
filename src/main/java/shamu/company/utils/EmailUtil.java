@@ -57,6 +57,4 @@ public class EmailUtil {
     mail.addContent(mailBody);
     return mail;
   }
-
-
 }

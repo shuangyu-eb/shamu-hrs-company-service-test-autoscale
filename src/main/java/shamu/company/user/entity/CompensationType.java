@@ -16,8 +16,7 @@ import shamu.company.company.entity.Company;
 @Where(clause = "deleted_at IS NULL")
 public class CompensationType extends BaseEntity {
 
-  @ManyToOne
-  private Company company;
+  @ManyToOne private Company company;
 
   private String name;
 }

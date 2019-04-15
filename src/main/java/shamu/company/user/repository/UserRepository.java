@@ -2,7 +2,7 @@ package shamu.company.user.repository;
 
 import java.util.List;
 import org.springframework.data.jpa.repository.Query;
-import shamu.company.common.BaseRepository;
+import shamu.company.common.repository.BaseRepository;
 import shamu.company.user.entity.User;
 
 public interface UserRepository extends BaseRepository<User, Long> {
@@ -11,7 +11,8 @@ public interface UserRepository extends BaseRepository<User, Long> {
 
   User findByVerificationToken(String activationToken);
 
-  @Query(value = "SELECT * FROM users WHERE manager_user_id IS NOT NULL AND deleted_at IS NULL",
+  @Query(
+      value = "SELECT * FROM users WHERE manager_user_id IS NOT NULL AND deleted_at IS NULL",
       nativeQuery = true)
   List<User> findAllEmployees();
 

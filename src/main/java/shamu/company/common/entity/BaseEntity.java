@@ -17,11 +17,9 @@ public class BaseEntity {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @CreationTimestamp
-  private Timestamp createdAt;
+  @CreationTimestamp private Timestamp createdAt;
 
-  @UpdateTimestamp
-  private Timestamp updatedAt;
+  @UpdateTimestamp private Timestamp updatedAt;
 
   private Timestamp deletedAt;
 }

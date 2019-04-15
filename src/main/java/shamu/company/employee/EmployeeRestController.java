@@ -10,8 +10,7 @@ import shamu.company.user.service.UserService;
 @RestApiController
 public class EmployeeRestController {
 
-  @Autowired
-  UserService userService;
+  @Autowired UserService userService;
 
   @GetMapping("employees")
   public List<JobUserDto> getAllEmployees() {

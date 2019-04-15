@@ -1,7 +1,7 @@
 package shamu.company.user.service;
 
-import shamu.company.user.dto.UserPersonalInformationDTO;
+import shamu.company.user.dto.UserPersonalInformationDto;
 
 public interface UserPersonalInformationService {
-    UserPersonalInformationDTO update(UserPersonalInformationDTO userPersonalInformationDTO);
+  UserPersonalInformationDto update(UserPersonalInformationDto userPersonalInformationDtO);
 }

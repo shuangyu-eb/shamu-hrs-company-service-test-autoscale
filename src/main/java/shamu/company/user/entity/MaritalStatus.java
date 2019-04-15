@@ -14,9 +14,9 @@ import shamu.company.common.entity.BaseEntity;
 @NoArgsConstructor
 public class MaritalStatus extends BaseEntity {
 
-    private String name;
+  private String name;
 
-    public MaritalStatus(Long id){
-        this.setId(id);
-    }
+  public MaritalStatus(Long id) {
+    this.setId(id);
+  }
 }

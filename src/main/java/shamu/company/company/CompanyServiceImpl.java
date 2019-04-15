@@ -6,9 +6,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class CompanyServiceImpl implements CompanyService {
 
-  @Autowired
-  CompanyRepository companyRepository;
-
+  @Autowired CompanyRepository companyRepository;
 
   @Override
   public Boolean existsByName(String companyName) {

@@ -16,12 +16,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class JwtAuthorizationFilter implements Filter {
 
-  @Autowired
-  JwtTokenProvider jwtTokenProvider;
+  @Autowired JwtTokenProvider jwtTokenProvider;
 
   @Override
-  public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse,
-      FilterChain filterChain) throws IOException, ServletException {
+  public void doFilter(
+      ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
+      throws IOException, ServletException {
     String authHeader = ((HttpServletRequest) servletRequest).getHeader(HttpHeaders.AUTHORIZATION);
 
     if (authHeader != null && authHeader.startsWith("Bearer ")) {

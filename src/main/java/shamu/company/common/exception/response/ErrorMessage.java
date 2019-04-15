@@ -12,7 +12,6 @@ public class ErrorMessage {
   private String message;
   private HashMap<String, String> errors;
 
-
   public ErrorMessage(ErrorType errorType, String message) {
     this.type = errorType.name();
     this.message = message;

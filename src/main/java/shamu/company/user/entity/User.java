@@ -31,29 +31,23 @@ public class User extends BaseEntity {
 
   private Timestamp latestLogin;
 
-  @OneToOne
-  private UserStatus userStatus;
+  @OneToOne private UserStatus userStatus;
 
   private String imageUrl;
 
-  @ManyToOne
-  private Company company;
+  @ManyToOne private Company company;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JsonIgnore
   private User managerUser;
 
-  @OneToOne
-  private UserPersonalInformation userPersonalInformation;
+  @OneToOne private UserPersonalInformation userPersonalInformation;
 
-  @OneToOne
-  private UserContactInformation userContactInformation;
+  @OneToOne private UserContactInformation userContactInformation;
 
-  @OneToOne
-  private UserCompensation userCompensation;
+  @OneToOne private UserCompensation userCompensation;
 
-  @OneToOne
-  private UserRole userRole;
+  @OneToOne private UserRole userRole;
 
   private String invitationEmailToken;
 
@@ -65,9 +59,9 @@ public class User extends BaseEntity {
 
   private String verificationToken;
 
-    private Timestamp verifiedAt;
+  private Timestamp verifiedAt;
 
-    public User(Long id){
-        this.setId(id);
-    }
+  public User(Long id) {
+    this.setId(id);
+  }
 }

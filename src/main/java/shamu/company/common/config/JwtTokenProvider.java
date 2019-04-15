@@ -24,12 +24,14 @@ import shamu.company.user.service.UserService;
 @Component
 public class JwtTokenProvider {
 
-  @Autowired
-  UserService userService;
+  @Autowired UserService userService;
+
   @Value("${auth0.jwks}")
   private String jwks;
+
   @Value("${auth0.algorithm}")
   private String algorithm;
+
   @Value("${auth0.authDomain}")
   private String authDomain;
 
@@ -63,8 +65,7 @@ public class JwtTokenProvider {
     }
     String email = decodedJWT.getClaim("email").asString();
     User user = userService.findUserByEmail(email);
-    return new UsernamePasswordAuthenticationToken(user, null,
-        new ArrayList<SimpleGrantedAuthority>());
+    return new UsernamePasswordAuthenticationToken(
+        user, null, new ArrayList<SimpleGrantedAuthority>());
   }
-
 }
