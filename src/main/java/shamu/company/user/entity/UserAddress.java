@@ -37,4 +37,15 @@ public class UserAddress extends BaseEntity {
     private Country country;
 
     private String postalCode;
+
+    public UserAddress(Long id,Long userId,String street1,String street2,String city, Long stateProvinceId,Country country,String postalCode){
+        this.setId(id);
+        this.setUser(new User(userId));
+        this.setStreet1(street1);
+        this.setStreet2(street2);
+        this.setCity(city);
+        this.setStateProvince(new StateProvince(stateProvinceId));
+        this.setCountry(country);
+        this.setPostalCode(postalCode);
+    }
 }

@@ -3,7 +3,10 @@ package shamu.company.user.entity;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Where;
+import org.springframework.beans.BeanUtils;
+import org.springframework.context.annotation.Bean;
 import shamu.company.common.entity.BaseEntity;
+import shamu.company.user.dto.UserPersonalInformationDTO;
 
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
@@ -38,4 +41,11 @@ public class UserPersonalInformation extends BaseEntity {
 
     @ManyToOne
     private CitizenshipStatus citizenshipStatus;
+
+    public UserPersonalInformation(UserPersonalInformationDTO userPersonalInformationDTO){
+        BeanUtils.copyProperties(userPersonalInformationDTO,this);
+        this.setGender(new Gender(userPersonalInformationDTO.getGenderId()));
+        this.setMaritalStatus(new MaritalStatus(userPersonalInformationDTO.getMaritalStatusId()));
+    }
+
 }

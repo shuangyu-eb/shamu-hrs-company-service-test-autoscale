@@ -3,6 +3,8 @@ package shamu.company.user.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.beans.BeanUtils;
+import shamu.company.user.entity.UserAddress;
 
 @Data
 @NoArgsConstructor
@@ -25,4 +27,17 @@ public class UserAddressDTO {
     private Long stateProvinceId;
 
     private String postalCode;
+
+    public UserAddressDTO(UserAddress userAddress, Long userId) {
+        String countryName = userAddress.getCountry().getName();
+        Long stateProvinceId = userAddress.getStateProvince().getId();
+        String stateProvinceName = userAddress.getStateProvince().getName();
+
+        this.setCountryName(countryName);
+        this.setStateProvinceId(stateProvinceId);
+        this.setStateProvinceName(stateProvinceName);
+        this.setUserId(userId);
+
+        BeanUtils.copyProperties(userAddress,this);
+    }
 }

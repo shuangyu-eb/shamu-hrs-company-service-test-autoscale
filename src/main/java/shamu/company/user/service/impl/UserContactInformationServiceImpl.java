@@ -4,7 +4,6 @@ import shamu.company.user.dto.UserContactInformationDTO;
 import shamu.company.user.entity.UserContactInformation;
 import shamu.company.user.repository.UserContactInformationRepository;
 import shamu.company.user.service.UserContactInformationService;
-import shamu.company.utils.PersonalInformationUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +15,8 @@ public class UserContactInformationServiceImpl implements UserContactInformation
     @Override
     public UserContactInformationDTO update(UserContactInformation userContactInformation) {
         UserContactInformation userContactInformationUpdated = repository.save(userContactInformation);
-        UserContactInformationDTO userContactInformationDTO = PersonalInformationUtil.convertUserContactInfoEntityToDTO(userContactInformationUpdated);
+        //UserContactInformationDTO userContactInformationDTO = PersonalInformationUtil.convertUserContactInfoEntityToDTO(userContactInformationUpdated);
+        UserContactInformationDTO userContactInformationDTO = new UserContactInformationDTO(userContactInformationUpdated);
         return userContactInformationDTO;
     }
 

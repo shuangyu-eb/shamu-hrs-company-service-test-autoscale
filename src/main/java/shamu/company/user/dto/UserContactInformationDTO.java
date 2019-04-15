@@ -3,6 +3,8 @@ package shamu.company.user.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.beans.BeanUtils;
+import shamu.company.user.entity.UserContactInformation;
 
 @Data
 @AllArgsConstructor
@@ -17,4 +19,8 @@ public class UserContactInformationDTO {
     private String emailWork;
 
     private String emailHome;
+
+    public UserContactInformationDTO (UserContactInformation userContactInformation) {
+        BeanUtils.copyProperties(userContactInformation,this);
+    }
 }

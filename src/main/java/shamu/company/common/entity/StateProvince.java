@@ -1,7 +1,8 @@
 package shamu.company.common.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.Entity;
@@ -12,11 +13,16 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "states_provinces")
 @Where(clause = "deleted_at IS NULL")
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@NoArgsConstructor
+@AllArgsConstructor
 public class StateProvince extends BaseEntity {
 
     @ManyToOne
     private Country country;
 
     private String name;
+
+    public StateProvince(Long id){
+        this.setId(id);
+    }
 }

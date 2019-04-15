@@ -2,7 +2,6 @@ package shamu.company.user.entity;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,7 +18,6 @@ import java.sql.Timestamp;
 @NoArgsConstructor
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 @Where(clause = "deleted_at IS NULL")
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class User extends BaseEntity {
 
     private String employeeNumber;
@@ -65,4 +63,8 @@ public class User extends BaseEntity {
     private String verificationToken;
 
     private Timestamp verifiedAt;
+
+    public User(Long id){
+        this.setId(id);
+    }
 }

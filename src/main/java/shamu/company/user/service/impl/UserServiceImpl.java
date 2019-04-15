@@ -9,8 +9,10 @@ import shamu.company.common.exception.ForbiddenException;
 import shamu.company.job.JobUser;
 import shamu.company.job.JobUserDTO;
 import shamu.company.job.JobUserRepository;
+import shamu.company.user.dto.PersonalInformationDTO;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserAddress;
+import shamu.company.user.entity.UserContactInformation;
 import shamu.company.user.entity.UserPersonalInformation;
 import shamu.company.user.repository.UserAddressRepository;
 import shamu.company.user.repository.UserRepository;
@@ -91,10 +93,15 @@ public class UserServiceImpl implements UserService {
         return userRepository.existsByEmailWork(email);
     }
 
+
     @Override
-    public User getUser(Long id){
-        Optional<User> optionalUser = userRepository.findById(id);
-        return optionalUser.orElseThrow(() -> new ForbiddenException("User does not exist"));
+    public PersonalInformationDTO getPersonalInformation(Long userId){
+        User user = userRepository.findById(userId).orElseThrow(() -> new ForbiddenException("User does not exist") );
+        UserPersonalInformation userPersonalInformation = user.getUserPersonalInformation();
+        UserContactInformation userContactInformation = user.getUserContactInformation();
+        UserAddress userAddress = userAddressRepository.findUserAddressByUserId(userId);
+        PersonalInformationDTO personalInformationDTO = new PersonalInformationDTO(userId,userPersonalInformation,userContactInformation,userAddress);
+        return personalInformationDTO;
     }
 
 

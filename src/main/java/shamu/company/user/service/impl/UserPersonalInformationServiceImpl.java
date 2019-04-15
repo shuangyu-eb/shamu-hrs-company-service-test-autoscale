@@ -4,7 +4,6 @@ import shamu.company.user.dto.UserPersonalInformationDTO;
 import shamu.company.user.entity.UserPersonalInformation;
 import shamu.company.user.repository.UserPersonalInformationRepository;
 import shamu.company.user.service.UserPersonalInformationService;
-import shamu.company.utils.PersonalInformationUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,12 +14,10 @@ public class UserPersonalInformationServiceImpl implements UserPersonalInformati
     UserPersonalInformationRepository repository;
 
     @Override
-    public UserPersonalInformationDTO update(UserPersonalInformation userPersonalInformation) {
-
+    public UserPersonalInformationDTO update(UserPersonalInformationDTO userPersonalInformationDTO) {
+        UserPersonalInformation userPersonalInformation = new UserPersonalInformation(userPersonalInformationDTO);
         UserPersonalInformation userPersonalInformationUpdated =  repository.save(userPersonalInformation);
-
-        UserPersonalInformationDTO userPersonalInformationDTO = PersonalInformationUtil.convertUserPersonalInfoEntityToDTO(userPersonalInformationUpdated);
-
-        return userPersonalInformationDTO;
+        UserPersonalInformationDTO userPersonalInformationDTOUpdated = new UserPersonalInformationDTO(userPersonalInformationUpdated);
+        return userPersonalInformationDTOUpdated;
     }
 }

@@ -13,7 +13,7 @@ public class UserContactInformationController {
     @Autowired
     UserContactInformationService contactInformationService;
 
-    @PatchMapping("user-contact-info")
+    @PatchMapping("user-contact-information")
     public UserContactInformationDTO update(@RequestBody UserContactInformation userContactInformation){
         return contactInformationService.update(userContactInformation);
     }

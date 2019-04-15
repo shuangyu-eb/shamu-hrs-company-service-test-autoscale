@@ -1,6 +1,7 @@
 package shamu.company.user.service;
 
 import shamu.company.job.JobUserDTO;
+import shamu.company.user.dto.PersonalInformationDTO;
 import shamu.company.user.entity.User;
 
 import java.util.List;
@@ -16,5 +17,5 @@ public interface UserService {
 
     Boolean existsByEmailWork(String email);
 
-    User getUser(Long id);
+    PersonalInformationDTO getPersonalInformation(Long userId);
 }

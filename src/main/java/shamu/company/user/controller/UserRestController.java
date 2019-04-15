@@ -7,6 +7,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import shamu.company.user.dto.PersonalInformationDTO;
 import shamu.company.user.service.UserService;
 
 @RestApiController
@@ -42,5 +43,11 @@ public class UserRestController {
     @GetMapping(value = "user/check/desired-url/{desiredUrl}")
     public Boolean checkDesiredUrl(@PathVariable String desiredUrl) {
         return companyService.existsBySubdomainName(desiredUrl);
+    }
+
+    @GetMapping("user/{userId}/personal-information")
+    public PersonalInformationDTO getPersonalInformation(@PathVariable Long userId){
+        PersonalInformationDTO personalInformationDTO = userService.getPersonalInformation(userId);
+        return personalInformationDTO;
     }
 }
