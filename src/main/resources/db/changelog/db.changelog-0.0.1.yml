@@ -1,1681 +1,1681 @@
 databaseChangeLog:
-  - changeSet:
-      id: 1550646329776-1
-      author: Max-Zhao
-      changes:
-        - createTable:
-            columns:
-              - column:
-                  name: id
-                  type: bigint
-                  autoIncrement: true
-                  constraints:
-                    primaryKey: true
-              - column:
-                  name: employee_number
-                  type: varchar(255)
-              - column:
-                  name: email_work
-                  type: varchar(255)
-              - column:
-                  name: password
-                  type: varchar(255)
-              - column:
-                  name: latest_login
-                  type: datetime
-              - column:
-                  name: user_status_id
-                  type: bigint
-              - column:
-                  name: image_url
-                  type: text
-              - column:
-                  name: company_id
-                  type: bigint
-              - column:
-                  name: manager_user_id
-                  type: bigint
-              - column:
-                  name: user_personal_information_id
-                  type: bigint
-              - column:
-                  name: user_contact_information_id
-                  type: bigint
-              - column:
-                  name: user_compensation_id
-                  type: bigint
-              - column:
-                  name: user_role_id
-                  type: bigint
-              - column:
-                  name: invitation_email_token
-                  type: varchar(255)
-              - column:
-                  name: invited_at
-                  type: datetime
-              - column:
-                  name: reset_password_sent_at
-                  type: datetime
-              - column:
-                  name: reset_password_token
-                  type: varchar(255)
-              - column:
-                  name: verification_token
-                  type: varchar(255)
-              - column:
-                  name: verified_at
-                  type: datetime
-              - column:
-                  name: created_at
-                  type: datetime
-              - column:
-                  name: updated_at
-                  type: datetime
-              - column:
-                  name: deleted_at
-                  type: datetime
-            tableName: users
-  - changeSet:
-      id: 1550646329776-2
-      author: Max-Zhao
-      changes:
-        - createTable:
-            columns:
-              - column:
-                  name: id
-                  type: BIGINT
-                  autoIncrement: true
-                  constraints:
-                    primaryKey: true
-              - column:
-                  name: name
-                  type: varchar(32)
-              - column:
-                  name: created_at
-                  type: datetime
-              - column:
-                  name: updated_at
-                  type: datetime
-              - column:
-                  name: deleted_at
-                  type: datetime
-            tableName: user_statuses
-  - changeSet:
-      id: 1550646329776-3
-      author: Max-Zhao
-      changes:
-        - createTable:
-            columns:
-              - column:
-                  name: id
-                  type: BIGINT
-                  autoIncrement: true
-                  constraints:
-                    primaryKey: true
-              - column:
-                  name: name
-                  type: varchar(32)
-              - column:
-                  name: created_at
-                  type: datetime
-              - column:
-                  name: updated_at
-                  type: datetime
-              - column:
-                  name: deleted_at
-                  type: datetime
-            tableName: user_roles
-  - changeSet:
-      id: 1550646329776-4
-      author: Max-Zhao
-      changes:
-        - createTable:
-            columns:
-              - column:
-                  name: id
-                  type: BIGINT
-                  autoIncrement: true
-                  constraints:
-                    primaryKey: true
-              - column:
-                  name: name
-                  type: varchar(32)
-              - column:
-                  name: created_at
-                  type: datetime
-              - column:
-                  name: updated_at
-                  type: datetime
-              - column:
-                  name: deleted_at
-                  type: datetime
-            tableName: genders
-  - changeSet:
-      id: 1550646329776-5
-      author: Max-Zhao
-      changes:
-        - createTable:
-            columns:
-              - column:
-                  name: id
-                  type: BIGINT
-                  autoIncrement: true
-                  constraints:
-                    primaryKey: true
-              - column:
-                  name: name
-                  type: varchar(32)
-              - column:
-                  name: created_at
-                  type: datetime
-              - column:
-                  name: updated_at
-                  type: datetime
-              - column:
-                  name: deleted_at
-                  type: datetime
-            tableName: ethnicities
-  - changeSet:
-      id: 1550646329776-6
-      author: Max-Zhao
-      changes:
-        - createTable:
-            columns:
-              - column:
-                  name: id
-                  type: BIGINT
-                  autoIncrement: true
-                  constraints:
-                    primaryKey: true
-              - column:
-                  name: name
-                  type: varchar(32)
-              - column:
-                  name: created_at
-                  type: datetime
-              - column:
-                  name: updated_at
-                  type: datetime
-              - column:
-                  name: deleted_at
-                  type: datetime
-            tableName: martial_status
-  - changeSet:
-      id: 1550646329776-7
-      author: Max-Zhao
-      changes:
-        - createTable:
-            columns:
-              - column:
-                  name: id
-                  type: BIGINT
-                  autoIncrement: true
-                  constraints:
-                    primaryKey: true
-              - column:
-                  name: name
-                  type: varchar(32)
-              - column:
-                  name: created_at
-                  type: datetime
-              - column:
-                  name: updated_at
-                  type: datetime
-              - column:
-                  name: deleted_at
-                  type: datetime
-            tableName: citizenship_statuses
-  - changeSet:
-      id: 1550646329776-8
-      author: Max-Zhao
-      changes:
-        - createTable:
-            columns:
-              - column:
-                  name: id
-                  type: BIGINT
-                  autoIncrement: true
-                  constraints:
-                    primaryKey: true
-              - column:
-                  name: name
-                  type: varchar(32)
-              - column:
-                  name: created_at
-                  type: datetime
-              - column:
-                  name: updated_at
-                  type: datetime
-              - column:
-                  name: deleted_at
-                  type: datetime
-            tableName: countries
-  - changeSet:
-      id: 1550646329776-9
-      author: Max-Zhao
-      changes:
-        - createTable:
-            columns:
-              - column:
-                  name: id
-                  type: BIGINT
-                  autoIncrement: true
-                  constraints:
-                    primaryKey: true
-              - column:
-                  name: name
-                  type: varchar(32)
-              - column:
-                  name: created_at
-                  type: datetime
-              - column:
-                  name: updated_at
-                  type: datetime
-              - column:
-                  name: deleted_at
-                  type: datetime
-            tableName: employment_types
-  - changeSet:
-      id: 1550646329776-10
-      author: Max-Zhao
-      changes:
-        - createTable:
-            columns:
-              - column:
-                  name: id
-                  type: BIGINT
-                  autoIncrement: true
-                  constraints:
-                    primaryKey: true
-              - column:
-                  name: first_name
-                  type: varchar(255)
-              - column:
-                  name: middle_name
-                  type: varchar(255)
-              - column:
-                  name: last_name
-                  type: varchar(255)
-              - column:
-                  name: preferred_name
-                  type: varchar(255)
-              - column:
-                  name: birth_date
-                  type: DATETIME
-              - column:
-                  name: ssn
-                  type: varchar(255)
-              - column:
-                  name: gender_id
-                  type: INT
-              - column:
-                  name: marital_status_id
-                  type: BIGINT
-              - column:
-                  name: ethnicity_id
-                  type: BIGINT
-              - column:
-                  name: citizenship_status_id
-                  type: BIGINT
-              - column:
-                  name: created_at
-                  type: datetime
-              - column:
-                  name: updated_at
-                  type: datetime
-              - column:
-                  name: deleted_at
-                  type: datetime
-            tableName: user_personal_information
-  - changeSet:
-      id: 1550646329776-11
-      author: Max-Zhao
-      changes:
-        - createTable:
-            columns:
-              - column:
-                  name: id
-                  type: BIGINT
-                  autoIncrement: true
-                  constraints:
-                    primaryKey: true
-              - column:
-                  name: phone_work
-                  type: varchar(64)
-              - column:
-                  name: phone_work_extension
-                  type: varchar(64)
-              - column:
-                  name: phone_mobile
-                  type: varchar(64)
-              - column:
-                  name: phone_home
-                  type: varchar(64)
-              - column:
-                  name: email_work
-                  type: varchar(255)
-              - column:
-                  name: email_home
-                  type: varchar(255)
-              - column:
-                  name: created_at
-                  type: datetime
-              - column:
-                  name: updated_at
-                  type: datetime
-              - column:
-                  name: deleted_at
-                  type: datetime
-            tableName: user_contact_information
-  - changeSet:
-      id: 1550646329776-12
-      author: Max-Zhao
-      changes:
-        - createTable:
-            columns:
-              - column:
-                  name: id
-                  type: BIGINT
-                  autoIncrement: true
-                  constraints:
-                    primaryKey: true
-              - column:
-                  name: user_id
-                  type: BIGINT
-              - column:
-                  name: job_id
-                  type: BIGINT
-              - column:
-                  name: employment_type_id
-                  type: BIGINT
-              - column:
-                  name: start_date
-                  type: DATETIME
-              - column:
-                  name: end_date
-                  type: DATETIME
-              - column:
-                  name: office_id
-                  type: BIGINT
-              - column:
-                  name: department_id
-                  type: BIGINT
-              - column:
-                  name: company_id
-                  type: BIGINT
-              - column:
-                  name: created_at
-                  type: datetime
-              - column:
-                  name: updated_at
-                  type: datetime
-              - column:
-                  name: deleted_at
-                  type: datetime
-            tableName: jobs_users
-  - changeSet:
-      id: 1550646329776-13
-      author: Max-Zhao
-      changes:
-        - createTable:
-            columns:
-              - column:
-                  name: id
-                  type: BIGINT
-                  autoIncrement: true
-                  constraints:
-                    primaryKey: true
-              - column:
-                  name: title
-                  type: varchar(255)
-              - column:
-                  name: department_id
-                  type: BIGINT
-              - column:
-                  name: created_at
-                  type: datetime
-              - column:
-                  name: updated_at
-                  type: datetime
-              - column:
-                  name: deleted_at
-                  type: datetime
-            tableName: jobs
-  - changeSet:
-      id: 1550646329776-14
-      author: Max-Zhao
-      changes:
-        - createTable:
-            columns:
-              - column:
-                  name: id
-                  type: BIGINT
-                  autoIncrement: true
-                  constraints:
-                    primaryKey: true
-              - column:
-                  name: user_id
-                  type: BIGINT
-              - column:
-                  name: wage
-                  type: INT
-              - column:
-                  name: compensation_frequency_id
-                  type: BIGINT
-              - column:
-                  name: compensation_type_id
-                  type: BIGINT
-              - column:
-                  name: start_date
-                  type: DATETIME
-              - column:
-                  name: end_date
-                  type: DATETIME
-              - column:
-                  name: overtime_status
-                  type: varchar(255)
-              - column:
-                  name: compensation_change_reason_id
-                  type: BIGINT
-              - column:
-                  name: comment
-                  type: TEXT
-              - column:
-                  name: created_at
-                  type: datetime
-              - column:
-                  name: updated_at
-                  type: datetime
-              - column:
-                  name: deleted_at
-                  type: datetime
-            tableName: user_compensations
-  - changeSet:
-      id: 1550646329776-15
-      author: Max-Zhao
-      changes:
-        - createTable:
-            columns:
-              - column:
-                  name: id
-                  type: BIGINT
-                  autoIncrement: true
-                  constraints:
-                    primaryKey: true
-              - column:
-                  name: name
-                  type: varchar(32)
-              - column:
-                  name: created_at
-                  type: datetime
-              - column:
-                  name: updated_at
-                  type: datetime
-              - column:
-                  name: deleted_at
-                  type: datetime
-            tableName: compensation_overtime_statuses
-  - changeSet:
-      id: 1550646329776-16
-      author: Max-Zhao
-      changes:
-        - createTable:
-            columns:
-              - column:
-                  name: id
-                  type: BIGINT
-                  autoIncrement: true
-                  constraints:
-                    primaryKey: true
-              - column:
-                  name: company_id
-                  type: BIGINT
-              - column:
-                  name: name
-                  type: varchar(32)
-              - column:
-                  name: created_at
-                  type: datetime
-              - column:
-                  name: updated_at
-                  type: datetime
-              - column:
-                  name: deleted_at
-                  type: datetime
-            tableName: compensation_types
-  - changeSet:
-      id: 1550646329776-17
-      author: Max-Zhao
-      changes:
-        - createTable:
-            columns:
-              - column:
-                  name: id
-                  type: BIGINT
-                  autoIncrement: true
-                  constraints:
-                    primaryKey: true
-              - column:
-                  name: company_id
-                  type: BIGINT
-              - column:
-                  name: name
-                  type: varchar(32)
-              - column:
-                  name: created_at
-                  type: datetime
-              - column:
-                  name: updated_at
-                  type: datetime
-              - column:
-                  name: deleted_at
-                  type: datetime
-            tableName: compensation_frequency
-  - changeSet:
-      id: 1550646329776-18
-      author: Max-Zhao
-      changes:
-        - createTable:
-            columns:
-              - column:
-                  name: id
-                  type: BIGINT
-                  autoIncrement: true
-                  constraints:
-                    primaryKey: true
-              - column:
-                  name: company_id
-                  type: BIGINT
-              - column:
-                  name: name
-                  type: varchar(32)
-              - column:
-                  name: created_at
-                  type: datetime
-              - column:
-                  name: updated_at
-                  type: datetime
-              - column:
-                  name: deleted_at
-                  type: datetime
-            tableName: compensation_change_reasons
-  - changeSet:
-      id: 1550646329776-19
-      author: Max-Zhao
-      changes:
-        - createTable:
-            columns:
-              - column:
-                  name: id
-                  type: BIGINT
-                  autoIncrement: true
-                  constraints:
-                    primaryKey: true
-              - column:
-                  name: effective_date
-                  type: DATETIME
-              - column:
-                  name: user_employment_status_type_id
-                  type: BIGINT
-              - column:
-                  name: comment
-                  type: TEXT
-              - column:
-                  name: user_id
-                  type: BIGINT
-              - column:
-                  name: created_at
-                  type: datetime
-              - column:
-                  name: updated_at
-                  type: datetime
-              - column:
-                  name: deleted_at
-                  type: datetime
-            tableName: user_employment_statuses
-  - changeSet:
-      id: 1550646329776-20
-      author: Max-Zhao
-      changes:
-        - createTable:
-            columns:
-              - column:
-                  name: id
-                  type: BIGINT
-                  autoIncrement: true
-                  constraints:
-                    primaryKey: true
-              - column:
-                  name: name
-                  type: varchar(255)
-              - column:
-                  name: created_at
-                  type: datetime
-              - column:
-                  name: updated_at
-                  type: datetime
-              - column:
-                  name: deleted_at
-                  type: datetime
-            tableName: user_employment_status_types
-  - changeSet:
-      id: 1550646329776-21
-      author: Max-Zhao
-      changes:
-        - createTable:
-            columns:
-              - column:
-                  name: id
-                  type: BIGINT
-                  autoIncrement: true
-                  constraints:
-                    primaryKey: true
-              - column:
-                  name: user_id
-                  type: BIGINT
-              - column:
-                  name: school
-                  type: varchar(255)
-              - column:
-                  name: degree
-                  type: varchar(255)
-              - column:
-                  name: major
-                  type: varchar(255)
-              - column:
-                  name: gpa
-                  type: varchar(255)
-              - column:
-                  name: start_date
-                  type: DATETIME
-              - column:
-                  name: end_date
-                  type: DATETIME
-              - column:
-                  name: created_at
-                  type: datetime
-              - column:
-                  name: updated_at
-                  type: datetime
-              - column:
-                  name: deleted_at
-                  type: datetime
-            tableName: user_educations
-  - changeSet:
-      id: 1550646329776-22
-      author: Max-Zhao
-      changes:
-        - createTable:
-            columns:
-              - column:
-                  name: id
-                  type: BIGINT
-                  autoIncrement: true
-                  constraints:
-                    primaryKey: true
-              - column:
-                  name: user_id
-                  type: BIGINT
-              - column:
-                  name: relationship_id
-                  type: BIGINT
-              - column:
-                  name: is_primary
-                  type: TINYINT(1)
-              - column:
-                  name: phone_work
-                  type: varchar(64)
-              - column:
-                  name: phone_home
-                  type: varchar(64)
-              - column:
-                  name: phone_mobile
-                  type: varchar(64)
-              - column:
-                  name: email
-                  type: varchar(255)
-              - column:
-                  name: street_1
-                  type: varchar(255)
-              - column:
-                  name: street_2
-                  type: varchar(255)
-              - column:
-                  name: city_id
-                  type: BIGINT
-              - column:
-                  name: state_province_id
-                  type: BIGINT
-              - column:
-                  name: country_id
-                  type: BIGINT
-              - column:
-                  name: postal_code
-                  type: varchar(64)
-              - column:
-                  name: created_at
-                  type: datetime
-              - column:
-                  name: updated_at
-                  type: datetime
-              - column:
-                  name: deleted_at
-                  type: datetime
-            tableName: user_emergency_contacts
-  - changeSet:
-      id: 1550646329776-23
-      author: Max-Zhao
-      changes:
-        - createTable:
-            columns:
-              - column:
-                  name: id
-                  type: BIGINT
-                  autoIncrement: true
-                  constraints:
-                    primaryKey: true
-              - column:
-                  name: name
-                  type: varchar(255)
-              - column:
-                  name: created_at
-                  type: datetime
-              - column:
-                  name: updated_at
-                  type: datetime
-              - column:
-                  name: deleted_at
-                  type: datetime
-            tableName: user_emergency_contact_relationships
-  - changeSet:
-      id: 1550646329776-24
-      author: Max-Zhao
-      changes:
-        - createTable:
-            columns:
-              - column:
-                  name: id
-                  type: BIGINT
-                  autoIncrement: true
-                  constraints:
-                    primaryKey: true
-              - column:
-                  name: user_id
-                  type: BIGINT
-              - column:
-                  name: street_1
-                  type: varchar(255)
-              - column:
-                  name: street_2
-                  type: varchar(255)
-              - column:
-                  name: city_id
-                  type: BIGINT
-              - column:
-                  name: state_province_id
-                  type: BIGINT
-              - column:
-                  name: country_id
-                  type: BIGINT
-              - column:
-                  name: postal_code
-                  type: varchar(64)
-              - column:
-                  name: created_at
-                  type: datetime
-              - column:
-                  name: updated_at
-                  type: datetime
-              - column:
-                  name: deleted_at
-                  type: datetime
-            tableName: user_addresses
-  - changeSet:
-      id: 1550646329776-25
-      author: Max-Zhao
-      changes:
-        - createTable:
-            columns:
-              - column:
-                  name: id
-                  type: BIGINT
-                  autoIncrement: true
-                  constraints:
-                    primaryKey: true
-              - column:
-                  name: organization_id
-                  type: BIGINT
-              - column:
-                  name: office_id
-                  type: BIGINT
-              - column:
-                  name: name
-                  type: varchar(255)
-              - column:
-                  name: phone
-                  type: varchar(64)
-              - column:
-                  name: email
-                  type: varchar(255)
-              - column:
-                  name: office_address_id
-                  type: BIGINT
-              - column:
-                  name: company_id
-                  type: BIGINT
-              - column:
-                  name: created_at
-                  type: datetime
-              - column:
-                  name: updated_at
-                  type: datetime
-              - column:
-                  name: deleted_at
-                  type: datetime
-            tableName: offices
-  - changeSet:
-      id: 1550646329776-26
-      author: Max-Zhao
-      changes:
-        - createTable:
-            columns:
-              - column:
-                  name: id
-                  type: BIGINT
-                  autoIncrement: true
-                  constraints:
-                    primaryKey: true
-              - column:
-                  name: office_id
-                  type: BIGINT
-              - column:
-                  name: street_1
-                  type: varchar(255)
-              - column:
-                  name: street_2
-                  type: varchar(255)
-              - column:
-                  name: city
-                  type: varchar(255)
-              - column:
-                  name: state_province_id
-                  type: BIGINT
-              - column:
-                  name: country_id
-                  type: BIGINT
-              - column:
-                  name: postal_code
-                  type: varchar(64)
-              - column:
-                  name: created_at
-                  type: datetime
-              - column:
-                  name: updated_at
-                  type: datetime
-              - column:
-                  name: deleted_at
-                  type: datetime
-            tableName: office_addresses
-  - changeSet:
-      id: 1550646329776-27
-      author: Max-Zhao
-      changes:
-        - createTable:
-            columns:
-              - column:
-                  name: id
-                  type: BIGINT
-                  autoIncrement: true
-                  constraints:
-                    primaryKey: true
-              - column:
-                  name: country_id
-                  type: BIGINT
-              - column:
-                  name: name
-                  type: varchar(255)
-              - column:
-                  name: created_at
-                  type: datetime
-              - column:
-                  name: updated_at
-                  type: datetime
-              - column:
-                  name: deleted_at
-                  type: datetime
-            tableName: states_provinces
-  - changeSet:
-      id: 1550646329776-28
-      author: Max-Zhao
-      changes:
-        - createTable:
-            columns:
-              - column:
-                  name: id
-                  type: BIGINT
-                  autoIncrement: true
-                  constraints:
-                    primaryKey: true
-              - column:
-                  name: company_id
-                  type: BIGINT
-              - column:
-                  name: name
-                  type: varchar(255)
-              - column:
-                  name: created_at
-                  type: datetime
-              - column:
-                  name: updated_at
-                  type: datetime
-              - column:
-                  name: deleted_at
-                  type: datetime
-            tableName: departments
-  - changeSet:
-      id: 1550646329776-29
-      author: Max-Zhao
-      changes:
-        - createTable:
-            columns:
-              - column:
-                  name: id
-                  type: BIGINT
-                  autoIncrement: true
-                  constraints:
-                    primaryKey: true
-              - column:
-                  name: name
-                  type: varchar(32)
-              - column:
-                  name: created_at
-                  type: datetime
-              - column:
-                  name: updated_at
-                  type: datetime
-              - column:
-                  name: deleted_at
-                  type: datetime
-            tableName: company_sizes
-  - changeSet:
-      id: 1550646329776-30
-      author: Max-Zhao
-      changes:
-        - createTable:
-            columns:
-              - column:
-                  name: id
-                  type: BIGINT
-                  autoIncrement: true
-                  constraints:
-                    primaryKey: true
-              - column:
-                  name: name
-                  type: varchar(255)
-              - column:
-                  name: image_url
-                  type: TEXT
-              - column:
-                  name: EIN
-                  type: varchar(255)
-              - column:
-                  name: company_size_id
-                  type: BIGINT
-              - column:
-                  name: country_id
-                  type: BIGINT
-              - column:
-                  name: subdomain_name
-                  type: varchar(255)
-              - column:
-                  name: created_at
-                  type: datetime
-              - column:
-                  name: updated_at
-                  type: datetime
-              - column:
-                  name: deleted_at
-                  type: datetime
-            tableName: companies
-  - changeSet:
-      id: 1550646329776-31
-      author: Max-Zhao
-      changes:
-        - createTable:
-            columns:
-              - column:
-                  name: id
-                  type: BIGINT
-                  autoIncrement: true
-                  constraints:
-                    primaryKey: true
-              - column:
-                  name: time_off_type_id
-                  type: BIGINT
-              - column:
-                  name: is_limited
-                  type: tinyint(1)
-              - column:
-                  name: created_at
-                  type: datetime
-              - column:
-                  name: updated_at
-                  type: datetime
-              - column:
-                  name: deleted_at
-                  type: datetime
-            tableName: time_off_policies
-  - changeSet:
-      id: 1550646329776-32
-      author: Max-Zhao
-      changes:
-        - createTable:
-            columns:
-              - column:
-                  name: id
-                  type: BIGINT
-                  autoIncrement: true
-                  constraints:
-                    primaryKey: true
-              - column:
-                  name: time_off_policy_id
-                  type: BIGINT
-              - column:
-                  name: start_date_value
-                  type: varchar(64)
-              - column:
-                  name: start_date_unit
-                  type: varchar(64)
-              - column:
-                  name: accrual_hours
-                  type: INT
-              - column:
-                  name: accrual_interval
-                  type: INT
-              - column:
-                  name: accrual_frequency_details
-                  type: TEXT
-              - column:
-                  name: max_accrual
-                  type: INT
-              - column:
-                  name: max_carryover_hours_per_year
-                  type: INT
-              - column:
-                  name: has_carryover_amount
-                  type: INT
-              - column:
-                  name: next_time_off_policy_accrual_schedule_id
-                  type: BIGINT
-              - column:
-                  name: created_at
-                  type: datetime
-              - column:
-                  name: updated_at
-                  type: datetime
-              - column:
-                  name: deleted_at
-                  type: datetime
-            tableName: time_off_policy_accrual_schedules
-  - changeSet:
-      id: 1550646329776-33
-      author: Max-Zhao
-      changes:
-        - createTable:
-            columns:
-              - column:
-                  name: id
-                  type: BIGINT
-                  autoIncrement: true
-                  constraints:
-                    primaryKey: true
-              - column:
-                  name: is_first_accrual_prorated
-                  type: TINYINT(1)
-              - column:
-                  name: does_carryover_at_start_of_year
-                  type: TINYINT(1)
-              - column:
-                  name: time_off_policy_accrual_happenings_id
-                  type: BIGINT
-              - column:
-                  name: created_at
-                  type: datetime
-              - column:
-                  name: updated_at
-                  type: datetime
-              - column:
-                  name: deleted_at
-                  type: datetime
-            tableName: time_off_policy_accrual_options
-  - changeSet:
-      id: 1550646329776-34
-      author: Max-Zhao
-      changes:
-        - createTable:
-            columns:
-              - column:
-                  name: id
-                  type: BIGINT
-                  autoIncrement: true
-                  constraints:
-                    primaryKey: true
-              - column:
-                  name: name
-                  type: varchar(255)
-              - column:
-                  name: created_at
-                  type: datetime
-              - column:
-                  name: updated_at
-                  type: datetime
-              - column:
-                  name: deleted_at
-                  type: datetime
-            tableName: time_off_policy_accrual_happenings
-  - changeSet:
-      id: 1550646329776-35
-      author: Max-Zhao
-      changes:
-        - createTable:
-            columns:
-              - column:
-                  name: id
-                  type: BIGINT
-                  autoIncrement: true
-                  constraints:
-                    primaryKey: true
-              - column:
-                  name: company_id
-                  type: BIGINT
-              - column:
-                  name: name
-                  type: varchar(32)
-              - column:
-                  name: created_at
-                  type: datetime
-              - column:
-                  name: updated_at
-                  type: datetime
-              - column:
-                  name: deleted_at
-                  type: datetime
-            tableName: time_off_types
-  - changeSet:
-      id: 1550646329776-36
-      author: Max-Zhao
-      changes:
-        - createTable:
-            columns:
-              - column:
-                  name: id
-                  type: BIGINT
-                  autoIncrement: true
-                  constraints:
-                    primaryKey: true
-              - column:
-                  name: requester_user_id
-                  type: BIGINT
-              - column:
-                  name: approver_user_id
-                  type: BIGINT
-              - column:
-                  name: time_off_type_id
-                  type: BIGINT
-              - column:
-                  name: approval_status
-                  type: varchar(32)
-              - column:
-                  name: approved_date
-                  type: DATETIME
-              - column:
-                  name: time_off_policy_id
-                  type: BIGINT
-              - column:
-                  name: expires_at
-                  type: DATETIME
-              - column:
-                  name: created_at
-                  type: datetime
-              - column:
-                  name: updated_at
-                  type: datetime
-              - column:
-                  name: deleted_at
-                  type: datetime
-            tableName: time_off_requests
-  - changeSet:
-      id: 1550646329776-37
-      author: Max-Zhao
-      changes:
-        - createTable:
-            columns:
-              - column:
-                  name: id
-                  type: BIGINT
-                  autoIncrement: true
-                  constraints:
-                    primaryKey: true
-              - column:
-                  name: time_off_request_id
-                  type: BIGINT
-              - column:
-                  name: date
-                  type: DATETIME
-              - column:
-                  name: hours
-                  type: INT
-              - column:
-                  name: created_at
-                  type: datetime
-              - column:
-                  name: updated_at
-                  type: datetime
-              - column:
-                  name: deleted_at
-                  type: datetime
-            tableName: time_off_request_dates
-  - changeSet:
-      id: 1550646329776-38
-      author: Max-Zhao
-      changes:
-        - createTable:
-            columns:
-              - column:
-                  name: id
-                  type: BIGINT
-                  autoIncrement: true
-                  constraints:
-                    primaryKey: true
-              - column:
-                  name: employee_id
-                  type: BIGINT
-              - column:
-                  name: benefit_plan_id
-                  type: BIGINT
-              - column:
-                  name: created_at
-                  type: datetime
-              - column:
-                  name: updated_at
-                  type: datetime
-              - column:
-                  name: deleted_at
-                  type: datetime
-            tableName: employee_benefit_plans
-  - changeSet:
-      id: 1550646329776-39
-      author: Max-Zhao
-      changes:
-        - createTable:
-            columns:
-              - column:
-                  name: id
-                  type: BIGINT
-                  autoIncrement: true
-                  constraints:
-                    primaryKey: true
-              - column:
-                  name: name
-                  type: varchar(32)
-              - column:
-                  name: company_id
-                  type: BIGINT
-              - column:
-                  name: created_at
-                  type: datetime
-              - column:
-                  name: updated_at
-                  type: datetime
-              - column:
-                  name: deleted_at
-                  type: datetime
-            tableName: benefit_plan_types
-  - changeSet:
-      id: 1550646329776-40
-      author: Max-Zhao
-      changes:
-        - createTable:
-            columns:
-              - column:
-                  name: id
-                  type: BIGINT
-                  autoIncrement: true
-                  constraints:
-                    primaryKey: true
-              - column:
-                  name: name
-                  type: varchar(255)
-              - column:
-                  name: image_url
-                  type: TEXT
-              - column:
-                  name: policy_id
-                  type: BIGINT
-              - column:
-                  name: website
-                  type: TEXT
-              - column:
-                  name: benefit_plan_type_id
-                  type: BIGINT
-              - column:
-                  name: created_at
-                  type: datetime
-              - column:
-                  name: updated_at
-                  type: datetime
-              - column:
-                  name: deleted_at
-                  type: datetime
-            tableName: benefit_plans
-  - changeSet:
-      id: 1550646329776-41
-      author: Max-Zhao
-      changes:
-        - createTable:
-            columns:
-              - column:
-                  name: id
-                  type: BIGINT
-                  autoIncrement: true
-                  constraints:
-                    primaryKey: true
-              - column:
-                  name: benefit_plan_id
-                  type: BIGINT
-              - column:
-                  name: created_at
-                  type: datetime
-              - column:
-                  name: updated_at
-                  type: datetime
-              - column:
-                  name: deleted_at
-                  type: datetime
-            tableName: benefit_plan_coverages
-  - changeSet:
-      id: 1550646329776-42
-      author: Max-Zhao
-      changes:
-        - createTable:
-            columns:
-              - column:
-                  name: id
-                  type: BIGINT
-                  autoIncrement: true
-                  constraints:
-                    primaryKey: true
-              - column:
-                  name: employee_id
-                  type: BIGINT
-              - column:
-                  name: first_name
-                  type: varchar(255)
-              - column:
-                  name: last_name
-                  type: varchar(255)
-              - column:
-                  name: dependent_relationship_id
-                  type: BIGINT
-              - column:
-                  name: phone_home
-                  type: varchar(64)
-              - column:
-                  name: phone_work
-                  type: varchar(64)
-              - column:
-                  name: phone_mobile
-                  type: varchar(64)
-              - column:
-                  name: email
-                  type: varchar(255)
-              - column:
-                  name: created_at
-                  type: datetime
-              - column:
-                  name: updated_at
-                  type: datetime
-              - column:
-                  name: deleted_at
-                  type: datetime
-            tableName: benefit_plan_dependents
-  - changeSet:
-      id: 1550646329776-43
-      author: Max-Zhao
-      changes:
-        - createTable:
-            columns:
-              - column:
-                  name: id
-                  type: BIGINT
-                  autoIncrement: true
-                  constraints:
-                    primaryKey: true
-              - column:
-                  name: name
-                  type: varchar(32)
-              - column:
-                  name: created_at
-                  type: datetime
-              - column:
-                  name: updated_at
-                  type: datetime
-              - column:
-                  name: deleted_at
-                  type: datetime
-            tableName: benefit_plan_dependent_relationships
-  - changeSet:
-      id: 1550646329776-44
-      author: Max-Zhao
-      changes:
-        - createTable:
-            columns:
-              - column:
-                  name: id
-                  type: BIGINT
-                  autoIncrement: true
-                  constraints:
-                    primaryKey: true
-              - column:
-                  name: benefit_plan_id
-                  type: BIGINT
-              - column:
-                  name: user_id
-                  type: BIGINT
-              - column:
-                  name: created_at
-                  type: datetime
-              - column:
-                  name: updated_at
-                  type: datetime
-              - column:
-                  name: deleted_at
-                  type: datetime
-            tableName: benefit_plans_users
-  - changeSet:
-      id: 1550646329776-45
-      author: Max-Zhao
-      changes:
-        - createTable:
-            columns:
-              - column:
-                  name: id
-                  type: BIGINT
-                  autoIncrement: true
-                  constraints:
-                    primaryKey: true
-              - column:
-                  name: name
-                  type: varchar(32)
-              - column:
-                  name: created_at
-                  type: datetime
-              - column:
-                  name: updated_at
-                  type: datetime
-              - column:
-                  name: deleted_at
-                  type: datetime
-            tableName: cities
-  - changeSet:
-      id: 1550646329776-46
-      author: Max-Zhao
-      changes:
-        - dropColumn:
-            columnName: city
-            tableName: office_addresses
-  - changeSet:
-      id: 1550646329776-47
-      author: Max-Zhao
-      changes:
-        - addColumn:
-            columns:
-              - column:
-                  name: city_id
-                  type: BIGINT
-            tableName: office_addresses
-  - changeSet:
-      id: 1550646329776-48
-      author: Max-Zhao
-      changes:
-        - dropColumn:
-            columnName: organization_id
-            tableName: offices
-  - changeSet:
-      id: 1550646329776-49
-      author: Max-Zhao
-      changes:
-        - modifyDataType:
-            columnName: is_primary
-            newDataType: boolean
-            tableName: user_emergency_contacts
-  - changeSet:
-      id: 1550646329776-50
-      author: Max-Zhao
-      changes:
-        - modifyDataType:
-            columnName: is_limited
-            newDataType: boolean
-            tableName: time_off_policies
-  - changeSet:
-      id: 1550646329776-51
-      author: Max-Zhao
-      changes:
-        - modifyDataType:
-            columnName: does_carryover_at_start_of_year
-            newDataType: boolean
-            tableName: time_off_policy_accrual_options
-  - changeSet:
-      id: 1550646329776-52
-      author: Max-Zhao
-      changes:
-        - modifyDataType:
-            columnName: is_first_accrual_prorated
-            newDataType: boolean
-            tableName: time_off_policy_accrual_options
-  - changeSet:
-      id: 1554171434000-1
-      author: rex-eb
-      changes:
-        - dropTable:
-            tableName: user_emergency_contacts
-        - dropTable:
-            tableName: user_emergency_contact_relationships
-  - changeSet:
-      id: 1554171434000-2
-      author: rex-eb
-      changes:
-        - createTable:
-            columns:
-              - column:
-                  name: id
-                  type: BIGINT
-                  autoIncrement: true
-                  constraints:
-                    primaryKey: true
-              - column:
-                  name: name
-                  type: varchar(225)
-              - column:
-                  name: created_at
-                  type: datetime
-              - column:
-                  name: updated_at
-                  type: datetime
-              - column:
-                  name: deleted_at
-                  type: datetime
-            tableName: states
-  - changeSet:
-      id: 1554171434000-3
-      author: rex-eb
-      changes:
-        - createTable:
-            columns:
-              - column:
-                  name: id
-                  type: BIGINT
-                  autoIncrement: true
-                  constraints:
-                    primaryKey: true
-              - column:
-                  name: user_id
-                  type: BIGINT
-              - column:
-                  name: first_name
-                  type: varchar(255)
-              - column:
-                  name: last_name
-                  type: varchar(255)
-              - column:
-                  name: relationship
-                  type: varchar(255)
-              - column:
-                  name: phone
-                  type: varchar(255)
-              - column:
-                  name: email
-                  type: varchar(255)
-              - column:
-                  name: street_1
-                  type: varchar(255)
-              - column:
-                  name: street_2
-                  type: varchar(255)
-              - column:
-                  name: city
-                  type: varchar(255)
-              - column:
-                  name: state_id
-                  type: varchar(255)
-              - column:
-                  name: postal_code
-                  type: varchar(255)
-              - column:
-                  name: is_primary
-                  type: BOOLEAN
-              - column:
-                  name: created_at
-                  type: datetime
-              - column:
-                  name: updated_at
-                  type: datetime
-              - column:
-                  name: deleted_at
-                  type: datetime
-            tableName: user_emergency_contacts
-  - changeSet:
-      id: 1554171434000-4
-      author: rex-eb
-      changes:
-        - loadUpdateData:
-            columns:
-              - column:
-                  name: id
-                  type: NUMERIC
-              - column:
-                  name: name
-                  type: STRING
-            file: db/changelog/files/data_states.csv
-            primaryKey: id
-            tableName: states
+- changeSet:
+    id: 1550646329776-1
+    author: Max-Zhao
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: id
+            type: bigint
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+        - column:
+            name: employee_number
+            type: varchar(255)
+        - column:
+            name: email_work
+            type: varchar(255)
+        - column:
+            name: password
+            type: varchar(255)
+        - column:
+            name: latest_login
+            type: datetime
+        - column:
+            name: user_status_id
+            type: bigint
+        - column:
+            name: image_url
+            type: text
+        - column:
+            name: company_id
+            type: bigint
+        - column:
+            name: manager_user_id
+            type: bigint
+        - column:
+            name: user_personal_information_id
+            type: bigint
+        - column:
+            name: user_contact_information_id
+            type: bigint
+        - column:
+            name: user_compensation_id
+            type: bigint
+        - column:
+            name: user_role_id
+            type: bigint
+        - column:
+            name: invitation_email_token
+            type: varchar(255)
+        - column:
+            name: invited_at
+            type: datetime
+        - column:
+            name: reset_password_sent_at
+            type: datetime
+        - column:
+            name: reset_password_token
+            type: varchar(255)
+        - column:
+            name: verification_token
+            type: varchar(255)
+        - column:
+            name: verified_at
+            type: datetime
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
+        tableName: users
+- changeSet:
+    id: 1550646329776-2
+    author: Max-Zhao
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+        - column:
+            name: name
+            type: varchar(32)
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
+        tableName: user_statuses
+- changeSet:
+    id: 1550646329776-3
+    author: Max-Zhao
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+        - column:
+            name: name
+            type: varchar(32)
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
+        tableName: user_roles
+- changeSet:
+    id: 1550646329776-4
+    author: Max-Zhao
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+        - column:
+            name: name
+            type: varchar(32)
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
+        tableName: genders
+- changeSet:
+    id: 1550646329776-5
+    author: Max-Zhao
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+        - column:
+            name: name
+            type: varchar(32)
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
+        tableName: ethnicities
+- changeSet:
+    id: 1550646329776-6
+    author: Max-Zhao
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+        - column:
+            name: name
+            type: varchar(32)
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
+        tableName: martial_status
+- changeSet:
+    id: 1550646329776-7
+    author: Max-Zhao
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+        - column:
+            name: name
+            type: varchar(32)
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
+        tableName: citizenship_statuses
+- changeSet:
+    id: 1550646329776-8
+    author: Max-Zhao
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+        - column:
+            name: name
+            type: varchar(32)
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
+        tableName: countries
+- changeSet:
+    id: 1550646329776-9
+    author: Max-Zhao
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+        - column:
+            name: name
+            type: varchar(32)
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
+        tableName: employment_types
+- changeSet:
+    id: 1550646329776-10
+    author: Max-Zhao
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+        - column:
+            name: first_name
+            type: varchar(255)
+        - column:
+            name: middle_name
+            type: varchar(255)
+        - column:
+            name: last_name
+            type: varchar(255)
+        - column:
+            name: preferred_name
+            type: varchar(255)
+        - column:
+            name: birth_date
+            type: DATETIME
+        - column:
+            name: ssn
+            type: varchar(255)
+        - column:
+            name: gender_id
+            type: INT
+        - column:
+            name: marital_status_id
+            type: BIGINT
+        - column:
+            name: ethnicity_id
+            type: BIGINT
+        - column:
+            name: citizenship_status_id
+            type: BIGINT
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
+        tableName: user_personal_information
+- changeSet:
+    id: 1550646329776-11
+    author: Max-Zhao
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+        - column:
+            name: phone_work
+            type: varchar(64)
+        - column:
+            name: phone_work_extension
+            type: varchar(64)
+        - column:
+            name: phone_mobile
+            type: varchar(64)
+        - column:
+            name: phone_home
+            type: varchar(64)
+        - column:
+            name: email_work
+            type: varchar(255)
+        - column:
+            name: email_home
+            type: varchar(255)
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
+        tableName: user_contact_information
+- changeSet:
+    id: 1550646329776-12
+    author: Max-Zhao
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+        - column:
+            name: user_id
+            type: BIGINT
+        - column:
+            name: job_id
+            type: BIGINT
+        - column:
+            name: employment_type_id
+            type: BIGINT
+        - column:
+            name: start_date
+            type: DATETIME
+        - column:
+            name: end_date
+            type: DATETIME
+        - column:
+            name: office_id
+            type: BIGINT
+        - column:
+            name: department_id
+            type: BIGINT
+        - column:
+            name: company_id
+            type: BIGINT
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
+        tableName: jobs_users
+- changeSet:
+    id: 1550646329776-13
+    author: Max-Zhao
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+        - column:
+            name: title
+            type: varchar(255)
+        - column:
+            name: department_id
+            type: BIGINT
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
+        tableName: jobs
+- changeSet:
+    id: 1550646329776-14
+    author: Max-Zhao
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+        - column:
+            name: user_id
+            type: BIGINT
+        - column:
+            name: wage
+            type: INT
+        - column:
+            name: compensation_frequency_id
+            type: BIGINT
+        - column:
+            name: compensation_type_id
+            type: BIGINT
+        - column:
+            name: start_date
+            type: DATETIME
+        - column:
+            name: end_date
+            type: DATETIME
+        - column:
+            name: overtime_status
+            type: varchar(255)
+        - column:
+            name: compensation_change_reason_id
+            type: BIGINT
+        - column:
+            name: comment
+            type: TEXT
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
+        tableName: user_compensations
+- changeSet:
+    id: 1550646329776-15
+    author: Max-Zhao
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+        - column:
+            name: name
+            type: varchar(32)
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
+        tableName: compensation_overtime_statuses
+- changeSet:
+    id: 1550646329776-16
+    author: Max-Zhao
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+        - column:
+            name: company_id
+            type: BIGINT
+        - column:
+            name: name
+            type: varchar(32)
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
+        tableName: compensation_types
+- changeSet:
+    id: 1550646329776-17
+    author: Max-Zhao
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+        - column:
+            name: company_id
+            type: BIGINT
+        - column:
+            name: name
+            type: varchar(32)
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
+        tableName: compensation_frequency
+- changeSet:
+    id: 1550646329776-18
+    author: Max-Zhao
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+        - column:
+            name: company_id
+            type: BIGINT
+        - column:
+            name: name
+            type: varchar(32)
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
+        tableName: compensation_change_reasons
+- changeSet:
+    id: 1550646329776-19
+    author: Max-Zhao
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+        - column:
+            name: effective_date
+            type: DATETIME
+        - column:
+            name: user_employment_status_type_id
+            type: BIGINT
+        - column:
+            name: comment
+            type: TEXT
+        - column:
+            name: user_id
+            type: BIGINT
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
+        tableName: user_employment_statuses
+- changeSet:
+    id: 1550646329776-20
+    author: Max-Zhao
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+        - column:
+            name: name
+            type: varchar(255)
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
+        tableName: user_employment_status_types
+- changeSet:
+    id: 1550646329776-21
+    author: Max-Zhao
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+        - column:
+            name: user_id
+            type: BIGINT
+        - column:
+            name: school
+            type: varchar(255)
+        - column:
+            name: degree
+            type: varchar(255)
+        - column:
+            name: major
+            type: varchar(255)
+        - column:
+            name: gpa
+            type: varchar(255)
+        - column:
+            name: start_date
+            type: DATETIME
+        - column:
+            name: end_date
+            type: DATETIME
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
+        tableName: user_educations
+- changeSet:
+    id: 1550646329776-22
+    author: Max-Zhao
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+        - column:
+            name: user_id
+            type: BIGINT
+        - column:
+            name: relationship_id
+            type: BIGINT
+        - column:
+            name: is_primary
+            type: TINYINT(1)
+        - column:
+            name: phone_work
+            type: varchar(64)
+        - column:
+            name: phone_home
+            type: varchar(64)
+        - column:
+            name: phone_mobile
+            type: varchar(64)
+        - column:
+            name: email
+            type: varchar(255)
+        - column:
+            name: street_1
+            type: varchar(255)
+        - column:
+            name: street_2
+            type: varchar(255)
+        - column:
+            name: city_id
+            type: BIGINT
+        - column:
+            name: state_province_id
+            type: BIGINT
+        - column:
+            name: country_id
+            type: BIGINT
+        - column:
+            name: postal_code
+            type: varchar(64)
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
+        tableName: user_emergency_contacts
+- changeSet:
+    id: 1550646329776-23
+    author: Max-Zhao
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+        - column:
+            name: name
+            type: varchar(255)
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
+        tableName: user_emergency_contact_relationships
+- changeSet:
+    id: 1550646329776-24
+    author: Max-Zhao
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+        - column:
+            name: user_id
+            type: BIGINT
+        - column:
+            name: street_1
+            type: varchar(255)
+        - column:
+            name: street_2
+            type: varchar(255)
+        - column:
+            name: city_id
+            type: BIGINT
+        - column:
+            name: state_province_id
+            type: BIGINT
+        - column:
+            name: country_id
+            type: BIGINT
+        - column:
+            name: postal_code
+            type: varchar(64)
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
+        tableName: user_addresses
+- changeSet:
+    id: 1550646329776-25
+    author: Max-Zhao
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+        - column:
+            name: organization_id
+            type: BIGINT
+        - column:
+            name: office_id
+            type: BIGINT
+        - column:
+            name: name
+            type: varchar(255)
+        - column:
+            name: phone
+            type: varchar(64)
+        - column:
+            name: email
+            type: varchar(255)
+        - column:
+            name: office_address_id
+            type: BIGINT
+        - column:
+            name: company_id
+            type: BIGINT
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
+        tableName: offices
+- changeSet:
+    id: 1550646329776-26
+    author: Max-Zhao
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+        - column:
+            name: office_id
+            type: BIGINT
+        - column:
+            name: street_1
+            type: varchar(255)
+        - column:
+            name: street_2
+            type: varchar(255)
+        - column:
+            name: city
+            type: varchar(255)
+        - column:
+            name: state_province_id
+            type: BIGINT
+        - column:
+            name: country_id
+            type: BIGINT
+        - column:
+            name: postal_code
+            type: varchar(64)
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
+        tableName: office_addresses
+- changeSet:
+    id: 1550646329776-27
+    author: Max-Zhao
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+        - column:
+            name: country_id
+            type: BIGINT
+        - column:
+            name: name
+            type: varchar(255)
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
+        tableName: states_provinces
+- changeSet:
+    id: 1550646329776-28
+    author: Max-Zhao
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+        - column:
+            name: company_id
+            type: BIGINT
+        - column:
+            name: name
+            type: varchar(255)
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
+        tableName: departments
+- changeSet:
+    id: 1550646329776-29
+    author: Max-Zhao
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+        - column:
+            name: name
+            type: varchar(32)
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
+        tableName: company_sizes
+- changeSet:
+    id: 1550646329776-30
+    author: Max-Zhao
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+        - column:
+            name: name
+            type: varchar(255)
+        - column:
+            name: image_url
+            type: TEXT
+        - column:
+            name: EIN
+            type: varchar(255)
+        - column:
+            name: company_size_id
+            type: BIGINT
+        - column:
+            name: country_id
+            type: BIGINT
+        - column:
+            name: subdomain_name
+            type: varchar(255)
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
+        tableName: companies
+- changeSet:
+    id: 1550646329776-31
+    author: Max-Zhao
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+        - column:
+            name: time_off_type_id
+            type: BIGINT
+        - column:
+            name: is_limited
+            type: tinyint(1)
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
+        tableName: time_off_policies
+- changeSet:
+    id: 1550646329776-32
+    author: Max-Zhao
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+        - column:
+            name: time_off_policy_id
+            type: BIGINT
+        - column:
+            name: start_date_value
+            type: varchar(64)
+        - column:
+            name: start_date_unit
+            type: varchar(64)
+        - column:
+            name: accrual_hours
+            type: INT
+        - column:
+            name: accrual_interval
+            type: INT
+        - column:
+            name: accrual_frequency_details
+            type: TEXT
+        - column:
+            name: max_accrual
+            type: INT
+        - column:
+            name: max_carryover_hours_per_year
+            type: INT
+        - column:
+            name: has_carryover_amount
+            type: INT
+        - column:
+            name: next_time_off_policy_accrual_schedule_id
+            type: BIGINT
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
+        tableName: time_off_policy_accrual_schedules
+- changeSet:
+    id: 1550646329776-33
+    author: Max-Zhao
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+        - column:
+            name: is_first_accrual_prorated
+            type: TINYINT(1)
+        - column:
+            name: does_carryover_at_start_of_year
+            type: TINYINT(1)
+        - column:
+            name: time_off_policy_accrual_happenings_id
+            type: BIGINT
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
+        tableName: time_off_policy_accrual_options
+- changeSet:
+    id: 1550646329776-34
+    author: Max-Zhao
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+        - column:
+            name: name
+            type: varchar(255)
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
+        tableName: time_off_policy_accrual_happenings
+- changeSet:
+    id: 1550646329776-35
+    author: Max-Zhao
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+        - column:
+            name: company_id
+            type: BIGINT
+        - column:
+            name: name
+            type: varchar(32)
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
+        tableName: time_off_types
+- changeSet:
+    id: 1550646329776-36
+    author: Max-Zhao
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+        - column:
+            name: requester_user_id
+            type: BIGINT
+        - column:
+            name: approver_user_id
+            type: BIGINT
+        - column:
+            name: time_off_type_id
+            type: BIGINT
+        - column:
+            name: approval_status
+            type: varchar(32)
+        - column:
+            name: approved_date
+            type: DATETIME
+        - column:
+            name: time_off_policy_id
+            type: BIGINT
+        - column:
+            name: expires_at
+            type: DATETIME
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
+        tableName: time_off_requests
+- changeSet:
+    id: 1550646329776-37
+    author: Max-Zhao
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+        - column:
+            name: time_off_request_id
+            type: BIGINT
+        - column:
+            name: date
+            type: DATETIME
+        - column:
+            name: hours
+            type: INT
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
+        tableName: time_off_request_dates
+- changeSet:
+    id: 1550646329776-38
+    author: Max-Zhao
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+        - column:
+            name: employee_id
+            type: BIGINT
+        - column:
+            name: benefit_plan_id
+            type: BIGINT
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
+        tableName: employee_benefit_plans
+- changeSet:
+    id: 1550646329776-39
+    author: Max-Zhao
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+        - column:
+            name: name
+            type: varchar(32)
+        - column:
+            name: company_id
+            type: BIGINT
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
+        tableName: benefit_plan_types
+- changeSet:
+    id: 1550646329776-40
+    author: Max-Zhao
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+        - column:
+            name: name
+            type: varchar(255)
+        - column:
+            name: image_url
+            type: TEXT
+        - column:
+            name: policy_id
+            type: BIGINT
+        - column:
+            name: website
+            type: TEXT
+        - column:
+            name: benefit_plan_type_id
+            type: BIGINT
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
+        tableName: benefit_plans
+- changeSet:
+    id: 1550646329776-41
+    author: Max-Zhao
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+        - column:
+            name: benefit_plan_id
+            type: BIGINT
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
+        tableName: benefit_plan_coverages
+- changeSet:
+    id: 1550646329776-42
+    author: Max-Zhao
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+        - column:
+            name: employee_id
+            type: BIGINT
+        - column:
+            name: first_name
+            type: varchar(255)
+        - column:
+            name: last_name
+            type: varchar(255)
+        - column:
+            name: dependent_relationship_id
+            type: BIGINT
+        - column:
+            name: phone_home
+            type: varchar(64)
+        - column:
+            name: phone_work
+            type: varchar(64)
+        - column:
+            name: phone_mobile
+            type: varchar(64)
+        - column:
+            name: email
+            type: varchar(255)
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
+        tableName: benefit_plan_dependents
+- changeSet:
+    id: 1550646329776-43
+    author: Max-Zhao
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+        - column:
+            name: name
+            type: varchar(32)
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
+        tableName: benefit_plan_dependent_relationships
+- changeSet:
+    id: 1550646329776-44
+    author: Max-Zhao
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+        - column:
+            name: benefit_plan_id
+            type: BIGINT
+        - column:
+            name: user_id
+            type: BIGINT
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
+        tableName: benefit_plans_users
+- changeSet:
+    id: 1550646329776-45
+    author: Max-Zhao
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+        - column:
+            name: name
+            type: varchar(32)
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
+        tableName: cities
+- changeSet:
+    id: 1550646329776-46
+    author: Max-Zhao
+    changes:
+    - dropColumn:
+        columnName: city
+        tableName: office_addresses
+- changeSet:
+    id: 1550646329776-47
+    author: Max-Zhao
+    changes:
+    - addColumn:
+        columns:
+        - column:
+            name: city_id
+            type: BIGINT
+        tableName: office_addresses
+- changeSet:
+    id: 1550646329776-48
+    author: Max-Zhao
+    changes:
+    - dropColumn:
+        columnName: organization_id
+        tableName: offices
+- changeSet:
+    id: 1550646329776-49
+    author: Max-Zhao
+    changes:
+    - modifyDataType:
+        columnName: is_primary
+        newDataType: boolean
+        tableName: user_emergency_contacts
+- changeSet:
+    id: 1550646329776-50
+    author: Max-Zhao
+    changes:
+    - modifyDataType:
+        columnName: is_limited
+        newDataType: boolean
+        tableName: time_off_policies
+- changeSet:
+    id: 1550646329776-51
+    author: Max-Zhao
+    changes:
+    - modifyDataType:
+        columnName: does_carryover_at_start_of_year
+        newDataType: boolean
+        tableName: time_off_policy_accrual_options
+- changeSet:
+    id: 1550646329776-52
+    author: Max-Zhao
+    changes:
+    - modifyDataType:
+        columnName: is_first_accrual_prorated
+        newDataType: boolean
+        tableName: time_off_policy_accrual_options
+- changeSet:
+    id: 1554171434000-1
+    author: rex-eb
+    changes:
+    - dropTable:
+        tableName: user_emergency_contacts
+    - dropTable:
+        tableName: user_emergency_contact_relationships
+- changeSet:
+    id: 1554171434000-2
+    author: rex-eb
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+        - column:
+            name: name
+            type: varchar(225)
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
+        tableName: states
+- changeSet:
+    id: 1554171434000-3
+    author: rex-eb
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+        - column:
+            name: user_id
+            type: BIGINT
+        - column:
+            name: first_name
+            type: varchar(255)
+        - column:
+            name: last_name
+            type: varchar(255)
+        - column:
+            name: relationship
+            type: varchar(255)
+        - column:
+            name: phone
+            type: varchar(255)
+        - column:
+            name: email
+            type: varchar(255)
+        - column:
+            name: street_1
+            type: varchar(255)
+        - column:
+            name: street_2
+            type: varchar(255)
+        - column:
+            name: city
+            type: varchar(255)
+        - column:
+            name: state_id
+            type: varchar(255)
+        - column:
+            name: postal_code
+            type: varchar(255)
+        - column:
+            name: is_primary
+            type: BOOLEAN
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
+        tableName: user_emergency_contacts
+- changeSet:
+    id: 1554171434000-4
+    author: rex-eb
+    changes:
+    - loadUpdateData:
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: name
+            type: STRING
+        file: db/changelog/files/data_states.csv
+        primaryKey: id
+        tableName: states

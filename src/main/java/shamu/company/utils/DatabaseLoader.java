@@ -18,11 +18,14 @@ import shamu.company.user.repository.UserStatusRepository;
 @Component
 public class DatabaseLoader implements CommandLineRunner {
 
-  @Autowired UserStatusRepository userStatusRepository;
+  @Autowired
+  UserStatusRepository userStatusRepository;
 
-  @Autowired UserRoleRepository userRoleRepository;
+  @Autowired
+  UserRoleRepository userRoleRepository;
 
-  @Autowired CompanySizeRepository companySizeRepository;
+  @Autowired
+  CompanySizeRepository companySizeRepository;
 
   @Override
   public void run(String... args) {
@@ -32,18 +35,15 @@ public class DatabaseLoader implements CommandLineRunner {
   }
 
   private void loadUserStatuses() {
-    ArrayList<String> userStatusNames =
-        new ArrayList<>(Arrays.asList("ACTIVE", "DISABLED", "PENDING_VERIFICATION"));
+    ArrayList<String> userStatusNames = new ArrayList<>(
+        Arrays.asList("ACTIVE", "DISABLED", "PENDING_VERIFICATION"));
     List<UserStatus> userStatuses = userStatusRepository.findAllByName(userStatusNames);
-    userStatuses.forEach(
-        (userStatus) -> {
-          userStatusNames.remove(userStatus.getName());
-        });
+    userStatuses.forEach((userStatus) -> {
+      userStatusNames.remove(userStatus.getName());
+    });
 
-    List<UserStatus> userStatusesToAdd =
-        userStatusNames.stream()
-            .map((statusName) -> new UserStatus(statusName))
-            .collect(Collectors.toList());
+    List<UserStatus> userStatusesToAdd = userStatusNames.stream()
+        .map((statusName) -> new UserStatus(statusName)).collect(Collectors.toList());
 
     if (!CollectionUtils.isEmpty(userStatusesToAdd)) {
       userStatusRepository.saveAll(userStatusesToAdd);
@@ -51,18 +51,15 @@ public class DatabaseLoader implements CommandLineRunner {
   }
 
   private void loadUserRoles() {
-    ArrayList<String> userRoleNames =
-        new ArrayList<>(Arrays.asList("ADMIN", "MANAGER", "NON_MANAGER"));
+    ArrayList<String> userRoleNames = new ArrayList<>(
+        Arrays.asList("ADMIN", "MANAGER", "NON_MANAGER"));
     List<UserRole> userRoles = userRoleRepository.findAllByName(userRoleNames);
-    userRoles.forEach(
-        (userRole) -> {
-          userRoleNames.remove(userRole.getName());
-        });
+    userRoles.forEach((userRole) -> {
+      userRoleNames.remove(userRole.getName());
+    });
 
-    List<UserRole> userRolesToAdd =
-        userRoleNames.stream()
-            .map((roleName) -> new UserRole(roleName))
-            .collect(Collectors.toList());
+    List<UserRole> userRolesToAdd = userRoleNames.stream()
+        .map((roleName) -> new UserRole(roleName)).collect(Collectors.toList());
 
     if (!CollectionUtils.isEmpty(userRolesToAdd)) {
       userRoleRepository.saveAll(userRolesToAdd);
@@ -70,42 +67,18 @@ public class DatabaseLoader implements CommandLineRunner {
   }
 
   private void loadCompanySizes() {
-    ArrayList<String> companySizes =
-        new ArrayList<>(
-            Arrays.asList(
-                "1-10",
-                "11-15",
-                "16-25",
-                "26-50",
-                "51-75",
-                "76-100",
-                "101-150",
-                "151-200",
-                "251-300",
-                "301-400",
-                "401-500",
-                "501-600",
-                "601-700",
-                "701-800",
-                "801-900",
-                "901-1000",
-                "1001-1100",
-                "1101-1200",
-                "1201-1300",
-                "1301-1400",
-                "1401-1500",
-                "1501-1600",
-                "1601-1700"));
+    ArrayList<String> companySizes = new ArrayList<>(Arrays
+        .asList("1-10", "11-15", "16-25", "26-50", "51-75", "76-100", "101-150", "151-200",
+            "251-300", "301-400", "401-500", "501-600", "601-700", "701-800", "801-900", "901-1000",
+            "1001-1100", "1101-1200", "1201-1300", "1301-1400", "1401-1500", "1501-1600",
+            "1601-1700"));
     List<CompanySize> companySizeList = companySizeRepository.findAllByName(companySizes);
-    companySizeList.forEach(
-        (companySize) -> {
-          companySizes.remove(companySize.getName());
-        });
+    companySizeList.forEach((companySize) -> {
+      companySizes.remove(companySize.getName());
+    });
 
-    List<CompanySize> companySizesToAdd =
-        companySizes.stream()
-            .map((companySize) -> new CompanySize(companySize))
-            .collect(Collectors.toList());
+    List<CompanySize> companySizesToAdd = companySizes.stream()
+        .map((companySize) -> new CompanySize(companySize)).collect(Collectors.toList());
 
     if (!CollectionUtils.isEmpty(companySizesToAdd)) {
       companySizeRepository.saveAll(companySizesToAdd);
