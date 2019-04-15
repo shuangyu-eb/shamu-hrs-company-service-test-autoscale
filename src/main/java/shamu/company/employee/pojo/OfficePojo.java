@@ -4,15 +4,16 @@ import lombok.Data;
 
 @Data
 public class OfficePojo {
-    private String officeName;
 
-    private String street1;
+  private String officeName;
 
-    private String street2;
+  private String street1;
 
-    private String city;
+  private String street2;
 
-    private String state;
+  private String city;
 
-    private String zip;
+  private String state;
+
+  private String zip;
 }

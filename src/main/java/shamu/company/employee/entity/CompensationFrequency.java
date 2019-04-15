@@ -1,19 +1,18 @@
 package shamu.company.employee.entity;
 
+import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
 import lombok.Data;
 import shamu.company.common.entity.BaseEntity;
 import shamu.company.company.entity.Company;
-
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
 
 @Data
 @Entity
 public class CompensationFrequency extends BaseEntity {
 
-    @ManyToOne
-    private Company company;
+  @ManyToOne
+  private Company company;
 
-    private String name;
+  private String name;
 
 }

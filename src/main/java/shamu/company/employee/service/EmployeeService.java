@@ -1,35 +1,35 @@
 package shamu.company.employee.service;
 
-import shamu.company.employee.dto.GeneralObjectDTO;
+import java.util.List;
+import shamu.company.employee.dto.GeneralObjectDto;
 import shamu.company.employee.pojo.EmployeeInfomationPojo;
 import shamu.company.employee.pojo.OfficePojo;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserPersonalInformation;
 
-import java.util.List;
-
 public interface EmployeeService {
 
-    List<GeneralObjectDTO> getJobInformation();
+  List<GeneralObjectDto> getJobInformation();
 
-    User addNewUser(EmployeeInfomationPojo pojo);
+  User addNewUser(EmployeeInfomationPojo pojo);
 
-    void saveUser(User user);
+  void saveUser(User user);
 
-    void handlePersonalInformation(EmployeeInfomationPojo pojo, User user);
+  void handlePersonalInformation(EmployeeInfomationPojo pojo, User user);
 
-    void handleFullPersonalInformation(EmployeeInfomationPojo pojo, User user, UserPersonalInformation userPersonalInformation);
+  void handleFullPersonalInformation(EmployeeInfomationPojo pojo, User user,
+      UserPersonalInformation userPersonalInformation);
 
-    void handleContactInformation(EmployeeInfomationPojo pojo, User user);
+  void handleContactInformation(EmployeeInfomationPojo pojo, User user);
 
-    void handleJobInformation(EmployeeInfomationPojo pojo, User user);
+  void handleJobInformation(EmployeeInfomationPojo pojo, User user);
 
-    void handelEmergencyContacts(EmployeeInfomationPojo employeePojo, User user);
+  void handelEmergencyContacts(EmployeeInfomationPojo employeePojo, User user);
 
-    Boolean saveEmploymentType(String employmentType);
+  Boolean saveEmploymentType(String employmentType);
 
-    Boolean saveDepartment(String department);
+  Boolean saveDepartment(String department);
 
-    Boolean saveOfficeLocation(OfficePojo officePojo);
+  Boolean saveOfficeLocation(OfficePojo officePojo);
 
 }

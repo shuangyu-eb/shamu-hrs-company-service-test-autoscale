@@ -24,110 +24,110 @@ import shamu.company.utils.EmailUtil;
 @Service
 public class UserServiceImpl implements UserService {
 
-    @Autowired
-    ITemplateEngine templateEngine;
+  @Autowired
+  ITemplateEngine templateEngine;
 
-    @Autowired
-    UserRepository userRepository;
+  @Autowired
+  UserRepository userRepository;
 
-    @Autowired
-    JobUserRepository jobUserRepository;
+  @Autowired
+  JobUserRepository jobUserRepository;
 
-    @Autowired
-    UserAddressRepository userAddressRepository;
+  @Autowired
+  UserAddressRepository userAddressRepository;
 
-    @Value("${application.systemEmailAddress}")
-    String systemEmailAddress;
+  @Value("${application.systemEmailAddress}")
+  String systemEmailAddress;
 
-    @Value("${application.frontEndAddress}")
-    String frontEndAddress;
+  @Value("${application.frontEndAddress}")
+  String frontEndAddress;
 
-    @Autowired
-    EmailUtil emailUtil;
+  @Autowired
+  EmailUtil emailUtil;
 
-    @Override
-    public User findUserByEmail(String email) {
-        return userRepository.findByEmailWork(email);
+  @Override
+  public User findUserByEmail(String email) {
+    return userRepository.findByEmailWork(email);
+  }
+
+  @Override
+  public void sendVerifyEmail(String email) {
+    User user = userRepository.findByEmailWork(email);
+    if (user == null) {
+      throw new ForbiddenException("User account does not exist!");
     }
 
-    @Override
-    public void sendVerifyEmail(String email) {
-        User user = userRepository.findByEmailWork(email);
-        if (user == null) {
-            throw new ForbiddenException("User account does not exist!");
+    String accountVerifyToken = UUID.randomUUID().toString();
+    String emailContent = getActivationEmail(accountVerifyToken);
+    emailUtil.send(systemEmailAddress, email, "Please activate your account!", emailContent);
+    user.setVerificationToken(accountVerifyToken);
+    userRepository.save(user);
+  }
+
+  @Override
+  public void finishUserVerification(String activationToken) {
+    User user = userRepository.findByVerificationToken(activationToken);
+    if (user == null || user.getVerifiedAt() != null) {
+      throw new ForbiddenException("User account does not exist or already activated!");
+    }
+    user.setVerifiedAt(new Timestamp(new Date().getTime()));
+    userRepository.save(user);
+  }
+
+  @Override
+  public List<JobUserDto> findAllEmployees() {
+    List<User> employees = userRepository.findAllEmployees();
+    List<UserAddress> userAddresses = userAddressRepository.findAllByUserIn(employees);
+    List<JobUser> jobUserList = jobUserRepository.findAllByUserIn(employees);
+
+    return getJobUserDtoList(employees, userAddresses, jobUserList);
+  }
+
+  @Override
+  public Boolean existsByEmailWork(String email) {
+    return userRepository.existsByEmailWork(email);
+  }
+
+  private List<JobUserDto> getJobUserDtoList(List<User> employees, List<UserAddress> userAddresses,
+      List<JobUser> jobUsers) {
+    return employees.stream().map((employee) -> {
+      JobUserDto jobUserDto = new JobUserDto();
+      jobUserDto.setEmail(employee.getEmailWork());
+      jobUserDto.setImageUrl(employee.getImageUrl());
+      jobUserDto.setId(employee.getId());
+
+      UserPersonalInformation userPersonalInformation = employee.getUserPersonalInformation();
+      if (userPersonalInformation != null) {
+        jobUserDto.setFirstName(userPersonalInformation.getFirstName());
+        jobUserDto.setLastName(userPersonalInformation.getLastName());
+      }
+
+      userAddresses.forEach((userAddress -> {
+        User userWithAddress = userAddress.getUser();
+        if (userWithAddress != null
+            && userWithAddress.getId().equals(employee.getId())
+            && userAddress.getCity() != null) {
+          jobUserDto.setCityName(userAddress.getCity());
         }
+      }));
 
-        String accountVerifyToken = UUID.randomUUID().toString();
-        String emailContent = getActivationEmail(accountVerifyToken);
-        emailUtil.send(systemEmailAddress, email, "Please activate your account!", emailContent);
-        user.setVerificationToken(accountVerifyToken);
-        userRepository.save(user);
-    }
-
-    @Override
-    public void finishUserVerification(String activationToken) {
-        User user = userRepository.findByVerificationToken(activationToken);
-        if (user == null || user.getVerifiedAt() != null) {
-            throw new ForbiddenException("User account does not exist or already activated!");
+      jobUsers.forEach((jobUser -> {
+        User userWithJob = jobUser.getUser();
+        if (userWithJob != null
+            && userWithJob.getId().equals(employee.getId())
+            && jobUser.getJob() != null) {
+          jobUserDto.setJobTitle(jobUser.getJob().getTitle());
         }
-        user.setVerifiedAt(new Timestamp(new Date().getTime()));
-        userRepository.save(user);
-    }
+      }));
+      return jobUserDto;
+    }).collect(Collectors.toList());
+  }
 
-    @Override
-    public List<JobUserDto> findAllEmployees() {
-        List<User> employees = userRepository.findAllEmployees();
-        List<UserAddress> userAddresses = userAddressRepository.findAllByUserIn(employees);
-        List<JobUser> jobUserList = jobUserRepository.findAllByUserIn(employees);
-
-        return getJobUserDtoList(employees, userAddresses, jobUserList);
-    }
-
-    @Override
-    public Boolean existsByEmailWork(String email) {
-        return userRepository.existsByEmailWork(email);
-    }
-
-    private List<JobUserDto> getJobUserDtoList(List<User> employees, List<UserAddress> userAddresses,
-                                               List<JobUser> jobUsers) {
-        return employees.stream().map((employee) -> {
-            JobUserDto jobUserDto = new JobUserDto();
-            jobUserDto.setEmail(employee.getEmailWork());
-            jobUserDto.setImageUrl(employee.getImageUrl());
-            jobUserDto.setId(employee.getId());
-
-            UserPersonalInformation userPersonalInformation = employee.getUserPersonalInformation();
-            if (userPersonalInformation != null) {
-                jobUserDto.setFirstName(userPersonalInformation.getFirstName());
-                jobUserDto.setLastName(userPersonalInformation.getLastName());
-            }
-
-            userAddresses.forEach((userAddress -> {
-                User userWithAddress = userAddress.getUser();
-                if (userWithAddress != null
-                        && userWithAddress.getId().equals(employee.getId())
-                        && userAddress.getCity() != null) {
-                    jobUserDto.setCityName(userAddress.getCity());
-                }
-            }));
-
-            jobUsers.forEach((jobUser -> {
-                User userWithJob = jobUser.getUser();
-                if (userWithJob != null
-                        && userWithJob.getId().equals(employee.getId())
-                        && jobUser.getJob() != null) {
-                    jobUserDto.setJobTitle(jobUser.getJob().getTitle());
-                }
-            }));
-            return jobUserDto;
-        }).collect(Collectors.toList());
-    }
-
-    public String getActivationEmail(String accountVerifyToken) {
-        Context context = new Context();
-        context.setVariable("frontEndAddress", frontEndAddress);
-        context.setVariable("accountVerifyAddress",
-                String.format("account/verify/%s", accountVerifyToken));
-        return templateEngine.process("account_verify_email.html", context);
-    }
+  public String getActivationEmail(String accountVerifyToken) {
+    Context context = new Context();
+    context.setVariable("frontEndAddress", frontEndAddress);
+    context.setVariable("accountVerifyAddress",
+        String.format("account/verify/%s", accountVerifyToken));
+    return templateEngine.process("account_verify_email.html", context);
+  }
 }
