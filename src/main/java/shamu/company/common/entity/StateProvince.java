@@ -17,10 +17,10 @@ import javax.persistence.Table;
 @AllArgsConstructor
 public class StateProvince extends BaseEntity {
 
-    @ManyToOne
-    private Country country;
+  @ManyToOne
+  private Country country;
 
-    private String name;
+  private String name;
 
     public StateProvince(Long id){
         this.setId(id);

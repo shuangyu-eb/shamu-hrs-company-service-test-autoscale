@@ -1,21 +1,21 @@
 package shamu.company.user.service;
 
-import shamu.company.job.JobUserDTO;
+import java.util.List;
+import shamu.company.job.JobUserDto;
 import shamu.company.user.dto.PersonalInformationDTO;
 import shamu.company.user.entity.User;
 
-import java.util.List;
-
 public interface UserService {
-    User findUserByEmail(String email);
 
-    void sendVerifyEmail(String email);
+  User findUserByEmail(String email);
 
-    void finishUserVerification(String activationToken);
+  void sendVerifyEmail(String email);
 
-    List<JobUserDTO> findAllEmployees();
+  void finishUserVerification(String activationToken);
 
-    Boolean existsByEmailWork(String email);
+  List<JobUserDto> findAllEmployees();
+
+  Boolean existsByEmailWork(String email);
 
     PersonalInformationDTO getPersonalInformation(Long userId);
 }

@@ -1,10 +1,9 @@
 package shamu.company.common.exception.response;
 
+import java.util.HashMap;
 import lombok.Data;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import shamu.company.common.exception.*;
-
-import java.util.HashMap;
+import shamu.company.common.exception.AbstractException;
 
 @Data
 public class ErrorMessage {

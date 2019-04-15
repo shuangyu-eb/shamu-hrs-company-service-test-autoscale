@@ -1,13 +1,12 @@
 package shamu.company.job;
 
+import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import lombok.Data;
 import org.hibernate.annotations.Where;
 import shamu.company.common.entity.BaseEntity;
 import shamu.company.company.entity.Department;
-
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
 
 @Entity
 @Data
@@ -15,8 +14,8 @@ import javax.persistence.Table;
 @Where(clause = "deleted_at IS NULL")
 public class Job extends BaseEntity {
 
-    private String title;
+  private String title;
 
-    @ManyToOne
-    private Department department;
+  @ManyToOne
+  private Department department;
 }
