@@ -23,19 +23,19 @@ public class UserAddressServiceImpl implements UserAddressService {
   @Autowired UserService userService;
 
   @Override
-  public UserAddressDto updateUserAddress(UserAddressDto userAddressDTO) {
-    String city = userAddressDTO.getCity();
+  public UserAddressDto updateUserAddress(UserAddressDto userAddressDto) {
+    String city = userAddressDto.getCity();
 
-    String countryName = userAddressDTO.getCountryName();
+    String countryName = userAddressDto.getCountryName();
     Country country = countryService.getCountry(countryName);
 
-    Long userId = userAddressDTO.getUserId();
-    Long stateProvinceId = userAddressDTO.getStateProvinceId();
+    Long userId = userAddressDto.getUserId();
+    Long stateProvinceId = userAddressDto.getStateProvinceId();
 
-    String postalCode = userAddressDTO.getPostalCode();
-    String street1 = userAddressDTO.getStreet1();
-    String street2 = userAddressDTO.getStreet2();
-    Long id = userAddressDTO.getId();
+    String postalCode = userAddressDto.getPostalCode();
+    String street1 = userAddressDto.getStreet1();
+    String street2 = userAddressDto.getStreet2();
+    Long id = userAddressDto.getId();
 
     UserAddress userAddress =
         new UserAddress(id, userId, street1, street2, city, stateProvinceId, country, postalCode);

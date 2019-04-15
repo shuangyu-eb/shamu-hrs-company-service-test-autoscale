@@ -14,10 +14,8 @@ public class UserContactInformationServiceImpl implements UserContactInformation
   @Override
   public UserContactInformationDto update(UserContactInformation userContactInformation) {
     UserContactInformation userContactInformationUpdated = repository.save(userContactInformation);
-    // UserContactInformationDto userContactInformationDTO =
-    // PersonalInformationUtil.convertUserContactInfoEntityToDTO(userContactInformationUpdated);
-    UserContactInformationDto userContactInformationDTO =
+    UserContactInformationDto userContactInformationDto =
         new UserContactInformationDto(userContactInformationUpdated);
-    return userContactInformationDTO;
+    return userContactInformationDto;
   }
 }

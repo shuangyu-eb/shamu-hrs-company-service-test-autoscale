@@ -78,7 +78,7 @@ public class UserServiceImpl implements UserService {
     List<UserAddress> userAddresses = userAddressRepository.findAllByUserIn(employees);
     List<JobUser> jobUserList = jobUserRepository.findAllByUserIn(employees);
 
-    return getJobUserDTOList(employees, userAddresses, jobUserList);
+    return getJobUserDtoList(employees, userAddresses, jobUserList);
   }
 
   @Override
@@ -95,27 +95,27 @@ public class UserServiceImpl implements UserService {
     UserPersonalInformation userPersonalInformation = user.getUserPersonalInformation();
     UserContactInformation userContactInformation = user.getUserContactInformation();
     UserAddress userAddress = userAddressRepository.findUserAddressByUserId(userId);
-    PersonalInformationDto personalInformationDTO =
+    PersonalInformationDto personalInformationDto =
         new PersonalInformationDto(
             userId, userPersonalInformation, userContactInformation, userAddress);
-    return personalInformationDTO;
+    return personalInformationDto;
   }
 
-  private List<JobUserDto> getJobUserDTOList(
+  private List<JobUserDto> getJobUserDtoList(
       List<User> employees, List<UserAddress> userAddresses, List<JobUser> jobUsers) {
     return employees.stream()
         .map(
             (employee) -> {
-              JobUserDto jobUserDTO = new JobUserDto();
-              jobUserDTO.setEmail(employee.getEmailWork());
-              jobUserDTO.setImageUrl(employee.getImageUrl());
-              jobUserDTO.setId(employee.getId());
+              JobUserDto jobUserDto = new JobUserDto();
+              jobUserDto.setEmail(employee.getEmailWork());
+              jobUserDto.setImageUrl(employee.getImageUrl());
+              jobUserDto.setId(employee.getId());
 
               UserPersonalInformation userPersonalInformation =
                   employee.getUserPersonalInformation();
               if (userPersonalInformation != null) {
-                jobUserDTO.setFirstName(userPersonalInformation.getFirstName());
-                jobUserDTO.setLastName(userPersonalInformation.getLastName());
+                jobUserDto.setFirstName(userPersonalInformation.getFirstName());
+                jobUserDto.setLastName(userPersonalInformation.getLastName());
               }
 
               userAddresses.forEach(
@@ -124,7 +124,7 @@ public class UserServiceImpl implements UserService {
                     if (userWithAddress != null
                         && userWithAddress.getId().equals(employee.getId())
                         && userAddress.getCity() != null) {
-                      jobUserDTO.setCityName(userAddress.getCity());
+                      jobUserDto.setCityName(userAddress.getCity());
                     }
                   }));
 
@@ -134,10 +134,10 @@ public class UserServiceImpl implements UserService {
                     if (userWithJob != null
                         && userWithJob.getId().equals(employee.getId())
                         && jobUser.getJob() != null) {
-                      jobUserDTO.setJobTitle(jobUser.getJob().getTitle());
+                      jobUserDto.setJobTitle(jobUser.getJob().getTitle());
                     }
                   }));
-              return jobUserDTO;
+              return jobUserDto;
             })
         .collect(Collectors.toList());
   }
