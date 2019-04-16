@@ -16,7 +16,7 @@ public class UserPersonalInformationServiceImpl implements UserPersonalInformati
   @Override
   public UserPersonalInformationDto update(UserPersonalInformationDto userPersonalInformationDto) {
     UserPersonalInformation userPersonalInformation = userPersonalInformationDto
-        .getUserPersonalInformation(userPersonalInformationDto);
+        .getUserPersonalInformation();
     UserPersonalInformation userPersonalInformationUpdated =
         repository.save(userPersonalInformation);
     UserPersonalInformationDto userPersonalInformationDtoUpdated =

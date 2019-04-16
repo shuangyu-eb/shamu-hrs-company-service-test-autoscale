@@ -48,13 +48,12 @@ public class UserPersonalInformationDto {
     BeanUtils.copyProperties(userPersonalInformation, this);
   }
 
-  public UserPersonalInformation getUserPersonalInformation(
-      UserPersonalInformationDto userPersonalInformationDto) {
+  public UserPersonalInformation getUserPersonalInformation() {
     UserPersonalInformation userPersonalInformation = new UserPersonalInformation();
-    BeanUtils.copyProperties(userPersonalInformationDto, userPersonalInformation);
-    userPersonalInformation.setGender(new Gender(userPersonalInformationDto.getGenderId()));
+    BeanUtils.copyProperties(this, userPersonalInformation);
+    userPersonalInformation.setGender(new Gender(this.getGenderId()));
     userPersonalInformation.setMaritalStatus(
-        new MaritalStatus(userPersonalInformationDto.getMaritalStatusId()));
+        new MaritalStatus(this.getMaritalStatusId()));
     return userPersonalInformation;
   }
 }

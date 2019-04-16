@@ -45,11 +45,11 @@ public class UserAddressDto {
     BeanUtils.copyProperties(userAddress, this);
   }
 
-  public UserAddress getUserAddress(UserAddressDto userAddressDto, Country country) {
+  public UserAddress getUserAddress(Country country) {
     UserAddress userAddress = new UserAddress();
-    BeanUtils.copyProperties(userAddressDto,userAddress);
-    userAddress.setUser(new User(userAddressDto.getUserId()));
-    userAddress.setStateProvince(new StateProvince(userAddressDto.getStateProvinceId()));
+    BeanUtils.copyProperties(this,userAddress);
+    userAddress.setUser(new User(this.getUserId()));
+    userAddress.setStateProvince(new StateProvince(this.getStateProvinceId()));
     userAddress.setCountry(country);
     return userAddress;
   }
