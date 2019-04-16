@@ -1,5 +1,6 @@
 package shamu.company.user;
 
+import java.util.UUID;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -10,22 +11,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
-
-import java.util.UUID;
+import shamu.company.user.service.impl.UserServiceImpl;
 
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(SpringRunner.class)
 @ActiveProfiles("local")
 @SpringBootTest
-@PowerMockIgnore({"javax.management.*", "sun.security.ssl.*", "javax.net.ssl.*", })
+@PowerMockIgnore({
+    "javax.management.*",
+    "sun.security.ssl.*",
+    "javax.net.ssl.*",
+})
 public class UserServiceJunit {
 
-    @Autowired
-    UserServiceImpl userService;
+  @Autowired
+  UserServiceImpl userService;
 
-    @Test
-    public void testGetActivationEmail() {
-        String result = userService.getActivationEmail(UUID.randomUUID().toString());
-        Assert.assertNotNull(result);
-    }
+  @Test
+  public void testGetActivationEmail() {
+    String result = userService.getActivationEmail(UUID.randomUUID().toString());
+    Assert.assertNotNull(result);
+  }
 }

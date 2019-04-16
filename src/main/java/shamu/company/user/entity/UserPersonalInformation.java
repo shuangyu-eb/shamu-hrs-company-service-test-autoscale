@@ -37,4 +37,5 @@ public class UserPersonalInformation extends BaseEntity {
 
   @ManyToOne
   private CitizenshipStatus citizenshipStatus;
+
 }

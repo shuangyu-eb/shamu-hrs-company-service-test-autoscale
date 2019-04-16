@@ -1,7 +1,8 @@
-package shamu.company.user;
+package shamu.company.user.service;
 
 import java.util.List;
 import shamu.company.job.JobUserDto;
+import shamu.company.user.dto.PersonalInformationDto;
 import shamu.company.user.entity.User;
 
 public interface UserService {
@@ -15,4 +16,6 @@ public interface UserService {
   List<JobUserDto> findAllEmployees();
 
   Boolean existsByEmailWork(String email);
+
+  PersonalInformationDto getPersonalInformation(Long userId);
 }

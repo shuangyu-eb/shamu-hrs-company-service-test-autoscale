@@ -1,9 +1,10 @@
-package shamu.company.common.service;
+package shamu.company.common.service.impl;
 
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import shamu.company.common.service.AuthUserService;
 import shamu.company.user.entity.User;
 
 @Service
