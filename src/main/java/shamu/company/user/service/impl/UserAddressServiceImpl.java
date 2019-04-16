@@ -33,7 +33,7 @@ public class UserAddressServiceImpl implements UserAddressService {
 
     Long userId = userAddressDto.getUserId();
 
-    UserAddress userAddress = userAddressDto.getUserAddress(userAddressDto,country);
+    UserAddress userAddress = userAddressDto.getUserAddress(country);
 
     UserAddress userAddressUpdated = userAddressRepository.save(userAddress);
 
