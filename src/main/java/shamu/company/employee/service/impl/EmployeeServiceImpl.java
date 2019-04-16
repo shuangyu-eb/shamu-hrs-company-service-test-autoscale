@@ -74,7 +74,7 @@ public class EmployeeServiceImpl implements EmployeeService {
   public List<GeneralObjectDto> getDepartments() {
     List<Department> departments = departmentRepository.findAll();
     List<GeneralObjectDto> departmentDtos = new ArrayList<>();
-    for(Department department : departments) {
+    for(Department department : departments){
       GeneralObjectDto departmentDto = new GeneralObjectDto();
       String id = String.valueOf(department.getId());
       String name = department.getName();
@@ -89,7 +89,7 @@ public class EmployeeServiceImpl implements EmployeeService {
   public List<GeneralObjectDto> getEmploymentTypes() {
     List<EmploymentType> employmentTypes = employmentTypeRepository.findAll();
     List<GeneralObjectDto> allEmploymentTypes = new ArrayList<>();
-    for(EmploymentType employmentType : employmentTypes) {
+    for(EmploymentType employmentType : employmentTypes){
       GeneralObjectDto employmentTypeDto = new GeneralObjectDto();
       String id = String.valueOf(employmentType.getId());
       String name = employmentType.getName();
@@ -104,7 +104,7 @@ public class EmployeeServiceImpl implements EmployeeService {
   public List<GeneralObjectDto> getOfficeLocations() {
     List<Office> offices = officeRepository.findAll();
     List<GeneralObjectDto> officeDtos = new ArrayList<>();
-    for(Office office : offices) {
+    for(Office office : offices){
       GeneralObjectDto officeDto = new GeneralObjectDto();
       officeDto.setId(String.valueOf(office.getId()));
       StringBuilder sb = new StringBuilder();
@@ -129,7 +129,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     managerRole.setId(MANAGER_ROLE_ID);
     List<User> managerList = userRepository.findByUserRole(managerRole);
     List<GeneralObjectDto> allManagers = new ArrayList<>();
-    for (User manager : managerList) {
+    for (User manager : managerList){
       GeneralObjectDto managerDto = new GeneralObjectDto();
       String id = String.valueOf(manager.getId());
       UserPersonalInformation userInfo = manager.getUserPersonalInformation();
