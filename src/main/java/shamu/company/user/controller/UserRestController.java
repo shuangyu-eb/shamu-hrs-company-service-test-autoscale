@@ -47,7 +47,7 @@ public class UserRestController {
     return companyService.existsBySubdomainName(desiredUrl);
   }
 
-  @GetMapping("user/{userId}/personal-information")
+  @GetMapping("users/{userId}/personal-information")
   public PersonalInformationDto getPersonalInformation(@PathVariable Long userId) {
     PersonalInformationDto personalInformationDtO = userService.getPersonalInformation(userId);
     return personalInformationDtO;

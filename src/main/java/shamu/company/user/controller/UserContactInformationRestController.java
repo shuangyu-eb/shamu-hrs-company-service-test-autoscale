@@ -9,7 +9,7 @@ import shamu.company.user.entity.UserContactInformation;
 import shamu.company.user.service.UserContactInformationService;
 
 @RestApiController
-public class UserContactInformationController {
+public class UserContactInformationRestController {
 
   @Autowired UserContactInformationService contactInformationService;
 

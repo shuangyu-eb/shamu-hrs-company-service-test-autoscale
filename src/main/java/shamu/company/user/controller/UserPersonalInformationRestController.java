@@ -8,7 +8,7 @@ import shamu.company.user.dto.UserPersonalInformationDto;
 import shamu.company.user.service.UserPersonalInformationService;
 
 @RestApiController
-public class UserPersonalInformationController {
+public class UserPersonalInformationRestController {
   @Autowired UserPersonalInformationService userPersonalInformationService;
 
   @PatchMapping("user-personal-information")

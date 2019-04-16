@@ -8,7 +8,7 @@ import shamu.company.user.dto.UserAddressDto;
 import shamu.company.user.service.UserAddressService;
 
 @RestApiController
-public class UserAddressController {
+public class UserAddressRestController {
   @Autowired UserAddressService userAddressService;
 
   @PatchMapping("user-address")
