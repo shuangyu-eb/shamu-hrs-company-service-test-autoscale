@@ -1574,10 +1574,108 @@ databaseChangeLog:
         newDataType: boolean
         tableName: time_off_policy_accrual_options
 - changeSet:
-      id: 1554171434000-1
-      author: rex-eb
-      changes:
-          - dropTable:
-                tableName: user_emergency_contacts
-          - dropTable:
-                tableName: user_emergency_contact_relationships
+    id: 1554171434000-1
+    author: rex-eb
+    changes:
+    - dropTable:
+        tableName: user_emergency_contacts
+    - dropTable:
+        tableName: user_emergency_contact_relationships
+- changeSet:
+    id: 1554171434000-2
+    author: rex-eb
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+        - column:
+            name: name
+            type: varchar(225)
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
+        tableName: states
+- changeSet:
+    id: 1554171434000-3
+    author: rex-eb
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+        - column:
+            name: user_id
+            type: BIGINT
+        - column:
+            name: first_name
+            type: varchar(255)
+        - column:
+            name: last_name
+            type: varchar(255)
+        - column:
+            name: relationship
+            type: varchar(255)
+        - column:
+            name: phone
+            type: varchar(255)
+        - column:
+            name: email
+            type: varchar(255)
+        - column:
+            name: street_1
+            type: varchar(255)
+        - column:
+            name: street_2
+            type: varchar(255)
+        - column:
+            name: city
+            type: varchar(255)
+        - column:
+            name: state_id
+            type: varchar(255)
+        - column:
+            name: postal_code
+            type: varchar(255)
+        - column:
+            name: is_primary
+            type: BOOLEAN
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
+        tableName: user_emergency_contacts
+- changeSet:
+    id: 1554171434000-4
+    author: rex-eb
+    changes:
+    - loadUpdateData:
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: name
+            type: STRING
+        file: db/changelog/files/data_states.csv
+        primaryKey: id
+        tableName: states
