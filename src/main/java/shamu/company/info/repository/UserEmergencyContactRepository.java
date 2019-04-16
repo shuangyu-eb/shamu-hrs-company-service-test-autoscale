@@ -11,7 +11,7 @@ public interface UserEmergencyContactRepository extends BaseRepository<UserEmerg
 
   @Query(
       value = "SELECT * FROM user_emergency_contacts "
-          + "WHERE deleted_at IS NULL AND user_id = ?1 ORDER BY updated_at DESC",
+          + "WHERE deleted_at IS NULL AND user_id = ?1 ORDER BY is_primary DESC, id ASC",
       nativeQuery = true)
   List<UserEmergencyContact> findByUserId(Long id);
 
