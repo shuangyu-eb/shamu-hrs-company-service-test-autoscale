@@ -189,7 +189,7 @@ public class EmployeeServiceImpl implements EmployeeService {
   }
 
   @Override
-  public User addNewUser(EmployeeInfomationPojo pojo) {
+  public User addNewUser(final EmployeeInfomationPojo pojo) {
     User user = new User();
     UserRole userRole = new UserRole();
     userRole.setId(EMPLOYEE_ROLE_ID);
@@ -199,7 +199,7 @@ public class EmployeeServiceImpl implements EmployeeService {
   }
 
   @Override
-  public void saveUser(User user) {
+  public void saveUser(final User user) {
     User userReturned = userRepository.save(user);
   }
 
