@@ -8,7 +8,6 @@ import shamu.company.common.entity.BaseEntity;
 
 @Data
 @Entity
-@Table(name = "employment_types")
 @Where(clause = "deleted_at IS NULL")
 public class EmploymentType extends BaseEntity {
 

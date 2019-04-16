@@ -20,7 +20,4 @@ public interface UserRepository extends BaseRepository<User, Long> {
   @Query(value = "SELECT * FROM users WHERE user_role_id = 2 AND deleted_at IS NULL",
       nativeQuery = true)
   List<User> findAllManagers();
-
-  @Query(value = "SELECT * FROM users WHERE manager_user_id = ?1", nativeQuery = true)
-  User findByManagerUser(Long managerUserId);
 }
