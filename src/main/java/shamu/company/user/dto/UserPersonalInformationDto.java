@@ -48,7 +48,7 @@ public class UserPersonalInformationDto {
     BeanUtils.copyProperties(userPersonalInformation, this);
   }
 
-  public UserPersonalInformation convertUserPersonalInformationDtoToEntity(
+  public UserPersonalInformation getUserPersonalInformation(
       UserPersonalInformationDto userPersonalInformationDto) {
     UserPersonalInformation userPersonalInformation = new UserPersonalInformation();
     BeanUtils.copyProperties(userPersonalInformationDto, userPersonalInformation);

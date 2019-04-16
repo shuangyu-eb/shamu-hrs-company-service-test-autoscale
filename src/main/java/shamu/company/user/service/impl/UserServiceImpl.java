@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.Context;
 import shamu.company.common.exception.ForbiddenException;
+import shamu.company.common.exception.ResouceNotFoundException;
 import shamu.company.job.JobUser;
 import shamu.company.job.JobUserDto;
 import shamu.company.job.JobUserRepository;
@@ -96,7 +97,7 @@ public class UserServiceImpl implements UserService {
     User user =
         userRepository
             .findById(userId)
-            .orElseThrow(() -> new ForbiddenException("User does not exist"));
+            .orElseThrow(() -> new ResouceNotFoundException("User does not exist"));
     UserPersonalInformation userPersonalInformation = user.getUserPersonalInformation();
     UserContactInformation userContactInformation = user.getUserContactInformation();
     UserAddress userAddress = userAddressRepository.findUserAddressByUserId(userId);

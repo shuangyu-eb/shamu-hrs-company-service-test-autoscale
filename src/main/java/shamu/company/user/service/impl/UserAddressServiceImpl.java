@@ -28,21 +28,12 @@ public class UserAddressServiceImpl implements UserAddressService {
 
   @Override
   public UserAddressDto updateUserAddress(UserAddressDto userAddressDto) {
-    String city = userAddressDto.getCity();
-
     String countryName = userAddressDto.getCountryName();
     Country country = countryService.getCountry(countryName);
 
     Long userId = userAddressDto.getUserId();
-    Long stateProvinceId = userAddressDto.getStateProvinceId();
 
-    String postalCode = userAddressDto.getPostalCode();
-    String street1 = userAddressDto.getStreet1();
-    String street2 = userAddressDto.getStreet2();
-    Long id = userAddressDto.getId();
-
-    UserAddress userAddress =
-        new UserAddress(id, userId, street1, street2, city, stateProvinceId, country, postalCode);
+    UserAddress userAddress = userAddressDto.getUserAddress(userAddressDto,country);
 
     UserAddress userAddressUpdated = userAddressRepository.save(userAddress);
 

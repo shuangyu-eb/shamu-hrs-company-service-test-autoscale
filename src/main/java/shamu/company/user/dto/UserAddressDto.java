@@ -4,6 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.BeanUtils;
+import shamu.company.common.entity.Country;
+import shamu.company.common.entity.StateProvince;
+import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserAddress;
 
 @Data
@@ -40,5 +43,14 @@ public class UserAddressDto {
     this.setUserId(userId);
 
     BeanUtils.copyProperties(userAddress, this);
+  }
+
+  public UserAddress getUserAddress(UserAddressDto userAddressDto, Country country){
+    UserAddress userAddress = new UserAddress();
+    BeanUtils.copyProperties(userAddressDto,userAddress);
+    userAddress.setUser(new User(userAddressDto.getUserId()));
+    userAddress.setStateProvince(new StateProvince(userAddressDto.getStateProvinceId()));
+    userAddress.setCountry(country);
+    return userAddress;
   }
 }
