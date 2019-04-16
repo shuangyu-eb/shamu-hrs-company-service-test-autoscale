@@ -27,13 +27,17 @@ import shamu.company.utils.EmailUtil;
 @Service
 public class UserServiceImpl implements UserService {
 
-  @Autowired ITemplateEngine templateEngine;
+  @Autowired
+  ITemplateEngine templateEngine;
 
-  @Autowired UserRepository userRepository;
+  @Autowired
+  UserRepository userRepository;
 
-  @Autowired JobUserRepository jobUserRepository;
+  @Autowired
+  JobUserRepository jobUserRepository;
 
-  @Autowired UserAddressRepository userAddressRepository;
+  @Autowired
+  UserAddressRepository userAddressRepository;
 
   @Value("${application.systemEmailAddress}")
   String systemEmailAddress;
@@ -41,7 +45,8 @@ public class UserServiceImpl implements UserService {
   @Value("${application.frontEndAddress}")
   String frontEndAddress;
 
-  @Autowired EmailUtil emailUtil;
+  @Autowired
+  EmailUtil emailUtil;
 
   @Override
   public User findUserByEmail(String email) {

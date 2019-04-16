@@ -31,9 +31,12 @@ public class OfficeAddress extends BaseEntity {
 
   private String city;
 
-  @ManyToOne private StateProvince stateProvince;
+  @ManyToOne
+  private StateProvince stateProvince;
 
-  @ManyToOne private Country country;
+  @ManyToOne
+  private Country country;
 
   private String postalCode;
+
 }

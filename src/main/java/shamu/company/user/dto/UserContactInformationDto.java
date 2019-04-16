@@ -10,6 +10,7 @@ import shamu.company.user.entity.UserContactInformation;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserContactInformationDto {
+
   private Long id;
 
   private String phoneWork;

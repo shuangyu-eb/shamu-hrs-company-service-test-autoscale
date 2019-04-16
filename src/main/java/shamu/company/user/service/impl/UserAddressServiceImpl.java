@@ -14,13 +14,17 @@ import shamu.company.user.service.UserService;
 @Service
 public class UserAddressServiceImpl implements UserAddressService {
 
-  @Autowired UserAddressRepository userAddressRepository;
+  @Autowired
+  UserAddressRepository userAddressRepository;
 
-  @Autowired StateProvinceService stateProvinceService;
+  @Autowired
+  StateProvinceService stateProvinceService;
 
-  @Autowired CountryService countryService;
+  @Autowired
+  CountryService countryService;
 
-  @Autowired UserService userService;
+  @Autowired
+  UserService userService;
 
   @Override
   public UserAddressDto updateUserAddress(UserAddressDto userAddressDto) {

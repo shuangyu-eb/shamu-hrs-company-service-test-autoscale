@@ -11,6 +11,7 @@ import shamu.company.user.entity.UserPersonalInformation;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PersonalInformationDto {
+
   private Long userId;
 
   private UserAddressDto userAddress;
@@ -24,15 +25,15 @@ public class PersonalInformationDto {
       UserPersonalInformation userPersonalInformation,
       UserContactInformation userContactInformation,
       UserAddress userAddress) {
-    UserPersonalInformationDto userPersonalInformationDtO =
+    UserPersonalInformationDto userPersonalInformationDto =
         new UserPersonalInformationDto(userPersonalInformation);
-    UserContactInformationDto userContactInformationDtO =
+    UserContactInformationDto userContactInformationDto =
         new UserContactInformationDto(userContactInformation);
-    UserAddressDto userAddressDtO = new UserAddressDto(userAddress, userId);
+    UserAddressDto userAddressDto = new UserAddressDto(userAddress, userId);
 
-    this.setUserAddress(userAddressDtO);
-    this.setUserContactInformation(userContactInformationDtO);
-    this.setUserPersonalInformation(userPersonalInformationDtO);
+    this.setUserAddress(userAddressDto);
+    this.setUserContactInformation(userContactInformationDto);
+    this.setUserPersonalInformation(userPersonalInformationDto);
     this.setUserId(userId);
   }
 }

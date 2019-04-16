@@ -25,9 +25,11 @@ public class Company extends BaseEntity {
   @Column(name = "EIN")
   private String ein;
 
-  @OneToOne private CompanySize companySize;
+  @OneToOne
+  private CompanySize companySize;
 
-  @ManyToOne private Country country;
+  @ManyToOne
+  private Country country;
 
   private String subdomainName;
 }

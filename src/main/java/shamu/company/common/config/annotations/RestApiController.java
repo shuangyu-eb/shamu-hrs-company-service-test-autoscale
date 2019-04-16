@@ -11,4 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 @Retention(RetentionPolicy.RUNTIME)
 @RestController
 @RequestMapping("/company")
-public @interface RestApiController {}
+public @interface RestApiController {
+
+}

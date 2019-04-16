@@ -10,6 +10,7 @@ import shamu.company.user.entity.UserAddress;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserAddressDto {
+
   private Long id;
 
   private Long userId;

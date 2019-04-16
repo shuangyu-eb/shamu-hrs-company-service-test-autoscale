@@ -10,7 +10,8 @@ import shamu.company.info.repository.UserEmergencyContactRepository;
 @Service
 public class UserEmergencyContactServiceImpl implements UserEmergencyContactService {
 
-  @Autowired UserEmergencyContactRepository userEmergencyContactRepository;
+  @Autowired
+  UserEmergencyContactRepository userEmergencyContactRepository;
 
   @Override
   public List<UserEmergencyContact> getUserEmergencyContacts(Long userId) {
@@ -27,8 +28,8 @@ public class UserEmergencyContactServiceImpl implements UserEmergencyContactServ
 
   @Override
   public void deleteEmergencyContact(Long userId, Long id) {
-    Optional<UserEmergencyContact> userEmergencyContact =
-        userEmergencyContactRepository.findById(id);
+    Optional<UserEmergencyContact> userEmergencyContact = userEmergencyContactRepository
+        .findById(id);
     if (userEmergencyContact.get().getIsPrimary()) {
       userEmergencyContactRepository.resetPrimaryContact(userId);
     }

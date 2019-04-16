@@ -6,7 +6,8 @@ public abstract class AbstractException extends RuntimeException {
 
   protected ErrorType type;
 
-  public AbstractException() {}
+  public AbstractException() {
+  }
 
   public AbstractException(String message) {
     super(message);

@@ -16,9 +16,11 @@ import shamu.company.user.service.UserService;
 @RestApiController
 public class UserRestController {
 
-  @Autowired UserService userService;
+  @Autowired
+  UserService userService;
 
-  @Autowired CompanyService companyService;
+  @Autowired
+  CompanyService companyService;
 
   @PostMapping(value = "user/sign-up/email")
   public HttpEntity sendVerifyEmail(@RequestBody String email) {

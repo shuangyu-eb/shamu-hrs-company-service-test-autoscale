@@ -14,7 +14,8 @@ import shamu.company.common.entity.BaseEntity;
 @Where(clause = "deleted_at IS NULL")
 public class Office extends BaseEntity {
 
-  @ManyToOne private Company company;
+  @ManyToOne
+  private Company company;
 
   private String officeId;
 
@@ -24,5 +25,6 @@ public class Office extends BaseEntity {
 
   private String email;
 
-  @OneToOne private OfficeAddress officeAddress;
+  @OneToOne
+  private OfficeAddress officeAddress;
 }

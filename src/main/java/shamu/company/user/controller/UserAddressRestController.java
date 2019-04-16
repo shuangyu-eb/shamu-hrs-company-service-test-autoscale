@@ -9,9 +9,11 @@ import shamu.company.user.service.UserAddressService;
 
 @RestApiController
 public class UserAddressRestController {
-  @Autowired UserAddressService userAddressService;
 
-  @PatchMapping("user-address")
+  @Autowired
+  UserAddressService userAddressService;
+
+  @PatchMapping("user-addresses")
   public UserAddressDto updateUserAddress(@RequestBody UserAddressDto userAddressDto) {
     return userAddressService.updateUserAddress(userAddressDto);
   }

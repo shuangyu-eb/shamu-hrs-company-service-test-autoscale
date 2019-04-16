@@ -16,7 +16,8 @@ import org.hibernate.annotations.Where;
 @AllArgsConstructor
 public class StateProvince extends BaseEntity {
 
-  @ManyToOne private Country country;
+  @ManyToOne
+  private Country country;
 
   private String name;
 

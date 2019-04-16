@@ -11,7 +11,8 @@ import shamu.company.common.service.StateProvinceService;
 @Service
 public class StateProvinceServiceImpl implements StateProvinceService {
 
-  @Autowired StateProvinceRepository stateProvinceRepository;
+  @Autowired
+  StateProvinceRepository stateProvinceRepository;
 
   @Override
   public StateProvince getStateProvince(Long id) {

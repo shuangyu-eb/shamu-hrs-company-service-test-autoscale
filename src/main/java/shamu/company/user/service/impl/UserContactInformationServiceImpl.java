@@ -9,7 +9,9 @@ import shamu.company.user.service.UserContactInformationService;
 
 @Service
 public class UserContactInformationServiceImpl implements UserContactInformationService {
-  @Autowired UserContactInformationRepository repository;
+
+  @Autowired
+  UserContactInformationRepository repository;
 
   @Override
   public UserContactInformationDto update(UserContactInformation userContactInformation) {

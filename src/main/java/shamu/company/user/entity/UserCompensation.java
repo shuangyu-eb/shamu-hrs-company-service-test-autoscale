@@ -30,9 +30,11 @@ public class UserCompensation extends BaseEntity {
   @JsonIgnore
   private User user;
 
-  @OneToOne private CompensationType compensationType;
+  @OneToOne
+  private CompensationType compensationType;
 
-  @OneToOne private CompensationChangeReason compensationChangeReason;
+  @OneToOne
+  private CompensationChangeReason compensationChangeReason;
 
   private String comment;
 }

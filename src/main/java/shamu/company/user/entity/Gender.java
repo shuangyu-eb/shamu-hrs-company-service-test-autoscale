@@ -13,6 +13,7 @@ import shamu.company.common.entity.BaseEntity;
 @Where(clause = "deleted_at IS NULL")
 @NoArgsConstructor
 public class Gender extends BaseEntity {
+
   private String name;
 
   public Gender(Long id) {

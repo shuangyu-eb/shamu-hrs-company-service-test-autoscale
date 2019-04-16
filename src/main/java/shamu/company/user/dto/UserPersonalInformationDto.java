@@ -4,11 +4,14 @@ import java.sql.Timestamp;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.BeanUtils;
+import shamu.company.user.entity.Gender;
+import shamu.company.user.entity.MaritalStatus;
 import shamu.company.user.entity.UserPersonalInformation;
 
 @Data
 @NoArgsConstructor
 public class UserPersonalInformationDto {
+
   private Long id;
 
   private String firstName;
@@ -43,5 +46,15 @@ public class UserPersonalInformationDto {
     this.setMaritalStatusName(maritalStatusName);
 
     BeanUtils.copyProperties(userPersonalInformation, this);
+  }
+
+  public UserPersonalInformation convertUserPersonalInformationDtoToEntity(
+      UserPersonalInformationDto userPersonalInformationDto) {
+    UserPersonalInformation userPersonalInformation = new UserPersonalInformation();
+    BeanUtils.copyProperties(userPersonalInformationDto, userPersonalInformation);
+    userPersonalInformation.setGender(new Gender(userPersonalInformationDto.getGenderId()));
+    userPersonalInformation.setMaritalStatus(
+        new MaritalStatus(userPersonalInformationDto.getMaritalStatusId()));
+    return userPersonalInformation;
   }
 }

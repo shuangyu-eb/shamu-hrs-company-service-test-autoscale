@@ -11,7 +11,8 @@ public interface UserRepository extends BaseRepository<User, Long> {
 
   User findByVerificationToken(String activationToken);
 
-  @Query(value = "SELECT * FROM users WHERE manager_user_id IS NOT NULL AND deleted_at IS NULL",
+  @Query(
+      value = "SELECT * FROM users WHERE manager_user_id IS NOT NULL AND deleted_at IS NULL",
       nativeQuery = true)
   List<User> findAllEmployees();
 

@@ -11,7 +11,8 @@ import shamu.company.user.service.UserContactInformationService;
 @RestApiController
 public class UserContactInformationRestController {
 
-  @Autowired UserContactInformationService contactInformationService;
+  @Autowired
+  UserContactInformationService contactInformationService;
 
   @PatchMapping("user-contact-information")
   public UserContactInformationDto update(

@@ -10,7 +10,9 @@ import shamu.company.common.service.CountryService;
 
 @Service
 public class CountryServiceImpl implements CountryService {
-  @Autowired CountryRepository countryRepository;
+
+  @Autowired
+  CountryRepository countryRepository;
 
   @Override
   public Country getCountry(String name) {

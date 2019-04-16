@@ -6,9 +6,7 @@ import javax.persistence.ManyToOne;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Where;
-import org.springframework.beans.BeanUtils;
 import shamu.company.common.entity.BaseEntity;
-import shamu.company.user.dto.UserPersonalInformationDto;
 
 @Entity
 @Data
@@ -28,17 +26,16 @@ public class UserPersonalInformation extends BaseEntity {
 
   private String ssn;
 
-  @ManyToOne private Gender gender;
+  @ManyToOne
+  private Gender gender;
 
-  @ManyToOne private MaritalStatus maritalStatus;
+  @ManyToOne
+  private MaritalStatus maritalStatus;
 
-  @ManyToOne private Ethnicity ethnicity;
+  @ManyToOne
+  private Ethnicity ethnicity;
 
-  @ManyToOne private CitizenshipStatus citizenshipStatus;
+  @ManyToOne
+  private CitizenshipStatus citizenshipStatus;
 
-  public UserPersonalInformation(UserPersonalInformationDto userPersonalInformationDtO) {
-    BeanUtils.copyProperties(userPersonalInformationDtO, this);
-    this.setGender(new Gender(userPersonalInformationDtO.getGenderId()));
-    this.setMaritalStatus(new MaritalStatus(userPersonalInformationDtO.getMaritalStatusId()));
-  }
 }

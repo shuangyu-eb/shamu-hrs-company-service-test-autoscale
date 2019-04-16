@@ -10,12 +10,13 @@ import shamu.company.user.service.UserPersonalInformationService;
 @Service
 public class UserPersonalInformationServiceImpl implements UserPersonalInformationService {
 
-  @Autowired UserPersonalInformationRepository repository;
+  @Autowired
+  UserPersonalInformationRepository repository;
 
   @Override
-  public UserPersonalInformationDto update(UserPersonalInformationDto userPersonalInformationDtO) {
-    UserPersonalInformation userPersonalInformation =
-        new UserPersonalInformation(userPersonalInformationDtO);
+  public UserPersonalInformationDto update(UserPersonalInformationDto userPersonalInformationDto) {
+    UserPersonalInformation userPersonalInformation = userPersonalInformationDto
+        .convertUserPersonalInformationDtoToEntity(userPersonalInformationDto);
     UserPersonalInformation userPersonalInformationUpdated =
         repository.save(userPersonalInformation);
     UserPersonalInformationDto userPersonalInformationDtoUpdated =
