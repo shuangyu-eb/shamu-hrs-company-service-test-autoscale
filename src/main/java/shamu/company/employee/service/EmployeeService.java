@@ -7,7 +7,13 @@ import shamu.company.employee.pojo.OfficePojo;
 
 public interface EmployeeService {
 
-  List<GeneralObjectDto> getJobInformation();
+  List<GeneralObjectDto> getEmploymentTypes();
+
+  List<GeneralObjectDto> getDepartments();
+
+  List<GeneralObjectDto> getOfficeLocations();
+
+  List<GeneralObjectDto> getManagers();
 
   Long saveEmploymentType(String employmentType);
 

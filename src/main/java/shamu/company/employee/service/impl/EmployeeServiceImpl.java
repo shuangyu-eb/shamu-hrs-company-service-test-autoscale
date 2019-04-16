@@ -28,6 +28,7 @@ import shamu.company.user.entity.Gender;
 import shamu.company.user.entity.MaritalStatus;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserPersonalInformation;
+import shamu.company.user.entity.UserRole;
 import shamu.company.user.repository.UserAddressRepository;
 import shamu.company.user.repository.UserRepository;
 
@@ -67,75 +68,40 @@ public class EmployeeServiceImpl implements EmployeeService {
   @Autowired
   private MartialStatusRepository martialStatusRepository;
 
-  private GeneralObjectDto getGeneralDtos(List list, String dtoId, Class clazz) {
-    List<GeneralObjectDto> dtos = new ArrayList<>();
-    Method idMethod = null;
-    Method nameMethod = null;
-    try {
-      idMethod = clazz.getMethod("getId");
-      nameMethod = clazz.getMethod("getName");
-      Method finalIdMethod = idMethod;
-      finalIdMethod.setAccessible(true);
-      Method finalNameMethod = nameMethod;
-      finalNameMethod.setAccessible(true);
-      list.forEach(element -> {
-        GeneralObjectDto dto = new GeneralObjectDto();
-        String id = null;
-        String name = null;
-        try {
-          id = String.valueOf(finalIdMethod.invoke(element));
-          name = (String) finalNameMethod.invoke(element);
-        } catch (IllegalAccessException e) {
-          e.printStackTrace();
-        } catch (InvocationTargetException e) {
-          e.printStackTrace();
-        }
-        dto.setId(id);
-        dto.setName(name);
-        dtos.add(dto);
-      });
-    } catch (NoSuchMethodException e) {
-      e.printStackTrace();
-      return null;
+  private static Long MANAGER_ROLE_ID = 2L;
+
+  @Override
+  public List<GeneralObjectDto> getDepartments() {
+    List<Department> departments = departmentRepository.findAll();
+    List<GeneralObjectDto> departmentDtos = new ArrayList<>();
+    for(Department department : departments) {
+      GeneralObjectDto departmentDto = new GeneralObjectDto();
+      String id = String.valueOf(department.getId());
+      String name = department.getName();
+      departmentDto.setId(id);
+      departmentDto.setName(name);
+      departmentDtos.add(departmentDto);
     }
-    GeneralObjectDto listDto = new GeneralObjectDto();
-    listDto.setId(dtoId);
-    listDto.setName(dtos);
-    return listDto;
+    return departmentDtos;
   }
 
   @Override
-  public List<GeneralObjectDto> getJobInformation() {
-    List<GeneralObjectDto> results = new ArrayList<>();
-
-    List<Department> departmentList = departmentRepository.findAll();
-    results.add(getGeneralDtos(departmentList, "department", Department.class));
-
-    List<User> managerList = userRepository.findAllManagers();
-    List<GeneralObjectDto> allManagers = new ArrayList<>();
-    for (User manager : managerList) {
-      GeneralObjectDto managerDto = new GeneralObjectDto();
-      String id = String.valueOf(manager.getId());
-      UserPersonalInformation userInfo = manager.getUserPersonalInformation();
-      String firstName = userInfo.getFirstName();
-      String middleName = userInfo.getMiddleName();
-      String lastName = userInfo.getLastName();
-      String name = firstName + middleName + lastName;
-      managerDto.setId(id);
-      managerDto.setName(name);
-      allManagers.add(managerDto);
-    }
-    GeneralObjectDto allManagersDtos = new GeneralObjectDto();
-    allManagersDtos.setId("reportsTo");
-    allManagersDtos.setName(allManagers);
-    results.add(allManagersDtos);
-
+  public List<GeneralObjectDto> getEmploymentTypes() {
     List<EmploymentType> employmentTypes = employmentTypeRepository.findAll();
-    results.add(getGeneralDtos(employmentTypes, "employmentType", EmploymentType.class));
+    List<GeneralObjectDto> allEmploymentTypes = new ArrayList<>();
+    for(EmploymentType employmentType : employmentTypes) {
+      GeneralObjectDto employmentTypeDto = new GeneralObjectDto();
+      String id = String.valueOf(employmentType.getId());
+      String name = employmentType.getName();
+      employmentTypeDto.setId(id);
+      employmentTypeDto.setName(name);
+      allEmploymentTypes.add(employmentTypeDto);
+    }
+    return allEmploymentTypes;
+  }
 
-    List<StateProvince> stateProvinces = stateProvinceRepository.findAll();
-    results.add(getGeneralDtos(stateProvinces, "state", StateProvince.class));
-
+  @Override
+  public List<GeneralObjectDto> getOfficeLocations() {
     List<Office> offices = officeRepository.findAll();
     List<GeneralObjectDto> officeDtos = new ArrayList<>();
     for(Office office : offices) {
@@ -154,22 +120,28 @@ public class EmployeeServiceImpl implements EmployeeService {
         officeDtos.add(officeDto);
       }
     }
-    GeneralObjectDto allofficeDtos = new GeneralObjectDto();
-    allofficeDtos.setId("office");
-    allofficeDtos.setName(officeDtos);
-    results.add(allofficeDtos);
+    return officeDtos;
+  }
 
-    List<Gender> genders = genderRepository.findAll();
-    results.add(getGeneralDtos(genders, "gender", Gender.class));
-
-    List<MaritalStatus> martialStatuses = martialStatusRepository.findAll();
-    results.add(getGeneralDtos(martialStatuses, "maritalStatus", MaritalStatus.class));
-
-    List<CompensationFrequency> compensationFrequencies = compensationFrequencyRepository.findAll();
-    results.add(
-        getGeneralDtos(compensationFrequencies, "compensationUnit", CompensationFrequency.class));
-
-    return results;
+  @Override
+  public List<GeneralObjectDto> getManagers(){
+    UserRole managerRole = new UserRole();
+    managerRole.setId(MANAGER_ROLE_ID);
+    List<User> managerList = userRepository.findByUserRole(managerRole);
+    List<GeneralObjectDto> allManagers = new ArrayList<>();
+    for (User manager : managerList) {
+      GeneralObjectDto managerDto = new GeneralObjectDto();
+      String id = String.valueOf(manager.getId());
+      UserPersonalInformation userInfo = manager.getUserPersonalInformation();
+      String firstName = userInfo.getFirstName();
+      String middleName = userInfo.getMiddleName();
+      String lastName = userInfo.getLastName();
+      String name = firstName + middleName + lastName;
+      managerDto.setId(id);
+      managerDto.setName(name);
+      allManagers.add(managerDto);
+    }
+    return allManagers;
   }
 
   @Override

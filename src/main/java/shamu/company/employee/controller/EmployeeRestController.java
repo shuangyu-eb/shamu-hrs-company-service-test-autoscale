@@ -27,25 +27,43 @@ public class EmployeeRestController {
     return userService.findAllEmployees();
   }
 
-  @GetMapping(value = {"initial-form-information"})
+  @GetMapping(value = {"employmentTypes"})
   @ResponseBody
-  public List<GeneralObjectDto> getJobInformation() {
-    return employeeService.getJobInformation();
+  public List<GeneralObjectDto> getEmploymentTypes() {
+    return employeeService.getEmploymentTypes();
   }
 
-  @PostMapping(value = "add-employmentType")
+  @GetMapping(value = {"departments"})
+  @ResponseBody
+  public List<GeneralObjectDto> getDepartments() {
+    return employeeService.getDepartments();
+  }
+
+  @GetMapping(value = {"officeLocations"})
+  @ResponseBody
+  public List<GeneralObjectDto> getOfficeLocations() {
+    return employeeService.getOfficeLocations();
+  }
+
+  @GetMapping(value = {"managers"})
+  @ResponseBody
+  public List<GeneralObjectDto> getManagers() {
+    return employeeService.getManagers();
+  }
+
+  @PostMapping(value = "employmentType")
   @ResponseBody
   public Long saveEmploymentType(String employmentType) {
     return employeeService.saveEmploymentType(employmentType);
   }
 
-  @PostMapping(value = "add-department")
+  @PostMapping(value = "department")
   @ResponseBody
   public Long saveDepartment(String department) {
     return employeeService.saveDepartment(department);
   }
 
-  @PostMapping(value = "add-officeLocation")
+  @PostMapping(value = "officeLocation")
   @ResponseBody
   public Long saveOfficeLocation(@RequestBody OfficePojo officePojo) {
     return employeeService.saveOfficeLocation(officePojo);
