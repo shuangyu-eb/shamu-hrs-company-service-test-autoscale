@@ -45,7 +45,7 @@ public class UserAddressDto {
     BeanUtils.copyProperties(userAddress, this);
   }
 
-  public UserAddress getUserAddress(UserAddressDto userAddressDto, Country country){
+  public UserAddress getUserAddress(UserAddressDto userAddressDto, Country country) {
     UserAddress userAddress = new UserAddress();
     BeanUtils.copyProperties(userAddressDto,userAddress);
     userAddress.setUser(new User(userAddressDto.getUserId()));
