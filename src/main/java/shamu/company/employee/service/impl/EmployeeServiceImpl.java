@@ -129,7 +129,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     managerRole.setId(MANAGER_ROLE_ID);
     List<User> managerList = userRepository.findByUserRole(managerRole);
     List<GeneralObjectDto> allManagers = new ArrayList<>();
-    for (User manager : managerList){
+    for(User manager : managerList){
       GeneralObjectDto managerDto = new GeneralObjectDto();
       String id = String.valueOf(manager.getId());
       UserPersonalInformation userInfo = manager.getUserPersonalInformation();
