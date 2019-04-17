@@ -4,7 +4,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import shamu.company.common.entity.StateProvince;
-import shamu.company.common.exception.ResouceNotFoundException;
+import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.common.repository.StateProvinceRepository;
 import shamu.company.common.service.StateProvinceService;
 
@@ -18,6 +18,6 @@ public class StateProvinceServiceImpl implements StateProvinceService {
   public StateProvince getStateProvince(Long id) {
     Optional<StateProvince> optionalStateProvince = stateProvinceRepository.findById(id);
     return optionalStateProvince.orElseThrow(
-        () -> new ResouceNotFoundException("StateProvince does not exist"));
+        () -> new ResourceNotFoundException("StateProvince does not exist"));
   }
 }
