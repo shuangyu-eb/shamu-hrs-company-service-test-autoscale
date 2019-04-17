@@ -8,7 +8,7 @@ import shamu.company.common.entity.StateProvince;
 import shamu.company.company.entity.Department;
 import shamu.company.company.entity.Office;
 import shamu.company.company.entity.OfficeAddress;
-import shamu.company.employee.dto.SelectFieldInfomationDto;
+import shamu.company.employee.dto.SelectFieldInformationDto;
 import shamu.company.employee.entity.EmploymentType;
 import shamu.company.employee.pojo.OfficePojo;
 import shamu.company.employee.repository.DepartmentRepository;
@@ -53,42 +53,38 @@ public class EmployeeServiceImpl implements EmployeeService {
   private static Long MANAGER_ROLE_ID = 2L;
 
   @Override
-  public List<SelectFieldInfomationDto> getDepartments() {
+  public List<SelectFieldInformationDto> getDepartments() {
     List<Department> departments = departmentRepository.findAll();
-    List<SelectFieldInfomationDto> departmentDtos = new ArrayList<>();
+    List<SelectFieldInformationDto> departmentDtos = new ArrayList<>();
     departments.forEach(department -> {
-      SelectFieldInfomationDto departmentDto = new SelectFieldInfomationDto();
-      String id = String.valueOf(department.getId());
-      String name = department.getName();
-      departmentDto.setId(id);
-      departmentDto.setName(name);
+      SelectFieldInformationDto departmentDto = new SelectFieldInformationDto();
+      departmentDto.setId(department.getId());
+      departmentDto.setName(department.getName());
       departmentDtos.add(departmentDto);
     });
     return departmentDtos;
   }
 
   @Override
-  public List<SelectFieldInfomationDto> getEmploymentTypes() {
+  public List<SelectFieldInformationDto> getEmploymentTypes() {
     List<EmploymentType> employmentTypes = employmentTypeRepository.findAll();
-    List<SelectFieldInfomationDto> allEmploymentTypes = new ArrayList<>();
+    List<SelectFieldInformationDto> allEmploymentTypes = new ArrayList<>();
     employmentTypes.forEach(employmentType -> {
-      SelectFieldInfomationDto employmentTypeDto = new SelectFieldInfomationDto();
-      String id = String.valueOf(employmentType.getId());
-      String name = employmentType.getName();
-      employmentTypeDto.setId(id);
-      employmentTypeDto.setName(name);
+      SelectFieldInformationDto employmentTypeDto = new SelectFieldInformationDto();
+      employmentTypeDto.setId(employmentType.getId());
+      employmentTypeDto.setName(employmentType.getName());
       allEmploymentTypes.add(employmentTypeDto);
     });
     return allEmploymentTypes;
   }
 
   @Override
-  public List<SelectFieldInfomationDto> getOfficeLocations() {
+  public List<SelectFieldInformationDto> getOfficeLocations() {
     List<Office> offices = officeRepository.findAll();
-    List<SelectFieldInfomationDto> officeDtos = new ArrayList<>();
+    List<SelectFieldInformationDto> officeDtos = new ArrayList<>();
     offices.forEach(office -> {
-      SelectFieldInfomationDto officeDto = new SelectFieldInfomationDto();
-      officeDto.setId(String.valueOf(office.getId()));
+      SelectFieldInformationDto officeDto = new SelectFieldInformationDto();
+      officeDto.setId(office.getId());
       StringBuilder sb = new StringBuilder();
       sb.append(office.getName() + " ");
       OfficeAddress officeAddress = officeAddressRepository.findOfficeAddressByOffice(office);
@@ -106,18 +102,17 @@ public class EmployeeServiceImpl implements EmployeeService {
   }
 
   @Override
-  public List<SelectFieldInfomationDto> getManagers() {
+  public List<SelectFieldInformationDto> getManagers() {
     List<User> managers = userRepository.findByUserRoleId(MANAGER_ROLE_ID);
-    List<SelectFieldInfomationDto> managerDtos = new ArrayList<>();
+    List<SelectFieldInformationDto> managerDtos = new ArrayList<>();
     managers.forEach(manager -> {
-      SelectFieldInfomationDto managerDto = new SelectFieldInfomationDto();
-      String id = String.valueOf(manager.getId());
+      SelectFieldInformationDto managerDto = new SelectFieldInformationDto();
       UserPersonalInformation userInfo = manager.getUserPersonalInformation();
       String firstName = userInfo.getFirstName();
       String middleName = userInfo.getMiddleName();
       String lastName = userInfo.getLastName();
       String name = firstName + middleName + lastName;
-      managerDto.setId(id);
+      managerDto.setId(manager.getId());
       managerDto.setName(name);
       managerDtos.add(managerDto);
     });

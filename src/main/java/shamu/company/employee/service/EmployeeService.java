@@ -1,18 +1,18 @@
 package shamu.company.employee.service;
 
 import java.util.List;
-import shamu.company.employee.dto.SelectFieldInfomationDto;
+import shamu.company.employee.dto.SelectFieldInformationDto;
 import shamu.company.employee.pojo.OfficePojo;
 
 public interface EmployeeService {
 
-  List<SelectFieldInfomationDto> getEmploymentTypes();
+  List<SelectFieldInformationDto> getEmploymentTypes();
 
-  List<SelectFieldInfomationDto> getDepartments();
+  List<SelectFieldInformationDto> getDepartments();
 
-  List<SelectFieldInfomationDto> getOfficeLocations();
+  List<SelectFieldInformationDto> getOfficeLocations();
 
-  List<SelectFieldInfomationDto> getManagers();
+  List<SelectFieldInformationDto> getManagers();
 
   Long saveEmploymentType(String employmentType);
 
