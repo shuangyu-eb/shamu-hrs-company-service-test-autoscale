@@ -23,4 +23,6 @@ public enum ErrorType {
   DECODING_ERROR,
 
   GENERAL_EXCEPTION,
+
+  AWS_UPLOAD_ERROR,
 }
