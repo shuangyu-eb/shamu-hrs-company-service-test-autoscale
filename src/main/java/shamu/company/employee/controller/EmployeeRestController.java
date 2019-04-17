@@ -11,7 +11,7 @@ import shamu.company.employee.dto.GeneralObjectDto;
 import shamu.company.employee.pojo.OfficePojo;
 import shamu.company.employee.service.EmployeeService;
 import shamu.company.job.JobUserDto;
-import shamu.company.user.UserService;
+import shamu.company.user.service.UserService;
 
 @RestApiController
 public class EmployeeRestController {

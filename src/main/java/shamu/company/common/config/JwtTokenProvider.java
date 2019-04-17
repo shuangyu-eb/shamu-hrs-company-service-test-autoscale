@@ -18,8 +18,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 import shamu.company.common.exception.UnAuthenticatedException;
-import shamu.company.user.UserService;
 import shamu.company.user.entity.User;
+import shamu.company.user.service.UserService;
 
 @Component
 public class JwtTokenProvider {

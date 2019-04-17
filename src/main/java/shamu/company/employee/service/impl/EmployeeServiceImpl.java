@@ -1,7 +1,5 @@
 package shamu.company.employee.service.impl;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,24 +9,17 @@ import shamu.company.company.entity.Department;
 import shamu.company.company.entity.Office;
 import shamu.company.company.entity.OfficeAddress;
 import shamu.company.employee.dto.GeneralObjectDto;
-import shamu.company.employee.entity.CompensationFrequency;
 import shamu.company.employee.entity.EmploymentType;
 import shamu.company.employee.pojo.OfficePojo;
-import shamu.company.employee.repository.CompensationFrequencyRepository;
 import shamu.company.employee.repository.DepartmentRepository;
 import shamu.company.employee.repository.EmploymentTypeRepository;
-import shamu.company.employee.repository.GenderRepository;
-import shamu.company.employee.repository.MartialStatusRepository;
 import shamu.company.employee.repository.OfficeAddressRepository;
 import shamu.company.employee.repository.OfficeRepository;
 import shamu.company.employee.repository.StateProvinceRepository;
 import shamu.company.employee.service.EmployeeService;
 import shamu.company.job.JobUserRepository;
-import shamu.company.user.entity.Gender;
-import shamu.company.user.entity.MaritalStatus;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserPersonalInformation;
-import shamu.company.user.entity.UserRole;
 import shamu.company.user.repository.UserAddressRepository;
 import shamu.company.user.repository.UserRepository;
 
@@ -58,15 +49,6 @@ public class EmployeeServiceImpl implements EmployeeService {
 
   @Autowired
   private StateProvinceRepository stateProvinceRepository;
-
-  @Autowired
-  private CompensationFrequencyRepository compensationFrequencyRepository;
-
-  @Autowired
-  private GenderRepository genderRepository;
-
-  @Autowired
-  private MartialStatusRepository martialStatusRepository;
 
   private static Long MANAGER_ROLE_ID = 2L;
 

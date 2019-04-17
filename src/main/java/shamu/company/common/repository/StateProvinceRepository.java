@@ -1,7 +1,6 @@
-package shamu.company.employee.repository;
+package shamu.company.common.repository;
 
 import shamu.company.common.entity.StateProvince;
-import shamu.company.common.repository.BaseRepository;
 
 public interface StateProvinceRepository extends BaseRepository<StateProvince, Long> {
 
