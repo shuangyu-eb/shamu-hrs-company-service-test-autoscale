@@ -80,7 +80,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     List<SelectFieldInformationDto> officeDtos = offices.stream().map(office -> {
       StringBuilder officeLocation = new StringBuilder();
       String officeName = office.getName();
-      if(null != officeName && !"".equals(officeName)){
+      if (null != officeName && !"".equals(officeName)) {
         officeLocation.append(officeName + " ");
       }
 
@@ -91,19 +91,19 @@ public class EmployeeServiceImpl implements EmployeeService {
         String city = officeAddress.getStreet1();
         String state = officeAddress.getStreet1();
         String postalCode = officeAddress.getStreet1();
-        if(null != street1 && !"".equals(street1)){
+        if (null != street1 && !"".equals(street1)) {
           officeLocation.append(street1 + " ");
         }
-        if(null != street2 && !"".equals(street2)){
+        if (null != street2 && !"".equals(street2)) {
           officeLocation.append(street2 + " ");
         }
-        if(null != city && !"".equals(city)){
+        if (null != city && !"".equals(city)) {
           officeLocation.append(city + " ");
         }
-        if(null != state && !"".equals(state)){
+        if (null != state && !"".equals(state)) {
           officeLocation.append(state + " ");
         }
-        if(null != postalCode && !"".equals(postalCode)){
+        if (null != postalCode && !"".equals(postalCode)) {
           officeLocation.append(postalCode);
         }
       }
