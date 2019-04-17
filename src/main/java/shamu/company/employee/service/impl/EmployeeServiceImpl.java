@@ -74,14 +74,14 @@ public class EmployeeServiceImpl implements EmployeeService {
   public List<GeneralObjectDto> getDepartments() {
     List<Department> departments = departmentRepository.findAll();
     List<GeneralObjectDto> departmentDtos = new ArrayList<>();
-    for(Department department : departments){
+    departments.forEach(department -> {
       GeneralObjectDto departmentDto = new GeneralObjectDto();
       String id = String.valueOf(department.getId());
       String name = department.getName();
       departmentDto.setId(id);
       departmentDto.setName(name);
       departmentDtos.add(departmentDto);
-    }
+    });
     return departmentDtos;
   }
 
@@ -89,14 +89,14 @@ public class EmployeeServiceImpl implements EmployeeService {
   public List<GeneralObjectDto> getEmploymentTypes() {
     List<EmploymentType> employmentTypes = employmentTypeRepository.findAll();
     List<GeneralObjectDto> allEmploymentTypes = new ArrayList<>();
-    for(EmploymentType employmentType : employmentTypes){
+    employmentTypes.forEach(employmentType -> {
       GeneralObjectDto employmentTypeDto = new GeneralObjectDto();
       String id = String.valueOf(employmentType.getId());
       String name = employmentType.getName();
       employmentTypeDto.setId(id);
       employmentTypeDto.setName(name);
       allEmploymentTypes.add(employmentTypeDto);
-    }
+    });
     return allEmploymentTypes;
   }
 
@@ -104,7 +104,7 @@ public class EmployeeServiceImpl implements EmployeeService {
   public List<GeneralObjectDto> getOfficeLocations() {
     List<Office> offices = officeRepository.findAll();
     List<GeneralObjectDto> officeDtos = new ArrayList<>();
-    for(Office office : offices){
+    offices.forEach(office -> {
       GeneralObjectDto officeDto = new GeneralObjectDto();
       officeDto.setId(String.valueOf(office.getId()));
       StringBuilder sb = new StringBuilder();
@@ -119,17 +119,15 @@ public class EmployeeServiceImpl implements EmployeeService {
         officeDto.setName(sb.toString());
         officeDtos.add(officeDto);
       }
-    }
+    });
     return officeDtos;
   }
 
   @Override
   public List<GeneralObjectDto> getManagers(){
-    UserRole managerRole = new UserRole();
-    managerRole.setId(MANAGER_ROLE_ID);
-    List<User> managerList = userRepository.findByUserRole(managerRole);
-    List<GeneralObjectDto> allManagers = new ArrayList<>();
-    for(User manager : managerList){
+    List<User> managers = userRepository.findByUserRoleId(MANAGER_ROLE_ID);
+    List<GeneralObjectDto> managerDtos = new ArrayList<>();
+    managers.forEach(manager -> {
       GeneralObjectDto managerDto = new GeneralObjectDto();
       String id = String.valueOf(manager.getId());
       UserPersonalInformation userInfo = manager.getUserPersonalInformation();
@@ -139,9 +137,9 @@ public class EmployeeServiceImpl implements EmployeeService {
       String name = firstName + middleName + lastName;
       managerDto.setId(id);
       managerDto.setName(name);
-      allManagers.add(managerDto);
-    }
-    return allManagers;
+      managerDtos.add(managerDto);
+    });
+    return managerDtos;
   }
 
   @Override

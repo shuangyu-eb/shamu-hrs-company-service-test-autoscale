@@ -4,7 +4,6 @@ import java.util.List;
 import org.springframework.data.jpa.repository.Query;
 import shamu.company.common.BaseRepository;
 import shamu.company.user.entity.User;
-import shamu.company.user.entity.UserRole;
 
 public interface UserRepository extends BaseRepository<User, Long> {
 
@@ -18,5 +17,7 @@ public interface UserRepository extends BaseRepository<User, Long> {
 
   Boolean existsByEmailWork(String email);
 
-  List<User> findByUserRole(UserRole role);
+  @Query(value = "SELECT * FROM users WHERE user_role_id = ?1 AND deleted_at IS NULL",
+      nativeQuery = true)
+  List<User> findByUserRoleId(Long id);
 }
