@@ -14,7 +14,7 @@ spring:
 
 application:
   systemEmailAddress: noreply@interviewed.com
-  frontEndAddress: http://shamu-hrs-qa.s3-website-ap-northeast-1.amazonaws.com/
+  frontEndAddress: https://hrs.interviewed-qa.com/
 
 aws:
   awsAccessKeyId: AKIAXYMULKOL2JOY2GOP
@@ -22,3 +22,11 @@ aws:
   bucketName: shamu-hrs-qa
   folder: media
   region: ap-northeast-1
+
+auth0:
+  jwks: https://shamu-hrs-qa.auth0.com/.well-known/jwks.json
+  algorithm: RS256
+  authDomain: https://shamu-hrs-qa.auth0.com/
+
+sendGrid:
+  apiKey: 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
