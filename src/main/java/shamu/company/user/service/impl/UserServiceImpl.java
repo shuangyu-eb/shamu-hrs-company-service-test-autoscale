@@ -162,48 +162,48 @@ public class UserServiceImpl implements UserService {
       List<User> employees, List<UserAddress> userAddresses, List<JobUser> jobUsers) {
     return employees.stream()
         .map(
-                (employee) -> {
-                  JobUserDto jobUserDto = new JobUserDto();
-                  jobUserDto.setEmail(employee.getEmailWork());
-                  jobUserDto.setImageUrl(employee.getImageUrl());
-                  jobUserDto.setId(employee.getId());
+            (employee) -> {
+              JobUserDto jobUserDto = new JobUserDto();
+              jobUserDto.setEmail(employee.getEmailWork());
+              jobUserDto.setImageUrl(employee.getImageUrl());
+              jobUserDto.setId(employee.getId());
 
-                  UserPersonalInformation userPersonalInformation =
-                          employee.getUserPersonalInformation();
-                  if (userPersonalInformation != null) {
-                    jobUserDto.setFirstName(userPersonalInformation.getFirstName());
-                    jobUserDto.setLastName(userPersonalInformation.getLastName());
-                  }
+              UserPersonalInformation userPersonalInformation =
+                      employee.getUserPersonalInformation();
+              if (userPersonalInformation != null) {
+                jobUserDto.setFirstName(userPersonalInformation.getFirstName());
+                jobUserDto.setLastName(userPersonalInformation.getLastName());
+              }
 
-                  userAddresses.forEach(
-                          (userAddress -> {
-                            User userWithAddress = userAddress.getUser();
-                            if (userWithAddress != null
-                                    && userWithAddress.getId().equals(employee.getId())
-                                    && userAddress.getCity() != null) {
-                              jobUserDto.setCityName(userAddress.getCity());
-                            }
-                          }));
+              userAddresses.forEach(
+                      (userAddress -> {
+                        User userWithAddress = userAddress.getUser();
+                        if (userWithAddress != null
+                                && userWithAddress.getId().equals(employee.getId())
+                                && userAddress.getCity() != null) {
+                          jobUserDto.setCityName(userAddress.getCity());
+                        }
+                      }));
 
-                  jobUsers.forEach(
-                          (jobUser -> {
-                            User userWithJob = jobUser.getUser();
-                            if (userWithJob != null
-                                    && userWithJob.getId().equals(employee.getId())
-                                    && jobUser.getJob() != null) {
-                              jobUserDto.setJobTitle(jobUser.getJob().getTitle());
-                            }
-                          }));
-                  return jobUserDto;
-                })
-        .collect(Collectors.toList());
+              jobUsers.forEach(
+                      (jobUser -> {
+                        User userWithJob = jobUser.getUser();
+                        if (userWithJob != null
+                                && userWithJob.getId().equals(employee.getId())
+                                && jobUser.getJob() != null) {
+                          jobUserDto.setJobTitle(jobUser.getJob().getTitle());
+                        }
+                      }));
+              return jobUserDto;
+            })
+    .collect(Collectors.toList());
   }
 
   public String getActivationEmail(String accountVerifyToken) {
     Context context = new Context();
     context.setVariable("frontEndAddress", frontEndAddress);
     context.setVariable(
-  "accountVerifyAddress", String.format("account/verify/%s", accountVerifyToken));
+    "accountVerifyAddress", String.format("account/verify/%s", accountVerifyToken));
     return templateEngine.process("account_verify_email.html", context);
   }
 }
