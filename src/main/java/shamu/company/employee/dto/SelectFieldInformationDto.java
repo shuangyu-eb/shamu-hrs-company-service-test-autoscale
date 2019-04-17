@@ -13,7 +13,4 @@ public class SelectFieldInformationDto {
     setId(id);
     setName(name);
   }
-
-  public SelectFieldInformationDto(){
-  }
 }
