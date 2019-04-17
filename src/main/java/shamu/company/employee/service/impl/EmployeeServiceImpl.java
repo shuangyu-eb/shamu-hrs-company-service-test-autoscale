@@ -8,14 +8,14 @@ import shamu.company.common.entity.StateProvince;
 import shamu.company.company.entity.Department;
 import shamu.company.company.entity.Office;
 import shamu.company.company.entity.OfficeAddress;
-import shamu.company.employee.dto.GeneralObjectDto;
+import shamu.company.employee.dto.SelectFieldInfomationDto;
 import shamu.company.employee.entity.EmploymentType;
 import shamu.company.employee.pojo.OfficePojo;
 import shamu.company.employee.repository.DepartmentRepository;
 import shamu.company.employee.repository.EmploymentTypeRepository;
 import shamu.company.employee.repository.OfficeAddressRepository;
 import shamu.company.employee.repository.OfficeRepository;
-import shamu.company.employee.repository.StateProvinceRepository;
+import shamu.company.common.repository.StateProvinceRepository;
 import shamu.company.employee.service.EmployeeService;
 import shamu.company.job.JobUserRepository;
 import shamu.company.user.entity.User;
@@ -53,11 +53,11 @@ public class EmployeeServiceImpl implements EmployeeService {
   private static Long MANAGER_ROLE_ID = 2L;
 
   @Override
-  public List<GeneralObjectDto> getDepartments() {
+  public List<SelectFieldInfomationDto> getDepartments() {
     List<Department> departments = departmentRepository.findAll();
-    List<GeneralObjectDto> departmentDtos = new ArrayList<>();
+    List<SelectFieldInfomationDto> departmentDtos = new ArrayList<>();
     departments.forEach(department -> {
-      GeneralObjectDto departmentDto = new GeneralObjectDto();
+      SelectFieldInfomationDto departmentDto = new SelectFieldInfomationDto();
       String id = String.valueOf(department.getId());
       String name = department.getName();
       departmentDto.setId(id);
@@ -68,11 +68,11 @@ public class EmployeeServiceImpl implements EmployeeService {
   }
 
   @Override
-  public List<GeneralObjectDto> getEmploymentTypes() {
+  public List<SelectFieldInfomationDto> getEmploymentTypes() {
     List<EmploymentType> employmentTypes = employmentTypeRepository.findAll();
-    List<GeneralObjectDto> allEmploymentTypes = new ArrayList<>();
+    List<SelectFieldInfomationDto> allEmploymentTypes = new ArrayList<>();
     employmentTypes.forEach(employmentType -> {
-      GeneralObjectDto employmentTypeDto = new GeneralObjectDto();
+      SelectFieldInfomationDto employmentTypeDto = new SelectFieldInfomationDto();
       String id = String.valueOf(employmentType.getId());
       String name = employmentType.getName();
       employmentTypeDto.setId(id);
@@ -83,11 +83,11 @@ public class EmployeeServiceImpl implements EmployeeService {
   }
 
   @Override
-  public List<GeneralObjectDto> getOfficeLocations() {
+  public List<SelectFieldInfomationDto> getOfficeLocations() {
     List<Office> offices = officeRepository.findAll();
-    List<GeneralObjectDto> officeDtos = new ArrayList<>();
+    List<SelectFieldInfomationDto> officeDtos = new ArrayList<>();
     offices.forEach(office -> {
-      GeneralObjectDto officeDto = new GeneralObjectDto();
+      SelectFieldInfomationDto officeDto = new SelectFieldInfomationDto();
       officeDto.setId(String.valueOf(office.getId()));
       StringBuilder sb = new StringBuilder();
       sb.append(office.getName() + " ");
@@ -106,11 +106,11 @@ public class EmployeeServiceImpl implements EmployeeService {
   }
 
   @Override
-  public List<GeneralObjectDto> getManagers() {
+  public List<SelectFieldInfomationDto> getManagers() {
     List<User> managers = userRepository.findByUserRoleId(MANAGER_ROLE_ID);
-    List<GeneralObjectDto> managerDtos = new ArrayList<>();
+    List<SelectFieldInfomationDto> managerDtos = new ArrayList<>();
     managers.forEach(manager -> {
-      GeneralObjectDto managerDto = new GeneralObjectDto();
+      SelectFieldInfomationDto managerDto = new SelectFieldInfomationDto();
       String id = String.valueOf(manager.getId());
       UserPersonalInformation userInfo = manager.getUserPersonalInformation();
       String firstName = userInfo.getFirstName();

@@ -3,7 +3,7 @@ package shamu.company.employee.dto;
 import lombok.Data;
 
 @Data
-public class GeneralObjectDto {
+public class SelectFieldInfomationDto {
 
   private String id;
 
