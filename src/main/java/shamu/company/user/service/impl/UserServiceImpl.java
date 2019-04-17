@@ -1,7 +1,10 @@
 package shamu.company.user.service.impl;
 
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,6 +19,7 @@ import shamu.company.job.JobUserRepository;
 import shamu.company.user.dto.PersonalInformationDto;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserAddress;
+import shamu.company.user.entity.UserContactInformation;
 import shamu.company.user.entity.UserPersonalInformation;
 import shamu.company.user.repository.UserAddressRepository;
 import shamu.company.user.repository.UserRepository;
@@ -89,39 +93,20 @@ public class UserServiceImpl implements UserService {
     return userRepository.existsByEmailWork(email);
   }
 
-    @Override
-    public PersonalInformationDto getPersonalInformation(Long userId) {
-        return null;
-    }
-
-    @Override
-    public User findEmployeeInfoByUserId(Long uid) {
-        return userRepository.findById(uid)
-                .orElseThrow(() -> new ResouceNotFoundException("User does not exist"));
-    }
-
-
   @Override
-    public JobUserDto findEmployeeInfoByEmployeeId(Long id) {
-        JobUserDto jobUserDTO = new JobUserDto();
-
-        User employee = userRepository.findById(id)
-                .orElseThrow(() -> new ResouceNotFoundException("User does not exist"));
-        if (employee!=null) {
-            JobUser jobUser = jobUserRepository.findJobUserByUser(employee);
-
-            jobUserDTO.setEmail(employee.getEmailWork());
-            jobUserDTO.setImageUrl(employee.getImageUrl());
-            jobUserDTO.setPhoneNumber(employee.getUserContactInformation().getPhoneWork());
-            jobUserDTO.setFirstName(employee.getUserPersonalInformation().getFirstName());
-
-            if (jobUser!=null){
-                jobUserDTO.setJobTitle(jobUser.getJob().getTitle());
-            }
-
-        }
-        return jobUserDTO;
-    }
+  public PersonalInformationDto getPersonalInformation(Long userId) {
+    User user =
+            userRepository
+                    .findById(userId)
+                    .orElseThrow(() -> new ResouceNotFoundException("User does not exist"));
+    UserPersonalInformation userPersonalInformation = user.getUserPersonalInformation();
+    UserContactInformation userContactInformation = user.getUserContactInformation();
+    UserAddress userAddress = userAddressRepository.findUserAddressByUserId(userId);
+    PersonalInformationDto personalInformationDto =
+            new PersonalInformationDto(
+                    userId, userPersonalInformation, userContactInformation, userAddress);
+    return personalInformationDto;
+  }
 
   @Override
   public List<JobUserDto> findDirectReportsByManagerId(Long mid) {
@@ -144,46 +129,81 @@ public class UserServiceImpl implements UserService {
     return reportsInfo;
   }
 
-  private List<JobUserDto> getJobUserDtoList(List<User> employees, List<UserAddress> userAddresses,
-      List<JobUser> jobUsers) {
-    return employees.stream().map((employee) -> {
-      JobUserDto jobUserDto = new JobUserDto();
-      jobUserDto.setEmail(employee.getEmailWork());
-      jobUserDto.setImageUrl(employee.getImageUrl());
-      jobUserDto.setId(employee.getId());
 
-      UserPersonalInformation userPersonalInformation = employee.getUserPersonalInformation();
-      if (userPersonalInformation != null) {
-        jobUserDto.setFirstName(userPersonalInformation.getFirstName());
-        jobUserDto.setLastName(userPersonalInformation.getLastName());
+  @Override
+  public JobUserDto findEmployeeInfoByEmployeeId(Long id) {
+    JobUserDto jobUserDTO = new JobUserDto();
+
+    User employee = userRepository.findById(id)
+            .orElseThrow(() -> new ResouceNotFoundException("User does not exist"));
+    if (employee!=null) {
+      JobUser jobUser = jobUserRepository.findJobUserByUser(employee);
+
+      jobUserDTO.setEmail(employee.getEmailWork());
+      jobUserDTO.setImageUrl(employee.getImageUrl());
+      jobUserDTO.setPhoneNumber(employee.getUserContactInformation().getPhoneWork());
+      jobUserDTO.setFirstName(employee.getUserPersonalInformation().getFirstName());
+
+      if (jobUser!=null){
+        jobUserDTO.setJobTitle(jobUser.getJob().getTitle());
       }
 
-      userAddresses.forEach((userAddress -> {
-        User userWithAddress = userAddress.getUser();
-        if (userWithAddress != null
-            && userWithAddress.getId().equals(employee.getId())
-            && userAddress.getCity() != null) {
-          jobUserDto.setCityName(userAddress.getCity());
-        }
-      }));
+    }
+    return jobUserDTO;
+  }
 
-      jobUsers.forEach((jobUser -> {
-        User userWithJob = jobUser.getUser();
-        if (userWithJob != null
-            && userWithJob.getId().equals(employee.getId())
-            && jobUser.getJob() != null) {
-          jobUserDto.setJobTitle(jobUser.getJob().getTitle());
-        }
-      }));
-      return jobUserDto;
-    }).collect(Collectors.toList());
+  @Override
+  public User findEmployeeInfoByUserId(Long uid) {
+    return userRepository.findById(uid)
+            .orElseThrow(() -> new ResouceNotFoundException("User does not exist"));
+  }
+
+  private List<JobUserDto> getJobUserDtoList(
+          List<User> employees, List<UserAddress> userAddresses, List<JobUser> jobUsers) {
+    return employees.stream()
+            .map(
+                    (employee) -> {
+                      JobUserDto jobUserDto = new JobUserDto();
+                      jobUserDto.setEmail(employee.getEmailWork());
+                      jobUserDto.setImageUrl(employee.getImageUrl());
+                      jobUserDto.setId(employee.getId());
+
+                      UserPersonalInformation userPersonalInformation =
+                              employee.getUserPersonalInformation();
+                      if (userPersonalInformation != null) {
+                        jobUserDto.setFirstName(userPersonalInformation.getFirstName());
+                        jobUserDto.setLastName(userPersonalInformation.getLastName());
+                      }
+
+                      userAddresses.forEach(
+                              (userAddress -> {
+                                User userWithAddress = userAddress.getUser();
+                                if (userWithAddress != null
+                                        && userWithAddress.getId().equals(employee.getId())
+                                        && userAddress.getCity() != null) {
+                                  jobUserDto.setCityName(userAddress.getCity());
+                                }
+                              }));
+
+                      jobUsers.forEach(
+                              (jobUser -> {
+                                User userWithJob = jobUser.getUser();
+                                if (userWithJob != null
+                                        && userWithJob.getId().equals(employee.getId())
+                                        && jobUser.getJob() != null) {
+                                  jobUserDto.setJobTitle(jobUser.getJob().getTitle());
+                                }
+                              }));
+                      return jobUserDto;
+                    })
+            .collect(Collectors.toList());
   }
 
   public String getActivationEmail(String accountVerifyToken) {
     Context context = new Context();
     context.setVariable("frontEndAddress", frontEndAddress);
-    context.setVariable("accountVerifyAddress",
-        String.format("account/verify/%s", accountVerifyToken));
+    context.setVariable(
+            "accountVerifyAddress", String.format("account/verify/%s", accountVerifyToken));
     return templateEngine.process("account_verify_email.html", context);
   }
 }
