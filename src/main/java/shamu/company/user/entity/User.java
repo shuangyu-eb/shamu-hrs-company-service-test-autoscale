@@ -39,7 +39,7 @@ public class User extends BaseEntity {
   @ManyToOne
   private Company company;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne
   @JsonIgnore
   private User managerUser;
 
@@ -49,7 +49,8 @@ public class User extends BaseEntity {
   @OneToOne
   private UserContactInformation userContactInformation;
 
-  @OneToOne
+  @OneToOne(fetch = FetchType.LAZY)
+  @JsonIgnore
   private UserCompensation userCompensation;
 
   @OneToOne

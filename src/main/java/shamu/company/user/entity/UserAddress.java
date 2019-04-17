@@ -5,9 +5,7 @@ import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Where;
 import shamu.company.common.entity.BaseEntity;
 import shamu.company.common.entity.Country;
@@ -17,8 +15,6 @@ import shamu.company.common.entity.StateProvince;
 @Data
 @Table(name = "user_addresses")
 @Where(clause = "deleted_at IS NULL")
-@AllArgsConstructor
-@NoArgsConstructor
 public class UserAddress extends BaseEntity {
 
   @OneToOne

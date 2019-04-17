@@ -1,13 +1,11 @@
 package shamu.company.user.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import shamu.company.user.entity.UserContactInformation;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
 public class UserContactInformationDto {
 
@@ -24,4 +22,5 @@ public class UserContactInformationDto {
   public UserContactInformationDto(UserContactInformation userContactInformation) {
     BeanUtils.copyProperties(userContactInformation, this);
   }
+
 }
