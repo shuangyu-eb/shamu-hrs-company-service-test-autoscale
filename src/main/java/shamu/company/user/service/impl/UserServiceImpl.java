@@ -110,20 +110,20 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public List<JobUserDto> findDirectReportsByManagerId(Long mid) {
-    List<User> directReports =  userRepository.findAllByManagerUserId(mid);
+    List<User> directReports = userRepository.findAllByManagerUserId(mid);
     List<JobUserDto> reportsInfo = new LinkedList<>();
-    for (int i = 0 ; i < directReports.size() ; i++){
-      JobUserDto jobUserDTO = new JobUserDto();
+    for (int i = 0; i < directReports.size(); i++) {
+      JobUserDto jobUserDto = new JobUserDto();
       User reporter = directReports.get(i);
-      jobUserDTO.setFirstName(reporter.getUserPersonalInformation().getFirstName());
-      jobUserDTO.setPhoneNumber(reporter.getImageUrl());
+      jobUserDto.setFirstName(reporter.getUserPersonalInformation().getFirstName());
+      jobUserDto.setPhoneNumber(reporter.getImageUrl());
 
       JobUser reporterWithJob = jobUserRepository.findJobUserByUser(reporter);
-      if (reporterWithJob!=null){
-        jobUserDTO.setJobTitle(reporterWithJob.getJob().getTitle());
+      if (reporterWithJob != null) {
+        jobUserDto.setJobTitle(reporterWithJob.getJob().getTitle());
       }
 
-      ((LinkedList<JobUserDto>) reportsInfo).push(jobUserDTO);
+      reportsInfo.add(jobUserDto);
     }
 
     return reportsInfo;
@@ -132,30 +132,28 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public JobUserDto findEmployeeInfoByEmployeeId(Long id) {
-    JobUserDto jobUserDTO = new JobUserDto();
+    JobUserDto jobUserDto = new JobUserDto();
 
     User employee = userRepository.findById(id)
-            .orElseThrow(() -> new ResouceNotFoundException("User does not exist"));
+        .orElseThrow(() -> new ResouceNotFoundException("User does not exist"));
     if (employee != null) {
       JobUser jobUser = jobUserRepository.findJobUserByUser(employee);
-
-      jobUserDTO.setEmail(employee.getEmailWork());
-      jobUserDTO.setImageUrl(employee.getImageUrl());
-      jobUserDTO.setPhoneNumber(employee.getUserContactInformation().getPhoneWork());
-      jobUserDTO.setFirstName(employee.getUserPersonalInformation().getFirstName());
-
-      if (jobUser!=null){
-        jobUserDTO.setJobTitle(jobUser.getJob().getTitle());
+      if (jobUser != null) {
+        jobUserDto.setJobTitle(jobUser.getJob().getTitle());
       }
 
+      jobUserDto.setEmail(employee.getEmailWork());
+      jobUserDto.setImageUrl(employee.getImageUrl());
+      jobUserDto.setPhoneNumber(employee.getUserContactInformation().getPhoneWork());
+      jobUserDto.setFirstName(employee.getUserPersonalInformation().getFirstName());
     }
-    return jobUserDTO;
+    return jobUserDto;
   }
 
   @Override
   public User findEmployeeInfoByUserId(Long uid) {
     return userRepository.findById(uid)
-            .orElseThrow(() -> new ResouceNotFoundException("User does not exist"));
+        .orElseThrow(() -> new ResouceNotFoundException("User does not exist"));
   }
 
   private List<JobUserDto> getJobUserDtoList(

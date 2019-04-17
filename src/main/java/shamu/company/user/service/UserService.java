@@ -1,8 +1,6 @@
 package shamu.company.user.service;
 
 import java.util.List;
-import java.util.Optional;
-
 import shamu.company.job.JobUserDto;
 import shamu.company.user.dto.PersonalInformationDto;
 import shamu.company.user.entity.User;
