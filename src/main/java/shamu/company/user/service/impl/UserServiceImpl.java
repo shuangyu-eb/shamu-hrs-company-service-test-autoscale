@@ -136,7 +136,7 @@ public class UserServiceImpl implements UserService {
 
     User employee = userRepository.findById(id)
             .orElseThrow(() -> new ResouceNotFoundException("User does not exist"));
-    if (employee!=null) {
+    if (employee != null) {
       JobUser jobUser = jobUserRepository.findJobUserByUser(employee);
 
       jobUserDTO.setEmail(employee.getEmailWork());

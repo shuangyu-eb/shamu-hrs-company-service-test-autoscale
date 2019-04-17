@@ -11,6 +11,4 @@ public interface JobUserRepository extends BaseRepository<JobUser, Long> {
   List<JobUser> findAllByUserIn(List<User> users);
 
   JobUser findJobUserByUser(User user);
-
-  JobUser findJobUserByUserId(Long id);
 }
