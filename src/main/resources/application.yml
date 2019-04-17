@@ -13,11 +13,3 @@ spring:
     change-log: classpath:/db/changelog/db.changelog-master.yml
   thymeleaf:
     prefix: classpath:templates/
-
-sendGrid:
-  apiKey: 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
-
-auth0:
-  jwks: https://eastbay.auth0.com/.well-known/jwks.json
-  algorithm: RS256
-  authDomain: https://eastbay.auth0.com/
