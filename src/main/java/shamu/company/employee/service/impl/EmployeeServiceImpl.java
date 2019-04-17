@@ -9,6 +9,7 @@ import shamu.company.common.repository.StateProvinceRepository;
 import shamu.company.company.entity.Department;
 import shamu.company.company.entity.Office;
 import shamu.company.company.entity.OfficeAddress;
+import shamu.company.employee.Contants;
 import shamu.company.employee.dto.SelectFieldInformationDto;
 import shamu.company.employee.entity.EmploymentType;
 import shamu.company.employee.pojo.OfficePojo;
@@ -49,8 +50,6 @@ public class EmployeeServiceImpl implements EmployeeService {
 
   @Autowired
   private StateProvinceRepository stateProvinceRepository;
-
-  private static Long MANAGER_ROLE_ID = 2L;
 
   @Override
   public List<SelectFieldInformationDto> getDepartments() {
@@ -103,7 +102,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
   @Override
   public List<SelectFieldInformationDto> getManagers() {
-    List<User> managers = userRepository.findByUserRoleId(MANAGER_ROLE_ID);
+    List<User> managers = userRepository.findByUserRoleId(Contants.MANAGER_ROLE_ID);
     List<SelectFieldInformationDto> managerDtos = new ArrayList<>();
     managers.forEach(manager -> {
       SelectFieldInformationDto managerDto = new SelectFieldInformationDto();
