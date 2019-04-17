@@ -110,7 +110,7 @@ public class EmployeeServiceImpl implements EmployeeService {
       StringBuilder sb = new StringBuilder();
       sb.append(office.getName() + " ");
       OfficeAddress officeAddress = officeAddressRepository.findOfficeAddressByOffice(office);
-      if(officeAddress != null){
+      if (officeAddress != null) {
         sb.append(officeAddress.getStreet1() + " ");
         sb.append(officeAddress.getStreet2() + " ");
         sb.append(officeAddress.getCity() + " ");
@@ -124,7 +124,7 @@ public class EmployeeServiceImpl implements EmployeeService {
   }
 
   @Override
-  public List<GeneralObjectDto> getManagers(){
+  public List<GeneralObjectDto> getManagers() {
     List<User> managers = userRepository.findByUserRoleId(MANAGER_ROLE_ID);
     List<GeneralObjectDto> managerDtos = new ArrayList<>();
     managers.forEach(manager -> {
