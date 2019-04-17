@@ -10,7 +10,6 @@ import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.CopyObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.UUID;
@@ -60,13 +59,14 @@ public class AwsUtil {
         .build();
   }
 
-  private String generateFilePath(String originalFilename) throws FileNotFoundException {
+  private File generateFile(String originalFilename) throws IOException {
     String projectDir = ResourceUtils.getURL(ResourceUtils.CLASSPATH_URL_PREFIX).getPath();
     String suffix = originalFilename.substring(originalFilename.lastIndexOf("."));
 
-    return String.format("%suploads/%s%s%s", projectDir,
-            System.currentTimeMillis(),
-            UUID.randomUUID().toString(), suffix);
+    String fileName = String.format("%suploads/%s%s", projectDir,
+        System.currentTimeMillis(),
+        UUID.randomUUID().toString());
+    return File.createTempFile(fileName, suffix);
   }
 
   public String uploadFile(MultipartFile multipartFile) throws IOException {
@@ -74,11 +74,9 @@ public class AwsUtil {
   }
 
   public String uploadFile(@NotNull MultipartFile multipartFile, Type type) throws IOException {
-    String fileName = this.generateFilePath(multipartFile.getOriginalFilename());
-    String prefix = fileName.substring(fileName.lastIndexOf("."));
-    File file = File.createTempFile(UUID.randomUUID().toString(), prefix);
+    File file = this.generateFile(multipartFile.getOriginalFilename());
     if (multipartFile.isEmpty()) {
-      throw new AwsUploadException("File is empty");
+      throw new AwsUploadException("File is empty.");
     }
     try {
       multipartFile.transferTo(file);
@@ -97,7 +95,7 @@ public class AwsUtil {
     String fileName = file.getName();
     String path = getSavePathInAws(fileName, type);
     if (!file.exists() || !file.isFile()) {
-      throw new AwsUploadException("The file: " + filePath + " doesn't exist");
+      throw new AwsUploadException("The file: " + filePath + " doesn't exist.");
     }
 
     try {
