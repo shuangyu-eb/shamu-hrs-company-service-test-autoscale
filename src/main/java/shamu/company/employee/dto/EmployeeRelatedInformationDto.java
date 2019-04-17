@@ -44,6 +44,4 @@ public class EmployeeRelatedInformationDto {
     this.setManagerJobTitle(jobManagerDto.getJobTitle());
     this.setDirectReporters(directReporters);
   }
-
-
 }
