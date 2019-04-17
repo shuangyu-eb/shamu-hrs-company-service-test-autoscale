@@ -19,9 +19,9 @@ public interface UserService {
 
   PersonalInformationDto getPersonalInformation(Long userId);
 
-  User findEmployeeInfoByUserId(Long uid);
+  User findEmployeeInfoByUserId(Long id);
 
   JobUserDto findEmployeeInfoByEmployeeId(Long id);
 
-  List<JobUserDto> findDirectReportsByManagerId(Long mid);
+  List<JobUserDto> findDirectReportsByManagerId(Long id);
 }

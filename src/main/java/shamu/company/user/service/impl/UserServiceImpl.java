@@ -1,10 +1,11 @@
 package shamu.company.user.service.impl;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -111,20 +112,14 @@ public class UserServiceImpl implements UserService {
   @Override
   public List<JobUserDto> findDirectReportsByManagerId(Long mid) {
     List<User> directReports = userRepository.findAllByManagerUserId(mid);
-    List<JobUserDto> reportsInfo = new LinkedList<>();
-    for (int i = 0; i < directReports.size(); i++) {
-      JobUserDto jobUserDto = new JobUserDto();
-      User reporter = directReports.get(i);
-      jobUserDto.setFirstName(reporter.getUserPersonalInformation().getFirstName());
-      jobUserDto.setPhoneNumber(reporter.getImageUrl());
 
-      JobUser reporterWithJob = jobUserRepository.findJobUserByUser(reporter);
-      if (reporterWithJob != null) {
-        jobUserDto.setJobTitle(reporterWithJob.getJob().getTitle());
-      }
-
-      reportsInfo.add(jobUserDto);
-    }
+    List<JobUserDto> reportsInfo = directReports.stream()
+        .map(
+            (user)->{
+              JobUser reporterWithJob = jobUserRepository.findJobUserByUser(user);
+              JobUserDto jobUserDto = new JobUserDto(user,reporterWithJob);
+              return  jobUserDto;
+            }).collect(Collectors.toList());
 
     return reportsInfo;
   }
@@ -132,21 +127,13 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public JobUserDto findEmployeeInfoByEmployeeId(Long id) {
-    JobUserDto jobUserDto = new JobUserDto();
 
     User employee = userRepository.findById(id)
         .orElseThrow(() -> new ResouceNotFoundException("User does not exist"));
-    if (employee != null) {
-      JobUser jobUser = jobUserRepository.findJobUserByUser(employee);
-      if (jobUser != null) {
-        jobUserDto.setJobTitle(jobUser.getJob().getTitle());
-      }
 
-      jobUserDto.setEmail(employee.getEmailWork());
-      jobUserDto.setImageUrl(employee.getImageUrl());
-      jobUserDto.setPhoneNumber(employee.getUserContactInformation().getPhoneWork());
-      jobUserDto.setFirstName(employee.getUserPersonalInformation().getFirstName());
-    }
+    JobUser jobUser = jobUserRepository.findJobUserByUser(employee);
+    JobUserDto jobUserDto = new JobUserDto(employee,jobUser);
+
     return jobUserDto;
   }
 

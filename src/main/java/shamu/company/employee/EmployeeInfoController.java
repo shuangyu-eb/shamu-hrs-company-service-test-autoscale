@@ -18,8 +18,6 @@ public class EmployeeInfoController {
 
   @GetMapping("/employees/{id}/info")
   public EmployeeRelatedInformationDto getEmployeeInfoByUserId(@PathVariable Long id) {
-
-
     User employee = userService.findEmployeeInfoByUserId(id);
     JobUserDto managerjobUserDto = userService
         .findEmployeeInfoByEmployeeId(employee.getManagerUser().getId());
