@@ -4,14 +4,14 @@ import java.util.List;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
-import shamu.company.common.BaseRepository;
+import shamu.company.common.repository.BaseRepository;
 import shamu.company.info.entity.UserEmergencyContact;
 
 public interface UserEmergencyContactRepository extends BaseRepository<UserEmergencyContact, Long> {
 
   @Query(
       value = "SELECT * FROM user_emergency_contacts "
-          + "WHERE deleted_at IS NULL AND user_id = ?1 ORDER BY updated_at DESC",
+          + "WHERE deleted_at IS NULL AND user_id = ?1 ORDER BY is_primary DESC, id ASC",
       nativeQuery = true)
   List<UserEmergencyContact> findByUserId(Long id);
 

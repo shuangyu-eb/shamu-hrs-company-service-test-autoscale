@@ -1,10 +1,7 @@
-package shamu.company.user;
+package shamu.company.user.service.impl;
 
 import java.sql.Timestamp;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,14 +9,17 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.Context;
 import shamu.company.common.exception.ForbiddenException;
+import shamu.company.common.exception.ResouceNotFoundException;
 import shamu.company.job.JobUser;
 import shamu.company.job.JobUserDto;
 import shamu.company.job.JobUserRepository;
+import shamu.company.user.dto.PersonalInformationDto;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserAddress;
 import shamu.company.user.entity.UserPersonalInformation;
 import shamu.company.user.repository.UserAddressRepository;
 import shamu.company.user.repository.UserRepository;
+import shamu.company.user.service.UserService;
 import shamu.company.utils.EmailUtil;
 
 @Service
@@ -89,31 +89,39 @@ public class UserServiceImpl implements UserService {
     return userRepository.existsByEmailWork(email);
   }
 
-  @Override
-  public User findEmployeeInfoByEmployeeNumber(String uid) {
-    return userRepository.findByEmployeeNumber(uid);
-  }
-
-  @Override
-  public JobUserDto findEmployeeInfoByEmployeeId(String id) {
-    JobUserDto jobUserDTO = new JobUserDto();
-
-    User employee = userRepository.findByEmployeeNumber(id);
-    if (employee!=null) {
-      JobUser jobUser = jobUserRepository.findJobUserByUser(employee);
-
-      jobUserDTO.setEmail(employee.getEmailWork());
-      jobUserDTO.setImageUrl(employee.getImageUrl());
-      jobUserDTO.setPhoneNumber(employee.getUserContactInformation().getPhoneWork());
-      jobUserDTO.setFirstName(employee.getUserPersonalInformation().getFirstName());
-
-      if (jobUser!=null){
-        jobUserDTO.setJobTitle(jobUser.getJob().getTitle());
-      }
-
+    @Override
+    public PersonalInformationDto getPersonalInformation(Long userId) {
+        return null;
     }
-    return jobUserDTO;
-  }
+
+    @Override
+    public User findEmployeeInfoByUserId(Long uid) {
+        return userRepository.findById(uid)
+                .orElseThrow(() -> new ResouceNotFoundException("User does not exist"));
+    }
+
+
+  @Override
+    public JobUserDto findEmployeeInfoByEmployeeId(Long id) {
+        JobUserDto jobUserDTO = new JobUserDto();
+
+        User employee = userRepository.findById(id)
+                .orElseThrow(() -> new ResouceNotFoundException("User does not exist"));
+        if (employee!=null) {
+            JobUser jobUser = jobUserRepository.findJobUserByUser(employee);
+
+            jobUserDTO.setEmail(employee.getEmailWork());
+            jobUserDTO.setImageUrl(employee.getImageUrl());
+            jobUserDTO.setPhoneNumber(employee.getUserContactInformation().getPhoneWork());
+            jobUserDTO.setFirstName(employee.getUserPersonalInformation().getFirstName());
+
+            if (jobUser!=null){
+                jobUserDTO.setJobTitle(jobUser.getJob().getTitle());
+            }
+
+        }
+        return jobUserDTO;
+    }
 
   @Override
   public List<JobUserDto> findDirectReportsByManagerId(Long mid) {

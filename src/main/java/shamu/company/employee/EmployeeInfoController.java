@@ -7,8 +7,8 @@ import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.job.JobUser;
 import shamu.company.job.JobUserDto;
 import shamu.company.job.JobUserRepository;
-import shamu.company.user.UserService;
 import shamu.company.user.entity.User;
+import shamu.company.user.service.UserService;
 
 import java.util.HashMap;
 import java.util.List;
@@ -23,22 +23,23 @@ public class EmployeeInfoController {
     @Autowired
     UserService userService;
 
-    @GetMapping("employee-info/{id}")
-    public Map getEmployeeInfoByUserId(@PathVariable String id){
+    @GetMapping("/employees/{id}/info")
+    public Map getEmployeeInfoByUserId(@PathVariable Long id){
         Map result = new HashMap();
-        User employee = userService.findEmployeeInfoByEmployeeNumber(id);
         JobUserDto jobUserDTO =userService.findEmployeeInfoByEmployeeId(id);
         result.put("employeeFirstName",jobUserDTO.getFirstName());
         result.put("employeeImageUrl",jobUserDTO.getImageUrl());
         result.put("employeeWorkPhone",jobUserDTO.getPhoneNumber());
         result.put("employeeWorkEmail",jobUserDTO.getEmail());
         result.put("employeeJobTitle",jobUserDTO.getJobTitle());
-        JobUser managerJob = jobUserService.findJobUserByUserId(Long.valueOf(employee.getManagerUser().getEmployeeNumber()));
-        result.putIfAbsent("managerName", employee.getManagerUser().getUserPersonalInformation().getFirstName());
-        result.put("managerImageUrl",employee.getManagerUser().getImageUrl());
-        result.put("managerJobTitle",managerJob.getJob().getTitle());
 
-        List<JobUserDto> reports = userService.findDirectReportsByManagerId(Long.valueOf(id));
+        User employee = userService.findEmployeeInfoByUserId(id);
+        JobUserDto managerjobUserDTO =userService.findEmployeeInfoByEmployeeId(employee.getManagerUser().getId());
+        result.put("managerName",managerjobUserDTO.getFirstName());
+        result.put("managerImageUrl",managerjobUserDTO.getImageUrl());
+        result.put("managerJobTitle",managerjobUserDTO.getJobTitle());
+
+        List<JobUserDto> reports = userService.findDirectReportsByManagerId(id);
         result.put("directReporters",reports);
 
         return result;

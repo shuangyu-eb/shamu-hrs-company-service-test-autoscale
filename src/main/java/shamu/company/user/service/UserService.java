@@ -1,7 +1,10 @@
-package shamu.company.user;
+package shamu.company.user.service;
 
 import java.util.List;
+import java.util.Optional;
+
 import shamu.company.job.JobUserDto;
+import shamu.company.user.dto.PersonalInformationDto;
 import shamu.company.user.entity.User;
 
 public interface UserService {
@@ -16,9 +19,11 @@ public interface UserService {
 
   Boolean existsByEmailWork(String email);
 
-  User findEmployeeInfoByEmployeeNumber(String uid);
+  PersonalInformationDto getPersonalInformation(Long userId);
 
-  JobUserDto findEmployeeInfoByEmployeeId(String id);
+  User findEmployeeInfoByUserId(Long uid);
+
+  JobUserDto findEmployeeInfoByEmployeeId(Long id);
 
   List<JobUserDto> findDirectReportsByManagerId(Long mid);
 }
