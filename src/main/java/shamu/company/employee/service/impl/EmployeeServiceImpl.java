@@ -67,7 +67,9 @@ public class EmployeeServiceImpl implements EmployeeService {
     List<EmploymentType> employmentTypes = employmentTypeRepository.findAll();
     List<SelectFieldInformationDto> allEmploymentTypes =
         employmentTypes.stream().map(
-            employmentType -> new SelectFieldInformationDto(employmentType.getId(), employmentType.getName())
+            employmentType -> new SelectFieldInformationDto(
+                employmentType.getId(),
+                employmentType.getName())
         ).collect(Collectors.toList());
     return allEmploymentTypes;
   }
@@ -124,7 +126,6 @@ public class EmployeeServiceImpl implements EmployeeService {
 
   @Override
   public Long saveOfficeLocation(OfficePojo officePojo) {
-    Office office = new Office();
     OfficeAddress officeAddress = new OfficeAddress();
     officeAddress.setCity(officePojo.getCity());
     if (!"".equals(officePojo.getState()) && null != officePojo.getState()) {
@@ -136,6 +137,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     officeAddress.setStreet1(officePojo.getStreet1());
     officeAddress.setStreet2(officePojo.getStreet2());
     OfficeAddress officeAddressReturned = officeAddressRepository.save(officeAddress);
+    Office office = new Office();
     office.setName(officePojo.getOfficeName());
     office.setOfficeAddress(officeAddressReturned);
     Office officeReturned = officeRepository.save(office);

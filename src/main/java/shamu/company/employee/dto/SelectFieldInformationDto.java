@@ -9,7 +9,7 @@ public class SelectFieldInformationDto {
 
   private String name;
 
-  public SelectFieldInformationDto(Long id, String name){
+  public SelectFieldInformationDto(Long id, String name) {
     setId(id);
     setName(name);
   }
