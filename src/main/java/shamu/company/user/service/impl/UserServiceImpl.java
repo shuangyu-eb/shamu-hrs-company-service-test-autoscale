@@ -196,14 +196,14 @@ public class UserServiceImpl implements UserService {
                   }));
               return jobUserDto;
             })
-      .collect(Collectors.toList());
+        .collect(Collectors.toList());
   }
 
   public String getActivationEmail(String accountVerifyToken) {
     Context context = new Context();
     context.setVariable("frontEndAddress", frontEndAddress);
     context.setVariable(
-      "accountVerifyAddress", String.format("account/verify/%s", accountVerifyToken));
+        "accountVerifyAddress", String.format("account/verify/%s", accountVerifyToken));
     return templateEngine.process("account_verify_email.html", context);
   }
 }
