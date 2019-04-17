@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import java.sql.Timestamp;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -39,7 +38,7 @@ public class User extends BaseEntity {
   @ManyToOne
   private Company company;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne
   @JsonIgnore
   private User managerUser;
 

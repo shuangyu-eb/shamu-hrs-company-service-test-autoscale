@@ -97,6 +97,14 @@
       <version>2.0.0</version>
       <scope>test</scope>
     </dependency>
+
+    <!-- https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-s3 -->
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-s3</artifactId>
+      <version>1.11.534</version>
+    </dependency>
+
   </dependencies>
 
   <dependencyManagement>

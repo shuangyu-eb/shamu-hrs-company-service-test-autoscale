@@ -6,6 +6,10 @@ import shamu.company.user.entity.User;
 
 public interface UserService {
 
+  User save(User user);
+
+  User findUserById(Long id);
+
   User findUserByEmail(String email);
 
   void sendVerifyEmail(String email);

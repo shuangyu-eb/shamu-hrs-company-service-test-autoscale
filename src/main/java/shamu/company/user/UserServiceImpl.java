@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.Context;
 import shamu.company.common.exception.ForbiddenException;
+import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.job.JobUser;
 import shamu.company.job.JobUserDto;
 import shamu.company.job.JobUserRepository;
@@ -44,6 +45,17 @@ public class UserServiceImpl implements UserService {
 
   @Autowired
   EmailUtil emailUtil;
+
+  @Override
+  public User save(User user) {
+    return userRepository.save(user);
+  }
+
+  @Override
+  public User findUserById(Long id) {
+    return userRepository.findById(id).orElseThrow(
+        () -> new ResourceNotFoundException("The user with id: " + id + " doesn't exist!"));
+  }
 
   @Override
   public User findUserByEmail(String email) {
