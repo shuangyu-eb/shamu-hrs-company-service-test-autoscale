@@ -1,0 +1,31 @@
+package com.tardisone.companyservice.entity;
+
+
+import lombok.Data;
+
+import javax.persistence.*;
+
+@Data
+@Entity
+@Table(name = "office_addresses")
+public class OfficeAddresses  extends  BaseEntity{
+
+    private String street_1;
+
+    private String street_2;
+
+    @Column(name = "city_id")
+    private String city;
+
+    private String postalCode;
+
+    @ManyToOne
+    private Country country;
+
+    @ManyToOne
+    @JoinColumn(name="state_province_id")
+    private StatesProvince statesProvince;
+
+
+
+}
