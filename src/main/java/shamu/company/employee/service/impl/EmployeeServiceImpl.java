@@ -87,22 +87,24 @@ public class EmployeeServiceImpl implements EmployeeService {
       OfficeAddress officeAddress = officeAddressRepository.findOfficeAddressByOffice(office);
       if (null != officeAddress) {
         String street1 = officeAddress.getStreet1();
-        String street2 = officeAddress.getStreet1();
-        String city = officeAddress.getStreet1();
-        String state = officeAddress.getStreet1();
-        String postalCode = officeAddress.getStreet1();
         if (null != street1 && !"".equals(street1)) {
           officeLocation.append(street1 + " ");
         }
+        String street2 = officeAddress.getStreet1();
         if (null != street2 && !"".equals(street2)) {
           officeLocation.append(street2 + " ");
         }
+        String city = officeAddress.getStreet1();
         if (null != city && !"".equals(city)) {
           officeLocation.append(city + " ");
         }
+
+        String state = officeAddress.getStreet1();
         if (null != state && !"".equals(state)) {
           officeLocation.append(state + " ");
         }
+
+        String postalCode = officeAddress.getStreet1();
         if (null != postalCode && !"".equals(postalCode)) {
           officeLocation.append(postalCode);
         }
@@ -121,13 +123,13 @@ public class EmployeeServiceImpl implements EmployeeService {
       String middleName = userInfo.getMiddleName();
       String lastName = userInfo.getLastName();
       StringBuilder name = new StringBuilder();
-      if(null != firstName && !"".equals(firstName)){
+      if (null != firstName && !"".equals(firstName)) {
         name.append(firstName + " ");
       }
-      if(null != middleName && !"".equals(middleName)){
+      if (null != middleName && !"".equals(middleName)) {
         name.append(middleName + " ");
       }
-      if(null != lastName && !"".equals(lastName)){
+      if (null != lastName && !"".equals(lastName)) {
         name.append(lastName + " ");
       }
       return new SelectFieldInformationDto(manager.getId(), name.toString());
