@@ -1,7 +1,10 @@
 package shamu.company.employee.service;
 
 import java.util.List;
+import shamu.company.company.entity.Department;
+import shamu.company.company.entity.Office;
 import shamu.company.employee.dto.SelectFieldInformationDto;
+import shamu.company.employee.entity.EmploymentType;
 import shamu.company.employee.pojo.OfficePojo;
 
 public interface EmployeeService {
@@ -14,10 +17,9 @@ public interface EmployeeService {
 
   List<SelectFieldInformationDto> getManagers();
 
-  Long saveEmploymentType(String employmentType);
+  EmploymentType saveEmploymentType(String employmentType);
 
-  Long saveDepartment(String department);
+  Department saveDepartment(String department);
 
-  Long saveOfficeLocation(OfficePojo officePojo);
-
+  Office saveOfficeLocation(OfficePojo officePojo);
 }

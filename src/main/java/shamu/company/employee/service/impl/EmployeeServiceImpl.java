@@ -78,17 +78,17 @@ public class EmployeeServiceImpl implements EmployeeService {
   public List<SelectFieldInformationDto> getOfficeLocations() {
     List<Office> offices = officeRepository.findAll();
     List<SelectFieldInformationDto> officeDtos = offices.stream().map(office -> {
-      StringBuilder sb = new StringBuilder();
-      sb.append(office.getName() + " ");
+      StringBuilder officeLocation = new StringBuilder();
+      officeLocation.append(office.getName() + " ");
       OfficeAddress officeAddress = officeAddressRepository.findOfficeAddressByOffice(office);
       if (officeAddress != null) {
-        sb.append(officeAddress.getStreet1() + " ");
-        sb.append(officeAddress.getStreet2() + " ");
-        sb.append(officeAddress.getCity() + " ");
-        sb.append(officeAddress.getStateProvince().getName() + " ");
-        sb.append(officeAddress.getPostalCode());
+        officeLocation.append(officeAddress.getStreet1() + " ");
+        officeLocation.append(officeAddress.getStreet2() + " ");
+        officeLocation.append(officeAddress.getCity() + " ");
+        officeLocation.append(officeAddress.getStateProvince().getName() + " ");
+        officeLocation.append(officeAddress.getPostalCode());
       }
-      return new SelectFieldInformationDto(office.getId(), sb.toString());
+      return new SelectFieldInformationDto(office.getId(), officeLocation.toString());
     }).collect(Collectors.toList());
     return officeDtos;
   }
@@ -101,31 +101,28 @@ public class EmployeeServiceImpl implements EmployeeService {
       String firstName = userInfo.getFirstName();
       String middleName = userInfo.getMiddleName();
       String lastName = userInfo.getLastName();
-      String name = firstName + middleName + lastName;
+      String name = firstName + " " + middleName + " " + lastName;
       return new SelectFieldInformationDto(manager.getId(), name);
     }).collect(Collectors.toList());
     return managerDtos;
   }
 
   @Override
-  public Long saveEmploymentType(String employmentTypeName) {
+  public EmploymentType saveEmploymentType(String employmentTypeName) {
     EmploymentType employmentType = new EmploymentType();
     employmentType.setName(employmentTypeName);
-    EmploymentType employmentTypeReturned = employmentTypeRepository.save(employmentType);
-    return employmentTypeReturned.getId();
-
+    return employmentTypeRepository.save(employmentType);
   }
 
   @Override
-  public Long saveDepartment(String departmentName) {
+  public Department saveDepartment(String departmentName) {
     Department department = new Department();
     department.setName(departmentName);
-    Department departmentReturned = departmentRepository.save(department);
-    return departmentReturned.getId();
+    return departmentRepository.save(department);
   }
 
   @Override
-  public Long saveOfficeLocation(OfficePojo officePojo) {
+  public Office saveOfficeLocation(OfficePojo officePojo) {
     OfficeAddress officeAddress = new OfficeAddress();
     officeAddress.setCity(officePojo.getCity());
     if (!"".equals(officePojo.getState()) && null != officePojo.getState()) {
@@ -140,7 +137,6 @@ public class EmployeeServiceImpl implements EmployeeService {
     Office office = new Office();
     office.setName(officePojo.getOfficeName());
     office.setOfficeAddress(officeAddressReturned);
-    Office officeReturned = officeRepository.save(office);
-    return officeReturned.getId();
+    return officeRepository.save(office);
   }
 }

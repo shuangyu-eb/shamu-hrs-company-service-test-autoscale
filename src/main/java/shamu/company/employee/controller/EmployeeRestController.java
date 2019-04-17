@@ -54,18 +54,18 @@ public class EmployeeRestController {
   @PostMapping("employment-type")
   @ResponseBody
   public Long saveEmploymentType(String employmentType) {
-    return employeeService.saveEmploymentType(employmentType);
+    return employeeService.saveEmploymentType(employmentType).getId();
   }
 
   @PostMapping("department")
   @ResponseBody
   public Long saveDepartment(String department) {
-    return employeeService.saveDepartment(department);
+    return employeeService.saveDepartment(department).getId();
   }
 
   @PostMapping("office-location")
   @ResponseBody
   public Long saveOfficeLocation(@RequestBody OfficePojo officePojo) {
-    return employeeService.saveOfficeLocation(officePojo);
+    return employeeService.saveOfficeLocation(officePojo).getId();
   }
 }
