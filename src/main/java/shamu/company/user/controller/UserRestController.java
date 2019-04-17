@@ -1,4 +1,4 @@
-package shamu.company.user;
+package shamu.company.user.controller;
 
 import java.io.IOException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +13,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.company.CompanyService;
+import shamu.company.user.dto.PersonalInformationDto;
 import shamu.company.user.entity.User;
+import shamu.company.user.service.UserService;
 import shamu.company.utils.AwsUtil;
 import shamu.company.utils.AwsUtil.Type;
 
@@ -54,6 +56,12 @@ public class UserRestController {
   @GetMapping(value = "user/check/desired-url/{desiredUrl}")
   public Boolean checkDesiredUrl(@PathVariable String desiredUrl) {
     return companyService.existsBySubdomainName(desiredUrl);
+  }
+
+  @GetMapping("users/{userId}/personal-information")
+  public PersonalInformationDto getPersonalInformation(@PathVariable Long userId) {
+    PersonalInformationDto personalInformationDtO = userService.getPersonalInformation(userId);
+    return personalInformationDtO;
   }
 
   @PostMapping("users/{id}/head-portrait")

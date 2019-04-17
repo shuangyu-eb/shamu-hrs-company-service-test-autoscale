@@ -4,7 +4,7 @@ import java.util.List;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
-import shamu.company.common.BaseRepository;
+import shamu.company.common.repository.BaseRepository;
 import shamu.company.info.entity.UserEmergencyContact;
 
 public interface UserEmergencyContactRepository extends BaseRepository<UserEmergencyContact, Long> {

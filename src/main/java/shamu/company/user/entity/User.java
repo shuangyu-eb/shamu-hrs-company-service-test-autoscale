@@ -65,4 +65,8 @@ public class User extends BaseEntity {
   private String verificationToken;
 
   private Timestamp verifiedAt;
+
+  public User(Long id) {
+    this.setId(id);
+  }
 }
