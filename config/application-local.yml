@@ -19,3 +19,10 @@ spring:
 application:
   systemEmailAddress: noreply@interviewed.com
   frontEndAddress: http://localhost:3000/
+
+aws:
+  awsAccessKeyId: AKIAXYMULKOL2JOY2GOP
+  awsSecretAccessKey: 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
+  bucketName: shamu-hrs-qa
+  folder: media-local
+  region: ap-northeast-1
