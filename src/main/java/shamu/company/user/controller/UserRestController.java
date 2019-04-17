@@ -14,7 +14,6 @@ import org.springframework.web.multipart.MultipartFile;
 import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.company.CompanyService;
 import shamu.company.user.dto.PersonalInformationDto;
-import shamu.company.user.entity.User;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.AwsUtil;
 import shamu.company.utils.AwsUtil.Type;
@@ -68,9 +67,9 @@ public class UserRestController {
   public String handleFileUpload(@PathVariable Long id, @RequestParam("file") MultipartFile file)
       throws IOException {
     String path = awsUtil.uploadFile(file, Type.IMAGE);
-    User user = userService.findUserById(id);
-    user.setImageUrl(path);
-    userService.save(user);
+
+    // TODO other actions
+
     return path;
   }
 }
