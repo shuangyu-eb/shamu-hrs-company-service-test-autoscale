@@ -11,15 +11,15 @@ import shamu.company.user.service.UserPersonalInformationService;
 @RestApiController
 public class UserPersonalInformationRestController {
 
-  @Autowired
-  UserPersonalInformationService userPersonalInformationService;
+  @Autowired UserPersonalInformationService userPersonalInformationService;
 
   @PatchMapping("user-personal-information")
   public UserPersonalInformationDto update(
       @RequestBody UserPersonalInformationDto userPersonalInformationDto) {
-    UserPersonalInformation userPersonalInformation = userPersonalInformationDto
-        .getUserPersonalInformation();
-    UserPersonalInformation userPersonalInformationUpdated = userPersonalInformationService.update(userPersonalInformation);
+    UserPersonalInformation userPersonalInformation =
+        userPersonalInformationDto.getUserPersonalInformation();
+    UserPersonalInformation userPersonalInformationUpdated =
+        userPersonalInformationService.update(userPersonalInformation);
     UserPersonalInformationDto userPersonalInformationDtoUpdated =
         new UserPersonalInformationDto(userPersonalInformationUpdated);
     return userPersonalInformationDtoUpdated;
