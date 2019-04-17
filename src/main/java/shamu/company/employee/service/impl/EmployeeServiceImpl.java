@@ -2,6 +2,8 @@ package shamu.company.employee.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import shamu.company.common.entity.StateProvince;
@@ -54,36 +56,26 @@ public class EmployeeServiceImpl implements EmployeeService {
   @Override
   public List<SelectFieldInformationDto> getDepartments() {
     List<Department> departments = departmentRepository.findAll();
-    List<SelectFieldInformationDto> departmentDtos = new ArrayList<>();
-    departments.forEach(department -> {
-      SelectFieldInformationDto departmentDto = new SelectFieldInformationDto();
-      departmentDto.setId(department.getId());
-      departmentDto.setName(department.getName());
-      departmentDtos.add(departmentDto);
-    });
+    List<SelectFieldInformationDto> departmentDtos = departments.stream().map(department ->
+        new SelectFieldInformationDto(department.getId(), department.getName())
+    ).collect(Collectors.toList());
     return departmentDtos;
   }
 
   @Override
   public List<SelectFieldInformationDto> getEmploymentTypes() {
     List<EmploymentType> employmentTypes = employmentTypeRepository.findAll();
-    List<SelectFieldInformationDto> allEmploymentTypes = new ArrayList<>();
-    employmentTypes.forEach(employmentType -> {
-      SelectFieldInformationDto employmentTypeDto = new SelectFieldInformationDto();
-      employmentTypeDto.setId(employmentType.getId());
-      employmentTypeDto.setName(employmentType.getName());
-      allEmploymentTypes.add(employmentTypeDto);
-    });
+    List<SelectFieldInformationDto> allEmploymentTypes =
+        employmentTypes.stream().map(
+            employmentType -> new SelectFieldInformationDto(employmentType.getId(), employmentType.getName())
+        ).collect(Collectors.toList());
     return allEmploymentTypes;
   }
 
   @Override
   public List<SelectFieldInformationDto> getOfficeLocations() {
     List<Office> offices = officeRepository.findAll();
-    List<SelectFieldInformationDto> officeDtos = new ArrayList<>();
-    offices.forEach(office -> {
-      SelectFieldInformationDto officeDto = new SelectFieldInformationDto();
-      officeDto.setId(office.getId());
+    List<SelectFieldInformationDto> officeDtos = offices.stream().map(office -> {
       StringBuilder sb = new StringBuilder();
       sb.append(office.getName() + " ");
       OfficeAddress officeAddress = officeAddressRepository.findOfficeAddressByOffice(office);
@@ -93,28 +85,23 @@ public class EmployeeServiceImpl implements EmployeeService {
         sb.append(officeAddress.getCity() + " ");
         sb.append(officeAddress.getStateProvince().getName() + " ");
         sb.append(officeAddress.getPostalCode());
-        officeDto.setName(sb.toString());
-        officeDtos.add(officeDto);
       }
-    });
+      return new SelectFieldInformationDto(office.getId(), sb.toString());
+    }).collect(Collectors.toList());
     return officeDtos;
   }
 
   @Override
   public List<SelectFieldInformationDto> getManagers() {
     List<User> managers = userRepository.findByUserRoleId(Contants.MANAGER_ROLE_ID);
-    List<SelectFieldInformationDto> managerDtos = new ArrayList<>();
-    managers.forEach(manager -> {
-      SelectFieldInformationDto managerDto = new SelectFieldInformationDto();
+    List<SelectFieldInformationDto> managerDtos = managers.stream().map(manager -> {
       UserPersonalInformation userInfo = manager.getUserPersonalInformation();
       String firstName = userInfo.getFirstName();
       String middleName = userInfo.getMiddleName();
       String lastName = userInfo.getLastName();
       String name = firstName + middleName + lastName;
-      managerDto.setId(manager.getId());
-      managerDto.setName(name);
-      managerDtos.add(managerDto);
-    });
+      return new SelectFieldInformationDto(manager.getId(), name);
+    }).collect(Collectors.toList());
     return managerDtos;
   }
 
@@ -133,13 +120,11 @@ public class EmployeeServiceImpl implements EmployeeService {
     department.setName(departmentName);
     Department departmentReturned = departmentRepository.save(department);
     return departmentReturned.getId();
-
-
   }
 
   @Override
   public Long saveOfficeLocation(OfficePojo officePojo) {
-    final Office office = new Office();
+    Office office = new Office();
     OfficeAddress officeAddress = new OfficeAddress();
     officeAddress.setCity(officePojo.getCity());
     if (!"".equals(officePojo.getState()) && null != officePojo.getState()) {

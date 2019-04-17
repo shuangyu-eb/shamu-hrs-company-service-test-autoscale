@@ -27,43 +27,43 @@ public class EmployeeRestController {
     return userService.findAllEmployees();
   }
 
-  @GetMapping(value = {"employment-types"})
+  @GetMapping("employment-types")
   @ResponseBody
   public List<SelectFieldInformationDto> getEmploymentTypes() {
     return employeeService.getEmploymentTypes();
   }
 
-  @GetMapping(value = {"departments"})
+  @GetMapping("departments")
   @ResponseBody
   public List<SelectFieldInformationDto> getDepartments() {
     return employeeService.getDepartments();
   }
 
-  @GetMapping(value = {"office-locations"})
+  @GetMapping("office-locations")
   @ResponseBody
   public List<SelectFieldInformationDto> getOfficeLocations() {
     return employeeService.getOfficeLocations();
   }
 
-  @GetMapping(value = {"managers"})
+  @GetMapping("managers")
   @ResponseBody
   public List<SelectFieldInformationDto> getManagers() {
     return employeeService.getManagers();
   }
 
-  @PostMapping(value = "employment-type")
+  @PostMapping("employment-type")
   @ResponseBody
   public Long saveEmploymentType(String employmentType) {
     return employeeService.saveEmploymentType(employmentType);
   }
 
-  @PostMapping(value = "department")
+  @PostMapping("department")
   @ResponseBody
   public Long saveDepartment(String department) {
     return employeeService.saveDepartment(department);
   }
 
-  @PostMapping(value = "office-location")
+  @PostMapping("office-location")
   @ResponseBody
   public Long saveOfficeLocation(@RequestBody OfficePojo officePojo) {
     return employeeService.saveOfficeLocation(officePojo);
