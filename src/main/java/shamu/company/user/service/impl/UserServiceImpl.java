@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.Context;
 import shamu.company.common.exception.ForbiddenException;
-import shamu.company.common.exception.ResouceNotFoundException;
+import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.job.JobUser;
 import shamu.company.job.JobUserDto;
 import shamu.company.job.JobUserRepository;
@@ -43,6 +43,17 @@ public class UserServiceImpl implements UserService {
   String frontEndAddress;
 
   @Autowired EmailUtil emailUtil;
+
+  @Override
+  public User save(User user) {
+    return userRepository.save(user);
+  }
+
+  @Override
+  public User findUserById(Long id) {
+    return userRepository.findById(id).orElseThrow(
+        () -> new ResourceNotFoundException("The user with id: " + id + " doesn't exist!"));
+  }
 
   @Override
   public User findUserByEmail(String email) {
@@ -92,7 +103,7 @@ public class UserServiceImpl implements UserService {
     User user =
         userRepository
             .findById(userId)
-            .orElseThrow(() -> new ResouceNotFoundException("User does not exist"));
+            .orElseThrow(() -> new ResourceNotFoundException("User does not exist"));
     UserPersonalInformation userPersonalInformation = user.getUserPersonalInformation();
     UserContactInformation userContactInformation = user.getUserContactInformation();
     UserAddress userAddress =
@@ -101,6 +112,39 @@ public class UserServiceImpl implements UserService {
             .orElse(new UserAddress());
     return new PersonalInformationDto(
         userId, userPersonalInformation, userContactInformation, userAddress);
+  }
+
+  @Override
+  public List<JobUserDto> findDirectReportsByManagerId(Long id) {
+    List<User> directReports = userRepository.findAllByManagerUserId(id);
+
+    List<JobUserDto> reportsInfo = directReports.stream().map((user) -> {
+      JobUser reporterWithJob = jobUserRepository.findJobUserByUser(user);
+      JobUserDto jobUserDto = new JobUserDto(user,reporterWithJob);
+      return  jobUserDto;
+    }).collect(Collectors.toList());
+
+    return reportsInfo;
+  }
+
+
+  @Override
+  public JobUserDto findEmployeeInfoByEmployeeId(Long id) {
+
+    User employee = userRepository.findById(id)
+        .orElseThrow(
+            () -> new ResourceNotFoundException("User does not exist"));
+
+    JobUser jobUser = jobUserRepository.findJobUserByUser(employee);
+    JobUserDto jobUserDto = new JobUserDto(employee,jobUser);
+
+    return jobUserDto;
+  }
+
+  @Override
+  public User findEmployeeInfoByUserId(Long id) {
+    return userRepository.findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("User does not exist"));
   }
 
   private List<JobUserDto> getJobUserDtoList(

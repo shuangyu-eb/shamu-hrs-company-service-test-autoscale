@@ -17,4 +17,8 @@ public interface UserRepository extends BaseRepository<User, Long> {
   List<User> findAllEmployees();
 
   Boolean existsByEmailWork(String email);
+
+  @Query(value = "SELECT * FROM users "
+      + "WHERE manager_user_id = ?1 AND deleted_at IS NULL", nativeQuery = true)
+  List<User> findAllByManagerUserId(Long id);
 }
