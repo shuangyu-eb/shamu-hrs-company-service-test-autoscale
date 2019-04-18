@@ -78,35 +78,36 @@ public class EmployeeServiceImpl implements EmployeeService {
   public List<SelectFieldInformationDto> getOfficeLocations() {
     List<Office> offices = officeRepository.findAll();
     List<SelectFieldInformationDto> officeDtos = offices.stream().map(office -> {
-      StringBuilder officeLocation = new StringBuilder();
+      List<String> officeLocationDetails = new ArrayList<>();
       String officeName = office.getName();
       if (null != officeName && !"".equals(officeName)) {
-        officeLocation.append(officeName);
+        officeLocationDetails.add(officeName);
       }
       OfficeAddress officeAddress = officeAddressRepository.findOfficeAddressByOffice(office);
       if (null != officeAddress) {
         String street1 = officeAddress.getStreet1();
         if (null != street1 && !"".equals(street1)) {
-          officeLocation.append(" " + street1);
+          officeLocationDetails.add(street1);
         }
         String street2 = officeAddress.getStreet2();
         if (null != street2 && !"".equals(street2)) {
-          officeLocation.append(" " + street2);
+          officeLocationDetails.add( street2);
         }
         String city = officeAddress.getCity();
         if (null != city && !"".equals(city)) {
-          officeLocation.append(" " + city);
+          officeLocationDetails.add(city);
         }
         String state = officeAddress.getStateProvince().getName();
         if (null != state && !"".equals(state)) {
-          officeLocation.append(" " + state);
+          officeLocationDetails.add( state);
         }
         String postalCode = officeAddress.getPostalCode();
         if (null != postalCode && !"".equals(postalCode)) {
-          officeLocation.append(" " + postalCode);
+          officeLocationDetails.add(postalCode);
         }
       }
-      return new SelectFieldInformationDto(office.getId(), officeLocation.toString());
+      String officeLocation = String.join(" ", officeLocationDetails.toArray(new String[0]));
+      return new SelectFieldInformationDto(office.getId(), officeLocation);
     }).collect(Collectors.toList());
     return officeDtos;
   }
@@ -119,17 +120,18 @@ public class EmployeeServiceImpl implements EmployeeService {
       String firstName = userInfo.getFirstName();
       String middleName = userInfo.getMiddleName();
       String lastName = userInfo.getLastName();
-      StringBuilder name = new StringBuilder();
+      List<String> nameDetails = new ArrayList<>();
       if (null != firstName && !"".equals(firstName)) {
-        name.append(firstName);
+        nameDetails.add(firstName);
       }
       if (null != middleName && !"".equals(middleName)) {
-        name.append(" " + middleName);
+        nameDetails.add(middleName);
       }
       if (null != lastName && !"".equals(lastName)) {
-        name.append(" " + lastName);
+        nameDetails.add(lastName);
       }
-      return new SelectFieldInformationDto(manager.getId(), name.toString());
+      String name = String.join(" ", nameDetails.toArray(new String[0]));
+      return new SelectFieldInformationDto(manager.getId(), name);
     }).collect(Collectors.toList());
     return managerDtos;
   }
