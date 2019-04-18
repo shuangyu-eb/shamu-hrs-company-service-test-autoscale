@@ -91,7 +91,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         }
         String street2 = officeAddress.getStreet2();
         if (null != street2 && !"".equals(street2)) {
-          officeLocationDetails.add( street2);
+          officeLocationDetails.add(street2);
         }
         String city = officeAddress.getCity();
         if (null != city && !"".equals(city)) {
@@ -99,7 +99,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         }
         String state = officeAddress.getStateProvince().getName();
         if (null != state && !"".equals(state)) {
-          officeLocationDetails.add( state);
+          officeLocationDetails.add(state);
         }
         String postalCode = officeAddress.getPostalCode();
         if (null != postalCode && !"".equals(postalCode)) {
