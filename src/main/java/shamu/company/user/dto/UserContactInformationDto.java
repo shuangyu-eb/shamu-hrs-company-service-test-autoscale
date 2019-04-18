@@ -25,7 +25,7 @@ public class UserContactInformationDto {
   }
 
   @JsonIgnore
-  public UserContactInformation getUserContactInformation(){
+  public UserContactInformation getUserContactInformation() {
     UserContactInformation userContactInformation = new UserContactInformation();
     BeanUtils.copyProperties(this,userContactInformation);
     return userContactInformation;

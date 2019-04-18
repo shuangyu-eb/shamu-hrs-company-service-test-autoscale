@@ -16,7 +16,8 @@ public class UserContactInformationRestController {
   @PatchMapping("user-contact-information")
   public UserContactInformationDto update(
       @RequestBody UserContactInformationDto userContactInformationDto) {
-    UserContactInformation userContactInformation = userContactInformationDto.getUserContactInformation();
+    UserContactInformation userContactInformation =
+        userContactInformationDto.getUserContactInformation();
     UserContactInformation userContactInformationUpdated =
         contactInformationService.update(userContactInformation);
     return new UserContactInformationDto(userContactInformationUpdated);

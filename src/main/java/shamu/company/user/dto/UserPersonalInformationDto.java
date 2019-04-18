@@ -58,11 +58,13 @@ public class UserPersonalInformationDto {
 
     BeanUtils.copyProperties(this, userPersonalInformation);
 
-    if (this.getGenderId()!=null)
+    if (this.getGenderId() != null) {
       userPersonalInformation.setGender(new Gender(this.getGenderId()));
+    }
 
-    if (this.getMaritalStatusId()!=null)
+    if (this.getMaritalStatusId() != null) {
       userPersonalInformation.setMaritalStatus(new MaritalStatus(this.getMaritalStatusId()));
+    }
 
     return userPersonalInformation;
   }

@@ -23,16 +23,16 @@ public class PersonalInformationDto {
       UserPersonalInformation userPersonalInformation,
       UserContactInformation userContactInformation,
       UserAddress userAddress) {
-    UserPersonalInformationDto userPersonalInformationDto =
+    UserPersonalInformationDto userPersonalInfoHandled =
         new UserPersonalInformationDto(userPersonalInformation);
-    UserContactInformationDto userContactInformationDto =
+    UserContactInformationDto userContactInfoHandled =
         new UserContactInformationDto(userContactInformation);
-    UserAddressDto userAddressDto = new UserAddressDto(userAddress);
-    userAddressDto.setUserId(userId);
+    UserAddressDto userAddressHandled = new UserAddressDto(userAddress);
+    userAddressHandled.setUserId(userId);
 
-    this.setUserAddressDto(userAddressDto);
-    this.setUserContactInformationDto(userContactInformationDto);
-    this.setUserPersonalInformationDto(userPersonalInformationDto);
+    this.setUserPersonalInformationDto(userPersonalInfoHandled);
+    this.setUserContactInformationDto(userContactInfoHandled);
+    this.setUserAddressDto(userAddressHandled);
     this.setUserId(userId);
   }
 }

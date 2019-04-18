@@ -66,10 +66,13 @@ public class UserAddressDto {
     userAddress.setStreet2(this.getStreet2());
     userAddress.setUser(new User(this.getUserId()));
 
-    if (this.getStateProvinceId() != null)
+    if (this.getStateProvinceId() != null) {
       userAddress.setStateProvince(new StateProvince(this.getStateProvinceId()));
+    }
 
-    if (this.getCountryId() != null) userAddress.setCountry(new Country(this.getCountryId()));
+    if (this.getCountryId() != null) {
+      userAddress.setCountry(new Country(this.getCountryId()));
+    }
 
     return userAddress;
   }
