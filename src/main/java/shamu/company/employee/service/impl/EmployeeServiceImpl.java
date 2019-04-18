@@ -152,19 +152,9 @@ public class EmployeeServiceImpl implements EmployeeService {
 
   @Override
   public Office saveOfficeLocation(OfficePojo officePojo) {
-    OfficeAddress officeAddress = new OfficeAddress();
-    officeAddress.setCity(officePojo.getCity());
-    if (!"".equals(officePojo.getState()) && null != officePojo.getState()) {
-      StateProvince state = stateProvinceRepository
-          .findById(Long.parseLong(officePojo.getState())).get();
-      officeAddress.setStateProvince(state);
-    }
-    officeAddress.setPostalCode(officePojo.getZip());
-    officeAddress.setStreet1(officePojo.getStreet1());
-    officeAddress.setStreet2(officePojo.getStreet2());
+    OfficeAddress officeAddress = officePojo.getOfficeAddress();
     OfficeAddress officeAddressReturned = officeAddressRepository.save(officeAddress);
-    Office office = new Office();
-    office.setName(officePojo.getOfficeName());
+    Office office = officePojo.getOffice();
     office.setOfficeAddress(officeAddressReturned);
     return officeRepository.save(office);
   }
