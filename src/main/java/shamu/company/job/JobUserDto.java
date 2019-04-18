@@ -24,7 +24,7 @@ public class JobUserDto {
 
   private String phoneNumber;
 
-  public JobUserDto(User user,JobUser reporterWithJob){
+  public JobUserDto(User user,JobUser reporterWithJob) {
     this.setFirstName(user.getUserPersonalInformation().getFirstName());
     this.setPhoneNumber(user.getUserContactInformation().getPhoneWork());
     this.setEmail(user.getUserContactInformation().getEmailWork());
