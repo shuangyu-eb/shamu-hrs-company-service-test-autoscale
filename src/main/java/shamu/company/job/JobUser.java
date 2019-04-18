@@ -10,7 +10,7 @@ import shamu.company.common.entity.BaseEntity;
 import shamu.company.company.entity.Company;
 import shamu.company.company.entity.Department;
 import shamu.company.company.entity.Office;
-import shamu.company.employee.EmploymentType;
+import shamu.company.employee.entity.EmploymentType;
 import shamu.company.user.entity.User;
 
 @Entity

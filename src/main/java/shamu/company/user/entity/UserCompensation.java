@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Where;
 import shamu.company.common.entity.BaseEntity;
+import shamu.company.employee.entity.CompensationFrequency;
 
 @Data
 @Entity
@@ -35,6 +36,9 @@ public class UserCompensation extends BaseEntity {
 
   @OneToOne
   private CompensationChangeReason compensationChangeReason;
+
+  @OneToOne
+  private CompensationFrequency compensationFrequency;
 
   private String comment;
 }

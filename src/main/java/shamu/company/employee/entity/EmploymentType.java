@@ -1,4 +1,4 @@
-package shamu.company.employee;
+package shamu.company.employee.entity;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
