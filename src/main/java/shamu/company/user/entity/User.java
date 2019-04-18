@@ -49,8 +49,7 @@ public class User extends BaseEntity {
   @OneToOne
   private UserContactInformation userContactInformation;
 
-  @OneToOne(fetch = FetchType.LAZY)
-  @JsonIgnore
+  @OneToOne
   private UserCompensation userCompensation;
 
   @OneToOne

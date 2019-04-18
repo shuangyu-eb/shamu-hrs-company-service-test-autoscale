@@ -27,10 +27,10 @@ public class UserPersonalInformation extends BaseEntity {
 
   private String ssn;
 
-  @ManyToOne(cascade = CascadeType.PERSIST)
+  @ManyToOne
   private Gender gender;
 
-  @ManyToOne(cascade = CascadeType.PERSIST)
+  @ManyToOne
   private MaritalStatus maritalStatus;
 
   @ManyToOne

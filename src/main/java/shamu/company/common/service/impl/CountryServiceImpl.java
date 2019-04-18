@@ -15,8 +15,8 @@ public class CountryServiceImpl implements CountryService {
   CountryRepository countryRepository;
 
   @Override
-  public Country getCountry(Long name) {
-    Optional<Country> optionalCountry = countryRepository.findById(name);
+  public Country getCountryById(Long id) {
+    Optional<Country> optionalCountry = countryRepository.findById(id);
     return optionalCountry
         .orElseThrow(() -> new ResourceNotFoundException("Country does not exist"));
   }
