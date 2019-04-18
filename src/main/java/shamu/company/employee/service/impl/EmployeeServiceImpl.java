@@ -81,32 +81,29 @@ public class EmployeeServiceImpl implements EmployeeService {
       StringBuilder officeLocation = new StringBuilder();
       String officeName = office.getName();
       if (null != officeName && !"".equals(officeName)) {
-        officeLocation.append(officeName + " ");
+        officeLocation.append(officeName);
       }
-
       OfficeAddress officeAddress = officeAddressRepository.findOfficeAddressByOffice(office);
       if (null != officeAddress) {
         String street1 = officeAddress.getStreet1();
         if (null != street1 && !"".equals(street1)) {
-          officeLocation.append(street1 + " ");
+          officeLocation.append(" " + street1);
         }
-        String street2 = officeAddress.getStreet1();
+        String street2 = officeAddress.getStreet2();
         if (null != street2 && !"".equals(street2)) {
-          officeLocation.append(street2 + " ");
+          officeLocation.append(" " + street2);
         }
-        String city = officeAddress.getStreet1();
+        String city = officeAddress.getCity();
         if (null != city && !"".equals(city)) {
-          officeLocation.append(city + " ");
+          officeLocation.append(" " + city);
         }
-
-        String state = officeAddress.getStreet1();
+        String state = officeAddress.getStateProvince().getName();
         if (null != state && !"".equals(state)) {
-          officeLocation.append(state + " ");
+          officeLocation.append(" " + state);
         }
-
-        String postalCode = officeAddress.getStreet1();
+        String postalCode = officeAddress.getPostalCode();
         if (null != postalCode && !"".equals(postalCode)) {
-          officeLocation.append(postalCode);
+          officeLocation.append(" " + postalCode);
         }
       }
       return new SelectFieldInformationDto(office.getId(), officeLocation.toString());
@@ -124,13 +121,13 @@ public class EmployeeServiceImpl implements EmployeeService {
       String lastName = userInfo.getLastName();
       StringBuilder name = new StringBuilder();
       if (null != firstName && !"".equals(firstName)) {
-        name.append(firstName + " ");
+        name.append(firstName);
       }
       if (null != middleName && !"".equals(middleName)) {
-        name.append(middleName + " ");
+        name.append(" " + middleName);
       }
       if (null != lastName && !"".equals(lastName)) {
-        name.append(lastName + " ");
+        name.append(" " + lastName);
       }
       return new SelectFieldInformationDto(manager.getId(), name.toString());
     }).collect(Collectors.toList());
