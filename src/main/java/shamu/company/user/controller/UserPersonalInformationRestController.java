@@ -20,8 +20,6 @@ public class UserPersonalInformationRestController {
         userPersonalInformationDto.getUserPersonalInformation();
     UserPersonalInformation userPersonalInformationUpdated =
         userPersonalInformationService.update(userPersonalInformation);
-    UserPersonalInformationDto userPersonalInformationDtoUpdated =
-        new UserPersonalInformationDto(userPersonalInformationUpdated);
-    return userPersonalInformationDtoUpdated;
+    return new UserPersonalInformationDto(userPersonalInformationUpdated);
   }
 }

@@ -1,7 +1,6 @@
 package shamu.company.user.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import javax.persistence.Transient;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import shamu.company.common.entity.Country;
@@ -33,27 +32,28 @@ public class UserAddressDto {
 
   private String postalCode;
 
-  public UserAddressDto(UserAddress source) {
-    Country country = source.getCountry();
-    String countryName = country == null ? "" : country.getName();
-    Long countryId = country == null ? null : country.getId();
+  public UserAddressDto(UserAddress userAddress) {
+    Country country = userAddress.getCountry();
+    String countryName = country == null ? null : country.getName();
+    Long countryId = country == null ? 1 : country.getId();
 
-    StateProvince stateProvince = source.getStateProvince();
-    String stateProvinceName = stateProvince == null ? "" : stateProvince.getName();
+    StateProvince stateProvince = userAddress.getStateProvince();
+    String stateProvinceName = stateProvince == null ? null : stateProvince.getName();
     Long stateProvinceId = stateProvince == null ? null : stateProvince.getId();
 
-    Long userId = source.getUser().getId();
+    User user = userAddress.getUser();
+    Long userId = user == null ? null : user.getId();
 
     this.setCountryName(countryName);
     this.setCountryId(countryId);
     this.setStateProvinceId(stateProvinceId);
     this.setStateProvinceName(stateProvinceName);
     this.setUserId(userId);
-    this.setId(source.getId());
-    this.setStreet1(source.getStreet1());
-    this.setStreet2(source.getStreet2());
-    this.setCity(source.getCity());
-    this.setPostalCode(source.getPostalCode());
+    this.setId(userAddress.getId());
+    this.setStreet1(userAddress.getStreet1());
+    this.setStreet2(userAddress.getStreet2());
+    this.setCity(userAddress.getCity());
+    this.setPostalCode(userAddress.getPostalCode());
   }
 
   @JsonIgnore
@@ -65,8 +65,12 @@ public class UserAddressDto {
     userAddress.setStreet1(this.getStreet1());
     userAddress.setStreet2(this.getStreet2());
     userAddress.setUser(new User(this.getUserId()));
-    userAddress.setStateProvince(new StateProvince(this.getStateProvinceId()));
-    userAddress.setCountry(new Country(this.getCountryId()));
+
+    if (this.getStateProvinceId() != null)
+      userAddress.setStateProvince(new StateProvince(this.getStateProvinceId()));
+
+    if (this.getCountryId() != null) userAddress.setCountry(new Country(this.getCountryId()));
+
     return userAddress;
   }
 }

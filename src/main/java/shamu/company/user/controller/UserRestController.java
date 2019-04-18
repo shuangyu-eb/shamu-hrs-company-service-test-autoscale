@@ -16,11 +16,9 @@ import shamu.company.user.service.UserService;
 @RestApiController
 public class UserRestController {
 
-  @Autowired
-  UserService userService;
+  @Autowired UserService userService;
 
-  @Autowired
-  CompanyService companyService;
+  @Autowired CompanyService companyService;
 
   @PostMapping(value = "user/sign-up/email")
   public HttpEntity sendVerifyEmail(@RequestBody String email) {
@@ -51,7 +49,6 @@ public class UserRestController {
 
   @GetMapping("users/{userId}/personal-information")
   public PersonalInformationDto getPersonalInformation(@PathVariable Long userId) {
-    PersonalInformationDto personalInformationDtO = userService.getPersonalInformation(userId);
-    return personalInformationDtO;
+    return userService.getPersonalInformation(userId);
   }
 }

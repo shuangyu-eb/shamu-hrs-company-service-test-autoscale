@@ -42,7 +42,7 @@ public class UserPersonalInformationDto {
 
     MaritalStatus maritalStatus = userPersonalInformation.getMaritalStatus();
     Long maritalStatusId = maritalStatus == null ? null : maritalStatus.getId();
-    String maritalStatusName = maritalStatus == null ? null : maritalStatus.getName();
+    String maritalStatusName = maritalStatus == null ? "" : maritalStatus.getName();
 
     this.setGenderId(genderId);
     this.setGenderName(genderName);
@@ -55,9 +55,15 @@ public class UserPersonalInformationDto {
   @JsonIgnore
   public UserPersonalInformation getUserPersonalInformation() {
     UserPersonalInformation userPersonalInformation = new UserPersonalInformation();
+
     BeanUtils.copyProperties(this, userPersonalInformation);
-    userPersonalInformation.setGender(new Gender(this.getGenderId()));
-    userPersonalInformation.setMaritalStatus(new MaritalStatus(this.getMaritalStatusId()));
+
+    if (this.getGenderId()!=null)
+      userPersonalInformation.setGender(new Gender(this.getGenderId()));
+
+    if (this.getMaritalStatusId()!=null)
+      userPersonalInformation.setMaritalStatus(new MaritalStatus(this.getMaritalStatusId()));
+
     return userPersonalInformation;
   }
 }

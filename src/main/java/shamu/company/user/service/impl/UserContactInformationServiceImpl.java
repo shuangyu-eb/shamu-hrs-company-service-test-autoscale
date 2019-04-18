@@ -14,7 +14,6 @@ public class UserContactInformationServiceImpl implements UserContactInformation
 
   @Override
   public UserContactInformation update(UserContactInformation userContactInformation) {
-    UserContactInformation userContactInformationUpdated = repository.save(userContactInformation);
-    return userContactInformationUpdated;
+    return repository.save(userContactInformation);
   }
 }

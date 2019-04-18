@@ -26,9 +26,6 @@ public class UserAddressServiceImpl implements UserAddressService {
 
   @Override
   public UserAddress updateUserAddress(UserAddress userAddress) {
-
-    UserAddress userAddressUpdated = userAddressRepository.save(userAddress);
-
-    return userAddressUpdated;
+    return userAddressRepository.save(userAddress);
   }
 }

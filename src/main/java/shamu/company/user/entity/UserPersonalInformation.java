@@ -1,6 +1,7 @@
 package shamu.company.user.entity;
 
 import java.sql.Timestamp;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import lombok.Data;
@@ -26,10 +27,10 @@ public class UserPersonalInformation extends BaseEntity {
 
   private String ssn;
 
-  @ManyToOne
+  @ManyToOne(cascade = CascadeType.PERSIST)
   private Gender gender;
 
-  @ManyToOne
+  @ManyToOne(cascade = CascadeType.PERSIST)
   private MaritalStatus maritalStatus;
 
   @ManyToOne

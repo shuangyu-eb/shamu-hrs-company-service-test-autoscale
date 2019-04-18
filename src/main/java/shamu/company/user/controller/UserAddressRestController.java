@@ -5,7 +5,6 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.user.dto.UserAddressDto;
-import shamu.company.user.dto.UserPersonalInformationDto;
 import shamu.company.user.entity.UserAddress;
 import shamu.company.user.service.UserAddressService;
 
@@ -19,7 +18,6 @@ public class UserAddressRestController {
   public UserAddressDto updateUserAddress(@RequestBody UserAddressDto userAddressDto) {
     UserAddress userAddress = userAddressDto.getUserAddress();
     UserAddress userAddressUpdated = userAddressService.updateUserAddress(userAddress);
-    UserAddressDto userAddressDtoUpdated = new UserAddressDto(userAddressUpdated);
-    return userAddressDtoUpdated;
+    return new UserAddressDto(userAddressUpdated);
   }
 }

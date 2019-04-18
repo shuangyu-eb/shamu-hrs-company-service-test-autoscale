@@ -1,6 +1,5 @@
 package shamu.company.user.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import shamu.company.user.entity.UserAddress;
@@ -29,6 +28,7 @@ public class PersonalInformationDto {
     UserContactInformationDto userContactInformationDto =
         new UserContactInformationDto(userContactInformation);
     UserAddressDto userAddressDto = new UserAddressDto(userAddress);
+    userAddressDto.setUserId(userId);
 
     this.setUserAddressDto(userAddressDto);
     this.setUserContactInformationDto(userContactInformationDto);

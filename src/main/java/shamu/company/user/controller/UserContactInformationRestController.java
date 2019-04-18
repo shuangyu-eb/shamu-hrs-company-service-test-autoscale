@@ -15,11 +15,10 @@ public class UserContactInformationRestController {
 
   @PatchMapping("user-contact-information")
   public UserContactInformationDto update(
-      @RequestBody UserContactInformation userContactInformation) {
+      @RequestBody UserContactInformationDto userContactInformationDto) {
+    UserContactInformation userContactInformation = userContactInformationDto.getUserContactInformation();
     UserContactInformation userContactInformationUpdated =
         contactInformationService.update(userContactInformation);
-    UserContactInformationDto userContactInformationDto =
-        new UserContactInformationDto(userContactInformationUpdated);
-    return userContactInformationDto;
+    return new UserContactInformationDto(userContactInformationUpdated);
   }
 }

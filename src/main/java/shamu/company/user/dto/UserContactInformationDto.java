@@ -1,5 +1,6 @@
 package shamu.company.user.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.BeanUtils;
@@ -21,6 +22,13 @@ public class UserContactInformationDto {
 
   public UserContactInformationDto(UserContactInformation userContactInformation) {
     BeanUtils.copyProperties(userContactInformation, this);
+  }
+
+  @JsonIgnore
+  public UserContactInformation getUserContactInformation(){
+    UserContactInformation userContactInformation = new UserContactInformation();
+    BeanUtils.copyProperties(this,userContactInformation);
+    return userContactInformation;
   }
 
 }

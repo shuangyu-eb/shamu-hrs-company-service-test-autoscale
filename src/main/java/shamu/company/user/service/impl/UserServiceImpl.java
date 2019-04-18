@@ -99,17 +99,15 @@ public class UserServiceImpl implements UserService {
         userAddressRepository
             .findUserAddressByUserId(userId)
             .orElse(new UserAddress());
-    PersonalInformationDto personalInformationDto =
-        new PersonalInformationDto(
-            userId, userPersonalInformation, userContactInformation, userAddress);
-    return personalInformationDto;
+    return new PersonalInformationDto(
+        userId, userPersonalInformation, userContactInformation, userAddress);
   }
 
   private List<JobUserDto> getJobUserDtoList(
       List<User> employees, List<UserAddress> userAddresses, List<JobUser> jobUsers) {
     return employees.stream()
         .map(
-            (employee) -> {
+            employee -> {
               JobUserDto jobUserDto = new JobUserDto();
               jobUserDto.setEmail(employee.getEmailWork());
               jobUserDto.setImageUrl(employee.getImageUrl());
