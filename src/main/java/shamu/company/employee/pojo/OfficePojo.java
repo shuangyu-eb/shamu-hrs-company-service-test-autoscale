@@ -20,7 +20,7 @@ public class OfficePojo {
 
   private String zip;
 
-  public OfficeAddress getOfficeAddress(){
+  public OfficeAddress getOfficeAddress() {
     OfficeAddress officeAddress = new OfficeAddress();
     officeAddress.setCity(getCity());
     if (!"".equals(getState()) && null != getState()) {
@@ -34,7 +34,7 @@ public class OfficePojo {
     return officeAddress;
   }
 
-  public Office getOffice(){
+  public Office getOffice() {
     Office office = new Office();
     office.setName(getOfficeName());
     return office;
