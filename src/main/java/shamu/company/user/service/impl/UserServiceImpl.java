@@ -138,7 +138,7 @@ public class UserServiceImpl implements UserService {
   public JobUserDto findEmployeeInfoByEmployeeId(Long id) {
 
     User employee = userRepository.findById(id)
-        .orElseThrow(() -> new ResouceNotFoundException("User does not exist"));
+        .orElseThrow(() -> new ResourceNotFoundException("User does not exist"));
 
     JobUser jobUser = jobUserRepository.findJobUserByUser(employee);
     JobUserDto jobUserDto = new JobUserDto(employee,jobUser);
@@ -149,7 +149,7 @@ public class UserServiceImpl implements UserService {
   @Override
   public User findEmployeeInfoByUserId(Long uid) {
     return userRepository.findById(uid)
-        .orElseThrow(() -> new ResouceNotFoundException("User does not exist"));
+        .orElseThrow(() -> new ResourceNotFoundException("User does not exist"));
   }
 
   private List<JobUserDto> getJobUserDtoList(
