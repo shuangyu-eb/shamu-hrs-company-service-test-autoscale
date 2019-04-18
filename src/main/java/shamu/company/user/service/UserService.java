@@ -22,4 +22,10 @@ public interface UserService {
   Boolean existsByEmailWork(String email);
 
   PersonalInformationDto getPersonalInformation(Long userId);
+
+  User findEmployeeInfoByUserId(Long id);
+
+  JobUserDto findEmployeeInfoByEmployeeId(Long id);
+
+  List<JobUserDto> findDirectReportsByManagerId(Long id);
 }
