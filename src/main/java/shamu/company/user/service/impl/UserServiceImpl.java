@@ -118,6 +118,39 @@ public class UserServiceImpl implements UserService {
     return personalInformationDto;
   }
 
+  @Override
+  public List<JobUserDto> findDirectReportsByManagerId(Long id) {
+    List<User> directReports = userRepository.findAllByManagerUserId(id);
+
+    List<JobUserDto> reportsInfo = directReports.stream().map((user) -> {
+      JobUser reporterWithJob = jobUserRepository.findJobUserByUser(user);
+      JobUserDto jobUserDto = new JobUserDto(user,reporterWithJob);
+      return  jobUserDto;
+    }).collect(Collectors.toList());
+
+    return reportsInfo;
+  }
+
+
+  @Override
+  public JobUserDto findEmployeeInfoByEmployeeId(Long id) {
+
+    User employee = userRepository.findById(id)
+        .orElseThrow(
+            () -> new ResourceNotFoundException("User does not exist"));
+
+    JobUser jobUser = jobUserRepository.findJobUserByUser(employee);
+    JobUserDto jobUserDto = new JobUserDto(employee,jobUser);
+
+    return jobUserDto;
+  }
+
+  @Override
+  public User findEmployeeInfoByUserId(Long id) {
+    return userRepository.findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("User does not exist"));
+  }
+
   private List<JobUserDto> getJobUserDtoList(
       List<User> employees, List<UserAddress> userAddresses, List<JobUser> jobUsers) {
     return employees.stream()
