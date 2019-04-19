@@ -1,7 +1,6 @@
 package shamu.company.user.entity;
 
-import java.sql.Timestamp;
-import javax.persistence.CascadeType;
+import java.sql.Date;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import lombok.Data;
@@ -23,7 +22,7 @@ public class UserPersonalInformation extends BaseEntity {
 
   private String preferredName;
 
-  private Timestamp birthDate;
+  private Date birthDate;
 
   private String ssn;
 
