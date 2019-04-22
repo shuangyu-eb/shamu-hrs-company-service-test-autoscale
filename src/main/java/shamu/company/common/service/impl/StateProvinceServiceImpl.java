@@ -15,7 +15,7 @@ public class StateProvinceServiceImpl implements StateProvinceService {
   StateProvinceRepository stateProvinceRepository;
 
   @Override
-  public StateProvince getStateProvince(Long id) {
+  public StateProvince getStateProvinceById(Long id) {
     Optional<StateProvince> optionalStateProvince = stateProvinceRepository.findById(id);
     return optionalStateProvince.orElseThrow(
         () -> new ResourceNotFoundException("StateProvince does not exist"));

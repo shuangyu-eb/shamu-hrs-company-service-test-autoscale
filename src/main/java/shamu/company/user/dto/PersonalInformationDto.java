@@ -1,6 +1,5 @@
 package shamu.company.user.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import shamu.company.user.entity.UserAddress;
@@ -8,32 +7,32 @@ import shamu.company.user.entity.UserContactInformation;
 import shamu.company.user.entity.UserPersonalInformation;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
 public class PersonalInformationDto {
 
   private Long userId;
 
-  private UserAddressDto userAddress;
+  private UserAddressDto userAddressDto;
 
-  private UserContactInformationDto userContactInformation;
+  private UserContactInformationDto userContactInformationDto;
 
-  private UserPersonalInformationDto userPersonalInformation;
+  private UserPersonalInformationDto userPersonalInformationDto;
 
   public PersonalInformationDto(
       Long userId,
       UserPersonalInformation userPersonalInformation,
       UserContactInformation userContactInformation,
       UserAddress userAddress) {
-    UserPersonalInformationDto userPersonalInformationDto =
+    UserPersonalInformationDto userPersonalInfoHandled =
         new UserPersonalInformationDto(userPersonalInformation);
-    UserContactInformationDto userContactInformationDto =
+    UserContactInformationDto userContactInfoHandled =
         new UserContactInformationDto(userContactInformation);
-    UserAddressDto userAddressDto = new UserAddressDto(userAddress, userId);
+    UserAddressDto userAddressHandled = new UserAddressDto(userAddress);
+    userAddressHandled.setUserId(userId);
 
-    this.setUserAddress(userAddressDto);
-    this.setUserContactInformation(userContactInformationDto);
-    this.setUserPersonalInformation(userPersonalInformationDto);
+    this.setUserPersonalInformationDto(userPersonalInfoHandled);
+    this.setUserContactInformationDto(userContactInfoHandled);
+    this.setUserAddressDto(userAddressHandled);
     this.setUserId(userId);
   }
 }

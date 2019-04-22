@@ -1,9 +1,8 @@
 package shamu.company.user.dto;
 
-import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.beans.BeanUtils;
 import shamu.company.common.entity.Country;
 import shamu.company.common.entity.StateProvince;
 import shamu.company.user.entity.User;
@@ -11,7 +10,6 @@ import shamu.company.user.entity.UserAddress;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class UserAddressDto {
 
   private Long id;
@@ -26,31 +24,56 @@ public class UserAddressDto {
 
   private String countryName;
 
+  private Long countryId;
+
   private String stateProvinceName;
 
   private Long stateProvinceId;
 
   private String postalCode;
 
-  public UserAddressDto(UserAddress userAddress, Long userId) {
-    String countryName = userAddress.getCountry().getName();
-    Long stateProvinceId = userAddress.getStateProvince().getId();
-    String stateProvinceName = userAddress.getStateProvince().getName();
+  public UserAddressDto(UserAddress userAddress) {
+    Country country = userAddress.getCountry();
+    String countryName = country == null ? null : country.getName();
+    Long countryId = country == null ? 1 : country.getId();
+
+    StateProvince stateProvince = userAddress.getStateProvince();
+    String stateProvinceName = stateProvince == null ? null : stateProvince.getName();
+    Long stateProvinceId = stateProvince == null ? null : stateProvince.getId();
+
+    User user = userAddress.getUser();
+    Long userId = user == null ? null : user.getId();
 
     this.setCountryName(countryName);
+    this.setCountryId(countryId);
     this.setStateProvinceId(stateProvinceId);
     this.setStateProvinceName(stateProvinceName);
     this.setUserId(userId);
-
-    BeanUtils.copyProperties(userAddress, this);
+    this.setId(userAddress.getId());
+    this.setStreet1(userAddress.getStreet1());
+    this.setStreet2(userAddress.getStreet2());
+    this.setCity(userAddress.getCity());
+    this.setPostalCode(userAddress.getPostalCode());
   }
 
-  public UserAddress getUserAddress(Country country) {
+  @JsonIgnore
+  public UserAddress getUserAddress() {
     UserAddress userAddress = new UserAddress();
-    BeanUtils.copyProperties(this,userAddress);
+    userAddress.setId(this.getId());
+    userAddress.setPostalCode(this.getPostalCode());
+    userAddress.setCity(this.getCity());
+    userAddress.setStreet1(this.getStreet1());
+    userAddress.setStreet2(this.getStreet2());
     userAddress.setUser(new User(this.getUserId()));
-    userAddress.setStateProvince(new StateProvince(this.getStateProvinceId()));
-    userAddress.setCountry(country);
+
+    if (this.getStateProvinceId() != null) {
+      userAddress.setStateProvince(new StateProvince(this.getStateProvinceId()));
+    }
+
+    if (this.getCountryId() != null) {
+      userAddress.setCountry(new Country(this.getCountryId()));
+    }
+
     return userAddress;
   }
 }

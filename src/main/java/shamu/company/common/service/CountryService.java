@@ -4,5 +4,5 @@ import shamu.company.common.entity.Country;
 
 public interface CountryService {
 
-  Country getCountry(String name);
+  Country getCountryById(Long id);
 }

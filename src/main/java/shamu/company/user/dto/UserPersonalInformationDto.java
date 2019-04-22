@@ -1,5 +1,6 @@
 package shamu.company.user.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.sql.Timestamp;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -35,10 +36,13 @@ public class UserPersonalInformationDto {
   private String maritalStatusName;
 
   public UserPersonalInformationDto(UserPersonalInformation userPersonalInformation) {
-    Long genderId = userPersonalInformation.getGender().getId();
-    String genderName = userPersonalInformation.getGender().getName();
-    Long maritalStatusId = userPersonalInformation.getMaritalStatus().getId();
-    String maritalStatusName = userPersonalInformation.getMaritalStatus().getName();
+    Gender gender = userPersonalInformation.getGender();
+    String genderName = gender == null ? "" : gender.getName();
+    Long genderId = gender == null ? null : gender.getId();
+
+    MaritalStatus maritalStatus = userPersonalInformation.getMaritalStatus();
+    Long maritalStatusId = maritalStatus == null ? null : maritalStatus.getId();
+    String maritalStatusName = maritalStatus == null ? "" : maritalStatus.getName();
 
     this.setGenderId(genderId);
     this.setGenderName(genderName);
@@ -48,12 +52,24 @@ public class UserPersonalInformationDto {
     BeanUtils.copyProperties(userPersonalInformation, this);
   }
 
+  @JsonIgnore
   public UserPersonalInformation getUserPersonalInformation() {
     UserPersonalInformation userPersonalInformation = new UserPersonalInformation();
+
     BeanUtils.copyProperties(this, userPersonalInformation);
-    userPersonalInformation.setGender(new Gender(this.getGenderId()));
-    userPersonalInformation.setMaritalStatus(
-        new MaritalStatus(this.getMaritalStatusId()));
+
+    if (this.getGenderId() != null) {
+      userPersonalInformation.setGender(new Gender(this.getGenderId()));
+    } else {
+      userPersonalInformation.setGender(null);
+    }
+
+    if (this.getMaritalStatusId() != null) {
+      userPersonalInformation.setMaritalStatus(new MaritalStatus(this.getMaritalStatusId()));
+    } else {
+      userPersonalInformation.setMaritalStatus(null);
+    }
+
     return userPersonalInformation;
   }
 }

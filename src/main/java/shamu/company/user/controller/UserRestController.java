@@ -21,11 +21,9 @@ import shamu.company.utils.AwsUtil.Type;
 @RestApiController
 public class UserRestController {
 
-  @Autowired
-  UserService userService;
+  @Autowired UserService userService;
 
-  @Autowired
-  CompanyService companyService;
+  @Autowired CompanyService companyService;
 
   @Autowired
   AwsUtil awsUtil;
@@ -59,8 +57,7 @@ public class UserRestController {
 
   @GetMapping("users/{userId}/personal-information")
   public PersonalInformationDto getPersonalInformation(@PathVariable Long userId) {
-    PersonalInformationDto personalInformationDtO = userService.getPersonalInformation(userId);
-    return personalInformationDtO;
+    return userService.getPersonalInformation(userId);
   }
 
   @PostMapping("users/{id}/head-portrait")

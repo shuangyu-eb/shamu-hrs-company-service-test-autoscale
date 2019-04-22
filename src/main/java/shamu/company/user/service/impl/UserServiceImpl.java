@@ -28,17 +28,13 @@ import shamu.company.utils.EmailUtil;
 @Service
 public class UserServiceImpl implements UserService {
 
-  @Autowired
-  ITemplateEngine templateEngine;
+  @Autowired ITemplateEngine templateEngine;
 
-  @Autowired
-  UserRepository userRepository;
+  @Autowired UserRepository userRepository;
 
-  @Autowired
-  JobUserRepository jobUserRepository;
+  @Autowired JobUserRepository jobUserRepository;
 
-  @Autowired
-  UserAddressRepository userAddressRepository;
+  @Autowired UserAddressRepository userAddressRepository;
 
   @Value("${application.systemEmailAddress}")
   String systemEmailAddress;
@@ -46,8 +42,7 @@ public class UserServiceImpl implements UserService {
   @Value("${application.frontEndAddress}")
   String frontEndAddress;
 
-  @Autowired
-  EmailUtil emailUtil;
+  @Autowired EmailUtil emailUtil;
 
   @Override
   public User save(User user) {
@@ -111,11 +106,12 @@ public class UserServiceImpl implements UserService {
             .orElseThrow(() -> new ResourceNotFoundException("User does not exist"));
     UserPersonalInformation userPersonalInformation = user.getUserPersonalInformation();
     UserContactInformation userContactInformation = user.getUserContactInformation();
-    UserAddress userAddress = userAddressRepository.findUserAddressByUserId(userId);
-    PersonalInformationDto personalInformationDto =
-        new PersonalInformationDto(
-            userId, userPersonalInformation, userContactInformation, userAddress);
-    return personalInformationDto;
+    UserAddress userAddress =
+        userAddressRepository
+            .findUserAddressByUserId(userId)
+            .orElse(new UserAddress());
+    return new PersonalInformationDto(
+        userId, userPersonalInformation, userContactInformation, userAddress);
   }
 
   @Override
@@ -155,7 +151,7 @@ public class UserServiceImpl implements UserService {
       List<User> employees, List<UserAddress> userAddresses, List<JobUser> jobUsers) {
     return employees.stream()
         .map(
-            (employee) -> {
+            employee -> {
               JobUserDto jobUserDto = new JobUserDto();
               jobUserDto.setEmail(employee.getEmailWork());
               jobUserDto.setImageUrl(employee.getImageUrl());
