@@ -60,11 +60,15 @@ public class UserPersonalInformationDto {
 
     if (this.getGenderId() != null) {
       userPersonalInformation.setGender(new Gender(this.getGenderId()));
-    } else userPersonalInformation.setGender(null);
+    } else {
+      userPersonalInformation.setGender(null);
+    }
 
     if (this.getMaritalStatusId() != null) {
       userPersonalInformation.setMaritalStatus(new MaritalStatus(this.getMaritalStatusId()));
-    } else userPersonalInformation.setMaritalStatus(null);
+    } else {
+      userPersonalInformation.setMaritalStatus(null);
+    }
 
     return userPersonalInformation;
   }
