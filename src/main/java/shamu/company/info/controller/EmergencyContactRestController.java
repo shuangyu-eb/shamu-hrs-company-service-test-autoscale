@@ -12,13 +12,14 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.info.dto.UserEmergencyContactDto;
 import shamu.company.info.entity.UserEmergencyContact;
 import shamu.company.info.service.UserEmergencyContactService;
 
 @RestApiController
-public class EmergencyContactRestController {
+public class EmergencyContactRestController extends BaseRestController {
 
   @Autowired
   UserEmergencyContactService userEmergencyContactService;
@@ -27,10 +28,10 @@ public class EmergencyContactRestController {
   public List<UserEmergencyContactDto> getEmergencyContacts(@PathVariable Long userId) {
     List<UserEmergencyContact> userEmergencyContacts = userEmergencyContactService
         .getUserEmergencyContacts(userId);
-    List<UserEmergencyContactDto> userEmergencyContactDtos = userEmergencyContacts.stream()
-        .map(userEmergencyContact -> new UserEmergencyContactDto(userEmergencyContact))
+
+    return userEmergencyContacts.stream()
+        .map(UserEmergencyContactDto::new)
         .collect(Collectors.toList());
-    return userEmergencyContactDtos;
   }
 
   @PostMapping("users/{userId}/user-emergency-contacts")

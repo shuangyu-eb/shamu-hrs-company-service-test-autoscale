@@ -49,5 +49,4 @@ public class UserCompensation extends BaseEntity {
     this.user = user;
     this.compensationFrequency = compensationFrequency;
   }
-
 }

@@ -55,6 +55,11 @@ public class JobUserServiceImpl implements JobUserService {
   CompanyRepository companyRepository;
 
   @Override
+  public JobUser getJobUserByUserId(Long userId) {
+    return jobUserRepository.findByUserId(userId);
+  }
+
+  @Override
   public JobInformationPojo getJobInfoModal(Long userId) {
     User userParam = userRepository.findById(userId).get();
     JobUser jobUser = jobUserRepository.findJobUserByUser(userParam);

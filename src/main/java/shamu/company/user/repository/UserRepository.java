@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import shamu.company.common.repository.BaseRepository;
 import shamu.company.company.entity.Company;
 import shamu.company.user.entity.User;
+import shamu.company.user.entity.UserContactInformation;
 import shamu.company.user.entity.UserRole;
 
 public interface UserRepository extends BaseRepository<User, Long> {
@@ -13,10 +14,14 @@ public interface UserRepository extends BaseRepository<User, Long> {
 
   User findByVerificationToken(String activationToken);
 
+  User findByUserContactInformation(UserContactInformation contactInformation);
+
   @Query(
-      value = "SELECT * FROM users WHERE manager_user_id IS NOT NULL AND deleted_at IS NULL",
+      value = "select * from users where user_personal_information_id=?1 and deleted_at is null",
       nativeQuery = true)
-  List<User> findAllEmployees();
+  User findByUserPersonalInformationId(Long personalInformationId);
+
+  List<User> findByCompany(Company company);
 
   Boolean existsByEmailWork(String email);
 
@@ -30,4 +35,7 @@ public interface UserRepository extends BaseRepository<User, Long> {
   @Query(value = "SELECT * FROM users WHERE user_role_id = ?1 AND deleted_at IS NULL",
       nativeQuery = true)
   List<User> findByUserRoleId(Long id);
+
+
+  List<User> findByManagerUser(User managerUser);
 }

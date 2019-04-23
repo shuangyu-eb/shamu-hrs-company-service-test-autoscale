@@ -10,13 +10,14 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import java.security.interfaces.RSAPublicKey;
-import java.util.ArrayList;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
+import shamu.company.authorization.PermissionService;
 import shamu.company.common.exception.UnAuthenticatedException;
 import shamu.company.user.entity.User;
 import shamu.company.user.service.UserService;
@@ -32,6 +33,9 @@ public class JwtTokenProvider {
   private String algorithm;
   @Value("${auth0.authDomain}")
   private String authDomain;
+
+  @Autowired
+  PermissionService permissionService;
 
   private boolean isRightAlgorithm(String token) {
     DecodedJWT jwt = JWT.decode(token);
@@ -63,8 +67,8 @@ public class JwtTokenProvider {
     }
     String email = decodedJWT.getClaim("email").asString();
     User user = userService.findUserByEmail(email);
-    return new UsernamePasswordAuthenticationToken(user, null,
-        new ArrayList<SimpleGrantedAuthority>());
-  }
+    List<GrantedAuthority> authorities = permissionService.getPermissionByUser(user);
 
+    return new UsernamePasswordAuthenticationToken(user, null, authorities);
+  }
 }

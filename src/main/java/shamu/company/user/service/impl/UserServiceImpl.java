@@ -12,6 +12,7 @@ import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.Context;
 import shamu.company.common.exception.ForbiddenException;
 import shamu.company.common.exception.ResourceNotFoundException;
+import shamu.company.company.entity.Company;
 import shamu.company.job.JobUserDto;
 import shamu.company.job.entity.JobUser;
 import shamu.company.job.repository.JobUserRepository;
@@ -44,20 +45,23 @@ public class UserServiceImpl implements UserService {
 
   @Autowired EmailUtil emailUtil;
 
-  @Override
-  public User save(User user) {
-    return userRepository.save(user);
-  }
+  private static String errorMessage = "User does not exist!";
 
   @Override
   public User findUserById(Long id) {
     return userRepository.findById(id).orElseThrow(
-        () -> new ResourceNotFoundException("The user with id: " + id + " doesn't exist!"));
+        () -> new ResourceNotFoundException(errorMessage));
   }
 
   @Override
   public User findUserByEmail(String email) {
     return userRepository.findByEmailWork(email);
+  }
+
+
+  @Override
+  public User findUserByUserPersonalInformationId(Long userPersonalInformationId) {
+    return userRepository.findByUserPersonalInformationId(userPersonalInformationId);
   }
 
   @Override
@@ -85,8 +89,8 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public List<JobUserDto> findAllEmployees() {
-    List<User> employees = userRepository.findAllEmployees();
+  public List<JobUserDto> findEmployeesByCompany(Company company) {
+    List<User> employees = userRepository.findByCompany(company);
     List<UserAddress> userAddresses = userAddressRepository.findAllByUserIn(employees);
     List<JobUser> jobUserList = jobUserRepository.findAllByUserIn(employees);
 
@@ -103,7 +107,7 @@ public class UserServiceImpl implements UserService {
     User user =
         userRepository
             .findById(userId)
-            .orElseThrow(() -> new ResourceNotFoundException("User does not exist"));
+            .orElseThrow(() -> new ResourceNotFoundException(errorMessage));
     UserPersonalInformation userPersonalInformation = user.getUserPersonalInformation();
     UserContactInformation userContactInformation = user.getUserContactInformation();
     UserAddress userAddress =
@@ -118,31 +122,26 @@ public class UserServiceImpl implements UserService {
   public List<JobUserDto> findDirectReportsByManagerId(Long id) {
     List<User> directReports = userRepository.findAllByManagerUserId(id);
 
-    List<JobUserDto> reportsInfo = directReports.stream().map((user) -> {
+    return directReports.stream().map((user) -> {
       JobUser reporterWithJob = jobUserRepository.findJobUserByUser(user);
-      JobUserDto jobUserDto = new JobUserDto(user,reporterWithJob);
-      return  jobUserDto;
+      return new JobUserDto(user, reporterWithJob);
     }).collect(Collectors.toList());
-
-    return reportsInfo;
   }
-
 
   @Override
   public JobUserDto findEmployeeInfoByEmployeeId(Long id) {
 
     User employee = userRepository.findById(id)
         .orElseThrow(
-            () -> new ResourceNotFoundException("User does not exist"));
+            () -> new ResourceNotFoundException(errorMessage));
     JobUser jobUser = jobUserRepository.findJobUserByUser(employee);
-    JobUserDto jobUserDto = new JobUserDto(employee,jobUser);
-    return jobUserDto;
+    return new JobUserDto(employee, jobUser);
   }
 
   @Override
   public User findEmployeeInfoByUserId(Long id) {
     return userRepository.findById(id)
-        .orElseThrow(() -> new ResourceNotFoundException("User does not exist"));
+        .orElseThrow(() -> new ResourceNotFoundException(errorMessage));
   }
 
   private List<JobUserDto> getJobUserDtoList(

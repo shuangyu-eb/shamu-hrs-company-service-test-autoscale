@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import java.sql.Timestamp;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -54,6 +53,16 @@ public class User extends BaseEntity {
 
   @OneToOne
   private UserRole userRole;
+
+  public enum Role {
+    ADMIN,
+    MANAGER,
+    NON_MANAGER,
+  }
+
+  public Role getRole() {
+    return Role.valueOf(userRole.getName());
+  }
 
   private String invitationEmailToken;
 

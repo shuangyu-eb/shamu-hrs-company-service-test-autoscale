@@ -11,12 +11,19 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import shamu.company.common.exception.EmailException;
 import shamu.company.common.exception.ForbiddenException;
+import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.common.exception.UnAuthenticatedException;
 import shamu.company.common.exception.response.ErrorMessage;
 import shamu.company.common.exception.response.ErrorType;
 
 @RestControllerAdvice
 public class SpringResponseEntityExceptionHandler {
+
+  @ResponseStatus(HttpStatus.NOT_FOUND)
+  @ExceptionHandler(ResourceNotFoundException.class)
+  public ErrorMessage handleResourceNotFoundException(Exception exception) {
+    return new ErrorMessage(ErrorType.RESOURCE_NOT_FOUND, exception.getMessage());
+  }
 
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   @ExceptionHandler({ConversionFailedException.class, MethodArgumentTypeMismatchException.class,

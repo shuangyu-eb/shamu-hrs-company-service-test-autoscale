@@ -1,22 +1,24 @@
-package shamu.company.common.service.impl;
+package shamu.company.common;
 
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-import shamu.company.common.service.AuthUserService;
+import shamu.company.common.exception.UnAuthenticatedException;
+import shamu.company.company.entity.Company;
 import shamu.company.user.entity.User;
 
-@Service
-public class AuthUserServiceImpl implements AuthUserService {
+public class BaseRestController {
 
-  @Override
   public User getUser() {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
-      return null;
+      throw new UnAuthenticatedException("User not logged in.");
     }
 
     return (User) authentication.getPrincipal();
+  }
+
+  public Company getCompany() {
+    return this.getUser().getCompany();
   }
 }
