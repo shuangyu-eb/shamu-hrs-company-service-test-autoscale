@@ -11,4 +11,6 @@ public interface UserRoleRepository extends BaseRepository<UserRole, Long> {
       value = "SELECT * FROM user_roles WHERE name IN ?1 AND deleted_at IS NULL",
       nativeQuery = true)
   List<UserRole> findAllByName(List<String> nameList);
+
+  UserRole findByName(String name);
 }

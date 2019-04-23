@@ -8,9 +8,10 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.annotations.Where;
 import shamu.company.common.entity.BaseEntity;
-import shamu.company.employee.entity.CompensationFrequency;
+import shamu.company.job.entity.CompensationFrequency;
 
 @Data
 @Entity
@@ -29,6 +30,7 @@ public class UserCompensation extends BaseEntity {
 
   @OneToOne(fetch = FetchType.LAZY)
   @JsonIgnore
+  @ToString.Exclude
   private User user;
 
   @OneToOne
@@ -41,4 +43,11 @@ public class UserCompensation extends BaseEntity {
   private CompensationFrequency compensationFrequency;
 
   private String comment;
+
+  public UserCompensation(Integer wage, User user, CompensationFrequency compensationFrequency) {
+    this.wage = wage;
+    this.user = user;
+    this.compensationFrequency = compensationFrequency;
+  }
+
 }

@@ -32,4 +32,8 @@ public class Company extends BaseEntity {
   private Country country;
 
   private String subdomainName;
+
+  public Company(Long id) {
+    this.setId(id);
+  }
 }

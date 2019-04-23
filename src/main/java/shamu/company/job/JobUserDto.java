@@ -2,6 +2,7 @@ package shamu.company.job;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import shamu.company.job.entity.JobUser;
 import shamu.company.user.entity.User;
 
 @Data
@@ -24,7 +25,7 @@ public class JobUserDto {
 
   private String phoneNumber;
 
-  public JobUserDto(User user,JobUser reporterWithJob) {
+  public JobUserDto(User user, JobUser reporterWithJob) {
     this.setFirstName(user.getUserPersonalInformation().getFirstName());
     this.setPhoneNumber(user.getUserContactInformation().getPhoneWork());
     this.setEmail(user.getUserContactInformation().getEmailWork());

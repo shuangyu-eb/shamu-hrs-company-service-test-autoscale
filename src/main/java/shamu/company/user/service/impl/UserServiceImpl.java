@@ -12,9 +12,9 @@ import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.Context;
 import shamu.company.common.exception.ForbiddenException;
 import shamu.company.common.exception.ResourceNotFoundException;
-import shamu.company.job.JobUser;
 import shamu.company.job.JobUserDto;
-import shamu.company.job.JobUserRepository;
+import shamu.company.job.entity.JobUser;
+import shamu.company.job.repository.JobUserRepository;
 import shamu.company.user.dto.PersonalInformationDto;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserAddress;
@@ -134,10 +134,8 @@ public class UserServiceImpl implements UserService {
     User employee = userRepository.findById(id)
         .orElseThrow(
             () -> new ResourceNotFoundException("User does not exist"));
-
     JobUser jobUser = jobUserRepository.findJobUserByUser(employee);
     JobUserDto jobUserDto = new JobUserDto(employee,jobUser);
-
     return jobUserDto;
   }
 

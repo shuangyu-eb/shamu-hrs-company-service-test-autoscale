@@ -11,6 +11,5 @@ import shamu.company.common.entity.BaseEntity;
 @Table(name = "states")
 @Where(clause = "deleted_at IS NULL")
 public class State extends BaseEntity {
-
   private String name;
 }

@@ -1,4 +1,4 @@
-package shamu.company.job;
+package shamu.company.job.entity;
 
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
