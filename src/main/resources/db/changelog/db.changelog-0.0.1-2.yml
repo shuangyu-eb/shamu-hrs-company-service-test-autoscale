@@ -1,0 +1,700 @@
+databaseChangeLog:
+- changeSet:
+    id: 1555558407186-1
+    author: Qi-Jia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: user_status_id
+        baseTableName: users
+        constraintName: fk_users_user_statuses
+        referencedColumnNames: id
+        referencedTableName: user_statuses
+
+- changeSet:
+    id: 1555558407186-2
+    author: Qi-Jia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: company_id
+        baseTableName: users
+        constraintName: fk_users_companies
+        referencedColumnNames: id
+        referencedTableName: companies
+
+- changeSet:
+    id: 1555558407186-3
+    author: Qi-Jia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: manager_user_id
+        baseTableName: users
+        constraintName: fk_users_users
+        referencedColumnNames: id
+        referencedTableName: users
+
+- changeSet:
+    id: 1555558407186-4
+    author: Qi-Jia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: user_personal_information_id
+        baseTableName: users
+        constraintName: fk_users_user_personal_information
+        referencedColumnNames: id
+        referencedTableName: user_personal_information
+
+- changeSet:
+    id: 1555558407186-5
+    author: Qi-Jia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: user_contact_information_id
+        baseTableName: users
+        constraintName: fk_users_user_contact_information
+        referencedColumnNames: id
+        referencedTableName: user_contact_information
+
+- changeSet:
+    id: 1555558407186-6
+    author: Qi-Jia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: user_compensation_id
+        baseTableName: users
+        constraintName: fk_users_user_compensations
+        referencedColumnNames: id
+        referencedTableName: user_compensations
+
+- changeSet:
+    id: 1555558407186-7
+    author: Qi-Jia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: user_role_id
+        baseTableName: users
+        constraintName: fk_users_user_roles
+        referencedColumnNames: id
+        referencedTableName: user_roles
+
+- changeSet:
+    id: 1555558407186-8
+    author: Qi-Jia
+    changes:
+    - modifyDataType:
+        columnName: gender_id
+        newDataType: BIGINT
+        tableName: user_personal_information
+
+- changeSet:
+    id: 1555558407186-9
+    author: Qi-Jia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: gender_id
+        baseTableName: user_personal_information
+        constraintName: fk_user_personal_information_genders
+        referencedColumnNames: id
+        referencedTableName: genders
+
+- changeSet:
+    id: 1555558407186-10
+    author: Qi-Jia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: marital_status_id
+        baseTableName: user_personal_information
+        constraintName: fk_user_personal_information_marital_status
+        referencedColumnNames: id
+        referencedTableName: marital_status
+
+- changeSet:
+    id: 1555558407186-11
+    author: Qi-Jia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: ethnicity_id
+        baseTableName: user_personal_information
+        constraintName: fk_user_personal_information_ethnicities
+        referencedColumnNames: id
+        referencedTableName: ethnicities
+
+- changeSet:
+    id: 1555558407186-12
+    author: Qi-Jia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: citizenship_status_id
+        baseTableName: user_personal_information
+        constraintName: fk_user_personal_information_citizenship_statuses
+        referencedColumnNames: id
+        referencedTableName: citizenship_statuses
+
+- changeSet:
+    id: 1555558407186-13
+    author: Qi-Jia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: user_employment_status_type_id
+        baseTableName: user_employment_statuses
+        constraintName: fk_user_employment_statuses_user_employment_status_types
+        referencedColumnNames: id
+        referencedTableName: user_employment_status_types
+
+- changeSet:
+    id: 1555558407186-14
+    author: Qi-Jia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: user_id
+        baseTableName: user_emergency_contacts
+        constraintName: fk_user_emergency_contacts_users
+        referencedColumnNames: id
+        referencedTableName: users
+
+- changeSet:
+    id: 1555558407186-15
+    author: Qi-Jia
+    changes:
+    - modifyDataType:
+        columnName: state_id
+        newDataType: BIGINT
+        tableName: user_emergency_contacts
+
+- changeSet:
+    id: 1555558407186-16
+    author: Qi-Jia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: state_id
+        baseTableName: user_emergency_contacts
+        constraintName: fk_user_emergency_contacts_states
+        referencedColumnNames: id
+        referencedTableName: states
+
+- changeSet:
+    id: 1555558407186-17
+    author: Qi-Jia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: user_id
+        baseTableName: user_educations
+        constraintName: fk_user_educations_users
+        referencedColumnNames: id
+        referencedTableName: users
+
+- changeSet:
+    id: 1555558407186-18
+    author: Qi-Jia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: user_id
+        baseTableName: user_compensations
+        constraintName: fk_user_compensations_users
+        referencedColumnNames: id
+        referencedTableName: users
+
+- changeSet:
+    id: 1555558407186-19
+    author: Qi-Jia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: compensation_frequency_id
+        baseTableName: user_compensations
+        constraintName: fk_user_compensations_compensation_frequency
+        referencedColumnNames: id
+        referencedTableName: compensation_frequency
+
+- changeSet:
+    id: 1555558407186-20
+    author: Qi-Jia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: compensation_type_id
+        baseTableName: user_compensations
+        constraintName: fk_user_compensations_compensation_types
+        referencedColumnNames: id
+        referencedTableName: compensation_types
+
+- changeSet:
+    id: 1555558407186-21
+    author: Qi-Jia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: compensation_change_reason_id
+        baseTableName: user_compensations
+        constraintName: fk_user_compensations_compensation_change_reasons
+        referencedColumnNames: id
+        referencedTableName: compensation_change_reasons
+
+- changeSet:
+    id: 1555558407186-22
+    author: Qi-Jia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: user_id
+        baseTableName: user_addresses
+        constraintName: fk_user_addresses_users
+        referencedColumnNames: id
+        referencedTableName: users
+
+- changeSet:
+    id: 1555558407186-23
+    author: Qi-Jia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: state_province_id
+        baseTableName: user_addresses
+        constraintName: fk_user_addresses_state_provinces
+        referencedColumnNames: id
+        referencedTableName: states_provinces
+
+- changeSet:
+    id: 1555558407186-24
+    author: Qi-Jia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: company_id
+        baseTableName: time_off_types
+        constraintName: fk_time_off_types_companies
+        referencedColumnNames: id
+        referencedTableName: companies
+
+- changeSet:
+    id: 1555558407186-25
+    author: Qi-Jia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: requester_user_id
+        baseTableName: time_off_requests
+        constraintName: fk_time_off_requests_requester_users
+        referencedColumnNames: id
+        referencedTableName: users
+
+- changeSet:
+    id: 1555558407186-26
+    author: Qi-Jia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: approver_user_id
+        baseTableName: time_off_requests
+        constraintName: fk_time_off_requests_approver_users
+        referencedColumnNames: id
+        referencedTableName: users
+
+- changeSet:
+    id: 1555558407186-27
+    author: Qi-Jia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: time_off_policy_id
+        baseTableName: time_off_requests
+        constraintName: fk_time_off_requests_time_off_policies
+        referencedColumnNames: id
+        referencedTableName: time_off_policies
+
+- changeSet:
+    id: 1555558407186-28
+    author: Qi-Jia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: time_off_request_id
+        baseTableName: time_off_request_dates
+        constraintName: fk_time_off_requests_dates_time_off_requests
+        referencedColumnNames: id
+        referencedTableName: time_off_requests
+
+- changeSet:
+    id: 1555558407186-29
+    author: Qi-Jia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: time_off_policy_id
+        baseTableName: time_off_policy_accrual_schedules
+        constraintName: fk_time_off_policy_accrual_schedules_time_off_policies
+        referencedColumnNames: id
+        referencedTableName: time_off_policies
+
+- changeSet:
+    id: 1555558407186-30
+    author: Qi-Jia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: next_time_off_policy_accrual_schedule_id
+        baseTableName: time_off_policy_accrual_schedules
+        constraintName: fk_time_off_policy_accrual_schedules_schedules
+        referencedColumnNames: id
+        referencedTableName: time_off_policy_accrual_schedules
+
+- changeSet:
+    id: 1555558407186-31
+    author: Qi-Jia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: time_off_policy_accrual_happenings_id
+        baseTableName: time_off_policy_accrual_options
+        constraintName: fk_time_off_policy_accrual_options_happenings
+        referencedColumnNames: id
+        referencedTableName: time_off_policy_accrual_happenings
+
+- changeSet:
+    id: 1555558407186-32
+    author: Qi-Jia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: time_off_type_id
+        baseTableName: time_off_policies
+        constraintName: fk_time_off_policies_time_off_types
+        referencedColumnNames: id
+        referencedTableName: time_off_types
+
+- changeSet:
+    id: 1555558407186-33
+    author: Qi-Jia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: country_id
+        baseTableName: states_provinces
+        constraintName: fk_states_provinces_countries
+        referencedColumnNames: id
+        referencedTableName: countries
+
+- changeSet:
+    id: 1555558407186-34
+    author: Qi-Jia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: office_address_id
+        baseTableName: offices
+        constraintName: fk_offices_office_addresses
+        referencedColumnNames: id
+        referencedTableName: office_addresses
+
+- changeSet:
+    id: 1555558407186-35
+    author: Qi-Jia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: company_id
+        baseTableName: offices
+        constraintName: fk_offices_companies
+        referencedColumnNames: id
+        referencedTableName: companies
+
+- changeSet:
+    id: 1555558407186-36
+    author: Qi-Jia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: state_province_id
+        baseTableName: office_addresses
+        constraintName: fk_offices_addresses_state_provinces
+        referencedColumnNames: id
+        referencedTableName: states_provinces
+
+- changeSet:
+    id: 1555558407186-37
+    author: Qi-Jia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: office_id
+        baseTableName: office_addresses
+        constraintName: fk_offices_addresses_offices
+        referencedColumnNames: id
+        referencedTableName: offices
+
+- changeSet:
+    id: 1555558407186-38
+    author: Qi-Jia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: country_id
+        baseTableName: office_addresses
+        constraintName: fk_offices_addresses_countries
+        referencedColumnNames: id
+        referencedTableName: countries
+
+- changeSet:
+    id: 1555558407186-39
+    author: Qi-Jia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: user_id
+        baseTableName: jobs_users
+        constraintName: fk_jobs_users_users
+        referencedColumnNames: id
+        referencedTableName: users
+
+- changeSet:
+    id: 1555558407186-40
+    author: Qi-Jia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: job_id
+        baseTableName: jobs_users
+        constraintName: fk_jobs_users_jobs
+        referencedColumnNames: id
+        referencedTableName: jobs
+
+- changeSet:
+    id: 1555558407186-41
+    author: Qi-Jia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: employment_type_id
+        baseTableName: jobs_users
+        constraintName: fk_jobs_users_employment_types
+        referencedColumnNames: id
+        referencedTableName: employment_types
+
+- changeSet:
+    id: 1555558407186-42
+    author: Qi-Jia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: office_id
+        baseTableName: jobs_users
+        constraintName: fk_jobs_users_offices
+        referencedColumnNames: id
+        referencedTableName: offices
+
+- changeSet:
+    id: 1555558407186-43
+    author: Qi-Jia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: department_id
+        baseTableName: jobs_users
+        constraintName: fk_jobs_users_departments
+        referencedColumnNames: id
+        referencedTableName: departments
+
+- changeSet:
+    id: 1555558407186-44
+    author: Qi-Jia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: company_id
+        baseTableName: jobs_users
+        constraintName: fk_jobs_users_companies
+        referencedColumnNames: id
+        referencedTableName: companies
+
+- changeSet:
+    id: 1555558407186-45
+    author: Qi-Jia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: department_id
+        baseTableName: jobs
+        constraintName: fk_jobs_departments
+        referencedColumnNames: id
+        referencedTableName: departments
+
+- changeSet:
+    id: 1555558407186-46
+    author: Qi-Jia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: employee_id
+        baseTableName: employee_benefit_plans
+        constraintName: fk_employee_benefit_plans_employee_users
+        referencedColumnNames: id
+        referencedTableName: users
+
+- changeSet:
+    id: 1555558407186-47
+    author: Qi-Jia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: benefit_plan_id
+        baseTableName: employee_benefit_plans
+        constraintName: fk_employee_benefit_plans_benefit_plans
+        referencedColumnNames: id
+        referencedTableName: benefit_plans
+
+- changeSet:
+    id: 1555558407186-48
+    author: Qi-Jia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: company_id
+        baseTableName: departments
+        constraintName: fk_departments_companies
+        referencedColumnNames: id
+        referencedTableName: companies
+
+- changeSet:
+    id: 1555558407186-49
+    author: Qi-Jia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: company_id
+        baseTableName: compensation_types
+        constraintName: fk_compensation_types_companies
+        referencedColumnNames: id
+        referencedTableName: companies
+
+- changeSet:
+    id: 1555558407186-50
+    author: Qi-Jia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: company_id
+        baseTableName: compensation_frequency
+        constraintName: fk_compensation_frequency_companies
+        referencedColumnNames: id
+        referencedTableName: companies
+
+- changeSet:
+    id: 1555558407186-51
+    author: Qi-Jia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: company_id
+        baseTableName: compensation_change_reasons
+        constraintName: fk_compensation_change_reasons_companies
+        referencedColumnNames: id
+        referencedTableName: companies
+
+- changeSet:
+    id: 1555558407186-52
+    author: Qi-Jia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: company_size_id
+        baseTableName: companies
+        constraintName: fk_companies_company_sizes
+        referencedColumnNames: id
+        referencedTableName: company_sizes
+
+- changeSet:
+    id: 1555558407186-53
+    author: Qi-Jia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: country_id
+        baseTableName: companies
+        constraintName: fk_companies_countries
+        referencedColumnNames: id
+        referencedTableName: countries
+
+- changeSet:
+    id: 1555558407186-54
+    author: Qi-Jia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: benefit_plan_id
+        baseTableName: benefit_plans_users
+        constraintName: fk_benefit_plans_users_benefit_plans
+        referencedColumnNames: id
+        referencedTableName: benefit_plans
+
+- changeSet:
+    id: 1555558407186-55
+    author: Qi-Jia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: user_id
+        baseTableName: benefit_plans_users
+        constraintName: fk_benefit_plans_users_users
+        referencedColumnNames: id
+        referencedTableName: users
+
+- changeSet:
+    id: 1555558407186-56
+    author: Qi-Jia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: benefit_plan_type_id
+        baseTableName: benefit_plans
+        constraintName: fk_benefit_plans_benefit_plan_types
+        referencedColumnNames: id
+        referencedTableName: benefit_plan_types
+
+- changeSet:
+    id: 1555558407186-57
+    author: Qi-Jia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: company_id
+        baseTableName: benefit_plan_types
+        constraintName: fk_benefit_plan_types_companies
+        referencedColumnNames: id
+        referencedTableName: companies
+
+- changeSet:
+    id: 1555558407186-58
+    author: Qi-Jia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: employee_id
+        baseTableName: benefit_plan_dependents
+        constraintName: fk_benefit_plan_dependents_users
+        referencedColumnNames: id
+        referencedTableName: users
+
+- changeSet:
+    id: 1555558407186-59
+    author: Qi-Jia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: dependent_relationship_id
+        baseTableName: benefit_plan_dependents
+        constraintName: fk_benefit_plan_dependents_dependent_relationships
+        referencedColumnNames: id
+        referencedTableName: benefit_plan_dependent_relationships
+
+- changeSet:
+    id: 1555558407186-60
+    author: Qi-Jia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: benefit_plan_id
+        baseTableName: benefit_plan_coverages
+        constraintName: fk_benefit_plan_coverages_benefit_plans
+        referencedColumnNames: id
+        referencedTableName: benefit_plans
+
+- changeSet:
+    id: 1555558407186-61
+    author: Qi-Jia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: company_id
+        baseTableName: employment_types
+        constraintName: fk_employment_types_companies
+        referencedColumnNames: id
+        referencedTableName: companies
+
+- changeSet:
+    id: 1555558407186-62
+    author: Qi-Jia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: user_role_id
+        baseTableName: permission_types_user_roles
+        constraintName: fk_permission_types_user_roles_user_roles
+        referencedColumnNames: id
+        referencedTableName: user_roles
+
+- changeSet:
+    id: 1555558407186-63
+    author: Qi-Jia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: permission_type_id
+        baseTableName: permission_types_user_roles
+        constraintName: fk_permission_types_user_roles_permission_types
+        referencedColumnNames: id
+        referencedTableName: permission_types
+
+- changeSet:
+    id: 1555558407186-64
+    author: Qi-Jia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: permission_type_id
+        baseTableName: permissions
+        constraintName: fk_permissions_permission_types
+        referencedColumnNames: id
+        referencedTableName: permission_types

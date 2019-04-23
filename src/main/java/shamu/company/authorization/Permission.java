@@ -27,9 +27,9 @@ public class Permission extends BaseEntity {
     EDIT_USER(PermissionType.ADMIN_PERMISSION),
     VIEW_USER_TIME_OFF(PermissionType.MANAGER_PERMISSION),
     VIEW_USER_EMERGENCY_CONTACT(PermissionType.MANAGER_PERMISSION),
-    VIEW_USER_CONTACT(PermissionType.EMPLOYEE_PREMISSION),
-    VIEW_USER_PERSONAL(PermissionType.EMPLOYEE_PREMISSION),
-    VIEW_USER_JOB(PermissionType.EMPLOYEE_PREMISSION),
+    VIEW_USER_CONTACT(PermissionType.EMPLOYEE_PERMISSION),
+    VIEW_USER_PERSONAL(PermissionType.EMPLOYEE_PERMISSION),
+    VIEW_USER_JOB(PermissionType.EMPLOYEE_PERMISSION),
     EDIT_SELF(PermissionType.SELF_PERMISSION);
 
     private PermissionType permissionType;
@@ -45,6 +45,6 @@ public class Permission extends BaseEntity {
   private Long permissionTypeId;
 
   public enum PermissionType {
-    ADMIN_PERMISSION, MANAGER_PERMISSION, EMPLOYEE_PREMISSION, SELF_PERMISSION,
+    ADMIN_PERMISSION, MANAGER_PERMISSION, EMPLOYEE_PERMISSION, SELF_PERMISSION,
   }
 }

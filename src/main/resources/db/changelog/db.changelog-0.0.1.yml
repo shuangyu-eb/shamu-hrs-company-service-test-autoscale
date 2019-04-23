@@ -1817,6 +1817,15 @@ databaseChangeLog:
         file: db/changelog/data/permission-types-user-roles.csv
         primaryKey: id
         tableName: permission_types_user_roles
+
+- changeSet:
+    id: 1556018276884-1
+    author: Qi-Jia
+    changes:
+    - renameTable:
+        newTableName: marital_status
+        oldTableName: martial_status
+
 - changeSet:
     id: 1556000826781-1
     author: wenhao-eb
