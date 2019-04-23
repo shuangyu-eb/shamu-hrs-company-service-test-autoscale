@@ -39,9 +39,11 @@ public class EmployeeRelatedInformationDto {
     this.setEmployeeWorkEmail(jobEmployeeDto.getEmail());
     this.setEmployeeWorkPhone(jobEmployeeDto.getPhoneNumber());
     this.setEmployeeJobTitle(jobEmployeeDto.getJobTitle());
-    this.setManagerName(jobManagerDto.getFirstName());
-    this.setManagerImageUrl(jobManagerDto.getImageUrl());
-    this.setManagerJobTitle(jobManagerDto.getJobTitle());
+    if (jobManagerDto != null) {
+      this.setManagerName(jobManagerDto.getFirstName());
+      this.setManagerImageUrl(jobManagerDto.getImageUrl());
+      this.setManagerJobTitle(jobManagerDto.getJobTitle());
+    }
     this.setDirectReporters(directReporters);
   }
 }

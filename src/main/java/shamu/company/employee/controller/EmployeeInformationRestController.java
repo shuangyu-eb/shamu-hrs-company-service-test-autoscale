@@ -40,8 +40,11 @@ public class EmployeeInformationRestController extends BaseRestController {
   public EmployeeRelatedInformationDto getEmployeeInfoByUserId(@PathVariable Long id) {
     User employee = userService.findEmployeeInfoByUserId(id);
 
-    JobUserDto managerjobUserDto = userService
+    JobUserDto managerjobUserDto = null;
+    if (employee.getManagerUser() != null) {
+      managerjobUserDto = userService
         .findEmployeeInfoByEmployeeId(employee.getManagerUser().getId());
+    }
     JobUserDto jobUserDto = userService.findEmployeeInfoByEmployeeId(id);
 
     List<JobUserDto> reports = userService.findDirectReportsByManagerId(id);
