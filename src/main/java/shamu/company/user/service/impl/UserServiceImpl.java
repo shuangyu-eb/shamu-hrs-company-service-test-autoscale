@@ -57,15 +57,15 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public User findUserById(Long id) {
-    return userRepository.findById(id).orElseThrow(
-        () -> new ResourceNotFoundException(errorMessage));
+    return userRepository
+        .findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException(errorMessage));
   }
 
   @Override
   public User findUserByEmail(String email) {
     return userRepository.findByEmailWork(email);
   }
-
 
   @Override
   public User findUserByUserPersonalInformationId(Long userPersonalInformationId) {
@@ -110,9 +110,7 @@ public class UserServiceImpl implements UserService {
     UserPersonalInformation userPersonalInformation = user.getUserPersonalInformation();
     UserContactInformation userContactInformation = user.getUserContactInformation();
     UserAddress userAddress =
-        userAddressRepository
-            .findUserAddressByUserId(userId)
-            .orElse(new UserAddress());
+        userAddressRepository.findUserAddressByUserId(userId).orElse(new UserAddress());
     return new PersonalInformationDto(
         userId, userPersonalInformation, userContactInformation, userAddress);
   }
@@ -121,25 +119,28 @@ public class UserServiceImpl implements UserService {
   public List<JobUserDto> findDirectReportsByManagerId(Long id) {
     List<User> directReports = userRepository.findAllByManagerUserId(id);
 
-    return directReports.stream().map((user) -> {
-      JobUser reporterWithJob = jobUserRepository.findJobUserByUser(user);
-      return new JobUserDto(user, reporterWithJob);
-    }).collect(Collectors.toList());
+    return directReports.stream()
+        .map(
+            (user) -> {
+              JobUser reporterWithJob = jobUserRepository.findJobUserByUser(user);
+              return new JobUserDto(user, reporterWithJob);
+            })
+        .collect(Collectors.toList());
   }
 
   @Override
   public JobUserDto findEmployeeInfoByEmployeeId(Long id) {
 
-    User employee = userRepository.findById(id)
-        .orElseThrow(
-            () -> new ResourceNotFoundException(errorMessage));
+    User employee =
+        userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(errorMessage));
     JobUser jobUser = jobUserRepository.findJobUserByUser(employee);
     return new JobUserDto(employee, jobUser);
   }
 
   @Override
   public User findEmployeeInfoByUserId(Long id) {
-    return userRepository.findById(id)
+    return userRepository
+        .findById(id)
         .orElseThrow(() -> new ResourceNotFoundException(errorMessage));
   }
 
@@ -169,6 +170,56 @@ public class UserServiceImpl implements UserService {
             .collect(Collectors.toList());
     return new PageImpl<JobUserDto>(
         jobUserDtos, jobUserPageItem.getPageable(), jobUserPageItem.getTotalElements());
+  }
+
+  @Override
+  public List<JobUserDto> findEmployeesByCompany(Company company) {
+    List<User> employees = userRepository.findByCompany(company);
+    List<UserAddress> userAddresses = userAddressRepository.findAllByUserIn(employees);
+    List<JobUser> jobUserList = jobUserRepository.findAllByUserIn(employees);
+
+    return getJobUserDtos(employees, userAddresses, jobUserList);
+  }
+
+  private List<JobUserDto> getJobUserDtos(
+      List<User> employees, List<UserAddress> userAddresses, List<JobUser> jobUsers) {
+    return employees.stream()
+        .map(
+            employee -> {
+              JobUserDto jobUserDto = new JobUserDto();
+              jobUserDto.setEmail(employee.getEmailWork());
+              jobUserDto.setImageUrl(employee.getImageUrl());
+              jobUserDto.setId(employee.getId());
+
+              UserPersonalInformation userPersonalInformation =
+                  employee.getUserPersonalInformation();
+              if (userPersonalInformation != null) {
+                jobUserDto.setFirstName(userPersonalInformation.getFirstName());
+                jobUserDto.setLastName(userPersonalInformation.getLastName());
+              }
+
+              userAddresses.forEach(
+                  (userAddress -> {
+                    User userWithAddress = userAddress.getUser();
+                    if (userWithAddress != null
+                        && userWithAddress.getId().equals(employee.getId())
+                        && userAddress.getCity() != null) {
+                      jobUserDto.setCityName(userAddress.getCity());
+                    }
+                  }));
+
+              jobUsers.forEach(
+                  (jobUser -> {
+                    User userWithJob = jobUser.getUser();
+                    if (userWithJob != null
+                        && userWithJob.getId().equals(employee.getId())
+                        && jobUser.getJob() != null) {
+                      jobUserDto.setJobTitle(jobUser.getJob().getTitle());
+                    }
+                  }));
+              return jobUserDto;
+            })
+        .collect(Collectors.toList());
   }
 
   @Override
