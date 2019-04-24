@@ -9,7 +9,7 @@ import shamu.company.common.entity.BaseEntity;
 
 @Data
 @Entity
-@Table(name = "martial_status")
+@Table(name = "marital_status")
 @Where(clause = "deleted_at IS NULL")
 @NoArgsConstructor
 public class MaritalStatus extends BaseEntity {
