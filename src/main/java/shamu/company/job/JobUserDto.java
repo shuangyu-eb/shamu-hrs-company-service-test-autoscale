@@ -11,6 +11,8 @@ public class JobUserDto {
 
   private Long id;
 
+  private Long userId;
+
   private String imageUrl;
 
   private String firstName;
@@ -24,6 +26,8 @@ public class JobUserDto {
   private String cityName;
 
   private String phoneNumber;
+
+  private String department;
 
   public JobUserDto(User user, JobUser reporterWithJob) {
     this.setFirstName(user.getUserPersonalInformation().getFirstName());

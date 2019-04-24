@@ -5,16 +5,24 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.Context;
 import shamu.company.common.exception.ForbiddenException;
 import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.company.entity.Company;
+import shamu.company.employee.dto.EmployeeListSearchCondition;
 import shamu.company.job.JobUserDto;
 import shamu.company.job.entity.JobUser;
+import shamu.company.job.entity.JobUserListItem;
 import shamu.company.job.repository.JobUserRepository;
 import shamu.company.user.dto.PersonalInformationDto;
 import shamu.company.user.entity.User;
@@ -45,7 +53,7 @@ public class UserServiceImpl implements UserService {
 
   @Autowired EmailUtil emailUtil;
 
-  private static String errorMessage = "User does not exist!";
+  private static final String errorMessage = "User does not exist!";
 
   @Override
   public User findUserById(Long id) {
@@ -86,15 +94,6 @@ public class UserServiceImpl implements UserService {
     }
     user.setVerifiedAt(new Timestamp(new Date().getTime()));
     userRepository.save(user);
-  }
-
-  @Override
-  public List<JobUserDto> findEmployeesByCompany(Company company) {
-    List<User> employees = userRepository.findByCompany(company);
-    List<UserAddress> userAddresses = userAddressRepository.findAllByUserIn(employees);
-    List<JobUser> jobUserList = jobUserRepository.findAllByUserIn(employees);
-
-    return getJobUserDtoList(employees, userAddresses, jobUserList);
   }
 
   @Override
@@ -144,45 +143,39 @@ public class UserServiceImpl implements UserService {
         .orElseThrow(() -> new ResourceNotFoundException(errorMessage));
   }
 
-  private List<JobUserDto> getJobUserDtoList(
-      List<User> employees, List<UserAddress> userAddresses, List<JobUser> jobUsers) {
-    return employees.stream()
-        .map(
-            employee -> {
-              JobUserDto jobUserDto = new JobUserDto();
-              jobUserDto.setEmail(employee.getEmailWork());
-              jobUserDto.setImageUrl(employee.getImageUrl());
-              jobUserDto.setId(employee.getId());
+  public PageImpl<JobUserDto> getJobUserDtoList(
+      EmployeeListSearchCondition employeeListSearchCondition, Company company) {
+    String sortDirection = employeeListSearchCondition.getSortDirection().toUpperCase();
 
-              UserPersonalInformation userPersonalInformation =
-                  employee.getUserPersonalInformation();
-              if (userPersonalInformation != null) {
-                jobUserDto.setFirstName(userPersonalInformation.getFirstName());
-                jobUserDto.setLastName(userPersonalInformation.getLastName());
-              }
+    String sortValue = employeeListSearchCondition.getSortField().getSortValue();
+    Pageable paramPageable =
+        PageRequest.of(
+            employeeListSearchCondition.getPage(),
+            employeeListSearchCondition.getSize(),
+            Sort.Direction.valueOf(sortDirection),
+            sortValue);
 
-              userAddresses.forEach(
-                  (userAddress -> {
-                    User userWithAddress = userAddress.getUser();
-                    if (userWithAddress != null
-                        && userWithAddress.getId().equals(employee.getId())
-                        && userAddress.getCity() != null) {
-                      jobUserDto.setCityName(userAddress.getCity());
-                    }
-                  }));
+    Page<JobUserListItem> jobUserPageItem =
+        findAllEmployees(employeeListSearchCondition, company, paramPageable);
+    List<JobUserListItem> jobUsers = jobUserPageItem.getContent();
+    List<JobUserDto> jobUserDtos =
+        jobUsers.stream()
+            .map(
+                (jobUser -> {
+                  JobUserDto jobUserDto = new JobUserDto();
+                  BeanUtils.copyProperties(jobUser, jobUserDto);
+                  return jobUserDto;
+                }))
+            .collect(Collectors.toList());
+    return new PageImpl<JobUserDto>(
+        jobUserDtos, jobUserPageItem.getPageable(), jobUserPageItem.getTotalElements());
+  }
 
-              jobUsers.forEach(
-                  (jobUser -> {
-                    User userWithJob = jobUser.getUser();
-                    if (userWithJob != null
-                        && userWithJob.getId().equals(employee.getId())
-                        && jobUser.getJob() != null) {
-                      jobUserDto.setJobTitle(jobUser.getJob().getTitle());
-                    }
-                  }));
-              return jobUserDto;
-            })
-        .collect(Collectors.toList());
+  @Override
+  public Page<JobUserListItem> findAllEmployees(
+      EmployeeListSearchCondition employeeListSearchCondition, Company company, Pageable pageable) {
+    Long companyId = company.getId();
+    return jobUserRepository.getAllByCondition(employeeListSearchCondition, companyId, pageable);
   }
 
   public String getActivationEmail(String accountVerifyToken) {

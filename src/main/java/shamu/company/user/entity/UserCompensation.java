@@ -33,11 +33,9 @@ public class UserCompensation extends BaseEntity {
   @ToString.Exclude
   private User user;
 
-  @OneToOne
-  private CompensationType compensationType;
+  @OneToOne private CompensationType compensationType;
 
-  @OneToOne
-  private CompensationChangeReason compensationChangeReason;
+  @OneToOne private CompensationChangeReason compensationChangeReason;
 
   @OneToOne
   private CompensationFrequency compensationFrequency;

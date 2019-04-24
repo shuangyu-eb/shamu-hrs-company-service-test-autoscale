@@ -40,17 +40,6 @@ public class AwsUtil {
   @Value("${aws.region}")
   private String region;
 
-
-  public enum Type {
-    TEMP("temp"), IMAGE("image"), DEFAULT("uploads");
-
-    String folder;
-
-    Type(String folder) {
-      this.folder = folder;
-    }
-  }
-
   private AmazonS3 getClient() {
     BasicAWSCredentials awsCreds = new BasicAWSCredentials(awsAccessKeyId, awsSecretAccessKey);
     return AmazonS3ClientBuilder.standard()
@@ -187,6 +176,16 @@ public class AwsUtil {
               + "such as not being able to access the network.");
       log.error(String.format("Error Message: %s", ace.getMessage()));
       throw new AwsUploadException(ace.getMessage());
+    }
+  }
+
+  public enum Type {
+    TEMP("temp"), IMAGE("image"), DEFAULT("uploads");
+
+    String folder;
+
+    Type(String folder) {
+      this.folder = folder;
     }
   }
 }
