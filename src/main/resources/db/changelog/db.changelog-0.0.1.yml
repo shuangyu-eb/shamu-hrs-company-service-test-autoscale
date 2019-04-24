@@ -1689,7 +1689,52 @@ databaseChangeLog:
             name: company_id
             type: BIGINT
         tableName: employment_types
-
+- changeSet:
+    id: 1555895637815-1
+    author: zhaojian
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+        - column:
+            name: user_id
+            type: BIGINT
+            constraints:
+              foreignKeyName: email_user_id
+              references: users(id)
+        - column:
+            name: from
+            type: varchar(255)
+        - column:
+            name: to
+            type: varchar(255)
+        - column:
+            name: subject
+            type: varchar(255)
+        - column:
+            name: content
+            type: TEXT
+        - column:
+            name: send_date
+            type: datetime
+        - column:
+            name: sent_at
+            type: datetime
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
+        tableName: emails
 - changeSet:
     id: 1554370439764-1
     author: Qi-Jia

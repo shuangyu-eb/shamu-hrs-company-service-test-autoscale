@@ -33,6 +33,8 @@ public interface UserService {
 
   List<JobUserDto> findDirectReportsByManagerId(Long id);
 
+  String getWelcomeEmail(String personalInformation);
+
   List<JobUserDto> findEmployeesByCompany(Company company);
 
   PageImpl getJobUserDtoList(EmployeeListSearchCondition employeeListSearchCondition,

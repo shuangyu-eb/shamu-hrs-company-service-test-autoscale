@@ -20,4 +20,8 @@ public class CompensationType extends BaseEntity {
   private Company company;
 
   private String name;
+
+  public CompensationType(Long compensationId) {
+    this.setId(compensationId);
+  }
 }

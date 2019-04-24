@@ -25,12 +25,17 @@ public class EmailUtil {
     sendGrid = new SendGrid(sendGridKey);
   }
 
-  public boolean send(String from, String to, String subject, String content) {
-    Mail mail = build(from, to, subject, content);
-    return send(mail);
+  public void send(shamu.company.email.Email email) {
+    Mail mail = build(email.getFrom(), email.getTo(), email.getSubject(), email.getContent());
+    send(mail);
   }
 
-  private boolean send(Mail mail) {
+  public void send(String from, String to, String subject, String content) {
+    Mail mail = build(from, to, subject, content);
+    send(mail);
+  }
+
+  private void send(Mail mail) {
     try {
       Request request = new Request();
       request.setMethod(Method.POST);
@@ -38,7 +43,11 @@ public class EmailUtil {
       request.setBody(mail.build());
       Response response = sendGrid.api(request);
       int statusCode = response.getStatusCode();
-      return statusCode == HttpStatus.OK.value() || statusCode == HttpStatus.ACCEPTED.value();
+      boolean sendResult =
+          statusCode == HttpStatus.OK.value() || statusCode == HttpStatus.ACCEPTED.value();
+      if (!sendResult) {
+        throw new EmailException("Failed to send email!");
+      }
     } catch (IOException e) {
       throw new EmailException(e.getMessage(), e);
     }
@@ -57,6 +66,4 @@ public class EmailUtil {
     mail.addContent(mailBody);
     return mail;
   }
-
-
 }

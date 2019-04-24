@@ -1,9 +1,15 @@
 package shamu.company.info.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.beans.BeanUtils;
+import shamu.company.common.entity.StateProvince;
 import shamu.company.info.entity.UserEmergencyContact;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserEmergencyContactDto {
 
   private Long id;
@@ -34,7 +40,7 @@ public class UserEmergencyContactDto {
 
   public UserEmergencyContactDto(UserEmergencyContact userEmergencyContact) {
     this.id = userEmergencyContact.getId();
-    this.userId = userEmergencyContact.getUserId();
+    this.userId = userEmergencyContact.getUser().getId();
     this.firstName = userEmergencyContact.getFirstName();
     this.lastName = userEmergencyContact.getLastName();
     this.relationship = userEmergencyContact.getRelationship();
@@ -43,8 +49,16 @@ public class UserEmergencyContactDto {
     this.street1 = userEmergencyContact.getStreet1();
     this.street2 = userEmergencyContact.getStreet2();
     this.city = userEmergencyContact.getCity();
-    this.stateId = userEmergencyContact.getStateId();
+    this.stateId =
+        userEmergencyContact.getState() == null ? null : userEmergencyContact.getState().getId();
     this.postalCode = userEmergencyContact.getPostalCode();
     this.isPrimary = userEmergencyContact.getIsPrimary();
+  }
+
+  public UserEmergencyContact getEmergencyContact() {
+    UserEmergencyContact userEmergencyContact = new UserEmergencyContact();
+    BeanUtils.copyProperties(this, userEmergencyContact);
+    userEmergencyContact.setState(new StateProvince(this.stateId));
+    return userEmergencyContact;
   }
 }

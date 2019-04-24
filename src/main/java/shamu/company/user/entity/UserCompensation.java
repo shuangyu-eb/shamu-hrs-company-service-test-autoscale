@@ -1,6 +1,5 @@
 package shamu.company.user.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.sql.Timestamp;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -29,7 +28,6 @@ public class UserCompensation extends BaseEntity {
   private String overtimeStatus;
 
   @OneToOne(fetch = FetchType.LAZY)
-  @JsonIgnore
   @ToString.Exclude
   private User user;
 

@@ -6,9 +6,6 @@ spring:
     url: jdbc:mysql://shamu-hrs-qa.cenqdgeoqsjh.ap-northeast-1.rds.amazonaws.com/shamu_hrs_qa?zeroDateTimeBehavior=convertToNull
     username: shamu_hrs_qa
     password: shamu_hrs_qa
-    hikari:
-      maximum-pool-size: 4
-      minimum-idle: 2
   thymeleaf:
     cache: false
 

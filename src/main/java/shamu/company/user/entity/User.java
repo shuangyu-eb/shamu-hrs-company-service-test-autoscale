@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import java.sql.Timestamp;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
@@ -42,13 +43,13 @@ public class User extends BaseEntity {
   @JsonIgnore
   private User managerUser;
 
-  @OneToOne
+  @OneToOne(cascade = CascadeType.PERSIST)
   private UserPersonalInformation userPersonalInformation;
 
-  @OneToOne
+  @OneToOne(cascade = CascadeType.PERSIST)
   private UserContactInformation userContactInformation;
 
-  @OneToOne
+  @OneToOne(cascade = CascadeType.PERSIST)
   private UserCompensation userCompensation;
 
   @OneToOne

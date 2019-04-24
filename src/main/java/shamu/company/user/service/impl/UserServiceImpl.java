@@ -4,7 +4,10 @@ import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,6 +23,7 @@ import shamu.company.common.exception.ForbiddenException;
 import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.company.entity.Company;
 import shamu.company.employee.dto.EmployeeListSearchCondition;
+import shamu.company.employee.service.EmployeeService;
 import shamu.company.job.JobUserDto;
 import shamu.company.job.entity.JobUser;
 import shamu.company.job.entity.JobUserListItem;
@@ -53,6 +57,9 @@ public class UserServiceImpl implements UserService {
 
   @Autowired EmailUtil emailUtil;
 
+  @Autowired
+  EmployeeService employeeService;
+
   private static final String errorMessage = "User does not exist!";
 
   @Override
@@ -82,7 +89,10 @@ public class UserServiceImpl implements UserService {
     String accountVerifyToken = UUID.randomUUID().toString();
     String emailContent = getActivationEmail(accountVerifyToken);
     emailUtil.send(systemEmailAddress, email, "Please activate your account!", emailContent);
+
     user.setVerificationToken(accountVerifyToken);
+    String employeeNumber = employeeService.getEmployeeNumber(user.getCompany().getName(), 0);
+    user.setEmployeeNumber(employeeNumber);
     userRepository.save(user);
   }
 
@@ -126,6 +136,26 @@ public class UserServiceImpl implements UserService {
               return new JobUserDto(user, reporterWithJob);
             })
         .collect(Collectors.toList());
+  }
+
+  @Override
+  public String getWelcomeEmail(String welcomeMessage) {
+    Context context = new Context();
+    context.setVariable("frontEndAddress", frontEndAddress);
+
+    if (Strings.isBlank(welcomeMessage)) {
+      welcomeMessage = "";
+    }
+    welcomeMessage = getFilteredWelcomeMessage(welcomeMessage);
+
+    context.setVariable("welcomeMessage", welcomeMessage);
+    return templateEngine.process("employee_invitation_email.html", context);
+  }
+
+  private String getFilteredWelcomeMessage(String welcomeMessage) {
+    Pattern scriptPattern = Pattern.compile("<script(.*)?>.*</script>");
+    Matcher scriptMatcher = scriptPattern.matcher(welcomeMessage);
+    return scriptMatcher.replaceAll("");
   }
 
   @Override
