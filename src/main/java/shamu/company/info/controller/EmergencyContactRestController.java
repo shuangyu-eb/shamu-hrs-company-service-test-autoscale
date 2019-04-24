@@ -37,6 +37,7 @@ public class EmergencyContactRestController extends BaseRestController {
   @PostMapping("users/{userId}/user-emergency-contacts")
   public HttpEntity createEmergencyContacts(@PathVariable Long userId,
       @RequestBody UserEmergencyContact emergencyContact) {
+    emergencyContact.setUserId(userId);
     userEmergencyContactService.createUserEmergencyContact(userId, emergencyContact);
     return new ResponseEntity<>(HttpStatus.OK);
   }
