@@ -27,3 +27,6 @@
 ### deploy
 /config/deploy.env
 /config/application-qa.yml
+
+## local
+/config/application-database.yml

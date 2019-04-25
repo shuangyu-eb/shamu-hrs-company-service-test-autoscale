@@ -259,6 +259,11 @@ public class UserServiceImpl implements UserService {
     return jobUserRepository.getAllByCondition(employeeListSearchCondition, companyId, pageable);
   }
 
+  @Override
+  public User getOne(Long userId) {
+    return userRepository.getOne(userId);
+  }
+
   public String getActivationEmail(String accountVerifyToken) {
     Context context = new Context();
     context.setVariable("frontEndAddress", frontEndAddress);

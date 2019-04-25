@@ -42,4 +42,6 @@ public interface UserService {
 
   Page<JobUserListItem> findAllEmployees(EmployeeListSearchCondition employeeListSearchCondition,
       Company company, Pageable pageable);
+
+  User getOne(Long userId);
 }

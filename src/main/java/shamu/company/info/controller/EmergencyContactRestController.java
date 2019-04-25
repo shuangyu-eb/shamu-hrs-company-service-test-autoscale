@@ -17,12 +17,17 @@ import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.info.dto.UserEmergencyContactDto;
 import shamu.company.info.entity.UserEmergencyContact;
 import shamu.company.info.service.UserEmergencyContactService;
+import shamu.company.user.entity.User;
+import shamu.company.user.service.UserService;
 
 @RestApiController
 public class EmergencyContactRestController extends BaseRestController {
 
   @Autowired
   UserEmergencyContactService userEmergencyContactService;
+
+  @Autowired
+  UserService userService;
 
   @GetMapping("users/{userId}/user-emergency-contacts")
   public List<UserEmergencyContactDto> getEmergencyContacts(@PathVariable Long userId) {
@@ -37,7 +42,8 @@ public class EmergencyContactRestController extends BaseRestController {
   @PostMapping("users/{userId}/user-emergency-contacts")
   public HttpEntity createEmergencyContacts(@PathVariable Long userId,
       @RequestBody UserEmergencyContact emergencyContact) {
-    emergencyContact.setUserId(userId);
+    User user = userService.getOne(userId);
+    emergencyContact.setUser(user);
     userEmergencyContactService.createUserEmergencyContact(userId, emergencyContact);
     return new ResponseEntity<>(HttpStatus.OK);
   }
