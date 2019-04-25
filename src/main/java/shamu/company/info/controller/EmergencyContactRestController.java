@@ -57,6 +57,8 @@ public class EmergencyContactRestController extends BaseRestController {
   @PatchMapping("users/{userId}/user-emergency-contacts")
   public HttpEntity updateEmergencyContact(@PathVariable Long userId,
       @RequestBody UserEmergencyContact userEmergencyContact) {
+    User user = userService.getOne(userId);
+    userEmergencyContact.setUser(user);
     userEmergencyContactService.updateEmergencyContact(userId, userEmergencyContact);
     return new ResponseEntity<>(HttpStatus.OK);
   }
