@@ -2,6 +2,7 @@ package shamu.company.employee.controller;
 
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,9 +28,9 @@ public class EmployeeRestController extends BaseRestController {
   UserService userService;
 
   @GetMapping("employees")
-  public List<JobUserDto> getAllEmployees(EmployeeListSearchCondition employeeListSearchCondition) {
-    //    return userService.getJobUserDtoList(employeeListSearchCondition, getCompany());
-    return userService.findEmployeesByCompany(getCompany());
+  public PageImpl<JobUserDto> getAllEmployees(
+      EmployeeListSearchCondition employeeListSearchCondition) {
+    return userService.getJobUserDtoList(employeeListSearchCondition, getCompany());
   }
 
   @GetMapping("employment-types")

@@ -9,8 +9,6 @@ public class JobUserListItem {
 
   private Long id;
 
-  private Long userId;
-
   private String imageUrl;
 
   private String firstName;
@@ -21,10 +19,9 @@ public class JobUserListItem {
 
   private String jobTitle;
 
-  public JobUserListItem(Long id, Long userId, String imageUrl, String firstName,
+  public JobUserListItem(Long id, String imageUrl, String firstName,
       String lastName, String department, String jobTitle) {
     this.id = id;
-    this.userId = userId;
     this.imageUrl = imageUrl;
     this.firstName = firstName;
     this.lastName = lastName;

@@ -35,8 +35,6 @@ public interface UserService {
 
   String getWelcomeEmail(String personalInformation);
 
-  List<JobUserDto> findEmployeesByCompany(Company company);
-
   PageImpl getJobUserDtoList(EmployeeListSearchCondition employeeListSearchCondition,
       Company company);
 

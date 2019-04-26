@@ -203,60 +203,10 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public List<JobUserDto> findEmployeesByCompany(Company company) {
-    List<User> employees = userRepository.findByCompany(company);
-    List<UserAddress> userAddresses = userAddressRepository.findAllByUserIn(employees);
-    List<JobUser> jobUserList = jobUserRepository.findAllByUserIn(employees);
-
-    return getJobUserDtos(employees, userAddresses, jobUserList);
-  }
-
-  private List<JobUserDto> getJobUserDtos(
-      List<User> employees, List<UserAddress> userAddresses, List<JobUser> jobUsers) {
-    return employees.stream()
-        .map(
-            employee -> {
-              JobUserDto jobUserDto = new JobUserDto();
-              jobUserDto.setEmail(employee.getEmailWork());
-              jobUserDto.setImageUrl(employee.getImageUrl());
-              jobUserDto.setId(employee.getId());
-
-              UserPersonalInformation userPersonalInformation =
-                  employee.getUserPersonalInformation();
-              if (userPersonalInformation != null) {
-                jobUserDto.setFirstName(userPersonalInformation.getFirstName());
-                jobUserDto.setLastName(userPersonalInformation.getLastName());
-              }
-
-              userAddresses.forEach(
-                  (userAddress -> {
-                    User userWithAddress = userAddress.getUser();
-                    if (userWithAddress != null
-                        && userWithAddress.getId().equals(employee.getId())
-                        && userAddress.getCity() != null) {
-                      jobUserDto.setCityName(userAddress.getCity());
-                    }
-                  }));
-
-              jobUsers.forEach(
-                  (jobUser -> {
-                    User userWithJob = jobUser.getUser();
-                    if (userWithJob != null
-                        && userWithJob.getId().equals(employee.getId())
-                        && jobUser.getJob() != null) {
-                      jobUserDto.setJobTitle(jobUser.getJob().getTitle());
-                    }
-                  }));
-              return jobUserDto;
-            })
-        .collect(Collectors.toList());
-  }
-
-  @Override
   public Page<JobUserListItem> findAllEmployees(
       EmployeeListSearchCondition employeeListSearchCondition, Company company, Pageable pageable) {
     Long companyId = company.getId();
-    return jobUserRepository.getAllByCondition(employeeListSearchCondition, companyId, pageable);
+    return userRepository.getAllByCondition(employeeListSearchCondition, companyId, pageable);
   }
 
   @Override
