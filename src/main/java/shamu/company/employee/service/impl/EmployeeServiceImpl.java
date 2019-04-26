@@ -57,10 +57,13 @@ import shamu.company.user.entity.UserAddress;
 import shamu.company.user.entity.UserCompensation;
 import shamu.company.user.entity.UserPersonalInformation;
 import shamu.company.user.entity.UserRole;
+import shamu.company.user.entity.UserStatus;
+import shamu.company.user.entity.UserStatus.Status;
 import shamu.company.user.repository.UserAddressRepository;
 import shamu.company.user.repository.UserCompensationRepository;
 import shamu.company.user.repository.UserRepository;
 import shamu.company.user.repository.UserRoleRepository;
+import shamu.company.user.repository.UserStatusRepository;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.AwsUtil;
 import shamu.company.utils.AwsUtil.Type;
@@ -103,6 +106,9 @@ public class EmployeeServiceImpl implements EmployeeService {
   @Autowired private UserService userService;
 
   @Autowired private UserRoleRepository userRoleRepository;
+
+  @Autowired
+  private UserStatusRepository userStatusRepository;
 
   @Autowired
   private EmailService emailService;
@@ -311,6 +317,10 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     UserRole userRole = userRoleRepository.findByName(User.Role.NON_MANAGER.name());
     employee.setUserRole(userRole);
+
+    UserStatus userStatus = userStatusRepository
+        .findByName(Status.PENDING_VERIFICATION.name());
+    employee.setUserStatus(userStatus);
     return userRepository.save(employee);
   }
 

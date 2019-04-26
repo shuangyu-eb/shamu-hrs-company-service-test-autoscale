@@ -6,7 +6,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
-import shamu.company.common.exception.EmailException;
 import shamu.company.utils.EmailUtil;
 
 @Service
@@ -37,12 +36,7 @@ public class EmailServiceImpl implements EmailService {
 
   public Runnable getEmailTask(Email email) {
     return () -> {
-      try {
-        emailUtil.send(email);
-      } catch (Exception e) {
-        scheduleEmail(email);
-        throw new EmailException("Failed to send email!", e);
-      }
+      emailUtil.send(email);
       email.setSentAt(new Timestamp(new Date().getTime()));
       emailRepository.save(email);
     };
