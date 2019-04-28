@@ -6,9 +6,9 @@ import lombok.Data;
 public class EmployeeListSearchCondition {
 
   public enum SortField {
-    NAME("userPersonalInformation.firstName"),
-    DEPARTMENT("job.department.name"),
-    JOB_TITLE("job.title");
+    NAME("firstName"),
+    DEPARTMENT("department"),
+    JOB_TITLE("jobTitle");
 
     private String sortValue;
 

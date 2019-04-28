@@ -6,8 +6,6 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import java.sql.Timestamp;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -16,7 +14,6 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Where;
 import shamu.company.common.entity.BaseEntity;
 import shamu.company.company.entity.Company;
-import shamu.company.job.entity.Job;
 
 @Data
 @Entity
@@ -41,11 +38,6 @@ public class User extends BaseEntity {
 
   @ManyToOne
   private Company company;
-
-  @ManyToOne
-  @JoinTable(name = "jobs_users", joinColumns = {
-      @JoinColumn(name = "user_id", referencedColumnName = "id")})
-  private Job job;
 
   @ManyToOne
   @JsonIgnore
