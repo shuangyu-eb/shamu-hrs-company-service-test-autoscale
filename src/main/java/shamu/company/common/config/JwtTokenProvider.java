@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
 import shamu.company.authorization.PermissionService;
 import shamu.company.common.exception.UnAuthenticatedException;
 import shamu.company.user.entity.User;
+import shamu.company.user.entity.UserStatus.Status;
 import shamu.company.user.service.UserService;
 
 @Component
@@ -66,7 +67,7 @@ public class JwtTokenProvider {
       return null;
     }
     String email = decodedJWT.getClaim("email").asString();
-    User user = userService.findUserByEmail(email);
+    User user = userService.findUserByEmailAndStatus(email, Status.ACTIVE);
     List<GrantedAuthority> authorities = permissionService.getPermissionByUser(user);
 
     return new UsernamePasswordAuthenticationToken(user, null, authorities);

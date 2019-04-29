@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.FileCopyUtils;
+import org.thymeleaf.context.Context;
 import shamu.company.common.entity.StateProvince;
 import shamu.company.common.exception.AwsUploadException;
 import shamu.company.common.repository.DepartmentRepository;
@@ -433,7 +434,9 @@ public class EmployeeServiceImpl implements EmployeeService {
     String from = currentUser.getEmailWork();
     String to = welcomeEmailDto.getSendTo();
     String content = welcomeEmailDto.getPersonalInformation();
-    content = userService.getWelcomeEmail(content);
+
+    Context emailContext = userService.getWelcomeEmailContext(content);
+    content = userService.getWelcomeEmail(emailContext);
     Timestamp sendDate = welcomeEmailDto.getSendDate();
 
     Email email =

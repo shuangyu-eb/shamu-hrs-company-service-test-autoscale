@@ -10,6 +10,11 @@ import shamu.company.user.entity.UserRole;
 
 public interface UserRepository extends BaseRepository<User, Long>, UserCustomRepository {
 
+  @Query(value = "select * from users u "
+      + "left join user_statuses us on u.user_status_id = us.id "
+      + "where u.deleted_at is null and u.email_work = ?1 and us.name = ?2", nativeQuery = true)
+  User findByEmailWorkAndStatus(String emailWork, String userStatus);
+
   User findByEmailWork(String emailWork);
 
   User findByVerificationToken(String activationToken);

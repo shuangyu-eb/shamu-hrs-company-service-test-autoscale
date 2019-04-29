@@ -9,6 +9,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.thymeleaf.context.Context;
+import shamu.company.authorization.Permission.Name;
+import shamu.company.authorization.annotation.HasAuthority;
 import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.employee.dto.EmployeeDto;
@@ -70,10 +73,14 @@ public class EmployeeRestController extends BaseRestController {
 
   @PostMapping("employees/welcome-email")
   public String getWelcomeEmail(@RequestBody String welcomeEmailPersonalMessage) {
-    return userService.getWelcomeEmail(welcomeEmailPersonalMessage);
+    Context context = userService
+        .getWelcomeEmailContext(welcomeEmailPersonalMessage);
+    context.setVariable("createPasswordAddress", "#");
+    return userService.getWelcomeEmail(context);
   }
 
   @PostMapping("employees")
+  @HasAuthority(permission = Name.CREATE_USER)
   public HttpEntity addEmployee(@RequestBody EmployeeDto employee) {
     employeeService.addEmployee(employee, getUser());
     return new ResponseEntity(HttpStatus.OK);

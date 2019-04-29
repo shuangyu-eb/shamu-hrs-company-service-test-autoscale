@@ -33,6 +33,7 @@ import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserAddress;
 import shamu.company.user.entity.UserContactInformation;
 import shamu.company.user.entity.UserPersonalInformation;
+import shamu.company.user.entity.UserStatus.Status;
 import shamu.company.user.repository.UserAddressRepository;
 import shamu.company.user.repository.UserRepository;
 import shamu.company.user.service.UserService;
@@ -70,8 +71,8 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public User findUserByEmail(String email) {
-    return userRepository.findByEmailWork(email);
+  public User findUserByEmailAndStatus(String email, Status userStatus) {
+    return userRepository.findByEmailWorkAndStatus(email, userStatus.name());
   }
 
   @Override
@@ -139,20 +140,24 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public String getWelcomeEmail(String welcomeMessage) {
-    Context context = new Context();
-    context.setVariable("frontEndAddress", frontEndAddress);
-
-    if (Strings.isBlank(welcomeMessage)) {
-      welcomeMessage = "";
-    }
-    welcomeMessage = getFilteredWelcomeMessage(welcomeMessage);
-
-    context.setVariable("welcomeMessage", welcomeMessage);
+  public String getWelcomeEmail(Context context) {
     return templateEngine.process("employee_invitation_email.html", context);
   }
 
+  @Override
+  public Context getWelcomeEmailContext(String welcomeMessage) {
+    Context context = new Context();
+    context.setVariable("frontEndAddress", frontEndAddress);
+    context.setVariable("createPasswordAddress", frontEndAddress + "account/create-password");
+    welcomeMessage = getFilteredWelcomeMessage(welcomeMessage);
+    context.setVariable("welcomeMessage", welcomeMessage);
+    return context;
+  }
+
   private String getFilteredWelcomeMessage(String welcomeMessage) {
+    if (Strings.isBlank(welcomeMessage)) {
+      welcomeMessage = "";
+    }
     Pattern scriptPattern = Pattern.compile("<script(.*)?>.*</script>");
     Matcher scriptMatcher = scriptPattern.matcher(welcomeMessage);
     return scriptMatcher.replaceAll("");

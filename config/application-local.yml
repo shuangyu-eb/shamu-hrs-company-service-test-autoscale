@@ -6,6 +6,10 @@ logging:
     root: INFO
 
 spring:
+  datasource:
+    hikari:
+      maximum-pool-size: 4
+      minimum-idle: 2
   jpa:
     show-sql: true
     properties:
