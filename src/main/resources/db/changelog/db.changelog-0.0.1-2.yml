@@ -698,3 +698,70 @@ databaseChangeLog:
         constraintName: fk_permissions_permission_types
         referencedColumnNames: id
         referencedTableName: permission_types
+
+- changeSet:
+    id: 1556245790358-1
+    author: rex-eb
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+        - column:
+            name: company_id
+            type: BIGINT
+        - column:
+            name: name
+            type: VARCHAR(255)
+        - column:
+            name: is_custom
+            type: BOOLEAN
+        - column:
+            name: is_select
+            type: BOOLEAN
+        - column:
+            name: holiday_date
+            type: DATE
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
+        tableName: paid_holidays
+
+- changeSet:
+    id: 1556245790358-2
+    author: rex-eb
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+        - column:
+            name: company_id
+            type: BIGINT
+        - column:
+            name: employee_id
+            type: BIGINT
+        - column:
+            name: created_at
+            type: datetime
+        - column:
+            name: updated_at
+            type: datetime
+        - column:
+            name: deleted_at
+            type: datetime
+        tableName: paid_holiday_employees

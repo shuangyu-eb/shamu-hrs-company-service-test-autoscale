@@ -29,8 +29,12 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         .addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class)
         .authorizeRequests()
         .antMatchers("/actuator/**").permitAll()
-        .antMatchers("/company/user/verify", "/company/user/sign-up/email",
-            "/company/user/check/**").permitAll()
+        .antMatchers(
+            "/company/user/verify",
+            "/company/user/sign-up/email",
+            "/company/paid-holidays",
+            "/company/user/check/**"
+        ).permitAll()
         .anyRequest().authenticated();
   }
 }
