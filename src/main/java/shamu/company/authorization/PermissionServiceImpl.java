@@ -3,8 +3,6 @@ package shamu.company.authorization;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
@@ -13,15 +11,20 @@ import shamu.company.user.repository.UserRepository;
 @Service
 public class PermissionServiceImpl implements PermissionService {
 
-  @Autowired
-  PermissionRepository permissionRepository;
+  private final PermissionRepository permissionRepository;
+
+  private final UserRepository userRepository;
 
   @Autowired
-  UserRepository userRepository;
+  public PermissionServiceImpl(PermissionRepository permissionRepository,
+      UserRepository userRepository) {
+    this.permissionRepository = permissionRepository;
+    this.userRepository = userRepository;
+  }
 
   @Override
-  public List<GrantedAuthority> getPermissionByUser(User user) {
-    List<GrantedAuthority> authorities;
+  public List<AuthorityPojo> getPermissionByUser(User user) {
+    List<AuthorityPojo> authorities;
     List<Permission> permissions = permissionRepository
         .findByUserRoleId(user.getUserRole().getId());
 
@@ -30,18 +33,17 @@ public class PermissionServiceImpl implements PermissionService {
           .stream().map(User::getId).collect(Collectors.toList());
 
       authorities = permissions.stream().map(permission -> {
-        String permissionName = permission.getName().toString();
+        AuthorityPojo permissionPojo = new AuthorityPojo(permission);
+
         if (permission.getName().getPermissionType()
             == Permission.PermissionType.MANAGER_PERMISSION) {
-          permissionName = permissionName + ":" + teamMembers.toString();
+          permissionPojo.setIds(teamMembers);
         }
 
-        return new SimpleGrantedAuthority(permissionName);
+        return permissionPojo;
       }).collect(Collectors.toList());
     } else {
-      authorities = permissions.stream()
-          .map(permission -> new SimpleGrantedAuthority(permission.getName().toString()))
-          .collect(Collectors.toList());
+      authorities = permissions.stream().map(AuthorityPojo::new).collect(Collectors.toList());
     }
 
     return authorities;

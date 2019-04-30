@@ -2,11 +2,9 @@ package shamu.company.employee.controller;
 
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import shamu.company.authorization.Permission.Name;
-import shamu.company.authorization.Type;
-import shamu.company.authorization.annotation.HasPermission;
 import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.employee.dto.BasicJobInformationDto;
@@ -29,14 +27,18 @@ import shamu.company.user.service.UserService;
 @RestApiController
 public class EmployeeInformationRestController extends BaseRestController {
 
-  @Autowired
-  UserService userService;
+  private final UserService userService;
+
+  private final JobUserService jobUserService;
 
   @Autowired
-  JobUserService jobUserService;
+  public EmployeeInformationRestController(UserService userService, JobUserService jobUserService) {
+    this.userService = userService;
+    this.jobUserService = jobUserService;
+  }
 
   @GetMapping("/employees/{id}/info")
-  @HasPermission(targetId = "#id", targetType = Type.USER, permission = Name.VIEW_USER_PERSONAL)
+  @PreAuthorize("hasPermission(#id,'USER','VIEW_USER_PERSONAL')")
   public EmployeeRelatedInformationDto getEmployeeInfoByUserId(@PathVariable Long id) {
     User employee = userService.findEmployeeInfoByUserId(id);
 
@@ -53,7 +55,7 @@ public class EmployeeInformationRestController extends BaseRestController {
   }
 
   @GetMapping("users/{id}/personal")
-  @HasPermission(targetId = "#id", targetType = Type.USER, permission = Name.VIEW_USER_PERSONAL)
+  @PreAuthorize("hasPermission(#id,'USER','VIEW_USER_PERSONAL')")
   public BasicUserPersonalInformationDto getPersonalMessage(@PathVariable Long id) {
     User user = this.getUser();
     User targetUser = userService.findUserById(id);
@@ -71,7 +73,7 @@ public class EmployeeInformationRestController extends BaseRestController {
   }
 
   @GetMapping("users/{id}/contact")
-  @HasPermission(targetId = "#id", targetType = Type.USER, permission = Name.VIEW_USER_CONTACT)
+  @PreAuthorize("hasPermission(#id,'USER','VIEW_USER_CONTACT')")
   public BasicUserContactInformationDto getContactMessage(@PathVariable Long id) {
     User user = this.getUser();
     User targetUser = userService.findUserById(id);
@@ -87,7 +89,7 @@ public class EmployeeInformationRestController extends BaseRestController {
   }
 
   @GetMapping("users/{id}/job")
-  @HasPermission(targetId = "#id", targetType = Type.USER, permission = Name.VIEW_USER_JOB)
+  @PreAuthorize("hasPermission(#id,'USER','VIEW_USER_JOB')")
   public BasicJobInformationDto getJobMessage(@PathVariable Long id) {
     User user = this.getUser();
     JobUser target = jobUserService.getJobUserByUserId(id);

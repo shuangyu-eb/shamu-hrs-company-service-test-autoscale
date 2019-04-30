@@ -39,7 +39,7 @@ public interface UserService {
 
   Context getWelcomeEmailContext(String welcomeMessage);
 
-  PageImpl getJobUserDtoList(EmployeeListSearchCondition employeeListSearchCondition,
+  PageImpl<JobUserDto> getJobUserDtoList(EmployeeListSearchCondition employeeListSearchCondition,
       Company company);
 
   Page<JobUserListItem> findAllEmployees(EmployeeListSearchCondition employeeListSearchCondition,

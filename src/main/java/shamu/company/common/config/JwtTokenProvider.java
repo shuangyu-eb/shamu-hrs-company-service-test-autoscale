@@ -15,8 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
+import shamu.company.authorization.AuthorityPojo;
 import shamu.company.authorization.PermissionService;
 import shamu.company.common.exception.UnAuthenticatedException;
 import shamu.company.user.entity.User;
@@ -26,8 +26,6 @@ import shamu.company.user.service.UserService;
 @Component
 public class JwtTokenProvider {
 
-  @Autowired
-  UserService userService;
   @Value("${auth0.jwks}")
   private String jwks;
   @Value("${auth0.algorithm}")
@@ -35,8 +33,14 @@ public class JwtTokenProvider {
   @Value("${auth0.authDomain}")
   private String authDomain;
 
+  private final UserService userService;
+  private final PermissionService permissionService;
+
   @Autowired
-  PermissionService permissionService;
+  public JwtTokenProvider(UserService userService, PermissionService permissionService) {
+    this.userService = userService;
+    this.permissionService = permissionService;
+  }
 
   private boolean isRightAlgorithm(String token) {
     DecodedJWT jwt = JWT.decode(token);
@@ -46,7 +50,7 @@ public class JwtTokenProvider {
   private DecodedJWT verifySignatureAndGetDecodedJWT(String token) {
     DecodedJWT jwt = JWT.decode(token);
     JwkProvider provider = new UrlJwkProvider(jwks);
-    Jwk jwk = null;
+    Jwk jwk;
     try {
       jwk = provider.get(jwt.getKeyId());
       Algorithm algorithm = Algorithm.RSA256((RSAPublicKey) jwk.getPublicKey(), null);
@@ -57,7 +61,7 @@ public class JwtTokenProvider {
     }
   }
 
-  public Authentication authenticate(String token) {
+  Authentication authenticate(String token) {
     if (!this.isRightAlgorithm(token)) {
       return null;
     }
@@ -68,7 +72,7 @@ public class JwtTokenProvider {
     }
     String email = decodedJWT.getClaim("email").asString();
     User user = userService.findUserByEmailAndStatus(email, Status.ACTIVE);
-    List<GrantedAuthority> authorities = permissionService.getPermissionByUser(user);
+    List<AuthorityPojo> authorities = permissionService.getPermissionByUser(user);
 
     return new UsernamePasswordAuthenticationToken(user, null, authorities);
   }

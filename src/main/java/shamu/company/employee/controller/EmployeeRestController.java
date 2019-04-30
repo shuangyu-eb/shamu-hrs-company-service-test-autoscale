@@ -6,12 +6,11 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.thymeleaf.context.Context;
-import shamu.company.authorization.Permission.Name;
-import shamu.company.authorization.annotation.HasAuthority;
 import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.employee.dto.EmployeeDto;
@@ -25,15 +24,20 @@ import shamu.company.user.service.UserService;
 @RestApiController
 public class EmployeeRestController extends BaseRestController {
 
-  @Autowired EmployeeService employeeService;
+  private final EmployeeService employeeService;
+
+  private final UserService userService;
 
   @Autowired
-  UserService userService;
+  public EmployeeRestController(EmployeeService employeeService, UserService userService) {
+    this.employeeService = employeeService;
+    this.userService = userService;
+  }
 
   @GetMapping("employees")
   public PageImpl<JobUserDto> getAllEmployees(
       EmployeeListSearchCondition employeeListSearchCondition) {
-    return userService.getJobUserDtoList(employeeListSearchCondition, getCompany());
+    return userService.getJobUserDtoList(employeeListSearchCondition, this.getCompany());
   }
 
   @GetMapping("employment-types")
@@ -80,7 +84,7 @@ public class EmployeeRestController extends BaseRestController {
   }
 
   @PostMapping("employees")
-  @HasAuthority(permission = Name.CREATE_USER)
+  @PreAuthorize("hasAuthority('CREATE_USER')")
   public HttpEntity addEmployee(@RequestBody EmployeeDto employee) {
     employeeService.addEmployee(employee, getUser());
     return new ResponseEntity(HttpStatus.OK);

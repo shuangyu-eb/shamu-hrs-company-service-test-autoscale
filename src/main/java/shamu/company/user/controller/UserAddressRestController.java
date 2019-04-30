@@ -12,8 +12,12 @@ import shamu.company.user.service.UserAddressService;
 @RestApiController
 public class UserAddressRestController extends BaseRestController {
 
+  private final UserAddressService userAddressService;
+
   @Autowired
-  UserAddressService userAddressService;
+  public UserAddressRestController(UserAddressService userAddressService) {
+    this.userAddressService = userAddressService;
+  }
 
   @PatchMapping("user-addresses")
   public UserAddressDto updateUserAddress(@RequestBody UserAddressDto userAddressDto) {
