@@ -1812,6 +1812,7 @@ databaseChangeLog:
 - changeSet:
     id: 1554370439764-4
     author: Qi-Jia
+    runOnChange: true
     changes:
     - loadUpdateData:
         columns:
@@ -1828,6 +1829,7 @@ databaseChangeLog:
 - changeSet:
     id: 1554370439764-5
     author: Qi-Jia
+    runOnChange: true
     changes:
     - loadUpdateData:
         columns:
@@ -1847,6 +1849,7 @@ databaseChangeLog:
 - changeSet:
     id: 1554370439764-6
     author: Qi-Jia
+    runOnChange: true
     changes:
     - loadUpdateData:
         columns:
@@ -1874,6 +1877,7 @@ databaseChangeLog:
 - changeSet:
     id: 1556000826781-1
     author: wenhao-eb
+    runOnChange: true
     changes:
     - loadUpdateData:
         columns:
@@ -1908,6 +1912,7 @@ databaseChangeLog:
 - changeSet:
     id: 1556008104087-5
     author: Qi-Jia
+    runOnChange: true
     changes:
     - loadUpdateData:
         columns:
@@ -1924,6 +1929,7 @@ databaseChangeLog:
 - changeSet:
     id: 1556008104087-6
     author: Qi-Jia
+    runOnChange: true
     changes:
     - loadUpdateData:
         columns:
@@ -1940,6 +1946,7 @@ databaseChangeLog:
 - changeSet:
     id: 1556008104087-7
     author: Qi-Jia
+    runOnChange: true
     changes:
     - loadUpdateData:
         columns:
@@ -1956,6 +1963,7 @@ databaseChangeLog:
 - changeSet:
     id: 1556008104087-8
     author: Qi-Jia
+    runOnChange: true
     changes:
     - loadUpdateData:
         columns:
@@ -1988,6 +1996,7 @@ databaseChangeLog:
 - changeSet:
     id: 1556008104087-10
     author: Qi-Jia
+    runOnChange: true
     changes:
     - loadUpdateData:
         columns:
