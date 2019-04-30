@@ -8,26 +8,12 @@ import org.springframework.beans.BeanUtils;
 import shamu.company.common.entity.StateProvince;
 import shamu.company.hashids.HashidsFormat;
 import shamu.company.info.entity.UserEmergencyContact;
+import shamu.company.user.entity.User;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserEmergencyContactDto {
-
-  @HashidsFormat
-  private Long id;
-
-  @HashidsFormat
-  private Long userId;
-
-  private String firstName;
-
-  private String lastName;
-
-  private String relationship;
-
-  private String phone;
-
+public class UserEmergencyContactDto extends BasicUserEmergencyContactDto {
   private String email;
 
   private String street1;
@@ -41,7 +27,6 @@ public class UserEmergencyContactDto {
 
   private String postalCode;
 
-  private Boolean isPrimary;
 
   public UserEmergencyContactDto(UserEmergencyContact userEmergencyContact) {
     this.id = userEmergencyContact.getId();
