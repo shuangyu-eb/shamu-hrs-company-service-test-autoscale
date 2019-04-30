@@ -1,8 +1,6 @@
 package shamu.company.user.entity;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.alibaba.fastjson.annotation.JSONField;
 import java.sql.Timestamp;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -19,7 +17,6 @@ import shamu.company.company.entity.Company;
 @Entity
 @Table(name = "users")
 @NoArgsConstructor
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 @Where(clause = "deleted_at IS NULL")
 public class User extends BaseEntity {
 
@@ -40,7 +37,7 @@ public class User extends BaseEntity {
   private Company company;
 
   @ManyToOne
-  @JsonIgnore
+  @JSONField(serialize = false)
   private User managerUser;
 
   @OneToOne(cascade = CascadeType.PERSIST)

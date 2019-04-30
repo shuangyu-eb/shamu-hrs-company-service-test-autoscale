@@ -15,6 +15,7 @@ import shamu.company.employee.dto.JobInformationDto;
 import shamu.company.employee.dto.UserContactInformationDto;
 import shamu.company.employee.dto.UserPersonalInformationDto;
 import shamu.company.employee.dto.UserPersonalInformationForManagerDto;
+import shamu.company.hashids.HashidsFormat;
 import shamu.company.job.JobUserDto;
 import shamu.company.job.entity.JobUser;
 import shamu.company.job.service.JobUserService;
@@ -39,7 +40,8 @@ public class EmployeeInformationRestController extends BaseRestController {
 
   @GetMapping("/employees/{id}/info")
   @PreAuthorize("hasPermission(#id,'USER','VIEW_USER_PERSONAL')")
-  public EmployeeRelatedInformationDto getEmployeeInfoByUserId(@PathVariable Long id) {
+  public EmployeeRelatedInformationDto getEmployeeInfoByUserId(
+      @PathVariable @HashidsFormat Long id) {
     User employee = userService.findEmployeeInfoByUserId(id);
 
     JobUserDto managerjobUserDto = null;
@@ -56,7 +58,7 @@ public class EmployeeInformationRestController extends BaseRestController {
 
   @GetMapping("users/{id}/personal")
   @PreAuthorize("hasPermission(#id,'USER','VIEW_USER_PERSONAL')")
-  public BasicUserPersonalInformationDto getPersonalMessage(@PathVariable Long id) {
+  public BasicUserPersonalInformationDto getPersonalMessage(@PathVariable @HashidsFormat Long id) {
     User user = this.getUser();
     User targetUser = userService.findUserById(id);
     UserPersonalInformation personalInformation = targetUser.getUserPersonalInformation();
@@ -74,7 +76,7 @@ public class EmployeeInformationRestController extends BaseRestController {
 
   @GetMapping("users/{id}/contact")
   @PreAuthorize("hasPermission(#id,'USER','VIEW_USER_CONTACT')")
-  public BasicUserContactInformationDto getContactMessage(@PathVariable Long id) {
+  public BasicUserContactInformationDto getContactMessage(@PathVariable @HashidsFormat Long id) {
     User user = this.getUser();
     User targetUser = userService.findUserById(id);
     UserContactInformation contactInformation = targetUser.getUserContactInformation();
@@ -90,7 +92,7 @@ public class EmployeeInformationRestController extends BaseRestController {
 
   @GetMapping("users/{id}/job")
   @PreAuthorize("hasPermission(#id,'USER','VIEW_USER_JOB')")
-  public BasicJobInformationDto getJobMessage(@PathVariable Long id) {
+  public BasicJobInformationDto getJobMessage(@PathVariable @HashidsFormat Long id) {
     User user = this.getUser();
     JobUser target = jobUserService.getJobUserByUserId(id);
 

@@ -1,10 +1,11 @@
 package shamu.company.user.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import shamu.company.common.entity.Country;
 import shamu.company.common.entity.StateProvince;
+import shamu.company.hashids.HashidsFormat;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserAddress;
 
@@ -12,8 +13,10 @@ import shamu.company.user.entity.UserAddress;
 @NoArgsConstructor
 public class UserAddressDto {
 
+  @HashidsFormat
   private Long id;
 
+  @HashidsFormat
   private Long userId;
 
   private String street1;
@@ -24,10 +27,12 @@ public class UserAddressDto {
 
   private String countryName;
 
+  @HashidsFormat
   private Long countryId;
 
   private String stateProvinceName;
 
+  @HashidsFormat
   private Long stateProvinceId;
 
   private String postalCode;
@@ -56,7 +61,7 @@ public class UserAddressDto {
     this.setPostalCode(userAddress.getPostalCode());
   }
 
-  @JsonIgnore
+  @JSONField(serialize = false)
   public UserAddress getUserAddress() {
     UserAddress userAddress = new UserAddress();
     userAddress.setId(this.getId());

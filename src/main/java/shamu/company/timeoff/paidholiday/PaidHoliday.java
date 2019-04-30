@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import shamu.company.common.entity.BaseEntity;
+import shamu.company.hashids.HashidsFormat;
 
 @Data
 @Entity
@@ -14,6 +15,7 @@ import shamu.company.common.entity.BaseEntity;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PaidHoliday extends BaseEntity {
+  @HashidsFormat
   private Long companyId;
 
   private String name;

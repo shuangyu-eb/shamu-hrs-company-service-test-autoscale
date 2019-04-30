@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
+import shamu.company.hashids.HashidsFormat;
 import shamu.company.info.dto.UserEmergencyContactDto;
 import shamu.company.info.entity.UserEmergencyContact;
 import shamu.company.info.service.UserEmergencyContactService;
@@ -30,7 +31,8 @@ public class EmergencyContactRestController extends BaseRestController {
   UserService userService;
 
   @GetMapping("users/{userId}/user-emergency-contacts")
-  public List<UserEmergencyContactDto> getEmergencyContacts(@PathVariable Long userId) {
+  public List<UserEmergencyContactDto> getEmergencyContacts(
+      @PathVariable @HashidsFormat Long userId) {
     List<UserEmergencyContact> userEmergencyContacts = userEmergencyContactService
         .getUserEmergencyContacts(userId);
 
@@ -40,7 +42,7 @@ public class EmergencyContactRestController extends BaseRestController {
   }
 
   @PostMapping("users/{userId}/user-emergency-contacts")
-  public HttpEntity createEmergencyContacts(@PathVariable Long userId,
+  public HttpEntity createEmergencyContacts(@PathVariable @HashidsFormat Long userId,
       @RequestBody UserEmergencyContact emergencyContact) {
     User user = userService.getOne(userId);
     emergencyContact.setUser(user);
@@ -49,13 +51,14 @@ public class EmergencyContactRestController extends BaseRestController {
   }
 
   @DeleteMapping("users/{userId}/user-emergency-contacts/{id}")
-  public HttpEntity deleteEmergencyContacts(@PathVariable Long userId, @PathVariable Long id) {
+  public HttpEntity deleteEmergencyContacts(@PathVariable @HashidsFormat Long userId,
+      @PathVariable @HashidsFormat Long id) {
     userEmergencyContactService.deleteEmergencyContact(userId, id);
     return new ResponseEntity<>(HttpStatus.OK);
   }
 
   @PatchMapping("users/{userId}/user-emergency-contacts")
-  public HttpEntity updateEmergencyContact(@PathVariable Long userId,
+  public HttpEntity updateEmergencyContact(@PathVariable @HashidsFormat Long userId,
       @RequestBody UserEmergencyContact userEmergencyContact) {
     User user = userService.getOne(userId);
     userEmergencyContact.setUser(user);

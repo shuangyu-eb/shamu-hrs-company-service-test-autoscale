@@ -8,6 +8,7 @@ import javax.persistence.MappedSuperclass;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import shamu.company.hashids.HashidsFormat;
 
 @MappedSuperclass
 @Data
@@ -15,6 +16,7 @@ public class BaseEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @HashidsFormat
   private Long id;
 
   @CreationTimestamp

@@ -14,6 +14,7 @@ import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.company.entity.Department;
 import shamu.company.employee.entity.EmploymentType;
+import shamu.company.hashids.HashidsFormat;
 import shamu.company.job.pojo.JobInformationPojo;
 import shamu.company.job.pojo.OfficeAddressPojo;
 import shamu.company.job.service.JobService;
@@ -30,7 +31,7 @@ public class JobController extends BaseRestController {
   JobService jobService;
 
   @GetMapping(value = {"info/users/{userId}/jobs"})
-  public JobInformationPojo getJobInfo(@PathVariable Long userId) {
+  public JobInformationPojo getJobInfo(@PathVariable @HashidsFormat Long userId) {
     return jobUserService.getJobInfoByUserId(userId);
   }
 
@@ -65,7 +66,7 @@ public class JobController extends BaseRestController {
   }
 
   @GetMapping(value = {"info/users/{userId}/jobusers"})
-  public JobInformationPojo getJobInfoModal(@PathVariable Long userId) {
+  public JobInformationPojo getJobInfoModal(@PathVariable @HashidsFormat Long userId) {
     return jobUserService.getJobInfoModal(userId);
   }
 

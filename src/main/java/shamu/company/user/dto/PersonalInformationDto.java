@@ -2,6 +2,7 @@ package shamu.company.user.dto;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import shamu.company.hashids.HashidsFormat;
 import shamu.company.user.entity.UserAddress;
 import shamu.company.user.entity.UserContactInformation;
 import shamu.company.user.entity.UserPersonalInformation;
@@ -10,6 +11,7 @@ import shamu.company.user.entity.UserPersonalInformation;
 @NoArgsConstructor
 public class PersonalInformationDto {
 
+  @HashidsFormat
   private Long userId;
 
   private UserAddressDto userAddressDto;

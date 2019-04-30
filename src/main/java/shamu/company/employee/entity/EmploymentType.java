@@ -1,6 +1,6 @@
 package shamu.company.employee.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.alibaba.fastjson.annotation.JSONField;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -22,7 +22,7 @@ public class EmploymentType extends BaseEntity {
   private String name;
 
   @ManyToOne
-  @JsonIgnore
+  @JSONField(serialize = false)
   private Company company;
 
   public EmploymentType(Long employmentTypeId) {

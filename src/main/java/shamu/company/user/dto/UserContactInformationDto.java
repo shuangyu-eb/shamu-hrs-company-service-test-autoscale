@@ -1,10 +1,11 @@
 package shamu.company.user.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.alibaba.fastjson.annotation.JSONField;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.BeanUtils;
+import shamu.company.hashids.HashidsFormat;
 import shamu.company.user.entity.UserContactInformation;
 
 @Data
@@ -12,6 +13,7 @@ import shamu.company.user.entity.UserContactInformation;
 @NoArgsConstructor
 public class UserContactInformationDto {
 
+  @HashidsFormat
   private Long id;
 
   private String phoneWork;
@@ -26,7 +28,7 @@ public class UserContactInformationDto {
     BeanUtils.copyProperties(userContactInformation, this);
   }
 
-  @JsonIgnore
+  @JSONField(serialize = false)
   public UserContactInformation getUserContactInformation() {
     UserContactInformation userContactInformation = new UserContactInformation();
     BeanUtils.copyProperties(this, userContactInformation);

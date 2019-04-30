@@ -5,7 +5,6 @@ import org.springframework.data.jpa.repository.Query;
 import shamu.company.common.repository.BaseRepository;
 import shamu.company.company.entity.Company;
 import shamu.company.user.entity.User;
-import shamu.company.user.entity.UserContactInformation;
 import shamu.company.user.entity.UserRole;
 
 public interface UserRepository extends BaseRepository<User, Long>, UserCustomRepository {
@@ -18,8 +17,6 @@ public interface UserRepository extends BaseRepository<User, Long>, UserCustomRe
   User findByEmailWork(String emailWork);
 
   User findByVerificationToken(String activationToken);
-
-  User findByUserContactInformation(UserContactInformation contactInformation);
 
   @Query(
       value = "select * from users where user_personal_information_id=?1 and deleted_at is null",

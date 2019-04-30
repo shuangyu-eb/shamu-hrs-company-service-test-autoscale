@@ -4,6 +4,7 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import shamu.company.hashids.HashidsFormat;
 import shamu.company.job.JobUserDto;
 
 @Data
@@ -11,6 +12,7 @@ import shamu.company.job.JobUserDto;
 @NoArgsConstructor
 public class EmployeeRelatedInformationDto {
 
+  @HashidsFormat
   private Long userId;
 
   private String employeeFirstName;

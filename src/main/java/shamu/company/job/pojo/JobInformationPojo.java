@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import shamu.company.company.entity.Office;
 import shamu.company.company.entity.OfficeAddress;
+import shamu.company.hashids.HashidsFormat;
 import shamu.company.job.entity.Job;
 import shamu.company.job.entity.JobUser;
 import shamu.company.user.entity.User;
@@ -27,10 +28,12 @@ public class JobInformationPojo {
 
   private String managerName;
 
+  @HashidsFormat
   private Long managerId;
 
   private String departmentName;
 
+  @HashidsFormat
   private Long departmentId;
 
   private Integer compensation;
@@ -43,10 +46,13 @@ public class JobInformationPojo {
 
   private OfficeAddress officeAddress;
 
+  @HashidsFormat
   private Long officeAddressId;
 
+  @HashidsFormat
   private Long locationId;
 
+  @HashidsFormat
   private Long companyId;
 
   public JobInformationPojo(User user, Job job, JobUser jobUser) {
@@ -55,7 +61,10 @@ public class JobInformationPojo {
       this.employmentTypeId = jobUser.getEmploymentType().getId();
     }
     this.startDate = jobUser.getStartDate();
-    this.managerId = user.getManagerUser().getId();
+    if (user.getManagerUser() != null) {
+      this.managerId = user.getManagerUser().getId();
+    }
+
     if (jobUser.getDepartment() != null) {
       this.departmentId = jobUser.getDepartment().getId();
     }
@@ -75,49 +84,42 @@ public class JobInformationPojo {
   }
 
   public JobInformationPojo(JobUser jobUser) {
-    String jobTitle = jobUser.getJob().getTitle();
-    this.jobTitle = jobTitle;
-    String employmentTypeName = null;
+
+    this.jobTitle = jobUser.getJob().getTitle();
+
     if (jobUser.getEmploymentType() != null) {
-      employmentTypeName = jobUser.getEmploymentType().getName();
+      this.employmentTypeName = jobUser.getEmploymentType().getName();
     }
-    this.employmentTypeName = employmentTypeName;
 
     User user = jobUser.getUser();
-    UserPersonalInformation information = user.getManagerUser().getUserPersonalInformation();
-    String firstName = information.getFirstName();
-    String middleName = information.getMiddleName();
-    String lastName = information.getLastName();
-    this.managerName = UserNameUtil.getUserName(firstName, middleName, lastName);
+    if (user.getManagerUser() != null) {
+      UserPersonalInformation information = user.getManagerUser().getUserPersonalInformation();
+      String firstName = information.getFirstName();
+      String middleName = information.getMiddleName();
+      String lastName = information.getLastName();
+      this.managerName = UserNameUtil.getUserName(firstName, middleName, lastName);
+    }
 
-    String departmentName = null;
     if (jobUser.getDepartment() != null) {
-      departmentName = jobUser.getDepartment().getName();
+      this.departmentName = jobUser.getDepartment().getName();
     }
-    this.departmentName = departmentName;
 
-    Integer compensation = null;
     if (user.getUserCompensation() != null) {
-      compensation = user.getUserCompensation().getWage();
+      this.compensation = user.getUserCompensation().getWage();
     }
-    this.compensation = compensation;
 
-    String compensationFrequencyName = null;
     if (user.getUserCompensation() != null
         && user.getUserCompensation().getCompensationFrequency() != null) {
-      compensationFrequencyName = user.getUserCompensation().getCompensationFrequency().getName();
+      this.compensationFrequencyName = user.getUserCompensation()
+          .getCompensationFrequency().getName();
     }
-    this.compensationFrequencyName = compensationFrequencyName;
 
-    OfficeAddress officeAddress = null;
-    String officeName = null;
     Office office = jobUser.getOffice();
     if (office != null && office.getOfficeAddress() != null) {
-      officeAddress = office.getOfficeAddress();
-      officeName = office.getName();
+      this.officeAddress = office.getOfficeAddress();
+      this.officeName = office.getName();
     }
-    this.officeAddress = officeAddress;
-    this.officeName = officeName;
+
     this.startDate = jobUser.getStartDate();
     this.endDate = jobUser.getEndDate();
   }

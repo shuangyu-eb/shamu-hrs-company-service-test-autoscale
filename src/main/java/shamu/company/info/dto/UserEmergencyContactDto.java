@@ -1,10 +1,12 @@
 package shamu.company.info.dto;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import shamu.company.common.entity.StateProvince;
+import shamu.company.hashids.HashidsFormat;
 import shamu.company.info.entity.UserEmergencyContact;
 
 @Data
@@ -12,8 +14,10 @@ import shamu.company.info.entity.UserEmergencyContact;
 @AllArgsConstructor
 public class UserEmergencyContactDto {
 
+  @HashidsFormat
   private Long id;
 
+  @HashidsFormat
   private Long userId;
 
   private String firstName;
@@ -32,6 +36,7 @@ public class UserEmergencyContactDto {
 
   private String city;
 
+  @HashidsFormat
   private Long stateId;
 
   private String postalCode;
@@ -55,6 +60,7 @@ public class UserEmergencyContactDto {
     this.isPrimary = userEmergencyContact.getIsPrimary();
   }
 
+  @JSONField(serialize = false)
   public UserEmergencyContact getEmergencyContact() {
     UserEmergencyContact userEmergencyContact = new UserEmergencyContact();
     BeanUtils.copyProperties(this, userEmergencyContact);

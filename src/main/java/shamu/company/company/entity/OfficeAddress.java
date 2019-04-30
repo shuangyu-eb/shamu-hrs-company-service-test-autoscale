@@ -1,6 +1,6 @@
 package shamu.company.company.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.alibaba.fastjson.annotation.JSONField;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -23,7 +23,7 @@ import shamu.company.job.pojo.OfficeAddressPojo;
 public class OfficeAddress extends BaseEntity {
 
   @OneToOne(fetch = FetchType.LAZY)
-  @JsonIgnore
+  @JSONField(serialize = false)
   private Office office;
 
   @Column(name = "street_1")
