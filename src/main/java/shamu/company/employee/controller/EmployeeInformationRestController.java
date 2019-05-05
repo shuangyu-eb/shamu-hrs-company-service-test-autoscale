@@ -8,8 +8,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.employee.dto.BasicJobInformationDto;
-import shamu.company.employee.dto.BasicUserContactInformationDto;
-import shamu.company.employee.dto.BasicUserPersonalInformationDto;
 import shamu.company.employee.dto.EmployeeRelatedInformationDto;
 import shamu.company.employee.dto.JobInformationDto;
 import shamu.company.employee.dto.UserContactInformationDto;
@@ -19,6 +17,8 @@ import shamu.company.hashids.HashidsFormat;
 import shamu.company.job.JobUserDto;
 import shamu.company.job.entity.JobUser;
 import shamu.company.job.service.JobUserService;
+import shamu.company.user.dto.BasicUserContactInformationDto;
+import shamu.company.user.dto.BasicUserPersonalInformationDto;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
 import shamu.company.user.entity.UserContactInformation;
@@ -46,8 +46,8 @@ public class EmployeeInformationRestController extends BaseRestController {
 
     JobUserDto managerjobUserDto = null;
     if (employee.getManagerUser() != null) {
-      managerjobUserDto = userService
-        .findEmployeeInfoByEmployeeId(employee.getManagerUser().getId());
+      managerjobUserDto =
+          userService.findEmployeeInfoByEmployeeId(employee.getManagerUser().getId());
     }
     JobUserDto jobUserDto = userService.findEmployeeInfoByEmployeeId(id);
 
@@ -82,7 +82,8 @@ public class EmployeeInformationRestController extends BaseRestController {
     UserContactInformation contactInformation = targetUser.getUserContactInformation();
 
     // The user's full contact message can only be accessed by admin, the manager and himself.
-    if (user.getId().equals(id) || targetUser.getManagerUser().getId().equals(user.getId())
+    if (user.getId().equals(id)
+        || targetUser.getManagerUser().getId().equals(user.getId())
         || user.getRole() == Role.ADMIN) {
       return new UserContactInformationDto(contactInformation);
     }
@@ -97,7 +98,8 @@ public class EmployeeInformationRestController extends BaseRestController {
     JobUser target = jobUserService.getJobUserByUserId(id);
 
     // The user's full job message can only be accessed by admin, the manager and himself.
-    if (user.getId().equals(id) || target.getUser().getManagerUser().getId().equals(user.getId())
+    if (user.getId().equals(id)
+        || target.getUser().getManagerUser().getId().equals(user.getId())
         || user.getRole() == Role.ADMIN) {
       return new JobInformationDto(target);
     }

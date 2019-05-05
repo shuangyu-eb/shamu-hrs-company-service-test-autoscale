@@ -1,38 +1,27 @@
 package shamu.company.user.dto;
 
 import com.alibaba.fastjson.annotation.JSONField;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.beans.BeanUtils;
-import shamu.company.hashids.HashidsFormat;
 import shamu.company.user.entity.UserContactInformation;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-public class UserContactInformationDto {
-
-  @HashidsFormat
-  private Long id;
-
-  private String phoneWork;
-
-  private String phoneHome;
-
-  private String emailWork;
-
+public class UserContactInformationDto extends BasicUserContactInformationDto {
   private String emailHome;
 
   public UserContactInformationDto(UserContactInformation userContactInformation) {
-    BeanUtils.copyProperties(userContactInformation, this);
+    super(userContactInformation);
+    this.emailHome = userContactInformation.getEmailHome();
   }
 
   @JSONField(serialize = false)
-  public UserContactInformation getUserContactInformation() {
-    UserContactInformation userContactInformation = new UserContactInformation();
-    BeanUtils.copyProperties(this, userContactInformation);
-    return userContactInformation;
+  public UserContactInformation getUserContactInformation(UserContactInformation origin) {
+    origin.setId(this.getId());
+    origin.setPhoneWork(this.getPhoneWork());
+    origin.setPhoneHome(this.getPhoneHome());
+    origin.setEmailWork(this.getEmailWork());
+    origin.setEmailHome(this.getEmailHome());
+    return origin;
   }
-
 }

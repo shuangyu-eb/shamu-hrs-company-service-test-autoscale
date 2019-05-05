@@ -8,6 +8,7 @@ import shamu.company.authorization.Permission.PermissionType;
 import shamu.company.common.exception.ForbiddenException;
 import shamu.company.company.entity.Company;
 import shamu.company.user.entity.User;
+import shamu.company.user.service.UserAddressService;
 import shamu.company.user.service.UserService;
 
 @Component
@@ -15,17 +16,24 @@ public class PermissionUtils {
 
   private final UserService userService;
 
+  private final UserAddressService userAddressService;
+
   @Autowired
-  public PermissionUtils(UserService userService) {
+  public PermissionUtils(UserService userService, UserAddressService userAddressService) {
     this.userService = userService;
+    this.userAddressService = userAddressService;
   }
 
   boolean hasPermission(Authentication auth, Long targetId, Type targetType,
       Permission.Name permission) {
 
     switch (targetType) {
-      case PERSONAL_INFORMATION:
+      case USER_PERSONAL_INFORMATION:
         return this.hasPermissionOfPersonalInformation(auth, targetId, permission);
+      case USER_ADDRESS:
+        return this.hasPermissionOfUserAddress(auth, targetId, permission);
+      case USER_CONTACT_INFORMATION:
+        return this.hasPermissionOfContactInformation(auth, targetId, permission);
       case USER:
       default:
         User targetUser = userService.findUserById(targetId);
@@ -50,6 +58,18 @@ public class PermissionUtils {
       Authentication auth, Long id, Permission.Name permission) {
     User user = userService.findUserByUserPersonalInformationId(id);
 
+    return this.hasPermissionOfUser(auth, user, permission);
+  }
+
+  private boolean hasPermissionOfUserAddress(
+      Authentication auth, Long id, Permission.Name permission) {
+    User user = userAddressService.findUserAddressById(id).getUser();
+    return this.hasPermissionOfUser(auth, user, permission);
+  }
+
+  private boolean hasPermissionOfContactInformation(
+      Authentication auth, Long id, Permission.Name permission) {
+    User user = userService.findUserByUserContactInformationId(id);
     return this.hasPermissionOfUser(auth, user, permission);
   }
 

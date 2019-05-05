@@ -6,8 +6,7 @@ import shamu.company.hashids.HashidsFormat;
 @Data
 public class SelectFieldInformationDto {
 
-  @HashidsFormat
-  private Long id;
+  @HashidsFormat private Long id;
 
   private String name;
 

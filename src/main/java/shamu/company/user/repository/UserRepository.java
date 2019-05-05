@@ -9,9 +9,12 @@ import shamu.company.user.entity.UserRole;
 
 public interface UserRepository extends BaseRepository<User, Long>, UserCustomRepository {
 
-  @Query(value = "select * from users u "
-      + "left join user_statuses us on u.user_status_id = us.id "
-      + "where u.deleted_at is null and u.email_work = ?1 and us.name = ?2", nativeQuery = true)
+  @Query(
+      value =
+          "select * from users u "
+              + "left join user_statuses us on u.user_status_id = us.id "
+              + "where u.deleted_at is null and u.email_work = ?1 and us.name = ?2",
+      nativeQuery = true)
   User findByEmailWorkAndStatus(String emailWork, String userStatus);
 
   User findByEmailWork(String emailWork);
@@ -23,17 +26,24 @@ public interface UserRepository extends BaseRepository<User, Long>, UserCustomRe
       nativeQuery = true)
   User findByUserPersonalInformationId(Long personalInformationId);
 
+  @Query(
+      value = "select * from users where user_contact_information_id=?1 and deleted_at is null",
+      nativeQuery = true)
+  User findByUserContactInformationId(Long contactInformationId);
+
   List<User> findByCompany(Company company);
 
   Boolean existsByEmailWork(String email);
 
   List<User> findByUserRoleAndCompany(UserRole userRole, Company company);
 
-  @Query(value = "SELECT * FROM users "
-      + "WHERE manager_user_id = ?1 AND deleted_at IS NULL", nativeQuery = true)
+  @Query(
+      value = "SELECT * FROM users " + "WHERE manager_user_id = ?1 AND deleted_at IS NULL",
+      nativeQuery = true)
   List<User> findAllByManagerUserId(Long id);
 
-  @Query(value = "SELECT * FROM users WHERE user_role_id = ?1 AND deleted_at IS NULL",
+  @Query(
+      value = "SELECT * FROM users WHERE user_role_id = ?1 AND deleted_at IS NULL",
       nativeQuery = true)
   List<User> findByUserRoleId(Long id);
 

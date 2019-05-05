@@ -6,6 +6,7 @@ import shamu.company.company.entity.Office;
 import shamu.company.employee.entity.EmploymentType;
 import shamu.company.job.entity.Job;
 import shamu.company.job.entity.JobUser;
+import shamu.company.user.dto.BasicUserPersonalInformationDto;
 import shamu.company.user.entity.User;
 
 @Data

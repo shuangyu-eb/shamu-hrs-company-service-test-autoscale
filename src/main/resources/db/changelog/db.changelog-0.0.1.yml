@@ -1845,7 +1845,6 @@ databaseChangeLog:
         file: db/changelog/data/permissions.csv
         primaryKey: id
         tableName: permissions
-
 - changeSet:
     id: 1554370439764-6
     author: Qi-Jia

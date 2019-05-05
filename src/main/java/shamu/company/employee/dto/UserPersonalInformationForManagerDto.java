@@ -1,6 +1,7 @@
 package shamu.company.employee.dto;
 
 import lombok.Data;
+import shamu.company.user.dto.BasicUserPersonalInformationDto;
 import shamu.company.user.entity.CitizenshipStatus;
 import shamu.company.user.entity.Ethnicity;
 import shamu.company.user.entity.Gender;

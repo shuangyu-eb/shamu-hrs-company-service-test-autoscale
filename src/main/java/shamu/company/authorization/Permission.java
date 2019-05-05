@@ -30,6 +30,7 @@ public class Permission extends BaseEntity {
     VIEW_USER_CONTACT(PermissionType.EMPLOYEE_PERMISSION),
     VIEW_USER_PERSONAL(PermissionType.EMPLOYEE_PERMISSION),
     VIEW_USER_JOB(PermissionType.EMPLOYEE_PERMISSION),
+    VIEW_USER_ADDRESS(PermissionType.EMPLOYEE_PERMISSION),
     VIEW_SELF(PermissionType.SELF_PERMISSION),
     EDIT_SELF(PermissionType.SELF_PERMISSION);
 

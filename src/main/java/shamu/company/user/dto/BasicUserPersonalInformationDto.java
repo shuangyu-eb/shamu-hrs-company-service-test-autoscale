@@ -1,11 +1,15 @@
-package shamu.company.employee.dto;
+package shamu.company.user.dto;
 
 import java.sql.Date;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import shamu.company.hashids.HashidsFormat;
 import shamu.company.user.entity.UserPersonalInformation;
 
 @Data
+@NoArgsConstructor
 public class BasicUserPersonalInformationDto {
+  @HashidsFormat private Long id;
 
   private String firstName;
 
@@ -18,6 +22,7 @@ public class BasicUserPersonalInformationDto {
   private Date birthDate;
 
   public BasicUserPersonalInformationDto(UserPersonalInformation personalInformation) {
+    this.id = personalInformation.getId();
     this.firstName = personalInformation.getFirstName();
     this.lastName = personalInformation.getLastName();
     this.middleName = personalInformation.getMiddleName();

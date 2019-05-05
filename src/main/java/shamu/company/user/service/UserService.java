@@ -9,7 +9,6 @@ import shamu.company.company.entity.Company;
 import shamu.company.employee.dto.EmployeeListSearchCondition;
 import shamu.company.job.JobUserDto;
 import shamu.company.job.entity.JobUserListItem;
-import shamu.company.user.dto.PersonalInformationDto;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserStatus.Status;
 
@@ -23,13 +22,13 @@ public interface UserService {
 
   User findUserByUserPersonalInformationId(Long userPersonalInformationId);
 
+  User findUserByUserContactInformationId(Long userContactInformationId);
+
   void sendVerifyEmail(String email);
 
   void finishUserVerification(String activationToken);
 
   Boolean existsByEmailWork(String email);
-
-  PersonalInformationDto getPersonalInformation(Long userId);
 
   User findEmployeeInfoByUserId(Long id);
 
@@ -41,11 +40,13 @@ public interface UserService {
 
   Context getWelcomeEmailContext(String welcomeMessage);
 
-  PageImpl<JobUserDto> getJobUserDtoList(EmployeeListSearchCondition employeeListSearchCondition,
-      Company company);
+  PageImpl<JobUserDto> getJobUserDtoList(
+      EmployeeListSearchCondition employeeListSearchCondition, Company company);
 
-  Page<JobUserListItem> findAllEmployees(EmployeeListSearchCondition employeeListSearchCondition,
-      Company company, Pageable pageable);
+  Page<JobUserListItem> findAllEmployees(
+      EmployeeListSearchCondition employeeListSearchCondition, Company company, Pageable pageable);
 
   User getOne(Long userId);
+
+  void save(User user);
 }

@@ -1,5 +1,5 @@
 package shamu.company.authorization;
 
 public enum Type {
-  USER, PERSONAL_INFORMATION,
+  USER, USER_PERSONAL_INFORMATION, USER_ADDRESS, USER_CONTACT_INFORMATION
 }

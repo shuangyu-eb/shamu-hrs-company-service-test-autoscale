@@ -14,14 +14,15 @@ import shamu.company.common.entity.BaseEntity;
 @Where(clause = "deleted_at IS NULL")
 public class UserRole extends BaseEntity {
 
-  public enum Role {
-    MANAGER, ADMIN, NON_MANAGER;
-  }
-
   private String name;
 
   public UserRole(String name) {
     this.name = name;
   }
 
+  public enum Role {
+    MANAGER,
+    ADMIN,
+    NON_MANAGER;
+  }
 }

@@ -12,8 +12,7 @@ import shamu.company.job.JobUserDto;
 @NoArgsConstructor
 public class EmployeeRelatedInformationDto {
 
-  @HashidsFormat
-  private Long userId;
+  @HashidsFormat private Long userId;
 
   private String employeeFirstName;
 
@@ -33,8 +32,11 @@ public class EmployeeRelatedInformationDto {
 
   private List<JobUserDto> directReporters;
 
-  public EmployeeRelatedInformationDto(Long userId, JobUserDto jobEmployeeDto,
-      JobUserDto jobManagerDto, List<JobUserDto> directReporters) {
+  public EmployeeRelatedInformationDto(
+      Long userId,
+      JobUserDto jobEmployeeDto,
+      JobUserDto jobManagerDto,
+      List<JobUserDto> directReporters) {
     this.setUserId(userId);
     this.setEmployeeFirstName(jobEmployeeDto.getFirstName());
     this.setEmployeeImageUrl(jobEmployeeDto.getImageUrl());

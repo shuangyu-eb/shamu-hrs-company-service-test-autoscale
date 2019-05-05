@@ -28,26 +28,21 @@ import shamu.company.job.JobUserDto;
 import shamu.company.job.entity.JobUser;
 import shamu.company.job.entity.JobUserListItem;
 import shamu.company.job.repository.JobUserRepository;
-import shamu.company.user.dto.PersonalInformationDto;
 import shamu.company.user.entity.User;
-import shamu.company.user.entity.UserAddress;
-import shamu.company.user.entity.UserContactInformation;
-import shamu.company.user.entity.UserPersonalInformation;
 import shamu.company.user.entity.UserStatus.Status;
 import shamu.company.user.repository.UserAddressRepository;
 import shamu.company.user.repository.UserRepository;
 import shamu.company.user.service.UserService;
+import shamu.company.utils.AwsUtil;
 import shamu.company.utils.EmailUtil;
 
 @Service
 public class UserServiceImpl implements UserService {
 
+  private static final String errorMessage = "User does not exist!";
   @Autowired ITemplateEngine templateEngine;
-
   @Autowired UserRepository userRepository;
-
   @Autowired JobUserRepository jobUserRepository;
-
   @Autowired UserAddressRepository userAddressRepository;
 
   @Value("${application.systemEmailAddress}")
@@ -57,11 +52,8 @@ public class UserServiceImpl implements UserService {
   String frontEndAddress;
 
   @Autowired EmailUtil emailUtil;
-
-  @Autowired
-  EmployeeService employeeService;
-
-  private static final String errorMessage = "User does not exist!";
+  @Autowired AwsUtil awsUtil;
+  @Autowired EmployeeService employeeService;
 
   @Override
   public User findUserById(Long id) {
@@ -83,6 +75,11 @@ public class UserServiceImpl implements UserService {
   @Override
   public User findUserByUserPersonalInformationId(Long userPersonalInformationId) {
     return userRepository.findByUserPersonalInformationId(userPersonalInformationId);
+  }
+
+  @Override
+  public User findUserByUserContactInformationId(Long userContactInformationId) {
+    return userRepository.findByUserContactInformationId(userContactInformationId);
   }
 
   @Override
@@ -115,20 +112,6 @@ public class UserServiceImpl implements UserService {
   @Override
   public Boolean existsByEmailWork(String email) {
     return userRepository.existsByEmailWork(email);
-  }
-
-  @Override
-  public PersonalInformationDto getPersonalInformation(Long userId) {
-    User user =
-        userRepository
-            .findById(userId)
-            .orElseThrow(() -> new ResourceNotFoundException(errorMessage));
-    UserPersonalInformation userPersonalInformation = user.getUserPersonalInformation();
-    UserContactInformation userContactInformation = user.getUserContactInformation();
-    UserAddress userAddress =
-        userAddressRepository.findUserAddressByUserId(userId).orElse(new UserAddress());
-    return new PersonalInformationDto(
-        userId, userPersonalInformation, userContactInformation, userAddress);
   }
 
   @Override
@@ -222,6 +205,11 @@ public class UserServiceImpl implements UserService {
   @Override
   public User getOne(Long userId) {
     return userRepository.getOne(userId);
+  }
+
+  @Override
+  public void save(User user) {
+    userRepository.save(user);
   }
 
   public String getActivationEmail(String accountVerifyToken) {

@@ -1,6 +1,7 @@
 package shamu.company.employee.dto;
 
 import lombok.Data;
+import shamu.company.user.dto.BasicUserContactInformationDto;
 import shamu.company.user.entity.UserContactInformation;
 
 @Data

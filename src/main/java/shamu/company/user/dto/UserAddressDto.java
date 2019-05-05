@@ -13,11 +13,11 @@ import shamu.company.user.entity.UserAddress;
 @NoArgsConstructor
 public class UserAddressDto {
 
-  @HashidsFormat
-  private Long id;
+  @HashidsFormat private Long id;
 
-  @HashidsFormat
-  private Long userId;
+  @HashidsFormat private Long userId;
+
+  private String personalImageUrl;
 
   private String street1;
 
@@ -27,13 +27,11 @@ public class UserAddressDto {
 
   private String countryName;
 
-  @HashidsFormat
-  private Long countryId;
+  @HashidsFormat private Long countryId;
 
   private String stateProvinceName;
 
-  @HashidsFormat
-  private Long stateProvinceId;
+  @HashidsFormat private Long stateProvinceId;
 
   private String postalCode;
 
@@ -41,44 +39,45 @@ public class UserAddressDto {
     Country country = userAddress.getCountry();
     String countryName = country == null ? null : country.getName();
     Long countryId = country == null ? 1 : country.getId();
+    this.countryName = countryName;
+    this.countryId = countryId;
 
     StateProvince stateProvince = userAddress.getStateProvince();
     String stateProvinceName = stateProvince == null ? null : stateProvince.getName();
     Long stateProvinceId = stateProvince == null ? null : stateProvince.getId();
+    this.stateProvinceId = stateProvinceId;
+    this.stateProvinceName = stateProvinceName;
 
     User user = userAddress.getUser();
     Long userId = user == null ? null : user.getId();
+    String personalImageUrl = user == null ? null : user.getImageUrl();
+    this.userId = userId;
+    this.personalImageUrl = personalImageUrl;
 
-    this.setCountryName(countryName);
-    this.setCountryId(countryId);
-    this.setStateProvinceId(stateProvinceId);
-    this.setStateProvinceName(stateProvinceName);
-    this.setUserId(userId);
-    this.setId(userAddress.getId());
-    this.setStreet1(userAddress.getStreet1());
-    this.setStreet2(userAddress.getStreet2());
-    this.setCity(userAddress.getCity());
-    this.setPostalCode(userAddress.getPostalCode());
+    this.id = userAddress.getId();
+    this.street1 = userAddress.getStreet1();
+    this.street2 = userAddress.getStreet2();
+    this.city = userAddress.getCity();
+    this.postalCode = userAddress.getPostalCode();
   }
 
   @JSONField(serialize = false)
-  public UserAddress getUserAddress() {
-    UserAddress userAddress = new UserAddress();
-    userAddress.setId(this.getId());
-    userAddress.setPostalCode(this.getPostalCode());
-    userAddress.setCity(this.getCity());
-    userAddress.setStreet1(this.getStreet1());
-    userAddress.setStreet2(this.getStreet2());
-    userAddress.setUser(new User(this.getUserId()));
+  public UserAddress getUserAddress(UserAddress origin) {
+    origin.setId(this.getId());
+    origin.setStreet1(this.getStreet1());
+    origin.setStreet2(this.getStreet2());
+    origin.setCity(this.getCity());
+    origin.setPostalCode(this.getPostalCode());
+    origin.getUser().setImageUrl(this.getPersonalImageUrl());
 
     if (this.getStateProvinceId() != null) {
-      userAddress.setStateProvince(new StateProvince(this.getStateProvinceId()));
+      origin.setStateProvince(new StateProvince(this.getStateProvinceId()));
     }
 
     if (this.getCountryId() != null) {
-      userAddress.setCountry(new Country(this.getCountryId()));
+      origin.setCountry(new Country(this.getCountryId()));
     }
 
-    return userAddress;
+    return origin;
   }
 }

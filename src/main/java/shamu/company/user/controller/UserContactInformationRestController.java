@@ -1,32 +1,66 @@
 package shamu.company.user.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
+import shamu.company.hashids.HashidsFormat;
+import shamu.company.user.dto.BasicUserContactInformationDto;
 import shamu.company.user.dto.UserContactInformationDto;
+import shamu.company.user.entity.User;
+import shamu.company.user.entity.User.Role;
 import shamu.company.user.entity.UserContactInformation;
 import shamu.company.user.service.UserContactInformationService;
+import shamu.company.user.service.UserService;
 
 @RestApiController
 public class UserContactInformationRestController extends BaseRestController {
 
   private final UserContactInformationService contactInformationService;
 
+  private final UserService userService;
+
   @Autowired
   public UserContactInformationRestController(
-      UserContactInformationService contactInformationService) {
+      UserContactInformationService contactInformationService, UserService userService) {
     this.contactInformationService = contactInformationService;
+    this.userService = userService;
   }
 
-  @PatchMapping("user-contact-information")
+  @PatchMapping("user-contact-information/{id}")
+  @PreAuthorize(
+      "hasPermission(#id,'USER_CONTACT_INFORMATION', 'EDIT_USER')"
+          + " or hasPermission(#id,'USER_CONTACT_INFORMATION', 'EDIT_SELF')")
   public UserContactInformationDto update(
+      @PathVariable @HashidsFormat Long id,
       @RequestBody UserContactInformationDto userContactInformationDto) {
+    UserContactInformation origin = contactInformationService.findUserContactInformationById(id);
     UserContactInformation userContactInformation =
-        userContactInformationDto.getUserContactInformation();
+        userContactInformationDto.getUserContactInformation(origin);
     UserContactInformation userContactInformationUpdated =
         contactInformationService.update(userContactInformation);
     return new UserContactInformationDto(userContactInformationUpdated);
+  }
+
+  @GetMapping("users/{id}/user-contact-information")
+  @PreAuthorize("hasPermission(#id, 'USER', 'VIEW_USER_CONTACT')")
+  public BasicUserContactInformationDto getUserContactInformation(
+      @PathVariable @HashidsFormat Long id) {
+    User user = this.getUser();
+    User targetUser = userService.findUserById(id);
+    User manager = targetUser.getManagerUser();
+    UserContactInformation userContactInformation = targetUser.getUserContactInformation();
+
+    if (user.getId().equals(id)
+        || (manager != null && manager.getId().equals(user.getId()))
+        || user.getRole() == Role.ADMIN) {
+      return new UserContactInformationDto(userContactInformation);
+    }
+
+    return new BasicUserContactInformationDto(userContactInformation);
   }
 }

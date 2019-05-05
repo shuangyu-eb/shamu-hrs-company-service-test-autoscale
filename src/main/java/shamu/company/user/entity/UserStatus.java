@@ -14,15 +14,15 @@ import shamu.company.common.entity.BaseEntity;
 @Where(clause = "deleted_at IS NULL")
 public class UserStatus extends BaseEntity {
 
-  public enum Status {
-    ACTIVE,
-    DISABLED,
-    PENDING_VERIFICATION
-  }
-
   private String name;
 
   public UserStatus(String name) {
     this.name = name;
+  }
+
+  public enum Status {
+    ACTIVE,
+    DISABLED,
+    PENDING_VERIFICATION
   }
 }

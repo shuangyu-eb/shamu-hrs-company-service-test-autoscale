@@ -1,11 +1,11 @@
 package shamu.company.user.controller;
 
 import java.io.IOException;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,7 +16,7 @@ import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.company.CompanyService;
 import shamu.company.hashids.HashidsFormat;
-import shamu.company.user.dto.PersonalInformationDto;
+import shamu.company.user.entity.User;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.AwsUtil;
 import shamu.company.utils.AwsUtil.Type;
@@ -24,14 +24,11 @@ import shamu.company.utils.AwsUtil.Type;
 @RestApiController
 public class UserRestController extends BaseRestController {
 
-  @Autowired
-  UserService userService;
+  @Autowired UserService userService;
 
-  @Autowired
-  CompanyService companyService;
+  @Autowired CompanyService companyService;
 
-  @Autowired
-  AwsUtil awsUtil;
+  @Autowired AwsUtil awsUtil;
 
   @PostMapping(value = "user/sign-up/email")
   public HttpEntity sendVerifyEmail(@RequestBody String email) {
@@ -60,20 +57,24 @@ public class UserRestController extends BaseRestController {
     return companyService.existsBySubdomainName(desiredUrl);
   }
 
-  @GetMapping("users/{userId}/personal-information")
-  @PreAuthorize("hasPermission(#userId,'USER','VIEW_USER_PERSONAL')")
-  public PersonalInformationDto getPersonalInformation(@PathVariable @HashidsFormat Long userId) {
-    PersonalInformationDto personalInformationDtO = userService.getPersonalInformation(userId);
-    return personalInformationDtO;
-  }
-
   @PostMapping("users/{id}/head-portrait")
-  public String handleFileUpload(@PathVariable @HashidsFormat Long id,
-      @RequestParam("file") MultipartFile file)
+  public String handleFileUpload(
+      @PathVariable @HashidsFormat Long id, @RequestParam("file") MultipartFile file)
       throws IOException {
     String path = awsUtil.uploadFile(file, Type.IMAGE);
 
-    // TODO other actions
+    if (Strings.isBlank(path)) {
+      return null;
+    }
+
+    User user = userService.findUserById(id);
+    String originalPath = user.getImageUrl();
+    if (originalPath != null) {
+      awsUtil.deleteFile(originalPath);
+    }
+
+    user.setImageUrl(path);
+    userService.save(user);
 
     return path;
   }

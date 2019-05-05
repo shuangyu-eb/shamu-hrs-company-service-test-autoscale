@@ -5,4 +5,6 @@ import shamu.company.user.entity.UserContactInformation;
 public interface UserContactInformationService {
 
   UserContactInformation update(UserContactInformation userContactInformation);
+
+  UserContactInformation findUserContactInformationById(Long id);
 }

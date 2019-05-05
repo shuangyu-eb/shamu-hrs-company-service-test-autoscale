@@ -28,13 +28,11 @@ public class User extends BaseEntity {
 
   private Timestamp latestLogin;
 
-  @OneToOne
-  private UserStatus userStatus;
+  @OneToOne private UserStatus userStatus;
 
   private String imageUrl;
 
-  @ManyToOne
-  private Company company;
+  @ManyToOne private Company company;
 
   @ManyToOne
   @JSONField(serialize = false)
@@ -49,32 +47,30 @@ public class User extends BaseEntity {
   @OneToOne(cascade = CascadeType.PERSIST)
   private UserCompensation userCompensation;
 
-  @OneToOne
-  private UserRole userRole;
+  @OneToOne private UserRole userRole;
+  private String invitationEmailToken;
+  private Timestamp invitedAt;
+  private Timestamp resetPasswordSentAt;
+  private String resetPasswordToken;
+  private String verificationToken;
+  private Timestamp verifiedAt;
 
-  public enum Role {
-    ADMIN,
-    MANAGER,
-    NON_MANAGER,
+  public User(Long id) {
+    this.setId(id);
+  }
+
+  public User(Long id, String imageUrl) {
+    this.setId(id);
+    this.setImageUrl(imageUrl);
   }
 
   public Role getRole() {
     return Role.valueOf(userRole.getName());
   }
 
-  private String invitationEmailToken;
-
-  private Timestamp invitedAt;
-
-  private Timestamp resetPasswordSentAt;
-
-  private String resetPasswordToken;
-
-  private String verificationToken;
-
-  private Timestamp verifiedAt;
-
-  public User(Long id) {
-    this.setId(id);
+  public enum Role {
+    ADMIN,
+    MANAGER,
+    NON_MANAGER,
   }
 }

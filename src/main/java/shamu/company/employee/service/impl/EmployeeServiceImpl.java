@@ -37,8 +37,6 @@ import shamu.company.employee.dto.WelcomeEmailDto;
 import shamu.company.employee.entity.EmploymentType;
 import shamu.company.employee.pojo.OfficePojo;
 import shamu.company.employee.repository.CompensationTypeRepository;
-import shamu.company.employee.repository.GenderRepository;
-import shamu.company.employee.repository.MartialStatusRepository;
 import shamu.company.employee.service.EmployeeService;
 import shamu.company.info.dto.UserEmergencyContactDto;
 import shamu.company.info.entity.UserEmergencyContact;
@@ -56,10 +54,13 @@ import shamu.company.user.entity.MaritalStatus;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserAddress;
 import shamu.company.user.entity.UserCompensation;
+import shamu.company.user.entity.UserContactInformation;
 import shamu.company.user.entity.UserPersonalInformation;
 import shamu.company.user.entity.UserRole;
 import shamu.company.user.entity.UserStatus;
 import shamu.company.user.entity.UserStatus.Status;
+import shamu.company.user.repository.GenderRepository;
+import shamu.company.user.repository.MaritalStatusRepository;
 import shamu.company.user.repository.UserAddressRepository;
 import shamu.company.user.repository.UserCompensationRepository;
 import shamu.company.user.repository.UserRepository;
@@ -92,7 +93,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
   @Autowired private GenderRepository genderRepository;
 
-  @Autowired private MartialStatusRepository martialStatusRepository;
+  @Autowired private MaritalStatusRepository maritalStatusRepository;
 
   @Autowired private AwsUtil awsUtil;
 
@@ -108,11 +109,9 @@ public class EmployeeServiceImpl implements EmployeeService {
 
   @Autowired private UserRoleRepository userRoleRepository;
 
-  @Autowired
-  private UserStatusRepository userStatusRepository;
+  @Autowired private UserStatusRepository userStatusRepository;
 
-  @Autowired
-  private EmailService emailService;
+  @Autowired private EmailService emailService;
 
   @Override
   public List<SelectFieldInformationDto> getDepartments() {
@@ -290,7 +289,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     UserPersonalInformationDto userPersonalInformationDto =
         employeeDto.getUserPersonalInformation();
     UserPersonalInformation userPersonalInformation =
-        userPersonalInformationDto.getUserPersonalInformation();
+        userPersonalInformationDto.getUserPersonalInformation(new UserPersonalInformation());
 
     if (userPersonalInformation != null) {
       Gender gender = userPersonalInformation.getGender();
@@ -303,7 +302,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
       MaritalStatus martialStatus = userPersonalInformation.getMaritalStatus();
       if (martialStatus != null) {
-        martialStatus = martialStatusRepository.getOne(martialStatus.getId());
+        martialStatus = maritalStatusRepository.getOne(martialStatus.getId());
         userPersonalInformation.setMaritalStatus(martialStatus);
       } else {
         userPersonalInformation.setMaritalStatus(null);
@@ -313,14 +312,14 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     UserContactInformationDto userContactInformationDto = employeeDto.getUserContactInformation();
     if (userContactInformationDto != null) {
-      employee.setUserContactInformation(userContactInformationDto.getUserContactInformation());
+      employee.setUserContactInformation(
+          userContactInformationDto.getUserContactInformation(new UserContactInformation()));
     }
 
     UserRole userRole = userRoleRepository.findByName(User.Role.NON_MANAGER.name());
     employee.setUserRole(userRole);
 
-    UserStatus userStatus = userStatusRepository
-        .findByName(Status.PENDING_VERIFICATION.name());
+    UserStatus userStatus = userStatusRepository.findByName(Status.PENDING_VERIFICATION.name());
     employee.setUserStatus(userStatus);
     return userRepository.save(employee);
   }
@@ -415,7 +414,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
   private void saveEmployeeAddress(User employee, EmployeeDto employeeDto) {
     UserAddressDto userAddressDto = employeeDto.getUserAddress();
-    UserAddress userAddress = userAddressDto.getUserAddress();
+    UserAddress userAddress = userAddressDto.getUserAddress(new UserAddress());
 
     StateProvince stateProvince = userAddress.getStateProvince();
     if (stateProvince != null) {
@@ -435,6 +434,8 @@ public class EmployeeServiceImpl implements EmployeeService {
     String to = welcomeEmailDto.getSendTo();
     String content = welcomeEmailDto.getPersonalInformation();
 
+    // TODO Use constructor based dependency injection will cause loop dependency injection
+    // problem(userServiceImpl with employeeServiceImpl)
     Context emailContext = userService.getWelcomeEmailContext(content);
     content = userService.getWelcomeEmail(emailContext);
     Timestamp sendDate = welcomeEmailDto.getSendDate();

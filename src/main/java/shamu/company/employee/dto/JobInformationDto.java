@@ -3,7 +3,6 @@ package shamu.company.employee.dto;
 import lombok.Data;
 import shamu.company.job.entity.JobUser;
 
-
 @Data
 public class JobInformationDto extends BasicJobInformationDto {
 
