@@ -5,6 +5,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
@@ -41,6 +42,17 @@ public class UserAddressRestController extends BaseRestController {
     return new UserAddressDto(userAddressUpdated);
   }
 
+  @PostMapping("users/{id}/user-address")
+  @PreAuthorize(
+      "hasPermission(#id,'USER', 'EDIT_USER')"
+          + " or hasPermission(#id,'USER', 'EDIT_SELF')")
+  public UserAddressDto saveUserAddress(@PathVariable @HashidsFormat Long id,
+      @RequestBody UserAddressDto userAddressDto) {
+    UserAddress initUserAddress = userAddressService
+        .save(userAddressDto.getUserAddress(new UserAddress(new User(id))));
+    return new UserAddressDto(initUserAddress);
+  }
+
   @GetMapping("users/{id}/user-address")
   @PreAuthorize("hasPermission(#id, 'USER', 'VIEW_USER_ADDRESS')")
   public UserAddressDto getUserAddress(@PathVariable @HashidsFormat Long id) {
@@ -49,9 +61,9 @@ public class UserAddressRestController extends BaseRestController {
     User manager = targetUser.getManagerUser();
     UserAddress userAddress = userAddressService.findUserAddressByUserId(id);
 
-    if (user.getId().equals(id)
+    if (userAddress != null && (user.getId().equals(id)
         || user.getRole() == Role.ADMIN
-        || (manager != null && manager.getId().equals(user.getId()))) {
+        || (manager != null && manager.getId().equals(user.getId())))) {
       return new UserAddressDto(userAddress);
     }
 

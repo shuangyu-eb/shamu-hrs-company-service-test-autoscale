@@ -6,6 +6,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Where;
 import shamu.company.common.entity.BaseEntity;
 import shamu.company.common.entity.Country;
@@ -15,6 +16,7 @@ import shamu.company.common.entity.StateProvince;
 @Data
 @Table(name = "user_addresses")
 @Where(clause = "deleted_at IS NULL")
+@NoArgsConstructor
 public class UserAddress extends BaseEntity {
 
   @OneToOne private User user;
@@ -32,4 +34,8 @@ public class UserAddress extends BaseEntity {
   @ManyToOne private Country country;
 
   private String postalCode;
+
+  public UserAddress(User user) {
+    this.user = user;
+  }
 }

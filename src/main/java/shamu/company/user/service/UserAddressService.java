@@ -9,4 +9,6 @@ public interface UserAddressService {
   UserAddress findUserAddressById(Long id);
 
   UserAddress findUserAddressByUserId(Long id);
+
+  UserAddress save(UserAddress userAddress);
 }
