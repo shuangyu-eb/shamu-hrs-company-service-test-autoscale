@@ -23,37 +23,49 @@ import shamu.company.common.exception.ForbiddenException;
 import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.company.entity.Company;
 import shamu.company.employee.dto.EmployeeListSearchCondition;
-import shamu.company.employee.service.EmployeeService;
 import shamu.company.job.JobUserDto;
 import shamu.company.job.entity.JobUser;
 import shamu.company.job.entity.JobUserListItem;
 import shamu.company.job.repository.JobUserRepository;
 import shamu.company.user.entity.User;
+import shamu.company.user.entity.UserStatus;
 import shamu.company.user.entity.UserStatus.Status;
-import shamu.company.user.repository.UserAddressRepository;
 import shamu.company.user.repository.UserRepository;
+import shamu.company.user.repository.UserStatusRepository;
 import shamu.company.user.service.UserService;
-import shamu.company.utils.AwsUtil;
 import shamu.company.utils.EmailUtil;
 
 @Service
 public class UserServiceImpl implements UserService {
 
-  private static final String errorMessage = "User does not exist!";
-  @Autowired ITemplateEngine templateEngine;
-  @Autowired UserRepository userRepository;
-  @Autowired JobUserRepository jobUserRepository;
-  @Autowired UserAddressRepository userAddressRepository;
+  private final ITemplateEngine templateEngine;
+
+  private final UserRepository userRepository;
+
+  private final JobUserRepository jobUserRepository;
 
   @Value("${application.systemEmailAddress}")
-  String systemEmailAddress;
+  private String systemEmailAddress;
 
   @Value("${application.frontEndAddress}")
-  String frontEndAddress;
+  private String frontEndAddress;
 
-  @Autowired EmailUtil emailUtil;
-  @Autowired AwsUtil awsUtil;
-  @Autowired EmployeeService employeeService;
+  private final EmailUtil emailUtil;
+
+  private final UserStatusRepository userStatusRepository;
+
+  @Autowired
+  public UserServiceImpl(ITemplateEngine templateEngine, UserRepository userRepository,
+      JobUserRepository jobUserRepository, EmailUtil emailUtil,
+      UserStatusRepository userStatusRepository) {
+    this.templateEngine = templateEngine;
+    this.userRepository = userRepository;
+    this.jobUserRepository = jobUserRepository;
+    this.emailUtil = emailUtil;
+    this.userStatusRepository = userStatusRepository;
+  }
+
+  private static final String errorMessage = "User does not exist!";
 
   @Override
   public User findUserById(Long id) {
@@ -94,7 +106,7 @@ public class UserServiceImpl implements UserService {
     emailUtil.send(systemEmailAddress, email, "Please activate your account!", emailContent);
 
     user.setVerificationToken(accountVerifyToken);
-    String employeeNumber = employeeService.getEmployeeNumber(user.getCompany().getName(), 0);
+    String employeeNumber = getEmployeeNumber(user.getCompany().getName(), 1);
     user.setEmployeeNumber(employeeNumber);
     userRepository.save(user);
   }
@@ -105,6 +117,9 @@ public class UserServiceImpl implements UserService {
     if (user == null || user.getVerifiedAt() != null) {
       throw new ForbiddenException("User account does not exist or already activated!");
     }
+
+    UserStatus userStatus = userStatusRepository.findByName(Status.ACTIVE.name());
+    user.setUserStatus(userStatus);
     user.setVerifiedAt(new Timestamp(new Date().getTime()));
     userRepository.save(user);
   }
@@ -218,5 +233,14 @@ public class UserServiceImpl implements UserService {
     context.setVariable(
         "accountVerifyAddress", String.format("account/verify/%s", accountVerifyToken));
     return templateEngine.process("account_verify_email.html", context);
+  }
+
+  public String getEmployeeNumber(String companyName, Integer employeeNumber) {
+    if (companyName.length() <= 3) {
+      return String.format("%s%06d", companyName, employeeNumber);
+    }
+
+    String employeeNumberPrefix = companyName.substring(0, 3);
+    return String.format("%s%06d", employeeNumberPrefix, employeeNumber);
   }
 }

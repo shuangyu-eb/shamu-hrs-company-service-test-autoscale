@@ -28,12 +28,15 @@ public class JwtTokenProvider {
 
   @Value("${auth0.jwks}")
   private String jwks;
+
   @Value("${auth0.algorithm}")
   private String algorithm;
+
   @Value("${auth0.authDomain}")
   private String authDomain;
 
   private final UserService userService;
+
   private final PermissionService permissionService;
 
   @Autowired
@@ -72,8 +75,11 @@ public class JwtTokenProvider {
     }
     String email = decodedJWT.getClaim("email").asString();
     User user = userService.findUserByEmailAndStatus(email, Status.ACTIVE);
-    List<AuthorityPojo> authorities = permissionService.getPermissionByUser(user);
+    if (user == null) {
+      throw new UnAuthenticatedException("Account has a Wrong email address '" + email + "' or account not activated!");
+    }
 
+    List<AuthorityPojo> authorities = permissionService.getPermissionByUser(user);
     return new UsernamePasswordAuthenticationToken(user, null, authorities);
   }
 }

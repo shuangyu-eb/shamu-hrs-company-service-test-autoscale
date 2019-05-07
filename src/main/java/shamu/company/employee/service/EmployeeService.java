@@ -26,6 +26,4 @@ public interface EmployeeService {
   Office saveOfficeLocation(OfficePojo officePojo);
 
   void addEmployee(EmployeeDto employee, User currentUser);
-
-  String getEmployeeNumber(String companyName, Integer employeeNumber);
 }

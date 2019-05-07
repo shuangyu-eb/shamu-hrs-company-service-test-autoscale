@@ -73,45 +73,80 @@ import shamu.company.utils.AwsUtil.Type;
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
 
-  @Autowired UserRepository userRepository;
+  private final UserRepository userRepository;
 
-  @Autowired JobUserRepository jobUserRepository;
+  private final JobUserRepository jobUserRepository;
 
-  @Autowired UserAddressRepository userAddressRepository;
+  private final UserAddressRepository userAddressRepository;
 
-  @Autowired DepartmentRepository departmentRepository;
+  private final DepartmentRepository departmentRepository;
 
-  @Autowired private EmploymentTypeRepository employmentTypeRepository;
+  private final EmploymentTypeRepository employmentTypeRepository;
 
-  @Autowired private OfficeRepository officeRepository;
+  private final OfficeRepository officeRepository;
 
-  @Autowired private OfficeAddressRepository officeAddressRepository;
+  private final OfficeAddressRepository officeAddressRepository;
 
-  @Autowired private UserCompensationRepository userCompensationRepository;
+  private final UserCompensationRepository userCompensationRepository;
 
-  @Autowired private JobRepository jobRepository;
+  private final JobRepository jobRepository;
 
-  @Autowired private GenderRepository genderRepository;
+  private final GenderRepository genderRepository;
 
-  @Autowired private MaritalStatusRepository maritalStatusRepository;
+  private final MaritalStatusRepository maritalStatusRepository;
 
-  @Autowired private AwsUtil awsUtil;
+  private final AwsUtil awsUtil;
 
-  @Autowired private CompensationTypeRepository compensationTypeRepository;
+  private final CompensationTypeRepository compensationTypeRepository;
 
-  @Autowired private StateProvinceRepository stateProvinceRepository;
+  private final StateProvinceRepository stateProvinceRepository;
 
-  @Autowired private UserEmergencyContactRepository userEmergencyContactRepository;
+  private final UserEmergencyContactRepository userEmergencyContactRepository;
 
-  @Autowired private EmailRepository emailRepository;
+  private final EmailRepository emailRepository;
 
-  @Autowired private UserService userService;
+  private final UserService userService;
 
-  @Autowired private UserRoleRepository userRoleRepository;
+  private final UserRoleRepository userRoleRepository;
 
-  @Autowired private UserStatusRepository userStatusRepository;
+  private final UserStatusRepository userStatusRepository;
 
-  @Autowired private EmailService emailService;
+  private final EmailService emailService;
+
+  @Autowired
+  public EmployeeServiceImpl(UserAddressRepository userAddressRepository,
+      UserRepository userRepository, JobUserRepository jobUserRepository,
+      DepartmentRepository departmentRepository, EmploymentTypeRepository employmentTypeRepository,
+      OfficeRepository officeRepository, UserService userService,
+      OfficeAddressRepository officeAddressRepository,
+      StateProvinceRepository stateProvinceRepository,
+      UserCompensationRepository userCompensationRepository,
+      UserEmergencyContactRepository userEmergencyContactRepository, JobRepository jobRepository,
+      UserRoleRepository userRoleRepository, UserStatusRepository userStatusRepository,
+      AwsUtil awsUtil, GenderRepository genderRepository,
+      MaritalStatusRepository maritalStatusRepository, EmailService emailService,
+      CompensationTypeRepository compensationTypeRepository, EmailRepository emailRepository) {
+    this.userAddressRepository = userAddressRepository;
+    this.userRepository = userRepository;
+    this.jobUserRepository = jobUserRepository;
+    this.departmentRepository = departmentRepository;
+    this.employmentTypeRepository = employmentTypeRepository;
+    this.officeRepository = officeRepository;
+    this.userService = userService;
+    this.officeAddressRepository = officeAddressRepository;
+    this.stateProvinceRepository = stateProvinceRepository;
+    this.userCompensationRepository = userCompensationRepository;
+    this.userEmergencyContactRepository = userEmergencyContactRepository;
+    this.jobRepository = jobRepository;
+    this.userRoleRepository = userRoleRepository;
+    this.userStatusRepository = userStatusRepository;
+    this.awsUtil = awsUtil;
+    this.genderRepository = genderRepository;
+    this.maritalStatusRepository = maritalStatusRepository;
+    this.emailService = emailService;
+    this.compensationTypeRepository = compensationTypeRepository;
+    this.emailRepository = emailRepository;
+  }
 
   @Override
   public List<SelectFieldInformationDto> getDepartments() {
@@ -281,7 +316,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     Integer existingUserCount =
         userRepository.findExistingUserCountByCompanyId(currentUser.getCompany().getId());
     Integer employeeIndex = existingUserCount + 1;
-    String employeeNumber = getEmployeeNumber(companyName, employeeIndex);
+    String employeeNumber = userService.getEmployeeNumber(companyName, employeeIndex);
     employee.setEmployeeNumber(employeeNumber);
 
     employee.setCompany(currentUser.getCompany());
@@ -434,8 +469,6 @@ public class EmployeeServiceImpl implements EmployeeService {
     String to = welcomeEmailDto.getSendTo();
     String content = welcomeEmailDto.getPersonalInformation();
 
-    // TODO Use constructor based dependency injection will cause loop dependency injection
-    // problem(userServiceImpl with employeeServiceImpl)
     Context emailContext = userService.getWelcomeEmailContext(content);
     content = userService.getWelcomeEmail(emailContext);
     Timestamp sendDate = welcomeEmailDto.getSendDate();
@@ -444,14 +477,5 @@ public class EmployeeServiceImpl implements EmployeeService {
         new Email(from, to, "Welcome to Champion Solutions", content, currentUser, sendDate);
     email = emailRepository.save(email);
     emailService.scheduleEmail(email);
-  }
-
-  public String getEmployeeNumber(String companyName, Integer employeeNumber) {
-    if (companyName.length() <= 3) {
-      return String.format("%s%06d", companyName, employeeNumber);
-    }
-
-    String employeeNumberPrefix = companyName.substring(0, 3);
-    return String.format("%s%06d", employeeNumberPrefix, employeeNumber);
   }
 }

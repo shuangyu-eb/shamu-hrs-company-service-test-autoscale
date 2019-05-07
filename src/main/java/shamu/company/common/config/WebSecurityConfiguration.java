@@ -13,11 +13,16 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
-  @Autowired
-  JwtTokenProvider jwtTokenProvider;
+  private final JwtAuthorizationFilter jwtAuthorizationFilter;
+
+  private final DefaultAuthenticationEntryPoint defaultAuthenticationEntryPoint;
 
   @Autowired
-  JwtAuthorizationFilter jwtAuthorizationFilter;
+  public WebSecurityConfiguration(JwtAuthorizationFilter jwtAuthorizationFilter,
+      DefaultAuthenticationEntryPoint defaultAuthenticationEntryPoint) {
+    this.jwtAuthorizationFilter = jwtAuthorizationFilter;
+    this.defaultAuthenticationEntryPoint = defaultAuthenticationEntryPoint;
+  }
 
   @Override
   protected void configure(HttpSecurity http) throws Exception {
@@ -35,6 +40,8 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
             "/company/paid-holidays",
             "/company/user/check/**"
         ).permitAll()
-        .anyRequest().authenticated();
+        .anyRequest().authenticated()
+        .and()
+        .exceptionHandling().authenticationEntryPoint(defaultAuthenticationEntryPoint);
   }
 }
