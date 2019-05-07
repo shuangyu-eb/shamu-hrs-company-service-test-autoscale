@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,6 +18,7 @@ import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.company.CompanyService;
 import shamu.company.hashids.HashidsFormat;
 import shamu.company.user.entity.User;
+import shamu.company.user.entity.User.Role;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.AwsUtil;
 import shamu.company.utils.AwsUtil.Type;
@@ -24,11 +26,18 @@ import shamu.company.utils.AwsUtil.Type;
 @RestApiController
 public class UserRestController extends BaseRestController {
 
-  @Autowired UserService userService;
+  private final UserService userService;
 
-  @Autowired CompanyService companyService;
+  private final CompanyService companyService;
 
-  @Autowired AwsUtil awsUtil;
+  private final AwsUtil awsUtil;
+
+  public UserRestController(UserService userService, CompanyService companyService,
+      AwsUtil awsUtil) {
+    this.userService = userService;
+    this.companyService = companyService;
+    this.awsUtil = awsUtil;
+  }
 
   @PostMapping(value = "user/sign-up/email")
   public HttpEntity sendVerifyEmail(@RequestBody String email) {
@@ -57,7 +66,23 @@ public class UserRestController extends BaseRestController {
     return companyService.existsBySubdomainName(desiredUrl);
   }
 
+  @GetMapping(value = "users/{id}/head-portrait")
+  @PreAuthorize("hasPermission(#id,'USER','VIEW_USER_PERSONAL')")
+  public String getHeadPortrait(@PathVariable @HashidsFormat Long id) {
+    User user = this.getUser();
+
+    if (user.getId().equals(id)
+        || user.getRole() == Role.ADMIN) {
+      return userService.getHeadPortrait(id);
+    }
+
+    return null;
+  }
+
   @PostMapping("users/{id}/head-portrait")
+  @PreAuthorize(
+      "hasPermission(#id,'USER', 'EDIT_USER')"
+          + " or hasPermission(#id,'USER', 'EDIT_SELF')")
   public String handleFileUpload(
       @PathVariable @HashidsFormat Long id, @RequestParam("file") MultipartFile file)
       throws IOException {

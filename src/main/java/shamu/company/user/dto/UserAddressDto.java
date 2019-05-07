@@ -17,8 +17,6 @@ public class UserAddressDto {
 
   @HashidsFormat private Long userId;
 
-  private String personalImageUrl;
-
   private String street1;
 
   private String street2;
@@ -50,9 +48,7 @@ public class UserAddressDto {
 
     User user = userAddress.getUser();
     Long userId = user == null ? null : user.getId();
-    String personalImageUrl = user == null ? null : user.getImageUrl();
     this.userId = userId;
-    this.personalImageUrl = personalImageUrl;
 
     this.id = userAddress.getId();
     this.street1 = userAddress.getStreet1();
@@ -68,7 +64,6 @@ public class UserAddressDto {
     origin.setStreet2(this.getStreet2());
     origin.setCity(this.getCity());
     origin.setPostalCode(this.getPostalCode());
-    origin.getUser().setImageUrl(this.getPersonalImageUrl());
 
     if (this.getStateProvinceId() != null) {
       origin.setStateProvince(new StateProvince(this.getStateProvinceId()));

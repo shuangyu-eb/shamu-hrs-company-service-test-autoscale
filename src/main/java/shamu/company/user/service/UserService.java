@@ -51,4 +51,6 @@ public interface UserService {
   String getEmployeeNumber(String companyName, Integer employeeNumber);
 
   void save(User user);
+
+  String getHeadPortrait(Long userId);
 }

@@ -227,6 +227,13 @@ public class UserServiceImpl implements UserService {
     userRepository.save(user);
   }
 
+  @Override
+  public String getHeadPortrait(Long userId) {
+    User user = userRepository.findById(userId)
+        .orElseThrow(() -> new ResourceNotFoundException(errorMessage));
+    return user.getImageUrl();
+  }
+
   public String getActivationEmail(String accountVerifyToken) {
     Context context = new Context();
     context.setVariable("frontEndAddress", frontEndAddress);
