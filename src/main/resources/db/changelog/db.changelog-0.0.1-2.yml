@@ -782,3 +782,14 @@ databaseChangeLog:
         file: db/changelog/data/countries.csv
         primaryKey: id
         tableName: countries
+
+- changeSet:
+    id: 1557287164900-1
+    author: zhaojian
+    changes:
+    - addColumn:
+        columns:
+        - column:
+            name: retry_count
+            type: TINYINT
+        tableName: emails

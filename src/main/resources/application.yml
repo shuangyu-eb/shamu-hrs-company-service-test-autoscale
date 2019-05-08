@@ -16,3 +16,6 @@ spring:
     change-log: classpath:/db/changelog/db.changelog-master.yml
   thymeleaf:
     prefix: classpath:templates/
+
+email:
+  retryLimit: 5

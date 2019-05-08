@@ -11,4 +11,6 @@ public interface EmailService {
   Runnable getEmailTask(Email email);
 
   Email save(Email email);
+
+  void saveAndScheduleEmail(Email email);
 }

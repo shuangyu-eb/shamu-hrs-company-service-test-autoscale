@@ -33,6 +33,8 @@ public class Email extends BaseEntity {
   @Nullable
   private Timestamp sentAt;
 
+  private Integer retryCount;
+
   public Email(String from, String to, String subject, String content, User user,
       Timestamp sendDate) {
     this.from = from;
@@ -40,6 +42,14 @@ public class Email extends BaseEntity {
     this.subject = subject;
     this.content = content;
     this.user = user;
+    this.sendDate = sendDate;
+  }
+
+  public Email(String from, String to, String subject, String content, Timestamp sendDate) {
+    this.from = from;
+    this.to = to;
+    this.subject = subject;
+    this.content = content;
     this.sendDate = sendDate;
   }
 }

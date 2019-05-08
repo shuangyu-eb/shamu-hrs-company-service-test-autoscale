@@ -22,6 +22,8 @@ import org.thymeleaf.context.Context;
 import shamu.company.common.exception.ForbiddenException;
 import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.company.entity.Company;
+import shamu.company.email.Email;
+import shamu.company.email.EmailService;
 import shamu.company.employee.dto.EmployeeListSearchCondition;
 import shamu.company.job.JobUserDto;
 import shamu.company.job.entity.JobUser;
@@ -33,7 +35,6 @@ import shamu.company.user.entity.UserStatus.Status;
 import shamu.company.user.repository.UserRepository;
 import shamu.company.user.repository.UserStatusRepository;
 import shamu.company.user.service.UserService;
-import shamu.company.utils.EmailUtil;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -50,28 +51,28 @@ public class UserServiceImpl implements UserService {
   @Value("${application.frontEndAddress}")
   private String frontEndAddress;
 
-  private final EmailUtil emailUtil;
-
   private final UserStatusRepository userStatusRepository;
+
+  private final EmailService emailService;
 
   @Autowired
   public UserServiceImpl(ITemplateEngine templateEngine, UserRepository userRepository,
-      JobUserRepository jobUserRepository, EmailUtil emailUtil,
-      UserStatusRepository userStatusRepository) {
+      JobUserRepository jobUserRepository, UserStatusRepository userStatusRepository,
+      EmailService emailService) {
     this.templateEngine = templateEngine;
     this.userRepository = userRepository;
     this.jobUserRepository = jobUserRepository;
-    this.emailUtil = emailUtil;
     this.userStatusRepository = userStatusRepository;
+    this.emailService = emailService;
   }
 
-  private static final String errorMessage = "User does not exist!";
+  private static final String ERROR_MESSAGE = "User does not exist!";
 
   @Override
   public User findUserById(Long id) {
     return userRepository
         .findById(id)
-        .orElseThrow(() -> new ResourceNotFoundException(errorMessage));
+        .orElseThrow(() -> new ResourceNotFoundException(ERROR_MESSAGE));
   }
 
   @Override
@@ -103,7 +104,11 @@ public class UserServiceImpl implements UserService {
 
     String accountVerifyToken = UUID.randomUUID().toString();
     String emailContent = getActivationEmail(accountVerifyToken);
-    emailUtil.send(systemEmailAddress, email, "Please activate your account!", emailContent);
+    Timestamp sendDate = new Timestamp(new Date().getTime());
+
+    Email verifyEmail = new Email(systemEmailAddress, email, "Please activate your account!",
+        emailContent, sendDate);
+    emailService.saveAndScheduleEmail(verifyEmail);
 
     user.setVerificationToken(accountVerifyToken);
     String employeeNumber = getEmployeeNumber(user.getCompany().getName(), 1);
@@ -170,7 +175,7 @@ public class UserServiceImpl implements UserService {
   public JobUserDto findEmployeeInfoByEmployeeId(Long id) {
 
     User employee =
-        userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(errorMessage));
+        userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(ERROR_MESSAGE));
     JobUser jobUser = jobUserRepository.findJobUserByUser(employee);
     return new JobUserDto(employee, jobUser);
   }
@@ -179,7 +184,7 @@ public class UserServiceImpl implements UserService {
   public User findEmployeeInfoByUserId(Long id) {
     return userRepository
         .findById(id)
-        .orElseThrow(() -> new ResourceNotFoundException(errorMessage));
+        .orElseThrow(() -> new ResourceNotFoundException(ERROR_MESSAGE));
   }
 
   public PageImpl<JobUserDto> getJobUserDtoList(
@@ -230,7 +235,7 @@ public class UserServiceImpl implements UserService {
   @Override
   public String getHeadPortrait(Long userId) {
     User user = userRepository.findById(userId)
-        .orElseThrow(() -> new ResourceNotFoundException(errorMessage));
+        .orElseThrow(() -> new ResourceNotFoundException(ERROR_MESSAGE));
     return user.getImageUrl();
   }
 

@@ -27,7 +27,6 @@ import shamu.company.company.entity.Department;
 import shamu.company.company.entity.Office;
 import shamu.company.company.entity.OfficeAddress;
 import shamu.company.email.Email;
-import shamu.company.email.EmailRepository;
 import shamu.company.email.EmailService;
 import shamu.company.employee.Contants;
 import shamu.company.employee.dto.EmployeeDto;
@@ -103,8 +102,6 @@ public class EmployeeServiceImpl implements EmployeeService {
 
   private final UserEmergencyContactRepository userEmergencyContactRepository;
 
-  private final EmailRepository emailRepository;
-
   private final UserService userService;
 
   private final UserRoleRepository userRoleRepository;
@@ -125,7 +122,7 @@ public class EmployeeServiceImpl implements EmployeeService {
       UserRoleRepository userRoleRepository, UserStatusRepository userStatusRepository,
       AwsUtil awsUtil, GenderRepository genderRepository,
       MaritalStatusRepository maritalStatusRepository, EmailService emailService,
-      CompensationTypeRepository compensationTypeRepository, EmailRepository emailRepository) {
+      CompensationTypeRepository compensationTypeRepository) {
     this.userAddressRepository = userAddressRepository;
     this.userRepository = userRepository;
     this.jobUserRepository = jobUserRepository;
@@ -145,58 +142,54 @@ public class EmployeeServiceImpl implements EmployeeService {
     this.maritalStatusRepository = maritalStatusRepository;
     this.emailService = emailService;
     this.compensationTypeRepository = compensationTypeRepository;
-    this.emailRepository = emailRepository;
   }
 
   @Override
   public List<SelectFieldInformationDto> getDepartments() {
     List<Department> departments = departmentRepository.findAll();
-    List<SelectFieldInformationDto> departmentDtos =
+    return
         departments.stream()
             .map(
                 department ->
                     new SelectFieldInformationDto(department.getId(), department.getName()))
             .collect(Collectors.toList());
-    return departmentDtos;
   }
 
   @Override
   public List<SelectFieldInformationDto> getEmploymentTypes() {
     List<EmploymentType> employmentTypes = employmentTypeRepository.findAll();
-    List<SelectFieldInformationDto> allEmploymentTypes =
-        employmentTypes.stream()
+    return employmentTypes.stream()
             .map(
                 employmentType ->
                     new SelectFieldInformationDto(employmentType.getId(), employmentType.getName()))
             .collect(Collectors.toList());
-    return allEmploymentTypes;
   }
 
   @Override
   public List<SelectFieldInformationDto> getOfficeLocations() {
     List<Office> offices = officeRepository.findAll();
-    List<SelectFieldInformationDto> officeDtos =
+    return
         offices.stream()
             .map(
                 office -> {
                   List<String> officeLocationDetails = new ArrayList<>();
                   String officeName = office.getName();
-                  if (null != officeName && !"".equals(officeName)) {
+                  if (Strings.isNotBlank(officeName)) {
                     officeLocationDetails.add(officeName);
                   }
                   OfficeAddress officeAddress =
                       officeAddressRepository.findOfficeAddressByOffice(office);
                   if (null != officeAddress) {
                     String street1 = officeAddress.getStreet1();
-                    if (null != street1 && !"".equals(street1)) {
+                    if (Strings.isNotBlank(street1)) {
                       officeLocationDetails.add(street1);
                     }
                     String street2 = officeAddress.getStreet2();
-                    if (null != street2 && !"".equals(street2)) {
+                    if (Strings.isNotBlank(street2)) {
                       officeLocationDetails.add(street2);
                     }
                     String city = officeAddress.getCity();
-                    if (null != city && !"".equals(city)) {
+                    if (Strings.isNotBlank(city)) {
                       officeLocationDetails.add(city);
                     }
                     if (officeAddress.getStateProvince() != null
@@ -205,7 +198,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                       officeLocationDetails.add(state);
                     }
                     String postalCode = officeAddress.getPostalCode();
-                    if (null != postalCode && !"".equals(postalCode)) {
+                    if (Strings.isNotBlank(postalCode)) {
                       officeLocationDetails.add(postalCode);
                     }
                   }
@@ -214,13 +207,12 @@ public class EmployeeServiceImpl implements EmployeeService {
                   return new SelectFieldInformationDto(office.getId(), officeLocation);
                 })
             .collect(Collectors.toList());
-    return officeDtos;
   }
 
   @Override
   public List<SelectFieldInformationDto> getManagers() {
     List<User> managers = userRepository.findByUserRoleId(Contants.MANAGER_ROLE_ID);
-    List<SelectFieldInformationDto> managerDtos =
+    return
         managers.stream()
             .map(
                 manager -> {
@@ -229,20 +221,19 @@ public class EmployeeServiceImpl implements EmployeeService {
                   String middleName = userInfo.getMiddleName();
                   String lastName = userInfo.getLastName();
                   List<String> nameDetails = new ArrayList<>();
-                  if (!StringUtils.isBlank(firstName)) {
+                  if (Strings.isNotBlank(firstName)) {
                     nameDetails.add(firstName);
                   }
-                  if (!StringUtils.isBlank(middleName)) {
+                  if (Strings.isNotBlank(middleName)) {
                     nameDetails.add(middleName);
                   }
-                  if (!StringUtils.isBlank(lastName)) {
+                  if (Strings.isNotBlank(lastName)) {
                     nameDetails.add(lastName);
                   }
                   String name = String.join(" ", nameDetails.toArray(new String[0]));
                   return new SelectFieldInformationDto(manager.getId(), name);
                 })
             .collect(Collectors.toList());
-    return managerDtos;
   }
 
   @Override
@@ -475,7 +466,6 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     Email email =
         new Email(from, to, "Welcome to Champion Solutions", content, currentUser, sendDate);
-    email = emailRepository.save(email);
-    emailService.scheduleEmail(email);
+    emailService.saveAndScheduleEmail(email);
   }
 }

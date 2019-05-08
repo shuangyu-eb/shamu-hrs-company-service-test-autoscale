@@ -8,8 +8,7 @@ public interface EmailRepository extends BaseRepository<Email, Long> {
 
   @Query(
       value =
-          "SELECT * FROM emails WHERE deleted_at IS NULL "
-              + "AND sent_at IS NULL AND send_date <= now()",
-      nativeQuery = true)
-  List<Email> findAllUnfinishedTasks();
+          "select e from Email e where e.deletedAt is null "
+              + "and e.sentAt is null and e.retryCount < ?1")
+  List<Email> findAllUnfinishedTasks(Integer emailRetryLimit);
 }
