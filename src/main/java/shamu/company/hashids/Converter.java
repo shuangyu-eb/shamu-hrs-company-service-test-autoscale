@@ -96,7 +96,7 @@ public class Converter extends FastJsonHttpMessageConverter {
     };
   }
 
-  Converter() {
+  public Converter() {
     super();
     FastJsonConfig fastJsonConfig = new FastJsonConfig();
     LongDecode longDecode = new LongDecode();
