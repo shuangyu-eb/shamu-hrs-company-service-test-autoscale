@@ -11,6 +11,14 @@ public class EmployeeListSearchCondition {
   private SortField sortField = SortField.NAME;
   private SortDirection sortDirection = SortDirection.desc;
 
+  private static final String LAST_NAME = "lastName";
+
+  private static final String FIRST_NAME = "firstName";
+
+  private static final String DEPARTMENT = "department";
+
+  private static final String JOB_TITLE = "jobTitle";
+
   public String getSortDirection() {
     return this.sortDirection.name();
   }
@@ -24,9 +32,9 @@ public class EmployeeListSearchCondition {
   }
 
   public enum SortField {
-    NAME("firstName"),
-    DEPARTMENT("department"),
-    JOB_TITLE("jobTitle");
+    NAME(EmployeeListSearchCondition.LAST_NAME),
+    DEPARTMENT(EmployeeListSearchCondition.DEPARTMENT),
+    JOB_TITLE(EmployeeListSearchCondition.JOB_TITLE);
 
     private String sortValue;
 
@@ -34,8 +42,13 @@ public class EmployeeListSearchCondition {
       this.sortValue = sortValue;
     }
 
-    public String getSortValue() {
-      return this.sortValue;
+    public String[] getSortValue() {
+      if (EmployeeListSearchCondition.LAST_NAME.equals(this.sortValue)) {
+        return new String[]{EmployeeListSearchCondition.LAST_NAME,
+            EmployeeListSearchCondition.FIRST_NAME};
+      }
+
+      return new String[]{this.sortValue};
     }
   }
 

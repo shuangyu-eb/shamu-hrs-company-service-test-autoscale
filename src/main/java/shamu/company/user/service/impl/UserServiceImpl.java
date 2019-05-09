@@ -198,7 +198,7 @@ public class UserServiceImpl implements UserService {
       EmployeeListSearchCondition employeeListSearchCondition, Company company) {
     String sortDirection = employeeListSearchCondition.getSortDirection().toUpperCase();
 
-    String sortValue = employeeListSearchCondition.getSortField().getSortValue();
+    String[] sortValue = employeeListSearchCondition.getSortField().getSortValue();
     Pageable paramPageable =
         PageRequest.of(
             employeeListSearchCondition.getPage(),

@@ -1,8 +1,8 @@
 package shamu.company.user.repository;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
@@ -16,7 +16,8 @@ import shamu.company.job.entity.JobUserListItem;
 @Repository
 public class UserCustomRepositoryImpl implements UserCustomRepository {
 
-  @PersistenceContext EntityManager entityManager;
+  @PersistenceContext
+  private EntityManager entityManager;
 
   @Override
   public Page<JobUserListItem> getAllByCondition(
@@ -24,13 +25,17 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
 
     String countAllEmployees =
         "select count(1) from users u where u.deleted_at is null "
-            + "and u.company_id = "
-            + companyId
-            + ";";
+            + "and u.company_id = ?1";
     BigInteger employeeCount =
-        (BigInteger) entityManager.createNativeQuery(countAllEmployees).getSingleResult();
+        (BigInteger) entityManager.createNativeQuery(countAllEmployees).setParameter(1, companyId)
+            .getSingleResult();
 
-    String sql =
+    List<JobUserListItem> jobUserListItemList = new ArrayList<>();
+    if (employeeCount.longValue() == 0) {
+      return new PageImpl<>(jobUserListItemList, pageable, employeeCount.longValue());
+    }
+
+    StringBuilder getAllEmployeeSql = new StringBuilder(
         "select u.id as id, u.image_url as iamgeUrl, up.first_name as firstName, "
             + "up.last_name as lastName, d.name as department, j.title as jobTitle "
             + "from users u "
@@ -44,35 +49,37 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
             + "and u.company_id = ?1 "
             + "and (up.first_name like concat('%', ?2, '%') "
             + "or up.last_name like concat('%', ?2, '%') "
-            + "or d.name like concat('%', ?2, '%') or j.title like concat('%', ?2, '%')) "
-            + "order by "
-            + employeeListSearchCondition.getSortField().getSortValue()
-            + " "
-            + employeeListSearchCondition.getSortDirection()
-            + " limit "
-            + employeeListSearchCondition.getPage()
-            + ","
-            + employeeListSearchCondition.getSize()
-            + ";";
-    Query employeeListQuery = entityManager.createNativeQuery(sql);
+            + "or d.name like concat('%', ?2, '%') or j.title like concat('%', ?2, '%')) ");
+
+    getAllEmployeeSql.append("order by ");
+    StringBuilder finalSql = getAllEmployeeSql;
+    pageable.getSort().forEach(
+        order -> finalSql.append(order.getProperty()).append(" ").append(order.getDirection())
+            .append(","));
+    int commaIndex = getAllEmployeeSql.lastIndexOf(",");
+    getAllEmployeeSql = getAllEmployeeSql.replace(commaIndex, getAllEmployeeSql.length(), " ");
+    getAllEmployeeSql.append("limit ").append(pageable.getPageNumber()).append(",")
+        .append(pageable.getPageSize());
+
+    Query employeeListQuery = entityManager.createNativeQuery(getAllEmployeeSql.toString());
     employeeListQuery.setParameter(1, companyId);
     employeeListQuery.setParameter(2, employeeListSearchCondition.getKeyword());
-    List<Object[]> jobUserList = employeeListQuery.getResultList();
+    List<?> jobUserList = employeeListQuery.getResultList();
 
-    List<JobUserListItem> jobUserListItemList =
-        jobUserList.stream()
-            .map(
-                jobUser -> {
-                  JobUserListItem jobUserListItem = new JobUserListItem();
-                  jobUserListItem.setId(((BigInteger) jobUser[0]).longValue());
-                  jobUserListItem.setImageUrl((String) jobUser[1]);
-                  jobUserListItem.setFirstName((String) jobUser[2]);
-                  jobUserListItem.setLastName((String) jobUser[3]);
-                  jobUserListItem.setDepartment((String) jobUser[4]);
-                  jobUserListItem.setJobTitle((String) jobUser[5]);
-                  return jobUserListItem;
-                })
-            .collect(Collectors.toList());
-    return new PageImpl(jobUserListItemList, pageable, employeeCount.longValue());
+    jobUserList.forEach(jobUser -> {
+      if (jobUser instanceof Object[]) {
+        Object[] jobUserItem = (Object[]) jobUser;
+        JobUserListItem jobUserListItem = new JobUserListItem();
+        jobUserListItem.setId(((BigInteger) jobUserItem[0]).longValue());
+        jobUserListItem.setImageUrl((String) jobUserItem[1]);
+        jobUserListItem.setFirstName((String) jobUserItem[2]);
+        jobUserListItem.setLastName((String) jobUserItem[3]);
+        jobUserListItem.setDepartment((String) jobUserItem[4]);
+        jobUserListItem.setJobTitle((String) jobUserItem[5]);
+        jobUserListItemList.add(jobUserListItem);
+      }
+    });
+
+    return new PageImpl<>(jobUserListItemList, pageable, employeeCount.longValue());
   }
 }
