@@ -9,6 +9,7 @@ import shamu.company.company.entity.Company;
 import shamu.company.employee.dto.EmployeeListSearchCondition;
 import shamu.company.job.JobUserDto;
 import shamu.company.job.entity.JobUserListItem;
+import shamu.company.user.dto.UpdatePasswordDto;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserStatus.Status;
 
@@ -38,7 +39,7 @@ public interface UserService {
 
   String getWelcomeEmail(Context context);
 
-  Context getWelcomeEmailContext(String welcomeMessage);
+  Context getWelcomeEmailContext(String welcomeMessage, String resetPasswordToken);
 
   PageImpl<JobUserDto> getJobUserDtoList(
       EmployeeListSearchCondition employeeListSearchCondition, Company company);
@@ -53,4 +54,8 @@ public interface UserService {
   void save(User user);
 
   String getHeadPortrait(Long userId);
+
+  Boolean createPasswordTokenExist(String token);
+
+  void createPassword(UpdatePasswordDto updatePasswordDto);
 }

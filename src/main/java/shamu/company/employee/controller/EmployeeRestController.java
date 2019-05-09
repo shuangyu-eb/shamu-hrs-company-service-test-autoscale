@@ -77,7 +77,8 @@ public class EmployeeRestController extends BaseRestController {
 
   @PostMapping("employees/welcome-email")
   public String getWelcomeEmail(@RequestBody String welcomeEmailPersonalMessage) {
-    Context context = userService.getWelcomeEmailContext(welcomeEmailPersonalMessage);
+    Context context = userService
+        .getWelcomeEmailContext(welcomeEmailPersonalMessage, null);
     context.setVariable("createPasswordAddress", "#");
     return userService.getWelcomeEmail(context);
   }

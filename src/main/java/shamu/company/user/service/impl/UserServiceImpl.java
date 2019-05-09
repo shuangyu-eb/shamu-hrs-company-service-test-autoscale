@@ -16,6 +16,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.Context;
@@ -29,6 +30,7 @@ import shamu.company.job.JobUserDto;
 import shamu.company.job.entity.JobUser;
 import shamu.company.job.entity.JobUserListItem;
 import shamu.company.job.repository.JobUserRepository;
+import shamu.company.user.dto.UpdatePasswordDto;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserStatus;
 import shamu.company.user.entity.UserStatus.Status;
@@ -67,6 +69,9 @@ public class UserServiceImpl implements UserService {
   }
 
   private static final String ERROR_MESSAGE = "User does not exist!";
+
+  private static final String passwordReg = "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$";
+
 
   @Override
   public User findUserById(Long id) {
@@ -153,10 +158,12 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public Context getWelcomeEmailContext(String welcomeMessage) {
+  public Context getWelcomeEmailContext(String welcomeMessage, String resetPasswordToken) {
     Context context = new Context();
     context.setVariable("frontEndAddress", frontEndAddress);
-    context.setVariable("createPasswordAddress", frontEndAddress + "account/create-password");
+    context.setVariable(
+        "createPasswordAddress",
+        frontEndAddress + "account/password/" + resetPasswordToken);
     welcomeMessage = getFilteredWelcomeMessage(welcomeMessage);
     context.setVariable("welcomeMessage", welcomeMessage);
     return context;
@@ -237,6 +244,32 @@ public class UserServiceImpl implements UserService {
     User user = userRepository.findById(userId)
         .orElseThrow(() -> new ResourceNotFoundException(ERROR_MESSAGE));
     return user.getImageUrl();
+  }
+
+  @Override
+  public Boolean createPasswordTokenExist(String token) {
+    return userRepository.existsByResetPasswordToken(token);
+  }
+
+  @Override
+  public void createPassword(UpdatePasswordDto updatePasswordDto) {
+    if (!Pattern.matches(passwordReg, updatePasswordDto.getNewPassword())) {
+      throw new ForbiddenException("Your password doesn't meet our requirements.");
+    }
+
+    User user = userRepository.findByEmailWork(updatePasswordDto.getEmailWork());
+    if (user == null
+        || !updatePasswordDto.getResetPasswordToken().equals(user.getResetPasswordToken())) {
+      throw new ForbiddenException(
+          "Create password Forbidden");
+    }
+
+    user.setResetPasswordToken(null);
+    String pwHash = BCrypt.hashpw(updatePasswordDto.getNewPassword(), BCrypt.gensalt(10));
+    user.setPassword(pwHash);
+    UserStatus userStatus = userStatusRepository.findByName(Status.ACTIVE.name());
+    user.setUserStatus(userStatus);
+    userRepository.save(user);
   }
 
   public String getActivationEmail(String accountVerifyToken) {

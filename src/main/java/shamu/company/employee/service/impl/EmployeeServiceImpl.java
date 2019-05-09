@@ -275,7 +275,9 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     saveEmployeeAddress(employee, employeeDto);
 
-    saveEmailTasks(employeeDto, currentUser);
+    WelcomeEmailDto welcomeEmailDto = employeeDto.getWelcomeEmail();
+
+    saveEmailTasks(welcomeEmailDto, employee, currentUser);
   }
 
   private String saveEmployeePhoto(String base64EncodedPhoto) {
@@ -347,6 +349,9 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     UserStatus userStatus = userStatusRepository.findByName(Status.PENDING_VERIFICATION.name());
     employee.setUserStatus(userStatus);
+
+    employee.setResetPasswordToken(UUID.randomUUID().toString());
+
     return userRepository.save(employee);
   }
 
@@ -454,13 +459,13 @@ public class EmployeeServiceImpl implements EmployeeService {
     userAddressRepository.save(userAddress);
   }
 
-  private void saveEmailTasks(EmployeeDto employee, User currentUser) {
-    WelcomeEmailDto welcomeEmailDto = employee.getWelcomeEmail();
+  private void saveEmailTasks(WelcomeEmailDto welcomeEmailDto, User employee, User currentUser) {
     String from = currentUser.getEmailWork();
     String to = welcomeEmailDto.getSendTo();
     String content = welcomeEmailDto.getPersonalInformation();
 
-    Context emailContext = userService.getWelcomeEmailContext(content);
+    Context emailContext = userService
+        .getWelcomeEmailContext(content, employee.getResetPasswordToken());
     content = userService.getWelcomeEmail(emailContext);
     Timestamp sendDate = welcomeEmailDto.getSendDate();
 

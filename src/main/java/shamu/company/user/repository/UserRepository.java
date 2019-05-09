@@ -53,4 +53,6 @@ public interface UserRepository extends BaseRepository<User, Long>, UserCustomRe
       value = "SELECT count(1) FROM users WHERE company_id = ?1 AND deleted_at IS NULL",
       nativeQuery = true)
   Integer findExistingUserCountByCompanyId(Long companyId);
+
+  Boolean existsByResetPasswordToken(String token);
 }
