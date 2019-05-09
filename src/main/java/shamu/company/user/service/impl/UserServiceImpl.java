@@ -38,6 +38,7 @@ import shamu.company.user.repository.UserRepository;
 import shamu.company.user.repository.UserStatusRepository;
 import shamu.company.user.service.UserService;
 
+
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -71,7 +72,6 @@ public class UserServiceImpl implements UserService {
   private static final String ERROR_MESSAGE = "User does not exist!";
 
   private static final String passwordReg = "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$";
-
 
   @Override
   public User findUserById(Long id) {

@@ -4,6 +4,9 @@ server:
 logging:
   level:
     root: INFO
+    org:
+      hibernate:
+        type: trace
 
 spring:
   datasource:
@@ -11,10 +14,10 @@ spring:
       maximum-pool-size: 4
       minimum-idle: 2
   jpa:
-    show-sql: true
     properties:
       hibernate:
         format_sql: true
+        show-sql: true
   thymeleaf:
     cache: false
   profiles:
