@@ -11,6 +11,8 @@ spring:
     properties:
       hibernate:
         globally_quoted_identifiers: true
+        jdbc:
+          time_zone: UTC
   liquibase:
     enabled: true
     change-log: classpath:/db/changelog/db.changelog-master.yml

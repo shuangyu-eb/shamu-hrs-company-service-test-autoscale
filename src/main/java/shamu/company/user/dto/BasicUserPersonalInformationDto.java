@@ -1,5 +1,6 @@
 package shamu.company.user.dto;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import java.sql.Date;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,6 +20,7 @@ public class BasicUserPersonalInformationDto {
 
   private String preferredName;
 
+  @JSONField(format = "yyyy-MM-dd")
   private Date birthDate;
 
   public BasicUserPersonalInformationDto(UserPersonalInformation personalInformation) {
