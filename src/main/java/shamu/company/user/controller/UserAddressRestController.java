@@ -54,7 +54,9 @@ public class UserAddressRestController extends BaseRestController {
   }
 
   @GetMapping("users/{id}/user-address")
-  @PreAuthorize("hasPermission(#id, 'USER', 'VIEW_USER_ADDRESS')")
+  @PreAuthorize(
+      "hasPermission(#id, 'USER', 'VIEW_USER_ADDRESS')"
+          + "or hasPermission(#id, 'USER', 'VIEW_SELF')")
   public UserAddressDto getUserAddress(@PathVariable @HashidsFormat Long id) {
     User user = this.getUser();
     User targetUser = userService.findUserById(id);
