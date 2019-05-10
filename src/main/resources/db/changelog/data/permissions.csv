@@ -10,3 +10,4 @@ id,permission_type_id,name
 9,4,EDIT_SELF
 10,4,VIEW_SELF
 11,2,VIEW_USER_ADDRESS
+12,2,VIEW_MY_TEAM

@@ -8,11 +8,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.apache.logging.log4j.util.Strings;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -38,25 +36,21 @@ import shamu.company.user.repository.UserRepository;
 import shamu.company.user.repository.UserStatusRepository;
 import shamu.company.user.service.UserService;
 
-
 @Service
 public class UserServiceImpl implements UserService {
 
+  private static final String ERROR_MESSAGE = "User does not exist!";
+  private static final String passwordReg = "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$";
   private final ITemplateEngine templateEngine;
-
   private final UserRepository userRepository;
-
   private final JobUserRepository jobUserRepository;
-
-  @Value("${application.systemEmailAddress}")
-  private String systemEmailAddress;
-
-  @Value("${application.frontEndAddress}")
-  private String frontEndAddress;
-
   private final UserStatusRepository userStatusRepository;
 
   private final EmailService emailService;
+  @Value("${application.systemEmailAddress}")
+  private String systemEmailAddress;
+  @Value("${application.frontEndAddress}")
+  private String frontEndAddress;
 
   @Autowired
   public UserServiceImpl(ITemplateEngine templateEngine, UserRepository userRepository,
@@ -68,10 +62,6 @@ public class UserServiceImpl implements UserService {
     this.userStatusRepository = userStatusRepository;
     this.emailService = emailService;
   }
-
-  private static final String ERROR_MESSAGE = "User does not exist!";
-
-  private static final String passwordReg = "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$";
 
   @Override
   public User findUserById(Long id) {
@@ -194,7 +184,7 @@ public class UserServiceImpl implements UserService {
         .orElseThrow(() -> new ResourceNotFoundException(ERROR_MESSAGE));
   }
 
-  public PageImpl<JobUserDto> getJobUserDtoList(
+  public Page<JobUserListItem> getAllEmployees(
       EmployeeListSearchCondition employeeListSearchCondition, Company company) {
     String sortDirection = employeeListSearchCondition.getSortDirection().toUpperCase();
 
@@ -206,24 +196,11 @@ public class UserServiceImpl implements UserService {
             Sort.Direction.valueOf(sortDirection),
             sortValue);
 
-    Page<JobUserListItem> jobUserPageItem =
-        findAllEmployees(employeeListSearchCondition, company, paramPageable);
-    List<JobUserListItem> jobUsers = jobUserPageItem.getContent();
-    List<JobUserDto> jobUserDtos =
-        jobUsers.stream()
-            .map(
-                (jobUser -> {
-                  JobUserDto jobUserDto = new JobUserDto();
-                  BeanUtils.copyProperties(jobUser, jobUserDto);
-                  return jobUserDto;
-                }))
-            .collect(Collectors.toList());
-    return new PageImpl<JobUserDto>(
-        jobUserDtos, jobUserPageItem.getPageable(), jobUserPageItem.getTotalElements());
+    return getAllEmployeesByCompany(employeeListSearchCondition, company, paramPageable);
   }
 
   @Override
-  public Page<JobUserListItem> findAllEmployees(
+  public Page<JobUserListItem> getAllEmployeesByCompany(
       EmployeeListSearchCondition employeeListSearchCondition, Company company, Pageable pageable) {
     Long companyId = company.getId();
     return userRepository.getAllByCondition(employeeListSearchCondition, companyId, pageable);
@@ -270,6 +247,23 @@ public class UserServiceImpl implements UserService {
     UserStatus userStatus = userStatusRepository.findByName(Status.ACTIVE.name());
     user.setUserStatus(userStatus);
     userRepository.save(user);
+  }
+
+  @Override
+  public Page<JobUserListItem> getMyTeam(EmployeeListSearchCondition employeeListSearchCondition,
+      User user) {
+    String sortDirection = employeeListSearchCondition.getSortDirection().toUpperCase();
+
+    String[] sortValue = employeeListSearchCondition.getSortField().getSortValue();
+    Pageable paramPageable =
+        PageRequest.of(
+            employeeListSearchCondition.getPage(),
+            employeeListSearchCondition.getSize(),
+            Sort.Direction.valueOf(sortDirection),
+            sortValue);
+    Page<JobUserListItem> result = userRepository
+        .getMyTeamByManager(employeeListSearchCondition, user, paramPageable);
+    return result;
   }
 
   public String getActivationEmail(String accountVerifyToken) {

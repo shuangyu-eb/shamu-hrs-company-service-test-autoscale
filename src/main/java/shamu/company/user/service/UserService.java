@@ -2,7 +2,6 @@ package shamu.company.user.service;
 
 import java.util.List;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.thymeleaf.context.Context;
 import shamu.company.company.entity.Company;
@@ -41,10 +40,10 @@ public interface UserService {
 
   Context getWelcomeEmailContext(String welcomeMessage, String resetPasswordToken);
 
-  PageImpl<JobUserDto> getJobUserDtoList(
+  Page<JobUserListItem> getAllEmployees(
       EmployeeListSearchCondition employeeListSearchCondition, Company company);
 
-  Page<JobUserListItem> findAllEmployees(
+  Page<JobUserListItem> getAllEmployeesByCompany(
       EmployeeListSearchCondition employeeListSearchCondition, Company company, Pageable pageable);
 
   User getOne(Long userId);
@@ -58,4 +57,7 @@ public interface UserService {
   Boolean createPasswordTokenExist(String token);
 
   void createPassword(UpdatePasswordDto updatePasswordDto);
+
+  Page<JobUserListItem> getMyTeam(EmployeeListSearchCondition employeeListSearchCondition,
+      User user);
 }

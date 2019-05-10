@@ -2,7 +2,7 @@ package shamu.company.employee.controller;
 
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +18,7 @@ import shamu.company.employee.dto.EmployeeListSearchCondition;
 import shamu.company.employee.dto.SelectFieldInformationDto;
 import shamu.company.employee.pojo.OfficePojo;
 import shamu.company.employee.service.EmployeeService;
-import shamu.company.job.JobUserDto;
+import shamu.company.job.entity.JobUserListItem;
 import shamu.company.user.service.UserService;
 
 @RestApiController
@@ -35,9 +35,16 @@ public class EmployeeRestController extends BaseRestController {
   }
 
   @GetMapping("employees")
-  public PageImpl<JobUserDto> getAllEmployees(
+  public Page<JobUserListItem> getAllEmployees(
       EmployeeListSearchCondition employeeListSearchCondition) {
-    return userService.getJobUserDtoList(employeeListSearchCondition, this.getCompany());
+    return userService.getAllEmployees(employeeListSearchCondition, this.getCompany());
+  }
+
+  @GetMapping("employees/my-team")
+  @PreAuthorize("hasAuthority('VIEW_MY_TEAM')")
+  public Page<JobUserListItem> getMyTeam(
+      EmployeeListSearchCondition employeeListSearchCondition) {
+    return userService.getMyTeam(employeeListSearchCondition, this.getUser());
   }
 
   @GetMapping("employment-types")
