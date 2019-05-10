@@ -18,6 +18,7 @@ import org.springframework.util.FileCopyUtils;
 import org.thymeleaf.context.Context;
 import shamu.company.common.entity.StateProvince;
 import shamu.company.common.exception.AwsUploadException;
+import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.common.repository.DepartmentRepository;
 import shamu.company.common.repository.EmploymentTypeRepository;
 import shamu.company.common.repository.OfficeAddressRepository;
@@ -56,6 +57,7 @@ import shamu.company.user.entity.UserCompensation;
 import shamu.company.user.entity.UserContactInformation;
 import shamu.company.user.entity.UserPersonalInformation;
 import shamu.company.user.entity.UserRole;
+import shamu.company.user.entity.UserRole.Role;
 import shamu.company.user.entity.UserStatus;
 import shamu.company.user.entity.UserStatus.Status;
 import shamu.company.user.repository.GenderRepository;
@@ -381,8 +383,17 @@ public class EmployeeServiceImpl implements EmployeeService {
   private void saveManagerUser(User user, NewEmployeeJobInformationDto jobInformation) {
     Long managerUserId = jobInformation.getReportsTo();
     if (managerUserId != null) {
-      User managerUser = userRepository.getOne(managerUserId);
+      User managerUser = userRepository.findById(managerUserId).orElseThrow(
+          () -> new ResourceNotFoundException("User with id " + managerUserId + " not found!"));
+
+      if (Role.NON_MANAGER.name().equals(user.getUserRole().getName())) {
+        UserRole userRole = userRoleRepository.findByName(Role.MANAGER.name());
+        managerUser.setUserRole(userRole);
+        userRepository.save(managerUser);
+      }
+
       user.setManagerUser(managerUser);
+      userRepository.save(user);
     }
   }
 
