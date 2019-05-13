@@ -54,5 +54,7 @@ public interface UserRepository extends BaseRepository<User, Long>, UserCustomRe
       nativeQuery = true)
   Integer findExistingUserCountByCompanyId(Long companyId);
 
+  List<User> findAllByCompany(Company company);
+
   Boolean existsByResetPasswordToken(String token);
 }

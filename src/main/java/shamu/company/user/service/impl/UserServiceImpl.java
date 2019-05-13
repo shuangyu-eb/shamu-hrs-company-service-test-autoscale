@@ -217,6 +217,19 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
+  public List<JobUserDto> findAllEmployees(Company company) {
+    List<User> policyEmployees = userRepository.findAllByCompany(company);
+
+    return policyEmployees.stream()
+        .map(
+            (user) -> {
+              JobUser employeeWithJob = jobUserRepository.findJobUserByUser(user);
+              return new JobUserDto(user, employeeWithJob);
+            })
+        .collect(Collectors.toList());
+  }
+
+  @Override
   public String getHeadPortrait(Long userId) {
     User user = userRepository.findById(userId)
         .orElseThrow(() -> new ResourceNotFoundException(ERROR_MESSAGE));

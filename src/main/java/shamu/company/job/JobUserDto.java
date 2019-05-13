@@ -32,13 +32,19 @@ public class JobUserDto {
 
   private String department;
 
-  public JobUserDto(User user, JobUser reporterWithJob) {
+  private String employmentType;
+
+  public JobUserDto(User user, JobUser userWithJob) {
+    this.setId(user.getId());
     this.setFirstName(user.getUserPersonalInformation().getFirstName());
     this.setPhoneNumber(user.getUserContactInformation().getPhoneWork());
     this.setEmail(user.getUserContactInformation().getEmailWork());
     this.setImageUrl(user.getImageUrl());
-    if (reporterWithJob != null) {
-      this.setJobTitle(reporterWithJob.getJob().getTitle());
+    if (userWithJob != null) {
+      this.setJobTitle(userWithJob.getJob().getTitle());
+      this.setDepartment(userWithJob.getDepartment().getName());
     }
   }
+
+
 }

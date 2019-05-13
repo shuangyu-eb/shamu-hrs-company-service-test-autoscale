@@ -13,11 +13,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.thymeleaf.context.Context;
 import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
+import shamu.company.company.entity.Company;
 import shamu.company.employee.dto.EmployeeDto;
 import shamu.company.employee.dto.EmployeeListSearchCondition;
 import shamu.company.employee.dto.SelectFieldInformationDto;
 import shamu.company.employee.pojo.OfficePojo;
 import shamu.company.employee.service.EmployeeService;
+import shamu.company.job.JobUserDto;
 import shamu.company.job.entity.JobUserListItem;
 import shamu.company.user.service.UserService;
 
@@ -45,6 +47,13 @@ public class EmployeeRestController extends BaseRestController {
   public Page<JobUserListItem> getMyTeam(
       EmployeeListSearchCondition employeeListSearchCondition) {
     return userService.getMyTeam(employeeListSearchCondition, this.getUser());
+  }
+
+  @GetMapping("policy-employees")
+  @PreAuthorize("hasAuthority('CREATE_USER')")
+  public List<JobUserDto> getAllPolicyEmployees() {
+    Company company = this.getUser().getCompany();
+    return userService.findAllEmployees(company);
   }
 
   @GetMapping("employment-types")

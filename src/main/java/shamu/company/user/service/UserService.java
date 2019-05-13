@@ -52,6 +52,8 @@ public interface UserService {
 
   void save(User user);
 
+  List<JobUserDto> findAllEmployees(Company company);
+
   String getHeadPortrait(Long userId);
 
   Boolean createPasswordTokenExist(String token);
