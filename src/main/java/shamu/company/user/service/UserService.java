@@ -62,4 +62,6 @@ public interface UserService {
 
   Page<JobUserListItem> getMyTeam(EmployeeListSearchCondition employeeListSearchCondition,
       User user);
+
+  void sendResetPasswordEmail(String email);
 }

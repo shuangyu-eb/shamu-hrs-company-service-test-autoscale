@@ -2,7 +2,6 @@ package shamu.company.user.controller;
 
 import java.io.IOException;
 import org.apache.logging.log4j.util.Strings;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -102,5 +101,11 @@ public class UserRestController extends BaseRestController {
     userService.save(user);
 
     return path;
+  }
+
+  @PostMapping(value = "user/password/reset/email")
+  public HttpEntity sendResetPasswordEmail(@RequestBody String email) {
+    userService.sendResetPasswordEmail(email);
+    return new ResponseEntity(HttpStatus.OK);
   }
 }

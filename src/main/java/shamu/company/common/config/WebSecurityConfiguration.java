@@ -40,7 +40,9 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
             "/company/paid-holidays",
             "/company/user/check/**",
             "/company/account/password",
-            "/company/account/password/**"
+            "/company/account/password/**",
+            "/company/user/sign-up/email",
+            "/company/user/password/reset/email"
         ).permitAll()
         .anyRequest().authenticated()
         .and()

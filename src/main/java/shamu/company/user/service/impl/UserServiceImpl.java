@@ -295,4 +295,28 @@ public class UserServiceImpl implements UserService {
     String employeeNumberPrefix = companyName.substring(0, 3);
     return String.format("%s%06d", employeeNumberPrefix, employeeNumber);
   }
+
+  @Override
+  public void sendResetPasswordEmail(String email) {
+    User user = userRepository.findByEmailWork(email);
+    if (user == null) {
+      throw new ForbiddenException("User account does not exist!");
+    }
+    String passwordRestToken = UUID.randomUUID().toString();
+    String emailContent = getResetPasswordEmail(passwordRestToken);
+    Timestamp sendDate = new Timestamp(new Date().getTime());
+    Email verifyEmail = new Email(systemEmailAddress, email,  "Password Reset!",
+        emailContent, sendDate);
+    emailService.saveAndScheduleEmail(verifyEmail);
+    user.setResetPasswordToken(passwordRestToken);
+    userRepository.save(user);
+  }
+
+  public String getResetPasswordEmail(String passwordRestToken) {
+    Context context = new Context();
+    context.setVariable("frontEndAddress", frontEndAddress);
+    context.setVariable(
+        "passwordResetAddress", String.format("account/reset-password/%s", passwordRestToken));
+    return templateEngine.process("password_reset_email.html", context);
+  }
 }
