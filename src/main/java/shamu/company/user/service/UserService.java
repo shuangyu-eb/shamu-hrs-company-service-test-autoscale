@@ -64,4 +64,8 @@ public interface UserService {
       User user);
 
   void sendResetPasswordEmail(String email);
+
+  boolean existsByResetPasswordToken(String resetPasswordToken);
+
+  void resetPassword(UpdatePasswordDto updatePasswordDto);
 }

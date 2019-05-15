@@ -57,4 +57,6 @@ public interface UserRepository extends BaseRepository<User, Long>, UserCustomRe
   List<User> findAllByCompany(Company company);
 
   Boolean existsByResetPasswordToken(String token);
+
+  User findByResetPasswordToken(String token);
 }

@@ -312,6 +312,24 @@ public class UserServiceImpl implements UserService {
     userRepository.save(user);
   }
 
+  @Override
+  public boolean existsByResetPasswordToken(String resetPasswordToken) {
+    return userRepository.existsByResetPasswordToken(resetPasswordToken);
+  }
+
+  @Override
+  public void resetPassword(UpdatePasswordDto updatePasswordDto) {
+    User user = userRepository.findByResetPasswordToken(updatePasswordDto.getResetPasswordToken());
+    if (user == null) {
+      throw new ForbiddenException(
+          "Create password Forbidden");
+    }
+    user.setResetPasswordToken(null);
+    String pwHash = BCrypt.hashpw(updatePasswordDto.getNewPassword(), BCrypt.gensalt(10));
+    user.setPassword(pwHash);
+    userRepository.save(user);
+  }
+
   public String getResetPasswordEmail(String passwordRestToken) {
     Context context = new Context();
     context.setVariable("frontEndAddress", frontEndAddress);
