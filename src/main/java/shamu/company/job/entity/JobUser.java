@@ -1,6 +1,6 @@
 package shamu.company.job.entity;
 
-import java.sql.Date;
+import java.sql.Timestamp;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
@@ -31,13 +31,14 @@ public class JobUser extends BaseEntity {
   @ManyToOne
   private EmploymentType employmentType;
 
-  private Date startDate;
+  private Timestamp startDate;
 
-  private Date endDate;
+  private Timestamp endDate;
 
   @ManyToOne
   private Office office;
 
+  // TODO remove this field , we can get it from Job
   @ManyToOne
   private Department department;
 

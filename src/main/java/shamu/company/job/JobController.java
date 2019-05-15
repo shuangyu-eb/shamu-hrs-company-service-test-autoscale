@@ -5,93 +5,63 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
-import shamu.company.company.entity.Department;
-import shamu.company.employee.entity.EmploymentType;
 import shamu.company.hashids.HashidsFormat;
-import shamu.company.job.pojo.JobInformationPojo;
-import shamu.company.job.pojo.OfficeAddressPojo;
-import shamu.company.job.service.JobService;
+import shamu.company.job.dto.JobUpdateDto;
+import shamu.company.job.entity.JobUser;
 import shamu.company.job.service.JobUserService;
 import shamu.company.user.entity.User;
+import shamu.company.user.entity.UserCompensation;
+import shamu.company.user.service.UserService;
 
 @RestApiController
 public class JobController extends BaseRestController {
 
-  @Autowired
-  JobUserService jobUserService;
+  private final JobUserService jobUserService;
+
+  private final UserService userService;
 
   @Autowired
-  JobService jobService;
-
-  @GetMapping(value = {"info/users/{userId}/jobs"})
-  public JobInformationPojo getJobInfo(@PathVariable @HashidsFormat Long userId) {
-    return jobUserService.getJobInfoByUserId(userId);
+  public JobController(JobUserService jobUserService, UserService userService) {
+    this.jobUserService = jobUserService;
+    this.userService = userService;
   }
 
-  @GetMapping(value = {"info/office-addresses"})
-  public List getOfficeAddresses() {
-    return jobUserService.getOfficeAddresses(this.getUser());
-  }
-
-  @GetMapping(value = {"info/employment-types"})
-  public List getEmploymentTypes() {
-    return jobUserService.getEmploymentTypes(this.getUser());
-  }
-
-  @GetMapping(value = {"info/departments"})
-  public List getDepartments() {
-    return jobUserService.getDepartments(this.getUser());
-  }
-
-  @GetMapping(value = {"info/compensation-frequences"})
-  public List getCompensationFrequences() {
-    return jobUserService.getCompensationFrequences(this.getUser());
-  }
-
-  @GetMapping(value = {"info/state-provinces"})
-  public List getStateProvinces() {
-    return jobUserService.getStateProvinces();
-  }
-
-  @GetMapping(value = {"info/managers"})
+  @GetMapping("info/managers")
+  // TODO permission
   public List getManagers() {
     return jobUserService.getManagers(this.getUser());
   }
 
-  @GetMapping(value = {"info/users/{userId}/jobusers"})
-  public JobInformationPojo getJobInfoModal(@PathVariable @HashidsFormat Long userId) {
-    return jobUserService.getJobInfoModal(userId);
-  }
 
-  @PatchMapping(value = {"info/users/jobs"})
-  public HttpEntity updateJobInfo(@RequestBody JobInformationPojo jobInfoEditPojo) {
-    jobService.updateJobInfo(jobInfoEditPojo, this.getUser());
-    return new ResponseEntity(HttpStatus.OK);
-  }
+  @PatchMapping("users/{id}/jobs")
+  @PreAuthorize("hasPermission(#id,'USER', 'EDIT_USER')")
+  public HttpEntity updateJobInfo(@PathVariable @HashidsFormat Long id,
+      @RequestBody JobUpdateDto jobUpdateDto) {
+    User user = userService.findUserById(id);
+    JobUser jobUser = jobUserService.getJobUserByUserId(id);
+    jobUser = jobUpdateDto.updateJobUser(jobUser);
+    jobUserService.save(jobUser);
 
-  @PostMapping(value = {"info/employee-types"})
-  public HttpEntity createEmploymentType(@RequestBody EmploymentType type) {
-    User user = this.getUser();
-    jobService.saveEmploymentType(type, user.getCompany());
-    return new ResponseEntity(HttpStatus.OK);
-  }
+    UserCompensation userCompensation = jobUpdateDto
+        .updateUserCompensation(user.getUserCompensation());
+    userCompensation.setUser(user);
+    userCompensation = userService.saveUserCompensation(userCompensation);
 
-  @PostMapping(value = {"info/deparments"})
-  public HttpEntity createDepartment(@RequestBody Department department) {
-    jobService.saveDepartment(department, this.getUser());
-    return new ResponseEntity(HttpStatus.OK);
-  }
+    user.setUserCompensation(userCompensation);
 
-  @PostMapping(value = {"info/offices/addresses"})
-  public HttpEntity createOfficeAddress(@RequestBody OfficeAddressPojo addressPojo) {
-    jobService.saveOfficeAddress(addressPojo);
+    if (jobUpdateDto.getManagerId() != null) {
+      User manager = new User();
+      user.setManagerUser(manager);
+    }
+    userService.save(user);
+
     return new ResponseEntity(HttpStatus.OK);
   }
 }

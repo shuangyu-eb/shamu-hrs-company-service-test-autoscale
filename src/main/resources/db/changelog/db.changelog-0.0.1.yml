@@ -2011,3 +2011,13 @@ databaseChangeLog:
         file: db/changelog/data/states-provinces.csv
         primaryKey: id
         tableName: states_provinces
+- changeSet:
+    id: 1555666271658-1
+    author: Ying-Li
+    changes:
+    - addColumn:
+        columns:
+        - column:
+            name: company_id
+            type: BIGINT
+        tableName: employment_types

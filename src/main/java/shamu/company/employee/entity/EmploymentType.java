@@ -28,4 +28,8 @@ public class EmploymentType extends BaseEntity {
   public EmploymentType(Long employmentTypeId) {
     this.setId(employmentTypeId);
   }
+
+  public EmploymentType(String name) {
+    this.setName(name);
+  }
 }

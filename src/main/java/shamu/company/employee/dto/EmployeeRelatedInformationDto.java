@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import shamu.company.hashids.HashidsFormat;
-import shamu.company.job.JobUserDto;
+import shamu.company.job.dto.JobUserDto;
 
 @Data
 @AllArgsConstructor

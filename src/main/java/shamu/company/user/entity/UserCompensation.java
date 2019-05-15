@@ -3,6 +3,7 @@ package shamu.company.user.entity;
 import java.sql.Timestamp;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import lombok.Data;
@@ -31,17 +32,14 @@ public class UserCompensation extends BaseEntity {
   @ToString.Exclude
   private User user;
 
-  @OneToOne private CompensationType compensationType;
+  @OneToOne
+  private CompensationType compensationType;
 
-  @OneToOne private CompensationChangeReason compensationChangeReason;
+  @OneToOne
+  private CompensationChangeReason compensationChangeReason;
 
-  @OneToOne private CompensationFrequency compensationFrequency;
+  @ManyToOne
+  private CompensationFrequency compensationFrequency;
 
   private String comment;
-
-  public UserCompensation(Integer wage, User user, CompensationFrequency compensationFrequency) {
-    this.wage = wage;
-    this.user = user;
-    this.compensationFrequency = compensationFrequency;
-  }
 }

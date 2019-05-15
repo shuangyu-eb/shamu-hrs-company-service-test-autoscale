@@ -6,10 +6,11 @@ import org.springframework.data.domain.Pageable;
 import org.thymeleaf.context.Context;
 import shamu.company.company.entity.Company;
 import shamu.company.employee.dto.EmployeeListSearchCondition;
-import shamu.company.job.JobUserDto;
+import shamu.company.job.dto.JobUserDto;
 import shamu.company.job.entity.JobUserListItem;
 import shamu.company.user.dto.UpdatePasswordDto;
 import shamu.company.user.entity.User;
+import shamu.company.user.entity.UserCompensation;
 import shamu.company.user.entity.UserStatus.Status;
 
 public interface UserService {
@@ -65,7 +66,7 @@ public interface UserService {
 
   void sendResetPasswordEmail(String email);
 
-  boolean existsByResetPasswordToken(String resetPasswordToken);
-
   void resetPassword(UpdatePasswordDto updatePasswordDto);
+
+  UserCompensation saveUserCompensation(UserCompensation userCompensation);
 }

@@ -19,7 +19,7 @@ import shamu.company.employee.dto.EmployeeListSearchCondition;
 import shamu.company.employee.dto.SelectFieldInformationDto;
 import shamu.company.employee.pojo.OfficePojo;
 import shamu.company.employee.service.EmployeeService;
-import shamu.company.job.JobUserDto;
+import shamu.company.job.dto.JobUserDto;
 import shamu.company.job.entity.JobUserListItem;
 import shamu.company.user.service.UserService;
 
@@ -56,16 +56,6 @@ public class EmployeeRestController extends BaseRestController {
     return userService.findAllEmployees(company);
   }
 
-  @GetMapping("employment-types")
-  public List<SelectFieldInformationDto> getEmploymentTypes() {
-    return employeeService.getEmploymentTypes();
-  }
-
-  @GetMapping("departments")
-  public List<SelectFieldInformationDto> getDepartments() {
-    return employeeService.getDepartments();
-  }
-
   @GetMapping("office-locations")
   public List<SelectFieldInformationDto> getOfficeLocations() {
     return employeeService.getOfficeLocations();
@@ -77,11 +67,13 @@ public class EmployeeRestController extends BaseRestController {
   }
 
   @PostMapping("employment-type")
+  // TODO remove it, use the method in CompanyRestController
   public Long saveEmploymentType(String employmentType) {
     return employeeService.saveEmploymentType(employmentType).getId();
   }
 
   @PostMapping("department")
+  // TODO  use the method in CompanyRestController
   public Long saveDepartment(String department) {
     return employeeService.saveDepartment(department).getId();
   }

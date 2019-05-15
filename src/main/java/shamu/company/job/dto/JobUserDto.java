@@ -1,4 +1,4 @@
-package shamu.company.job;
+package shamu.company.job.dto;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;

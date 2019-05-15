@@ -24,14 +24,16 @@ import shamu.company.company.entity.Company;
 import shamu.company.email.Email;
 import shamu.company.email.EmailService;
 import shamu.company.employee.dto.EmployeeListSearchCondition;
-import shamu.company.job.JobUserDto;
+import shamu.company.job.dto.JobUserDto;
 import shamu.company.job.entity.JobUser;
 import shamu.company.job.entity.JobUserListItem;
 import shamu.company.job.repository.JobUserRepository;
 import shamu.company.user.dto.UpdatePasswordDto;
 import shamu.company.user.entity.User;
+import shamu.company.user.entity.UserCompensation;
 import shamu.company.user.entity.UserStatus;
 import shamu.company.user.entity.UserStatus.Status;
+import shamu.company.user.repository.UserCompensationRepository;
 import shamu.company.user.repository.UserRepository;
 import shamu.company.user.repository.UserStatusRepository;
 import shamu.company.user.service.UserService;
@@ -52,15 +54,18 @@ public class UserServiceImpl implements UserService {
   @Value("${application.frontEndAddress}")
   private String frontEndAddress;
 
+  private final UserCompensationRepository userCompensationRepository;
+
   @Autowired
   public UserServiceImpl(ITemplateEngine templateEngine, UserRepository userRepository,
       JobUserRepository jobUserRepository, UserStatusRepository userStatusRepository,
-      EmailService emailService) {
+      EmailService emailService, UserCompensationRepository userCompensationRepository) {
     this.templateEngine = templateEngine;
     this.userRepository = userRepository;
     this.jobUserRepository = jobUserRepository;
     this.userStatusRepository = userStatusRepository;
     this.emailService = emailService;
+    this.userCompensationRepository = userCompensationRepository;
   }
 
   @Override
@@ -237,6 +242,11 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
+  public UserCompensation saveUserCompensation(UserCompensation userCompensation) {
+    return userCompensationRepository.save(userCompensation);
+  }
+
+  @Override
   public Boolean createPasswordTokenExist(String token) {
     return userRepository.existsByResetPasswordToken(token);
   }
@@ -250,8 +260,7 @@ public class UserServiceImpl implements UserService {
     User user = userRepository.findByEmailWork(updatePasswordDto.getEmailWork());
     if (user == null
         || !updatePasswordDto.getResetPasswordToken().equals(user.getResetPasswordToken())) {
-      throw new ForbiddenException(
-          "Create password Forbidden");
+      throw new ForbiddenException("Create password Forbidden");
     }
 
     user.setResetPasswordToken(null);
@@ -313,16 +322,10 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public boolean existsByResetPasswordToken(String resetPasswordToken) {
-    return userRepository.existsByResetPasswordToken(resetPasswordToken);
-  }
-
-  @Override
   public void resetPassword(UpdatePasswordDto updatePasswordDto) {
     User user = userRepository.findByResetPasswordToken(updatePasswordDto.getResetPasswordToken());
     if (user == null) {
-      throw new ForbiddenException(
-          "Create password Forbidden");
+      throw new ForbiddenException("Create password Forbidden");
     }
     user.setResetPasswordToken(null);
     String pwHash = BCrypt.hashpw(updatePasswordDto.getNewPassword(), BCrypt.gensalt(10));

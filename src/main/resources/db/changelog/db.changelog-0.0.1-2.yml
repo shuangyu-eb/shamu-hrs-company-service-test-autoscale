@@ -793,3 +793,91 @@ databaseChangeLog:
             name: retry_count
             type: TINYINT
         tableName: emails
+
+- changeSet:
+    id: 1557390699512-65
+    author: Qi-Jia
+    changes:
+    - addColumn:
+        columns:
+        - column:
+            name: is_account_owner
+            type: BOOLEAN
+        tableName: users
+
+- changeSet:
+    id: 1557390699512-66
+    author: Qi-Jia
+    changes:
+      - dropColumn:
+          columnName: city_id
+          tableName: office_addresses
+
+- changeSet:
+    id: 1557390699512-67
+    author: Qi-Jia
+    changes:
+    - addColumn:
+        columns:
+        - column:
+            name: city
+            type: varchar(255)
+        tableName: office_addresses
+
+- changeSet:
+    id: 1557390699512-68
+    author: Qi-Jia
+    changes:
+    - dropTable:
+        tableName: cities
+
+- changeSet:
+    id: 1557390699512-69
+    author: Qi-Jia
+    changes:
+    - dropForeignKeyConstraint:
+        baseTableName: office_addresses
+        constraintName: fk_offices_addresses_offices
+
+- changeSet:
+    id: 1557390699512-70
+    author: Qi-Jia
+    changes:
+      - dropColumn:
+          columnName: office_id
+          tableName: office_addresses
+
+
+- changeSet:
+    id: 1557390699512-71
+    author: Qi-Jia
+    changes:
+    - dropForeignKeyConstraint:
+        baseTableName: compensation_frequency
+        constraintName: fk_compensation_frequency_companies
+
+- changeSet:
+    id: 1557390699512-72
+    author: Qi-Jia
+    changes:
+      - dropColumn:
+          columnName: company_id
+          tableName: compensation_frequency
+
+- changeSet:
+    id: 1557390699512-73
+    author: Qi-Jia
+    runOnchange: ture
+    changes:
+    - loadUpdateData:
+        columns:
+        - column:
+            name: id
+            type: NUMERIC
+        - column:
+            name: name
+            type: STRING
+        file: db/changelog/data/compensation-frequency.csv
+        primaryKey: id
+        tableName: compensation_frequency
+

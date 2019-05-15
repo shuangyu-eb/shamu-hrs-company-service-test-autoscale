@@ -25,4 +25,8 @@ public class Department extends BaseEntity {
   public Department(Long departmentId) {
     this.setId(departmentId);
   }
+
+  public Department(String name) {
+    this.setName(name);
+  }
 }

@@ -48,11 +48,19 @@ public class User extends BaseEntity {
   private UserCompensation userCompensation;
 
   @OneToOne private UserRole userRole;
+
+  private Boolean isAccountOwner;
+
   private String invitationEmailToken;
+
   private Timestamp invitedAt;
+
   private Timestamp resetPasswordSentAt;
+
   private String resetPasswordToken;
+
   private String verificationToken;
+
   private Timestamp verifiedAt;
 
   public User(Long id) {

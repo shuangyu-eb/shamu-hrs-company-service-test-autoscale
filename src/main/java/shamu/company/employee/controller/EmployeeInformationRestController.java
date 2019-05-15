@@ -14,7 +14,7 @@ import shamu.company.employee.dto.UserContactInformationDto;
 import shamu.company.employee.dto.UserPersonalInformationDto;
 import shamu.company.employee.dto.UserPersonalInformationForManagerDto;
 import shamu.company.hashids.HashidsFormat;
-import shamu.company.job.JobUserDto;
+import shamu.company.job.dto.JobUserDto;
 import shamu.company.job.entity.JobUser;
 import shamu.company.job.service.JobUserService;
 import shamu.company.user.dto.BasicUserContactInformationDto;

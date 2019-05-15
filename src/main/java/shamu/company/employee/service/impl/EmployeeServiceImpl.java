@@ -2,7 +2,6 @@ package shamu.company.employee.service.impl;
 
 import java.io.File;
 import java.io.IOException;
-import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -147,27 +146,6 @@ public class EmployeeServiceImpl implements EmployeeService {
   }
 
   @Override
-  public List<SelectFieldInformationDto> getDepartments() {
-    List<Department> departments = departmentRepository.findAll();
-    return
-        departments.stream()
-            .map(
-                department ->
-                    new SelectFieldInformationDto(department.getId(), department.getName()))
-            .collect(Collectors.toList());
-  }
-
-  @Override
-  public List<SelectFieldInformationDto> getEmploymentTypes() {
-    List<EmploymentType> employmentTypes = employmentTypeRepository.findAll();
-    return employmentTypes.stream()
-            .map(
-                employmentType ->
-                    new SelectFieldInformationDto(employmentType.getId(), employmentType.getName()))
-            .collect(Collectors.toList());
-  }
-
-  @Override
   public List<SelectFieldInformationDto> getOfficeLocations() {
     List<Office> offices = officeRepository.findAll();
     return
@@ -179,8 +157,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                   if (Strings.isNotBlank(officeName)) {
                     officeLocationDetails.add(officeName);
                   }
-                  OfficeAddress officeAddress =
-                      officeAddressRepository.findOfficeAddressByOffice(office);
+                  OfficeAddress officeAddress = office.getOfficeAddress();
                   if (null != officeAddress) {
                     String street1 = officeAddress.getStreet1();
                     if (Strings.isNotBlank(street1)) {
@@ -440,13 +417,14 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     Timestamp hireDate = jobInformation.getHireDate();
     if (hireDate != null) {
-      jobUser.setStartDate(new Date(hireDate.getTime()));
+      jobUser.setStartDate(new Timestamp(hireDate.getTime()));
     }
 
     Long officeAddressId = jobInformation.getOfficeAddressId();
     if (officeAddressId != null) {
       OfficeAddress officeAddress = officeAddressRepository.getOne(officeAddressId);
-      jobUser.setOffice(officeAddress.getOffice());
+      // TODO the column office_id in table office_addresses has been removed.
+      //  jobUser.setOffice(officeAddress.getOffice());
     } else {
       jobUser.setOffice(null);
     }

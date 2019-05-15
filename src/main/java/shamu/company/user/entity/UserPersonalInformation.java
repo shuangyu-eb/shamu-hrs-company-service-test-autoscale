@@ -1,5 +1,6 @@
 package shamu.company.user.entity;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import java.sql.Date;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
@@ -22,6 +23,7 @@ public class UserPersonalInformation extends BaseEntity {
 
   private String preferredName;
 
+  @JSONField(format = "yyyy-MM-dd")
   private Date birthDate;
 
   private String ssn;

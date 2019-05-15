@@ -11,10 +11,6 @@ import shamu.company.user.entity.User;
 
 public interface EmployeeService {
 
-  List<SelectFieldInformationDto> getEmploymentTypes();
-
-  List<SelectFieldInformationDto> getDepartments();
-
   List<SelectFieldInformationDto> getOfficeLocations();
 
   List<SelectFieldInformationDto> getManagers();
