@@ -9,7 +9,9 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import shamu.company.common.config.annotations.RestApiController;
+import shamu.company.common.exception.ForbiddenException;
 import shamu.company.user.dto.UpdatePasswordDto;
+import shamu.company.user.dto.UserLoginDto;
 import shamu.company.user.service.UserService;
 
 @RestApiController
@@ -30,6 +32,15 @@ public class AccountRestController {
   @PatchMapping("account/password")
   public HttpEntity createPassword(@RequestBody UpdatePasswordDto updatePasswordDto) {
     userService.createPassword(updatePasswordDto);
+    return new ResponseEntity(HttpStatus.OK);
+  }
+
+  @PatchMapping("account/unlock")
+  public HttpEntity unlock(@RequestBody UserLoginDto userLoginDto) {
+    if (userLoginDto.getEmailWork() == null || userLoginDto.getPassword() == null) {
+      throw new ForbiddenException("Invalid user info");
+    }
+    userService.unlock(userLoginDto);
     return new ResponseEntity(HttpStatus.OK);
   }
 }

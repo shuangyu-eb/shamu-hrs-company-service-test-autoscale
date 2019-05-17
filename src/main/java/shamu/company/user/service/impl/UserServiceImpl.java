@@ -29,6 +29,7 @@ import shamu.company.job.entity.JobUser;
 import shamu.company.job.entity.JobUserListItem;
 import shamu.company.job.repository.JobUserRepository;
 import shamu.company.user.dto.UpdatePasswordDto;
+import shamu.company.user.dto.UserLoginDto;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserCompensation;
 import shamu.company.user.entity.UserStatus;
@@ -283,9 +284,16 @@ public class UserServiceImpl implements UserService {
             employeeListSearchCondition.getSize(),
             Sort.Direction.valueOf(sortDirection),
             sortValue);
-    Page<JobUserListItem> result = userRepository
+    return userRepository
         .getMyTeamByManager(employeeListSearchCondition, user, paramPageable);
-    return result;
+  }
+
+  @Override
+  public void unlock(UserLoginDto userLoginDto) {
+    User user = userRepository.findByEmailWork(userLoginDto.getEmailWork());
+    if (user == null || !BCrypt.checkpw(userLoginDto.getPassword(), user.getPassword())) {
+      throw new ForbiddenException("Login Forbidden!");
+    }
   }
 
   public String getActivationEmail(String accountVerifyToken) {
