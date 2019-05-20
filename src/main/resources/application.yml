@@ -19,5 +19,16 @@ spring:
   thymeleaf:
     prefix: classpath:templates/
 
+cloud:
+  aws:
+    stack:
+      auto: false
+
+aws:
+  secretsmanager:
+    prefix: /secret
+    enabled: true
+    fail-fast: false
+
 email:
   retryLimit: 5

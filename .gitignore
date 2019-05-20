@@ -30,3 +30,6 @@
 
 ## local
 /config/application-database.yml
+
+## deploy
+.aws

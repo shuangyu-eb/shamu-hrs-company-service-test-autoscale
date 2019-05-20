@@ -2,8 +2,6 @@ package shamu.company.utils;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
@@ -25,27 +23,14 @@ import shamu.company.common.exception.AwsUploadException;
 @Slf4j
 public class AwsUtil {
 
-  @Value("${aws.awsAccessKeyId}")
-  private String awsAccessKeyId;
-
-  @Value("${aws.awsSecretAccessKey}")
-  private String awsSecretAccessKey;
-
   @Value("${aws.bucketName}")
   private String bucketName;
 
   @Value("${aws.folder}")
   private String folder;
 
-  @Value("${aws.region}")
-  private String region;
-
   private AmazonS3 getClient() {
-    BasicAWSCredentials awsCreds = new BasicAWSCredentials(awsAccessKeyId, awsSecretAccessKey);
-    return AmazonS3ClientBuilder.standard()
-        .withRegion(region)
-        .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
-        .build();
+    return AmazonS3ClientBuilder.defaultClient();
   }
 
   private File generateFile(String originalFilename) throws IOException {
