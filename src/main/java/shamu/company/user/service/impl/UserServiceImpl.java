@@ -15,6 +15,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.bcrypt.BCrypt;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.Context;
@@ -48,6 +50,7 @@ public class UserServiceImpl implements UserService {
   private final UserRepository userRepository;
   private final JobUserRepository jobUserRepository;
   private final UserStatusRepository userStatusRepository;
+  private final PasswordEncoder passwordEncoder;
 
   private final EmailService emailService;
   @Value("${application.systemEmailAddress}")
@@ -60,13 +63,15 @@ public class UserServiceImpl implements UserService {
   @Autowired
   public UserServiceImpl(ITemplateEngine templateEngine, UserRepository userRepository,
       JobUserRepository jobUserRepository, UserStatusRepository userStatusRepository,
-      EmailService emailService, UserCompensationRepository userCompensationRepository) {
+      EmailService emailService, UserCompensationRepository userCompensationRepository,
+      PasswordEncoder passwordEncoder) {
     this.templateEngine = templateEngine;
     this.userRepository = userRepository;
     this.jobUserRepository = jobUserRepository;
     this.userStatusRepository = userStatusRepository;
     this.emailService = emailService;
     this.userCompensationRepository = userCompensationRepository;
+    this.passwordEncoder = passwordEncoder;
   }
 
   @Override
@@ -322,7 +327,7 @@ public class UserServiceImpl implements UserService {
     String passwordRestToken = UUID.randomUUID().toString();
     String emailContent = getResetPasswordEmail(passwordRestToken);
     Timestamp sendDate = new Timestamp(new Date().getTime());
-    Email verifyEmail = new Email(systemEmailAddress, email,  "Password Reset!",
+    Email verifyEmail = new Email(systemEmailAddress, email, "Password Reset!",
         emailContent, sendDate);
     emailService.saveAndScheduleEmail(verifyEmail);
     user.setResetPasswordToken(passwordRestToken);
@@ -330,18 +335,24 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public void resetPassword(UpdatePasswordDto updatePasswordDto) {
+  public boolean resetPassword(UpdatePasswordDto updatePasswordDto) {
     User user = userRepository.findByResetPasswordToken(updatePasswordDto.getResetPasswordToken());
-    if (user == null) {
-      throw new ForbiddenException("Create password Forbidden");
+    boolean sameAsOldPassword =
+        passwordEncoder.matches(updatePasswordDto.getNewPassword(), user.getPassword());
+    if (!sameAsOldPassword) {
+      if (user == null) {
+        throw new ForbiddenException("Reset password Forbidden");
+      }
+      user.setResetPasswordToken(null);
+      String pwHash = passwordEncoder.encode(updatePasswordDto.getNewPassword());
+      user.setPassword(pwHash);
+      userRepository.save(user);
+      return true;
     }
-    user.setResetPasswordToken(null);
-    String pwHash = BCrypt.hashpw(updatePasswordDto.getNewPassword(), BCrypt.gensalt(10));
-    user.setPassword(pwHash);
-    userRepository.save(user);
+    return false;
   }
 
-  public String getResetPasswordEmail(String passwordRestToken) {
+  private String getResetPasswordEmail(String passwordRestToken) {
     Context context = new Context();
     context.setVariable("frontEndAddress", frontEndAddress);
     context.setVariable(

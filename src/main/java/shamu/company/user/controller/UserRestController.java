@@ -112,8 +112,7 @@ public class UserRestController extends BaseRestController {
   }
 
   @PatchMapping("user/password/reset/token")
-  public HttpEntity resetPassword(@RequestBody UpdatePasswordDto updatePasswordDto) {
-    userService.resetPassword(updatePasswordDto);
-    return new ResponseEntity(HttpStatus.OK);
+  public boolean resetPassword(@RequestBody UpdatePasswordDto updatePasswordDto) {
+    return userService.resetPassword(updatePasswordDto);
   }
 }

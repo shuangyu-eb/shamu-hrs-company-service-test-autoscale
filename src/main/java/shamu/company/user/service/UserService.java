@@ -67,9 +67,9 @@ public interface UserService {
 
   void sendResetPasswordEmail(String email);
 
-  void resetPassword(UpdatePasswordDto updatePasswordDto);
-
   UserCompensation saveUserCompensation(UserCompensation userCompensation);
 
   void unlock(UserLoginDto userLoginDto);
+
+  boolean resetPassword(UpdatePasswordDto updatePasswordDto);
 }
