@@ -1,5 +1,6 @@
 package shamu.company.timeoff.paidholiday;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.Modifying;
@@ -16,6 +17,15 @@ public interface PaidHolidayRepository extends BaseRepository<PaidHoliday, Long>
       nativeQuery = true
   )
   List<PaidHoliday> findByCompanyId(Long companyId);
+
+  @Modifying
+  @Transactional
+  @Query(
+      value = "UPDATE paid_holidays SET name = ?2,"
+          + " holiday_date = ?3 WHERE id = ?1 AND deleted_at IS NULL",
+      nativeQuery = true
+  )
+  void updateDetail(Long id, String name, Timestamp holidayDate);
 
   @Modifying
   @Transactional

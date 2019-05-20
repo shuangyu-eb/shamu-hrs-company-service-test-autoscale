@@ -59,7 +59,8 @@ public class PaidHolidayServiceImpl implements PaidHolidayService {
 
   @Override
   public void updatePaidHoliday(PaidHoliday paidHoliday) {
-    paidHolidayRepository.save(paidHoliday);
+    paidHolidayRepository.updateDetail(
+        paidHoliday.getId(), paidHoliday.getName(), paidHoliday.getHolidayDate());
   }
 
   @Override

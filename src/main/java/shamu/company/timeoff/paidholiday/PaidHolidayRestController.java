@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.company.entity.Company;
+import shamu.company.hashids.HashidsFormat;
 import shamu.company.user.entity.User;
 import shamu.company.user.service.UserService;
 
@@ -27,7 +28,7 @@ public class PaidHolidayRestController {
   }
 
   @GetMapping(value = "users/{userId}/paid-holidays")
-  public PaidHolidayDto getPaidHolidays(@PathVariable Long userId) {
+  public PaidHolidayDto getPaidHolidays(@HashidsFormat @PathVariable Long userId) {
     User user = userService.findUserById(userId);
     Company company = user.getCompany();
     return paidHolidayService.getPaidHolidays(company.getId());
@@ -46,7 +47,9 @@ public class PaidHolidayRestController {
   }
 
   @PostMapping(value = "users/{userId}/paid-holiday")
-  public void createPaidHoliday(@PathVariable Long userId, @RequestBody PaidHoliday paidHoliday) {
+  public void createPaidHoliday(
+      @HashidsFormat @PathVariable Long userId,
+      @RequestBody PaidHoliday paidHoliday) {
     User user = userService.findUserById(userId);
     Company company = user.getCompany();
     paidHoliday.setCompanyId(company.getId());
@@ -55,12 +58,15 @@ public class PaidHolidayRestController {
   }
 
   @PatchMapping(value = "paid-holidays/{id}")
-  public void updatePaidHoliday(@RequestBody PaidHoliday paidHoliday) {
+  public void updatePaidHoliday(
+      @HashidsFormat @PathVariable Long id,
+      @RequestBody PaidHoliday paidHoliday) {
+    paidHoliday.setId(id);
     paidHolidayService.updatePaidHoliday(paidHoliday);
   }
 
   @DeleteMapping(value = "paid-holidays/{id}")
-  public void updatePaidHoliday(@PathVariable Long id) {
+  public void updatePaidHoliday(@HashidsFormat @PathVariable Long id) {
     paidHolidayService.deletePaidHoliday(id);
   }
 }

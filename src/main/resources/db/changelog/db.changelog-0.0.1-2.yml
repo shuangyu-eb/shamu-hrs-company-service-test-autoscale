@@ -881,3 +881,11 @@ databaseChangeLog:
         primaryKey: id
         tableName: compensation_frequency
 
+- changeSet:
+    id: 1558323491275-1
+    author: rex-eb
+    changes:
+    - modifyDataType:
+        columnName: holiday_date
+        newDataType: Timestamp
+        tableName: paid_holidays

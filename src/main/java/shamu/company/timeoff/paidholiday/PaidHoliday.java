@@ -1,7 +1,6 @@
 package shamu.company.timeoff.paidholiday;
 
-import com.alibaba.fastjson.annotation.JSONField;
-import java.util.Date;
+import java.sql.Timestamp;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -23,8 +22,7 @@ public class PaidHoliday extends BaseEntity {
 
   private Boolean isCustom = true;
 
-  @JSONField(format = "yyyy-MM-dd")
-  private Date holidayDate;
+  private Timestamp holidayDate;
 
   private Boolean isSelect = false;
 }
