@@ -2,6 +2,7 @@ package shamu.company.user.repository;
 
 import java.util.List;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
 import shamu.company.common.repository.BaseRepository;
 import shamu.company.company.entity.Company;
 import shamu.company.user.entity.User;
@@ -59,4 +60,14 @@ public interface UserRepository extends BaseRepository<User, Long>, UserCustomRe
   Boolean existsByResetPasswordToken(String token);
 
   User findByResetPasswordToken(String token);
+
+  @Query(
+      value = "select * from users"
+          + " where users.id = (select user_id"
+          + " from jobs_users"
+          + " where jobs_users.department_id = ?1"
+          + " ) or company_id = ?2 and manager_user_id is null",
+      nativeQuery = true
+  )
+  List<User> findEmployersAndEmployeesByDepartmentIdAndCompanyId(Long departmentId, Long companyId);
 }

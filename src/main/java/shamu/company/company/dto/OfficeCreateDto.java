@@ -26,8 +26,11 @@ public class OfficeCreateDto {
   @JSONField(serialize = false)
   public Office getOffice() {
     OfficeAddress officeAddress = new OfficeAddress();
-    StateProvince stateProvince = new StateProvince();
-    stateProvince.setId(stateId);
+    StateProvince stateProvince = null;
+    if (stateId != null) {
+      stateProvince = new StateProvince();
+      stateProvince.setId(stateId);
+    }
     officeAddress.setCity(city);
     officeAddress.setStateProvince(stateProvince);
     officeAddress.setStreet1(street1);

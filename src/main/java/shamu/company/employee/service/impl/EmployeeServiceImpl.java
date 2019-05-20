@@ -3,12 +3,9 @@ package shamu.company.employee.service.impl;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
-import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,17 +21,13 @@ import shamu.company.common.repository.OfficeAddressRepository;
 import shamu.company.common.repository.OfficeRepository;
 import shamu.company.common.repository.StateProvinceRepository;
 import shamu.company.company.entity.Department;
-import shamu.company.company.entity.Office;
 import shamu.company.company.entity.OfficeAddress;
 import shamu.company.email.Email;
 import shamu.company.email.EmailService;
-import shamu.company.employee.Contants;
 import shamu.company.employee.dto.EmployeeDto;
 import shamu.company.employee.dto.NewEmployeeJobInformationDto;
-import shamu.company.employee.dto.SelectFieldInformationDto;
 import shamu.company.employee.dto.WelcomeEmailDto;
 import shamu.company.employee.entity.EmploymentType;
-import shamu.company.employee.pojo.OfficePojo;
 import shamu.company.employee.repository.CompensationTypeRepository;
 import shamu.company.employee.service.EmployeeService;
 import shamu.company.info.dto.UserEmergencyContactDto;
@@ -83,8 +76,6 @@ public class EmployeeServiceImpl implements EmployeeService {
 
   private final EmploymentTypeRepository employmentTypeRepository;
 
-  private final OfficeRepository officeRepository;
-
   private final OfficeAddressRepository officeAddressRepository;
 
   private final UserCompensationRepository userCompensationRepository;
@@ -129,7 +120,6 @@ public class EmployeeServiceImpl implements EmployeeService {
     this.jobUserRepository = jobUserRepository;
     this.departmentRepository = departmentRepository;
     this.employmentTypeRepository = employmentTypeRepository;
-    this.officeRepository = officeRepository;
     this.userService = userService;
     this.officeAddressRepository = officeAddressRepository;
     this.stateProvinceRepository = stateProvinceRepository;
@@ -146,96 +136,10 @@ public class EmployeeServiceImpl implements EmployeeService {
   }
 
   @Override
-  public List<SelectFieldInformationDto> getOfficeLocations() {
-    List<Office> offices = officeRepository.findAll();
-    return
-        offices.stream()
-            .map(
-                office -> {
-                  List<String> officeLocationDetails = new ArrayList<>();
-                  String officeName = office.getName();
-                  if (Strings.isNotBlank(officeName)) {
-                    officeLocationDetails.add(officeName);
-                  }
-                  OfficeAddress officeAddress = office.getOfficeAddress();
-                  if (null != officeAddress) {
-                    String street1 = officeAddress.getStreet1();
-                    if (Strings.isNotBlank(street1)) {
-                      officeLocationDetails.add(street1);
-                    }
-                    String street2 = officeAddress.getStreet2();
-                    if (Strings.isNotBlank(street2)) {
-                      officeLocationDetails.add(street2);
-                    }
-                    String city = officeAddress.getCity();
-                    if (Strings.isNotBlank(city)) {
-                      officeLocationDetails.add(city);
-                    }
-                    if (officeAddress.getStateProvince() != null
-                        && !StringUtils.isBlank(officeAddress.getStateProvince().getName())) {
-                      String state = officeAddress.getStateProvince().getName();
-                      officeLocationDetails.add(state);
-                    }
-                    String postalCode = officeAddress.getPostalCode();
-                    if (Strings.isNotBlank(postalCode)) {
-                      officeLocationDetails.add(postalCode);
-                    }
-                  }
-                  String officeLocation =
-                      String.join(" ", officeLocationDetails.toArray(new String[0]));
-                  return new SelectFieldInformationDto(office.getId(), officeLocation);
-                })
-            .collect(Collectors.toList());
-  }
-
-  @Override
-  public List<SelectFieldInformationDto> getManagers() {
-    List<User> managers = userRepository.findByUserRoleId(Contants.MANAGER_ROLE_ID);
-    return
-        managers.stream()
-            .map(
-                manager -> {
-                  UserPersonalInformation userInfo = manager.getUserPersonalInformation();
-                  String firstName = userInfo.getFirstName();
-                  String middleName = userInfo.getMiddleName();
-                  String lastName = userInfo.getLastName();
-                  List<String> nameDetails = new ArrayList<>();
-                  if (Strings.isNotBlank(firstName)) {
-                    nameDetails.add(firstName);
-                  }
-                  if (Strings.isNotBlank(middleName)) {
-                    nameDetails.add(middleName);
-                  }
-                  if (Strings.isNotBlank(lastName)) {
-                    nameDetails.add(lastName);
-                  }
-                  String name = String.join(" ", nameDetails.toArray(new String[0]));
-                  return new SelectFieldInformationDto(manager.getId(), name);
-                })
-            .collect(Collectors.toList());
-  }
-
-  @Override
-  public EmploymentType saveEmploymentType(String employmentTypeName) {
-    EmploymentType employmentType = new EmploymentType();
-    employmentType.setName(employmentTypeName);
-    return employmentTypeRepository.save(employmentType);
-  }
-
-  @Override
-  public Department saveDepartment(String departmentName) {
-    Department department = new Department();
-    department.setName(departmentName);
-    return departmentRepository.save(department);
-  }
-
-  @Override
-  public Office saveOfficeLocation(OfficePojo officePojo) {
-    OfficeAddress officeAddress = officePojo.getOfficeAddress();
-    OfficeAddress officeAddressReturned = officeAddressRepository.save(officeAddress);
-    Office office = officePojo.getOffice();
-    office.setOfficeAddress(officeAddressReturned);
-    return officeRepository.save(office);
+  public List<User>
+      findEmployersAndEmployeesByDepartmentIdAndCompanyId(Long departmentId, Long companyId) {
+    return userRepository
+        .findEmployersAndEmployeesByDepartmentIdAndCompanyId(departmentId, companyId);
   }
 
   @Override

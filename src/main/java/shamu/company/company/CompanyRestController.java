@@ -16,17 +16,25 @@ import shamu.company.company.entity.Department;
 import shamu.company.company.entity.Office;
 import shamu.company.employee.dto.SelectFieldInformationDto;
 import shamu.company.employee.entity.EmploymentType;
+import shamu.company.employee.service.EmployeeService;
 import shamu.company.hashids.HashidsFormat;
 import shamu.company.job.entity.Job;
+import shamu.company.user.entity.User;
+import shamu.company.user.entity.UserPersonalInformation;
+import shamu.company.utils.UserNameUtil;
 
 @RestApiController
 public class CompanyRestController extends BaseRestController {
 
   private final CompanyService companyService;
 
+  private final EmployeeService employeeService;
+
   @Autowired
-  public CompanyRestController(CompanyService companyService) {
+  public CompanyRestController(CompanyService companyService,
+      EmployeeService employeeService) {
     this.companyService = companyService;
+    this.employeeService = employeeService;
   }
 
 
@@ -91,5 +99,21 @@ public class CompanyRestController extends BaseRestController {
     Office office = officeCreateDto.getOffice();
     office.setCompany(this.getCompany());
     return new OfficeDto(companyService.saveOffice(office));
+  }
+
+  @GetMapping("departments/{id}/users")
+  public List<SelectFieldInformationDto> getUsers(@PathVariable @HashidsFormat Long id) {
+    List<User> users = employeeService
+        .findEmployersAndEmployeesByDepartmentIdAndCompanyId(id, this.getCompany().getId());
+    return users.stream().map(
+        manager -> {
+          UserPersonalInformation userInfo = manager.getUserPersonalInformation();
+          String firstName = userInfo.getFirstName();
+          String middleName = userInfo.getMiddleName();
+          String lastName = userInfo.getLastName();
+          return new SelectFieldInformationDto(manager.getId(),
+              UserNameUtil.getUserName(firstName, middleName, lastName));
+        })
+        .collect(Collectors.toList());
   }
 }
