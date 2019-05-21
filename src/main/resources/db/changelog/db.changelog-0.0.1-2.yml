@@ -1141,6 +1141,7 @@ databaseChangeLog:
             foreignKeyName: time_off_policy_accruals_time_off_policies
             references: time_off_policies(id)
           tableName: time_off_policy_accruals
+
 - changeSet:
     id: 1557390699512-65
     author: Qi-Jia
@@ -1193,7 +1194,6 @@ databaseChangeLog:
       - dropColumn:
           columnName: office_id
           tableName: office_addresses
-
 
 - changeSet:
     id: 1557390699512-71
@@ -1253,3 +1253,59 @@ databaseChangeLog:
         columnName: holiday_date
         newDataType: Timestamp
         tableName: paid_holidays
+
+- changeSet:
+    id: 1556008164280-31
+    author: wenhao-eb
+    changes:
+    - dropForeignKeyConstraint:
+        baseTableName: time_off_types
+        constraintName: fk_time_off_types_companies
+
+- changeSet:
+    id: 1556008164280-32
+    author: wenhao-eb
+    changes:
+    - dropForeignKeyConstraint:
+        baseTableName: time_off_policies
+        constraintName: fk_time_off_policies_time_off_types
+
+- changeSet:
+    id: 1556008164280-33
+    author: wenhao-eb
+    changes:
+    - dropTable:
+        tableName: time_off_types
+
+- changeSet:
+    id: 1556008164280-34
+    author: wenhao-eb
+    changes:
+    - addColumn:
+        columns:
+        - column:
+            name: name
+            type: varchar(255)
+        tableName: time_off_policies
+
+- changeSet:
+    id: 1556008164280-35
+    author: wenhao-eb
+    changes:
+    - addColumn:
+        columns:
+        - column:
+            name: company_id
+            type: BIGINT
+            constraints:
+              foreignKeyName: fk_time_off_policies_companies
+              references: companies(id)
+        tableName: time_off_policies
+
+- changeSet:
+      id: 1556008164280-36
+      author: wenhao-eb
+      changes:
+      - dropColumn:
+          columnName: time_off_type_id
+          tableName: time_off_policies

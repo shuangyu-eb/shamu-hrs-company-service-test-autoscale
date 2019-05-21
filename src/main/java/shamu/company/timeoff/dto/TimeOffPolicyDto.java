@@ -5,7 +5,6 @@ import lombok.Data;
 import shamu.company.company.entity.Company;
 import shamu.company.hashids.HashidsFormat;
 import shamu.company.timeoff.entity.TimeOffPolicy;
-import shamu.company.timeoff.entity.TimeOffType;
 
 @Data
 public class TimeOffPolicyDto {
@@ -13,7 +12,7 @@ public class TimeOffPolicyDto {
   private Long id;
 
   @HashidsFormat
-  private Long timeOffTypeId;
+  private Long companyId;
 
   private String policyName;
 
@@ -21,7 +20,6 @@ public class TimeOffPolicyDto {
 
   @JSONField(serialize = false)
   public TimeOffPolicy getTimeOffPolicy(Company company) {
-    TimeOffType timeOffType = new TimeOffType(company.getId(),this.getPolicyName());
-    return new TimeOffPolicy(timeOffType,this.getIsLimited());
+    return new TimeOffPolicy(company, this.getPolicyName(), this.getIsLimited());
   }
 }
