@@ -1,10 +1,11 @@
-package shamu.company.timeoff.paidholiday;
+package shamu.company.timeoff.dto;
 
 import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import shamu.company.timeoff.entity.PaidHoliday;
 
 @Data
 @NoArgsConstructor

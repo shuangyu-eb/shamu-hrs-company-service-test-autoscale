@@ -1,4 +1,4 @@
-package shamu.company.timeoff.paidholiday;
+package shamu.company.timeoff.pojo;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

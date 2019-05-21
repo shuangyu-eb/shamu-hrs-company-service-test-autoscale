@@ -1,4 +1,4 @@
-package shamu.company.timeoff.paidholiday;
+package shamu.company.timeoff.entity;
 
 import java.sql.Timestamp;
 import javax.persistence.Entity;

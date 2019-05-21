@@ -795,6 +795,353 @@ databaseChangeLog:
         tableName: emails
 
 - changeSet:
+    id: 1556008164280-5
+    author: wenhao-eb
+    changes:
+    - createTable:
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+                primaryKey: true
+        - column:
+            name: user_id
+            type: BIGINT
+            constraints:
+              foreignKeyName: fk_time_off_policies_users_users
+              references: users(id)
+        - column:
+            name: time_off_policy_id
+            type: BIGINT
+            constraints:
+              foreignKeyName: fk_time_off_policies_users_time_off_policies
+              references: time_off_policies(id)
+        - column:
+            name: start_balance
+            type: INT
+        - column:
+            name: created_at
+            type: DATETIME
+        - column:
+            name: updated_at
+            type: DATETIME
+        - column:
+            name: deleted_at
+            type: DATETIME
+        tableName: time_off_policies_users
+
+- changeSet:
+    id: 1556008164280-6
+    author: wenhao-eb
+    changes:
+    - renameColumn:
+        columnDataType: INT
+        newColumnName: balance
+        oldColumnName: start_balance
+        tableName: time_off_policies_users
+
+- changeSet:
+      id: 1556008164280-7
+      author: wenhao-eb
+      changes:
+      - createTable:
+         columns:
+         - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+                primaryKey: true
+         - column:
+            name: name
+            type: VARCHAR(255)
+         - column:
+            name: created_at
+            type: DATETIME
+         - column:
+            name: updated_at
+            type: DATETIME
+         - column:
+            name: deleted_at
+            type: DATETIME
+         tableName: time_off_accrual_frequencies
+
+- changeSet:
+      id: 1556008164280-10
+      author: wenhao-eb
+      changes:
+      - createTable:
+         columns:
+         - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+         - column:
+            name: anniversary_year
+            type: INT
+         - column:
+            name: time_off_policy_accrual_schedule_id
+            type: BIGINT
+            constraints:
+              foreignKeyName: fk_time_off_policy_accrual_schedule_milestones_accrual_schedules
+              references: time_off_policy_accrual_schedules(id)
+         - column:
+            name: accrual_hours
+            type: INT
+         - column:
+            name: accrual_interval
+            type: INT
+         - column:
+            name: carryover_limit
+            type: INT
+         - column:
+            name: max_balance
+            type: INT
+         - column:
+            name: name
+            type: VARCHAR(255)
+         - column:
+            name: created_at
+            type: datetime
+         - column:
+            name: updated_at
+            type: datetime
+         - column:
+            name: deleted_at
+            type: datetime
+         tableName: time_off_policy_accrual_schedule_milestones
+
+- changeSet:
+      id: 1556008164280-11
+      author: wenhao-eb
+      changes:
+      - createTable:
+         columns:
+         - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+         - column:
+            name: accrual_hours
+            type: INT
+         - column:
+            name: accrual_date
+            type: datetime
+         - column:
+            name: user_id
+            type: BIGINT
+            constraints:
+              foreignKeyName: fk_time_off_policy_accruals_users
+              references: users(id)
+         - column:
+            name: name
+            type: VARCHAR(255)
+         - column:
+            name: created_at
+            type: datetime
+         - column:
+            name: updated_at
+            type: datetime
+         - column:
+            name: deleted_at
+            type: datetime
+         tableName: time_off_policy_accruals
+
+- changeSet:
+      id: 1556008164280-12
+      author: wenhao-eb
+      changes:
+      - createTable:
+         columns:
+         - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+         - column:
+            name: name
+            type: VARCHAR(255)
+         - column:
+            name: created_at
+            type: datetime
+         - column:
+            name: updated_at
+            type: datetime
+         - column:
+            name: deleted_at
+            type: datetime
+         tableName: time_off_request_approval_statuses
+
+- changeSet:
+      id: 1556008164280-13
+      author: wenhao-eb
+      changes:
+      - dropColumn:
+         columnName: approval_status
+         tableName: time_off_requests
+
+- changeSet:
+      id: 1556008164280-14
+      author: wenhao-eb
+      changes:
+      - addColumn:
+          columns:
+          - column:
+              name: approval_status_id
+              type: BIGINT
+              constraints:
+                  foreignKeyName: fk_time_off_requests_time_off_request_approval_statuses
+                  references: time_off_request_approval_statuses(id)
+          tableName: time_off_requests
+
+- changeSet:
+      id: 1556008164280-15
+      author: wenhao-eb
+      changes:
+      - dropTable:
+          tableName: time_off_policy_accrual_options
+
+- changeSet:
+      id: 1556008164280-16
+      author: wenhao-eb
+      changes:
+      - dropTable:
+          tableName: time_off_policy_accrual_happenings
+
+- changeSet:
+      id: 1556008164280-17
+      author: wenhao-eb
+      changes:
+      - dropColumn:
+          columnName: start_date_value
+          tableName: time_off_policy_accrual_schedules
+
+- changeSet:
+      id: 1556008164280-18
+      author: wenhao-eb
+      changes:
+      - dropColumn:
+          columnName: accrual_interval
+          tableName: time_off_policy_accrual_schedules
+
+- changeSet:
+      id: 1556008164280-19
+      author: wenhao-eb
+      changes:
+      - dropColumn:
+          columnName: start_date_unit
+          tableName: time_off_policy_accrual_schedules
+
+
+- changeSet:
+      id: 1556008164280-20
+      author: wenhao-eb
+      changes:
+      - dropColumn:
+          columnName: accrual_frequency_details
+          tableName: time_off_policy_accrual_schedules
+
+
+- changeSet:
+      id: 1556008164280-21
+      author: wenhao-eb
+      changes:
+      - dropColumn:
+          columnName: max_carryover_hours_per_year
+          tableName: time_off_policy_accrual_schedules
+
+
+- changeSet:
+      id: 1556008164280-22
+      author: wenhao-eb
+      changes:
+      - dropColumn:
+          columnName: has_carryover_amount
+          tableName: time_off_policy_accrual_schedules
+
+- changeSet:
+      id: 1556008164280-23
+      author: wenhao-eb
+      changes:
+      - renameColumn:
+          columnDataType: INT
+          newColumnName: max_balance
+          oldColumnName: max_accrual
+          tableName: time_off_policy_accrual_schedules
+
+- changeSet:
+      id: 1556008164280-24
+      author: wenhao-eb
+      changes:
+      - addColumn:
+          columns:
+          - column:
+              name: days_before_accrual_starts
+              type: INT
+          tableName: time_off_policy_accrual_schedules
+
+- changeSet:
+      id: 1556008164280-25
+      author: wenhao-eb
+      changes:
+      - addColumn:
+          columns:
+          - column:
+              name: carryover_limit
+              type: INT
+          tableName: time_off_policy_accrual_schedules
+
+- changeSet:
+      id: 1556008164280-26
+      author: wenhao-eb
+      changes:
+      - dropForeignKeyConstraint:
+          baseTableName: time_off_policy_accrual_schedules
+          constraintName: fk_time_off_policy_accrual_schedules_schedules
+
+- changeSet:
+      id: 1556008164280-27
+      author: wenhao-eb
+      changes:
+      - dropColumn:
+          columnName: next_time_off_policy_accrual_schedule_id
+          tableName: time_off_policy_accrual_schedules
+
+- changeSet:
+      id: 1556008164280-28
+      author: wenhao-eb
+      changes:
+      - addColumn:
+          columns:
+          - column:
+              name: time_off_accrual_frequency_id
+              type: BIGINT
+              constraints:
+                foreignKeyName: time_off_policy_accrual_schedules_time_off_accrual_frequencies
+                references: time_off_accrual_frequencies(id)
+          tableName: time_off_policy_accrual_schedules
+
+- changeSet:
+      id: 1556008164280-29
+      author: wenhao-eb
+      changes:
+      - addColumn:
+          columns:
+          - column:
+              name: time_off_policy_id
+              type: BIGINT
+          constraints:
+            foreignKeyName: time_off_policy_accruals_time_off_policies
+            references: time_off_policies(id)
+          tableName: time_off_policy_accruals
+- changeSet:
     id: 1557390699512-65
     author: Qi-Jia
     changes:
@@ -880,6 +1227,23 @@ databaseChangeLog:
         file: db/changelog/data/compensation-frequency.csv
         primaryKey: id
         tableName: compensation_frequency
+
+- changeSet:
+      id: 1556008164280-30
+      author: wenhao-eb
+      runOnchange: ture
+      changes:
+      - loadUpdateData:
+          columns:
+          - column:
+              name: id
+              type: NUMERIC
+          - column:
+              name: name
+              type: STRING
+          file: db/changelog/data/time-off-accrual-frequencies.csv
+          primaryKey: id
+          tableName: time_off_accrual_frequencies
 
 - changeSet:
     id: 1558323491275-1

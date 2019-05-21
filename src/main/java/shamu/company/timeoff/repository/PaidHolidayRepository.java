@@ -1,4 +1,4 @@
-package shamu.company.timeoff.paidholiday;
+package shamu.company.timeoff.repository;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import shamu.company.common.repository.BaseRepository;
+import shamu.company.timeoff.entity.PaidHoliday;
 
 @Repository
 public interface PaidHolidayRepository extends BaseRepository<PaidHoliday, Long> {
