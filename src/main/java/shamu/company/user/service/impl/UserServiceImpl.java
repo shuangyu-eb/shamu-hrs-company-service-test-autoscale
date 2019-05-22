@@ -15,7 +15,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.bcrypt.BCrypt;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.ITemplateEngine;
@@ -26,6 +25,7 @@ import shamu.company.company.entity.Company;
 import shamu.company.email.Email;
 import shamu.company.email.EmailService;
 import shamu.company.employee.dto.EmployeeListSearchCondition;
+import shamu.company.employee.dto.OrgChartDto;
 import shamu.company.job.dto.JobUserDto;
 import shamu.company.job.entity.JobUser;
 import shamu.company.job.entity.JobUserListItem;
@@ -250,6 +250,36 @@ public class UserServiceImpl implements UserService {
   @Override
   public UserCompensation saveUserCompensation(UserCompensation userCompensation) {
     return userCompensationRepository.save(userCompensation);
+  }
+
+  @Override
+  public OrgChartDto getOrgChart(Long userId, Company currentCompany) {
+    OrgChartDto manager = null;
+    if (userId != null) {
+      manager = userRepository.findOrgChartItemByUserId(userId, currentCompany.getId());
+    } else {
+      // retrieve company admin from database
+      List<OrgChartDto> orgChartItemList = userRepository
+          .findOrgChartItemByManagerId(null, currentCompany.getId());
+      if (!orgChartItemList.isEmpty()) {
+        manager = orgChartItemList.get(0);
+      }
+    }
+
+    if (manager == null) {
+      throw new ForbiddenException("User with id " + userId + " not found!");
+    }
+
+    List<OrgChartDto> orgChartItemList = userRepository
+        .findOrgChartItemByManagerId(manager.getId(), currentCompany.getId());
+    orgChartItemList.forEach((orgUser -> {
+      Integer directReportsCount = userRepository
+          .findDirectReportsCount(orgUser.getId(), currentCompany.getId());
+      orgUser.setDirectReportsCount(directReportsCount);
+    }));
+    manager.setDirectReports(orgChartItemList);
+    manager.setDirectReportsCount(orgChartItemList.size());
+    return manager;
   }
 
   @Override

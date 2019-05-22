@@ -2,7 +2,6 @@ package shamu.company.user.repository;
 
 import java.util.List;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.stereotype.Repository;
 import shamu.company.common.repository.BaseRepository;
 import shamu.company.company.entity.Company;
 import shamu.company.user.entity.User;
@@ -70,4 +69,10 @@ public interface UserRepository extends BaseRepository<User, Long>, UserCustomRe
       nativeQuery = true
   )
   List<User> findEmployersAndEmployeesByDepartmentIdAndCompanyId(Long departmentId, Long companyId);
+
+  @Query(value = "select count(1) from users u "
+      + "where u.manager_user_id = ?1 "
+      + "and u.deleted_at is null "
+      + "and u.company_id = ?2", nativeQuery = true)
+  Integer findDirectReportsCount(Long orgUserId, Long companyId);
 }

@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.thymeleaf.context.Context;
 import shamu.company.company.entity.Company;
 import shamu.company.employee.dto.EmployeeListSearchCondition;
+import shamu.company.employee.dto.OrgChartDto;
 import shamu.company.job.dto.JobUserDto;
 import shamu.company.job.entity.JobUserListItem;
 import shamu.company.user.dto.UpdatePasswordDto;
@@ -72,4 +73,6 @@ public interface UserService {
   void unlock(UserLoginDto userLoginDto);
 
   boolean resetPassword(UpdatePasswordDto updatePasswordDto);
+
+  OrgChartDto getOrgChart(Long userId, Company currentCompany);
 }
