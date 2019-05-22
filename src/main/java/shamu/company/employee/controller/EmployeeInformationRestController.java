@@ -97,6 +97,11 @@ public class EmployeeInformationRestController extends BaseRestController {
     User user = this.getUser();
     JobUser target = jobUserService.getJobUserByUserId(id);
 
+    if (target == null) {
+      User targetUser = userService.findUserById(id);
+      return new BasicJobInformationDto(targetUser.getIsAccountOwner());
+    }
+
     // The user's full job message can only be accessed by admin, the manager and himself.
     if (user.getId().equals(id)
         || target.getUser().getManagerUser().getId().equals(user.getId())

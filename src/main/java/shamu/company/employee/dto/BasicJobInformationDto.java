@@ -84,4 +84,8 @@ public class BasicJobInformationDto {
     this.startDate = jobUser.getStartDate();
     this.endDate = jobUser.getEndDate();
   }
+
+  public BasicJobInformationDto(Boolean isAccountOwner) {
+    this.isAccountOwner = isAccountOwner;
+  }
 }
