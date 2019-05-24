@@ -267,7 +267,7 @@ public class EmployeeServiceImpl implements EmployeeService {
       User managerUser = userRepository.findById(managerUserId).orElseThrow(
           () -> new ResourceNotFoundException("User with id " + managerUserId + " not found!"));
 
-      if (Role.NON_MANAGER.name().equals(user.getUserRole().getName())) {
+      if (Role.NON_MANAGER.name().equals(managerUser.getUserRole().getName())) {
         UserRole userRole = userRoleRepository.findByName(Role.MANAGER.name());
         managerUser.setUserRole(userRole);
         userRepository.save(managerUser);
