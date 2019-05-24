@@ -2,10 +2,12 @@ package shamu.company.timeoff.service.impl;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import shamu.company.company.entity.Company;
 import shamu.company.timeoff.dto.AccrualScheduleMilestoneDto;
+import shamu.company.timeoff.dto.TimeOffBalanceDto;
 import shamu.company.timeoff.dto.TimeOffPolicyAccrualScheduleDto;
 import shamu.company.timeoff.dto.TimeOffPolicyDto;
 import shamu.company.timeoff.dto.TimeOffPolicyUserDto;
@@ -63,6 +65,17 @@ public class TimeOffPolicyServiceImpl implements TimeOffPolicyService {
     }
 
     createTimeOffPolicyUsers(timeOffPolicyUserDtoList,policyId);
+  }
+
+  @Override
+  public List<TimeOffBalanceDto> getTimeOffBalances(Long userId, Long companyId) {
+    return timeOffPolicyUserRepository
+        .findTimeOffBalancesByUser(userId, companyId)
+        .stream().map((timeOffBalance -> {
+          TimeOffBalanceDto timeOffBalanceDto = new TimeOffBalanceDto();
+          BeanUtils.copyProperties(timeOffBalance, timeOffBalanceDto);
+          return timeOffBalanceDto;
+        })).collect(Collectors.toList());
   }
 
   private void createTimeOffPolicyUsers(List<TimeOffPolicyUserDto> timeOffPolicyUserDtoList,

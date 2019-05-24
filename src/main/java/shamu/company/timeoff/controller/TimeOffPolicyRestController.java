@@ -2,12 +2,14 @@ package shamu.company.timeoff.controller;
 
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.company.entity.Company;
 import shamu.company.timeoff.dto.AccrualScheduleMilestoneDto;
+import shamu.company.timeoff.dto.TimeOffBalanceDto;
 import shamu.company.timeoff.dto.TimeOffPolicyAccrualScheduleDto;
 import shamu.company.timeoff.dto.TimeOffPolicyDto;
 import shamu.company.timeoff.dto.TimeOffPolicyUserDto;
@@ -39,5 +41,10 @@ public class TimeOffPolicyRestController extends BaseRestController {
 
     timeOffPolicyService.createTimeOffPolicy(timeOffPolicyDto, timeOffPolicyAccrualScheduleDto,
         accrualScheduleMilestoneDtoList, timeOffPolicyUserDtoList, company);
+  }
+
+  @GetMapping("time-off-balances")
+  public List<TimeOffBalanceDto> getTimeOffBalances() {
+    return timeOffPolicyService.getTimeOffBalances(getUser().getId(), getCompany().getId());
   }
 }
