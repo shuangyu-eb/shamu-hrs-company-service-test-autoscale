@@ -7,7 +7,8 @@ import shamu.company.hashids.HashidsFormat;
 @Data
 public class NewEmployeeJobInformationDto {
 
-  private String jobTitle;
+  @HashidsFormat
+  private Long jobId;
 
   @HashidsFormat private Long employmentTypeId;
 
@@ -19,7 +20,9 @@ public class NewEmployeeJobInformationDto {
 
   private Integer compensation;
 
-  @HashidsFormat private Long compensationTypeId;
+  @HashidsFormat
+  private Long compensationFrequencyId;
 
-  @HashidsFormat private Long officeAddressId;
+  @HashidsFormat
+  private Long officeId;
 }

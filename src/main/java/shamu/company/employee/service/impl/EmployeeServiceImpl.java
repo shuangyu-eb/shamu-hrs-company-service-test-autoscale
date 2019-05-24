@@ -17,22 +17,21 @@ import shamu.company.common.exception.AwsUploadException;
 import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.common.repository.DepartmentRepository;
 import shamu.company.common.repository.EmploymentTypeRepository;
-import shamu.company.common.repository.OfficeAddressRepository;
 import shamu.company.common.repository.OfficeRepository;
 import shamu.company.common.repository.StateProvinceRepository;
 import shamu.company.company.entity.Department;
-import shamu.company.company.entity.OfficeAddress;
+import shamu.company.company.entity.Office;
 import shamu.company.email.Email;
 import shamu.company.email.EmailService;
 import shamu.company.employee.dto.EmployeeDto;
 import shamu.company.employee.dto.NewEmployeeJobInformationDto;
 import shamu.company.employee.dto.WelcomeEmailDto;
 import shamu.company.employee.entity.EmploymentType;
-import shamu.company.employee.repository.CompensationTypeRepository;
 import shamu.company.employee.service.EmployeeService;
 import shamu.company.info.dto.UserEmergencyContactDto;
 import shamu.company.info.entity.UserEmergencyContact;
 import shamu.company.info.repository.UserEmergencyContactRepository;
+import shamu.company.job.entity.CompensationFrequency;
 import shamu.company.job.entity.Job;
 import shamu.company.job.entity.JobUser;
 import shamu.company.job.repository.JobRepository;
@@ -40,7 +39,6 @@ import shamu.company.job.repository.JobUserRepository;
 import shamu.company.user.dto.UserAddressDto;
 import shamu.company.user.dto.UserContactInformationDto;
 import shamu.company.user.dto.UserPersonalInformationDto;
-import shamu.company.user.entity.CompensationType;
 import shamu.company.user.entity.Gender;
 import shamu.company.user.entity.MaritalStatus;
 import shamu.company.user.entity.User;
@@ -52,6 +50,7 @@ import shamu.company.user.entity.UserRole;
 import shamu.company.user.entity.UserRole.Role;
 import shamu.company.user.entity.UserStatus;
 import shamu.company.user.entity.UserStatus.Status;
+import shamu.company.user.repository.CompensationFrequencyRepository;
 import shamu.company.user.repository.GenderRepository;
 import shamu.company.user.repository.MaritalStatusRepository;
 import shamu.company.user.repository.UserAddressRepository;
@@ -76,8 +75,6 @@ public class EmployeeServiceImpl implements EmployeeService {
 
   private final EmploymentTypeRepository employmentTypeRepository;
 
-  private final OfficeAddressRepository officeAddressRepository;
-
   private final UserCompensationRepository userCompensationRepository;
 
   private final JobRepository jobRepository;
@@ -88,7 +85,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
   private final AwsUtil awsUtil;
 
-  private final CompensationTypeRepository compensationTypeRepository;
+  private final CompensationFrequencyRepository compensationFrequencyRepository;
 
   private final StateProvinceRepository stateProvinceRepository;
 
@@ -102,26 +99,26 @@ public class EmployeeServiceImpl implements EmployeeService {
 
   private final EmailService emailService;
 
+  private final OfficeRepository officeRepository;
+
   @Autowired
   public EmployeeServiceImpl(UserAddressRepository userAddressRepository,
       UserRepository userRepository, JobUserRepository jobUserRepository,
       DepartmentRepository departmentRepository, EmploymentTypeRepository employmentTypeRepository,
       OfficeRepository officeRepository, UserService userService,
-      OfficeAddressRepository officeAddressRepository,
       StateProvinceRepository stateProvinceRepository,
       UserCompensationRepository userCompensationRepository,
       UserEmergencyContactRepository userEmergencyContactRepository, JobRepository jobRepository,
       UserRoleRepository userRoleRepository, UserStatusRepository userStatusRepository,
       AwsUtil awsUtil, GenderRepository genderRepository,
       MaritalStatusRepository maritalStatusRepository, EmailService emailService,
-      CompensationTypeRepository compensationTypeRepository) {
+      CompensationFrequencyRepository compensationFrequencyRepository) {
     this.userAddressRepository = userAddressRepository;
     this.userRepository = userRepository;
     this.jobUserRepository = jobUserRepository;
     this.departmentRepository = departmentRepository;
     this.employmentTypeRepository = employmentTypeRepository;
     this.userService = userService;
-    this.officeAddressRepository = officeAddressRepository;
     this.stateProvinceRepository = stateProvinceRepository;
     this.userCompensationRepository = userCompensationRepository;
     this.userEmergencyContactRepository = userEmergencyContactRepository;
@@ -132,7 +129,8 @@ public class EmployeeServiceImpl implements EmployeeService {
     this.genderRepository = genderRepository;
     this.maritalStatusRepository = maritalStatusRepository;
     this.emailService = emailService;
-    this.compensationTypeRepository = compensationTypeRepository;
+    this.compensationFrequencyRepository = compensationFrequencyRepository;
+    this.officeRepository = officeRepository;
   }
 
   @Override
@@ -282,10 +280,11 @@ public class EmployeeServiceImpl implements EmployeeService {
     UserCompensation userCompensation = new UserCompensation();
     userCompensation.setWage(jobInformation.getCompensation());
 
-    Long compensationTypeId = jobInformation.getCompensationTypeId();
-    if (compensationTypeId != null) {
-      CompensationType compensationType = compensationTypeRepository.getOne(compensationTypeId);
-      userCompensation.setCompensationType(compensationType);
+    Long compensationFrequencyId = jobInformation.getCompensationFrequencyId();
+    if (compensationFrequencyId != null) {
+      CompensationFrequency compensationFrequency = compensationFrequencyRepository
+          .getOne(compensationFrequencyId);
+      userCompensation.setCompensationFrequency(compensationFrequency);
     }
     userCompensation.setUser(user);
     userCompensationRepository.save(userCompensation);
@@ -293,17 +292,14 @@ public class EmployeeServiceImpl implements EmployeeService {
 
   private void saveEmployeeJob(
       User employee, User currentUser, NewEmployeeJobInformationDto jobInformation) {
-    Job job = new Job();
+
+    Job job = jobRepository.getOne(jobInformation.getJobId());
 
     Department department = null;
     Long departmentId = jobInformation.getDepartmentId();
     if (departmentId != null) {
       department = departmentRepository.getOne(departmentId);
-      job.setDepartment(department);
     }
-
-    job.setTitle(jobInformation.getJobTitle());
-    job = jobRepository.save(job);
 
     JobUser jobUser = new JobUser();
     jobUser.setJob(job);
@@ -324,11 +320,10 @@ public class EmployeeServiceImpl implements EmployeeService {
       jobUser.setStartDate(new Timestamp(hireDate.getTime()));
     }
 
-    Long officeAddressId = jobInformation.getOfficeAddressId();
-    if (officeAddressId != null) {
-      OfficeAddress officeAddress = officeAddressRepository.getOne(officeAddressId);
-      // TODO the column office_id in table office_addresses has been removed.
-      //  jobUser.setOffice(officeAddress.getOffice());
+    Long officeId = jobInformation.getOfficeId();
+    if (officeId != null) {
+      Office office = officeRepository.getOne(officeId);
+      jobUser.setOffice(office);
     } else {
       jobUser.setOffice(null);
     }
