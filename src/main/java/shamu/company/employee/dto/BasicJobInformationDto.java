@@ -21,6 +21,8 @@ public class BasicJobInformationDto {
   @HashidsFormat
   private Long jobUserId;
 
+  private User.Role userRole;
+
   private SelectFieldInformationDto job;
 
   private SelectFieldInformationDto employmentType;
@@ -30,8 +32,6 @@ public class BasicJobInformationDto {
   private Timestamp endDate;
 
   private SelectFieldInformationDto manager;
-
-  private Boolean isAccountOwner;
 
   private SelectFieldInformationDto department;
 
@@ -80,12 +80,12 @@ public class BasicJobInformationDto {
     this.setEmploymentType(jobUser.getEmploymentType());
     this.setOffice(jobUser.getOffice());
     this.jobUserId = jobUser.getId();
-    this.isAccountOwner = user.getIsAccountOwner();
     this.startDate = jobUser.getStartDate();
     this.endDate = jobUser.getEndDate();
+    this.userRole = user.getRole();
   }
 
-  public BasicJobInformationDto(Boolean isAccountOwner) {
-    this.isAccountOwner = isAccountOwner;
+  public BasicJobInformationDto(User user) {
+    this.userRole = user.getRole();
   }
 }

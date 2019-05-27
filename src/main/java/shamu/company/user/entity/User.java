@@ -49,8 +49,6 @@ public class User extends BaseEntity {
 
   @OneToOne private UserRole userRole;
 
-  private Boolean isAccountOwner;
-
   private String invitationEmailToken;
 
   private Timestamp invitedAt;

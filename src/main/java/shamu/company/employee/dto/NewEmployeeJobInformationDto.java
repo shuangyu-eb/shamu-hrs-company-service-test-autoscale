@@ -16,6 +16,7 @@ public class NewEmployeeJobInformationDto {
 
   @HashidsFormat private Long reportsTo;
 
+  // TODO remove it, we can get it from job
   @HashidsFormat private Long departmentId;
 
   private Integer compensation;

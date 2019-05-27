@@ -3,6 +3,7 @@ package shamu.company.job.dto;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import shamu.company.hashids.HashidsFormat;
+import shamu.company.job.entity.Job;
 import shamu.company.job.entity.JobUser;
 import shamu.company.user.entity.User;
 
@@ -42,8 +43,9 @@ public class JobUserDto {
     this.setEmail(user.getUserContactInformation().getEmailWork());
     this.setImageUrl(user.getImageUrl());
     if (userWithJob != null) {
-      this.setJobTitle(userWithJob.getJob().getTitle());
-      this.setDepartment(userWithJob.getDepartment().getName());
+      Job job = userWithJob.getJob();
+      this.setJobTitle(job.getTitle());
+      this.setDepartment(job.getDepartment().getName());
       this.setEmploymentType(userWithJob.getEmploymentType().getName());
     }
   }

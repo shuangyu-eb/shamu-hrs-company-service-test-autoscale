@@ -46,6 +46,10 @@ public class JobController extends BaseRestController {
       @RequestBody JobUpdateDto jobUpdateDto) {
     User user = userService.findUserById(id);
     JobUser jobUser = jobUserService.getJobUserByUserId(id);
+    if (jobUser == null) {
+      jobUser = new JobUser();
+      jobUser.setUser(user);
+    }
     jobUser = jobUpdateDto.updateJobUser(jobUser);
     jobUserService.save(jobUser);
 

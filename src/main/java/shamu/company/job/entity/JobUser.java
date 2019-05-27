@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Where;
 import shamu.company.common.entity.BaseEntity;
 import shamu.company.company.entity.Company;
-import shamu.company.company.entity.Department;
 import shamu.company.company.entity.Office;
 import shamu.company.employee.entity.EmploymentType;
 import shamu.company.user.entity.User;
@@ -37,10 +36,6 @@ public class JobUser extends BaseEntity {
 
   @ManyToOne
   private Office office;
-
-  // TODO remove this field , we can get it from Job
-  @ManyToOne
-  private Department department;
 
   @ManyToOne
   private Company company;

@@ -1359,3 +1359,27 @@ databaseChangeLog:
             type: TEXT
         tableName: time_off_requests
 
+- changeSet:
+      id: 1558921719236-81
+      author: Qi-Jia
+      changes:
+      - dropColumn:
+          columnName: is_account_owner
+          tableName: users
+
+- changeSet:
+    id: 1558921719236-82
+    author: Qi-Jia
+    changes:
+    - dropForeignKeyConstraint:
+        baseTableName: jobs_users
+        constraintName: fk_jobs_users_departments
+
+- changeSet:
+      id: 1558921719236-83
+      author: Qi-Jia
+      changes:
+      - dropColumn:
+          columnName: department_id
+          tableName: jobs_users
+

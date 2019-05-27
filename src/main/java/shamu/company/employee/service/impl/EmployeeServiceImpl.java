@@ -19,7 +19,6 @@ import shamu.company.common.repository.DepartmentRepository;
 import shamu.company.common.repository.EmploymentTypeRepository;
 import shamu.company.common.repository.OfficeRepository;
 import shamu.company.common.repository.StateProvinceRepository;
-import shamu.company.company.entity.Department;
 import shamu.company.company.entity.Office;
 import shamu.company.email.Email;
 import shamu.company.email.EmailService;
@@ -295,16 +294,9 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     Job job = jobRepository.getOne(jobInformation.getJobId());
 
-    Department department = null;
-    Long departmentId = jobInformation.getDepartmentId();
-    if (departmentId != null) {
-      department = departmentRepository.getOne(departmentId);
-    }
-
     JobUser jobUser = new JobUser();
     jobUser.setJob(job);
     jobUser.setCompany(currentUser.getCompany());
-    jobUser.setDepartment(department);
     jobUser.setUser(employee);
 
     Long employmentTypeId = jobInformation.getEmploymentTypeId();
