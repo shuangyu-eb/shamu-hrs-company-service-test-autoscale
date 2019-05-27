@@ -16,6 +16,8 @@ public class EmployeeRelatedInformationDto {
 
   private String employeeFirstName;
 
+  private String employeeLastName;
+
   private String employeeImageUrl;
 
   private String employeeWorkPhone;
@@ -39,6 +41,7 @@ public class EmployeeRelatedInformationDto {
       List<JobUserDto> directReporters) {
     this.setUserId(userId);
     this.setEmployeeFirstName(jobEmployeeDto.getFirstName());
+    this.setEmployeeLastName(jobEmployeeDto.getLastName());
     this.setEmployeeImageUrl(jobEmployeeDto.getImageUrl());
     this.setEmployeeWorkEmail(jobEmployeeDto.getEmail());
     this.setEmployeeWorkPhone(jobEmployeeDto.getPhoneNumber());
