@@ -1,19 +1,26 @@
 package shamu.company.timeoff.pojo;
 
-import java.util.List;
+import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
-import shamu.company.timeoff.dto.AccrualScheduleMilestoneDto;
-import shamu.company.timeoff.dto.TimeOffPolicyAccrualScheduleDto;
-import shamu.company.timeoff.dto.TimeOffPolicyDto;
-import shamu.company.timeoff.dto.TimeOffPolicyUserDto;
+import shamu.company.company.entity.Company;
+import shamu.company.hashids.HashidsFormat;
+import shamu.company.timeoff.entity.TimeOffPolicy;
 
 @Data
 public class TimeOffPolicyPojo {
-  private TimeOffPolicyDto timeOffPolicy;
+  private Integer accrualHours;
 
-  private TimeOffPolicyAccrualScheduleDto timeOffPolicyAccrualSchedule;
+  private Boolean isLimited;
 
-  private List<TimeOffPolicyUserDto> userStartBalances;
+  private String policyName;
 
-  private List<AccrualScheduleMilestoneDto> milestones;
+  private Integer startDate;
+
+  @HashidsFormat
+  private Long timeOffAccrualFrequency;
+
+  @JSONField(serialize = false)
+  public TimeOffPolicy getTimeOffPolicy(Company company) {
+    return new TimeOffPolicy(company, this.policyName, this.getIsLimited());
+  }
 }

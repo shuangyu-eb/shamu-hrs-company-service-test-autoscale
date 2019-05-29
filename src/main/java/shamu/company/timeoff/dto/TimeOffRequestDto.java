@@ -1,12 +1,12 @@
-package shamu.company.timeoff.request;
+package shamu.company.timeoff.dto;
 
 import java.sql.Timestamp;
 import java.util.Comparator;
 import java.util.Set;
 import lombok.Data;
-import shamu.company.timeoff.request.entity.TimeOffRequest;
-import shamu.company.timeoff.request.entity.TimeOffRequestApprovalStatus;
-import shamu.company.timeoff.request.entity.TimeOffRequestDate;
+import shamu.company.timeoff.entity.TimeOffRequest;
+import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus;
+import shamu.company.timeoff.entity.TimeOffRequestDate;
 import shamu.company.user.entity.User;
 
 @Data
@@ -15,6 +15,8 @@ public class TimeOffRequestDto {
   private Long id;
 
   private String imageUrl;
+
+  private Long userId;
 
   private String name;
 
@@ -41,6 +43,7 @@ public class TimeOffRequestDto {
     User requester = timeOffRequest.getRequesterUser();
 
     this.imageUrl = requester.getImageUrl();
+    this.userId = requester.getId();
     this.name = requester.getUserPersonalInformation().getFirstName();
 
     this.type = timeOffRequest.getTimeOffPolicy().getName();
@@ -50,11 +53,11 @@ public class TimeOffRequestDto {
       if (!timeOffRequestDates.isEmpty()) {
         this.hours = timeOffRequestDates.stream().mapToInt(TimeOffRequestDate::getHours).sum();
         this.startDay = timeOffRequestDates.stream()
-            .map(TimeOffRequestDate::getDate).max(Comparator.comparingLong(Timestamp::getTime))
+            .map(TimeOffRequestDate::getDate).min(Comparator.comparingLong(Timestamp::getTime))
             .get();
 
         this.endDay = timeOffRequestDates.stream()
-            .map(TimeOffRequestDate::getDate).min(Comparator.comparingLong(Timestamp::getTime))
+            .map(TimeOffRequestDate::getDate).max(Comparator.comparingLong(Timestamp::getTime))
             .get();
       }
     }

@@ -1,4 +1,4 @@
-package shamu.company.timeoff.request.entity;
+package shamu.company.timeoff.entity;
 
 import shamu.company.common.BaseEnumConverter;
 import shamu.company.common.ConverterTable;

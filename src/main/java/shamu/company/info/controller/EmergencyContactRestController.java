@@ -59,6 +59,9 @@ public class EmergencyContactRestController extends BaseRestController {
       @RequestBody UserEmergencyContact emergencyContact) {
     User user = userService.getOne(userId);
     emergencyContact.setUser(user);
+    if (emergencyContact.getState().getId() == null) {
+      emergencyContact.setState(null);
+    }
     userEmergencyContactService.createUserEmergencyContact(userId, emergencyContact);
     return new ResponseEntity<>(HttpStatus.OK);
   }

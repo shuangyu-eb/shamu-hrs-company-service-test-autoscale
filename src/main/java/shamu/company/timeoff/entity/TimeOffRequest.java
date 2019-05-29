@@ -1,4 +1,4 @@
-package shamu.company.timeoff.request.entity;
+package shamu.company.timeoff.entity;
 
 import java.sql.Timestamp;
 import java.util.Set;
@@ -13,7 +13,7 @@ import javax.persistence.Table;
 import lombok.Data;
 import org.hibernate.annotations.Where;
 import shamu.company.common.entity.BaseEntity;
-import shamu.company.timeoff.entity.TimeOffPolicy;
+import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.Converter;
 import shamu.company.user.entity.User;
 
 @Entity
@@ -34,7 +34,7 @@ public class TimeOffRequest extends BaseEntity {
   private TimeOffPolicy timeOffPolicy;
 
   @Column(name = "time_off_request_approval_status_id")
-  @Convert(converter = TimeOffRequestApprovalStatus.Converter.class)
+  @Convert(converter = Converter.class)
   private TimeOffRequestApprovalStatus timeOffApprovalStatus =
       TimeOffRequestApprovalStatus.NO_ACTION;
 

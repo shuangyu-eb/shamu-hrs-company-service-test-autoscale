@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import shamu.company.common.repository.BaseRepository;
 import shamu.company.timeoff.dto.TimeOffBalance;
 import shamu.company.timeoff.entity.TimeOffPolicyUser;
+import shamu.company.user.entity.User;
 
 public interface TimeOffPolicyUserRepository extends BaseRepository<TimeOffPolicyUser, Long> {
 
@@ -15,4 +16,6 @@ public interface TimeOffPolicyUserRepository extends BaseRepository<TimeOffPolic
       + "where user.deleted_at is null and user.id = ?1 and user.company_id = ?2 "
       + "order by balance desc", nativeQuery = true)
   List<TimeOffBalance> findTimeOffBalancesByUser(Long userId, Long companyId);
+
+  List<TimeOffPolicyUser> findTimeOffPolicyUsersByUser(User user);
 }

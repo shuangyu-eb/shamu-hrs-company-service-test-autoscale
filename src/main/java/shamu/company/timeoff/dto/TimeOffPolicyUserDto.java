@@ -1,8 +1,8 @@
 package shamu.company.timeoff.dto;
 
-import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
 import shamu.company.hashids.HashidsFormat;
+import shamu.company.timeoff.entity.TimeOffPolicy;
 import shamu.company.timeoff.entity.TimeOffPolicyUser;
 
 @Data
@@ -11,16 +11,19 @@ public class TimeOffPolicyUserDto {
   @HashidsFormat
   private Long id;
 
-  @HashidsFormat
-  private Long userId;
-
-  @HashidsFormat
-  private Long timeOffPolicyId;
+  private TimeOffPolicyDto policy;
 
   private Integer balance;
 
-  @JSONField(serialize = false)
-  public TimeOffPolicyUser getTimeOffPolicyUser(Long timeOffPolicyId) {
-    return new TimeOffPolicyUser(this.getUserId(), timeOffPolicyId, this.getBalance());
+  public TimeOffPolicyUserDto(TimeOffPolicyUser policyUser) {
+    setBalance(policyUser.getBalance());
+    setId(policyUser.getId());
+
+    TimeOffPolicyDto dto = new TimeOffPolicyDto();
+    TimeOffPolicy thisPolicy = policyUser.getTimeOffPolicy();
+    dto.setIsLimited(thisPolicy.getIsLimited());
+    dto.setId(thisPolicy.getId());
+    dto.setName(thisPolicy.getName());
+    setPolicy(dto);
   }
 }
