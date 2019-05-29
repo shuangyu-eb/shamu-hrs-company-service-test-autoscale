@@ -1,6 +1,7 @@
 package shamu.company.user.dto;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import java.sql.Date;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import shamu.company.user.entity.Ethnicity;
@@ -24,7 +25,7 @@ public class UserPersonalInformationDto extends UserPersonalInformationForManage
     origin.setMiddleName(this.getMiddleName());
     origin.setLastName(this.getLastName());
     origin.setPreferredName(this.getPreferredName());
-    origin.setBirthDate(this.getBirthDate());
+    origin.setBirthDate(Date.valueOf(this.getBirthDate()));
     origin.setSsn(this.getSsn());
 
     if (this.getGenderId() != null) {

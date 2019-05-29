@@ -1,5 +1,7 @@
 package shamu.company.user.controller;
 
+import java.sql.Date;
+import java.text.SimpleDateFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,6 +26,8 @@ public class UserPersonalInformationRestController extends BaseRestController {
   private final UserPersonalInformationService userPersonalInformationService;
 
   private final UserService userService;
+
+  SimpleDateFormat sdf = new SimpleDateFormat("MM-dd");
 
   @Autowired
   public UserPersonalInformationRestController(
@@ -64,7 +68,11 @@ public class UserPersonalInformationRestController extends BaseRestController {
     if (manager != null && manager.getId().equals(user.getId())) {
       return new UserPersonalInformationForManagerDto(userPersonalInformation);
     }
-
-    return new BasicUserPersonalInformationDto(userPersonalInformation);
+    Date birthDate = userPersonalInformation.getBirthDate();
+    String birthDateWithoutYear = sdf.format(birthDate);
+    BasicUserPersonalInformationDto basicUserPersonalInformationDto =
+        new BasicUserPersonalInformationDto(userPersonalInformation);
+    basicUserPersonalInformationDto.setBirthDate(birthDateWithoutYear);
+    return basicUserPersonalInformationDto;
   }
 }

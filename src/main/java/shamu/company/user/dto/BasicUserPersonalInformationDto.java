@@ -1,7 +1,5 @@
 package shamu.company.user.dto;
 
-import com.alibaba.fastjson.annotation.JSONField;
-import java.sql.Date;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import shamu.company.hashids.HashidsFormat;
@@ -20,8 +18,7 @@ public class BasicUserPersonalInformationDto {
 
   private String preferredName;
 
-  @JSONField(format = "yyyy-MM-dd")
-  private Date birthDate;
+  private String birthDate;
 
   public BasicUserPersonalInformationDto(UserPersonalInformation personalInformation) {
     this.id = personalInformation.getId();
@@ -29,6 +26,6 @@ public class BasicUserPersonalInformationDto {
     this.lastName = personalInformation.getLastName();
     this.middleName = personalInformation.getMiddleName();
     this.preferredName = personalInformation.getPreferredName();
-    this.birthDate = personalInformation.getBirthDate();
+    this.birthDate = personalInformation.getBirthDate().toString();
   }
 }
