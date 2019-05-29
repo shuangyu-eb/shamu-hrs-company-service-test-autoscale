@@ -3,6 +3,7 @@ package shamu.company.user.dto;
 import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import shamu.company.user.entity.Ethnicity;
 import shamu.company.user.entity.Gender;
 import shamu.company.user.entity.MaritalStatus;
 import shamu.company.user.entity.UserPersonalInformation;
@@ -28,6 +29,10 @@ public class UserPersonalInformationDto extends UserPersonalInformationForManage
 
     if (this.getGenderId() != null) {
       origin.setGender(new Gender(this.getGenderId()));
+    }
+
+    if (this.getEthnicityId() != null) {
+      origin.setEthnicity(new Ethnicity(this.getEthnicityId()));
     }
 
     if (this.getMaritalStatusId() != null) {

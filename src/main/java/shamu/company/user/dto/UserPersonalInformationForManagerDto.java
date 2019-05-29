@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import shamu.company.hashids.HashidsFormat;
+import shamu.company.user.entity.Ethnicity;
 import shamu.company.user.entity.Gender;
 import shamu.company.user.entity.MaritalStatus;
 import shamu.company.user.entity.UserPersonalInformation;
@@ -19,6 +20,10 @@ public class UserPersonalInformationForManagerDto extends BasicUserPersonalInfor
 
   private String maritalStatusName;
 
+  @HashidsFormat private Long ethnicityId;
+
+  private String ethnicityName;
+
   public UserPersonalInformationForManagerDto(UserPersonalInformation userPersonalInformation) {
     super(userPersonalInformation);
     Gender gender = userPersonalInformation.getGender();
@@ -26,6 +31,12 @@ public class UserPersonalInformationForManagerDto extends BasicUserPersonalInfor
     Long genderId = gender == null ? null : gender.getId();
     this.genderId = genderId;
     this.genderName = genderName;
+
+    Ethnicity ethnicity = userPersonalInformation.getEthnicity();
+    String ethnicityName = ethnicity == null ? "" : ethnicity.getName();
+    Long ethnicityId = ethnicity == null ? null : ethnicity.getId();
+    this.ethnicityId = ethnicityId;
+    this.ethnicityName = ethnicityName;
 
     MaritalStatus maritalStatus = userPersonalInformation.getMaritalStatus();
     Long maritalStatusId = maritalStatus == null ? null : maritalStatus.getId();
