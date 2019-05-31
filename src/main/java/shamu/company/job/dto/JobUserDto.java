@@ -46,7 +46,8 @@ public class JobUserDto {
       Job job = userWithJob.getJob();
       this.setJobTitle(job.getTitle());
       this.setDepartment(job.getDepartment().getName());
-      this.setEmploymentType(userWithJob.getEmploymentType().getName());
+      this.employmentType = userWithJob.getEmploymentType() == null
+          ? null : userWithJob.getEmploymentType().getName();
     }
   }
 
