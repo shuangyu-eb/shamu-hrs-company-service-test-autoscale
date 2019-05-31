@@ -59,9 +59,7 @@ public class EmergencyContactRestController extends BaseRestController {
       @RequestBody UserEmergencyContact emergencyContact) {
     User user = userService.getOne(userId);
     emergencyContact.setUser(user);
-    if (emergencyContact.getState().getId() == null) {
-      emergencyContact.setState(null);
-    }
+    checkEmergencyContactState(emergencyContact);
     userEmergencyContactService.createUserEmergencyContact(userId, emergencyContact);
     return new ResponseEntity<>(HttpStatus.OK);
   }
@@ -82,7 +80,14 @@ public class EmergencyContactRestController extends BaseRestController {
       @RequestBody UserEmergencyContact userEmergencyContact) {
     User user = userService.getOne(userId);
     userEmergencyContact.setUser(user);
+    checkEmergencyContactState(userEmergencyContact);
     userEmergencyContactService.updateEmergencyContact(userId, userEmergencyContact);
     return new ResponseEntity<>(HttpStatus.OK);
+  }
+
+  private void checkEmergencyContactState(UserEmergencyContact userEmergencyContact) {
+    if (userEmergencyContact.getState().getId() == null) {
+      userEmergencyContact.setState(null);
+    }
   }
 }
