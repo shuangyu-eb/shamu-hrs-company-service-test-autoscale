@@ -7,7 +7,8 @@ import shamu.company.timeoff.entity.TimeOffRequest;
 import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus;
 import shamu.company.user.entity.User;
 
-public interface TimeOffRequestRepository extends BaseRepository<TimeOffRequest, Long> {
+public interface TimeOffRequestRepository extends BaseRepository<TimeOffRequest, Long>,
+    TimeOffRequestCustomRepository {
 
   List<TimeOffRequest> findByApproverUserAndTimeOffApprovalStatusIn(User approver,
       TimeOffRequestApprovalStatus[] timeOffRequestApprovalStatus);
@@ -42,4 +43,6 @@ public interface TimeOffRequestRepository extends BaseRepository<TimeOffRequest,
   )
   List<TimeOffRequest> managerFindTeamRequests(Long userId, Long managerId,
       List<String> timeOffRequestApprovalStatus);
+
+  List<TimeOffRequest> findByRequesterUserId(Long id);
 }

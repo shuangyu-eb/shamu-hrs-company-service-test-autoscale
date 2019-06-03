@@ -64,4 +64,19 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
               statusNames);
     }
   }
+
+  @Override
+  public List<TimeOffRequest> getMyTimeOffRequestsByRequesterUserId(Long id) {
+    return timeOffRequestRepository.findByRequesterUserId(id);
+  }
+
+  @Override
+  public List<TimeOffRequest> getTimeOffHistories(Long userId, Long startTime, Long endTime) {
+    List<Long> timeOffRequestIds = timeOffRequestRepository
+        .getTimeOffRequestHistoryIds(userId, startTime, endTime);
+    if (timeOffRequestIds != null) {
+      return timeOffRequestRepository.findAllById(timeOffRequestIds);
+    }
+    return null;
+  }
 }

@@ -86,4 +86,18 @@ public class TimeOffRequestRestController extends BaseRestController {
 
     return null;
   }
+
+  @GetMapping(value = "time-off-requests/requester/{id}")
+  public List<TimeOffRequestDto> getMyTimeOffRequests(@HashidsFormat @PathVariable Long id) {
+    return timeOffRequestService.getMyTimeOffRequestsByRequesterUserId(id).stream()
+        .map(TimeOffRequestDto::new).collect(Collectors.toList());
+  }
+
+  @GetMapping(value = "users/{id}/time-off-histories")
+  public List<TimeOffRequestDto> getTimeOffHistories(@RequestParam(required = false) Long startTime,
+      @RequestParam(required = false) Long endTime, @HashidsFormat @PathVariable Long id) {
+    List<TimeOffRequest> timeOffRequests = timeOffRequestService
+        .getTimeOffHistories(id, startTime, endTime);
+    return timeOffRequests.stream().map(TimeOffRequestDto::new).collect(Collectors.toList());
+  }
 }

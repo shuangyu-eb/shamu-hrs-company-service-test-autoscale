@@ -18,4 +18,9 @@ public interface TimeOffRequestService {
   TimeOffRequest createTimeOffRequest(TimeOffRequest request);
 
   List<TimeOffRequest> getRequestsByUserAndStatus(User user, TimeOffRequestApprovalStatus[] status);
+
+  List<TimeOffRequest> getMyTimeOffRequestsByRequesterUserId(Long id);
+
+  List<TimeOffRequest> getTimeOffHistories(Long userId, Long startTime, Long endTime);
+
 }
