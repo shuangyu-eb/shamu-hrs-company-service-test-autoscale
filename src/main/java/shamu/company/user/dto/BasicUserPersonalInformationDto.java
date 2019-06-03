@@ -26,6 +26,7 @@ public class BasicUserPersonalInformationDto {
     this.lastName = personalInformation.getLastName();
     this.middleName = personalInformation.getMiddleName();
     this.preferredName = personalInformation.getPreferredName();
-    this.birthDate = personalInformation.getBirthDate().toString();
+    this.birthDate = personalInformation.getBirthDate() == null
+        ? null : personalInformation.getBirthDate().toString();
   }
 }
