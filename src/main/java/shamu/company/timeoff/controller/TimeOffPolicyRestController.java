@@ -21,16 +21,22 @@ import shamu.company.timeoff.pojo.TimeOffPolicyPojo;
 import shamu.company.timeoff.pojo.TimeOffPolicyUserPojo;
 import shamu.company.timeoff.pojo.TimeOffPolicyWrapperPojo;
 import shamu.company.timeoff.service.TimeOffPolicyService;
+import shamu.company.user.entity.User;
+import shamu.company.user.service.UserService;
 
 @RestApiController
 public class TimeOffPolicyRestController extends BaseRestController {
 
   private final TimeOffPolicyService timeOffPolicyService;
 
+  private final UserService userService;
+
   @Autowired
   public TimeOffPolicyRestController(
-      TimeOffPolicyService timeOffPolicyService) {
+      TimeOffPolicyService timeOffPolicyService,
+      UserService userService) {
     this.timeOffPolicyService = timeOffPolicyService;
+    this.userService = userService;
   }
 
   @PostMapping("time-off-policy")
@@ -64,10 +70,13 @@ public class TimeOffPolicyRestController extends BaseRestController {
     timeOffPolicyService.createTimeOffPolicyUsers(timeOffPolicyUserList);
   }
 
-  @GetMapping("users/{id}/policy-users")
-  public List<TimeOffPolicyUserDto> getAllPolicyUsersByUser() {
+  @GetMapping("users/{userId}/policy-users")
+  public List<TimeOffPolicyUserDto> getAllPolicyUsersByUser(
+      @PathVariable @HashidsFormat Long userId) {
+    User user = this.userService.findUserById(userId);
+
     List<TimeOffPolicyUser> timeOffPolicyUsers = timeOffPolicyService
-        .getAllPolicyUsersByUser(this.getUser());
+        .getAllPolicyUsersByUser(user);
     return timeOffPolicyUsers.stream().map(policyUser -> new TimeOffPolicyUserDto(policyUser))
         .collect(Collectors.toList());
   }

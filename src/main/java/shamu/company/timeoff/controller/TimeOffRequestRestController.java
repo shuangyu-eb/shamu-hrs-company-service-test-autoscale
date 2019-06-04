@@ -42,28 +42,37 @@ public class TimeOffRequestRestController extends BaseRestController {
   @Autowired
   public TimeOffRequestRestController(TimeOffRequestService timeOffRequestService,
       TimeOffRequestDateService timeOffRequestDateService,
-      TimeOffPolicyService timeOffPolicyService, UserService userService) {
+      TimeOffPolicyService timeOffPolicyService,
+      UserService userService) {
     this.timeOffRequestService = timeOffRequestService;
     this.timeOffRequestDateService = timeOffRequestDateService;
     this.timeOffPolicyService = timeOffPolicyService;
     this.userService = userService;
   }
 
-  @PostMapping("time-off-requests")
-  public void createTimeOffRequest(@RequestBody TimeOffRequestPojo requestPojo) {
-    TimeOffRequest timeOffRequest = requestPojo.getTimeOffRequest(this.getUser());
-    TimeOffPolicy policy = timeOffPolicyService.getTimeOffPolicyById(requestPojo.getPolicy());
-    timeOffRequest.setTimeOffPolicy(policy);
-    timeOffRequest.setTimeOffApprovalStatus(TimeOffRequestApprovalStatus.NO_ACTION);
-    TimeOffRequest timeOffRequestReturned = timeOffRequestService
-        .createTimeOffRequest(timeOffRequest);
+  @PostMapping("users/{userId}/time-off-requests")
+  public void createTimeOffRequest(@PathVariable @HashidsFormat Long userId,
+      @RequestBody TimeOffRequestPojo requestPojo) {
+    User user = this.userService.findUserById(userId);
+    TimeOffRequest timeOffRequest = requestPojo.getTimeOffRequest(user);
 
-    List<TimeOffRequestDate> timeOffRequestDates = requestPojo
-        .getTimeOffRequestDates(timeOffRequestReturned);
-    timeOffRequestDateService.saveAllTimeOffRequestDates(timeOffRequestDates);
+    TimeOffRequest timeOffRequestReturned = saveTimeOffRequest(timeOffRequest,
+        requestPojo.getPolicy(), TimeOffRequestApprovalStatus.NO_ACTION);
 
-    timeOffPolicyService
-        .updateTimeOffBalance(requestPojo.getPolicyUser(), requestPojo.getTotalHours());
+    saveTimeOffRequestDates(requestPojo, timeOffRequestReturned);
+  }
+
+  @PostMapping("users/{userId}/time-off-requests/approved")
+  public void createTimeOffRequestAndApproved(@PathVariable @HashidsFormat Long userId,
+      @RequestBody TimeOffRequestPojo requestPojo
+  ) {
+    User user = this.userService.findUserById(userId);
+    TimeOffRequest timeOffRequest = requestPojo.getTimeOffRequest(user);
+
+    TimeOffRequest timeOffRequestReturned = saveTimeOffRequest(timeOffRequest,
+        requestPojo.getPolicy(), TimeOffRequestApprovalStatus.APPROVED);
+
+    saveTimeOffRequestDates(requestPojo, timeOffRequestReturned);
   }
 
   @GetMapping("time-off_requests/approver/status/no-action/count")
@@ -85,6 +94,15 @@ public class TimeOffRequestRestController extends BaseRestController {
       @RequestParam TimeOffRequestApprovalStatus[] status) {
 
     return timeOffRequestService.getRequestsByUserAndStatus(this.getUser(), status).stream()
+        .map(TimeOffRequestDto::new).collect(Collectors.toList());
+  }
+
+  @GetMapping("users/{userId}/time-off-requests")
+  public List<TimeOffRequestDto> getTimeOffRequests(@PathVariable @HashidsFormat Long userId,
+      @RequestParam TimeOffRequestApprovalStatus[] status) {
+    User user = userService.findUserById(userId);
+
+    return timeOffRequestService.getRequestsByUserAndStatus(user, status).stream()
         .map(TimeOffRequestDto::new).collect(Collectors.toList());
   }
 
@@ -165,5 +183,21 @@ public class TimeOffRequestRestController extends BaseRestController {
     List<TimeOffRequest> timeOffRequests = timeOffRequestService
         .getTimeOffHistories(id, startTime, endTime);
     return timeOffRequests.stream().map(TimeOffRequestDto::new).collect(Collectors.toList());
+  }
+
+  private TimeOffRequest saveTimeOffRequest(TimeOffRequest timeOffRequest, Long policyId,
+      TimeOffRequestApprovalStatus status) {
+    TimeOffPolicy policy = timeOffPolicyService.getTimeOffPolicyById(policyId);
+    timeOffRequest.setTimeOffPolicy(policy);
+    timeOffRequest.setTimeOffApprovalStatus(status);
+    return timeOffRequestService
+        .createTimeOffRequest(timeOffRequest);
+  }
+
+  private void saveTimeOffRequestDates(TimeOffRequestPojo requestPojo,
+      TimeOffRequest timeOffRequest) {
+    List<TimeOffRequestDate> timeOffRequestDates = requestPojo
+        .getTimeOffRequestDates(timeOffRequest);
+    timeOffRequestDateService.saveAllTimeOffRequestDates(timeOffRequestDates);
   }
 }

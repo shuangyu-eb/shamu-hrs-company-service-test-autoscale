@@ -26,6 +26,8 @@ public class EmployeeRelatedInformationDto {
 
   private String employeeJobTitle;
 
+  @HashidsFormat private Long managerId;
+
   private String managerName;
 
   private String managerImageUrl;
@@ -47,6 +49,7 @@ public class EmployeeRelatedInformationDto {
     this.setEmployeeWorkPhone(jobEmployeeDto.getPhoneNumber());
     this.setEmployeeJobTitle(jobEmployeeDto.getJobTitle());
     if (jobManagerDto != null) {
+      this.setManagerId(jobManagerDto.getId());
       this.setManagerName(jobManagerDto.getFirstName());
       this.setManagerImageUrl(jobManagerDto.getImageUrl());
       this.setManagerJobTitle(jobManagerDto.getJobTitle());
