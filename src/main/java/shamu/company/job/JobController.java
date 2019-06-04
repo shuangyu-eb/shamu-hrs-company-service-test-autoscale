@@ -1,12 +1,10 @@
 package shamu.company.job;
 
-import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,6 +15,7 @@ import shamu.company.job.dto.JobUpdateDto;
 import shamu.company.job.entity.JobUser;
 import shamu.company.job.service.JobUserService;
 import shamu.company.user.entity.User;
+import shamu.company.user.entity.User.Role;
 import shamu.company.user.entity.UserCompensation;
 import shamu.company.user.service.UserService;
 
@@ -31,12 +30,6 @@ public class JobController extends BaseRestController {
   public JobController(JobUserService jobUserService, UserService userService) {
     this.jobUserService = jobUserService;
     this.userService = userService;
-  }
-
-  @GetMapping("info/managers")
-  // TODO permission
-  public List getManagers() {
-    return jobUserService.getManagers(this.getUser());
   }
 
 
@@ -61,8 +54,11 @@ public class JobController extends BaseRestController {
     user.setUserCompensation(userCompensation);
 
     if (jobUpdateDto.getManagerId() != null) {
-      User manager = new User();
+      User manager = userService.findUserById(jobUpdateDto.getManagerId());
       user.setManagerUser(manager);
+      if (manager.getRole() == Role.NON_MANAGER) {
+        userService.saveUserWithRole(user, Role.MANAGER);
+      }
     }
     userService.save(user);
 

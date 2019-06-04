@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.timeoff.entity.TimeOffRequest;
 import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus;
 import shamu.company.timeoff.repository.TimeOffRequestRepository;
@@ -29,14 +30,27 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
   }
 
   @Override
+  public List<TimeOffRequest> getByRequstersAndStatus(List<User> requsters,
+      TimeOffRequestApprovalStatus status) {
+    return timeOffRequestRepository
+        .findByRequesterUserInAndTimeOffApprovalStatus(requsters, status);
+  }
+
+  @Override
   public Integer getCountByApproverAndStatusIsNoAction(User approver) {
     return timeOffRequestRepository.countByApproverUserAndTimeOffApprovalStatus(approver,
         TimeOffRequestApprovalStatus.NO_ACTION);
   }
 
   @Override
-  public TimeOffRequest updateTimeOffRequestsStatus() {
-    return null;
+  public TimeOffRequest getById(Long timeOffRequestId) {
+    return timeOffRequestRepository.findById(timeOffRequestId).orElseThrow(
+        () -> new ResourceNotFoundException("No time off request with id: " + timeOffRequestId));
+  }
+
+  @Override
+  public TimeOffRequest save(TimeOffRequest timeOffRequest) {
+    return timeOffRequestRepository.save(timeOffRequest);
   }
 
   @Override

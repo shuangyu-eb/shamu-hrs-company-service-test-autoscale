@@ -11,9 +11,14 @@ public interface TimeOffRequestService {
 
   List<TimeOffRequest> getByApproverAndStatus(User approver, TimeOffRequestApprovalStatus[] status);
 
+  List<TimeOffRequest> getByRequstersAndStatus(List<User> requsters,
+      TimeOffRequestApprovalStatus status);
+
   Integer getCountByApproverAndStatusIsNoAction(User approver);
 
-  TimeOffRequest updateTimeOffRequestsStatus();
+  TimeOffRequest getById(Long timeOffRequestId);
+
+  TimeOffRequest save(TimeOffRequest timeOffRequest);
 
   TimeOffRequest createTimeOffRequest(TimeOffRequest request);
 

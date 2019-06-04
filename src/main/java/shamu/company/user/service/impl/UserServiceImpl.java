@@ -33,11 +33,14 @@ import shamu.company.job.repository.JobUserRepository;
 import shamu.company.user.dto.UpdatePasswordDto;
 import shamu.company.user.dto.UserLoginDto;
 import shamu.company.user.entity.User;
+import shamu.company.user.entity.User.Role;
 import shamu.company.user.entity.UserCompensation;
+import shamu.company.user.entity.UserRole;
 import shamu.company.user.entity.UserStatus;
 import shamu.company.user.entity.UserStatus.Status;
 import shamu.company.user.repository.UserCompensationRepository;
 import shamu.company.user.repository.UserRepository;
+import shamu.company.user.repository.UserRoleRepository;
 import shamu.company.user.repository.UserStatusRepository;
 import shamu.company.user.service.UserService;
 
@@ -51,6 +54,7 @@ public class UserServiceImpl implements UserService {
   private final JobUserRepository jobUserRepository;
   private final UserStatusRepository userStatusRepository;
   private final PasswordEncoder passwordEncoder;
+  private final UserRoleRepository userRoleRepository;
 
   private final EmailService emailService;
   @Value("${application.systemEmailAddress}")
@@ -64,7 +68,8 @@ public class UserServiceImpl implements UserService {
   public UserServiceImpl(ITemplateEngine templateEngine, UserRepository userRepository,
       JobUserRepository jobUserRepository, UserStatusRepository userStatusRepository,
       EmailService emailService, UserCompensationRepository userCompensationRepository,
-      PasswordEncoder passwordEncoder) {
+      PasswordEncoder passwordEncoder,
+      UserRoleRepository userRoleRepository) {
     this.templateEngine = templateEngine;
     this.userRepository = userRepository;
     this.jobUserRepository = jobUserRepository;
@@ -72,6 +77,7 @@ public class UserServiceImpl implements UserService {
     this.emailService = emailService;
     this.userCompensationRepository = userCompensationRepository;
     this.passwordEncoder = passwordEncoder;
+    this.userRoleRepository = userRoleRepository;
   }
 
   @Override
@@ -141,16 +147,8 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public List<JobUserDto> findDirectReportsByManagerId(Long id) {
-    List<User> directReports = userRepository.findAllByManagerUserId(id);
-
-    return directReports.stream()
-        .map(
-            (user) -> {
-              JobUser reporterWithJob = jobUserRepository.findJobUserByUser(user);
-              return new JobUserDto(user, reporterWithJob);
-            })
-        .collect(Collectors.toList());
+  public List<User> findDirectReportsByManagerId(Long id) {
+    return userRepository.findAllByManagerUserId(id);
   }
 
   @Override
@@ -225,6 +223,13 @@ public class UserServiceImpl implements UserService {
   @Override
   public void save(User user) {
     userRepository.save(user);
+  }
+
+  @Override
+  public void saveUserWithRole(User user, Role role) {
+    UserRole userRole = userRoleRepository.findByName(role.name());
+    user.setUserRole(userRole);
+    this.save(user);
   }
 
   @Override

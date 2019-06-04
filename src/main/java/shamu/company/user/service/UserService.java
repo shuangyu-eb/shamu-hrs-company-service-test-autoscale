@@ -37,7 +37,7 @@ public interface UserService {
 
   JobUserDto findEmployeeInfoByEmployeeId(Long id);
 
-  List<JobUserDto> findDirectReportsByManagerId(Long id);
+  List<User> findDirectReportsByManagerId(Long id);
 
   String getWelcomeEmail(Context context);
 
@@ -54,6 +54,8 @@ public interface UserService {
   String getEmployeeNumber(String companyName, Integer employeeNumber);
 
   void save(User user);
+
+  void saveUserWithRole(User user, User.Role role);
 
   List<JobUserDto> findAllEmployees(Company company);
 

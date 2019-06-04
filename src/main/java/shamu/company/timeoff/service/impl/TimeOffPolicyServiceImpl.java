@@ -99,8 +99,20 @@ public class TimeOffPolicyServiceImpl implements TimeOffPolicyService {
   }
 
   @Override
+  public Integer getTimeOffBalanceByUserId(Long userId) {
+    return timeOffPolicyUserRepository.getBalanceByUserId(userId);
+  }
+
+  @Override
   public TimeOffPolicy getTimeOffPolicyById(Long id) {
     return timeOffPolicyRepository.findById(id).get();
+  }
+
+  @Override
+  public TimeOffPolicyUser getTimeOffPolicyUserByUserAndTimeOffPolicy(User user,
+      TimeOffPolicy timeOffPolicy) {
+    return timeOffPolicyUserRepository
+        .findTimeOffPolicyUserByUserAndTimeOffPolicy(user, timeOffPolicy);
   }
 
   @Override
@@ -116,6 +128,12 @@ public class TimeOffPolicyServiceImpl implements TimeOffPolicyService {
     timeOffPolicyUser.setBalance(prevBalance - totalHours);
     return timeOffPolicyUserRepository.save(timeOffPolicyUser);
   }
+
+  @Override
+  public TimeOffPolicyUser saveTimeOffPolicyUser(TimeOffPolicyUser timeOffPolicyUser) {
+    return timeOffPolicyUserRepository.save(timeOffPolicyUser);
+  }
+
 
   private void createAccrualScheduleMilestones(
       List<AccrualScheduleMilestoneDto> accrualScheduleMilestoneDtoList, Long scheduleId) {

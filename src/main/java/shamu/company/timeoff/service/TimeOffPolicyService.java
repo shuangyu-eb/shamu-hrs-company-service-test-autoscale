@@ -23,9 +23,16 @@ public interface TimeOffPolicyService {
 
   void createTimeOffPolicyUsers(List<TimeOffPolicyUser> timeOffPolicyUsers);
 
+  Integer getTimeOffBalanceByUserId(Long userId);
+
   TimeOffPolicy getTimeOffPolicyById(Long id);
+
+  TimeOffPolicyUser getTimeOffPolicyUserByUserAndTimeOffPolicy(User user,
+      TimeOffPolicy timeOffPolicy);
 
   List<TimeOffPolicyUser> getAllPolicyUsersByUser(User user);
 
   TimeOffPolicyUser updateTimeOffBalance(Long timeOffPolicyUserId, Integer totalHours);
+
+  TimeOffPolicyUser saveTimeOffPolicyUser(TimeOffPolicyUser timeOffPolicyUser);
 }

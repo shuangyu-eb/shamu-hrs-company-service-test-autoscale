@@ -1,17 +1,16 @@
 package shamu.company.timeoff.dto;
 
 import java.sql.Timestamp;
-import java.util.Comparator;
-import java.util.Set;
 import lombok.Data;
+import shamu.company.hashids.HashidsFormat;
 import shamu.company.timeoff.entity.TimeOffRequest;
 import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus;
-import shamu.company.timeoff.entity.TimeOffRequestDate;
 import shamu.company.user.entity.User;
 
 @Data
 public class TimeOffRequestDto {
 
+  @HashidsFormat
   private Long id;
 
   private String imageUrl;
@@ -47,19 +46,9 @@ public class TimeOffRequestDto {
     this.name = requester.getUserPersonalInformation().getFirstName();
 
     this.type = timeOffRequest.getTimeOffPolicy().getName();
+    this.hours = timeOffRequest.getHours();
+    this.startDay = timeOffRequest.getStartDay();
 
-    if (timeOffRequest.getTimeOffRequestDates() != null) {
-      Set<TimeOffRequestDate> timeOffRequestDates = timeOffRequest.getTimeOffRequestDates();
-      if (!timeOffRequestDates.isEmpty()) {
-        this.hours = timeOffRequestDates.stream().mapToInt(TimeOffRequestDate::getHours).sum();
-        this.startDay = timeOffRequestDates.stream()
-            .map(TimeOffRequestDate::getDate).min(Comparator.comparingLong(Timestamp::getTime))
-            .get();
-
-        this.endDay = timeOffRequestDates.stream()
-            .map(TimeOffRequestDate::getDate).max(Comparator.comparingLong(Timestamp::getTime))
-            .get();
-      }
-    }
+    this.endDay = timeOffRequest.getEndDay();
   }
 }

@@ -13,6 +13,9 @@ public interface TimeOffRequestRepository extends BaseRepository<TimeOffRequest,
   List<TimeOffRequest> findByApproverUserAndTimeOffApprovalStatusIn(User approver,
       TimeOffRequestApprovalStatus[] timeOffRequestApprovalStatus);
 
+  List<TimeOffRequest> findByRequesterUserInAndTimeOffApprovalStatus(List<User> requsters,
+      TimeOffRequestApprovalStatus timeOffRequestApprovalStatus);
+
   Integer countByApproverUserAndTimeOffApprovalStatus(User approver,
       TimeOffRequestApprovalStatus timeOffRequestApprovalStatus);
 

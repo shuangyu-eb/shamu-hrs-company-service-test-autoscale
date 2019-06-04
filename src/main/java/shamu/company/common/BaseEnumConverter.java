@@ -5,13 +5,14 @@ import java.lang.reflect.ParameterizedType;
 import java.math.BigInteger;
 import javax.persistence.AttributeConverter;
 import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 import javax.persistence.Query;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 import shamu.company.common.exception.GeneralException;
 import shamu.company.common.exception.ResourceNotFoundException;
 
-@Repository
+@Component
 public class BaseEnumConverter<X> implements AttributeConverter<X, Long> {
 
   private Class<X> xclazz;
@@ -25,8 +26,8 @@ public class BaseEnumConverter<X> implements AttributeConverter<X, Long> {
   private String loadSql = "select name from %s where id=%d and deleted_at is null";
 
   @Autowired
-  public BaseEnumConverter(EntityManager entityManager) {
-    this.entityManager = entityManager;
+  public BaseEnumConverter(EntityManagerFactory entityManagerFactory) {
+    this.entityManager = entityManagerFactory.createEntityManager();
   }
 
   @SuppressWarnings("unchecked")
@@ -39,13 +40,21 @@ public class BaseEnumConverter<X> implements AttributeConverter<X, Long> {
     } catch (Exception e) {
       throw new GeneralException("can't get values method from " + xclazz);
     }
+  }
 
-
+  private void checkEntityManagerOpen() {
+    if (!this.entityManager.isOpen()) {
+      this.entityManager = this.entityManager.getEntityManagerFactory().createEntityManager();
+    }
   }
 
   @Override
   public Long convertToDatabaseColumn(X attribute) {
-    entityManager.clear();
+    if (attribute == null) {
+      return null;
+    }
+
+    this.checkEntityManagerOpen();
     Query query = entityManager.createNativeQuery(
         String.format(persistSql, tableName, attribute.toString()));
     BigInteger i = (BigInteger) query.getSingleResult();
@@ -59,7 +68,7 @@ public class BaseEnumConverter<X> implements AttributeConverter<X, Long> {
     if (id == null) {
       return null;
     }
-
+    this.checkEntityManagerOpen();
     String name = (String) entityManager.createNativeQuery(String.format(loadSql, tableName, id))
         .getSingleResult();
     try {

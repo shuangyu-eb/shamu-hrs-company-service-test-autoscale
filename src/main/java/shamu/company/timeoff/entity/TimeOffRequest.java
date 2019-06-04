@@ -1,6 +1,7 @@
 package shamu.company.timeoff.entity;
 
 import java.sql.Timestamp;
+import java.util.Comparator;
 import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Convert;
@@ -49,4 +50,32 @@ public class TimeOffRequest extends BaseEntity {
   @OneToMany(fetch = FetchType.EAGER)
   @JoinColumn(name = "time_off_request_id")
   private Set<TimeOffRequestDate> timeOffRequestDates;
+
+  public Timestamp getStartDay() {
+    if (timeOffRequestDates.isEmpty()) {
+      return null;
+    }
+    return this.timeOffRequestDates.stream()
+        .map(TimeOffRequestDate::getDate)
+        .min(Comparator.comparingLong(Timestamp::getTime))
+        .get();
+  }
+
+  public Timestamp getEndDay() {
+    if (timeOffRequestDates.isEmpty()) {
+      return null;
+    }
+    return this.timeOffRequestDates.stream()
+        .map(TimeOffRequestDate::getDate)
+        .max(Comparator.comparingLong(Timestamp::getTime))
+        .get();
+  }
+
+  public Integer getHours() {
+    if (timeOffRequestDates.isEmpty()) {
+      return null;
+    }
+    return this.timeOffRequestDates.stream()
+        .mapToInt(TimeOffRequestDate::getHours).sum();
+  }
 }

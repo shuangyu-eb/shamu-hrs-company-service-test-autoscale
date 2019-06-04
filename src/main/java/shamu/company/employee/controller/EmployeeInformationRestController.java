@@ -1,6 +1,7 @@
 package shamu.company.employee.controller;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -51,7 +52,9 @@ public class EmployeeInformationRestController extends BaseRestController {
     }
     JobUserDto jobUserDto = userService.findEmployeeInfoByEmployeeId(id);
 
-    List<JobUserDto> reports = userService.findDirectReportsByManagerId(id);
+    List<JobUserDto> reports = userService.findDirectReportsByManagerId(id).stream()
+        .map((user) -> userService.findEmployeeInfoByEmployeeId(user.getId()))
+        .collect(Collectors.toList());
 
     return new EmployeeRelatedInformationDto(id, jobUserDto, managerjobUserDto, reports);
   }
