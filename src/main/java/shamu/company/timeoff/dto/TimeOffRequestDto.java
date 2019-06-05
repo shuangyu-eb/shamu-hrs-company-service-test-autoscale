@@ -15,6 +15,7 @@ public class TimeOffRequestDto {
 
   private String imageUrl;
 
+  @HashidsFormat
   private Long userId;
 
   private String name;
