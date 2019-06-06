@@ -20,13 +20,18 @@ public class Email extends BaseEntity {
 
   private String from;
 
+  private String fromName;
+
   private String to;
+
+  private String toName;
 
   private String subject;
 
   private String content;
 
-  @ManyToOne private User user;
+  @ManyToOne
+  private User user;
 
   private Timestamp sendDate;
 
@@ -51,5 +56,13 @@ public class Email extends BaseEntity {
     this.subject = subject;
     this.content = content;
     this.sendDate = sendDate;
+  }
+
+  public Email(User from, User to, String subject) {
+    this.from = from.getEmailWork();
+    this.fromName = from.getUserPersonalInformation().getName();
+    this.to = to.getEmailWork();
+    this.toName = to.getUserPersonalInformation().getName();
+    this.subject = subject;
   }
 }

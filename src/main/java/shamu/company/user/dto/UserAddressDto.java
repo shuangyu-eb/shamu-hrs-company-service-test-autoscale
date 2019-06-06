@@ -13,9 +13,11 @@ import shamu.company.user.entity.UserAddress;
 @NoArgsConstructor
 public class UserAddressDto {
 
-  @HashidsFormat private Long id;
+  @HashidsFormat
+  private Long id;
 
-  @HashidsFormat private Long userId;
+  @HashidsFormat
+  private Long userId;
 
   private String street1;
 
@@ -25,11 +27,13 @@ public class UserAddressDto {
 
   private String countryName;
 
-  @HashidsFormat private Long countryId;
+  @HashidsFormat
+  private Long countryId;
 
   private String stateProvinceName;
 
-  @HashidsFormat private Long stateProvinceId;
+  @HashidsFormat
+  private Long stateProvinceId;
 
   private String postalCode;
 

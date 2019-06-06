@@ -8,15 +8,11 @@ import shamu.company.timeoff.entity.TimeOffRequest;
 @Data
 public class TimeOffRequestDetailDto extends TimeOffRequestDto {
 
+  List<BasicTimeOffRequestDto> otherTimeOffRequests;
   @HashidsFormat
   private Long userId;
-
   private Integer balance;
-
   private String approverComment;
-
-
-  List<BasicTimeOffRequestDto> otherTimeOffRequests;
 
   public TimeOffRequestDetailDto(TimeOffRequest timeOffRequest) {
     super(timeOffRequest);

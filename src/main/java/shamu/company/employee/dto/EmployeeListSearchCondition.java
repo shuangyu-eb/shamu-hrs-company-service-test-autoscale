@@ -5,19 +5,15 @@ import lombok.Data;
 @Data
 public class EmployeeListSearchCondition {
 
+  private static final String LAST_NAME = "lastName";
+  private static final String FIRST_NAME = "firstName";
+  private static final String DEPARTMENT = "department";
+  private static final String JOB_TITLE = "jobTitle";
   private String keyword = "";
   private Integer page = 0;
   private Integer size = 20;
   private SortField sortField = SortField.NAME;
   private SortDirection sortDirection = SortDirection.desc;
-
-  private static final String LAST_NAME = "lastName";
-
-  private static final String FIRST_NAME = "firstName";
-
-  private static final String DEPARTMENT = "department";
-
-  private static final String JOB_TITLE = "jobTitle";
 
   public String getSortDirection() {
     return this.sortDirection.name();

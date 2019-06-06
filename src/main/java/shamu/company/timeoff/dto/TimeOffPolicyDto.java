@@ -5,6 +5,7 @@ import shamu.company.hashids.HashidsFormat;
 
 @Data
 public class TimeOffPolicyDto {
+
   @HashidsFormat
   private Long id;
 

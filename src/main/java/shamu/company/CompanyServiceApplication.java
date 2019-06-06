@@ -10,13 +10,13 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 public class CompanyServiceApplication {
 
+  public static void main(String[] args) {
+    SpringApplication.run(CompanyServiceApplication.class, args);
+  }
+
   @PostConstruct
   void started() {
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
-  }
-  
-  public static void main(String[] args) {
-    SpringApplication.run(CompanyServiceApplication.class, args);
   }
 
 }

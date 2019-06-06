@@ -1,26 +1,65 @@
 package shamu.company.timeoff.service.impl;
 
+import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.APPROVED;
+
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.ITemplateEngine;
+import org.thymeleaf.context.Context;
+import shamu.company.common.ApplicationConfig;
 import shamu.company.common.exception.ResourceNotFoundException;
+import shamu.company.email.Email;
+import shamu.company.email.EmailService;
 import shamu.company.timeoff.entity.TimeOffRequest;
 import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus;
+import shamu.company.timeoff.repository.TimeOffPolicyUserRepository;
 import shamu.company.timeoff.repository.TimeOffRequestRepository;
 import shamu.company.timeoff.service.TimeOffRequestService;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserRole.Role;
+import shamu.company.user.repository.UserRepository;
+import shamu.company.utils.AwsUtil;
 
 @Service
 public class TimeOffRequestServiceImpl implements TimeOffRequestService {
 
   private final TimeOffRequestRepository timeOffRequestRepository;
 
+  private final TimeOffPolicyUserRepository timeOffPolicyUserRepository;
+
+  private final UserRepository userRepository;
+
+  private final ApplicationConfig applicationConfig;
+
+  private final EmailService emailService;
+
+  private final ITemplateEngine templateEngine;
+
+  private final AwsUtil awsUtil;
+
   @Autowired
-  public TimeOffRequestServiceImpl(TimeOffRequestRepository timeOffRequestRepository) {
+  public TimeOffRequestServiceImpl(TimeOffRequestRepository timeOffRequestRepository,
+      TimeOffPolicyUserRepository timeOffPolicyUserRepository,
+      UserRepository userRepository,
+      ApplicationConfig applicationConfig, EmailService emailService,
+      ITemplateEngine templateEngine, AwsUtil awsUtil) {
     this.timeOffRequestRepository = timeOffRequestRepository;
+    this.timeOffPolicyUserRepository = timeOffPolicyUserRepository;
+    this.userRepository = userRepository;
+    this.applicationConfig = applicationConfig;
+    this.emailService = emailService;
+    this.templateEngine = templateEngine;
+    this.awsUtil = awsUtil;
   }
 
   @Override
@@ -30,7 +69,7 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
   }
 
   @Override
-  public List<TimeOffRequest> getByRequstersAndStatus(List<User> requsters,
+  public List<TimeOffRequest> getByRequestersAndStatus(List<User> requsters,
       TimeOffRequestApprovalStatus status) {
     return timeOffRequestRepository
         .findByRequesterUserInAndTimeOffApprovalStatus(requsters, status);
@@ -92,5 +131,94 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
       return timeOffRequestRepository.findAllById(timeOffRequestIds);
     }
     return null;
+  }
+
+  @Override
+  public List<TimeOffRequest> getOtherTimeOffRequestsByManager(User manager) {
+    List<User> requesters = userRepository.findAllByManagerUserId(manager.getId());
+    requesters.add(manager);
+    return this.getByRequestersAndStatus(requesters, APPROVED);
+  }
+
+  @Override
+  public void sendTimeOffRequestEmail(TimeOffRequest timeOffRequest) {
+    User approver = timeOffRequest.getApproverUser();
+    User requester = timeOffRequest.getRequesterUser();
+    TimeOffRequestApprovalStatus status = timeOffRequest.getTimeOffApprovalStatus();
+
+    Map<String, Object> variables = this.getVariablesOfTimeOffRequestEmail(timeOffRequest);
+    String template;
+    Email email;
+    if (status == APPROVED || status == TimeOffRequestApprovalStatus.DENIED) {
+      String subject = "Time Off " + (status == APPROVED ? "Approved" : "Denied");
+      template = "time_off_request_approve_deny.html";
+      email = new Email(approver, requester, subject);
+
+      variables.put("approverComment", timeOffRequest.getApproverComment());
+      variables.put("approverId", approver.getId());
+      variables.put("approverName", approver.getUserPersonalInformation().getName());
+      variables.put("approverImageUrl", awsUtil.getFullFileUrl(approver.getImageUrl()));
+    } else {
+      email = new Email(requester, approver, "Time Off Request");
+      template = "time_off_request_pending.html";
+
+      long conflict = this.getConflictOfTimeOffRequest(timeOffRequest);
+      Integer balance = timeOffPolicyUserRepository.getBalanceByUserId(requester.getId());
+      variables.put("remain", balance - timeOffRequest.getHours());
+      variables.put("conflict", conflict);
+      variables.put("requesterId", requester.getId());
+      variables.put("requesterName", requester.getUserPersonalInformation().getName());
+    }
+
+    String emailContent = templateEngine.process(template, new Context(Locale.ENGLISH, variables));
+    email.setSendDate(new Timestamp(new Date().getTime()));
+    email.setContent(emailContent);
+
+    emailService.saveAndScheduleEmail(email);
+  }
+
+  private long getConflictOfTimeOffRequest(TimeOffRequest timeOffRequest) {
+    LocalDate start = timeOffRequest.getStartDay().toLocalDateTime().toLocalDate();
+    LocalDate end = timeOffRequest.getEndDay().toLocalDateTime().toLocalDate();
+
+    User manager = timeOffRequest.getRequesterUser().getManagerUser();
+    List<TimeOffRequest> timeOffRequests = this.getOtherTimeOffRequestsByManager(manager);
+
+    return timeOffRequests.stream()
+        .filter(tr -> (start.compareTo(tr.getEndDay().toLocalDateTime().toLocalDate()) <= 0
+            && end.compareTo(tr.getStartDay().toLocalDateTime().toLocalDate()) >= 0)).count();
+  }
+
+  private Map<String, Object> getVariablesOfTimeOffRequestEmail(TimeOffRequest timeOffRequest) {
+
+    Map<String, Object> variables = new HashMap<>();
+
+    LocalDate start = timeOffRequest.getStartDay().toLocalDateTime().toLocalDate();
+    LocalDate end = timeOffRequest.getEndDay().toLocalDateTime().toLocalDate();
+    String startDay;
+    String endDay;
+    if (start.getYear() == end.getYear()) {
+      startDay = DateTimeFormatter.ofPattern("MMMM d", Locale.ENGLISH).format(start);
+      if (start.getMonth() == end.getMonth()) {
+        endDay = DateTimeFormatter.ofPattern("d, YYYY", Locale.ENGLISH).format(start);
+      } else {
+        endDay = DateTimeFormatter.ofPattern("MMMM d, YYYY", Locale.ENGLISH).format(start);
+      }
+    } else {
+      startDay = DateTimeFormatter.ofPattern("MMMM d, YYYY", Locale.ENGLISH).format(start);
+      endDay = DateTimeFormatter.ofPattern("MMMM d, YYYY", Locale.ENGLISH).format(start);
+    }
+
+    variables.put("frontEndAddress", applicationConfig.getFrontEndAddress());
+    variables.put("timeRange", startDay.concat(" - ").concat(endDay));
+    variables.put("status", timeOffRequest.getTimeOffApprovalStatus().name());
+    variables.put("type", timeOffRequest.getTimeOffPolicy().getName());
+    variables.put("hours", timeOffRequest.getHours());
+    variables.put("comment", timeOffRequest.getComment());
+    variables.put("requesterImageUrl",
+        awsUtil.getFullFileUrl(timeOffRequest.getRequesterUser().getImageUrl()));
+    variables.put("helpUrl", applicationConfig.getHelpUrl());
+
+    return variables;
   }
 }

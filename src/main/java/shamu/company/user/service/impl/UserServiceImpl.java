@@ -57,12 +57,11 @@ public class UserServiceImpl implements UserService {
   private final UserRoleRepository userRoleRepository;
 
   private final EmailService emailService;
+  private final UserCompensationRepository userCompensationRepository;
   @Value("${application.systemEmailAddress}")
   private String systemEmailAddress;
   @Value("${application.frontEndAddress}")
   private String frontEndAddress;
-
-  private final UserCompensationRepository userCompensationRepository;
 
   @Autowired
   public UserServiceImpl(ITemplateEngine templateEngine, UserRepository userRepository,

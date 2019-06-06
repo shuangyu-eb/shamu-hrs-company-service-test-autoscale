@@ -7,6 +7,7 @@ import shamu.company.timeoff.dto.TimeOffPolicyAccrualScheduleDto;
 
 @Data
 public class TimeOffPolicyWrapperPojo {
+
   private TimeOffPolicyPojo timeOffPolicy;
 
   private TimeOffPolicyAccrualScheduleDto timeOffPolicyAccrualSchedule;

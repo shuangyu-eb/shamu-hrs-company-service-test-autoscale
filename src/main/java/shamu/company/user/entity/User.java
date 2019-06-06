@@ -28,11 +28,13 @@ public class User extends BaseEntity {
 
   private Timestamp latestLogin;
 
-  @OneToOne private UserStatus userStatus;
+  @OneToOne
+  private UserStatus userStatus;
 
   private String imageUrl;
 
-  @ManyToOne private Company company;
+  @ManyToOne
+  private Company company;
 
   @ManyToOne
   @JSONField(serialize = false)
@@ -47,7 +49,8 @@ public class User extends BaseEntity {
   @OneToOne(cascade = CascadeType.PERSIST)
   private UserCompensation userCompensation;
 
-  @OneToOne private UserRole userRole;
+  @OneToOne
+  private UserRole userRole;
 
   private String invitationEmailToken;
 

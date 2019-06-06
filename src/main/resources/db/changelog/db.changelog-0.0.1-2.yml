@@ -1408,3 +1408,25 @@ databaseChangeLog:
         file: db/changelog/data/ethnicities.csv
         primaryKey: id
         tableName: ethnicities
+
+- changeSet:
+    id: 1559799591763-84
+    author: Qi-Jia
+    changes:
+    - addColumn:
+        columns:
+        - column:
+            name: from_name
+            type: varchar(255)
+        tableName: emails
+
+- changeSet:
+    id: 1559799591763-85
+    author: Qi-Jia
+    changes:
+    - addColumn:
+        columns:
+        - column:
+            name: to_name
+            type: varchar(255)
+        tableName: emails

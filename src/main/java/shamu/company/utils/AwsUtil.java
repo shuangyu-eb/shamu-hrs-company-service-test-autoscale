@@ -164,6 +164,10 @@ public class AwsUtil {
     }
   }
 
+  public String getFullFileUrl(String path) {
+    return "https://" + this.bucketName + ".s3.amazonaws.com/" + path;
+  }
+
   public enum Type {
     TEMP("temp"), IMAGE("image"), DEFAULT("uploads");
 

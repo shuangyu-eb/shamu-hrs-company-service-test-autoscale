@@ -2,7 +2,6 @@ package shamu.company.timeoff.dto;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
-import shamu.company.company.entity.Company;
 import shamu.company.hashids.HashidsFormat;
 import shamu.company.timeoff.entity.TimeOffAccrualFrequency;
 import shamu.company.timeoff.entity.TimeOffPolicy;

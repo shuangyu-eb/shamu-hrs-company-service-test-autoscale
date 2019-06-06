@@ -8,12 +8,12 @@ import org.springframework.beans.BeanUtils;
 import shamu.company.common.entity.StateProvince;
 import shamu.company.hashids.HashidsFormat;
 import shamu.company.info.entity.UserEmergencyContact;
-import shamu.company.user.entity.User;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserEmergencyContactDto extends BasicUserEmergencyContactDto {
+
   private String email;
 
   private String street1;

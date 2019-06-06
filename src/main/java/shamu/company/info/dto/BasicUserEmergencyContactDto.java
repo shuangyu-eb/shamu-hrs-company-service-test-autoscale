@@ -10,6 +10,7 @@ import shamu.company.info.entity.UserEmergencyContact;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BasicUserEmergencyContactDto {
+
   @HashidsFormat
   public Long id;
 

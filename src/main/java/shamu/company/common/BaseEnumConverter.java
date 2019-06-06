@@ -15,13 +15,10 @@ import shamu.company.common.exception.ResourceNotFoundException;
 @Component
 public class BaseEnumConverter<X> implements AttributeConverter<X, Long> {
 
+  private static EntityManager entityManager;
   private Class<X> xclazz;
   private Method valueMethod;
   private String tableName;
-
-
-  private static EntityManager entityManager;
-
   private String persistSql = "select id from %s where name='%s' and deleted_at is null";
   private String loadSql = "select name from %s where id=%d and deleted_at is null";
 

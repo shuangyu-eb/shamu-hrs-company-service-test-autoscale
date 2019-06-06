@@ -19,7 +19,7 @@ public interface CompanyService {
 
   List<Job> getJobsByDepartmentId(Long id);
 
-  Job saveJobsByDepartmentId(Long departmentId,String name);
+  Job saveJobsByDepartmentId(Long departmentId, String name);
 
   List<Office> getOfficesByCompany(Company company);
 

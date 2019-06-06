@@ -12,6 +12,7 @@ import shamu.company.user.entity.UserPersonalInformation;
 @Data
 @NoArgsConstructor
 public class UserPersonalInformationDto extends UserPersonalInformationForManagerDto {
+
   private String ssn;
 
   public UserPersonalInformationDto(UserPersonalInformation userPersonalInformation) {

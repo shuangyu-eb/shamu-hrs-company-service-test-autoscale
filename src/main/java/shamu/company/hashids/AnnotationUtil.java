@@ -7,6 +7,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 class AnnotationUtil {
 
+  private AnnotationUtil() {
+
+  }
+
   static boolean fieldHasAnnotation(Class clazz, String fieldName, Class annotationClazz) {
     Class c = clazz;
     while (c != Object.class) {
@@ -20,9 +24,5 @@ class AnnotationUtil {
     }
 
     return false;
-  }
-
-  private AnnotationUtil() {
-
   }
 }

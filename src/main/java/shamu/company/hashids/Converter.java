@@ -22,6 +22,23 @@ import shamu.company.common.exception.GeneralException;
 
 public class Converter extends FastJsonHttpMessageConverter {
 
+  public Converter() {
+    super();
+    FastJsonConfig fastJsonConfig = new FastJsonConfig();
+    LongDecode longDecode = new LongDecode();
+    // id => hash id
+    fastJsonConfig.setSerializeFilters(getSerializeFilter());
+    // not filter the field when the value is null
+    fastJsonConfig.setSerializerFeatures(SerializerFeature.WriteMapNullValue);
+
+    //hash id => id
+    ParserConfig parserConfig = new ParserConfig();
+    parserConfig.putDeserializer(Long.class, longDecode);
+    parserConfig.putDeserializer(long.class, longDecode);
+    fastJsonConfig.setParserConfig(parserConfig);
+    this.setFastJsonConfig(fastJsonConfig);
+  }
+
   @Override
   public Object read(Type type, Class<?> contextClass, HttpInputMessage inputMessage) {
     try {
@@ -46,6 +63,16 @@ public class Converter extends FastJsonHttpMessageConverter {
     } catch (IOException ex) {
       throw new GeneralException("I/O error while reading input message", ex);
     }
+  }
+
+  private ValueFilter getSerializeFilter() {
+    return (object, name, value) -> {
+      if (object != null && value != null && AnnotationUtil
+          .fieldHasAnnotation(object.getClass(), name, HashidsFormat.class)) {
+        return HashidsUtil.encode(value);
+      }
+      return value;
+    };
   }
 
   private class LongDecode extends LongCodec {
@@ -84,32 +111,5 @@ public class Converter extends FastJsonHttpMessageConverter {
       }
       return super.deserialze(parser, clazz, fieldName);
     }
-  }
-
-  private ValueFilter getSerializeFilter() {
-    return (object, name, value) -> {
-      if (object != null && value != null && AnnotationUtil
-          .fieldHasAnnotation(object.getClass(), name, HashidsFormat.class)) {
-        return HashidsUtil.encode(value);
-      }
-      return value;
-    };
-  }
-
-  public Converter() {
-    super();
-    FastJsonConfig fastJsonConfig = new FastJsonConfig();
-    LongDecode longDecode = new LongDecode();
-    // id => hash id
-    fastJsonConfig.setSerializeFilters(getSerializeFilter());
-    // not filter the field when the value is null
-    fastJsonConfig.setSerializerFeatures(SerializerFeature.WriteMapNullValue);
-
-    //hash id => id
-    ParserConfig parserConfig = new ParserConfig();
-    parserConfig.putDeserializer(Long.class, longDecode);
-    parserConfig.putDeserializer(long.class, longDecode);
-    fastJsonConfig.setParserConfig(parserConfig);
-    this.setFastJsonConfig(fastJsonConfig);
   }
 }

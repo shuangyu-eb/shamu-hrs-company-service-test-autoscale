@@ -12,15 +12,15 @@ public class JobInformationDto extends BasicJobInformationDto {
 
   private CompensationDto compensation;
 
-  private void setCompensation(UserCompensation userCompensation) {
-    if (userCompensation != null) {
-      this.compensation = new CompensationDto(userCompensation);
-    }
-  }
-
   public JobInformationDto(JobUser jobUser) {
     super(jobUser);
     User user = jobUser.getUser();
     this.setCompensation(user.getUserCompensation());
+  }
+
+  private void setCompensation(UserCompensation userCompensation) {
+    if (userCompensation != null) {
+      this.compensation = new CompensationDto(userCompensation);
+    }
   }
 }

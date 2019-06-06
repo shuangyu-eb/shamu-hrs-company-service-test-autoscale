@@ -15,6 +15,7 @@ import shamu.company.hashids.HashidsFormat;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PaidHoliday extends BaseEntity {
+
   @HashidsFormat
   private Long companyId;
 

@@ -9,6 +9,7 @@ import shamu.company.user.service.GenderService;
 
 @Service
 public class GenderServiceImpl implements GenderService {
+
   private final GenderRepository genderRepository;
 
   @Autowired

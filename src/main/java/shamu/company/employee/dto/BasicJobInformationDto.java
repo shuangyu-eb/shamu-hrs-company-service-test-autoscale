@@ -37,6 +37,25 @@ public class BasicJobInformationDto {
 
   private OfficeDto office;
 
+  public BasicJobInformationDto(JobUser jobUser) {
+    User user = jobUser.getUser();
+    Job job = jobUser.getJob();
+
+    this.setJob(job);
+    this.setDepartment(job.getDepartment());
+    this.setManager(user.getManagerUser());
+    this.setEmploymentType(jobUser.getEmploymentType());
+    this.setOffice(jobUser.getOffice());
+    this.jobUserId = jobUser.getId();
+    this.startDate = jobUser.getStartDate();
+    this.endDate = jobUser.getEndDate();
+    this.userRole = user.getRole();
+  }
+
+  public BasicJobInformationDto(User user) {
+    this.userRole = user.getRole();
+  }
+
   private void setJob(Job job) {
     this.job = new SelectFieldInformationDto(job.getId(), job.getTitle());
   }
@@ -68,24 +87,5 @@ public class BasicJobInformationDto {
     if (office != null) {
       this.office = new OfficeDto(office);
     }
-  }
-
-  public BasicJobInformationDto(JobUser jobUser) {
-    User user = jobUser.getUser();
-    Job job = jobUser.getJob();
-
-    this.setJob(job);
-    this.setDepartment(job.getDepartment());
-    this.setManager(user.getManagerUser());
-    this.setEmploymentType(jobUser.getEmploymentType());
-    this.setOffice(jobUser.getOffice());
-    this.jobUserId = jobUser.getId();
-    this.startDate = jobUser.getStartDate();
-    this.endDate = jobUser.getEndDate();
-    this.userRole = user.getRole();
-  }
-
-  public BasicJobInformationDto(User user) {
-    this.userRole = user.getRole();
   }
 }

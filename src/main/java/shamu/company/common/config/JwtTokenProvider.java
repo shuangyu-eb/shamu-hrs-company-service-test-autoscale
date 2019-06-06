@@ -26,6 +26,10 @@ import shamu.company.user.service.UserService;
 @Component
 public class JwtTokenProvider {
 
+  private final UserService userService;
+
+  private final PermissionService permissionService;
+
   @Value("${auth0.jwks}")
   private String jwks;
 
@@ -34,10 +38,6 @@ public class JwtTokenProvider {
 
   @Value("${auth0.authDomain}")
   private String authDomain;
-
-  private final UserService userService;
-
-  private final PermissionService permissionService;
 
   @Autowired
   public JwtTokenProvider(UserService userService, PermissionService permissionService) {
@@ -76,7 +76,8 @@ public class JwtTokenProvider {
     String email = decodedJWT.getClaim("email").asString();
     User user = userService.findUserByEmailAndStatus(email, Status.ACTIVE);
     if (user == null) {
-      throw new UnAuthenticatedException("Account has a Wrong email address '" + email + "' or account not activated!");
+      throw new UnAuthenticatedException(
+          "Account has a Wrong email address '" + email + "' or account not activated!");
     }
 
     List<AuthorityPojo> authorities = permissionService.getPermissionByUser(user);

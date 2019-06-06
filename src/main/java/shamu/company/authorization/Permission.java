@@ -20,6 +20,7 @@ public class Permission extends BaseEntity {
   @Basic(optional = false)
   @Enumerated(EnumType.STRING)
   private Name name;
+  private Long permissionTypeId;
 
   public enum Name {
     CREATE_USER(PermissionType.ADMIN_PERMISSION),
@@ -36,6 +37,7 @@ public class Permission extends BaseEntity {
     EDIT_SELF(PermissionType.SELF_PERMISSION);
 
     private PermissionType permissionType;
+
     Name(PermissionType permissionType) {
       this.permissionType = permissionType;
     }
@@ -44,8 +46,6 @@ public class Permission extends BaseEntity {
       return permissionType;
     }
   }
-
-  private Long permissionTypeId;
 
   public enum PermissionType {
     ADMIN_PERMISSION, MANAGER_PERMISSION, EMPLOYEE_PERMISSION, SELF_PERMISSION,

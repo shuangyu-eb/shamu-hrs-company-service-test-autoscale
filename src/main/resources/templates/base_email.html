@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html
+    lang="en"
+    th:fragment="layout (content)" xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:th="http://www.thymeleaf.org"
+>
+
+<head>
+  <meta charset="UTF-8">
+  <link href="https://fonts.googleapis.com/css?family=Roboto" media="all" rel="stylesheet"
+        type="text/css">
+</head>
+<body>
+<div style="background-color: #edeef2; width: 600px; padding: 32px 0px">
+  <div align="center" style="padding: 0 24px">
+    <div style="width: 565px">
+      <img style="width: 165px; height: 38px"
+           th:src="@{${frontEndAddress} + 'image/colorlogo.png'}">
+    </div>
+
+    <div
+        style="margin-top: 14px; background-color: #ffffff; border-radius: 4px; width: 552px;">
+      <div th:replace="${content}">
+        <p>Layout content</p>
+      </div>
+    </div>
+
+    <div style="padding-top: 24px; font-size: 13px; line-height: 1.38; color: #7b7e84">
+      <div>© 2019 Interviewed</div>
+      <div>177 Broad St, Stamford, CT 06901</div>
+      <a style="text-decoration: none; color: #488eff" th:href="@{${helpUrl}}">Help</a>
+    </div>
+  </div>
+</div>
+</body>
+</html>

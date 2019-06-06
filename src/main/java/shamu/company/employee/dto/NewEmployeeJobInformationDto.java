@@ -10,14 +10,17 @@ public class NewEmployeeJobInformationDto {
   @HashidsFormat
   private Long jobId;
 
-  @HashidsFormat private Long employmentTypeId;
+  @HashidsFormat
+  private Long employmentTypeId;
 
   private Timestamp hireDate;
 
-  @HashidsFormat private Long reportsTo;
+  @HashidsFormat
+  private Long reportsTo;
 
   // TODO remove it, we can get it from job
-  @HashidsFormat private Long departmentId;
+  @HashidsFormat
+  private Long departmentId;
 
   private Integer compensation;
 

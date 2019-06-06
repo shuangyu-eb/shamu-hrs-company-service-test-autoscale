@@ -8,7 +8,9 @@ import shamu.company.user.entity.UserContactInformation;
 @Data
 @NoArgsConstructor
 public class BasicUserContactInformationDto {
-  @HashidsFormat private Long id;
+
+  @HashidsFormat
+  private Long id;
 
   private String phoneWork;
 

@@ -13,12 +13,12 @@ public class AuthorityPojo implements GrantedAuthority {
   @HashidsFormat
   List<Long> ids;
 
+  AuthorityPojo(Permission permission) {
+    this.name = permission.getName();
+  }
+
   @Override
   public String getAuthority() {
     return name.toString();
-  }
-
-  AuthorityPojo(Permission permission) {
-    this.name = permission.getName();
   }
 }

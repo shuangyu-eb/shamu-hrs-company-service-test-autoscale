@@ -8,6 +8,7 @@ import shamu.company.user.entity.UserContactInformation;
 @Data
 @NoArgsConstructor
 public class UserContactInformationDto extends BasicUserContactInformationDto {
+
   private String emailHome;
 
   public UserContactInformationDto(UserContactInformation userContactInformation) {

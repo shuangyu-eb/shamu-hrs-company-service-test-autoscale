@@ -8,7 +8,9 @@ import shamu.company.user.entity.UserPersonalInformation;
 @Data
 @NoArgsConstructor
 public class BasicUserPersonalInformationDto {
-  @HashidsFormat private Long id;
+
+  @HashidsFormat
+  private Long id;
 
   private String firstName;
 

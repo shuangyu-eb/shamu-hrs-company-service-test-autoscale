@@ -13,6 +13,7 @@ import shamu.company.timeoff.service.PaidHolidayService;
 
 @Service
 public class PaidHolidayServiceImpl implements PaidHolidayService {
+
   private final PaidHolidayRepository paidHolidayRepository;
 
   private List<String> paidHolidayNames = new ArrayList<>();

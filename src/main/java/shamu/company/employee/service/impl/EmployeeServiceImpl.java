@@ -133,8 +133,8 @@ public class EmployeeServiceImpl implements EmployeeService {
   }
 
   @Override
-  public List<User>
-      findEmployersAndEmployeesByDepartmentIdAndCompanyId(Long departmentId, Long companyId) {
+  public List<User> findEmployersAndEmployeesByDepartmentIdAndCompanyId(Long departmentId,
+      Long companyId) {
     return userRepository
         .findEmployersAndEmployeesByDepartmentIdAndCompanyId(departmentId, companyId);
   }

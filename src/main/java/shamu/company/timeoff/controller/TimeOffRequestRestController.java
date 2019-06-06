@@ -58,7 +58,7 @@ public class TimeOffRequestRestController extends BaseRestController {
 
     TimeOffRequest timeOffRequestReturned = saveTimeOffRequest(timeOffRequest,
         requestPojo.getPolicy(), TimeOffRequestApprovalStatus.NO_ACTION);
-
+    timeOffRequestService.sendTimeOffRequestEmail(timeOffRequest);
     saveTimeOffRequestDates(requestPojo, timeOffRequestReturned);
   }
 
@@ -124,11 +124,9 @@ public class TimeOffRequestRestController extends BaseRestController {
 
     if (requester.getManagerUser() != null) {
       User manager = requester.getManagerUser();
-      List<User> requesters = userService.findDirectReportsByManagerId(manager.getId());
-      requesters.add(manager);
 
       List<BasicTimeOffRequestDto> timeOffRequests = timeOffRequestService
-          .getByRequstersAndStatus(requesters, TimeOffRequestApprovalStatus.APPROVED).stream()
+          .getOtherTimeOffRequestsByManager(manager).stream()
           .map(BasicTimeOffRequestDto::new).collect(Collectors.toList());
 
       if (timeOffRequest.getTimeOffApprovalStatus() == TimeOffRequestApprovalStatus.APPROVED) {
@@ -139,6 +137,7 @@ public class TimeOffRequestRestController extends BaseRestController {
 
       requestDetail.setOtherTimeOffRequests(timeOffRequests);
     }
+
     return requestDetail;
   }
 
@@ -167,6 +166,7 @@ public class TimeOffRequestRestController extends BaseRestController {
 
     timeOffRequest.setTimeOffApprovalStatus(status);
     timeOffRequest = timeOffRequestService.save(timeOffRequest);
+    timeOffRequestService.sendTimeOffRequestEmail(timeOffRequest);
 
     return new TimeOffRequestDto(timeOffRequest);
   }

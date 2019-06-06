@@ -12,7 +12,8 @@ import shamu.company.job.dto.JobUserDto;
 @NoArgsConstructor
 public class EmployeeRelatedInformationDto {
 
-  @HashidsFormat private Long userId;
+  @HashidsFormat
+  private Long userId;
 
   private String employeeFirstName;
 
@@ -26,7 +27,8 @@ public class EmployeeRelatedInformationDto {
 
   private String employeeJobTitle;
 
-  @HashidsFormat private Long managerId;
+  @HashidsFormat
+  private Long managerId;
 
   private String managerName;
 

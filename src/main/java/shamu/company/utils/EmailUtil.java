@@ -9,6 +9,7 @@ import com.sendgrid.Request;
 import com.sendgrid.Response;
 import com.sendgrid.SendGrid;
 import java.io.IOException;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -26,7 +27,7 @@ public class EmailUtil {
   }
 
   public void send(shamu.company.email.Email email) {
-    Mail mail = build(email.getFrom(), email.getTo(), email.getSubject(), email.getContent());
+    Mail mail = build(email);
     send(mail);
   }
 
@@ -64,6 +65,30 @@ public class EmailUtil {
     mail.addPersonalization(personalization);
     Content mailBody = new Content("text/html", content);
     mail.addContent(mailBody);
+    return mail;
+  }
+
+  private Mail build(shamu.company.email.Email email) {
+    Mail mail = new Mail();
+    String fromName = email.getFromName();
+    String toName = email.getToName();
+    Email from = new Email(email.getFrom());
+    Email to = new Email(email.getTo());
+    if (Strings.isNotBlank(fromName)) {
+      from.setName(fromName);
+    }
+    if (Strings.isNotBlank(toName)) {
+      to.setName(toName);
+    }
+    mail.setFrom(from);
+    Personalization personalization = new Personalization();
+    personalization.addTo(to);
+
+    mail.setSubject(email.getSubject());
+    mail.addPersonalization(personalization);
+    Content mailBody = new Content("text/html", email.getContent());
+    mail.addContent(mailBody);
+
     return mail;
   }
 }

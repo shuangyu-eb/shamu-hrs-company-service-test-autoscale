@@ -26,6 +26,7 @@ spring:
 application:
   systemEmailAddress: noreply@interviewed.com
   frontEndAddress: http://localhost:3000/
+  helpUrl: http://localhost:3000/
 
 cloud:
   aws:

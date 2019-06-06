@@ -8,6 +8,7 @@ import shamu.company.timeoff.entity.TimeOffPolicy;
 
 @Data
 public class TimeOffPolicyPojo {
+
   private Integer accrualHours;
 
   private Boolean isLimited;

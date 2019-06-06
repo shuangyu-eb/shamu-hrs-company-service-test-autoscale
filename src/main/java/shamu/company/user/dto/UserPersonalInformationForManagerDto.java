@@ -12,15 +12,19 @@ import shamu.company.user.entity.UserPersonalInformation;
 @Data
 @NoArgsConstructor
 public class UserPersonalInformationForManagerDto extends BasicUserPersonalInformationDto {
-  @HashidsFormat private Long genderId;
+
+  @HashidsFormat
+  private Long genderId;
 
   private String genderName;
 
-  @HashidsFormat private Long maritalStatusId;
+  @HashidsFormat
+  private Long maritalStatusId;
 
   private String maritalStatusName;
 
-  @HashidsFormat private Long ethnicityId;
+  @HashidsFormat
+  private Long ethnicityId;
 
   private String ethnicityName;
 

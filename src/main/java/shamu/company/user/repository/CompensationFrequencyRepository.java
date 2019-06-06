@@ -5,4 +5,5 @@ import shamu.company.job.entity.CompensationFrequency;
 
 public interface CompensationFrequencyRepository
     extends BaseRepository<CompensationFrequency, Long> {
+
 }

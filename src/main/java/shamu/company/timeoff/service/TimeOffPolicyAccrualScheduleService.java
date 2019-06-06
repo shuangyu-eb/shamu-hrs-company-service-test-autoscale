@@ -6,6 +6,7 @@ import shamu.company.timeoff.entity.TimeOffAccrualFrequency;
 import shamu.company.timeoff.entity.TimeOffPolicyAccrualSchedule;
 
 public interface TimeOffPolicyAccrualScheduleService {
+
   TimeOffAccrualFrequency findTimeOffAccrualFrequencyById(Long id);
 
   TimeOffPolicyAccrualSchedule createTimeOffPolicyAccrualSchedule(

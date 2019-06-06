@@ -11,6 +11,7 @@ import shamu.company.common.entity.BaseEntity;
 @Table(name = "time_off_accrual_frequencies")
 @NoArgsConstructor
 public class TimeOffAccrualFrequency extends BaseEntity {
+
   private String name;
 
   public TimeOffAccrualFrequency(Long id) {
