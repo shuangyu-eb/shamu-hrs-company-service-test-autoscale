@@ -26,8 +26,11 @@ public class UserPersonalInformationDto extends UserPersonalInformationForManage
     origin.setMiddleName(this.getMiddleName());
     origin.setLastName(this.getLastName());
     origin.setPreferredName(this.getPreferredName());
-    origin.setBirthDate(Date.valueOf(this.getBirthDate()));
     origin.setSsn(this.getSsn());
+
+    if (this.getBirthDate() != null) {
+      origin.setBirthDate(Date.valueOf(this.getBirthDate()));
+    }
 
     if (this.getGenderId() != null) {
       origin.setGender(new Gender(this.getGenderId()));
