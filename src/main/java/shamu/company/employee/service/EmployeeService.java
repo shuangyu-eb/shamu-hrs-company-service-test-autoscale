@@ -9,4 +9,6 @@ public interface EmployeeService {
   List<User> findEmployersAndEmployeesByDepartmentIdAndCompanyId(Long departmentId, Long companyId);
 
   void addEmployee(EmployeeDto employee, User currentUser);
+
+  void updateEmployee(EmployeeDto employeeDto);
 }

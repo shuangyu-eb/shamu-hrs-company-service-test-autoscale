@@ -14,13 +14,13 @@ public class EmployeeDto {
 
   private String personalPhoto;
 
-  private UserPersonalInformationDto userPersonalInformation;
+  private UserPersonalInformationDto userPersonalInformationDto;
 
   private UserAddressDto userAddress;
 
-  private UserContactInformationDto userContactInformation;
+  private UserContactInformationDto userContactInformationDto;
 
-  private List<UserEmergencyContactDto> emergencyContactList;
+  private List<UserEmergencyContactDto> userEmergencyContactDto;
 
   private NewEmployeeJobInformationDto jobInformation;
 

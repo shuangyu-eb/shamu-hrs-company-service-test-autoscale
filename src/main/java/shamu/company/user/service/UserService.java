@@ -9,6 +9,7 @@ import shamu.company.employee.dto.EmployeeListSearchCondition;
 import shamu.company.employee.dto.OrgChartDto;
 import shamu.company.job.dto.JobUserDto;
 import shamu.company.job.entity.JobUserListItem;
+import shamu.company.user.dto.AccountInfoDto;
 import shamu.company.user.dto.UpdatePasswordDto;
 import shamu.company.user.dto.UserLoginDto;
 import shamu.company.user.entity.User;
@@ -77,4 +78,6 @@ public interface UserService {
   boolean resetPassword(UpdatePasswordDto updatePasswordDto);
 
   OrgChartDto getOrgChart(Long userId, Company currentCompany);
+
+  AccountInfoDto getPreSetAccountInfoByUserId(Long id);
 }

@@ -17,6 +17,7 @@ import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.company.CompanyService;
 import shamu.company.hashids.HashidsFormat;
+import shamu.company.user.dto.AccountInfoDto;
 import shamu.company.user.dto.UpdatePasswordDto;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
@@ -114,5 +115,11 @@ public class UserRestController extends BaseRestController {
   @PatchMapping("user/password/reset/token")
   public boolean resetPassword(@RequestBody UpdatePasswordDto updatePasswordDto) {
     return userService.resetPassword(updatePasswordDto);
+  }
+
+  @PreAuthorize("hasPermission(#id,'USER', 'EDIT_SELF')")
+  @GetMapping("users/{id}/account-info")
+  public AccountInfoDto getPreSetAccountInfo(@PathVariable @HashidsFormat Long id) {
+    return userService.getPreSetAccountInfoByUserId(id);
   }
 }

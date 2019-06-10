@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Where;
 import shamu.company.common.entity.BaseEntity;
+import shamu.company.user.dto.UserPersonalInformationDto;
 
 @Entity
 @Data
@@ -44,4 +45,20 @@ public class UserPersonalInformation extends BaseEntity {
     return this.firstName.concat(" ").concat(this.lastName);
   }
 
+  public UserPersonalInformation getPersonalInformation(
+      UserPersonalInformationDto userPersonalInformationDto) {
+    this.setSsn(userPersonalInformationDto.getSsn());
+    this.setFirstName(userPersonalInformationDto.getFirstName());
+    this.setMiddleName(userPersonalInformationDto.getMiddleName());
+    this.setLastName(userPersonalInformationDto.getLastName());
+    this.setPreferredName(userPersonalInformationDto.getPreferredName());
+    this.setBirthDate(Date.valueOf(userPersonalInformationDto.getBirthDate()));
+    Gender gender = new Gender();
+    gender.setId(userPersonalInformationDto.getGenderId());
+    this.setGender(gender);
+    MaritalStatus maritalStatus = new MaritalStatus();
+    maritalStatus.setId(userPersonalInformationDto.getMaritalStatusId());
+    this.setMaritalStatus(maritalStatus);
+    return this;
+  }
 }

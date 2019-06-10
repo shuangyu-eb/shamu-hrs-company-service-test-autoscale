@@ -27,15 +27,23 @@ import shamu.company.email.Email;
 import shamu.company.email.EmailService;
 import shamu.company.employee.dto.EmployeeListSearchCondition;
 import shamu.company.employee.dto.OrgChartDto;
+import shamu.company.info.entity.UserEmergencyContact;
+import shamu.company.info.service.UserEmergencyContactService;
 import shamu.company.job.dto.JobUserDto;
 import shamu.company.job.entity.JobUser;
 import shamu.company.job.entity.JobUserListItem;
 import shamu.company.job.repository.JobUserRepository;
+import shamu.company.user.dto.AccountInfoDto;
 import shamu.company.user.dto.UpdatePasswordDto;
+import shamu.company.user.dto.UserContactInformationDto;
 import shamu.company.user.dto.UserLoginDto;
+import shamu.company.user.dto.UserPersonalInformationDto;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
+import shamu.company.user.entity.UserAddress;
 import shamu.company.user.entity.UserCompensation;
+import shamu.company.user.entity.UserContactInformation;
+import shamu.company.user.entity.UserPersonalInformation;
 import shamu.company.user.entity.UserRole;
 import shamu.company.user.entity.UserStatus;
 import shamu.company.user.entity.UserStatus.Status;
@@ -43,6 +51,7 @@ import shamu.company.user.repository.UserCompensationRepository;
 import shamu.company.user.repository.UserRepository;
 import shamu.company.user.repository.UserRoleRepository;
 import shamu.company.user.repository.UserStatusRepository;
+import shamu.company.user.service.UserAddressService;
 import shamu.company.user.service.UserService;
 
 @Service
@@ -56,6 +65,8 @@ public class UserServiceImpl implements UserService {
   private final UserStatusRepository userStatusRepository;
   private final PasswordEncoder passwordEncoder;
   private final UserRoleRepository userRoleRepository;
+  private final UserEmergencyContactService userEmergencyContactService;
+  private final UserAddressService userAddressService;
 
   private final EmailService emailService;
   private final UserCompensationRepository userCompensationRepository;
@@ -68,8 +79,9 @@ public class UserServiceImpl implements UserService {
   public UserServiceImpl(ITemplateEngine templateEngine, UserRepository userRepository,
       JobUserRepository jobUserRepository, UserStatusRepository userStatusRepository,
       EmailService emailService, UserCompensationRepository userCompensationRepository,
-      @Lazy PasswordEncoder passwordEncoder,
-      UserRoleRepository userRoleRepository) {
+      @Lazy PasswordEncoder passwordEncoder, UserRoleRepository userRoleRepository,
+      UserEmergencyContactService userEmergencyContactService,
+      UserAddressService userAddressService) {
     this.templateEngine = templateEngine;
     this.userRepository = userRepository;
     this.jobUserRepository = jobUserRepository;
@@ -78,6 +90,8 @@ public class UserServiceImpl implements UserService {
     this.userCompensationRepository = userCompensationRepository;
     this.passwordEncoder = passwordEncoder;
     this.userRoleRepository = userRoleRepository;
+    this.userEmergencyContactService = userEmergencyContactService;
+    this.userAddressService = userAddressService;
   }
 
   @Override
@@ -285,6 +299,30 @@ public class UserServiceImpl implements UserService {
     manager.setDirectReports(orgChartItemList);
     manager.setDirectReportsCount(orgChartItemList.size());
     return manager;
+  }
+
+  @Override
+  public AccountInfoDto getPreSetAccountInfoByUserId(Long id) {
+    User user = this.findUserById(id);
+
+    UserPersonalInformation userPersonalInformation = user.getUserPersonalInformation();
+    UserPersonalInformationDto userPersonalInformationDto =
+        new UserPersonalInformationDto(userPersonalInformation);
+
+    String headPortrait = user.getImageUrl();
+
+    UserAddress userAddress = userAddressService.findUserAddressByUserId(id);
+
+    UserContactInformation userContactInformation = user.getUserContactInformation();
+    UserContactInformationDto userContactInformationDto =
+        new UserContactInformationDto(userContactInformation);
+
+    List<UserEmergencyContact> userEmergencyContacts = userEmergencyContactService
+        .getUserEmergencyContacts(id);
+
+    return new AccountInfoDto(
+        userPersonalInformationDto, headPortrait, userAddress,
+        userContactInformationDto, userEmergencyContacts);
   }
 
   @Override
