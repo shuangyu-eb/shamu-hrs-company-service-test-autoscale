@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -67,7 +68,7 @@ public class UserServiceImpl implements UserService {
   public UserServiceImpl(ITemplateEngine templateEngine, UserRepository userRepository,
       JobUserRepository jobUserRepository, UserStatusRepository userStatusRepository,
       EmailService emailService, UserCompensationRepository userCompensationRepository,
-      PasswordEncoder passwordEncoder,
+      @Lazy PasswordEncoder passwordEncoder,
       UserRoleRepository userRoleRepository) {
     this.templateEngine = templateEngine;
     this.userRepository = userRepository;
