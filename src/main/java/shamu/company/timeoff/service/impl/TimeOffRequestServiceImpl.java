@@ -20,6 +20,8 @@ import shamu.company.common.ApplicationConfig;
 import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.email.Email;
 import shamu.company.email.EmailService;
+import shamu.company.timeoff.dto.MyTimeOffDto;
+import shamu.company.timeoff.dto.TimeOffRequestDto;
 import shamu.company.timeoff.entity.TimeOffRequest;
 import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus;
 import shamu.company.timeoff.repository.TimeOffPolicyUserRepository;
@@ -119,8 +121,19 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
   }
 
   @Override
-  public List<TimeOffRequest> getMyTimeOffRequestsByRequesterUserId(Long id) {
-    return timeOffRequestRepository.findByRequesterUserId(id);
+  public MyTimeOffDto getMyTimeOffRequestsByRequesterUserId(Long id) {
+    MyTimeOffDto myTimeOffDto = new MyTimeOffDto();
+    Boolean policiesAdded = timeOffPolicyUserRepository.existsByUserId(id);
+    myTimeOffDto.setPoliciesAdded(policiesAdded);
+
+    if (policiesAdded) {
+      List<TimeOffRequest> timeOffRequests = timeOffRequestRepository.findByRequesterUserId(id);
+      List<TimeOffRequestDto> timeOffRequestDtos = timeOffRequests.stream()
+          .map(TimeOffRequestDto::new).collect(Collectors.toList());
+      myTimeOffDto.setTimeOffRequestDtos(timeOffRequestDtos);
+    }
+
+    return myTimeOffDto;
   }
 
   @Override

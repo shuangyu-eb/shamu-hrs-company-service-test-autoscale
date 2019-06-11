@@ -28,4 +28,6 @@ public interface TimeOffPolicyUserRepository extends BaseRepository<TimeOffPolic
 
   TimeOffPolicyUser findTimeOffPolicyUserByUserAndTimeOffPolicy(User user,
       TimeOffPolicy timeOffPolicy);
+
+  Boolean existsByUserId(Long id);
 }

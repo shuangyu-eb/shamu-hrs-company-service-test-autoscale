@@ -13,6 +13,7 @@ import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.hashids.HashidsFormat;
 import shamu.company.timeoff.dto.BasicTimeOffRequestDto;
+import shamu.company.timeoff.dto.MyTimeOffDto;
 import shamu.company.timeoff.dto.TimeOffRequestDetailDto;
 import shamu.company.timeoff.dto.TimeOffRequestDto;
 import shamu.company.timeoff.dto.TimeOffRequestUpdateDto;
@@ -172,9 +173,8 @@ public class TimeOffRequestRestController extends BaseRestController {
   }
 
   @GetMapping(value = "time-off-requests/requester/{id}")
-  public List<TimeOffRequestDto> getMyTimeOffRequests(@HashidsFormat @PathVariable Long id) {
-    return timeOffRequestService.getMyTimeOffRequestsByRequesterUserId(id).stream()
-        .map(TimeOffRequestDto::new).collect(Collectors.toList());
+  public MyTimeOffDto getMyTimeOffRequests(@HashidsFormat @PathVariable Long id) {
+    return timeOffRequestService.getMyTimeOffRequestsByRequesterUserId(id);
   }
 
   @GetMapping(value = "users/{id}/time-off-histories")
