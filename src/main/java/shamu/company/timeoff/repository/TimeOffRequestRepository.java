@@ -21,8 +21,12 @@ public interface TimeOffRequestRepository extends BaseRepository<TimeOffRequest,
 
   @Query(
       value = "select * "
-          + "from time_off_requests "
-          + "where (approver_user_id = ?1 "
+          + "from time_off_requests tr "
+          + "where tr.id in (select time_off_request_id "
+          + "from time_off_request_dates td "
+          + "where td.date >= date_add(curdate(), INTERVAL -day(curdate())+1 day) "
+          + "and td.date <= last_day(date_add(curdate(), INTERVAL +11 month))) "
+          + "and (approver_user_id = ?1 "
           + "or requester_user_id = ?1) "
           + "and time_off_request_approval_status_id in ( "
           + "select id "
@@ -35,8 +39,12 @@ public interface TimeOffRequestRepository extends BaseRepository<TimeOffRequest,
 
   @Query(
       value = "select * "
-          + "from time_off_requests "
-          + "where (approver_user_id = ?1 "
+          + "from time_off_requests tr "
+          + "where tr.id in (select time_off_request_id "
+          + "from time_off_request_dates td "
+          + "where td.date >= date_add(curdate(), INTERVAL -day(curdate())+1 day) "
+          + "and td.date <= last_day(date_add(curdate(), INTERVAL +11 month))) "
+          + "and (approver_user_id = ?1 "
           + "or requester_user_id in (?1,?2) "
           + "or requester_user_id in (select id "
           + "from users "
