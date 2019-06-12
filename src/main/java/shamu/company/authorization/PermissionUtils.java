@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import shamu.company.authorization.Permission.PermissionType;
 import shamu.company.common.exception.ForbiddenException;
 import shamu.company.company.entity.Company;
+import shamu.company.timeoff.service.TimeOffRequestService;
 import shamu.company.user.entity.User;
 import shamu.company.user.service.UserAddressService;
 import shamu.company.user.service.UserService;
@@ -16,11 +17,16 @@ public class PermissionUtils {
 
   private final UserService userService;
 
+  private final TimeOffRequestService timeOffRequestService;
+
   private final UserAddressService userAddressService;
 
   @Autowired
-  public PermissionUtils(UserService userService, UserAddressService userAddressService) {
+  public PermissionUtils(UserService userService,
+      TimeOffRequestService timeOffRequestService,
+      UserAddressService userAddressService) {
     this.userService = userService;
+    this.timeOffRequestService = timeOffRequestService;
     this.userAddressService = userAddressService;
   }
 
@@ -28,6 +34,8 @@ public class PermissionUtils {
       Permission.Name permission) {
 
     switch (targetType) {
+      case TIME_OFF_REQUEST:
+        return this.hasPermissionOfTimeOffRequest(auth, targetId, permission);
       case USER_PERSONAL_INFORMATION:
         return this.hasPermissionOfPersonalInformation(auth, targetId, permission);
       case USER_ADDRESS:
@@ -52,6 +60,12 @@ public class PermissionUtils {
     if (!this.getCompany(auth).getId().equals(company.getId())) {
       throw new ForbiddenException("The target resources is not in the company where you are.");
     }
+  }
+
+  private boolean hasPermissionOfTimeOffRequest(Authentication auth, Long id,
+      Permission.Name permission) {
+    User user = timeOffRequestService.getById(id).getRequesterUser();
+    return this.hasPermissionOfUser(auth, user, permission);
   }
 
   private boolean hasPermissionOfPersonalInformation(

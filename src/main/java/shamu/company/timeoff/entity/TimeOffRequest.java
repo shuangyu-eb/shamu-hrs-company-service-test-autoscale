@@ -52,7 +52,7 @@ public class TimeOffRequest extends BaseEntity {
   private Set<TimeOffRequestDate> timeOffRequestDates;
 
   public Timestamp getStartDay() {
-    if (timeOffRequestDates.isEmpty()) {
+    if (this.checkEmpty()) {
       return null;
     }
     return this.timeOffRequestDates.stream()
@@ -62,7 +62,7 @@ public class TimeOffRequest extends BaseEntity {
   }
 
   public Timestamp getEndDay() {
-    if (timeOffRequestDates.isEmpty()) {
+    if (this.checkEmpty()) {
       return null;
     }
     return this.timeOffRequestDates.stream()
@@ -72,10 +72,14 @@ public class TimeOffRequest extends BaseEntity {
   }
 
   public Integer getHours() {
-    if (timeOffRequestDates.isEmpty()) {
+    if (this.checkEmpty()) {
       return null;
     }
     return this.timeOffRequestDates.stream()
         .mapToInt(TimeOffRequestDate::getHours).sum();
+  }
+
+  private boolean checkEmpty() {
+    return this.timeOffRequestDates == null || this.timeOffRequestDates.isEmpty();
   }
 }

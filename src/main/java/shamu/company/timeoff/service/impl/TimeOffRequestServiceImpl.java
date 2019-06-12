@@ -1,10 +1,10 @@
 package shamu.company.timeoff.service.impl;
 
 import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.APPROVED;
+import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.DENIED;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -22,6 +22,7 @@ import shamu.company.email.Email;
 import shamu.company.email.EmailService;
 import shamu.company.timeoff.dto.MyTimeOffDto;
 import shamu.company.timeoff.dto.TimeOffRequestDto;
+import shamu.company.timeoff.entity.TimeOffPolicyUser;
 import shamu.company.timeoff.entity.TimeOffRequest;
 import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus;
 import shamu.company.timeoff.repository.TimeOffPolicyUserRepository;
@@ -31,6 +32,8 @@ import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserRole.Role;
 import shamu.company.user.repository.UserRepository;
 import shamu.company.utils.AwsUtil;
+import shamu.company.utils.BeanUtils;
+import shamu.company.utils.DateUtil;
 
 @Service
 public class TimeOffRequestServiceImpl implements TimeOffRequestService {
@@ -71,13 +74,6 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
   }
 
   @Override
-  public List<TimeOffRequest> getByRequestersAndStatus(List<User> requsters,
-      TimeOffRequestApprovalStatus status) {
-    return timeOffRequestRepository
-        .findByRequesterUserInAndTimeOffApprovalStatus(requsters, status);
-  }
-
-  @Override
   public Integer getCountByApproverAndStatusIsNoAction(User approver) {
     return timeOffRequestRepository.countByApproverUserAndTimeOffApprovalStatus(approver,
         TimeOffRequestApprovalStatus.NO_ACTION);
@@ -111,12 +107,10 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
           .employeeFindTeamRequests(user.getManagerUser().getId(), statusNames);
     } else if (user.getRole().name().equals(Role.MANAGER.name())) {
       return timeOffRequestRepository
-          .managerFindTeamRequests(user.getId(), user.getManagerUser().getId(),
-              statusNames);
+          .managerFindTeamRequests(user.getId(), user.getManagerUser().getId(), statusNames);
     } else {
       return timeOffRequestRepository
-          .managerFindTeamRequests(user.getId(), null,
-              statusNames);
+          .managerFindTeamRequests(user.getId(), null, statusNames);
     }
   }
 
@@ -130,7 +124,7 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
       List<TimeOffRequest> timeOffRequests = timeOffRequestRepository.findByRequesterUserId(id);
       List<TimeOffRequestDto> timeOffRequestDtos = timeOffRequests.stream()
           .map(TimeOffRequestDto::new).collect(Collectors.toList());
-      myTimeOffDto.setTimeOffRequestDtos(timeOffRequestDtos);
+      myTimeOffDto.setTimeOffRequests(timeOffRequestDtos);
     }
 
     return myTimeOffDto;
@@ -147,10 +141,29 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
   }
 
   @Override
-  public List<TimeOffRequest> getOtherTimeOffRequestsByManager(User manager) {
-    List<User> requesters = userRepository.findAllByManagerUserId(manager.getId());
-    requesters.add(manager);
-    return this.getByRequestersAndStatus(requesters, APPROVED);
+  public List<TimeOffRequest> getOtherRequestsBy(TimeOffRequest timeOffRequest) {
+    Timestamp start = DateUtil.getFirstDayOfCurrentMonth();
+    Timestamp end;
+    User requester = timeOffRequest.getRequesterUser();
+    Timestamp startDay = timeOffRequest.getStartDay();
+    if (start.before(startDay)) {
+      end = DateUtil.getDayOfNextYear();
+    } else {
+      start = DateUtil.getFirstDayOfMonth(startDay);
+      end = DateUtil.getDayOfNextYear(start);
+    }
+
+    User manager = requester.getManagerUser();
+    List<User> requesters = userRepository.findAllByManagerUserId(requester.getId());
+
+    if (manager != null) {
+      requesters.addAll(userRepository.findAllByManagerUserId(manager.getId()));
+      requesters.add(manager);
+    } else {
+      requesters.add(requester);
+    }
+    return timeOffRequestRepository
+        .findByRequesterUserInAndTimeOffApprovalStatus(requesters, APPROVED, start, end);
   }
 
   @Override
@@ -190,12 +203,41 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
     emailService.saveAndScheduleEmail(email);
   }
 
+  @Override
+  public TimeOffRequest updateTimeOffRequest(TimeOffRequest timeOffRequest) {
+    TimeOffRequest original = this.getById(timeOffRequest.getId());
+    BeanUtils.merge(original, timeOffRequest);
+
+    TimeOffRequestApprovalStatus status = timeOffRequest.getTimeOffApprovalStatus();
+    TimeOffRequestApprovalStatus originalStatus = original.getTimeOffApprovalStatus();
+
+    if (status != originalStatus && (status == APPROVED || originalStatus == APPROVED)) {
+      TimeOffPolicyUser timeOffPolicyUser = timeOffPolicyUserRepository
+          .findTimeOffPolicyUserByUserAndTimeOffPolicy(timeOffRequest.getRequesterUser(),
+              timeOffRequest.getTimeOffPolicy());
+
+      if (status == APPROVED) {
+        timeOffPolicyUser.setBalance(timeOffPolicyUser.getBalance() - timeOffRequest.getHours());
+      } else {
+        timeOffPolicyUser.setBalance(timeOffPolicyUser.getBalance() + timeOffRequest.getHours());
+      }
+      timeOffPolicyUserRepository.save(timeOffPolicyUser);
+    }
+
+    timeOffRequest = timeOffRequestRepository.save(timeOffRequest);
+
+    if (status == APPROVED || status == DENIED) {
+      this.sendTimeOffRequestEmail(timeOffRequest);
+    }
+
+    return timeOffRequest;
+  }
+
   private long getConflictOfTimeOffRequest(TimeOffRequest timeOffRequest) {
     LocalDate start = timeOffRequest.getStartDay().toLocalDateTime().toLocalDate();
     LocalDate end = timeOffRequest.getEndDay().toLocalDateTime().toLocalDate();
 
-    User manager = timeOffRequest.getRequesterUser().getManagerUser();
-    List<TimeOffRequest> timeOffRequests = this.getOtherTimeOffRequestsByManager(manager);
+    List<TimeOffRequest> timeOffRequests = this.getOtherRequestsBy(timeOffRequest);
 
     return timeOffRequests.stream()
         .filter(tr -> (start.compareTo(tr.getEndDay().toLocalDateTime().toLocalDate()) <= 0
@@ -211,15 +253,15 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
     String startDay;
     String endDay;
     if (start.getYear() == end.getYear()) {
-      startDay = DateTimeFormatter.ofPattern("MMMM d", Locale.ENGLISH).format(start);
+      startDay = DateUtil.formatDateTo(start, DateUtil.FULL_MONTH_DAY);
       if (start.getMonth() == end.getMonth()) {
-        endDay = DateTimeFormatter.ofPattern("d, YYYY", Locale.ENGLISH).format(start);
+        endDay = DateUtil.formatDateTo(end, "d, YYYY");
       } else {
-        endDay = DateTimeFormatter.ofPattern("MMMM d, YYYY", Locale.ENGLISH).format(start);
+        endDay = DateUtil.formatDateTo(end, DateUtil.FULL_MONTH_DAY_YEAR);
       }
     } else {
-      startDay = DateTimeFormatter.ofPattern("MMMM d, YYYY", Locale.ENGLISH).format(start);
-      endDay = DateTimeFormatter.ofPattern("MMMM d, YYYY", Locale.ENGLISH).format(start);
+      startDay = DateUtil.formatDateTo(start, DateUtil.FULL_MONTH_DAY_YEAR);
+      endDay = DateUtil.formatDateTo(end, DateUtil.FULL_MONTH_DAY_YEAR);
     }
 
     variables.put("frontEndAddress", applicationConfig.getFrontEndAddress());

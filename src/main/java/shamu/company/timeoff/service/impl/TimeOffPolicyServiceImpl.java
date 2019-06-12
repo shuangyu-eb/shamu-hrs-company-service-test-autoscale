@@ -106,13 +106,9 @@ public class TimeOffPolicyServiceImpl implements TimeOffPolicyService {
   private void createTimeOffPolicyUsers(List<TimeOffPolicyUserPojo> timeOffPolicyUserPojos,
       Long policyId) {
     if (!timeOffPolicyUserPojos.isEmpty()) {
-      timeOffPolicyUserRepository.saveAll(
-          timeOffPolicyUserPojos
-              .stream()
-              .map(timeOffPolicyUserPojo ->
-                  timeOffPolicyUserPojo.getTimeOffPolicyUser(policyId))
-              .collect(Collectors.toList())
-      );
+      timeOffPolicyUserRepository
+          .saveAll(timeOffPolicyUserPojos.stream().map(timeOffPolicyUserPojo ->
+              timeOffPolicyUserPojo.getTimeOffPolicyUser(policyId)).collect(Collectors.toList()));
     }
   }
 
@@ -130,18 +126,18 @@ public class TimeOffPolicyServiceImpl implements TimeOffPolicyService {
   public TimeOffPolicyRelatedInfoDto getTimeOffRelatedInfo(Long id) {
     TimeOffPolicy timeOffPolicy = timeOffPolicyRepository.findById(id).get();
     TimeOffPolicyAccrualSchedule timeOffPolicyAccrualSchedule =
-        timeOffPolicyAccrualScheduleRepository
-        .findAllByTimeOffPolicy(timeOffPolicy);
+        timeOffPolicyAccrualScheduleRepository.findAllByTimeOffPolicy(timeOffPolicy);
+
     List<AccrualScheduleMilestone> accrualScheduleMilestones = accrualScheduleMilestoneRepository
         .findByTimeOffPolicyAccrualScheduleId(timeOffPolicyAccrualSchedule.getId());
 
     return new TimeOffPolicyRelatedInfoDto(
-        timeOffPolicy,timeOffPolicyAccrualSchedule,accrualScheduleMilestones);
+        timeOffPolicy, timeOffPolicyAccrualSchedule, accrualScheduleMilestones);
   }
 
   @Override
   public TimeOffPolicyRelatedUserListDto getAllEmployeesByTimeOffPolicyId(
-      Long timeOffPolicyId,Company company) {
+      Long timeOffPolicyId, Company company) {
     Optional<TimeOffPolicy> timeOffPolicy = timeOffPolicyRepository.findById(timeOffPolicyId);
 
     Boolean isLimited = timeOffPolicy.get().getIsLimited();
@@ -156,25 +152,24 @@ public class TimeOffPolicyServiceImpl implements TimeOffPolicyService {
     List<TimeOffPolicyRelatedUserDto> selectedEmployees = timeOffPolicyUsers.stream().map(
         (user) -> {
           JobUser employeeWithJobInfo = jobUserRepository.findJobUserByUser(user.getUser());
-          JobUserDto employeeWithJobInfoDto = new JobUserDto(user.getUser(),employeeWithJobInfo);
+          JobUserDto employeeWithJobInfoDto = new JobUserDto(user.getUser(), employeeWithJobInfo);
           Integer balance = user.getBalance();
           selectedUsersIds.add(user.getUser().getId());
-          return new TimeOffPolicyRelatedUserDto(balance,employeeWithJobInfoDto);
+          return new TimeOffPolicyRelatedUserDto(balance, employeeWithJobInfoDto);
         }
     ).collect(Collectors.toList());
-
 
     List<TimeOffPolicyRelatedUserDto> unselectedEmployees = selectableTimeOffPolicyUsers
         .stream().filter(user -> !selectedUsersIds.contains(user.getId()))
         .map(user -> {
           JobUser employeeWithJobInfo = jobUserRepository.findJobUserByUser(user);
-          JobUserDto employeeWithJobInfoDto = new JobUserDto(user,employeeWithJobInfo);
+          JobUserDto employeeWithJobInfoDto = new JobUserDto(user, employeeWithJobInfo);
           Integer balance = 0;
-          return new TimeOffPolicyRelatedUserDto(balance,employeeWithJobInfoDto);
+          return new TimeOffPolicyRelatedUserDto(balance, employeeWithJobInfoDto);
         }).collect(Collectors.toList());
 
     return new TimeOffPolicyRelatedUserListDto(
-        isLimited,unselectedEmployees,selectedEmployees);
+        isLimited, unselectedEmployees, selectedEmployees);
   }
 
   @Override
@@ -185,7 +180,7 @@ public class TimeOffPolicyServiceImpl implements TimeOffPolicyService {
   @Override
   public TimeOffPolicyAccrualSchedule getTimeOffPolicyAccrualScheduleByTimeOffPolicy(
       TimeOffPolicy timeOffPolicy) {
-    return  timeOffPolicyAccrualScheduleRepository.findAllByTimeOffPolicy(timeOffPolicy);
+    return timeOffPolicyAccrualScheduleRepository.findAllByTimeOffPolicy(timeOffPolicy);
   }
 
   @Override
@@ -195,38 +190,15 @@ public class TimeOffPolicyServiceImpl implements TimeOffPolicyService {
   }
 
   @Override
-  public TimeOffPolicyUser getTimeOffPolicyUserByUserAndTimeOffPolicy(User user,
-      TimeOffPolicy timeOffPolicy) {
-    return timeOffPolicyUserRepository
-        .findTimeOffPolicyUserByUserAndTimeOffPolicy(user, timeOffPolicy);
-  }
-
-  @Override
   public List<TimeOffPolicyUser> getAllPolicyUsersByUser(User user) {
     return timeOffPolicyUserRepository.findTimeOffPolicyUsersByUser(user);
   }
-
-  @Override
-  public TimeOffPolicyUser updateTimeOffBalance(Long timeOffPolicyUserId, Integer totalHours) {
-    TimeOffPolicyUser timeOffPolicyUser = timeOffPolicyUserRepository.findById(timeOffPolicyUserId)
-        .get();
-    Integer prevBalance = timeOffPolicyUser.getBalance();
-    timeOffPolicyUser.setBalance(prevBalance - totalHours);
-    return timeOffPolicyUserRepository.save(timeOffPolicyUser);
-  }
-
-  @Override
-  public TimeOffPolicyUser saveTimeOffPolicyUser(TimeOffPolicyUser timeOffPolicyUser) {
-    return timeOffPolicyUserRepository.save(timeOffPolicyUser);
-  }
-
 
   private void createAccrualScheduleMilestones(
       List<AccrualScheduleMilestoneDto> accrualScheduleMilestoneDtoList, Long scheduleId) {
     if (!accrualScheduleMilestoneDtoList.isEmpty()) {
       accrualScheduleMilestoneRepository.saveAll(
-          accrualScheduleMilestoneDtoList
-              .stream()
+          accrualScheduleMilestoneDtoList.stream()
               .map(accrualScheduleMilestoneDto ->
                   accrualScheduleMilestoneDto.getAccrualScheduleMilestone(scheduleId))
               .collect(Collectors.toList()));
@@ -235,7 +207,7 @@ public class TimeOffPolicyServiceImpl implements TimeOffPolicyService {
 
   @Override
   public void updateMilestones(
-      List<AccrualScheduleMilestoneDto> accrualScheduleMilestoneDtoList,Long scheduleId
+      List<AccrualScheduleMilestoneDto> accrualScheduleMilestoneDtoList, Long scheduleId
   ) {
     List<Integer> anniversaryYears = accrualScheduleMilestoneDtoList.stream()
         .map(AccrualScheduleMilestoneDto::getAnniversaryYear)
@@ -248,7 +220,7 @@ public class TimeOffPolicyServiceImpl implements TimeOffPolicyService {
     all.stream().forEach(
         accrualScheduleMilestone -> {
           if (!anniversaryYears.contains(accrualScheduleMilestone.getAnniversaryYear())) {
-              accrualScheduleMilestoneRepository.delete(accrualScheduleMilestone);
+            accrualScheduleMilestoneRepository.delete(accrualScheduleMilestone);
           }
           Optional<AccrualScheduleMilestoneDto> updateAccrualScheduleMilestoneDto =
               accrualScheduleMilestoneDtoList.stream().filter(a -> a.getAnniversaryYear()
@@ -256,7 +228,7 @@ public class TimeOffPolicyServiceImpl implements TimeOffPolicyService {
           if (updateAccrualScheduleMilestoneDto.isPresent()) {
             AccrualScheduleMilestone updatedAccrualMileStones =
                 updateAccrualScheduleMilestoneDto
-                    .get().updateAccrualScheduleMilestone(accrualScheduleMilestone,scheduleId);
+                    .get().updateAccrualScheduleMilestone(accrualScheduleMilestone, scheduleId);
             accrualScheduleMilestoneRepository.save(updatedAccrualMileStones);
           }
         });
@@ -271,7 +243,7 @@ public class TimeOffPolicyServiceImpl implements TimeOffPolicyService {
   @Override
   public void updateTimeOffPolicyUserInfo(
       List<TimeOffPolicyUserPojo> userStatBalances, Long timeOffPolicyId) {
-    List<Long> newUserIds =  userStatBalances.stream()
+    List<Long> newUserIds = userStatBalances.stream()
         .map(TimeOffPolicyUserPojo::getUserId)
         .collect(Collectors.toList());
     List<TimeOffPolicyUser> oldUsersStartBalanceList = timeOffPolicyUserRepository
@@ -286,16 +258,16 @@ public class TimeOffPolicyServiceImpl implements TimeOffPolicyService {
                 // update
                 Optional<TimeOffPolicyUserPojo> updateUserStartBalance =
                     userStatBalances.stream().filter(u -> u.getUserId()
-                      == oldUsersStartBalance.getUser().getId()).findFirst();
+                        == oldUsersStartBalance.getUser().getId()).findFirst();
                 if (updateUserStartBalance.isPresent()) {
-                    TimeOffPolicyUserPojo newUserStartBalance = updateUserStartBalance.get();
-                    oldUsersStartBalance.setBalance(newUserStartBalance.getBalance());
-                    timeOffPolicyUserRepository.save(oldUsersStartBalance);
+                  TimeOffPolicyUserPojo newUserStartBalance = updateUserStartBalance.get();
+                  oldUsersStartBalance.setBalance(newUserStartBalance.getBalance());
+                  timeOffPolicyUserRepository.save(oldUsersStartBalance);
                 }
                 return;
               }
-                // delete
-                timeOffPolicyUserRepository.delete(oldUsersStartBalance);
+              // delete
+              timeOffPolicyUserRepository.delete(oldUsersStartBalance);
             });
     // add new user
     List<TimeOffPolicyUser> timeOffPolicyUsers = userStatBalances.stream()

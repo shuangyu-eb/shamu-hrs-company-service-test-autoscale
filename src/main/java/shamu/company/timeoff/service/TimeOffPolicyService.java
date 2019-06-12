@@ -6,7 +6,6 @@ import shamu.company.timeoff.dto.AccrualScheduleMilestoneDto;
 import shamu.company.timeoff.dto.TimeOffBalanceDto;
 import shamu.company.timeoff.dto.TimeOffPolicyAccrualScheduleDto;
 import shamu.company.timeoff.dto.TimeOffPolicyRelatedInfoDto;
-import shamu.company.timeoff.dto.TimeOffPolicyRelatedUserDto;
 import shamu.company.timeoff.dto.TimeOffPolicyRelatedUserListDto;
 import shamu.company.timeoff.entity.TimeOffPolicy;
 import shamu.company.timeoff.entity.TimeOffPolicyAccrualSchedule;
@@ -31,19 +30,12 @@ public interface TimeOffPolicyService {
 
   TimeOffPolicy getTimeOffPolicyById(Long id);
 
-  TimeOffPolicyUser getTimeOffPolicyUserByUserAndTimeOffPolicy(User user,
-      TimeOffPolicy timeOffPolicy);
-
   List<TimeOffPolicyUser> getAllPolicyUsersByUser(User user);
-
-  TimeOffPolicyUser updateTimeOffBalance(Long timeOffPolicyUserId, Integer totalHours);
-
-  TimeOffPolicyUser saveTimeOffPolicyUser(TimeOffPolicyUser timeOffPolicyUser);
 
   TimeOffPolicyRelatedInfoDto getTimeOffRelatedInfo(Long timeOffPolicyId);
 
   TimeOffPolicyRelatedUserListDto getAllEmployeesByTimeOffPolicyId(
-      Long timeOffPolicyId,Company company);
+      Long timeOffPolicyId, Company company);
 
   void updateTimeOffPolicy(TimeOffPolicy timeOffPolicy);
 
@@ -54,7 +46,7 @@ public interface TimeOffPolicyService {
       TimeOffPolicyAccrualSchedule schedule);
 
   void updateMilestones(
-      List<AccrualScheduleMilestoneDto> milestones,Long scheduleId);
+      List<AccrualScheduleMilestoneDto> milestones, Long scheduleId);
 
   void updateTimeOffPolicyUserInfo(
       List<TimeOffPolicyUserPojo> userStatBalances, Long timeOffPolicyId);

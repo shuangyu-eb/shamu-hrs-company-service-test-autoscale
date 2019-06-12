@@ -12,9 +12,6 @@ public interface TimeOffRequestService {
 
   List<TimeOffRequest> getByApproverAndStatus(User approver, TimeOffRequestApprovalStatus[] status);
 
-  List<TimeOffRequest> getByRequestersAndStatus(List<User> requsters,
-      TimeOffRequestApprovalStatus status);
-
   Integer getCountByApproverAndStatusIsNoAction(User approver);
 
   TimeOffRequest getById(Long timeOffRequestId);
@@ -30,8 +27,10 @@ public interface TimeOffRequestService {
   List<TimeOffRequest> getTimeOffHistories(Long userId, Long startTime, Long endTime);
 
 
-  List<TimeOffRequest> getOtherTimeOffRequestsByManager(User manager);
+  List<TimeOffRequest> getOtherRequestsBy(TimeOffRequest timeOffRequest);
 
   void sendTimeOffRequestEmail(TimeOffRequest timeOffRequest);
+
+  TimeOffRequest updateTimeOffRequest(TimeOffRequest timeOffRequest);
 
 }

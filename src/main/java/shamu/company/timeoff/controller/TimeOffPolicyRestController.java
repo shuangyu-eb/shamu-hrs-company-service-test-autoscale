@@ -13,13 +13,10 @@ import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.company.entity.Company;
 import shamu.company.hashids.HashidsFormat;
-import shamu.company.job.dto.JobUserDto;
 import shamu.company.timeoff.dto.AccrualScheduleMilestoneDto;
 import shamu.company.timeoff.dto.TimeOffBalanceDto;
 import shamu.company.timeoff.dto.TimeOffPolicyAccrualScheduleDto;
-import shamu.company.timeoff.dto.TimeOffPolicyDto;
 import shamu.company.timeoff.dto.TimeOffPolicyRelatedInfoDto;
-import shamu.company.timeoff.dto.TimeOffPolicyRelatedUserDto;
 import shamu.company.timeoff.dto.TimeOffPolicyRelatedUserListDto;
 import shamu.company.timeoff.dto.TimeOffPolicyUserDto;
 import shamu.company.timeoff.entity.TimeOffPolicy;
@@ -30,7 +27,6 @@ import shamu.company.timeoff.pojo.TimeOffPolicyUserPojo;
 import shamu.company.timeoff.pojo.TimeOffPolicyWrapperPojo;
 import shamu.company.timeoff.service.TimeOffPolicyService;
 import shamu.company.user.entity.User;
-import shamu.company.user.service.UserService;
 import shamu.company.user.service.UserService;
 
 @RestApiController
@@ -79,12 +75,12 @@ public class TimeOffPolicyRestController extends BaseRestController {
     TimeOffPolicyAccrualScheduleDto accrualScheduleDtoUpdated = infoWrapper
         .getTimeOffPolicyAccrualSchedule();
     TimeOffPolicyAccrualSchedule updatedSchedule = accrualScheduleDtoUpdated
-            .getTimeOffPolicyAccrualScheduleUpdated(timeOffPolicyAccrualSchedule);
+        .getTimeOffPolicyAccrualScheduleUpdated(timeOffPolicyAccrualSchedule);
     timeOffPolicyService.updateTimeOffPolicyAccrualSchedule(updatedSchedule);
     List<AccrualScheduleMilestoneDto> milestoneDtos = infoWrapper.getMilestones();
-    timeOffPolicyService.updateMilestones(milestoneDtos,updatedSchedule.getId());
+    timeOffPolicyService.updateMilestones(milestoneDtos, updatedSchedule.getId());
     List<TimeOffPolicyUserPojo> timeOffPolicyUserPojos = infoWrapper.getUserStartBalances();
-    timeOffPolicyService.updateTimeOffPolicyUserInfo(timeOffPolicyUserPojos,id);
+    timeOffPolicyService.updateTimeOffPolicyUserInfo(timeOffPolicyUserPojos, id);
   }
 
   @PatchMapping("time-off-policy/employees/{id}")
@@ -92,7 +88,7 @@ public class TimeOffPolicyRestController extends BaseRestController {
       @RequestBody TimeOffPolicyWrapperPojo timeOffPolicyWrapperPojo) {
     List<TimeOffPolicyUserPojo> timeOffPolicyUserPojos = timeOffPolicyWrapperPojo
         .getUserStartBalances();
-    timeOffPolicyService.updateTimeOffPolicyUserInfo(timeOffPolicyUserPojos,id);
+    timeOffPolicyService.updateTimeOffPolicyUserInfo(timeOffPolicyUserPojos, id);
 
   }
 
@@ -131,6 +127,6 @@ public class TimeOffPolicyRestController extends BaseRestController {
   public TimeOffPolicyRelatedUserListDto getEmployeesByTimeOffPolicyId(
       @PathVariable Long policyId) {
     Company company = this.getUser().getCompany();
-    return timeOffPolicyService.getAllEmployeesByTimeOffPolicyId(policyId,company);
+    return timeOffPolicyService.getAllEmployeesByTimeOffPolicyId(policyId, company);
   }
 }

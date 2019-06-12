@@ -12,5 +12,5 @@ public class MyTimeOffDto {
 
   private Boolean policiesAdded;
 
-  private List<TimeOffRequestDto> timeOffRequestDtos;
+  private List<TimeOffRequestDto> timeOffRequests;
 }

@@ -1,5 +1,6 @@
 package shamu.company.timeoff.repository;
 
+import java.sql.Timestamp;
 import java.util.List;
 import org.springframework.data.jpa.repository.Query;
 import shamu.company.common.repository.BaseRepository;
@@ -13,8 +14,11 @@ public interface TimeOffRequestRepository extends BaseRepository<TimeOffRequest,
   List<TimeOffRequest> findByApproverUserAndTimeOffApprovalStatusIn(User approver,
       TimeOffRequestApprovalStatus[] timeOffRequestApprovalStatus);
 
+  @Query("select t "
+      + "from TimeOffRequest t left join TimeOffRequestDate td on td.timeOffRequestId=t.id "
+      + "where t.timeOffApprovalStatus=?2 and t.requesterUser in ?1 and td.date between ?3 and ?4")
   List<TimeOffRequest> findByRequesterUserInAndTimeOffApprovalStatus(List<User> requsters,
-      TimeOffRequestApprovalStatus timeOffRequestApprovalStatus);
+      TimeOffRequestApprovalStatus timeOffRequestApprovalStatus, Timestamp start, Timestamp end);
 
   Integer countByApproverUserAndTimeOffApprovalStatus(User approver,
       TimeOffRequestApprovalStatus timeOffRequestApprovalStatus);

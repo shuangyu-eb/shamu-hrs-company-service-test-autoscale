@@ -1,8 +1,12 @@
 package shamu.company.timeoff.controller;
 
+import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.APPROVED;
+import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.DENIED;
+
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,7 +22,6 @@ import shamu.company.timeoff.dto.TimeOffRequestDetailDto;
 import shamu.company.timeoff.dto.TimeOffRequestDto;
 import shamu.company.timeoff.dto.TimeOffRequestUpdateDto;
 import shamu.company.timeoff.entity.TimeOffPolicy;
-import shamu.company.timeoff.entity.TimeOffPolicyUser;
 import shamu.company.timeoff.entity.TimeOffRequest;
 import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus;
 import shamu.company.timeoff.entity.TimeOffRequestDate;
@@ -52,6 +55,7 @@ public class TimeOffRequestRestController extends BaseRestController {
   }
 
   @PostMapping("users/{userId}/time-off-requests")
+  @PreAuthorize("hasPermission(#id,'USER','MANAGE_SELF_TIME_OFF_REQUEST')")
   public void createTimeOffRequest(@PathVariable @HashidsFormat Long userId,
       @RequestBody TimeOffRequestPojo requestPojo) {
     User user = this.userService.findUserById(userId);
@@ -64,6 +68,7 @@ public class TimeOffRequestRestController extends BaseRestController {
   }
 
   @PostMapping("users/{userId}/time-off-requests/approved")
+  @PreAuthorize("hasPermission(#id,'USER','MANAGE_TIME_OFF_REQUEST')")
   public void createTimeOffRequestAndApproved(@PathVariable @HashidsFormat Long userId,
       @RequestBody TimeOffRequestPojo requestPojo
   ) {
@@ -71,18 +76,20 @@ public class TimeOffRequestRestController extends BaseRestController {
     TimeOffRequest timeOffRequest = requestPojo.getTimeOffRequest(user);
 
     TimeOffRequest timeOffRequestReturned = saveTimeOffRequest(timeOffRequest,
-        requestPojo.getPolicy(), TimeOffRequestApprovalStatus.APPROVED);
+        requestPojo.getPolicy(), APPROVED);
 
     saveTimeOffRequestDates(requestPojo, timeOffRequestReturned);
   }
 
   @GetMapping("time-off_requests/approver/status/no-action/count")
+  @PreAuthorize("hasAuthority('MANAGE_TIME_OFF_REQUEST')")
   public Integer getNoActionTimeOffRequestsCount() {
 
     return timeOffRequestService.getCountByApproverAndStatusIsNoAction(this.getUser());
   }
 
   @GetMapping("time-off-requests/approver")
+  @PreAuthorize("hasAuthority('MANAGE_TIME_OFF_REQUEST')")
   public List<TimeOffRequestDto> getTimeOffRequestsByApprover(
       @RequestParam TimeOffRequestApprovalStatus[] status) {
 
@@ -90,15 +97,8 @@ public class TimeOffRequestRestController extends BaseRestController {
         .map(TimeOffRequestDto::new).collect(Collectors.toList());
   }
 
-  @GetMapping("time-off-requests")
-  public List<TimeOffRequestDto> getTimeOffRequests(
-      @RequestParam TimeOffRequestApprovalStatus[] status) {
-
-    return timeOffRequestService.getRequestsByUserAndStatus(this.getUser(), status).stream()
-        .map(TimeOffRequestDto::new).collect(Collectors.toList());
-  }
-
   @GetMapping("users/{userId}/time-off-requests")
+  @PreAuthorize("hasAuthority('MANAGE_SELF_TIME_OFF_REQUEST')")
   public List<TimeOffRequestDto> getTimeOffRequests(@PathVariable @HashidsFormat Long userId,
       @RequestParam TimeOffRequestApprovalStatus[] status) {
     User user = userService.findUserById(userId);
@@ -107,8 +107,9 @@ public class TimeOffRequestRestController extends BaseRestController {
         .map(TimeOffRequestDto::new).collect(Collectors.toList());
   }
 
-
   @GetMapping("time-off-requests/{id}")
+  @PreAuthorize("hasPermission(#id,'TIME_OFF_REQUEST','MANAGE_SELF_TIME_OFF_REQUEST') "
+      + "or hasPermission(#id,'TIME_OFF_REQUEST','MANAGE_TIME_OFF_REQUEST')")
   public TimeOffRequestDetailDto getTimeOffRequest(@PathVariable @HashidsFormat Long id) {
     TimeOffRequest timeOffRequest = timeOffRequestService.getById(id);
     User requester = timeOffRequest.getRequesterUser();
@@ -124,13 +125,11 @@ public class TimeOffRequestRestController extends BaseRestController {
     }
 
     if (requester.getManagerUser() != null) {
-      User manager = requester.getManagerUser();
-
       List<BasicTimeOffRequestDto> timeOffRequests = timeOffRequestService
-          .getOtherTimeOffRequestsByManager(manager).stream()
+          .getOtherRequestsBy(timeOffRequest).stream()
           .map(BasicTimeOffRequestDto::new).collect(Collectors.toList());
 
-      if (timeOffRequest.getTimeOffApprovalStatus() == TimeOffRequestApprovalStatus.APPROVED) {
+      if (timeOffRequest.getTimeOffApprovalStatus() == APPROVED) {
         timeOffRequests = timeOffRequests.stream()
             .filter(request -> !timeOffRequest.getId().equals(request.getId()))
             .collect(Collectors.toList());
@@ -143,45 +142,36 @@ public class TimeOffRequestRestController extends BaseRestController {
   }
 
   @PatchMapping("time-off-requests/{id}")
-  public TimeOffRequestDto updateTimeOffRequest(@PathVariable @HashidsFormat Long id,
+  @PreAuthorize("hasPermission(#id,'TIME_OFF_REQUEST','MANAGE_TIME_OFF_REQUEST')")
+  public TimeOffRequestDto updateTimeOffRequestStatus(@PathVariable @HashidsFormat Long id,
       @RequestBody TimeOffRequestUpdateDto updateDto) {
-    TimeOffRequest timeOffRequest = timeOffRequestService.getById(id);
 
-    timeOffRequest.setApproverComment(updateDto.getApproverComment());
+    TimeOffRequest timeOffRequest = updateDto.getTimeOffRequest();
+    timeOffRequest.setId(id);
+
     TimeOffRequestApprovalStatus status = updateDto.getStatus();
-
-    if (status == TimeOffRequestApprovalStatus.APPROVED
-        || timeOffRequest.getTimeOffApprovalStatus() == TimeOffRequestApprovalStatus.APPROVED) {
-      TimeOffPolicy timeOffPolicy = timeOffRequest.getTimeOffPolicy();
-      User requester = timeOffRequest.getRequesterUser();
-      TimeOffPolicyUser timeOffPolicyUser = timeOffPolicyService
-          .getTimeOffPolicyUserByUserAndTimeOffPolicy(requester, timeOffPolicy);
-      if (status == TimeOffRequestApprovalStatus.APPROVED) {
-
-        timeOffPolicyUser.setBalance(timeOffPolicyUser.getBalance() - timeOffRequest.getHours());
-      } else {
-        timeOffPolicyUser.setBalance(timeOffPolicyUser.getBalance() + timeOffRequest.getHours());
-      }
-      timeOffPolicyService.saveTimeOffPolicyUser(timeOffPolicyUser);
+    if (status == APPROVED || status == DENIED) {
+      timeOffRequest.setApproverUser(this.getUser());
     }
-
-    timeOffRequest.setTimeOffApprovalStatus(status);
-    timeOffRequest = timeOffRequestService.save(timeOffRequest);
-    timeOffRequestService.sendTimeOffRequestEmail(timeOffRequest);
+    timeOffRequest = timeOffRequestService.updateTimeOffRequest(timeOffRequest);
 
     return new TimeOffRequestDto(timeOffRequest);
   }
 
   @GetMapping(value = "time-off-requests/requester/{id}")
+  @PreAuthorize("hasPermission(#id,'USER','MANAGE_SELF_TIME_OFF_REQUEST') "
+      + "or hasPermission(#id,'USER','MANAGE_TIME_OFF_REQUEST')")
   public MyTimeOffDto getMyTimeOffRequests(@HashidsFormat @PathVariable Long id) {
     return timeOffRequestService.getMyTimeOffRequestsByRequesterUserId(id);
   }
 
   @GetMapping(value = "users/{id}/time-off-histories")
+  @PreAuthorize("hasPermission(#id,'USER','MANAGE_SELF_TIME_OFF_REQUEST')")
   public List<TimeOffRequestDto> getTimeOffHistories(@RequestParam(required = false) Long startTime,
       @RequestParam(required = false) Long endTime, @HashidsFormat @PathVariable Long id) {
     List<TimeOffRequest> timeOffRequests = timeOffRequestService
         .getTimeOffHistories(id, startTime, endTime);
+
     return timeOffRequests.stream().map(TimeOffRequestDto::new).collect(Collectors.toList());
   }
 

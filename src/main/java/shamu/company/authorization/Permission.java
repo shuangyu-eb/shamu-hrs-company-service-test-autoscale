@@ -26,7 +26,7 @@ public class Permission extends BaseEntity {
     CREATE_USER(PermissionType.ADMIN_PERMISSION),
     DELETE_USER(PermissionType.ADMIN_PERMISSION),
     EDIT_USER(PermissionType.ADMIN_PERMISSION),
-    VIEW_USER_TIME_OFF(PermissionType.MANAGER_PERMISSION),
+    MANAGE_TIME_OFF_REQUEST(PermissionType.MANAGER_PERMISSION),
     VIEW_USER_EMERGENCY_CONTACT(PermissionType.MANAGER_PERMISSION),
     VIEW_MY_TEAM(PermissionType.MANAGER_PERMISSION),
     VIEW_USER_CONTACT(PermissionType.EMPLOYEE_PERMISSION),
@@ -34,7 +34,8 @@ public class Permission extends BaseEntity {
     VIEW_USER_JOB(PermissionType.EMPLOYEE_PERMISSION),
     VIEW_USER_ADDRESS(PermissionType.EMPLOYEE_PERMISSION),
     VIEW_SELF(PermissionType.SELF_PERMISSION),
-    EDIT_SELF(PermissionType.SELF_PERMISSION);
+    EDIT_SELF(PermissionType.SELF_PERMISSION),
+    MANAGE_SELF_TIME_OFF_REQUEST(PermissionType.SELF_PERMISSION);
 
     private PermissionType permissionType;
 
