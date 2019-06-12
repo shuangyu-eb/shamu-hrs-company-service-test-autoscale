@@ -34,4 +34,20 @@ public class TimeOffPolicyAccrualScheduleDto {
         this.getDaysBeforeAccrualStarts(), this.getCarryoverLimit(),
         new TimeOffAccrualFrequency(timeOffAccrualFrequencyId));
   }
+
+  @JSONField(serialize = false)
+  public TimeOffPolicyAccrualSchedule getTimeOffPolicyAccrualScheduleUpdated(
+      TimeOffPolicyAccrualSchedule origin) {
+    origin.setAccrualHours(this.getAccrualHours());
+    origin.setCarryoverLimit(this.getCarryoverLimit());
+    origin.setDaysBeforeAccrualStarts(this.getDaysBeforeAccrualStarts());
+    origin.setMaxBalance(this.getMaxBalance());
+
+    if (this.getTimeOffAccrualFrequencyId() != null) {
+      origin.setTimeOffAccrualFrequency(
+          new TimeOffAccrualFrequency(this.getTimeOffAccrualFrequencyId()));
+    }
+
+    return origin;
+  }
 }

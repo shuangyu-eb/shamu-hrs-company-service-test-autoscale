@@ -24,4 +24,11 @@ public class TimeOffPolicyPojo {
   public TimeOffPolicy getTimeOffPolicy(Company company) {
     return new TimeOffPolicy(company, this.policyName, this.getIsLimited());
   }
+
+  @JSONField(serialize = false)
+  public TimeOffPolicy getTimeOffPolicy(TimeOffPolicy origin) {
+    origin.setIsLimited(this.getIsLimited());
+    origin.setName(this.getPolicyName());
+    return origin;
+  }
 }

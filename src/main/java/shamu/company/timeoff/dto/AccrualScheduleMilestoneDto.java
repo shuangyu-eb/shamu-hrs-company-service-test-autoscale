@@ -1,9 +1,12 @@
 package shamu.company.timeoff.dto;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import java.sql.Timestamp;
+import java.util.List;
 import lombok.Data;
 import shamu.company.hashids.HashidsFormat;
 import shamu.company.timeoff.entity.AccrualScheduleMilestone;
+import shamu.company.timeoff.entity.TimeOffPolicyAccrualSchedule;
 
 @Data
 public class AccrualScheduleMilestoneDto {
@@ -36,5 +39,20 @@ public class AccrualScheduleMilestoneDto {
     accrualScheduleMilestone.setTimeOffPolicyAccrualScheduleId(timeOffPolicyAccrualScheduleId);
 
     return accrualScheduleMilestone;
+  }
+
+  public AccrualScheduleMilestone updateAccrualScheduleMilestone(
+      AccrualScheduleMilestone origin,Long timeOffPolicyAccrualScheduleId) {
+
+    origin.setAccrualHours(this.getAccrualHours());
+    origin.setAccrualInterval(this.getAccrualInterval());
+    origin.setAnniversaryYear(this.getAnniversaryYear());
+    origin.setCarryoverLimit(this.getCarryoverLimit());
+    origin.setMaxBalance(this.getMaxBalance());
+    origin.setName(this.getName());
+    origin.setDeletedAt(null);
+    origin.setTimeOffPolicyAccrualScheduleId(timeOffPolicyAccrualScheduleId);
+
+    return origin;
   }
 }

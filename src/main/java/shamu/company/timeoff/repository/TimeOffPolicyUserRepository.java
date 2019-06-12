@@ -20,6 +20,8 @@ public interface TimeOffPolicyUserRepository extends BaseRepository<TimeOffPolic
 
   List<TimeOffPolicyUser> findTimeOffPolicyUsersByUser(User user);
 
+  List<TimeOffPolicyUser> findAllByTimeOffPolicyId(Long timeOffPolicyId);
+
   @Query(value = "select sum(balance) "
       + "from time_off_policies_users "
       + "where user_id=?1 and deleted_at is null", nativeQuery = true)

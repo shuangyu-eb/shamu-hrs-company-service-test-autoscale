@@ -22,4 +22,5 @@ public class TimeOffPolicy extends BaseEntity {
   private String name;
 
   private Boolean isLimited;
+
 }
