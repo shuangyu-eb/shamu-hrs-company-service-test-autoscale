@@ -1430,3 +1430,236 @@ databaseChangeLog:
             name: to_name
             type: varchar(255)
         tableName: emails
+
+- changeSet:
+      id: 1556008164280-37
+      author: wenhao-eb
+      changes:
+      - dropForeignKeyConstraint:
+          baseTableName: benefit_plan_types
+          constraintName: fk_benefit_plan_types_companies
+
+- changeSet:
+      id: 1556008164280-38
+      author: wenhao-eb
+      changes:
+      - dropColumn:
+          columnName: company_id
+          tableName: benefit_plan_types
+
+
+- changeSet:
+      id: 1556008164280-39
+      author: wenhao-eb
+      changes:
+      - addColumn:
+          columns:
+          - column:
+              name: company_id
+              type: BIGINT
+              constraints:
+                foreignKeyName: fk_benefit_plans_companies
+                references: companies(id)
+          tableName: benefit_plans
+
+- changeSet:
+      id: 1556008164280-40
+      author: wenhao-eb
+      changes:
+      - addColumn:
+          columns:
+          - column:
+              name: plan_id
+              type: varchar(255)
+          tableName: benefit_plans
+
+- changeSet:
+      id: 1556008164280-41
+      author: wenhao-eb
+      changes:
+      - addColumn:
+          columns:
+          - column:
+              name: start_date
+              type: datetime
+          tableName: benefit_plans
+
+- changeSet:
+      id: 1556008164280-42
+      author: wenhao-eb
+      changes:
+      - addColumn:
+          columns:
+          - column:
+              name: end_date
+              type: datetime
+          tableName: benefit_plans
+
+- changeSet:
+      id: 1556008164280-43
+      author: wenhao-eb
+      changes:
+      - addColumn:
+          columns:
+          - column:
+              name: document_url
+              type: text
+          tableName: benefit_plans
+
+- changeSet:
+      id: 1556008164280-44
+      author: wenhao-eb
+      changes:
+      - addColumn:
+            columns:
+            - column:
+                  name: name
+                  type: varchar(255)
+            tableName: benefit_plan_coverages
+
+- changeSet:
+      id: 1556008164280-45
+      author: wenhao-eb
+      runOnchange: ture
+      changes:
+      - loadUpdateData:
+            columns:
+            - column:
+                  name: id
+                  type: NUMERIC
+            - column:
+                  name: name
+                  type: STRING
+            file: db/changelog/data/benefit-plan-types.csv
+            primaryKey: id
+            tableName: benefit_plan_types
+
+- changeSet:
+      id: 1556008164280-46
+      author: wenhao-eb
+      changes:
+      - addColumn:
+            columns:
+            - column:
+                  name: employer_cost
+                  type: INT
+            tableName: benefit_plan_coverages
+
+- changeSet:
+      id: 1556008164280-47
+      author: wenhao-eb
+      changes:
+      - addColumn:
+            columns:
+            - column:
+                  name: employee_cost
+                  type: INT
+            tableName: benefit_plan_coverages
+
+- changeSet:
+      id: 1556008164280-48
+      author: wenhao-eb
+      changes:
+      - addColumn:
+            columns:
+            - column:
+                  name: description
+                  type: TEXT
+            tableName: benefit_plans
+
+- changeSet:
+      id: 1556008164280-49
+      author: wenhao-eb
+      changes:
+      - dropColumn:
+            columnName: policy_id
+            tableName: benefit_plans
+
+- changeSet:
+      id: 1556008164280-50
+      author: wenhao-eb
+      changes:
+      - createTable:
+          columns:
+          - column:
+              name: id
+              type: BIGINT
+              autoIncrement: true
+              constraints:
+                primaryKey: true
+          - column:
+              name: name
+              type: VARCHAR(255)
+          - column:
+              name: created_at
+              type: DATETIME
+          - column:
+              name: updated_at
+              type: DATETIME
+          - column:
+              name: deleted_at
+              type: DATETIME
+          tableName: retirement_types
+
+- changeSet:
+      id: 1556008164280-51
+      author: wenhao-eb
+      changes:
+      - createTable:
+          columns:
+          - column:
+              name: id
+              type: BIGINT
+              autoIncrement: true
+              constraints:
+                primaryKey: true
+          - column:
+              name: benefit_plan_id
+              type: BIGINT
+              constraints:
+                foreignKeyName: fk_benefit_plans
+                references: benefit_plans(id)
+          - column:
+              name: retirement_type_id
+              type: BIGINT
+              constraints:
+                foreignKeyName: fk_retirement_types
+                references: retirement_types(id)
+          - column:
+              name: created_at
+              type: datetime
+          - column:
+              name: updated_at
+              type: datetime
+          - column:
+              name: deleted_at
+              type: datetime
+          tableName: retirement_plans_types
+
+- changeSet:
+      id: 1556008164280-52
+      author: wenhao-eb
+      runOnchange: ture
+      changes:
+      - loadUpdateData:
+          columns:
+          - column:
+              name: id
+              type: NUMERIC
+          - column:
+              name: name
+              type: STRING
+          file: db/changelog/data/retirement-types.csv
+          primaryKey: id
+          tableName: retirement_types
+
+- changeSet:
+      id: 1556008164280-53
+      author: wenhao-eb
+      changes:
+      - addColumn:
+          columns:
+          - column:
+              name: document_name
+              type: varchar(255)
+          tableName: benefit_plans

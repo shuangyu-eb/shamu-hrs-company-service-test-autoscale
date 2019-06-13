@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 import shamu.company.authorization.Permission.PermissionType;
+import shamu.company.benefit.entity.BenefitPlan;
+import shamu.company.benefit.service.BenefitPlanService;
 import shamu.company.common.exception.ForbiddenException;
 import shamu.company.company.entity.Company;
 import shamu.company.timeoff.service.TimeOffRequestService;
@@ -21,19 +23,25 @@ public class PermissionUtils {
 
   private final UserAddressService userAddressService;
 
+  private final BenefitPlanService benefitPlanService;
+
   @Autowired
   public PermissionUtils(UserService userService,
       TimeOffRequestService timeOffRequestService,
-      UserAddressService userAddressService) {
+      UserAddressService userAddressService,
+      BenefitPlanService benefitPlanService) {
     this.userService = userService;
     this.timeOffRequestService = timeOffRequestService;
     this.userAddressService = userAddressService;
+    this.benefitPlanService = benefitPlanService;
   }
 
   boolean hasPermission(Authentication auth, Long targetId, Type targetType,
       Permission.Name permission) {
 
     switch (targetType) {
+      case BENEFIT_PLAN:
+        return this.hasPermissionOfBenefitPlan(auth, targetId, permission);
       case TIME_OFF_REQUEST:
         return this.hasPermissionOfTimeOffRequest(auth, targetId, permission);
       case USER_PERSONAL_INFORMATION:
@@ -60,6 +68,27 @@ public class PermissionUtils {
     if (!this.getCompany(auth).getId().equals(company.getId())) {
       throw new ForbiddenException("The target resources is not in the company where you are.");
     }
+  }
+
+  private boolean hasPermissionOfBenefitPlan(Authentication auth, Long id,
+      Permission.Name permission) {
+    PermissionType permissionType = permission.getPermissionType();
+
+    BenefitPlan targetBenefitPlan = benefitPlanService.findBenefitPlanById(id);
+    this.companyEqual(auth, targetBenefitPlan.getCompany());
+
+    boolean result;
+    Collection<AuthorityPojo> authorities = (Collection<AuthorityPojo>) auth.getAuthorities();
+    if (permissionType != PermissionType.ADMIN_PERMISSION) {
+      result = false;
+    } else {
+      result = authorities.stream().anyMatch(authority -> {
+        Permission.Name permissionName = authority.getName();
+        return permission == permissionName;
+      });
+    }
+
+    return result;
   }
 
   private boolean hasPermissionOfTimeOffRequest(Authentication auth, Long id,
