@@ -6,70 +6,63 @@
   <title>Welcome to Champion Solutions!</title>
 </head>
 <body>
-<table
-    style="background-color: #edeef2; padding-left: 125px; padding-right: 135px; padding-bottom: 119px;">
-  <tbody>
-  <tr>
-    <td style="display: flex; justify-content: center;">
-      <table style="width: 600px; min-height: 459px; border-collapse: collapse;">
-        <tbody>
-          <tr>
-            <td style="padding-top: 54px; height: 44px; padding-bottom: 30px; text-align: center;">
-              <img
-              style="width: 189px; height: 100%; min-height: 43px; margin-left: auto; margin-right: auto; display: block;"
-              alt="logo" title="logo" th:src="@{${frontEndAddress} + 'image/colorlogo.png'}">
-            </td>
-          </tr>
-          <tr style="width: 600px; height: 385px;">
+<div align="center" style="background-color: #edeef2; padding-bottom: 119px; padding-top: 58px; width: 100%;">
+  <table style="width: 600px; min-height: 459px; border-collapse: collapse;">
+    <tbody>
+    <tr>
+      <td style="padding-top: 54px; height: 44px; padding-bottom: 30px; text-align: center;">
+        <img
+                style="width: 189px; height: 100%; min-height: 43px; margin-left: auto; margin-right: auto; display: block;"
+                alt="logo" title="logo" th:src="@{${frontEndAddress} + 'image/colorlogo.png'}">
+      </td>
+    </tr>
+    <tr style="width: 600px; height: 385px;">
+      <td>
+        <table style="width: 100%; height: 100%; border-collapse: collapse; margin-bottom: 41px;">
+          <tbody>
+          <tr style="width: 100%; height: 233px; background-color: #FFFFFF;">
             <td>
-              <table style="width: 100%; height: 100%; border-collapse: collapse; margin-bottom: 41px;">
+              <table style="width: 100%;height: 100%; border-collapse: collapse;">
                 <tbody>
-                  <tr style="width: 100%; height: 233px; background-color: #FFFFFF;">
-                    <td>
-                      <table style="width: 100%;height: 100%; border-collapse: collapse;">
-                       <tbody>
-                         <tr>
-                           <td style="padding-top: 47px; font-size: 24px; width: 355px; height: 28px; text-align: center;">
-                             Welcome to Champion Solutions!
-                           </td>
-                         </tr>
-                         <tr>
-                           <td style="padding-top: 17px; height: 21px; width: 230px; text-align: center; color: #7B7E84;">
-                             Let's get your account set up
-                           </td>
-                         </tr>
-                         <tr>
-                           <td style="padding-top: 33px; height: 40px; text-align: center; padding-bottom: 47px;">
-                             <a th:href="@{${createPasswordAddress}}"
-                                style="background-color: #488eff; color: #ffffff; outline: none; box-shadow: none; border: 0; width: 153px; height: 40px; font-size: 14px; border-radius: 400px; cursor: pointer; display: inline-block; line-height: 42px; text-decoration: none">Get
-                               Started</a></td>
-                         </tr>
-                       </tbody>
-                      </table>
-                    </td>
-                  </tr>
-                  <tr style="width: 100%; background-color: #f7f8fa; padding: 1px;">
-                    <td>
-                      <table style="font-size: 14px; color: #7b7e84; height: 100%;">
-                        <tbody>
-                          <tr>
-                            <td style="padding: 15px 35px 15px 35px; max-width: 600px; height: auto; word-break: break-word;"
-                                th:utext="${welcomeMessage}">
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </td>
-                  </tr>
+                <tr>
+                  <td style="padding-top: 47px; font-size: 24px; width: 355px; height: 28px; text-align: center;">
+                    Welcome to Champion Solutions!
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding-top: 17px; height: 21px; width: 230px; text-align: center; color: #7B7E84;">
+                    Let's get your account set up
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding-top: 33px; height: 40px; text-align: center; padding-bottom: 47px;">
+                    <a th:href="@{${createPasswordAddress}}"
+                       style="background-color: #488eff; color: #ffffff; outline: none; box-shadow: none; border: 0; width: 153px; height: 40px; font-size: 14px; border-radius: 400px; cursor: pointer; display: inline-block; line-height: 42px; text-decoration: none">Get
+                      Started</a></td>
+                </tr>
                 </tbody>
               </table>
             </td>
           </tr>
-        </tbody>
-      </table>
-    </td>
-  </tr>
-  </tbody>
-</table>
+          <tr style="width: 100%; background-color: #f7f8fa; padding: 1px;">
+            <td>
+              <table style="font-size: 14px; color: #7b7e84; height: 100%;">
+                <tbody>
+                <tr>
+                  <td style="padding: 15px 35px 15px 35px; max-width: 600px; height: auto; word-break: break-word;"
+                      th:utext="${welcomeMessage}">
+                  </td>
+                </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</div>
 </body>
 </html>
