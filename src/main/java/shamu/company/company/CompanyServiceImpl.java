@@ -3,10 +3,12 @@ package shamu.company.company;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import shamu.company.common.entity.StateProvince;
 import shamu.company.common.repository.DepartmentRepository;
 import shamu.company.common.repository.EmploymentTypeRepository;
 import shamu.company.common.repository.OfficeAddressRepository;
 import shamu.company.common.repository.OfficeRepository;
+import shamu.company.common.repository.StateProvinceRepository;
 import shamu.company.company.entity.Company;
 import shamu.company.company.entity.Department;
 import shamu.company.company.entity.Office;
@@ -28,18 +30,22 @@ public class CompanyServiceImpl implements CompanyService {
 
   private final OfficeRepository officeRepository;
 
+  private final StateProvinceRepository stateProvinceRepository;
+
   private final OfficeAddressRepository officeAddressRepository;
 
   @Autowired
   public CompanyServiceImpl(CompanyRepository companyRepository,
       DepartmentRepository departmentRepository, EmploymentTypeRepository employmentTypeRepository,
       JobRepository jobRepository, OfficeRepository officeRepository,
+      StateProvinceRepository stateProvinceRepository,
       OfficeAddressRepository officeAddressRepository) {
     this.companyRepository = companyRepository;
     this.departmentRepository = departmentRepository;
     this.employmentTypeRepository = employmentTypeRepository;
     this.jobRepository = jobRepository;
     this.officeRepository = officeRepository;
+    this.stateProvinceRepository = stateProvinceRepository;
     this.officeAddressRepository = officeAddressRepository;
   }
 
@@ -92,6 +98,10 @@ public class CompanyServiceImpl implements CompanyService {
   @Override
   public Office saveOffice(Office office) {
     OfficeAddress officeAddress = office.getOfficeAddress();
+    StateProvince stateProvince = stateProvinceRepository
+        .findById(officeAddress.getStateProvince().getId()).get();
+    officeAddress.setStateProvince(stateProvince);
+    
     officeAddress = officeAddressRepository.save(officeAddress);
     office.setOfficeAddress(officeAddress);
 

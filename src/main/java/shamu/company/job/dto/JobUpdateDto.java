@@ -25,10 +25,6 @@ public class JobUpdateDto {
   private Long compensationFrequencyId;
 
   @HashidsFormat
-  // TODO remove it, when remove the department_id for table jobs_users
-  private Long departmentId;
-
-  @HashidsFormat
   private Long employmentTypeId;
 
   @HashidsFormat
@@ -49,10 +45,11 @@ public class JobUpdateDto {
     Job job = new Job();
     job.setId(jobId);
     jobUser.setJob(job);
-
-    Office office = new Office();
-    office.setId(officeId);
-    jobUser.setOffice(office);
+    if (officeId != null) {
+      Office office = new Office();
+      office.setId(officeId);
+      jobUser.setOffice(office);
+    }
 
     EmploymentType employmentType = new EmploymentType();
     employmentType.setId(employmentTypeId);
