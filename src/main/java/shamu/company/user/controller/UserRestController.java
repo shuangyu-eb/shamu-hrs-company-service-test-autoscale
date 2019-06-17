@@ -19,6 +19,7 @@ import shamu.company.company.CompanyService;
 import shamu.company.hashids.HashidsFormat;
 import shamu.company.user.dto.AccountInfoDto;
 import shamu.company.user.dto.UpdatePasswordDto;
+import shamu.company.user.dto.UserAvatarDto;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
 import shamu.company.user.service.UserService;
@@ -121,5 +122,11 @@ public class UserRestController extends BaseRestController {
   @GetMapping("users/{id}/account-info")
   public AccountInfoDto getPreSetAccountInfo(@PathVariable @HashidsFormat Long id) {
     return userService.getPreSetAccountInfoByUserId(id);
+  }
+
+  @GetMapping("users/{id}/avatar")
+  public UserAvatarDto getUserAvatar(@PathVariable @HashidsFormat Long id) {
+    User user = userService.findUserById(id);
+    return new UserAvatarDto(user);
   }
 }

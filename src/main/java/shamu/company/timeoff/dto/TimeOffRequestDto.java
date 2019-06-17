@@ -6,6 +6,7 @@ import shamu.company.hashids.HashidsFormat;
 import shamu.company.timeoff.entity.TimeOffRequest;
 import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus;
 import shamu.company.user.entity.User;
+import shamu.company.utils.UserNameUtil;
 
 @Data
 public class TimeOffRequestDto {
@@ -44,7 +45,11 @@ public class TimeOffRequestDto {
 
     this.imageUrl = requester.getImageUrl();
     this.userId = requester.getId();
-    this.name = requester.getUserPersonalInformation().getFirstName();
+    this.name = UserNameUtil.getUserName(
+        requester.getUserPersonalInformation().getFirstName(),
+        requester.getUserPersonalInformation().getMiddleName(),
+        requester.getUserPersonalInformation().getLastName()
+    );
 
     this.type = timeOffRequest.getTimeOffPolicy().getName();
     this.hours = timeOffRequest.getHours();
