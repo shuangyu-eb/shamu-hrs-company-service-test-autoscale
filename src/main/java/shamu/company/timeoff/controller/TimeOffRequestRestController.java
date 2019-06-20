@@ -55,7 +55,7 @@ public class TimeOffRequestRestController extends BaseRestController {
   }
 
   @PostMapping("users/{userId}/time-off-requests")
-  @PreAuthorize("hasPermission(#id,'USER','MANAGE_SELF_TIME_OFF_REQUEST')")
+  @PreAuthorize("hasPermission(#userId,'USER','MANAGE_SELF_TIME_OFF_REQUEST')")
   public void createTimeOffRequest(@PathVariable @HashidsFormat Long userId,
       @RequestBody TimeOffRequestPojo requestPojo) {
     User user = this.userService.findUserById(userId);
@@ -68,7 +68,7 @@ public class TimeOffRequestRestController extends BaseRestController {
   }
 
   @PostMapping("users/{userId}/time-off-requests/approved")
-  @PreAuthorize("hasPermission(#id,'USER','MANAGE_TIME_OFF_REQUEST')")
+  @PreAuthorize("hasPermission(#userId,'USER','MANAGE_TIME_OFF_REQUEST')")
   public void createTimeOffRequestAndApproved(@PathVariable @HashidsFormat Long userId,
       @RequestBody TimeOffRequestPojo requestPojo
   ) {
