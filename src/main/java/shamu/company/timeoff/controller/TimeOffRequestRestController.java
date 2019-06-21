@@ -3,6 +3,7 @@ package shamu.company.timeoff.controller;
 import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.APPROVED;
 import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.DENIED;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,8 +64,9 @@ public class TimeOffRequestRestController extends BaseRestController {
 
     TimeOffRequest timeOffRequestReturned = saveTimeOffRequest(timeOffRequest,
         requestPojo.getPolicy(), TimeOffRequestApprovalStatus.NO_ACTION);
-    timeOffRequestService.sendTimeOffRequestEmail(timeOffRequest);
     saveTimeOffRequestDates(requestPojo, timeOffRequestReturned);
+
+    timeOffRequestService.sendTimeOffRequestEmail(timeOffRequestReturned);
   }
 
   @PostMapping("users/{userId}/time-off-requests/approved")
@@ -188,6 +190,7 @@ public class TimeOffRequestRestController extends BaseRestController {
       TimeOffRequest timeOffRequest) {
     List<TimeOffRequestDate> timeOffRequestDates = requestPojo
         .getTimeOffRequestDates(timeOffRequest);
+    timeOffRequest.setTimeOffRequestDates(new HashSet<>(timeOffRequestDates));
     timeOffRequestDateService.saveAllTimeOffRequestDates(timeOffRequestDates);
   }
 }
