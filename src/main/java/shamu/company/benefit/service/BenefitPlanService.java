@@ -1,6 +1,7 @@
 package shamu.company.benefit.service;
 
 import java.util.List;
+import shamu.company.benefit.dto.BenefitPlanClusterDto;
 import shamu.company.benefit.entity.BenefitPlan;
 import shamu.company.benefit.pojo.BenefitPlanCoveragePojo;
 import shamu.company.benefit.pojo.BenefitPlanPojo;
@@ -16,4 +17,8 @@ public interface BenefitPlanService {
   BenefitPlan findBenefitPlanById(Long id);
 
   void save(BenefitPlan benefitPlan);
+
+  List<BenefitPlanClusterDto> getBenefitPlanCluster(Company company);
+
+  void updateBenefitPlanUsers(Long benefitPlanId, List<BenefitPlanUserPojo> benefitPlanUsers);
 }

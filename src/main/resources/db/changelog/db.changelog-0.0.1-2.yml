@@ -1663,3 +1663,14 @@ databaseChangeLog:
               name: document_name
               type: varchar(255)
           tableName: benefit_plans
+
+- changeSet:
+      id: 1556008164280-54
+      author: wenhao-eb
+      changes:
+      - addColumn:
+          columns:
+          - column:
+              name: enrolled
+              type: BOOLEAN
+          tableName: benefit_plans_users

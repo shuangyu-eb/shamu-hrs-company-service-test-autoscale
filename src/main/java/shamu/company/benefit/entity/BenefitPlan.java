@@ -40,4 +40,8 @@ public class BenefitPlan extends BaseEntity {
 
   @OneToOne
   private BenefitPlanType benefitPlanType;
+
+  public BenefitPlan(Long id) {
+    this.setId(id);
+  }
 }

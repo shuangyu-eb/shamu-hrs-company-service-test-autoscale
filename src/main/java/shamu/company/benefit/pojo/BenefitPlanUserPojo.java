@@ -12,7 +12,7 @@ public class BenefitPlanUserPojo {
   @HashidsFormat
   private Long id;
 
-  public BenefitPlanUser getBenefitPlanUser(BenefitPlan benefitPlan) {
-    return new BenefitPlanUser(new User(this.id), benefitPlan);
+  public BenefitPlanUser getBenefitPlanUser(Long benefitPlanId) {
+    return new BenefitPlanUser(new User(this.id), new BenefitPlan(benefitPlanId), false);
   }
 }

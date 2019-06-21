@@ -3,13 +3,15 @@ package shamu.company.benefit.controller;
 import java.io.IOException;
 import java.util.List;
 import org.apache.logging.log4j.util.Strings;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
+import shamu.company.benefit.dto.BenefitPlanClusterDto;
 import shamu.company.benefit.dto.BenefitPlanDto;
 import shamu.company.benefit.entity.BenefitPlan;
 import shamu.company.benefit.pojo.BenefitPlanCoveragePojo;
@@ -31,7 +33,6 @@ public class BenefitPlanRestController extends BaseRestController {
 
   private final AwsUtil awsUtil;
 
-  @Autowired
   public BenefitPlanRestController(
       BenefitPlanService benefitPlanService,
       AwsUtil awsUtil) {
@@ -69,5 +70,16 @@ public class BenefitPlanRestController extends BaseRestController {
     BenefitPlan benefitPlan = benefitPlanService.findBenefitPlanById(id);
     benefitPlan.setDocumentUrl(path);
     benefitPlanService.save(benefitPlan);
+  }
+
+  @GetMapping("benefit-plan-clusters")
+  public List<BenefitPlanClusterDto> getBenefitPlanClusters() {
+    return benefitPlanService.getBenefitPlanCluster(this.getCompany());
+  }
+
+  @PatchMapping("benefit-plan/{benefitPlanId}/users")
+  public void updateBenefitPlanUsers(@PathVariable @HashidsFormat Long benefitPlanId,
+      @RequestBody List<BenefitPlanUserPojo> benefitPlanUsers) {
+    benefitPlanService.updateBenefitPlanUsers(benefitPlanId, benefitPlanUsers);
   }
 }

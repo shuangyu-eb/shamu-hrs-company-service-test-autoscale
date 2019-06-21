@@ -24,4 +24,7 @@ public class BenefitPlanUser extends BaseEntity {
   @ManyToOne
   private BenefitPlan benefitPlan;
 
+
+  private Boolean enrolled;
+
 }
