@@ -69,7 +69,7 @@ public class UserPersonalInformationRestController extends BaseRestController {
       return new UserPersonalInformationForManagerDto(userPersonalInformation);
     }
     Date birthDate = userPersonalInformation.getBirthDate();
-    String birthDateWithoutYear = sdf.format(birthDate);
+    String birthDateWithoutYear = birthDate != null ? sdf.format(birthDate) : "";
     BasicUserPersonalInformationDto basicUserPersonalInformationDto =
         new BasicUserPersonalInformationDto(userPersonalInformation);
     basicUserPersonalInformationDto.setBirthDate(birthDateWithoutYear);
