@@ -9,6 +9,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.annotations.Where;
 import shamu.company.common.entity.BaseEntity;
 import shamu.company.company.entity.Company;
@@ -38,6 +39,7 @@ public class User extends BaseEntity {
 
   @ManyToOne
   @JSONField(serialize = false)
+  @ToString.Exclude
   private User managerUser;
 
   @OneToOne(cascade = CascadeType.PERSIST)
