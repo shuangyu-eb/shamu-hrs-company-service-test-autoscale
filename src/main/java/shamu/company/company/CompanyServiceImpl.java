@@ -98,10 +98,12 @@ public class CompanyServiceImpl implements CompanyService {
   @Override
   public Office saveOffice(Office office) {
     OfficeAddress officeAddress = office.getOfficeAddress();
-    StateProvince stateProvince = stateProvinceRepository
-        .findById(officeAddress.getStateProvince().getId()).get();
-    officeAddress.setStateProvince(stateProvince);
-    
+    Long stateId = officeAddress.getStateProvince().getId();
+    if (stateId != null) {
+      StateProvince stateProvince = stateProvinceRepository.findById(stateId).get();
+      officeAddress.setStateProvince(stateProvince);
+    }
+
     officeAddress = officeAddressRepository.save(officeAddress);
     office.setOfficeAddress(officeAddress);
 
