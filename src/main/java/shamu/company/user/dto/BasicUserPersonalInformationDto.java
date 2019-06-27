@@ -3,6 +3,7 @@ package shamu.company.user.dto;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import shamu.company.hashids.HashidsFormat;
+import shamu.company.user.entity.MaritalStatus;
 import shamu.company.user.entity.UserPersonalInformation;
 
 @Data
@@ -22,6 +23,11 @@ public class BasicUserPersonalInformationDto {
 
   private String birthDate;
 
+  @HashidsFormat
+  private Long maritalStatusId;
+
+  private String maritalStatusName;
+
   public BasicUserPersonalInformationDto(UserPersonalInformation personalInformation) {
     this.id = personalInformation.getId();
     this.firstName = personalInformation.getFirstName();
@@ -30,5 +36,11 @@ public class BasicUserPersonalInformationDto {
     this.preferredName = personalInformation.getPreferredName();
     this.birthDate = personalInformation.getBirthDate() == null
         ? null : personalInformation.getBirthDate().toString();
+
+    MaritalStatus maritalStatus = personalInformation.getMaritalStatus();
+    Long maritalStateId = maritalStatus == null ? null : maritalStatus.getId();
+    String maritalStateName = maritalStatus == null ? "" : maritalStatus.getName();
+    this.maritalStatusId = maritalStateId;
+    this.maritalStatusName = maritalStateName;
   }
 }

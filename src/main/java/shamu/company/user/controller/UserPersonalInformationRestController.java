@@ -13,7 +13,6 @@ import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.hashids.HashidsFormat;
 import shamu.company.user.dto.BasicUserPersonalInformationDto;
 import shamu.company.user.dto.UserPersonalInformationDto;
-import shamu.company.user.dto.UserPersonalInformationForManagerDto;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
 import shamu.company.user.entity.UserPersonalInformation;
@@ -58,16 +57,12 @@ public class UserPersonalInformationRestController extends BaseRestController {
       @PathVariable @HashidsFormat Long id) {
     User user = this.getUser();
     User targetUser = userService.findUserById(id);
-    User manager = targetUser.getManagerUser();
     UserPersonalInformation userPersonalInformation = targetUser.getUserPersonalInformation();
 
     if (user.getId().equals(id) || user.getRole() == Role.ADMIN) {
       return new UserPersonalInformationDto(userPersonalInformation);
     }
 
-    if (manager != null && manager.getId().equals(user.getId())) {
-      return new UserPersonalInformationForManagerDto(userPersonalInformation);
-    }
     Date birthDate = userPersonalInformation.getBirthDate();
     String birthDateWithoutYear = birthDate != null ? sdf.format(birthDate) : "";
     BasicUserPersonalInformationDto basicUserPersonalInformationDto =

@@ -106,9 +106,7 @@ public class EmployeeInformationRestController extends BaseRestController {
     }
 
     // The user's full job message can only be accessed by admin, the manager and himself.
-    if (user.getId().equals(id)
-        || target.getUser().getManagerUser().getId().equals(user.getId())
-        || user.getRole() == Role.ADMIN) {
+    if (user.getId().equals(id) || user.getRole() == Role.ADMIN) {
       return new JobInformationDto(target);
     }
 
