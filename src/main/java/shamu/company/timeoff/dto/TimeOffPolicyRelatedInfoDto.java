@@ -40,12 +40,16 @@ public class TimeOffPolicyRelatedInfoDto {
     this.id = timeOffPolicy.getId();
     this.policyName = timeOffPolicy.getName();
     this.isLimited = timeOffPolicy.getIsLimited();
-    this.startDate = timeOffPolicyAccrualSchedule.getDaysBeforeAccrualStarts();
-    this.timeOffAccrualFrequency = timeOffPolicyAccrualSchedule
-        .getTimeOffAccrualFrequency().getId();
-    this.accrualHoursBaseRate = timeOffPolicyAccrualSchedule.getAccrualHours();
-    this.carryoverLimitBaseRate = timeOffPolicyAccrualSchedule.getCarryoverLimit();
-    this.maxBalanceBaseRate = timeOffPolicyAccrualSchedule.getMaxBalance();
-    this.accrualScheduleMilestone = accrualScheduleMilestone;
+    if (timeOffPolicyAccrualSchedule != null) {
+      this.startDate = timeOffPolicyAccrualSchedule.getDaysBeforeAccrualStarts();
+      this.timeOffAccrualFrequency =
+          timeOffPolicyAccrualSchedule.getTimeOffAccrualFrequency().getId();
+      this.accrualHoursBaseRate = timeOffPolicyAccrualSchedule.getAccrualHours();
+      this.carryoverLimitBaseRate = timeOffPolicyAccrualSchedule.getCarryoverLimit();
+      this.maxBalanceBaseRate = timeOffPolicyAccrualSchedule.getMaxBalance();
+    }
+    if (accrualScheduleMilestone != null) {
+      this.accrualScheduleMilestone = accrualScheduleMilestone;
+    }
   }
 }

@@ -6,6 +6,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 import shamu.company.authorization.Permission.PermissionType;
 import shamu.company.benefit.entity.BenefitPlan;
+import shamu.company.benefit.entity.BenefitPlanDependent;
+import shamu.company.benefit.service.BenefitPlanDependentService;
 import shamu.company.benefit.service.BenefitPlanService;
 import shamu.company.common.exception.ForbiddenException;
 import shamu.company.company.entity.Company;
@@ -25,15 +27,19 @@ public class PermissionUtils {
 
   private final BenefitPlanService benefitPlanService;
 
+  private final BenefitPlanDependentService benefitPlanDependentService;
+
   @Autowired
   public PermissionUtils(UserService userService,
       TimeOffRequestService timeOffRequestService,
       UserAddressService userAddressService,
-      BenefitPlanService benefitPlanService) {
+      BenefitPlanService benefitPlanService,
+      BenefitPlanDependentService benefitPlanDependentService) {
     this.userService = userService;
     this.timeOffRequestService = timeOffRequestService;
     this.userAddressService = userAddressService;
     this.benefitPlanService = benefitPlanService;
+    this.benefitPlanDependentService = benefitPlanDependentService;
   }
 
   boolean hasPermission(Authentication auth, Long targetId, Type targetType,
@@ -50,6 +56,8 @@ public class PermissionUtils {
         return this.hasPermissionOfUserAddress(auth, targetId, permission);
       case USER_CONTACT_INFORMATION:
         return this.hasPermissionOfContactInformation(auth, targetId, permission);
+      case BENEFIT_DEPENDENT:
+        return this.hasPermissionOfBenefitDependent(auth, targetId, permission);
       case USER:
       default:
         User targetUser = userService.findUserById(targetId);
@@ -89,6 +97,12 @@ public class PermissionUtils {
     }
 
     return result;
+  }
+
+  private boolean hasPermissionOfBenefitDependent(Authentication auth, Long id,
+      Permission.Name permission) {
+    BenefitPlanDependent targetDependent = benefitPlanDependentService.findDependentById(id);
+    return this.hasPermissionOfUser(auth,targetDependent.getEmployee(),permission);
   }
 
   private boolean hasPermissionOfTimeOffRequest(Authentication auth, Long id,
