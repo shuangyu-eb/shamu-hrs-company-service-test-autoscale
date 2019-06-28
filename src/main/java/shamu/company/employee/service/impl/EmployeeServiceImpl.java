@@ -58,6 +58,8 @@ import shamu.company.user.repository.UserPersonalInformationRepository;
 import shamu.company.user.repository.UserRepository;
 import shamu.company.user.repository.UserRoleRepository;
 import shamu.company.user.repository.UserStatusRepository;
+import shamu.company.user.service.UserContactInformationService;
+import shamu.company.user.service.UserPersonalInformationService;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.AwsUtil;
 import shamu.company.utils.AwsUtil.Type;
@@ -99,9 +101,9 @@ public class EmployeeServiceImpl implements EmployeeService {
 
   private final OfficeRepository officeRepository;
 
-  private final UserPersonalInformationRepository userPersonalInformationRepository;
+  private final UserPersonalInformationService userPersonalInformationService;
 
-  private final UserContactInformationRepository userContactInformationRepository;
+  private final UserContactInformationService userContactInformationService;
 
   @Autowired
   public EmployeeServiceImpl(UserAddressRepository userAddressRepository,
@@ -115,8 +117,8 @@ public class EmployeeServiceImpl implements EmployeeService {
       AwsUtil awsUtil, GenderRepository genderRepository,
       MaritalStatusRepository maritalStatusRepository, EmailService emailService,
       CompensationFrequencyRepository compensationFrequencyRepository,
-      UserPersonalInformationRepository userPersonalInformationRepository,
-      UserContactInformationRepository userContactInformationRepository) {
+      UserPersonalInformationService userPersonalInformationService,
+      UserContactInformationService userContactInformationService) {
     this.userAddressRepository = userAddressRepository;
     this.userRepository = userRepository;
     this.jobUserRepository = jobUserRepository;
@@ -134,8 +136,8 @@ public class EmployeeServiceImpl implements EmployeeService {
     this.emailService = emailService;
     this.compensationFrequencyRepository = compensationFrequencyRepository;
     this.officeRepository = officeRepository;
-    this.userPersonalInformationRepository = userPersonalInformationRepository;
-    this.userContactInformationRepository = userContactInformationRepository;
+    this.userPersonalInformationService = userPersonalInformationService;
+    this.userContactInformationService = userContactInformationService;
   }
 
   @Override
@@ -258,25 +260,25 @@ public class EmployeeServiceImpl implements EmployeeService {
     UserPersonalInformation userPersonalInformation = employee.getUserPersonalInformation();
     UserPersonalInformationDto userPersonalInformationDto = employeeDto
         .getUserPersonalInformationDto();
-    UserPersonalInformation newUserPersonalInformation = new UserPersonalInformation()
-        .getPersonalInformation(userPersonalInformationDto);
+    UserPersonalInformation newUserPersonalInformation =
+        userPersonalInformationDto.getUserPersonalInformation(userPersonalInformation);
     if (userPersonalInformation != null) {
       newUserPersonalInformation.setId(userPersonalInformation.getId());
     }
-    UserPersonalInformation savedUserPersonalInformation = userPersonalInformationRepository
-        .save(newUserPersonalInformation);
+    UserPersonalInformation savedUserPersonalInformation = userPersonalInformationService
+        .update(newUserPersonalInformation);
     employee.setUserPersonalInformation(savedUserPersonalInformation);
 
     UserContactInformation userContactInformation = employee.getUserContactInformation();
     UserContactInformationDto userContactInformationDto = employeeDto
         .getUserContactInformationDto();
-    UserContactInformation newUserContactInformation = new UserContactInformation()
-        .getUserContactInformation(userContactInformationDto);
+    UserContactInformation newUserContactInformation =
+        userContactInformationDto.getUserContactInformation(userContactInformation);
     if (userContactInformation != null) {
       newUserContactInformation.setId(userContactInformation.getId());
     }
-    UserContactInformation savedUserContactInformation = userContactInformationRepository
-        .save(newUserContactInformation);
+    UserContactInformation savedUserContactInformation = userContactInformationService
+        .update(newUserContactInformation);
     employee.setUserContactInformation(savedUserContactInformation);
 
     return userRepository.save(employee);

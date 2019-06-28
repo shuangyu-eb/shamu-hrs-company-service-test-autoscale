@@ -14,8 +14,6 @@ import shamu.company.info.entity.UserEmergencyContact;
 @AllArgsConstructor
 public class UserEmergencyContactDto extends BasicUserEmergencyContactDto {
 
-  private String email;
-
   private String street1;
 
   private String street2;
@@ -29,20 +27,13 @@ public class UserEmergencyContactDto extends BasicUserEmergencyContactDto {
 
 
   public UserEmergencyContactDto(UserEmergencyContact userEmergencyContact) {
-    this.id = userEmergencyContact.getId();
-    this.userId = userEmergencyContact.getUser().getId();
-    this.firstName = userEmergencyContact.getFirstName();
-    this.lastName = userEmergencyContact.getLastName();
-    this.relationship = userEmergencyContact.getRelationship();
-    this.phone = userEmergencyContact.getPhone();
-    this.email = userEmergencyContact.getEmail();
+    super(userEmergencyContact);
     this.street1 = userEmergencyContact.getStreet1();
     this.street2 = userEmergencyContact.getStreet2();
     this.city = userEmergencyContact.getCity();
     this.stateId =
         userEmergencyContact.getState() == null ? null : userEmergencyContact.getState().getId();
     this.postalCode = userEmergencyContact.getPostalCode();
-    this.isPrimary = userEmergencyContact.getIsPrimary();
   }
 
   @JSONField(serialize = false)

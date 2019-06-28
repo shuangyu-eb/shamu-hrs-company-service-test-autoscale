@@ -5,7 +5,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Where;
 import shamu.company.common.entity.BaseEntity;
-import shamu.company.user.dto.UserContactInformationDto;
 
 @Entity
 @Data
@@ -24,13 +23,4 @@ public class UserContactInformation extends BaseEntity {
   private String emailWork;
 
   private String emailHome;
-
-  public UserContactInformation getUserContactInformation(
-      UserContactInformationDto userContactInformationDto) {
-    this.setEmailWork(userContactInformationDto.getEmailWork());
-    this.setEmailHome(userContactInformationDto.getEmailHome());
-    this.setPhoneWork(userContactInformationDto.getPhoneWork());
-    this.setPhoneHome(userContactInformationDto.getPhoneHome());
-    return this;
-  }
 }

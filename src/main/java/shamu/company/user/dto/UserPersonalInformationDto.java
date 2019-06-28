@@ -1,6 +1,7 @@
 package shamu.company.user.dto;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import io.micrometer.core.instrument.util.StringUtils;
 import java.sql.Date;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -53,7 +54,8 @@ public class UserPersonalInformationDto extends BasicUserPersonalInformationDto 
     origin.setSsn(this.getSsn());
 
     if (this.getBirthDate() != null) {
-      origin.setBirthDate(Date.valueOf(this.getBirthDate()));
+      origin.setBirthDate(
+          StringUtils.isNotBlank(this.getBirthDate()) ? Date.valueOf(this.getBirthDate()) : null);
     }
 
     if (this.getGenderId() != null) {

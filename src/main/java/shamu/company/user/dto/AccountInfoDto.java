@@ -4,7 +4,7 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import shamu.company.info.entity.UserEmergencyContact;
+import shamu.company.info.dto.UserEmergencyContactDto;
 import shamu.company.user.entity.UserAddress;
 
 @Data
@@ -20,5 +20,5 @@ public class AccountInfoDto {
 
   private UserContactInformationDto userContactInformationDto;
 
-  private List<UserEmergencyContact> userEmergencyContacts;
+  private List<UserEmergencyContactDto> userEmergencyContacts;
 }

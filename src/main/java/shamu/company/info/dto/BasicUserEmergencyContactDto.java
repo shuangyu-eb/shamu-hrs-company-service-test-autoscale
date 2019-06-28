@@ -12,22 +12,22 @@ import shamu.company.info.entity.UserEmergencyContact;
 public class BasicUserEmergencyContactDto {
 
   @HashidsFormat
-  public Long id;
+  private Long id;
 
   @HashidsFormat
-  public Long userId;
+  private Long userId;
 
-  public String firstName;
+  private String firstName;
 
-  public String lastName;
+  private String lastName;
 
-  public String relationship;
+  private String relationship;
 
-  public String phone;
+  private String phone;
 
-  public String email;
+  private String email;
 
-  public Boolean isPrimary;
+  private Boolean isPrimary;
 
 
   public BasicUserEmergencyContactDto(UserEmergencyContact userEmergencyContact) {

@@ -27,6 +27,7 @@ import shamu.company.email.Email;
 import shamu.company.email.EmailService;
 import shamu.company.employee.dto.EmployeeListSearchCondition;
 import shamu.company.employee.dto.OrgChartDto;
+import shamu.company.info.dto.UserEmergencyContactDto;
 import shamu.company.info.entity.UserEmergencyContact;
 import shamu.company.info.service.UserEmergencyContactService;
 import shamu.company.job.dto.JobUserDto;
@@ -320,9 +321,13 @@ public class UserServiceImpl implements UserService {
     List<UserEmergencyContact> userEmergencyContacts = userEmergencyContactService
         .getUserEmergencyContacts(id);
 
+    List<UserEmergencyContactDto> userEmergencyContactDtos =
+        userEmergencyContacts.stream()
+            .map(UserEmergencyContactDto::new).collect(Collectors.toList());
+
     return new AccountInfoDto(
         userPersonalInformationDto, headPortrait, userAddress,
-        userContactInformationDto, userEmergencyContacts);
+        userContactInformationDto, userEmergencyContactDtos);
   }
 
   @Override
