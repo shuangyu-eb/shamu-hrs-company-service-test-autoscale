@@ -63,4 +63,10 @@ public interface TimeOffRequestRepository extends BaseRepository<TimeOffRequest,
       List<String> timeOffRequestApprovalStatus);
 
   List<TimeOffRequest> findByRequesterUserId(Long id);
+
+  @Query(
+      value = "SELECT * FROM time_off_requests "
+          + "WHERE deleted_at IS NULL AND time_off_policy_id = ?1",
+      nativeQuery = true)
+  List<TimeOffRequest> findByTimeOffPolicyId(Long timeOffPolicyId);
 }

@@ -33,4 +33,6 @@ public interface TimeOffRequestService {
 
   TimeOffRequest updateTimeOffRequest(TimeOffRequest timeOffRequest);
 
+  List<TimeOffRequest> getTimeOffRequestsByTimeOffPolicyId(Long id);
+
 }

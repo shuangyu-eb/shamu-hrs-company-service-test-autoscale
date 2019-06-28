@@ -50,4 +50,6 @@ public interface TimeOffPolicyService {
 
   void updateTimeOffPolicyUserInfo(
       List<TimeOffPolicyUserPojo> userStatBalances, Long timeOffPolicyId);
+
+  void deleteTimeOffPolicy(Long timeOffPolicyId);
 }

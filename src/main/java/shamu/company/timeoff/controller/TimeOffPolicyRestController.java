@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -128,5 +132,11 @@ public class TimeOffPolicyRestController extends BaseRestController {
       @PathVariable Long policyId) {
     Company company = this.getUser().getCompany();
     return timeOffPolicyService.getAllEmployeesByTimeOffPolicyId(policyId, company);
+  }
+
+  @DeleteMapping("time-off/{policyId}")
+  public HttpEntity deleteTimeOffPolicy(@PathVariable @HashidsFormat Long policyId) {
+    timeOffPolicyService.deleteTimeOffPolicy(policyId);
+    return new ResponseEntity<>(HttpStatus.OK);
   }
 }

@@ -233,6 +233,11 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
     return timeOffRequest;
   }
 
+  @Override
+  public List<TimeOffRequest> getTimeOffRequestsByTimeOffPolicyId(Long id) {
+    return timeOffRequestRepository.findByTimeOffPolicyId(id);
+  }
+
   private long getConflictOfTimeOffRequest(TimeOffRequest timeOffRequest) {
     LocalDate start = timeOffRequest.getStartDay().toLocalDateTime().toLocalDate();
     LocalDate end = timeOffRequest.getEndDay().toLocalDateTime().toLocalDate();
