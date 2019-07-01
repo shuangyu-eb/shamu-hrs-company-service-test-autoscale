@@ -21,14 +21,15 @@ import shamu.company.timeoff.dto.TimeOffPolicyRelatedInfoDto;
 import shamu.company.timeoff.dto.TimeOffPolicyRelatedUserDto;
 import shamu.company.timeoff.dto.TimeOffPolicyRelatedUserListDto;
 import shamu.company.timeoff.entity.AccrualScheduleMilestone;
+import shamu.company.timeoff.entity.TimeOffAdjustment;
 import shamu.company.timeoff.entity.TimeOffPolicy;
 import shamu.company.timeoff.entity.TimeOffPolicyAccrualSchedule;
 import shamu.company.timeoff.entity.TimeOffPolicyUser;
 import shamu.company.timeoff.entity.TimeOffRequest;
-import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus;
 import shamu.company.timeoff.pojo.TimeOffPolicyPojo;
 import shamu.company.timeoff.pojo.TimeOffPolicyUserPojo;
 import shamu.company.timeoff.repository.AccrualScheduleMilestoneRepository;
+import shamu.company.timeoff.repository.TimeOffAdjustmentRepository;
 import shamu.company.timeoff.repository.TimeOffPolicyAccrualScheduleRepository;
 import shamu.company.timeoff.repository.TimeOffPolicyRepository;
 import shamu.company.timeoff.repository.TimeOffPolicyUserRepository;
@@ -54,6 +55,8 @@ public class TimeOffPolicyServiceImpl implements TimeOffPolicyService {
 
   private final TimeOffRequestRepository timeOffRequestRepository;
 
+  private final TimeOffAdjustmentRepository timeOffAdjustmentRepository;
+
   @Autowired
   public TimeOffPolicyServiceImpl(
       TimeOffPolicyRepository timeOffPolicyRepository,
@@ -62,7 +65,8 @@ public class TimeOffPolicyServiceImpl implements TimeOffPolicyService {
       TimeOffPolicyAccrualScheduleRepository timeOffPolicyAccrualScheduleRepository,
       JobUserRepository jobUserRepository,
       UserRepository userRepository,
-      TimeOffRequestRepository timeOffRequestRepository) {
+      TimeOffRequestRepository timeOffRequestRepository,
+      TimeOffAdjustmentRepository timeOffAdjustmentRepository) {
     this.timeOffPolicyRepository = timeOffPolicyRepository;
     this.timeOffPolicyUserRepository = timeOffPolicyUserRepository;
     this.accrualScheduleMilestoneRepository = accrualScheduleMilestoneRepository;
@@ -70,6 +74,7 @@ public class TimeOffPolicyServiceImpl implements TimeOffPolicyService {
     this.jobUserRepository = jobUserRepository;
     this.userRepository = userRepository;
     this.timeOffRequestRepository = timeOffRequestRepository;
+    this.timeOffAdjustmentRepository = timeOffAdjustmentRepository;
   }
 
   @Override
@@ -295,5 +300,19 @@ public class TimeOffPolicyServiceImpl implements TimeOffPolicyService {
             && request.getTimeOffApprovalStatus() != DENIED)
         .forEach(request -> timeOffRequestRepository.delete(request.getId()));
     timeOffPolicyRepository.delete(timeOffPolicyId);
+  }
+
+  @Override
+  public List<TimeOffPolicyUser> getAllPolicyUsersByPolicyId(Long id) {
+    return timeOffPolicyUserRepository.findAllByTimeOffPolicyId(id);
+  }
+
+  @Override
+  public void enrollTimeOffHours(List<TimeOffPolicyUser> users,
+      TimeOffPolicy enrollPolicy, User currentUser) {
+    users.stream().forEach(user -> {
+      TimeOffAdjustment timeOffAdjustment = new TimeOffAdjustment(user,enrollPolicy,currentUser);
+      timeOffAdjustmentRepository.save(timeOffAdjustment);
+    });
   }
 }

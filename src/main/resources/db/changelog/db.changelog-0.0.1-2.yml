@@ -1767,3 +1767,71 @@ databaseChangeLog:
               name: enrolled
               type: BOOLEAN
           tableName: benefit_plans_users
+
+- changeSet:
+      id: 1561343783113-1
+      author: max-eb
+      changes:
+      - createTable:
+              columns:
+                  - column:
+                        name: id
+                        type: BIGINT
+                        autoIncrement: true
+                        constraints:
+                            primaryKey: true
+                  - column:
+                        name: user_id
+                        type: BIGINT
+                  - column:
+                        name: company_id
+                        type: BIGINT
+                  - column:
+                        name: adjuster_user_id
+                        type: BIGINT
+                  - column:
+                        name: amount
+                        type: INT
+                  - column:
+                        name: time_off_policy_id
+                        type: BIGINT
+                  - column:
+                        name: created_at
+                        type: datetime
+                  - column:
+                        name: comment
+                        type: TEXT
+              tableName: time_off_adjustments
+
+- changeSet:
+      id: 1561960639669-7
+      author: shuangyu-eb
+      changes:
+          - addForeignKeyConstraint:
+                baseColumnNames: user_id
+                baseTableName: time_off_adjustments
+                constraintName: fk_time_off_adjustments_users
+                referencedColumnNames: id
+                referencedTableName: users
+
+- changeSet:
+      id: 1561960885022-8
+      author: shuangyu-eb
+      changes:
+          - addForeignKeyConstraint:
+                baseColumnNames: time_off_policy_id
+                baseTableName: time_off_adjustments
+                constraintName: fk_time_off_adjustments_policies
+                referencedColumnNames: id
+                referencedTableName: time_off_policies
+
+- changeSet:
+      id: 1561961059195-9
+      author: shuangyu-eb
+      changes:
+          - addForeignKeyConstraint:
+                baseColumnNames: company_id
+                baseTableName: time_off_adjustments
+                constraintName: fk_time_off_adjustments_companies
+                referencedColumnNames: id
+                referencedTableName: companies

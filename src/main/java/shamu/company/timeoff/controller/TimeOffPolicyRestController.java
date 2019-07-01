@@ -139,4 +139,16 @@ public class TimeOffPolicyRestController extends BaseRestController {
     timeOffPolicyService.deleteTimeOffPolicy(policyId);
     return new ResponseEntity<>(HttpStatus.OK);
   }
+
+  @DeleteMapping("time-off-policies/{policyId}/{rollId}")
+  public HttpEntity enrollTimeOffPolicy(@PathVariable @HashidsFormat Long policyId,
+      @PathVariable @HashidsFormat Long rollId) {
+    User user = this.getUser();
+    List<TimeOffPolicyUser> deletedPolicyUsers = timeOffPolicyService
+        .getAllPolicyUsersByPolicyId(policyId);
+    TimeOffPolicy enrollPolicy = timeOffPolicyService.getTimeOffPolicyById(rollId);
+    timeOffPolicyService.enrollTimeOffHours(deletedPolicyUsers,enrollPolicy,user);
+    timeOffPolicyService.deleteTimeOffPolicy(policyId);
+    return new ResponseEntity<>(HttpStatus.OK);
+  }
 }

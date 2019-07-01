@@ -52,4 +52,8 @@ public interface TimeOffPolicyService {
       List<TimeOffPolicyUserPojo> userStatBalances, Long timeOffPolicyId);
 
   void deleteTimeOffPolicy(Long timeOffPolicyId);
+
+  List<TimeOffPolicyUser> getAllPolicyUsersByPolicyId(Long id);
+
+  void enrollTimeOffHours(List<TimeOffPolicyUser> users,TimeOffPolicy enrollPolicy,User currentU);
 }
