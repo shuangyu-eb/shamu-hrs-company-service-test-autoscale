@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import shamu.company.timeoff.dto.MyTimeOffDto;
 import shamu.company.timeoff.entity.TimeOffRequest;
 import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus;
+import shamu.company.timeoff.entity.TimeOffRequestComment;
 import shamu.company.user.entity.User;
 
 @Service
@@ -31,7 +32,8 @@ public interface TimeOffRequestService {
 
   void sendTimeOffRequestEmail(TimeOffRequest timeOffRequest);
 
-  TimeOffRequest updateTimeOffRequest(TimeOffRequest timeOffRequest);
+  TimeOffRequest updateTimeOffRequest(TimeOffRequest timeOffRequest,
+      TimeOffRequestComment timeOffRequestComment);
 
   List<TimeOffRequest> getTimeOffRequestsByTimeOffPolicyId(Long id);
 

@@ -16,7 +16,7 @@ public class BeanUtils {
       Stream.of(beanInfo.getPropertyDescriptors()).forEach(descriptor -> {
 
         // Only copy writable attributes
-        if (descriptor.getWriteMethod() != null) {
+        if (descriptor.getWriteMethod() != null && descriptor.getReadMethod() != null) {
           try {
             Object originalValue = descriptor.getReadMethod().invoke(target);
             // Only copy values values where the target values is null

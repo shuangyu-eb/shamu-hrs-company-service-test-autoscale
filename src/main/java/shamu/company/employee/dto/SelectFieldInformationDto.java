@@ -1,10 +1,12 @@
 package shamu.company.employee.dto;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import shamu.company.hashids.HashidsFormat;
 
 @Data
+@NoArgsConstructor
 public class SelectFieldInformationDto {
 
   @HashidsFormat

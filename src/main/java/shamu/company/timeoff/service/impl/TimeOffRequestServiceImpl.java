@@ -4,6 +4,7 @@ import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.APPROVED
 import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.DENIED;
 
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Date;
@@ -25,6 +26,7 @@ import shamu.company.timeoff.dto.TimeOffRequestDto;
 import shamu.company.timeoff.entity.TimeOffPolicyUser;
 import shamu.company.timeoff.entity.TimeOffRequest;
 import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus;
+import shamu.company.timeoff.entity.TimeOffRequestComment;
 import shamu.company.timeoff.repository.TimeOffPolicyUserRepository;
 import shamu.company.timeoff.repository.TimeOffRequestRepository;
 import shamu.company.timeoff.service.TimeOffRequestService;
@@ -32,7 +34,6 @@ import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserRole.Role;
 import shamu.company.user.repository.UserRepository;
 import shamu.company.utils.AwsUtil;
-import shamu.company.utils.BeanUtils;
 import shamu.company.utils.DateUtil;
 
 @Service
@@ -70,7 +71,8 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
   @Override
   public List<TimeOffRequest> getByApproverAndStatus(User approver,
       TimeOffRequestApprovalStatus[] status) {
-    return timeOffRequestRepository.findByApproverUserAndTimeOffApprovalStatusIn(approver, status);
+    return timeOffRequestRepository
+        .findByApproversContainsAndTimeOffApprovalStatusIn(approver, status);
   }
 
   @Override
@@ -180,10 +182,10 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
       template = "time_off_request_approve_deny.html";
       email = new Email(approver, requester, subject);
 
-      variables.put("approverComment", timeOffRequest.getApproverComment());
+      variables.put("approverComments", timeOffRequest.getApproverComments());
       variables.put("approverId", approver.getId());
       variables.put("approverName", approver.getUserPersonalInformation().getName());
-      variables.put("approverImageUrl", awsUtil.getFullFileUrl(approver.getImageUrl()));
+      variables.put("approverImageUrl", approver.getImageUrl());
     } else {
       email = new Email(requester, approver, "Time Off Request");
       template = "time_off_request_pending.html";
@@ -204,27 +206,33 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
   }
 
   @Override
-  public TimeOffRequest updateTimeOffRequest(TimeOffRequest timeOffRequest) {
+  public TimeOffRequest updateTimeOffRequest(TimeOffRequest timeOffRequest,
+      TimeOffRequestComment timeOffRequestComment) {
     TimeOffRequest original = this.getById(timeOffRequest.getId());
-    BeanUtils.merge(original, timeOffRequest);
 
     TimeOffRequestApprovalStatus status = timeOffRequest.getTimeOffApprovalStatus();
     TimeOffRequestApprovalStatus originalStatus = original.getTimeOffApprovalStatus();
-
+    original.setTimeOffApprovalStatus(status);
+    original.setApprovedDate(Timestamp.from(Instant.now()));
     if (status != originalStatus && (status == APPROVED || originalStatus == APPROVED)) {
       TimeOffPolicyUser timeOffPolicyUser = timeOffPolicyUserRepository
-          .findTimeOffPolicyUserByUserAndTimeOffPolicy(timeOffRequest.getRequesterUser(),
-              timeOffRequest.getTimeOffPolicy());
-
+          .findTimeOffPolicyUserByUserAndTimeOffPolicy(original.getRequesterUser(),
+              original.getTimeOffPolicy());
+      Integer balance = timeOffPolicyUser.getBalance();
+      Integer hours = original.getHours();
       if (status == APPROVED) {
-        timeOffPolicyUser.setBalance(timeOffPolicyUser.getBalance() - timeOffRequest.getHours());
+        balance += hours;
       } else {
-        timeOffPolicyUser.setBalance(timeOffPolicyUser.getBalance() + timeOffRequest.getHours());
+        balance -= hours;
       }
+      timeOffPolicyUser.setBalance(balance);
       timeOffPolicyUserRepository.save(timeOffPolicyUser);
     }
+    if (timeOffRequestComment != null) {
+      original.setComment(timeOffRequestComment);
+    }
 
-    timeOffRequest = timeOffRequestRepository.save(timeOffRequest);
+    timeOffRequest = timeOffRequestRepository.save(original);
 
     if (status == APPROVED || status == DENIED) {
       this.sendTimeOffRequestEmail(timeOffRequest);
@@ -274,10 +282,10 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
     variables.put("status", timeOffRequest.getTimeOffApprovalStatus().name());
     variables.put("type", timeOffRequest.getTimeOffPolicy().getName());
     variables.put("hours", timeOffRequest.getHours());
-    variables.put("comment", timeOffRequest.getComment());
-    variables.put("requesterImageUrl",
-        awsUtil.getFullFileUrl(timeOffRequest.getRequesterUser().getImageUrl()));
+    variables.put("comment", timeOffRequest.getRequsterComment());
+    variables.put("requesterImageUrl", timeOffRequest.getRequesterUser().getImageUrl());
     variables.put("helpUrl", applicationConfig.getHelpUrl());
+    variables.put("pathPrefix", awsUtil.getAwsPath());
 
     return variables;
   }

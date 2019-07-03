@@ -11,7 +11,7 @@ import shamu.company.user.entity.User;
 public interface TimeOffRequestRepository extends BaseRepository<TimeOffRequest, Long>,
     TimeOffRequestCustomRepository {
 
-  List<TimeOffRequest> findByApproverUserAndTimeOffApprovalStatusIn(User approver,
+  List<TimeOffRequest> findByApproversContainsAndTimeOffApprovalStatusIn(User approver,
       TimeOffRequestApprovalStatus[] timeOffRequestApprovalStatus);
 
   @Query("select t "

@@ -25,6 +25,7 @@ import shamu.company.timeoff.dto.TimeOffRequestUpdateDto;
 import shamu.company.timeoff.entity.TimeOffPolicy;
 import shamu.company.timeoff.entity.TimeOffRequest;
 import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus;
+import shamu.company.timeoff.entity.TimeOffRequestComment;
 import shamu.company.timeoff.entity.TimeOffRequestDate;
 import shamu.company.timeoff.pojo.TimeOffRequestPojo;
 import shamu.company.timeoff.service.TimeOffPolicyService;
@@ -155,7 +156,15 @@ public class TimeOffRequestRestController extends BaseRestController {
     if (status == APPROVED || status == DENIED) {
       timeOffRequest.setApproverUser(this.getUser());
     }
-    timeOffRequest = timeOffRequestService.updateTimeOffRequest(timeOffRequest);
+    TimeOffRequestComment comment = null;
+    if (updateDto.getApproverComment() != null && updateDto.getApproverComment().length() > 0) {
+      comment = new TimeOffRequestComment();
+      comment.setTimeOffRequestId(id);
+      comment.setComment(updateDto.getApproverComment());
+      comment.setUser(this.getUser());
+    }
+
+    timeOffRequest = timeOffRequestService.updateTimeOffRequest(timeOffRequest, comment);
 
     return new TimeOffRequestDto(timeOffRequest);
   }

@@ -164,8 +164,12 @@ public class AwsUtil {
     }
   }
 
+  public String getAwsPath() {
+    return "https://" + this.bucketName + ".s3.amazonaws.com/";
+  }
+
   public String getFullFileUrl(String path) {
-    return "https://" + this.bucketName + ".s3.amazonaws.com/" + path;
+    return this.getAwsPath() + path;
   }
 
   public enum Type {

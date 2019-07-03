@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import shamu.company.hashids.HashidsFormat;
 import shamu.company.timeoff.entity.TimeOffRequest;
+import shamu.company.timeoff.entity.TimeOffRequestComment;
 import shamu.company.timeoff.entity.TimeOffRequestDate;
 import shamu.company.user.entity.User;
 
@@ -30,8 +31,9 @@ public class TimeOffRequestPojo {
   public TimeOffRequest getTimeOffRequest(User requester) {
     TimeOffRequest timeOffRequest = new TimeOffRequest();
     timeOffRequest.setRequesterUser(requester);
-    timeOffRequest.setApproverUser(requester.getManagerUser());
-    timeOffRequest.setComment(comment);
+    timeOffRequest.setApprover(requester.getManagerUser());
+    TimeOffRequestComment timeOffRequestComment = new TimeOffRequestComment(requester, comment);
+    timeOffRequest.setComment(timeOffRequestComment);
     return timeOffRequest;
   }
 

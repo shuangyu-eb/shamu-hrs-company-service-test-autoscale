@@ -15,7 +15,6 @@ public class TimeOffRequestUpdateDto {
   @JSONField(serialize = false)
   public TimeOffRequest getTimeOffRequest() {
     TimeOffRequest timeOffRequest = new TimeOffRequest();
-    timeOffRequest.setApproverComment(approverComment);
     timeOffRequest.setTimeOffApprovalStatus(status);
     return timeOffRequest;
   }

@@ -38,7 +38,7 @@ public class TimeOffRequestDto {
   public TimeOffRequestDto(TimeOffRequest timeOffRequest) {
     this.id = timeOffRequest.getId();
     this.status = timeOffRequest.getTimeOffApprovalStatus();
-    this.comment = timeOffRequest.getComment();
+    this.comment = timeOffRequest.getRequsterComment();
 
     this.createdAt = timeOffRequest.getCreatedAt();
     User requester = timeOffRequest.getRequesterUser();

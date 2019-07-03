@@ -1835,3 +1835,102 @@ databaseChangeLog:
                 constraintName: fk_time_off_adjustments_companies
                 referencedColumnNames: id
                 referencedTableName: companies
+
+- changeSet:
+    id: 1561705799235-86
+    author: Qi-Jia
+    preConditions:
+      onFail: MARK_RAN
+      not:
+        tableExists:
+          tableName: time_off_request_comments
+    changes:
+      - createTable:
+          columns:
+            - column:
+                name: id
+                type: BIGINT
+                autoIncrement: true
+                constraints:
+                  primaryKey: true
+            - column:
+                name: time_off_request_id
+                type: BIGINT
+                constraints:
+                  foreignKeyName: fk_time_off_comments_requests
+                  references: time_off_requests(id)
+            - column:
+                name: user_id
+                type: BIGINT
+                constraints:
+                  foreignKeyName: fk_time_off_comments_users
+                  references: users(id)
+            - column:
+                name: comment
+                type: TEXT
+            - column:
+                name: created_at
+                type: DATETIME
+            - column:
+                name: updated_at
+                type: DATETIME
+            - column:
+                name: deleted_at
+                type: DATETIME
+          tableName: time_off_request_comments
+
+
+- changeSet:
+    id: 1561705799235-87
+    author: Qi-Jia
+    preConditions:
+      onFail: MARK_RAN
+      columnExists:
+        columnName: comment
+        tableName: time_off_requests
+    changes:
+      - dropColumn:
+          columnName: comment
+          tableName: time_off_requests
+
+- changeSet:
+    id: 1561705799235-88
+    author: Qi-Jia
+    preConditions:
+      onFail: MARK_RAN
+      not:
+        tableExists:
+          tableName: time_off_requests_approvers
+    changes:
+      - createTable:
+          columns:
+            - column:
+                name: time_off_request_id
+                type: BIGINT
+                constraints:
+                  foreignKeyName: fk_time_off_requests_approvers_requests
+                  references: time_off_requests(id)
+            - column:
+                name: approver_user_id
+                type: BIGINT
+                constraints:
+                  foreignKeyName: fk_time_off_requests_approvers_users
+                  references: users(id)
+          tableName: time_off_requests_approvers
+      - addUniqueConstraint:
+          columnNames: time_off_request_id, approver_user_id
+          constraintName: pk_time_off_requests_approvers
+          tableName: time_off_requests_approvers
+
+- changeSet:
+    id: 1561705799235-89
+    author: Qi-Jia
+    preConditions:
+      onFail: MARK_RAN
+      columnExists:
+        columnName: approver_comment
+        tableName: time_off_requests
+    changes:
+      - dropColumn:
+          columnName: approver_comment
+          tableName: time_off_requests

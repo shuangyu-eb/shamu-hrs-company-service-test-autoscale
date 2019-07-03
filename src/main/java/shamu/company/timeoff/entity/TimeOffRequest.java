@@ -1,13 +1,20 @@
 package shamu.company.timeoff.entity;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -41,15 +48,44 @@ public class TimeOffRequest extends BaseEntity {
 
   private Timestamp expiresAt;
 
-  @Column(columnDefinition = "TEXT")
-  private String comment;
-
-  @Column(columnDefinition = "TEXT")
-  private String approverComment;
-
-  @OneToMany(fetch = FetchType.EAGER)
+  @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
   @JoinColumn(name = "time_off_request_id")
-  private Set<TimeOffRequestDate> timeOffRequestDates;
+  private List<TimeOffRequestComment> comments = new ArrayList<>();
+
+  @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+  @JoinColumn(name = "time_off_request_id")
+  private Set<TimeOffRequestDate> timeOffRequestDates = new HashSet<>();
+
+  @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+  @JoinTable(name = "time_off_requests_approvers",
+      joinColumns = @JoinColumn(name = "time_off_request_id"),
+      inverseJoinColumns = @JoinColumn(name = "approver_user_id"))
+  private Set<User> approvers = new HashSet<>();
+
+
+  public void setApprover(User user) {
+    this.approvers.add(user);
+  }
+
+  public void setComment(TimeOffRequestComment comment) {
+    this.comments.add(comment);
+  }
+
+  public String getRequsterComment() {
+    List<TimeOffRequestComment> requestComments = comments.stream()
+        .filter(comment -> comment.getUser().getId().equals(this.requesterUser.getId()))
+        .collect(Collectors.toList());
+    if (!requestComments.isEmpty()) {
+      return requestComments.get(0).getComment();
+    }
+    return null;
+  }
+
+  public List<TimeOffRequestComment> getApproverComments() {
+    return this.comments.stream()
+        .filter(comment -> !comment.getUser().getId().equals(this.requesterUser.getId()))
+        .collect(Collectors.toList());
+  }
 
   public Timestamp getStartDay() {
     if (this.checkEmpty()) {
@@ -80,6 +116,6 @@ public class TimeOffRequest extends BaseEntity {
   }
 
   private boolean checkEmpty() {
-    return this.timeOffRequestDates == null || this.timeOffRequestDates.isEmpty();
+    return this.timeOffRequestDates.isEmpty();
   }
 }

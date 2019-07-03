@@ -1,23 +1,42 @@
 package shamu.company.timeoff.dto;
 
+import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.Data;
+import shamu.company.employee.dto.SelectFieldInformationDto;
 import shamu.company.hashids.HashidsFormat;
 import shamu.company.timeoff.entity.TimeOffRequest;
+import shamu.company.user.entity.User;
 
 @Data
 public class TimeOffRequestDetailDto extends TimeOffRequestDto {
 
-  List<BasicTimeOffRequestDto> otherTimeOffRequests;
   @HashidsFormat
   private Long userId;
+
   private Integer balance;
-  private String approverComment;
+
+  private SelectFieldInformationDto approver;
+
+  private List<BasicTimeOffRequestDto> otherTimeOffRequests = new LinkedList<>();
+
+  private List<TimeOffRequestCommentDto> approverComments;
 
   public TimeOffRequestDetailDto(TimeOffRequest timeOffRequest) {
     super(timeOffRequest);
     this.userId = timeOffRequest.getRequesterUser().getId();
-    this.approverComment = timeOffRequest.getApproverComment();
+    User approverUser = timeOffRequest.getApproverUser();
+    if (approverUser != null) {
+      SelectFieldInformationDto aprrover = new SelectFieldInformationDto();
+      aprrover.setId(approverUser.getId());
+      aprrover.setName(approverUser.getUserPersonalInformation().getName());
+      this.approver = aprrover;
+    }
+
+    this.approverComments = timeOffRequest.getApproverComments()
+        .stream().map(TimeOffRequestCommentDto::new)
+        .collect(Collectors.toList());
   }
 
 }
