@@ -1,7 +1,6 @@
 package shamu.company.timeoff.entity;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -50,13 +49,13 @@ public class TimeOffRequest extends BaseEntity {
 
   @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
   @JoinColumn(name = "time_off_request_id")
-  private List<TimeOffRequestComment> comments = new ArrayList<>();
+  private Set<TimeOffRequestComment> comments = new HashSet<>();
 
   @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
   @JoinColumn(name = "time_off_request_id")
   private Set<TimeOffRequestDate> timeOffRequestDates = new HashSet<>();
 
-  @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+  @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
   @JoinTable(name = "time_off_requests_approvers",
       joinColumns = @JoinColumn(name = "time_off_request_id"),
       inverseJoinColumns = @JoinColumn(name = "approver_user_id"))

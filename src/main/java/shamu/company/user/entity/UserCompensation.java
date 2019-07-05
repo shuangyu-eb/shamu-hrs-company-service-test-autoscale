@@ -1,14 +1,13 @@
 package shamu.company.user.entity;
 
 import java.sql.Timestamp;
+import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 import org.hibernate.annotations.Where;
 import shamu.company.common.entity.BaseEntity;
 import shamu.company.job.entity.CompensationFrequency;
@@ -28,9 +27,8 @@ public class UserCompensation extends BaseEntity {
 
   private String overtimeStatus;
 
-  @OneToOne(fetch = FetchType.LAZY)
-  @ToString.Exclude
-  private User user;
+  @Column(name = "user_id")
+  private Long userId;
 
   @OneToOne
   private CompensationType compensationType;

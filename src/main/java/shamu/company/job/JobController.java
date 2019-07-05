@@ -48,7 +48,7 @@ public class JobController extends BaseRestController {
 
     UserCompensation userCompensation = jobUpdateDto
         .updateUserCompensation(user.getUserCompensation());
-    userCompensation.setUser(user);
+    userCompensation.setUserId(user.getId());
     userCompensation = userService.saveUserCompensation(userCompensation);
 
     user.setUserCompensation(userCompensation);

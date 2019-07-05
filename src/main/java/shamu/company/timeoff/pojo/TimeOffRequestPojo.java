@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.logging.log4j.util.Strings;
 import shamu.company.hashids.HashidsFormat;
 import shamu.company.timeoff.entity.TimeOffRequest;
 import shamu.company.timeoff.entity.TimeOffRequestComment;
@@ -32,8 +33,11 @@ public class TimeOffRequestPojo {
     TimeOffRequest timeOffRequest = new TimeOffRequest();
     timeOffRequest.setRequesterUser(requester);
     timeOffRequest.setApprover(requester.getManagerUser());
-    TimeOffRequestComment timeOffRequestComment = new TimeOffRequestComment(requester, comment);
-    timeOffRequest.setComment(timeOffRequestComment);
+    if (Strings.isNotBlank(comment)) {
+      TimeOffRequestComment timeOffRequestComment = new TimeOffRequestComment(requester, comment);
+      timeOffRequest.setComment(timeOffRequestComment);
+    }
+
     return timeOffRequest;
   }
 

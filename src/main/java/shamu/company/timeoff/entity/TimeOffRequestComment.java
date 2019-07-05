@@ -2,6 +2,7 @@ package shamu.company.timeoff.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.Data;
@@ -20,7 +21,7 @@ public class TimeOffRequestComment extends BaseEntity {
   @Column(name = "time_off_request_id")
   private Long timeOffRequestId;
 
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   private User user;
 
   @Column(columnDefinition = "TEXT")

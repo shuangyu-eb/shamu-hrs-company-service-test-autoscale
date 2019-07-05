@@ -53,8 +53,6 @@ import shamu.company.user.repository.GenderRepository;
 import shamu.company.user.repository.MaritalStatusRepository;
 import shamu.company.user.repository.UserAddressRepository;
 import shamu.company.user.repository.UserCompensationRepository;
-import shamu.company.user.repository.UserContactInformationRepository;
-import shamu.company.user.repository.UserPersonalInformationRepository;
 import shamu.company.user.repository.UserRepository;
 import shamu.company.user.repository.UserRoleRepository;
 import shamu.company.user.repository.UserStatusRepository;
@@ -342,7 +340,7 @@ public class EmployeeServiceImpl implements EmployeeService {
           .getOne(compensationFrequencyId);
       userCompensation.setCompensationFrequency(compensationFrequency);
     }
-    userCompensation.setUser(user);
+    userCompensation.setUserId(user.getId());
     userCompensationRepository.save(userCompensation);
   }
 
