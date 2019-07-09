@@ -1,21 +1,20 @@
 package shamu.company.timeoff.service;
 
 import java.util.List;
+import shamu.company.company.entity.Company;
 import shamu.company.timeoff.dto.PaidHolidayDto;
-import shamu.company.timeoff.entity.PaidHoliday;
-import shamu.company.timeoff.pojo.PaidHolidayPojo;
 
 public interface PaidHolidayService {
 
-  void createPaidHolidays(Long companyId);
+  void initDefaultPaidHolidays(Company company);
 
-  PaidHolidayDto getPaidHolidays(Long companyId);
+  List<PaidHolidayDto>  getPaidHolidays(Long companyId);
 
-  void updateHolidaySelects(List<PaidHolidayPojo> holidaySelectValues);
+  void updateHolidaySelects(List<PaidHolidayDto> paidHolidayDtos);
 
-  void createPaidHoliday(PaidHoliday paidHoliday);
+  PaidHolidayDto createPaidHoliday(PaidHolidayDto paidHolidayDto, Company company);
 
-  void updatePaidHoliday(PaidHoliday paidHoliday);
+  void updatePaidHoliday(PaidHolidayDto paidHolidayDto);
 
   void deletePaidHoliday(Long id);
 }

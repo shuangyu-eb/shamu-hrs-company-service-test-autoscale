@@ -12,8 +12,6 @@ import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.company.entity.Company;
 import shamu.company.hashids.HashidsFormat;
 import shamu.company.timeoff.dto.PaidHolidayDto;
-import shamu.company.timeoff.entity.PaidHoliday;
-import shamu.company.timeoff.pojo.PaidHolidayPojo;
 import shamu.company.timeoff.service.PaidHolidayService;
 import shamu.company.user.entity.User;
 import shamu.company.user.service.UserService;
@@ -32,41 +30,36 @@ public class PaidHolidayRestController {
   }
 
   @GetMapping(value = "users/{userId}/paid-holidays")
-  public PaidHolidayDto getPaidHolidays(@HashidsFormat @PathVariable Long userId) {
+  public List<PaidHolidayDto> getPaidHolidays(@HashidsFormat @PathVariable Long userId) {
     User user = userService.findUserById(userId);
     Company company = user.getCompany();
     return paidHolidayService.getPaidHolidays(company.getId());
   }
 
-  @PostMapping(value = "paid-holidays")
+  @PostMapping(value = "paid-holidays/default")
   public void createInitialPaidHolidays(@RequestBody String workEmail) {
     User user = userService.findUserByEmail(workEmail);
     Company company = user.getCompany();
-    paidHolidayService.createPaidHolidays(company.getId());
+    paidHolidayService.initDefaultPaidHolidays(company);
   }
 
-  @PatchMapping(value = "paid-holidays")
-  public void updateHolidaySelects(@RequestBody List<PaidHolidayPojo> holidaySelectValues) {
-    paidHolidayService.updateHolidaySelects(holidaySelectValues);
+  @PatchMapping(value = "paid-holidays/select")
+  public void updateHolidaySelects(@RequestBody List<PaidHolidayDto> paidHolidayDtos) {
+    paidHolidayService.updateHolidaySelects(paidHolidayDtos);
   }
 
   @PostMapping(value = "users/{userId}/paid-holiday")
-  public void createPaidHoliday(
+  public PaidHolidayDto createPaidHoliday(
       @HashidsFormat @PathVariable Long userId,
-      @RequestBody PaidHoliday paidHoliday) {
+      @RequestBody PaidHolidayDto paidHolidayDto) {
     User user = userService.findUserById(userId);
     Company company = user.getCompany();
-    paidHoliday.setCompanyId(company.getId());
-    paidHoliday.setIsCustom(true);
-    paidHolidayService.createPaidHoliday(paidHoliday);
+    return paidHolidayService.createPaidHoliday(paidHolidayDto, company);
   }
 
-  @PatchMapping(value = "paid-holidays/{id}")
-  public void updatePaidHoliday(
-      @HashidsFormat @PathVariable Long id,
-      @RequestBody PaidHoliday paidHoliday) {
-    paidHoliday.setId(id);
-    paidHolidayService.updatePaidHoliday(paidHoliday);
+  @PatchMapping(value = "paid-holidays")
+  public void updatePaidHoliday(@RequestBody PaidHolidayDto paidHolidayDto) {
+    paidHolidayService.updatePaidHoliday(paidHolidayDto);
   }
 
   @DeleteMapping(value = "paid-holidays/{id}")

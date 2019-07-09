@@ -18,20 +18,28 @@ public interface PaidHolidayRepository extends BaseRepository<PaidHoliday, Long>
   )
   List<PaidHoliday> findByCompanyId(Long companyId);
 
-  @Modifying
-  @Transactional
   @Query(
-      value = "UPDATE paid_holidays SET name = ?2,"
-          + " holiday_date = ?3 WHERE id = ?1 AND deleted_at IS NULL",
+      value = "SELECT * FROM paid_holidays WHERE company_id IS NULL AND deleted_at IS NULL",
       nativeQuery = true
   )
-  void updateDetail(Long id, String name, Timestamp holidayDate);
+  List<PaidHoliday> findDefaultPaidHolidays();
 
   @Modifying
   @Transactional
   @Query(
-      value = "UPDATE paid_holidays SET is_select = ?2 WHERE id = ?1 AND deleted_at IS NULL",
+      value = "UPDATE paid_holidays SET name = ?2,"
+          + " date = ?3 WHERE id = ?1 AND deleted_at IS NULL",
       nativeQuery = true
   )
-  void updateHolidaySelect(Long id, Boolean isSelect);
+  void updateDetail(Long id, String name, String date);
+
+  @Modifying
+  @Transactional
+  @Query(
+      value = "UPDATE companies_paid_holidays "
+          + "SET is_selected = ?2 "
+          + "WHERE paid_holiday_id = ?1 AND deleted_at IS NULL",
+      nativeQuery = true
+  )
+  void updateHolidaySelect(Long id, Boolean isSelected);
 }

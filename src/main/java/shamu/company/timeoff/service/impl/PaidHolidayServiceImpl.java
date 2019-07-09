@@ -5,9 +5,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import shamu.company.company.entity.Company;
 import shamu.company.timeoff.dto.PaidHolidayDto;
+import shamu.company.timeoff.entity.CompanyPaidHoliday;
 import shamu.company.timeoff.entity.PaidHoliday;
-import shamu.company.timeoff.pojo.PaidHolidayPojo;
+import shamu.company.timeoff.repository.CompanyPaidHolidayRepository;
 import shamu.company.timeoff.repository.PaidHolidayRepository;
 import shamu.company.timeoff.service.PaidHolidayService;
 
@@ -16,57 +18,57 @@ public class PaidHolidayServiceImpl implements PaidHolidayService {
 
   private final PaidHolidayRepository paidHolidayRepository;
 
-  private List<String> paidHolidayNames = new ArrayList<>();
-
-  {
-    paidHolidayNames.add("New Year\'s Day");
-    paidHolidayNames.add("Martin Luther King Jr. Day");
-    paidHolidayNames.add("Washington's Birthday");
-    paidHolidayNames.add("Memorial Day");
-    paidHolidayNames.add("Independence Day");
-    paidHolidayNames.add("Columbus Day");
-    paidHolidayNames.add("Veterans Day");
-    paidHolidayNames.add("Thanksgiving Day");
-    paidHolidayNames.add("Christmas Day");
-  }
+  private final CompanyPaidHolidayRepository companyPaidHolidayRepository;
 
   @Autowired
-  public PaidHolidayServiceImpl(PaidHolidayRepository paidHolidayRepository) {
+  public PaidHolidayServiceImpl(PaidHolidayRepository paidHolidayRepository,
+      CompanyPaidHolidayRepository companyPaidHolidayRepository) {
     this.paidHolidayRepository = paidHolidayRepository;
+    this.companyPaidHolidayRepository = companyPaidHolidayRepository;
   }
 
   @Override
-  public void createPaidHolidays(Long companyId) {
-    List<PaidHoliday> paidHolidays = this.paidHolidayNames.stream().map(paidHolidayName ->
-        new PaidHoliday(companyId, paidHolidayName, false, null, false)
-    ).collect(Collectors.toList());
-    paidHolidayRepository.saveAll(paidHolidays);
+  public void initDefaultPaidHolidays(Company company) {
+    //TODO: query by country of company
+    List<PaidHoliday> defaultPaidHolidays = paidHolidayRepository.findDefaultPaidHolidays();
+    List<CompanyPaidHoliday> companyPaidHolidays = defaultPaidHolidays.stream()
+        .map(holiday -> new CompanyPaidHoliday(holiday, company, true))
+        .collect(Collectors.toList());
+    companyPaidHolidayRepository.saveAll(companyPaidHolidays);
   }
 
   @Override
-  public PaidHolidayDto getPaidHolidays(Long companyId) {
-    List<PaidHoliday> holidays = paidHolidayRepository.findByCompanyId(companyId);
-    // TODO get employeeNum
-    return new PaidHolidayDto(holidays, 12);
+  public List<PaidHolidayDto> getPaidHolidays(Long companyId) {
+    List<CompanyPaidHoliday> companyPaidHolidays = companyPaidHolidayRepository
+        .findAllByCompanyId(companyId);
+    return companyPaidHolidays.stream().map(PaidHolidayDto::new)
+        .collect(Collectors.toList());
   }
 
   @Override
-  public void updateHolidaySelects(List<PaidHolidayPojo> holidaySelectValues) {
-    holidaySelectValues.forEach(holidaySelectValue ->
+  public void updateHolidaySelects(List<PaidHolidayDto> holidaySelectDtos) {
+    holidaySelectDtos.forEach(holidaySelectDto ->
         paidHolidayRepository
-            .updateHolidaySelect(holidaySelectValue.getId(), holidaySelectValue.getIsSelect())
+            .updateHolidaySelect(holidaySelectDto.getId(), holidaySelectDto.getIsSelected())
     );
   }
 
   @Override
-  public void createPaidHoliday(PaidHoliday paidHoliday) {
-    paidHolidayRepository.save(paidHoliday);
+  public PaidHolidayDto createPaidHoliday(PaidHolidayDto paidHolidayDto, Company company) {
+    PaidHoliday paidHoliday = paidHolidayDto.covertToNewPaidHolidayEntity(company);
+    PaidHoliday paidHolidayReturned = paidHolidayRepository.save(paidHoliday);
+
+    CompanyPaidHoliday companyPaidHoliday = paidHolidayDto
+        .covertToNewCompanyPaidHolidayEntity(paidHolidayReturned);
+    CompanyPaidHoliday companyPaidHolidayReturned = companyPaidHolidayRepository
+        .save(companyPaidHoliday);
+    return new PaidHolidayDto(companyPaidHolidayReturned);
   }
 
   @Override
-  public void updatePaidHoliday(PaidHoliday paidHoliday) {
+  public void updatePaidHoliday(PaidHolidayDto paidHolidayDto) {
     paidHolidayRepository.updateDetail(
-        paidHoliday.getId(), paidHoliday.getName(), paidHoliday.getHolidayDate());
+        paidHolidayDto.getId(), paidHolidayDto.getName(), paidHolidayDto.getDate());
   }
 
   @Override
