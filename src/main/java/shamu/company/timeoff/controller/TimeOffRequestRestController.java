@@ -3,6 +3,8 @@ package shamu.company.timeoff.controller;
 import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.APPROVED;
 import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.DENIED;
 
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -77,6 +79,8 @@ public class TimeOffRequestRestController extends BaseRestController {
   ) {
     User user = this.userService.findUserById(userId);
     TimeOffRequest timeOffRequest = requestPojo.getTimeOffRequest(user);
+    timeOffRequest.setApproverUser(this.getUser());
+    timeOffRequest.setApprovedDate(Timestamp.from(Instant.now()));
 
     TimeOffRequest timeOffRequestReturned = saveTimeOffRequest(timeOffRequest,
         requestPojo.getPolicy(), APPROVED);
@@ -155,6 +159,7 @@ public class TimeOffRequestRestController extends BaseRestController {
     TimeOffRequestApprovalStatus status = updateDto.getStatus();
     if (status == APPROVED || status == DENIED) {
       timeOffRequest.setApproverUser(this.getUser());
+      timeOffRequest.setApprovedDate(Timestamp.from(Instant.now()));
     }
     TimeOffRequestComment comment = null;
     if (updateDto.getApproverComment() != null && updateDto.getApproverComment().length() > 0) {
