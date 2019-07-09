@@ -170,7 +170,6 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
 
   @Override
   public void sendTimeOffRequestEmail(TimeOffRequest timeOffRequest) {
-    User approver = timeOffRequest.getApproverUser();
     User requester = timeOffRequest.getRequesterUser();
     TimeOffRequestApprovalStatus status = timeOffRequest.getTimeOffApprovalStatus();
 
@@ -178,6 +177,8 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
     String template;
     Email email;
     if (status == APPROVED || status == TimeOffRequestApprovalStatus.DENIED) {
+      User approver = timeOffRequest.getApproverUser();
+
       String subject = "Time Off " + (status == APPROVED ? "Approved" : "Denied");
       template = "time_off_request_approve_deny.html";
       email = new Email(approver, requester, subject);
@@ -187,6 +188,7 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
       variables.put("approverName", approver.getUserPersonalInformation().getName());
       variables.put("approverImageUrl", approver.getImageUrl());
     } else {
+      User approver = (User) timeOffRequest.getApprovers().toArray()[0];
       email = new Email(requester, approver, "Time Off Request");
       template = "time_off_request_pending.html";
 
