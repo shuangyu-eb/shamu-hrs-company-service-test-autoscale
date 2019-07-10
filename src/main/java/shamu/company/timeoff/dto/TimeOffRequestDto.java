@@ -11,13 +11,11 @@ import shamu.company.utils.UserNameUtil;
 @Data
 public class TimeOffRequestDto {
 
-  @HashidsFormat
-  private Long id;
+  @HashidsFormat private Long id;
 
   private String imageUrl;
 
-  @HashidsFormat
-  private Long userId;
+  @HashidsFormat private Long userId;
 
   private String name;
 
@@ -39,17 +37,18 @@ public class TimeOffRequestDto {
     this.id = timeOffRequest.getId();
     this.status = timeOffRequest.getTimeOffApprovalStatus();
     this.comment = timeOffRequest.getRequsterComment();
+    this.comment = timeOffRequest.getRequsterComment();
 
     this.createdAt = timeOffRequest.getCreatedAt();
     User requester = timeOffRequest.getRequesterUser();
 
     this.imageUrl = requester.getImageUrl();
     this.userId = requester.getId();
-    this.name = UserNameUtil.getUserName(
-        requester.getUserPersonalInformation().getFirstName(),
-        requester.getUserPersonalInformation().getMiddleName(),
-        requester.getUserPersonalInformation().getLastName()
-    );
+    this.name =
+        UserNameUtil.getUserName(
+            requester.getUserPersonalInformation().getFirstName(),
+            requester.getUserPersonalInformation().getMiddleName(),
+            requester.getUserPersonalInformation().getLastName());
 
     this.type = timeOffRequest.getTimeOffPolicy().getName();
     this.hours = timeOffRequest.getHours();

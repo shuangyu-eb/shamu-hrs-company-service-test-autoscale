@@ -16,11 +16,13 @@ import shamu.company.company.entity.Company;
 @NoArgsConstructor
 public class TimeOffPolicy extends BaseEntity {
 
-  @ManyToOne
-  private Company company;
+  @ManyToOne private Company company;
 
   private String name;
 
   private Boolean isLimited;
 
+  public TimeOffPolicy(Long id) {
+    this.setId(id);
+  }
 }

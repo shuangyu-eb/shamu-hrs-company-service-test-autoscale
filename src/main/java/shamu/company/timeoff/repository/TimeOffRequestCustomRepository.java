@@ -4,5 +4,5 @@ import java.util.List;
 
 public interface TimeOffRequestCustomRepository {
 
-  List<Long> getTimeOffRequestHistoryIds(Long userId, Long startTime, Long endTime);
+  List<Long> getFilteredReviewedTimeOffRequestsIds(Long userId, Long startTime, Long endTime);
 }

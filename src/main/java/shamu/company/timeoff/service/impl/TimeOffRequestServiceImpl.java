@@ -23,11 +23,14 @@ import shamu.company.email.Email;
 import shamu.company.email.EmailService;
 import shamu.company.timeoff.dto.MyTimeOffDto;
 import shamu.company.timeoff.dto.TimeOffRequestDto;
+import shamu.company.timeoff.entity.TimeOffPolicy;
 import shamu.company.timeoff.entity.TimeOffPolicyUser;
 import shamu.company.timeoff.entity.TimeOffRequest;
 import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus;
 import shamu.company.timeoff.entity.TimeOffRequestComment;
+import shamu.company.timeoff.pojo.UnimplementedRequestPojo;
 import shamu.company.timeoff.repository.TimeOffPolicyUserRepository;
+import shamu.company.timeoff.repository.TimeOffRequestDateRepository;
 import shamu.company.timeoff.repository.TimeOffRequestRepository;
 import shamu.company.timeoff.service.TimeOffRequestService;
 import shamu.company.user.entity.User;
@@ -43,6 +46,8 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
 
   private final TimeOffPolicyUserRepository timeOffPolicyUserRepository;
 
+  private final TimeOffRequestDateRepository timeOffRequestDateRepository;
+
   private final UserRepository userRepository;
 
   private final ApplicationConfig applicationConfig;
@@ -54,11 +59,15 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
   private final AwsUtil awsUtil;
 
   @Autowired
-  public TimeOffRequestServiceImpl(TimeOffRequestRepository timeOffRequestRepository,
+  public TimeOffRequestServiceImpl(
+      TimeOffRequestRepository timeOffRequestRepository,
       TimeOffPolicyUserRepository timeOffPolicyUserRepository,
       UserRepository userRepository,
-      ApplicationConfig applicationConfig, EmailService emailService,
-      ITemplateEngine templateEngine, AwsUtil awsUtil) {
+      ApplicationConfig applicationConfig,
+      EmailService emailService,
+      ITemplateEngine templateEngine,
+      AwsUtil awsUtil,
+      TimeOffRequestDateRepository timeOffRequestDateRepository) {
     this.timeOffRequestRepository = timeOffRequestRepository;
     this.timeOffPolicyUserRepository = timeOffPolicyUserRepository;
     this.userRepository = userRepository;
@@ -66,25 +75,29 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
     this.emailService = emailService;
     this.templateEngine = templateEngine;
     this.awsUtil = awsUtil;
+    this.timeOffRequestDateRepository = timeOffRequestDateRepository;
   }
 
   @Override
-  public List<TimeOffRequest> getByApproverAndStatus(User approver,
-      TimeOffRequestApprovalStatus[] status) {
-    return timeOffRequestRepository
-        .findByApproversContainsAndTimeOffApprovalStatusIn(approver, status);
+  public List<TimeOffRequest> getByApproverAndStatus(
+      User approver, TimeOffRequestApprovalStatus[] status) {
+    return timeOffRequestRepository.findByApproversContainsAndTimeOffApprovalStatusIn(
+        approver, status);
   }
 
   @Override
   public Integer getCountByApproverAndStatusIsNoAction(User approver) {
-    return timeOffRequestRepository.countByApproverUserAndTimeOffApprovalStatus(approver,
-        TimeOffRequestApprovalStatus.NO_ACTION);
+    return timeOffRequestRepository.countByApproverUserAndTimeOffApprovalStatus(
+        approver, TimeOffRequestApprovalStatus.NO_ACTION);
   }
 
   @Override
   public TimeOffRequest getById(Long timeOffRequestId) {
-    return timeOffRequestRepository.findById(timeOffRequestId).orElseThrow(
-        () -> new ResourceNotFoundException("No time off request with id: " + timeOffRequestId));
+    return timeOffRequestRepository
+        .findById(timeOffRequestId)
+        .orElseThrow(
+            () ->
+                new ResourceNotFoundException("No time off request with id: " + timeOffRequestId));
   }
 
   @Override
@@ -98,21 +111,19 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
   }
 
   @Override
-  public List<TimeOffRequest> getRequestsByUserAndStatus(User user,
-      TimeOffRequestApprovalStatus[] status) {
+  public List<TimeOffRequest> getRequestsByUserAndStatus(
+      User user, TimeOffRequestApprovalStatus[] status) {
     List<TimeOffRequestApprovalStatus> statusList = Arrays.asList(status);
-    List<String> statusNames = statusList.stream().map(element -> element.name())
-        .collect(Collectors.toList());
+    List<String> statusNames = statusList.stream().map(Enum::name).collect(Collectors.toList());
 
     if (user.getRole().name().equals(Role.NON_MANAGER.name())) {
-      return timeOffRequestRepository
-          .employeeFindTeamRequests(user.getManagerUser().getId(), statusNames);
+      return timeOffRequestRepository.employeeFindTeamRequests(
+          user.getManagerUser().getId(), statusNames);
     } else if (user.getRole().name().equals(Role.MANAGER.name())) {
-      return timeOffRequestRepository
-          .managerFindTeamRequests(user.getId(), user.getManagerUser().getId(), statusNames);
+      return timeOffRequestRepository.managerFindTeamRequests(
+          user.getId(), user.getManagerUser().getId(), statusNames);
     } else {
-      return timeOffRequestRepository
-          .managerFindTeamRequests(user.getId(), null, statusNames);
+      return timeOffRequestRepository.managerFindTeamRequests(user.getId(), null, statusNames);
     }
   }
 
@@ -124,22 +135,12 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
 
     if (policiesAdded) {
       List<TimeOffRequest> timeOffRequests = timeOffRequestRepository.findByRequesterUserId(id);
-      List<TimeOffRequestDto> timeOffRequestDtos = timeOffRequests.stream()
-          .map(TimeOffRequestDto::new).collect(Collectors.toList());
+      List<TimeOffRequestDto> timeOffRequestDtos =
+          timeOffRequests.stream().map(TimeOffRequestDto::new).collect(Collectors.toList());
       myTimeOffDto.setTimeOffRequests(timeOffRequestDtos);
     }
 
     return myTimeOffDto;
-  }
-
-  @Override
-  public List<TimeOffRequest> getTimeOffHistories(Long userId, Long startTime, Long endTime) {
-    List<Long> timeOffRequestIds = timeOffRequestRepository
-        .getTimeOffRequestHistoryIds(userId, startTime, endTime);
-    if (timeOffRequestIds != null) {
-      return timeOffRequestRepository.findAllById(timeOffRequestIds);
-    }
-    return null;
   }
 
   @Override
@@ -164,8 +165,8 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
     } else {
       requesters.add(requester);
     }
-    return timeOffRequestRepository
-        .findByRequesterUserInAndTimeOffApprovalStatus(requesters, APPROVED, start, end);
+    return timeOffRequestRepository.findByRequesterUserInAndTimeOffApprovalStatus(
+        requesters, APPROVED, start, end);
   }
 
   @Override
@@ -173,7 +174,7 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
     User requester = timeOffRequest.getRequesterUser();
     TimeOffRequestApprovalStatus status = timeOffRequest.getTimeOffApprovalStatus();
 
-    Map<String, Object> variables = this.getVariablesOfTimeOffRequestEmail(timeOffRequest);
+    Map<String, Object> variables = getVariablesOfTimeOffRequestEmail(timeOffRequest);
     String template;
     Email email;
     if (status == APPROVED || status == TimeOffRequestApprovalStatus.DENIED) {
@@ -192,7 +193,7 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
       email = new Email(requester, approver, "Time Off Request");
       template = "time_off_request_pending.html";
 
-      long conflict = this.getConflictOfTimeOffRequest(timeOffRequest);
+      long conflict = getConflictOfTimeOffRequest(timeOffRequest);
       Integer balance = timeOffPolicyUserRepository.getBalanceByUserId(requester.getId());
       variables.put("remain", balance - timeOffRequest.getHours());
       variables.put("conflict", conflict);
@@ -208,24 +209,24 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
   }
 
   @Override
-  public TimeOffRequest updateTimeOffRequest(TimeOffRequest timeOffRequest,
-      TimeOffRequestComment timeOffRequestComment) {
-    TimeOffRequest original = this.getById(timeOffRequest.getId());
+  public TimeOffRequest updateTimeOffRequest(
+      TimeOffRequest timeOffRequest, TimeOffRequestComment timeOffRequestComment) {
+    TimeOffRequest original = getById(timeOffRequest.getId());
 
     TimeOffRequestApprovalStatus status = timeOffRequest.getTimeOffApprovalStatus();
     TimeOffRequestApprovalStatus originalStatus = original.getTimeOffApprovalStatus();
     original.setTimeOffApprovalStatus(status);
     original.setApprovedDate(Timestamp.from(Instant.now()));
     if (status != originalStatus && (status == APPROVED || originalStatus == APPROVED)) {
-      TimeOffPolicyUser timeOffPolicyUser = timeOffPolicyUserRepository
-          .findTimeOffPolicyUserByUserAndTimeOffPolicy(original.getRequesterUser(),
-              original.getTimeOffPolicy());
+      TimeOffPolicyUser timeOffPolicyUser =
+          timeOffPolicyUserRepository.findTimeOffPolicyUserByUserAndTimeOffPolicy(
+              original.getRequesterUser(), original.getTimeOffPolicy());
       Integer balance = timeOffPolicyUser.getBalance();
       Integer hours = original.getHours();
       if (status == APPROVED) {
-        balance += hours;
-      } else {
         balance -= hours;
+      } else {
+        balance += hours;
       }
       timeOffPolicyUser.setBalance(balance);
       timeOffPolicyUserRepository.save(timeOffPolicyUser);
@@ -237,7 +238,7 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
     timeOffRequest = timeOffRequestRepository.save(original);
 
     if (status == APPROVED || status == DENIED) {
-      this.sendTimeOffRequestEmail(timeOffRequest);
+      sendTimeOffRequestEmail(timeOffRequest);
     }
 
     return timeOffRequest;
@@ -248,15 +249,35 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
     return timeOffRequestRepository.findByTimeOffPolicyId(id);
   }
 
+  @Override
+  public void deleteUnimplementedRequest(
+      Long requestId, UnimplementedRequestPojo unimplementedRequestPojo) {
+    timeOffRequestRepository.delete(requestId);
+    if (unimplementedRequestPojo.getStatus() == APPROVED) {
+      TimeOffPolicy timeOffPolicy =
+          timeOffRequestRepository.getOne(unimplementedRequestPojo.getUserId()).getTimeOffPolicy();
+      TimeOffPolicyUser timeOffPolicyUser =
+          timeOffPolicyUserRepository.findTimeOffPolicyUserByUserAndTimeOffPolicy(
+              new User(unimplementedRequestPojo.getUserId()), timeOffPolicy);
+      timeOffPolicyUser.setBalance(
+          timeOffPolicyUser.getBalance() + unimplementedRequestPojo.getHours());
+      timeOffPolicyUserRepository.save(timeOffPolicyUser);
+    }
+    timeOffRequestDateRepository.deleteByTimeOffRequestId(requestId);
+  }
+
   private long getConflictOfTimeOffRequest(TimeOffRequest timeOffRequest) {
     LocalDate start = timeOffRequest.getStartDay().toLocalDateTime().toLocalDate();
     LocalDate end = timeOffRequest.getEndDay().toLocalDateTime().toLocalDate();
 
-    List<TimeOffRequest> timeOffRequests = this.getOtherRequestsBy(timeOffRequest);
+    List<TimeOffRequest> timeOffRequests = getOtherRequestsBy(timeOffRequest);
 
     return timeOffRequests.stream()
-        .filter(tr -> (start.compareTo(tr.getEndDay().toLocalDateTime().toLocalDate()) <= 0
-            && end.compareTo(tr.getStartDay().toLocalDateTime().toLocalDate()) >= 0)).count();
+        .filter(
+            tr ->
+                (start.compareTo(tr.getEndDay().toLocalDateTime().toLocalDate()) <= 0
+                    && end.compareTo(tr.getStartDay().toLocalDateTime().toLocalDate()) >= 0))
+        .count();
   }
 
   private Map<String, Object> getVariablesOfTimeOffRequestEmail(TimeOffRequest timeOffRequest) {

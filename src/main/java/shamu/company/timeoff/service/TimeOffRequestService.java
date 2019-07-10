@@ -6,6 +6,7 @@ import shamu.company.timeoff.dto.MyTimeOffDto;
 import shamu.company.timeoff.entity.TimeOffRequest;
 import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus;
 import shamu.company.timeoff.entity.TimeOffRequestComment;
+import shamu.company.timeoff.pojo.UnimplementedRequestPojo;
 import shamu.company.user.entity.User;
 
 @Service
@@ -25,16 +26,15 @@ public interface TimeOffRequestService {
 
   MyTimeOffDto getMyTimeOffRequestsByRequesterUserId(Long id);
 
-  List<TimeOffRequest> getTimeOffHistories(Long userId, Long startTime, Long endTime);
-
-
   List<TimeOffRequest> getOtherRequestsBy(TimeOffRequest timeOffRequest);
 
   void sendTimeOffRequestEmail(TimeOffRequest timeOffRequest);
 
-  TimeOffRequest updateTimeOffRequest(TimeOffRequest timeOffRequest,
-      TimeOffRequestComment timeOffRequestComment);
+  TimeOffRequest updateTimeOffRequest(
+      TimeOffRequest timeOffRequest, TimeOffRequestComment timeOffRequestComment);
 
   List<TimeOffRequest> getTimeOffRequestsByTimeOffPolicyId(Long id);
 
+  void deleteUnimplementedRequest(
+      Long requestId, UnimplementedRequestPojo unimplementedRequestPojo);
 }

@@ -21,20 +21,19 @@ public class TimeOffRequestPojo {
 
   private String comment;
 
-  @HashidsFormat
-  private Long policy;
+  @HashidsFormat private Long policyId;
 
-  @HashidsFormat
-  private Long policyUser;
+  @HashidsFormat private Long policyUser;
 
-  private Integer totalHours;
+  private Integer hours;
 
   public TimeOffRequest getTimeOffRequest(User requester) {
     TimeOffRequest timeOffRequest = new TimeOffRequest();
     timeOffRequest.setRequesterUser(requester);
     timeOffRequest.setApprover(requester.getManagerUser());
-    if (Strings.isNotBlank(comment)) {
-      TimeOffRequestComment timeOffRequestComment = new TimeOffRequestComment(requester, comment);
+    if (Strings.isNotBlank(this.comment)) {
+      TimeOffRequestComment timeOffRequestComment =
+          new TimeOffRequestComment(requester, this.comment);
       timeOffRequest.setComment(timeOffRequestComment);
     }
 
@@ -42,13 +41,15 @@ public class TimeOffRequestPojo {
   }
 
   public List<TimeOffRequestDate> getTimeOffRequestDates(TimeOffRequest timeOffRequest) {
-    return dates.stream().map(date -> {
-      TimeOffRequestDate timeOffRequestDate = new TimeOffRequestDate();
-      timeOffRequestDate.setDate(date.getDate());
-      timeOffRequestDate.setHours(date.getHours());
-      timeOffRequestDate.setTimeOffRequestId(timeOffRequest.getId());
-      return timeOffRequestDate;
-    }).collect(Collectors.toList());
+    return this.dates.stream()
+        .map(
+            date -> {
+              TimeOffRequestDate timeOffRequestDate = new TimeOffRequestDate();
+              timeOffRequestDate.setDate(date.getDate());
+              timeOffRequestDate.setHours(date.getHours());
+              timeOffRequestDate.setTimeOffRequestId(timeOffRequest.getId());
+              return timeOffRequestDate;
+            })
+        .collect(Collectors.toList());
   }
 }
-

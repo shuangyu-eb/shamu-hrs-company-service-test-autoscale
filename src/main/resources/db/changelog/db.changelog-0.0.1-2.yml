@@ -1752,6 +1752,14 @@ databaseChangeLog:
           tableName: benefit_plans_users
 
 - changeSet:
+      id: 1556008164280-55
+      author: wenhao-eb
+      changes:
+      - dropColumn:
+          columnName: time_off_type_id
+          tableName: time_off_requests
+
+- changeSet:
       id: 1561343783113-1
       author: max-eb
       changes:

@@ -23,22 +23,19 @@ import shamu.company.common.entity.BaseEntity;
 import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.Converter;
 import shamu.company.user.entity.User;
 
-@Entity
 @Data
+@Entity
 @Table(name = "time_off_requests")
 @Where(clause = "deleted_at IS NULL")
 public class TimeOffRequest extends BaseEntity {
 
-  @ManyToOne
-  private User requesterUser;
+  @ManyToOne private User requesterUser;
 
-  @ManyToOne
-  private User approverUser;
+  @ManyToOne private User approverUser;
 
   private Timestamp approvedDate;
 
-  @ManyToOne
-  private TimeOffPolicy timeOffPolicy;
+  @ManyToOne private TimeOffPolicy timeOffPolicy;
 
   @Column(name = "time_off_request_approval_status_id")
   @Convert(converter = Converter.class)
@@ -56,11 +53,11 @@ public class TimeOffRequest extends BaseEntity {
   private Set<TimeOffRequestDate> timeOffRequestDates = new HashSet<>();
 
   @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
-  @JoinTable(name = "time_off_requests_approvers",
+  @JoinTable(
+      name = "time_off_requests_approvers",
       joinColumns = @JoinColumn(name = "time_off_request_id"),
       inverseJoinColumns = @JoinColumn(name = "approver_user_id"))
   private Set<User> approvers = new HashSet<>();
-
 
   public void setApprover(User user) {
     this.approvers.add(user);
@@ -71,9 +68,10 @@ public class TimeOffRequest extends BaseEntity {
   }
 
   public String getRequsterComment() {
-    List<TimeOffRequestComment> requestComments = comments.stream()
-        .filter(comment -> comment.getUser().getId().equals(this.requesterUser.getId()))
-        .collect(Collectors.toList());
+    List<TimeOffRequestComment> requestComments =
+        this.comments.stream()
+            .filter(comment -> comment.getUser().getId().equals(this.requesterUser.getId()))
+            .collect(Collectors.toList());
     if (!requestComments.isEmpty()) {
       return requestComments.get(0).getComment();
     }
@@ -110,8 +108,7 @@ public class TimeOffRequest extends BaseEntity {
     if (this.checkEmpty()) {
       return null;
     }
-    return this.timeOffRequestDates.stream()
-        .mapToInt(TimeOffRequestDate::getHours).sum();
+    return this.timeOffRequestDates.stream().mapToInt(TimeOffRequestDate::getHours).sum();
   }
 
   private boolean checkEmpty() {
