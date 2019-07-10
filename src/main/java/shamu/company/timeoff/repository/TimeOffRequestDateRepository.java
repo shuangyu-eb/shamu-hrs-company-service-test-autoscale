@@ -3,6 +3,7 @@ package shamu.company.timeoff.repository;
 import java.util.List;
 import org.springframework.data.jpa.repository.Query;
 import shamu.company.common.repository.BaseRepository;
+import shamu.company.timeoff.dto.TimeOffRequestDateDto;
 import shamu.company.timeoff.entity.TimeOffRequestDate;
 
 public interface TimeOffRequestDateRepository extends BaseRepository<TimeOffRequestDate, Long> {
@@ -21,4 +22,13 @@ public interface TimeOffRequestDateRepository extends BaseRepository<TimeOffRequ
       nativeQuery = true
   )
   List<TimeOffRequestDate> getByCompanyId(Long companyId);
+
+  @Query(value = "select rd.date as date, rd.hours as hours from time_off_request_dates rd "
+      + "left join time_off_requests request on rd.time_off_request_id = request.id "
+      + "left join time_off_request_approval_statuses t "
+      + "on request.time_off_request_approval_status_id = t.id "
+      + "where rd.deleted_at is null and request.deleted_at is null "
+      + "and t.name != 'DENIED' "
+      + "and request.requester_user_id = ?1", nativeQuery = true)
+  List<TimeOffRequestDateDto> getAllSuccessRequestOffByUserId(Long id);
 }

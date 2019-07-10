@@ -769,7 +769,7 @@ databaseChangeLog:
 - changeSet:
     id: 1556008164280-4
     author: wenhao-eb
-    runOnchange: ture
+    runOnchange: true
     changes:
     - loadUpdateData:
         columns:
@@ -1214,7 +1214,7 @@ databaseChangeLog:
 - changeSet:
     id: 1557390699512-73
     author: Qi-Jia
-    runOnchange: ture
+    runOnchange: true
     changes:
     - loadUpdateData:
         columns:
@@ -1227,23 +1227,6 @@ databaseChangeLog:
         file: db/changelog/data/compensation-frequency.csv
         primaryKey: id
         tableName: compensation_frequency
-
-- changeSet:
-      id: 1556008164280-30
-      author: wenhao-eb
-      runOnchange: ture
-      changes:
-      - loadUpdateData:
-          columns:
-          - column:
-              name: id
-              type: NUMERIC
-          - column:
-              name: name
-              type: STRING
-          file: db/changelog/data/time-off-accrual-frequencies.csv
-          primaryKey: id
-          tableName: time_off_accrual_frequencies
 
 - changeSet:
     id: 1558323491275-1
@@ -1313,7 +1296,7 @@ databaseChangeLog:
 - changeSet:
     id: 1557390699512-75
     author: Qi-Jia
-    runOnchange: ture
+    runOnchange: true
     changes:
     - loadUpdateData:
         columns:
@@ -1520,7 +1503,7 @@ databaseChangeLog:
 - changeSet:
       id: 1556008164280-45
       author: wenhao-eb
-      runOnchange: ture
+      runOnchange: true
       changes:
       - loadUpdateData:
             columns:
@@ -1639,7 +1622,7 @@ databaseChangeLog:
 - changeSet:
       id: 1556008164280-52
       author: wenhao-eb
-      runOnchange: ture
+      runOnchange: true
       changes:
       - loadUpdateData:
           columns:
@@ -2091,3 +2074,41 @@ databaseChangeLog:
           columnName: date
           newDataType: varchar(255)
           tableName: paid_holidays
+
+- changeSet:
+      id: 1561343783113-2
+      author: max-eb
+      changes:
+      - addColumn:
+          columns:
+          - column:
+              name: expired_at
+              type: DATETIME
+          tableName: time_off_policy_accrual_schedules
+- changeSet:
+      id: 1561343783113-3
+      author: max-eb
+      changes:
+      - addColumn:
+          columns:
+          - column:
+              name: expired_at
+              type: DATETIME
+          tableName: time_off_policy_accrual_schedule_milestones
+
+- changeSet:
+      id: 1561343783113-4
+      author: max-eb
+      runOnchange: true
+      changes:
+      - loadUpdateData:
+          columns:
+          - column:
+              name: id
+              type: NUMERIC
+          - column:
+              name: name
+              type: STRING
+          file: db/changelog/data/time-off-accrual-frequencies.csv
+          primaryKey: id
+          tableName: time_off_accrual_frequencies

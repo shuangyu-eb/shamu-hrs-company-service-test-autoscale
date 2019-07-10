@@ -1,5 +1,6 @@
 package shamu.company.timeoff.entity;
 
+import java.sql.Timestamp;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
@@ -29,6 +30,21 @@ public class TimeOffPolicyAccrualSchedule extends BaseEntity {
 
   private Integer carryoverLimit;
 
+  private Timestamp expiredAt;
+
   @ManyToOne
   private TimeOffAccrualFrequency timeOffAccrualFrequency;
+
+  public TimeOffPolicyAccrualSchedule(TimeOffPolicy timeOffPolicy, Integer accrualHours,
+      Integer maxBalance, Integer daysBeforeAccrualStarts,
+      Integer carryoverLimit,
+      TimeOffAccrualFrequency timeOffAccrualFrequency) {
+    this.timeOffPolicy = timeOffPolicy;
+    this.accrualHours = accrualHours;
+    this.maxBalance = maxBalance;
+    this.daysBeforeAccrualStarts = daysBeforeAccrualStarts;
+    this.carryoverLimit = carryoverLimit;
+    this.timeOffAccrualFrequency = timeOffAccrualFrequency;
+
+  }
 }

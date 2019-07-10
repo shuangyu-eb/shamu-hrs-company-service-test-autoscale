@@ -1,5 +1,8 @@
 package shamu.company.timeoff.controller;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,16 +22,18 @@ import shamu.company.company.entity.Company;
 import shamu.company.hashids.HashidsFormat;
 import shamu.company.timeoff.dto.AccrualScheduleMilestoneDto;
 import shamu.company.timeoff.dto.TimeOffBalanceDto;
+import shamu.company.timeoff.dto.TimeOffBreakdownDto;
 import shamu.company.timeoff.dto.TimeOffPolicyAccrualScheduleDto;
+import shamu.company.timeoff.dto.TimeOffPolicyListDto;
 import shamu.company.timeoff.dto.TimeOffPolicyRelatedInfoDto;
 import shamu.company.timeoff.dto.TimeOffPolicyRelatedUserListDto;
 import shamu.company.timeoff.dto.TimeOffPolicyUserDto;
 import shamu.company.timeoff.entity.TimeOffPolicy;
-import shamu.company.timeoff.entity.TimeOffPolicyAccrualSchedule;
 import shamu.company.timeoff.entity.TimeOffPolicyUser;
 import shamu.company.timeoff.pojo.TimeOffPolicyPojo;
 import shamu.company.timeoff.pojo.TimeOffPolicyUserPojo;
 import shamu.company.timeoff.pojo.TimeOffPolicyWrapperPojo;
+import shamu.company.timeoff.service.TimeOffDetailService;
 import shamu.company.timeoff.service.TimeOffPolicyService;
 import shamu.company.user.entity.User;
 import shamu.company.user.service.UserService;
@@ -40,12 +45,15 @@ public class TimeOffPolicyRestController extends BaseRestController {
 
   private final UserService userService;
 
+  private final TimeOffDetailService timeOffDetailService;
+
   @Autowired
   public TimeOffPolicyRestController(
       TimeOffPolicyService timeOffPolicyService,
-      UserService userService) {
+      UserService userService, TimeOffDetailService timeOffDetailService) {
     this.timeOffPolicyService = timeOffPolicyService;
     this.userService = userService;
+    this.timeOffDetailService = timeOffDetailService;
   }
 
   @PostMapping("time-off-policy")
@@ -66,7 +74,7 @@ public class TimeOffPolicyRestController extends BaseRestController {
   }
 
   @PatchMapping("time-off-policy/{id}")
-  public void updateTimeOffPolicy(@PathVariable Long id,
+  public void updateTimeOffPolicy(@HashidsFormat @PathVariable Long id,
       @RequestBody TimeOffPolicyWrapperPojo infoWrapper) {
 
     TimeOffPolicyPojo timeOffPolicyPojo = infoWrapper.getTimeOffPolicy();
@@ -74,15 +82,12 @@ public class TimeOffPolicyRestController extends BaseRestController {
     TimeOffPolicy timeOffPolicyUpdated = timeOffPolicyPojo.getTimeOffPolicy(origin);
 
     timeOffPolicyService.updateTimeOffPolicy(timeOffPolicyUpdated);
-    TimeOffPolicyAccrualSchedule timeOffPolicyAccrualSchedule =
-        timeOffPolicyService.getTimeOffPolicyAccrualScheduleByTimeOffPolicy(timeOffPolicyUpdated);
-    TimeOffPolicyAccrualScheduleDto accrualScheduleDtoUpdated = infoWrapper
-        .getTimeOffPolicyAccrualSchedule();
-    TimeOffPolicyAccrualSchedule updatedSchedule = accrualScheduleDtoUpdated
-        .getTimeOffPolicyAccrualScheduleUpdated(timeOffPolicyAccrualSchedule);
-    timeOffPolicyService.updateTimeOffPolicyAccrualSchedule(updatedSchedule);
-    List<AccrualScheduleMilestoneDto> milestoneDtos = infoWrapper.getMilestones();
-    timeOffPolicyService.updateMilestones(milestoneDtos, updatedSchedule.getId());
+    timeOffPolicyService
+        .updateTimeOffPolicyMilestones(timeOffPolicyUpdated, infoWrapper.getMilestones());
+
+    timeOffPolicyService.updateTimeOffPolicySchedule(timeOffPolicyUpdated,
+        infoWrapper.getTimeOffPolicyAccrualSchedule());
+
     List<TimeOffPolicyUserPojo> timeOffPolicyUserPojos = infoWrapper.getUserStartBalances();
     timeOffPolicyService.updateTimeOffPolicyUserInfo(timeOffPolicyUserPojos, id);
   }
@@ -98,7 +103,7 @@ public class TimeOffPolicyRestController extends BaseRestController {
 
   @GetMapping("time-off-balances")
   public List<TimeOffBalanceDto> getTimeOffBalances() {
-    return timeOffPolicyService.getTimeOffBalances(getUser().getId(), getCompany().getId());
+    return timeOffPolicyService.getTimeOffBalances(getUser());
   }
 
   @PostMapping("time-off-policy/{policyId}/users")
@@ -123,13 +128,13 @@ public class TimeOffPolicyRestController extends BaseRestController {
 
   @GetMapping("time-off-policy/{policyId}")
   public TimeOffPolicyRelatedInfoDto getTimeOffPolicyByTimeOffPolicyId(
-      @PathVariable Long policyId) {
+      @HashidsFormat @PathVariable Long policyId) {
     return timeOffPolicyService.getTimeOffRelatedInfo(policyId);
   }
 
-  @GetMapping("users/{policyId}")
+  @GetMapping("time-off-policies/{policyId}/users")
   public TimeOffPolicyRelatedUserListDto getEmployeesByTimeOffPolicyId(
-      @PathVariable Long policyId) {
+      @HashidsFormat @PathVariable Long policyId) {
     Company company = this.getUser().getCompany();
     return timeOffPolicyService.getAllEmployeesByTimeOffPolicyId(policyId, company);
   }
@@ -150,5 +155,28 @@ public class TimeOffPolicyRestController extends BaseRestController {
     timeOffPolicyService.enrollTimeOffHours(deletedPolicyUsers,enrollPolicy,user);
     timeOffPolicyService.deleteTimeOffPolicy(policyId);
     return new ResponseEntity<>(HttpStatus.OK);
+  }
+
+  @GetMapping("time-off-policies")
+  public List<TimeOffPolicyListDto> getAllPolicies() {
+    return timeOffPolicyService.getAllPolicies(getCompany().getId());
+  }
+
+  @GetMapping("time-off-balances/{policyUserId}/breakdown")
+  public TimeOffBreakdownDto getTimeOffBreakdown(@HashidsFormat @PathVariable Long policyUserId,
+      Long untilDate) {
+    LocalDateTime endDateTime = LocalDateTime.now();
+
+    if (untilDate != null) {
+      endDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(untilDate), ZoneId.of("UTC"));
+    }
+
+    return timeOffDetailService.getTimeOffBreakdown(policyUserId, endDateTime);
+  }
+
+  @PostMapping("time-off-balances/{policyUserId}/adjustments")
+  public void addTimeOffAdjustments(@HashidsFormat @PathVariable Long policyUserId,
+      @RequestBody Integer adjustment) {
+    timeOffPolicyService.addTimeOffAdjustments(getUser(), policyUserId, adjustment);
   }
 }

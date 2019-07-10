@@ -1,5 +1,6 @@
 package shamu.company.timeoff.entity;
 
+import java.sql.Timestamp;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import lombok.Data;
@@ -29,4 +30,6 @@ public class AccrualScheduleMilestone extends BaseEntity {
   private Integer maxBalance;
 
   private String name;
+
+  private Timestamp expiredAt;
 }

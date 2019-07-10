@@ -1,5 +1,7 @@
 package shamu.company.timeoff.repository;
 
+import java.util.List;
+import org.springframework.data.jpa.repository.Query;
 import shamu.company.common.repository.BaseRepository;
 import shamu.company.timeoff.entity.TimeOffPolicy;
 import shamu.company.timeoff.entity.TimeOffPolicyAccrualSchedule;
@@ -7,5 +9,12 @@ import shamu.company.timeoff.entity.TimeOffPolicyAccrualSchedule;
 public interface TimeOffPolicyAccrualScheduleRepository extends
     BaseRepository<TimeOffPolicyAccrualSchedule, Long> {
 
+  @Query("select s from TimeOffPolicyAccrualSchedule s where s.deletedAt is null "
+      + "and s.timeOffPolicy = ?1 "
+      + "and s.expiredAt is null")
   TimeOffPolicyAccrualSchedule findAllByTimeOffPolicy(TimeOffPolicy timeOffPolicy);
+
+  @Query("select s from TimeOffPolicyAccrualSchedule s where s.deletedAt is null "
+      + "and s.timeOffPolicy = ?1")
+  List<TimeOffPolicyAccrualSchedule> findAllWithExpiredTimeOffPolicy(TimeOffPolicy timeOffPolicy);
 }

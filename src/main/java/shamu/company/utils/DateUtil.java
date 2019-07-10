@@ -2,6 +2,8 @@ package shamu.company.utils;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
 import java.util.Locale;
@@ -47,5 +49,9 @@ public class DateUtil {
 
   public static Timestamp fromLocalDate(LocalDate date) {
     return Timestamp.valueOf(date.atStartOfDay());
+  }
+
+  public static LocalDateTime toLocalDateTime(Timestamp timestamp) {
+    return LocalDateTime.ofInstant(timestamp.toInstant(), ZoneId.of("UTC"));
   }
 }

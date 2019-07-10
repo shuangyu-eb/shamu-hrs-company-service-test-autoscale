@@ -3,20 +3,32 @@ package shamu.company.timeoff.service.impl;
 import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.APPROVED;
 import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.DENIED;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import shamu.company.company.entity.Company;
 import shamu.company.job.dto.JobUserDto;
 import shamu.company.job.entity.JobUser;
 import shamu.company.job.repository.JobUserRepository;
 import shamu.company.timeoff.dto.AccrualScheduleMilestoneDto;
 import shamu.company.timeoff.dto.TimeOffBalanceDto;
+import shamu.company.timeoff.dto.TimeOffBreakdownDto;
 import shamu.company.timeoff.dto.TimeOffPolicyAccrualScheduleDto;
+import shamu.company.timeoff.dto.TimeOffPolicyList;
+import shamu.company.timeoff.dto.TimeOffPolicyListDto;
 import shamu.company.timeoff.dto.TimeOffPolicyRelatedInfoDto;
 import shamu.company.timeoff.dto.TimeOffPolicyRelatedUserDto;
 import shamu.company.timeoff.dto.TimeOffPolicyRelatedUserListDto;
@@ -34,8 +46,10 @@ import shamu.company.timeoff.repository.TimeOffPolicyAccrualScheduleRepository;
 import shamu.company.timeoff.repository.TimeOffPolicyRepository;
 import shamu.company.timeoff.repository.TimeOffPolicyUserRepository;
 import shamu.company.timeoff.repository.TimeOffRequestRepository;
+import shamu.company.timeoff.service.TimeOffDetailService;
 import shamu.company.timeoff.service.TimeOffPolicyService;
 import shamu.company.user.entity.User;
+import shamu.company.user.entity.UserPersonalInformation;
 import shamu.company.user.repository.UserRepository;
 
 @Service
@@ -57,13 +71,15 @@ public class TimeOffPolicyServiceImpl implements TimeOffPolicyService {
 
   private final TimeOffAdjustmentRepository timeOffAdjustmentRepository;
 
+  private final TimeOffDetailService timeOffDetailService;
+
   @Autowired
   public TimeOffPolicyServiceImpl(
       TimeOffPolicyRepository timeOffPolicyRepository,
       TimeOffPolicyUserRepository timeOffPolicyUserRepository,
       AccrualScheduleMilestoneRepository accrualScheduleMilestoneRepository,
       TimeOffPolicyAccrualScheduleRepository timeOffPolicyAccrualScheduleRepository,
-      JobUserRepository jobUserRepository,
+      JobUserRepository jobUserRepository, TimeOffDetailService timeOffDetailService,
       UserRepository userRepository,
       TimeOffRequestRepository timeOffRequestRepository,
       TimeOffAdjustmentRepository timeOffAdjustmentRepository) {
@@ -75,6 +91,7 @@ public class TimeOffPolicyServiceImpl implements TimeOffPolicyService {
     this.userRepository = userRepository;
     this.timeOffRequestRepository = timeOffRequestRepository;
     this.timeOffAdjustmentRepository = timeOffAdjustmentRepository;
+    this.timeOffDetailService = timeOffDetailService;
   }
 
   @Override
@@ -103,14 +120,29 @@ public class TimeOffPolicyServiceImpl implements TimeOffPolicyService {
   }
 
   @Override
-  public List<TimeOffBalanceDto> getTimeOffBalances(Long userId, Long companyId) {
-    return timeOffPolicyUserRepository
-        .findTimeOffBalancesByUser(userId, companyId)
-        .stream().map((timeOffBalance -> {
-          TimeOffBalanceDto timeOffBalanceDto = new TimeOffBalanceDto();
-          BeanUtils.copyProperties(timeOffBalance, timeOffBalanceDto);
-          return timeOffBalanceDto;
-        })).collect(Collectors.toList());
+  public List<TimeOffBalanceDto> getTimeOffBalances(User user) {
+
+    List<TimeOffPolicyUser> policyUsers = timeOffPolicyUserRepository
+        .findTimeOffPolicyUsersByUser(user);
+    Iterator<TimeOffPolicyUser> policyUserIterator = policyUsers.iterator();
+
+    LocalDateTime currentTime = LocalDateTime.now();
+    List<TimeOffBalanceDto> timeOffBalanceDtoList = new ArrayList<>();
+    while (policyUserIterator.hasNext()) {
+      TimeOffPolicyUser policyUser = policyUserIterator.next();
+      Long policyUserId = policyUser.getId();
+      TimeOffBreakdownDto timeOffBreakdownDto = timeOffDetailService
+          .getTimeOffBreakdown(policyUserId, currentTime);
+      Integer balance = timeOffBreakdownDto.getBalance();
+
+      TimeOffBalanceDto timeOffBalanceDto = new TimeOffBalanceDto();
+      timeOffBalanceDto.setId(policyUserId);
+      timeOffBalanceDto.setBalance(balance);
+      timeOffBalanceDto.setName(policyUser.getTimeOffPolicy().getName());
+      timeOffBalanceDtoList.add(timeOffBalanceDto);
+    }
+
+    return timeOffBalanceDtoList;
   }
 
   @Override
@@ -138,8 +170,8 @@ public class TimeOffPolicyServiceImpl implements TimeOffPolicyService {
   }
 
   @Override
-  public TimeOffPolicyRelatedInfoDto getTimeOffRelatedInfo(Long id) {
-    TimeOffPolicy timeOffPolicy = timeOffPolicyRepository.findById(id).get();
+  public TimeOffPolicyRelatedInfoDto getTimeOffRelatedInfo(Long policyId) {
+    TimeOffPolicy timeOffPolicy = timeOffPolicyRepository.findById(policyId).get();
     TimeOffPolicyAccrualSchedule timeOffPolicyAccrualSchedule =
         timeOffPolicyAccrualScheduleRepository.findAllByTimeOffPolicy(timeOffPolicy);
 
@@ -207,6 +239,161 @@ public class TimeOffPolicyServiceImpl implements TimeOffPolicyService {
   @Override
   public List<TimeOffPolicyUser> getAllPolicyUsersByUser(User user) {
     return timeOffPolicyUserRepository.findTimeOffPolicyUsersByUser(user);
+  }
+
+  @Override
+  public TimeOffPolicyUser updateTimeOffBalance(Long timeOffPolicyUserId, Integer totalHours) {
+    TimeOffPolicyUser timeOffPolicyUser = timeOffPolicyUserRepository.findById(timeOffPolicyUserId)
+        .get();
+    Integer prevBalance = timeOffPolicyUser.getBalance();
+    timeOffPolicyUser.setBalance(prevBalance - totalHours);
+    return timeOffPolicyUserRepository.save(timeOffPolicyUser);
+  }
+
+  @Override
+  public List<TimeOffPolicyListDto> getAllPolicies(Long companyId) {
+    List<TimeOffPolicyList> timeOffPolicies = timeOffPolicyRepository.getAllPolicies(companyId);
+    Iterator<TimeOffPolicyList> timeOffPolicyIterator = timeOffPolicies.iterator();
+
+    List<TimeOffPolicyListDto> timeOffPolicyListDtoList = new ArrayList<>();
+    while (timeOffPolicyIterator.hasNext()) {
+      TimeOffPolicyListDto timeOffPolicyListDto = new TimeOffPolicyListDto();
+      TimeOffPolicyList timeOffPolicyList = timeOffPolicyIterator.next();
+      BeanUtils.copyProperties(timeOffPolicyList, timeOffPolicyListDto);
+      timeOffPolicyListDtoList.add(timeOffPolicyListDto);
+    }
+
+    return timeOffPolicyListDtoList;
+  }
+
+  @Override
+  @Transactional
+  public TimeOffPolicyAccrualSchedule updateTimeOffPolicySchedule(TimeOffPolicy timeOffPolicy,
+      TimeOffPolicyAccrualScheduleDto timeOffPolicyAccrualScheduleDto) {
+    TimeOffPolicyAccrualSchedule originTimeOffSchedule =
+        getTimeOffPolicyAccrualScheduleByTimeOffPolicy(timeOffPolicy);
+    TimeOffPolicyAccrualSchedule newTimeOffSchedule = timeOffPolicyAccrualScheduleDto
+        .getTimeOffPolicyAccrualSchedule(timeOffPolicy,
+            originTimeOffSchedule.getTimeOffAccrualFrequency().getId());
+    if (!isScheduleChanged(originTimeOffSchedule, newTimeOffSchedule)) {
+      return originTimeOffSchedule;
+    }
+
+    originTimeOffSchedule.setExpiredAt(new Timestamp(new Date().getTime()));
+    timeOffPolicyAccrualScheduleRepository.save(originTimeOffSchedule);
+    newTimeOffSchedule = timeOffPolicyAccrualScheduleRepository.save(newTimeOffSchedule);
+
+    accrualScheduleMilestoneRepository
+        .updateMilestoneSchedule(originTimeOffSchedule.getId(), newTimeOffSchedule.getId());
+
+    return newTimeOffSchedule;
+  }
+
+  private boolean isScheduleChanged(TimeOffPolicyAccrualSchedule originalSchedule,
+      TimeOffPolicyAccrualSchedule newSchedule) {
+    return originalSchedule.getDaysBeforeAccrualStarts() != newSchedule.getDaysBeforeAccrualStarts()
+        || originalSchedule.getAccrualHours() != newSchedule.getAccrualHours()
+        || originalSchedule.getCarryoverLimit() != newSchedule.getCarryoverLimit()
+        || originalSchedule.getMaxBalance() != newSchedule.getMaxBalance();
+  }
+
+  @Override
+  public List<AccrualScheduleMilestone> updateTimeOffPolicyMilestones(
+      TimeOffPolicy timeOffPolicyUpdated, List<AccrualScheduleMilestoneDto> milestones) {
+    TimeOffPolicyAccrualSchedule originTimeOffSchedule =
+        getTimeOffPolicyAccrualScheduleByTimeOffPolicy(timeOffPolicyUpdated);
+    List<AccrualScheduleMilestone> accrualScheduleMilestoneList =
+        accrualScheduleMilestoneRepository
+            .findByTimeOffPolicyAccrualScheduleId(originTimeOffSchedule.getId());
+
+    Long accrualScheduleId = originTimeOffSchedule.getId();
+    List<AccrualScheduleMilestone> newAccrualMilestoneList = milestones.stream()
+        .map(accrualScheduleMilestoneDto -> accrualScheduleMilestoneDto
+            .getAccrualScheduleMilestone(accrualScheduleId))
+        .collect(Collectors.toList());
+
+    sortMilestoneList(accrualScheduleMilestoneList);
+    sortMilestoneList(newAccrualMilestoneList);
+
+    HashMap<Integer, List<AccrualScheduleMilestone>> hashMap =
+        transformMilestoneListToMap(accrualScheduleMilestoneList, newAccrualMilestoneList);
+
+    return hashMap.entrySet()
+        .stream()
+        .map(Map.Entry::getValue)
+        .map(this::expireAndSaveMilestones)
+        .collect(Collectors.toList());
+  }
+
+  @Override
+  public void addTimeOffAdjustments(User currentUser, Long policyUserId, Integer adjustment) {
+    TimeOffPolicyUser timeOffPolicyUser = timeOffPolicyUserRepository.findById(policyUserId).get();
+
+    TimeOffAdjustment timeOffAdjustment =
+        new TimeOffAdjustment(timeOffPolicyUser, timeOffPolicyUser.getTimeOffPolicy(), currentUser);
+    timeOffAdjustment.setAmount(adjustment);
+
+    UserPersonalInformation userPersonalInformation = currentUser.getUserPersonalInformation();
+    timeOffAdjustment.setComment("Adjusted by user " + userPersonalInformation.getName());
+    timeOffAdjustmentRepository.save(timeOffAdjustment);
+  }
+
+  private void sortMilestoneList(List<AccrualScheduleMilestone> accrualScheduleMilestoneList) {
+    accrualScheduleMilestoneList
+        .sort(Comparator.comparingInt(AccrualScheduleMilestone::getAnniversaryYear));
+  }
+
+  private HashMap<Integer, List<AccrualScheduleMilestone>> transformMilestoneListToMap(
+      List<AccrualScheduleMilestone> originMilestones,
+      List<AccrualScheduleMilestone> newMilestones) {
+    HashMap<Integer, List<AccrualScheduleMilestone>> milestoneMap = new HashMap<>();
+    for (AccrualScheduleMilestone accrualMilestone : originMilestones) {
+      List<AccrualScheduleMilestone> milestoneList = new ArrayList<>(
+          Collections.singletonList(accrualMilestone));
+      milestoneMap.put(accrualMilestone.getAnniversaryYear(), milestoneList);
+    }
+
+    for (AccrualScheduleMilestone accrualScheduleMilestone : newMilestones) {
+      List<AccrualScheduleMilestone> accrualScheduleMilestones = milestoneMap
+          .get(accrualScheduleMilestone.getAnniversaryYear());
+      if (accrualScheduleMilestones != null) {
+        accrualScheduleMilestones.add(accrualScheduleMilestone);
+      } else {
+        List<AccrualScheduleMilestone> milestoneList = new ArrayList<>(
+            Collections.singletonList(accrualScheduleMilestone));
+        milestoneMap.put(accrualScheduleMilestone.getAnniversaryYear(), milestoneList);
+      }
+    }
+
+    return milestoneMap;
+  }
+
+  private AccrualScheduleMilestone expireAndSaveMilestones(
+      List<AccrualScheduleMilestone> accrualScheduleMilestoneList) {
+    if (accrualScheduleMilestoneList.size() == 1
+        && accrualScheduleMilestoneList.get(0).getId() == null) {
+      return accrualScheduleMilestoneRepository.save(accrualScheduleMilestoneList.get(0));
+    } else if (accrualScheduleMilestoneList.size() == 1) {
+      return accrualScheduleMilestoneList.get(0);
+    }
+
+    AccrualScheduleMilestone originalMilestone = accrualScheduleMilestoneList.get(0);
+    AccrualScheduleMilestone nowMilestone = accrualScheduleMilestoneList.get(1);
+
+    if (!isMilestoneChanged(originalMilestone, nowMilestone)) {
+      return originalMilestone;
+    }
+
+    originalMilestone.setExpiredAt(new Timestamp(new Date().getTime()));
+    accrualScheduleMilestoneRepository.save(originalMilestone);
+    return accrualScheduleMilestoneRepository.save(nowMilestone);
+  }
+
+  private boolean isMilestoneChanged(AccrualScheduleMilestone originalMilestone,
+      AccrualScheduleMilestone newMilestone) {
+    return originalMilestone.getAccrualHours() != newMilestone.getAccrualHours()
+        || originalMilestone.getCarryoverLimit() != newMilestone.getCarryoverLimit()
+        || originalMilestone.getMaxBalance() != newMilestone.getMaxBalance();
   }
 
   private void createAccrualScheduleMilestones(

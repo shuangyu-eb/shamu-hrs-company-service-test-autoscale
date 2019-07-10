@@ -8,6 +8,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import shamu.company.company.entity.Company;
 import shamu.company.hashids.HashidsFormat;
@@ -16,6 +17,7 @@ import shamu.company.user.entity.User;
 @Data
 @Entity
 @Table(name = "time_off_adjustments")
+@NoArgsConstructor
 public class TimeOffAdjustment {
 
   @Id
