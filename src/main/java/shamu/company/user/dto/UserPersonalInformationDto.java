@@ -15,38 +15,44 @@ import shamu.company.user.entity.UserPersonalInformation;
 @NoArgsConstructor
 public class UserPersonalInformationDto extends BasicUserPersonalInformationDto {
 
-  @HashidsFormat
-  private Long genderId;
+  @HashidsFormat private Long genderId;
 
   private String genderName;
 
-  @HashidsFormat
-  private Long ethnicityId;
+  @HashidsFormat private Long ethnicityId;
 
   private String ethnicityName;
 
   private String ssn;
 
-  public UserPersonalInformationDto(UserPersonalInformation userPersonalInformation) {
+  private String imageUrl;
+
+  public UserPersonalInformationDto(final UserPersonalInformation userPersonalInformation) {
     super(userPersonalInformation);
 
-    Gender gender = userPersonalInformation.getGender();
-    String sexName = gender == null ? "" : gender.getName();
-    Long sexId = gender == null ? null : gender.getId();
+    final Gender gender = userPersonalInformation.getGender();
+    final String sexName = gender == null ? "" : gender.getName();
+    final Long sexId = gender == null ? null : gender.getId();
     this.genderId = sexId;
     this.genderName = sexName;
 
-    Ethnicity ethnicity = userPersonalInformation.getEthnicity();
-    String raceName = ethnicity == null ? "" : ethnicity.getName();
-    Long raceId = ethnicity == null ? null : ethnicity.getId();
+    final Ethnicity ethnicity = userPersonalInformation.getEthnicity();
+    final String raceName = ethnicity == null ? "" : ethnicity.getName();
+    final Long raceId = ethnicity == null ? null : ethnicity.getId();
     this.ethnicityId = raceId;
     this.ethnicityName = raceName;
 
     this.ssn = userPersonalInformation.getSsn();
   }
 
+  public UserPersonalInformationDto(
+      final UserPersonalInformation userPersonalInformation, final String imageUrl) {
+    this(userPersonalInformation);
+    this.imageUrl = imageUrl;
+  }
+
   @JSONField(serialize = false)
-  public UserPersonalInformation getUserPersonalInformation(UserPersonalInformation origin) {
+  public UserPersonalInformation getUserPersonalInformation(final UserPersonalInformation origin) {
     origin.setFirstName(this.getFirstName());
     origin.setMiddleName(this.getMiddleName());
     origin.setLastName(this.getLastName());

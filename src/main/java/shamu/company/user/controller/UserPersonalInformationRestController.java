@@ -58,9 +58,10 @@ public class UserPersonalInformationRestController extends BaseRestController {
     User user = this.getUser();
     User targetUser = userService.findUserById(id);
     UserPersonalInformation userPersonalInformation = targetUser.getUserPersonalInformation();
+    String imageUrl = targetUser.getImageUrl();
 
     if (user.getId().equals(id) || user.getRole() == Role.ADMIN) {
-      return new UserPersonalInformationDto(userPersonalInformation);
+      return new UserPersonalInformationDto(userPersonalInformation, imageUrl);
     }
 
     Date birthDate = userPersonalInformation.getBirthDate();
