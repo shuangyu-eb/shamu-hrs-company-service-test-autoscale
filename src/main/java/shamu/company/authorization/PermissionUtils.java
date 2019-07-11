@@ -1,9 +1,11 @@
 package shamu.company.authorization;
 
 import java.util.Collection;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
+import shamu.company.authorization.Permission.Name;
 import shamu.company.authorization.Permission.PermissionType;
 import shamu.company.benefit.entity.BenefitPlan;
 import shamu.company.benefit.entity.BenefitPlanDependent;
@@ -11,6 +13,8 @@ import shamu.company.benefit.service.BenefitPlanDependentService;
 import shamu.company.benefit.service.BenefitPlanService;
 import shamu.company.common.exception.ForbiddenException;
 import shamu.company.company.entity.Company;
+import shamu.company.timeoff.entity.TimeOffPolicyUser;
+import shamu.company.timeoff.repository.TimeOffPolicyUserRepository;
 import shamu.company.timeoff.service.TimeOffRequestService;
 import shamu.company.user.entity.User;
 import shamu.company.user.service.UserAddressService;
@@ -29,17 +33,21 @@ public class PermissionUtils {
 
   private final BenefitPlanDependentService benefitPlanDependentService;
 
+  private final TimeOffPolicyUserRepository timeOffPolicyUserRepository;
+
   @Autowired
   public PermissionUtils(UserService userService,
       TimeOffRequestService timeOffRequestService,
       UserAddressService userAddressService,
       BenefitPlanService benefitPlanService,
-      BenefitPlanDependentService benefitPlanDependentService) {
+      BenefitPlanDependentService benefitPlanDependentService,
+      TimeOffPolicyUserRepository timeOffPolicyUserRepository) {
     this.userService = userService;
     this.timeOffRequestService = timeOffRequestService;
     this.userAddressService = userAddressService;
     this.benefitPlanService = benefitPlanService;
     this.benefitPlanDependentService = benefitPlanDependentService;
+    this.timeOffPolicyUserRepository = timeOffPolicyUserRepository;
   }
 
   boolean hasPermission(Authentication auth, Long targetId, Type targetType,
@@ -58,6 +66,8 @@ public class PermissionUtils {
         return this.hasPermissionOfContactInformation(auth, targetId, permission);
       case BENEFIT_DEPENDENT:
         return this.hasPermissionOfBenefitDependent(auth, targetId, permission);
+      case TIME_OFF_POLICY_USER:
+        return this.hasPermissionOfTimeOffTimeOffPolicyUser(auth, targetId, permission);
       case USER:
       default:
         User targetUser = userService.findUserById(targetId);
@@ -128,6 +138,15 @@ public class PermissionUtils {
       Authentication auth, Long id, Permission.Name permission) {
     User user = userService.findUserByUserContactInformationId(id);
     return this.hasPermissionOfUser(auth, user, permission);
+  }
+
+  private boolean hasPermissionOfTimeOffTimeOffPolicyUser(Authentication auth,
+      Long targetId, Name permission) {
+    Optional<TimeOffPolicyUser> policyUser = timeOffPolicyUserRepository
+        .findById(targetId);
+
+    return policyUser.filter(timeOffPolicyUser -> this
+        .hasPermissionOfUser(auth, timeOffPolicyUser.getUser(), permission)).isPresent();
   }
 
   private boolean hasPermissionOfUser(Authentication auth, User targetUser,

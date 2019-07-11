@@ -128,9 +128,6 @@ public class TimeOffDetailServiceImpl implements TimeOffDetailService {
 
     if (resultTimeOffBreakdownDto != null) {
       postProcessOfTimeOffBreakdown(resultTimeOffBreakdownDto, timeOffFrequencyId, calculatePojo);
-
-      ZonedDateTime zonedDateTime = calculatePojo.getUntilDate().atZone(ZoneId.of("UTC"));
-      resultTimeOffBreakdownDto.setUntilDateInMillis(zonedDateTime.toEpochSecond() * 1000);
     }
     return resultTimeOffBreakdownDto;
   }
@@ -165,6 +162,10 @@ public class TimeOffDetailServiceImpl implements TimeOffDetailService {
             .isBefore(calculatePojo.getUntilDate())))
         .collect(Collectors.toList());
     timeOffBreakdownDto.setList(newTimeOffBreakdownItemList);
+    timeOffBreakdownDto.resetBalance();
+
+    ZonedDateTime zonedDateTime = calculatePojo.getUntilDate().atZone(ZoneId.of("UTC"));
+    timeOffBreakdownDto.setUntilDateInMillis(zonedDateTime.toEpochSecond() * 1000);
   }
 
   private List<TimeOffBreakdownItemDto> getBalanceAdjustmentList(

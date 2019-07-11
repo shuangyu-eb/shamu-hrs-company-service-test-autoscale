@@ -32,6 +32,7 @@ import shamu.company.timeoff.dto.TimeOffPolicyListDto;
 import shamu.company.timeoff.dto.TimeOffPolicyRelatedInfoDto;
 import shamu.company.timeoff.dto.TimeOffPolicyRelatedUserDto;
 import shamu.company.timeoff.dto.TimeOffPolicyRelatedUserListDto;
+import shamu.company.timeoff.dto.TimeOffPolicyUserDto;
 import shamu.company.timeoff.entity.AccrualScheduleMilestone;
 import shamu.company.timeoff.entity.TimeOffAdjustment;
 import shamu.company.timeoff.entity.TimeOffPolicy;
@@ -143,6 +144,30 @@ public class TimeOffPolicyServiceImpl implements TimeOffPolicyService {
     }
 
     return timeOffBalanceDtoList;
+  }
+
+  @Override
+  public List<TimeOffPolicyUserDto> getTimeOffPolicyUser(User user) {
+
+    List<TimeOffPolicyUser> policyUsers = timeOffPolicyUserRepository
+        .findTimeOffPolicyUsersByUser(user);
+    Iterator<TimeOffPolicyUser> policyUserIterator = policyUsers.iterator();
+
+    LocalDateTime currentTime = LocalDateTime.now();
+    List<TimeOffPolicyUserDto> timeOffPolicyUserDtos = new ArrayList<>();
+    while (policyUserIterator.hasNext()) {
+      TimeOffPolicyUser policyUser = policyUserIterator.next();
+      Long policyUserId = policyUser.getId();
+      TimeOffBreakdownDto timeOffBreakdownDto = timeOffDetailService
+          .getTimeOffBreakdown(policyUserId, currentTime);
+      Integer balance = timeOffBreakdownDto.getBalance();
+
+      TimeOffPolicyUserDto timeOffPolicyUserDto = new TimeOffPolicyUserDto(policyUser);
+      timeOffPolicyUserDto.setBalance(balance);
+      timeOffPolicyUserDtos.add(timeOffPolicyUserDto);
+    }
+
+    return timeOffPolicyUserDtos;
   }
 
   @Override
@@ -334,7 +359,7 @@ public class TimeOffPolicyServiceImpl implements TimeOffPolicyService {
     timeOffAdjustment.setAmount(adjustment);
 
     UserPersonalInformation userPersonalInformation = currentUser.getUserPersonalInformation();
-    timeOffAdjustment.setComment("Adjusted by user " + userPersonalInformation.getName());
+    timeOffAdjustment.setComment("Adjusted by User " + userPersonalInformation.getName());
     timeOffAdjustmentRepository.save(timeOffAdjustment);
   }
 
