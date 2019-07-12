@@ -2,7 +2,6 @@ package shamu.company.info.service;
 
 import java.util.List;
 import java.util.Optional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import shamu.company.info.entity.UserEmergencyContact;
 import shamu.company.info.repository.UserEmergencyContactRepository;
@@ -10,7 +9,12 @@ import shamu.company.info.repository.UserEmergencyContactRepository;
 @Service
 public class UserEmergencyContactServiceImpl implements UserEmergencyContactService {
 
-  @Autowired UserEmergencyContactRepository userEmergencyContactRepository;
+  private final UserEmergencyContactRepository userEmergencyContactRepository;
+
+  public UserEmergencyContactServiceImpl(
+      UserEmergencyContactRepository userEmergencyContactRepository) {
+    this.userEmergencyContactRepository = userEmergencyContactRepository;
+  }
 
   @Override
   public List<UserEmergencyContact> getUserEmergencyContacts(Long userId) {
@@ -20,7 +24,7 @@ public class UserEmergencyContactServiceImpl implements UserEmergencyContactServ
   @Override
   public void createUserEmergencyContact(Long userId, UserEmergencyContact userEmergencyContact) {
     if (userEmergencyContact.getIsPrimary()) {
-      userEmergencyContactRepository.releasePrimaryContact(userEmergencyContact.getId());
+      userEmergencyContactRepository.releasePrimaryContact(userId);
     }
     userEmergencyContactRepository.save(userEmergencyContact);
   }
@@ -29,7 +33,7 @@ public class UserEmergencyContactServiceImpl implements UserEmergencyContactServ
   public void deleteEmergencyContact(Long userId, Long id) {
     Optional<UserEmergencyContact> userEmergencyContact =
         userEmergencyContactRepository.findById(id);
-    userEmergencyContactRepository.releasePrimaryContact(id);
+    userEmergencyContactRepository.releasePrimaryContact(userId);
     userEmergencyContactRepository.delete(id);
     if (userEmergencyContact.get().getIsPrimary()) {
       userEmergencyContactRepository.resetPrimaryContact(userId);
@@ -39,7 +43,7 @@ public class UserEmergencyContactServiceImpl implements UserEmergencyContactServ
   @Override
   public void updateEmergencyContact(Long userId, UserEmergencyContact userEmergencyContact) {
     if (userEmergencyContact.getIsPrimary()) {
-      userEmergencyContactRepository.releasePrimaryContact(userEmergencyContact.getId());
+      userEmergencyContactRepository.releasePrimaryContact(userId);
     }
     userEmergencyContactRepository.save(userEmergencyContact);
   }
