@@ -178,8 +178,7 @@ public class TimeOffPolicyRestController extends BaseRestController {
 
   @PostMapping("time-off-balances/{policyUserId}/adjustments")
   @PreAuthorize("hasPermission(#policyUserId,"
-      + "'TIME_OFF_POLICY_USER','MANAGE_USER_TIME_OFF_BALANCE') "
-      + "or hasAnyAuthority('MANAGE_SELF_TIME_OFF_BALANCE')")
+      + "'TIME_OFF_POLICY_USER','MANAGE_USER_TIME_OFF_BALANCE')")
   public void addTimeOffAdjustments(@HashidsFormat @PathVariable Long policyUserId,
       @RequestBody Integer adjustment) {
     timeOffPolicyService.addTimeOffAdjustments(getUser(), policyUserId, adjustment);
