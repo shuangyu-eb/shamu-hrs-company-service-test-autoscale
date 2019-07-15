@@ -1,10 +1,10 @@
-id,name
-1,New Year's Day
-2,Martin Luther King Jr. Day
-3,Washington's Birthday
-4,Memorial Day
-5,Independence Day
-6,Columbus Day
-7,Veterans Day
-8,Thanksgiving Day
-9,Christmas Day
+id,name,name_show
+1,New Year's Day,New Year's Day
+2,Martin Luther King Jr. Day,Martin Luther King Jr. Day
+3,Washington's Birthday,Presidents' Day
+4,Memorial Day,Memorial Day
+5,Labor Day,Labor Day
+6,Columbus Day,Columbus Day (Indigenous Peoples' Day)
+7,Veterans Day,Veterans Day
+8,Thanksgiving Day,Thanksgiving
+9,Christmas Day,Christmas Day

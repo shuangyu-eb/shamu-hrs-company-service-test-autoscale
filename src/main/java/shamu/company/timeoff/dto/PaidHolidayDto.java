@@ -1,5 +1,7 @@
 package shamu.company.timeoff.dto;
 
+import java.sql.Timestamp;
+import javax.validation.constraints.FutureOrPresent;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import shamu.company.company.entity.Company;
@@ -16,29 +18,34 @@ public class PaidHolidayDto {
 
   private String name;
 
-  private String date;
+  private String nameShow;
+
+  @FutureOrPresent
+  private Timestamp date;
 
   private Boolean isSelected;
 
-  public PaidHolidayDto(CompanyPaidHoliday companyPaidHoliday) {
-    PaidHoliday paidHoliday = companyPaidHoliday.getPaidHoliday();
+  public PaidHolidayDto(final CompanyPaidHoliday companyPaidHoliday) {
+    final PaidHoliday paidHoliday = companyPaidHoliday.getPaidHoliday();
     setId(paidHoliday.getId());
     setName(paidHoliday.getName());
+    setNameShow(paidHoliday.getNameShow());
     setDate(paidHoliday.getDate());
     setIsSelected(companyPaidHoliday.getIsSelected());
   }
 
-  public PaidHoliday covertToNewPaidHolidayEntity(Company company) {
-    PaidHoliday paidHoliday = new PaidHoliday();
+  public PaidHoliday covertToNewPaidHolidayEntity(final Company company) {
+    final PaidHoliday paidHoliday = new PaidHoliday();
     paidHoliday.setCompany(company);
     paidHoliday.setCountry(company.getCountry());
     paidHoliday.setDate(getDate());
     paidHoliday.setName(getName());
+    paidHoliday.setNameShow(getNameShow() != null ? getNameShow() : getName());
     return paidHoliday;
   }
 
-  public CompanyPaidHoliday covertToNewCompanyPaidHolidayEntity(PaidHoliday paidHoliday) {
-    CompanyPaidHoliday companyPaidHoliday = new CompanyPaidHoliday();
+  public CompanyPaidHoliday covertToNewCompanyPaidHolidayEntity(final PaidHoliday paidHoliday) {
+    final CompanyPaidHoliday companyPaidHoliday = new CompanyPaidHoliday();
     companyPaidHoliday.setIsSelected(getIsSelected());
     companyPaidHoliday.setPaidHoliday(paidHoliday);
     companyPaidHoliday.setCompany(paidHoliday.getCompany());

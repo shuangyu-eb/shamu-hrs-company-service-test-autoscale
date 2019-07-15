@@ -10,11 +10,13 @@ public interface PaidHolidayService {
 
   void initDefaultPaidHolidays(Company company);
 
-  List<PaidHolidayDto>  getPaidHolidays(Long companyId);
+  List<PaidHolidayDto> getPaidHolidays(Long companyId);
+
+  List<PaidHolidayDto> getPaidHolidaysByYear(Long companyId, String year);
 
   void updateHolidaySelects(List<PaidHolidayDto> paidHolidayDtos);
 
-  PaidHolidayDto createPaidHoliday(PaidHolidayDto paidHolidayDto, Company company);
+  void createPaidHoliday(PaidHolidayDto paidHolidayDto, Company company);
 
   void updatePaidHoliday(PaidHolidayDto paidHolidayDto);
 

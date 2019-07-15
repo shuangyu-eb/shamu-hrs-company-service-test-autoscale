@@ -31,7 +31,7 @@ public interface PaidHolidayRepository extends BaseRepository<PaidHoliday, Long>
           + " date = ?3 WHERE id = ?1 AND deleted_at IS NULL",
       nativeQuery = true
   )
-  void updateDetail(Long id, String name, String date);
+  void updateDetail(Long id, String name, Timestamp date);
 
   @Modifying
   @Transactional

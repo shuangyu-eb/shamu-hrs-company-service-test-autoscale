@@ -1,8 +1,8 @@
 package shamu.company.timeoff.service.impl;
 
+import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,10 +32,10 @@ public class PaidHolidayServiceImpl implements PaidHolidayService {
   private final PaidHolidayUserRepository paidHolidayUserRepository;
 
   @Autowired
-  public PaidHolidayServiceImpl(PaidHolidayRepository paidHolidayRepository,
-      CompanyPaidHolidayRepository companyPaidHolidayRepository,
-      UserService userService,
-      PaidHolidayUserRepository paidHolidayUserRepository) {
+  public PaidHolidayServiceImpl(final PaidHolidayRepository paidHolidayRepository,
+      final CompanyPaidHolidayRepository companyPaidHolidayRepository,
+      final UserService userService,
+      final PaidHolidayUserRepository paidHolidayUserRepository) {
     this.paidHolidayRepository = paidHolidayRepository;
     this.companyPaidHolidayRepository = companyPaidHolidayRepository;
     this.userService = userService;
@@ -43,25 +43,39 @@ public class PaidHolidayServiceImpl implements PaidHolidayService {
   }
 
   @Override
-  public void initDefaultPaidHolidays(Company company) {
+  public void initDefaultPaidHolidays(final Company company) {
     //TODO: query by country of company
-    List<PaidHoliday> defaultPaidHolidays = paidHolidayRepository.findDefaultPaidHolidays();
-    List<CompanyPaidHoliday> companyPaidHolidays = defaultPaidHolidays.stream()
+    final List<PaidHoliday> defaultPaidHolidays = paidHolidayRepository.findDefaultPaidHolidays();
+    final List<CompanyPaidHoliday> companyPaidHolidays = defaultPaidHolidays.stream()
         .map(holiday -> new CompanyPaidHoliday(holiday, company, true))
         .collect(Collectors.toList());
     companyPaidHolidayRepository.saveAll(companyPaidHolidays);
   }
 
   @Override
-  public List<PaidHolidayDto> getPaidHolidays(Long companyId) {
-    List<CompanyPaidHoliday> companyPaidHolidays = companyPaidHolidayRepository
+  public List<PaidHolidayDto> getPaidHolidays(final Long companyId) {
+    final List<CompanyPaidHoliday> companyPaidHolidays = companyPaidHolidayRepository
         .findAllByCompanyId(companyId);
     return companyPaidHolidays.stream().map(PaidHolidayDto::new)
         .collect(Collectors.toList());
   }
 
   @Override
-  public void updateHolidaySelects(List<PaidHolidayDto> holidaySelectDtos) {
+  public List<PaidHolidayDto> getPaidHolidaysByYear(final Long companyId, final String year) {
+    final List<PaidHolidayDto> paidHolidayDtos = getPaidHolidays(companyId);
+    return paidHolidayDtos.stream().filter(paidHolidayDto -> {
+      Timestamp date = paidHolidayDto.getDate();
+      if (date == null) {
+        return true;
+      }
+      LocalDate localDate = date.toLocalDateTime().toLocalDate();
+      int holidayYear = localDate.getYear();
+      return Integer.valueOf(year) == holidayYear;
+    }).collect(Collectors.toList());
+  }
+
+  @Override
+  public void updateHolidaySelects(final List<PaidHolidayDto> holidaySelectDtos) {
     holidaySelectDtos.forEach(holidaySelectDto ->
         paidHolidayRepository
             .updateHolidaySelect(holidaySelectDto.getId(), holidaySelectDto.getIsSelected())
@@ -69,56 +83,55 @@ public class PaidHolidayServiceImpl implements PaidHolidayService {
   }
 
   @Override
-  public PaidHolidayDto createPaidHoliday(PaidHolidayDto paidHolidayDto, Company company) {
-    PaidHoliday paidHoliday = paidHolidayDto.covertToNewPaidHolidayEntity(company);
-    PaidHoliday paidHolidayReturned = paidHolidayRepository.save(paidHoliday);
+  public void createPaidHoliday(final PaidHolidayDto paidHolidayDto,
+      final Company company) {
+    final PaidHoliday paidHoliday = paidHolidayDto.covertToNewPaidHolidayEntity(company);
+    final PaidHoliday paidHolidayReturned = paidHolidayRepository.save(paidHoliday);
 
-    CompanyPaidHoliday companyPaidHoliday = paidHolidayDto
+    final CompanyPaidHoliday companyPaidHoliday = paidHolidayDto
         .covertToNewCompanyPaidHolidayEntity(paidHolidayReturned);
-    CompanyPaidHoliday companyPaidHolidayReturned = companyPaidHolidayRepository
-        .save(companyPaidHoliday);
-    return new PaidHolidayDto(companyPaidHolidayReturned);
+    companyPaidHolidayRepository.save(companyPaidHoliday);
   }
 
   @Override
-  public void updatePaidHoliday(PaidHolidayDto paidHolidayDto) {
+  public void updatePaidHoliday(final PaidHolidayDto paidHolidayDto) {
     paidHolidayRepository.updateDetail(
         paidHolidayDto.getId(), paidHolidayDto.getName(), paidHolidayDto.getDate());
   }
 
   @Override
-  public void deletePaidHoliday(Long id) {
+  public void deletePaidHoliday(final Long id) {
     paidHolidayRepository.delete(id);
   }
 
   @Override
-  public PaidHolidayRelatedUserListDto getPaidHolidayEmployees(Company company) {
-    List<JobUserDto> allEmployees = userService.findAllEmployees(company);
+  public PaidHolidayRelatedUserListDto getPaidHolidayEmployees(final Company company) {
+    final List<JobUserDto> allEmployees = userService.findAllEmployees(company);
 
-    List<PaidHolidayUser> filterDataSet = paidHolidayUserRepository
+    final List<PaidHolidayUser> filterDataSet = paidHolidayUserRepository
         .findAllByCompanyId(company.getId());
 
-    List<Long> unSelectedEmployeeIds = filterDataSet.stream()
+    final List<Long> unSelectedEmployeeIds = filterDataSet.stream()
         .filter(e -> e.isSelected() == false).map(u -> u.getUserId()).collect(Collectors.toList());
 
-    List<JobUserDto> selectedEmployees = allEmployees.stream()
+    final List<JobUserDto> selectedEmployees = allEmployees.stream()
         .filter(u -> !unSelectedEmployeeIds.contains(u.getId())).collect(Collectors.toList());
 
-    List<JobUserDto> unSelectedEmployees = allEmployees.stream()
+    final List<JobUserDto> unSelectedEmployees = allEmployees.stream()
         .filter(u -> unSelectedEmployeeIds.contains(u.getId())).collect(Collectors.toList());
 
-
-    return new PaidHolidayRelatedUserListDto(selectedEmployees,unSelectedEmployees);
+    return new PaidHolidayRelatedUserListDto(selectedEmployees, unSelectedEmployees);
   }
 
   @Override
-  public void updatePaidHolidayEmployees(List<JobUserDto> newPaidEmployees,Company company) {
-    List<Long> paidEmployeeIdsNow = new ArrayList<>();
+  public void updatePaidHolidayEmployees(final List<JobUserDto> newPaidEmployees,
+      final Company company) {
+    final List<Long> paidEmployeeIdsNow = new ArrayList<>();
     newPaidEmployees.stream().map(e -> paidEmployeeIdsNow.add(e.getId()))
         .collect(Collectors.toList());
-    List<PaidHolidayUser> employeesStateBefore = paidHolidayUserRepository
+    final List<PaidHolidayUser> employeesStateBefore = paidHolidayUserRepository
         .findAllByCompanyId(company.getId());
-    List<Long> employeesIdsBefore = new ArrayList<>();
+    final List<Long> employeesIdsBefore = new ArrayList<>();
 
     employeesStateBefore.stream().forEach(u -> {
       employeesIdsBefore.add(u.getUserId());
@@ -132,13 +145,15 @@ public class PaidHolidayServiceImpl implements PaidHolidayService {
 
     newPaidEmployees.stream().forEach(u -> {
       if (employeesIdsBefore.contains(u.getId())) {
-        PaidHolidayUser origin = paidHolidayUserRepository
-            .findByCompanyIdAndUserId(company.getId(),u.getId());
+        final PaidHolidayUser origin = paidHolidayUserRepository
+            .findByCompanyIdAndUserId(company.getId(), u.getId());
         origin.setSelected(true);
         paidHolidayUserRepository.save(origin);
         return;
       }
-      PaidHolidayUser newAddedPaidHolidayUser = new PaidHolidayUser(company.getId(),u.getId(),true);
+      final PaidHolidayUser newAddedPaidHolidayUser = new PaidHolidayUser(company.getId(),
+          u.getId(),
+          true);
       paidHolidayUserRepository.save(newAddedPaidHolidayUser);
     });
 

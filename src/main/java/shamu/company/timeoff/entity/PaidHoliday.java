@@ -1,5 +1,6 @@
 package shamu.company.timeoff.entity;
 
+import java.sql.Timestamp;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -25,5 +26,7 @@ public class PaidHoliday extends BaseEntity {
 
   private String name;
 
-  private String date;
+  private String nameShow;
+
+  private Timestamp date;
 }

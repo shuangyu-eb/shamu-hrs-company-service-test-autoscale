@@ -21,14 +21,14 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
   private final DefaultAuthenticationEntryPoint defaultAuthenticationEntryPoint;
 
   @Autowired
-  public WebSecurityConfiguration(JwtAuthorizationFilter jwtAuthorizationFilter,
-      DefaultAuthenticationEntryPoint defaultAuthenticationEntryPoint) {
+  public WebSecurityConfiguration(final JwtAuthorizationFilter jwtAuthorizationFilter,
+      final DefaultAuthenticationEntryPoint defaultAuthenticationEntryPoint) {
     this.jwtAuthorizationFilter = jwtAuthorizationFilter;
     this.defaultAuthenticationEntryPoint = defaultAuthenticationEntryPoint;
   }
 
   @Override
-  protected void configure(HttpSecurity http) throws Exception {
+  protected void configure(final HttpSecurity http) throws Exception {
     http
         .csrf().disable()
         .cors().disable()
@@ -45,7 +45,8 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
             "/company/account/password",
             "/company/account/password/**",
             "/company/user/sign-up/email",
-            "/company/user/password/reset/**"
+            "/company/user/password/reset/**",
+            "/company/paid-holidays/default"
         ).permitAll()
         .anyRequest().authenticated()
         .and()
