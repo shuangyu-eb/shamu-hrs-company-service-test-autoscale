@@ -93,7 +93,7 @@ public class TimeOffPolicyRestController extends BaseRestController {
   }
 
   @PatchMapping("time-off-policy/employees/{id}")
-  public void updateTimeOffPolicyEmployeesInfo(@PathVariable Long id,
+  public void updateTimeOffPolicyEmployeesInfo(@HashidsFormat @PathVariable Long id,
       @RequestBody TimeOffPolicyWrapperPojo timeOffPolicyWrapperPojo) {
     List<TimeOffPolicyUserPojo> timeOffPolicyUserPojos = timeOffPolicyWrapperPojo
         .getUserStartBalances();

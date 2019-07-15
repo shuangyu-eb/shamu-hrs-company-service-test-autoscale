@@ -8,16 +8,19 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.company.entity.Company;
 import shamu.company.hashids.HashidsFormat;
+import shamu.company.job.dto.JobUserDto;
 import shamu.company.timeoff.dto.PaidHolidayDto;
+import shamu.company.timeoff.dto.PaidHolidayRelatedUserListDto;
 import shamu.company.timeoff.service.PaidHolidayService;
 import shamu.company.user.entity.User;
 import shamu.company.user.service.UserService;
 
 @RestApiController
-public class PaidHolidayRestController {
+public class PaidHolidayRestController extends BaseRestController {
 
   private final UserService userService;
 
@@ -34,6 +37,19 @@ public class PaidHolidayRestController {
     User user = userService.findUserById(userId);
     Company company = user.getCompany();
     return paidHolidayService.getPaidHolidays(company.getId());
+  }
+
+
+  @GetMapping(value = "paid-holiday/employees")
+  public PaidHolidayRelatedUserListDto getPaidHolidays() {
+    Company company = this.getCompany();
+    return paidHolidayService.getPaidHolidayEmployees(company);
+  }
+
+  @PatchMapping(value = "paid-holiday/employees")
+  public void updatePaidHolidayEmployees(@RequestBody List<JobUserDto> updatePaidHolidayEmployees) {
+    Company company = this.getCompany();
+    paidHolidayService.updatePaidHolidayEmployees(updatePaidHolidayEmployees, company);
   }
 
   @PostMapping(value = "paid-holidays/default")

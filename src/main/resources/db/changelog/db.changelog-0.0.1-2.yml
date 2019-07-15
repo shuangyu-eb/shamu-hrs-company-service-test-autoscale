@@ -2120,3 +2120,35 @@ databaseChangeLog:
           file: db/changelog/data/time-off-accrual-frequencies.csv
           primaryKey: id
           tableName: time_off_accrual_frequencies
+
+- changeSet:
+      id: 1562815400868-10
+      author: shuangyu-eb
+      changes:
+      - createTable:
+          columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                      primaryKey: true
+              - column:
+                  name: company_id
+                  type: BIGINT
+              - column:
+                  name: user_id
+                  type: BIGINT
+              - column:
+                  name: is_selected
+                  type: BOOLEAN
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+              - column:
+                  name: deleted_at
+                  type: datetime
+          tableName: paid_holidays_users
