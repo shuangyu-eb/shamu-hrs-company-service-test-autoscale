@@ -13,6 +13,7 @@ import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.hashids.HashidsFormat;
 import shamu.company.user.dto.BasicUserPersonalInformationDto;
 import shamu.company.user.dto.UserPersonalInformationDto;
+import shamu.company.user.dto.UserRoleAndStatusInfoDto;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
 import shamu.company.user.entity.UserPersonalInformation;
@@ -70,5 +71,13 @@ public class UserPersonalInformationRestController extends BaseRestController {
         new BasicUserPersonalInformationDto(userPersonalInformation);
     basicUserPersonalInformationDto.setBirthDate(birthDateWithoutYear);
     return basicUserPersonalInformationDto;
+  }
+
+  @GetMapping("users/{id}/user-role-status")
+  @PreAuthorize("hasPermission(#id, 'USER', 'VIEW_SETTING')")
+  public UserRoleAndStatusInfoDto getUserRoleAndStatus(
+          @PathVariable @HashidsFormat Long id) {
+    User targetUser = userService.findUserById(id);
+    return new UserRoleAndStatusInfoDto(targetUser);
   }
 }
