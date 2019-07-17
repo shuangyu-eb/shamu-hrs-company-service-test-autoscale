@@ -104,16 +104,23 @@ public class EmployeeServiceImpl implements EmployeeService {
   private final UserContactInformationService userContactInformationService;
 
   @Autowired
-  public EmployeeServiceImpl(UserAddressRepository userAddressRepository,
-      UserRepository userRepository, JobUserRepository jobUserRepository,
+  public EmployeeServiceImpl(
+      UserAddressRepository userAddressRepository,
+      UserRepository userRepository,
+      JobUserRepository jobUserRepository,
       EmploymentTypeRepository employmentTypeRepository,
-      OfficeRepository officeRepository, UserService userService,
+      OfficeRepository officeRepository,
+      UserService userService,
       StateProvinceRepository stateProvinceRepository,
       UserCompensationRepository userCompensationRepository,
-      UserEmergencyContactRepository userEmergencyContactRepository, JobRepository jobRepository,
-      UserRoleRepository userRoleRepository, UserStatusRepository userStatusRepository,
-      AwsUtil awsUtil, GenderRepository genderRepository,
-      MaritalStatusRepository maritalStatusRepository, EmailService emailService,
+      UserEmergencyContactRepository userEmergencyContactRepository,
+      JobRepository jobRepository,
+      UserRoleRepository userRoleRepository,
+      UserStatusRepository userStatusRepository,
+      AwsUtil awsUtil,
+      GenderRepository genderRepository,
+      MaritalStatusRepository maritalStatusRepository,
+      EmailService emailService,
       CompensationFrequencyRepository compensationFrequencyRepository,
       UserPersonalInformationService userPersonalInformationService,
       UserContactInformationService userContactInformationService) {
@@ -139,10 +146,10 @@ public class EmployeeServiceImpl implements EmployeeService {
   }
 
   @Override
-  public List<User> findEmployersAndEmployeesByDepartmentIdAndCompanyId(Long departmentId,
-      Long companyId) {
-    return userRepository
-        .findEmployersAndEmployeesByDepartmentIdAndCompanyId(departmentId, companyId);
+  public List<User> findEmployersAndEmployeesByDepartmentIdAndCompanyId(
+      Long departmentId, Long companyId) {
+    return userRepository.findEmployersAndEmployeesByDepartmentIdAndCompanyId(
+        departmentId, companyId);
   }
 
   @Override
@@ -232,8 +239,8 @@ public class EmployeeServiceImpl implements EmployeeService {
       employee.setUserPersonalInformation(userPersonalInformation);
     }
 
-    UserContactInformationDto userContactInformationDto = employeeDto
-        .getUserContactInformationDto();
+    UserContactInformationDto userContactInformationDto =
+        employeeDto.getUserContactInformationDto();
     if (userContactInformationDto != null) {
       employee.setUserContactInformation(
           userContactInformationDto.getUserContactInformation(new UserContactInformation()));
@@ -256,27 +263,27 @@ public class EmployeeServiceImpl implements EmployeeService {
     employee.setImageUrl(photoPath);
 
     UserPersonalInformation userPersonalInformation = employee.getUserPersonalInformation();
-    UserPersonalInformationDto userPersonalInformationDto = employeeDto
-        .getUserPersonalInformationDto();
+    UserPersonalInformationDto userPersonalInformationDto =
+        employeeDto.getUserPersonalInformationDto();
     UserPersonalInformation newUserPersonalInformation =
         userPersonalInformationDto.getUserPersonalInformation(userPersonalInformation);
     if (userPersonalInformation != null) {
       newUserPersonalInformation.setId(userPersonalInformation.getId());
     }
-    UserPersonalInformation savedUserPersonalInformation = userPersonalInformationService
-        .update(newUserPersonalInformation);
+    UserPersonalInformation savedUserPersonalInformation =
+        userPersonalInformationService.update(newUserPersonalInformation);
     employee.setUserPersonalInformation(savedUserPersonalInformation);
 
     UserContactInformation userContactInformation = employee.getUserContactInformation();
-    UserContactInformationDto userContactInformationDto = employeeDto
-        .getUserContactInformationDto();
+    UserContactInformationDto userContactInformationDto =
+        employeeDto.getUserContactInformationDto();
     UserContactInformation newUserContactInformation =
         userContactInformationDto.getUserContactInformation(userContactInformation);
     if (userContactInformation != null) {
       newUserContactInformation.setId(userContactInformation.getId());
     }
-    UserContactInformation savedUserContactInformation = userContactInformationService
-        .update(newUserContactInformation);
+    UserContactInformation savedUserContactInformation =
+        userContactInformationService.update(newUserContactInformation);
     employee.setUserContactInformation(savedUserContactInformation);
 
     return userRepository.save(employee);
@@ -307,8 +314,8 @@ public class EmployeeServiceImpl implements EmployeeService {
 
   private void updateEmergencyContacts(
       User employee, List<UserEmergencyContactDto> emergencyContactDtos) {
-    List<UserEmergencyContact> userEmergencyContacts = userEmergencyContactRepository
-        .findByUserId(employee.getId());
+    List<UserEmergencyContact> userEmergencyContacts =
+        userEmergencyContactRepository.findByUserId(employee.getId());
     userEmergencyContactRepository.deleteInBatch(userEmergencyContacts);
     saveEmergencyContacts(employee, emergencyContactDtos);
   }
@@ -316,8 +323,13 @@ public class EmployeeServiceImpl implements EmployeeService {
   private void saveManagerUser(User user, NewEmployeeJobInformationDto jobInformation) {
     Long managerUserId = jobInformation.getReportsTo();
     if (managerUserId != null) {
-      User managerUser = userRepository.findById(managerUserId).orElseThrow(
-          () -> new ResourceNotFoundException("User with id " + managerUserId + " not found!"));
+      User managerUser =
+          userRepository
+              .findById(managerUserId)
+              .orElseThrow(
+                  () ->
+                      new ResourceNotFoundException(
+                          "User with id " + managerUserId + " not found!"));
 
       if (Role.NON_MANAGER.name().equals(managerUser.getUserRole().getName())) {
         UserRole userRole = userRoleRepository.findByName(Role.MANAGER.name());
@@ -336,8 +348,8 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     Long compensationFrequencyId = jobInformation.getCompensationFrequencyId();
     if (compensationFrequencyId != null) {
-      CompensationFrequency compensationFrequency = compensationFrequencyRepository
-          .getOne(compensationFrequencyId);
+      CompensationFrequency compensationFrequency =
+          compensationFrequencyRepository.getOne(compensationFrequencyId);
       userCompensation.setCompensationFrequency(compensationFrequency);
     }
     userCompensation.setUserId(user.getId());
@@ -418,8 +430,8 @@ public class EmployeeServiceImpl implements EmployeeService {
     String to = welcomeEmailDto.getSendTo();
     String content = welcomeEmailDto.getPersonalInformation();
 
-    Context emailContext = userService
-        .getWelcomeEmailContext(content, employee.getResetPasswordToken());
+    Context emailContext =
+        userService.getWelcomeEmailContext(content, employee.getResetPasswordToken());
     content = userService.getWelcomeEmail(emailContext);
     Timestamp sendDate = welcomeEmailDto.getSendDate();
 
