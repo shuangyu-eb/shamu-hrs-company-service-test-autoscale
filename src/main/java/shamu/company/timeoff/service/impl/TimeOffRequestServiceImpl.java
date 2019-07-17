@@ -177,30 +177,57 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
     Map<String, Object> variables = getVariablesOfTimeOffRequestEmail(timeOffRequest);
     String template;
     Email email;
+
     if (status == APPROVED || status == TimeOffRequestApprovalStatus.DENIED) {
       User approver = timeOffRequest.getApproverUser();
 
-      String subject = "Time Off " + (status == APPROVED ? "Approved" : "Denied");
-      template = "time_off_request_approve_deny.html";
+      boolean isApproved = status == APPROVED;
+      String subject = "Time Off " + (isApproved ? "Approved" : "Denied");
+      template = "time_off_request_" + (isApproved ? "approve" : "deny") + ".html";
       email = new Email(approver, requester, subject);
 
       variables.put("approverComments", timeOffRequest.getApproverComments());
       variables.put("approverId", approver.getId());
       variables.put("approverName", approver.getUserPersonalInformation().getName());
       variables.put("approverImageUrl", approver.getImageUrl());
-    } else {
-      User approver = (User) timeOffRequest.getApprovers().toArray()[0];
-      email = new Email(requester, approver, "Time Off Request");
-      template = "time_off_request_pending.html";
 
-      long conflict = getConflictOfTimeOffRequest(timeOffRequest);
-      Integer balance = timeOffPolicyUserRepository.getBalanceByUserId(requester.getId());
-      variables.put("remain", balance - timeOffRequest.getHours());
-      variables.put("conflict", conflict);
-      variables.put("requesterId", requester.getId());
-      variables.put("requesterName", requester.getUserPersonalInformation().getName());
+      if (isApproved) {
+        long conflict = getConflictOfTimeOffRequest(timeOffRequest);
+        Integer balance = timeOffPolicyUserRepository.getBalanceByUserId(requester.getId());
+        variables.put("remain", balance);
+        variables.put("conflict", conflict);
+      }
+
+      sendEmail(variables, template, email);
+
+      List<User> manager = timeOffRequest.getApprovers().stream()
+          .filter(user -> !user.getId().equals(approver.getId()))
+          .collect(Collectors.toList());
+      if (!manager.isEmpty()) {
+        String subject2 = subject + "by " + approver.getUserPersonalInformation().getName();
+        variables.put("toManager", true);
+        manager.forEach(user -> {
+          Email managerEmail = new Email(approver, user, subject2);
+          sendEmail(variables, template, managerEmail);
+        });
+      }
+      return;
     }
+    User approver = (User) timeOffRequest.getApprovers().toArray()[0];
+    email = new Email(requester, approver, "Time Off Request");
+    template = "time_off_request_pending.html";
 
+    long conflict = getConflictOfTimeOffRequest(timeOffRequest);
+    Integer balance = timeOffPolicyUserRepository.getBalanceByUserId(requester.getId());
+    variables.put("remain", balance - timeOffRequest.getHours());
+    variables.put("conflict", conflict);
+    variables.put("requesterId", requester.getId());
+    variables.put("requesterName", requester.getUserPersonalInformation().getName());
+
+    sendEmail(variables, template, email);
+  }
+
+  private void sendEmail(Map<String, Object> variables, String template, Email email) {
     String emailContent = templateEngine.process(template, new Context(Locale.ENGLISH, variables));
     email.setSendDate(new Timestamp(new Date().getTime()));
     email.setContent(emailContent);
@@ -214,9 +241,11 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
     TimeOffRequest original = getById(timeOffRequest.getId());
 
     TimeOffRequestApprovalStatus status = timeOffRequest.getTimeOffApprovalStatus();
-    TimeOffRequestApprovalStatus originalStatus = original.getTimeOffApprovalStatus();
     original.setTimeOffApprovalStatus(status);
+    original.setApproverUser(timeOffRequest.getApproverUser());
     original.setApprovedDate(Timestamp.from(Instant.now()));
+
+    TimeOffRequestApprovalStatus originalStatus = original.getTimeOffApprovalStatus();
     if (status != originalStatus && (status == APPROVED || originalStatus == APPROVED)) {
       TimeOffPolicyUser timeOffPolicyUser =
           timeOffPolicyUserRepository.findTimeOffPolicyUserByUserAndTimeOffPolicy(
@@ -235,13 +264,13 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
       original.setComment(timeOffRequestComment);
     }
 
-    timeOffRequest = timeOffRequestRepository.save(original);
+    original = timeOffRequestRepository.save(original);
 
     if (status == APPROVED || status == DENIED) {
-      sendTimeOffRequestEmail(timeOffRequest);
+      sendTimeOffRequestEmail(original);
     }
 
-    return timeOffRequest;
+    return original;
   }
 
   @Override

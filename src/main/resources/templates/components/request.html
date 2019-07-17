@@ -58,9 +58,48 @@
 </div>
 
 
-<div style="padding-bottom: 20px;font-size: 16px;line-height: 1.5; text-align: center;"
-     th:fragment="time">
-  <span th:text="${timeRange}"></span>&nbsp;(<span th:text="${hours}"></span>&nbsp;hours)
+<div
+    th:fragment="time"
+    style="margin: auto; padding-top: 10px; border: solid 1px #dfe2e9;
+     font-size: 16px; text-align: center; line-height: 1.56;  width: 277px;
+     height: 156px; border-radius: 5px;">
+  <img style="margin: 10px auto; height: 60px; width: 60px;"
+       th:src="@{${frontEndAddress}+'image/timeOff.svg'}">
+
+  <div style="font-weight: 500" th:text="${type}">Vacation</div>
+
+  <div style="padding-bottom: 20px;font-size: 16px;line-height: 1.5; text-align: center;">
+    <span th:text="${timeRange}"></span>&nbsp;(<span th:text="${hours}"></span>&nbsp;hours)
+  </div>
 </div>
+
+<div
+    th:fragment="requster"
+    style="height: 46px; display: flex; align-items: center; justify-content: center;
+     color: #2e3033; line-height: 0.78; letter-spacing: 0.4px;font-size: 18px;">
+  <img
+      style="float:left; width: 45px; height: 45px; border: 1px solid gray; border-radius: 50%; overflow: hidden"
+      th:src="${pathPrefix+requesterImageUrl}"
+  >
+  &nbsp;&nbsp;
+  <a style="color: #488eff;text-decoration: none;"
+     th:href="@{${frontEndAddress}+'employees/'+${requesterId}}"
+     th:text="${requesterName}">name</a>
+  &nbsp;Requested Time Off
+</div>
+
+
+<div
+    th:fragment="viewDetail"
+    style=" margin-top: 30px; padding: 30px;display: flex; justify-content: center; align-items: center; font-weight: 500; background: #f7f8fa;">
+  <a style="text-decoration: none;cursor: pointer; padding-right: 10px"
+     th:href="@{${frontEndAddress}+'time-off'}">
+    <div
+        style="width: 170px; height: 40px; border-radius: 20px; border: solid 1px #d8dadf; background-color: white;">
+      <div style="text-align:center; line-height: 40px; color: #488eff;">View Full Details</div>
+    </div>
+  </a>
+</div>
+
 </body>
 </html>

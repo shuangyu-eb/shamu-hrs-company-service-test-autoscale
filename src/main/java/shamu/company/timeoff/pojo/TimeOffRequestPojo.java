@@ -30,7 +30,6 @@ public class TimeOffRequestPojo {
   public TimeOffRequest getTimeOffRequest(User requester) {
     TimeOffRequest timeOffRequest = new TimeOffRequest();
     timeOffRequest.setRequesterUser(requester);
-    timeOffRequest.setApprover(requester.getManagerUser());
     if (Strings.isNotBlank(this.comment)) {
       TimeOffRequestComment timeOffRequestComment =
           new TimeOffRequestComment(requester, this.comment);

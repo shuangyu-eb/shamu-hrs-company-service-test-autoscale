@@ -17,31 +17,19 @@
        color: #2e3033;">
       <img style="width: 19px;height: 20px;margin-right: 8px;"
            th:src="@{${frontEndAddress}+'image/pending.svg'}">
-      &nbsp;&nbsp;Pending your approval
+      &nbsp;&nbsp;Awaiting your approval
+    </div>
+    <div th:insert="components/request::requster" style="margin: 20px">
     </div>
 
-    <div style="padding: 27px 0;font-size: 24px; text-align: center; line-height: 1.38;">
-      Pending Time Off Request
-    </div>
-    <div style="text-align: center;">
-      <img style="border: solid 1px #dfe2e9;width: 88px;height: 88px; border-radius: 50%"
-           th:src="@{${pathPrefix+requesterImageUrl}}">
-    </div>
-
-    <div style="padding-top: 20px; text-align: center; font-size: 16px; line-height: 1.5;">
-      <a style="color: #488eff;text-decoration: none;"
-         th:href="@{${frontEndAddress}+'employees/'+${requesterId}}"
-         th:text="${requesterName}"></a>
-      &nbsp;requested&nbsp;<span th:text="${type}"></span>&nbsp;time off
-    </div>
 
     <div th:replace="components/request::time"></div>
 
     <div style="padding: 0 30px">
       <div
           style="border-top: solid 1px #dfe2e9; height: 52px; font-weight: 500;display: flex; align-items: center;">
-        Remaining Balance if Approved: <span
-          th:text="${remain} + (${remain} > 1 ? ' Hours': 'Hour')"></span>
+        Remaining Balance if Approved:
+        <span th:text="${remain} + (${remain} > 1 ? ' Hours': 'Hour')"></span>
       </div>
       <div
           style="font-weight: 500;border-top: solid 1px #dfe2e9; border-bottom: solid 1px #dfe2e9; height: 52px; display: flex; align-items: center;">
@@ -51,28 +39,30 @@
     </div>
 
     <div th:replace="components/request::comment"></div>
-
-    <div
-        style="padding-top:15px;display: flex; justify-content: center; align-items: center; font-weight: 500;">
-      <a style="text-decoration: none;cursor: pointer; padding-right: 10px"
-         th:href="@{${frontEndAddress}+'time-off/requests'}">
-        <div
-            style="width: 120px; height: 40px; border-radius: 20px; border: solid 1px #d8dadf; background-color: white;">
-          <div style="text-align:center; line-height: 40px; color: #488eff;">Deny</div>
-        </div>
-      </a>
-      <a style="text-decoration: none;cursor: pointer; padding-left: 10px"
-         th:href="@{${frontEndAddress}+'time-off/requests'}">
-        <div style="width: 120px; height: 40px; border-radius: 20px; background-color: #488eff;">
-          <div style="text-align:center; line-height: 40px;color: white">Approve</div>
-        </div>
-      </a>
+    <div style="background: #f7f8fa;">
+      <div
+          style="padding-top:15px;display: flex; justify-content: center; align-items: center; font-weight: 500;">
+        <a style="text-decoration: none;cursor: pointer; padding-right: 10px"
+           th:href="@{${frontEndAddress}+'time-off/requests'}">
+          <div
+              style="width: 120px; height: 40px; border-radius: 20px; border: solid 1px #d8dadf; background-color: white;">
+            <div style="text-align:center; line-height: 40px; color: #488eff;">Deny</div>
+          </div>
+        </a>
+        <a style="text-decoration: none;cursor: pointer; padding-left: 10px"
+           th:href="@{${frontEndAddress}+'time-off/requests'}">
+          <div style="width: 120px; height: 40px; border-radius: 20px; background-color: #488eff;">
+            <div style="text-align:center; line-height: 40px;color: white">Approve</div>
+          </div>
+        </a>
+      </div>
+      <div
+          style="font-size: 14px; width: fit-content; margin: auto; padding: 30px;">
+        <a style="color: #488eff;cursor: pointer; text-decoration: none;"
+           th:href="@{${frontEndAddress}+'time-off/requests'}">View Full
+          Details</a>
     </div>
-    <div
-        style="font-size: 14px; width: fit-content; margin: 30px auto;">
-      <a style="color: #488eff;cursor: pointer; text-decoration: none;"
-         th:href="@{${frontEndAddress}+'time-off/requests'}">View Full
-        Details</a>
+
     </div>
   </div>
 </section>

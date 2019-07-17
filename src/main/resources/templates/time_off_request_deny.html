@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en"
+      th:replace="~{base_email :: layout(~{::section})}" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <link href="https://fonts.googleapis.com/css?family=Roboto" media="all" rel="stylesheet"
+        type="text/css">
+</head>
+<body>
+
+<section>
+  <div style="width: 552px;border-radius: 4px;
+  font-size: 14px;font-family: Roboto;background-color: #ffffff;"
+  >
+
+    <div style="width: 552px;height: 53px;display: flex;
+    align-items: center;justify-content: center; color: #2e3033; background: #ffefef;"
+    >
+      <img style="width: 19px;height: 20px;margin-right: 8px;"
+           th:src="@{${frontEndAddress}+'image/deny.svg'}">
+      &nbsp;&nbsp;
+      <span>Denied by</span>&nbsp;
+      <span th:text="${approverName}"></span>
+    </div>
+
+
+
+    <div style="margin: 20px 32px; line-height: 59px; border-radius: 4px; width: 488px; height: 59px; text-align: center; background: #f7f8fa; color: gray;"
+    >
+      *<span th:text="${hours}">16</span> hours have been added back to your Vacation time off balance
+    </div>
+
+    <div th:if="${toManager}" th:insert="components/request::requster"></div>
+
+    <div th:replace="components/request::time"></div>
+
+    <div th:replace="components/request::comment"></div>
+
+    <div th:replace="components/request::viewDetail"></div>
+
+  </div>
+</section>
+
+</body>
+</html>

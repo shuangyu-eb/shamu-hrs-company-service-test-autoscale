@@ -67,6 +67,7 @@ public class TimeOffRequestRestController extends BaseRestController {
       @PathVariable @HashidsFormat Long userId, @RequestBody TimeOffRequestPojo requestPojo) {
     User user = userService.findUserById(userId);
     TimeOffRequest timeOffRequest = requestPojo.getTimeOffRequest(user);
+    timeOffRequest.setApprover(user.getManagerUser());
 
     TimeOffRequest timeOffRequestReturned =
         saveTimeOffRequest(
@@ -82,7 +83,9 @@ public class TimeOffRequestRestController extends BaseRestController {
       @PathVariable @HashidsFormat Long userId, @RequestBody TimeOffRequestPojo requestPojo) {
     User user = userService.findUserById(userId);
     TimeOffRequest timeOffRequest = requestPojo.getTimeOffRequest(user);
-    timeOffRequest.setApproverUser(getUser());
+    User approver = this.getUser();
+    timeOffRequest.setApproverUser(approver);
+    timeOffRequest.setApprover(approver);
     timeOffRequest.setApprovedDate(Timestamp.from(Instant.now()));
 
     TimeOffRequest timeOffRequestReturned =

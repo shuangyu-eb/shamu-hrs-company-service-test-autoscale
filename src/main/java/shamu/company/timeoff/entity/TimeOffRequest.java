@@ -29,13 +29,16 @@ import shamu.company.user.entity.User;
 @Where(clause = "deleted_at IS NULL")
 public class TimeOffRequest extends BaseEntity {
 
-  @ManyToOne private User requesterUser;
+  @ManyToOne
+  private User requesterUser;
 
-  @ManyToOne private User approverUser;
+  @ManyToOne
+  private User approverUser;
 
   private Timestamp approvedDate;
 
-  @ManyToOne private TimeOffPolicy timeOffPolicy;
+  @ManyToOne
+  private TimeOffPolicy timeOffPolicy;
 
   @Column(name = "time_off_request_approval_status_id")
   @Convert(converter = Converter.class)
