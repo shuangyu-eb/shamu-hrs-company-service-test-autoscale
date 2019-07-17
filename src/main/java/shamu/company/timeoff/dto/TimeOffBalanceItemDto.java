@@ -1,19 +1,24 @@
 package shamu.company.timeoff.dto;
 
-import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import shamu.company.hashids.HashidsFormat;
 
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Builder
-public class TimeOffBalanceDto {
+public class TimeOffBalanceItemDto {
 
-  private boolean showTotalBalance;
+  @HashidsFormat
+  private Long id;
 
-  private List<TimeOffBalanceItemDto> timeOffBalanceItemDtos;
+  private String name;
+
+  private Integer balance;
+
+  private boolean showBalance;
 }

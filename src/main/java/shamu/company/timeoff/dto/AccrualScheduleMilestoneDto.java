@@ -1,12 +1,10 @@
 package shamu.company.timeoff.dto;
 
 import com.alibaba.fastjson.annotation.JSONField;
-import java.sql.Timestamp;
-import java.util.List;
+import javax.validation.constraints.NotNull;
 import lombok.Data;
 import shamu.company.hashids.HashidsFormat;
 import shamu.company.timeoff.entity.AccrualScheduleMilestone;
-import shamu.company.timeoff.entity.TimeOffPolicyAccrualSchedule;
 
 @Data
 public class AccrualScheduleMilestoneDto {
@@ -16,6 +14,7 @@ public class AccrualScheduleMilestoneDto {
   @HashidsFormat
   private Long timeOffPolicyAccrualScheduleId;
 
+  @NotNull
   private Integer accrualHours;
 
   private Integer accrualInterval;

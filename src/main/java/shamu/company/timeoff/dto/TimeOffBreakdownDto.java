@@ -11,6 +11,8 @@ public class TimeOffBreakdownDto {
 
   private Long untilDateInMillis;
 
+  private boolean showBalance;
+
   private List<TimeOffBreakdownItemDto> list;
   
   public void resetBalance() {

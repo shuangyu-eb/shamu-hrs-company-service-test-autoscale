@@ -1,6 +1,7 @@
 package shamu.company.timeoff.dto;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import javax.validation.constraints.NotNull;
 import lombok.Data;
 import shamu.company.hashids.HashidsFormat;
 import shamu.company.timeoff.entity.TimeOffAccrualFrequency;
@@ -13,6 +14,7 @@ public class TimeOffPolicyAccrualScheduleDto {
   @HashidsFormat
   private Long id;
 
+  @NotNull
   private Integer accrualHours;
 
   private Integer maxBalance;

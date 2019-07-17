@@ -5,6 +5,8 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
+import javax.validation.Valid;
+import org.apache.commons.lang.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
@@ -57,7 +59,8 @@ public class TimeOffPolicyRestController extends BaseRestController {
   }
 
   @PostMapping("time-off-policy")
-  public void createTimeOffPolicy(@RequestBody TimeOffPolicyWrapperPojo timeOffPolicyWrapperPojo) {
+  public void createTimeOffPolicy(
+      @Valid @RequestBody TimeOffPolicyWrapperPojo timeOffPolicyWrapperPojo) {
 
     TimeOffPolicyPojo timeOffPolicyPojo = timeOffPolicyWrapperPojo.getTimeOffPolicy();
     TimeOffPolicyAccrualScheduleDto timeOffPolicyAccrualScheduleDto = timeOffPolicyWrapperPojo
@@ -74,7 +77,7 @@ public class TimeOffPolicyRestController extends BaseRestController {
   }
 
   @PatchMapping("time-off-policy/{id}")
-  public void updateTimeOffPolicy(@HashidsFormat @PathVariable Long id,
+  public void updateTimeOffPolicy(@Valid @HashidsFormat @PathVariable Long id,
       @RequestBody TimeOffPolicyWrapperPojo infoWrapper) {
 
     TimeOffPolicyPojo timeOffPolicyPojo = infoWrapper.getTimeOffPolicy();
@@ -82,11 +85,14 @@ public class TimeOffPolicyRestController extends BaseRestController {
     TimeOffPolicy timeOffPolicyUpdated = timeOffPolicyPojo.getTimeOffPolicy(origin);
 
     timeOffPolicyService.updateTimeOffPolicy(timeOffPolicyUpdated);
-    timeOffPolicyService
-        .updateTimeOffPolicyMilestones(timeOffPolicyUpdated, infoWrapper.getMilestones());
 
-    timeOffPolicyService.updateTimeOffPolicySchedule(timeOffPolicyUpdated,
-        infoWrapper.getTimeOffPolicyAccrualSchedule());
+    if (BooleanUtils.isTrue(origin.getIsLimited())) {
+      timeOffPolicyService
+          .updateTimeOffPolicyMilestones(timeOffPolicyUpdated, infoWrapper.getMilestones());
+
+      timeOffPolicyService.updateTimeOffPolicySchedule(timeOffPolicyUpdated,
+          infoWrapper.getTimeOffPolicyAccrualSchedule());
+    }
 
     List<TimeOffPolicyUserPojo> timeOffPolicyUserPojos = infoWrapper.getUserStartBalances();
     timeOffPolicyService.updateTimeOffPolicyUserInfo(timeOffPolicyUserPojos, id);
@@ -98,13 +104,12 @@ public class TimeOffPolicyRestController extends BaseRestController {
     List<TimeOffPolicyUserPojo> timeOffPolicyUserPojos = timeOffPolicyWrapperPojo
         .getUserStartBalances();
     timeOffPolicyService.updateTimeOffPolicyUserInfo(timeOffPolicyUserPojos, id);
-
   }
 
   @GetMapping("users/{userId}/time-off-balances")
   @PreAuthorize("hasPermission(#userId,'USER','MANAGE_USER_TIME_OFF_BALANCE') "
       + "or hasAnyAuthority('MANAGE_SELF_TIME_OFF_BALANCE')")
-  public List<TimeOffBalanceDto> getTimeOffBalances(@HashidsFormat @PathVariable Long userId) {
+  public TimeOffBalanceDto getTimeOffBalances(@HashidsFormat @PathVariable Long userId) {
     User user = userService.findUserById(userId);
     return timeOffPolicyService.getTimeOffBalances(user);
   }

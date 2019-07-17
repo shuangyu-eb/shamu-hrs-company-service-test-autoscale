@@ -25,7 +25,7 @@ public interface TimeOffPolicyService {
       List<TimeOffPolicyUserPojo> timeOffPolicyUserPojos,
       Company company);
 
-  List<TimeOffBalanceDto> getTimeOffBalances(User user);
+  TimeOffBalanceDto getTimeOffBalances(User user);
 
   List<TimeOffPolicyUserDto> getTimeOffPolicyUser(User user);
 

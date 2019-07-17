@@ -14,6 +14,7 @@ import java.util.List;
 import shamu.company.timeoff.dto.TimeOffBreakdownItemDto;
 import shamu.company.timeoff.entity.AccrualScheduleMilestone;
 import shamu.company.timeoff.entity.TimeOffAccrualFrequency;
+import shamu.company.timeoff.entity.TimeOffAccrualFrequency.AccrualFrequencyType;
 import shamu.company.timeoff.entity.TimeOffPolicyAccrualSchedule;
 import shamu.company.timeoff.pojo.TimeOffBalancePojo;
 import shamu.company.user.entity.User;
@@ -26,8 +27,15 @@ public class TimeOffAccrualServiceImpl {
   List<Timestamp> getValidAccrualScheduleStartAndEndDate(LocalDateTime userJoinDate,
       TimeOffPolicyAccrualSchedule accrualSchedule) {
 
-    LocalDateTime startDateTime = userJoinDate
-        .plusDays(accrualSchedule.getDaysBeforeAccrualStarts());
+    LocalDateTime startDateTime = userJoinDate;
+
+    Long frequencyId = accrualSchedule.getTimeOffAccrualFrequency().getId();
+    if (AccrualFrequencyType.FREQUENCY_TYPE_THREE.equalsTo(frequencyId)) {
+      int startDayDelay = accrualSchedule.getDaysBeforeAccrualStarts() != null
+          ? accrualSchedule.getDaysBeforeAccrualStarts() : 0;
+      startDateTime = userJoinDate.plusDays(startDayDelay);
+    }
+    
     LocalDateTime accrualScheduleEffectTime =
         DateUtil.toLocalDateTime(accrualSchedule.getCreatedAt());
 

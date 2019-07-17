@@ -54,6 +54,8 @@ public interface TimeOffRequestDateRepository extends BaseRepository<TimeOffRequ
       + "on request.time_off_request_approval_status_id = t.id "
       + "where rd.deleted_at is null and request.deleted_at is null "
       + "and t.name != 'DENIED' "
-      + "and request.requester_user_id = ?1", nativeQuery = true)
-  List<TimeOffRequestDateDto> getAllSuccessRequestOffByUserId(Long id);
+      + "and request.requester_user_id = ?1 and request.time_off_policy_id = ?2",
+      nativeQuery = true)
+  List<TimeOffRequestDateDto> getNoRejectedRequestOffByUserIdAndPolicyId(
+      Long userId, Long policyId);
 }
