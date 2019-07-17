@@ -39,7 +39,8 @@ public class Permission extends BaseEntity {
     EDIT_SELF(PermissionType.SELF_PERMISSION),
     MANAGE_SELF_TIME_OFF_REQUEST(PermissionType.SELF_PERMISSION),
     MANAGE_SELF_TIME_OFF_BALANCE(PermissionType.SELF_PERMISSION),
-    VIEW_SETTING(PermissionType.ADMIN_PERMISSION);
+    VIEW_SETTING(PermissionType.ADMIN_PERMISSION),
+    VIEW_COMPANY_DOCUMENT(PermissionType.ADMIN_PERMISSION.ADMIN_PERMISSION);
 
     private PermissionType permissionType;
 
