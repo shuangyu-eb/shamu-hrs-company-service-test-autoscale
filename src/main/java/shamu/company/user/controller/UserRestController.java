@@ -20,8 +20,10 @@ import shamu.company.hashids.HashidsFormat;
 import shamu.company.user.dto.AccountInfoDto;
 import shamu.company.user.dto.UpdatePasswordDto;
 import shamu.company.user.dto.UserAvatarDto;
+import shamu.company.user.dto.UserRoleAndStatusInfoDto;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
+import shamu.company.user.pojo.UserRoleUpdatePojo;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.AwsUtil;
 import shamu.company.utils.AwsUtil.Type;
@@ -128,5 +130,15 @@ public class UserRestController extends BaseRestController {
   public UserAvatarDto getUserAvatar(@PathVariable @HashidsFormat Long id) {
     User user = userService.findUserById(id);
     return new UserAvatarDto(user);
+  }
+
+  @PatchMapping("users/{id}/user-role")
+  @PreAuthorize("hasPermission(#id, 'USER', 'VIEW_SETTING')")
+  public UserRoleAndStatusInfoDto updateUserRole(@PathVariable @HashidsFormat Long id,
+      @RequestBody UserRoleUpdatePojo userRoleUpdatePojo) {
+    User currentUser = this.getUser();
+    User user = userService.findUserById(id);
+    return new UserRoleAndStatusInfoDto(userService
+        .updateUserRole(currentUser,userRoleUpdatePojo,user));
   }
 }

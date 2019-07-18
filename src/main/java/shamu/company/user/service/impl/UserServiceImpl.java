@@ -48,6 +48,7 @@ import shamu.company.user.entity.UserPersonalInformation;
 import shamu.company.user.entity.UserRole;
 import shamu.company.user.entity.UserStatus;
 import shamu.company.user.entity.UserStatus.Status;
+import shamu.company.user.pojo.UserRoleUpdatePojo;
 import shamu.company.user.repository.UserCompensationRepository;
 import shamu.company.user.repository.UserRepository;
 import shamu.company.user.repository.UserRoleRepository;
@@ -377,6 +378,28 @@ public class UserServiceImpl implements UserService {
     if (user == null || !BCrypt.checkpw(userLoginDto.getPassword(), user.getPassword())) {
       throw new ForbiddenException("Login Forbidden!");
     }
+  }
+
+  @Override
+  public User updateUserRole(User currentUser, UserRoleUpdatePojo userRoleUpdatePojo,User user) {
+    if (!BCrypt.checkpw(userRoleUpdatePojo.getPassWord(),
+        currentUser.getPassword())) {
+      throw new ForbiddenException("Login Forbidden!");
+    }
+    String updateUserRole;
+    if (userRoleUpdatePojo.getUserRole().name()
+        == UserRole.Role.ADMIN.name()) {
+      if (userRepository.findAllByManagerUserId(user.getId()).size() > 0) {
+        updateUserRole = UserRole.Role.MANAGER.name();
+      } else {
+        updateUserRole = UserRole.Role.NON_MANAGER.name();
+      }
+    } else {
+      updateUserRole = UserRole.Role.ADMIN.name();
+    }
+    user.setUserRole(userRoleRepository.findByName(updateUserRole));
+    userRepository.save(user);
+    return user;
   }
 
   public String getActivationEmail(String accountVerifyToken) {
