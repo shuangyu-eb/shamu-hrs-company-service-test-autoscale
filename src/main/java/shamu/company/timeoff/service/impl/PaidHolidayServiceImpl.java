@@ -111,7 +111,22 @@ public class PaidHolidayServiceImpl implements PaidHolidayService {
     final List<PaidHolidayUser> filterDataSet = paidHolidayUserRepository
         .findAllByCompanyId(company.getId());
 
-    final List<Long> unSelectedEmployeeIds = filterDataSet.stream()
+    final List<Long> filterIds = filterDataSet.stream()
+        .map(d -> d.getUserId()).collect(Collectors.toList());
+
+    allEmployees.stream().forEach(e -> {
+      if (!filterIds.contains(e.getId())) {
+        final PaidHolidayUser newAddedPaidHolidayUser = new PaidHolidayUser(company.getId(),
+            e.getId(),
+            false);
+        paidHolidayUserRepository.save(newAddedPaidHolidayUser);
+      }
+    });
+
+    final List<PaidHolidayUser> newFilterDataSet = paidHolidayUserRepository
+        .findAllByCompanyId(company.getId());
+
+    final List<Long> unSelectedEmployeeIds = newFilterDataSet.stream()
         .filter(e -> e.isSelected() == false).map(u -> u.getUserId()).collect(Collectors.toList());
 
     final List<JobUserDto> selectedEmployees = allEmployees.stream()

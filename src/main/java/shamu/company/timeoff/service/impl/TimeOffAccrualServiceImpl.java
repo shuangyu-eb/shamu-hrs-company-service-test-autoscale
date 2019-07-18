@@ -35,7 +35,7 @@ public class TimeOffAccrualServiceImpl {
           ? accrualSchedule.getDaysBeforeAccrualStarts() : 0;
       startDateTime = userJoinDate.plusDays(startDayDelay);
     }
-    
+
     LocalDateTime accrualScheduleEffectTime =
         DateUtil.toLocalDateTime(accrualSchedule.getCreatedAt());
 
