@@ -11,8 +11,27 @@ import shamu.company.user.entity.User;
 public interface TimeOffRequestRepository
     extends BaseRepository<TimeOffRequest, Long>, TimeOffRequestCustomRepository {
 
-  List<TimeOffRequest> findByApproversContainsAndTimeOffApprovalStatusIn(
-      User approver, TimeOffRequestApprovalStatus[] timeOffRequestApprovalStatus);
+  @Query(
+      value =
+          "select * from time_off_requests tr "
+              + "where tr.approver_user_id = ?1 "
+              + "and tr.time_off_request_approval_status_id in "
+              + "(select id from time_off_request_approval_statuses "
+              + "where name in ?2) "
+              + "and tr.id in "
+              + "(select time_off_request_id from "
+              + "(select min(date) startDay, max(date) endDay, time_off_request_id from "
+              + "time_off_request_dates "
+              + "group by time_off_request_id) trspan "
+              + "where (trspan.startDay <= ?3 "
+              + "and trspan.endDay >= ?3) "
+              + "or (trspan.startDay > ?3 and trspan.startDay <= ?4)) ",
+      nativeQuery = true)
+  List<TimeOffRequest> findByApproversAndTimeOffApprovalStatusFilteredByStartAndEndDay(
+      Long approverId,
+      TimeOffRequestApprovalStatus[] timeOffRequestApprovalStatus,
+      Timestamp startDay,
+      Timestamp endDay);
 
   @Query(
       value =
@@ -75,7 +94,21 @@ public interface TimeOffRequestRepository
   List<TimeOffRequest> managerFindTeamRequests(
       Long userId, Long managerId, List<String> timeOffRequestApprovalStatus);
 
-  List<TimeOffRequest> findByRequesterUserId(Long id);
+  @Query(
+      value =
+          "select * from time_off_requests tr "
+              + "where tr.id in "
+              + "(select time_off_request_id from "
+              + "(select min(date) startDay, max(date) endDay, time_off_request_id from "
+              + "time_off_request_dates "
+              + "group by time_off_request_id) trspan "
+              + "where (trspan.startDay <= ?2 "
+              + "and trspan.endDay >= ?2) "
+              + "or (trspan.startDay > ?2 and trspan.startDay <= ?3)) "
+              + "and tr.requester_user_id = ?1",
+      nativeQuery = true)
+  List<TimeOffRequest> findByRequesterUserIdFilteredByStartAndEndDay(
+      Long id, Timestamp startDay, Timestamp endDay);
 
   @Query(
       value =

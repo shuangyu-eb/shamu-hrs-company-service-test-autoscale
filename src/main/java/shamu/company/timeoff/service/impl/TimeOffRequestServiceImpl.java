@@ -80,9 +80,9 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
 
   @Override
   public List<TimeOffRequest> getByApproverAndStatus(
-      User approver, TimeOffRequestApprovalStatus[] status) {
-    return timeOffRequestRepository.findByApproversContainsAndTimeOffApprovalStatusIn(
-        approver, status);
+      User approver, TimeOffRequestApprovalStatus[] status, Timestamp startDay, Timestamp endDay) {
+    return timeOffRequestRepository.findByApproversAndTimeOffApprovalStatusFilteredByStartAndEndDay(
+        approver.getId(), status, startDay, endDay);
   }
 
   @Override
@@ -128,13 +128,16 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
   }
 
   @Override
-  public MyTimeOffDto getMyTimeOffRequestsByRequesterUserId(Long id) {
+  public MyTimeOffDto getMyTimeOffRequestsByRequesterUserId(
+      Long id, Timestamp startDay, Timestamp endDay) {
     MyTimeOffDto myTimeOffDto = new MyTimeOffDto();
     Boolean policiesAdded = timeOffPolicyUserRepository.existsByUserId(id);
     myTimeOffDto.setPoliciesAdded(policiesAdded);
 
     if (policiesAdded) {
-      List<TimeOffRequest> timeOffRequests = timeOffRequestRepository.findByRequesterUserId(id);
+      List<TimeOffRequest> timeOffRequests =
+          timeOffRequestRepository.findByRequesterUserIdFilteredByStartAndEndDay(
+              id, startDay, endDay);
       List<TimeOffRequestDto> timeOffRequestDtos =
           timeOffRequests.stream().map(TimeOffRequestDto::new).collect(Collectors.toList());
       myTimeOffDto.setTimeOffRequests(timeOffRequestDtos);
@@ -200,16 +203,18 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
 
       sendEmail(variables, template, email);
 
-      List<User> manager = timeOffRequest.getApprovers().stream()
-          .filter(user -> !user.getId().equals(approver.getId()))
-          .collect(Collectors.toList());
+      List<User> manager =
+          timeOffRequest.getApprovers().stream()
+              .filter(user -> !user.getId().equals(approver.getId()))
+              .collect(Collectors.toList());
       if (!manager.isEmpty()) {
         String subject2 = subject + "by " + approver.getUserPersonalInformation().getName();
         variables.put("toManager", true);
-        manager.forEach(user -> {
-          Email managerEmail = new Email(approver, user, subject2);
-          sendEmail(variables, template, managerEmail);
-        });
+        manager.forEach(
+            user -> {
+              Email managerEmail = new Email(approver, user, subject2);
+              sendEmail(variables, template, managerEmail);
+            });
       }
       return;
     }

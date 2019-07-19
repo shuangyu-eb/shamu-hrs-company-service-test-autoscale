@@ -1,5 +1,6 @@
 package shamu.company.timeoff.service;
 
+import java.sql.Timestamp;
 import java.util.List;
 import org.springframework.stereotype.Service;
 import shamu.company.timeoff.dto.MyTimeOffDto;
@@ -12,7 +13,8 @@ import shamu.company.user.entity.User;
 @Service
 public interface TimeOffRequestService {
 
-  List<TimeOffRequest> getByApproverAndStatus(User approver, TimeOffRequestApprovalStatus[] status);
+  List<TimeOffRequest> getByApproverAndStatus(
+      User approver, TimeOffRequestApprovalStatus[] status, Timestamp startDay, Timestamp endDay);
 
   Integer getCountByApproverAndStatusIsNoAction(User approver);
 
@@ -24,7 +26,7 @@ public interface TimeOffRequestService {
 
   List<TimeOffRequest> getRequestsByUserAndStatus(User user, TimeOffRequestApprovalStatus[] status);
 
-  MyTimeOffDto getMyTimeOffRequestsByRequesterUserId(Long id);
+  MyTimeOffDto getMyTimeOffRequestsByRequesterUserId(Long id, Timestamp startDay, Timestamp endDay);
 
   List<TimeOffRequest> getOtherRequestsBy(TimeOffRequest timeOffRequest);
 

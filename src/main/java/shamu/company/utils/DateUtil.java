@@ -1,5 +1,7 @@
 package shamu.company.utils;
 
+import static java.time.temporal.TemporalAdjusters.firstDayOfYear;
+
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -28,6 +30,20 @@ public class DateUtil {
   public static Timestamp getFirstDayOfCurrentMonth() {
     LocalDate today = LocalDate.now();
     return fromLocalDate(getFirstDayOfMonth(today));
+  }
+
+  public static LocalDate getFirstDayOfYear(LocalDate date) {
+    return date.with(firstDayOfYear());
+  }
+
+  public static Timestamp getFirstDayOfCurrentYear() {
+    LocalDate now = LocalDate.now();
+    return fromLocalDate(getFirstDayOfYear(now));
+  }
+
+  public static Timestamp getToday() {
+    LocalDate now = LocalDate.now();
+    return fromLocalDate(now);
   }
 
   public static LocalDate getDayOfNextYear(LocalDate date) {

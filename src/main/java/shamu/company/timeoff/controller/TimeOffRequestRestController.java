@@ -5,10 +5,12 @@ import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.DENIED;
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.Nullable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,6 +39,7 @@ import shamu.company.timeoff.service.TimeOffRequestDateService;
 import shamu.company.timeoff.service.TimeOffRequestService;
 import shamu.company.user.entity.User;
 import shamu.company.user.service.UserService;
+import shamu.company.utils.DateUtil;
 
 @RestApiController
 public class TimeOffRequestRestController extends BaseRestController {
@@ -101,13 +104,38 @@ public class TimeOffRequestRestController extends BaseRestController {
     return timeOffRequestService.getCountByApproverAndStatusIsNoAction(getUser());
   }
 
+  private Timestamp convertStartDayToTimestamp(Long startDay) {
+    if (startDay == null) {
+      return DateUtil.getFirstDayOfCurrentYear();
+    } else {
+      return new Timestamp(startDay);
+    }
+  }
+
+  private Timestamp convertEndDayToTimestamp(Long endDay) {
+    if (endDay == null) {
+      return DateUtil.getToday();
+    } else {
+      return new Timestamp(endDay);
+    }
+  }
+
   @GetMapping("time-off-requests/approver")
   @PreAuthorize("hasAuthority('MANAGE_TIME_OFF_REQUEST')")
   public List<TimeOffRequestDto> getTimeOffRequestsByApprover(
-      @RequestParam TimeOffRequestApprovalStatus[] status) {
+      @RequestParam(value = "startDay") @Nullable Long startDay,
+      @RequestParam(value = "endDay") @Nullable Long endDay,
+      @RequestParam(value = "status") TimeOffRequestApprovalStatus[] status) {
 
-    return timeOffRequestService.getByApproverAndStatus(getUser(), status).stream()
+    return timeOffRequestService
+        .getByApproverAndStatus(
+            getUser(),
+            status,
+            convertStartDayToTimestamp(startDay),
+            convertEndDayToTimestamp(endDay))
+        .stream()
         .map(TimeOffRequestDto::new)
+        .sorted(Comparator.comparingLong(request -> request.getStartDay().getTime()))
         .collect(Collectors.toList());
   }
 
@@ -192,8 +220,20 @@ public class TimeOffRequestRestController extends BaseRestController {
   @PreAuthorize(
       "hasPermission(#id,'USER','MANAGE_SELF_TIME_OFF_REQUEST') "
           + "or hasPermission(#id,'USER','MANAGE_TIME_OFF_REQUEST')")
-  public MyTimeOffDto getMyTimeOffRequests(@HashidsFormat @PathVariable Long id) {
-    return timeOffRequestService.getMyTimeOffRequestsByRequesterUserId(id);
+  public MyTimeOffDto getMyTimeOffRequests(
+      @HashidsFormat @PathVariable(name = "id") Long id,
+      @RequestParam(value = "startDay") @Nullable Long startDay,
+      @RequestParam(value = "endDay") @Nullable Long endDay) {
+
+    MyTimeOffDto myTimeOffDto =
+        timeOffRequestService.getMyTimeOffRequestsByRequesterUserId(
+            id, convertStartDayToTimestamp(startDay), convertEndDayToTimestamp(endDay));
+    List<TimeOffRequestDto> timeOffRequestDtos = myTimeOffDto.getTimeOffRequests();
+    myTimeOffDto.setTimeOffRequests(
+        timeOffRequestDtos.stream()
+            .sorted(Comparator.comparingLong(request -> request.getStartDay().getTime()))
+            .collect(Collectors.toList()));
+    return myTimeOffDto;
   }
 
   private TimeOffRequest saveTimeOffRequest(
