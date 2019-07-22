@@ -1,6 +1,7 @@
 package shamu.company.user.entity;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import java.sql.Date;
 import java.sql.Timestamp;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -36,6 +37,13 @@ public class User extends BaseEntity {
 
   @ManyToOne
   private Company company;
+
+
+  @OneToOne
+  private DeactivationReasons deactivationReason;
+
+  @JSONField(format = "yyyy-MM-dd")
+  private Date deactivatedAt;
 
   @ManyToOne
   @JSONField(serialize = false)

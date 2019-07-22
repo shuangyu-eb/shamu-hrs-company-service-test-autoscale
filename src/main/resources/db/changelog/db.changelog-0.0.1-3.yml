@@ -1,0 +1,77 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1563514512549-1
+      author: shuangyu-eb
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: deactivation_reason_id
+                  type: INT
+              - column:
+                  name: deactivated_at
+                  type: DATETIME
+            tableName: users
+
+  - changeSet:
+      id: 1563515652766-2
+      author: shuangyu-eb
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+              - column:
+                  name: created_at
+                  type: DATETIME
+              - column:
+                  name: updated_at
+                  type: DATETIME
+              - column:
+                  name: deleted_at
+                  type: DATETIME
+            tableName: deactivation_reasons
+
+  - changeSet:
+      id: 1563515660494-3
+      author: shuangyu-eb
+      runOnchange: true
+      changes:
+        - loadUpdateData:
+            columns:
+              - column:
+                  name: id
+                  type: NUMERIC
+              - column:
+                  name: name
+                  type: STRING
+            file: db/changelog/data/user-status-deactivation-reasons.csv
+            primaryKey: id
+            tableName: deactivation_reasons
+
+  - changeSet:
+      id: 1563516527365-4
+      author: shuangyu-eb
+      changes:
+        - modifyDataType:
+            columnName: deactivation_reason_id
+            newDataType: BIGINT
+            tableName: users
+
+  - changeSet:
+      id: 1563516547039-5
+      author: shuangyu-eb
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: deactivation_reason_id
+            baseTableName: users
+            constraintName: fk_users_deactivations_reasons
+            referencedColumnNames: id
+            referencedTableName: deactivation_reasons

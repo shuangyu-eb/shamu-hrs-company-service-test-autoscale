@@ -39,6 +39,7 @@ import shamu.company.user.dto.UpdatePasswordDto;
 import shamu.company.user.dto.UserContactInformationDto;
 import shamu.company.user.dto.UserLoginDto;
 import shamu.company.user.dto.UserPersonalInformationDto;
+import shamu.company.user.entity.DeactivationReasons;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
 import shamu.company.user.entity.UserAddress;
@@ -49,6 +50,7 @@ import shamu.company.user.entity.UserRole;
 import shamu.company.user.entity.UserStatus;
 import shamu.company.user.entity.UserStatus.Status;
 import shamu.company.user.pojo.UserRoleUpdatePojo;
+import shamu.company.user.pojo.UserStatusUpdatePojo;
 import shamu.company.user.repository.UserCompensationRepository;
 import shamu.company.user.repository.UserRepository;
 import shamu.company.user.repository.UserRoleRepository;
@@ -399,6 +401,26 @@ public class UserServiceImpl implements UserService {
     }
     user.setUserRole(userRoleRepository.findByName(updateUserRole));
     userRepository.save(user);
+    return user;
+  }
+
+  @Override
+  public User updateUserStatus(User currentUser, UserStatusUpdatePojo userStatusUpdatePojo,
+      User user) {
+    if (!BCrypt.checkpw(userStatusUpdatePojo.getPassWord(),
+        currentUser.getPassword())) {
+      throw new ForbiddenException("Login Forbidden!");
+    }
+    if (userStatusUpdatePojo.getUserStatus().name()
+        == Status.ACTIVE.name()) {
+      user.setUserStatus(userStatusRepository.findByName(
+          Status.DISABLED.name()
+      ));
+      user.setDeactivatedAt(userStatusUpdatePojo.getDeactivationDate());
+      user.setDeactivationReason(new DeactivationReasons(userStatusUpdatePojo
+          .getDeactivationReason().getId()));
+      userRepository.save(user);
+    }
     return user;
   }
 

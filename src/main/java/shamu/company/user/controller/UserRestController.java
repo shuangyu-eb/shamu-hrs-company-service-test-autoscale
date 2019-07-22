@@ -24,6 +24,7 @@ import shamu.company.user.dto.UserRoleAndStatusInfoDto;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
 import shamu.company.user.pojo.UserRoleUpdatePojo;
+import shamu.company.user.pojo.UserStatusUpdatePojo;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.AwsUtil;
 import shamu.company.utils.AwsUtil.Type;
@@ -140,5 +141,15 @@ public class UserRestController extends BaseRestController {
     User user = userService.findUserById(id);
     return new UserRoleAndStatusInfoDto(userService
         .updateUserRole(currentUser,userRoleUpdatePojo,user));
+  }
+
+  @PatchMapping("users/{id}/user-status")
+  @PreAuthorize("hasPermission(#id, 'USER', 'VIEW_SETTING')")
+  public UserRoleAndStatusInfoDto updateUserStatus(@PathVariable @HashidsFormat Long id,
+      @RequestBody UserStatusUpdatePojo userStatusUpdatePojo) {
+    User currentUser = this.getUser();
+    User user = userService.findUserById(id);
+    return new UserRoleAndStatusInfoDto(userService
+        .updateUserStatus(currentUser,userStatusUpdatePojo,user));
   }
 }

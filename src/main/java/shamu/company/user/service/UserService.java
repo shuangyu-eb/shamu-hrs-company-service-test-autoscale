@@ -16,6 +16,7 @@ import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserCompensation;
 import shamu.company.user.entity.UserStatus.Status;
 import shamu.company.user.pojo.UserRoleUpdatePojo;
+import shamu.company.user.pojo.UserStatusUpdatePojo;
 
 public interface UserService {
 
@@ -83,4 +84,6 @@ public interface UserService {
   AccountInfoDto getPreSetAccountInfoByUserId(Long id);
 
   User updateUserRole(User currentUser, UserRoleUpdatePojo userRoleUpdatePojo, User user);
+
+  User updateUserStatus(User currentUser, UserStatusUpdatePojo userStatusUpdatePojo,User user);
 }
