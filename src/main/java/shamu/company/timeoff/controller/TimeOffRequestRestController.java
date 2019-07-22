@@ -162,8 +162,11 @@ public class TimeOffRequestRestController extends BaseRestController {
     TimeOffRequestDetailDto requestDetail = new TimeOffRequestDetailDto(timeOffRequest);
 
     Integer balance = timeOffPolicyService.getTimeOffBalanceByUserId(requester.getId());
+    TimeOffPolicy timeOffPolicy = timeOffPolicyService
+            .getTimeOffPolicyById(timeOffRequest.getTimeOffPolicy().getId());
 
     requestDetail.setBalance(balance);
+    requestDetail.setIsLimited(timeOffPolicy.getIsLimited());
 
     if (timeOffRequest.getTimeOffApprovalStatus() == TimeOffRequestApprovalStatus.NO_ACTION
         && currentUser.getId().equals(requester.getManagerUser().getId())) {

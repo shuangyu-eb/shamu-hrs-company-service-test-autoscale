@@ -23,6 +23,8 @@ public class TimeOffRequestDetailDto extends TimeOffRequestDto {
 
   private List<TimeOffRequestCommentDto> approverComments;
 
+  private Boolean isLimited;
+
   public TimeOffRequestDetailDto(TimeOffRequest timeOffRequest) {
     super(timeOffRequest);
     this.userId = timeOffRequest.getRequesterUser().getId();
