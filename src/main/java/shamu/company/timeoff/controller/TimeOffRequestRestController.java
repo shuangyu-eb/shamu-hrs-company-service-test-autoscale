@@ -127,16 +127,25 @@ public class TimeOffRequestRestController extends BaseRestController {
       @RequestParam(value = "endDay") @Nullable Long endDay,
       @RequestParam(value = "status") TimeOffRequestApprovalStatus[] status) {
 
-    return timeOffRequestService
-        .getByApproverAndStatus(
-            getUser(),
-            status,
-            convertStartDayToTimestamp(startDay),
-            convertEndDayToTimestamp(endDay))
-        .stream()
-        .map(TimeOffRequestDto::new)
-        .sorted(Comparator.comparingLong(request -> request.getStartDay().getTime()))
-        .collect(Collectors.toList());
+    List<TimeOffRequestDto> timeOffRequestDtos =
+        timeOffRequestService
+            .getByApproverAndStatus(
+                getUser(),
+                status,
+                convertStartDayToTimestamp(startDay),
+                convertEndDayToTimestamp(endDay))
+            .stream()
+            .map(TimeOffRequestDto::new)
+            .collect(Collectors.toList());
+
+    if (!timeOffRequestDtos.isEmpty()) {
+      return timeOffRequestDtos
+              .stream()
+              .sorted(Comparator.comparingLong(request -> request.getStartDay().getTime()))
+              .collect(Collectors.toList());
+    } else {
+      return timeOffRequestDtos;
+    }
   }
 
   @GetMapping("users/{userId}/time-off-requests")
@@ -232,10 +241,14 @@ public class TimeOffRequestRestController extends BaseRestController {
         timeOffRequestService.getMyTimeOffRequestsByRequesterUserId(
             id, convertStartDayToTimestamp(startDay), convertEndDayToTimestamp(endDay));
     List<TimeOffRequestDto> timeOffRequestDtos = myTimeOffDto.getTimeOffRequests();
-    myTimeOffDto.setTimeOffRequests(
-        timeOffRequestDtos.stream()
-            .sorted(Comparator.comparingLong(request -> request.getStartDay().getTime()))
-            .collect(Collectors.toList()));
+    if (!timeOffRequestDtos.isEmpty()) {
+      myTimeOffDto.setTimeOffRequests(
+          timeOffRequestDtos
+              .stream()
+              .sorted(Comparator.comparingLong(request -> request.getStartDay().getTime()))
+              .collect(Collectors.toList()));
+    }
+
     return myTimeOffDto;
   }
 

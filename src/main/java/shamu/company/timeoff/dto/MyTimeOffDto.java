@@ -1,5 +1,6 @@
 package shamu.company.timeoff.dto;
 
+import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,5 +13,5 @@ public class MyTimeOffDto {
 
   private Boolean policiesAdded;
 
-  private List<TimeOffRequestDto> timeOffRequests;
+  private List<TimeOffRequestDto> timeOffRequests = new ArrayList<>();
 }
