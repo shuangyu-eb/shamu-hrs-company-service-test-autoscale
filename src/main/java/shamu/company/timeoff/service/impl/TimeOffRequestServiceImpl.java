@@ -80,10 +80,10 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
   }
 
   @Override
-  public List<TimeOffRequest> getByApproverAndStatus(
-      User approver, TimeOffRequestApprovalStatus[] status, Timestamp startDay, Timestamp endDay) {
-    return timeOffRequestRepository.findByApproversAndTimeOffApprovalStatusFilteredByStartAndEndDay(
-        approver.getId(), status, startDay, endDay);
+  public List<TimeOffRequest> getByApproverAndStatusFilteredByStartDay(
+      User approver, TimeOffRequestApprovalStatus[] status, Timestamp startDay) {
+    return timeOffRequestRepository.findByApproversAndTimeOffApprovalStatusFilteredByStartDay(
+        approver.getId(), status, startDay);
   }
 
   @Override
@@ -128,23 +128,40 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
     }
   }
 
-  @Override
-  public MyTimeOffDto getMyTimeOffRequestsByRequesterUserId(
-      Long id, Timestamp startDay, Timestamp endDay) {
+  private MyTimeOffDto initMyTimeOff(
+      Long id, Timestamp startDay, Timestamp endDay, Boolean filteredByEndDay) {
     MyTimeOffDto myTimeOffDto = new MyTimeOffDto();
     Boolean policiesAdded = timeOffPolicyUserRepository.existsByUserId(id);
     myTimeOffDto.setPoliciesAdded(policiesAdded);
 
     if (policiesAdded) {
-      List<TimeOffRequest> timeOffRequests =
-          timeOffRequestRepository.findByRequesterUserIdFilteredByStartAndEndDay(
-              id, startDay, endDay);
+      List<TimeOffRequest> timeOffRequests;
+      if (filteredByEndDay) {
+        timeOffRequests =
+            timeOffRequestRepository.findByRequesterUserIdFilteredByStartAndEndDay(
+                id, startDay, endDay);
+      } else {
+        timeOffRequests =
+            timeOffRequestRepository.findByRequesterUserIdFilteredByStartDay(id, startDay);
+      }
       List<TimeOffRequestDto> timeOffRequestDtos =
           timeOffRequests.stream().map(TimeOffRequestDto::new).collect(Collectors.toList());
       myTimeOffDto.setTimeOffRequests(timeOffRequestDtos);
     }
 
     return myTimeOffDto;
+  }
+
+  @Override
+  public MyTimeOffDto getMyTimeOffRequestsByRequesterUserIdFilteredByStartDay(
+      Long id, Timestamp startDay) {
+    return initMyTimeOff(id, startDay, null, false);
+  }
+
+  @Override
+  public MyTimeOffDto getMyTimeOffRequestsByRequesterUserIdFilteredByStartAndEndDay(
+          Long id, Timestamp startDay, Timestamp endDay) {
+    return initMyTimeOff(id, startDay, endDay, true);
   }
 
   @Override

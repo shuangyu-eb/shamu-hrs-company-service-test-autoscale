@@ -5,6 +5,7 @@ import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.DENIED;
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -86,7 +87,7 @@ public class TimeOffRequestRestController extends BaseRestController {
       @PathVariable @HashidsFormat Long userId, @RequestBody TimeOffRequestPojo requestPojo) {
     User user = userService.findUserById(userId);
     TimeOffRequest timeOffRequest = requestPojo.getTimeOffRequest(user);
-    User approver = this.getUser();
+    User approver = getUser();
     timeOffRequest.setApproverUser(approver);
     timeOffRequest.setApprover(approver);
     timeOffRequest.setApprovedDate(Timestamp.from(Instant.now()));
@@ -104,45 +105,23 @@ public class TimeOffRequestRestController extends BaseRestController {
     return timeOffRequestService.getCountByApproverAndStatusIsNoAction(getUser());
   }
 
-  private Timestamp convertStartDayToTimestamp(Long startDay) {
-    if (startDay == null) {
-      return DateUtil.getFirstDayOfCurrentYear();
-    } else {
-      return new Timestamp(startDay);
-    }
-  }
-
-  private Timestamp convertEndDayToTimestamp(Long endDay) {
-    if (endDay == null) {
-      return DateUtil.getToday();
-    } else {
-      return new Timestamp(endDay);
-    }
-  }
-
   @GetMapping("time-off-requests/approver")
   @PreAuthorize("hasAuthority('MANAGE_TIME_OFF_REQUEST')")
   public List<TimeOffRequestDto> getTimeOffRequestsByApprover(
-      @RequestParam(value = "startDay") @Nullable Long startDay,
-      @RequestParam(value = "endDay") @Nullable Long endDay,
       @RequestParam(value = "status") TimeOffRequestApprovalStatus[] status) {
 
     List<TimeOffRequestDto> timeOffRequestDtos =
         timeOffRequestService
-            .getByApproverAndStatus(
-                getUser(),
-                status,
-                convertStartDayToTimestamp(startDay),
-                convertEndDayToTimestamp(endDay))
+            .getByApproverAndStatusFilteredByStartDay(
+                getUser(), status, DateUtil.getFirstDayOfCurrentYear())
             .stream()
             .map(TimeOffRequestDto::new)
             .collect(Collectors.toList());
 
     if (!timeOffRequestDtos.isEmpty()) {
-      return timeOffRequestDtos
-              .stream()
-              .sorted(Comparator.comparingLong(request -> request.getStartDay().getTime()))
-              .collect(Collectors.toList());
+      return timeOffRequestDtos.stream()
+          .sorted(Comparator.comparingLong(request -> request.getStartDay().getTime()))
+          .collect(Collectors.toList());
     } else {
       return timeOffRequestDtos;
     }
@@ -171,8 +150,8 @@ public class TimeOffRequestRestController extends BaseRestController {
     TimeOffRequestDetailDto requestDetail = new TimeOffRequestDetailDto(timeOffRequest);
 
     Integer balance = timeOffPolicyService.getTimeOffBalanceByUserId(requester.getId());
-    TimeOffPolicy timeOffPolicy = timeOffPolicyService
-            .getTimeOffPolicyById(timeOffRequest.getTimeOffPolicy().getId());
+    TimeOffPolicy timeOffPolicy =
+        timeOffPolicyService.getTimeOffPolicyById(timeOffRequest.getTimeOffPolicy().getId());
 
     requestDetail.setBalance(balance);
     requestDetail.setIsLimited(timeOffPolicy.getIsLimited());
@@ -237,14 +216,30 @@ public class TimeOffRequestRestController extends BaseRestController {
       @RequestParam(value = "startDay") @Nullable Long startDay,
       @RequestParam(value = "endDay") @Nullable Long endDay) {
 
-    MyTimeOffDto myTimeOffDto =
-        timeOffRequestService.getMyTimeOffRequestsByRequesterUserId(
-            id, convertStartDayToTimestamp(startDay), convertEndDayToTimestamp(endDay));
+    MyTimeOffDto myTimeOffDto;
+    Timestamp startDayTimestamp;
+
+    if (startDay == null) {
+      startDayTimestamp = DateUtil.getFirstDayOfCurrentYear();
+    } else {
+      startDayTimestamp = new Timestamp(startDay);
+    }
+
+    if (endDay != null) {
+      myTimeOffDto =
+          timeOffRequestService.getMyTimeOffRequestsByRequesterUserIdFilteredByStartAndEndDay(
+              id, startDayTimestamp, new Timestamp(endDay));
+    } else {
+      myTimeOffDto =
+          timeOffRequestService.getMyTimeOffRequestsByRequesterUserIdFilteredByStartDay(
+              id, startDayTimestamp);
+    }
+
     List<TimeOffRequestDto> timeOffRequestDtos = myTimeOffDto.getTimeOffRequests();
+
     if (!timeOffRequestDtos.isEmpty()) {
       myTimeOffDto.setTimeOffRequests(
-          timeOffRequestDtos
-              .stream()
+          timeOffRequestDtos.stream()
               .sorted(Comparator.comparingLong(request -> request.getStartDay().getTime()))
               .collect(Collectors.toList()));
     }

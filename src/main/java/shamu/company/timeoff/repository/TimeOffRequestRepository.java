@@ -25,13 +25,12 @@ public interface TimeOffRequestRepository
               + "group by time_off_request_id) trspan "
               + "where (trspan.startDay <= ?3 "
               + "and trspan.endDay >= ?3) "
-              + "or (trspan.startDay > ?3 and trspan.startDay <= ?4)) ",
+              + "or trspan.startDay > ?3) ",
       nativeQuery = true)
-  List<TimeOffRequest> findByApproversAndTimeOffApprovalStatusFilteredByStartAndEndDay(
+  List<TimeOffRequest> findByApproversAndTimeOffApprovalStatusFilteredByStartDay(
       Long approverId,
       TimeOffRequestApprovalStatus[] timeOffRequestApprovalStatus,
-      Timestamp startDay,
-      Timestamp endDay);
+      Timestamp startDay);
 
   @Query(
       value =
@@ -93,6 +92,22 @@ public interface TimeOffRequestRepository
       nativeQuery = true)
   List<TimeOffRequest> managerFindTeamRequests(
       Long userId, Long managerId, List<String> timeOffRequestApprovalStatus);
+
+  @Query(
+      value =
+          "select * from time_off_requests tr "
+              + "where tr.id in "
+              + "(select time_off_request_id from "
+              + "(select min(date) startDay, max(date) endDay, time_off_request_id from "
+              + "time_off_request_dates "
+              + "group by time_off_request_id) trspan "
+              + "where (trspan.startDay <= ?2 "
+              + "and trspan.endDay >= ?2) "
+              + "or trspan.startDay > ?2) "
+              + "and tr.requester_user_id = ?1",
+      nativeQuery = true)
+  List<TimeOffRequest> findByRequesterUserIdFilteredByStartDay(
+      Long id, Timestamp startDay);
 
   @Query(
       value =

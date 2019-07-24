@@ -13,8 +13,8 @@ import shamu.company.user.entity.User;
 @Service
 public interface TimeOffRequestService {
 
-  List<TimeOffRequest> getByApproverAndStatus(
-      User approver, TimeOffRequestApprovalStatus[] status, Timestamp startDay, Timestamp endDay);
+  List<TimeOffRequest> getByApproverAndStatusFilteredByStartDay(
+      User approver, TimeOffRequestApprovalStatus[] status, Timestamp startDay);
 
   Integer getCountByApproverAndStatusIsNoAction(User approver);
 
@@ -26,7 +26,10 @@ public interface TimeOffRequestService {
 
   List<TimeOffRequest> getRequestsByUserAndStatus(User user, TimeOffRequestApprovalStatus[] status);
 
-  MyTimeOffDto getMyTimeOffRequestsByRequesterUserId(Long id, Timestamp startDay, Timestamp endDay);
+  MyTimeOffDto getMyTimeOffRequestsByRequesterUserIdFilteredByStartDay(Long id, Timestamp startDay);
+
+  MyTimeOffDto getMyTimeOffRequestsByRequesterUserIdFilteredByStartAndEndDay(
+      Long id, Timestamp startDay, Timestamp endDay);
 
   List<TimeOffRequest> getOtherRequestsBy(TimeOffRequest timeOffRequest);
 
