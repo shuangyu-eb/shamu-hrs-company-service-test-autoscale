@@ -106,7 +106,7 @@ public class PaidHolidayServiceImpl implements PaidHolidayService {
 
   @Override
   public PaidHolidayRelatedUserListDto getPaidHolidayEmployees(final Company company) {
-    final List<JobUserDto> allEmployees = userService.findAllEmployees(company);
+    final List<JobUserDto> allEmployees = userService.findAllJobUsers(company);
 
     final List<PaidHolidayUser> filterDataSet = paidHolidayUserRepository
         .findAllByCompanyId(company.getId());

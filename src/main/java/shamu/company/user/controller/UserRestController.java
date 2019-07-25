@@ -1,6 +1,8 @@
 package shamu.company.user.controller;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
@@ -17,6 +19,7 @@ import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.company.CompanyService;
 import shamu.company.hashids.HashidsFormat;
+import shamu.company.user.UserDto;
 import shamu.company.user.dto.AccountInfoDto;
 import shamu.company.user.dto.UpdatePasswordDto;
 import shamu.company.user.dto.UserAvatarDto;
@@ -38,44 +41,44 @@ public class UserRestController extends BaseRestController {
 
   private final AwsUtil awsUtil;
 
-  public UserRestController(UserService userService, CompanyService companyService,
-      AwsUtil awsUtil) {
+  public UserRestController(final UserService userService, final CompanyService companyService,
+      final AwsUtil awsUtil) {
     this.userService = userService;
     this.companyService = companyService;
     this.awsUtil = awsUtil;
   }
 
   @PostMapping(value = "user/sign-up/email")
-  public HttpEntity sendVerifyEmail(@RequestBody String email) {
+  public HttpEntity sendVerifyEmail(@RequestBody final String email) {
     userService.sendVerifyEmail(email);
     return new ResponseEntity(HttpStatus.OK);
   }
 
   @PostMapping(value = "user/verify")
-  public HttpEntity finishUserVerification(@RequestBody String token) {
+  public HttpEntity finishUserVerification(@RequestBody final String token) {
     userService.finishUserVerification(token);
     return new ResponseEntity(HttpStatus.OK);
   }
 
   @GetMapping(value = "user/check/email/{email}")
-  public Boolean checkEmail(@PathVariable String email) {
+  public Boolean checkEmail(@PathVariable final String email) {
     return userService.existsByEmailWork(email);
   }
 
   @GetMapping(value = "user/check/company-name/{companyName}")
-  public Boolean checkCompanyName(@PathVariable String companyName) {
+  public Boolean checkCompanyName(@PathVariable final String companyName) {
     return companyService.existsByName(companyName);
   }
 
   @GetMapping(value = "user/check/desired-url/{desiredUrl}")
-  public Boolean checkDesiredUrl(@PathVariable String desiredUrl) {
+  public Boolean checkDesiredUrl(@PathVariable final String desiredUrl) {
     return companyService.existsBySubdomainName(desiredUrl);
   }
 
   @GetMapping(value = "users/{id}/head-portrait")
   @PreAuthorize("hasPermission(#id,'USER','VIEW_USER_PERSONAL')")
-  public String getHeadPortrait(@PathVariable @HashidsFormat Long id) {
-    User user = this.getUser();
+  public String getHeadPortrait(@PathVariable @HashidsFormat final Long id) {
+    final User user = this.getUser();
 
     if (user.getId().equals(id)
         || user.getRole() == Role.ADMIN) {
@@ -90,16 +93,16 @@ public class UserRestController extends BaseRestController {
       "hasPermission(#id,'USER', 'EDIT_USER')"
           + " or hasPermission(#id,'USER', 'EDIT_SELF')")
   public String handleFileUpload(
-      @PathVariable @HashidsFormat Long id, @RequestParam("file") MultipartFile file)
+      @PathVariable @HashidsFormat final Long id, @RequestParam("file") final MultipartFile file)
       throws IOException {
-    String path = awsUtil.uploadFile(file, Type.IMAGE);
+    final String path = awsUtil.uploadFile(file, Type.IMAGE);
 
     if (Strings.isBlank(path)) {
       return null;
     }
 
-    User user = userService.findUserById(id);
-    String originalPath = user.getImageUrl();
+    final User user = userService.findUserById(id);
+    final String originalPath = user.getImageUrl();
     if (originalPath != null) {
       awsUtil.deleteFile(originalPath);
     }
@@ -111,45 +114,52 @@ public class UserRestController extends BaseRestController {
   }
 
   @PostMapping(value = "user/password/reset/email")
-  public HttpEntity sendResetPasswordEmail(@RequestBody String email) {
+  public HttpEntity sendResetPasswordEmail(@RequestBody final String email) {
     userService.sendResetPasswordEmail(email);
     return new ResponseEntity(HttpStatus.OK);
   }
 
   @PatchMapping("user/password/reset/token")
-  public boolean resetPassword(@RequestBody UpdatePasswordDto updatePasswordDto) {
+  public boolean resetPassword(@RequestBody final UpdatePasswordDto updatePasswordDto) {
     return userService.resetPassword(updatePasswordDto);
   }
 
   @PreAuthorize("hasPermission(#id,'USER', 'EDIT_SELF')")
   @GetMapping("users/{id}/account-info")
-  public AccountInfoDto getPreSetAccountInfo(@PathVariable @HashidsFormat Long id) {
+  public AccountInfoDto getPreSetAccountInfo(@PathVariable @HashidsFormat final Long id) {
     return userService.getPreSetAccountInfoByUserId(id);
   }
 
   @GetMapping("users/{id}/avatar")
-  public UserAvatarDto getUserAvatar(@PathVariable @HashidsFormat Long id) {
-    User user = userService.findUserById(id);
+  public UserAvatarDto getUserAvatar(@PathVariable @HashidsFormat final Long id) {
+    final User user = userService.findUserById(id);
     return new UserAvatarDto(user);
   }
 
   @PatchMapping("users/{id}/user-role")
   @PreAuthorize("hasPermission(#id, 'USER', 'VIEW_SETTING')")
-  public UserRoleAndStatusInfoDto updateUserRole(@PathVariable @HashidsFormat Long id,
-      @RequestBody UserRoleUpdatePojo userRoleUpdatePojo) {
-    User currentUser = this.getUser();
-    User user = userService.findUserById(id);
+  public UserRoleAndStatusInfoDto updateUserRole(@PathVariable @HashidsFormat final Long id,
+      @RequestBody final UserRoleUpdatePojo userRoleUpdatePojo) {
+    final User currentUser = this.getUser();
+    final User user = userService.findUserById(id);
     return new UserRoleAndStatusInfoDto(userService
-        .updateUserRole(currentUser,userRoleUpdatePojo,user));
+        .updateUserRole(currentUser, userRoleUpdatePojo, user));
   }
 
   @PatchMapping("users/{id}/user-status")
   @PreAuthorize("hasPermission(#id, 'USER', 'VIEW_SETTING')")
-  public UserRoleAndStatusInfoDto updateUserStatus(@PathVariable @HashidsFormat Long id,
-      @RequestBody UserStatusUpdatePojo userStatusUpdatePojo) {
-    User currentUser = this.getUser();
-    User user = userService.findUserById(id);
+  public UserRoleAndStatusInfoDto updateUserStatus(@PathVariable @HashidsFormat final Long id,
+      @RequestBody final UserStatusUpdatePojo userStatusUpdatePojo) {
+    final User currentUser = this.getUser();
+    final User user = userService.findUserById(id);
     return new UserRoleAndStatusInfoDto(userService
-        .updateUserStatus(currentUser,userStatusUpdatePojo,user));
+        .updateUserStatus(currentUser, userStatusUpdatePojo, user));
+  }
+
+
+  @GetMapping("users/all")
+  public List<UserDto> getAllUsers() {
+    final List<User> users = userService.findAllUsersByCompany(getCompany());
+    return users.stream().map(UserDto::new).collect(Collectors.toList());
   }
 }

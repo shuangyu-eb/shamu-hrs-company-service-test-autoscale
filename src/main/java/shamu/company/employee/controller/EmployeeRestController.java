@@ -33,54 +33,57 @@ public class EmployeeRestController extends BaseRestController {
   private final UserService userService;
 
   @Autowired
-  public EmployeeRestController(EmployeeService employeeService, UserService userService) {
+  public EmployeeRestController(final EmployeeService employeeService,
+      final UserService userService) {
     this.employeeService = employeeService;
     this.userService = userService;
   }
 
   @GetMapping("employees")
   public Page<JobUserListItem> getAllEmployees(
-      EmployeeListSearchCondition employeeListSearchCondition) {
+      final EmployeeListSearchCondition employeeListSearchCondition) {
     return userService.getAllEmployees(employeeListSearchCondition, this.getCompany());
   }
 
   @GetMapping("employees/my-team")
   @PreAuthorize("hasAuthority('VIEW_MY_TEAM')")
-  public Page<JobUserListItem> getMyTeam(EmployeeListSearchCondition employeeListSearchCondition) {
+  public Page<JobUserListItem> getMyTeam(
+      final EmployeeListSearchCondition employeeListSearchCondition) {
     return userService.getMyTeam(employeeListSearchCondition, this.getUser());
   }
 
   @GetMapping("users")
   @PreAuthorize("hasAuthority('CREATE_USER')")
   public List<JobUserDto> getAllPolicyEmployees() {
-    Company company = this.getUser().getCompany();
-    return userService.findAllEmployees(company);
+    final Company company = this.getUser().getCompany();
+    return userService.findAllJobUsers(company);
   }
 
   @PostMapping("employees/welcome-email")
-  public String getWelcomeEmail(@RequestBody(required = false) String welcomeEmailPersonalMessage) {
-    Context context = userService.getWelcomeEmailContext(welcomeEmailPersonalMessage, null);
+  public String getWelcomeEmail(
+      @RequestBody(required = false) final String welcomeEmailPersonalMessage) {
+    final Context context = userService.getWelcomeEmailContext(welcomeEmailPersonalMessage, null);
     context.setVariable("createPasswordAddress", "#");
     return userService.getWelcomeEmail(context);
   }
 
   @PostMapping("employees")
   @PreAuthorize("hasAuthority('CREATE_USER')")
-  public HttpEntity addEmployee(@RequestBody EmployeeDto employee) {
+  public HttpEntity addEmployee(@RequestBody final EmployeeDto employee) {
     employeeService.addEmployee(employee, getUser());
     return new ResponseEntity(HttpStatus.OK);
   }
 
   @PatchMapping("employees")
   @PreAuthorize("hasAuthority('EDIT_SELF')")
-  public HttpEntity updateEmployee(@RequestBody EmployeeDto employeeDto) {
+  public HttpEntity updateEmployee(@RequestBody final EmployeeDto employeeDto) {
     employeeService.updateEmployee(employeeDto);
     return new ResponseEntity(HttpStatus.OK);
   }
 
   @GetMapping("employees/org-chart")
   public OrgChartDto getOrgChart(
-      @HashidsFormat @RequestParam(value = "userId", required = false) Long userId) {
+      @HashidsFormat @RequestParam(value = "userId", required = false) final Long userId) {
     return userService.getOrgChart(userId, getCompany());
   }
 }

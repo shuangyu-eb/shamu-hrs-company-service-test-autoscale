@@ -60,7 +60,9 @@ public interface UserService {
 
   void saveUserWithRole(User user, User.Role role);
 
-  List<JobUserDto> findAllEmployees(Company company);
+  List<JobUserDto> findAllJobUsers(Company company);
+
+  List<User> findAllUsersByCompany(Company company);
 
   String getHeadPortrait(Long userId);
 
@@ -85,5 +87,5 @@ public interface UserService {
 
   User updateUserRole(User currentUser, UserRoleUpdatePojo userRoleUpdatePojo, User user);
 
-  User updateUserStatus(User currentUser, UserStatusUpdatePojo userStatusUpdatePojo,User user);
+  User updateUserStatus(User currentUser, UserStatusUpdatePojo userStatusUpdatePojo, User user);
 }
