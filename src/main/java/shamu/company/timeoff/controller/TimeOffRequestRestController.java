@@ -5,7 +5,6 @@ import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.DENIED;
 
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -110,21 +109,14 @@ public class TimeOffRequestRestController extends BaseRestController {
   public List<TimeOffRequestDto> getTimeOffRequestsByApprover(
       @RequestParam(value = "status") TimeOffRequestApprovalStatus[] status) {
 
-    List<TimeOffRequestDto> timeOffRequestDtos =
-        timeOffRequestService
+    List<TimeOffRequest> timeOffRequests = timeOffRequestService
             .getByApproverAndStatusFilteredByStartDay(
-                getUser(), status, DateUtil.getFirstDayOfCurrentYear())
+                    getUser(), status, DateUtil.getFirstDayOfCurrentYear());
+
+    return timeOffRequests
             .stream()
             .map(TimeOffRequestDto::new)
             .collect(Collectors.toList());
-
-    if (!timeOffRequestDtos.isEmpty()) {
-      return timeOffRequestDtos.stream()
-          .sorted(Comparator.comparingLong(request -> request.getStartDay().getTime()))
-          .collect(Collectors.toList());
-    } else {
-      return timeOffRequestDtos;
-    }
   }
 
   @GetMapping("users/{userId}/time-off-requests")
@@ -233,15 +225,6 @@ public class TimeOffRequestRestController extends BaseRestController {
       myTimeOffDto =
           timeOffRequestService.getMyTimeOffRequestsByRequesterUserIdFilteredByStartDay(
               id, startDayTimestamp);
-    }
-
-    List<TimeOffRequestDto> timeOffRequestDtos = myTimeOffDto.getTimeOffRequests();
-
-    if (!timeOffRequestDtos.isEmpty()) {
-      myTimeOffDto.setTimeOffRequests(
-          timeOffRequestDtos.stream()
-              .sorted(Comparator.comparingLong(request -> request.getStartDay().getTime()))
-              .collect(Collectors.toList()));
     }
 
     return myTimeOffDto;

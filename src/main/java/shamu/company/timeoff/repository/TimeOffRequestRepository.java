@@ -14,23 +14,25 @@ public interface TimeOffRequestRepository
   @Query(
       value =
           "select * from time_off_requests tr "
-              + "where tr.approver_user_id = ?1 "
+              + "where tr.id in "
+              + "(select tra.time_off_request_id "
+              + "from time_off_requests_approvers tra "
+              + "where tra.approver_user_id = ?1) "
               + "and tr.time_off_request_approval_status_id in "
-              + "(select id from time_off_request_approval_statuses "
-              + "where name in ?2) "
+              + "(select tras.id from time_off_request_approval_statuses tras "
+              + "where tras.name in ?2) "
               + "and tr.id in "
-              + "(select time_off_request_id from "
-              + "(select min(date) startDay, max(date) endDay, time_off_request_id from "
-              + "time_off_request_dates "
-              + "group by time_off_request_id) trspan "
-              + "where (trspan.startDay <= ?3 "
-              + "and trspan.endDay >= ?3) "
-              + "or trspan.startDay > ?3) ",
+              + "(select trspan.time_off_request_id from "
+              + "(select min(trd.date) startDay, max(trd.date) endDay, trd.time_off_request_id "
+              + "from time_off_request_dates trd "
+              + "group by trd.time_off_request_id "
+              + "having startDay <= ?3 "
+              + "and endDay >= ?3 "
+              + "or startDay > ?3 "
+              + "order by startDay) trspan)",
       nativeQuery = true)
   List<TimeOffRequest> findByApproversAndTimeOffApprovalStatusFilteredByStartDay(
-      Long approverId,
-      TimeOffRequestApprovalStatus[] timeOffRequestApprovalStatus,
-      Timestamp startDay);
+      Long approverId, List<String> statusNames, Timestamp startDay);
 
   @Query(
       value =
@@ -61,12 +63,12 @@ public interface TimeOffRequestRepository
               + "where td.date >= date_add(curdate(), INTERVAL -day(curdate())+1 day) "
               + "and td.date <= last_day(date_add(curdate(), INTERVAL +11 month))"
               + "and td.deleted_at is NULL) "
-              + "and (approver_user_id = ?1 "
-              + "or requester_user_id = ?1) "
-              + "and time_off_request_approval_status_id in ( "
-              + "select id "
-              + "from time_off_request_approval_statuses "
-              + "where name in ?2)",
+              + "and (tr.approver_user_id = ?1 "
+              + "or tr.requester_user_id = ?1) "
+              + "and tr.time_off_request_approval_status_id in ( "
+              + "select tras.id "
+              + "from time_off_request_approval_statuses tras "
+              + "where tras.name in ?2)",
       nativeQuery = true)
   List<TimeOffRequest> employeeFindTeamRequests(
       Long managerId, List<String> timeOffRequestApprovalStatus);
@@ -75,20 +77,20 @@ public interface TimeOffRequestRepository
       value =
           "select * "
               + "from time_off_requests tr "
-              + "where tr.id in (select time_off_request_id "
+              + "where tr.id in (select td.time_off_request_id "
               + "from time_off_request_dates td "
               + "where td.date >= date_add(curdate(), INTERVAL -day(curdate())+1 day) "
               + "and td.date <= last_day(date_add(curdate(), INTERVAL +11 month))"
               + "and td.deleted_at is null ) "
-              + "and (approver_user_id = ?1 "
-              + "or requester_user_id in (?1,?2) "
-              + "or requester_user_id in (select id "
-              + "from users "
-              + "where manager_user_id = ?2)) "
-              + "and time_off_request_approval_status_id in ( "
-              + "select id "
-              + "from time_off_request_approval_statuses "
-              + "where name in ?3)",
+              + "and (tr.approver_user_id = ?1 "
+              + "or tr.requester_user_id in (?1,?2) "
+              + "or tr.requester_user_id in (select u.id "
+              + "from users u "
+              + "where u.manager_user_id = ?2)) "
+              + "and tr.time_off_request_approval_status_id in ( "
+              + "select tras.id "
+              + "from time_off_request_approval_statuses tras "
+              + "where tras.name in ?3)",
       nativeQuery = true)
   List<TimeOffRequest> managerFindTeamRequests(
       Long userId, Long managerId, List<String> timeOffRequestApprovalStatus);
@@ -97,29 +99,28 @@ public interface TimeOffRequestRepository
       value =
           "select * from time_off_requests tr "
               + "where tr.id in "
-              + "(select time_off_request_id from "
-              + "(select min(date) startDay, max(date) endDay, time_off_request_id from "
-              + "time_off_request_dates "
-              + "group by time_off_request_id) trspan "
-              + "where (trspan.startDay <= ?2 "
-              + "and trspan.endDay >= ?2) "
-              + "or trspan.startDay > ?2) "
+              + "(select trspan.time_off_request_id from "
+              + "(select min(trd.date) startDay, max(trd.date) endDay, trd.time_off_request_id "
+              + "from time_off_request_dates trd "
+              + "group by trd.time_off_request_id "
+              + "having startDay <= ?2 "
+              + "and endDay >= ?2 "
+              + "or startDay > ?2 order by startDay) trspan) "
               + "and tr.requester_user_id = ?1",
       nativeQuery = true)
-  List<TimeOffRequest> findByRequesterUserIdFilteredByStartDay(
-      Long id, Timestamp startDay);
+  List<TimeOffRequest> findByRequesterUserIdFilteredByStartDay(Long id, Timestamp startDay);
 
   @Query(
       value =
           "select * from time_off_requests tr "
               + "where tr.id in "
-              + "(select time_off_request_id from "
-              + "(select min(date) startDay, max(date) endDay, time_off_request_id from "
-              + "time_off_request_dates "
-              + "group by time_off_request_id) trspan "
-              + "where (trspan.startDay <= ?2 "
-              + "and trspan.endDay >= ?2) "
-              + "or (trspan.startDay > ?2 and trspan.startDay <= ?3)) "
+              + "(select trspan.time_off_request_id from "
+              + "(select min(trd.date) startDay, max(trd.date) endDay, trd.time_off_request_id "
+              + "from time_off_request_dates trd "
+              + "group by trd.time_off_request_id "
+              + "having startDay <= ?2 "
+              + "and endDay >= ?2 "
+              + "or startDay > ?2 and startDay <= ?3 order by startDay) trspan) "
               + "and tr.requester_user_id = ?1",
       nativeQuery = true)
   List<TimeOffRequest> findByRequesterUserIdFilteredByStartAndEndDay(

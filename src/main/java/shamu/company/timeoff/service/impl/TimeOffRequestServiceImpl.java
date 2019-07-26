@@ -82,8 +82,10 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
   @Override
   public List<TimeOffRequest> getByApproverAndStatusFilteredByStartDay(
       User approver, TimeOffRequestApprovalStatus[] status, Timestamp startDay) {
+    List<TimeOffRequestApprovalStatus> statusList = Arrays.asList(status);
+    List<String> statusNames = statusList.stream().map(Enum::name).collect(Collectors.toList());
     return timeOffRequestRepository.findByApproversAndTimeOffApprovalStatusFilteredByStartDay(
-        approver.getId(), status, startDay);
+            approver.getId(), statusNames, startDay);
   }
 
   @Override

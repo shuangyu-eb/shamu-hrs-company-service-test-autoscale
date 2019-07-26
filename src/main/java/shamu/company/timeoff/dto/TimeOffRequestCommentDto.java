@@ -17,10 +17,13 @@ public class TimeOffRequestCommentDto {
 
   private String comment;
 
+  private String name;
+
   public TimeOffRequestCommentDto(TimeOffRequestComment requestComment) {
     this.id = requestComment.getId();
     this.comment = requestComment.getComment();
     this.imageUrl = requestComment.getUser().getImageUrl();
     this.userId = requestComment.getUser().getId();
+    this.name = requestComment.getUser().getUserPersonalInformation().getName();
   }
 }
