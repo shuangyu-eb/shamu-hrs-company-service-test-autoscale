@@ -19,7 +19,7 @@ public class TimeOffRequestDto {
 
   private String name;
 
-  private String type;
+  private String policyName;
 
   private Timestamp startDay;
 
@@ -50,7 +50,7 @@ public class TimeOffRequestDto {
             requester.getUserPersonalInformation().getMiddleName(),
             requester.getUserPersonalInformation().getLastName());
 
-    this.type = timeOffRequest.getTimeOffPolicy().getName();
+    this.policyName = timeOffRequest.getTimeOffPolicy().getName();
     this.hours = timeOffRequest.getHours();
     this.startDay = timeOffRequest.getStartDay();
 
