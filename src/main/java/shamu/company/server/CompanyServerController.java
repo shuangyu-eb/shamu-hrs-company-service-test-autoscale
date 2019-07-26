@@ -7,11 +7,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import shamu.company.user.entity.User;
+import shamu.company.common.BaseRestController;
 
 @RestController
 @RequestMapping("/server/company")
-public class CompanyServerController {
+public class CompanyServerController extends BaseRestController {
 
   private final CompanyUserService companyUserService;
 
@@ -20,10 +20,9 @@ public class CompanyServerController {
     this.companyUserService = companyUserService;
   }
 
-  @GetMapping("/users/email")
-  public AuthUser getUserBy(@RequestParam String email) {
-    User user = this.companyUserService.findUserByEmail(email);
-    return new AuthUser(user);
+  @GetMapping("/users/current")
+  public AuthUser getCurrentUser() {
+    return new AuthUser(this.getUser());
   }
 
   @GetMapping(value = "/users/id")
