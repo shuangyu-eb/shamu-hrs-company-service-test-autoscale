@@ -16,7 +16,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.apache.commons.lang.BooleanUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -343,7 +342,6 @@ public class TimeOffPolicyServiceImpl implements TimeOffPolicyService {
     TimeOffPolicyAccrualSchedule originTimeOffSchedule =
         getTimeOffPolicyAccrualScheduleByTimeOffPolicy(timeOffPolicyUpdated);
 
-
     if (originTimeOffSchedule == null && CollectionUtils.isEmpty(milestones)) {
       return null;
     }
@@ -537,9 +535,23 @@ public class TimeOffPolicyServiceImpl implements TimeOffPolicyService {
   public void deleteTimeOffPolicy(Long timeOffPolicyId) {
     List<TimeOffRequest> requests = timeOffRequestRepository.findByTimeOffPolicyId(timeOffPolicyId);
     requests.stream().filter(request ->
-         request.getTimeOffApprovalStatus() != APPROVED
+        request.getTimeOffApprovalStatus() != APPROVED
             && request.getTimeOffApprovalStatus() != DENIED)
         .forEach(request -> timeOffRequestRepository.delete(request.getId()));
+
+    List<TimeOffPolicyUser> timeOffPolicyUsers = timeOffPolicyUserRepository
+        .findAllByTimeOffPolicyId(timeOffPolicyId);
+    timeOffPolicyUserRepository.delete(timeOffPolicyUsers);
+
+    TimeOffPolicy timeOffPolicy = timeOffPolicyRepository.getOne(timeOffPolicyId);
+    TimeOffPolicyAccrualSchedule accrualSchedule = timeOffPolicyAccrualScheduleRepository
+        .findAllByTimeOffPolicy(timeOffPolicy);
+    timeOffPolicyAccrualScheduleRepository.delete(accrualSchedule);
+
+    List<AccrualScheduleMilestone> milestones = accrualScheduleMilestoneRepository
+        .findByTimeOffPolicyAccrualScheduleId(accrualSchedule.getId());
+    accrualScheduleMilestoneRepository.deleteAll(milestones);
+
     timeOffPolicyRepository.delete(timeOffPolicyId);
   }
 
@@ -549,10 +561,21 @@ public class TimeOffPolicyServiceImpl implements TimeOffPolicyService {
   }
 
   @Override
-  public void enrollTimeOffHours(List<TimeOffPolicyUser> users,
+  public void enrollTimeOffHours(List<TimeOffPolicyUser> policyUsers,
       TimeOffPolicy enrollPolicy, User currentUser) {
-    users.stream().forEach(user -> {
-      TimeOffAdjustment timeOffAdjustment = new TimeOffAdjustment(user,enrollPolicy,currentUser);
+    policyUsers.stream().forEach(policyUser -> {
+      TimeOffBreakdownDto timeOffBreakdown = timeOffDetailService
+          .getTimeOffBreakdown(policyUser.getId(), LocalDateTime.now());
+
+      Integer remainingBalance = timeOffBreakdown.getBalance();
+      TimeOffAdjustment timeOffAdjustment = TimeOffAdjustment.builder()
+          .timeOffPolicy(enrollPolicy)
+          .adjusterUserId(currentUser.getId())
+          .amount(remainingBalance)
+          .comment(String.format("Rolled from policy %s", policyUser.getTimeOffPolicy().getName()))
+          .company(policyUser.getUser().getCompany())
+          .user(policyUser.getUser())
+          .build();
       timeOffAdjustmentRepository.save(timeOffAdjustment);
     });
   }
