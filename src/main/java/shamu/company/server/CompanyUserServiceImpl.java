@@ -3,6 +3,9 @@ package shamu.company.server;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import shamu.company.common.exception.ResourceNotFoundException;
+import shamu.company.company.CompanyRepository;
+import shamu.company.company.entity.Company;
 import shamu.company.user.entity.User;
 import shamu.company.user.repository.UserRepository;
 
@@ -11,18 +14,29 @@ public class CompanyUserServiceImpl implements CompanyUserService {
 
   private final UserRepository userRepository;
 
+  private final CompanyRepository companyRepository;
+
   @Autowired
-  public CompanyUserServiceImpl(UserRepository userRepository) {
+  public CompanyUserServiceImpl(final UserRepository userRepository,
+      final CompanyRepository companyRepository) {
     this.userRepository = userRepository;
+    this.companyRepository = companyRepository;
   }
 
   @Override
-  public List<User> getUsersBy(List<Long> ids) {
+  public List<User> getUsersBy(final List<Long> ids) {
     return userRepository.findAllById(ids);
   }
 
   @Override
-  public User findUserByEmail(String email) {
+  public User findUserByEmail(final String email) {
     return userRepository.findByEmailWork(email);
+  }
+
+  @Override
+  public List<User> getAllUsers(final Long companyId) {
+    final Company company = companyRepository.findById(companyId)
+        .orElseThrow(() -> new ResourceNotFoundException("Company does not exist"));
+    return userRepository.findAllByCompany(company);
   }
 }

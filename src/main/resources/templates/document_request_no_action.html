@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en"
+      th:replace="~{base_email :: layout(~{::section})}" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<section align="center"
+     style="background-color: #edeef2; padding-bottom: 119px; padding-top: 58px; width: 100%;">
+  <div style="width: 552px; border-collapse: collapse;">
+    <div style="height: 245px; background-color: white; padding: 26px 32px 30px 32px;">
+      <div class="card-title" style="margin: 0 63px 26px 63px; height: 45px">
+        <img style="height: 47px; vertical-align: -18px; border: 1px solid #dfe2e9; border-radius: 50%" alt="avatar" th:src="${senderAvatar}" />
+        <span th:text="${senderName}" style="color: #488eff; width: fit-content"></span>
+        &nbsp;Sent You a Document
+      </div>
+
+      <div class="rectangle-card" style="width: 277px; height: 79px; padding: 21px 0 0 0; border-radius: 5px; border: solid 1px #dfe2e9; background-color: #ffffff;">
+        <img alt="document" style="width: 40px; height: 45px;" th:src="@{${frontEndAddress}+'image/document.svg'}">
+        <span th:text="${documentTitle}"></span>
+      </div>
+
+      <div class="button-card" style="padding-bottom: 30px;">
+        <a style="margin-top: 30px; text-decoration: none; padding: 10px 20px; border-radius: 20px; background: #488eff; border: 1px solid transparent;cursor: pointer; display: block; width: 150px; margin-left: auto; margin-right: auto;font-size: 14px; font-weight: 500; line-height: 1.17; letter-spacing: .2px; color: #ffffff; text-align: center;"
+           th:href="@{${frontEndAddress} + ${documentUrl}}">View
+        </a>
+      </div>
+
+    </div>
+  </div>
+</section>
+</body>
+</html>
