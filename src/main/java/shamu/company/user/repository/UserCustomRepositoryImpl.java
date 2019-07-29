@@ -240,7 +240,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
     resultSql = resultSql.replace(commaIndex, resultSql.length(), " ");
     resultSql
         .append("limit ")
-        .append(pageable.getPageNumber())
+        .append(pageable.getPageNumber() * pageable.getPageSize())
         .append(",")
         .append(pageable.getPageSize());
     return resultSql.toString();

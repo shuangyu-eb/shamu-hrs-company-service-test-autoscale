@@ -37,10 +37,16 @@ public class JobUserDto {
 
   public JobUserDto(User user, JobUser userWithJob) {
     this.setId(user.getId());
-    this.setFirstName(user.getUserPersonalInformation().getFirstName());
-    this.setLastName(user.getUserPersonalInformation().getLastName());
-    this.setPhoneNumber(user.getUserContactInformation().getPhoneWork());
-    this.setEmail(user.getUserContactInformation().getEmailWork());
+    if (user.getUserPersonalInformation() != null) {
+      this.setFirstName(user.getUserPersonalInformation().getFirstName());
+      this.setLastName(user.getUserPersonalInformation().getLastName());
+    }
+
+    if (user.getUserContactInformation() != null) {
+      this.setPhoneNumber(user.getUserContactInformation().getPhoneWork());
+      this.setEmail(user.getUserContactInformation().getEmailWork());
+    }
+
     this.setImageUrl(user.getImageUrl());
     if (userWithJob != null) {
       Job job = userWithJob.getJob();
@@ -50,6 +56,4 @@ public class JobUserDto {
           ? null : userWithJob.getEmploymentType().getName();
     }
   }
-
-
 }
