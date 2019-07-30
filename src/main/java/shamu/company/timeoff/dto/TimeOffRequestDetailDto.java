@@ -36,6 +36,8 @@ public class TimeOffRequestDetailDto extends TimeOffRequestDto {
       this.approver = aprrover;
     }
 
+    this.isLimited = timeOffRequest.getTimeOffPolicy().getIsLimited();
+
     this.approverComments = timeOffRequest.getApproverComments()
         .stream().map(TimeOffRequestCommentDto::new)
         .collect(Collectors.toList());

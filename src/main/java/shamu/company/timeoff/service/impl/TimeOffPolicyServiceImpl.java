@@ -197,8 +197,10 @@ public class TimeOffPolicyServiceImpl implements TimeOffPolicyService {
   }
 
   @Override
-  public Integer getTimeOffBalanceByUserId(Long userId) {
-    return timeOffPolicyUserRepository.getBalanceByUserId(userId);
+  public Integer getTimeOffBalanceByUserAndPolicy(User user, TimeOffPolicy timeOffPolicy) {
+    return timeOffPolicyUserRepository
+        .findTimeOffPolicyUserByUserAndTimeOffPolicy(user, timeOffPolicy)
+        .getBalance();
   }
 
   @Override
@@ -268,23 +270,8 @@ public class TimeOffPolicyServiceImpl implements TimeOffPolicyService {
   }
 
   @Override
-  public void updateTimeOffPolicyAccrualSchedule(
-      TimeOffPolicyAccrualSchedule timeOffPolicyAccrualSchedule) {
-    timeOffPolicyAccrualScheduleRepository.save(timeOffPolicyAccrualSchedule);
-  }
-
-  @Override
   public List<TimeOffPolicyUser> getAllPolicyUsersByUser(User user) {
     return timeOffPolicyUserRepository.findTimeOffPolicyUsersByUser(user);
-  }
-
-  @Override
-  public TimeOffPolicyUser updateTimeOffBalance(Long timeOffPolicyUserId, Integer totalHours) {
-    TimeOffPolicyUser timeOffPolicyUser = timeOffPolicyUserRepository.findById(timeOffPolicyUserId)
-        .get();
-    Integer prevBalance = timeOffPolicyUser.getBalance();
-    timeOffPolicyUser.setBalance(prevBalance - totalHours);
-    return timeOffPolicyUserRepository.save(timeOffPolicyUser);
   }
 
   @Override

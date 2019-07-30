@@ -31,7 +31,7 @@ public interface TimeOffPolicyService {
 
   void createTimeOffPolicyUsers(List<TimeOffPolicyUser> timeOffPolicyUsers);
 
-  Integer getTimeOffBalanceByUserId(Long userId);
+  Integer getTimeOffBalanceByUserAndPolicy(User user, TimeOffPolicy timeOffPolicy);
 
   TimeOffPolicy getTimeOffPolicyById(Long id);
 
@@ -47,9 +47,6 @@ public interface TimeOffPolicyService {
   TimeOffPolicyAccrualSchedule getTimeOffPolicyAccrualScheduleByTimeOffPolicy(
       TimeOffPolicy timeOffPolicy);
 
-  void updateTimeOffPolicyAccrualSchedule(
-      TimeOffPolicyAccrualSchedule schedule);
-
   void updateMilestones(
       List<AccrualScheduleMilestoneDto> milestones, Long scheduleId);
 
@@ -61,8 +58,6 @@ public interface TimeOffPolicyService {
   List<TimeOffPolicyUser> getAllPolicyUsersByPolicyId(Long id);
 
   void enrollTimeOffHours(List<TimeOffPolicyUser> users,TimeOffPolicy enrollPolicy,User currentU);
-
-  TimeOffPolicyUser updateTimeOffBalance(Long timeOffPolicyUserId, Integer totalHours);
 
   List<TimeOffPolicyListDto> getAllPolicies(Long companyId);
 

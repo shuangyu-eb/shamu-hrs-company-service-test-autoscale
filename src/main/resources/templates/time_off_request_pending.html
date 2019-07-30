@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en"
-      th:replace="~{base_email :: layout(~{::section})}" xmlns="http://www.w3.org/1999/xhtml"
+      th:replace="~{base_email :: layout(~{::table})}" xmlns="http://www.w3.org/1999/xhtml"
       xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
@@ -8,64 +8,101 @@
         type="text/css">
 </head>
 <body>
-
-<section>
-  <div style="width: 552px;border-radius: 4px;
-  font-size: 14px;font-family: Roboto;background-color: #ffffff;">
-    <div style="width: 552px;height: 53px;background-color: #fff9f1;
-     display: flex;text-align: center;align-items: center;justify-content: center;
-       color: #2e3033;">
+<table
+    style="width: 552px;border-radius: 4px; border-spacing: 0px; font-size: 14px;font-family: Roboto;background-color: #ffffff;">
+  <tbody>
+  <tr>
+    <td align="center"
+        style="width: 522px;padding: 15px;background-color: #fff9f1; color: #2e3033;">
       <img style="width: 19px;height: 20px;margin-right: 8px;"
            th:src="@{${frontEndAddress}+'image/pending.svg'}">
       &nbsp;&nbsp;Awaiting your approval
-    </div>
-    <div th:insert="components/request::requster" style="margin: 20px">
-    </div>
+    </td>
+  </tr>
+  <tr th:replace="components/request::requster" style="margin: 20px">
+  </tr>
+
+  <tr th:replace="components/request::time"></tr>
+
+  <tr>
+    <td style="padding-top: 15px;">
+      <table width="552px" style="padding: 0 30px">
+        <tbody>
+        <tr th:if="${isLimited}">
+          <td
+              style="border-top: solid 1px #dfe2e9;padding: 20px 0; margin: 0 30px; font-weight: 500; align-items: center;">
+            Remaining Balance if Approved:
+            <span th:text="${remain} + (${remain} > 1 ? ' Hours': 'Hour')"></span>
+          </td>
+        </tr>
+        <tr>
+          <td
+              style="font-weight: 500;border-top: solid 1px #dfe2e9; border-bottom: solid 1px #dfe2e9; padding: 20px 0; align-items: center;">
+            Time Off Conflicts: <span th:text="${conflict}"></span>
+          </td>
+
+        </tr>
+        <tr>
+          <td th:insert="components/request::comment" style="padding: 15px 0;">
+
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </td>
+  </tr>
 
 
-    <div th:replace="components/request::time"></div>
+  <tr>
+    <td style="padding: 0px;">
+      <table align="center" style="background: #f7f8fa; width: 100%; border-spacing: 0px;">
+        <tbody>
+        <tr
+            style="padding-top:15px; font-weight: 500;">
+          <td style="padding-top: 15px;">
+            <table width="100%">
+              <tbody>
+              <tr>
+                <td align="right" style="padding-right: 10px;">
+                  <a style="text-decoration: none;padding:9px 41px;cursor: pointer; margin: auto; width: 120px; border-radius: 20px; border: solid 1px #d8dadf; background-color: white;"
+                     th:href="@{${frontEndAddress}+'time-off/requests'}">
+                    <span style="line-height: 40px; color: #488eff;">Deny</span>
 
-    <div style="padding: 0 30px">
-      <div
-          style="border-top: solid 1px #dfe2e9; height: 52px; font-weight: 500;display: flex; align-items: center;">
-        Remaining Balance if Approved:
-        <span th:text="${remain} + (${remain} > 1 ? ' Hours': 'Hour')"></span>
-      </div>
-      <div
-          style="font-weight: 500;border-top: solid 1px #dfe2e9; border-bottom: solid 1px #dfe2e9; height: 52px; display: flex; align-items: center;">
-        Time Off Conflicts: <span th:text="${conflict}"></span>
-      </div>
+                  </a>
+                </td>
 
-    </div>
+                <td align="left" style="padding-left: 10px">
+                  <a style="text-decoration: none;padding:9px 32px;cursor: pointer;margin: auto; width: 120px; border-radius: 20px; background-color: #488eff;"
+                     th:href="@{${frontEndAddress}+'time-off/requests'}">
 
-    <div th:replace="components/request::comment"></div>
-    <div style="background: #f7f8fa;">
-      <div
-          style="padding-top:15px;display: flex; justify-content: center; align-items: center; font-weight: 500;">
-        <a style="text-decoration: none;cursor: pointer; padding-right: 10px"
-           th:href="@{${frontEndAddress}+'time-off/requests'}">
-          <div
-              style="width: 120px; height: 40px; border-radius: 20px; border: solid 1px #d8dadf; background-color: white;">
-            <div style="text-align:center; line-height: 40px; color: #488eff;">Deny</div>
-          </div>
-        </a>
-        <a style="text-decoration: none;cursor: pointer; padding-left: 10px"
-           th:href="@{${frontEndAddress}+'time-off/requests'}">
-          <div style="width: 120px; height: 40px; border-radius: 20px; background-color: #488eff;">
-            <div style="text-align:center; line-height: 40px;color: white">Approve</div>
-          </div>
-        </a>
-      </div>
-      <div
-          style="font-size: 14px; width: fit-content; margin: auto; padding: 30px;">
-        <a style="color: #488eff;cursor: pointer; text-decoration: none;"
-           th:href="@{${frontEndAddress}+'time-off/requests'}">View Full
-          Details</a>
-    </div>
+                    <span style="line-height: 40px;color: white">Approve</span>
+                  </a>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+          </td>
+        </tr>
 
-    </div>
-  </div>
-</section>
+        <tr style="background: #f7f8fa; width: 552px">
+          <td align="center"
+              style="width: 552px; margin: auto; font-size: 14px; width: fit-content; padding: 30px;">
+            <a style="color: #488eff;cursor: pointer; text-decoration: none;"
+               th:href="@{${frontEndAddress}+'time-off/requests'}">View Full
+              Details
+            </a>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </td>
+
+  </tr>
+
+
+  </tbody>
+</table>
+
 
 </body>
 </html>

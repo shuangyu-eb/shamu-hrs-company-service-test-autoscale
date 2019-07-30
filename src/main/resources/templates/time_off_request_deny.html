@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en"
-      th:replace="~{base_email :: layout(~{::section})}" xmlns="http://www.w3.org/1999/xhtml"
+      th:replace="~{base_email :: layout(~{::table})}" xmlns="http://www.w3.org/1999/xhtml"
       xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
@@ -9,38 +9,61 @@
 </head>
 <body>
 
-<section>
-  <div style="width: 552px;border-radius: 4px;
+<table style="border-spacing: 0px;">
+  <tbody style="width: 552px;border-radius: 4px;
   font-size: 14px;font-family: Roboto;background-color: #ffffff;"
   >
+  <tr>
 
-    <div style="width: 552px;height: 53px;display: flex;
-    align-items: center;justify-content: center; color: #2e3033; background: #ffefef;"
-    >
+    <td align="center" style="width: 552px;padding: 15px;color: #2e3033; background: #ffefef;">
       <img style="width: 19px;height: 20px;margin-right: 8px;"
            th:src="@{${frontEndAddress}+'image/deny.svg'}">
       &nbsp;&nbsp;
       <span>Denied by</span>&nbsp;
       <span th:text="${approverName}"></span>
-    </div>
+    </td>
+  </tr>
+
+  <tr th:if="${isLimited}">
+
+    <td>
+      <table align="center"
+             style="margin-top: 20px; line-height: 59px; border-radius: 4px; width: 488px; padding: 12px 10px; text-align: center; background: #f7f8fa; color: gray;">
+        <tbody>
+        <tr>
+          <td>
+            *<span th:text="${hours}">16</span> hours have been added back to your <span  th:text="${type}"></span> time off
+            balance
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </td>
+  </tr>
 
 
+  <tr th:if="${toManager}" th:replace="components/request::requster"></tr>
 
-    <div style="margin: 20px 32px; line-height: 59px; border-radius: 4px; width: 488px; height: 59px; text-align: center; background: #f7f8fa; color: gray;"
-    >
-      *<span th:text="${hours}">16</span> hours have been added back to your Vacation time off balance
-    </div>
+  <tr th:replace="components/request::time"></tr>
 
-    <div th:if="${toManager}" th:insert="components/request::requster"></div>
+  <tr>
+    <td style="padding-top: 15px;">
+      <table width="552px" style="padding: 0 30px">
+        <tbody>
+        <tr>
+          <td th:insert="components/request::comment" style="padding: 15px 0;">
 
-    <div th:replace="components/request::time"></div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </td>
+  </tr>
 
-    <div th:replace="components/request::comment"></div>
+  <tr th:replace="components/request::viewDetail"></tr>
 
-    <div th:replace="components/request::viewDetail"></div>
-
-  </div>
-</section>
+  </tbody>
+</table>
 
 </body>
 </html>

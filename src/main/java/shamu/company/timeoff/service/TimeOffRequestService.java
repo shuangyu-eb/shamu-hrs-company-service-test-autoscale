@@ -4,6 +4,7 @@ import java.sql.Timestamp;
 import java.util.List;
 import org.springframework.stereotype.Service;
 import shamu.company.timeoff.dto.MyTimeOffDto;
+import shamu.company.timeoff.dto.TimeOffRequestDetailDto;
 import shamu.company.timeoff.entity.TimeOffRequest;
 import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus;
 import shamu.company.timeoff.entity.TimeOffRequestComment;
@@ -33,13 +34,11 @@ public interface TimeOffRequestService {
 
   List<TimeOffRequest> getOtherRequestsBy(TimeOffRequest timeOffRequest);
 
-  void sendTimeOffRequestEmail(TimeOffRequest timeOffRequest);
-
   TimeOffRequest updateTimeOffRequest(
       TimeOffRequest timeOffRequest, TimeOffRequestComment timeOffRequestComment);
 
-  List<TimeOffRequest> getTimeOffRequestsByTimeOffPolicyId(Long id);
-
   void deleteUnimplementedRequest(
       Long requestId, UnimplementedRequestPojo unimplementedRequestPojo);
+
+  TimeOffRequestDetailDto getTimeOffRequestDetail(Long id, Long userId);
 }
