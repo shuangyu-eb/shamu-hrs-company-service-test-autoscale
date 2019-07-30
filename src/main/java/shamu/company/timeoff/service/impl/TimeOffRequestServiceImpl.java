@@ -2,6 +2,8 @@ package shamu.company.timeoff.service.impl;
 
 import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.APPROVED;
 import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.DENIED;
+import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.NO_ACTION;
+import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.VIEWED;
 
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -69,9 +71,12 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
   }
 
   @Override
-  public Integer getCountByApproverAndStatusIsNoAction(User approver) {
-    return timeOffRequestRepository.countByApproverUserAndTimeOffApprovalStatus(
-        approver, TimeOffRequestApprovalStatus.NO_ACTION);
+  public Integer getPendingRequestsCount(User approver) {
+    TimeOffRequestApprovalStatus[] statuses = new TimeOffRequestApprovalStatus[]{
+        NO_ACTION, VIEWED
+    };
+    return timeOffRequestRepository.countByApproversContainingAndTimeOffApprovalStatusIsIn(
+        approver, statuses);
   }
 
   @Override
@@ -251,7 +256,7 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
         .getBalance();
     requestDetail.setBalance(balance);
 
-    if (timeOffRequest.getTimeOffApprovalStatus() == TimeOffRequestApprovalStatus.NO_ACTION
+    if (timeOffRequest.getTimeOffApprovalStatus() == NO_ACTION
         && userId.equals(requester.getManagerUser().getId())) {
       timeOffRequest.setTimeOffApprovalStatus(TimeOffRequestApprovalStatus.VIEWED);
       timeOffRequestRepository.save(timeOffRequest);

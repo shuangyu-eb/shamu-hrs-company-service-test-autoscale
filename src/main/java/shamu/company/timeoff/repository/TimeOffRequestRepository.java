@@ -51,8 +51,8 @@ public interface TimeOffRequestRepository
       Timestamp start,
       Timestamp end);
 
-  Integer countByApproverUserAndTimeOffApprovalStatus(
-      User approver, TimeOffRequestApprovalStatus timeOffRequestApprovalStatus);
+  Integer countByApproversContainingAndTimeOffApprovalStatusIsIn(
+      User approver, TimeOffRequestApprovalStatus[] timeOffRequestApprovalStatus);
 
   @Query(
       value =

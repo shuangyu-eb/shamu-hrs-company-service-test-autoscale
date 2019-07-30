@@ -100,11 +100,11 @@ public class TimeOffRequestRestController extends BaseRestController {
     saveTimeOffRequestDates(requestPojo, timeOffRequestReturned);
   }
 
-  @GetMapping("time-off_requests/approver/status/no-action/count")
+  @GetMapping("time-off_requests/approver/status/pending/count")
   @PreAuthorize("hasAuthority('MANAGE_TIME_OFF_REQUEST')")
-  public Integer getNoActionTimeOffRequestsCount() {
+  public Integer getPendingTimeOffRequestsCount() {
 
-    return timeOffRequestService.getCountByApproverAndStatusIsNoAction(getUser());
+    return timeOffRequestService.getPendingRequestsCount(getUser());
   }
 
   @GetMapping("time-off-requests/approver")

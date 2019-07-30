@@ -17,7 +17,7 @@ public interface TimeOffRequestService {
   List<TimeOffRequest> getByApproverAndStatusFilteredByStartDay(
       User approver, TimeOffRequestApprovalStatus[] status, Timestamp startDay);
 
-  Integer getCountByApproverAndStatusIsNoAction(User approver);
+  Integer getPendingRequestsCount(User approver);
 
   TimeOffRequest getById(Long timeOffRequestId);
 
