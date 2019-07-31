@@ -28,8 +28,7 @@ public interface TimeOffRequestRepository
               + "group by trd.time_off_request_id "
               + "having startDay <= ?3 "
               + "and endDay >= ?3 "
-              + "or startDay > ?3 "
-              + "order by startDay) trspan)",
+              + "or startDay > ?3) trspan)",
       nativeQuery = true)
   List<TimeOffRequest> findByApproversAndTimeOffApprovalStatusFilteredByStartDay(
       Long approverId, List<String> statusNames, Timestamp startDay);
@@ -120,7 +119,7 @@ public interface TimeOffRequestRepository
               + "group by trd.time_off_request_id "
               + "having startDay <= ?2 "
               + "and endDay >= ?2 "
-              + "or startDay > ?2 and startDay <= ?3 order by startDay) trspan) "
+              + "or startDay > ?2 and startDay <= ?3) trspan) "
               + "and tr.requester_user_id = ?1",
       nativeQuery = true)
   List<TimeOffRequest> findByRequesterUserIdFilteredByStartAndEndDay(
