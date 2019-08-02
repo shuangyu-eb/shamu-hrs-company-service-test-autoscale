@@ -96,8 +96,9 @@ public class TimeOffAccrualMonthStrategyServiceImpl extends TimeOffAccrualServic
       LocalDateTime startDate = firstMonth.getDate();
       int dayOfMonth = startDate.getDayOfMonth();
       int totalDays = Month.of(startDate.getMonthValue()).length(Year.isLeap(startDate.getYear()));
-      int newTimeOffTime = firstMonth.getAccrualHours() * ((totalDays - dayOfMonth) / totalDays);
-      firstMonth.setAccrualHours(newTimeOffTime);
+      Double newTimeOffTime = (double) Math
+          .round(firstMonth.getAccrualHours() * ((totalDays - dayOfMonth) / (double) totalDays));
+      firstMonth.setAccrualHours(newTimeOffTime.intValue());
     }
 
     // reset day value to be the first day of the month

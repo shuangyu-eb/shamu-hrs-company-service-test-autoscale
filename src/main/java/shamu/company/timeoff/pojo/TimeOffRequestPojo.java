@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.logging.log4j.util.Strings;
 import shamu.company.hashids.HashidsFormat;
+import shamu.company.timeoff.dto.TimeOffRequestDateDto;
 import shamu.company.timeoff.entity.TimeOffRequest;
 import shamu.company.timeoff.entity.TimeOffRequestComment;
 import shamu.company.timeoff.entity.TimeOffRequestDate;
@@ -17,7 +18,7 @@ import shamu.company.user.entity.User;
 @AllArgsConstructor
 public class TimeOffRequestPojo {
 
-  private List<TimeOffRequestDatePojo> dates;
+  private List<TimeOffRequestDateDto> dates;
 
   private String comment;
 

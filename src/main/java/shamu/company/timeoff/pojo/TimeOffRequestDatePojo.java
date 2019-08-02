@@ -1,19 +1,14 @@
 package shamu.company.timeoff.pojo;
 
 import java.sql.Timestamp;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
-@Data
-@NoArgsConstructor
-public class TimeOffRequestDatePojo {
+public interface TimeOffRequestDatePojo {
 
-  private Timestamp date;
+  Timestamp getCreateDate();
 
-  private Integer hours;
+  Timestamp getStartDate();
 
-  public TimeOffRequestDatePojo(String date, String hours) {
-    setDate(Timestamp.valueOf(date));
-    setHours(Integer.valueOf(hours));
-  }
+  Timestamp getEndDate();
+
+  Integer getHours();
 }

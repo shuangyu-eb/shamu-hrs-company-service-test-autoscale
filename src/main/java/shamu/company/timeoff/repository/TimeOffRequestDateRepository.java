@@ -5,8 +5,8 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 import shamu.company.common.repository.BaseRepository;
-import shamu.company.timeoff.dto.TimeOffRequestDateDto;
 import shamu.company.timeoff.entity.TimeOffRequestDate;
+import shamu.company.timeoff.pojo.TimeOffRequestDatePojo;
 
 public interface TimeOffRequestDateRepository extends BaseRepository<TimeOffRequestDate, Long> {
 
@@ -48,14 +48,27 @@ public interface TimeOffRequestDateRepository extends BaseRepository<TimeOffRequ
       nativeQuery = true)
   void deleteByTimeOffRequestId(Long requestId);
 
-  @Query(value = "select rd.date as date, rd.hours as hours from time_off_request_dates rd "
-      + "left join time_off_requests request on rd.time_off_request_id = request.id "
-      + "left join time_off_request_approval_statuses t "
-      + "on request.time_off_request_approval_status_id = t.id "
-      + "where rd.deleted_at is null and request.deleted_at is null "
-      + "and t.name != 'DENIED' "
-      + "and request.requester_user_id = ?1 and request.time_off_policy_id = ?2",
+  @Query(value = "SELECT "
+      + "request.created_at AS createDate,"
+      + "    MIN(rd.date) AS startDate,"
+      + "    MAX(rd.date) AS endDate,"
+      + "    SUM(rd.hours) AS hours "
+      + "FROM "
+      + "    time_off_request_dates rd "
+      + "        LEFT JOIN "
+      + "    time_off_requests request ON rd.time_off_request_id = request.id "
+      + "        LEFT JOIN "
+      + "    time_off_request_approval_statuses t "
+      + "        ON request.time_off_request_approval_status_id = t.id "
+      + "WHERE "
+      + "    rd.deleted_at IS NULL "
+      + "        AND request.deleted_at IS NULL "
+      + "        AND t.name != 'DENIED' "
+      + "        AND request.requester_user_id = ?1 "
+      + "        AND request.time_off_policy_id = ?2 "
+      + "GROUP BY request.id "
+      + "ORDER BY createDate ASC",
       nativeQuery = true)
-  List<TimeOffRequestDateDto> getNoRejectedRequestOffByUserIdAndPolicyId(
+  List<TimeOffRequestDatePojo> getNoRejectedRequestOffByUserIdAndPolicyId(
       Long userId, Long policyId);
 }

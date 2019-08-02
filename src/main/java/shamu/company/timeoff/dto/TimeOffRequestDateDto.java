@@ -1,9 +1,19 @@
 package shamu.company.timeoff.dto;
 
 import java.sql.Timestamp;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-public interface TimeOffRequestDateDto {
-  Timestamp getDate();
+@Data
+@NoArgsConstructor
+public class TimeOffRequestDateDto {
 
-  Integer getHours();
+  private Timestamp date;
+
+  private Integer hours;
+
+  public TimeOffRequestDateDto(String date, String hours) {
+    setDate(Timestamp.valueOf(date));
+    setHours(Integer.valueOf(hours));
+  }
 }

@@ -20,13 +20,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import shamu.company.timeoff.dto.TimeOffBreakdownDto;
 import shamu.company.timeoff.dto.TimeOffBreakdownItemDto;
-import shamu.company.timeoff.dto.TimeOffRequestDateDto;
 import shamu.company.timeoff.entity.TimeOffAccrualFrequency;
 import shamu.company.timeoff.entity.TimeOffAdjustment;
 import shamu.company.timeoff.entity.TimeOffPolicy;
 import shamu.company.timeoff.entity.TimeOffPolicyAccrualSchedule;
 import shamu.company.timeoff.entity.TimeOffPolicyUser;
 import shamu.company.timeoff.pojo.TimeOffBreakdownCalculatePojo;
+import shamu.company.timeoff.pojo.TimeOffRequestDatePojo;
 import shamu.company.timeoff.repository.TimeOffAdjustmentRepository;
 import shamu.company.timeoff.repository.TimeOffPolicyAccrualScheduleRepository;
 import shamu.company.timeoff.repository.TimeOffPolicyUserRepository;
@@ -88,11 +88,11 @@ public class TimeOffDetailServiceImpl implements TimeOffDetailService {
 
     User user = timeOffPolicyUser.getUser();
     TimeOffPolicy timeOffPolicy = timeOffPolicyUser.getTimeOffPolicy();
-    List<TimeOffRequestDateDto> timeOffRequestDateDtoList =
+    List<TimeOffRequestDatePojo> timeOffRequestDatePojos =
         timeOffRequestDateRepository
-            .getNoRejectedRequestOffByUserIdAndPolicyId(user.getId(),timeOffPolicy.getId());
+            .getNoRejectedRequestOffByUserIdAndPolicyId(user.getId(), timeOffPolicy.getId());
     List<TimeOffBreakdownItemDto> requestDateBreakdownList = getBreakdownListFromRequestOff(
-        timeOffRequestDateDtoList);
+        timeOffRequestDatePojos);
 
     TimeOffBreakdownDto timeOffBreakdownDto = new TimeOffBreakdownDto();
     timeOffBreakdownDto.setShowBalance(false);
@@ -210,20 +210,22 @@ public class TimeOffDetailServiceImpl implements TimeOffDetailService {
     User user = timeOffPolicyUser.getUser();
     TimeOffPolicy timeOffPolicy = timeOffPolicyUser.getTimeOffPolicy();
 
-    List<TimeOffRequestDateDto> timeOffRequestDateDtoList =
+    List<TimeOffRequestDatePojo> timeOffRequestDatePojos =
         timeOffRequestDateRepository
             .getNoRejectedRequestOffByUserIdAndPolicyId(user.getId(), timeOffPolicy.getId());
 
     List<TimeOffBreakdownItemDto> requestDateBreakdownList = getBreakdownListFromRequestOff(
-        timeOffRequestDateDtoList);
+        timeOffRequestDatePojos);
 
     List<TimeOffAdjustment> timeOffAdjustmentList = timeOffAdjustmentRepository
-        .findAllByUserIdAndAndTimeOffPolicyId(user.getId(), timeOffPolicy.getId());
+        .findAllByUserIdAndTimeOffPolicyId(user.getId(), timeOffPolicy.getId());
     List<TimeOffBreakdownItemDto> adjustmentBreakdownList = getBreakdownListFromAdjustment(
         timeOffAdjustmentList);
 
     List<TimeOffBreakdownItemDto> adjustmentList = new ArrayList<>(requestDateBreakdownList);
     adjustmentList.addAll(adjustmentBreakdownList);
+
+    adjustmentList.sort(Comparator.comparing(TimeOffBreakdownItemDto::getDate));
     return adjustmentList;
   }
 
@@ -248,37 +250,18 @@ public class TimeOffDetailServiceImpl implements TimeOffDetailService {
   }
 
   private List<TimeOffBreakdownItemDto> getBreakdownListFromRequestOff(
-      List<TimeOffRequestDateDto> timeOffRequestDateDtoList) {
-    LocalDateTime startDate = null;
-    Integer spanDays = null;
-    Integer totalHours = null;
+      List<TimeOffRequestDatePojo> timeOffRequestDatePojos) {
 
     LinkedList<TimeOffBreakdownItemDto> breakdownItemList = new LinkedList<>();
+    for (TimeOffRequestDatePojo timeOffRequestDatePojo : timeOffRequestDatePojos) {
+      TimeOffBreakdownItemDto timeOffBreakdownItemDto = TimeOffBreakdownItemDto.builder()
+          .amount(-timeOffRequestDatePojo.getHours())
+          .date(DateUtil.toLocalDateTime(timeOffRequestDatePojo.getCreateDate()))
+          .build();
 
-    for (TimeOffRequestDateDto timeOffRequestDateDto : timeOffRequestDateDtoList) {
-      LocalDateTime currentDate = DateUtil.toLocalDateTime(timeOffRequestDateDto.getDate());
-
-      if (startDate == null || !startDate.plusDays(spanDays).isEqual(currentDate)) {
-        startDate = currentDate;
-        spanDays = 1;
-        totalHours = timeOffRequestDateDto.getHours();
-
-        TimeOffBreakdownItemDto timeOffBreakdownItemDto = new TimeOffBreakdownItemDto();
-        timeOffBreakdownItemDto.setAmount(-totalHours);
-        timeOffBreakdownItemDto.setDate(startDate);
-
-        populateBreakdownItem(breakdownItemList, timeOffBreakdownItemDto, startDate, currentDate);
-      } else if (startDate.plusDays(spanDays).isEqual(currentDate)) {
-        spanDays += 1;
-        totalHours += timeOffRequestDateDto.getHours();
-
-        TimeOffBreakdownItemDto timeOffBreakdownItemDto = breakdownItemList.pop();
-        timeOffBreakdownItemDto.setAmount(-totalHours);
-        timeOffBreakdownItemDto.setDate(startDate);
-
-        populateBreakdownItem(breakdownItemList, timeOffBreakdownItemDto, startDate, currentDate);
-      }
-
+      populateBreakdownItem(breakdownItemList, timeOffBreakdownItemDto,
+          DateUtil.toLocalDateTime(timeOffRequestDatePojo.getStartDate()),
+          DateUtil.toLocalDateTime(timeOffRequestDatePojo.getEndDate()));
     }
     return breakdownItemList;
   }
