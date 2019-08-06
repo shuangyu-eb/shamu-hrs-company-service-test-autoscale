@@ -2,28 +2,26 @@ package shamu.company.employee.dto;
 
 import lombok.Data;
 import shamu.company.user.dto.BasicUserPersonalInformationDto;
-import shamu.company.user.entity.CitizenshipStatus;
-import shamu.company.user.entity.Ethnicity;
-import shamu.company.user.entity.Gender;
-import shamu.company.user.entity.MaritalStatus;
 import shamu.company.user.entity.UserPersonalInformation;
 
 @Data
 public class UserPersonalInformationForManagerDto extends BasicUserPersonalInformationDto {
 
-  private Gender gender;
+  private SelectFieldInformationDto gender;
 
-  private MaritalStatus maritalStatus;
+  private SelectFieldInformationDto maritalStatus;
 
-  private Ethnicity ethnicity;
+  private SelectFieldInformationDto ethnicity;
 
-  private CitizenshipStatus citizenshipStatus;
+  private SelectFieldInformationDto citizenshipStatus;
 
-  public UserPersonalInformationForManagerDto(UserPersonalInformation personalInformation) {
+  public UserPersonalInformationForManagerDto(final UserPersonalInformation personalInformation) {
     super(personalInformation);
-    this.citizenshipStatus = personalInformation.getCitizenshipStatus();
-    this.ethnicity = personalInformation.getEthnicity();
-    this.maritalStatus = personalInformation.getMaritalStatus();
-    this.gender = personalInformation.getGender();
+    this.citizenshipStatus =
+        new SelectFieldInformationDto(personalInformation.getCitizenshipStatus());
+    this.ethnicity =
+        new SelectFieldInformationDto(personalInformation.getEthnicity());
+    this.maritalStatus = new SelectFieldInformationDto(personalInformation.getMaritalStatus());
+    this.gender = new SelectFieldInformationDto(personalInformation.getGender());
   }
 }

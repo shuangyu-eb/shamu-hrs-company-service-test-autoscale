@@ -2,6 +2,7 @@ package shamu.company.company.dto;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
+import org.springframework.beans.BeanUtils;
 import shamu.company.common.entity.StateProvince;
 import shamu.company.company.entity.Office;
 import shamu.company.company.entity.OfficeAddress;
@@ -25,19 +26,17 @@ public class OfficeCreateDto {
 
   @JSONField(serialize = false)
   public Office getOffice() {
-    OfficeAddress officeAddress = new OfficeAddress();
     StateProvince stateProvince = null;
     if (stateId != null) {
       stateProvince = new StateProvince();
       stateProvince.setId(stateId);
     }
-    officeAddress.setCity(city);
+    final OfficeAddress officeAddress = new OfficeAddress();
+    BeanUtils.copyProperties(this, officeAddress);
     officeAddress.setStateProvince(stateProvince);
-    officeAddress.setStreet1(street1);
-    officeAddress.setStreet2(street2);
     officeAddress.setPostalCode(zip);
 
-    Office office = new Office();
+    final Office office = new Office();
     office.setName(officeName);
     office.setOfficeAddress(officeAddress);
 

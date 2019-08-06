@@ -35,11 +35,12 @@ public class CompanyServiceImpl implements CompanyService {
   private final OfficeAddressRepository officeAddressRepository;
 
   @Autowired
-  public CompanyServiceImpl(CompanyRepository companyRepository,
-      DepartmentRepository departmentRepository, EmploymentTypeRepository employmentTypeRepository,
-      JobRepository jobRepository, OfficeRepository officeRepository,
-      StateProvinceRepository stateProvinceRepository,
-      OfficeAddressRepository officeAddressRepository) {
+  public CompanyServiceImpl(final CompanyRepository companyRepository,
+      final DepartmentRepository departmentRepository,
+      final EmploymentTypeRepository employmentTypeRepository,
+      final JobRepository jobRepository, final OfficeRepository officeRepository,
+      final StateProvinceRepository stateProvinceRepository,
+      final OfficeAddressRepository officeAddressRepository) {
     this.companyRepository = companyRepository;
     this.departmentRepository = departmentRepository;
     this.employmentTypeRepository = employmentTypeRepository;
@@ -51,37 +52,37 @@ public class CompanyServiceImpl implements CompanyService {
 
 
   @Override
-  public Boolean existsByName(String companyName) {
+  public Boolean existsByName(final String companyName) {
     return companyRepository.existsByName(companyName);
   }
 
   @Override
-  public Boolean existsBySubdomainName(String subDomainName) {
+  public Boolean existsBySubdomainName(final String subDomainName) {
     return companyRepository.existsBySubdomainName(subDomainName);
   }
 
   @Override
-  public List<Department> getDepartmentsByCompany(Company company) {
+  public List<Department> getDepartmentsByCompany(final Company company) {
     return departmentRepository.findAllByCompany(company);
   }
 
   @Override
-  public Department saveDepartmentsByCompany(String name, Company company) {
-    Department department = new Department();
+  public Department saveDepartmentsByCompany(final String name, final Company company) {
+    final Department department = new Department();
     department.setName(name);
     department.setCompany(company);
     return departmentRepository.save(department);
   }
 
   @Override
-  public List<Job> getJobsByDepartmentId(Long id) {
+  public List<Job> getJobsByDepartmentId(final Long id) {
     return jobRepository.findAllByDepartmentId(id);
   }
 
   @Override
-  public Job saveJobsByDepartmentId(Long departmentId, String name) {
-    Job job = new Job();
-    Department department = new Department();
+  public Job saveJobsByDepartmentId(final Long departmentId, final String name) {
+    final Job job = new Job();
+    final Department department = new Department();
     department.setId(departmentId);
 
     job.setDepartment(department);
@@ -91,17 +92,18 @@ public class CompanyServiceImpl implements CompanyService {
   }
 
   @Override
-  public List<Office> getOfficesByCompany(Company company) {
+  public List<Office> getOfficesByCompany(final Company company) {
     return officeRepository.findByCompany(company);
   }
 
   @Override
-  public Office saveOffice(Office office) {
+  public Office saveOffice(final Office office) {
     OfficeAddress officeAddress = office.getOfficeAddress();
-    Long stateId = officeAddress.getStateProvince().getId();
-    if (stateId != null) {
-      StateProvince stateProvince = stateProvinceRepository.findById(stateId).get();
-      officeAddress.setStateProvince(stateProvince);
+    final StateProvince stateProvince = officeAddress.getStateProvince();
+    if (stateProvince != null && stateProvince.getId() != null) {
+      final StateProvince stateProvinceReturned =
+          stateProvinceRepository.findById(stateProvince.getId()).get();
+      officeAddress.setStateProvince(stateProvinceReturned);
     }
 
     officeAddress = officeAddressRepository.save(officeAddress);
@@ -111,13 +113,13 @@ public class CompanyServiceImpl implements CompanyService {
   }
 
   @Override
-  public List<EmploymentType> getEmploymentTypesByCompany(Company company) {
+  public List<EmploymentType> getEmploymentTypesByCompany(final Company company) {
     return employmentTypeRepository.findAllByCompany(company);
   }
 
   @Override
-  public EmploymentType saveEmploymentType(String employmentTypeName, Company company) {
-    EmploymentType employmentType = new EmploymentType(employmentTypeName);
+  public EmploymentType saveEmploymentType(final String employmentTypeName, final Company company) {
+    final EmploymentType employmentType = new EmploymentType(employmentTypeName);
     employmentType.setCompany(company);
 
     return employmentTypeRepository.save(employmentType);
