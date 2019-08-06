@@ -1,6 +1,9 @@
 package shamu.company.common.exception.response;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import lombok.Data;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import shamu.company.common.exception.AbstractException;
@@ -10,7 +13,7 @@ public class ErrorMessage {
 
   private String type;
   private String message;
-  private HashMap<String, String> errors;
+  private Map<String, List<String>> errors;
 
 
   public ErrorMessage(ErrorType errorType, String message) {
@@ -23,15 +26,25 @@ public class ErrorMessage {
     this.message = message;
   }
 
-  public ErrorMessage(MethodArgumentNotValidException e) {
+  public ErrorMessage(MethodArgumentNotValidException methodArgumentNotValidException) {
     this.type = ErrorType.JSON_PARSE_ERROR.name();
     this.errors = new HashMap<>();
-    e.getBindingResult().getFieldErrors().stream()
-        .map((ex) -> this.errors.put(ex.getField(), ex.getDefaultMessage()));
+    methodArgumentNotValidException.getBindingResult().getFieldErrors()
+        .forEach(fieldError -> {
+          if (errors.containsKey(fieldError.getField())) {
+            List<String> errorMsgList = errors.get(fieldError.getField());
+            errorMsgList.add(fieldError.getDefaultMessage());
+            errors.put(fieldError.getField(),errorMsgList);
+          } else {
+            List<String> errorMsgList = new ArrayList<>();
+            errorMsgList.add(fieldError.getDefaultMessage());
+            errors.put(fieldError.getField(), errorMsgList);
+          }
+        });
   }
 
-  public ErrorMessage(AbstractException e) {
-    this.type = e.getType();
-    this.message = e.getMessage();
+  public ErrorMessage(AbstractException abstractException) {
+    this.type = abstractException.getType();
+    this.message = abstractException.getMessage();
   }
 }
