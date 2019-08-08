@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import shamu.company.timeoff.dto.MyTimeOffDto;
 import shamu.company.timeoff.dto.TimeOffRequestDetailDto;
+import shamu.company.timeoff.dto.TimeOffRequestDto;
 import shamu.company.timeoff.entity.TimeOffRequest;
 import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus;
 import shamu.company.timeoff.entity.TimeOffRequestComment;
@@ -28,6 +29,9 @@ public interface TimeOffRequestService {
   List<TimeOffRequest> getRequestsByUserAndStatus(User user, TimeOffRequestApprovalStatus[] status);
 
   MyTimeOffDto getMyTimeOffRequestsByRequesterUserIdFilteredByStartDay(Long id, Timestamp startDay);
+
+  TimeOffRequestDto getMyTimeOffApprovedRequestsByRequesterUserIdAfterNow(
+          Long id, Timestamp startDay, Long status);
 
   MyTimeOffDto getMyTimeOffRequestsByRequesterUserIdFilteredByStartAndEndDay(
       Long id, Timestamp startDay, Timestamp endDay);

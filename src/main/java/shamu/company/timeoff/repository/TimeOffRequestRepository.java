@@ -14,7 +14,8 @@ public interface TimeOffRequestRepository
   @Query(
       value =
           "select * from time_off_requests tr "
-              + "where tr.id in "
+              + "where tr.deleted_at is null "
+              + "and tr.id in "
               + "(select tra.time_off_request_id "
               + "from time_off_requests_approvers tra "
               + "where tra.approver_user_id = ?1) "
@@ -97,8 +98,8 @@ public interface TimeOffRequestRepository
   @Query(
       value =
           "select * from time_off_requests tr "
-              + "where tr.id in "
-              + "(select trspan.time_off_request_id from "
+              + "where tr.deleted_at is null "
+              + "and tr.id in (select trspan.time_off_request_id from "
               + "(select min(trd.date) startDay, max(trd.date) endDay, trd.time_off_request_id "
               + "from time_off_request_dates trd "
               + "group by trd.time_off_request_id "
@@ -108,6 +109,21 @@ public interface TimeOffRequestRepository
               + "and tr.requester_user_id = ?1",
       nativeQuery = true)
   List<TimeOffRequest> findByRequesterUserIdFilteredByStartDay(Long id, Timestamp startDay);
+
+  @Query(
+          value =
+                  "select * from time_off_requests tr "
+                          + "where tr.deleted_at is null "
+                          + "and tr.time_off_request_approval_status_id = ?3 "
+                          + "and tr.id in (select trspan.time_off_request_id from "
+                          + "(select min(trd.date) startDay, trd.time_off_request_id "
+                          + "from time_off_request_dates trd "
+                          + "group by trd.time_off_request_id "
+                          + "having startDay > ?2 order by startDay) trspan) "
+                          + "and tr.requester_user_id = ?1 limit 1 ",
+          nativeQuery = true)
+  TimeOffRequest findByRequesterUserIdFilteredByApprovedAndStartDay(
+          Long id, Timestamp startDay, Long status);
 
   @Query(
       value =

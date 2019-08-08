@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.timeoff.dto.BasicTimeOffRequestDto;
 import shamu.company.timeoff.dto.MyTimeOffDto;
@@ -146,6 +147,14 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
   }
 
   @Override
+  public TimeOffRequestDto getMyTimeOffApprovedRequestsByRequesterUserIdAfterNow(
+          Long id, Timestamp startDay, Long status) {
+    TimeOffRequest timeOffRequest = timeOffRequestRepository
+            .findByRequesterUserIdFilteredByApprovedAndStartDay(id, startDay, status);
+    return new TimeOffRequestDto(timeOffRequest);
+  }
+
+  @Override
   public MyTimeOffDto getMyTimeOffRequestsByRequesterUserIdFilteredByStartAndEndDay(
       Long id, Timestamp startDay, Timestamp endDay) {
     return initMyTimeOff(id, startDay, endDay, true);
@@ -227,13 +236,16 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
     return original;
   }
 
+  @Transactional
   @Override
   public void deleteUnimplementedRequest(
       Long requestId, UnimplementedRequestPojo unimplementedRequestPojo) {
-    timeOffRequestRepository.delete(requestId);
-    if (unimplementedRequestPojo.getStatus() == APPROVED) {
-      TimeOffPolicy timeOffPolicy =
-          timeOffRequestRepository.getOne(unimplementedRequestPojo.getUserId()).getTimeOffPolicy();
+    TimeOffRequest timeOffRequest =
+            timeOffRequestRepository.findById(requestId).get();
+    TimeOffRequestApprovalStatus timeOffRequestApprovalStatus =
+            timeOffRequest.getTimeOffApprovalStatus();
+    TimeOffPolicy timeOffPolicy = timeOffRequest.getTimeOffPolicy();
+    if (timeOffRequestApprovalStatus.equals(APPROVED) && timeOffPolicy.getIsLimited()) {
       TimeOffPolicyUser timeOffPolicyUser =
           timeOffPolicyUserRepository.findTimeOffPolicyUserByUserAndTimeOffPolicy(
               new User(unimplementedRequestPojo.getUserId()), timeOffPolicy);
@@ -241,6 +253,7 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
           timeOffPolicyUser.getBalance() + unimplementedRequestPojo.getHours());
       timeOffPolicyUserRepository.save(timeOffPolicyUser);
     }
+    timeOffRequestRepository.delete(requestId);
     timeOffRequestDateRepository.deleteByTimeOffRequestId(requestId);
   }
 

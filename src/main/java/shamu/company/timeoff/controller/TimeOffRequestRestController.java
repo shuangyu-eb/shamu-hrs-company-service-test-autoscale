@@ -5,6 +5,7 @@ import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.DENIED;
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -199,6 +200,20 @@ public class TimeOffRequestRestController extends BaseRestController {
     }
 
     return myTimeOffDto;
+  }
+
+  @GetMapping(value = "time-off-requests/approved-after-now/requester/{id}")
+  @PreAuthorize(
+          "hasPermission(#id,'USER','MANAGE_SELF_TIME_OFF_REQUEST') "
+                  + "or hasPermission(#id,'USER','MANAGE_TIME_OFF_REQUEST')")
+  public TimeOffRequestDto getMyTimeOffRequests(@HashidsFormat @PathVariable(name = "id") Long id) {
+
+    TimeOffRequestDto timeOffRequestDto;
+    Timestamp startDayTimestamp = new Timestamp(new Date().getTime());
+    timeOffRequestDto = timeOffRequestService
+            .getMyTimeOffApprovedRequestsByRequesterUserIdAfterNow(
+                    id, startDayTimestamp, APPROVED.getValue());
+    return timeOffRequestDto;
   }
 
   private TimeOffRequest saveTimeOffRequest(

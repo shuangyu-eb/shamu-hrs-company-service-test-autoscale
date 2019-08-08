@@ -1,11 +1,13 @@
 package shamu.company.employee.dto;
 
 import lombok.Data;
+import shamu.company.hashids.HashidsFormat;
 import shamu.company.user.entity.UserCompensation;
 
 @Data
 public class CompensationDto {
 
+  @HashidsFormat
   private Long id;
 
   private Integer wage;
