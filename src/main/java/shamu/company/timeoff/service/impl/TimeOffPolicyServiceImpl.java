@@ -533,11 +533,13 @@ public class TimeOffPolicyServiceImpl implements TimeOffPolicyService {
     TimeOffPolicy timeOffPolicy = timeOffPolicyRepository.getOne(timeOffPolicyId);
     TimeOffPolicyAccrualSchedule accrualSchedule = timeOffPolicyAccrualScheduleRepository
         .findAllByTimeOffPolicy(timeOffPolicy);
-    timeOffPolicyAccrualScheduleRepository.delete(accrualSchedule);
+    if (accrualSchedule != null) {
+      timeOffPolicyAccrualScheduleRepository.delete(accrualSchedule);
 
-    List<AccrualScheduleMilestone> milestones = accrualScheduleMilestoneRepository
-        .findByTimeOffPolicyAccrualScheduleId(accrualSchedule.getId());
-    accrualScheduleMilestoneRepository.deleteAll(milestones);
+      List<AccrualScheduleMilestone> milestones = accrualScheduleMilestoneRepository
+          .findByTimeOffPolicyAccrualScheduleId(accrualSchedule.getId());
+      accrualScheduleMilestoneRepository.deleteAll(milestones);
+    }
 
     timeOffPolicyRepository.delete(timeOffPolicyId);
   }
