@@ -23,10 +23,19 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
 
   @Override
   public Page<JobUserListItem> getAllByCondition(
-      EmployeeListSearchCondition employeeListSearchCondition, Long companyId, Pageable pageable) {
+          EmployeeListSearchCondition employeeListSearchCondition, Long companyId,
+          Pageable pageable, Boolean isAdmin) {
 
-    String countAllEmployees =
-        "select count(1) from users u where u.deleted_at is null " + "and u.company_id = ?1";
+    String countAllEmployees = "";
+    if ((null != isAdmin && !isAdmin) || !employeeListSearchCondition.isSearched()) {
+      countAllEmployees =
+              "select count(1) from users u where u.deleted_at is null "
+                      + " and u.deactivated_at is null and u.company_id = ?1 ";
+    } else {
+      countAllEmployees =
+              "select count(1) from users u where u.deleted_at is null "
+                      + "and u.company_id = ?1";
+    }
     BigInteger employeeCount =
         (BigInteger)
             entityManager
@@ -54,8 +63,12 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
             + "and (up.first_name like concat('%', ?2, '%') "
             + "or up.last_name like concat('%', ?2, '%') "
             + "or d.name like concat('%', ?2, '%') or j.title like concat('%', ?2, '%')) ";
+    String additionalSql = " and u.deactivated_at is null ";
 
     String resultSql = appendFilterCondition(originalSql, pageable);
+    if ((null != isAdmin && !isAdmin) || !employeeListSearchCondition.isSearched()) {
+      resultSql = appendFilterCondition(originalSql + additionalSql, pageable);
+    }
 
     List<?> jobUserList =
         entityManager

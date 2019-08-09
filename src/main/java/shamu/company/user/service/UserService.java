@@ -47,10 +47,11 @@ public interface UserService {
   Context getWelcomeEmailContext(String welcomeMessage, String resetPasswordToken);
 
   Page<JobUserListItem> getAllEmployees(
-      EmployeeListSearchCondition employeeListSearchCondition, Company company);
+      EmployeeListSearchCondition employeeListSearchCondition, Company company, Boolean isAdmin);
 
   Page<JobUserListItem> getAllEmployeesByCompany(
-      EmployeeListSearchCondition employeeListSearchCondition, Company company, Pageable pageable);
+          EmployeeListSearchCondition employeeListSearchCondition,
+          Company company, Pageable pageable, Boolean isAdmin);
 
   User getOne(Long userId);
 

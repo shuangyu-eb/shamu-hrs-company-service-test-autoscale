@@ -10,9 +10,8 @@ import shamu.company.user.entity.User;
 
 public interface UserCustomRepository {
 
-  Page<JobUserListItem> getAllByCondition(
-      EmployeeListSearchCondition employeeListSearchCondition, Long companyId, Pageable pageable);
-
+  Page<JobUserListItem> getAllByCondition(EmployeeListSearchCondition employeeListSearchCondition,
+                                          Long companyId, Pageable pageable, Boolean isAdmin);
 
   Page<JobUserListItem> getMyTeamByManager(EmployeeListSearchCondition employeeListSearchCondition,
       User user, Pageable paramPageable);

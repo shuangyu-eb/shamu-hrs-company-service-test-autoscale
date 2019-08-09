@@ -15,6 +15,10 @@ public class EmployeeListSearchCondition {
   private SortField sortField = SortField.NAME;
   private SortDirection sortDirection = SortDirection.desc;
 
+  public boolean isSearched() {
+    return !this.keyword.isEmpty();
+  }
+
   public String getSortDirection() {
     return this.sortDirection.name();
   }

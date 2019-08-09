@@ -54,6 +54,9 @@ public interface UserRepository extends BaseRepository<User, Long>, UserCustomRe
       nativeQuery = true)
   Integer findExistingUserCountByCompanyId(Long companyId);
 
+  @Query(
+          value = "SELECT * FROM users " + "WHERE deactivated_at is null AND deleted_at IS NULL",
+          nativeQuery = true)
   List<User> findAllByCompany(Company company);
 
   Boolean existsByResetPasswordToken(String token);
