@@ -44,6 +44,10 @@ public class TimeOffAccrualAnniversaryStrategyServiceImpl extends TimeOffAccrual
     timeOffBreakdownAnniversaryDtoList = addMissingAnniversaryYearDto(
         timeOffBreakdownAnniversaryDtoList);
 
+    timeOffBreakdownAnniversaryDtoList.forEach(timeOffBreakdownAnniversaryDto -> {
+      timeOffBreakdownAnniversaryDto.setDate(timeOffBreakdownAnniversaryDto.getDate().plusYears(1));
+    });
+
     return getFinalAnniversaryBreakdown(timeOffBreakdownAnniversaryDtoList,
         startingBreakdown, calculatePojo.getBalanceAdjustment());
   }

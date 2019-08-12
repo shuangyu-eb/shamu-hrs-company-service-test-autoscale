@@ -44,6 +44,10 @@ public class TimeOffAccrualMonthStrategyServiceImpl extends TimeOffAccrualServic
         calculatePojo.getTrimmedScheduleList(), calculatePojo.getPolicyUser().getUser());
     timeOffBreakdownMonthDtoList = addMissingMonthDto(timeOffBreakdownMonthDtoList);
 
+    timeOffBreakdownMonthDtoList.forEach(timeOffBreakdownMonthDto -> {
+      timeOffBreakdownMonthDto.setDate(timeOffBreakdownMonthDto.getDate().plusYears(1));
+    });
+
     return getFinalMonthBreakdown(timeOffBreakdownMonthDtoList,
         startingBreakdown, calculatePojo.getBalanceAdjustment());
   }

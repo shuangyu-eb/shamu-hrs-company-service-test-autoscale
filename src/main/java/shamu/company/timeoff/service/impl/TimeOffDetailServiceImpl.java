@@ -9,7 +9,6 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -163,35 +162,15 @@ public class TimeOffDetailServiceImpl implements TimeOffDetailService {
     }
 
     if (resultTimeOffBreakdownDto != null) {
-      postProcessOfTimeOffBreakdown(resultTimeOffBreakdownDto, timeOffFrequencyId, calculatePojo);
+      postProcessOfTimeOffBreakdown(resultTimeOffBreakdownDto, calculatePojo);
     }
     return resultTimeOffBreakdownDto;
   }
 
   private void postProcessOfTimeOffBreakdown(TimeOffBreakdownDto timeOffBreakdownDto,
-      Long frequencyTypeId, TimeOffBreakdownCalculatePojo calculatePojo) {
+      TimeOffBreakdownCalculatePojo calculatePojo) {
 
     List<TimeOffBreakdownItemDto> timeOffBreakdownItemList = timeOffBreakdownDto.getList();
-    Iterator<TimeOffBreakdownItemDto> breakdownItemListIterator = timeOffBreakdownItemList
-        .iterator();
-    breakdownItemListIterator.next();
-
-    while (breakdownItemListIterator.hasNext()) {
-      TimeOffBreakdownItemDto timeOffBreakdownItem = breakdownItemListIterator.next();
-
-      if (TimeOffBreakdownItemDto.BreakDownType.TIME_OFF_ACCRUAL
-          .equals(timeOffBreakdownItem.getBreakdownType())) {
-
-        if (TimeOffAccrualFrequency.AccrualFrequencyType.FREQUENCY_TYPE_ONE
-            .equalsTo(frequencyTypeId)
-            || TimeOffAccrualFrequency.AccrualFrequencyType.FREQUENCY_TYPE_TWO
-            .equalsTo(frequencyTypeId)) {
-          timeOffBreakdownItem.setDate(timeOffBreakdownItem.getDate().plusYears(1));
-        } else {
-          timeOffBreakdownItem.setDate(timeOffBreakdownItem.getDate().plusMonths(1));
-        }
-      }
-    }
 
     List<TimeOffBreakdownItemDto> newTimeOffBreakdownItemList = timeOffBreakdownItemList.stream()
         .filter((timeOffBreakdownItemDto -> timeOffBreakdownItemDto.getDate()
