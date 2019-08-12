@@ -37,7 +37,7 @@ public class CompanyUserServiceImpl implements CompanyUserService {
   public List<User> getAllUsers(final Long companyId) {
     final Company company = companyRepository.findById(companyId)
         .orElseThrow(() -> new ResourceNotFoundException("Company does not exist"));
-    return userRepository.findAllByCompany(company);
+    return userRepository.findAllByCompanyId(company.getId());
   }
 
   @Override

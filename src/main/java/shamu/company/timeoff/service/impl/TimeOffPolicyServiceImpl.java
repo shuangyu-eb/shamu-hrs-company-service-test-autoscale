@@ -231,7 +231,7 @@ public class TimeOffPolicyServiceImpl implements TimeOffPolicyService {
     List<TimeOffPolicyUser> timeOffPolicyUsers = timeOffPolicyUserRepository
         .findAllByTimeOffPolicyId(timeOffPolicyId);
 
-    List<User> selectableTimeOffPolicyUsers = userRepository.findAllByCompany(company);
+    List<User> selectableTimeOffPolicyUsers = userRepository.findAllByCompanyId(company.getId());
 
     ArrayList<Long> selectedUsersIds = new ArrayList<>();
 

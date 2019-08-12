@@ -256,7 +256,7 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public List<JobUserDto> findAllJobUsers(final Company company) {
-    final List<User> policyEmployees = userRepository.findAllByCompany(company);
+    final List<User> policyEmployees = userRepository.findAllByCompanyId(company.getId());
 
     return policyEmployees.stream()
         .map(
@@ -269,7 +269,7 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public List<User> findAllUsersByCompany(Company company) {
-    return userRepository.findAllByCompany(company);
+    return userRepository.findAllByCompanyId(company.getId());
   }
 
   @Override
