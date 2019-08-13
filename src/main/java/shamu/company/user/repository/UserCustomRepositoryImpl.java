@@ -14,6 +14,7 @@ import shamu.company.employee.dto.EmployeeListSearchCondition;
 import shamu.company.employee.dto.OrgChartDto;
 import shamu.company.job.entity.JobUserListItem;
 import shamu.company.user.entity.User;
+import shamu.company.user.entity.User.Role;
 
 @Repository
 public class UserCustomRepositoryImpl implements UserCustomRepository {
@@ -23,18 +24,18 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
 
   @Override
   public Page<JobUserListItem> getAllByCondition(
-          EmployeeListSearchCondition employeeListSearchCondition, Long companyId,
-          Pageable pageable, Boolean isAdmin) {
+      EmployeeListSearchCondition employeeListSearchCondition, Long companyId,
+      Pageable pageable, Boolean isAdmin) {
 
     String countAllEmployees = "";
     if ((null != isAdmin && !isAdmin) || !employeeListSearchCondition.isSearched()) {
       countAllEmployees =
-              "select count(1) from users u where u.deleted_at is null "
-                      + " and u.deactivated_at is null and u.company_id = ?1 ";
+          "select count(1) from users u where u.deleted_at is null "
+              + " and u.deactivated_at is null and u.company_id = ?1 ";
     } else {
       countAllEmployees =
-              "select count(1) from users u where u.deleted_at is null "
-                      + "and u.company_id = ?1";
+          "select count(1) from users u where u.deleted_at is null "
+              + "and u.company_id = ?1";
     }
     BigInteger employeeCount =
         (BigInteger)
@@ -85,51 +86,60 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
   public Page<JobUserListItem> getMyTeamByManager(
       EmployeeListSearchCondition employeeListSearchCondition, User user, Pageable pageable) {
 
-    String countAllTeamMembers =
-        "select count(1) from users u where u.deleted_at is null "
-            + "and u.manager_user_id = ?1 and u.company_id = ?2";
-    BigInteger employeeCount =
-        (BigInteger)
-            entityManager
-                .createNativeQuery(countAllTeamMembers)
-                .setParameter(1, user.getId())
-                .setParameter(2, user.getCompany().getId())
-                .getSingleResult();
+    boolean isEmployee = user.getRole() == Role.NON_MANAGER;
+
+    String userCondition = "u.manager_user_id=?1 ";
+    if (isEmployee) {
+      userCondition = "(u.id=?1 or " + userCondition + " ) and u.id!=?4 ";
+    }
+    String queryColumns = "select u.id as id, u.image_url as iamgeUrl, up.first_name as firstName, "
+        + "up.last_name as lastName, d.name as department, j.title as jobTitle ";
+
+    String queryCondition = "from users u "
+        + "left join  user_personal_information up on u.user_personal_information_id = up.id "
+        + "left join jobs_users ju on u.id = ju.user_id "
+        + "left join jobs j on ju.job_id = j.id "
+        + "left join departments d on j.department_id = d.id "
+        + "where u.deleted_at is null "
+        + "and ju.deleted_at is null "
+        + "and j.deleted_at is null "
+        + "and " + userCondition
+        + " and u.company_id = ?2 "
+        + "and (up.first_name like concat('%', ?3, '%') "
+        + "or up.last_name like concat('%', ?3, '%') "
+        + "or d.name like concat('%', ?3, '%') or j.title like concat('%', ?3, '%')) ";
+
+    String countAllTeamMembers = "select count(u.id) " + queryCondition;
+    Query queryCount = getQuery(employeeListSearchCondition, user, isEmployee, countAllTeamMembers);
+
+    BigInteger employeeCount = (BigInteger)queryCount.getSingleResult();
 
     List<JobUserListItem> jobUserItemList = new ArrayList<>();
     if (employeeCount.longValue() == 0) {
       return new PageImpl<>(jobUserItemList, pageable, employeeCount.longValue());
     }
 
-    String originalSql =
-        "select u.id as id, u.image_url as iamgeUrl, up.first_name as firstName, "
-            + "up.last_name as lastName, d.name as department, j.title as jobTitle "
-            + "from users u "
-            + "left join  user_personal_information up on u.user_personal_information_id = up.id "
-            + "left join jobs_users ju on u.id = ju.user_id "
-            + "left join jobs j on ju.job_id = j.id "
-            + "left join departments d on j.department_id = d.id "
-            + "where u.deleted_at is null "
-            + "and ju.deleted_at is null "
-            + "and j.deleted_at is null "
-            + "and u.manager_user_id = ?1 "
-            + "and u.company_id = ?2 "
-            + "and (up.first_name like concat('%', ?3, '%') "
-            + "or up.last_name like concat('%', ?3, '%') "
-            + "or d.name like concat('%', ?3, '%') or j.title like concat('%', ?3, '%')) ";
+    String resultSql = appendFilterCondition(queryColumns + queryCondition, pageable);
 
-    String resultSql = appendFilterCondition(originalSql, pageable);
-
-    List<?> jobUserList =
-        entityManager
-            .createNativeQuery(resultSql)
-            .setParameter(1, user.getId())
-            .setParameter(2, user.getCompany().getId())
-            .setParameter(3, employeeListSearchCondition.getKeyword())
-            .getResultList();
+    Query query = getQuery(employeeListSearchCondition, user, isEmployee, resultSql);
+    List<?> jobUserList = query.getResultList();
 
     jobUserItemList = convertToJobUserList(jobUserList);
     return new PageImpl<>(jobUserItemList, pageable, employeeCount.longValue());
+  }
+
+  private Query getQuery(EmployeeListSearchCondition employeeListSearchCondition,
+      User user, boolean isEmployee, String resultSql) {
+    User manager = isEmployee ? user.getManagerUser() : user;
+    Query query = entityManager
+        .createNativeQuery(resultSql)
+        .setParameter(1, manager.getId())
+        .setParameter(2, manager.getCompany().getId())
+        .setParameter(3, employeeListSearchCondition.getKeyword());
+    if (isEmployee) {
+      query.setParameter(4, user.getId());
+    }
+    return query;
   }
 
   @Override
