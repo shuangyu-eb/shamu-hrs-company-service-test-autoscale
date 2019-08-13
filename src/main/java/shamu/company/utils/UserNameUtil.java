@@ -28,6 +28,10 @@ public class UserNameUtil {
 
   public static String getUserName(final User user) {
     final UserPersonalInformation userPersonalInformation = user.getUserPersonalInformation();
+    return getUserName(userPersonalInformation);
+  }
+
+  public static String getUserName(final UserPersonalInformation userPersonalInformation) {
     final String firstName = userPersonalInformation.getFirstName();
     final String middleName = userPersonalInformation.getMiddleName();
     final String lastName = userPersonalInformation.getLastName();

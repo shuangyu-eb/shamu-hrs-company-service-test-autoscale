@@ -12,9 +12,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.FileCopyUtils;
 import org.thymeleaf.context.Context;
+import shamu.company.common.entity.Country;
 import shamu.company.common.entity.StateProvince;
 import shamu.company.common.exception.AwsUploadException;
 import shamu.company.common.exception.ResourceNotFoundException;
+import shamu.company.common.repository.CountryRepository;
 import shamu.company.common.repository.EmploymentTypeRepository;
 import shamu.company.common.repository.OfficeRepository;
 import shamu.company.common.repository.StateProvinceRepository;
@@ -48,6 +50,9 @@ import shamu.company.user.entity.UserRole;
 import shamu.company.user.entity.UserRole.Role;
 import shamu.company.user.entity.UserStatus;
 import shamu.company.user.entity.UserStatus.Status;
+import shamu.company.user.entity.mapper.UserAddressMapper;
+import shamu.company.user.entity.mapper.UserContactInformationMapper;
+import shamu.company.user.entity.mapper.UserPersonalInformationMapper;
 import shamu.company.user.repository.CompensationFrequencyRepository;
 import shamu.company.user.repository.GenderRepository;
 import shamu.company.user.repository.MaritalStatusRepository;
@@ -87,6 +92,8 @@ public class EmployeeServiceImpl implements EmployeeService {
 
   private final StateProvinceRepository stateProvinceRepository;
 
+  private final CountryRepository countryRepository;
+
   private final UserEmergencyContactRepository userEmergencyContactRepository;
 
   private final UserService userService;
@@ -103,33 +110,44 @@ public class EmployeeServiceImpl implements EmployeeService {
 
   private final UserContactInformationService userContactInformationService;
 
+  private final UserPersonalInformationMapper userPersonalInformationMapper;
+
+  private final UserAddressMapper userAddressMapper;
+
+  private final UserContactInformationMapper userContactInformationMapper;
+
   @Autowired
   public EmployeeServiceImpl(
-      UserAddressRepository userAddressRepository,
-      UserRepository userRepository,
-      JobUserRepository jobUserRepository,
-      EmploymentTypeRepository employmentTypeRepository,
-      OfficeRepository officeRepository,
-      UserService userService,
-      StateProvinceRepository stateProvinceRepository,
-      UserCompensationRepository userCompensationRepository,
-      UserEmergencyContactRepository userEmergencyContactRepository,
-      JobRepository jobRepository,
-      UserRoleRepository userRoleRepository,
-      UserStatusRepository userStatusRepository,
-      AwsUtil awsUtil,
-      GenderRepository genderRepository,
-      MaritalStatusRepository maritalStatusRepository,
-      EmailService emailService,
-      CompensationFrequencyRepository compensationFrequencyRepository,
-      UserPersonalInformationService userPersonalInformationService,
-      UserContactInformationService userContactInformationService) {
+      final UserAddressRepository userAddressRepository,
+      final UserRepository userRepository,
+      final JobUserRepository jobUserRepository,
+      final EmploymentTypeRepository employmentTypeRepository,
+      final OfficeRepository officeRepository,
+      final UserService userService,
+      final StateProvinceRepository stateProvinceRepository,
+      final CountryRepository countryRepository,
+      final UserCompensationRepository userCompensationRepository,
+      final UserEmergencyContactRepository userEmergencyContactRepository,
+      final JobRepository jobRepository,
+      final UserRoleRepository userRoleRepository,
+      final UserStatusRepository userStatusRepository,
+      final AwsUtil awsUtil,
+      final GenderRepository genderRepository,
+      final MaritalStatusRepository maritalStatusRepository,
+      final EmailService emailService,
+      final CompensationFrequencyRepository compensationFrequencyRepository,
+      final UserPersonalInformationService userPersonalInformationService,
+      final UserContactInformationService userContactInformationService,
+      final UserPersonalInformationMapper userPersonalInformationMapper,
+      final UserAddressMapper userAddressMapper,
+      final UserContactInformationMapper userContactInformationMapper) {
     this.userAddressRepository = userAddressRepository;
     this.userRepository = userRepository;
     this.jobUserRepository = jobUserRepository;
     this.employmentTypeRepository = employmentTypeRepository;
     this.userService = userService;
     this.stateProvinceRepository = stateProvinceRepository;
+    this.countryRepository = countryRepository;
     this.userCompensationRepository = userCompensationRepository;
     this.userEmergencyContactRepository = userEmergencyContactRepository;
     this.jobRepository = jobRepository;
@@ -143,22 +161,25 @@ public class EmployeeServiceImpl implements EmployeeService {
     this.officeRepository = officeRepository;
     this.userPersonalInformationService = userPersonalInformationService;
     this.userContactInformationService = userContactInformationService;
+    this.userPersonalInformationMapper = userPersonalInformationMapper;
+    this.userAddressMapper = userAddressMapper;
+    this.userContactInformationMapper = userContactInformationMapper;
   }
 
   @Override
   public List<User> findEmployersAndEmployeesByDepartmentIdAndCompanyId(
-      Long departmentId, Long companyId) {
+      final Long departmentId, final Long companyId) {
     return userRepository.findEmployersAndEmployeesByDepartmentIdAndCompanyId(
         departmentId, companyId);
   }
 
   @Override
-  public void addEmployee(EmployeeDto employeeDto, User currentUser) {
-    User employee = saveEmployeeBasicInformation(currentUser, employeeDto);
+  public void addEmployee(final EmployeeDto employeeDto, final User currentUser) {
+    final User employee = saveEmployeeBasicInformation(currentUser, employeeDto);
 
     saveEmergencyContacts(employee, employeeDto.getUserEmergencyContactDto());
 
-    NewEmployeeJobInformationDto jobInformation = employeeDto.getJobInformation();
+    final NewEmployeeJobInformationDto jobInformation = employeeDto.getJobInformation();
 
     if (jobInformation != null) {
       saveManagerUser(employee, jobInformation);
@@ -168,57 +189,58 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     saveEmployeeAddress(employee, employeeDto);
 
-    WelcomeEmailDto welcomeEmailDto = employeeDto.getWelcomeEmail();
+    final WelcomeEmailDto welcomeEmailDto = employeeDto.getWelcomeEmail();
 
     saveEmailTasks(welcomeEmailDto, employee, currentUser);
   }
 
   @Override
-  public void updateEmployee(EmployeeDto employeeDto) {
-    User employee = userRepository.findByEmailWork(employeeDto.getEmailWork());
+  public void updateEmployee(final EmployeeDto employeeDto) {
+    final User employee = userRepository.findByEmailWork(employeeDto.getEmailWork());
     updateEmployeeBasicInformation(employee, employeeDto);
     updateEmergencyContacts(employee, employeeDto.getUserEmergencyContactDto());
     updateEmployeeAddress(employee, employeeDto);
   }
 
-  private String saveEmployeePhoto(String base64EncodedPhoto) {
+  private String saveEmployeePhoto(final String base64EncodedPhoto) {
     if (Strings.isBlank(base64EncodedPhoto)) {
       return null;
     }
 
     File file = null;
     try {
-      String imageString = base64EncodedPhoto.split(",")[1];
+      final String imageString = base64EncodedPhoto.split(",")[1];
       file = File.createTempFile(UUID.randomUUID().toString(), ".png");
-      byte[] photo = Base64.getDecoder().decode(imageString);
+      final byte[] photo = Base64.getDecoder().decode(imageString);
       FileCopyUtils.copy(photo, file);
       return awsUtil.uploadFile(file.getCanonicalPath(), Type.IMAGE);
-    } catch (IOException e) {
+    } catch (final IOException e) {
       throw new AwsUploadException("Error while upload employee photo!", e);
     }
   }
 
-  private User saveEmployeeBasicInformation(User currentUser, EmployeeDto employeeDto) {
-    User employee = new User();
+  private User saveEmployeeBasicInformation(final User currentUser, final EmployeeDto employeeDto) {
+    final User employee = new User();
     employee.setEmailWork(employeeDto.getEmailWork());
 
-    String base64EncodedPhoto = employeeDto.getPersonalPhoto();
-    String photoPath = saveEmployeePhoto(base64EncodedPhoto);
+    final String base64EncodedPhoto = employeeDto.getPersonalPhoto();
+    final String photoPath = saveEmployeePhoto(base64EncodedPhoto);
     employee.setImageUrl(photoPath);
 
-    String companyName = currentUser.getCompany().getName();
-    Integer existingUserCount =
+    final String companyName = currentUser.getCompany().getName();
+    final Integer existingUserCount =
         userRepository.findExistingUserCountByCompanyId(currentUser.getCompany().getId());
-    Integer employeeIndex = existingUserCount + 1;
-    String employeeNumber = userService.getEmployeeNumber(companyName, employeeIndex);
+    final Integer employeeIndex = existingUserCount + 1;
+    final String employeeNumber = userService.getEmployeeNumber(companyName, employeeIndex);
     employee.setEmployeeNumber(employeeNumber);
 
     employee.setCompany(currentUser.getCompany());
 
-    UserPersonalInformationDto userPersonalInformationDto =
+    final UserPersonalInformationDto userPersonalInformationDto =
         employeeDto.getUserPersonalInformationDto();
-    UserPersonalInformation userPersonalInformation =
-        userPersonalInformationDto.getUserPersonalInformation(new UserPersonalInformation());
+    final UserPersonalInformation userPersonalInformation =
+        userPersonalInformationMapper
+            .createFromUserPersonalInformationDto(userPersonalInformationDto);
 
     if (userPersonalInformation != null) {
       Gender gender = userPersonalInformation.getGender();
@@ -239,17 +261,19 @@ public class EmployeeServiceImpl implements EmployeeService {
       employee.setUserPersonalInformation(userPersonalInformation);
     }
 
-    UserContactInformationDto userContactInformationDto =
+    final UserContactInformationDto userContactInformationDto =
         employeeDto.getUserContactInformationDto();
     if (userContactInformationDto != null) {
       employee.setUserContactInformation(
-          userContactInformationDto.getUserContactInformation(new UserContactInformation()));
+          userContactInformationMapper
+              .createFromUserContactInformationDto(userContactInformationDto));
     }
 
-    UserRole userRole = userRoleRepository.findByName(User.Role.NON_MANAGER.name());
+    final UserRole userRole = userRoleRepository.findByName(User.Role.NON_MANAGER.name());
     employee.setUserRole(userRole);
 
-    UserStatus userStatus = userStatusRepository.findByName(Status.PENDING_VERIFICATION.name());
+    final UserStatus userStatus = userStatusRepository
+        .findByName(Status.PENDING_VERIFICATION.name());
     employee.setUserStatus(userStatus);
 
     employee.setResetPasswordToken(UUID.randomUUID().toString());
@@ -257,32 +281,33 @@ public class EmployeeServiceImpl implements EmployeeService {
     return userRepository.save(employee);
   }
 
-  private User updateEmployeeBasicInformation(User employee, EmployeeDto employeeDto) {
-    String base64EncodedPhoto = employeeDto.getPersonalPhoto();
-    String photoPath = saveEmployeePhoto(base64EncodedPhoto);
+  private User updateEmployeeBasicInformation(final User employee, final EmployeeDto employeeDto) {
+    final String base64EncodedPhoto = employeeDto.getPersonalPhoto();
+    final String photoPath = saveEmployeePhoto(base64EncodedPhoto);
     employee.setImageUrl(photoPath);
 
-    UserPersonalInformation userPersonalInformation = employee.getUserPersonalInformation();
-    UserPersonalInformationDto userPersonalInformationDto =
+    final UserPersonalInformation userPersonalInformation = employee.getUserPersonalInformation();
+    final UserPersonalInformationDto userPersonalInformationDto =
         employeeDto.getUserPersonalInformationDto();
-    UserPersonalInformation newUserPersonalInformation =
-        userPersonalInformationDto.getUserPersonalInformation(userPersonalInformation);
+    userPersonalInformationMapper
+        .updateFromUserPersonalInformationDto(userPersonalInformation, userPersonalInformationDto);
     if (userPersonalInformation != null) {
-      newUserPersonalInformation.setId(userPersonalInformation.getId());
+      userPersonalInformation.setId(userPersonalInformation.getId());
     }
-    UserPersonalInformation savedUserPersonalInformation =
-        userPersonalInformationService.update(newUserPersonalInformation);
+    final UserPersonalInformation savedUserPersonalInformation =
+        userPersonalInformationService.update(userPersonalInformation);
     employee.setUserPersonalInformation(savedUserPersonalInformation);
 
-    UserContactInformation userContactInformation = employee.getUserContactInformation();
-    UserContactInformationDto userContactInformationDto =
+    final UserContactInformation userContactInformation = employee.getUserContactInformation();
+    final UserContactInformationDto userContactInformationDto =
         employeeDto.getUserContactInformationDto();
-    UserContactInformation newUserContactInformation =
-        userContactInformationDto.getUserContactInformation(userContactInformation);
+    final UserContactInformation newUserContactInformation =
+        userContactInformationMapper
+            .updateFromUserContactInformationDto(userContactInformation, userContactInformationDto);
     if (userContactInformation != null) {
       newUserContactInformation.setId(userContactInformation.getId());
     }
-    UserContactInformation savedUserContactInformation =
+    final UserContactInformation savedUserContactInformation =
         userContactInformationService.update(newUserContactInformation);
     employee.setUserContactInformation(savedUserContactInformation);
 
@@ -290,18 +315,18 @@ public class EmployeeServiceImpl implements EmployeeService {
   }
 
   private void saveEmergencyContacts(
-      User employee, List<UserEmergencyContactDto> emergencyContactDtos) {
+      final User employee, final List<UserEmergencyContactDto> emergencyContactDtos) {
     if (CollectionUtils.isEmpty(emergencyContactDtos)) {
       return;
     }
 
     emergencyContactDtos.forEach(
         emergencyContactDto -> {
-          UserEmergencyContact emergencyContact = emergencyContactDto.getEmergencyContact();
+          final UserEmergencyContact emergencyContact = emergencyContactDto.getEmergencyContact();
 
-          Long stateProvinceId = emergencyContact.getState().getId();
+          final Long stateProvinceId = emergencyContact.getState().getId();
           if (stateProvinceId != null) {
-            StateProvince stateProvince = stateProvinceRepository.getOne(stateProvinceId);
+            final StateProvince stateProvince = stateProvinceRepository.getOne(stateProvinceId);
             emergencyContact.setState(stateProvince);
           } else {
             emergencyContact.setState(null);
@@ -313,17 +338,17 @@ public class EmployeeServiceImpl implements EmployeeService {
   }
 
   private void updateEmergencyContacts(
-      User employee, List<UserEmergencyContactDto> emergencyContactDtos) {
-    List<UserEmergencyContact> userEmergencyContacts =
+      final User employee, final List<UserEmergencyContactDto> emergencyContactDtos) {
+    final List<UserEmergencyContact> userEmergencyContacts =
         userEmergencyContactRepository.findByUserId(employee.getId());
     userEmergencyContactRepository.deleteInBatch(userEmergencyContacts);
     saveEmergencyContacts(employee, emergencyContactDtos);
   }
 
-  private void saveManagerUser(User user, NewEmployeeJobInformationDto jobInformation) {
-    Long managerUserId = jobInformation.getReportsTo();
+  private void saveManagerUser(final User user, final NewEmployeeJobInformationDto jobInformation) {
+    final Long managerUserId = jobInformation.getReportsTo();
     if (managerUserId != null) {
-      User managerUser =
+      final User managerUser =
           userRepository
               .findById(managerUserId)
               .orElseThrow(
@@ -332,7 +357,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                           "User with id " + managerUserId + " not found!"));
 
       if (Role.NON_MANAGER.name().equals(managerUser.getUserRole().getName())) {
-        UserRole userRole = userRoleRepository.findByName(Role.MANAGER.name());
+        final UserRole userRole = userRoleRepository.findByName(Role.MANAGER.name());
         managerUser.setUserRole(userRole);
         userRepository.save(managerUser);
       }
@@ -342,13 +367,14 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
   }
 
-  private void saveEmployeeCompensation(User user, NewEmployeeJobInformationDto jobInformation) {
-    UserCompensation userCompensation = new UserCompensation();
+  private void saveEmployeeCompensation(final User user,
+      final NewEmployeeJobInformationDto jobInformation) {
+    final UserCompensation userCompensation = new UserCompensation();
     userCompensation.setWage(jobInformation.getCompensation());
 
-    Long compensationFrequencyId = jobInformation.getCompensationFrequencyId();
+    final Long compensationFrequencyId = jobInformation.getCompensationFrequencyId();
     if (compensationFrequencyId != null) {
-      CompensationFrequency compensationFrequency =
+      final CompensationFrequency compensationFrequency =
           compensationFrequencyRepository.getOne(compensationFrequencyId);
       userCompensation.setCompensationFrequency(compensationFrequency);
     }
@@ -357,31 +383,32 @@ public class EmployeeServiceImpl implements EmployeeService {
   }
 
   private void saveEmployeeJob(
-      User employee, User currentUser, NewEmployeeJobInformationDto jobInformation) {
+      final User employee, final User currentUser,
+      final NewEmployeeJobInformationDto jobInformation) {
 
-    Job job = jobRepository.getOne(jobInformation.getJobId());
+    final Job job = jobRepository.getOne(jobInformation.getJobId());
 
-    JobUser jobUser = new JobUser();
+    final JobUser jobUser = new JobUser();
     jobUser.setJob(job);
     jobUser.setCompany(currentUser.getCompany());
     jobUser.setUser(employee);
 
-    Long employmentTypeId = jobInformation.getEmploymentTypeId();
+    final Long employmentTypeId = jobInformation.getEmploymentTypeId();
     if (employmentTypeId != null) {
-      EmploymentType employmentType = employmentTypeRepository.getOne(employmentTypeId);
+      final EmploymentType employmentType = employmentTypeRepository.getOne(employmentTypeId);
       jobUser.setEmploymentType(employmentType);
     } else {
       jobUser.setEmploymentType(null);
     }
 
-    Timestamp hireDate = jobInformation.getHireDate();
+    final Timestamp hireDate = jobInformation.getHireDate();
     if (hireDate != null) {
       jobUser.setStartDate(new Timestamp(hireDate.getTime()));
     }
 
-    Long officeId = jobInformation.getOfficeId();
+    final Long officeId = jobInformation.getOfficeId();
     if (officeId != null) {
-      Office office = officeRepository.getOne(officeId);
+      final Office office = officeRepository.getOne(officeId);
       jobUser.setOffice(office);
     } else {
       jobUser.setOffice(null);
@@ -390,9 +417,9 @@ public class EmployeeServiceImpl implements EmployeeService {
     jobUserRepository.save(jobUser);
   }
 
-  private void saveEmployeeAddress(User employee, EmployeeDto employeeDto) {
-    UserAddressDto userAddressDto = employeeDto.getUserAddress();
-    UserAddress userAddress = userAddressDto.getUserAddress(new UserAddress());
+  private void saveEmployeeAddress(final User employee, final EmployeeDto employeeDto) {
+    final UserAddressDto userAddressDto = employeeDto.getUserAddress();
+    final UserAddress userAddress = userAddressMapper.createFromUserAddressDto(userAddressDto);
 
     StateProvince stateProvince = userAddress.getStateProvince();
     if (stateProvince != null) {
@@ -402,21 +429,29 @@ public class EmployeeServiceImpl implements EmployeeService {
       userAddress.setStateProvince(null);
     }
 
+    Country country = userAddress.getCountry();
+    if (country != null) {
+      country = countryRepository.getOne(country.getId());
+      userAddress.setCountry(country);
+    } else {
+      userAddress.setCountry(null);
+    }
+
     userAddress.setUser(employee);
     userAddressRepository.save(userAddress);
   }
 
-  private void updateEmployeeAddress(User employee, EmployeeDto employeeDto) {
-    UserAddressDto userAddressDto = employeeDto.getUserAddress();
-    UserAddress userAddress = new UserAddress();
+  private void updateEmployeeAddress(final User employee, final EmployeeDto employeeDto) {
+    final UserAddressDto userAddressDto = employeeDto.getUserAddress();
+    final UserAddress userAddress = new UserAddress();
     userAddress.setId(userAddressDto.getId());
     userAddress.setUser(employee);
     userAddress.setStreet1(userAddressDto.getStreet1());
     userAddress.setStreet2(userAddressDto.getStreet2());
     userAddress.setCity(userAddressDto.getCity());
-    Long stateProvinceId = employeeDto.getUserAddress().getStateProvinceId();
+    final Long stateProvinceId = employeeDto.getUserAddress().getStateProvinceId();
     if (stateProvinceId != null) {
-      StateProvince stateProvince = stateProvinceRepository.getOne(stateProvinceId);
+      final StateProvince stateProvince = stateProvinceRepository.getOne(stateProvinceId);
       userAddress.setStateProvince(stateProvince);
     } else {
       userAddress.setStateProvince(null);
@@ -425,17 +460,18 @@ public class EmployeeServiceImpl implements EmployeeService {
     userAddressRepository.save(userAddress);
   }
 
-  private void saveEmailTasks(WelcomeEmailDto welcomeEmailDto, User employee, User currentUser) {
-    String from = currentUser.getEmailWork();
-    String to = welcomeEmailDto.getSendTo();
+  private void saveEmailTasks(final WelcomeEmailDto welcomeEmailDto, final User employee,
+      final User currentUser) {
+    final String from = currentUser.getEmailWork();
+    final String to = welcomeEmailDto.getSendTo();
     String content = welcomeEmailDto.getPersonalInformation();
 
-    Context emailContext =
+    final Context emailContext =
         userService.getWelcomeEmailContext(content, employee.getResetPasswordToken());
     content = userService.getWelcomeEmail(emailContext);
-    Timestamp sendDate = welcomeEmailDto.getSendDate();
+    final Timestamp sendDate = welcomeEmailDto.getSendDate();
 
-    Email email =
+    final Email email =
         new Email(from, to, "Welcome to Champion Solutions", content, currentUser, sendDate);
     emailService.saveAndScheduleEmail(email);
   }

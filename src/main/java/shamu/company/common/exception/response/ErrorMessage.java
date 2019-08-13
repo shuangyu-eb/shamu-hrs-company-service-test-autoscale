@@ -16,35 +16,40 @@ public class ErrorMessage {
   private Map<String, List<String>> errors;
 
 
-  public ErrorMessage(ErrorType errorType, String message) {
+  public ErrorMessage(final ErrorType errorType, final String message) {
     this.type = errorType.name();
     this.message = message;
   }
 
-  public ErrorMessage(String errorType, String message) {
+  public ErrorMessage(final String errorType, final String message) {
     this.type = errorType;
     this.message = message;
   }
 
-  public ErrorMessage(MethodArgumentNotValidException methodArgumentNotValidException) {
+  public ErrorMessage(final MethodArgumentNotValidException methodArgumentNotValidException) {
     this.type = ErrorType.JSON_PARSE_ERROR.name();
     this.errors = new HashMap<>();
     methodArgumentNotValidException.getBindingResult().getFieldErrors()
         .forEach(fieldError -> {
           if (errors.containsKey(fieldError.getField())) {
-            List<String> errorMsgList = errors.get(fieldError.getField());
+            final List<String> errorMsgList = errors.get(fieldError.getField());
             errorMsgList.add(fieldError.getDefaultMessage());
-            errors.put(fieldError.getField(),errorMsgList);
+            errors.put(fieldError.getField(), errorMsgList);
           } else {
-            List<String> errorMsgList = new ArrayList<>();
+            final List<String> errorMsgList = new ArrayList<>();
             errorMsgList.add(fieldError.getDefaultMessage());
             errors.put(fieldError.getField(), errorMsgList);
           }
         });
   }
 
-  public ErrorMessage(AbstractException abstractException) {
+  public ErrorMessage(final AbstractException abstractException) {
     this.type = abstractException.getType();
     this.message = abstractException.getMessage();
+  }
+
+  public ErrorMessage(final String type, final Map<String, List<String>> errors) {
+    this.type = type;
+    this.errors = errors;
   }
 }

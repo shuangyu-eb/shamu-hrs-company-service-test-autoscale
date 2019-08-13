@@ -14,6 +14,7 @@ import shamu.company.user.dto.UserAddressDto;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
 import shamu.company.user.entity.UserAddress;
+import shamu.company.user.entity.mapper.UserAddressMapper;
 import shamu.company.user.service.UserAddressService;
 import shamu.company.user.service.UserService;
 
@@ -24,10 +25,15 @@ public class UserAddressRestController extends BaseRestController {
 
   private final UserService userService;
 
+  private final UserAddressMapper userAddressMapper;
+
   @Autowired
-  public UserAddressRestController(UserAddressService userAddressService, UserService userService) {
+  public UserAddressRestController(final UserAddressService userAddressService,
+      final UserService userService,
+      final UserAddressMapper userAddressMapper) {
     this.userAddressService = userAddressService;
     this.userService = userService;
+    this.userAddressMapper = userAddressMapper;
   }
 
   @PatchMapping("user-addresses/{id}")
@@ -35,38 +41,41 @@ public class UserAddressRestController extends BaseRestController {
       "hasPermission(#id,'USER_ADDRESS', 'EDIT_USER')"
           + " or hasPermission(#id,'USER_ADDRESS', 'EDIT_SELF')")
   public UserAddressDto updateUserAddress(
-      @PathVariable @HashidsFormat Long id, @RequestBody UserAddressDto userAddressDto) {
-    UserAddress origin = userAddressService.findUserAddressById(id);
-    UserAddress userAddress = userAddressDto.getUserAddress(origin);
-    UserAddress userAddressUpdated = userAddressService.updateUserAddress(userAddress);
-    return new UserAddressDto(userAddressUpdated);
+      @PathVariable @HashidsFormat final Long id,
+      @RequestBody final UserAddressDto userAddressDto) {
+    final UserAddress origin = userAddressService.findUserAddressById(id);
+    userAddressMapper.updateFromUserAddressDto(origin, userAddressDto);
+    final UserAddress userAddressUpdated = userAddressService.updateUserAddress(origin);
+    return userAddressMapper.convertToUserAddressDto(userAddressUpdated);
   }
 
   @PostMapping("users/{id}/user-address")
   @PreAuthorize(
       "hasPermission(#id,'USER', 'EDIT_USER')"
           + " or hasPermission(#id,'USER', 'EDIT_SELF')")
-  public UserAddressDto saveUserAddress(@PathVariable @HashidsFormat Long id,
-      @RequestBody UserAddressDto userAddressDto) {
-    UserAddress initUserAddress = userAddressService
-        .save(userAddressDto.getUserAddress(new UserAddress(new User(id))));
-    return new UserAddressDto(initUserAddress);
+  public UserAddressDto saveUserAddress(@PathVariable @HashidsFormat final Long id,
+      @RequestBody final UserAddressDto userAddressDto) {
+    userAddressDto.setUserId(id);
+    final UserAddress initUserAddress = userAddressService
+        .save(userAddressMapper
+            .createFromUserAddressDto(userAddressDto));
+    return userAddressMapper.convertToUserAddressDto(initUserAddress);
   }
 
   @GetMapping("users/{id}/user-address")
   @PreAuthorize(
       "hasPermission(#id, 'USER', 'VIEW_USER_ADDRESS')"
           + "or hasPermission(#id, 'USER', 'VIEW_SELF')")
-  public UserAddressDto getUserAddress(@PathVariable @HashidsFormat Long id) {
-    User user = this.getUser();
-    User targetUser = userService.findUserById(id);
-    User manager = targetUser.getManagerUser();
-    UserAddress userAddress = userAddressService.findUserAddressByUserId(id);
+  public UserAddressDto getUserAddress(@PathVariable @HashidsFormat final Long id) {
+    final User user = getUser();
+    final User targetUser = userService.findUserById(id);
+    final User manager = targetUser.getManagerUser();
+    final UserAddress userAddress = userAddressService.findUserAddressByUserId(id);
 
     if (userAddress != null && (user.getId().equals(id)
         || user.getRole() == Role.ADMIN
         || (manager != null && manager.getId().equals(user.getId())))) {
-      return new UserAddressDto(userAddress);
+      return userAddressMapper.convertToUserAddressDto(userAddress);
     }
 
     return null;

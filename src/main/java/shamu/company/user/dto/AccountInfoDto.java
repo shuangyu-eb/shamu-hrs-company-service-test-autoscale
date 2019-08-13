@@ -8,7 +8,6 @@ import shamu.company.info.dto.UserEmergencyContactDto;
 import shamu.company.user.entity.UserAddress;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
 public class AccountInfoDto {
 

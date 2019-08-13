@@ -49,6 +49,8 @@ import shamu.company.user.entity.UserPersonalInformation;
 import shamu.company.user.entity.UserRole;
 import shamu.company.user.entity.UserStatus;
 import shamu.company.user.entity.UserStatus.Status;
+import shamu.company.user.entity.mapper.UserContactInformationMapper;
+import shamu.company.user.entity.mapper.UserPersonalInformationMapper;
 import shamu.company.user.pojo.UserRoleUpdatePojo;
 import shamu.company.user.pojo.UserStatusUpdatePojo;
 import shamu.company.user.repository.UserCompensationRepository;
@@ -71,6 +73,9 @@ public class UserServiceImpl implements UserService {
   private final UserRoleRepository userRoleRepository;
   private final UserEmergencyContactService userEmergencyContactService;
   private final UserAddressService userAddressService;
+  private final UserContactInformationMapper userContactInformationMapper;
+
+  private final UserPersonalInformationMapper userPersonalInformationMapper;
 
   private final EmailService emailService;
   private final UserCompensationRepository userCompensationRepository;
@@ -84,8 +89,10 @@ public class UserServiceImpl implements UserService {
       final JobUserRepository jobUserRepository, final UserStatusRepository userStatusRepository,
       final EmailService emailService, final UserCompensationRepository userCompensationRepository,
       @Lazy final PasswordEncoder passwordEncoder, final UserRoleRepository userRoleRepository,
+      final UserPersonalInformationMapper userPersonalInformationMapper,
       final UserEmergencyContactService userEmergencyContactService,
-      final UserAddressService userAddressService) {
+      final UserAddressService userAddressService,
+      final UserContactInformationMapper userContactInformationMapper) {
     this.templateEngine = templateEngine;
     this.userRepository = userRepository;
     this.jobUserRepository = jobUserRepository;
@@ -96,6 +103,8 @@ public class UserServiceImpl implements UserService {
     this.userRoleRepository = userRoleRepository;
     this.userEmergencyContactService = userEmergencyContactService;
     this.userAddressService = userAddressService;
+    this.userPersonalInformationMapper = userPersonalInformationMapper;
+    this.userContactInformationMapper = userContactInformationMapper;
   }
 
   @Override
@@ -320,7 +329,7 @@ public class UserServiceImpl implements UserService {
 
     final UserPersonalInformation userPersonalInformation = user.getUserPersonalInformation();
     final UserPersonalInformationDto userPersonalInformationDto =
-        new UserPersonalInformationDto(userPersonalInformation);
+        userPersonalInformationMapper.convertToUserPersonalInformationDto(userPersonalInformation);
 
     final String headPortrait = user.getImageUrl();
 
@@ -328,7 +337,7 @@ public class UserServiceImpl implements UserService {
 
     final UserContactInformation userContactInformation = user.getUserContactInformation();
     final UserContactInformationDto userContactInformationDto =
-        new UserContactInformationDto(userContactInformation);
+        userContactInformationMapper.convertToUserContactInformationDto(userContactInformation);
 
     final List<UserEmergencyContact> userEmergencyContacts = userEmergencyContactService
         .getUserEmergencyContacts(id);

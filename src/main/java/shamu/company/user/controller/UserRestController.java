@@ -2,7 +2,6 @@ package shamu.company.user.controller;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
@@ -19,13 +18,14 @@ import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.company.CompanyService;
 import shamu.company.hashids.HashidsFormat;
-import shamu.company.user.UserDto;
 import shamu.company.user.dto.AccountInfoDto;
 import shamu.company.user.dto.UpdatePasswordDto;
 import shamu.company.user.dto.UserAvatarDto;
+import shamu.company.user.dto.UserDto;
 import shamu.company.user.dto.UserRoleAndStatusInfoDto;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
+import shamu.company.user.entity.mapper.UserMapper;
 import shamu.company.user.pojo.UserRoleUpdatePojo;
 import shamu.company.user.pojo.UserStatusUpdatePojo;
 import shamu.company.user.service.UserService;
@@ -41,11 +41,14 @@ public class UserRestController extends BaseRestController {
 
   private final AwsUtil awsUtil;
 
+  private final UserMapper userMapper;
+
   public UserRestController(final UserService userService, final CompanyService companyService,
-      final AwsUtil awsUtil) {
+      final AwsUtil awsUtil, final UserMapper userMapper) {
     this.userService = userService;
     this.companyService = companyService;
     this.awsUtil = awsUtil;
+    this.userMapper = userMapper;
   }
 
   @PostMapping(value = "user/sign-up/email")
@@ -78,7 +81,7 @@ public class UserRestController extends BaseRestController {
   @GetMapping(value = "users/{id}/head-portrait")
   @PreAuthorize("hasPermission(#id,'USER','VIEW_USER_PERSONAL')")
   public String getHeadPortrait(@PathVariable @HashidsFormat final Long id) {
-    final User user = this.getUser();
+    final User user = getUser();
 
     if (user.getId().equals(id)
         || user.getRole() == Role.ADMIN) {
@@ -133,16 +136,16 @@ public class UserRestController extends BaseRestController {
   @GetMapping("users/{id}/avatar")
   public UserAvatarDto getUserAvatar(@PathVariable @HashidsFormat final Long id) {
     final User user = userService.findUserById(id);
-    return new UserAvatarDto(user);
+    return userMapper.convertToUserAvatarDto(user);
   }
 
   @PatchMapping("users/{id}/user-role")
   @PreAuthorize("hasPermission(#id, 'USER', 'VIEW_SETTING')")
   public UserRoleAndStatusInfoDto updateUserRole(@PathVariable @HashidsFormat final Long id,
       @RequestBody final UserRoleUpdatePojo userRoleUpdatePojo) {
-    final User currentUser = this.getUser();
+    final User currentUser = getUser();
     final User user = userService.findUserById(id);
-    return new UserRoleAndStatusInfoDto(userService
+    return userMapper.convertToUserRoleAndStatusInfoDto(userService
         .updateUserRole(currentUser, userRoleUpdatePojo, user));
   }
 
@@ -150,9 +153,9 @@ public class UserRestController extends BaseRestController {
   @PreAuthorize("hasPermission(#id, 'USER', 'VIEW_SETTING')")
   public UserRoleAndStatusInfoDto updateUserStatus(@PathVariable @HashidsFormat final Long id,
       @RequestBody final UserStatusUpdatePojo userStatusUpdatePojo) {
-    final User currentUser = this.getUser();
+    final User currentUser = getUser();
     final User user = userService.findUserById(id);
-    return new UserRoleAndStatusInfoDto(userService
+    return userMapper.convertToUserRoleAndStatusInfoDto(userService
         .updateUserStatus(currentUser, userStatusUpdatePojo, user));
   }
 
@@ -160,6 +163,6 @@ public class UserRestController extends BaseRestController {
   @GetMapping("users/all")
   public List<UserDto> getAllUsers() {
     final List<User> users = userService.findAllUsersByCompany(getCompany());
-    return users.stream().map(UserDto::new).collect(Collectors.toList());
+    return userMapper.convertToUserDtos(users);
   }
 }

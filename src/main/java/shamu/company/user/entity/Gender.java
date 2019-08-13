@@ -16,7 +16,7 @@ public class Gender extends BaseEntity {
 
   private String name;
 
-  public Gender(Long id) {
+  public Gender(final Long id) {
     this.setId(id);
   }
 }

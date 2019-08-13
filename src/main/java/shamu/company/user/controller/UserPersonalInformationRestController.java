@@ -17,6 +17,8 @@ import shamu.company.user.dto.UserRoleAndStatusInfoDto;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
 import shamu.company.user.entity.UserPersonalInformation;
+import shamu.company.user.entity.mapper.UserMapper;
+import shamu.company.user.entity.mapper.UserPersonalInformationMapper;
 import shamu.company.user.service.UserPersonalInformationService;
 import shamu.company.user.service.UserService;
 
@@ -27,13 +29,22 @@ public class UserPersonalInformationRestController extends BaseRestController {
 
   private final UserService userService;
 
+  private final UserPersonalInformationMapper userPersonalInformationMapper;
+
+  private final UserMapper userMapper;
+
   SimpleDateFormat sdf = new SimpleDateFormat("MM-dd");
 
   @Autowired
   public UserPersonalInformationRestController(
-      UserPersonalInformationService userPersonalInformationService, UserService userService) {
+      final UserPersonalInformationService userPersonalInformationService,
+      final UserService userService,
+      final UserPersonalInformationMapper userPersonalInformationMapper,
+      final UserMapper userMapper) {
     this.userPersonalInformationService = userPersonalInformationService;
     this.userService = userService;
+    this.userPersonalInformationMapper = userPersonalInformationMapper;
+    this.userMapper = userMapper;
   }
 
   @PatchMapping("user-personal-information/{id}")
@@ -41,42 +52,45 @@ public class UserPersonalInformationRestController extends BaseRestController {
       "hasPermission(#id,'USER_PERSONAL_INFORMATION', 'EDIT_USER')"
           + " or hasPermission(#id,'USER_PERSONAL_INFORMATION', 'EDIT_SELF')")
   public UserPersonalInformationDto update(
-      @PathVariable @HashidsFormat Long id,
-      @RequestBody UserPersonalInformationDto userPersonalInformationDto) {
-    UserPersonalInformation origin =
+      @PathVariable @HashidsFormat final Long id,
+      @RequestBody final UserPersonalInformationDto userPersonalInformationDto) {
+    final UserPersonalInformation origin =
         userPersonalInformationService.findUserPersonalInformationById(id);
-    UserPersonalInformation userPersonalInformation =
-        userPersonalInformationDto.getUserPersonalInformation(origin);
-    UserPersonalInformation userPersonalInformationUpdated =
-        userPersonalInformationService.update(userPersonalInformation);
-    return new UserPersonalInformationDto(userPersonalInformationUpdated);
+    userPersonalInformationMapper
+        .updateFromUserPersonalInformationDto(origin, userPersonalInformationDto);
+    final UserPersonalInformation userPersonalInformationUpdated =
+        userPersonalInformationService.update(origin);
+    return userPersonalInformationMapper
+        .convertToUserPersonalInformationDto(userPersonalInformationUpdated);
   }
 
   @GetMapping("users/{id}/user-personal-information")
   @PreAuthorize("hasPermission(#id, 'USER', 'VIEW_USER_PERSONAL')")
   public BasicUserPersonalInformationDto getUserPersonalInformation(
-      @PathVariable @HashidsFormat Long id) {
-    User user = this.getUser();
-    User targetUser = userService.findUserById(id);
-    UserPersonalInformation userPersonalInformation = targetUser.getUserPersonalInformation();
-    String imageUrl = targetUser.getImageUrl();
+      @PathVariable @HashidsFormat final Long id) {
+    final User user = getUser();
+    final User targetUser = userService.findUserById(id);
+    final UserPersonalInformation userPersonalInformation = targetUser.getUserPersonalInformation();
+    final String imageUrl = targetUser.getImageUrl();
 
     if (user.getId().equals(id) || user.getRole() == Role.ADMIN) {
-      return new UserPersonalInformationDto(userPersonalInformation, imageUrl);
+      return userPersonalInformationMapper
+          .convertToUserPersonalInformationDto(userPersonalInformation, imageUrl);
     }
 
-    Date birthDate = userPersonalInformation.getBirthDate();
-    String birthDateWithoutYear = birthDate != null ? sdf.format(birthDate) : "";
-    BasicUserPersonalInformationDto basicUserPersonalInformationDto =
-        new BasicUserPersonalInformationDto(userPersonalInformation);
+    final Date birthDate = userPersonalInformation.getBirthDate();
+    final String birthDateWithoutYear = birthDate != null ? sdf.format(birthDate) : "";
+    final BasicUserPersonalInformationDto basicUserPersonalInformationDto =
+        userPersonalInformationMapper
+            .convertToBasicUserPersonalInformationDto(userPersonalInformation);
     basicUserPersonalInformationDto.setBirthDate(birthDateWithoutYear);
     return basicUserPersonalInformationDto;
   }
 
   @GetMapping("users/{id}/user-role-status")
   @PreAuthorize("hasPermission(#id, 'USER', 'VIEW_SETTING')")
-  public UserRoleAndStatusInfoDto getUserRoleAndStatus(@PathVariable @HashidsFormat Long id) {
-    User targetUser = userService.findUserById(id);
-    return new UserRoleAndStatusInfoDto(targetUser);
+  public UserRoleAndStatusInfoDto getUserRoleAndStatus(@PathVariable @HashidsFormat final Long id) {
+    final User targetUser = userService.findUserById(id);
+    return userMapper.convertToUserRoleAndStatusInfoDto(targetUser);
   }
 }

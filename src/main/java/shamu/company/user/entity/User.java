@@ -8,6 +8,7 @@ import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.Email;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -24,6 +25,7 @@ public class User extends BaseEntity {
 
   private String employeeNumber;
 
+  @Email
   private String emailWork;
 
   private String password;
@@ -74,11 +76,11 @@ public class User extends BaseEntity {
 
   private Timestamp verifiedAt;
 
-  public User(Long id) {
+  public User(final Long id) {
     this.setId(id);
   }
 
-  public User(Long id, String imageUrl) {
+  public User(final Long id, final String imageUrl) {
     this.setId(id);
     this.setImageUrl(imageUrl);
   }

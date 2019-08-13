@@ -22,25 +22,25 @@ public class UserPersonalInformationServiceImpl implements UserPersonalInformati
 
   @Autowired
   public UserPersonalInformationServiceImpl(
-      UserPersonalInformationRepository repository,
-      GenderService genderService,
-      MaritalStatusService maritalStatusService) {
+      final UserPersonalInformationRepository repository,
+      final GenderService genderService,
+      final MaritalStatusService maritalStatusService) {
     this.repository = repository;
     this.genderService = genderService;
     this.maritalStatusService = maritalStatusService;
   }
 
   @Override
-  public UserPersonalInformation update(UserPersonalInformation userPersonalInformation) {
-    Gender gender = userPersonalInformation.getGender();
-    MaritalStatus maritalStatus = userPersonalInformation.getMaritalStatus();
+  public UserPersonalInformation update(final UserPersonalInformation userPersonalInformation) {
+    final Gender gender = userPersonalInformation.getGender();
+    final MaritalStatus maritalStatus = userPersonalInformation.getMaritalStatus();
 
     if (gender != null) {
-      Gender genderUpdated = genderService.findGenderById(gender.getId());
+      final Gender genderUpdated = genderService.findGenderById(gender.getId());
       userPersonalInformation.setGender(genderUpdated);
     }
     if (maritalStatus != null) {
-      MaritalStatus maritalStatusUpdated =
+      final MaritalStatus maritalStatusUpdated =
           maritalStatusService.findMaritalStatusById(maritalStatus.getId());
       userPersonalInformation.setMaritalStatus(maritalStatusUpdated);
     }
@@ -48,7 +48,7 @@ public class UserPersonalInformationServiceImpl implements UserPersonalInformati
   }
 
   @Override
-  public UserPersonalInformation findUserPersonalInformationById(Long id) {
+  public UserPersonalInformation findUserPersonalInformationById(final Long id) {
     return repository
         .findById(id)
         .orElseThrow(

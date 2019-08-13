@@ -27,20 +27,4 @@ public class BasicUserPersonalInformationDto {
   private Long maritalStatusId;
 
   private String maritalStatusName;
-
-  public BasicUserPersonalInformationDto(UserPersonalInformation personalInformation) {
-    this.id = personalInformation.getId();
-    this.firstName = personalInformation.getFirstName();
-    this.lastName = personalInformation.getLastName();
-    this.middleName = personalInformation.getMiddleName();
-    this.preferredName = personalInformation.getPreferredName();
-    this.birthDate = personalInformation.getBirthDate() == null
-        ? null : personalInformation.getBirthDate().toString();
-
-    MaritalStatus maritalStatus = personalInformation.getMaritalStatus();
-    Long maritalStateId = maritalStatus == null ? null : maritalStatus.getId();
-    String maritalStateName = maritalStatus == null ? "" : maritalStatus.getName();
-    this.maritalStatusId = maritalStateId;
-    this.maritalStatusName = maritalStateName;
-  }
 }

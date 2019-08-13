@@ -39,26 +39,4 @@ public class EmployeeRelatedInformationDto {
   private String managerJobTitle;
 
   private List<JobUserDto> directReporters;
-
-  public EmployeeRelatedInformationDto(
-      Long userId,
-      JobUserDto jobEmployeeDto,
-      JobUserDto jobManagerDto,
-      List<JobUserDto> directReporters) {
-    this.setUserId(userId);
-    this.setEmployeeFirstName(jobEmployeeDto.getFirstName());
-    this.setEmployeeLastName(jobEmployeeDto.getLastName());
-    this.setEmployeeImageUrl(jobEmployeeDto.getImageUrl());
-    this.setEmployeeWorkEmail(jobEmployeeDto.getEmail());
-    this.setEmployeeWorkPhone(jobEmployeeDto.getPhoneNumber());
-    this.setEmployeeJobTitle(jobEmployeeDto.getJobTitle());
-    if (jobManagerDto != null) {
-      this.setManagerId(jobManagerDto.getId());
-      this.setManagerFirstName(jobManagerDto.getFirstName());
-      this.setManagerLastName(jobManagerDto.getLastName());
-      this.setManagerImageUrl(jobManagerDto.getImageUrl());
-      this.setManagerJobTitle(jobManagerDto.getJobTitle());
-    }
-    this.setDirectReporters(directReporters);
-  }
 }

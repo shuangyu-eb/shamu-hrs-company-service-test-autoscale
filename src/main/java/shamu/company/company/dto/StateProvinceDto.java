@@ -1,6 +1,7 @@
 package shamu.company.company.dto;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import shamu.company.common.entity.StateProvince;
 import shamu.company.employee.dto.SelectFieldInformationDto;
@@ -15,11 +16,4 @@ public class StateProvinceDto {
   private String name;
 
   private SelectFieldInformationDto country;
-
-  public StateProvinceDto(final StateProvince stateProvince) {
-    if (stateProvince != null) {
-      BeanUtils.copyProperties(stateProvince, this);
-      setCountry(new SelectFieldInformationDto(stateProvince.getCountry()));
-    }
-  }
 }

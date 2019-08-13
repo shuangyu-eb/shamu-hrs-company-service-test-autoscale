@@ -14,6 +14,7 @@ import shamu.company.user.dto.UserContactInformationDto;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
 import shamu.company.user.entity.UserContactInformation;
+import shamu.company.user.entity.mapper.UserContactInformationMapper;
 import shamu.company.user.service.UserContactInformationService;
 import shamu.company.user.service.UserService;
 
@@ -24,11 +25,17 @@ public class UserContactInformationRestController extends BaseRestController {
 
   private final UserService userService;
 
+  private final UserContactInformationMapper userContactInformationMapper;
+
   @Autowired
   public UserContactInformationRestController(
-      UserContactInformationService contactInformationService, UserService userService) {
+      final UserContactInformationService contactInformationService, final UserService userService,
+      final UserContactInformationMapper
+          userContactInformationMapper) {
     this.contactInformationService = contactInformationService;
     this.userService = userService;
+    this.userContactInformationMapper
+        = userContactInformationMapper;
   }
 
   @PatchMapping("user-contact-information/{id}")
@@ -36,29 +43,32 @@ public class UserContactInformationRestController extends BaseRestController {
       "hasPermission(#id,'USER_CONTACT_INFORMATION', 'EDIT_USER')"
           + " or hasPermission(#id,'USER_CONTACT_INFORMATION', 'EDIT_SELF')")
   public UserContactInformationDto update(
-      @PathVariable @HashidsFormat Long id,
-      @RequestBody UserContactInformationDto userContactInformationDto) {
-    UserContactInformation origin = contactInformationService.findUserContactInformationById(id);
-    UserContactInformation userContactInformation =
-        userContactInformationDto.getUserContactInformation(origin);
-    UserContactInformation userContactInformationUpdated =
-        contactInformationService.update(userContactInformation);
-    return new UserContactInformationDto(userContactInformationUpdated);
+      @PathVariable @HashidsFormat final Long id,
+      @RequestBody final UserContactInformationDto userContactInformationDto) {
+    final UserContactInformation origin = contactInformationService
+        .findUserContactInformationById(id);
+    userContactInformationMapper
+        .updateFromUserContactInformationDto(origin, userContactInformationDto);
+    final UserContactInformation userContactInformationUpdated =
+        contactInformationService.update(origin);
+    return userContactInformationMapper
+        .convertToUserContactInformationDto(userContactInformationUpdated);
   }
 
   @GetMapping("users/{id}/user-contact-information")
   @PreAuthorize("hasPermission(#id, 'USER', 'VIEW_USER_CONTACT')")
   public BasicUserContactInformationDto getUserContactInformation(
-      @PathVariable @HashidsFormat Long id) {
-    User user = this.getUser();
-    User targetUser = userService.findUserById(id);
-    User manager = targetUser.getManagerUser();
-    UserContactInformation userContactInformation = targetUser.getUserContactInformation();
+      @PathVariable @HashidsFormat final Long id) {
+    final User user = getUser();
+    final User targetUser = userService.findUserById(id);
+    final User manager = targetUser.getManagerUser();
+    final UserContactInformation userContactInformation = targetUser.getUserContactInformation();
 
     if (user.getId().equals(id)
         || (manager != null && manager.getId().equals(user.getId()))
         || user.getRole() == Role.ADMIN) {
-      return new UserContactInformationDto(userContactInformation);
+      return userContactInformationMapper
+          .convertToUserContactInformationDto(userContactInformation);
     }
 
     return new BasicUserContactInformationDto(userContactInformation);
