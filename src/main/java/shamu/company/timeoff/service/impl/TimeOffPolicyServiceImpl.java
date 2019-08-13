@@ -211,6 +211,11 @@ public class TimeOffPolicyServiceImpl implements TimeOffPolicyService {
   @Override
   public TimeOffPolicyRelatedInfoDto getTimeOffRelatedInfo(Long policyId) {
     TimeOffPolicy timeOffPolicy = timeOffPolicyRepository.findById(policyId).get();
+
+    if (!timeOffPolicy.getIsLimited()) {
+      return new TimeOffPolicyRelatedInfoDto(
+              timeOffPolicy, null, null);
+    }
     TimeOffPolicyAccrualSchedule timeOffPolicyAccrualSchedule =
         timeOffPolicyAccrualScheduleRepository.findAllByTimeOffPolicy(timeOffPolicy);
 

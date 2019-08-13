@@ -151,7 +151,7 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
           Long id, Timestamp startDay, Long status) {
     TimeOffRequest timeOffRequest = timeOffRequestRepository
             .findByRequesterUserIdFilteredByApprovedAndStartDay(id, startDay, status);
-    return new TimeOffRequestDto(timeOffRequest);
+    return timeOffRequest == null ? null : new TimeOffRequestDto(timeOffRequest);
   }
 
   @Override
