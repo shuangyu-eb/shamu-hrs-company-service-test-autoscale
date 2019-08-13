@@ -23,7 +23,6 @@ import shamu.company.timeoff.entity.TimeOffPolicyAccrualSchedule;
 import shamu.company.timeoff.pojo.TimeOffBalancePojo;
 import shamu.company.timeoff.pojo.TimeOffBreakdownCalculatePojo;
 import shamu.company.timeoff.repository.AccrualScheduleMilestoneRepository;
-import shamu.company.user.entity.User;
 import shamu.company.utils.DateUtil;
 
 @Service
@@ -40,12 +39,12 @@ public class TimeOffAccrualMonthStrategyServiceImpl extends TimeOffAccrualServic
   public TimeOffBreakdownDto getTimeOffBreakdown(TimeOffBreakdownItemDto startingBreakdown,
       TimeOffBreakdownCalculatePojo calculatePojo) {
 
-    List<TimeOffBreakdownMonthDto> timeOffBreakdownMonthDtoList = getAccrualDataByMonth(
-        calculatePojo.getTrimmedScheduleList(), calculatePojo.getPolicyUser().getUser());
+    List<TimeOffBreakdownMonthDto> timeOffBreakdownMonthDtoList =
+            getAccrualDataByMonth(calculatePojo);
     timeOffBreakdownMonthDtoList = addMissingMonthDto(timeOffBreakdownMonthDtoList);
 
     timeOffBreakdownMonthDtoList.forEach(timeOffBreakdownMonthDto -> {
-      timeOffBreakdownMonthDto.setDate(timeOffBreakdownMonthDto.getDate().plusYears(1));
+      timeOffBreakdownMonthDto.setDate(timeOffBreakdownMonthDto.getDate().plusMonths(1));
     });
 
     return getFinalMonthBreakdown(timeOffBreakdownMonthDtoList,
@@ -53,18 +52,21 @@ public class TimeOffAccrualMonthStrategyServiceImpl extends TimeOffAccrualServic
   }
 
   private List<TimeOffBreakdownMonthDto> getAccrualDataByMonth(
-      List<TimeOffPolicyAccrualSchedule> trimmedScheduleList, User user) {
+          TimeOffBreakdownCalculatePojo calculatePojo) {
 
-    LocalDateTime userJoinDateTime = DateUtil.toLocalDateTime(user.getCreatedAt());
+    LocalDateTime userJoinDateTime = DateUtil.toLocalDateTime(
+            calculatePojo.getPolicyUser().getUser().getCreatedAt());
     TreeMap<Integer, TreeMap<Integer, TimeOffBreakdownMonthDto>> accrualDate = new TreeMap<>();
 
-    trimmedScheduleList.forEach(accrualSchedule -> {
+    calculatePojo.getTrimmedScheduleList().forEach(accrualSchedule -> {
       List<Timestamp> validStartAndEndDate =
           getValidAccrualScheduleStartAndEndDate(userJoinDateTime, accrualSchedule);
 
       List<LocalDateTime> validPeriod = getValidMonthPeriod(
           validStartAndEndDate.get(0),
-          validStartAndEndDate.get(1));
+          validStartAndEndDate.get(1),
+          calculatePojo.getUntilDate()
+      );
 
       addToResultMonthMap(accrualDate, validPeriod, accrualSchedule);
 
@@ -72,7 +74,8 @@ public class TimeOffAccrualMonthStrategyServiceImpl extends TimeOffAccrualServic
           accrualScheduleMilestoneRepository
               .findByTimeOffPolicyAccrualScheduleId(accrualSchedule.getId());
       accrualScheduleMilestoneList = trimTimeOffPolicyScheduleMilestones(
-          accrualScheduleMilestoneList, user, accrualSchedule);
+          accrualScheduleMilestoneList,
+              calculatePojo.getPolicyUser().getUser(), accrualSchedule);
 
       // sort milestones
       accrualScheduleMilestoneList.sort(Comparator.comparing(BaseEntity::getCreatedAt));
@@ -82,7 +85,8 @@ public class TimeOffAccrualMonthStrategyServiceImpl extends TimeOffAccrualServic
         List<Timestamp> validMilestoneStartAndEndDate =
             getValidMilestoneStartAndEndDate(userJoinDateTime, accrualScheduleMilestone);
         List<LocalDateTime> validMilestonePeriod = getValidMonthPeriod(
-            validMilestoneStartAndEndDate.get(0), validMilestoneStartAndEndDate.get(1));
+            validMilestoneStartAndEndDate.get(0), validMilestoneStartAndEndDate.get(1),
+                calculatePojo.getUntilDate());
 
         TimeOffPolicyAccrualSchedule tempAccrualSchedule = new TimeOffPolicyAccrualSchedule();
         BeanUtils.copyProperties(accrualScheduleMilestone, tempAccrualSchedule);
@@ -114,11 +118,12 @@ public class TimeOffAccrualMonthStrategyServiceImpl extends TimeOffAccrualServic
     return monthList;
   }
 
-  private List<LocalDateTime> getValidMonthPeriod(Timestamp startDate, Timestamp endDate) {
+  private List<LocalDateTime> getValidMonthPeriod(Timestamp startDate, Timestamp endDate,
+                                                  LocalDateTime selectedDate) {
 
     LocalDateTime startDateTime = DateUtil.toLocalDateTime(startDate);
 
-    LocalDateTime endDateTime = endDate == null ? LocalDateTime.now()
+    LocalDateTime endDateTime = endDate == null ? selectedDate
         : DateUtil.toLocalDateTime(endDate);
 
     List<LocalDateTime> validPeriod = new ArrayList<>();

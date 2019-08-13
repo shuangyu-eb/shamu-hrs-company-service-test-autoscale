@@ -16,11 +16,9 @@ import shamu.company.timeoff.dto.TimeOffBreakdownAnniversaryDto;
 import shamu.company.timeoff.dto.TimeOffBreakdownDto;
 import shamu.company.timeoff.dto.TimeOffBreakdownItemDto;
 import shamu.company.timeoff.entity.AccrualScheduleMilestone;
-import shamu.company.timeoff.entity.TimeOffPolicyAccrualSchedule;
 import shamu.company.timeoff.pojo.TimeOffBalancePojo;
 import shamu.company.timeoff.pojo.TimeOffBreakdownCalculatePojo;
 import shamu.company.timeoff.repository.AccrualScheduleMilestoneRepository;
-import shamu.company.user.entity.User;
 import shamu.company.utils.DateUtil;
 
 @Service
@@ -38,8 +36,7 @@ public class TimeOffAccrualAnniversaryStrategyServiceImpl extends TimeOffAccrual
       TimeOffBreakdownCalculatePojo calculatePojo) {
 
     List<TimeOffBreakdownAnniversaryDto> timeOffBreakdownAnniversaryDtoList =
-        getAccrualDataByAnniversaryYear(calculatePojo.getTrimmedScheduleList(),
-            calculatePojo.getPolicyUser().getUser());
+        getAccrualDataByAnniversaryYear(calculatePojo);
 
     timeOffBreakdownAnniversaryDtoList = addMissingAnniversaryYearDto(
         timeOffBreakdownAnniversaryDtoList);
@@ -54,20 +51,24 @@ public class TimeOffAccrualAnniversaryStrategyServiceImpl extends TimeOffAccrual
 
 
   private List<TimeOffBreakdownAnniversaryDto> getAccrualDataByAnniversaryYear(
-      List<TimeOffPolicyAccrualSchedule> trimmedScheduleList, User user) {
-    LocalDateTime userJoinDateTime = DateUtil.toLocalDateTime(user.getCreatedAt());
+          TimeOffBreakdownCalculatePojo calculatePojo) {
+    LocalDateTime userJoinDateTime = DateUtil.toLocalDateTime(
+            calculatePojo.getPolicyUser().getUser().getCreatedAt());
 
     HashMap<Integer, HashMap<Integer, TimeOffBreakdownAnniversaryDto>> accrualData
         = new HashMap<>();
 
-    trimmedScheduleList.forEach(accrualSchedule -> {
+    calculatePojo.getTrimmedScheduleList().forEach(accrualSchedule -> {
 
       List<Timestamp> validStartAndEndDate =
           getValidAccrualScheduleStartAndEndDate(userJoinDateTime, accrualSchedule);
 
       List<LocalDateTime> dateList =
           getValidAnniversaryPeriod(Timestamp.valueOf(userJoinDateTime),
-              validStartAndEndDate.get(0), validStartAndEndDate.get(1));
+              validStartAndEndDate.get(0),
+              validStartAndEndDate.get(1),
+              calculatePojo.getUntilDate()
+          );
 
       addToResultAnniversaryMap(accrualData, dateList, accrualSchedule);
 
@@ -75,7 +76,8 @@ public class TimeOffAccrualAnniversaryStrategyServiceImpl extends TimeOffAccrual
           accrualScheduleMilestoneRepository
               .findByTimeOffPolicyAccrualScheduleId(accrualSchedule.getId());
       accrualScheduleMilestoneList =
-          trimTimeOffPolicyScheduleMilestones(accrualScheduleMilestoneList, user, accrualSchedule);
+          trimTimeOffPolicyScheduleMilestones(accrualScheduleMilestoneList,
+                  calculatePojo.getPolicyUser().getUser(), accrualSchedule);
 
       // sort milestones
       accrualScheduleMilestoneList.sort(Comparator.comparing(BaseEntity::getCreatedAt));
@@ -87,7 +89,9 @@ public class TimeOffAccrualAnniversaryStrategyServiceImpl extends TimeOffAccrual
         List<LocalDateTime> validMilestoneYears = getValidAnniversaryPeriod(
             Timestamp.valueOf(userJoinDateTime),
             validMilestoneStartAndEndDate.get(0),
-            validMilestoneStartAndEndDate.get(1));
+            validMilestoneStartAndEndDate.get(1),
+            calculatePojo.getUntilDate()
+        );
 
         addToResultAnniversaryMap(accrualData, validMilestoneYears, accrualScheduleMilestone);
       });
@@ -101,11 +105,11 @@ public class TimeOffAccrualAnniversaryStrategyServiceImpl extends TimeOffAccrual
   }
 
   private List<LocalDateTime> getValidAnniversaryPeriod(Timestamp userEnrollTime,
-      Timestamp startDate, Timestamp endDate) {
+      Timestamp startDate, Timestamp endDate, LocalDateTime selectedDate) {
 
     LocalDateTime userEnrollDate = DateUtil.toLocalDateTime(userEnrollTime);
     LocalDateTime createDate = DateUtil.toLocalDateTime(startDate);
-    LocalDateTime expireDate = endDate == null ? LocalDateTime.now()
+    LocalDateTime expireDate = endDate == null ? selectedDate
         : DateUtil.toLocalDateTime(endDate);
 
     List<LocalDateTime> startDateList = new ArrayList<>();
