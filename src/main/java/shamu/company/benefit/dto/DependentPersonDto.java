@@ -3,7 +3,6 @@ package shamu.company.benefit.dto;
 import com.alibaba.fastjson.annotation.JSONField;
 import java.sql.Date;
 import lombok.Data;
-import shamu.company.benefit.entity.BenefitPlanDependent;
 
 @Data
 public class DependentPersonDto {
@@ -30,18 +29,4 @@ public class DependentPersonDto {
 
   @JSONField(format = "yyyy-MM-dd")
   private Date birthDate;
-
-  public DependentPersonDto(BenefitPlanDependent benefitPlanDependent) {
-    this.firstName = benefitPlanDependent.getFirstName();
-    this.middleName = benefitPlanDependent.getMiddleName();
-    this.birthDate = benefitPlanDependent.getBirthDate();
-    this.email = benefitPlanDependent.getEmail();
-    this.phone = benefitPlanDependent.getPhoneHome();
-    this.ssn = benefitPlanDependent.getSsn();
-    this.city = benefitPlanDependent.getCity();
-    this.postalCode = benefitPlanDependent.getPostalCode();
-    this.street1 = benefitPlanDependent.getStreet1();
-    this.street2 = benefitPlanDependent.getStreet2();
-  }
-
 }

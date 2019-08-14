@@ -1,4 +1,4 @@
-package shamu.company.benefit.pojo;
+package shamu.company.benefit.dto;
 
 import java.sql.Date;
 import lombok.Data;
@@ -8,7 +8,7 @@ import shamu.company.company.entity.Company;
 import shamu.company.hashids.HashidsFormat;
 
 @Data
-public class BenefitPlanPojo {
+public class BenefitPlanCreateDto {
 
   private String planName;
 
@@ -34,7 +34,7 @@ public class BenefitPlanPojo {
 
   private Date endDate;
 
-  public BenefitPlan getBenefitPlan(Company company) {
+  public BenefitPlan getBenefitPlan(final Company company) {
     return new BenefitPlan(this.planName, this.description, this.planId, this.startDate,
         this.endDate,
         this.documentName, this.documentUrl, company, this.planWebSite,

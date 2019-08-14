@@ -12,12 +12,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import shamu.company.benefit.dto.BenefitPlanClusterDto;
+import shamu.company.benefit.dto.BenefitPlanCoverageDto;
+import shamu.company.benefit.dto.BenefitPlanCreateDto;
 import shamu.company.benefit.dto.BenefitPlanDto;
+import shamu.company.benefit.dto.BenefitPlanUserCreateDto;
+import shamu.company.benefit.dto.NewBenefitPlanWrapperDto;
 import shamu.company.benefit.entity.BenefitPlan;
-import shamu.company.benefit.pojo.BenefitPlanCoveragePojo;
-import shamu.company.benefit.pojo.BenefitPlanPojo;
-import shamu.company.benefit.pojo.BenefitPlanUserPojo;
-import shamu.company.benefit.pojo.NewBenefitPlanWrapperPojo;
+import shamu.company.benefit.entity.mapper.BenefitPlanMapper;
 import shamu.company.benefit.service.BenefitPlanService;
 import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
@@ -33,41 +34,47 @@ public class BenefitPlanRestController extends BaseRestController {
 
   private final AwsUtil awsUtil;
 
+  private final BenefitPlanMapper benefitPlanMapper;
+
+
   public BenefitPlanRestController(
-      BenefitPlanService benefitPlanService,
-      AwsUtil awsUtil) {
+      final BenefitPlanService benefitPlanService,
+      final AwsUtil awsUtil,
+      final BenefitPlanMapper benefitPlanMapper) {
     this.benefitPlanService = benefitPlanService;
     this.awsUtil = awsUtil;
+    this.benefitPlanMapper = benefitPlanMapper;
   }
 
   @PostMapping("benefit-plan")
   @PreAuthorize("hasAuthority('MANAGE_BENEFIT_PLAN')")
-  public BenefitPlanDto createBenefitPlan(@RequestBody NewBenefitPlanWrapperPojo data) {
-    BenefitPlanPojo benefitPlanPojo = data.getBenefitPlan();
+  public BenefitPlanDto createBenefitPlan(@RequestBody final NewBenefitPlanWrapperDto data) {
+    final BenefitPlanCreateDto benefitPlanCreateDto = data.getBenefitPlan();
 
-    List<BenefitPlanCoveragePojo> benefitPlanCoveragePojoList = data.getCoverages();
+    final List<BenefitPlanCoverageDto> benefitPlanCoverageDtoList = data.getCoverages();
 
-    List<BenefitPlanUserPojo> benefitPlanUserPojoList = data.getSelectedEmployees();
+    final List<BenefitPlanUserCreateDto> benefitPlanUserCreateDtoList = data.getSelectedEmployees();
 
-    Company company = this.getCompany();
+    final Company company = this.getCompany();
 
-    BenefitPlan benefitPlan =  benefitPlanService
-        .createBenefitPlan(benefitPlanPojo, benefitPlanCoveragePojoList, benefitPlanUserPojoList,
+    final BenefitPlan benefitPlan =  benefitPlanService
+        .createBenefitPlan(benefitPlanCreateDto, benefitPlanCoverageDtoList,
+            benefitPlanUserCreateDtoList,
             company);
-    return new BenefitPlanDto(benefitPlan);
+    return benefitPlanMapper.convertToBenefitPlanDto(benefitPlan);
   }
 
   @PostMapping("benefit-plan/{id}/document")
   @PreAuthorize("hasPermission(#id,'BENEFIT_PLAN', 'MANAGE_BENEFIT_PLAN')")
-  public void uploadBenefitPlanDocument(@PathVariable @HashidsFormat Long id,
-      @RequestParam("file") MultipartFile document) throws IOException {
-    String path = awsUtil.uploadFile(document);
+  public void uploadBenefitPlanDocument(@PathVariable @HashidsFormat final Long id,
+      @RequestParam("file") final MultipartFile document) throws IOException {
+    final String path = awsUtil.uploadFile(document);
 
     if (Strings.isBlank(path)) {
       return;
     }
 
-    BenefitPlan benefitPlan = benefitPlanService.findBenefitPlanById(id);
+    final BenefitPlan benefitPlan = benefitPlanService.findBenefitPlanById(id);
     benefitPlan.setDocumentUrl(path);
     benefitPlanService.save(benefitPlan);
   }
@@ -78,8 +85,8 @@ public class BenefitPlanRestController extends BaseRestController {
   }
 
   @PatchMapping("benefit-plan/{benefitPlanId}/users")
-  public void updateBenefitPlanUsers(@PathVariable @HashidsFormat Long benefitPlanId,
-      @RequestBody List<BenefitPlanUserPojo> benefitPlanUsers) {
+  public void updateBenefitPlanUsers(@PathVariable @HashidsFormat final Long benefitPlanId,
+      @RequestBody final List<BenefitPlanUserCreateDto> benefitPlanUsers) {
     benefitPlanService.updateBenefitPlanUsers(benefitPlanId, benefitPlanUsers);
   }
 }
