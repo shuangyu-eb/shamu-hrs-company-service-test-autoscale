@@ -19,7 +19,7 @@ public class TimeOffPolicyUserPojo {
   @HashidsFormat
   private Long timeOffPolicyId;
 
-  private Integer balance;
+  private Integer balance = 0;
 
   @JSONField(serialize = false)
   public TimeOffPolicyUser getTimeOffPolicyUser(Long timeOffPolicyId) {
