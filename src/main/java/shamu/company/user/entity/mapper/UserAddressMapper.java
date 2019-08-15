@@ -32,15 +32,15 @@ public interface UserAddressMapper {
   UserAddress createFromUserAddressDto(UserAddressDto userAddressDto);
 
   default StateProvince convertFromStateProvinceId(final Long id) {
-    return new StateProvince(id);
+    return null == id ? null : new StateProvince(id);
   }
 
   default Country convertFromCountryId(final Long id) {
-    return new Country(id);
+    return null == id ? null : new Country(id);
   }
 
   default User convertFromUserId(final Long userId) {
-    return new User(userId);
+    return null == userId ? null : new User(userId);
   }
 }
 

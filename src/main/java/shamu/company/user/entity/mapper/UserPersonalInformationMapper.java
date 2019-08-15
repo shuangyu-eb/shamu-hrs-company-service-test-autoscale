@@ -67,15 +67,15 @@ public interface UserPersonalInformationMapper {
       UserPersonalInformation userPersonalInformation);
 
   default Gender convertFromGenderId(final Long genderId) {
-    return new Gender(genderId);
+    return null == genderId ? null : new Gender(genderId);
   }
 
   default Ethnicity convertFromEthnicityId(final Long ethnicityId) {
-    return new Ethnicity(ethnicityId);
+    return null == ethnicityId ? null : new Ethnicity(ethnicityId);
   }
 
   default MaritalStatus convertFromMaritalStatusId(final Long maritalStatusId) {
-    return new MaritalStatus(maritalStatusId);
+    return null == maritalStatusId ? null : new MaritalStatus(maritalStatusId);
   }
 
   default Date convertFromString(final String birthDate) {
