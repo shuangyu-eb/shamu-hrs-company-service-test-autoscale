@@ -48,6 +48,14 @@ public class PaidHolidayRestController extends BaseRestController {
     return paidHolidayService.getPaidHolidayEmployees(company);
   }
 
+  @GetMapping(value = "paid-holiday/employees/count")
+  public Integer getPaidHolidaysEmployeesCount() {
+    final Company company = this.getCompany();
+    return paidHolidayService
+        .getPaidHolidayEmployees(company)
+        .getPaidHolidaySelectedEmployees().size();
+  }
+
   @PatchMapping(value = "paid-holiday/employees")
   public void updatePaidHolidayEmployees(
       @RequestBody final List<JobUserDto> updatePaidHolidayEmployees) {
@@ -94,4 +102,6 @@ public class PaidHolidayRestController extends BaseRestController {
   public void updatePaidHoliday(@HashidsFormat @PathVariable final Long id) {
     paidHolidayService.deletePaidHoliday(id);
   }
+
+
 }
