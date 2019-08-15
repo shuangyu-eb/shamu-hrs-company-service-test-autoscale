@@ -30,6 +30,7 @@ import shamu.company.employee.entity.EmploymentType;
 import shamu.company.employee.service.EmployeeService;
 import shamu.company.info.dto.UserEmergencyContactDto;
 import shamu.company.info.entity.UserEmergencyContact;
+import shamu.company.info.entity.mapper.UserEmergencyContactMapper;
 import shamu.company.info.repository.UserEmergencyContactRepository;
 import shamu.company.job.entity.CompensationFrequency;
 import shamu.company.job.entity.Job;
@@ -116,6 +117,8 @@ public class EmployeeServiceImpl implements EmployeeService {
 
   private final UserContactInformationMapper userContactInformationMapper;
 
+  private final UserEmergencyContactMapper userEmergencyContactMapper;
+
   @Autowired
   public EmployeeServiceImpl(
       final UserAddressRepository userAddressRepository,
@@ -140,7 +143,8 @@ public class EmployeeServiceImpl implements EmployeeService {
       final UserContactInformationService userContactInformationService,
       final UserPersonalInformationMapper userPersonalInformationMapper,
       final UserAddressMapper userAddressMapper,
-      final UserContactInformationMapper userContactInformationMapper) {
+      final UserContactInformationMapper userContactInformationMapper,
+      final UserEmergencyContactMapper userEmergencyContactMapper) {
     this.userAddressRepository = userAddressRepository;
     this.userRepository = userRepository;
     this.jobUserRepository = jobUserRepository;
@@ -164,6 +168,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     this.userPersonalInformationMapper = userPersonalInformationMapper;
     this.userAddressMapper = userAddressMapper;
     this.userContactInformationMapper = userContactInformationMapper;
+    this.userEmergencyContactMapper = userEmergencyContactMapper;
   }
 
   @Override
@@ -322,7 +327,8 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     emergencyContactDtos.forEach(
         emergencyContactDto -> {
-          final UserEmergencyContact emergencyContact = emergencyContactDto.getEmergencyContact();
+          final UserEmergencyContact emergencyContact = userEmergencyContactMapper
+              .createFromUserEmergencyContactDto(emergencyContactDto);
 
           final Long stateProvinceId = emergencyContact.getState().getId();
           if (stateProvinceId != null) {

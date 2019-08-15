@@ -19,6 +19,7 @@ import shamu.company.hashids.HashidsFormat;
 import shamu.company.info.dto.BasicUserEmergencyContactDto;
 import shamu.company.info.dto.UserEmergencyContactDto;
 import shamu.company.info.entity.UserEmergencyContact;
+import shamu.company.info.entity.mapper.UserEmergencyContactMapper;
 import shamu.company.info.service.UserEmergencyContactService;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
@@ -31,12 +32,16 @@ public class EmergencyContactRestController extends BaseRestController {
 
   private final UserService userService;
 
+  private final UserEmergencyContactMapper userEmergencyContactMapper;
+
   @Autowired
   public EmergencyContactRestController(
       final UserEmergencyContactService userEmergencyContactService,
-      final UserService userService) {
+      final UserService userService,
+      final UserEmergencyContactMapper userEmergencyContactMapper) {
     this.userEmergencyContactService = userEmergencyContactService;
     this.userService = userService;
+    this.userEmergencyContactMapper = userEmergencyContactMapper;
   }
 
   @GetMapping("users/{userId}/user-emergency-contacts")
@@ -50,11 +55,11 @@ public class EmergencyContactRestController extends BaseRestController {
 
     if (userId.equals(user.getId()) || Role.ADMIN.equals(user.getRole())) {
       return userEmergencyContacts.stream()
-          .map(UserEmergencyContactDto::new)
+          .map(userEmergencyContactMapper::convertToUserEmergencyContactDto)
           .collect(Collectors.toList());
     }
     return userEmergencyContacts.stream()
-        .map(BasicUserEmergencyContactDto::new)
+        .map(userEmergencyContactMapper::convertToBasicUserEmergencyContactDto)
         .collect(Collectors.toList());
   }
 
@@ -64,7 +69,8 @@ public class EmergencyContactRestController extends BaseRestController {
   public HttpEntity createEmergencyContacts(@PathVariable @HashidsFormat final Long userId,
       @RequestBody final UserEmergencyContactDto emergencyContactDto) {
     final User user = userService.getOne(userId);
-    final UserEmergencyContact userEmergencyContact = emergencyContactDto.getEmergencyContact();
+    final UserEmergencyContact userEmergencyContact = userEmergencyContactMapper
+        .createFromUserEmergencyContactDto(emergencyContactDto);
     userEmergencyContact.setUser(user);
     checkEmergencyContactState(userEmergencyContact);
     userEmergencyContactService.createUserEmergencyContact(userId, userEmergencyContact);
@@ -86,7 +92,8 @@ public class EmergencyContactRestController extends BaseRestController {
   public HttpEntity updateEmergencyContact(@PathVariable @HashidsFormat final Long userId,
       @RequestBody final UserEmergencyContactDto userEmergencyContactDto) {
     final User user = userService.getOne(userId);
-    final UserEmergencyContact userEmergencyContact = userEmergencyContactDto.getEmergencyContact();
+    final UserEmergencyContact userEmergencyContact = userEmergencyContactMapper
+        .createFromUserEmergencyContactDto(userEmergencyContactDto);
     userEmergencyContact.setUser(user);
     checkEmergencyContactState(userEmergencyContact);
     userEmergencyContactService.updateEmergencyContact(userId, userEmergencyContact);

@@ -13,10 +13,12 @@ import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.hashids.HashidsFormat;
 import shamu.company.job.dto.JobUpdateDto;
 import shamu.company.job.entity.JobUser;
+import shamu.company.job.entity.mapper.JobUserMapper;
 import shamu.company.job.service.JobUserService;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
 import shamu.company.user.entity.UserCompensation;
+import shamu.company.user.entity.mapper.UserCompensationMapper;
 import shamu.company.user.service.UserService;
 
 @RestApiController
@@ -26,35 +28,47 @@ public class JobController extends BaseRestController {
 
   private final UserService userService;
 
+  private final JobUserMapper jobUserMapper;
+
+  private final UserCompensationMapper userCompensationMapper;
+
   @Autowired
-  public JobController(JobUserService jobUserService, UserService userService) {
+  public JobController(final JobUserService jobUserService,
+      final UserService userService,
+      final JobUserMapper jobUserMapper,
+      final UserCompensationMapper userCompensationMapper) {
     this.jobUserService = jobUserService;
     this.userService = userService;
+    this.jobUserMapper = jobUserMapper;
+    this.userCompensationMapper = userCompensationMapper;
   }
 
 
   @PatchMapping("users/{id}/jobs")
   @PreAuthorize("hasPermission(#id,'USER', 'EDIT_USER')")
-  public HttpEntity updateJobInfo(@PathVariable @HashidsFormat Long id,
-      @RequestBody JobUpdateDto jobUpdateDto) {
-    User user = userService.findUserById(id);
+  public HttpEntity updateJobInfo(@PathVariable @HashidsFormat final Long id,
+      @RequestBody final JobUpdateDto jobUpdateDto) {
+    final User user = userService.findUserById(id);
     JobUser jobUser = jobUserService.getJobUserByUserId(id);
     if (jobUser == null) {
       jobUser = new JobUser();
       jobUser.setUser(user);
     }
-    jobUser = jobUpdateDto.updateJobUser(jobUser);
+    jobUserMapper.updateFromJobUpdateDto(jobUser, jobUpdateDto);
     jobUserService.save(jobUser);
 
-    UserCompensation userCompensation = jobUpdateDto
-        .updateUserCompensation(user.getUserCompensation());
+    UserCompensation userCompensation = user.getUserCompensation();
+    if (null == userCompensation) {
+      userCompensation = new UserCompensation();
+    }
+    userCompensationMapper.updateFromJobUpdateDto(userCompensation, jobUpdateDto);
     userCompensation.setUserId(user.getId());
     userCompensation = userService.saveUserCompensation(userCompensation);
 
     user.setUserCompensation(userCompensation);
 
     if (jobUpdateDto.getManagerId() != null) {
-      User manager = userService.findUserById(jobUpdateDto.getManagerId());
+      final User manager = userService.findUserById(jobUpdateDto.getManagerId());
       user.setManagerUser(manager);
       if (manager.getRole() == Role.NON_MANAGER) {
         userService.saveUserWithRole(user, Role.MANAGER);
