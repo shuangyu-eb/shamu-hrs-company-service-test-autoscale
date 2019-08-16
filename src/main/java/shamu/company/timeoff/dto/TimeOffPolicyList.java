@@ -6,4 +6,6 @@ public interface TimeOffPolicyList {
   String getName();
 
   Integer getEmployee();
+
+  Boolean getIsLimited();
 }

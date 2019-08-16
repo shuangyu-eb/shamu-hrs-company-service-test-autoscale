@@ -12,4 +12,6 @@ public class TimeOffPolicyListDto {
   private String name;
 
   private Integer employee;
+
+  private Boolean isLimited;
 }
