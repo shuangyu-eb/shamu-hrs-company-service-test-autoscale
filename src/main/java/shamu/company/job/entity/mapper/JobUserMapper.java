@@ -51,21 +51,30 @@ public interface JobUserMapper {
   @Mapping(target = "employmentType", source = "employmentTypeId")
   void updateFromJobUpdateDto(@MappingTarget JobUser jobUser, JobUpdateDto jobUpdateDto);
 
-  default Job convertToJob(final Long id) {
-    final Job job = new Job();
-    job.setId(id);
-    return job;
+  default Job convertToJob(final Long jobId) {
+    if (jobId != null) {
+      final Job job = new Job();
+      job.setId(jobId);
+      return job;
+    }
+    return null;
   }
 
-  default Office convertToOffice(final Long id) {
-    final Office office = new Office();
-    office.setId(id);
-    return office;
+  default Office convertFromOfficeId(final Long officeId) {
+    if (officeId != null) {
+      final Office office = new Office();
+      office.setId(officeId);
+      return office;
+    }
+    return null;
   }
 
-  default EmploymentType convertToEmploymentType(final Long id) {
-    final EmploymentType employmentType = new EmploymentType();
-    employmentType.setId(id);
-    return employmentType;
+  default EmploymentType convertFromEmploymentTypeId(final Long employmentTypeId) {
+    if (employmentTypeId != null) {
+      final EmploymentType employmentType = new EmploymentType();
+      employmentType.setId(employmentTypeId);
+      return employmentType;
+    }
+    return null;
   }
 }

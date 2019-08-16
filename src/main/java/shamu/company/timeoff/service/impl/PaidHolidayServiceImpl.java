@@ -14,6 +14,8 @@ import shamu.company.timeoff.dto.PaidHolidayRelatedUserListDto;
 import shamu.company.timeoff.entity.CompanyPaidHoliday;
 import shamu.company.timeoff.entity.PaidHoliday;
 import shamu.company.timeoff.entity.PaidHolidayUser;
+import shamu.company.timeoff.entity.mapper.CompanyPaidHolidayMapper;
+import shamu.company.timeoff.entity.mapper.PaidHolidayMapper;
 import shamu.company.timeoff.repository.CompanyPaidHolidayRepository;
 import shamu.company.timeoff.repository.PaidHolidayRepository;
 import shamu.company.timeoff.repository.PaidHolidayUserRepository;
@@ -31,15 +33,23 @@ public class PaidHolidayServiceImpl implements PaidHolidayService {
 
   private final PaidHolidayUserRepository paidHolidayUserRepository;
 
+  private final CompanyPaidHolidayMapper companyPaidHolidayMapper;
+
+  private final PaidHolidayMapper paidHolidayMapper;
+
   @Autowired
   public PaidHolidayServiceImpl(final PaidHolidayRepository paidHolidayRepository,
       final CompanyPaidHolidayRepository companyPaidHolidayRepository,
       final UserService userService,
-      final PaidHolidayUserRepository paidHolidayUserRepository) {
+      final PaidHolidayUserRepository paidHolidayUserRepository,
+      final CompanyPaidHolidayMapper companyPaidHolidayMapper,
+      final PaidHolidayMapper paidHolidayMapper) {
     this.paidHolidayRepository = paidHolidayRepository;
     this.companyPaidHolidayRepository = companyPaidHolidayRepository;
     this.userService = userService;
     this.paidHolidayUserRepository = paidHolidayUserRepository;
+    this.companyPaidHolidayMapper = companyPaidHolidayMapper;
+    this.paidHolidayMapper = paidHolidayMapper;
   }
 
   @Override
@@ -56,7 +66,7 @@ public class PaidHolidayServiceImpl implements PaidHolidayService {
   public List<PaidHolidayDto> getPaidHolidays(final Long companyId) {
     final List<CompanyPaidHoliday> companyPaidHolidays = companyPaidHolidayRepository
         .findAllByCompanyId(companyId);
-    return companyPaidHolidays.stream().map(PaidHolidayDto::new)
+    return companyPaidHolidays.stream().map(companyPaidHolidayMapper::convertToPaidHolidayDto)
         .collect(Collectors.toList());
   }
 
@@ -85,11 +95,12 @@ public class PaidHolidayServiceImpl implements PaidHolidayService {
   @Override
   public void createPaidHoliday(final PaidHolidayDto paidHolidayDto,
       final Company company) {
-    final PaidHoliday paidHoliday = paidHolidayDto.covertToNewPaidHolidayEntity(company);
+    final PaidHoliday paidHoliday = paidHolidayMapper
+        .createFromPaidHolidayDtoAndCompany(paidHolidayDto, company);
     final PaidHoliday paidHolidayReturned = paidHolidayRepository.save(paidHoliday);
 
-    final CompanyPaidHoliday companyPaidHoliday = paidHolidayDto
-        .covertToNewCompanyPaidHolidayEntity(paidHolidayReturned);
+    final CompanyPaidHoliday companyPaidHoliday = companyPaidHolidayMapper
+        .createFromPaidHolidayDtoAndPaidHoliday(paidHolidayDto, paidHolidayReturned);
     companyPaidHolidayRepository.save(companyPaidHoliday);
   }
 

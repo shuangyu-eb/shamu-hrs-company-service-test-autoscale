@@ -3,8 +3,8 @@ package shamu.company.timeoff.repository;
 import java.util.List;
 import org.springframework.data.jpa.repository.Query;
 import shamu.company.common.repository.BaseRepository;
-import shamu.company.timeoff.dto.TimeOffPolicyList;
 import shamu.company.timeoff.entity.TimeOffPolicy;
+import shamu.company.timeoff.pojo.TimeOffPolicyListPojo;
 
 public interface TimeOffPolicyRepository extends BaseRepository<TimeOffPolicy, Long> {
 
@@ -15,5 +15,5 @@ public interface TimeOffPolicyRepository extends BaseRepository<TimeOffPolicy, L
       + "where p.deleted_at is null  "
       + "and p.company_id = ?1 "
       + "group by p.id", nativeQuery = true)
-  List<TimeOffPolicyList> getAllPolicies(Long company);
+  List<TimeOffPolicyListPojo> getAllPolicies(Long company);
 }

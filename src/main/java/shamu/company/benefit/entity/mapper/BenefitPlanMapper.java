@@ -18,7 +18,8 @@ public interface BenefitPlanMapper {
   @Mapping(target = "website", source = "planWebSite")
   BenefitPlan createFromBenefitPlanCreateDto(BenefitPlanCreateDto benefitPlanCreateDto);
 
-  default BenefitPlanType getBenefitPlanType(final Long id) {
-    return new BenefitPlanType(id);
+  default BenefitPlanType convertFromBenefitPlanTypeId(final Long benefitPlanTypeId) {
+
+    return benefitPlanTypeId != null ? new BenefitPlanType(benefitPlanTypeId) : null;
   }
 }

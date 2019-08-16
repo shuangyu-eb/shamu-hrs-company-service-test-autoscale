@@ -26,15 +26,17 @@ import shamu.company.timeoff.dto.AccrualScheduleMilestoneDto;
 import shamu.company.timeoff.dto.TimeOffBalanceDto;
 import shamu.company.timeoff.dto.TimeOffBreakdownDto;
 import shamu.company.timeoff.dto.TimeOffPolicyAccrualScheduleDto;
+import shamu.company.timeoff.dto.TimeOffPolicyFrontendDto;
 import shamu.company.timeoff.dto.TimeOffPolicyListDto;
 import shamu.company.timeoff.dto.TimeOffPolicyRelatedInfoDto;
 import shamu.company.timeoff.dto.TimeOffPolicyRelatedUserListDto;
 import shamu.company.timeoff.dto.TimeOffPolicyUserDto;
+import shamu.company.timeoff.dto.TimeOffPolicyUserFrontendDto;
+import shamu.company.timeoff.dto.TimeOffPolicyWrapperDto;
 import shamu.company.timeoff.entity.TimeOffPolicy;
 import shamu.company.timeoff.entity.TimeOffPolicyUser;
-import shamu.company.timeoff.pojo.TimeOffPolicyPojo;
-import shamu.company.timeoff.pojo.TimeOffPolicyUserPojo;
-import shamu.company.timeoff.pojo.TimeOffPolicyWrapperPojo;
+import shamu.company.timeoff.entity.mapper.TimeOffPolicyMapper;
+import shamu.company.timeoff.entity.mapper.TimeOffPolicyUserMapper;
 import shamu.company.timeoff.service.TimeOffDetailService;
 import shamu.company.timeoff.service.TimeOffPolicyService;
 import shamu.company.user.entity.User;
@@ -49,114 +51,128 @@ public class TimeOffPolicyRestController extends BaseRestController {
 
   private final TimeOffDetailService timeOffDetailService;
 
+  private final TimeOffPolicyMapper timeOffPolicyMapper;
+
+  private final TimeOffPolicyUserMapper timeOffPolicyUserMapper;
+
   @Autowired
   public TimeOffPolicyRestController(
-      TimeOffPolicyService timeOffPolicyService,
-      UserService userService, TimeOffDetailService timeOffDetailService) {
+      final TimeOffPolicyService timeOffPolicyService,
+      final UserService userService,
+      final TimeOffDetailService timeOffDetailService,
+      final TimeOffPolicyMapper timeOffPolicyMapper,
+      final TimeOffPolicyUserMapper timeOffPolicyUserMapper) {
     this.timeOffPolicyService = timeOffPolicyService;
     this.userService = userService;
     this.timeOffDetailService = timeOffDetailService;
+    this.timeOffPolicyMapper = timeOffPolicyMapper;
+    this.timeOffPolicyUserMapper = timeOffPolicyUserMapper;
   }
 
   @PostMapping("time-off-policy")
   public void createTimeOffPolicy(
-      @Valid @RequestBody TimeOffPolicyWrapperPojo timeOffPolicyWrapperPojo) {
+      @Valid @RequestBody final TimeOffPolicyWrapperDto timeOffPolicyWrapperDto) {
 
-    TimeOffPolicyPojo timeOffPolicyPojo = timeOffPolicyWrapperPojo.getTimeOffPolicy();
-    TimeOffPolicyAccrualScheduleDto timeOffPolicyAccrualScheduleDto = timeOffPolicyWrapperPojo
+    final TimeOffPolicyFrontendDto timeOffPolicyFrontendDto = timeOffPolicyWrapperDto
+        .getTimeOffPolicy();
+    final TimeOffPolicyAccrualScheduleDto timeOffPolicyAccrualScheduleDto = timeOffPolicyWrapperDto
         .getTimeOffPolicyAccrualSchedule();
-    List<AccrualScheduleMilestoneDto> accrualScheduleMilestoneDtoList = timeOffPolicyWrapperPojo
-        .getMilestones();
-    List<TimeOffPolicyUserPojo> timeOffPolicyUserPojos = timeOffPolicyWrapperPojo
+    final List<AccrualScheduleMilestoneDto> accrualScheduleMilestoneDtoList =
+        timeOffPolicyWrapperDto.getMilestones();
+    final List<TimeOffPolicyUserFrontendDto> timeOffPolicyUserFrontendDtos = timeOffPolicyWrapperDto
         .getUserStartBalances();
 
-    Company company = this.getCompany();
+    final Company company = this.getCompany();
 
-    timeOffPolicyService.createTimeOffPolicy(timeOffPolicyPojo, timeOffPolicyAccrualScheduleDto,
-        accrualScheduleMilestoneDtoList, timeOffPolicyUserPojos, company);
+    timeOffPolicyService
+        .createTimeOffPolicy(timeOffPolicyFrontendDto, timeOffPolicyAccrualScheduleDto,
+            accrualScheduleMilestoneDtoList, timeOffPolicyUserFrontendDtos, company);
   }
 
   @PatchMapping("time-off-policy/{id}")
-  public void updateTimeOffPolicy(@Valid @HashidsFormat @PathVariable Long id,
-      @RequestBody TimeOffPolicyWrapperPojo infoWrapper) {
+  public void updateTimeOffPolicy(@Valid @HashidsFormat @PathVariable final Long id,
+      @RequestBody final TimeOffPolicyWrapperDto infoWrapper) {
 
-    TimeOffPolicyPojo timeOffPolicyPojo = infoWrapper.getTimeOffPolicy();
-    TimeOffPolicy origin = timeOffPolicyService.getTimeOffPolicyById(id);
-    TimeOffPolicy timeOffPolicyUpdated = timeOffPolicyPojo.getTimeOffPolicy(origin);
+    final TimeOffPolicyFrontendDto timeOffPolicyFrontendDto = infoWrapper.getTimeOffPolicy();
+    final TimeOffPolicy origin = timeOffPolicyService.getTimeOffPolicyById(id);
+    timeOffPolicyMapper.updateFromTimeOffPolicyFrontendDto(origin, timeOffPolicyFrontendDto);
 
-    timeOffPolicyService.updateTimeOffPolicy(timeOffPolicyUpdated);
+    timeOffPolicyService.updateTimeOffPolicy(origin);
 
     if (BooleanUtils.isTrue(origin.getIsLimited())) {
       timeOffPolicyService
-          .updateTimeOffPolicyMilestones(timeOffPolicyUpdated, infoWrapper.getMilestones());
+          .updateTimeOffPolicyMilestones(origin, infoWrapper.getMilestones());
 
-      timeOffPolicyService.updateTimeOffPolicySchedule(timeOffPolicyUpdated,
+      timeOffPolicyService.updateTimeOffPolicySchedule(origin,
           infoWrapper.getTimeOffPolicyAccrualSchedule());
     }
 
-    List<TimeOffPolicyUserPojo> timeOffPolicyUserPojos = infoWrapper.getUserStartBalances();
-    timeOffPolicyService.updateTimeOffPolicyUserInfo(timeOffPolicyUserPojos, id);
+    final List<TimeOffPolicyUserFrontendDto> timeOffPolicyUserFrontendDtos = infoWrapper
+        .getUserStartBalances();
+    timeOffPolicyService.updateTimeOffPolicyUserInfo(timeOffPolicyUserFrontendDtos, id);
   }
 
   @PatchMapping("time-off-policy/employees/{id}")
-  public void updateTimeOffPolicyEmployeesInfo(@HashidsFormat @PathVariable Long id,
-      @RequestBody TimeOffPolicyWrapperPojo timeOffPolicyWrapperPojo) {
-    List<TimeOffPolicyUserPojo> timeOffPolicyUserPojos = timeOffPolicyWrapperPojo
+  public void updateTimeOffPolicyEmployeesInfo(@HashidsFormat @PathVariable final Long id,
+      @RequestBody final TimeOffPolicyWrapperDto timeOffPolicyWrapperDto) {
+    final List<TimeOffPolicyUserFrontendDto> timeOffPolicyUserFrontendDtos = timeOffPolicyWrapperDto
         .getUserStartBalances();
-    timeOffPolicyService.updateTimeOffPolicyUserInfo(timeOffPolicyUserPojos, id);
+    timeOffPolicyService.updateTimeOffPolicyUserInfo(timeOffPolicyUserFrontendDtos, id);
   }
 
   @GetMapping("users/{userId}/time-off-balances")
   @PreAuthorize("hasPermission(#userId,'USER','MANAGE_USER_TIME_OFF_BALANCE') "
       + "or hasAnyAuthority('MANAGE_SELF_TIME_OFF_BALANCE')")
-  public TimeOffBalanceDto getTimeOffBalances(@HashidsFormat @PathVariable Long userId) {
-    User user = userService.findUserById(userId);
+  public TimeOffBalanceDto getTimeOffBalances(@HashidsFormat @PathVariable final Long userId) {
+    final User user = userService.findUserById(userId);
     return timeOffPolicyService.getTimeOffBalances(user);
   }
 
   @PostMapping("time-off-policy/{policyId}/users")
-  public void createTimeOffPolicyUsers(@PathVariable @HashidsFormat Long policyId,
-      @RequestBody List<TimeOffPolicyUserPojo> timeOffPolicyUserPojos) {
-    List<TimeOffPolicyUser> timeOffPolicyUserList = new ArrayList<>();
-    timeOffPolicyUserPojos.forEach(timeOffPolicyUserPojo -> timeOffPolicyUserList
-        .add(timeOffPolicyUserPojo.getTimeOffPolicyUser(policyId)));
+  public void createTimeOffPolicyUsers(@PathVariable @HashidsFormat final Long policyId,
+      @RequestBody final List<TimeOffPolicyUserFrontendDto> timeOffPolicyUserFrontendDtos) {
+    final List<TimeOffPolicyUser> timeOffPolicyUserList = new ArrayList<>();
+    timeOffPolicyUserFrontendDtos.forEach(timeOffPolicyUserFrontendDto -> timeOffPolicyUserList
+        .add(timeOffPolicyUserMapper
+            .createFromTimeOffPolicyUserFrontendDtoAndTimeOffPolicyId(timeOffPolicyUserFrontendDto,
+                policyId)));
     timeOffPolicyService.createTimeOffPolicyUsers(timeOffPolicyUserList);
   }
 
   @GetMapping("users/{userId}/policy-users")
   public List<TimeOffPolicyUserDto> getAllPolicyUsersByUser(
-      @PathVariable @HashidsFormat Long userId) {
-    User user = this.userService.findUserById(userId);
+      @PathVariable @HashidsFormat final Long userId) {
+    final User user = this.userService.findUserById(userId);
     return timeOffPolicyService.getTimeOffPolicyUser(user);
   }
 
   @GetMapping("time-off-policy/{policyId}")
   public TimeOffPolicyRelatedInfoDto getTimeOffPolicyByTimeOffPolicyId(
-      @HashidsFormat @PathVariable Long policyId) {
+      @HashidsFormat @PathVariable final Long policyId) {
     return timeOffPolicyService.getTimeOffRelatedInfo(policyId);
   }
 
   @GetMapping("time-off-policies/{policyId}/users")
   public TimeOffPolicyRelatedUserListDto getEmployeesByTimeOffPolicyId(
-      @HashidsFormat @PathVariable Long policyId) {
-    Company company = this.getUser().getCompany();
+      @HashidsFormat @PathVariable final Long policyId) {
+    final Company company = this.getUser().getCompany();
     return timeOffPolicyService.getAllEmployeesByTimeOffPolicyId(policyId, company);
   }
 
   @DeleteMapping("time-off/{policyId}")
-  public HttpEntity deleteTimeOffPolicy(@PathVariable @HashidsFormat Long policyId) {
+  public HttpEntity deleteTimeOffPolicy(@PathVariable @HashidsFormat final Long policyId) {
     timeOffPolicyService.deleteTimeOffPolicy(policyId);
     return new ResponseEntity<>(HttpStatus.OK);
   }
 
   @DeleteMapping("time-off-policies/{policyId}/{rollId}")
-  public HttpEntity enrollTimeOffPolicy(@PathVariable @HashidsFormat Long policyId,
-      @PathVariable @HashidsFormat Long rollId) {
-    User user = this.getUser();
-    List<TimeOffPolicyUser> deletedPolicyUsers = timeOffPolicyService
+  public HttpEntity enrollTimeOffPolicy(@PathVariable @HashidsFormat final Long policyId,
+      @PathVariable @HashidsFormat final Long rollId) {
+    final User user = this.getUser();
+    final List<TimeOffPolicyUser> deletedPolicyUsers = timeOffPolicyService
         .getAllPolicyUsersByPolicyId(policyId);
-    TimeOffPolicy enrollPolicy = timeOffPolicyService.getTimeOffPolicyById(rollId);
-    timeOffPolicyService.enrollTimeOffHours(deletedPolicyUsers,enrollPolicy,user);
+    final TimeOffPolicy enrollPolicy = timeOffPolicyService.getTimeOffPolicyById(rollId);
+    timeOffPolicyService.enrollTimeOffHours(deletedPolicyUsers, enrollPolicy, user);
     timeOffPolicyService.deleteTimeOffPolicy(policyId);
     return new ResponseEntity<>(HttpStatus.OK);
   }
@@ -170,8 +186,9 @@ public class TimeOffPolicyRestController extends BaseRestController {
   @PreAuthorize("hasPermission(#policyUserId,"
       + "'TIME_OFF_POLICY_USER','MANAGE_USER_TIME_OFF_BALANCE') "
       + "or hasAnyAuthority('MANAGE_SELF_TIME_OFF_BALANCE')")
-  public TimeOffBreakdownDto getTimeOffBreakdown(@HashidsFormat @PathVariable Long policyUserId,
-      Long untilDate) {
+  public TimeOffBreakdownDto getTimeOffBreakdown(
+      @HashidsFormat @PathVariable final Long policyUserId,
+      final Long untilDate) {
     LocalDateTime endDateTime = LocalDateTime.now();
 
     if (untilDate != null) {
@@ -184,8 +201,8 @@ public class TimeOffPolicyRestController extends BaseRestController {
   @PostMapping("time-off-balances/{policyUserId}/adjustments")
   @PreAuthorize("hasPermission(#policyUserId,"
       + "'TIME_OFF_POLICY_USER','MANAGE_USER_TIME_OFF_BALANCE')")
-  public void addTimeOffAdjustments(@HashidsFormat @PathVariable Long policyUserId,
-      @RequestBody Integer adjustment) {
+  public void addTimeOffAdjustments(@HashidsFormat @PathVariable final Long policyUserId,
+      @RequestBody final Integer adjustment) {
     timeOffPolicyService.addTimeOffAdjustments(getUser(), policyUserId, adjustment);
   }
 }

@@ -26,11 +26,11 @@ public interface UserEmergencyContactMapper {
   UserEmergencyContact createFromUserEmergencyContactDto(
       UserEmergencyContactDto userEmergencyContactDto);
 
-  default StateProvince convertToState(final Long id) {
-    return new StateProvince(id);
+  default StateProvince convertFromStateProvinceId(final Long stateProvinceId) {
+    return stateProvinceId != null ? new StateProvince(stateProvinceId) : null;
   }
 
-  default User convertToUser(final Long id) {
-    return new User(id);
+  default User convertFromUserId(final Long userId) {
+    return userId != null ? new User(userId) : null;
   }
 }

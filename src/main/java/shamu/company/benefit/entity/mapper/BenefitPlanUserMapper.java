@@ -18,11 +18,11 @@ public interface BenefitPlanUserMapper {
   BenefitPlanUser createFromBenefitPlanUserCreateDtoAndBenefitPlanId(
       BenefitPlanUserCreateDto benefitPlanUserCreateDto, Long benefitPlanId);
 
-  default User getUser(final Long id) {
-    return new User(id);
+  default User convertFromUserId(final Long userId) {
+    return userId != null ? new User(userId) : null;
   }
 
-  default BenefitPlan getBenefitPlan(final Long id) {
-    return new BenefitPlan(id);
+  default BenefitPlan convertFromBenefitPlanId(final Long benefitPlanId) {
+    return benefitPlanId != null ? new BenefitPlan(benefitPlanId) : null;
   }
 }

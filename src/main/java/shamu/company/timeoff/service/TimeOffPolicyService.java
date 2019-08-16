@@ -5,24 +5,24 @@ import shamu.company.company.entity.Company;
 import shamu.company.timeoff.dto.AccrualScheduleMilestoneDto;
 import shamu.company.timeoff.dto.TimeOffBalanceDto;
 import shamu.company.timeoff.dto.TimeOffPolicyAccrualScheduleDto;
+import shamu.company.timeoff.dto.TimeOffPolicyFrontendDto;
 import shamu.company.timeoff.dto.TimeOffPolicyListDto;
 import shamu.company.timeoff.dto.TimeOffPolicyRelatedInfoDto;
 import shamu.company.timeoff.dto.TimeOffPolicyRelatedUserListDto;
 import shamu.company.timeoff.dto.TimeOffPolicyUserDto;
+import shamu.company.timeoff.dto.TimeOffPolicyUserFrontendDto;
 import shamu.company.timeoff.entity.AccrualScheduleMilestone;
 import shamu.company.timeoff.entity.TimeOffPolicy;
 import shamu.company.timeoff.entity.TimeOffPolicyAccrualSchedule;
 import shamu.company.timeoff.entity.TimeOffPolicyUser;
-import shamu.company.timeoff.pojo.TimeOffPolicyPojo;
-import shamu.company.timeoff.pojo.TimeOffPolicyUserPojo;
 import shamu.company.user.entity.User;
 
 public interface TimeOffPolicyService {
 
-  void createTimeOffPolicy(TimeOffPolicyPojo timeOffPolicyPojo,
+  void createTimeOffPolicy(TimeOffPolicyFrontendDto timeOffPolicyFrontendDto,
       TimeOffPolicyAccrualScheduleDto timeOffPolicyAccrualScheduleDto,
       List<AccrualScheduleMilestoneDto> accrualScheduleMilestoneDtoList,
-      List<TimeOffPolicyUserPojo> timeOffPolicyUserPojos,
+      List<TimeOffPolicyUserFrontendDto> timeOffPolicyUserFrontendDtos,
       Company company);
 
   TimeOffBalanceDto getTimeOffBalances(User user);
@@ -51,7 +51,7 @@ public interface TimeOffPolicyService {
       List<AccrualScheduleMilestoneDto> milestones, Long scheduleId);
 
   void updateTimeOffPolicyUserInfo(
-      List<TimeOffPolicyUserPojo> userStatBalances, Long timeOffPolicyId);
+      List<TimeOffPolicyUserFrontendDto> userStatBalances, Long timeOffPolicyId);
 
   void deleteTimeOffPolicy(Long timeOffPolicyId);
 
