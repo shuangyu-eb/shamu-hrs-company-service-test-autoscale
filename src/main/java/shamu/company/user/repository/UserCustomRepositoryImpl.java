@@ -101,6 +101,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
         + "left join jobs j on ju.job_id = j.id "
         + "left join departments d on j.department_id = d.id "
         + "where u.deleted_at is null "
+        + "and u.deactivated_at is null "
         + "and ju.deleted_at is null "
         + "and j.deleted_at is null "
         + "and " + userCondition
