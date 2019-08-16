@@ -20,7 +20,7 @@ import shamu.company.timeoff.entity.TimeOffRequest;
 )
 public interface TimeOffRequestMapper {
 
-  @Mapping(target = "name", source = "requesterUser.userPersonalInformation.firstName")
+  @Mapping(target = "name", source = "requesterUser.userPersonalInformation.name")
   BasicTimeOffRequestDto convertToBasicTimeOffRequestDto(TimeOffRequest timeOffRequest);
 
   @Mapping(target = "status", source = "timeOffApprovalStatus")
