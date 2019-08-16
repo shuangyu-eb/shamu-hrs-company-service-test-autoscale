@@ -11,4 +11,8 @@ public interface EmailRepository extends BaseRepository<Email, Long> {
           "select e from Email e where e.deletedAt is null "
               + "and e.sentAt is null and e.retryCount < ?1")
   List<Email> findAllUnfinishedTasks(Integer emailRetryLimit);
+
+
+  Email getFirstByToAndSubjectOrderBySendDateDesc(String to, String subject);
+
 }

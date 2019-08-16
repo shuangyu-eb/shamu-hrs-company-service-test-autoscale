@@ -1,5 +1,6 @@
 package shamu.company.job.entity.mapper;
 
+import java.sql.Timestamp;
 import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -32,6 +33,9 @@ public interface JobUserMapper {
   BasicJobInformationDto convertToBasicJobInformationDto(JobUser jobUser);
 
   @Mapping(target = "userId", source = "userId")
+  @Mapping(target = "userStatus", source = "userStatus")
+  @Mapping(target = "emailSendDate", source = "emailSendDate")
+  @Mapping(target = "employeeWorkEmail", source = "email")
   @Mapping(target = "employeeFirstName", source = "jobEmployeeDto.firstName")
   @Mapping(target = "employeeLastName", source = "jobEmployeeDto.lastName")
   @Mapping(target = "employeeImageUrl", source = "jobEmployeeDto.imageUrl")
@@ -43,8 +47,9 @@ public interface JobUserMapper {
   @Mapping(target = "managerImageUrl", source = "jobManagerDto.imageUrl")
   @Mapping(target = "managerJobTitle", source = "jobManagerDto.jobTitle")
   @Mapping(target = "directReporters", source = "directReporters")
-  EmployeeRelatedInformationDto convertToEmployeeRelatedInformationDto(Long userId,
-      JobUserDto jobEmployeeDto, JobUserDto jobManagerDto, List<JobUserDto> directReporters);
+  EmployeeRelatedInformationDto convertToEmployeeRelatedInformationDto(Long userId, String email,
+      String userStatus, Timestamp emailSendDate, JobUserDto jobEmployeeDto,
+      JobUserDto jobManagerDto, List<JobUserDto> directReporters);
 
   @Mapping(target = "job", source = "jobId")
   @Mapping(target = "office", source = "officeId")

@@ -20,6 +20,11 @@ public class UserStatus extends BaseEntity {
     this.name = name;
   }
 
+
+  public Status getStatus() {
+    return Status.valueOf(this.name);
+  }
+
   public enum Status {
     ACTIVE,
     DISABLED,

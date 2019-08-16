@@ -1,6 +1,7 @@
 package shamu.company.employee.controller;
 
 import java.util.List;
+import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpEntity;
@@ -16,6 +17,7 @@ import org.thymeleaf.context.Context;
 import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.company.entity.Company;
+import shamu.company.employee.dto.EmailResendDto;
 import shamu.company.employee.dto.EmployeeDto;
 import shamu.company.employee.dto.EmployeeListSearchCondition;
 import shamu.company.employee.dto.OrgChartDto;
@@ -67,6 +69,13 @@ public class EmployeeRestController extends BaseRestController {
     final Context context = userService.getWelcomeEmailContext(welcomeEmailPersonalMessage, null);
     context.setVariable("createPasswordAddress", "#");
     return userService.getWelcomeEmail(context);
+  }
+
+  @PostMapping("employees/welcome-email/resend")
+  public HttpEntity getWelcomeEmail(@RequestBody @Valid EmailResendDto emailResend) {
+
+    employeeService.resendEmail(emailResend);
+    return new ResponseEntity(HttpStatus.OK);
   }
 
   @PostMapping("employees")

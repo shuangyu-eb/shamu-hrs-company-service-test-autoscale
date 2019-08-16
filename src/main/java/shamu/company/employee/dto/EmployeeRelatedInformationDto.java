@@ -1,5 +1,6 @@
 package shamu.company.employee.dto;
 
+import java.sql.Timestamp;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -14,6 +15,10 @@ public class EmployeeRelatedInformationDto {
 
   @HashidsFormat
   private Long userId;
+
+  private String userStatus;
+
+  private Timestamp emailSendDate;
 
   private String employeeFirstName;
 

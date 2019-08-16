@@ -12,6 +12,8 @@ public class BasicUserContactInformationDto {
   @HashidsFormat
   private Long id;
 
+  private String userStatus;
+
   private String phoneWork;
 
   private String phoneHome;

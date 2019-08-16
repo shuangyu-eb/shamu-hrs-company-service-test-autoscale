@@ -1,6 +1,8 @@
 package shamu.company.employee.service;
 
 import java.util.List;
+import shamu.company.email.Email;
+import shamu.company.employee.dto.EmailResendDto;
 import shamu.company.employee.dto.EmployeeDto;
 import shamu.company.user.entity.User;
 
@@ -11,4 +13,8 @@ public interface EmployeeService {
   void addEmployee(EmployeeDto employee, User currentUser);
 
   void updateEmployee(EmployeeDto employeeDto);
+
+  void resendEmail(EmailResendDto emailResendDto);
+
+  Email getWelcomeEmail(String email);
 }

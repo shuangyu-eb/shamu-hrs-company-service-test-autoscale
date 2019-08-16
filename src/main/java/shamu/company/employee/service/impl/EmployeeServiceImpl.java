@@ -3,6 +3,7 @@ package shamu.company.employee.service.impl;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
@@ -15,6 +16,7 @@ import org.thymeleaf.context.Context;
 import shamu.company.common.entity.Country;
 import shamu.company.common.entity.StateProvince;
 import shamu.company.common.exception.AwsUploadException;
+import shamu.company.common.exception.ForbiddenException;
 import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.common.repository.CountryRepository;
 import shamu.company.common.repository.EmploymentTypeRepository;
@@ -22,7 +24,9 @@ import shamu.company.common.repository.OfficeRepository;
 import shamu.company.common.repository.StateProvinceRepository;
 import shamu.company.company.entity.Office;
 import shamu.company.email.Email;
+import shamu.company.email.EmailRepository;
 import shamu.company.email.EmailService;
+import shamu.company.employee.dto.EmailResendDto;
 import shamu.company.employee.dto.EmployeeDto;
 import shamu.company.employee.dto.NewEmployeeJobInformationDto;
 import shamu.company.employee.dto.WelcomeEmailDto;
@@ -103,6 +107,8 @@ public class EmployeeServiceImpl implements EmployeeService {
 
   private final UserStatusRepository userStatusRepository;
 
+  private final EmailRepository emailRepository;
+
   private final EmailService emailService;
 
   private final OfficeRepository officeRepository;
@@ -118,6 +124,9 @@ public class EmployeeServiceImpl implements EmployeeService {
   private final UserContactInformationMapper userContactInformationMapper;
 
   private final UserEmergencyContactMapper userEmergencyContactMapper;
+
+  private static final String subject = "Welcome to Champion Solutions";
+
 
   @Autowired
   public EmployeeServiceImpl(
@@ -139,6 +148,7 @@ public class EmployeeServiceImpl implements EmployeeService {
       final MaritalStatusRepository maritalStatusRepository,
       final EmailService emailService,
       final CompensationFrequencyRepository compensationFrequencyRepository,
+      final EmailRepository emailRepository,
       final UserPersonalInformationService userPersonalInformationService,
       final UserContactInformationService userContactInformationService,
       final UserPersonalInformationMapper userPersonalInformationMapper,
@@ -163,6 +173,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     this.emailService = emailService;
     this.compensationFrequencyRepository = compensationFrequencyRepository;
     this.officeRepository = officeRepository;
+    this.emailRepository = emailRepository;
     this.userPersonalInformationService = userPersonalInformationService;
     this.userContactInformationService = userContactInformationService;
     this.userPersonalInformationMapper = userPersonalInformationMapper;
@@ -205,6 +216,44 @@ public class EmployeeServiceImpl implements EmployeeService {
     updateEmployeeBasicInformation(employee, employeeDto);
     updateEmergencyContacts(employee, employeeDto.getUserEmergencyContactDto());
     updateEmployeeAddress(employee, employeeDto);
+  }
+
+  @Override
+  public void resendEmail(EmailResendDto emailResendDto) {
+    User user = userRepository.findById(emailResendDto.getUserId()).orElseThrow(
+        () -> new ResourceNotFoundException(
+            "User not found with id: " + emailResendDto.getUserId()));
+
+    if (user.getUserStatus().getStatus() != Status.PENDING_VERIFICATION) {
+      throw new ForbiddenException("User is not in Pending Verification!");
+    }
+
+    String email = emailResendDto.getEmail();
+    String originalEmail = user.getEmailWork();
+    if (!originalEmail.equals(email)) {
+      if (userRepository.existsByEmailWork(email)) {
+        throw new ForbiddenException("This Email already exists!");
+      }
+      user.setEmailWork(email);
+      UserContactInformation userContactInformation = user.getUserContactInformation();
+      if (userContactInformation == null) {
+        userContactInformation = new UserContactInformation();
+      }
+      userContactInformation.setEmailWork(email);
+      userRepository.save(user);
+      userContactInformationService.update(userContactInformation);
+    }
+
+    Email welcomeEmail = getWelcomeEmail(originalEmail);
+    welcomeEmail.setId(null);
+    welcomeEmail.setSendDate(Timestamp.from(Instant.now()));
+    welcomeEmail.setTo(email);
+
+    emailService.saveAndScheduleEmail(welcomeEmail);
+  }
+
+  public Email getWelcomeEmail(String email) {
+    return emailRepository.getFirstByToAndSubjectOrderBySendDateDesc(email, subject);
   }
 
   private String saveEmployeePhoto(final String base64EncodedPhoto) {
@@ -478,7 +527,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     final Timestamp sendDate = welcomeEmailDto.getSendDate();
 
     final Email email =
-        new Email(from, to, "Welcome to Champion Solutions", content, currentUser, sendDate);
+        new Email(from, to, subject, content, currentUser, sendDate);
     emailService.saveAndScheduleEmail(email);
   }
 }
