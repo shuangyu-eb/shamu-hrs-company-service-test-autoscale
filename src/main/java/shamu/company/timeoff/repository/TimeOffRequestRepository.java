@@ -2,6 +2,9 @@ package shamu.company.timeoff.repository;
 
 import java.sql.Timestamp;
 import java.util.List;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.Query;
 import shamu.company.common.repository.BaseRepository;
 import shamu.company.timeoff.entity.TimeOffRequest;
@@ -19,9 +22,7 @@ public interface TimeOffRequestRepository
               + "(select tra.time_off_request_id "
               + "from time_off_requests_approvers tra "
               + "where tra.approver_user_id = ?1) "
-              + "and tr.time_off_request_approval_status_id in "
-              + "(select tras.id from time_off_request_approval_statuses tras "
-              + "where tras.name in ?2) "
+              + "and tr.time_off_request_approval_status_id in ?2 "
               + "and tr.id in "
               + "(select trspan.time_off_request_id from "
               + "(select min(trd.date) startDay, max(trd.date) endDay, trd.time_off_request_id "
@@ -31,8 +32,8 @@ public interface TimeOffRequestRepository
               + "and endDay >= ?3 "
               + "or startDay > ?3) trspan)",
       nativeQuery = true)
-  List<TimeOffRequest> findByApproversAndTimeOffApprovalStatusFilteredByStartDay(
-      Long approverId, List<String> statusNames, Timestamp startDay);
+  Page<TimeOffRequest> findByApproversAndTimeOffApprovalStatusFilteredByStartDay(
+      Long approverId, Long[] statusIds, Timestamp startDay, PageRequest pageRequest);
 
   @Query(
       value =
@@ -96,19 +97,57 @@ public interface TimeOffRequestRepository
       Long userId, Long managerId, List<String> timeOffRequestApprovalStatus);
 
   @Query(
-      value =
-          "select * from time_off_requests tr "
-              + "where tr.deleted_at is null "
-              + "and tr.id in (select trspan.time_off_request_id from "
-              + "(select min(trd.date) startDay, max(trd.date) endDay, trd.time_off_request_id "
-              + "from time_off_request_dates trd "
-              + "group by trd.time_off_request_id "
-              + "having startDay <= ?2 "
-              + "and endDay >= ?2 "
-              + "or startDay > ?2 order by startDay) trspan) "
-              + "and tr.requester_user_id = ?1",
+      value = "select * from time_off_requests tr "
+        + "where tr.deleted_at is null "
+        + "and tr.id in "
+        + "  (select trspan.time_off_request_id from "
+        + "    (select min(trd.date) startDay, max(trd.date) endDay, trd.time_off_request_id "
+        + "       from time_off_request_dates trd "
+        + "       group by trd.time_off_request_id "
+        + "       having startDay <= ?2 "
+        + "       and endDay >= ?2 "
+        + "        or startDay > ?2) trspan) "
+        + "and tr.requester_user_id = ?1 "
+        + "and tr.time_off_request_approval_status_id in ?3 ",
       nativeQuery = true)
-  List<TimeOffRequest> findByRequesterUserIdFilteredByStartDay(Long id, Timestamp startDay);
+  Page<TimeOffRequest> findByRequesterUserIdFilteredByStartDay(
+      Long id, Timestamp startDay, Long[] statuses, PageRequest pageRequest);
+
+
+  @Query(
+      value =
+        "select * from time_off_requests tr "
+          + "where tr.id in "
+          + "(select trspan.time_off_request_id from "
+          + "(select min(trd.date) startDay, max(trd.date) endDay, trd.time_off_request_id "
+          + "from time_off_request_dates trd "
+          + "group by trd.time_off_request_id "
+          + "having startDay <= ?2 "
+          + "and endDay >= ?2 "
+          + "or startDay > ?2 and startDay <= ?3) trspan) "
+          + "and tr.requester_user_id = ?1 "
+          + "and tr.time_off_request_approval_status_id in ?4",
+      nativeQuery = true)
+  Page<TimeOffRequest> findByRequesterUserIdFilteredByStartAndEndDay(
+      Long id, Timestamp startDay, Timestamp endDay, Long[] statuses, PageRequest request);
+
+  @Query(
+      value = "select * from time_off_requests tr "
+        + "where tr.deleted_at is null "
+        + "and tr.id in "
+        + "  (select trspan.time_off_request_id from "
+        + "    (select min(trd.date) startDay, max(trd.date) endDay, trd.time_off_request_id "
+        + "       from time_off_request_dates trd "
+        + "       group by trd.time_off_request_id "
+        + "       having startDay <= ?2 "
+        + "       and endDay >= ?2 "
+        + "        or startDay > ?2) trspan) "
+        + "and tr.requester_user_id = ?1 ",
+      nativeQuery = true
+  )
+  List<TimeOffRequest> findByRequesterUserIdFilteredByStartDayWithoutPaging(
+      Long id, Timestamp startDay
+  );
 
   @Query(
           value =
@@ -119,27 +158,11 @@ public interface TimeOffRequestRepository
                           + "(select min(trd.date) startDay, trd.time_off_request_id "
                           + "from time_off_request_dates trd "
                           + "group by trd.time_off_request_id "
-                          + "having startDay > ?2 order by startDay) trspan) "
+                          + "having startDay > ?2) trspan) "
                           + "and tr.requester_user_id = ?1 limit 1 ",
           nativeQuery = true)
   TimeOffRequest findByRequesterUserIdFilteredByApprovedAndStartDay(
           Long id, Timestamp startDay, Long status);
-
-  @Query(
-      value =
-          "select * from time_off_requests tr "
-              + "where tr.id in "
-              + "(select trspan.time_off_request_id from "
-              + "(select min(trd.date) startDay, max(trd.date) endDay, trd.time_off_request_id "
-              + "from time_off_request_dates trd "
-              + "group by trd.time_off_request_id "
-              + "having startDay <= ?2 "
-              + "and endDay >= ?2 "
-              + "or startDay > ?2 and startDay <= ?3) trspan) "
-              + "and tr.requester_user_id = ?1",
-      nativeQuery = true)
-  List<TimeOffRequest> findByRequesterUserIdFilteredByStartAndEndDay(
-      Long id, Timestamp startDay, Timestamp endDay);
 
   @Query(
       value =

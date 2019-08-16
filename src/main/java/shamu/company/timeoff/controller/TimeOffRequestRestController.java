@@ -2,6 +2,8 @@ package shamu.company.timeoff.controller;
 
 import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.APPROVED;
 import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.DENIED;
+import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.NO_ACTION;
+import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.VIEWED;
 
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -9,7 +11,12 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.lang.Nullable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -115,21 +122,6 @@ public class TimeOffRequestRestController extends BaseRestController {
     return timeOffRequestService.getPendingRequestsCount(getUser());
   }
 
-  @GetMapping("time-off-requests/approver")
-  @PreAuthorize("hasAuthority('MANAGE_TIME_OFF_REQUEST')")
-  public List<TimeOffRequestDto> getTimeOffRequestsByApprover(
-      @RequestParam(value = "status") final TimeOffRequestApprovalStatus[] status) {
-
-    final List<TimeOffRequest> timeOffRequests = timeOffRequestService
-        .getByApproverAndStatusFilteredByStartDay(
-            getUser(), status, DateUtil.getFirstDayOfCurrentYear());
-
-    return timeOffRequests
-        .stream()
-        .map(timeOffRequestMapper::convertToTimeOffRequestDto)
-        .collect(Collectors.toList());
-  }
-
   @GetMapping("users/{userId}/time-off-requests")
   @PreAuthorize("hasAuthority('MANAGE_SELF_TIME_OFF_REQUEST')")
   public List<TimeOffRequestDto> getTimeOffRequests(
@@ -180,17 +172,93 @@ public class TimeOffRequestRestController extends BaseRestController {
     return timeOffRequestMapper.convertToTimeOffRequestDto(timeOffRequest);
   }
 
-  @GetMapping(value = "time-off-requests/requester/{id}")
+  private PageImpl<TimeOffRequestDto> getTimeOffRequestsByApprover(
+      final int page, final int size, final Long[] statusIds, final String sortField) {
+    PageRequest request = PageRequest.of(page, size, Sort.by(sortField).descending());
+    Timestamp startDayTimestamp = DateUtil.getFirstDayOfCurrentYear();
+
+    Page<TimeOffRequest> timeOffRequests = timeOffRequestService
+        .getByApproverAndStatusFilteredByStartDay(
+          getUser(), statusIds, startDayTimestamp, request);
+
+    List<TimeOffRequestDto> timeOffRequestDtos =
+        timeOffRequests
+          .getContent()
+          .stream()
+          .map(timeOffRequestMapper::convertToTimeOffRequestDto)
+          .collect(Collectors.toList());
+
+    return new PageImpl<>(timeOffRequestDtos, request, timeOffRequests.getTotalElements());
+  }
+
+  private enum SortFields {
+    CREATED_AT("created_at"),
+    APPROVED_DATE("approved_date");
+
+    String value;
+
+    SortFields(String value) {
+      this.value = value;
+    }
+
+    public String getValue() {
+      return value;
+    }
+  }
+
+  @GetMapping("time-off-pending-requests/approver")
+  @PreAuthorize("hasAuthority('MANAGE_TIME_OFF_REQUEST')")
+  public PageImpl<TimeOffRequestDto> getPendingRequestsByApprover(final int page,
+      @RequestParam(defaultValue = "5", required = false) final int size) {
+    final Long[] statusIds = new Long[]{NO_ACTION.getValue(), VIEWED.getValue()};
+    return getTimeOffRequestsByApprover(page, size, statusIds, SortFields.CREATED_AT.getValue());
+  }
+
+  @GetMapping("time-off-reviewed-requests/approver")
+  @PreAuthorize("hasAuthority('MANAGE_TIME_OFF_REQUEST')")
+  public PageImpl<TimeOffRequestDto> getReviewedRequestsByApprover(final int page,
+      @RequestParam(defaultValue = "5", required = false) final int size) {
+    final Long[] statusIds = new Long[]{APPROVED.getValue(), DENIED.getValue()};
+    return getTimeOffRequestsByApprover(page, size, statusIds, SortFields.APPROVED_DATE.getValue());
+  }
+
+  @GetMapping(value = "time-off-pending-requests/requester/{id}")
   @PreAuthorize(
       "hasPermission(#id,'USER','MANAGE_SELF_TIME_OFF_REQUEST') "
-          + "or hasPermission(#id,'USER','MANAGE_TIME_OFF_REQUEST')")
-  public MyTimeOffDto getMyTimeOffRequests(
+        + "or hasPermission(#id,'USER','MANAGE_TIME_OFF_REQUEST')")
+  public MyTimeOffDto getPendingRequests(
+      @HashidsFormat @PathVariable(name = "id") final Long id, final int page,
+      @RequestParam(defaultValue = "5", required = false) final int size) {
+
+    final PageRequest request = PageRequest.of(
+        page, size, Sort.by(SortFields.APPROVED_DATE.getValue()).descending());
+    MyTimeOffDto myTimeOffDto;
+    final Timestamp startDayTimestamp = DateUtil.getFirstDayOfCurrentYear();
+    final Long[] timeOffRequestStatuses = new Long[]{NO_ACTION.getValue(), VIEWED.getValue()};
+
+    myTimeOffDto =
+      timeOffRequestService.getMyTimeOffRequestsByRequesterUserIdFilteredByStartDay(
+          id, startDayTimestamp, timeOffRequestStatuses, request);
+
+    return myTimeOffDto;
+  }
+
+  @GetMapping(value = "time-off-reviewed-requests/requester/{id}")
+  @PreAuthorize(
+      "hasPermission(#id,'USER','MANAGE_SELF_TIME_OFF_REQUEST') "
+        + "or hasPermission(#id,'USER','MANAGE_TIME_OFF_REQUEST')")
+  public MyTimeOffDto getReviewedRequests(
       @HashidsFormat @PathVariable(name = "id") final Long id,
       @RequestParam(value = "startDay") @Nullable final Long startDay,
-      @RequestParam(value = "endDay") @Nullable final Long endDay) {
+      @RequestParam(value = "endDay") @Nullable final Long endDay,
+      final int page,
+      @RequestParam(defaultValue = "20", required = false) final int size) {
 
-    final MyTimeOffDto myTimeOffDto;
-    final Timestamp startDayTimestamp;
+    final PageRequest request = PageRequest.of(
+        page, size, Sort.by(SortFields.APPROVED_DATE.getValue()).descending());
+    MyTimeOffDto myTimeOffDto;
+    Timestamp startDayTimestamp;
+    final Long[] timeOffRequestStatuses = new Long[]{APPROVED.getValue(), DENIED.getValue()};
 
     if (startDay == null) {
       startDayTimestamp = DateUtil.getFirstDayOfCurrentYear();
@@ -200,12 +268,12 @@ public class TimeOffRequestRestController extends BaseRestController {
 
     if (endDay != null) {
       myTimeOffDto =
-          timeOffRequestService.getMyTimeOffRequestsByRequesterUserIdFilteredByStartAndEndDay(
-              id, startDayTimestamp, new Timestamp(endDay));
+        timeOffRequestService.getMyTimeOffRequestsByRequesterUserIdFilteredByStartAndEndDay(
+          id, startDayTimestamp, new Timestamp(endDay), timeOffRequestStatuses, request);
     } else {
       myTimeOffDto =
-          timeOffRequestService.getMyTimeOffRequestsByRequesterUserIdFilteredByStartDay(
-              id, startDayTimestamp);
+        timeOffRequestService.getMyTimeOffRequestsByRequesterUserIdFilteredByStartDay(
+          id, startDayTimestamp, timeOffRequestStatuses, request);
     }
 
     return myTimeOffDto;

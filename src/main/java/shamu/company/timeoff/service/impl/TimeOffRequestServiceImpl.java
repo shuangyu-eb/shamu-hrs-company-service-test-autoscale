@@ -12,6 +12,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shamu.company.common.exception.ResourceNotFoundException;
@@ -68,13 +71,11 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
   }
 
   @Override
-  public List<TimeOffRequest> getByApproverAndStatusFilteredByStartDay(
-      final User approver, final TimeOffRequestApprovalStatus[] status, final Timestamp startDay) {
-    final List<TimeOffRequestApprovalStatus> statusList = Arrays.asList(status);
-    final List<String> statusNames = statusList.stream().map(Enum::name)
-        .collect(Collectors.toList());
+  public Page<TimeOffRequest> getByApproverAndStatusFilteredByStartDay(
+      final User approver, final Long[] statusIds,
+      final Timestamp startDay, final PageRequest pageRequest) {
     return timeOffRequestRepository.findByApproversAndTimeOffApprovalStatusFilteredByStartDay(
-        approver.getId(), statusNames, startDay);
+        approver.getId(), statusIds, startDay, pageRequest);
   }
 
   @Override
@@ -125,34 +126,31 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
 
   private MyTimeOffDto initMyTimeOff(
       final Long id, final Timestamp startDay, final Timestamp endDay,
-      final Boolean filteredByEndDay) {
-    final MyTimeOffDto myTimeOffDto = new MyTimeOffDto();
+      final Boolean filteredByEndDay,
+      final Long[] statuses, final PageRequest request) {
+    MyTimeOffDto myTimeOffDto = new MyTimeOffDto();
     final Boolean policiesAdded = timeOffPolicyUserRepository.existsByUserId(id);
     myTimeOffDto.setPoliciesAdded(policiesAdded);
 
     if (policiesAdded) {
-      final List<TimeOffRequest> timeOffRequests;
+      Page<TimeOffRequest> timeOffRequests;
       if (filteredByEndDay) {
         timeOffRequests =
             timeOffRequestRepository.findByRequesterUserIdFilteredByStartAndEndDay(
-                id, startDay, endDay);
+                id, startDay, endDay, statuses, request);
       } else {
         timeOffRequests =
-            timeOffRequestRepository.findByRequesterUserIdFilteredByStartDay(id, startDay);
+          timeOffRequestRepository.findByRequesterUserIdFilteredByStartDay(
+              id, startDay, statuses, request);
       }
       final List<TimeOffRequestDto> timeOffRequestDtos =
-          timeOffRequests.stream().map(timeOffRequestMapper::convertToTimeOffRequestDto)
-              .collect(Collectors.toList());
-      myTimeOffDto.setTimeOffRequests(timeOffRequestDtos);
+          timeOffRequests.getContent().stream()
+              .map(timeOffRequestMapper::convertToTimeOffRequestDto).collect(Collectors.toList());
+      myTimeOffDto.setTimeOffRequests(
+          new PageImpl<>(timeOffRequestDtos, request, timeOffRequests.getTotalElements()));
     }
 
     return myTimeOffDto;
-  }
-
-  @Override
-  public MyTimeOffDto getMyTimeOffRequestsByRequesterUserIdFilteredByStartDay(
-      final Long id, final Timestamp startDay) {
-    return initMyTimeOff(id, startDay, null, false);
   }
 
   @Override
@@ -164,9 +162,36 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
   }
 
   @Override
+  public MyTimeOffDto getMyTimeOffRequestsByRequesterUserIdFilteredByStartDay(
+      final Long id, final Timestamp startDay, final Long[] statuses, final PageRequest request) {
+    return initMyTimeOff(id, startDay, null, false, statuses, request);
+  }
+
+  @Override
   public MyTimeOffDto getMyTimeOffRequestsByRequesterUserIdFilteredByStartAndEndDay(
-      final Long id, final Timestamp startDay, final Timestamp endDay) {
-    return initMyTimeOff(id, startDay, endDay, true);
+      final Long id, final Timestamp startDay, final Timestamp endDay,
+      final Long[] statuses, final PageRequest request) {
+    return initMyTimeOff(id, startDay, endDay, true, statuses, request);
+  }
+
+  @Override
+  public MyTimeOffDto getMyTimeOffRequestsByRequesterUserId(
+      final Long id, final Timestamp startDay) {
+    MyTimeOffDto myTimeOffDto = new MyTimeOffDto();
+    final Boolean policiesAdded = timeOffPolicyUserRepository.existsByUserId(id);
+    myTimeOffDto.setPoliciesAdded(policiesAdded);
+
+    final List<TimeOffRequest> timeOffRequests = timeOffRequestRepository
+        .findByRequesterUserIdFilteredByStartDayWithoutPaging(id, startDay);
+
+    final List<TimeOffRequestDto> timeOffRequestDtos =
+        timeOffRequests.stream()
+            .map(timeOffRequestMapper::convertToTimeOffRequestDto).collect(Collectors.toList());
+
+    myTimeOffDto.setTimeOffRequests(
+        new PageImpl<>(timeOffRequestDtos, PageRequest.of(0, 0), timeOffRequests.size()));
+
+    return myTimeOffDto;
   }
 
   @Override
