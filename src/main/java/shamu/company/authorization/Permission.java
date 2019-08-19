@@ -45,9 +45,9 @@ public class Permission extends BaseEntity {
     VIEW_COMPANY_DOCUMENT(PermissionType.ADMIN_PERMISSION),
     VIEW_SENT_DOCUMENTS(PermissionType.ADMIN_PERMISSION);
 
-    private PermissionType permissionType;
+    private final PermissionType permissionType;
 
-    Name(PermissionType permissionType) {
+    Name(final PermissionType permissionType) {
       this.permissionType = permissionType;
     }
 

@@ -11,7 +11,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -174,14 +173,14 @@ public class TimeOffRequestRestController extends BaseRestController {
 
   private PageImpl<TimeOffRequestDto> getTimeOffRequestsByApprover(
       final int page, final int size, final Long[] statusIds, final String sortField) {
-    PageRequest request = PageRequest.of(page, size, Sort.by(sortField).descending());
-    Timestamp startDayTimestamp = DateUtil.getFirstDayOfCurrentYear();
+    final PageRequest request = PageRequest.of(page, size, Sort.by(sortField).descending());
+    final Timestamp startDayTimestamp = DateUtil.getFirstDayOfCurrentYear();
 
-    Page<TimeOffRequest> timeOffRequests = timeOffRequestService
+    final Page<TimeOffRequest> timeOffRequests = timeOffRequestService
         .getByApproverAndStatusFilteredByStartDay(
           getUser(), statusIds, startDayTimestamp, request);
 
-    List<TimeOffRequestDto> timeOffRequestDtos =
+    final List<TimeOffRequestDto> timeOffRequestDtos =
         timeOffRequests
           .getContent()
           .stream()
@@ -197,7 +196,7 @@ public class TimeOffRequestRestController extends BaseRestController {
 
     String value;
 
-    SortFields(String value) {
+    SortFields(final String value) {
       this.value = value;
     }
 
@@ -232,7 +231,7 @@ public class TimeOffRequestRestController extends BaseRestController {
 
     final PageRequest request = PageRequest.of(
         page, size, Sort.by(SortFields.APPROVED_DATE.getValue()).descending());
-    MyTimeOffDto myTimeOffDto;
+    final MyTimeOffDto myTimeOffDto;
     final Timestamp startDayTimestamp = DateUtil.getFirstDayOfCurrentYear();
     final Long[] timeOffRequestStatuses = new Long[]{NO_ACTION.getValue(), VIEWED.getValue()};
 
@@ -256,8 +255,8 @@ public class TimeOffRequestRestController extends BaseRestController {
 
     final PageRequest request = PageRequest.of(
         page, size, Sort.by(SortFields.APPROVED_DATE.getValue()).descending());
-    MyTimeOffDto myTimeOffDto;
-    Timestamp startDayTimestamp;
+    final MyTimeOffDto myTimeOffDto;
+    final Timestamp startDayTimestamp;
     final Long[] timeOffRequestStatuses = new Long[]{APPROVED.getValue(), DENIED.getValue()};
 
     if (startDay == null) {

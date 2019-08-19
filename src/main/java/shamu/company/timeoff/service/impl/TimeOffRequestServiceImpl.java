@@ -128,12 +128,12 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
       final Long id, final Timestamp startDay, final Timestamp endDay,
       final Boolean filteredByEndDay,
       final Long[] statuses, final PageRequest request) {
-    MyTimeOffDto myTimeOffDto = new MyTimeOffDto();
+    final MyTimeOffDto myTimeOffDto = new MyTimeOffDto();
     final Boolean policiesAdded = timeOffPolicyUserRepository.existsByUserId(id);
     myTimeOffDto.setPoliciesAdded(policiesAdded);
 
     if (policiesAdded) {
-      Page<TimeOffRequest> timeOffRequests;
+      final Page<TimeOffRequest> timeOffRequests;
       if (filteredByEndDay) {
         timeOffRequests =
             timeOffRequestRepository.findByRequesterUserIdFilteredByStartAndEndDay(
@@ -177,7 +177,7 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
   @Override
   public MyTimeOffDto getMyTimeOffRequestsByRequesterUserId(
       final Long id, final Timestamp startDay) {
-    MyTimeOffDto myTimeOffDto = new MyTimeOffDto();
+    final MyTimeOffDto myTimeOffDto = new MyTimeOffDto();
     final Boolean policiesAdded = timeOffPolicyUserRepository.existsByUserId(id);
     myTimeOffDto.setPoliciesAdded(policiesAdded);
 

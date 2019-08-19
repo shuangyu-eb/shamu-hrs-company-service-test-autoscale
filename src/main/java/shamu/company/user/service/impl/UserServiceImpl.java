@@ -223,7 +223,7 @@ public class UserServiceImpl implements UserService {
   @Override
   public Page<JobUserListItem> getAllEmployees(
       final EmployeeListSearchCondition employeeListSearchCondition,
-      final Company company, Boolean isAdmin) {
+      final Company company, final Boolean isAdmin) {
     final String sortDirection = employeeListSearchCondition.getSortDirection().toUpperCase();
 
     final String[] sortValue = employeeListSearchCondition.getSortField().getSortValue();
@@ -240,7 +240,7 @@ public class UserServiceImpl implements UserService {
   @Override
   public Page<JobUserListItem> getAllEmployeesByCompany(
       final EmployeeListSearchCondition employeeListSearchCondition, final Company company,
-      final Pageable pageable, Boolean isAdmin) {
+      final Pageable pageable, final Boolean isAdmin) {
     final Long companyId = company.getId();
     return userRepository.getAllByCondition(
             employeeListSearchCondition, companyId, pageable, isAdmin);
@@ -277,7 +277,7 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public List<User> findAllUsersByCompany(Company company) {
+  public List<User> findAllUsersByCompany(final Company company) {
     return userRepository.findAllByCompanyId(company.getId());
   }
 

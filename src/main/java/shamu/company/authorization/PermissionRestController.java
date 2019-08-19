@@ -13,16 +13,16 @@ public class PermissionRestController extends BaseRestController {
   private final PermissionService permissionService;
 
   @Autowired
-  public PermissionRestController(PermissionService permissionService) {
+  public PermissionRestController(final PermissionService permissionService) {
     this.permissionService = permissionService;
   }
 
   @GetMapping("permissions")
   public AuthorityDto getPermissions() {
-    User user = this.getUser();
-    List<AuthorityPojo> authorities = permissionService.getPermissionByUser(user);
+    final User user = this.getUser();
+    final List<AuthorityPojo> authorities = permissionService.getPermissionByUser(user);
 
-    AuthorityDto authorityDto = new AuthorityDto(user);
+    final AuthorityDto authorityDto = new AuthorityDto(user);
     authorityDto.setAuthorities(authorities);
     return authorityDto;
   }

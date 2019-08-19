@@ -219,8 +219,8 @@ public class EmployeeServiceImpl implements EmployeeService {
   }
 
   @Override
-  public void resendEmail(EmailResendDto emailResendDto) {
-    User user = userRepository.findById(emailResendDto.getUserId()).orElseThrow(
+  public void resendEmail(final EmailResendDto emailResendDto) {
+    final User user = userRepository.findById(emailResendDto.getUserId()).orElseThrow(
         () -> new ResourceNotFoundException(
             "User not found with id: " + emailResendDto.getUserId()));
 
@@ -228,8 +228,8 @@ public class EmployeeServiceImpl implements EmployeeService {
       throw new ForbiddenException("User is not in Pending Verification!");
     }
 
-    String email = emailResendDto.getEmail();
-    String originalEmail = user.getEmailWork();
+    final String email = emailResendDto.getEmail();
+    final String originalEmail = user.getEmailWork();
     if (!originalEmail.equals(email)) {
       if (userRepository.existsByEmailWork(email)) {
         throw new ForbiddenException("This Email already exists!");
@@ -244,7 +244,7 @@ public class EmployeeServiceImpl implements EmployeeService {
       userContactInformationService.update(userContactInformation);
     }
 
-    Email welcomeEmail = getWelcomeEmail(originalEmail);
+    final Email welcomeEmail = getWelcomeEmail(originalEmail);
     welcomeEmail.setId(null);
     welcomeEmail.setSendDate(Timestamp.from(Instant.now()));
     welcomeEmail.setTo(email);
@@ -252,7 +252,8 @@ public class EmployeeServiceImpl implements EmployeeService {
     emailService.saveAndScheduleEmail(welcomeEmail);
   }
 
-  public Email getWelcomeEmail(String email) {
+  @Override
+  public Email getWelcomeEmail(final String email) {
     return emailRepository.getFirstByToAndSubjectOrderBySendDateDesc(email, subject);
   }
 

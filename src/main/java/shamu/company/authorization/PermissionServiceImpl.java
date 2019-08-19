@@ -16,20 +16,20 @@ public class PermissionServiceImpl implements PermissionService {
   private final UserRepository userRepository;
 
   @Autowired
-  public PermissionServiceImpl(PermissionRepository permissionRepository,
-      UserRepository userRepository) {
+  public PermissionServiceImpl(final PermissionRepository permissionRepository,
+      final UserRepository userRepository) {
     this.permissionRepository = permissionRepository;
     this.userRepository = userRepository;
   }
 
   @Override
-  public List<AuthorityPojo> getPermissionByUser(User user) {
-    List<AuthorityPojo> authorities;
-    List<Permission> permissions = permissionRepository
+  public List<AuthorityPojo> getPermissionByUser(final User user) {
+    final List<AuthorityPojo> authorities;
+    final List<Permission> permissions = permissionRepository
         .findByUserRoleId(user.getUserRole().getId());
 
     if (user.getRole() == Role.MANAGER) {
-      List<Long> teamMembers = userRepository.findByManagerUser(user)
+      final List<Long> teamMembers = userRepository.findByManagerUser(user)
           .stream().map(User::getId).collect(Collectors.toList());
 
       authorities = permissions.stream().map(permission -> {

@@ -22,18 +22,18 @@ import shamu.company.common.exception.response.ErrorMessage;
 public class DefaultExceptionFilter extends GenericFilterBean {
 
   @Override
-  public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
+  public void doFilter(final ServletRequest req, final ServletResponse res, final FilterChain chain)
       throws IOException, ServletException {
-    HttpServletRequest request = (HttpServletRequest) req;
-    HttpServletResponse response = (HttpServletResponse) res;
+    final HttpServletRequest request = (HttpServletRequest) req;
+    final HttpServletResponse response = (HttpServletResponse) res;
 
     try {
       chain.doFilter(request, response);
-    } catch (AbstractException abstractException) {
+    } catch (final AbstractException abstractException) {
       response.setContentType(ContentType.APPLICATION_JSON.toString());
       response.setStatus(HttpStatus.BAD_REQUEST.value());
 
-      ErrorMessage errorMessage = new ErrorMessage(abstractException.getType(),
+      final ErrorMessage errorMessage = new ErrorMessage(abstractException.getType(),
           abstractException.getMessage());
       res.getWriter().write(JSON.toJSONString(errorMessage));
     }

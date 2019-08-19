@@ -11,17 +11,17 @@ public class JobUserServiceImpl implements JobUserService {
   private final JobUserRepository jobUserRepository;
 
 
-  public JobUserServiceImpl(JobUserRepository jobUserRepository) {
+  public JobUserServiceImpl(final JobUserRepository jobUserRepository) {
     this.jobUserRepository = jobUserRepository;
   }
 
   @Override
-  public JobUser getJobUserByUserId(Long userId) {
+  public JobUser getJobUserByUserId(final Long userId) {
     return jobUserRepository.findByUserId(userId);
   }
 
   @Override
-  public JobUser save(JobUser jobUser) {
+  public JobUser save(final JobUser jobUser) {
     return jobUserRepository.save(jobUser);
   }
 

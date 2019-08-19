@@ -13,23 +13,25 @@ public class MethodPermissionEvaluator implements PermissionEvaluator {
   private final PermissionUtils permissionUtils;
 
   @Autowired
-  public MethodPermissionEvaluator(PermissionUtils permissionUtils) {
+  public MethodPermissionEvaluator(final PermissionUtils permissionUtils) {
     this.permissionUtils = permissionUtils;
   }
 
   @Override
-  public boolean hasPermission(Authentication auth, Object target, Object permission) {
+  public boolean hasPermission(final Authentication auth, final Object target,
+      final Object permission) {
     throw new ForbiddenException(
         "method hasPermission(Object target, Object permission) not allowed");
   }
 
   @Override
-  public boolean hasPermission(Authentication auth, Serializable targetId, String targetType,
-      Object permission) {
-    Type type = Type.valueOf(targetType);
-    Long id = (Long) targetId;
+  public boolean hasPermission(final Authentication auth, final Serializable targetId,
+      final String targetType,
+      final Object permission) {
+    final Type type = Type.valueOf(targetType);
+    final Long id = (Long) targetId;
 
-    Permission.Name permissionName = Permission.Name.valueOf(permission.toString());
+    final Permission.Name permissionName = Permission.Name.valueOf(permission.toString());
     return permissionUtils.hasPermission(auth, id, type, permissionName);
   }
 }

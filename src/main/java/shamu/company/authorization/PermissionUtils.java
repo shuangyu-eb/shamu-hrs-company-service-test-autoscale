@@ -36,12 +36,12 @@ public class PermissionUtils {
   private final TimeOffPolicyUserRepository timeOffPolicyUserRepository;
 
   @Autowired
-  public PermissionUtils(UserService userService,
-      TimeOffRequestService timeOffRequestService,
-      UserAddressService userAddressService,
-      BenefitPlanService benefitPlanService,
-      BenefitPlanDependentService benefitPlanDependentService,
-      TimeOffPolicyUserRepository timeOffPolicyUserRepository) {
+  public PermissionUtils(final UserService userService,
+      final TimeOffRequestService timeOffRequestService,
+      final UserAddressService userAddressService,
+      final BenefitPlanService benefitPlanService,
+      final BenefitPlanDependentService benefitPlanDependentService,
+      final TimeOffPolicyUserRepository timeOffPolicyUserRepository) {
     this.userService = userService;
     this.timeOffRequestService = timeOffRequestService;
     this.userAddressService = userAddressService;
@@ -50,8 +50,8 @@ public class PermissionUtils {
     this.timeOffPolicyUserRepository = timeOffPolicyUserRepository;
   }
 
-  boolean hasPermission(Authentication auth, Long targetId, Type targetType,
-      Permission.Name permission) {
+  boolean hasPermission(final Authentication auth, final Long targetId, final Type targetType,
+      final Permission.Name permission) {
 
     switch (targetType) {
       case BENEFIT_PLAN:
@@ -70,38 +70,38 @@ public class PermissionUtils {
         return this.hasPermissionOfTimeOffTimeOffPolicyUser(auth, targetId, permission);
       case USER:
       default:
-        User targetUser = userService.findUserById(targetId);
+        final User targetUser = userService.findUserById(targetId);
         return this.hasPermissionOfUser(auth, targetUser, permission);
     }
   }
 
-  private boolean hasPermission(Collection<AuthorityPojo> authorities,
-      Permission.Name permission) {
+  private boolean hasPermission(final Collection<AuthorityPojo> authorities,
+      final Permission.Name permission) {
 
     return authorities.stream()
         .anyMatch(authority -> authority.getName() == permission);
   }
 
-  private void companyEqual(Authentication auth, Company company) {
+  private void companyEqual(final Authentication auth, final Company company) {
     if (!this.getCompany(auth).getId().equals(company.getId())) {
       throw new ForbiddenException("The target resources is not in the company where you are.");
     }
   }
 
-  private boolean hasPermissionOfBenefitPlan(Authentication auth, Long id,
-      Permission.Name permission) {
-    PermissionType permissionType = permission.getPermissionType();
+  private boolean hasPermissionOfBenefitPlan(final Authentication auth, final Long id,
+      final Permission.Name permission) {
+    final PermissionType permissionType = permission.getPermissionType();
 
-    BenefitPlan targetBenefitPlan = benefitPlanService.findBenefitPlanById(id);
+    final BenefitPlan targetBenefitPlan = benefitPlanService.findBenefitPlanById(id);
     this.companyEqual(auth, targetBenefitPlan.getCompany());
 
-    boolean result;
-    Collection<AuthorityPojo> authorities = (Collection<AuthorityPojo>) auth.getAuthorities();
+    final boolean result;
+    final Collection<AuthorityPojo> authorities = (Collection<AuthorityPojo>) auth.getAuthorities();
     if (permissionType != PermissionType.ADMIN_PERMISSION) {
       result = false;
     } else {
       result = authorities.stream().anyMatch(authority -> {
-        Permission.Name permissionName = authority.getName();
+        final Permission.Name permissionName = authority.getName();
         return permission == permissionName;
       });
     }
@@ -109,62 +109,62 @@ public class PermissionUtils {
     return result;
   }
 
-  private boolean hasPermissionOfBenefitDependent(Authentication auth, Long id,
-      Permission.Name permission) {
-    BenefitPlanDependent targetDependent = benefitPlanDependentService.findDependentById(id);
+  private boolean hasPermissionOfBenefitDependent(final Authentication auth, final Long id,
+      final Permission.Name permission) {
+    final BenefitPlanDependent targetDependent = benefitPlanDependentService.findDependentById(id);
     return this.hasPermissionOfUser(auth,targetDependent.getEmployee(),permission);
   }
 
-  private boolean hasPermissionOfTimeOffRequest(Authentication auth, Long id,
-      Permission.Name permission) {
-    User user = timeOffRequestService.getById(id).getRequesterUser();
+  private boolean hasPermissionOfTimeOffRequest(final Authentication auth, final Long id,
+      final Permission.Name permission) {
+    final User user = timeOffRequestService.getById(id).getRequesterUser();
     return this.hasPermissionOfUser(auth, user, permission);
   }
 
   private boolean hasPermissionOfPersonalInformation(
-      Authentication auth, Long id, Permission.Name permission) {
-    User user = userService.findUserByUserPersonalInformationId(id);
+      final Authentication auth, final Long id, final Permission.Name permission) {
+    final User user = userService.findUserByUserPersonalInformationId(id);
 
     return this.hasPermissionOfUser(auth, user, permission);
   }
 
   private boolean hasPermissionOfUserAddress(
-      Authentication auth, Long id, Permission.Name permission) {
-    User user = userAddressService.findUserAddressById(id).getUser();
+      final Authentication auth, final Long id, final Permission.Name permission) {
+    final User user = userAddressService.findUserAddressById(id).getUser();
     return this.hasPermissionOfUser(auth, user, permission);
   }
 
   private boolean hasPermissionOfContactInformation(
-      Authentication auth, Long id, Permission.Name permission) {
-    User user = userService.findUserByUserContactInformationId(id);
+      final Authentication auth, final Long id, final Permission.Name permission) {
+    final User user = userService.findUserByUserContactInformationId(id);
     return this.hasPermissionOfUser(auth, user, permission);
   }
 
-  private boolean hasPermissionOfTimeOffTimeOffPolicyUser(Authentication auth,
-      Long targetId, Name permission) {
-    Optional<TimeOffPolicyUser> policyUser = timeOffPolicyUserRepository
+  private boolean hasPermissionOfTimeOffTimeOffPolicyUser(final Authentication auth,
+      final Long targetId, final Name permission) {
+    final Optional<TimeOffPolicyUser> policyUser = timeOffPolicyUserRepository
         .findById(targetId);
 
     return policyUser.filter(timeOffPolicyUser -> this
         .hasPermissionOfUser(auth, timeOffPolicyUser.getUser(), permission)).isPresent();
   }
 
-  private boolean hasPermissionOfUser(Authentication auth, User targetUser,
-      Permission.Name permission) {
-    PermissionType permissionType = permission.getPermissionType();
+  private boolean hasPermissionOfUser(final Authentication auth, final User targetUser,
+      final Permission.Name permission) {
+    final PermissionType permissionType = permission.getPermissionType();
     if (permissionType == PermissionType.SELF_PERMISSION) {
       return this.getUser(auth).getId().equals(targetUser.getId());
     }
 
     this.companyEqual(auth, targetUser.getCompany());
 
-    boolean result;
-    Collection<AuthorityPojo> authorities = (Collection<AuthorityPojo>) auth.getAuthorities();
+    final boolean result;
+    final Collection<AuthorityPojo> authorities = (Collection<AuthorityPojo>) auth.getAuthorities();
     if (permissionType != PermissionType.MANAGER_PERMISSION) {
       result = hasPermission(authorities, permission);
     } else {
       result = authorities.stream().anyMatch(p -> {
-            Permission.Name permissionName = p.getName();
+            final Permission.Name permissionName = p.getName();
             if (permission == permissionName) {
               if (p.getIds() != null) {
                 return p.getIds().contains(targetUser.getId());
@@ -179,11 +179,11 @@ public class PermissionUtils {
     return result;
   }
 
-  private User getUser(Authentication auth) {
+  private User getUser(final Authentication auth) {
     return (User) auth.getPrincipal();
   }
 
-  private Company getCompany(Authentication auth) {
+  private Company getCompany(final Authentication auth) {
     return this.getUser(auth).getCompany();
   }
 }

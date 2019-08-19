@@ -49,7 +49,7 @@ public class EmployeeInformationRestController extends BaseRestController {
 
   @Autowired
   public EmployeeInformationRestController(final UserService userService,
-      EmployeeService employeeService,
+      final EmployeeService employeeService,
       final JobUserService jobUserService,
       final JobUserMapper jobUserMapper,
       final UserContactInformationMapper userContactInformationMapper,
@@ -73,7 +73,7 @@ public class EmployeeInformationRestController extends BaseRestController {
 
     Timestamp sendDate = null;
     if (userStatus == Status.PENDING_VERIFICATION) {
-      Email email = employeeService.getWelcomeEmail(employee.getEmailWork());
+      final Email email = employeeService.getWelcomeEmail(employee.getEmailWork());
       sendDate = email != null ? email.getSendDate() : null;
     }
 

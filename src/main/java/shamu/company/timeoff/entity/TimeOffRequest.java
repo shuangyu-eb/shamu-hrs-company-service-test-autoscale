@@ -62,16 +62,16 @@ public class TimeOffRequest extends BaseEntity {
       inverseJoinColumns = @JoinColumn(name = "approver_user_id"))
   private Set<User> approvers = new HashSet<>();
 
-  public void setApprover(User user) {
+  public void setApprover(final User user) {
     this.approvers.add(user);
   }
 
-  public void setComment(TimeOffRequestComment comment) {
+  public void setComment(final TimeOffRequestComment comment) {
     this.comments.add(comment);
   }
 
   public String getRequsterComment() {
-    List<TimeOffRequestComment> requestComments =
+    final List<TimeOffRequestComment> requestComments =
         this.comments.stream()
             .filter(comment -> comment.getUser().getId().equals(this.requesterUser.getId()))
             .collect(Collectors.toList());

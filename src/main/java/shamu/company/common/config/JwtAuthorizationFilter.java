@@ -17,18 +17,19 @@ public class JwtAuthorizationFilter implements Filter {
 
   private final JwtTokenProvider jwtTokenProvider;
 
-  public JwtAuthorizationFilter(JwtTokenProvider jwtTokenProvider) {
+  public JwtAuthorizationFilter(final JwtTokenProvider jwtTokenProvider) {
     this.jwtTokenProvider = jwtTokenProvider;
   }
 
   @Override
-  public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse,
-      FilterChain filterChain) throws IOException, ServletException {
-    String authHeader = ((HttpServletRequest) servletRequest).getHeader(HttpHeaders.AUTHORIZATION);
+  public void doFilter(final ServletRequest servletRequest, final ServletResponse servletResponse,
+      final FilterChain filterChain) throws IOException, ServletException {
+    final String authHeader = ((HttpServletRequest) servletRequest)
+        .getHeader(HttpHeaders.AUTHORIZATION);
 
     if (authHeader != null && authHeader.startsWith("Bearer ")) {
-      String authToken = authHeader.substring(7);
-      Authentication resultAuthentication = jwtTokenProvider.authenticate(authToken);
+      final String authToken = authHeader.substring(7);
+      final Authentication resultAuthentication = jwtTokenProvider.authenticate(authToken);
       SecurityContextHolder.getContext().setAuthentication(resultAuthentication);
     }
 
