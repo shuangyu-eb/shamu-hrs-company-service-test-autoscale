@@ -66,12 +66,15 @@ public interface UserRepository extends BaseRepository<User, Long>, UserCustomRe
 
   @Query(
       value = "select * from users"
-          + " where users.id in (select user_id"
+          + " where (users.id in (select user_id"
           + " from jobs_users"
           + " where job_id in (select id"
           + " from jobs"
           + " where department_id = ?1)"
-          + " ) or company_id = ?2 and manager_user_id is null",
+          + " ) or company_id = ?2 "
+          + " and manager_user_id is null) "
+          + " and deactivated_at is null "
+          + " and deleted_at is null ",
       nativeQuery = true
   )
   List<User> findEmployersAndEmployeesByDepartmentIdAndCompanyId(Long departmentId, Long companyId);
