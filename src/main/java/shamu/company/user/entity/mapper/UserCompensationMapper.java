@@ -4,6 +4,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import shamu.company.common.mapper.Config;
+import shamu.company.employee.dto.CompensationDto;
 import shamu.company.job.dto.JobUpdateDto;
 import shamu.company.job.entity.CompensationFrequency;
 import shamu.company.user.entity.UserCompensation;
@@ -16,6 +17,9 @@ public interface UserCompensationMapper {
   @Mapping(target = "compensationFrequency", source = "compensationFrequencyId")
   void updateFromJobUpdateDto(@MappingTarget UserCompensation userCompensation,
       JobUpdateDto jobUpdateDto);
+
+
+  CompensationDto convertToCompensationDto(UserCompensation userCompensation);
 
   default CompensationFrequency convertToCompensationFrequency(final Long id) {
     final CompensationFrequency compensationFrequency = new CompensationFrequency();

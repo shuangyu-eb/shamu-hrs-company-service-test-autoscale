@@ -14,12 +14,12 @@ public class SelectFieldInformationDto {
 
   private String name;
 
-  public SelectFieldInformationDto(Long id, String name) {
+  public SelectFieldInformationDto(final Long id, final String name) {
     setId(id);
     setName(name);
   }
 
-  public SelectFieldInformationDto(Object object) {
+  public SelectFieldInformationDto(final Object object) {
     if (object != null) {
       BeanUtils.copyProperties(object, this);
     }

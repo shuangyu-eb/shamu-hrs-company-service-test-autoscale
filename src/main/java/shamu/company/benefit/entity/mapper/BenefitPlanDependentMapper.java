@@ -9,12 +9,12 @@ import shamu.company.benefit.entity.BenefitPlanDependent;
 import shamu.company.benefit.entity.DependentRelationship;
 import shamu.company.common.entity.StateProvince;
 import shamu.company.common.mapper.Config;
-import shamu.company.common.mapper.SelectFieldInformationDtoUtils;
+import shamu.company.employee.dto.SelectFieldInformationDto;
 import shamu.company.user.entity.Gender;
 
 @Mapper(
     config = Config.class,
-    uses = SelectFieldInformationDtoUtils.class
+    uses = SelectFieldInformationDto.class
 )
 public interface BenefitPlanDependentMapper {
 

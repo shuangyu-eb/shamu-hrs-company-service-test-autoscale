@@ -2,35 +2,41 @@ package shamu.company.job.entity.mapper;
 
 import java.sql.Timestamp;
 import java.util.List;
+import org.mapstruct.InheritConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import shamu.company.common.mapper.Config;
-import shamu.company.common.mapper.SelectFieldInformationDtoUtils;
 import shamu.company.company.entity.Office;
 import shamu.company.company.entity.mapper.OfficeMapper;
 import shamu.company.employee.dto.BasicJobInformationDto;
 import shamu.company.employee.dto.EmployeeRelatedInformationDto;
 import shamu.company.employee.dto.JobInformationDto;
+import shamu.company.employee.dto.SelectFieldInformationDto;
 import shamu.company.employee.entity.EmploymentType;
 import shamu.company.job.dto.JobUpdateDto;
 import shamu.company.job.dto.JobUserDto;
 import shamu.company.job.entity.Job;
 import shamu.company.job.entity.JobUser;
+import shamu.company.user.entity.mapper.UserCompensationMapper;
 
 @Mapper(
     config = Config.class,
-    uses = {SelectFieldInformationDtoUtils.class, OfficeMapper.class}
+    uses = {SelectFieldInformationDto.class, OfficeMapper.class, UserCompensationMapper.class}
 )
 public interface JobUserMapper {
 
+  @Mapping(target = "jobUserId", source = "user.id")
+  @Mapping(target = "userRole", source = "user.role")
   @Mapping(target = "department", source = "job.department")
   @Mapping(target = "manager", source = "user.managerUser")
-  @Mapping(target = "userRole", source = "user.role")
+  @Mapping(target = "manager.name", source = "user.managerUser.userPersonalInformation.name")
+  @Mapping(target = "job.name", source = "job.title")
+  BasicJobInformationDto convertToBasicJobInformationDto(JobUser jobUser);
+
+  @InheritConfiguration
   @Mapping(target = "compensation", source = "user.userCompensation")
   JobInformationDto convertToJobInformationDto(JobUser jobUser);
-
-  BasicJobInformationDto convertToBasicJobInformationDto(JobUser jobUser);
 
   @Mapping(target = "userId", source = "userId")
   @Mapping(target = "userStatus", source = "userStatus")

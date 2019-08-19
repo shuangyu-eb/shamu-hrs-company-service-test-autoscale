@@ -4,7 +4,7 @@ import org.mapstruct.InheritConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import shamu.company.common.mapper.Config;
-import shamu.company.common.mapper.SelectFieldInformationDtoUtils;
+import shamu.company.employee.dto.SelectFieldInformationDto;
 import shamu.company.timeoff.dto.BasicTimeOffRequestDto;
 import shamu.company.timeoff.dto.TimeOffRequestDetailDto;
 import shamu.company.timeoff.dto.TimeOffRequestDto;
@@ -15,7 +15,7 @@ import shamu.company.timeoff.entity.TimeOffRequest;
     config = Config.class,
     uses = {
         TimeOffRequestCommentMapper.class,
-        SelectFieldInformationDtoUtils.class
+        SelectFieldInformationDto.class
     }
 )
 public interface TimeOffRequestMapper {
@@ -34,6 +34,7 @@ public interface TimeOffRequestMapper {
   @InheritConfiguration
   @Mapping(target = "isLimited", source = "timeOffPolicy.isLimited")
   @Mapping(target = "approver", source = "approverUser")
+  @Mapping(target = "approver.name", source = "approverUser.userPersonalInformation.name")
   TimeOffRequestDetailDto convertToTimeOffRequestDetailDto(TimeOffRequest timeOffRequest);
 
   @Mapping(target = "timeOffApprovalStatus", source = "status")

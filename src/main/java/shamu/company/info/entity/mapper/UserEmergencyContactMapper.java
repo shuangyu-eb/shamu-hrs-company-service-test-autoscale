@@ -27,7 +27,7 @@ public interface UserEmergencyContactMapper {
       UserEmergencyContactDto userEmergencyContactDto);
 
   default StateProvince convertFromStateProvinceId(final Long stateProvinceId) {
-    return stateProvinceId != null ? new StateProvince(stateProvinceId) : null;
+    return new StateProvince(stateProvinceId);
   }
 
   default User convertFromUserId(final Long userId) {
