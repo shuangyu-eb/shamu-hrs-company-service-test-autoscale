@@ -425,17 +425,20 @@ public class EmployeeServiceImpl implements EmployeeService {
 
   private void saveEmployeeCompensation(final User user,
       final NewEmployeeJobInformationDto jobInformation) {
-    final UserCompensation userCompensation = new UserCompensation();
-    userCompensation.setWage(jobInformation.getCompensation());
+    if (jobInformation.getCompensation() == null
+        || jobInformation.getCompensationFrequencyId() == null) {
+      final UserCompensation userCompensation = new UserCompensation();
+      userCompensation.setWage(jobInformation.getCompensation());
 
-    final Long compensationFrequencyId = jobInformation.getCompensationFrequencyId();
-    if (compensationFrequencyId != null) {
-      final CompensationFrequency compensationFrequency =
-          compensationFrequencyRepository.getOne(compensationFrequencyId);
-      userCompensation.setCompensationFrequency(compensationFrequency);
+      final Long compensationFrequencyId = jobInformation.getCompensationFrequencyId();
+      if (compensationFrequencyId != null) {
+        final CompensationFrequency compensationFrequency =
+            compensationFrequencyRepository.getOne(compensationFrequencyId);
+        userCompensation.setCompensationFrequency(compensationFrequency);
+      }
+      userCompensation.setUserId(user.getId());
+      userCompensationRepository.save(userCompensation);
     }
-    userCompensation.setUserId(user.getId());
-    userCompensationRepository.save(userCompensation);
   }
 
   private void saveEmployeeJob(
