@@ -120,7 +120,7 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
       return timeOffRequestRepository.managerFindTeamRequests(
           user.getId(), user.getManagerUser().getId(), statusNames);
     } else {
-      return timeOffRequestRepository.managerFindTeamRequests(user.getId(), null, statusNames);
+      return timeOffRequestRepository.adminFindTeamRequests(user.getId(), statusNames);
     }
   }
 

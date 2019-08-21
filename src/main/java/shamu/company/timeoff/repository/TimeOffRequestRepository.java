@@ -2,7 +2,6 @@ package shamu.company.timeoff.repository;
 
 import java.sql.Timestamp;
 import java.util.List;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.Query;
@@ -57,44 +56,78 @@ public interface TimeOffRequestRepository
 
   @Query(
       value =
-          "select * "
-              + "from time_off_requests tr "
-              + "where tr.id in (select time_off_request_id "
-              + "from time_off_request_dates td "
-              + "where td.date >= date_add(curdate(), INTERVAL -day(curdate())+1 day) "
-              + "and td.date <= last_day(date_add(curdate(), INTERVAL +11 month))"
-              + "and td.deleted_at is NULL) "
-              + "and (tr.approver_user_id = ?1 "
-              + "or tr.requester_user_id = ?1) "
-              + "and tr.time_off_request_approval_status_id in ( "
-              + "select tras.id "
-              + "from time_off_request_approval_statuses tras "
-              + "where tras.name in ?2)",
+          "SELECT DISTINCT tr.id, tr.requester_user_id,"
+              + "                tr.approver_user_id, tr.approved_date, "
+              + "                tr.time_off_policy_id, tr.expires_at, "
+              + "                tr.created_at, tr.updated_at, "
+              + "                tr.deleted_at, tr.time_off_request_approval_status_id "
+              + "FROM time_off_requests tr LEFT JOIN time_off_request_dates td "
+              + "                                    ON tr.id = td.time_off_request_id "
+              + "                          LEFT JOIN users u "
+              + "                                    ON tr.requester_user_id = u.id "
+              + "                          LEFT JOIN time_off_request_approval_statuses tras "
+              + "                            ON tr.time_off_request_approval_status_id = tras.id "
+              + "WHERE (tr.requester_user_id = ?1 "
+              + "  OR u.manager_user_id = ?1) "
+              + "  AND ("
+              + "   td.date >= date_add(curdate(), INTERVAL -day(curdate())+1 day) "
+              + "     AND td.date <= last_day(date_add(curdate(), INTERVAL +11 month)) "
+              + "     AND td.deleted_at IS NULL"
+              + "   ) "
+              + "  AND tras.name in ?2",
       nativeQuery = true)
   List<TimeOffRequest> employeeFindTeamRequests(
       Long managerId, List<String> timeOffRequestApprovalStatus);
 
   @Query(
       value =
-          "select * "
-              + "from time_off_requests tr "
-              + "where tr.id in (select td.time_off_request_id "
-              + "from time_off_request_dates td "
-              + "where td.date >= date_add(curdate(), INTERVAL -day(curdate())+1 day) "
-              + "and td.date <= last_day(date_add(curdate(), INTERVAL +11 month))"
-              + "and td.deleted_at is null ) "
-              + "and (tr.approver_user_id = ?1 "
-              + "or tr.requester_user_id in (?1,?2) "
-              + "or tr.requester_user_id in (select u.id "
-              + "from users u "
-              + "where u.manager_user_id = ?2)) "
-              + "and tr.time_off_request_approval_status_id in ( "
-              + "select tras.id "
-              + "from time_off_request_approval_statuses tras "
-              + "where tras.name in ?3)",
+          "SELECT DISTINCT tr.id, tr.requester_user_id,"
+              + "                tr.approver_user_id, tr.approved_date, "
+              + "                tr.time_off_policy_id, tr.expires_at, "
+              + "                tr.created_at, tr.updated_at, "
+              + "                tr.deleted_at, tr.time_off_request_approval_status_id "
+              + "FROM time_off_requests tr LEFT JOIN time_off_request_dates td "
+              + "                                    ON tr.id = td.time_off_request_id "
+              + "                          LEFT JOIN users u "
+              + "                                    ON tr.requester_user_id = u.id "
+              + "                          LEFT JOIN time_off_request_approval_statuses tras "
+              + "                             ON tr.time_off_request_approval_status_id = tras.id "
+              + "WHERE (tr.requester_user_id IN (?1, ?2) "
+              + "  OR u.manager_user_id IN (?1, ?2)) "
+              + "  AND ("
+              + "   td.date >= date_add(curdate(), INTERVAL -day(curdate())+1 day) "
+              + "     AND td.date <= last_day(date_add(curdate(), INTERVAL +11 month)) "
+              + "     AND td.deleted_at IS NULL"
+              + "  ) "
+              + "  AND tras.name in ?3",
       nativeQuery = true)
   List<TimeOffRequest> managerFindTeamRequests(
       Long userId, Long managerId, List<String> timeOffRequestApprovalStatus);
+
+  @Query(
+      value =
+          "SELECT DISTINCT tr.id, tr.requester_user_id,"
+              + "                tr.approver_user_id, tr.approved_date, "
+              + "                tr.time_off_policy_id, tr.expires_at, "
+              + "                tr.created_at, tr.updated_at, "
+              + "                tr.deleted_at, tr.time_off_request_approval_status_id "
+              + "FROM time_off_requests tr LEFT JOIN time_off_request_dates td "
+              + "                                    ON tr.id = td.time_off_request_id "
+              + "                          LEFT JOIN users u "
+              + "                                    ON tr.requester_user_id = u.id "
+              + "                          LEFT JOIN time_off_request_approval_statuses tras "
+              + "                             ON tr.time_off_request_approval_status_id = tras.id "
+              + "WHERE (tr.requester_user_id = ?1 "
+              + "  OR u.manager_user_id = ?1) "
+              + "  AND ("
+              + "    td.date >= date_add(curdate(), INTERVAL -day(curdate())+1 day) "
+              + "      AND td.date <= last_day(date_add(curdate(), INTERVAL +11 month)) "
+              + "      AND td.deleted_at IS NULL"
+              + "    ) "
+              + "  AND tras.name in ?2",
+      nativeQuery = true)
+  List<TimeOffRequest> adminFindTeamRequests(
+      Long userId, List<String> timeOffRequestApprovalStatus);
 
   @Query(
       value = "select * from time_off_requests tr "
