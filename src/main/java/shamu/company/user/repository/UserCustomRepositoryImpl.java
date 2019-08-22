@@ -75,7 +75,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
         entityManager
             .createNativeQuery(resultSql)
             .setParameter(1, companyId)
-            .setParameter(2, employeeListSearchCondition.getKeyword())
+            .setParameter(2, employeeListSearchCondition.getKeyword().trim())
             .getResultList();
 
     jobUserItemList = convertToJobUserList(jobUserList);
