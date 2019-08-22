@@ -27,7 +27,7 @@ public interface PaidHolidayRepository extends BaseRepository<PaidHoliday, Long>
   @Modifying
   @Transactional
   @Query(
-      value = "UPDATE paid_holidays SET name = ?2,"
+      value = "UPDATE paid_holidays SET name = ?2, name_show = ?2,"
           + " date = ?3 WHERE id = ?1 AND deleted_at IS NULL",
       nativeQuery = true
   )

@@ -113,6 +113,7 @@ public class PaidHolidayServiceImpl implements PaidHolidayService {
   @Override
   public void deletePaidHoliday(final Long id) {
     paidHolidayRepository.delete(id);
+    companyPaidHolidayRepository.deleteByPaidHolidayId(id);
   }
 
   @Override
