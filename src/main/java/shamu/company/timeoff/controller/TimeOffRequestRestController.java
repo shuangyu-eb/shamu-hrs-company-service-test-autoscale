@@ -230,7 +230,7 @@ public class TimeOffRequestRestController extends BaseRestController {
       @RequestParam(defaultValue = "5", required = false) final int size) {
 
     final PageRequest request = PageRequest.of(
-        page, size, Sort.by(SortFields.APPROVED_DATE.getValue()).descending());
+        page, size, Sort.by(SortFields.CREATED_AT.getValue()).descending());
     final MyTimeOffDto myTimeOffDto;
     final Timestamp startDayTimestamp = DateUtil.getFirstDayOfCurrentYear();
     final Long[] timeOffRequestStatuses = new Long[]{NO_ACTION.getValue(), VIEWED.getValue()};
