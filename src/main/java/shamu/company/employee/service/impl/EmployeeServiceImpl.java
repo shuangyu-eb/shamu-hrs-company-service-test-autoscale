@@ -338,8 +338,12 @@ public class EmployeeServiceImpl implements EmployeeService {
 
   private User updateEmployeeBasicInformation(final User employee, final EmployeeDto employeeDto) {
     final String base64EncodedPhoto = employeeDto.getPersonalPhoto();
-    final String photoPath = saveEmployeePhoto(base64EncodedPhoto);
-    employee.setImageUrl(photoPath);
+    // The photo has been updated
+    if (base64EncodedPhoto != null && !base64EncodedPhoto.equals(employee.getImageUrl())) {
+      final String photoPath = saveEmployeePhoto(base64EncodedPhoto);
+      employee.setImageUrl(photoPath);
+    }
+
 
     final UserPersonalInformation userPersonalInformation = employee.getUserPersonalInformation();
     final UserPersonalInformationDto userPersonalInformationDto =
