@@ -51,4 +51,8 @@ public interface TimeOffRequestService {
       Long requestId, UnimplementedRequestPojo unimplementedRequestPojo);
 
   TimeOffRequestDetailDto getTimeOffRequestDetail(Long id, Long userId);
+
+  TimeOffRequest saveTimeOffRequest(
+          final TimeOffRequest timeOffRequest, final Long policyId,
+          final TimeOffRequestApprovalStatus status);
 }

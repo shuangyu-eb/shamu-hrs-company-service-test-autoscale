@@ -37,6 +37,8 @@ public class TimeOffRequest extends BaseEntity {
 
   private Timestamp approvedDate;
 
+  private Integer balance;
+
   @ManyToOne
   private TimeOffPolicy timeOffPolicy;
 

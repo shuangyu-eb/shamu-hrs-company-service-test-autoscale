@@ -75,3 +75,15 @@ databaseChangeLog:
             constraintName: fk_users_deactivations_reasons
             referencedColumnNames: id
             referencedTableName: deactivation_reasons
+
+
+  - changeSet:
+      id: 1566463012920-1
+      author: bin-eb
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: balance
+                  type: INT
+            tableName: time_off_requests

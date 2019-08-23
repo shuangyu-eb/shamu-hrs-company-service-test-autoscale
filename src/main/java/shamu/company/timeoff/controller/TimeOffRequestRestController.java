@@ -32,7 +32,6 @@ import shamu.company.timeoff.dto.MyTimeOffDto;
 import shamu.company.timeoff.dto.TimeOffRequestDetailDto;
 import shamu.company.timeoff.dto.TimeOffRequestDto;
 import shamu.company.timeoff.dto.TimeOffRequestUpdateDto;
-import shamu.company.timeoff.entity.TimeOffPolicy;
 import shamu.company.timeoff.entity.TimeOffRequest;
 import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus;
 import shamu.company.timeoff.entity.TimeOffRequestComment;
@@ -40,7 +39,6 @@ import shamu.company.timeoff.entity.TimeOffRequestDate;
 import shamu.company.timeoff.entity.mapper.TimeOffRequestMapper;
 import shamu.company.timeoff.pojo.TimeOffRequestPojo;
 import shamu.company.timeoff.pojo.UnimplementedRequestPojo;
-import shamu.company.timeoff.service.TimeOffPolicyService;
 import shamu.company.timeoff.service.TimeOffRequestDateService;
 import shamu.company.timeoff.service.TimeOffRequestEmailService;
 import shamu.company.timeoff.service.TimeOffRequestService;
@@ -57,8 +55,6 @@ public class TimeOffRequestRestController extends BaseRestController {
 
   private final TimeOffRequestDateService timeOffRequestDateService;
 
-  private final TimeOffPolicyService timeOffPolicyService;
-
   private final UserService userService;
 
   private final TimeOffRequestMapper timeOffRequestMapper;
@@ -68,13 +64,11 @@ public class TimeOffRequestRestController extends BaseRestController {
       final TimeOffRequestService timeOffRequestService,
       final TimeOffRequestEmailService timeOffRequestEmailService,
       final TimeOffRequestDateService timeOffRequestDateService,
-      final TimeOffPolicyService timeOffPolicyService,
       final UserService userService,
       final TimeOffRequestMapper timeOffRequestMapper) {
     this.timeOffRequestService = timeOffRequestService;
     this.timeOffRequestEmailService = timeOffRequestEmailService;
     this.timeOffRequestDateService = timeOffRequestDateService;
-    this.timeOffPolicyService = timeOffPolicyService;
     this.userService = userService;
     this.timeOffRequestMapper = timeOffRequestMapper;
   }
@@ -88,8 +82,8 @@ public class TimeOffRequestRestController extends BaseRestController {
     final TimeOffRequest timeOffRequest = requestPojo.getTimeOffRequest(user);
     timeOffRequest.setApprover(user.getManagerUser());
 
-    final TimeOffRequest timeOffRequestReturned =
-        saveTimeOffRequest(
+    final TimeOffRequest timeOffRequestReturned = timeOffRequestService
+        .saveTimeOffRequest(
             timeOffRequest, requestPojo.getPolicyId(), TimeOffRequestApprovalStatus.NO_ACTION);
     saveTimeOffRequestDates(requestPojo, timeOffRequestReturned);
 
@@ -108,8 +102,8 @@ public class TimeOffRequestRestController extends BaseRestController {
     timeOffRequest.setApprover(approver);
     timeOffRequest.setApprovedDate(Timestamp.from(Instant.now()));
 
-    final TimeOffRequest timeOffRequestReturned =
-        saveTimeOffRequest(timeOffRequest, requestPojo.getPolicyId(), APPROVED);
+    final TimeOffRequest timeOffRequestReturned = timeOffRequestService
+        .saveTimeOffRequest(timeOffRequest, requestPojo.getPolicyId(), APPROVED);
 
     saveTimeOffRequestDates(requestPojo, timeOffRequestReturned);
   }
@@ -291,15 +285,6 @@ public class TimeOffRequestRestController extends BaseRestController {
         .getMyTimeOffApprovedRequestsByRequesterUserIdAfterNow(
             id, startDayTimestamp, APPROVED.getValue());
     return timeOffRequestDto;
-  }
-
-  private TimeOffRequest saveTimeOffRequest(
-      final TimeOffRequest timeOffRequest, final Long policyId,
-      final TimeOffRequestApprovalStatus status) {
-    final TimeOffPolicy policy = timeOffPolicyService.getTimeOffPolicyById(policyId);
-    timeOffRequest.setTimeOffPolicy(policy);
-    timeOffRequest.setTimeOffApprovalStatus(status);
-    return timeOffRequestService.createTimeOffRequest(timeOffRequest);
   }
 
   private void saveTimeOffRequestDates(
