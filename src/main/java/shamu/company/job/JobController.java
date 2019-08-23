@@ -67,8 +67,9 @@ public class JobController extends BaseRestController {
 
     user.setUserCompensation(userCompensation);
 
-    if (jobUpdateDto.getManagerId() != null) {
-      final User manager = userService.findUserById(jobUpdateDto.getManagerId());
+    final Long managerId = jobUpdateDto.getManagerId();
+    if (managerId != null && !user.getId().equals(managerId)) {
+      final User manager = userService.findUserById(managerId);
       user.setManagerUser(manager);
       if (manager.getRole() == Role.NON_MANAGER) {
         userService.saveUserWithRole(user, Role.MANAGER);

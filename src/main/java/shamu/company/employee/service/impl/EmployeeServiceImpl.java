@@ -407,8 +407,8 @@ public class EmployeeServiceImpl implements EmployeeService {
 
   private void saveManagerUser(final User user, final NewEmployeeJobInformationDto jobInformation) {
     final Long managerUserId = jobInformation.getReportsTo();
-    if (managerUserId != null) {
-      final User managerUser =
+    if (managerUserId != null && !managerUserId.equals(user.getId())) {
+      User managerUser =
           userRepository
               .findById(managerUserId)
               .orElseThrow(
@@ -419,7 +419,7 @@ public class EmployeeServiceImpl implements EmployeeService {
       if (Role.NON_MANAGER.name().equals(managerUser.getUserRole().getName())) {
         final UserRole userRole = userRoleRepository.findByName(Role.MANAGER.name());
         managerUser.setUserRole(userRole);
-        userRepository.save(managerUser);
+        managerUser = userRepository.save(managerUser);
       }
 
       user.setManagerUser(managerUser);

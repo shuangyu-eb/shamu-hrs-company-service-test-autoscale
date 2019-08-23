@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.hibernate.annotations.Where;
 import shamu.company.common.entity.BaseEntity;
+import shamu.company.common.exception.GeneralException;
 import shamu.company.company.entity.Company;
 
 @Data
@@ -93,5 +94,19 @@ public class User extends BaseEntity {
     ADMIN,
     MANAGER,
     NON_MANAGER,
+  }
+
+  public void setManagerUser(final User managerUser) {
+    if (null == managerUser) {
+      this.managerUser = null;
+      return;
+    }
+    if (null == managerUser.getId()) {
+      throw new GeneralException("Please save this manager before set this user's manager.");
+    }
+    if (managerUser.getId().equals(this.getId())) {
+      throw new GeneralException("Users cannot set themselves to be their manager.");
+    }
+    this.managerUser = managerUser;
   }
 }
