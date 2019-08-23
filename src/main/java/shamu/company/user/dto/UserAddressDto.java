@@ -1,13 +1,8 @@
 package shamu.company.user.dto;
 
-import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import shamu.company.common.entity.Country;
-import shamu.company.common.entity.StateProvince;
 import shamu.company.hashids.HashidsFormat;
-import shamu.company.user.entity.User;
-import shamu.company.user.entity.UserAddress;
 
 @Data
 @NoArgsConstructor

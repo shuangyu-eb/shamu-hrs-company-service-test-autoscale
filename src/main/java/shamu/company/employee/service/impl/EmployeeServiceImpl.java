@@ -17,6 +17,7 @@ import shamu.company.common.entity.Country;
 import shamu.company.common.entity.StateProvince;
 import shamu.company.common.exception.AwsUploadException;
 import shamu.company.common.exception.ForbiddenException;
+import shamu.company.common.exception.GeneralException;
 import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.common.repository.CountryRepository;
 import shamu.company.common.repository.EmploymentTypeRepository;
@@ -344,7 +345,6 @@ public class EmployeeServiceImpl implements EmployeeService {
       employee.setImageUrl(photoPath);
     }
 
-
     final UserPersonalInformation userPersonalInformation = employee.getUserPersonalInformation();
     final UserPersonalInformationDto userPersonalInformationDto =
         employeeDto.getUserPersonalInformationDto();
@@ -429,19 +429,22 @@ public class EmployeeServiceImpl implements EmployeeService {
 
   private void saveEmployeeCompensation(final User user,
       final NewEmployeeJobInformationDto jobInformation) {
-    if (jobInformation.getCompensation() == null
-        || jobInformation.getCompensationFrequencyId() == null) {
+    if (jobInformation.getCompensation() != null
+        && jobInformation.getCompensationFrequencyId() != null) {
       final UserCompensation userCompensation = new UserCompensation();
       userCompensation.setWage(jobInformation.getCompensation());
 
       final Long compensationFrequencyId = jobInformation.getCompensationFrequencyId();
-      if (compensationFrequencyId != null) {
-        final CompensationFrequency compensationFrequency =
-            compensationFrequencyRepository.getOne(compensationFrequencyId);
-        userCompensation.setCompensationFrequency(compensationFrequency);
-      }
+      final CompensationFrequency compensationFrequency =
+          compensationFrequencyRepository.findById(compensationFrequencyId)
+              .orElseThrow(() -> new GeneralException(
+                  "CompensationFrequency was not found."));
+      userCompensation.setCompensationFrequency(compensationFrequency);
       userCompensation.setUserId(user.getId());
-      userCompensationRepository.save(userCompensation);
+      final UserCompensation userCompensationReturned = userCompensationRepository
+          .save(userCompensation);
+      user.setUserCompensation(userCompensationReturned);
+      userRepository.save(user);
     }
   }
 

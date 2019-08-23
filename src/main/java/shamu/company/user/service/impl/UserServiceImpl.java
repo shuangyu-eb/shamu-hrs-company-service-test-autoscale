@@ -49,6 +49,7 @@ import shamu.company.user.entity.UserPersonalInformation;
 import shamu.company.user.entity.UserRole;
 import shamu.company.user.entity.UserStatus;
 import shamu.company.user.entity.UserStatus.Status;
+import shamu.company.user.entity.mapper.UserAddressMapper;
 import shamu.company.user.entity.mapper.UserContactInformationMapper;
 import shamu.company.user.entity.mapper.UserPersonalInformationMapper;
 import shamu.company.user.pojo.UserRoleUpdatePojo;
@@ -74,6 +75,7 @@ public class UserServiceImpl implements UserService {
   private final UserEmergencyContactService userEmergencyContactService;
   private final UserAddressService userAddressService;
   private final UserContactInformationMapper userContactInformationMapper;
+  private final UserAddressMapper userAddressMapper;
 
   private final UserPersonalInformationMapper userPersonalInformationMapper;
 
@@ -92,7 +94,8 @@ public class UserServiceImpl implements UserService {
       final UserPersonalInformationMapper userPersonalInformationMapper,
       final UserEmergencyContactService userEmergencyContactService,
       final UserAddressService userAddressService,
-      final UserContactInformationMapper userContactInformationMapper) {
+      final UserContactInformationMapper userContactInformationMapper,
+      final UserAddressMapper userAddressMapper) {
     this.templateEngine = templateEngine;
     this.userRepository = userRepository;
     this.jobUserRepository = jobUserRepository;
@@ -105,6 +108,7 @@ public class UserServiceImpl implements UserService {
     this.userAddressService = userAddressService;
     this.userPersonalInformationMapper = userPersonalInformationMapper;
     this.userContactInformationMapper = userContactInformationMapper;
+    this.userAddressMapper = userAddressMapper;
   }
 
   @Override
@@ -347,7 +351,8 @@ public class UserServiceImpl implements UserService {
             .map(UserEmergencyContactDto::new).collect(Collectors.toList());
 
     return new AccountInfoDto(
-        userPersonalInformationDto, headPortrait, userAddress,
+        userPersonalInformationDto, headPortrait,
+        userAddressMapper.convertToUserAddressDto(userAddress),
         userContactInformationDto, userEmergencyContactDtos);
   }
 
