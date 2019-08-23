@@ -23,6 +23,7 @@ public interface UserEmergencyContactMapper {
 
   @Mapping(target = "state", source = "stateId")
   @Mapping(target = "user", source = "userId")
+  @Mapping(target = "id", source = "id")
   UserEmergencyContact createFromUserEmergencyContactDto(
       UserEmergencyContactDto userEmergencyContactDto);
 
