@@ -56,75 +56,59 @@ public interface TimeOffRequestRepository
 
   @Query(
       value =
-          "SELECT DISTINCT tr.id, tr.requester_user_id,"
-              + "                tr.approver_user_id, tr.approved_date, "
-              + "                tr.time_off_policy_id, tr.expires_at, "
-              + "                tr.created_at, tr.updated_at, "
-              + "                tr.deleted_at, tr.time_off_request_approval_status_id "
-              + "FROM time_off_requests tr LEFT JOIN time_off_request_dates td "
-              + "                                    ON tr.id = td.time_off_request_id "
-              + "                          LEFT JOIN users u "
-              + "                                    ON tr.requester_user_id = u.id "
-              + "                          LEFT JOIN time_off_request_approval_statuses tras "
-              + "                            ON tr.time_off_request_approval_status_id = tras.id "
-              + "WHERE (tr.requester_user_id = ?1 "
-              + "  OR u.manager_user_id = ?1) "
-              + "  AND ("
-              + "   td.date >= date_add(curdate(), INTERVAL -day(curdate())+1 day) "
-              + "     AND td.date <= last_day(date_add(curdate(), INTERVAL +11 month)) "
-              + "     AND td.deleted_at IS NULL"
-              + "   ) "
-              + "  AND tras.name in ?2",
+              "SELECT tr.* FROM time_off_requests tr "
+                  + "LEFT JOIN time_off_request_dates td "
+                  + "   ON tr.id = td.time_off_request_id "
+                  + "LEFT JOIN users u "
+                  + "   ON tr.requester_user_id = u.id "
+                  + "LEFT JOIN time_off_request_approval_statuses tras "
+                  + "   ON tr.time_off_request_approval_status_id = tras.id "
+                  + "WHERE (tr.requester_user_id = ?1 "
+                  + "   OR u.manager_user_id = ?1) "
+                  + "   and tr.deleted_at IS NULL "
+                  + "   and tras.name in ?2 "
+                  + "group by tr.id "
+                  + "   having min(td.date) >= date_add(curdate(), INTERVAL -day(curdate())+1 day) "
+                  + "       and max(td.date) <= last_day(date_add(curdate(), INTERVAL +11 month)) ",
       nativeQuery = true)
   List<TimeOffRequest> employeeFindTeamRequests(
       Long managerId, List<String> timeOffRequestApprovalStatus);
 
   @Query(
       value =
-          "SELECT DISTINCT tr.id, tr.requester_user_id,"
-              + "                tr.approver_user_id, tr.approved_date, "
-              + "                tr.time_off_policy_id, tr.expires_at, "
-              + "                tr.created_at, tr.updated_at, "
-              + "                tr.deleted_at, tr.time_off_request_approval_status_id "
-              + "FROM time_off_requests tr LEFT JOIN time_off_request_dates td "
-              + "                                    ON tr.id = td.time_off_request_id "
-              + "                          LEFT JOIN users u "
-              + "                                    ON tr.requester_user_id = u.id "
-              + "                          LEFT JOIN time_off_request_approval_statuses tras "
-              + "                             ON tr.time_off_request_approval_status_id = tras.id "
+          "SELECT tr.* FROM time_off_requests tr "
+              + "LEFT JOIN time_off_request_dates td "
+              + "   ON tr.id = td.time_off_request_id "
+              + "LEFT JOIN users u "
+              + "   ON tr.requester_user_id = u.id "
+              + "LEFT JOIN time_off_request_approval_statuses tras "
+              + "   ON tr.time_off_request_approval_status_id = tras.id "
               + "WHERE (tr.requester_user_id IN (?1, ?2) "
-              + "  OR u.manager_user_id IN (?1, ?2)) "
-              + "  AND ("
-              + "   td.date >= date_add(curdate(), INTERVAL -day(curdate())+1 day) "
-              + "     AND td.date <= last_day(date_add(curdate(), INTERVAL +11 month)) "
-              + "     AND td.deleted_at IS NULL"
-              + "  ) "
-              + "  AND tras.name in ?3",
+              + "   OR u.manager_user_id IN (?1, ?2)) "
+              + "tr.deleted_at is null "
+              + "   AND tras.name in ?3 "
+              + "group by tr.id "
+              + "   having min(td.date) >= date_add(curdate(), INTERVAL -day(curdate())+1 day) "
+              + "       and max(td.date) <= last_day(date_add(curdate(), INTERVAL +11 month)) ",
       nativeQuery = true)
   List<TimeOffRequest> managerFindTeamRequests(
       Long userId, Long managerId, List<String> timeOffRequestApprovalStatus);
 
   @Query(
       value =
-          "SELECT DISTINCT tr.id, tr.requester_user_id,"
-              + "                tr.approver_user_id, tr.approved_date, "
-              + "                tr.time_off_policy_id, tr.expires_at, "
-              + "                tr.created_at, tr.updated_at, "
-              + "                tr.deleted_at, tr.time_off_request_approval_status_id "
-              + "FROM time_off_requests tr LEFT JOIN time_off_request_dates td "
-              + "                                    ON tr.id = td.time_off_request_id "
-              + "                          LEFT JOIN users u "
-              + "                                    ON tr.requester_user_id = u.id "
-              + "                          LEFT JOIN time_off_request_approval_statuses tras "
-              + "                             ON tr.time_off_request_approval_status_id = tras.id "
-              + "WHERE (tr.requester_user_id = ?1 "
-              + "  OR u.manager_user_id = ?1) "
-              + "  AND ("
-              + "    td.date >= date_add(curdate(), INTERVAL -day(curdate())+1 day) "
-              + "      AND td.date <= last_day(date_add(curdate(), INTERVAL +11 month)) "
-              + "      AND td.deleted_at IS NULL"
-              + "    ) "
-              + "  AND tras.name in ?2",
+          "SELECT tr.* FROM time_off_requests tr "
+              + "LEFT JOIN time_off_request_dates td "
+              + "   ON tr.id = td.time_off_request_id "
+              + "LEFT JOIN users u "
+              + "   ON tr.requester_user_id = u.id "
+              + "LEFT JOIN time_off_request_approval_statuses tras "
+              + "   ON tr.time_off_request_approval_status_id = tras.id "
+              + "WHERE (tr.requester_user_id = ?1 OR u.manager_user_id = ?1) "
+              + "   and tras.name in ?2 "
+              + "   and tr.deleted_at is null "
+              + "group by tr.id "
+              + "   having min(td.date) >= date_add(curdate(), INTERVAL -day(curdate())+1 day) "
+              + "       and max(td.date) <= last_day(date_add(curdate(), INTERVAL +11 month)) ",
       nativeQuery = true)
   List<TimeOffRequest> adminFindTeamRequests(
       Long userId, List<String> timeOffRequestApprovalStatus);
