@@ -248,23 +248,7 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
       final TimeOffRequest timeOffRequest, final TimeOffRequestComment timeOffRequestComment) {
 
     TimeOffRequest original = getById(timeOffRequest.getId());
-    final TimeOffRequestApprovalStatus originalStatus = original.getTimeOffApprovalStatus();
     final TimeOffRequestApprovalStatus status = timeOffRequest.getTimeOffApprovalStatus();
-
-    if (status != originalStatus && (status == APPROVED || originalStatus == APPROVED)) {
-      final TimeOffPolicyUser timeOffPolicyUser =
-          timeOffPolicyUserRepository.findTimeOffPolicyUserByUserAndTimeOffPolicy(
-              original.getRequesterUser(), original.getTimeOffPolicy());
-      Integer balance = timeOffPolicyUser.getBalance();
-      final Integer hours = original.getHours();
-      if (status == APPROVED) {
-        balance -= hours;
-      } else {
-        balance += hours;
-      }
-      timeOffPolicyUser.setBalance(balance);
-      timeOffPolicyUserRepository.save(timeOffPolicyUser);
-    }
 
     original.setTimeOffApprovalStatus(status);
     original.setApproverUser(timeOffRequest.getApproverUser());

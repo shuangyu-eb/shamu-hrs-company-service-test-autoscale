@@ -78,8 +78,6 @@ public class TimeOffRequestEmailServiceImpl implements TimeOffRequestEmailServic
 
   @Override
   public void sendApprovedEmail(TimeOffRequest timeOffRequest) {
-    User requester = timeOffRequest.getRequesterUser();
-
     Map<String, Object> variables = getVariablesOfTimeOffRequestEmail(timeOffRequest);
 
     User approver = timeOffRequest.getApproverUser();
@@ -90,14 +88,14 @@ public class TimeOffRequestEmailServiceImpl implements TimeOffRequestEmailServic
     variables.put("conflict", conflict);
 
     if (timeOffRequest.getTimeOffPolicy().getIsLimited()) {
-      Integer balance = timeOffPolicyUserRepository
-          .findTimeOffPolicyUserByUserAndTimeOffPolicy(requester, timeOffRequest.getTimeOffPolicy())
-          .getBalance();
+      Integer balance = timeOffRequest.getBalance() - timeOffRequest.getHours();
       variables.put("remain", balance);
     }
 
     String subject = "Time Off Approved";
     String template = "time_off_request_approve.html";
+
+    User requester = timeOffRequest.getRequesterUser();
 
     processAndSendEmail(variables, template, new Email(approver, requester, subject));
 
@@ -158,9 +156,7 @@ public class TimeOffRequestEmailServiceImpl implements TimeOffRequestEmailServic
 
     long conflict = getConflictOfTimeOffRequest(timeOffRequest);
     if (timeOffRequest.getTimeOffPolicy().getIsLimited()) {
-      Integer balance = timeOffPolicyUserRepository
-          .findTimeOffPolicyUserByUserAndTimeOffPolicy(requester, timeOffRequest.getTimeOffPolicy())
-          .getBalance();
+      Integer balance = timeOffRequest.getBalance();
       variables.put("remain", balance - timeOffRequest.getHours());
     }
 
