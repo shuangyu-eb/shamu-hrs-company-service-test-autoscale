@@ -166,10 +166,10 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
   }
 
   @Override
-  public TimeOffRequestDto getMyTimeOffApprovedRequestsByRequesterUserIdAfterNow(
-      final Long id, final Timestamp startDay, final Long status) {
+  public TimeOffRequestDto getRecentApprovedRequestByRequesterUserId(
+      final Long id, final Timestamp startDay, final Long statusId) {
     final TimeOffRequest timeOffRequest = timeOffRequestRepository
-        .findByRequesterUserIdFilteredByApprovedAndStartDay(id, startDay, status);
+        .findRecentApprovedRequestByRequesterUserId(id, startDay, statusId);
     return timeOffRequestMapper.convertToTimeOffRequestDto(timeOffRequest);
   }
 

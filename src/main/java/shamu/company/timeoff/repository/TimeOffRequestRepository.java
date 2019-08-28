@@ -85,7 +85,7 @@ public interface TimeOffRequestRepository
               + "   ON tr.time_off_request_approval_status_id = tras.id "
               + "WHERE (tr.requester_user_id IN (?1, ?2) "
               + "   OR u.manager_user_id IN (?1, ?2)) "
-              + "tr.deleted_at is null "
+              + "   and tr.deleted_at is null "
               + "   AND tras.name in ?3 "
               + "group by tr.id "
               + "   having min(td.date) >= date_add(curdate(), INTERVAL -day(curdate())+1 day) "
@@ -168,18 +168,16 @@ public interface TimeOffRequestRepository
 
   @Query(
           value =
-                  "select * from time_off_requests tr "
+                  "select tr.* from time_off_requests tr "
+                          + "join time_off_request_dates tord on tr.id = tord.time_off_request_id "
                           + "where tr.deleted_at is null "
                           + "and tr.time_off_request_approval_status_id = ?3 "
-                          + "and tr.id in (select trspan.time_off_request_id from "
-                          + "(select min(trd.date) startDay, trd.time_off_request_id "
-                          + "from time_off_request_dates trd "
-                          + "group by trd.time_off_request_id "
-                          + "having startDay > ?2) trspan) "
-                          + "and tr.requester_user_id = ?1 limit 1 ",
+                          + "and tr.requester_user_id = ?1 "
+                          + "and tord.DATE > ?2 "
+                          + "order by tord.date , tr.created_at limit 1 ",
           nativeQuery = true)
-  TimeOffRequest findByRequesterUserIdFilteredByApprovedAndStartDay(
-          Long id, Timestamp startDay, Long status);
+  TimeOffRequest findRecentApprovedRequestByRequesterUserId(
+          Long id, Timestamp startDay, Long statusId);
 
   @Query(
       value =

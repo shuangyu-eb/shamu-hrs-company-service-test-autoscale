@@ -39,8 +39,8 @@ public interface TimeOffRequestService {
 
   MyTimeOffDto getMyTimeOffRequestsByRequesterUserId(Long id, Timestamp startDay);
 
-  TimeOffRequestDto getMyTimeOffApprovedRequestsByRequesterUserIdAfterNow(
-          Long id, Timestamp startDay, Long status);
+  TimeOffRequestDto getRecentApprovedRequestByRequesterUserId(
+          Long id, Timestamp startDay, Long statusId);
 
   List<TimeOffRequest> getOtherRequestsBy(TimeOffRequest timeOffRequest);
 

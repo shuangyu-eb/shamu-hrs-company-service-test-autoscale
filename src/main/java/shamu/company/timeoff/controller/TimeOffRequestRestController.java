@@ -282,7 +282,7 @@ public class TimeOffRequestRestController extends BaseRestController {
     final TimeOffRequestDto timeOffRequestDto;
     final Timestamp startDayTimestamp = new Timestamp(new Date().getTime());
     timeOffRequestDto = timeOffRequestService
-        .getMyTimeOffApprovedRequestsByRequesterUserIdAfterNow(
+        .getRecentApprovedRequestByRequesterUserId(
             id, startDayTimestamp, APPROVED.getValue());
     return timeOffRequestDto;
   }
