@@ -15,7 +15,8 @@ import shamu.company.timeoff.entity.TimeOffRequest;
     config = Config.class,
     uses = {
         TimeOffRequestCommentMapper.class,
-        SelectFieldInformationDto.class
+        SelectFieldInformationDto.class,
+        TimeOffRequestDateMapper.class
     }
 )
 public interface TimeOffRequestMapper {
@@ -29,6 +30,7 @@ public interface TimeOffRequestMapper {
   @Mapping(target = "userId", source = "requesterUser.id")
   @Mapping(target = "name", source = "requesterUser.userPersonalInformation.name")
   @Mapping(target = "policyName", source = "timeOffPolicy.name")
+  @Mapping(target = "dates", source = "timeOffRequestDates")
   TimeOffRequestDto convertToTimeOffRequestDto(TimeOffRequest timeOffRequest);
 
   @InheritConfiguration
