@@ -5,8 +5,10 @@ import java.util.stream.Collectors;
 import org.hashids.Hashids;
 
 public class HashidsUtil {
+  private static final String ALPHABET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  private static final String SALT_NAME = "shamu-hrs-salt";
 
-  private static Hashids hashids = new Hashids();
+  private static Hashids hashids = new Hashids(SALT_NAME,0, ALPHABET);
 
 
   public static String encode(Object id) {
