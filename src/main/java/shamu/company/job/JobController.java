@@ -61,9 +61,12 @@ public class JobController extends BaseRestController {
     if (null == userCompensation) {
       userCompensation = new UserCompensation();
     }
-    userCompensationMapper.updateFromJobUpdateDto(userCompensation, jobUpdateDto);
-    userCompensation.setUserId(user.getId());
-    userCompensation = userService.saveUserCompensation(userCompensation);
+    if (jobUpdateDto.getCompensationWage() != null
+        && jobUpdateDto.getCompensationFrequencyId() != null) {
+      userCompensationMapper.updateFromJobUpdateDto(userCompensation, jobUpdateDto);
+      userCompensation.setUserId(user.getId());
+      userCompensation = userService.saveUserCompensation(userCompensation);
+    }
 
     user.setUserCompensation(userCompensation);
 
