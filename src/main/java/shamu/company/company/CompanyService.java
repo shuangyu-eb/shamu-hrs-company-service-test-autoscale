@@ -11,8 +11,6 @@ public interface CompanyService {
 
   Boolean existsByName(String companyName);
 
-  Boolean existsBySubdomainName(String subDomainName);
-
   List<Department> getDepartmentsByCompany(Company company);
 
   Department saveDepartmentsByCompany(String name, Company company);

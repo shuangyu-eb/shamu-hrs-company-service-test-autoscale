@@ -25,4 +25,6 @@ public enum ErrorType {
   GENERAL_EXCEPTION,
 
   AWS_UPLOAD_ERROR,
+
+  AUTH0_EXCEPTION,
 }

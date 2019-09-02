@@ -87,3 +87,31 @@ databaseChangeLog:
                   name: balance
                   type: INT
             tableName: time_off_requests
+
+
+  - changeSet:
+      id: 1565784545670-1
+      author: max-eb
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: user_id
+                  type: varchar(64)
+            tableName: users
+
+  - changeSet:
+        id: 1565786558054-2
+        author: max-eb
+        changes:
+        - dropColumn:
+           columnName: password
+           tableName: users
+
+  - changeSet:
+        id: 1565786558054-3
+        author: max-eb
+        changes:
+        - dropColumn:
+           columnName: subdomain_name
+           tableName: companies

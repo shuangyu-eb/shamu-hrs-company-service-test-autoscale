@@ -10,8 +10,11 @@ import shamu.company.employee.dto.OrgChartDto;
 import shamu.company.job.dto.JobUserDto;
 import shamu.company.job.entity.JobUserListItem;
 import shamu.company.user.dto.AccountInfoDto;
+import shamu.company.user.dto.CreatePasswordDto;
+import shamu.company.user.dto.CurrentUserDto;
 import shamu.company.user.dto.UpdatePasswordDto;
 import shamu.company.user.dto.UserLoginDto;
+import shamu.company.user.dto.UserSignUpDto;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserCompensation;
 import shamu.company.user.entity.UserStatus.Status;
@@ -22,19 +25,17 @@ public interface UserService {
 
   User findUserById(Long id);
 
+  User findByUserId(final String userId);
+
+  List<User> findByManagerUser(User managerUser);
+
   User findUserByEmail(String email);
 
-  User findUserByEmailAndStatus(String email, Status userStatus);
+  User findUserByUserIdAndStatus(String email, Status userStatus);
 
   User findUserByUserPersonalInformationId(Long userPersonalInformationId);
 
   User findUserByUserContactInformationId(Long userContactInformationId);
-
-  void sendVerifyEmail(String email);
-
-  void finishUserVerification(String activationToken);
-
-  Boolean existsByEmailWork(String email);
 
   User findEmployeeInfoByUserId(Long id);
 
@@ -50,8 +51,8 @@ public interface UserService {
       EmployeeListSearchCondition employeeListSearchCondition, Company company, Boolean isAdmin);
 
   Page<JobUserListItem> getAllEmployeesByCompany(
-          EmployeeListSearchCondition employeeListSearchCondition,
-          Company company, Pageable pageable, Boolean isAdmin);
+      EmployeeListSearchCondition employeeListSearchCondition,
+      Company company, Pageable pageable, Boolean isAdmin);
 
   User getOne(Long userId);
 
@@ -69,7 +70,7 @@ public interface UserService {
 
   Boolean createPasswordTokenExist(String token);
 
-  void createPassword(UpdatePasswordDto updatePasswordDto);
+  void createPassword(CreatePasswordDto createPasswordDto);
 
   Page<JobUserListItem> getMyTeam(EmployeeListSearchCondition employeeListSearchCondition,
       User user);
@@ -78,9 +79,7 @@ public interface UserService {
 
   UserCompensation saveUserCompensation(UserCompensation userCompensation);
 
-  void unlock(UserLoginDto userLoginDto);
-
-  boolean resetPassword(UpdatePasswordDto updatePasswordDto);
+  void resetPassword(UpdatePasswordDto updatePasswordDto);
 
   OrgChartDto getOrgChart(Long userId, Company currentCompany);
 
@@ -89,4 +88,14 @@ public interface UserService {
   User updateUserRole(User currentUser, UserRoleUpdatePojo userRoleUpdatePojo, User user);
 
   User updateUserStatus(User currentUser, UserStatusUpdatePojo userStatusUpdatePojo, User user);
+
+  void signUp(UserSignUpDto signUpDto);
+
+  boolean hasUserAccess(User currentUser, Long userId);
+
+  Long getManagerUserIdById(Long userId);
+
+  CurrentUserDto getCurrentUserInfo(String userId);
+
+  Boolean existsByEmailWork(String email);
 }

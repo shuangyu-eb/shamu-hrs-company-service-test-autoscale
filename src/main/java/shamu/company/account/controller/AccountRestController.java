@@ -10,18 +10,23 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import shamu.company.common.config.annotations.RestApiController;
-import shamu.company.user.dto.UpdatePasswordDto;
+import shamu.company.user.dto.CreatePasswordDto;
 import shamu.company.user.dto.UserLoginDto;
 import shamu.company.user.service.UserService;
+import shamu.company.utils.Auth0Util;
 
 @RestApiController
 public class AccountRestController {
 
   private final UserService userService;
 
+  private final Auth0Util auth0Util;
+
   @Autowired
-  public AccountRestController(final UserService userService) {
+  public AccountRestController(final UserService userService,
+      final Auth0Util auth0Util) {
     this.userService = userService;
+    this.auth0Util = auth0Util;
   }
 
   @GetMapping("account/password/{token}")
@@ -30,14 +35,14 @@ public class AccountRestController {
   }
 
   @PatchMapping("account/password")
-  public HttpEntity createPassword(@RequestBody final UpdatePasswordDto updatePasswordDto) {
-    userService.createPassword(updatePasswordDto);
+  public HttpEntity createPassword(@RequestBody final CreatePasswordDto createPasswordDto) {
+    userService.createPassword(createPasswordDto);
     return new ResponseEntity(HttpStatus.OK);
   }
 
   @PatchMapping("account/unlock")
   public HttpEntity unlock(@RequestBody @Valid final UserLoginDto userLoginDto) {
-    userService.unlock(userLoginDto);
+    auth0Util.login(userLoginDto.getEmailWork(), userLoginDto.getPassword());
     return new ResponseEntity(HttpStatus.OK);
   }
 }

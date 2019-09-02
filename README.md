@@ -39,10 +39,18 @@ spring:
 
 auth0:
   jwks: https://shamu-hrs-qa.auth0.com/.well-known/jwks.json(replace this with your own, in the format of <your auth0 domain>/.well-known/jwks.json>)
-  authDomain: https://shamu-hrs-qa.auth0.com/(replace this with your own)
+  domain: shamu-hrs-qa.auth0.com(replace this with your own)
+  customNamespace: https://interviewed.com/
+  clientId: XXXXXXXXXXXXXXXXXXXXXXXXX (Machine-to-Machine application client id)
+  clientSecret: XXXXXXXXXXXXXXXXXXXXXXXX (Machine-to-Machine application client secret)
+  database: XXXXXXXXXXXXXXXXX (connection database name)
 ```
-<small>The Auth0 can only connect to public accessible database. Make sure your database can be visited from Auth0(We will \
-refactor Auth0 related code to use Auth0 store, I will update this document then).</small>
+<small>`customNamespace` is used to extract custom claims like id from token. Currently is fixed as shown above.</small>  
+<small>`clientId` is the client id of a machine-to-machine application. In order to manage the users, it's necessary to create
+ a machine-to-machine application with management api permissions. The scope of the machine-to-machine application 
+ should include all about users, roles and resource-servers. </small>   
+<small>`clientSecret` is the client secret of the machine-to-machine application.</small>  
+<small>`database` is the name of the Auth0 database. we currently switch to use Auth0 store instead of custom database.</small>
 
 ### Using maven to serve the application
 

@@ -70,6 +70,7 @@ import shamu.company.user.repository.UserStatusRepository;
 import shamu.company.user.service.UserContactInformationService;
 import shamu.company.user.service.UserPersonalInformationService;
 import shamu.company.user.service.UserService;
+import shamu.company.utils.Auth0Util;
 import shamu.company.utils.AwsUtil;
 import shamu.company.utils.AwsUtil.Type;
 
@@ -126,6 +127,8 @@ public class EmployeeServiceImpl implements EmployeeService {
 
   private final UserEmergencyContactMapper userEmergencyContactMapper;
 
+  private final Auth0Util auth0Util;
+
   private static final String subject = "Welcome to Champion Solutions";
 
 
@@ -155,7 +158,8 @@ public class EmployeeServiceImpl implements EmployeeService {
       final UserPersonalInformationMapper userPersonalInformationMapper,
       final UserAddressMapper userAddressMapper,
       final UserContactInformationMapper userContactInformationMapper,
-      final UserEmergencyContactMapper userEmergencyContactMapper) {
+      final UserEmergencyContactMapper userEmergencyContactMapper,
+      final Auth0Util auth0Util) {
     this.userAddressRepository = userAddressRepository;
     this.userRepository = userRepository;
     this.jobUserRepository = jobUserRepository;
@@ -181,6 +185,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     this.userAddressMapper = userAddressMapper;
     this.userContactInformationMapper = userContactInformationMapper;
     this.userEmergencyContactMapper = userEmergencyContactMapper;
+    this.auth0Util = auth0Util;
   }
 
   @Override
@@ -230,7 +235,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     final String email = emailResendDto.getEmail();
-    final String originalEmail = user.getEmailWork();
+    final String originalEmail = user.getUserContactInformation().getEmailWork();
     if (!originalEmail.equals(email)) {
       if (userRepository.existsByEmailWork(email)) {
         throw new ForbiddenException("This Email already exists!");
@@ -334,6 +339,10 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     employee.setResetPasswordToken(UUID.randomUUID().toString());
 
+    final com.auth0.json.mgmt.users.User user =
+        auth0Util.addUser(employeeDto.getEmailWork(),
+            null, User.Role.NON_MANAGER.getValue());
+    employee.setUserId(user.getId());
     return userRepository.save(employee);
   }
 

@@ -1,7 +1,7 @@
 package shamu.company.user.service.impl;
 
 import java.sql.Timestamp;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.regex.Matcher;
@@ -15,14 +15,17 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.crypto.bcrypt.BCrypt;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.Context;
+import shamu.company.common.entity.BaseEntity;
 import shamu.company.common.exception.ForbiddenException;
 import shamu.company.common.exception.ResourceNotFoundException;
+import shamu.company.company.CompanyRepository;
+import shamu.company.company.CompanySizeRepository;
 import shamu.company.company.entity.Company;
+import shamu.company.company.entity.CompanySize;
 import shamu.company.email.Email;
 import shamu.company.email.EmailService;
 import shamu.company.employee.dto.EmployeeListSearchCondition;
@@ -34,11 +37,14 @@ import shamu.company.job.dto.JobUserDto;
 import shamu.company.job.entity.JobUser;
 import shamu.company.job.entity.JobUserListItem;
 import shamu.company.job.repository.JobUserRepository;
+import shamu.company.timeoff.service.PaidHolidayService;
 import shamu.company.user.dto.AccountInfoDto;
+import shamu.company.user.dto.CreatePasswordDto;
+import shamu.company.user.dto.CurrentUserDto;
 import shamu.company.user.dto.UpdatePasswordDto;
 import shamu.company.user.dto.UserContactInformationDto;
-import shamu.company.user.dto.UserLoginDto;
 import shamu.company.user.dto.UserPersonalInformationDto;
+import shamu.company.user.dto.UserSignUpDto;
 import shamu.company.user.entity.DeactivationReasons;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
@@ -60,6 +66,7 @@ import shamu.company.user.repository.UserRoleRepository;
 import shamu.company.user.repository.UserStatusRepository;
 import shamu.company.user.service.UserAddressService;
 import shamu.company.user.service.UserService;
+import shamu.company.utils.Auth0Util;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -70,7 +77,6 @@ public class UserServiceImpl implements UserService {
   private final UserRepository userRepository;
   private final JobUserRepository jobUserRepository;
   private final UserStatusRepository userStatusRepository;
-  private final PasswordEncoder passwordEncoder;
   private final UserRoleRepository userRoleRepository;
   private final UserEmergencyContactService userEmergencyContactService;
   private final UserAddressService userAddressService;
@@ -78,9 +84,14 @@ public class UserServiceImpl implements UserService {
   private final UserAddressMapper userAddressMapper;
 
   private final UserPersonalInformationMapper userPersonalInformationMapper;
+  private final CompanySizeRepository companySizeRepository;
+  private final PaidHolidayService paidHolidayService;
+  private final CompanyRepository companyRepository;
 
   private final EmailService emailService;
   private final UserCompensationRepository userCompensationRepository;
+  private final Auth0Util auth0Util;
+
   @Value("${application.systemEmailAddress}")
   private String systemEmailAddress;
   @Value("${application.frontEndAddress}")
@@ -90,25 +101,31 @@ public class UserServiceImpl implements UserService {
   public UserServiceImpl(final ITemplateEngine templateEngine, final UserRepository userRepository,
       final JobUserRepository jobUserRepository, final UserStatusRepository userStatusRepository,
       final EmailService emailService, final UserCompensationRepository userCompensationRepository,
-      @Lazy final PasswordEncoder passwordEncoder, final UserRoleRepository userRoleRepository,
+      final UserRoleRepository userRoleRepository,
       final UserPersonalInformationMapper userPersonalInformationMapper,
       final UserEmergencyContactService userEmergencyContactService,
       final UserAddressService userAddressService,
+      final CompanySizeRepository companySizeRepository,
+      @Lazy final PaidHolidayService paidHolidayService, final CompanyRepository companyRepository,
       final UserContactInformationMapper userContactInformationMapper,
-      final UserAddressMapper userAddressMapper) {
+      final UserAddressMapper userAddressMapper,
+      final Auth0Util auth0Util) {
     this.templateEngine = templateEngine;
     this.userRepository = userRepository;
     this.jobUserRepository = jobUserRepository;
     this.userStatusRepository = userStatusRepository;
     this.emailService = emailService;
     this.userCompensationRepository = userCompensationRepository;
-    this.passwordEncoder = passwordEncoder;
     this.userRoleRepository = userRoleRepository;
     this.userEmergencyContactService = userEmergencyContactService;
     this.userAddressService = userAddressService;
     this.userPersonalInformationMapper = userPersonalInformationMapper;
     this.userContactInformationMapper = userContactInformationMapper;
     this.userAddressMapper = userAddressMapper;
+    this.companySizeRepository = companySizeRepository;
+    this.paidHolidayService = paidHolidayService;
+    this.companyRepository = companyRepository;
+    this.auth0Util = auth0Util;
   }
 
   @Override
@@ -119,13 +136,23 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
+  public User findByUserId(final String userId) {
+    return userRepository.findByUserId(userId);
+  }
+
+  @Override
+  public List<User> findByManagerUser(final User managerUser) {
+    return userRepository.findByManagerUser(managerUser);
+  }
+
+  @Override
   public User findUserByEmail(final String email) {
     return userRepository.findByEmailWork(email);
   }
 
   @Override
-  public User findUserByEmailAndStatus(final String email, final Status userStatus) {
-    return userRepository.findByEmailWorkAndStatus(email, userStatus.name());
+  public User findUserByUserIdAndStatus(final String userId, final Status userStatus) {
+    return userRepository.findByUserIdAndStatus(userId, userStatus.name());
   }
 
   @Override
@@ -136,45 +163,6 @@ public class UserServiceImpl implements UserService {
   @Override
   public User findUserByUserContactInformationId(final Long userContactInformationId) {
     return userRepository.findByUserContactInformationId(userContactInformationId);
-  }
-
-  @Override
-  public void sendVerifyEmail(final String email) {
-    final User user = userRepository.findByEmailWork(email);
-    if (user == null) {
-      throw new ForbiddenException("User account does not exist!");
-    }
-
-    final String accountVerifyToken = UUID.randomUUID().toString();
-    final String emailContent = getActivationEmail(accountVerifyToken);
-    final Timestamp sendDate = new Timestamp(new Date().getTime());
-
-    final Email verifyEmail = new Email(systemEmailAddress, email, "Please activate your account!",
-        emailContent, sendDate);
-    emailService.saveAndScheduleEmail(verifyEmail);
-
-    user.setVerificationToken(accountVerifyToken);
-    final String employeeNumber = getEmployeeNumber(user.getCompany().getName(), 1);
-    user.setEmployeeNumber(employeeNumber);
-    userRepository.save(user);
-  }
-
-  @Override
-  public void finishUserVerification(final String activationToken) {
-    final User user = userRepository.findByVerificationToken(activationToken);
-    if (user == null || user.getVerifiedAt() != null) {
-      throw new ForbiddenException("User account does not exist or already activated!");
-    }
-
-    final UserStatus userStatus = userStatusRepository.findByName(Status.ACTIVE.name());
-    user.setUserStatus(userStatus);
-    user.setVerifiedAt(new Timestamp(new Date().getTime()));
-    userRepository.save(user);
-  }
-
-  @Override
-  public Boolean existsByEmailWork(final String email) {
-    return userRepository.existsByEmailWork(email);
   }
 
   @Override
@@ -247,7 +235,7 @@ public class UserServiceImpl implements UserService {
       final Pageable pageable, final Boolean isAdmin) {
     final Long companyId = company.getId();
     return userRepository.getAllByCondition(
-            employeeListSearchCondition, companyId, pageable, isAdmin);
+        employeeListSearchCondition, companyId, pageable, isAdmin);
   }
 
   @Override
@@ -264,7 +252,7 @@ public class UserServiceImpl implements UserService {
   public void saveUserWithRole(final User user, final Role role) {
     final UserRole userRole = userRoleRepository.findByName(role.name());
     user.setUserRole(userRole);
-    this.save(user);
+    save(user);
   }
 
   @Override
@@ -329,7 +317,7 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public AccountInfoDto getPreSetAccountInfoByUserId(final Long id) {
-    final User user = this.findUserById(id);
+    final User user = findUserById(id);
 
     final UserPersonalInformation userPersonalInformation = user.getUserPersonalInformation();
     final UserPersonalInformationDto userPersonalInformationDto =
@@ -362,23 +350,34 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public void createPassword(final UpdatePasswordDto updatePasswordDto) {
-    if (!Pattern.matches(passwordReg, updatePasswordDto.getNewPassword())) {
+  public void createPassword(final CreatePasswordDto createPasswordDto) {
+    if (!Pattern.matches(passwordReg, createPasswordDto.getNewPassword())) {
       throw new ForbiddenException("Your password doesn't meet our requirements.");
     }
 
-    final User user = userRepository.findByEmailWork(updatePasswordDto.getEmailWork());
-    if (user == null
-        || !updatePasswordDto.getResetPasswordToken().equals(user.getResetPasswordToken())) {
-      throw new ForbiddenException("Create password Forbidden");
+    final com.auth0.json.mgmt.users.User user = auth0Util
+        .getUserByEmailFromAuth0(createPasswordDto.getEmailWork());
+
+    if (user == null) {
+      throw new ForbiddenException(String.format("Can not find user with email %s",
+          createPasswordDto.getEmailWork()));
     }
 
-    user.setResetPasswordToken(null);
-    final String pwHash = BCrypt.hashpw(updatePasswordDto.getNewPassword(), BCrypt.gensalt(10));
-    user.setPassword(pwHash);
+    final String userId = auth0Util.getUserId(user);
+    final User targetUser = userRepository.findByUserId(userId);
+    if (targetUser == null
+        || !createPasswordDto.getResetPasswordToken().equals(targetUser.getResetPasswordToken())) {
+      throw new ResourceNotFoundException(String
+          .format("The user with email %s does not exist.", createPasswordDto.getEmailWork()));
+    }
+
+    auth0Util.updatePassword(user, createPasswordDto.getNewPassword());
+    auth0Util.updateVerified(user, true);
+
     final UserStatus userStatus = userStatusRepository.findByName(Status.ACTIVE.name());
-    user.setUserStatus(userStatus);
-    userRepository.save(user);
+    targetUser.setUserStatus(userStatus);
+    targetUser.setResetPasswordToken(null);
+    userRepository.save(targetUser);
   }
 
   @Override
@@ -399,24 +398,15 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public void unlock(final UserLoginDto userLoginDto) {
-    final User user = userRepository.findByEmailWork(userLoginDto.getEmailWork());
-    if (user == null || !BCrypt.checkpw(userLoginDto.getPassword(), user.getPassword())) {
-      throw new ForbiddenException("Login Forbidden!");
-    }
-  }
-
-  @Override
   public User updateUserRole(final User currentUser, final UserRoleUpdatePojo userRoleUpdatePojo,
       final User user) {
-    if (!BCrypt.checkpw(userRoleUpdatePojo.getPassWord(),
-        currentUser.getPassword())) {
-      throw new ForbiddenException("Login Forbidden!");
-    }
+
+    auth0Util.login(currentUser.getUserContactInformation().getEmailWork(),
+        userRoleUpdatePojo.getPassWord());
+
     final String updateUserRole;
-    if (userRoleUpdatePojo.getUserRole().name()
-        == UserRole.Role.ADMIN.name()) {
-      if (userRepository.findAllByManagerUserId(user.getId()).size() > 0) {
+    if (userRoleUpdatePojo.getUserRole() == UserRole.Role.ADMIN) {
+      if (!userRepository.findAllByManagerUserId(user.getId()).isEmpty()) {
         updateUserRole = UserRole.Role.MANAGER.name();
       } else {
         updateUserRole = UserRole.Role.NON_MANAGER.name();
@@ -433,10 +423,10 @@ public class UserServiceImpl implements UserService {
   public User updateUserStatus(final User currentUser,
       final UserStatusUpdatePojo userStatusUpdatePojo,
       final User user) {
-    if (!BCrypt.checkpw(userStatusUpdatePojo.getPassWord(),
-        currentUser.getPassword())) {
-      throw new ForbiddenException("Login Forbidden!");
-    }
+
+    auth0Util.login(currentUser.getUserContactInformation().getEmailWork(),
+        userStatusUpdatePojo.getPassWord());
+
     if (userStatusUpdatePojo.getUserStatus().name()
         == Status.ACTIVE.name()) {
       user.setUserStatus(userStatusRepository.findByName(
@@ -448,6 +438,90 @@ public class UserServiceImpl implements UserService {
       userRepository.save(user);
     }
     return user;
+  }
+
+  @Override
+  public void signUp(final UserSignUpDto signUpDto) {
+    final UserPersonalInformation userPersonalInformation = UserPersonalInformation.builder()
+        .firstName(signUpDto.getFirstName())
+        .lastName(signUpDto.getLastName())
+        .build();
+
+    final UserContactInformation userContactInformation = UserContactInformation.builder()
+        .emailWork(signUpDto.getEmail())
+        .phoneWork(signUpDto.getPhone())
+        .build();
+
+    final CompanySize companySize = companySizeRepository
+        .findCompanySizeByName(signUpDto.getCompanySize());
+
+    Company company = Company.builder()
+        .name(signUpDto.getCompanyName())
+        .companySize(companySize)
+        .build();
+    company = companyRepository.save(company);
+
+    final UserRole role = userRoleRepository.findByName(Role.ADMIN.name());
+
+    final UserStatus status = userStatusRepository.findByName(Status.ACTIVE.name());
+
+    final String employeeNumber = getEmployeeNumber(company.getName(), 1);
+
+    User user = User.builder()
+        .userId(signUpDto.getUserId())
+        .userRole(role)
+        .userStatus(status)
+        .userPersonalInformation(userPersonalInformation)
+        .userContactInformation(userContactInformation)
+        .employeeNumber(employeeNumber)
+        .company(company)
+        .build();
+
+    user = userRepository.save(user);
+
+    paidHolidayService.initDefaultPaidHolidays(user.getCompany());
+  }
+
+  @Override
+  public boolean hasUserAccess(final User currentUser, final Long targetUserId) {
+    final User targetUser = userRepository.findByIdAndCompanyId(targetUserId,
+        currentUser.getCompany().getId());
+    if (targetUser == null) {
+      throw new ForbiddenException("Can not find user!");
+    }
+
+    final Boolean isAdmin = Role.ADMIN.name().equals(currentUser.getRole().name());
+    if (isAdmin) {
+      return true;
+    }
+
+    final Long managerUserId = userRepository.getManagerUserIdById(targetUserId);
+    return managerUserId != null && managerUserId.equals(currentUser.getId());
+  }
+
+  @Override
+  public Long getManagerUserIdById(final Long userId) {
+    return userRepository.getManagerUserIdById(userId);
+  }
+
+  @Override
+  public Boolean existsByEmailWork(final String email) {
+    return auth0Util.getUserByEmailFromAuth0(email) != null;
+  }
+
+  @Override
+  public CurrentUserDto getCurrentUserInfo(final String userId) {
+    final User user = findByUserId(userId);
+    final List<User> teamMembers = findByManagerUser(user);
+    final List<Long> teamMemberIds = teamMembers.stream().map(BaseEntity::getId)
+        .collect(Collectors.toList());
+
+    return CurrentUserDto.builder()
+        .id(user.getId())
+        .teamMembers(teamMemberIds)
+        .name(user.getUserPersonalInformation().getName())
+        .imageUrl(user.getImageUrl())
+        .build();
   }
 
   public String getActivationEmail(final String accountVerifyToken) {
@@ -469,38 +543,50 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
+  @Transactional
   public void sendResetPasswordEmail(final String email) {
-    final User user = userRepository.findByEmailWork(email);
-    if (user == null) {
+    final com.auth0.json.mgmt.users.User user = auth0Util.getUserByEmailFromAuth0(email);
+    final User targetUser = userRepository.findByEmailWork(email);
+
+    if (user == null || targetUser == null) {
       throw new ForbiddenException("User account does not exist!");
     }
+
     final String passwordRestToken = UUID.randomUUID().toString();
     final String emailContent = getResetPasswordEmail(passwordRestToken);
-    final Timestamp sendDate = new Timestamp(new Date().getTime());
+    final Timestamp sendDate = Timestamp.valueOf(LocalDateTime.now());
     final Email verifyEmail = new Email(systemEmailAddress, email, "Password Reset!",
         emailContent, sendDate);
     emailService.saveAndScheduleEmail(verifyEmail);
-    user.setResetPasswordToken(passwordRestToken);
-    userRepository.save(user);
+    targetUser.setResetPasswordToken(passwordRestToken);
+    userRepository.save(targetUser);
   }
 
   @Override
-  public boolean resetPassword(final UpdatePasswordDto updatePasswordDto) {
+  @Transactional
+  public void resetPassword(final UpdatePasswordDto updatePasswordDto) {
     final User user = userRepository
         .findByResetPasswordToken(updatePasswordDto.getResetPasswordToken());
-    final boolean sameAsOldPassword =
-        passwordEncoder.matches(updatePasswordDto.getNewPassword(), user.getPassword());
-    if (!sameAsOldPassword) {
-      if (user == null) {
-        throw new ForbiddenException("Reset password Forbidden");
-      }
-      user.setResetPasswordToken(null);
-      final String pwHash = passwordEncoder.encode(updatePasswordDto.getNewPassword());
-      user.setPassword(pwHash);
-      userRepository.save(user);
-      return true;
+    if (user == null) {
+      throw new ForbiddenException("Reset password Forbidden");
     }
-    return false;
+
+    final com.auth0.json.mgmt.users.User currentUser = auth0Util
+        .getUserByEmailFromAuth0(user.getUserContactInformation().getEmailWork());
+
+    if (currentUser == null) {
+      throw new ForbiddenException("Email account does not exist.");
+    }
+
+    final String email = user.getUserContactInformation().getEmailWork();
+    if (auth0Util.isPasswordValid(email, updatePasswordDto.getNewPassword())) {
+      throw new ForbiddenException("New password can not be the same as the old one.");
+    }
+
+    auth0Util.updatePassword(currentUser, updatePasswordDto.getNewPassword());
+
+    user.setResetPasswordToken(null);
+    userRepository.save(user);
   }
 
   private String getResetPasswordEmail(final String passwordRestToken) {

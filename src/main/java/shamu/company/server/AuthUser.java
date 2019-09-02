@@ -17,7 +17,7 @@ public class AuthUser {
   AuthUser(User user) {
     this.id = user.getId();
     this.imageUrl = user.getImageUrl();
-    this.email = user.getEmailWork();
+    this.email = user.getUserContactInformation().getEmailWork();
     this.companyId = user.getCompany().getId();
   }
 }

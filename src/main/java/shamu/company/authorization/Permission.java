@@ -1,21 +1,14 @@
 package shamu.company.authorization;
 
 import javax.persistence.Basic;
-import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.Table;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Where;
-import shamu.company.common.entity.BaseEntity;
 
-@Entity
 @Data
-@Table(name = "permissions")
 @NoArgsConstructor
-@Where(clause = "deleted_at IS NULL")
-public class Permission extends BaseEntity {
+public class Permission {
 
   @Basic(optional = false)
   @Enumerated(EnumType.STRING)

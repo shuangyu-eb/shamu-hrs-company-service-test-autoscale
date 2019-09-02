@@ -59,9 +59,9 @@ public class Email extends BaseEntity {
   }
 
   public Email(User from, User to, String subject) {
-    this.from = from.getEmailWork();
+    this.from = from.getUserContactInformation().getEmailWork();
     this.fromName = from.getUserPersonalInformation().getName();
-    this.to = to.getEmailWork();
+    this.to = to.getUserContactInformation().getEmailWork();
     this.toName = to.getUserPersonalInformation().getName();
     this.subject = subject;
   }

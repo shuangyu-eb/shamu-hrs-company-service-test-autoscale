@@ -57,11 +57,6 @@ public class CompanyServiceImpl implements CompanyService {
   }
 
   @Override
-  public Boolean existsBySubdomainName(final String subDomainName) {
-    return companyRepository.existsBySubdomainName(subDomainName);
-  }
-
-  @Override
   public List<Department> getDepartmentsByCompany(final Company company) {
     return departmentRepository.findAllByCompany(company);
   }

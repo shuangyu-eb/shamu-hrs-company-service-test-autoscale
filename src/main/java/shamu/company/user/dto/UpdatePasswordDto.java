@@ -1,16 +1,16 @@
 package shamu.company.user.dto;
 
-import lombok.AllArgsConstructor;
+import javax.validation.constraints.NotNull;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
 public class UpdatePasswordDto {
 
-  private String emailWork;
-
+  @NotNull
   private String newPassword;
 
+  @NotNull
   private String resetPasswordToken;
+
+
 }

@@ -4,6 +4,9 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Where;
@@ -14,6 +17,8 @@ import shamu.company.common.entity.Country;
 @Entity
 @Table(name = "companies")
 @NoArgsConstructor
+@Builder
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Where(clause = "deleted_at IS NULL")
 public class Company extends BaseEntity {
 
@@ -29,8 +34,6 @@ public class Company extends BaseEntity {
 
   @ManyToOne
   private Country country;
-
-  private String subdomainName;
 
   public Company(Long id) {
     this.setId(id);

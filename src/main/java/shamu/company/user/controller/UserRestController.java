@@ -19,10 +19,12 @@ import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.company.CompanyService;
 import shamu.company.hashids.HashidsFormat;
 import shamu.company.user.dto.AccountInfoDto;
+import shamu.company.user.dto.CurrentUserDto;
 import shamu.company.user.dto.UpdatePasswordDto;
 import shamu.company.user.dto.UserAvatarDto;
 import shamu.company.user.dto.UserDto;
 import shamu.company.user.dto.UserRoleAndStatusInfoDto;
+import shamu.company.user.dto.UserSignUpDto;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
 import shamu.company.user.entity.mapper.UserMapper;
@@ -51,21 +53,10 @@ public class UserRestController extends BaseRestController {
     this.userMapper = userMapper;
   }
 
-  @PostMapping(value = "user/sign-up/email")
-  public HttpEntity sendVerifyEmail(@RequestBody final String email) {
-    userService.sendVerifyEmail(email);
+  @PostMapping(value = "user/sign-up")
+  public HttpEntity signUp(@RequestBody final UserSignUpDto signUpDto) {
+    userService.signUp(signUpDto);
     return new ResponseEntity(HttpStatus.OK);
-  }
-
-  @PostMapping(value = "user/verify")
-  public HttpEntity finishUserVerification(@RequestBody final String token) {
-    userService.finishUserVerification(token);
-    return new ResponseEntity(HttpStatus.OK);
-  }
-
-  @GetMapping(value = "user/check/email/{email}")
-  public Boolean checkEmail(@PathVariable final String email) {
-    return userService.existsByEmailWork(email);
   }
 
   @GetMapping(value = "user/check/company-name/{companyName}")
@@ -73,9 +64,9 @@ public class UserRestController extends BaseRestController {
     return companyService.existsByName(companyName);
   }
 
-  @GetMapping(value = "user/check/desired-url/{desiredUrl}")
-  public Boolean checkDesiredUrl(@PathVariable final String desiredUrl) {
-    return companyService.existsBySubdomainName(desiredUrl);
+  @GetMapping(value = "user/check/email/{email}")
+  public Boolean checkEmail(@PathVariable final String email) {
+    return userService.existsByEmailWork(email);
   }
 
   @GetMapping(value = "users/{id}/head-portrait")
@@ -124,7 +115,8 @@ public class UserRestController extends BaseRestController {
 
   @PatchMapping("user/password/reset/token")
   public boolean resetPassword(@RequestBody final UpdatePasswordDto updatePasswordDto) {
-    return userService.resetPassword(updatePasswordDto);
+    userService.resetPassword(updatePasswordDto);
+    return true;
   }
 
   @PreAuthorize("hasPermission(#id,'USER', 'EDIT_SELF')")
@@ -159,10 +151,19 @@ public class UserRestController extends BaseRestController {
         .updateUserStatus(currentUser, userStatusUpdatePojo, user));
   }
 
-
   @GetMapping("users/all")
   public List<UserDto> getAllUsers() {
     final List<User> users = userService.findAllUsersByCompany(getCompany());
     return userMapper.convertToUserDtos(users);
+  }
+
+  @GetMapping("current/user-info")
+  public CurrentUserDto getUserInfo() {
+    return userService.getCurrentUserInfo(getUserId());
+  }
+
+  @GetMapping("has-privilege/user/{userId}")
+  public boolean hasUserPermission(@HashidsFormat @PathVariable final Long userId) {
+    return userService.hasUserAccess(getUser(), userId);
   }
 }

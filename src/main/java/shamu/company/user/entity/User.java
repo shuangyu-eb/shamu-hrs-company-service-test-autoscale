@@ -9,6 +9,9 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Email;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -21,15 +24,21 @@ import shamu.company.company.entity.Company;
 @Entity
 @Table(name = "users")
 @NoArgsConstructor
+@Builder
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Where(clause = "deleted_at IS NULL")
 public class User extends BaseEntity {
 
   private String employeeNumber;
 
+  /**
+   * @deprecated Please use email from table user_personal_information. Because we integrate Auth0,
+   * we do a mapping with Auth0 account by property userId( or column user_id in table users). One
+   * userId has one employee. Should reference an employee by user id.
+   */
+  @Deprecated
   @Email
   private String emailWork;
-
-  private String password;
 
   private Timestamp latestLogin;
 
@@ -77,6 +86,8 @@ public class User extends BaseEntity {
 
   private Timestamp verifiedAt;
 
+  private String userId;
+
   public User(final Long id) {
     this.setId(id);
   }
@@ -88,12 +99,6 @@ public class User extends BaseEntity {
 
   public Role getRole() {
     return Role.valueOf(userRole.getName());
-  }
-
-  public enum Role {
-    ADMIN,
-    MANAGER,
-    NON_MANAGER,
   }
 
   public void setManagerUser(final User managerUser) {
@@ -108,5 +113,22 @@ public class User extends BaseEntity {
       throw new GeneralException("Users cannot set themselves to be their manager.");
     }
     this.managerUser = managerUser;
+  }
+
+  public enum Role {
+    ADMIN("ADMIN"),
+    MANAGER("MANAGER"),
+    NON_MANAGER("EMPLOYEE"),
+    INACTIVE("INACTIVE");
+
+    private final String value;
+
+    Role(final String value) {
+      this.value = value;
+    }
+
+    public String getValue() {
+      return this.value;
+    }
   }
 }

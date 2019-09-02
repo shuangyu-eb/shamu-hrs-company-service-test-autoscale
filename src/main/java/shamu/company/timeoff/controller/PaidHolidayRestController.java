@@ -71,13 +71,6 @@ public class PaidHolidayRestController extends BaseRestController {
     return paidHolidayService.getPaidHolidaysByYear(company.getId(), year);
   }
 
-  @PostMapping(value = "paid-holidays/default")
-  public void createInitialPaidHolidays(@RequestBody final String workEmail) {
-    final User user = userService.findUserByEmail(workEmail);
-    final Company company = user.getCompany();
-    paidHolidayService.initDefaultPaidHolidays(company);
-  }
-
   @PatchMapping(value = "paid-holidays/select")
   public void updateHolidaySelects(@RequestBody final List<PaidHolidayDto> paidHolidayDtos) {
     paidHolidayService.updateHolidaySelects(paidHolidayDtos);

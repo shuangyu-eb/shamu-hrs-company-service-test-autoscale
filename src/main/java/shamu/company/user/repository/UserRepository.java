@@ -13,11 +13,12 @@ public interface UserRepository extends BaseRepository<User, Long>, UserCustomRe
       value =
           "select * from users u "
               + "left join user_statuses us on u.user_status_id = us.id "
-              + "where u.deleted_at is null and u.email_work = ?1 and us.name = ?2",
+              + "where u.deleted_at is null and u.user_id = ?1 and us.name = ?2",
       nativeQuery = true)
-  User findByEmailWorkAndStatus(String emailWork, String userStatus);
+  User findByUserIdAndStatus(String userId, String userStatus);
 
-  User findByEmailWork(String emailWork);
+  @Query(value = "select u from User u where u.deletedAt is null and u.userId = ?1")
+  User findByUserId(String userId);
 
   User findByVerificationToken(String activationToken);
 
@@ -32,6 +33,11 @@ public interface UserRepository extends BaseRepository<User, Long>, UserCustomRe
   User findByUserContactInformationId(Long contactInformationId);
 
   List<User> findByCompany(Company company);
+
+  @Query(value = "select u.* from users u "
+      + "left join user_contact_information uc on u.user_contact_information_id = uc.id "
+      + "where u.deleted_at is null and uc.email_work = ?1", nativeQuery = true)
+  User findByEmailWork(String emailWork);
 
   Boolean existsByEmailWork(String email);
 
@@ -84,4 +90,12 @@ public interface UserRepository extends BaseRepository<User, Long>, UserCustomRe
       + "and u.deleted_at is null "
       + "and u.company_id = ?2", nativeQuery = true)
   Integer findDirectReportsCount(Long orgUserId, Long companyId);
+
+  @Query(value = "select u.manager_user_id from users u where u.id = ?1 "
+      + "and u.deleted_at is null", nativeQuery = true)
+  Long getManagerUserIdById(Long userId);
+
+  @Query(value = "select * from users u where u.deleted_at is null "
+      + "and u.id = ?1 and u.company_id = ?2", nativeQuery = true)
+  User findByIdAndCompanyId(Long userId, Long companyId);
 }
