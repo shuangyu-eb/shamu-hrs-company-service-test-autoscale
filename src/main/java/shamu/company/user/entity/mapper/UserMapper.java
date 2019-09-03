@@ -26,7 +26,7 @@ public interface UserMapper {
   UserRoleAndStatusInfoDto convertToUserRoleAndStatusInfoDto(User user);
 
   @Mapping(target = "avatar", source = "imageUrl")
-  @Mapping(target = "email", source = "emailWork")
+  @Mapping(target = "email", source = "userContactInformation.emailWork")
   @Mapping(target = "name", source = "userPersonalInformation")
   UserDto convertToUserDto(User user);
 
