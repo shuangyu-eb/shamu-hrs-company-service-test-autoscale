@@ -47,7 +47,7 @@ public interface JobUserMapper {
   @Mapping(target = "employeeImageUrl", source = "jobEmployeeDto.imageUrl")
   @Mapping(target = "employeeWorkPhone", source = "jobEmployeeDto.phoneNumber")
   @Mapping(target = "employeeJobTitle", source = "jobEmployeeDto.jobTitle")
-  @Mapping(target = "managerId", source = "jobManagerDto.userId")
+  @Mapping(target = "managerId", source = "jobManagerDto.id")
   @Mapping(target = "managerFirstName", source = "jobManagerDto.firstName")
   @Mapping(target = "managerLastName", source = "jobManagerDto.lastName")
   @Mapping(target = "managerImageUrl", source = "jobManagerDto.imageUrl")
