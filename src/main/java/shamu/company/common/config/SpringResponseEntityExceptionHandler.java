@@ -2,6 +2,7 @@ package shamu.company.common.config;
 
 import java.util.List;
 import org.springframework.core.convert.ConversionFailedException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingPathVariableException;
@@ -64,5 +65,11 @@ public class SpringResponseEntityExceptionHandler {
   @ExceptionHandler(UnAuthenticatedException.class)
   public ErrorMessage handleUnauthenticatedException(final UnAuthenticatedException exception) {
     return new ErrorMessage(exception.getType(), exception.getMessage());
+  }
+
+  @ResponseStatus(HttpStatus.CONFLICT)
+  @ExceptionHandler(DataIntegrityViolationException.class)
+  public ErrorMessage handleConflictException(final DataIntegrityViolationException exception) {
+    return new ErrorMessage(ErrorType.CONFLICT_ERROR, exception.getMessage());
   }
 }

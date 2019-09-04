@@ -115,3 +115,12 @@ databaseChangeLog:
         - dropColumn:
            columnName: subdomain_name
            tableName: companies
+
+  - changeSet:
+        id: 1565786558054-4
+        author: max-eb
+        changes:
+        - addUniqueConstraint:
+            columnNames: user_id
+            constraintName: uq_ensure_unique_user_id
+            tableName: users

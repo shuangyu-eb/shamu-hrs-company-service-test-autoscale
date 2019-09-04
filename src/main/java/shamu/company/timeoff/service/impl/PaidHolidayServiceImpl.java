@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import shamu.company.company.entity.Company;
 import shamu.company.job.dto.JobUserDto;
 import shamu.company.timeoff.dto.PaidHolidayDto;
@@ -23,6 +24,7 @@ import shamu.company.timeoff.service.PaidHolidayService;
 import shamu.company.user.service.UserService;
 
 @Service
+@Transactional
 public class PaidHolidayServiceImpl implements PaidHolidayService {
 
   private final PaidHolidayRepository paidHolidayRepository;

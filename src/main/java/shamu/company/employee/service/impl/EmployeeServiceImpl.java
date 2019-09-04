@@ -10,6 +10,7 @@ import java.util.UUID;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.FileCopyUtils;
 import org.thymeleaf.context.Context;
@@ -75,6 +76,7 @@ import shamu.company.utils.AwsUtil;
 import shamu.company.utils.AwsUtil.Type;
 
 @Service
+@Transactional
 public class EmployeeServiceImpl implements EmployeeService {
 
   private final UserRepository userRepository;

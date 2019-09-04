@@ -69,6 +69,7 @@ import shamu.company.user.service.UserService;
 import shamu.company.utils.Auth0Util;
 
 @Service
+@Transactional
 public class UserServiceImpl implements UserService {
 
   private static final String ERROR_MESSAGE = "User does not exist!";
@@ -524,14 +525,6 @@ public class UserServiceImpl implements UserService {
         .build();
   }
 
-  public String getActivationEmail(final String accountVerifyToken) {
-    final Context context = new Context();
-    context.setVariable("frontEndAddress", frontEndAddress);
-    context.setVariable(
-        "accountVerifyAddress", String.format("account/verify/%s", accountVerifyToken));
-    return templateEngine.process("account_verify_email.html", context);
-  }
-
   @Override
   public String getEmployeeNumber(final String companyName, final Integer employeeNumber) {
     if (companyName.length() <= 3) {
@@ -543,7 +536,6 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  @Transactional
   public void sendResetPasswordEmail(final String email) {
     final com.auth0.json.mgmt.users.User user = auth0Util.getUserByEmailFromAuth0(email);
     final User targetUser = userRepository.findByEmailWork(email);
@@ -563,7 +555,6 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  @Transactional
   public void resetPassword(final UpdatePasswordDto updatePasswordDto) {
     final User user = userRepository
         .findByResetPasswordToken(updatePasswordDto.getResetPasswordToken());
