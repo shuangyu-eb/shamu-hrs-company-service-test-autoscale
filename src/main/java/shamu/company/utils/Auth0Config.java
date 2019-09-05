@@ -33,6 +33,8 @@ public class Auth0Config {
 
   private String customNamespace;
 
+  private String managementIdentifier;
+
   AuthAPI getAuthApi() {
     return new AuthAPI(domain, this.clientId, this.clientSecret);
   }

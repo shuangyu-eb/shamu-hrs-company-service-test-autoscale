@@ -58,7 +58,7 @@ public class Auth0Manager {
       return this.tokenHolder;
     }
 
-    final AuthRequest authRequest = authApi.requestToken(String.format("https://%s/api/v2/", auth0Config.getDomain()));
+    final AuthRequest authRequest = authApi.requestToken(auth0Config.getManagementIdentifier());
     try {
       this.tokenHolder = authRequest.execute();
       return this.tokenHolder;

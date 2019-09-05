@@ -40,3 +40,4 @@ aws:
 
 auth0:
   domain: shamu-develop.auth0.com
+  managementIdentifier: https://shamu-develop.auth0.com/api/v2/
