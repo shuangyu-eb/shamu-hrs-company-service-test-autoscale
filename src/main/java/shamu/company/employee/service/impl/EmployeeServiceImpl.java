@@ -539,7 +539,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
   private void saveEmailTasks(final WelcomeEmailDto welcomeEmailDto, final User employee,
       final User currentUser) {
-    final String from = currentUser.getEmailWork();
+    final String from = currentUser.getUserContactInformation().getEmailWork();
     final String to = welcomeEmailDto.getSendTo();
     String content = welcomeEmailDto.getPersonalInformation();
 

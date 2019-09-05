@@ -132,6 +132,7 @@ public class Auth0Util {
     final Map<String, Object> userMetaData = new HashMap<>();
     userMetaData.put("role", roleName);
     auth0User.setUserMetadata(userMetaData);
+    auth0User.setEmailVerified(true);
 
     final ManagementAPI manager = auth0Manager.getManagementApi();
     final Request<User> request = manager.users()
