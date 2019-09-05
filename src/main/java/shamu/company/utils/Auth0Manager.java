@@ -1,4 +1,4 @@
-package shamu.company.common.config;
+package shamu.company.utils;
 
 import com.auth0.client.auth.AuthAPI;
 import com.auth0.client.mgmt.ManagementAPI;
@@ -15,16 +15,11 @@ import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.net.AuthRequest;
 import java.security.interfaces.RSAPublicKey;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import shamu.company.common.exception.GeneralAuth0Exception;
 
 @Component
 public class Auth0Manager {
-
-  private final String domain;
-
-  private final String jwks;
 
   private final AuthAPI authApi;
 
@@ -32,23 +27,22 @@ public class Auth0Manager {
 
   private TokenHolder tokenHolder;
 
-  public Auth0Manager(@Value("${auth0.clientId}") final String clientId,
-      @Value("${auth0.clientSecret}") final String clientSecret,
-      @Value("${auth0.domain}") final String domain,
-      @Value("${auth0.jwks}") final String jwks) {
-    this.domain = domain;
-    this.jwks = jwks;
-    this.authApi = new AuthAPI(domain, clientId, clientSecret);
+  private final Auth0Config auth0Config;
+
+  public Auth0Manager(final Auth0Config auth0Config) {
+    this.authApi = auth0Config.getAuthApi();
+    this.auth0Config = auth0Config;
   }
 
   private boolean verifyToken(final String token) {
     final DecodedJWT jwt = JWT.decode(token);
-    final JwkProvider provider = new UrlJwkProvider(jwks);
+    final JwkProvider provider = new UrlJwkProvider(auth0Config.getJwks());
     final Jwk jwk;
     try {
       jwk = provider.get(jwt.getKeyId());
       final Algorithm algorithm = Algorithm.RSA256((RSAPublicKey) jwk.getPublicKey(), null);
-      final JWTVerifier verifier = JWT.require(algorithm).withIssuer(String.format("https://%s/", domain)).build();
+      final JWTVerifier verifier = JWT.require(algorithm)
+          .withIssuer(auth0Config.getIssuer()).build();
       verifier.verify(token);
       return true;
     } catch (final JwkException e) {
@@ -64,7 +58,7 @@ public class Auth0Manager {
       return this.tokenHolder;
     }
 
-    final AuthRequest authRequest = authApi.requestToken(String.format("https://%s/api/v2/", domain));
+    final AuthRequest authRequest = authApi.requestToken(String.format("https://%s/api/v2/", auth0Config.getDomain()));
     try {
       this.tokenHolder = authRequest.execute();
       return this.tokenHolder;
@@ -75,7 +69,7 @@ public class Auth0Manager {
 
   public ManagementAPI getManagementApi() {
     if (this.manager == null) {
-      this.manager = new ManagementAPI(domain, getTokenHolder().getAccessToken());
+      this.manager = new ManagementAPI(auth0Config.getDomain(), getTokenHolder().getAccessToken());
       return this.manager;
     }
 

@@ -20,7 +20,6 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
-import shamu.company.common.config.Auth0Manager;
 import shamu.company.common.exception.GeneralAuth0Exception;
 import shamu.company.common.exception.GeneralException;
 
@@ -145,21 +144,21 @@ public class Auth0Util {
     }
   }
 
-  public void inactivate(String userId) {
+  public void inactivate(final String userId) {
     final ManagementAPI manager = auth0Manager.getManagementApi();
     try {
       // get all roles
       final Request<RolesPage> rolesPageRequest = manager.roles().list(null);
-      RolesPage rolesPage = rolesPageRequest.execute();
-      List<String> inactivateRoleId = rolesPage.getItems().stream()
+      final RolesPage rolesPage = rolesPageRequest.execute();
+      final List<String> inactivateRoleId = rolesPage.getItems().stream()
           .filter(role -> role.getName().equals(shamu.company.user.entity.User.Role.INACTIVATE.getValue()))
           .map(Role::getId)
           .collect(Collectors.toList());
 
       // get user's roles
       final Request userRolesRequest = manager.users().listRoles(userId, null);
-      RolesPage userRolesPage = (RolesPage) userRolesRequest.execute();
-      List<String> userRolesIds = userRolesPage.getItems().stream()
+      final RolesPage userRolesPage = (RolesPage) userRolesRequest.execute();
+      final List<String> userRolesIds = userRolesPage.getItems().stream()
           .map(Role::getId)
           .collect(Collectors.toList());
 

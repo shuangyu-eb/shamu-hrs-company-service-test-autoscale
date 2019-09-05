@@ -17,7 +17,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import shamu.company.common.config.Auth0Manager;
 import shamu.company.common.exception.GeneralAuth0Exception;
 import shamu.company.common.exception.GeneralException;
 import shamu.company.user.entity.User.Role;

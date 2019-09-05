@@ -39,7 +39,4 @@ aws:
   folder: media-local
 
 auth0:
-  algorithm: RS256
   domain: shamu-develop.auth0.com
-  jwks: https://shamu-develop.auth0.com/.well-known/jwks.json
-  customNamespace: https://interviewed.com/

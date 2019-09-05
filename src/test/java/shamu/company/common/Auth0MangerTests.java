@@ -17,7 +17,8 @@ import org.mockito.Mockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.reflect.Whitebox;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import shamu.company.common.config.Auth0Manager;
+import shamu.company.utils.Auth0Config;
+import shamu.company.utils.Auth0Manager;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @PrepareForTest(value = {UrlJwkProvider.class, Algorithm.class})
@@ -30,9 +31,18 @@ public class Auth0MangerTests {
     final String clientId = RandomStringUtils.randomAlphabetic(10);
     final String clientSecret = RandomStringUtils.randomAlphabetic(10);
     final String domain = "indeed.com";
+    final String issuer = String.format("https://%s/", domain);
     final String jwks = String.format("https://%s/.well-known/jwks.json", domain);
 
-    auth0Manager = new Auth0Manager(clientId, clientSecret, domain, jwks);
+    final Auth0Config auth0Config = Auth0Config.builder()
+        .clientId(clientId)
+        .clientSecret(clientSecret)
+        .domain(domain)
+        .jwks(jwks)
+        .issuer(issuer)
+        .build();
+
+    auth0Manager = new Auth0Manager(auth0Config);
   }
 
   @Test
