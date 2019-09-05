@@ -141,14 +141,14 @@ public class UserRestController extends BaseRestController {
         .updateUserRole(currentUser, userRoleUpdatePojo, user));
   }
 
-  @PatchMapping("users/{id}/user-status")
+  @PatchMapping("users/{id}/inactivate")
   @PreAuthorize("hasPermission(#id, 'USER', 'VIEW_SETTING')")
-  public UserRoleAndStatusInfoDto updateUserStatus(@PathVariable @HashidsFormat final Long id,
+  public UserRoleAndStatusInfoDto inactivateUser(@PathVariable @HashidsFormat final Long id,
       @RequestBody final UserStatusUpdatePojo userStatusUpdatePojo) {
     final User currentUser = getUser();
     final User user = userService.findUserById(id);
     return userMapper.convertToUserRoleAndStatusInfoDto(userService
-        .updateUserStatus(currentUser, userStatusUpdatePojo, user));
+        .inactivateUser(currentUser, userStatusUpdatePojo, user));
   }
 
   @GetMapping("users/all")

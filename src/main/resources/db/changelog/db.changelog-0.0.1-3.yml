@@ -124,3 +124,40 @@ databaseChangeLog:
             columnNames: user_id
             constraintName: uq_ensure_unique_user_id
             tableName: users
+
+  - changeSet:
+        id: 1567563061830-1
+        author: wenhao-eb
+        preConditions:
+          onFail: MARK_RAN
+          not:
+            tableExists:
+              tableName: user_access_level_events
+        changes:
+          - createTable:
+              columns:
+                - column:
+                    name: id
+                    type: BIGINT
+                    autoIncrement: true
+                    constraints:
+                      primaryKey: true
+                - column:
+                    name: user_id
+                    type: BIGINT
+                    constraints:
+                      foreignKeyName: fk_user_access_levels_users
+                      references: users(id)
+                - column:
+                    name: original_role
+                    type: VARCHAR(255)
+                - column:
+                    name: created_at
+                    type: DATETIME
+                - column:
+                    name: updated_at
+                    type: DATETIME
+                - column:
+                    name: deleted_at
+                    type: DATETIME
+              tableName: user_access_level_events

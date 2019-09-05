@@ -13,7 +13,6 @@ import shamu.company.user.dto.AccountInfoDto;
 import shamu.company.user.dto.CreatePasswordDto;
 import shamu.company.user.dto.CurrentUserDto;
 import shamu.company.user.dto.UpdatePasswordDto;
-import shamu.company.user.dto.UserLoginDto;
 import shamu.company.user.dto.UserSignUpDto;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserCompensation;
@@ -87,7 +86,7 @@ public interface UserService {
 
   User updateUserRole(User currentUser, UserRoleUpdatePojo userRoleUpdatePojo, User user);
 
-  User updateUserStatus(User currentUser, UserStatusUpdatePojo userStatusUpdatePojo, User user);
+  User inactivateUser(User currentUser, UserStatusUpdatePojo userStatusUpdatePojo, User user);
 
   void signUp(UserSignUpDto signUpDto);
 

@@ -4,6 +4,8 @@ import com.auth0.client.auth.AuthAPI;
 import com.auth0.client.mgmt.ManagementAPI;
 import com.auth0.exception.Auth0Exception;
 import com.auth0.json.auth.TokenHolder;
+import com.auth0.json.mgmt.Role;
+import com.auth0.json.mgmt.RolesPage;
 import com.auth0.json.mgmt.users.User;
 import com.auth0.net.AuthRequest;
 import com.auth0.net.Request;
@@ -12,6 +14,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
+
 import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -136,6 +140,36 @@ public class Auth0Util {
 
     try {
       return request.execute();
+    } catch (final Auth0Exception e) {
+      throw new GeneralAuth0Exception(e.getMessage(), e);
+    }
+  }
+
+  public void inactivate(String userId) {
+    final ManagementAPI manager = auth0Manager.getManagementApi();
+    try {
+      // get all roles
+      final Request<RolesPage> rolesPageRequest = manager.roles().list(null);
+      RolesPage rolesPage = rolesPageRequest.execute();
+      List<String> inactivateRoleId = rolesPage.getItems().stream()
+          .filter(role -> role.getName().equals(shamu.company.user.entity.User.Role.INACTIVATE.getValue()))
+          .map(Role::getId)
+          .collect(Collectors.toList());
+
+      // get user's roles
+      final Request userRolesRequest = manager.users().listRoles(userId, null);
+      RolesPage userRolesPage = (RolesPage) userRolesRequest.execute();
+      List<String> userRolesIds = userRolesPage.getItems().stream()
+          .map(Role::getId)
+          .collect(Collectors.toList());
+
+      // remove user's roles
+      final Request removeRolesRequest = manager.users().removeRoles(userId, userRolesIds);
+      removeRolesRequest.execute();
+
+      // add "INACTIVATE" role to user
+      final Request inactivateUserRequest = manager.users().addRoles(userId, inactivateRoleId);
+      inactivateUserRequest.execute();
     } catch (final Auth0Exception e) {
       throw new GeneralAuth0Exception(e.getMessage(), e);
     }

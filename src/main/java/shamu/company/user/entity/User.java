@@ -32,7 +32,7 @@ public class User extends BaseEntity {
   private String employeeNumber;
 
   /**
-   * @deprecated Please use email from table user_personal_information. Because we integrate Auth0,
+   * @deprecated Please use email from table user_contact_information. Because we integrate Auth0,
    * we do a mapping with Auth0 account by property userId( or column user_id in table users). One
    * userId has one employee. Should reference an employee by user id.
    */
@@ -119,7 +119,7 @@ public class User extends BaseEntity {
     ADMIN("ADMIN"),
     MANAGER("MANAGER"),
     NON_MANAGER("EMPLOYEE"),
-    INACTIVE("INACTIVE");
+    INACTIVATE("INACTIVATE");
 
     private final String value;
 

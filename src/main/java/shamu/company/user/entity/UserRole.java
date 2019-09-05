@@ -23,6 +23,7 @@ public class UserRole extends BaseEntity {
   public enum Role {
     MANAGER,
     ADMIN,
-    NON_MANAGER;
+    NON_MANAGER,
+    INACTIVATE;
   }
 }

@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.springframework.scheduling.TaskScheduler;
 import org.thymeleaf.ITemplateEngine;
 import shamu.company.common.exception.ForbiddenException;
 import shamu.company.common.exception.ResourceNotFoundException;
@@ -35,10 +36,7 @@ import shamu.company.user.entity.UserStatus.Status;
 import shamu.company.user.entity.mapper.UserAddressMapper;
 import shamu.company.user.entity.mapper.UserContactInformationMapper;
 import shamu.company.user.entity.mapper.UserPersonalInformationMapper;
-import shamu.company.user.repository.UserCompensationRepository;
-import shamu.company.user.repository.UserRepository;
-import shamu.company.user.repository.UserRoleRepository;
-import shamu.company.user.repository.UserStatusRepository;
+import shamu.company.user.repository.*;
 import shamu.company.user.service.UserAddressService;
 import shamu.company.user.service.UserService;
 import shamu.company.user.service.impl.UserServiceImpl;
@@ -64,6 +62,8 @@ class UserServiceTests {
   @Mock private UserContactInformationMapper userContactInformationMapper;
   @Mock private UserAddressMapper userAddressMapper;
   @Mock private Auth0Util auth0Util;
+  @Mock private UserAccessLevelEventRepository userAccessLevelEventRepository;
+  @Mock private TaskScheduler taskScheduler;
 
   @BeforeEach
   void init() {
@@ -83,7 +83,9 @@ class UserServiceTests {
         companyRepository,
         userContactInformationMapper,
         userAddressMapper,
-        auth0Util);
+        auth0Util,
+        userAccessLevelEventRepository,
+        taskScheduler);
   }
 
   @Test

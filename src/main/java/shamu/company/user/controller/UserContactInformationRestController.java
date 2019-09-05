@@ -56,7 +56,9 @@ public class UserContactInformationRestController extends BaseRestController {
   }
 
   @GetMapping("users/{id}/user-contact-information")
-  @PreAuthorize("hasPermission(#id, 'USER', 'VIEW_USER_CONTACT')")
+  @PreAuthorize(
+      "hasPermission(#id, 'USER', 'VIEW_USER_CONTACT')"
+          + "or hasPermission(#id, 'USER', 'VIEW_SELF')")
   public BasicUserContactInformationDto getUserContactInformation(
       @PathVariable @HashidsFormat final Long id) {
     final User user = getUser();
