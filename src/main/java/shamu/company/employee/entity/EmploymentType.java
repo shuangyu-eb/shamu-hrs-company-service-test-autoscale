@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Where;
+import org.hibernate.validator.constraints.Length;
 import shamu.company.common.entity.BaseEntity;
 import shamu.company.company.entity.Company;
 
@@ -19,6 +20,7 @@ import shamu.company.company.entity.Company;
 @AllArgsConstructor
 public class EmploymentType extends BaseEntity {
 
+  @Length(max = 30)
   private String name;
 
   @ManyToOne

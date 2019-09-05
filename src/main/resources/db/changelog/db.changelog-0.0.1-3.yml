@@ -161,3 +161,138 @@ databaseChangeLog:
                     name: deleted_at
                     type: DATETIME
               tableName: user_access_level_events
+
+  - changeSet:
+      id: 1567646375921-1
+      author: bin-eb
+      changes:
+        - modifyDataType:
+            columnName: city
+            newDataType: VARCHAR(100)
+            tableName: user_addresses
+
+  - changeSet:
+      id: 1567646375921-2
+      author: bin-eb
+      changes:
+        - modifyDataType:
+            columnName: name
+            newDataType: VARCHAR(50)
+            tableName: time_off_policies
+
+  - changeSet:
+      id: 1567646375921-3
+      author: bin-eb
+      changes:
+        - modifyDataType:
+            columnName: title
+            newDataType: VARCHAR(100)
+            tableName: jobs
+
+  - changeSet:
+      id: 1567646375921-4
+      author: bin-eb
+      changes:
+        - modifyDataType:
+            columnName: name
+            newDataType: VARCHAR(30)
+            tableName: employment_types
+
+  - changeSet:
+      id: 1567646375921-5
+      author: bin-eb
+      changes:
+        - modifyDataType:
+            columnName: name
+            newDataType: VARCHAR(100)
+            tableName: offices
+
+  - changeSet:
+      id: 1567646375921-6
+      author: bin-eb
+      changes:
+        - modifyDataType:
+            columnName: first_name
+            newDataType: VARCHAR(100)
+            tableName: user_personal_information
+
+  - changeSet:
+      id: 1567646375921-7
+      author: bin-eb
+      changes:
+        - modifyDataType:
+            columnName: middle_name
+            newDataType: VARCHAR(100)
+            tableName: user_personal_information
+
+  - changeSet:
+      id: 1567646375921-8
+      author: bin-eb
+      changes:
+        - modifyDataType:
+            columnName: last_name
+            newDataType: VARCHAR(100)
+            tableName: user_personal_information
+
+  - changeSet:
+      id: 1567646375921-9
+      author: bin-eb
+      changes:
+        - modifyDataType:
+            columnName: preferred_name
+            newDataType: VARCHAR(100)
+            tableName: user_personal_information
+
+  - changeSet:
+      id: 1567646375921-10
+      author: bin-eb
+      changes:
+        - modifyDataType:
+            columnName: first_name
+            newDataType: VARCHAR(100)
+            tableName: user_emergency_contacts
+
+  - changeSet:
+      id: 1567646375921-11
+      author: bin-eb
+      changes:
+        - modifyDataType:
+            columnName: city
+            newDataType: VARCHAR(100)
+            tableName: user_emergency_contacts
+
+  - changeSet:
+      id: 1567646375921-12
+      author: bin-eb
+      changes:
+        - modifyDataType:
+            columnName: last_name
+            newDataType: VARCHAR(100)
+            tableName: user_emergency_contacts
+
+  - changeSet:
+      id: 1567646375921-13
+      author: bin-eb
+      changes:
+        - modifyDataType:
+            columnName: postal_code
+            newDataType: VARCHAR(30)
+            tableName: user_emergency_contacts
+
+  - changeSet:
+      id: 1567646375921-14
+      author: bin-eb
+      changes:
+        - modifyDataType:
+            columnName: relationship
+            newDataType: VARCHAR(30)
+            tableName: user_emergency_contacts
+
+  - changeSet:
+      id: 1567646375921-15
+      author: bin-eb
+      changes:
+        - modifyDataType:
+            columnName: phone
+            newDataType: VARCHAR(50)
+            tableName: user_emergency_contacts

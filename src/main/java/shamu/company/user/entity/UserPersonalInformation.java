@@ -11,6 +11,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Where;
+import org.hibernate.validator.constraints.Length;
 import shamu.company.common.entity.BaseEntity;
 
 @Entity
@@ -22,18 +23,23 @@ import shamu.company.common.entity.BaseEntity;
 public class UserPersonalInformation extends BaseEntity {
 
   @NotBlank
+  @Length(max = 100)
   private String firstName;
 
+  @Length(max = 100)
   private String middleName;
 
   @NotBlank
+  @Length(max = 100)
   private String lastName;
 
+  @Length(max = 100)
   private String preferredName;
 
   @JSONField(format = "yyyy-MM-dd")
   private Date birthDate;
 
+  @Length(max = 11)
   private String ssn;
 
   @ManyToOne

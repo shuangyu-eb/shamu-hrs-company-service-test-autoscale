@@ -9,6 +9,7 @@ import javax.persistence.Table;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Where;
+import org.hibernate.validator.constraints.Length;
 import shamu.company.common.entity.BaseEntity;
 import shamu.company.common.entity.Country;
 import shamu.company.common.entity.StateProvince;
@@ -24,11 +25,14 @@ public class UserAddress extends BaseEntity {
   private User user;
 
   @Column(name = "street_1")
+  @Length(max = 255)
   private String street1;
 
   @Column(name = "street_2")
+  @Length(max = 255)
   private String street2;
 
+  @Length(max = 100)
   private String city;
 
   @ManyToOne
@@ -37,6 +41,7 @@ public class UserAddress extends BaseEntity {
   @ManyToOne
   private Country country;
 
+  @Length(max = 30)
   private String postalCode;
 
   public UserAddress(User user) {

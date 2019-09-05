@@ -7,6 +7,7 @@ import javax.persistence.Table;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Where;
+import org.hibernate.validator.constraints.Length;
 import shamu.company.common.entity.BaseEntity;
 
 @Data
@@ -21,10 +22,13 @@ public class Office extends BaseEntity {
 
   private String officeId;
 
+  @Length(max = 100)
   private String name;
 
+  @Length(max = 50)
   private String phone;
 
+  @Length(max = 255)
   private String email;
 
   @OneToOne

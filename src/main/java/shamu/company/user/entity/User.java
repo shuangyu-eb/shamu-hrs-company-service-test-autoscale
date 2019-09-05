@@ -16,6 +16,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.hibernate.annotations.Where;
+import org.hibernate.validator.constraints.Length;
 import shamu.company.common.entity.BaseEntity;
 import shamu.company.common.exception.GeneralException;
 import shamu.company.company.entity.Company;
@@ -38,6 +39,7 @@ public class User extends BaseEntity {
    */
   @Deprecated
   @Email
+  @Length(max = 255)
   private String emailWork;
 
   private Timestamp latestLogin;

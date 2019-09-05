@@ -10,6 +10,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Where;
+import org.hibernate.validator.constraints.Length;
 import shamu.company.common.entity.BaseEntity;
 import shamu.company.common.entity.Country;
 
@@ -22,6 +23,7 @@ import shamu.company.common.entity.Country;
 @Where(clause = "deleted_at IS NULL")
 public class Company extends BaseEntity {
 
+  @Length(max = 255)
   private String name;
 
   private String imageUrl;

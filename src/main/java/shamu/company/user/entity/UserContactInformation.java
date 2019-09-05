@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Where;
+import org.hibernate.validator.constraints.Length;
 import shamu.company.common.entity.BaseEntity;
 
 @Entity
@@ -17,15 +18,21 @@ import shamu.company.common.entity.BaseEntity;
 @Where(clause = "deleted_at IS NULL")
 public class UserContactInformation extends BaseEntity {
 
+  @Length(max = 50)
   private String phoneWork;
 
+  @Length(max = 50)
   private String phoneWorkExtension;
 
+  @Length(max = 50)
   private String phoneMobile;
 
+  @Length(max = 50)
   private String phoneHome;
 
+  @Length(max = 255)
   private String emailWork;
 
+  @Length(max = 255)
   private String emailHome;
 }

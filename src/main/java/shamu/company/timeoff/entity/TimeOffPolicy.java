@@ -6,6 +6,7 @@ import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.Length;
 import shamu.company.common.entity.BaseEntity;
 import shamu.company.company.entity.Company;
 
@@ -18,6 +19,7 @@ public class TimeOffPolicy extends BaseEntity {
 
   @ManyToOne private Company company;
 
+  @Length(max = 50)
   private String name;
 
   private Boolean isLimited;

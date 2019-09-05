@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Where;
+import org.hibernate.validator.constraints.Length;
 import shamu.company.common.entity.BaseEntity;
 
 @Data
@@ -20,6 +21,7 @@ public class Department extends BaseEntity {
   @ManyToOne
   private Company company;
 
+  @Length(max = 100)
   private String name;
 
   public Department(Long departmentId) {
