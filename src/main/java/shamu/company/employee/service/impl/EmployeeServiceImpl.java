@@ -6,6 +6,7 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -344,7 +345,14 @@ public class EmployeeServiceImpl implements EmployeeService {
     final com.auth0.json.mgmt.users.User user =
         auth0Util.addUser(employeeDto.getEmailWork(),
             null, User.Role.NON_MANAGER.getValue());
-    employee.setUserId(user.getId());
+
+    String userId = null;
+    final Map<String, Object> appMetaData = user.getAppMetadata();
+    if (appMetaData != null) {
+      userId = (String) appMetaData.get("id");
+    }
+
+    employee.setUserId(userId);
     return userRepository.save(employee);
   }
 

@@ -440,7 +440,7 @@ public class UserServiceImpl implements UserService {
     auth0Util.login(currentUser.getUserContactInformation().getEmailWork(),
         userStatusUpdatePojo.getPassWord());
 
-    Date deactivationDate = userStatusUpdatePojo.getDeactivationDate();
+    final Date deactivationDate = userStatusUpdatePojo.getDeactivationDate();
 
     if (deactivationDate.toString().equals(LocalDate.now().toString())) {
       inactivateUser(userStatusUpdatePojo, user);
@@ -466,7 +466,7 @@ public class UserServiceImpl implements UserService {
       user.setUserStatus(userStatusRepository.findByName(
           Status.DISABLED.name()
       ));
-      UserRole userRole = userRoleRepository.findByName(Role.INACTIVATE.name());
+      final UserRole userRole = userRoleRepository.findByName(Role.INACTIVATE.name());
       user.setUserRole(userRole);
       user.setDeactivatedAt(userStatusUpdatePojo.getDeactivationDate());
       user.setDeactivationReason(new DeactivationReasons(userStatusUpdatePojo
@@ -515,6 +515,7 @@ public class UserServiceImpl implements UserService {
         .userContactInformation(userContactInformation)
         .employeeNumber(employeeNumber)
         .company(company)
+        .emailWork(signUpDto.getEmail())
         .build();
 
     user = userRepository.save(user);
