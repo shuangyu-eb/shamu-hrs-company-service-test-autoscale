@@ -24,15 +24,14 @@ import shamu.company.user.entity.User.Role;
 
 class Auth0UtilTests {
 
-  private Auth0Util auth0Util;
-
-  @Mock private Auth0Manager auth0Manager;
-
-  @Mock private ManagementAPI managementAPI;
-
-  @Mock private UsersEntity usersEntity;
-
   private final Auth0Config auth0Config = new Auth0Config();
+  private Auth0Util auth0Util;
+  @Mock
+  private Auth0Manager auth0Manager;
+  @Mock
+  private ManagementAPI managementAPI;
+  @Mock
+  private UsersEntity usersEntity;
 
   @BeforeEach
   void init() {
@@ -46,6 +45,45 @@ class Auth0UtilTests {
     auth0Config.setClientSecret("clientSecret");
     auth0Config.setDomain("test.auth0.com");
     auth0Util = new Auth0Util(auth0Manager, auth0Config);
+  }
+
+  @Test
+  void testUpdatePassword() {
+
+    final Request mockedRequest = Mockito.mock(Request.class);
+    Mockito.when(usersEntity.update(Mockito.any(), Mockito.any(User.class)))
+        .thenReturn(mockedRequest);
+    Assertions.assertDoesNotThrow(() -> auth0Util.updatePassword(new User(),
+        RandomStringUtils.randomAlphabetic(10)));
+  }
+
+  @Test
+  void testUpdateVerified() {
+
+    final Request mockedRequest = Mockito.mock(Request.class);
+    Mockito.when(usersEntity.update(Mockito.any(), Mockito.any(User.class)))
+        .thenReturn(mockedRequest);
+    Assertions.assertDoesNotThrow(() -> auth0Util.updateVerified(new User(), true));
+  }
+
+  @Test
+  void testGetUserId() {
+    final User user = new User();
+
+    final Map<String, Object> appMetadata = new HashMap<>();
+    final String userId = RandomStringUtils.randomAlphabetic(10);
+    appMetadata.put("id", userId);
+    user.setAppMetadata(appMetadata);
+    final String resultUserId = auth0Util.getUserId(user);
+    Assertions.assertEquals(userId, resultUserId);
+  }
+
+  @Test
+  void testAddUser() throws Auth0Exception {
+    final Request mockedRequest = Mockito.mock(Request.class);
+    Mockito.when(usersEntity.create(Mockito.any())).thenReturn(mockedRequest);
+    auth0Util.addUser("example@indeed.com", null, Role.NON_MANAGER.getValue());
+    Mockito.verify(mockedRequest, Mockito.times(1)).execute();
   }
 
   @Nested
@@ -83,43 +121,6 @@ class Auth0UtilTests {
         auth0Util.getUserByEmailFromAuth0(RandomStringUtils.randomAlphabetic(10));
       });
     }
-  }
-
-  @Test
-  void testUpdatePassword() {
-
-    final Request mockedRequest = Mockito.mock(Request.class);
-    Mockito.when(usersEntity.update(Mockito.any(), Mockito.any(User.class))).thenReturn(mockedRequest);
-    Assertions.assertDoesNotThrow(() -> auth0Util.updatePassword(new User(),
-        RandomStringUtils.randomAlphabetic(10)));
-  }
-
-  @Test
-  void testUpdateVerified() {
-
-    final Request mockedRequest = Mockito.mock(Request.class);
-    Mockito.when(usersEntity.update(Mockito.any(), Mockito.any(User.class))).thenReturn(mockedRequest);
-    Assertions.assertDoesNotThrow(() -> auth0Util.updateVerified(new User(), true));
-  }
-
-  @Test
-  void testGetUserId() {
-    final User user = new User();
-
-    final Map<String, Object> appMetadata = new HashMap<>();
-    final String userId = RandomStringUtils.randomAlphabetic(10);
-    appMetadata.put("id", userId);
-    user.setAppMetadata(appMetadata);
-    final String resultUserId = auth0Util.getUserId(user);
-    Assertions.assertEquals(userId, resultUserId);
-  }
-
-  @Test
-  void testAddUser() throws Auth0Exception {
-    final Request mockedRequest = Mockito.mock(Request.class);
-    Mockito.when(usersEntity.create(Mockito.any())).thenReturn(mockedRequest);
-    auth0Util.addUser("example@indeed.com", null, Role.NON_MANAGER.getValue());
-    Mockito.verify(mockedRequest, Mockito.times(1)).execute();
   }
 
   @Nested
