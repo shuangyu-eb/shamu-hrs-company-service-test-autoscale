@@ -28,6 +28,7 @@ import shamu.company.user.dto.UserSignUpDto;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
 import shamu.company.user.entity.mapper.UserMapper;
+import shamu.company.user.pojo.ChangePasswordPojo;
 import shamu.company.user.pojo.UserRoleUpdatePojo;
 import shamu.company.user.pojo.UserStatusUpdatePojo;
 import shamu.company.user.service.UserService;
@@ -117,6 +118,12 @@ public class UserRestController extends BaseRestController {
   public boolean resetPassword(@RequestBody final UpdatePasswordDto updatePasswordDto) {
     userService.resetPassword(updatePasswordDto);
     return true;
+  }
+
+  @PatchMapping("user/password/update")
+  public void updatePassword(@RequestBody final ChangePasswordPojo changePasswordPojo) {
+    final User currentUser = getUser();
+    userService.updatePassword(changePasswordPojo, currentUser);
   }
 
   @PreAuthorize("hasPermission(#id,'USER', 'EDIT_SELF')")

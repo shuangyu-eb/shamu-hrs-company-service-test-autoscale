@@ -1,5 +1,7 @@
 package shamu.company.user.service.impl;
 
+import static shamu.company.common.config.SecurityHolder.getCurrentUser;
+
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -62,6 +64,7 @@ import shamu.company.user.entity.UserStatus.Status;
 import shamu.company.user.entity.mapper.UserAddressMapper;
 import shamu.company.user.entity.mapper.UserContactInformationMapper;
 import shamu.company.user.entity.mapper.UserPersonalInformationMapper;
+import shamu.company.user.pojo.ChangePasswordPojo;
 import shamu.company.user.pojo.UserRoleUpdatePojo;
 import shamu.company.user.pojo.UserStatusUpdatePojo;
 import shamu.company.user.repository.UserAccessLevelEventRepository;
@@ -548,6 +551,18 @@ public class UserServiceImpl implements UserService {
   @Override
   public Boolean existsByEmailWork(final String email) {
     return auth0Util.getUserByEmailFromAuth0(email) != null;
+  }
+
+  @Override
+  public void updatePassword(ChangePasswordPojo changePasswordPojo, User currentUser) {
+    final com.auth0.json.mgmt.users.User user = auth0Util
+        .getUserByEmailFromAuth0(currentUser.getUserContactInformation().getEmailWork());
+
+    auth0Util.login(currentUser.getUserContactInformation().getEmailWork(),
+        changePasswordPojo.getPassWord());
+
+    auth0Util.updatePassword(user, changePasswordPojo.getNewPassword());
+
   }
 
   @Override

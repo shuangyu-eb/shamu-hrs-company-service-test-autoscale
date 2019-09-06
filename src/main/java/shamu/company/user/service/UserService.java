@@ -17,6 +17,7 @@ import shamu.company.user.dto.UserSignUpDto;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserCompensation;
 import shamu.company.user.entity.UserStatus.Status;
+import shamu.company.user.pojo.ChangePasswordPojo;
 import shamu.company.user.pojo.UserRoleUpdatePojo;
 import shamu.company.user.pojo.UserStatusUpdatePojo;
 
@@ -97,4 +98,6 @@ public interface UserService {
   CurrentUserDto getCurrentUserInfo(String userId);
 
   Boolean existsByEmailWork(String email);
+
+  void updatePassword(ChangePasswordPojo changePasswordPojo, User user);
 }
