@@ -21,4 +21,6 @@ public class PaidHolidayDto {
   private Timestamp date;
 
   private Boolean isSelected;
+
+  private Boolean federal;
 }

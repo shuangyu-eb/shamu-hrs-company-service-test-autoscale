@@ -14,6 +14,7 @@ public interface CompanyPaidHolidayMapper {
   @Mapping(target = "name", source = "paidHoliday.name")
   @Mapping(target = "nameShow", source = "paidHoliday.nameShow")
   @Mapping(target = "date", source = "paidHoliday.date")
+  @Mapping(target = "federal", source = "paidHoliday.federal")
   PaidHolidayDto convertToPaidHolidayDto(CompanyPaidHoliday companyPaidHoliday);
 
   @Mapping(target = "id", ignore = true)

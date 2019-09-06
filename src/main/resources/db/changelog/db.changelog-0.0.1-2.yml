@@ -2155,20 +2155,3 @@ databaseChangeLog:
                 name: name_show
                 type: VARCHAR(255)
             tableName: paid_holidays
-
-- changeSet:
-      id: 1562898994604-3
-      author: haibo-eb
-      runOnchange: true
-      changes:
-          - loadUpdateData:
-                columns:
-                    - column:
-                          name: id
-                          type: NUMERIC
-                    - column:
-                          name: name
-                          type: STRING
-                file: db/changelog/data/paid-holidays.csv
-                primaryKey: id
-                tableName: paid_holidays

@@ -296,3 +296,42 @@ databaseChangeLog:
             columnName: phone
             newDataType: VARCHAR(50)
             tableName: user_emergency_contacts
+
+  - changeSet:
+      id: 1567662525081-1
+      author: wenhao-eb
+      preConditions:
+        onFail: MARK_RAN
+        not:
+          columnExists:
+            columnName: federal
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: federal
+                  type: BOOLEAN
+            tableName: paid_holidays
+
+  - changeSet:
+      id: 1567662525081-2
+      author: wenhao-eb
+      runOnchange: true
+      changes:
+        - loadUpdateData:
+            columns:
+              - column:
+                  name: id
+                  type: NUMERIC
+              - column:
+                  name: name
+                  type: STRING
+              - column:
+                  name: name_show
+                  type: STRING
+              - column:
+                  name: federal
+                  type: BOOLEAN
+            file: db/changelog/data/paid-holidays.csv
+            primaryKey: id
+            tableName: paid_holidays

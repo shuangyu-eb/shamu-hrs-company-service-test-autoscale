@@ -1,10 +1,11 @@
-id,name,name_show
-1,New Year's Day,New Year's Day
-2,Martin Luther King Jr. Day,Martin Luther King Jr. Day
-3,Washington's Birthday,Presidents' Day
-4,Memorial Day,Memorial Day
-5,Labor Day,Labor Day
-6,Columbus Day,Columbus Day (Indigenous Peoples' Day)
-7,Veterans Day,Veterans Day
-8,Thanksgiving Day,Thanksgiving
-9,Christmas Day,Christmas Day
+id,name,name_show,federal
+1,New Year's Day,New Year's Day,true
+2,Martin Luther King Jr. Day,Martin Luther King Jr. Day,true
+3,Washington's Birthday,Presidents' Day,true
+4,Memorial Day,Memorial Day,true
+5,Labor Day,Labor Day,true
+6,Columbus Day,Columbus Day (Indigenous Peoples' Day),true
+7,Veterans Day,Veterans Day,true
+8,Thanksgiving Day,Thanksgiving,true
+9,Christmas Day,Christmas Day,true
+10,President's Day,President's Day,true

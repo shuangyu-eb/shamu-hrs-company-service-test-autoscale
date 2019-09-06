@@ -29,4 +29,6 @@ public class PaidHoliday extends BaseEntity {
   private String nameShow;
 
   private Timestamp date;
+
+  private Boolean federal = false;
 }
