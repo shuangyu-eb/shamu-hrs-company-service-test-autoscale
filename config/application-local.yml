@@ -22,6 +22,11 @@ spring:
     cache: false
   profiles:
     include: database
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 30MB
+      max-request-size: 30MB
 
 application:
   systemEmailAddress: noreply@interviewed.com

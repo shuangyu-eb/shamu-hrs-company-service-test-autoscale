@@ -27,4 +27,6 @@ public enum ErrorType {
   AWS_UPLOAD_ERROR,
 
   AUTH0_EXCEPTION,
+
+  FILE_VALIDATE_EXCEPTION,
 }

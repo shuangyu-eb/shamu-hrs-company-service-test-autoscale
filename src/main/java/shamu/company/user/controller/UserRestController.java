@@ -34,6 +34,8 @@ import shamu.company.user.pojo.UserStatusUpdatePojo;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.AwsUtil;
 import shamu.company.utils.AwsUtil.Type;
+import shamu.company.utils.FileValidateUtil;
+import shamu.company.utils.FileValidateUtil.FileType;
 
 @RestApiController
 public class UserRestController extends BaseRestController {
@@ -90,6 +92,9 @@ public class UserRestController extends BaseRestController {
   public String handleFileUpload(
       @PathVariable @HashidsFormat final Long id, @RequestParam("file") final MultipartFile file)
       throws IOException {
+    //TODO: Need an appropriate file size.
+    FileValidateUtil
+        .validate(file, 2 * FileValidateUtil.MB, FileType.JPEG, FileType.PNG, FileType.GIF);
     final String path = awsUtil.uploadFile(file, Type.IMAGE);
 
     if (Strings.isBlank(path)) {

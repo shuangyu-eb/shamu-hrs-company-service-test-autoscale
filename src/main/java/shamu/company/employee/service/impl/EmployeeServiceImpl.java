@@ -75,6 +75,8 @@ import shamu.company.user.service.UserService;
 import shamu.company.utils.Auth0Util;
 import shamu.company.utils.AwsUtil;
 import shamu.company.utils.AwsUtil.Type;
+import shamu.company.utils.FileValidateUtil;
+import shamu.company.utils.FileValidateUtil.FileType;
 
 @Service
 @Transactional
@@ -277,6 +279,8 @@ public class EmployeeServiceImpl implements EmployeeService {
       file = File.createTempFile(UUID.randomUUID().toString(), ".png");
       final byte[] photo = Base64.getDecoder().decode(imageString);
       FileCopyUtils.copy(photo, file);
+      FileValidateUtil
+          .validate(file, 2 * FileValidateUtil.MB, FileType.JPEG, FileType.PNG, FileType.GIF);
       return awsUtil.uploadFile(file.getCanonicalPath(), Type.IMAGE);
     } catch (final IOException e) {
       throw new AwsUploadException("Error while upload employee photo!", e);

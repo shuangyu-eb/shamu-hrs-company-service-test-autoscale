@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import shamu.company.common.exception.EmailException;
+import shamu.company.common.exception.FileValidateException;
 import shamu.company.common.exception.ForbiddenException;
 import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.common.exception.UnAuthenticatedException;
@@ -51,6 +52,12 @@ public class SpringResponseEntityExceptionHandler {
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   @ExceptionHandler(EmailException.class)
   public ErrorMessage handleEmailException(final EmailException exception) {
+    return new ErrorMessage(exception.getType(), exception.getMessage());
+  }
+
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  @ExceptionHandler(FileValidateException.class)
+  public ErrorMessage handleFileValidateException(final FileValidateException exception) {
     return new ErrorMessage(exception.getType(), exception.getMessage());
   }
 

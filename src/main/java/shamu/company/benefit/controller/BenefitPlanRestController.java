@@ -25,6 +25,8 @@ import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.company.entity.Company;
 import shamu.company.hashids.HashidsFormat;
 import shamu.company.utils.AwsUtil;
+import shamu.company.utils.FileValidateUtil;
+import shamu.company.utils.FileValidateUtil.FileType;
 
 @RestApiController
 public class BenefitPlanRestController extends BaseRestController {
@@ -55,9 +57,9 @@ public class BenefitPlanRestController extends BaseRestController {
 
     final List<BenefitPlanUserCreateDto> benefitPlanUserCreateDtoList = data.getSelectedEmployees();
 
-    final Company company = this.getCompany();
+    final Company company = getCompany();
 
-    final BenefitPlan benefitPlan =  benefitPlanService
+    final BenefitPlan benefitPlan = benefitPlanService
         .createBenefitPlan(benefitPlanCreateDto, benefitPlanCoverageDtoList,
             benefitPlanUserCreateDtoList,
             company);
@@ -68,6 +70,9 @@ public class BenefitPlanRestController extends BaseRestController {
   @PreAuthorize("hasPermission(#id,'BENEFIT_PLAN', 'MANAGE_BENEFIT_PLAN')")
   public void uploadBenefitPlanDocument(@PathVariable @HashidsFormat final Long id,
       @RequestParam("file") final MultipartFile document) throws IOException {
+    //TODO: Need an appropriate file size.
+    FileValidateUtil
+        .validate(document, 10 * FileValidateUtil.MB, FileType.JPEG, FileType.PNG, FileType.GIF);
     final String path = awsUtil.uploadFile(document);
 
     if (Strings.isBlank(path)) {
@@ -81,7 +86,7 @@ public class BenefitPlanRestController extends BaseRestController {
 
   @GetMapping("benefit-plan-clusters")
   public List<BenefitPlanClusterDto> getBenefitPlanClusters() {
-    return benefitPlanService.getBenefitPlanCluster(this.getCompany());
+    return benefitPlanService.getBenefitPlanCluster(getCompany());
   }
 
   @PatchMapping("benefit-plan/{benefitPlanId}/users")
