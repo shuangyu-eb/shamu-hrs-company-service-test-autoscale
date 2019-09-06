@@ -224,6 +224,12 @@ public class EmployeeServiceImpl implements EmployeeService {
   @Override
   public void updateEmployee(final EmployeeDto employeeDto) {
     final User employee = userRepository.findByEmailWork(employeeDto.getEmailWork());
+
+    if (employee == null) {
+      throw new ResourceNotFoundException(String.format("Employee with email %s not found!",
+          employeeDto.getEmailWork()));
+    }
+
     updateEmployeeBasicInformation(employee, employeeDto);
     updateEmergencyContacts(employee, employeeDto.getUserEmergencyContactDto());
     updateEmployeeAddress(employee, employeeDto);
@@ -416,6 +422,7 @@ public class EmployeeServiceImpl implements EmployeeService {
           }
 
           emergencyContact.setUser(employee);
+          emergencyContact.setId(null);
           userEmergencyContactRepository.save(emergencyContact);
         });
   }

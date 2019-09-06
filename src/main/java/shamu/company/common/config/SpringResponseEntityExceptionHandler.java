@@ -14,6 +14,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import shamu.company.common.exception.EmailException;
 import shamu.company.common.exception.FileValidateException;
 import shamu.company.common.exception.ForbiddenException;
+import shamu.company.common.exception.GeneralAuth0Exception;
 import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.common.exception.UnAuthenticatedException;
 import shamu.company.common.exception.ValidationFailedException;
@@ -78,5 +79,12 @@ public class SpringResponseEntityExceptionHandler {
   @ExceptionHandler(DataIntegrityViolationException.class)
   public ErrorMessage handleConflictException(final DataIntegrityViolationException exception) {
     return new ErrorMessage(ErrorType.CONFLICT_ERROR, exception.getMessage());
+  }
+
+  @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+  @ExceptionHandler(GeneralAuth0Exception.class)
+  public ErrorMessage handleAuth0Exception(final DataIntegrityViolationException exception) {
+    return new ErrorMessage(ErrorType.AUTH0_EXCEPTION,
+        "Can not get connection, please try again later!");
   }
 }
