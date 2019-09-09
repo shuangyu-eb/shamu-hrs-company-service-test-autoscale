@@ -1,7 +1,5 @@
 package shamu.company.user.service.impl;
 
-import static shamu.company.common.config.SecurityHolder.getCurrentUser;
-
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -81,7 +79,6 @@ import shamu.company.utils.Auth0Util;
 public class UserServiceImpl implements UserService {
 
   private static final String ERROR_MESSAGE = "User does not exist!";
-  private static final String passwordReg = "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$";
   private final ITemplateEngine templateEngine;
   private final UserRepository userRepository;
   private final JobUserRepository jobUserRepository;
@@ -367,10 +364,6 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public void createPassword(final CreatePasswordDto createPasswordDto) {
-    if (!Pattern.matches(passwordReg, createPasswordDto.getNewPassword())) {
-      throw new ForbiddenException("Your password doesn't meet our requirements.");
-    }
-
     final com.auth0.json.mgmt.users.User user = auth0Util
         .getUserByEmailFromAuth0(createPasswordDto.getEmailWork());
 
@@ -554,7 +547,7 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public void updatePassword(ChangePasswordPojo changePasswordPojo, User currentUser) {
+  public void updatePassword(final ChangePasswordPojo changePasswordPojo, final User currentUser) {
     final com.auth0.json.mgmt.users.User user = auth0Util
         .getUserByEmailFromAuth0(currentUser.getUserContactInformation().getEmailWork());
 

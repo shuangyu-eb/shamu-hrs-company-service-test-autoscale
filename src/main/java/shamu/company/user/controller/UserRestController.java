@@ -2,6 +2,7 @@ package shamu.company.user.controller;
 
 import java.io.IOException;
 import java.util.List;
+import javax.validation.Valid;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
@@ -120,13 +121,13 @@ public class UserRestController extends BaseRestController {
   }
 
   @PatchMapping("user/password/reset/token")
-  public boolean resetPassword(@RequestBody final UpdatePasswordDto updatePasswordDto) {
+  public boolean resetPassword(@RequestBody @Valid final UpdatePasswordDto updatePasswordDto) {
     userService.resetPassword(updatePasswordDto);
     return true;
   }
 
   @PatchMapping("user/password/update")
-  public void updatePassword(@RequestBody final ChangePasswordPojo changePasswordPojo) {
+  public void updatePassword(@RequestBody @Valid final ChangePasswordPojo changePasswordPojo) {
     final User currentUser = getUser();
     userService.updatePassword(changePasswordPojo, currentUser);
   }

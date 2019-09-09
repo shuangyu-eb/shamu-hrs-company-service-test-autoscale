@@ -35,7 +35,7 @@ public class AccountRestController {
   }
 
   @PatchMapping("account/password")
-  public HttpEntity createPassword(@RequestBody final CreatePasswordDto createPasswordDto) {
+  public HttpEntity createPassword(@RequestBody @Valid final CreatePasswordDto createPasswordDto) {
     userService.createPassword(createPasswordDto);
     return new ResponseEntity(HttpStatus.OK);
   }
