@@ -2,12 +2,14 @@ package shamu.company.employee.service.impl;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -222,14 +224,7 @@ public class EmployeeServiceImpl implements EmployeeService {
   }
 
   @Override
-  public void updateEmployee(final EmployeeDto employeeDto) {
-    final User employee = userRepository.findByEmailWork(employeeDto.getEmailWork());
-
-    if (employee == null) {
-      throw new ResourceNotFoundException(String.format("Employee with email %s not found!",
-          employeeDto.getEmailWork()));
-    }
-
+  public void updateEmployee(final EmployeeDto employeeDto, final User employee) {
     updateEmployeeBasicInformation(employee, employeeDto);
     updateEmergencyContacts(employee, employeeDto.getUserEmergencyContactDto());
     updateEmployeeAddress(employee, employeeDto);
@@ -430,9 +425,11 @@ public class EmployeeServiceImpl implements EmployeeService {
 
   private void updateEmergencyContacts(
       final User employee, final List<UserEmergencyContactDto> emergencyContactDtos) {
-    final List<UserEmergencyContact> userEmergencyContacts =
-        userEmergencyContactRepository.findByUserId(employee.getId());
-    userEmergencyContactRepository.deleteInBatch(userEmergencyContacts);
+    final List<BigInteger> userEmergencyContactIds =
+        userEmergencyContactRepository.findAllIdByUserId(employee.getId());
+    userEmergencyContactRepository.deleteInBatch(userEmergencyContactIds.stream()
+        .map(BigInteger::longValue)
+        .collect(Collectors.toList()));
     saveEmergencyContacts(employee, emergencyContactDtos);
   }
 

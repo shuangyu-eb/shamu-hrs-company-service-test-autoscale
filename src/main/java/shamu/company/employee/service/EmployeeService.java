@@ -12,7 +12,7 @@ public interface EmployeeService {
 
   void addEmployee(EmployeeDto employee, User currentUser);
 
-  void updateEmployee(EmployeeDto employeeDto);
+  void updateEmployee(EmployeeDto employeeDto, User employee);
 
   void resendEmail(EmailResendDto emailResendDto);
 

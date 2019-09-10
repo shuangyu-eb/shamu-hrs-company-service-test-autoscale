@@ -5,8 +5,8 @@ import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import shamu.company.timeoff.entity.TimeOffAdjustment;
 import shamu.company.timeoff.entity.TimeOffPolicyUser;
+import shamu.company.timeoff.pojo.TimeOffAdjustmentPojo;
 import shamu.company.utils.DateUtil;
 
 @Data
@@ -31,25 +31,26 @@ public class TimeOffBreakdownItemDto {
     TIME_OFF_REQUEST
   }
 
-  public TimeOffBreakdownItemDto(LocalDateTime date, String detail,
-      Integer amount, Integer balance, BreakDownType breakDownType) {
+  public TimeOffBreakdownItemDto(final LocalDateTime date, final String detail,
+      final Integer amount, final Integer balance, final BreakDownType breakDownType) {
     this.date = date;
     this.detail = detail;
     this.amount = amount;
     this.balance = balance;
-    this.breakdownType = breakDownType;
+    breakdownType = breakDownType;
   }
 
-  public TimeOffBreakdownItemDto(LocalDateTime date, String detail,
-      Integer amount, BreakDownType breakDownType) {
+  public TimeOffBreakdownItemDto(final LocalDateTime date, final String detail,
+      final Integer amount, final BreakDownType breakDownType) {
     this.date = date;
     this.detail = detail;
     this.amount = amount;
-    this.breakdownType = breakDownType;
+    breakdownType = breakDownType;
   }
 
   @JSONField(serialize = false)
-  public static TimeOffBreakdownItemDto fromTimeOffPolicyUser(TimeOffPolicyUser timeOffPolicyUser) {
+  public static TimeOffBreakdownItemDto fromTimeOffPolicyUser(
+      final TimeOffPolicyUser timeOffPolicyUser) {
 
     Integer startingBalance = timeOffPolicyUser.getBalance();
     if (startingBalance == null) {
@@ -66,11 +67,12 @@ public class TimeOffBreakdownItemDto {
   }
 
   @JSONField(serialize = false)
-  public static TimeOffBreakdownItemDto fromTimeOffAdjustment(TimeOffAdjustment timeOffAdjustment) {
+  public static TimeOffBreakdownItemDto fromTimeOffAdjustment(
+      final TimeOffAdjustmentPojo timeOffAdjustmentPojo) {
     return new TimeOffBreakdownItemDto(
-        DateUtil.toLocalDateTime(timeOffAdjustment.getCreatedAt()),
-        timeOffAdjustment.getComment(),
-        timeOffAdjustment.getAmount(),
+        DateUtil.toLocalDateTime(timeOffAdjustmentPojo.getCreatedAt()),
+        timeOffAdjustmentPojo.getComment(),
+        timeOffAdjustmentPojo.getAmount(),
         BreakDownType.TIME_OFF_ADJUSTMENT
     );
   }

@@ -7,7 +7,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -87,10 +86,10 @@ public class PaidHolidayServiceImpl implements PaidHolidayService {
       .collect(Collectors.toList());
   }
 
-  private PaidHolidayDto getNewPaidHolidayDto(PaidHolidayDto paidHolidayDto, int year) {
-    Timestamp observanceYear = new Timestamp(
+  private PaidHolidayDto getNewPaidHolidayDto(final PaidHolidayDto paidHolidayDto, final int year) {
+    final Timestamp observanceYear = new Timestamp(
         federalHolidays.dateOf(paidHolidayDto.getName(), year).getTime());
-    PaidHolidayDto newPaidHolidayDto = new PaidHolidayDto();
+    final PaidHolidayDto newPaidHolidayDto = new PaidHolidayDto();
     BeanUtils.copyProperties(paidHolidayDto, newPaidHolidayDto);
     newPaidHolidayDto.setDate(observanceYear);
     return newPaidHolidayDto;
@@ -102,7 +101,7 @@ public class PaidHolidayServiceImpl implements PaidHolidayService {
   @Override
   public List<PaidHolidayDto> getPaidHolidays(final Long companyId) {
     final List<PaidHolidayDto> currentYearPaidHolidays = getCurrentYearPaidHolidays(companyId);
-    int year = Calendar.getInstance().get(Calendar.YEAR);
+    final int year = Calendar.getInstance().get(Calendar.YEAR);
     final List<PaidHolidayDto> otherYearsObservances = new ArrayList<>();
     currentYearPaidHolidays.forEach(paidHolidayDto -> {
       if (paidHolidayDto.getFederal()) {
@@ -167,13 +166,10 @@ public class PaidHolidayServiceImpl implements PaidHolidayService {
   public PaidHolidayRelatedUserListDto getPaidHolidayEmployees(final Company company) {
     final List<JobUserDto> allEmployees = userService.findAllJobUsers(company);
 
-    final List<PaidHolidayUser> filterDataSet = paidHolidayUserRepository
-        .findAllByCompanyId(company.getId());
+    final List<Long> filterIds = paidHolidayUserRepository
+        .findAllUserIdByCompanyId(company.getId());
 
-    final List<Long> filterIds = filterDataSet.stream()
-        .map(d -> d.getUserId()).collect(Collectors.toList());
-
-    allEmployees.stream().forEach(e -> {
+    allEmployees.forEach(e -> {
       if (!filterIds.contains(e.getId())) {
         final PaidHolidayUser newAddedPaidHolidayUser = new PaidHolidayUser(company.getId(),
             e.getId(),
@@ -186,7 +182,7 @@ public class PaidHolidayServiceImpl implements PaidHolidayService {
         .findAllByCompanyId(company.getId());
 
     final List<Long> unSelectedEmployeeIds = newFilterDataSet.stream()
-        .filter(e -> e.isSelected() == false).map(u -> u.getUserId()).collect(Collectors.toList());
+        .filter(e -> !e.isSelected()).map(PaidHolidayUser::getUserId).collect(Collectors.toList());
 
     final List<JobUserDto> selectedEmployees = allEmployees.stream()
         .filter(u -> !unSelectedEmployeeIds.contains(u.getId())).collect(Collectors.toList());
@@ -200,14 +196,13 @@ public class PaidHolidayServiceImpl implements PaidHolidayService {
   @Override
   public void updatePaidHolidayEmployees(final List<JobUserDto> newPaidEmployees,
       final Company company) {
-    final List<Long> paidEmployeeIdsNow = new ArrayList<>();
-    newPaidEmployees.stream().map(e -> paidEmployeeIdsNow.add(e.getId()))
+    final List<Long> paidEmployeeIdsNow = newPaidEmployees.stream().map(JobUserDto::getId)
         .collect(Collectors.toList());
     final List<PaidHolidayUser> employeesStateBefore = paidHolidayUserRepository
         .findAllByCompanyId(company.getId());
     final List<Long> employeesIdsBefore = new ArrayList<>();
 
-    employeesStateBefore.stream().forEach(u -> {
+    employeesStateBefore.forEach(u -> {
       employeesIdsBefore.add(u.getUserId());
       if (paidEmployeeIdsNow.contains(u.getUserId())) {
         u.setSelected(true);
@@ -217,7 +212,7 @@ public class PaidHolidayServiceImpl implements PaidHolidayService {
     });
     paidHolidayUserRepository.saveAll(employeesStateBefore);
 
-    newPaidEmployees.stream().forEach(u -> {
+    newPaidEmployees.forEach(u -> {
       if (employeesIdsBefore.contains(u.getId())) {
         final PaidHolidayUser origin = paidHolidayUserRepository
             .findByCompanyIdAndUserId(company.getId(), u.getId());

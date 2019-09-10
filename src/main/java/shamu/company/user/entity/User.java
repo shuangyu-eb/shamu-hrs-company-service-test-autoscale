@@ -91,12 +91,12 @@ public class User extends BaseEntity {
   private String userId;
 
   public User(final Long id) {
-    this.setId(id);
+    setId(id);
   }
 
   public User(final Long id, final String imageUrl) {
-    this.setId(id);
-    this.setImageUrl(imageUrl);
+    setId(id);
+    setImageUrl(imageUrl);
   }
 
   public Role getRole() {
@@ -111,7 +111,7 @@ public class User extends BaseEntity {
     if (null == managerUser.getId()) {
       throw new GeneralException("Please save this manager before set this user's manager.");
     }
-    if (managerUser.getId().equals(this.getId())) {
+    if (managerUser.getId().equals(getId())) {
       throw new GeneralException("Users cannot set themselves to be their manager.");
     }
     this.managerUser = managerUser;
@@ -130,7 +130,7 @@ public class User extends BaseEntity {
     }
 
     public String getValue() {
-      return this.value;
+      return value;
     }
   }
 }

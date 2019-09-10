@@ -45,21 +45,21 @@ public class EmployeeRestController extends BaseRestController {
   @GetMapping("employees")
   public Page<JobUserListItem> getAllEmployees(
       final EmployeeListSearchCondition employeeListSearchCondition) {
-    Boolean isAdmin = this.getUser().getRole() == User.Role.ADMIN;
-    return userService.getAllEmployees(employeeListSearchCondition, this.getCompany(), isAdmin);
+    final Boolean isAdmin = getUser().getRole() == User.Role.ADMIN;
+    return userService.getAllEmployees(employeeListSearchCondition, getCompany(), isAdmin);
   }
 
   @GetMapping("employees/my-team")
   @PreAuthorize("hasAuthority('VIEW_MY_TEAM')")
   public Page<JobUserListItem> getMyTeam(
       final EmployeeListSearchCondition employeeListSearchCondition) {
-    return userService.getMyTeam(employeeListSearchCondition, this.getUser());
+    return userService.getMyTeam(employeeListSearchCondition, getUser());
   }
 
   @GetMapping("users")
   @PreAuthorize("hasAuthority('CREATE_USER')")
   public List<JobUserDto> getAllPolicyEmployees() {
-    final Company company = this.getUser().getCompany();
+    final Company company = getUser().getCompany();
     return userService.findAllJobUsers(company);
   }
 
@@ -72,7 +72,7 @@ public class EmployeeRestController extends BaseRestController {
   }
 
   @PostMapping("employees/welcome-email/resend")
-  public HttpEntity getWelcomeEmail(@RequestBody @Valid EmailResendDto emailResend) {
+  public HttpEntity getWelcomeEmail(@RequestBody @Valid final EmailResendDto emailResend) {
 
     employeeService.resendEmail(emailResend);
     return new ResponseEntity(HttpStatus.OK);
@@ -88,7 +88,8 @@ public class EmployeeRestController extends BaseRestController {
   @PatchMapping("employees")
   @PreAuthorize("hasAuthority('EDIT_SELF')")
   public HttpEntity updateEmployee(@RequestBody final EmployeeDto employeeDto) {
-    employeeService.updateEmployee(employeeDto);
+
+    employeeService.updateEmployee(employeeDto, getUser());
     return new ResponseEntity(HttpStatus.OK);
   }
 

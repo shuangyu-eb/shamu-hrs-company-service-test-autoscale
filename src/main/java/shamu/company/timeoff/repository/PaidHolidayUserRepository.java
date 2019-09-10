@@ -11,7 +11,15 @@ public interface PaidHolidayUserRepository extends BaseRepository<PaidHolidayUse
       value = "SELECT * FROM paid_holidays_users WHERE company_id = ?1 AND deleted_at IS NULL",
       nativeQuery = true
   )
- List<PaidHolidayUser> findAllByCompanyId(Long id);
+  List<PaidHolidayUser> findAllByCompanyId(Long id);
+
+  @Query(
+      value = "SELECT user_id"
+          + " FROM paid_holidays_users"
+          + " WHERE company_id = ?1 AND deleted_at IS NULL",
+      nativeQuery = true
+  )
+  List<Long> findAllUserIdByCompanyId(Long companyId);
 
   @Query(
       value = "SELECT * FROM paid_holidays_users WHERE company_id = ?1 AND user_id = ?2 "

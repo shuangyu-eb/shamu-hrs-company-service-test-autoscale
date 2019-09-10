@@ -12,7 +12,15 @@ public interface TimeOffPolicyAccrualScheduleRepository extends
   @Query("select s from TimeOffPolicyAccrualSchedule s where s.deletedAt is null "
       + "and s.timeOffPolicy = ?1 "
       + "and s.expiredAt is null")
-  TimeOffPolicyAccrualSchedule findAllByTimeOffPolicy(TimeOffPolicy timeOffPolicy);
+  TimeOffPolicyAccrualSchedule findByTimeOffPolicy(TimeOffPolicy timeOffPolicy);
+
+  @Query(
+      value = "select id from time_off_policy_accrual_schedules"
+          + " where time_off_policy_id = ?1"
+          + " and deleted_at is null",
+      nativeQuery = true
+  )
+  Long findIdByTimeOffPolicyId(Long id);
 
   @Query("select s from TimeOffPolicyAccrualSchedule s where s.deletedAt is null "
       + "and s.timeOffPolicy = ?1")

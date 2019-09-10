@@ -15,37 +15,36 @@ public class BenefitPlanDependentServiceImpl implements BenefitPlanDependentServ
 
   @Autowired
   public BenefitPlanDependentServiceImpl(
-      BenefitPlanDependentRepository benefitPlanDependentRepository) {
+      final BenefitPlanDependentRepository benefitPlanDependentRepository) {
     this.benefitPlanDependentRepository = benefitPlanDependentRepository;
   }
 
 
   @Override
-  public void createBenefitPlanDependent(BenefitPlanDependent benefitPlanDependent) {
+  public void createBenefitPlanDependent(final BenefitPlanDependent benefitPlanDependent) {
     benefitPlanDependentRepository.save(benefitPlanDependent);
   }
 
   @Override
-  public List<BenefitPlanDependent> getDependentListsByEmployeeId(Long id) {
+  public List<BenefitPlanDependent> getDependentListsByEmployeeId(final Long id) {
     return benefitPlanDependentRepository.findByUserId(id);
   }
 
   @Override
-  public void updateDependentContact(BenefitPlanDependent benefitPlanDependent) {
+  public void updateDependentContact(final BenefitPlanDependent benefitPlanDependent) {
     benefitPlanDependentRepository.save(benefitPlanDependent);
   }
 
   @Override
-  public void deleteDependentContact(Long id) {
+  public void deleteDependentContact(final Long id) {
     benefitPlanDependentRepository.delete(id);
   }
 
   @Override
-  public BenefitPlanDependent findDependentById(Long dependentId) {
+  public BenefitPlanDependent findDependentById(final Long dependentId) {
 
-    Optional<BenefitPlanDependent> benefitPlanDependent
+    final Optional<BenefitPlanDependent> benefitPlanDependent
         = benefitPlanDependentRepository.findById(dependentId);
-    return benefitPlanDependent.get() == null
-        ? null : benefitPlanDependent.get();
+    return benefitPlanDependent.orElse(null);
   }
 }

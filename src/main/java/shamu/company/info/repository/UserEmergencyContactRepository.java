@@ -1,5 +1,6 @@
 package shamu.company.info.repository;
 
+import java.math.BigInteger;
 import java.util.List;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -15,6 +16,13 @@ public interface UserEmergencyContactRepository extends BaseRepository<UserEmerg
               + "WHERE deleted_at IS NULL AND user_id = ?1 ORDER BY is_primary DESC, id ASC",
       nativeQuery = true)
   List<UserEmergencyContact> findByUserId(Long userId);
+
+  @Query(
+      value =
+          "SELECT id FROM user_emergency_contacts "
+              + "WHERE deleted_at IS NULL AND user_id = ?1 ORDER BY is_primary DESC, id ASC",
+      nativeQuery = true)
+  List<BigInteger> findAllIdByUserId(Long userId);
 
   @Modifying
   @Transactional

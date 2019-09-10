@@ -34,19 +34,19 @@ public class TimeOffPolicyRelatedInfoDto {
   private List<AccrualScheduleMilestone> accrualScheduleMilestone;
 
   public TimeOffPolicyRelatedInfoDto(
-      TimeOffPolicy timeOffPolicy,
-      TimeOffPolicyAccrualSchedule timeOffPolicyAccrualSchedule,
-      List<AccrualScheduleMilestone> accrualScheduleMilestone) {
-    this.id = timeOffPolicy.getId();
-    this.policyName = timeOffPolicy.getName();
-    this.isLimited = timeOffPolicy.getIsLimited();
+      final TimeOffPolicy timeOffPolicy,
+      final TimeOffPolicyAccrualSchedule timeOffPolicyAccrualSchedule,
+      final List<AccrualScheduleMilestone> accrualScheduleMilestone) {
+    id = timeOffPolicy.getId();
+    policyName = timeOffPolicy.getName();
+    isLimited = timeOffPolicy.getIsLimited();
     if (timeOffPolicyAccrualSchedule != null) {
-      this.startDate = timeOffPolicyAccrualSchedule.getDaysBeforeAccrualStarts();
-      this.timeOffAccrualFrequency =
+      startDate = timeOffPolicyAccrualSchedule.getDaysBeforeAccrualStarts();
+      timeOffAccrualFrequency =
           timeOffPolicyAccrualSchedule.getTimeOffAccrualFrequency().getId();
-      this.accrualHoursBaseRate = timeOffPolicyAccrualSchedule.getAccrualHours();
-      this.carryoverLimitBaseRate = timeOffPolicyAccrualSchedule.getCarryoverLimit();
-      this.maxBalanceBaseRate = timeOffPolicyAccrualSchedule.getMaxBalance();
+      accrualHoursBaseRate = timeOffPolicyAccrualSchedule.getAccrualHours();
+      carryoverLimitBaseRate = timeOffPolicyAccrualSchedule.getCarryoverLimit();
+      maxBalanceBaseRate = timeOffPolicyAccrualSchedule.getMaxBalance();
     }
     if (accrualScheduleMilestone != null) {
       this.accrualScheduleMilestone = accrualScheduleMilestone;

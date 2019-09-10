@@ -35,10 +35,10 @@ public class TimeOffPolicyAccrualSchedule extends BaseEntity {
   @ManyToOne
   private TimeOffAccrualFrequency timeOffAccrualFrequency;
 
-  public TimeOffPolicyAccrualSchedule(TimeOffPolicy timeOffPolicy, Integer accrualHours,
-      Integer maxBalance, Integer daysBeforeAccrualStarts,
-      Integer carryoverLimit,
-      TimeOffAccrualFrequency timeOffAccrualFrequency) {
+  public TimeOffPolicyAccrualSchedule(final TimeOffPolicy timeOffPolicy, final Integer accrualHours,
+      final Integer maxBalance, final Integer daysBeforeAccrualStarts,
+      final Integer carryoverLimit,
+      final TimeOffAccrualFrequency timeOffAccrualFrequency) {
     this.timeOffPolicy = timeOffPolicy;
     this.accrualHours = accrualHours;
     this.maxBalance = maxBalance;

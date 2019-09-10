@@ -42,12 +42,12 @@ import shamu.company.timeoff.entity.TimeOffAdjustment;
 import shamu.company.timeoff.entity.TimeOffPolicy;
 import shamu.company.timeoff.entity.TimeOffPolicyAccrualSchedule;
 import shamu.company.timeoff.entity.TimeOffPolicyUser;
-import shamu.company.timeoff.entity.TimeOffRequest;
 import shamu.company.timeoff.entity.mapper.AccrualScheduleMilestoneMapper;
 import shamu.company.timeoff.entity.mapper.TimeOffPolicyAccrualScheduleMapper;
 import shamu.company.timeoff.entity.mapper.TimeOffPolicyMapper;
 import shamu.company.timeoff.entity.mapper.TimeOffPolicyUserMapper;
 import shamu.company.timeoff.pojo.TimeOffPolicyListPojo;
+import shamu.company.timeoff.pojo.TimeOffRequestPartPojo;
 import shamu.company.timeoff.repository.AccrualScheduleMilestoneRepository;
 import shamu.company.timeoff.repository.TimeOffAdjustmentRepository;
 import shamu.company.timeoff.repository.TimeOffPolicyAccrualScheduleRepository;
@@ -245,7 +245,7 @@ public class TimeOffPolicyServiceImpl implements TimeOffPolicyService {
           timeOffPolicy, null, null);
     }
     final TimeOffPolicyAccrualSchedule timeOffPolicyAccrualSchedule =
-        timeOffPolicyAccrualScheduleRepository.findAllByTimeOffPolicy(timeOffPolicy);
+        timeOffPolicyAccrualScheduleRepository.findByTimeOffPolicy(timeOffPolicy);
 
     final List<AccrualScheduleMilestone> accrualScheduleMilestones =
         accrualScheduleMilestoneRepository
@@ -301,7 +301,7 @@ public class TimeOffPolicyServiceImpl implements TimeOffPolicyService {
   @Override
   public TimeOffPolicyAccrualSchedule getTimeOffPolicyAccrualScheduleByTimeOffPolicy(
       final TimeOffPolicy timeOffPolicy) {
-    return timeOffPolicyAccrualScheduleRepository.findAllByTimeOffPolicy(timeOffPolicy);
+    return timeOffPolicyAccrualScheduleRepository.findByTimeOffPolicy(timeOffPolicy);
   }
 
   @Override
@@ -571,7 +571,7 @@ public class TimeOffPolicyServiceImpl implements TimeOffPolicyService {
 
   @Override
   public void deleteTimeOffPolicy(final Long timeOffPolicyId) {
-    final List<TimeOffRequest> requests = timeOffRequestRepository
+    final List<TimeOffRequestPartPojo> requests = timeOffRequestRepository
         .findByTimeOffPolicyId(timeOffPolicyId);
     requests.stream().filter(request ->
         request.getTimeOffApprovalStatus() != APPROVED
@@ -583,13 +583,13 @@ public class TimeOffPolicyServiceImpl implements TimeOffPolicyService {
     timeOffPolicyUserRepository.delete(timeOffPolicyUsers);
 
     final TimeOffPolicy timeOffPolicy = timeOffPolicyRepository.getOne(timeOffPolicyId);
-    final TimeOffPolicyAccrualSchedule accrualSchedule = timeOffPolicyAccrualScheduleRepository
-        .findAllByTimeOffPolicy(timeOffPolicy);
-    if (accrualSchedule != null) {
-      timeOffPolicyAccrualScheduleRepository.delete(accrualSchedule);
+    final Long accrualScheduleId = timeOffPolicyAccrualScheduleRepository
+        .findIdByTimeOffPolicyId(timeOffPolicy.getId());
+    if (accrualScheduleId != null) {
+      timeOffPolicyAccrualScheduleRepository.delete(accrualScheduleId);
 
       final List<AccrualScheduleMilestone> milestones = accrualScheduleMilestoneRepository
-          .findByTimeOffPolicyAccrualScheduleId(accrualSchedule.getId());
+          .findByTimeOffPolicyAccrualScheduleId(accrualScheduleId);
       accrualScheduleMilestoneRepository.deleteAll(milestones);
     }
 
