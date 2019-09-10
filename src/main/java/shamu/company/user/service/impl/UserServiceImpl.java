@@ -531,9 +531,7 @@ public class UserServiceImpl implements UserService {
     if (isAdmin) {
       return true;
     }
-
-    final Long managerUserId = userRepository.getManagerUserIdById(targetUserId);
-    return managerUserId != null && managerUserId.equals(currentUser.getId());
+    return false;
   }
 
   @Override
