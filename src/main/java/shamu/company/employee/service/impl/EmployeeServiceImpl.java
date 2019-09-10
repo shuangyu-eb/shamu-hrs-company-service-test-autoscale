@@ -261,8 +261,9 @@ public class EmployeeServiceImpl implements EmployeeService {
       userContactInformationService.update(userContactInformation);
     }
 
-    final Email welcomeEmail = getWelcomeEmail(originalEmail);
-    welcomeEmail.setId(null);
+    final Email emailInfo = getWelcomeEmail(originalEmail);
+
+    final Email welcomeEmail = new Email(emailInfo);
     welcomeEmail.setSendDate(Timestamp.from(Instant.now()));
     welcomeEmail.setTo(email);
 

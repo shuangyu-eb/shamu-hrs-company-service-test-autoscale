@@ -40,6 +40,20 @@ public class Email extends BaseEntity {
 
   private Integer retryCount;
 
+
+  public Email(Email emailInfo) {
+    this.from = emailInfo.from;
+    this.fromName = emailInfo.fromName;
+    this.toName = emailInfo.toName;
+    this.subject = emailInfo.subject;
+    this.content = emailInfo.content;
+    this.user = emailInfo.user;
+    this.sentAt = emailInfo.sentAt;
+    this.retryCount = emailInfo.retryCount;
+    this.setCreatedAt(emailInfo.getCreatedAt());
+    this.setDeletedAt(emailInfo.getDeletedAt());
+  }
+
   public Email(String from, String to, String subject, String content, User user,
       Timestamp sendDate) {
     this.from = from;
