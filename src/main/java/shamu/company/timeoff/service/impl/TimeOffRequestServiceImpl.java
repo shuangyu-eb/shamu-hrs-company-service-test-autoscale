@@ -144,23 +144,21 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
     final Boolean policiesAdded = timeOffPolicyUserRepository.existsByUserId(id);
     myTimeOffDto.setPoliciesAdded(policiesAdded);
 
-    if (policiesAdded) {
-      final Page<TimeOffRequest> timeOffRequests;
-      if (filteredByEndDay) {
-        timeOffRequests =
-            timeOffRequestRepository.findByRequesterUserIdFilteredByStartAndEndDay(
-                id, startDay, endDay, statuses, request);
-      } else {
-        timeOffRequests =
-          timeOffRequestRepository.findByRequesterUserIdFilteredByStartDay(
-              id, startDay, statuses, request);
-      }
-      final List<TimeOffRequestDto> timeOffRequestDtos =
-          timeOffRequests.getContent().stream()
-              .map(timeOffRequestMapper::convertToTimeOffRequestDto).collect(Collectors.toList());
-      myTimeOffDto.setTimeOffRequests(
-          new PageImpl<>(timeOffRequestDtos, request, timeOffRequests.getTotalElements()));
+    final Page<TimeOffRequest> timeOffRequests;
+    if (filteredByEndDay) {
+      timeOffRequests =
+          timeOffRequestRepository.findByRequesterUserIdFilteredByStartAndEndDay(
+              id, startDay, endDay, statuses, request);
+    } else {
+      timeOffRequests =
+        timeOffRequestRepository.findByRequesterUserIdFilteredByStartDay(
+            id, startDay, statuses, request);
     }
+    final List<TimeOffRequestDto> timeOffRequestDtos =
+        timeOffRequests.getContent().stream()
+            .map(timeOffRequestMapper::convertToTimeOffRequestDto).collect(Collectors.toList());
+    myTimeOffDto.setTimeOffRequests(
+        new PageImpl<>(timeOffRequestDtos, request, timeOffRequests.getTotalElements()));
 
     return myTimeOffDto;
   }
