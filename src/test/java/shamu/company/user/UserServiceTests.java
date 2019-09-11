@@ -14,12 +14,14 @@ import org.springframework.scheduling.TaskScheduler;
 import org.thymeleaf.ITemplateEngine;
 import shamu.company.common.exception.ForbiddenException;
 import shamu.company.common.exception.ResourceNotFoundException;
+import shamu.company.common.repository.DepartmentRepository;
 import shamu.company.company.CompanyRepository;
 import shamu.company.company.CompanySizeRepository;
 import shamu.company.company.entity.Company;
 import shamu.company.company.entity.CompanySize;
 import shamu.company.email.EmailService;
 import shamu.company.info.service.UserEmergencyContactService;
+import shamu.company.job.repository.JobRepository;
 import shamu.company.job.repository.JobUserRepository;
 import shamu.company.timeoff.service.PaidHolidayService;
 import shamu.company.user.dto.CreatePasswordDto;
@@ -64,6 +66,8 @@ class UserServiceTests {
   @Mock private Auth0Util auth0Util;
   @Mock private UserAccessLevelEventRepository userAccessLevelEventRepository;
   @Mock private TaskScheduler taskScheduler;
+  @Mock private DepartmentRepository departmentRepository;
+  @Mock private JobRepository jobRepository;
 
   @BeforeEach
   void init() {
@@ -85,7 +89,9 @@ class UserServiceTests {
         userAddressMapper,
         auth0Util,
         userAccessLevelEventRepository,
-        taskScheduler);
+        taskScheduler,
+        departmentRepository,
+        jobRepository);
   }
 
   @Test

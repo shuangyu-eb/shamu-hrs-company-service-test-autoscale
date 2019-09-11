@@ -25,10 +25,12 @@ import org.thymeleaf.context.Context;
 import shamu.company.common.entity.BaseEntity;
 import shamu.company.common.exception.ForbiddenException;
 import shamu.company.common.exception.ResourceNotFoundException;
+import shamu.company.common.repository.DepartmentRepository;
 import shamu.company.company.CompanyRepository;
 import shamu.company.company.CompanySizeRepository;
 import shamu.company.company.entity.Company;
 import shamu.company.company.entity.CompanySize;
+import shamu.company.company.entity.Department;
 import shamu.company.email.Email;
 import shamu.company.email.EmailService;
 import shamu.company.employee.dto.EmployeeListSearchCondition;
@@ -37,8 +39,10 @@ import shamu.company.info.dto.UserEmergencyContactDto;
 import shamu.company.info.entity.UserEmergencyContact;
 import shamu.company.info.service.UserEmergencyContactService;
 import shamu.company.job.dto.JobUserDto;
+import shamu.company.job.entity.Job;
 import shamu.company.job.entity.JobUser;
 import shamu.company.job.entity.JobUserListItem;
+import shamu.company.job.repository.JobRepository;
 import shamu.company.job.repository.JobUserRepository;
 import shamu.company.timeoff.service.PaidHolidayService;
 import shamu.company.user.dto.AccountInfoDto;
@@ -95,6 +99,8 @@ public class UserServiceImpl implements UserService {
   private final CompanySizeRepository companySizeRepository;
   private final PaidHolidayService paidHolidayService;
   private final CompanyRepository companyRepository;
+  private final DepartmentRepository departmentRepository;
+  private final JobRepository jobRepository;
 
   private final EmailService emailService;
   private final UserCompensationRepository userCompensationRepository;
@@ -120,7 +126,9 @@ public class UserServiceImpl implements UserService {
       final UserAddressMapper userAddressMapper,
       final Auth0Util auth0Util,
       final UserAccessLevelEventRepository userAccessLevelEventRepository,
-      final TaskScheduler taskScheduler) {
+      final TaskScheduler taskScheduler,
+      final DepartmentRepository departmentRepository,
+      final JobRepository jobRepository) {
     this.templateEngine = templateEngine;
     this.userRepository = userRepository;
     this.jobUserRepository = jobUserRepository;
@@ -139,6 +147,8 @@ public class UserServiceImpl implements UserService {
     this.auth0Util = auth0Util;
     this.userAccessLevelEventRepository = userAccessLevelEventRepository;
     this.taskScheduler = taskScheduler;
+    this.departmentRepository = departmentRepository;
+    this.jobRepository = jobRepository;
   }
 
   @Override
@@ -497,6 +507,17 @@ public class UserServiceImpl implements UserService {
         .build();
     company = companyRepository.save(company);
 
+    Department department = new Department();
+    department.setName(signUpDto.getDepartment());
+    department.setCompany(company);
+    department = departmentRepository.save(department);
+
+    Job job = new Job();
+    job.setTitle(signUpDto.getJobTitle());
+    job.setDepartment(department);
+    job = jobRepository.save(job);
+
+
     final UserRole role = userRoleRepository.findByName(Role.ADMIN.name());
 
     final UserStatus status = userStatusRepository.findByName(Status.ACTIVE.name());
@@ -515,6 +536,12 @@ public class UserServiceImpl implements UserService {
         .build();
 
     user = userRepository.save(user);
+
+    JobUser jobUser = new JobUser();
+    jobUser.setUser(user);
+    jobUser.setJob(job);
+    jobUser.setCompany(company);
+    jobUserRepository.save(jobUser);
 
     paidHolidayService.initDefaultPaidHolidays(user.getCompany());
   }
