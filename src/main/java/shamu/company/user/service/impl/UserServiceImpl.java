@@ -473,6 +473,30 @@ public class UserServiceImpl implements UserService {
           Status.DISABLED.name()
       ));
       final UserRole userRole = userRoleRepository.findByName(Role.INACTIVATE.name());
+      List<User> teamEmployees = userRepository.findAllByManagerUserId(user.getId());
+      final User manager = user.getManagerUser();
+
+      if (teamEmployees.size() > 0) {
+        if (manager != null) {
+          teamEmployees = teamEmployees.stream().map(
+              employee -> {
+                employee.setManagerUser(manager);
+                return employee;
+              }
+          ).collect(Collectors.toList());
+        } else {
+          teamEmployees = teamEmployees.stream().map(
+              employee -> {
+                employee.setManagerUser(null);
+                employee.setUserRole(userRoleRepository.findByName(Role.ADMIN.name()));
+                return employee;
+              }
+          ).collect(Collectors.toList());
+        }
+
+        userRepository.saveAll(teamEmployees);
+
+      }
       user.setUserRole(userRole);
       user.setDeactivatedAt(userStatusUpdatePojo.getDeactivationDate());
       user.setDeactivationReason(new DeactivationReasons(userStatusUpdatePojo
