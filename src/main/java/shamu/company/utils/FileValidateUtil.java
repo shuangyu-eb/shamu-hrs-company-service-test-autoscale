@@ -62,6 +62,10 @@ public class FileValidateUtil {
 
   public static void validate(final MultipartFile multipartFile, final Long maxSize,
       final FileType... types) {
+    if (multipartFile == null || multipartFile.isEmpty()) {
+      throw new FileValidateException("No file was found.");
+    }
+
     try (final InputStream inputStream = multipartFile.getInputStream()) {
       validate(inputStream, multipartFile.getSize(), maxSize, types);
     } catch (final IOException e) {
@@ -71,6 +75,10 @@ public class FileValidateUtil {
   }
 
   public static void validate(final File file, final Long maxSize, final FileType... types) {
+    if (file == null || !file.isFile()) {
+      throw new FileValidateException("No file was found.");
+    }
+
     try {
       validate(new FileInputStream(file), file.length(), maxSize, types);
     } catch (final FileNotFoundException e) {
