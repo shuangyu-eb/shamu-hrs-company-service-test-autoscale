@@ -581,6 +581,15 @@ public class UserServiceImpl implements UserService {
 
     auth0Util.updatePassword(user, changePasswordPojo.getNewPassword());
 
+    final Context context = new Context();
+    context.setVariable("frontEndAddress", frontEndAddress);
+    final String emailContent = templateEngine.process("password_change_email.html", context);
+    final Timestamp sendDate = Timestamp.valueOf(LocalDateTime.now());
+    final Email notificationEmail = new Email(systemEmailAddress,
+        currentUser.getUserContactInformation().getEmailWork(), "Password Changed!",
+        emailContent, sendDate);
+    emailService.saveAndScheduleEmail(notificationEmail);
+
   }
 
   @Override
