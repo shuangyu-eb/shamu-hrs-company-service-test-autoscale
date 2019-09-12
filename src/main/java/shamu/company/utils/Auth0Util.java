@@ -145,33 +145,31 @@ public class Auth0Util {
     }
   }
 
-  public void inactivate(final String userId) {
+  public void updateAuthRole(final String userId, final String updatedRole) {
     final ManagementAPI manager = auth0Manager.getManagementApi();
     try {
-      // get all roles
       final Request<RolesPage> rolesPageRequest = manager.roles().list(null);
       final RolesPage rolesPage = rolesPageRequest.execute();
-      final List<String> inactivateRoleId = rolesPage.getItems().stream()
-          .filter(role -> role.getName().equals(shamu.company.user.entity.User.Role.INACTIVATE.getValue()))
+      final List<String> updatedRoleId = rolesPage.getItems().stream()
+          .filter(role -> role.getName().equals(updatedRole))
           .map(Role::getId)
           .collect(Collectors.toList());
 
-      // get user's roles
       final Request userRolesRequest = manager.users().listRoles(userId, null);
       final RolesPage userRolesPage = (RolesPage) userRolesRequest.execute();
       final List<String> userRolesIds = userRolesPage.getItems().stream()
           .map(Role::getId)
           .collect(Collectors.toList());
 
-      // remove user's roles
       final Request removeRolesRequest = manager.users().removeRoles(userId, userRolesIds);
       removeRolesRequest.execute();
 
-      // add "INACTIVATE" role to user
-      final Request inactivateUserRequest = manager.users().addRoles(userId, inactivateRoleId);
-      inactivateUserRequest.execute();
+      final Request updateUserRoleRequest = manager.users().addRoles(userId, updatedRoleId);
+      updateUserRoleRequest.execute();
+
     } catch (final Auth0Exception e) {
       throw new GeneralAuth0Exception(e.getMessage(), e);
     }
   }
+
 }

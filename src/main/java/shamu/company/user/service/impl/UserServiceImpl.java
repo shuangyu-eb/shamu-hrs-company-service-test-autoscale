@@ -464,7 +464,7 @@ public class UserServiceImpl implements UserService {
       // inactivate user in auth0
       final com.auth0.json.mgmt.users.User auth0User = auth0Util
           .getUserByEmailFromAuth0(user.getUserContactInformation().getEmailWork());
-      auth0Util.inactivate(auth0User.getId());
+      auth0Util.updateAuthRole(auth0User.getId(),Role.INACTIVATE.name());
 
       userAccessLevelEventRepository.save(
           new UserAccessLevelEvent(user, user.getRole().getValue()));
@@ -488,6 +488,7 @@ public class UserServiceImpl implements UserService {
           teamEmployees = teamEmployees.stream().map(
               employee -> {
                 employee.setManagerUser(null);
+                auth0Util.updateAuthRole(employee.getUserId(),Role.ADMIN.name());
                 employee.setUserRole(userRoleRepository.findByName(Role.ADMIN.name()));
                 return employee;
               }
