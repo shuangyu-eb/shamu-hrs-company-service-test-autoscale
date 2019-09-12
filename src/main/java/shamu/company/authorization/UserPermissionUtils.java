@@ -18,7 +18,6 @@ import shamu.company.timeoff.entity.TimeOffPolicyUser;
 import shamu.company.timeoff.repository.TimeOffPolicyUserRepository;
 import shamu.company.timeoff.service.TimeOffRequestService;
 import shamu.company.user.entity.User;
-import shamu.company.user.entity.User.Role;
 import shamu.company.user.service.UserAddressService;
 import shamu.company.user.service.UserService;
 
@@ -161,18 +160,21 @@ public class UserPermissionUtils extends BasePermissionUtils {
 
     this.companyEqual(auth, targetUser.getCompany());
 
-    final boolean isAdmin = getUser().getUserRole().getName().equals(Role.ADMIN.name());
     final Collection<GrantedAuthority> authorities = (Collection<GrantedAuthority>) auth
         .getAuthorities();
 
+    final boolean isCompanyAdmin = hasPermission(authorities, Name.MANAGE_COMPANY_USER);
+
     if (permissionType != PermissionType.MANAGER_PERMISSION) {
       return hasPermission(authorities, permission);
-    } else if (isAdmin) {
-      return hasPermission(authorities, permission);
-    } else {
-      final Long managerUserId = userService.getManagerUserIdById(targetUser.getId());
-      final boolean isManager = managerUserId != null && managerUserId.equals(getUser().getId());
-      return hasPermission(authorities, permission) && isManager;
     }
+
+    if (isCompanyAdmin) {
+      return hasPermission(authorities, permission);
+    }
+
+    final Long managerUserId = userService.getManagerUserIdById(targetUser.getId());
+    final boolean isManager = managerUserId != null && managerUserId.equals(getUser().getId());
+    return hasPermission(authorities, permission) && isManager;
   }
 }

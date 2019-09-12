@@ -25,19 +25,21 @@ public class SecurityContextFilter extends GenericFilterBean {
   }
 
   @Override
-  public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse,
-      FilterChain filterChain) throws IOException, ServletException {
-    Authentication authentication = SecurityContextHolder
+  public void doFilter(final ServletRequest servletRequest, final ServletResponse servletResponse,
+      final FilterChain filterChain) throws IOException, ServletException {
+    final Authentication authentication = SecurityContextHolder
         .getContext().getAuthentication();
 
     if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
-      DefaultJwtAuthenticationToken authenticationToken =
+      final DefaultJwtAuthenticationToken authenticationToken =
           (DefaultJwtAuthenticationToken) authentication;
-      String userId = authenticationToken.getId();
-      User user = userRepository.findByUserId(userId);
+      final String userId = authenticationToken.getId();
+      final User user = userRepository.findByUserId(userId);
       SecurityHolder.getCurrentUser().set(user);
     }
 
     filterChain.doFilter(servletRequest, servletResponse);
+
+    SecurityHolder.getCurrentUser().remove();
   }
 }

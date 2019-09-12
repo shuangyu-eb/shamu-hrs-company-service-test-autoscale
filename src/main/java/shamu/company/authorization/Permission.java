@@ -40,7 +40,9 @@ public class Permission {
     VIEW_DOCUMENT_REPORTS(PermissionType.EMPLOYEE_PERMISSION),
     VIEW_MY_DOCUMENTS(PermissionType.EMPLOYEE_PERMISSION),
     VIEW_TEAM_CALENDAR(PermissionType.EMPLOYEE_PERMISSION),
-    VIEW_EMPLOYEES(PermissionType.EMPLOYEE_PERMISSION);
+    VIEW_EMPLOYEES(PermissionType.EMPLOYEE_PERMISSION),
+    MANAGE_COMPANY_USER(PermissionType.ADMIN_PERMISSION),
+    MANAGE_TEAM_USER(PermissionType.MANAGER_PERMISSION);
 
     private final PermissionType permissionType;
 
