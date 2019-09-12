@@ -335,3 +335,11 @@ databaseChangeLog:
             file: db/changelog/data/paid-holidays.csv
             primaryKey: id
             tableName: paid_holidays
+
+  - changeSet:
+      id: 1568257721736-1
+      author: max-eb
+      runOnchange: true
+      changes:
+        - dropTable:
+            tableName: permissions

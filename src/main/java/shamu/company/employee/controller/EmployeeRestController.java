@@ -72,6 +72,7 @@ public class EmployeeRestController extends BaseRestController {
   }
 
   @PostMapping("employees/welcome-email/resend")
+  @PreAuthorize("hasAuthority('EDIT_USER')")
   public HttpEntity getWelcomeEmail(@RequestBody @Valid final EmailResendDto emailResend) {
 
     employeeService.resendEmail(emailResend);
