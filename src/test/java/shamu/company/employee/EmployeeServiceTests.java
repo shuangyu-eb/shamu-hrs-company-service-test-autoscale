@@ -1,6 +1,5 @@
 package shamu.company.employee;
 
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.UUID;
 import org.apache.commons.lang.RandomStringUtils;
@@ -11,6 +10,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.powermock.reflect.Whitebox;
+import org.springframework.context.ApplicationEventPublisher;
 import shamu.company.common.repository.CountryRepository;
 import shamu.company.common.repository.EmploymentTypeRepository;
 import shamu.company.common.repository.OfficeRepository;
@@ -19,7 +19,6 @@ import shamu.company.company.entity.Company;
 import shamu.company.email.EmailRepository;
 import shamu.company.email.EmailService;
 import shamu.company.employee.dto.EmployeeDto;
-import shamu.company.employee.service.EmployeeService;
 import shamu.company.employee.service.impl.EmployeeServiceImpl;
 import shamu.company.info.entity.mapper.UserEmergencyContactMapper;
 import shamu.company.info.repository.UserEmergencyContactRepository;
@@ -51,7 +50,6 @@ import shamu.company.user.service.UserPersonalInformationService;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.Auth0Util;
 import shamu.company.utils.AwsUtil;
-import sun.misc.BASE64Encoder;
 
 public class EmployeeServiceTests {
 
@@ -81,6 +79,7 @@ public class EmployeeServiceTests {
   @Mock private UserContactInformationMapper userContactInformationMapper;
   @Mock private UserEmergencyContactMapper userEmergencyContactMapper;
   @Mock private Auth0Util auth0Util;
+  @Mock private ApplicationEventPublisher applicationEventPublisher;
 
   private EmployeeServiceImpl employeeService;
 
@@ -94,7 +93,8 @@ public class EmployeeServiceTests {
         awsUtil, genderRepository, maritalStatusRepository, emailService,
         compensationFrequencyRepository, emailRepository, userPersonalInformationService,
         userContactInformationService, userPersonalInformationMapper, userAddressMapper,
-        userContactInformationMapper, userEmergencyContactMapper, auth0Util);
+        userContactInformationMapper, userEmergencyContactMapper, auth0Util,
+        applicationEventPublisher);
   }
 
   @Nested

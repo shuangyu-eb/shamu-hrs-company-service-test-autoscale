@@ -168,6 +168,11 @@ class UserServiceTests {
       userRole.setName(UserRole.Role.MANAGER.name());
       currentUser.setUserRole(userRole);
 
+      final User targetUser = new User();
+      targetUser.setManagerUser(currentUser);
+
+      Mockito.when(userRepository.findByIdAndCompanyId(Mockito.anyLong(), Mockito.anyLong()))
+        .thenReturn(targetUser);
       Mockito.when(userRepository.getManagerUserIdById(Mockito.anyLong()))
           .thenReturn(currentUser.getId());
 

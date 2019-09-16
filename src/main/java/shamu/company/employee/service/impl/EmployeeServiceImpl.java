@@ -12,8 +12,11 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.FileCopyUtils;
 import org.thymeleaf.context.Context;
@@ -36,6 +39,7 @@ import shamu.company.employee.dto.EmployeeDto;
 import shamu.company.employee.dto.NewEmployeeJobInformationDto;
 import shamu.company.employee.dto.WelcomeEmailDto;
 import shamu.company.employee.entity.EmploymentType;
+import shamu.company.employee.event.Auth0UserCreatedEvent;
 import shamu.company.employee.service.EmployeeService;
 import shamu.company.info.dto.UserEmergencyContactDto;
 import shamu.company.info.entity.UserEmergencyContact;
@@ -136,6 +140,8 @@ public class EmployeeServiceImpl implements EmployeeService {
 
   private final Auth0Util auth0Util;
 
+  private final ApplicationEventPublisher applicationEventPublisher;
+
   private static final String subject = "Welcome to Champion Solutions";
 
 
@@ -166,7 +172,8 @@ public class EmployeeServiceImpl implements EmployeeService {
       final UserAddressMapper userAddressMapper,
       final UserContactInformationMapper userContactInformationMapper,
       final UserEmergencyContactMapper userEmergencyContactMapper,
-      final Auth0Util auth0Util) {
+      final Auth0Util auth0Util,
+      final ApplicationEventPublisher applicationEventPublisher) {
     this.userAddressRepository = userAddressRepository;
     this.userRepository = userRepository;
     this.jobUserRepository = jobUserRepository;
@@ -193,6 +200,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     this.userContactInformationMapper = userContactInformationMapper;
     this.userEmergencyContactMapper = userEmergencyContactMapper;
     this.auth0Util = auth0Util;
+    this.applicationEventPublisher = applicationEventPublisher;
   }
 
   @Override
@@ -290,7 +298,7 @@ public class EmployeeServiceImpl implements EmployeeService {
   }
 
   private User saveEmployeeBasicInformation(final User currentUser, final EmployeeDto employeeDto) {
-    final User employee = new User();
+    User employee = new User();
     employee.setEmailWork(employeeDto.getEmailWork());
 
     final String base64EncodedPhoto = employeeDto.getPersonalPhoto();
@@ -306,8 +314,37 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     employee.setCompany(currentUser.getCompany());
 
-    final UserPersonalInformationDto userPersonalInformationDto =
-        employeeDto.getUserPersonalInformationDto();
+    employee = this.saveInvitedEmployeeAdditionalInformation(employee,
+        employeeDto.getUserPersonalInformationDto(),
+        employeeDto.getUserContactInformationDto());
+
+    final UserRole userRole = userRoleRepository.findByName(User.Role.NON_MANAGER.name());
+    employee.setUserRole(userRole);
+
+    final UserStatus userStatus = userStatusRepository
+        .findByName(Status.PENDING_VERIFICATION.name());
+    employee.setUserStatus(userStatus);
+
+    employee.setResetPasswordToken(UUID.randomUUID().toString());
+
+    final com.auth0.json.mgmt.users.User user =
+        auth0Util.addUser(employeeDto.getEmailWork(),
+            null, User.Role.NON_MANAGER.getValue());
+    applicationEventPublisher.publishEvent(new Auth0UserCreatedEvent(user));
+
+    String userId = null;
+    final Map<String, Object> appMetaData = user.getAppMetadata();
+    if (appMetaData != null) {
+      userId = (String) appMetaData.get("id");
+    }
+
+    employee.setUserId(userId);
+    return userRepository.save(employee);
+  }
+
+  User saveInvitedEmployeeAdditionalInformation(final User employee,
+      final UserPersonalInformationDto userPersonalInformationDto,
+      final UserContactInformationDto userContactInformationDto) {
     final UserPersonalInformation userPersonalInformation =
         userPersonalInformationMapper
             .createFromUserPersonalInformationDto(userPersonalInformationDto);
@@ -331,35 +368,13 @@ public class EmployeeServiceImpl implements EmployeeService {
       employee.setUserPersonalInformation(userPersonalInformation);
     }
 
-    final UserContactInformationDto userContactInformationDto =
-        employeeDto.getUserContactInformationDto();
     if (userContactInformationDto != null) {
       employee.setUserContactInformation(
           userContactInformationMapper
               .createFromUserContactInformationDto(userContactInformationDto));
     }
 
-    final UserRole userRole = userRoleRepository.findByName(User.Role.NON_MANAGER.name());
-    employee.setUserRole(userRole);
-
-    final UserStatus userStatus = userStatusRepository
-        .findByName(Status.PENDING_VERIFICATION.name());
-    employee.setUserStatus(userStatus);
-
-    employee.setResetPasswordToken(UUID.randomUUID().toString());
-
-    final com.auth0.json.mgmt.users.User user =
-        auth0Util.addUser(employeeDto.getEmailWork(),
-            null, User.Role.NON_MANAGER.getValue());
-
-    String userId = null;
-    final Map<String, Object> appMetaData = user.getAppMetadata();
-    if (appMetaData != null) {
-      userId = (String) appMetaData.get("id");
-    }
-
-    employee.setUserId(userId);
-    return userRepository.save(employee);
+    return employee;
   }
 
   private User updateEmployeeBasicInformation(final User employee, final EmployeeDto employeeDto) {
@@ -568,5 +583,11 @@ public class EmployeeServiceImpl implements EmployeeService {
     final Email email =
         new Email(from, to, subject, content, currentUser, sendDate);
     emailService.saveAndScheduleEmail(email);
+  }
+
+  @TransactionalEventListener(phase = TransactionPhase.AFTER_ROLLBACK)
+  void removeAuth0User(final Auth0UserCreatedEvent userCreatedEvent) {
+    final com.auth0.json.mgmt.users.User auth0User = userCreatedEvent.getUser();
+    auth0Util.deleteUser(auth0User.getId());
   }
 }

@@ -172,4 +172,14 @@ public class Auth0Util {
     }
   }
 
+  public void deleteUser(final String userId) {
+    try {
+      final ManagementAPI manager = auth0Manager.getManagementApi();
+      final Request deleteUserRequest = manager.users().delete(userId);
+      deleteUserRequest.execute();
+    } catch (final Auth0Exception e) {
+      throw new GeneralException(e.getMessage(), e);
+    }
+
+  }
 }

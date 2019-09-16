@@ -13,6 +13,7 @@ import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -513,6 +514,17 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public void signUp(final UserSignUpDto signUpDto) {
+    final User existingUser = userRepository.findByUserId(signUpDto.getUserId());
+
+    if (existingUser != null) {
+      throw new DataIntegrityViolationException("User "
+          + "already sign up successfully in previous attempts.");
+    }
+
+    addSignUpInformation(signUpDto);
+  }
+
+  public void addSignUpInformation(final UserSignUpDto signUpDto) {
     final UserPersonalInformation userPersonalInformation = UserPersonalInformation.builder()
         .firstName(signUpDto.getFirstName())
         .lastName(signUpDto.getLastName())
@@ -579,8 +591,13 @@ public class UserServiceImpl implements UserService {
       throw new ForbiddenException("Can not find user!");
     }
 
-    final Boolean isAdmin = Role.ADMIN.name().equals(currentUser.getRole().name());
-    if (isAdmin) {
+    final Boolean isAdmin = Role.ADMIN.name().equals(currentUser.getUserRole().getName());
+    final User manager = targetUser.getManagerUser();
+
+    final Boolean isManager = Role.MANAGER.getValue().equals(currentUser.getUserRole().getName())
+        && manager != null && manager.getId().equals(currentUser.getId());
+
+    if (isAdmin || isManager) {
       return true;
     }
     return false;
