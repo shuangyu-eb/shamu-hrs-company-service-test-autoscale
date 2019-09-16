@@ -24,11 +24,12 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
 
   @Override
   public Page<JobUserListItem> getAllByCondition(
-      EmployeeListSearchCondition employeeListSearchCondition, Long companyId,
-      Pageable pageable, Boolean isAdmin) {
+      final EmployeeListSearchCondition employeeListSearchCondition, final Long companyId,
+      final Pageable pageable, final Role role) {
 
     String countAllEmployees = "";
-    if ((null != isAdmin && !isAdmin) || !employeeListSearchCondition.isSearched()) {
+    final boolean isAdmin = Role.ADMIN.equals(role);
+    if (!isAdmin || !employeeListSearchCondition.isSearched()) {
       countAllEmployees =
           "select count(1) from users u where u.deleted_at is null "
               + " and u.deactivated_at is null and u.company_id = ?1 ";
@@ -37,7 +38,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
           "select count(1) from users u where u.deleted_at is null "
               + "and u.company_id = ?1";
     }
-    BigInteger employeeCount =
+    final BigInteger employeeCount =
         (BigInteger)
             entityManager
                 .createNativeQuery(countAllEmployees)
@@ -49,7 +50,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
       return new PageImpl<>(jobUserItemList, pageable, employeeCount.longValue());
     }
 
-    String originalSql =
+    final String originalSql =
         "select u.id as id, u.image_url as iamgeUrl, up.first_name as firstName, "
             + "up.last_name as lastName, d.name as department, j.title as jobTitle "
             + "from users u "
@@ -64,14 +65,14 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
             + "and (up.first_name like concat('%', ?2, '%') "
             + "or up.last_name like concat('%', ?2, '%') "
             + "or d.name like concat('%', ?2, '%') or j.title like concat('%', ?2, '%')) ";
-    String additionalSql = " and u.deactivated_at is null ";
+    final String additionalSql = " and u.deactivated_at is null ";
 
     String resultSql = appendFilterCondition(originalSql, pageable);
-    if ((null != isAdmin && !isAdmin) || !employeeListSearchCondition.isSearched()) {
+    if (!isAdmin || !employeeListSearchCondition.isSearched()) {
       resultSql = appendFilterCondition(originalSql + additionalSql, pageable);
     }
 
-    List<?> jobUserList =
+    final List<?> jobUserList =
         entityManager
             .createNativeQuery(resultSql)
             .setParameter(1, companyId)
@@ -84,18 +85,20 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
 
   @Override
   public Page<JobUserListItem> getMyTeamByManager(
-      EmployeeListSearchCondition employeeListSearchCondition, User user, Pageable pageable) {
+      final EmployeeListSearchCondition employeeListSearchCondition, final User user,
+      final Pageable pageable) {
 
-    boolean isEmployee = user.getRole() == Role.NON_MANAGER;
+    final boolean isEmployee = user.getRole() == Role.NON_MANAGER;
 
     String userCondition = "u.manager_user_id=?1 ";
     if (isEmployee) {
       userCondition = "(u.id=?1 or " + userCondition + " ) and u.id!=?4 ";
     }
-    String queryColumns = "select u.id as id, u.image_url as iamgeUrl, up.first_name as firstName, "
-        + "up.last_name as lastName, d.name as department, j.title as jobTitle ";
+    final String queryColumns =
+        "select u.id as id, u.image_url as iamgeUrl, up.first_name as firstName, "
+            + "up.last_name as lastName, d.name as department, j.title as jobTitle ";
 
-    String queryCondition = "from users u "
+    final String queryCondition = "from users u "
         + "left join  user_personal_information up on u.user_personal_information_id = up.id "
         + "left join jobs_users ju on u.id = ju.user_id "
         + "left join jobs j on ju.job_id = j.id "
@@ -110,29 +113,30 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
         + "or up.last_name like concat('%', ?3, '%') "
         + "or d.name like concat('%', ?3, '%') or j.title like concat('%', ?3, '%')) ";
 
-    String countAllTeamMembers = "select count(u.id) " + queryCondition;
-    Query queryCount = getQuery(employeeListSearchCondition, user, isEmployee, countAllTeamMembers);
+    final String countAllTeamMembers = "select count(u.id) " + queryCondition;
+    final Query queryCount = getQuery(employeeListSearchCondition, user, isEmployee,
+        countAllTeamMembers);
 
-    BigInteger employeeCount = (BigInteger)queryCount.getSingleResult();
+    final BigInteger employeeCount = (BigInteger) queryCount.getSingleResult();
 
     List<JobUserListItem> jobUserItemList = new ArrayList<>();
     if (employeeCount.longValue() == 0) {
       return new PageImpl<>(jobUserItemList, pageable, employeeCount.longValue());
     }
 
-    String resultSql = appendFilterCondition(queryColumns + queryCondition, pageable);
+    final String resultSql = appendFilterCondition(queryColumns + queryCondition, pageable);
 
-    Query query = getQuery(employeeListSearchCondition, user, isEmployee, resultSql);
-    List<?> jobUserList = query.getResultList();
+    final Query query = getQuery(employeeListSearchCondition, user, isEmployee, resultSql);
+    final List<?> jobUserList = query.getResultList();
 
     jobUserItemList = convertToJobUserList(jobUserList);
     return new PageImpl<>(jobUserItemList, pageable, employeeCount.longValue());
   }
 
-  private Query getQuery(EmployeeListSearchCondition employeeListSearchCondition,
-      User user, boolean isEmployee, String resultSql) {
-    User manager = isEmployee ? user.getManagerUser() : user;
-    Query query = entityManager
+  private Query getQuery(final EmployeeListSearchCondition employeeListSearchCondition,
+      final User user, final boolean isEmployee, final String resultSql) {
+    final User manager = isEmployee ? user.getManagerUser() : user;
+    final Query query = entityManager
         .createNativeQuery(resultSql)
         .setParameter(1, manager.getId())
         .setParameter(2, manager.getCompany().getId())
@@ -144,9 +148,9 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
   }
 
   @Override
-  public List<OrgChartDto> findOrgChartItemByManagerId(Long managerId, Long companyId) {
+  public List<OrgChartDto> findOrgChartItemByManagerId(final Long managerId, final Long companyId) {
 
-    StringBuilder findAllOrgChartByCondition =
+    final StringBuilder findAllOrgChartByCondition =
         new StringBuilder(
             "select u.id as id, up.first_name as firstName, up.last_name as lastName,"
                 + "u.image_url as imageUrl, j.title as jobTitle,"
@@ -170,7 +174,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
     }
     findAllOrgChartByCondition.append(" order by u.created_at asc");
 
-    Query findAllOrgChartByConditionQuery =
+    final Query findAllOrgChartByConditionQuery =
         entityManager.createNativeQuery(findAllOrgChartByCondition.toString());
 
     if (managerId != null) {
@@ -178,13 +182,13 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
     }
     findAllOrgChartByConditionQuery.setParameter(2, companyId);
 
-    List<?> orgChartItemList = findAllOrgChartByConditionQuery.getResultList();
-    List<OrgChartDto> orgChartDtoList = new ArrayList<>();
+    final List<?> orgChartItemList = findAllOrgChartByConditionQuery.getResultList();
+    final List<OrgChartDto> orgChartDtoList = new ArrayList<>();
     orgChartItemList.forEach(
         orgChartItem -> {
           if (orgChartItem instanceof Object[]) {
-            Object[] orgChartItemArray = (Object[]) orgChartItem;
-            OrgChartDto orgChartDto = new OrgChartDto();
+            final Object[] orgChartItemArray = (Object[]) orgChartItem;
+            final OrgChartDto orgChartDto = new OrgChartDto();
             orgChartDto.setId(((BigInteger) orgChartItemArray[0]).longValue());
             orgChartDto.setFirstName((String) orgChartItemArray[1]);
             orgChartDto.setLastName((String) orgChartItemArray[2]);
@@ -203,9 +207,9 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
   }
 
   @Override
-  public OrgChartDto findOrgChartItemByUserId(Long id, Long companyId) {
+  public OrgChartDto findOrgChartItemByUserId(final Long id, final Long companyId) {
 
-    String findAllOrgChartByCondition =
+    final String findAllOrgChartByCondition =
         "select u.id as id, up.first_name as firstName, up.last_name as lastName,"
             + "u.image_url as imageUrl, j.title as jobTitle,"
             + "a.city as city, province.name as state, d.name as department, "
@@ -220,16 +224,16 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
             + "left join states_provinces province on a.state_province_id = province.id "
             + "where u.id = ?1 and u.company_id = ?2 and u.deleted_at is null "
             + "order by u.created_at asc";
-    Query findAllOrgChartByConditionQuery =
+    final Query findAllOrgChartByConditionQuery =
         entityManager
             .createNativeQuery(findAllOrgChartByCondition)
             .setParameter(1, id)
             .setParameter(2, companyId);
 
-    Object orgChartItem = findAllOrgChartByConditionQuery.getSingleResult();
+    final Object orgChartItem = findAllOrgChartByConditionQuery.getSingleResult();
     if (orgChartItem instanceof Object[]) {
-      Object[] orgChartItemArray = (Object[]) orgChartItem;
-      OrgChartDto orgChartDto = new OrgChartDto();
+      final Object[] orgChartItemArray = (Object[]) orgChartItem;
+      final OrgChartDto orgChartDto = new OrgChartDto();
       orgChartDto.setId(((BigInteger) orgChartItemArray[0]).longValue());
       orgChartDto.setFirstName((String) orgChartItemArray[1]);
       orgChartDto.setLastName((String) orgChartItemArray[2]);
@@ -246,10 +250,10 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
     return null;
   }
 
-  private String appendFilterCondition(String originalSql, Pageable pageable) {
+  private String appendFilterCondition(final String originalSql, final Pageable pageable) {
     StringBuilder resultSql = new StringBuilder(originalSql);
     resultSql.append("order by ");
-    StringBuilder finalSql = resultSql;
+    final StringBuilder finalSql = resultSql;
     pageable
         .getSort()
         .forEach(
@@ -260,7 +264,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
                     .append(order.getDirection())
                     .append(","));
 
-    int commaIndex = resultSql.lastIndexOf(",");
+    final int commaIndex = resultSql.lastIndexOf(",");
     resultSql = resultSql.replace(commaIndex, resultSql.length(), " ");
     resultSql
         .append("limit ")
@@ -270,13 +274,13 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
     return resultSql.toString();
   }
 
-  private List<JobUserListItem> convertToJobUserList(List<?> jobUserList) {
-    List<JobUserListItem> jobUserItemList = new ArrayList<>();
+  private List<JobUserListItem> convertToJobUserList(final List<?> jobUserList) {
+    final List<JobUserListItem> jobUserItemList = new ArrayList<>();
     jobUserList.forEach(
         jobUser -> {
           if (jobUser instanceof Object[]) {
-            Object[] jobUserItem = (Object[]) jobUser;
-            JobUserListItem jobUserListItem = new JobUserListItem();
+            final Object[] jobUserItem = (Object[]) jobUser;
+            final JobUserListItem jobUserListItem = new JobUserListItem();
             jobUserListItem.setId(((BigInteger) jobUserItem[0]).longValue());
             jobUserListItem.setImageUrl((String) jobUserItem[1]);
             jobUserListItem.setFirstName((String) jobUserItem[2]);

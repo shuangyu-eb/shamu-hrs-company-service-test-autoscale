@@ -15,6 +15,7 @@ import shamu.company.user.dto.CurrentUserDto;
 import shamu.company.user.dto.UpdatePasswordDto;
 import shamu.company.user.dto.UserSignUpDto;
 import shamu.company.user.entity.User;
+import shamu.company.user.entity.User.Role;
 import shamu.company.user.entity.UserCompensation;
 import shamu.company.user.entity.UserStatus.Status;
 import shamu.company.user.pojo.ChangePasswordPojo;
@@ -48,11 +49,11 @@ public interface UserService {
   Context getWelcomeEmailContext(String welcomeMessage, String resetPasswordToken);
 
   Page<JobUserListItem> getAllEmployees(
-      EmployeeListSearchCondition employeeListSearchCondition, Company company, Boolean isAdmin);
+      EmployeeListSearchCondition employeeListSearchCondition, Company company, Role role);
 
   Page<JobUserListItem> getAllEmployeesByCompany(
       EmployeeListSearchCondition employeeListSearchCondition,
-      Company company, Pageable pageable, Boolean isAdmin);
+      Company company, Pageable pageable, Role role);
 
   User getOne(Long userId);
 

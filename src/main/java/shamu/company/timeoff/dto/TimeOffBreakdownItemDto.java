@@ -32,20 +32,20 @@ public class TimeOffBreakdownItemDto {
   }
 
   public TimeOffBreakdownItemDto(final LocalDateTime date, final String detail,
-      final Integer amount, final Integer balance, final BreakDownType breakDownType) {
+      final Integer amount, final Integer balance, final BreakDownType breakdownType) {
     this.date = date;
     this.detail = detail;
     this.amount = amount;
     this.balance = balance;
-    breakdownType = breakDownType;
+    this.breakdownType = breakdownType;
   }
 
   public TimeOffBreakdownItemDto(final LocalDateTime date, final String detail,
-      final Integer amount, final BreakDownType breakDownType) {
+      final Integer amount, final BreakDownType breakdownType) {
     this.date = date;
     this.detail = detail;
     this.amount = amount;
-    breakdownType = breakDownType;
+    this.breakdownType = breakdownType;
   }
 
   @JSONField(serialize = false)

@@ -9,7 +9,7 @@ import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.Converter;
 
 @Data
 @AllArgsConstructor
-public class TimeOffRequestPartPojo {
+public class TimeOffRequestStatusPojo {
 
   private Long id;
 

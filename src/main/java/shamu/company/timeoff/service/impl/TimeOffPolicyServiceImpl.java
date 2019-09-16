@@ -47,7 +47,7 @@ import shamu.company.timeoff.entity.mapper.TimeOffPolicyAccrualScheduleMapper;
 import shamu.company.timeoff.entity.mapper.TimeOffPolicyMapper;
 import shamu.company.timeoff.entity.mapper.TimeOffPolicyUserMapper;
 import shamu.company.timeoff.pojo.TimeOffPolicyListPojo;
-import shamu.company.timeoff.pojo.TimeOffRequestPartPojo;
+import shamu.company.timeoff.pojo.TimeOffRequestStatusPojo;
 import shamu.company.timeoff.repository.AccrualScheduleMilestoneRepository;
 import shamu.company.timeoff.repository.TimeOffAdjustmentRepository;
 import shamu.company.timeoff.repository.TimeOffPolicyAccrualScheduleRepository;
@@ -571,7 +571,7 @@ public class TimeOffPolicyServiceImpl implements TimeOffPolicyService {
 
   @Override
   public void deleteTimeOffPolicy(final Long timeOffPolicyId) {
-    final List<TimeOffRequestPartPojo> requests = timeOffRequestRepository
+    final List<TimeOffRequestStatusPojo> requests = timeOffRequestRepository
         .findByTimeOffPolicyId(timeOffPolicyId);
     requests.stream().filter(request ->
         request.getTimeOffApprovalStatus() != APPROVED

@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import shamu.company.common.repository.BaseRepository;
 import shamu.company.timeoff.entity.TimeOffRequest;
 import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus;
-import shamu.company.timeoff.pojo.TimeOffRequestPartPojo;
+import shamu.company.timeoff.pojo.TimeOffRequestStatusPojo;
 import shamu.company.user.entity.User;
 
 public interface TimeOffRequestRepository
@@ -180,8 +180,8 @@ public interface TimeOffRequestRepository
   TimeOffRequest findRecentApprovedRequestByRequesterUserId(
           Long id, Timestamp startDay, Long statusId);
 
-  @Query("SELECT new shamu.company.timeoff.pojo.TimeOffRequestPartPojo"
+  @Query("SELECT new shamu.company.timeoff.pojo.TimeOffRequestStatusPojo "
       + "(tr.id, tr.timeOffApprovalStatus) FROM TimeOffRequest tr"
               + " WHERE tr.deletedAt IS NULL AND tr.timeOffPolicy.id = ?1")
-  List<TimeOffRequestPartPojo> findByTimeOffPolicyId(Long timeOffPolicyId);
+  List<TimeOffRequestStatusPojo> findByTimeOffPolicyId(Long timeOffPolicyId);
 }
