@@ -21,9 +21,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import shamu.company.common.exception.ForbiddenException;
+import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.company.entity.Company;
-import shamu.company.job.dto.JobUserDto;
 import shamu.company.job.entity.JobUser;
+import shamu.company.job.entity.mapper.JobUserMapper;
 import shamu.company.job.repository.JobUserRepository;
 import shamu.company.timeoff.dto.AccrualScheduleMilestoneDto;
 import shamu.company.timeoff.dto.TimeOffBalanceDto;
@@ -89,6 +91,8 @@ public class TimeOffPolicyServiceImpl implements TimeOffPolicyService {
 
   private final TimeOffPolicyMapper timeOffPolicyMapper;
 
+  private final JobUserMapper jobUserMapper;
+
   @Autowired
   public TimeOffPolicyServiceImpl(
       final TimeOffPolicyRepository timeOffPolicyRepository,
@@ -102,7 +106,8 @@ public class TimeOffPolicyServiceImpl implements TimeOffPolicyService {
       final AccrualScheduleMilestoneMapper accrualScheduleMilestoneMapper,
       final TimeOffPolicyAccrualScheduleMapper timeOffPolicyAccrualScheduleMapper,
       final TimeOffPolicyUserMapper timeOffPolicyUserMapper,
-      final TimeOffPolicyMapper timeOffPolicyMapper) {
+      final TimeOffPolicyMapper timeOffPolicyMapper,
+      final JobUserMapper jobUserMapper) {
     this.timeOffPolicyRepository = timeOffPolicyRepository;
     this.timeOffPolicyUserRepository = timeOffPolicyUserRepository;
     this.accrualScheduleMilestoneRepository = accrualScheduleMilestoneRepository;
@@ -116,6 +121,7 @@ public class TimeOffPolicyServiceImpl implements TimeOffPolicyService {
     this.timeOffPolicyAccrualScheduleMapper = timeOffPolicyAccrualScheduleMapper;
     this.timeOffPolicyUserMapper = timeOffPolicyUserMapper;
     this.timeOffPolicyMapper = timeOffPolicyMapper;
+    this.jobUserMapper = jobUserMapper;
   }
 
   @Override
@@ -258,9 +264,13 @@ public class TimeOffPolicyServiceImpl implements TimeOffPolicyService {
   @Override
   public TimeOffPolicyRelatedUserListDto getAllEmployeesByTimeOffPolicyId(
       final Long timeOffPolicyId, final Company company) {
-    final Optional<TimeOffPolicy> timeOffPolicy = timeOffPolicyRepository.findById(timeOffPolicyId);
+    final TimeOffPolicy timeOffPolicy = timeOffPolicyRepository.findById(timeOffPolicyId)
+        .orElseThrow(() -> new ResourceNotFoundException("Time off policy does not exist."));
+    if (!timeOffPolicy.getCompany().getId().equals(company.getId())) {
+      throw new ForbiddenException("The time off policy does not belong to your company.");
+    }
 
-    final Boolean isLimited = timeOffPolicy.get().getIsLimited();
+    final Boolean isLimited = timeOffPolicy.getIsLimited();
 
     final List<TimeOffPolicyUser> timeOffPolicyUsers = timeOffPolicyUserRepository
         .findAllByTimeOffPolicyId(timeOffPolicyId);
@@ -271,12 +281,12 @@ public class TimeOffPolicyServiceImpl implements TimeOffPolicyService {
     final ArrayList<Long> selectedUsersIds = new ArrayList<>();
 
     final List<TimeOffPolicyRelatedUserDto> selectedEmployees = timeOffPolicyUsers.stream().map(
-        (user) -> {
-          JobUser employeeWithJobInfo = jobUserRepository.findJobUserByUser(user.getUser());
-          JobUserDto employeeWithJobInfoDto = new JobUserDto(user.getUser(), employeeWithJobInfo);
-          Integer balance = user.getBalance();
-          selectedUsersIds.add(user.getUser().getId());
-          return new TimeOffPolicyRelatedUserDto(balance, employeeWithJobInfoDto);
+        (timeOffPolicyUser) -> {
+          JobUser employeeWithJobInfo = jobUserRepository
+              .findJobUserByUser(timeOffPolicyUser.getUser());
+          selectedUsersIds.add(timeOffPolicyUser.getUser().getId());
+          return jobUserMapper.convertToTimeOffPolicyRelatedUserDto(timeOffPolicyUser.getUser(),
+              employeeWithJobInfo);
         }
     ).collect(Collectors.toList());
 
@@ -284,9 +294,7 @@ public class TimeOffPolicyServiceImpl implements TimeOffPolicyService {
         .stream().filter(user -> !selectedUsersIds.contains(user.getId()))
         .map(user -> {
           JobUser employeeWithJobInfo = jobUserRepository.findJobUserByUser(user);
-          JobUserDto employeeWithJobInfoDto = new JobUserDto(user, employeeWithJobInfo);
-          Integer balance = 0;
-          return new TimeOffPolicyRelatedUserDto(balance, employeeWithJobInfoDto);
+          return jobUserMapper.convertToTimeOffPolicyRelatedUserDto(user, employeeWithJobInfo);
         }).collect(Collectors.toList());
 
     return new TimeOffPolicyRelatedUserListDto(
@@ -570,7 +578,12 @@ public class TimeOffPolicyServiceImpl implements TimeOffPolicyService {
   }
 
   @Override
-  public void deleteTimeOffPolicy(final Long timeOffPolicyId) {
+  public void deleteTimeOffPolicy(final Long timeOffPolicyId, final Company company) {
+    final TimeOffPolicy timeOffPolicy = timeOffPolicyRepository.getOne(timeOffPolicyId);
+    if (!timeOffPolicy.getCompany().getId().equals(company.getId())) {
+      throw new ForbiddenException("The time off policy does not belong to your company.");
+    }
+
     final List<TimeOffRequestStatusPojo> requests = timeOffRequestRepository
         .findByTimeOffPolicyId(timeOffPolicyId);
     requests.stream().filter(request ->
@@ -582,7 +595,6 @@ public class TimeOffPolicyServiceImpl implements TimeOffPolicyService {
         .findAllByTimeOffPolicyId(timeOffPolicyId);
     timeOffPolicyUserRepository.delete(timeOffPolicyUsers);
 
-    final TimeOffPolicy timeOffPolicy = timeOffPolicyRepository.getOne(timeOffPolicyId);
     final Long accrualScheduleId = timeOffPolicyAccrualScheduleRepository
         .findIdByTimeOffPolicyId(timeOffPolicy.getId());
     if (accrualScheduleId != null) {

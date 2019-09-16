@@ -82,7 +82,7 @@ public class TimeOffPolicyRestController extends BaseRestController {
     final List<TimeOffPolicyUserFrontendDto> timeOffPolicyUserFrontendDtos = timeOffPolicyWrapperDto
         .getUserStartBalances();
 
-    final Company company = this.getCompany();
+    final Company company = getCompany();
 
     timeOffPolicyService
         .createTimeOffPolicy(timeOffPolicyFrontendDto, timeOffPolicyAccrualScheduleDto,
@@ -142,7 +142,7 @@ public class TimeOffPolicyRestController extends BaseRestController {
   @GetMapping("users/{userId}/policy-users")
   public List<TimeOffPolicyUserDto> getAllPolicyUsersByUser(
       @PathVariable @HashidsFormat final Long userId) {
-    final User user = this.userService.findUserById(userId);
+    final User user = userService.findUserById(userId);
     return timeOffPolicyService.getTimeOffPolicyUser(user);
   }
 
@@ -153,27 +153,29 @@ public class TimeOffPolicyRestController extends BaseRestController {
   }
 
   @GetMapping("time-off-policies/{policyId}/users")
+  @PreAuthorize("hasAuthority('MANAGE_TIME_OFF_POLICY')")
   public TimeOffPolicyRelatedUserListDto getEmployeesByTimeOffPolicyId(
       @HashidsFormat @PathVariable final Long policyId) {
-    final Company company = this.getUser().getCompany();
+    final Company company = getUser().getCompany();
     return timeOffPolicyService.getAllEmployeesByTimeOffPolicyId(policyId, company);
   }
 
   @DeleteMapping("time-off/{policyId}")
+  @PreAuthorize("hasAuthority('MANAGE_TIME_OFF_POLICY')")
   public HttpEntity deleteTimeOffPolicy(@PathVariable @HashidsFormat final Long policyId) {
-    timeOffPolicyService.deleteTimeOffPolicy(policyId);
+    timeOffPolicyService.deleteTimeOffPolicy(policyId, getCompany());
     return new ResponseEntity<>(HttpStatus.OK);
   }
 
   @DeleteMapping("time-off-policies/{policyId}/{rollId}")
   public HttpEntity enrollTimeOffPolicy(@PathVariable @HashidsFormat final Long policyId,
       @PathVariable @HashidsFormat final Long rollId) {
-    final User user = this.getUser();
+    final User user = getUser();
     final List<TimeOffPolicyUser> deletedPolicyUsers = timeOffPolicyService
         .getAllPolicyUsersByPolicyId(policyId);
     final TimeOffPolicy enrollPolicy = timeOffPolicyService.getTimeOffPolicyById(rollId);
     timeOffPolicyService.enrollTimeOffHours(deletedPolicyUsers, enrollPolicy, user);
-    timeOffPolicyService.deleteTimeOffPolicy(policyId);
+    timeOffPolicyService.deleteTimeOffPolicy(policyId, getCompany());
     return new ResponseEntity<>(HttpStatus.OK);
   }
 

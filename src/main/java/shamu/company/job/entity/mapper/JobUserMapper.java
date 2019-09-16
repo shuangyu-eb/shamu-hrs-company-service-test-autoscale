@@ -18,6 +18,8 @@ import shamu.company.job.dto.JobUpdateDto;
 import shamu.company.job.dto.JobUserDto;
 import shamu.company.job.entity.Job;
 import shamu.company.job.entity.JobUser;
+import shamu.company.timeoff.dto.TimeOffPolicyRelatedUserDto;
+import shamu.company.user.entity.User;
 import shamu.company.user.entity.mapper.UserCompensationMapper;
 
 @Mapper(
@@ -56,6 +58,13 @@ public interface JobUserMapper {
   EmployeeRelatedInformationDto convertToEmployeeRelatedInformationDto(Long userId, String email,
       String userStatus, Timestamp emailSendDate, JobUserDto jobEmployeeDto,
       JobUserDto jobManagerDto, List<JobUserDto> directReporters);
+
+  @Mapping(target = "jobTitle", source = "jobUser.job.title")
+  @Mapping(target = "firstName", source = "user.userPersonalInformation.firstName")
+  @Mapping(target = "lastName", source = "user.userPersonalInformation.lastName")
+  @Mapping(target = "id", source = "user.id")
+  @Mapping(target = "imageUrl", source = "user.imageUrl")
+  TimeOffPolicyRelatedUserDto convertToTimeOffPolicyRelatedUserDto(User user, JobUser jobUser);
 
   @Mapping(target = "job", source = "jobId")
   @Mapping(target = "office", source = "officeId")

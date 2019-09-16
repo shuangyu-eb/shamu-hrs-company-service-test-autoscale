@@ -1,5 +1,6 @@
 package shamu.company.timeoff.repository;
 
+import java.math.BigInteger;
 import java.util.List;
 import org.springframework.data.jpa.repository.Query;
 import shamu.company.common.repository.BaseRepository;
@@ -31,7 +32,7 @@ public interface PaidHolidayUserRepository extends BaseRepository<PaidHolidayUse
           + "AND u.deleted_at IS NULL ",
       nativeQuery = true
   )
-  List<Long> findAllUserIdByCompanyId(Long companyId);
+  List<BigInteger> findAllUserIdByCompanyId(Long companyId);
 
   @Query(
       value = "SELECT * FROM paid_holidays_users WHERE company_id = ?1 AND user_id = ?2 "

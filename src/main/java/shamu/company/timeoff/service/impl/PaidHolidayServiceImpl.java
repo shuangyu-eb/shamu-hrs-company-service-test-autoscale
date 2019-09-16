@@ -1,5 +1,6 @@
 package shamu.company.timeoff.service.impl;
 
+import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -76,14 +77,14 @@ public class PaidHolidayServiceImpl implements PaidHolidayService {
     final List<CompanyPaidHoliday> companyPaidHolidays = companyPaidHolidayRepository
         .findAllByCompanyId(companyId);
     return companyPaidHolidays.stream()
-      .map(companyPaidHolidayMapper::convertToPaidHolidayDto)
-      .peek(paidHolidayDto -> {
-        if (paidHolidayDto.getFederal()) {
-          Date observance = federalHolidays.dateOf(paidHolidayDto.getName());
-          paidHolidayDto.setDate(new Timestamp(observance.getTime()));
-        }
-      })
-      .collect(Collectors.toList());
+        .map(companyPaidHolidayMapper::convertToPaidHolidayDto)
+        .peek(paidHolidayDto -> {
+          if (paidHolidayDto.getFederal()) {
+            Date observance = federalHolidays.dateOf(paidHolidayDto.getName());
+            paidHolidayDto.setDate(new Timestamp(observance.getTime()));
+          }
+        })
+        .collect(Collectors.toList());
   }
 
   private PaidHolidayDto getNewPaidHolidayDto(final PaidHolidayDto paidHolidayDto, final int year) {
@@ -105,7 +106,7 @@ public class PaidHolidayServiceImpl implements PaidHolidayService {
     final List<PaidHolidayDto> otherYearsObservances = new ArrayList<>();
     currentYearPaidHolidays.forEach(paidHolidayDto -> {
       if (paidHolidayDto.getFederal()) {
-        otherYearsObservances.add(getNewPaidHolidayDto(paidHolidayDto,year - 1));
+        otherYearsObservances.add(getNewPaidHolidayDto(paidHolidayDto, year - 1));
         otherYearsObservances.add(getNewPaidHolidayDto(paidHolidayDto, year + 1));
         otherYearsObservances.add(getNewPaidHolidayDto(paidHolidayDto, year + 2));
       }
@@ -167,7 +168,8 @@ public class PaidHolidayServiceImpl implements PaidHolidayService {
     final List<JobUserDto> allEmployees = userService.findAllJobUsers(company);
 
     final List<Long> filterIds = paidHolidayUserRepository
-        .findAllUserIdByCompanyId(company.getId());
+        .findAllUserIdByCompanyId(company.getId()).stream().map(BigInteger::longValue).collect(
+            Collectors.toList());
 
     allEmployees.forEach(e -> {
       if (!filterIds.contains(e.getId())) {

@@ -53,7 +53,7 @@ public interface TimeOffPolicyService {
   void updateTimeOffPolicyUserInfo(
       List<TimeOffPolicyUserFrontendDto> userStatBalances, Long timeOffPolicyId);
 
-  void deleteTimeOffPolicy(Long timeOffPolicyId);
+  void deleteTimeOffPolicy(Long timeOffPolicyId, Company company);
 
   List<TimeOffPolicyUser> getAllPolicyUsersByPolicyId(Long id);
 
