@@ -115,12 +115,12 @@ public class TimeOffRequestRestController extends BaseRestController {
     return timeOffRequestService.getPendingRequestsCount(getUser());
   }
 
-  @GetMapping("users/{userId}/time-off-requests")
-  @PreAuthorize("hasAuthority('MANAGE_SELF_TIME_OFF_REQUEST')")
+  @GetMapping("users/{id}/time-off-requests")
+  @PreAuthorize("hasPermission(#id,'USER','MANAGE_SELF_TIME_OFF_REQUEST')")
   public List<TimeOffRequestDto> getTimeOffRequests(
-      @PathVariable @HashidsFormat final Long userId,
+      @PathVariable @HashidsFormat final Long id,
       @RequestParam final TimeOffRequestApprovalStatus[] status) {
-    final User user = userService.findUserById(userId);
+    final User user = userService.findUserById(id);
 
     return timeOffRequestService.getRequestsByUserAndStatus(user, status).stream()
         .map(timeOffRequestMapper::convertToTimeOffRequestDto)
@@ -172,31 +172,10 @@ public class TimeOffRequestRestController extends BaseRestController {
 
     final Page<TimeOffRequest> timeOffRequests = timeOffRequestService
         .getByApproverAndStatusFilteredByStartDay(
-          getUser(), statusIds, startDayTimestamp, request);
+            getUser(), statusIds, startDayTimestamp, request);
 
-    final List<TimeOffRequestDto> timeOffRequestDtos =
-        timeOffRequests
-          .getContent()
-          .stream()
-          .map(timeOffRequestMapper::convertToTimeOffRequestDto)
-          .collect(Collectors.toList());
-
-    return new PageImpl<>(timeOffRequestDtos, request, timeOffRequests.getTotalElements());
-  }
-
-  private enum SortFields {
-    CREATED_AT("created_at"),
-    APPROVED_DATE("approved_date");
-
-    String value;
-
-    SortFields(final String value) {
-      this.value = value;
-    }
-
-    public String getValue() {
-      return value;
-    }
+    return (PageImpl<TimeOffRequestDto>) timeOffRequests
+        .map(timeOffRequestMapper::convertToTimeOffRequestDto);
   }
 
   @GetMapping("time-off-pending-requests/approver")
@@ -218,7 +197,7 @@ public class TimeOffRequestRestController extends BaseRestController {
   @GetMapping(value = "time-off-pending-requests/requester/{id}")
   @PreAuthorize(
       "hasPermission(#id,'USER','MANAGE_SELF_TIME_OFF_REQUEST') "
-        + "or hasPermission(#id,'USER','MANAGE_TIME_OFF_REQUEST')")
+          + "or hasPermission(#id,'USER','MANAGE_TIME_OFF_REQUEST')")
   public MyTimeOffDto getPendingRequests(
       @HashidsFormat @PathVariable(name = "id") final Long id, final int page,
       @RequestParam(defaultValue = "5", required = false) final int size) {
@@ -230,8 +209,8 @@ public class TimeOffRequestRestController extends BaseRestController {
     final Long[] timeOffRequestStatuses = new Long[]{NO_ACTION.getValue(), VIEWED.getValue()};
 
     myTimeOffDto =
-      timeOffRequestService.getMyTimeOffRequestsByRequesterUserIdFilteredByStartDay(
-          id, startDayTimestamp, timeOffRequestStatuses, request);
+        timeOffRequestService.getMyTimeOffRequestsByRequesterUserIdFilteredByStartDay(
+            id, startDayTimestamp, timeOffRequestStatuses, request);
 
     return myTimeOffDto;
   }
@@ -239,7 +218,7 @@ public class TimeOffRequestRestController extends BaseRestController {
   @GetMapping(value = "time-off-reviewed-requests/requester/{id}")
   @PreAuthorize(
       "hasPermission(#id,'USER','MANAGE_SELF_TIME_OFF_REQUEST') "
-        + "or hasPermission(#id,'USER','MANAGE_TIME_OFF_REQUEST')")
+          + "or hasPermission(#id,'USER','MANAGE_TIME_OFF_REQUEST')")
   public MyTimeOffDto getReviewedRequests(
       @HashidsFormat @PathVariable(name = "id") final Long id,
       @RequestParam(value = "startDay") @Nullable final Long startDay,
@@ -261,12 +240,12 @@ public class TimeOffRequestRestController extends BaseRestController {
 
     if (endDay != null) {
       myTimeOffDto =
-        timeOffRequestService.getMyTimeOffRequestsByRequesterUserIdFilteredByStartAndEndDay(
-          id, startDayTimestamp, new Timestamp(endDay), timeOffRequestStatuses, request);
+          timeOffRequestService.getMyTimeOffRequestsByRequesterUserIdFilteredByStartAndEndDay(
+              id, startDayTimestamp, new Timestamp(endDay), timeOffRequestStatuses, request);
     } else {
       myTimeOffDto =
-        timeOffRequestService.getMyTimeOffRequestsByRequesterUserIdFilteredByStartDay(
-          id, startDayTimestamp, timeOffRequestStatuses, request);
+          timeOffRequestService.getMyTimeOffRequestsByRequesterUserIdFilteredByStartDay(
+              id, startDayTimestamp, timeOffRequestStatuses, request);
     }
 
     return myTimeOffDto;
@@ -300,5 +279,20 @@ public class TimeOffRequestRestController extends BaseRestController {
       @PathVariable @HashidsFormat final Long id,
       @RequestBody final UnimplementedRequestPojo unimplementedRequestPojo) {
     timeOffRequestService.deleteUnimplementedRequest(id, unimplementedRequestPojo);
+  }
+
+  private enum SortFields {
+    CREATED_AT("created_at"),
+    APPROVED_DATE("approved_date");
+
+    String value;
+
+    SortFields(final String value) {
+      this.value = value;
+    }
+
+    public String getValue() {
+      return value;
+    }
   }
 }
