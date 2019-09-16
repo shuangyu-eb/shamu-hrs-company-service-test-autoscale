@@ -556,15 +556,12 @@ public class UserServiceImpl implements UserService {
 
     final UserStatus status = userStatusRepository.findByName(Status.ACTIVE.name());
 
-    final String employeeNumber = getEmployeeNumber(company.getName(), 1);
-
     User user = User.builder()
         .userId(signUpDto.getUserId())
         .userRole(role)
         .userStatus(status)
         .userPersonalInformation(userPersonalInformation)
         .userContactInformation(userContactInformation)
-        .employeeNumber(employeeNumber)
         .company(company)
         .emailWork(signUpDto.getEmail())
         .build();
@@ -644,16 +641,6 @@ public class UserServiceImpl implements UserService {
         .name(user.getUserPersonalInformation().getName())
         .imageUrl(user.getImageUrl())
         .build();
-  }
-
-  @Override
-  public String getEmployeeNumber(final String companyName, final Integer employeeNumber) {
-    if (companyName.length() <= 3) {
-      return String.format("%s%06d", companyName, employeeNumber);
-    }
-
-    final String employeeNumberPrefix = companyName.substring(0, 3);
-    return String.format("%s%06d", employeeNumberPrefix, employeeNumber);
   }
 
   @Override

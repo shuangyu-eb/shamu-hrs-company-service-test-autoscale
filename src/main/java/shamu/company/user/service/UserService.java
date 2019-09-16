@@ -57,8 +57,6 @@ public interface UserService {
 
   User getOne(Long userId);
 
-  String getEmployeeNumber(String companyName, Integer employeeNumber);
-
   void save(User user);
 
   void saveUserWithRole(User user, User.Role role);

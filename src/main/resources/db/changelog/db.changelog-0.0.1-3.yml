@@ -343,3 +343,11 @@ databaseChangeLog:
       changes:
         - dropTable:
             tableName: permissions
+
+  - changeSet:
+      id: 1568623658913-1
+      author: haibo-eb
+      changes:
+        - dropColumn:
+            columnName: employee_number
+            tableName: users

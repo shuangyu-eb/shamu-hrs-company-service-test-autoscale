@@ -305,13 +305,6 @@ public class EmployeeServiceImpl implements EmployeeService {
     final String photoPath = saveEmployeePhoto(base64EncodedPhoto);
     employee.setImageUrl(photoPath);
 
-    final String companyName = currentUser.getCompany().getName();
-    final Integer existingUserCount =
-        userRepository.findExistingUserCountByCompanyId(currentUser.getCompany().getId());
-    final Integer employeeIndex = existingUserCount + 1;
-    final String employeeNumber = userService.getEmployeeNumber(companyName, employeeIndex);
-    employee.setEmployeeNumber(employeeNumber);
-
     employee.setCompany(currentUser.getCompany());
 
     employee = this.saveInvitedEmployeeAdditionalInformation(employee,

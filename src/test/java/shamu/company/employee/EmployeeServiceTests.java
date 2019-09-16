@@ -105,9 +105,6 @@ public class EmployeeServiceTests {
       Mockito.when(userRepository.findExistingUserCountByCompanyId(Mockito.anyLong()))
           .thenReturn(0);
 
-      Mockito.when(userService.getEmployeeNumber(Mockito.anyString(), Mockito.anyInt()))
-          .thenReturn("1");
-
       Mockito.when(userPersonalInformationMapper.createFromUserPersonalInformationDto(Mockito.any()))
           .thenReturn(null);
 
