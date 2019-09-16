@@ -30,8 +30,6 @@ import shamu.company.company.entity.Company;
 @Where(clause = "deleted_at IS NULL")
 public class User extends BaseEntity {
 
-  private String employeeNumber;
-
   /**
    * @deprecated Please use email from table user_contact_information. Because we integrate Auth0,
    * we do a mapping with Auth0 account by property userId( or column user_id in table users). One
