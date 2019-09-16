@@ -6,8 +6,6 @@ import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -215,9 +213,9 @@ public class UserServiceImpl implements UserService {
     if (Strings.isBlank(welcomeMessage)) {
       welcomeMessage = "";
     }
-    final Pattern scriptPattern = Pattern.compile("<script(.*)?>.*</script>");
-    final Matcher scriptMatcher = scriptPattern.matcher(welcomeMessage);
-    return scriptMatcher.replaceAll("");
+    return welcomeMessage
+        .replaceAll("href\\s*=\\s*(['\"])\\s*(?!http[s]?).+?\\1", "#")
+        .replaceAll("<script(.*)?>.*</script>", "");
   }
 
   @Override
@@ -465,7 +463,7 @@ public class UserServiceImpl implements UserService {
       // inactivate user in auth0
       final com.auth0.json.mgmt.users.User auth0User = auth0Util
           .getUserByEmailFromAuth0(user.getUserContactInformation().getEmailWork());
-      auth0Util.updateAuthRole(auth0User.getId(),Role.INACTIVATE.name());
+      auth0Util.updateAuthRole(auth0User.getId(), Role.INACTIVATE.name());
 
       userAccessLevelEventRepository.save(
           new UserAccessLevelEvent(user, user.getRole().getValue()));
@@ -489,7 +487,7 @@ public class UserServiceImpl implements UserService {
           teamEmployees = teamEmployees.stream().map(
               employee -> {
                 employee.setManagerUser(null);
-                auth0Util.updateAuthRole(employee.getUserId(),Role.ADMIN.name());
+                auth0Util.updateAuthRole(employee.getUserId(), Role.ADMIN.name());
                 employee.setUserRole(userRoleRepository.findByName(Role.ADMIN.name()));
                 return employee;
               }
@@ -553,7 +551,6 @@ public class UserServiceImpl implements UserService {
     job.setTitle(signUpDto.getJobTitle());
     job.setDepartment(department);
     job = jobRepository.save(job);
-
 
     final UserRole role = userRoleRepository.findByName(Role.ADMIN.name());
 
