@@ -13,7 +13,9 @@ import shamu.company.benefit.entity.BenefitPlanDependent;
 import shamu.company.benefit.service.BenefitPlanDependentService;
 import shamu.company.benefit.service.BenefitPlanService;
 import shamu.company.common.exception.ForbiddenException;
+import shamu.company.company.CompanyService;
 import shamu.company.company.entity.Company;
+import shamu.company.company.entity.Department;
 import shamu.company.timeoff.entity.TimeOffPolicy;
 import shamu.company.timeoff.entity.TimeOffPolicyUser;
 import shamu.company.timeoff.repository.TimeOffPolicyUserRepository;
@@ -27,6 +29,8 @@ import shamu.company.user.service.UserService;
 public class UserPermissionUtils extends BasePermissionUtils {
 
   private final UserService userService;
+
+  private final CompanyService companyService;
 
   private final TimeOffRequestService timeOffRequestService;
 
@@ -42,6 +46,7 @@ public class UserPermissionUtils extends BasePermissionUtils {
 
   @Autowired
   public UserPermissionUtils(final UserService userService,
+      final CompanyService companyService,
       final TimeOffRequestService timeOffRequestService,
       final UserAddressService userAddressService,
       final BenefitPlanService benefitPlanService,
@@ -49,6 +54,7 @@ public class UserPermissionUtils extends BasePermissionUtils {
       final TimeOffPolicyUserRepository timeOffPolicyUserRepository,
       final TimeOffPolicyService timeOffPolicyService) {
     this.userService = userService;
+    this.companyService = companyService;
     this.timeOffRequestService = timeOffRequestService;
     this.userAddressService = userAddressService;
     this.benefitPlanService = benefitPlanService;
@@ -61,6 +67,8 @@ public class UserPermissionUtils extends BasePermissionUtils {
       final Permission.Name permission) {
 
     switch (targetType) {
+      case DEPARTMENT:
+        return this.hasPermissionOfDepartment(auth, targetId, permission);
       case BENEFIT_PLAN:
         return hasPermissionOfBenefitPlan(auth, targetId, permission);
       case TIME_OFF_REQUEST:
@@ -119,6 +127,14 @@ public class UserPermissionUtils extends BasePermissionUtils {
     companyEqual(auth, targetBenefitPlan.getCompany());
 
     return isAdminPermission(auth, permission);
+  }
+
+  private boolean hasPermissionOfDepartment(final Authentication auth, final Long id,
+      final Permission.Name permission) {
+    final Department department = companyService.getDepartmentsById(id);
+    this.companyEqual(auth, department.getCompany());
+
+    return this.hasPermission((Collection<GrantedAuthority>) auth.getAuthorities(), permission);
   }
 
   private boolean hasPermissionOfBenefitDependent(final Authentication auth, final Long id,

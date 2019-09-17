@@ -4,6 +4,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import shamu.company.common.entity.StateProvince;
+import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.common.repository.DepartmentRepository;
 import shamu.company.common.repository.EmploymentTypeRepository;
 import shamu.company.common.repository.OfficeAddressRepository;
@@ -59,6 +60,12 @@ public class CompanyServiceImpl implements CompanyService {
   @Override
   public List<Department> getDepartmentsByCompany(final Company company) {
     return departmentRepository.findAllByCompany(company);
+  }
+
+  @Override
+  public Department getDepartmentsById(final Long id) {
+    return departmentRepository.findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("No Department with id: " + id));
   }
 
   @Override

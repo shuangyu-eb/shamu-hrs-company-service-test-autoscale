@@ -13,6 +13,8 @@ public interface CompanyService {
 
   List<Department> getDepartmentsByCompany(Company company);
 
+  Department getDepartmentsById(Long id);
+
   Department saveDepartmentsByCompany(String name, Company company);
 
   List<Job> getJobsByDepartmentId(Long id);

@@ -42,7 +42,13 @@ public class Permission {
     VIEW_TEAM_CALENDAR(PermissionType.EMPLOYEE_PERMISSION),
     VIEW_EMPLOYEES(PermissionType.EMPLOYEE_PERMISSION),
     MANAGE_COMPANY_USER(PermissionType.ADMIN_PERMISSION),
-    MANAGE_TEAM_USER(PermissionType.MANAGER_PERMISSION);
+    MANAGE_TEAM_USER(PermissionType.MANAGER_PERMISSION),
+    VIEW_JOB(PermissionType.EMPLOYEE_PERMISSION),
+    CREATE_DEPARTMENT(PermissionType.ADMIN_PERMISSION),
+    CREATE_JOB(PermissionType.ADMIN_PERMISSION),
+    CREATE_OFFICE(PermissionType.ADMIN_PERMISSION),
+    CREATE_EMPLOYEE_TYPE(PermissionType.ADMIN_PERMISSION);
+
 
     private final PermissionType permissionType;
 

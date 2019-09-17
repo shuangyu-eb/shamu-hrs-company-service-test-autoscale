@@ -53,11 +53,13 @@ public class CompanyRestController extends BaseRestController {
 
 
   @PostMapping("departments")
+  @PreAuthorize("hasAuthority('CREATE_DEPARTMENT')")
   public Department createDepartment(@RequestBody final String name) {
     return companyService.saveDepartmentsByCompany(name, getCompany());
   }
 
   @GetMapping("departments/{id}/jobs")
+  @PreAuthorize("hasPermission(#id,'DEPARTMENT','VIEW_JOB')")
   public List<SelectFieldInformationDto> getJobsByDepartment(
       @PathVariable @HashidsFormat final Long id) {
     return companyService.getJobsByDepartmentId(id).stream()
@@ -67,6 +69,7 @@ public class CompanyRestController extends BaseRestController {
 
 
   @PostMapping("departments/{id}/jobs")
+  @PreAuthorize("hasPermission(#id,'DEPARTMENT','CREATE_JOB')")
   public SelectFieldInformationDto saveJobsByDepartment(@PathVariable @HashidsFormat final Long id,
       @RequestBody final String name) {
     final Job job = companyService.saveJobsByDepartmentId(id, name);
@@ -74,7 +77,6 @@ public class CompanyRestController extends BaseRestController {
   }
 
   @GetMapping("employment-types")
-  // TODO permission
   public List<SelectFieldInformationDto> getEmploymentTypes() {
     return companyService.getEmploymentTypesByCompany(getCompany())
         .stream()
@@ -84,7 +86,7 @@ public class CompanyRestController extends BaseRestController {
 
 
   @PostMapping(value = "employment-types")
-  // TODO permission
+  @PreAuthorize("hasAuthority('CREATE_EMPLOYEE_TYPE')")
   public SelectFieldInformationDto createEmploymentType(@RequestBody final String name) {
     final EmploymentType employmentType = companyService.saveEmploymentType(name, getCompany());
     return new SelectFieldInformationDto(employmentType.getId(), employmentType.getName());
@@ -93,13 +95,12 @@ public class CompanyRestController extends BaseRestController {
 
   @GetMapping("offices")
   @PreAuthorize("hasAuthority('VIEW_USER_JOB')")
-  // TODO refactor, Permission
   public List<OfficeDto> getOffices() {
     return officeMapper.convertToOfficeDto(companyService.getOfficesByCompany(getCompany()));
   }
 
   @PostMapping("offices")
-  // TODO refactor, Permission
+  @PreAuthorize("hasAuthority('CREATE_OFFICE')")
   public OfficeDto saveOffice(@RequestBody final OfficeCreateDto officeCreateDto) {
     final Office office = officeCreateDto.getOffice();
     office.setCompany(getCompany());
@@ -107,6 +108,7 @@ public class CompanyRestController extends BaseRestController {
   }
 
   @GetMapping("departments/{id}/users")
+  @PreAuthorize("hasPermission(#id,'DEPARTMENT','VIEW_USER_JOB')")
   public List<SelectFieldInformationDto> getUsers(@PathVariable @HashidsFormat final Long id) {
     final List<User> users = employeeService
         .findEmployersAndEmployeesByDepartmentIdAndCompanyId(id, getCompany().getId());
