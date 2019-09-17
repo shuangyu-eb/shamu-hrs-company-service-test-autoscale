@@ -424,12 +424,14 @@ public class EmployeeServiceImpl implements EmployeeService {
 
   private void updateEmergencyContacts(
       final User employee, final List<UserEmergencyContactDto> emergencyContactDtos) {
-    final List<BigInteger> userEmergencyContactIds =
-        userEmergencyContactRepository.findAllIdByUserId(employee.getId());
-    userEmergencyContactRepository.deleteInBatch(userEmergencyContactIds.stream()
-        .map(BigInteger::longValue)
-        .collect(Collectors.toList()));
-    saveEmergencyContacts(employee, emergencyContactDtos);
+    if (!emergencyContactDtos.isEmpty()) {
+      final List<BigInteger> userEmergencyContactIds =
+          userEmergencyContactRepository.findAllIdByUserId(employee.getId());
+      userEmergencyContactRepository.deleteInBatch(userEmergencyContactIds.stream()
+          .map(BigInteger::longValue)
+          .collect(Collectors.toList()));
+      saveEmergencyContacts(employee, emergencyContactDtos);
+    }
   }
 
   private void saveManagerUser(final User user, final NewEmployeeJobInformationDto jobInformation) {
