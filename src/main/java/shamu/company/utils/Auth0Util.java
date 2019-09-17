@@ -145,6 +145,34 @@ public class Auth0Util {
     }
   }
 
+  public shamu.company.user.entity.User.Role getUserRole(final String email) {
+    try {
+      final User user = getUserByEmailFromAuth0(email);
+      if (user == null) {
+        throw new GeneralAuth0Exception(String.format("Can not get user with email %s", email));
+      }
+
+      final ManagementAPI manager = auth0Manager.getManagementApi();
+      final Request<RolesPage> userRoleRequest = manager.users().listRoles(user.getId(), null);
+      final RolesPage rolePages = userRoleRequest.execute();
+      final List<Role> roles = rolePages.getItems();
+      if (roles.size() != 1) {
+        throw new GeneralAuth0Exception(String
+            .format("User with email %s has wrong role size.", email));
+      }
+
+      final Role targetRole = roles.get(0);
+      return shamu.company.user.entity.User.Role.valueOf(targetRole.getName());
+    } catch (final Auth0Exception e) {
+      throw new GeneralAuth0Exception(e.getMessage(), e);
+    }
+  }
+
+  public void updateRoleWithEmail(final String email, final String targetRoleName) {
+    final User user = getUserByEmailFromAuth0(email);
+    updateAuthRole(user.getId(), targetRoleName);
+  }
+
   public void updateAuthRole(final String userId, final String updatedRole) {
     final ManagementAPI manager = auth0Manager.getManagementApi();
     try {

@@ -20,6 +20,7 @@ import shamu.company.user.entity.User.Role;
 import shamu.company.user.entity.UserCompensation;
 import shamu.company.user.entity.mapper.UserCompensationMapper;
 import shamu.company.user.service.UserService;
+import shamu.company.utils.Auth0Util;
 
 @RestApiController
 public class JobController extends BaseRestController {
@@ -32,15 +33,19 @@ public class JobController extends BaseRestController {
 
   private final UserCompensationMapper userCompensationMapper;
 
+  private final Auth0Util auth0Util;
+
   @Autowired
   public JobController(final JobUserService jobUserService,
       final UserService userService,
       final JobUserMapper jobUserMapper,
-      final UserCompensationMapper userCompensationMapper) {
+      final UserCompensationMapper userCompensationMapper,
+      final Auth0Util auth0Util) {
     this.jobUserService = jobUserService;
     this.userService = userService;
     this.jobUserMapper = jobUserMapper;
     this.userCompensationMapper = userCompensationMapper;
+    this.auth0Util = auth0Util;
   }
 
 
@@ -74,8 +79,11 @@ public class JobController extends BaseRestController {
     if (managerId != null && !user.getId().equals(managerId)) {
       final User manager = userService.findUserById(managerId);
       user.setManagerUser(manager);
-      if (manager.getRole() == Role.NON_MANAGER) {
-        userService.saveUserWithRole(user, Role.MANAGER);
+
+      final String managerEmail = manager.getUserContactInformation().getEmailWork();
+      final Role role = auth0Util.getUserRole(managerEmail);
+      if (Role.EMPLOYEE == role) {
+        auth0Util.updateRoleWithEmail(managerEmail, Role.MANAGER.name());
       }
     }
     userService.save(user);

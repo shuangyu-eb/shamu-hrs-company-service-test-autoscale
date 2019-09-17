@@ -25,7 +25,9 @@ import shamu.company.employee.service.EmployeeService;
 import shamu.company.hashids.HashidsFormat;
 import shamu.company.job.dto.JobUserDto;
 import shamu.company.job.entity.JobUserListItem;
+import shamu.company.user.entity.User.Role;
 import shamu.company.user.service.UserService;
+import shamu.company.utils.Auth0Util;
 
 @RestApiController
 public class EmployeeRestController extends BaseRestController {
@@ -34,18 +36,25 @@ public class EmployeeRestController extends BaseRestController {
 
   private final UserService userService;
 
+  private final Auth0Util auth0Util;
+
   @Autowired
   public EmployeeRestController(final EmployeeService employeeService,
-      final UserService userService) {
+      final UserService userService,
+      final Auth0Util auth0Util) {
     this.employeeService = employeeService;
     this.userService = userService;
+    this.auth0Util = auth0Util;
   }
 
   @GetMapping("employees")
   public Page<JobUserListItem> getAllEmployees(
       final EmployeeListSearchCondition employeeListSearchCondition) {
+
+    final Role userRole = auth0Util
+        .getUserRole(getUser().getUserContactInformation().getEmailWork());
     return userService
-        .getAllEmployees(employeeListSearchCondition, getCompany(), getUser().getRole());
+        .getAllEmployees(employeeListSearchCondition, getCompany(), userRole);
   }
 
   @GetMapping("employees/my-team")

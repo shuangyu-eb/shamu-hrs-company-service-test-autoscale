@@ -21,6 +21,7 @@ import shamu.company.user.entity.mapper.UserMapper;
 import shamu.company.user.entity.mapper.UserPersonalInformationMapper;
 import shamu.company.user.service.UserPersonalInformationService;
 import shamu.company.user.service.UserService;
+import shamu.company.utils.Auth0Util;
 
 @RestApiController
 public class UserPersonalInformationRestController extends BaseRestController {
@@ -32,6 +33,8 @@ public class UserPersonalInformationRestController extends BaseRestController {
   private final UserPersonalInformationMapper userPersonalInformationMapper;
 
   private final UserMapper userMapper;
+  
+  private final Auth0Util auth0Util;
 
   SimpleDateFormat sdf = new SimpleDateFormat("MM-dd");
 
@@ -40,11 +43,13 @@ public class UserPersonalInformationRestController extends BaseRestController {
       final UserPersonalInformationService userPersonalInformationService,
       final UserService userService,
       final UserPersonalInformationMapper userPersonalInformationMapper,
-      final UserMapper userMapper) {
+      final UserMapper userMapper,
+      final Auth0Util auth0Util) {
     this.userPersonalInformationService = userPersonalInformationService;
     this.userService = userService;
     this.userPersonalInformationMapper = userPersonalInformationMapper;
     this.userMapper = userMapper;
+    this.auth0Util = auth0Util;
   }
 
   @PatchMapping("user-personal-information/{id}")
@@ -75,7 +80,8 @@ public class UserPersonalInformationRestController extends BaseRestController {
     final UserPersonalInformation userPersonalInformation = targetUser.getUserPersonalInformation();
     final String imageUrl = targetUser.getImageUrl();
 
-    if (user.getId().equals(id) || user.getRole() == Role.ADMIN) {
+    final Role userRole = auth0Util.getUserRole(user.getUserContactInformation().getEmailWork());
+    if (user.getId().equals(id) || userRole == Role.ADMIN) {
       return userPersonalInformationMapper
           .convertToUserPersonalInformationDto(userPersonalInformation, imageUrl);
     }
@@ -93,6 +99,11 @@ public class UserPersonalInformationRestController extends BaseRestController {
   @PreAuthorize("hasPermission(#id, 'USER', 'VIEW_SETTING')")
   public UserRoleAndStatusInfoDto getUserRoleAndStatus(@PathVariable @HashidsFormat final Long id) {
     final User targetUser = userService.findUserById(id);
-    return userMapper.convertToUserRoleAndStatusInfoDto(targetUser);
+    final UserRoleAndStatusInfoDto resultInformation = userMapper
+        .convertToUserRoleAndStatusInfoDto(targetUser);
+    final Role userRole = auth0Util
+        .getUserRole(targetUser.getUserContactInformation().getEmailWork());
+    resultInformation.setUserRole(userRole.getValue());
+    return resultInformation;
   }
 }

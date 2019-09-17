@@ -56,12 +56,11 @@ import shamu.company.user.dto.UserPersonalInformationDto;
 import shamu.company.user.entity.Gender;
 import shamu.company.user.entity.MaritalStatus;
 import shamu.company.user.entity.User;
+import shamu.company.user.entity.User.Role;
 import shamu.company.user.entity.UserAddress;
 import shamu.company.user.entity.UserCompensation;
 import shamu.company.user.entity.UserContactInformation;
 import shamu.company.user.entity.UserPersonalInformation;
-import shamu.company.user.entity.UserRole;
-import shamu.company.user.entity.UserRole.Role;
 import shamu.company.user.entity.UserStatus;
 import shamu.company.user.entity.UserStatus.Status;
 import shamu.company.user.entity.mapper.UserAddressMapper;
@@ -73,7 +72,6 @@ import shamu.company.user.repository.MaritalStatusRepository;
 import shamu.company.user.repository.UserAddressRepository;
 import shamu.company.user.repository.UserCompensationRepository;
 import shamu.company.user.repository.UserRepository;
-import shamu.company.user.repository.UserRoleRepository;
 import shamu.company.user.repository.UserStatusRepository;
 import shamu.company.user.service.UserContactInformationService;
 import shamu.company.user.service.UserPersonalInformationService;
@@ -116,8 +114,6 @@ public class EmployeeServiceImpl implements EmployeeService {
 
   private final UserService userService;
 
-  private final UserRoleRepository userRoleRepository;
-
   private final UserStatusRepository userStatusRepository;
 
   private final EmailRepository emailRepository;
@@ -158,7 +154,6 @@ public class EmployeeServiceImpl implements EmployeeService {
       final UserCompensationRepository userCompensationRepository,
       final UserEmergencyContactRepository userEmergencyContactRepository,
       final JobRepository jobRepository,
-      final UserRoleRepository userRoleRepository,
       final UserStatusRepository userStatusRepository,
       final AwsUtil awsUtil,
       final GenderRepository genderRepository,
@@ -184,7 +179,6 @@ public class EmployeeServiceImpl implements EmployeeService {
     this.userCompensationRepository = userCompensationRepository;
     this.userEmergencyContactRepository = userEmergencyContactRepository;
     this.jobRepository = jobRepository;
-    this.userRoleRepository = userRoleRepository;
     this.userStatusRepository = userStatusRepository;
     this.awsUtil = awsUtil;
     this.genderRepository = genderRepository;
@@ -311,9 +305,6 @@ public class EmployeeServiceImpl implements EmployeeService {
         employeeDto.getUserPersonalInformationDto(),
         employeeDto.getUserContactInformationDto());
 
-    final UserRole userRole = userRoleRepository.findByName(User.Role.NON_MANAGER.name());
-    employee.setUserRole(userRole);
-
     final UserStatus userStatus = userStatusRepository
         .findByName(Status.PENDING_VERIFICATION.name());
     employee.setUserStatus(userStatus);
@@ -322,7 +313,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     final com.auth0.json.mgmt.users.User user =
         auth0Util.addUser(employeeDto.getEmailWork(),
-            null, User.Role.NON_MANAGER.getValue());
+            null, Role.EMPLOYEE.getValue());
     applicationEventPublisher.publishEvent(new Auth0UserCreatedEvent(user));
 
     String userId = null;
@@ -444,7 +435,7 @@ public class EmployeeServiceImpl implements EmployeeService {
   private void saveManagerUser(final User user, final NewEmployeeJobInformationDto jobInformation) {
     final Long managerUserId = jobInformation.getReportsTo();
     if (managerUserId != null && !managerUserId.equals(user.getId())) {
-      User managerUser =
+      final User managerUser =
           userRepository
               .findById(managerUserId)
               .orElseThrow(
@@ -452,10 +443,12 @@ public class EmployeeServiceImpl implements EmployeeService {
                       new ResourceNotFoundException(
                           "User with id " + managerUserId + " not found!"));
 
-      if (Role.NON_MANAGER.name().equals(managerUser.getUserRole().getName())) {
-        final UserRole userRole = userRoleRepository.findByName(Role.MANAGER.name());
-        managerUser.setUserRole(userRole);
-        managerUser = userRepository.save(managerUser);
+      final com.auth0.json.mgmt.users.User auth0User = auth0Util
+          .getUserByEmailFromAuth0(managerUser.getUserContactInformation().getEmailWork());
+      final Role role = auth0Util
+          .getUserRole(managerUser.getUserContactInformation().getEmailWork());
+      if (Role.EMPLOYEE == role) {
+        auth0Util.updateAuthRole(auth0User.getId(), Role.MANAGER.getValue());
       }
 
       user.setManagerUser(managerUser);

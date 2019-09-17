@@ -29,7 +29,6 @@ import shamu.company.user.entity.mapper.UserCompensationMapper;
 public interface JobUserMapper {
 
   @Mapping(target = "jobUserId", source = "user.id")
-  @Mapping(target = "userRole", source = "user.role")
   @Mapping(target = "department", source = "job.department")
   @Mapping(target = "manager", source = "user.managerUser")
   @Mapping(target = "manager.name", source = "user.managerUser.userPersonalInformation.name")

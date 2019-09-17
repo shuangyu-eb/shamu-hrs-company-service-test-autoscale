@@ -17,6 +17,7 @@ import shamu.company.user.entity.UserAddress;
 import shamu.company.user.entity.mapper.UserAddressMapper;
 import shamu.company.user.service.UserAddressService;
 import shamu.company.user.service.UserService;
+import shamu.company.utils.Auth0Util;
 
 @RestApiController
 public class UserAddressRestController extends BaseRestController {
@@ -27,13 +28,17 @@ public class UserAddressRestController extends BaseRestController {
 
   private final UserAddressMapper userAddressMapper;
 
+  private final Auth0Util auth0Util;
+
   @Autowired
   public UserAddressRestController(final UserAddressService userAddressService,
       final UserService userService,
-      final UserAddressMapper userAddressMapper) {
+      final UserAddressMapper userAddressMapper,
+      final Auth0Util auth0Util) {
     this.userAddressService = userAddressService;
     this.userService = userService;
     this.userAddressMapper = userAddressMapper;
+    this.auth0Util = auth0Util;
   }
 
   @PatchMapping("user-addresses/{id}")
@@ -72,8 +77,9 @@ public class UserAddressRestController extends BaseRestController {
     final User manager = targetUser.getManagerUser();
     final UserAddress userAddress = userAddressService.findUserAddressByUserId(id);
 
+    final Role userRole = auth0Util.getUserRole(user.getUserContactInformation().getEmailWork());
     if (userAddress != null && (user.getId().equals(id)
-        || user.getRole() == Role.ADMIN
+        || userRole == Role.ADMIN
         || (manager != null && manager.getId().equals(user.getId())))) {
       return userAddressMapper.convertToUserAddressDto(userAddress);
     }

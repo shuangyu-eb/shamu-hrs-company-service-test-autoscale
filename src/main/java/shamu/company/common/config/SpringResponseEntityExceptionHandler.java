@@ -83,8 +83,7 @@ public class SpringResponseEntityExceptionHandler {
 
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
   @ExceptionHandler(GeneralAuth0Exception.class)
-  public ErrorMessage handleAuth0Exception(final DataIntegrityViolationException exception) {
-    return new ErrorMessage(ErrorType.AUTH0_EXCEPTION,
-        "Can not get connection, please try again later!");
+  public ErrorMessage handleAuth0Exception(final GeneralAuth0Exception exception) {
+    return new ErrorMessage(ErrorType.AUTH0_EXCEPTION, exception.getMessage());
   }
 }

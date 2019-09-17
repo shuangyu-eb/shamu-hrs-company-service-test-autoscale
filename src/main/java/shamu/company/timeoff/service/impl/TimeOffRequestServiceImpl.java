@@ -39,8 +39,8 @@ import shamu.company.timeoff.service.TimeOffPolicyService;
 import shamu.company.timeoff.service.TimeOffRequestEmailService;
 import shamu.company.timeoff.service.TimeOffRequestService;
 import shamu.company.user.entity.User;
-import shamu.company.user.entity.UserRole.Role;
 import shamu.company.user.repository.UserRepository;
+import shamu.company.utils.Auth0Util;
 import shamu.company.utils.DateUtil;
 
 @Service
@@ -61,6 +61,8 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
   private final TimeOffPolicyService timeOffPolicyService;
 
   private final TimeOffDetailService timeOffDetailService;
+  
+  private final Auth0Util auth0Util;
 
   @Autowired
   public TimeOffRequestServiceImpl(
@@ -71,7 +73,8 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
       @Lazy final TimeOffRequestEmailService timeOffRequestEmailService,
       final TimeOffRequestMapper timeOffRequestMapper,
       final TimeOffPolicyService timeOffPolicyService,
-      final TimeOffDetailService timeOffDetailService) {
+      final TimeOffDetailService timeOffDetailService,
+      final Auth0Util auth0Util) {
     this.timeOffRequestRepository = timeOffRequestRepository;
     this.timeOffPolicyUserRepository = timeOffPolicyUserRepository;
     this.userRepository = userRepository;
@@ -80,6 +83,7 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
     this.timeOffRequestMapper = timeOffRequestMapper;
     this.timeOffPolicyService = timeOffPolicyService;
     this.timeOffDetailService = timeOffDetailService;
+    this.auth0Util = auth0Util;
   }
 
   @Override
@@ -125,10 +129,12 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
     final List<String> statusNames = statusList.stream().map(Enum::name)
         .collect(Collectors.toList());
 
-    if (user.getRole().name().equals(Role.NON_MANAGER.name())) {
+    final User.Role userRole = auth0Util
+        .getUserRole(user.getUserContactInformation().getEmailWork());
+    if (userRole == User.Role.EMPLOYEE) {
       return timeOffRequestRepository.employeeFindTeamRequests(
           user.getManagerUser().getId(), statusNames);
-    } else if (user.getRole().name().equals(Role.MANAGER.name())) {
+    } else if (userRole == User.Role.MANAGER) {
       return timeOffRequestRepository.managerFindTeamRequests(
           user.getId(), user.getManagerUser().getId(), statusNames);
     } else {
@@ -318,7 +324,7 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
     final TimeOffPolicy policy = timeOffPolicyService.getTimeOffPolicyById(policyId);
     timeOffRequest.setTimeOffPolicy(policy);
     timeOffRequest.setTimeOffApprovalStatus(status);
-    TimeOffPolicyUser timeOffPolicyUser = timeOffPolicyUserRepository
+    final TimeOffPolicyUser timeOffPolicyUser = timeOffPolicyUserRepository
             .findTimeOffPolicyUserByUserAndTimeOffPolicy(timeOffRequest.getRequesterUser(), policy);
 
     final LocalDateTime currentTime = LocalDateTime.now();

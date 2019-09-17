@@ -29,9 +29,7 @@ import shamu.company.user.dto.UserPersonalInformationDto;
 import shamu.company.user.entity.Gender;
 import shamu.company.user.entity.MaritalStatus;
 import shamu.company.user.entity.User;
-import shamu.company.user.entity.User.Role;
 import shamu.company.user.entity.UserContactInformation;
-import shamu.company.user.entity.UserRole;
 import shamu.company.user.entity.UserStatus;
 import shamu.company.user.entity.UserStatus.Status;
 import shamu.company.user.entity.mapper.UserAddressMapper;
@@ -43,7 +41,6 @@ import shamu.company.user.repository.MaritalStatusRepository;
 import shamu.company.user.repository.UserAddressRepository;
 import shamu.company.user.repository.UserCompensationRepository;
 import shamu.company.user.repository.UserRepository;
-import shamu.company.user.repository.UserRoleRepository;
 import shamu.company.user.repository.UserStatusRepository;
 import shamu.company.user.service.UserContactInformationService;
 import shamu.company.user.service.UserPersonalInformationService;
@@ -67,7 +64,6 @@ public class EmployeeServiceTests {
   @Mock private CountryRepository countryRepository;
   @Mock private UserEmergencyContactRepository userEmergencyContactRepository;
   @Mock private UserService userService;
-  @Mock private UserRoleRepository userRoleRepository;
   @Mock private UserStatusRepository userStatusRepository;
   @Mock private EmailRepository emailRepository;
   @Mock private EmailService emailService;
@@ -89,7 +85,7 @@ public class EmployeeServiceTests {
     employeeService = new EmployeeServiceImpl(userAddressRepository, userRepository,
         jobUserRepository, employmentTypeRepository, officeRepository, userService,
         stateProvinceRepository, countryRepository, userCompensationRepository,
-        userEmergencyContactRepository, jobRepository, userRoleRepository, userStatusRepository,
+        userEmergencyContactRepository, jobRepository, userStatusRepository,
         awsUtil, genderRepository, maritalStatusRepository, emailService,
         compensationFrequencyRepository, emailRepository, userPersonalInformationService,
         userContactInformationService, userPersonalInformationMapper, userAddressMapper,
@@ -107,10 +103,6 @@ public class EmployeeServiceTests {
 
       Mockito.when(userPersonalInformationMapper.createFromUserPersonalInformationDto(Mockito.any()))
           .thenReturn(null);
-
-      final UserRole userRole = new UserRole();
-      userRole.setName(Role.NON_MANAGER.name());
-      Mockito.when(userRoleRepository.findByName(Mockito.anyString())).thenReturn(userRole);
 
       final UserStatus userStatus = new UserStatus();
       userStatus.setName(Status.PENDING_VERIFICATION.name());

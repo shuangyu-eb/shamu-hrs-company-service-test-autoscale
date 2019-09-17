@@ -32,7 +32,6 @@ import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
 import shamu.company.user.entity.UserContactInformation;
 import shamu.company.user.entity.UserPersonalInformation;
-import shamu.company.user.entity.UserRole;
 import shamu.company.user.entity.UserStatus;
 import shamu.company.user.entity.UserStatus.Status;
 import shamu.company.user.entity.mapper.UserAddressMapper;
@@ -54,7 +53,6 @@ class UserServiceTests {
   @Mock private UserStatusRepository userStatusRepository;
   @Mock private EmailService emailService;
   @Mock private UserCompensationRepository userCompensationRepository;
-  @Mock private UserRoleRepository userRoleRepository;
   @Mock private UserPersonalInformationMapper userPersonalInformationMapper;
   @Mock private UserEmergencyContactService userEmergencyContactService;
   @Mock private UserAddressService userAddressService;
@@ -78,7 +76,6 @@ class UserServiceTests {
         userStatusRepository,
         emailService,
         userCompensationRepository,
-        userRoleRepository,
         userPersonalInformationMapper,
         userEmergencyContactService,
         userAddressService,
@@ -113,9 +110,6 @@ class UserServiceTests {
     company.setCompanySize(new CompanySize(userSignUpDto.getCompanySize()));
     Mockito.when(companyRepository.save(Mockito.any())).thenReturn(company);
 
-    Mockito.when(userRoleRepository.findByName(Mockito.anyString())).thenReturn(new UserRole(
-        Role.ADMIN.name()));
-
     Mockito.when(userStatusRepository.findByName(Mockito.anyString())).thenReturn(new UserStatus(Status.ACTIVE.name()));
 
     Mockito.when(userRepository.save(Mockito.any())).thenReturn(new User());
@@ -137,6 +131,10 @@ class UserServiceTests {
       final User currentUser = new User();
       currentUser.setId(1L);
 
+      final UserContactInformation userContactInformation = new UserContactInformation();
+      userContactInformation.setEmailWork("example@example.com");
+      currentUser.setUserContactInformation(userContactInformation);
+
       final Company company = new Company();
       company.setId(1L);
 
@@ -154,20 +152,15 @@ class UserServiceTests {
 
     @Test
     void whenIsAdmin_thenShouldReturnTrue() {
-      final UserRole userRole = new UserRole();
-      userRole.setName(UserRole.Role.ADMIN.name());
-      currentUser.setUserRole(userRole);
-
+      Mockito.when(userRepository.findByIdAndCompanyId(Mockito.anyLong(), Mockito.anyLong()))
+          .thenReturn(new User());
+      Mockito.when(auth0Util.getUserRole(Mockito.anyString())).thenReturn(Role.ADMIN);
       final boolean hasAccess = userService.hasUserAccess(currentUser, targetUserId);
       Assertions.assertTrue(hasAccess);
     }
 
     @Test
     void whenIsManager_thenShouldReturnTrue() {
-      final UserRole userRole = new UserRole();
-      userRole.setName(UserRole.Role.MANAGER.name());
-      currentUser.setUserRole(userRole);
-
       final User targetUser = new User();
       targetUser.setManagerUser(currentUser);
 
@@ -176,18 +169,16 @@ class UserServiceTests {
       Mockito.when(userRepository.getManagerUserIdById(Mockito.anyLong()))
           .thenReturn(currentUser.getId());
 
+      Mockito.when(auth0Util.getUserRole(Mockito.anyString())).thenReturn(Role.MANAGER);
       final boolean hasAccess = userService.hasUserAccess(currentUser, targetUserId);
       Assertions.assertTrue(hasAccess);
     }
 
     @Test
     void whenIsNotManagerAndAdmin_thenShouldReturnFalse() {
-      final UserRole userRole = new UserRole();
-      userRole.setName(UserRole.Role.NON_MANAGER.name());
-      currentUser.setUserRole(userRole);
-
       Mockito.when(userRepository.getManagerUserIdById(Mockito.anyLong()))
           .thenReturn(null);
+      Mockito.when(auth0Util.getUserRole(Mockito.anyString())).thenReturn(Role.EMPLOYEE);
 
       final boolean hasAccess = userService.hasUserAccess(currentUser, targetUserId);
       Assertions.assertFalse(hasAccess);

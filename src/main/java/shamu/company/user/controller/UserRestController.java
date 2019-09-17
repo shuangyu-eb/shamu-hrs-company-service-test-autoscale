@@ -33,6 +33,7 @@ import shamu.company.user.pojo.ChangePasswordPojo;
 import shamu.company.user.pojo.UserRoleUpdatePojo;
 import shamu.company.user.pojo.UserStatusUpdatePojo;
 import shamu.company.user.service.UserService;
+import shamu.company.utils.Auth0Util;
 import shamu.company.utils.AwsUtil;
 import shamu.company.utils.AwsUtil.Type;
 import shamu.company.utils.FileValidateUtil;
@@ -49,12 +50,16 @@ public class UserRestController extends BaseRestController {
 
   private final UserMapper userMapper;
 
+  private final Auth0Util auth0Util;
+
   public UserRestController(final UserService userService, final CompanyService companyService,
-      final AwsUtil awsUtil, final UserMapper userMapper) {
+      final AwsUtil awsUtil, final UserMapper userMapper,
+      final Auth0Util auth0Util) {
     this.userService = userService;
     this.companyService = companyService;
     this.awsUtil = awsUtil;
     this.userMapper = userMapper;
+    this.auth0Util = auth0Util;
   }
 
   @PostMapping(value = "user/sign-up")
@@ -78,8 +83,9 @@ public class UserRestController extends BaseRestController {
   public String getHeadPortrait(@PathVariable @HashidsFormat final Long id) {
     final User user = getUser();
 
+    final Role userRole = auth0Util.getUserRole(user.getUserContactInformation().getEmailWork());
     if (user.getId().equals(id)
-        || user.getRole() == Role.ADMIN) {
+        || userRole == Role.ADMIN) {
       return userService.getHeadPortrait(id);
     }
 
@@ -149,9 +155,13 @@ public class UserRestController extends BaseRestController {
   public UserRoleAndStatusInfoDto updateUserRole(@PathVariable @HashidsFormat final Long id,
       @RequestBody final UserRoleUpdatePojo userRoleUpdatePojo) {
     final User currentUser = getUser();
-    final User user = userService.findUserById(id);
-    return userMapper.convertToUserRoleAndStatusInfoDto(userService
-        .updateUserRole(currentUser, userRoleUpdatePojo, user));
+    User user = userService.findUserById(id);
+    user = userService.updateUserRole(currentUser, userRoleUpdatePojo, user);
+    final UserRoleAndStatusInfoDto resultInformation = userMapper
+        .convertToUserRoleAndStatusInfoDto(user);
+    final Role userRole = auth0Util.getUserRole(user.getUserContactInformation().getEmailWork());
+    resultInformation.setUserRole(userRole.getValue());
+    return resultInformation;
   }
 
   @PatchMapping("users/{id}/inactivate")
@@ -159,9 +169,13 @@ public class UserRestController extends BaseRestController {
   public UserRoleAndStatusInfoDto inactivateUser(@PathVariable @HashidsFormat final Long id,
       @RequestBody final UserStatusUpdatePojo userStatusUpdatePojo) {
     final User currentUser = getUser();
-    final User user = userService.findUserById(id);
-    return userMapper.convertToUserRoleAndStatusInfoDto(userService
-        .inactivateUser(currentUser, userStatusUpdatePojo, user));
+    User user = userService.findUserById(id);
+    user = userService.inactivateUser(currentUser, userStatusUpdatePojo, user);
+    final Role userRole = auth0Util.getUserRole(user.getUserContactInformation().getEmailWork());
+    final UserRoleAndStatusInfoDto resultInformation =
+        userMapper.convertToUserRoleAndStatusInfoDto(user);
+    resultInformation.setUserRole(userRole.getValue());
+    return resultInformation;
   }
 
   @GetMapping("users/all")

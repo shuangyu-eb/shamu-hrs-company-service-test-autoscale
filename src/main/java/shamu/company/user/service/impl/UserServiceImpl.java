@@ -59,7 +59,6 @@ import shamu.company.user.entity.UserAddress;
 import shamu.company.user.entity.UserCompensation;
 import shamu.company.user.entity.UserContactInformation;
 import shamu.company.user.entity.UserPersonalInformation;
-import shamu.company.user.entity.UserRole;
 import shamu.company.user.entity.UserStatus;
 import shamu.company.user.entity.UserStatus.Status;
 import shamu.company.user.entity.mapper.UserAddressMapper;
@@ -71,7 +70,6 @@ import shamu.company.user.pojo.UserStatusUpdatePojo;
 import shamu.company.user.repository.UserAccessLevelEventRepository;
 import shamu.company.user.repository.UserCompensationRepository;
 import shamu.company.user.repository.UserRepository;
-import shamu.company.user.repository.UserRoleRepository;
 import shamu.company.user.repository.UserStatusRepository;
 import shamu.company.user.service.UserAddressService;
 import shamu.company.user.service.UserService;
@@ -86,7 +84,6 @@ public class UserServiceImpl implements UserService {
   private final UserRepository userRepository;
   private final JobUserRepository jobUserRepository;
   private final UserStatusRepository userStatusRepository;
-  private final UserRoleRepository userRoleRepository;
   private final UserEmergencyContactService userEmergencyContactService;
   private final UserAddressService userAddressService;
   private final UserContactInformationMapper userContactInformationMapper;
@@ -115,7 +112,6 @@ public class UserServiceImpl implements UserService {
   public UserServiceImpl(final ITemplateEngine templateEngine, final UserRepository userRepository,
       final JobUserRepository jobUserRepository, final UserStatusRepository userStatusRepository,
       final EmailService emailService, final UserCompensationRepository userCompensationRepository,
-      final UserRoleRepository userRoleRepository,
       final UserPersonalInformationMapper userPersonalInformationMapper,
       final UserEmergencyContactService userEmergencyContactService,
       final UserAddressService userAddressService,
@@ -134,7 +130,6 @@ public class UserServiceImpl implements UserService {
     this.userStatusRepository = userStatusRepository;
     this.emailService = emailService;
     this.userCompensationRepository = userCompensationRepository;
-    this.userRoleRepository = userRoleRepository;
     this.userEmergencyContactService = userEmergencyContactService;
     this.userAddressService = userAddressService;
     this.userPersonalInformationMapper = userPersonalInformationMapper;
@@ -272,8 +267,8 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public void saveUserWithRole(final User user, final Role role) {
-    final UserRole userRole = userRoleRepository.findByName(role.name());
-    user.setUserRole(userRole);
+    auth0Util.updateRoleWithEmail(user.getUserContactInformation().getEmailWork(),
+        role.getValue());
     save(user);
   }
 
@@ -423,17 +418,18 @@ public class UserServiceImpl implements UserService {
         userRoleUpdatePojo.getPassWord());
 
     final String updateUserRole;
-    if (userRoleUpdatePojo.getUserRole() == UserRole.Role.ADMIN) {
+    if (userRoleUpdatePojo.getUserRole() == Role.ADMIN) {
       if (!userRepository.findAllByManagerUserId(user.getId()).isEmpty()) {
-        updateUserRole = UserRole.Role.MANAGER.name();
+        updateUserRole = Role.MANAGER.getValue();
       } else {
-        updateUserRole = UserRole.Role.NON_MANAGER.name();
+        updateUserRole = Role.EMPLOYEE.getValue();
       }
     } else {
-      updateUserRole = UserRole.Role.ADMIN.name();
+      updateUserRole = Role.ADMIN.getValue();
     }
-    user.setUserRole(userRoleRepository.findByName(updateUserRole));
-    userRepository.save(user);
+    auth0Util.updateRoleWithEmail(user.getUserContactInformation().getEmailWork(),
+        updateUserRole);
+
     return user;
   }
 
@@ -465,13 +461,14 @@ public class UserServiceImpl implements UserService {
           .getUserByEmailFromAuth0(user.getUserContactInformation().getEmailWork());
       auth0Util.updateAuthRole(auth0User.getId(), Role.INACTIVATE.name());
 
+      final Role previousUserRole = auth0Util
+          .getUserRole(user.getUserContactInformation().getEmailWork());
       userAccessLevelEventRepository.save(
-          new UserAccessLevelEvent(user, user.getRole().getValue()));
+          new UserAccessLevelEvent(user, previousUserRole.getValue()));
 
       user.setUserStatus(userStatusRepository.findByName(
           Status.DISABLED.name()
       ));
-      final UserRole userRole = userRoleRepository.findByName(Role.INACTIVATE.name());
       List<User> teamEmployees = userRepository.findAllByManagerUserId(user.getId());
       final User manager = user.getManagerUser();
 
@@ -488,7 +485,6 @@ public class UserServiceImpl implements UserService {
               employee -> {
                 employee.setManagerUser(null);
                 auth0Util.updateAuthRole(employee.getUserId(), Role.ADMIN.name());
-                employee.setUserRole(userRoleRepository.findByName(Role.ADMIN.name()));
                 return employee;
               }
           ).collect(Collectors.toList());
@@ -497,11 +493,13 @@ public class UserServiceImpl implements UserService {
         userRepository.saveAll(teamEmployees);
 
       }
-      user.setUserRole(userRole);
       user.setDeactivatedAt(userStatusUpdatePojo.getDeactivationDate());
       user.setDeactivationReason(new DeactivationReasons(userStatusUpdatePojo
           .getDeactivationReason().getId()));
       userRepository.save(user);
+
+      auth0Util.updateRoleWithEmail(user.getUserContactInformation().getEmailWork(),
+          Role.INACTIVATE.getValue());
     }
   }
 
@@ -552,13 +550,10 @@ public class UserServiceImpl implements UserService {
     job.setDepartment(department);
     job = jobRepository.save(job);
 
-    final UserRole role = userRoleRepository.findByName(Role.ADMIN.name());
-
     final UserStatus status = userStatusRepository.findByName(Status.ACTIVE.name());
 
     User user = User.builder()
         .userId(signUpDto.getUserId())
-        .userRole(role)
         .userStatus(status)
         .userPersonalInformation(userPersonalInformation)
         .userContactInformation(userContactInformation)
@@ -585,10 +580,12 @@ public class UserServiceImpl implements UserService {
       throw new ForbiddenException("Can not find user!");
     }
 
-    final Boolean isAdmin = Role.ADMIN.name().equals(currentUser.getUserRole().getName());
+    final Role userRole = auth0Util
+        .getUserRole(currentUser.getUserContactInformation().getEmailWork());
+    final Boolean isAdmin = Role.ADMIN == userRole;
     final User manager = targetUser.getManagerUser();
 
-    final Boolean isManager = Role.MANAGER.getValue().equals(currentUser.getUserRole().getName())
+    final Boolean isManager = Role.MANAGER == userRole
         && manager != null && manager.getId().equals(currentUser.getId());
 
     if (isAdmin || isManager) {

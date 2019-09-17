@@ -11,7 +11,6 @@ import shamu.company.user.dto.UserDto;
 import shamu.company.user.dto.UserRoleAndStatusInfoDto;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
-import shamu.company.user.entity.UserRole;
 import shamu.company.utils.UserNameUtil;
 
 @Mapper(config = Config.class, uses = UserNameUtil.class, imports = Role.class)
@@ -21,7 +20,6 @@ public interface UserMapper {
   @Mapping(target = "managerAvatar", source = "managerUser.imageUrl")
   UserAvatarDto convertToUserAvatarDto(User user);
 
-  @Mapping(target = "userRole", source = "userRole.name")
   @Mapping(target = "userStatus", source = "userStatus.name")
   UserRoleAndStatusInfoDto convertToUserRoleAndStatusInfoDto(User user);
 
@@ -38,7 +36,7 @@ public interface UserMapper {
   @Mapping(target = "lastName", source = "userPersonalInformation.lastName")
   BenefitPlanUserDto convertToBenefitPlanUserDto(User user);
 
-  default Role convertFromUserRole(final UserRole userRole) {
-    return null != userRole ? Role.valueOf(userRole.getName()) : null;
+  default Role convertFromUserRole(final Role userRole) {
+    return userRole;
   }
 }

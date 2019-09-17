@@ -6,6 +6,7 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -15,12 +16,16 @@ import shamu.company.employee.dto.OrgChartDto;
 import shamu.company.job.entity.JobUserListItem;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
+import shamu.company.utils.Auth0Util;
 
 @Repository
 public class UserCustomRepositoryImpl implements UserCustomRepository {
 
   @PersistenceContext
   private EntityManager entityManager;
+
+  @Autowired
+  private Auth0Util auth0Util;
 
   @Override
   public Page<JobUserListItem> getAllByCondition(
@@ -88,7 +93,8 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
       final EmployeeListSearchCondition employeeListSearchCondition, final User user,
       final Pageable pageable) {
 
-    final boolean isEmployee = user.getRole() == Role.NON_MANAGER;
+    final Role role = auth0Util.getUserRole(user.getUserContactInformation().getEmailWork());
+    final boolean isEmployee = Role.EMPLOYEE == role;
 
     String userCondition = "u.manager_user_id=?1 ";
     if (isEmployee) {

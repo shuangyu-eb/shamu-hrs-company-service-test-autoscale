@@ -339,7 +339,6 @@ databaseChangeLog:
   - changeSet:
       id: 1568257721736-1
       author: max-eb
-      runOnchange: true
       changes:
         - dropTable:
             tableName: permissions
@@ -351,3 +350,40 @@ databaseChangeLog:
         - dropColumn:
             columnName: employee_number
             tableName: users
+
+  - changeSet:
+      id: 1568257721736-2
+      author: max-eb
+      changes:
+      - dropForeignKeyConstraint:
+          baseTableName: users
+          constraintName: fk_users_user_roles
+
+  - changeSet:
+      id: 1568257721736-3
+      author: max-eb
+      changes:
+        - dropTable:
+            tableName: permission_types_user_roles
+
+  - changeSet:
+      id: 1568257721736-4
+      author: max-eb
+      changes:
+        - dropTable:
+            tableName: permission_types
+
+  - changeSet:
+      id: 1568257721736-5
+      author: max-eb
+      changes:
+      - dropColumn:
+          columnName: user_role_id
+          tableName: users
+
+  - changeSet:
+      id: 1568257721736-6
+      author: max-eb
+      changes:
+        - dropTable:
+            tableName: user_roles

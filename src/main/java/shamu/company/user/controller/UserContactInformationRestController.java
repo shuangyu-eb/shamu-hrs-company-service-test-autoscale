@@ -17,6 +17,7 @@ import shamu.company.user.entity.UserContactInformation;
 import shamu.company.user.entity.mapper.UserContactInformationMapper;
 import shamu.company.user.service.UserContactInformationService;
 import shamu.company.user.service.UserService;
+import shamu.company.utils.Auth0Util;
 
 @RestApiController
 public class UserContactInformationRestController extends BaseRestController {
@@ -27,15 +28,18 @@ public class UserContactInformationRestController extends BaseRestController {
 
   private final UserContactInformationMapper userContactInformationMapper;
 
+  private final Auth0Util auth0Util;
+
   @Autowired
   public UserContactInformationRestController(
       final UserContactInformationService contactInformationService, final UserService userService,
-      final UserContactInformationMapper
-          userContactInformationMapper) {
+      final UserContactInformationMapper userContactInformationMapper,
+      final Auth0Util auth0Util) {
     this.contactInformationService = contactInformationService;
     this.userService = userService;
     this.userContactInformationMapper
         = userContactInformationMapper;
+    this.auth0Util = auth0Util;
   }
 
   @PatchMapping("user-contact-information/{id}")
@@ -66,9 +70,10 @@ public class UserContactInformationRestController extends BaseRestController {
     final User manager = targetUser.getManagerUser();
     final UserContactInformation userContactInformation = targetUser.getUserContactInformation();
 
+    final Role userRole = auth0Util.getUserRole(user.getUserContactInformation().getEmailWork());
     if (user.getId().equals(id)
         || (manager != null && manager.getId().equals(user.getId()))
-        || user.getRole() == Role.ADMIN) {
+        || userRole == Role.ADMIN) {
       return userContactInformationMapper
           .convertToUserContactInformationDto(userContactInformation);
     }

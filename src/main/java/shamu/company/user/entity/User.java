@@ -71,9 +71,6 @@ public class User extends BaseEntity {
   @OneToOne(cascade = CascadeType.PERSIST)
   private UserCompensation userCompensation;
 
-  @OneToOne
-  private UserRole userRole;
-
   private String invitationEmailToken;
 
   private Timestamp invitedAt;
@@ -97,10 +94,6 @@ public class User extends BaseEntity {
     setImageUrl(imageUrl);
   }
 
-  public Role getRole() {
-    return Role.valueOf(userRole.getName());
-  }
-
   public void setManagerUser(final User managerUser) {
     if (null == managerUser) {
       this.managerUser = null;
@@ -118,7 +111,7 @@ public class User extends BaseEntity {
   public enum Role {
     ADMIN("ADMIN"),
     MANAGER("MANAGER"),
-    NON_MANAGER("EMPLOYEE"),
+    EMPLOYEE("EMPLOYEE"),
     INACTIVATE("INACTIVATE");
 
     private final String value;

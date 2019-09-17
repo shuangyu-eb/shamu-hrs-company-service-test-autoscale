@@ -18,7 +18,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import shamu.company.common.exception.GeneralAuth0Exception;
-import shamu.company.common.exception.GeneralException;
 import shamu.company.user.entity.User.Role;
 
 class Auth0UtilTests {
@@ -35,14 +34,10 @@ class Auth0UtilTests {
   @BeforeEach
   void init() {
     MockitoAnnotations.initMocks(this);
-    auth0Util = new Auth0Util(auth0Manager, auth0Config);
 
     Mockito.when(auth0Manager.getManagementApi()).thenReturn(managementAPI);
     Mockito.when(managementAPI.users()).thenReturn(usersEntity);
 
-    auth0Config.setClientId("clientId");
-    auth0Config.setClientSecret("clientSecret");
-    auth0Config.setDomain("test.auth0.com");
     auth0Util = new Auth0Util(auth0Manager, auth0Config);
   }
 
@@ -81,7 +76,7 @@ class Auth0UtilTests {
   void testAddUser() throws Auth0Exception {
     final Request mockedRequest = Mockito.mock(Request.class);
     Mockito.when(usersEntity.create(Mockito.any())).thenReturn(mockedRequest);
-    auth0Util.addUser("example@indeed.com", null, Role.NON_MANAGER.getValue());
+    auth0Util.addUser("example@indeed.com", null, Role.EMPLOYEE.getValue());
     Mockito.verify(mockedRequest, Mockito.times(1)).execute();
   }
 
@@ -119,22 +114,6 @@ class Auth0UtilTests {
       Assertions.assertDoesNotThrow(() -> {
         auth0Util.getUserByEmailFromAuth0(RandomStringUtils.randomAlphabetic(10));
       });
-    }
-  }
-
-  @Nested
-  class Login {
-
-    private final static String email = "test@teat.com";
-    private final static String password = "Password^34";
-
-    @Nested
-    class whenFailed {
-
-      @Test
-      void thenThrowException() {
-        Assertions.assertThrows(GeneralException.class, () -> auth0Util.login(email, password));
-      }
     }
   }
 }
