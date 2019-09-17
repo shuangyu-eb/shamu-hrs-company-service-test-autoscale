@@ -15,6 +15,7 @@
         <td style="width: 100%; height: 38px; text-align: center; border-radius: 4px; background-color: #fff9f1; padding: 14px">
           <img style="width: 19px;height: 20px;margin-right: 8px; vertical-align: -5px;" th:src="@{${frontEndAddress}+'image/pending.svg'}" />
           Awaiting Your Acknowledgement
+          <span th:if="${dueDate} != null" th:text="'- Due ' + ${dueDate}" style="color: #7b7e84;"></span>
         </td>
       </tr>
       <tr>

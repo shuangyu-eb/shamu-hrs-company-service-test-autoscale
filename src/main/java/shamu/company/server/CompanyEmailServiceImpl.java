@@ -5,6 +5,7 @@ import static shamu.company.server.DocumentRequestEmailDto.DocumentRequestType.S
 import static shamu.company.server.DocumentRequestEmailDto.DocumentRequestType.VIEW;
 
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -22,6 +23,7 @@ import shamu.company.server.DocumentRequestEmailDto.DocumentRequestType;
 import shamu.company.user.entity.User;
 import shamu.company.user.repository.UserRepository;
 import shamu.company.utils.AwsUtil;
+import shamu.company.utils.DateUtil;
 import shamu.company.utils.UserNameUtil;
 
 @Service
@@ -79,6 +81,15 @@ public class CompanyEmailServiceImpl implements CompanyEmailService {
     variables.put("senderAvatar", senderAvatar);
     variables.put("documentUrl", documentUrl);
     variables.put("documentTitle", documentTitle);
+
+    if (!VIEW.equals(documentRequestEmailDto.getType())) {
+      final LocalDate dueDate = documentRequestEmailDto.getExpiredAt()
+              .toLocalDateTime().toLocalDate();
+      if (dueDate != null) {
+        variables.put("dueDate", DateUtil.formatDateTo(dueDate,"MMM dd"));
+      }
+    }
+
     return variables;
   }
 

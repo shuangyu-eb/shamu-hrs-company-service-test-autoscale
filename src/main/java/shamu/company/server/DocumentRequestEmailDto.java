@@ -1,5 +1,6 @@
 package shamu.company.server;
 
+import java.sql.Timestamp;
 import java.util.List;
 import lombok.Data;
 
@@ -17,6 +18,8 @@ public class DocumentRequestEmailDto {
   private DocumentRequestType type;
 
   private String documentEmailUrl;
+
+  private Timestamp expiredAt;
 
   public enum DocumentRequestType {
     SIGN, ACKNOWLEDGE, VIEW,
