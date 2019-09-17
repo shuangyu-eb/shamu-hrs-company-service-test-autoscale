@@ -14,8 +14,10 @@ import shamu.company.benefit.service.BenefitPlanDependentService;
 import shamu.company.benefit.service.BenefitPlanService;
 import shamu.company.common.exception.ForbiddenException;
 import shamu.company.company.entity.Company;
+import shamu.company.timeoff.entity.TimeOffPolicy;
 import shamu.company.timeoff.entity.TimeOffPolicyUser;
 import shamu.company.timeoff.repository.TimeOffPolicyUserRepository;
+import shamu.company.timeoff.service.TimeOffPolicyService;
 import shamu.company.timeoff.service.TimeOffRequestService;
 import shamu.company.user.entity.User;
 import shamu.company.user.service.UserAddressService;
@@ -36,19 +38,23 @@ public class UserPermissionUtils extends BasePermissionUtils {
 
   private final TimeOffPolicyUserRepository timeOffPolicyUserRepository;
 
+  private final TimeOffPolicyService timeOffPolicyService;
+
   @Autowired
   public UserPermissionUtils(final UserService userService,
       final TimeOffRequestService timeOffRequestService,
       final UserAddressService userAddressService,
       final BenefitPlanService benefitPlanService,
       final BenefitPlanDependentService benefitPlanDependentService,
-      final TimeOffPolicyUserRepository timeOffPolicyUserRepository) {
+      final TimeOffPolicyUserRepository timeOffPolicyUserRepository,
+      final TimeOffPolicyService timeOffPolicyService) {
     this.userService = userService;
     this.timeOffRequestService = timeOffRequestService;
     this.userAddressService = userAddressService;
     this.benefitPlanService = benefitPlanService;
     this.benefitPlanDependentService = benefitPlanDependentService;
     this.timeOffPolicyUserRepository = timeOffPolicyUserRepository;
+    this.timeOffPolicyService = timeOffPolicyService;
   }
 
   boolean hasPermission(final Authentication auth, final Long targetId, final Type targetType,
@@ -56,23 +62,25 @@ public class UserPermissionUtils extends BasePermissionUtils {
 
     switch (targetType) {
       case BENEFIT_PLAN:
-        return this.hasPermissionOfBenefitPlan(auth, targetId, permission);
+        return hasPermissionOfBenefitPlan(auth, targetId, permission);
       case TIME_OFF_REQUEST:
-        return this.hasPermissionOfTimeOffRequest(auth, targetId, permission);
+        return hasPermissionOfTimeOffRequest(auth, targetId, permission);
       case USER_PERSONAL_INFORMATION:
-        return this.hasPermissionOfPersonalInformation(auth, targetId, permission);
+        return hasPermissionOfPersonalInformation(auth, targetId, permission);
       case USER_ADDRESS:
-        return this.hasPermissionOfUserAddress(auth, targetId, permission);
+        return hasPermissionOfUserAddress(auth, targetId, permission);
       case USER_CONTACT_INFORMATION:
-        return this.hasPermissionOfContactInformation(auth, targetId, permission);
+        return hasPermissionOfContactInformation(auth, targetId, permission);
       case BENEFIT_DEPENDENT:
-        return this.hasPermissionOfBenefitDependent(auth, targetId, permission);
+        return hasPermissionOfBenefitDependent(auth, targetId, permission);
       case TIME_OFF_POLICY_USER:
-        return this.hasPermissionOfTimeOffTimeOffPolicyUser(auth, targetId, permission);
+        return hasPermissionOfTimeOffTimeOffPolicyUser(auth, targetId, permission);
+      case TIME_OFF_POLICY:
+        return hasPermissionOfTimeOffPolicy(auth, targetId, permission);
       case USER:
       default:
         final User targetUser = userService.findUserById(targetId);
-        return this.hasPermissionOfUser(auth, targetUser, permission);
+        return hasPermissionOfUser(auth, targetUser, permission);
     }
   }
 
@@ -83,6 +91,22 @@ public class UserPermissionUtils extends BasePermissionUtils {
         .anyMatch(authority -> authority.getAuthority().equals(permission.name()));
   }
 
+  private boolean isAdminPermission(final Authentication auth, final Permission.Name permission) {
+    final Collection<GrantedAuthority> authorities = (Collection<GrantedAuthority>) auth
+        .getAuthorities();
+
+    final PermissionType permissionType = permission.getPermissionType();
+
+    if (permissionType != PermissionType.ADMIN_PERMISSION) {
+      return false;
+    } else {
+      return authorities.stream().anyMatch(authority -> {
+        final String permissionName = authority.getAuthority();
+        return permission.name().equals(permissionName);
+      });
+    }
+  }
+
   private void companyEqual(final Authentication auth, final Company company) {
     if (!getCompany().getId().equals(company.getId())) {
       throw new ForbiddenException("The target resources is not in the company where you are.");
@@ -91,55 +115,41 @@ public class UserPermissionUtils extends BasePermissionUtils {
 
   private boolean hasPermissionOfBenefitPlan(final Authentication auth, final Long id,
       final Permission.Name permission) {
-    final PermissionType permissionType = permission.getPermissionType();
-
     final BenefitPlan targetBenefitPlan = benefitPlanService.findBenefitPlanById(id);
-    this.companyEqual(auth, targetBenefitPlan.getCompany());
+    companyEqual(auth, targetBenefitPlan.getCompany());
 
-    final boolean result;
-    final Collection<GrantedAuthority> authorities = (Collection<GrantedAuthority>) auth
-        .getAuthorities();
-    if (permissionType != PermissionType.ADMIN_PERMISSION) {
-      result = false;
-    } else {
-      result = authorities.stream().anyMatch(authority -> {
-        final String permissionName = authority.getAuthority();
-        return permission.name().equals(permissionName);
-      });
-    }
-
-    return result;
+    return isAdminPermission(auth, permission);
   }
 
   private boolean hasPermissionOfBenefitDependent(final Authentication auth, final Long id,
       final Permission.Name permission) {
     final BenefitPlanDependent targetDependent = benefitPlanDependentService.findDependentById(id);
-    return this.hasPermissionOfUser(auth, targetDependent.getEmployee(), permission);
+    return hasPermissionOfUser(auth, targetDependent.getEmployee(), permission);
   }
 
   private boolean hasPermissionOfTimeOffRequest(final Authentication auth, final Long id,
       final Permission.Name permission) {
     final User user = timeOffRequestService.getById(id).getRequesterUser();
-    return this.hasPermissionOfUser(auth, user, permission);
+    return hasPermissionOfUser(auth, user, permission);
   }
 
   private boolean hasPermissionOfPersonalInformation(
       final Authentication auth, final Long id, final Permission.Name permission) {
     final User user = userService.findUserByUserPersonalInformationId(id);
 
-    return this.hasPermissionOfUser(auth, user, permission);
+    return hasPermissionOfUser(auth, user, permission);
   }
 
   private boolean hasPermissionOfUserAddress(
       final Authentication auth, final Long id, final Permission.Name permission) {
     final User user = userAddressService.findUserAddressById(id).getUser();
-    return this.hasPermissionOfUser(auth, user, permission);
+    return hasPermissionOfUser(auth, user, permission);
   }
 
   private boolean hasPermissionOfContactInformation(
       final Authentication auth, final Long id, final Permission.Name permission) {
     final User user = userService.findUserByUserContactInformationId(id);
-    return this.hasPermissionOfUser(auth, user, permission);
+    return hasPermissionOfUser(auth, user, permission);
   }
 
   private boolean hasPermissionOfTimeOffTimeOffPolicyUser(final Authentication auth,
@@ -147,8 +157,17 @@ public class UserPermissionUtils extends BasePermissionUtils {
     final Optional<TimeOffPolicyUser> policyUser = timeOffPolicyUserRepository
         .findById(targetId);
 
-    return policyUser.filter(timeOffPolicyUser -> this
-        .hasPermissionOfUser(auth, timeOffPolicyUser.getUser(), permission)).isPresent();
+    return policyUser.filter(
+        timeOffPolicyUser -> hasPermissionOfUser(auth, timeOffPolicyUser.getUser(), permission))
+        .isPresent();
+  }
+
+  private boolean hasPermissionOfTimeOffPolicy(
+      final Authentication auth, final Long policyId, final Permission.Name permission) {
+    final TimeOffPolicy timeOffPolicy = timeOffPolicyService.getTimeOffPolicyById(policyId);
+    final Company company = timeOffPolicy.getCompany();
+    companyEqual(auth, company);
+    return isAdminPermission(auth, permission);
   }
 
   boolean hasPermissionOfUser(final Authentication auth, final User targetUser,
@@ -158,7 +177,7 @@ public class UserPermissionUtils extends BasePermissionUtils {
       return getUser().getId().equals(targetUser.getId());
     }
 
-    this.companyEqual(auth, targetUser.getCompany());
+    companyEqual(auth, targetUser.getCompany());
 
     final Collection<GrantedAuthority> authorities = (Collection<GrantedAuthority>) auth
         .getAuthorities();

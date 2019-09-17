@@ -21,7 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-import shamu.company.common.exception.ForbiddenException;
 import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.company.entity.Company;
 import shamu.company.job.entity.JobUser;
@@ -239,7 +238,8 @@ public class TimeOffPolicyServiceImpl implements TimeOffPolicyService {
 
   @Override
   public TimeOffPolicy getTimeOffPolicyById(final Long id) {
-    return timeOffPolicyRepository.findById(id).get();
+    return timeOffPolicyRepository.findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("Time off policy was not found."));
   }
 
   @Override
@@ -266,9 +266,6 @@ public class TimeOffPolicyServiceImpl implements TimeOffPolicyService {
       final Long timeOffPolicyId, final Company company) {
     final TimeOffPolicy timeOffPolicy = timeOffPolicyRepository.findById(timeOffPolicyId)
         .orElseThrow(() -> new ResourceNotFoundException("Time off policy does not exist."));
-    if (!timeOffPolicy.getCompany().getId().equals(company.getId())) {
-      throw new ForbiddenException("The time off policy does not belong to your company.");
-    }
 
     final Boolean isLimited = timeOffPolicy.getIsLimited();
 
@@ -580,10 +577,6 @@ public class TimeOffPolicyServiceImpl implements TimeOffPolicyService {
   @Override
   public void deleteTimeOffPolicy(final Long timeOffPolicyId, final Company company) {
     final TimeOffPolicy timeOffPolicy = timeOffPolicyRepository.getOne(timeOffPolicyId);
-    if (!timeOffPolicy.getCompany().getId().equals(company.getId())) {
-      throw new ForbiddenException("The time off policy does not belong to your company.");
-    }
-
     final List<TimeOffRequestStatusPojo> requests = timeOffRequestRepository
         .findByTimeOffPolicyId(timeOffPolicyId);
     requests.stream().filter(request ->

@@ -90,6 +90,7 @@ public class TimeOffPolicyRestController extends BaseRestController {
   }
 
   @PatchMapping("time-off-policy/{id}")
+  @PreAuthorize("hasPermission(#id, 'TIME_OFF_POLICY', 'MANAGE_TIME_OFF_POLICY')")
   public void updateTimeOffPolicy(@Valid @HashidsFormat @PathVariable final Long id,
       @RequestBody final TimeOffPolicyWrapperDto infoWrapper) {
 
@@ -129,6 +130,7 @@ public class TimeOffPolicyRestController extends BaseRestController {
   }
 
   @PostMapping("time-off-policy/{policyId}/users")
+  @PreAuthorize("hasPermission(#policyId, 'TIME_OFF_POLICY', 'MANAGE_TIME_OFF_POLICY')")
   public void createTimeOffPolicyUsers(@PathVariable @HashidsFormat final Long policyId,
       @RequestBody final List<TimeOffPolicyUserFrontendDto> timeOffPolicyUserFrontendDtos) {
     final List<TimeOffPolicyUser> timeOffPolicyUserList = new ArrayList<>();
@@ -147,13 +149,14 @@ public class TimeOffPolicyRestController extends BaseRestController {
   }
 
   @GetMapping("time-off-policy/{policyId}")
+  @PreAuthorize("hasPermission(#policyId, 'TIME_OFF_POLICY', 'MANAGE_TIME_OFF_POLICY')")
   public TimeOffPolicyRelatedInfoDto getTimeOffPolicyByTimeOffPolicyId(
       @HashidsFormat @PathVariable final Long policyId) {
     return timeOffPolicyService.getTimeOffRelatedInfo(policyId);
   }
 
   @GetMapping("time-off-policies/{policyId}/users")
-  @PreAuthorize("hasAuthority('MANAGE_TIME_OFF_POLICY')")
+  @PreAuthorize("hasPermission(#policyId, 'TIME_OFF_POLICY', 'MANAGE_TIME_OFF_POLICY')")
   public TimeOffPolicyRelatedUserListDto getEmployeesByTimeOffPolicyId(
       @HashidsFormat @PathVariable final Long policyId) {
     final Company company = getUser().getCompany();
@@ -161,7 +164,7 @@ public class TimeOffPolicyRestController extends BaseRestController {
   }
 
   @DeleteMapping("time-off/{policyId}")
-  @PreAuthorize("hasAuthority('MANAGE_TIME_OFF_POLICY')")
+  @PreAuthorize("hasPermission(#policyId, 'TIME_OFF_POLICY', 'MANAGE_TIME_OFF_POLICY')")
   public HttpEntity deleteTimeOffPolicy(@PathVariable @HashidsFormat final Long policyId) {
     timeOffPolicyService.deleteTimeOffPolicy(policyId, getCompany());
     return new ResponseEntity<>(HttpStatus.OK);
