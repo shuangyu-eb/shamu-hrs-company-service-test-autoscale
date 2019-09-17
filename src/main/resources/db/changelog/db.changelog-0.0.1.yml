@@ -1827,25 +1827,6 @@ databaseChangeLog:
         tableName: permission_types
 
 - changeSet:
-    id: 1554370439764-5
-    author: Qi-Jia
-    runOnChange: true
-    changes:
-    - loadUpdateData:
-        columns:
-        - column:
-           name: id
-           type: NUMERIC
-        - column:
-            name: name
-            type: STRING
-        - column:
-            name: permission_type_id
-            type: NUMERIC
-        file: db/changelog/data/permissions.csv
-        primaryKey: id
-        tableName: permissions
-- changeSet:
     id: 1554370439764-6
     author: Qi-Jia
     runOnChange: true
