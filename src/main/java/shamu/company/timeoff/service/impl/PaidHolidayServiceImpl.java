@@ -12,6 +12,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.company.entity.Company;
 import shamu.company.job.dto.JobUserDto;
 import shamu.company.timeoff.dto.PaidHolidayDto;
@@ -228,5 +229,11 @@ public class PaidHolidayServiceImpl implements PaidHolidayService {
       paidHolidayUserRepository.save(newAddedPaidHolidayUser);
     });
 
+  }
+
+  @Override
+  public PaidHoliday getPaidHoliday(final Long id) {
+    return paidHolidayRepository.findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("Paid holiday was not found"));
   }
 }

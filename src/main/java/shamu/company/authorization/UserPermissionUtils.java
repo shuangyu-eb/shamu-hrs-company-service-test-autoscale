@@ -16,9 +16,11 @@ import shamu.company.common.exception.ForbiddenException;
 import shamu.company.company.CompanyService;
 import shamu.company.company.entity.Company;
 import shamu.company.company.entity.Department;
+import shamu.company.timeoff.entity.PaidHoliday;
 import shamu.company.timeoff.entity.TimeOffPolicy;
 import shamu.company.timeoff.entity.TimeOffPolicyUser;
 import shamu.company.timeoff.repository.TimeOffPolicyUserRepository;
+import shamu.company.timeoff.service.PaidHolidayService;
 import shamu.company.timeoff.service.TimeOffPolicyService;
 import shamu.company.timeoff.service.TimeOffRequestService;
 import shamu.company.user.entity.User;
@@ -44,6 +46,8 @@ public class UserPermissionUtils extends BasePermissionUtils {
 
   private final TimeOffPolicyService timeOffPolicyService;
 
+  private final PaidHolidayService paidHolidayService;
+
   @Autowired
   public UserPermissionUtils(final UserService userService,
       final CompanyService companyService,
@@ -52,7 +56,8 @@ public class UserPermissionUtils extends BasePermissionUtils {
       final BenefitPlanService benefitPlanService,
       final BenefitPlanDependentService benefitPlanDependentService,
       final TimeOffPolicyUserRepository timeOffPolicyUserRepository,
-      final TimeOffPolicyService timeOffPolicyService) {
+      final TimeOffPolicyService timeOffPolicyService,
+      final PaidHolidayService paidHolidayService) {
     this.userService = userService;
     this.companyService = companyService;
     this.timeOffRequestService = timeOffRequestService;
@@ -61,6 +66,7 @@ public class UserPermissionUtils extends BasePermissionUtils {
     this.benefitPlanDependentService = benefitPlanDependentService;
     this.timeOffPolicyUserRepository = timeOffPolicyUserRepository;
     this.timeOffPolicyService = timeOffPolicyService;
+    this.paidHolidayService = paidHolidayService;
   }
 
   boolean hasPermission(final Authentication auth, final Long targetId, final Type targetType,
@@ -68,7 +74,7 @@ public class UserPermissionUtils extends BasePermissionUtils {
 
     switch (targetType) {
       case DEPARTMENT:
-        return this.hasPermissionOfDepartment(auth, targetId, permission);
+        return hasPermissionOfDepartment(auth, targetId, permission);
       case BENEFIT_PLAN:
         return hasPermissionOfBenefitPlan(auth, targetId, permission);
       case TIME_OFF_REQUEST:
@@ -85,6 +91,8 @@ public class UserPermissionUtils extends BasePermissionUtils {
         return hasPermissionOfTimeOffTimeOffPolicyUser(auth, targetId, permission);
       case TIME_OFF_POLICY:
         return hasPermissionOfTimeOffPolicy(auth, targetId, permission);
+      case PAID_HOLIDAY:
+        return hasPermissionOfPaidHoliday(auth, targetId, permission);
       case USER:
       default:
         final User targetUser = userService.findUserById(targetId);
@@ -132,9 +140,9 @@ public class UserPermissionUtils extends BasePermissionUtils {
   private boolean hasPermissionOfDepartment(final Authentication auth, final Long id,
       final Permission.Name permission) {
     final Department department = companyService.getDepartmentsById(id);
-    this.companyEqual(auth, department.getCompany());
+    companyEqual(auth, department.getCompany());
 
-    return this.hasPermission((Collection<GrantedAuthority>) auth.getAuthorities(), permission);
+    return hasPermission((Collection<GrantedAuthority>) auth.getAuthorities(), permission);
   }
 
   private boolean hasPermissionOfBenefitDependent(final Authentication auth, final Long id,
@@ -182,6 +190,14 @@ public class UserPermissionUtils extends BasePermissionUtils {
       final Authentication auth, final Long policyId, final Permission.Name permission) {
     final TimeOffPolicy timeOffPolicy = timeOffPolicyService.getTimeOffPolicyById(policyId);
     final Company company = timeOffPolicy.getCompany();
+    companyEqual(auth, company);
+    return isAdminPermission(auth, permission);
+  }
+
+  private boolean hasPermissionOfPaidHoliday(
+      final Authentication auth, final Long policyId, final Permission.Name permission) {
+    final PaidHoliday paidHoliday = paidHolidayService.getPaidHoliday(policyId);
+    final Company company = paidHoliday.getCompany();
     companyEqual(auth, company);
     return isAdminPermission(auth, permission);
   }

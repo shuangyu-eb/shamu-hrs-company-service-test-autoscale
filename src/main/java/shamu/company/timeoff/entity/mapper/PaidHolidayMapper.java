@@ -22,5 +22,6 @@ public interface PaidHolidayMapper {
           + "? paidHolidayDto.getNameShow() "
           + ": paidHolidayDto.getName())"
   )
+  @Mapping(target = "federal", constant = "false")
   PaidHoliday createFromPaidHolidayDtoAndCompany(PaidHolidayDto paidHolidayDto, Company company);
 }

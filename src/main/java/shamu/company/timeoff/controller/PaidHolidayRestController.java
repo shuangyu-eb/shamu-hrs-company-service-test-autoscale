@@ -2,6 +2,7 @@ package shamu.company.timeoff.controller;
 
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,7 +18,6 @@ import shamu.company.job.dto.JobUserDto;
 import shamu.company.timeoff.dto.PaidHolidayDto;
 import shamu.company.timeoff.dto.PaidHolidayRelatedUserListDto;
 import shamu.company.timeoff.service.PaidHolidayService;
-import shamu.company.user.entity.User;
 import shamu.company.user.service.UserService;
 
 @RestApiController
@@ -34,23 +34,22 @@ public class PaidHolidayRestController extends BaseRestController {
     this.paidHolidayService = paidHolidayService;
   }
 
-  @GetMapping(value = "users/{userId}/paid-holidays")
-  public List<PaidHolidayDto> getPaidHolidays(@HashidsFormat @PathVariable final Long userId) {
-    final User user = userService.findUserById(userId);
-    final Company company = user.getCompany();
+  @GetMapping(value = "paid-holidays")
+  public List<PaidHolidayDto> getAllPaidHolidays() {
+    final Company company = getCompany();
     return paidHolidayService.getPaidHolidays(company.getId());
   }
 
 
   @GetMapping(value = "paid-holiday/employees")
   public PaidHolidayRelatedUserListDto getPaidHolidays() {
-    final Company company = this.getCompany();
+    final Company company = getCompany();
     return paidHolidayService.getPaidHolidayEmployees(company);
   }
 
   @GetMapping(value = "paid-holiday/employees/count")
   public Integer getPaidHolidaysEmployeesCount() {
-    final Company company = this.getCompany();
+    final Company company = getCompany();
     return paidHolidayService
         .getPaidHolidayEmployees(company)
         .getPaidHolidaySelectedEmployees().size();
@@ -59,15 +58,13 @@ public class PaidHolidayRestController extends BaseRestController {
   @PatchMapping(value = "paid-holiday/employees")
   public void updatePaidHolidayEmployees(
       @RequestBody final List<JobUserDto> updatePaidHolidayEmployees) {
-    final Company company = this.getCompany();
+    final Company company = getCompany();
     paidHolidayService.updatePaidHolidayEmployees(updatePaidHolidayEmployees, company);
   }
 
-  @GetMapping(value = "users/{id}/paid-holidays/years/{year}")
-  public List<PaidHolidayDto> getPaidHolidaysByYear(@HashidsFormat @PathVariable final Long id,
-      @PathVariable final String year) {
-    final User user = userService.findUserById(id);
-    final Company company = user.getCompany();
+  @GetMapping(value = "paid-holidays/years/{year}")
+  public List<PaidHolidayDto> getPaidHolidaysByYear(@PathVariable final String year) {
+    final Company company = getCompany();
     return paidHolidayService.getPaidHolidaysByYear(company.getId(), year);
   }
 
@@ -76,12 +73,10 @@ public class PaidHolidayRestController extends BaseRestController {
     paidHolidayService.updateHolidaySelects(paidHolidayDtos);
   }
 
-  @PostMapping(value = "users/{userId}/paid-holiday")
+  @PostMapping(value = "paid-holiday")
   public void createPaidHoliday(
-      @HashidsFormat @PathVariable final Long userId,
       @RequestBody final PaidHolidayDto paidHolidayDto) {
-    final User user = userService.findUserById(userId);
-    final Company company = user.getCompany();
+    final Company company = getCompany();
     paidHolidayService.createPaidHoliday(paidHolidayDto, company);
   }
 
@@ -92,6 +87,7 @@ public class PaidHolidayRestController extends BaseRestController {
   }
 
   @DeleteMapping(value = "paid-holidays/{id}")
+  @PreAuthorize("hasPermission(#id, 'PAID_HOLIDAY', 'DELETE_PAID_HOLIDAY')")
   public void updatePaidHoliday(@HashidsFormat @PathVariable final Long id) {
     paidHolidayService.deletePaidHoliday(id);
   }

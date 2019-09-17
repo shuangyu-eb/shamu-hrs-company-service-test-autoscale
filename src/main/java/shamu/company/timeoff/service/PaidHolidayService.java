@@ -5,6 +5,7 @@ import shamu.company.company.entity.Company;
 import shamu.company.job.dto.JobUserDto;
 import shamu.company.timeoff.dto.PaidHolidayDto;
 import shamu.company.timeoff.dto.PaidHolidayRelatedUserListDto;
+import shamu.company.timeoff.entity.PaidHoliday;
 
 public interface PaidHolidayService {
 
@@ -25,4 +26,6 @@ public interface PaidHolidayService {
   PaidHolidayRelatedUserListDto getPaidHolidayEmployees(Company company);
 
   void updatePaidHolidayEmployees(List<JobUserDto> newPaidEmployees,Company company);
+
+  PaidHoliday getPaidHoliday(Long id);
 }
