@@ -1,7 +1,10 @@
 package shamu.company.user.repository;
 
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
+import shamu.company.admin.dto.SuperAdminUserDto;
 import shamu.company.common.repository.BaseRepository;
 import shamu.company.company.entity.Company;
 import shamu.company.user.entity.User;
@@ -58,9 +61,9 @@ public interface UserRepository extends BaseRepository<User, Long>, UserCustomRe
   Integer findExistingUserCountByCompanyId(Long companyId);
 
   @Query(
-          value = "SELECT * FROM users "
-                  + "WHERE company_id = ?1 and deactivated_at is null AND deleted_at IS NULL",
-          nativeQuery = true)
+      value = "SELECT * FROM users "
+          + "WHERE company_id = ?1 and deactivated_at is null AND deleted_at IS NULL",
+      nativeQuery = true)
   List<User> findAllByCompanyId(Long companyId);
 
   Boolean existsByResetPasswordToken(String token);
@@ -95,4 +98,12 @@ public interface UserRepository extends BaseRepository<User, Long>, UserCustomRe
   @Query(value = "select * from users u where u.deleted_at is null "
       + "and u.id = ?1 and u.company_id = ?2", nativeQuery = true)
   User findByIdAndCompanyId(Long userId, Long companyId);
+
+  @Query(value =
+      "SELECT new shamu.company.admin.dto.SuperAdminUserDto(u) "
+          + "FROM User u "
+          + "WHERE u.userStatus.name='ACTIVE' "
+          + "AND u.userPersonalInformation.firstName LIKE CONCAT('%',?1,'%')")
+  Page<SuperAdminUserDto> findBy(String keyword, Pageable pageable);
+
 }
