@@ -2,17 +2,16 @@ package shamu.company.timeoff.service;
 
 import java.sql.Timestamp;
 import java.util.List;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import shamu.company.timeoff.dto.MyTimeOffDto;
 import shamu.company.timeoff.dto.TimeOffRequestDetailDto;
 import shamu.company.timeoff.dto.TimeOffRequestDto;
+import shamu.company.timeoff.dto.UnimplementedRequestDto;
 import shamu.company.timeoff.entity.TimeOffRequest;
 import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus;
 import shamu.company.timeoff.entity.TimeOffRequestComment;
-import shamu.company.timeoff.pojo.UnimplementedRequestPojo;
 import shamu.company.user.entity.User;
 
 @Service
@@ -48,7 +47,7 @@ public interface TimeOffRequestService {
       TimeOffRequest timeOffRequest, TimeOffRequestComment timeOffRequestComment);
 
   void deleteUnimplementedRequest(
-      Long requestId, UnimplementedRequestPojo unimplementedRequestPojo);
+      Long requestId, UnimplementedRequestDto unimplementedRequestDto);
 
   TimeOffRequestDetailDto getTimeOffRequestDetail(Long id, Long userId);
 

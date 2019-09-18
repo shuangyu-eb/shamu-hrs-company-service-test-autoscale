@@ -24,13 +24,13 @@ import shamu.company.timeoff.dto.MyTimeOffDto;
 import shamu.company.timeoff.dto.TimeOffBreakdownDto;
 import shamu.company.timeoff.dto.TimeOffRequestDetailDto;
 import shamu.company.timeoff.dto.TimeOffRequestDto;
+import shamu.company.timeoff.dto.UnimplementedRequestDto;
 import shamu.company.timeoff.entity.TimeOffPolicy;
 import shamu.company.timeoff.entity.TimeOffPolicyUser;
 import shamu.company.timeoff.entity.TimeOffRequest;
 import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus;
 import shamu.company.timeoff.entity.TimeOffRequestComment;
 import shamu.company.timeoff.entity.mapper.TimeOffRequestMapper;
-import shamu.company.timeoff.pojo.UnimplementedRequestPojo;
 import shamu.company.timeoff.repository.TimeOffPolicyUserRepository;
 import shamu.company.timeoff.repository.TimeOffRequestDateRepository;
 import shamu.company.timeoff.repository.TimeOffRequestRepository;
@@ -274,7 +274,7 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
   @Transactional
   @Override
   public void deleteUnimplementedRequest(
-      final Long requestId, final UnimplementedRequestPojo unimplementedRequestPojo) {
+      final Long requestId, final UnimplementedRequestDto unimplementedRequestDto) {
     final TimeOffRequest timeOffRequest =
         timeOffRequestRepository.findById(requestId).get();
     final TimeOffRequestApprovalStatus timeOffRequestApprovalStatus =
@@ -283,9 +283,9 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
     if (timeOffRequestApprovalStatus.equals(APPROVED) && timeOffPolicy.getIsLimited()) {
       final TimeOffPolicyUser timeOffPolicyUser =
           timeOffPolicyUserRepository.findTimeOffPolicyUserByUserAndTimeOffPolicy(
-              new User(unimplementedRequestPojo.getUserId()), timeOffPolicy);
+              new User(unimplementedRequestDto.getUserId()), timeOffPolicy);
       timeOffPolicyUser.setBalance(
-          timeOffPolicyUser.getBalance() + unimplementedRequestPojo.getHours());
+          timeOffPolicyUser.getBalance() + unimplementedRequestDto.getHours());
       timeOffPolicyUserRepository.save(timeOffPolicyUser);
     }
     timeOffRequestRepository.delete(requestId);
@@ -295,7 +295,7 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
 
   @Override
   public TimeOffRequestDetailDto getTimeOffRequestDetail(final Long id, final Long userId) {
-    final TimeOffRequest timeOffRequest = this.getById(id);
+    final TimeOffRequest timeOffRequest = getById(id);
     final User requester = timeOffRequest.getRequesterUser();
     final TimeOffRequestDetailDto requestDetail = timeOffRequestMapper
         .convertToTimeOffRequestDetailDto(timeOffRequest);
@@ -308,7 +308,7 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
 
     if (requester.getManagerUser() != null) {
       final List<BasicTimeOffRequestDto> timeOffRequests =
-          this.getOtherRequestsBy(timeOffRequest).stream()
+          getOtherRequestsBy(timeOffRequest).stream()
               .map(timeOffRequestMapper::convertToBasicTimeOffRequestDto)
               .collect(Collectors.toList());
       requestDetail.setOtherTimeOffRequests(timeOffRequests);
@@ -334,6 +334,6 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
 
     timeOffRequest.setBalance(balance);
 
-    return this.createTimeOffRequest(timeOffRequest);
+    return createTimeOffRequest(timeOffRequest);
   }
 }

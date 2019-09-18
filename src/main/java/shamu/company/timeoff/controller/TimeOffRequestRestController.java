@@ -32,13 +32,13 @@ import shamu.company.timeoff.dto.MyTimeOffDto;
 import shamu.company.timeoff.dto.TimeOffRequestDetailDto;
 import shamu.company.timeoff.dto.TimeOffRequestDto;
 import shamu.company.timeoff.dto.TimeOffRequestUpdateDto;
+import shamu.company.timeoff.dto.UnimplementedRequestDto;
 import shamu.company.timeoff.entity.TimeOffRequest;
 import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus;
 import shamu.company.timeoff.entity.TimeOffRequestComment;
 import shamu.company.timeoff.entity.TimeOffRequestDate;
 import shamu.company.timeoff.entity.mapper.TimeOffRequestMapper;
 import shamu.company.timeoff.pojo.TimeOffRequestPojo;
-import shamu.company.timeoff.pojo.UnimplementedRequestPojo;
 import shamu.company.timeoff.service.TimeOffRequestDateService;
 import shamu.company.timeoff.service.TimeOffRequestEmailService;
 import shamu.company.timeoff.service.TimeOffRequestService;
@@ -274,11 +274,15 @@ public class TimeOffRequestRestController extends BaseRestController {
     timeOffRequestDateService.saveAllTimeOffRequestDates(timeOffRequestDates);
   }
 
-  @DeleteMapping("time-off-requests/{id}/unimplemented-request")
+  @DeleteMapping("time-off-requests/{requestId}/unimplemented-request")
+  @PreAuthorize("(hasPermission(#requestId,'TIME_OFF_REQUEST','MANAGE_TIME_OFF_REQUEST') "
+      + "and hasPermission(#unimplementedRequestDto.userId,'USER','EDIT_USER'))"
+      + "or (hasPermission(#requestId,'TIME_OFF_REQUEST','MANAGE_SELF_TIME_OFF_REQUEST')"
+      + "and hasPermission(#unimplementedRequestDto.userId, 'USER', 'EDIT_SELF'))")
   public void deleteUnimplementedRequest(
-      @PathVariable @HashidsFormat final Long id,
-      @RequestBody final UnimplementedRequestPojo unimplementedRequestPojo) {
-    timeOffRequestService.deleteUnimplementedRequest(id, unimplementedRequestPojo);
+      @PathVariable @HashidsFormat final Long requestId,
+      @RequestBody final UnimplementedRequestDto unimplementedRequestDto) {
+    timeOffRequestService.deleteUnimplementedRequest(requestId, unimplementedRequestDto);
   }
 
   private enum SortFields {
