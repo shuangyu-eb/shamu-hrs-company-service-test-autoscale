@@ -48,7 +48,8 @@ public class Permission {
     CREATE_JOB(PermissionType.ADMIN_PERMISSION),
     CREATE_OFFICE(PermissionType.ADMIN_PERMISSION),
     CREATE_EMPLOYEE_TYPE(PermissionType.ADMIN_PERMISSION),
-    DELETE_PAID_HOLIDAY(PermissionType.ADMIN_PERMISSION);
+    DELETE_PAID_HOLIDAY(PermissionType.ADMIN_PERMISSION),
+    EDIT_PAID_HOLIDAY(PermissionType.ADMIN_PERMISSION);
 
 
     private final PermissionType permissionType;

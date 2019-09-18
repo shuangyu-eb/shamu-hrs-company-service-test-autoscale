@@ -18,19 +18,14 @@ import shamu.company.job.dto.JobUserDto;
 import shamu.company.timeoff.dto.PaidHolidayDto;
 import shamu.company.timeoff.dto.PaidHolidayRelatedUserListDto;
 import shamu.company.timeoff.service.PaidHolidayService;
-import shamu.company.user.service.UserService;
 
 @RestApiController
 public class PaidHolidayRestController extends BaseRestController {
 
-  private final UserService userService;
-
   private final PaidHolidayService paidHolidayService;
 
   @Autowired
-  public PaidHolidayRestController(final UserService userService,
-      final PaidHolidayService paidHolidayService) {
-    this.userService = userService;
+  public PaidHolidayRestController(final PaidHolidayService paidHolidayService) {
     this.paidHolidayService = paidHolidayService;
   }
 
@@ -81,6 +76,7 @@ public class PaidHolidayRestController extends BaseRestController {
   }
 
   @PatchMapping(value = "paid-holidays")
+  @PreAuthorize("hasPermission(#paidHolidayDto.id, 'PAID_HOLIDAY', 'EDIT_PAID_HOLIDAY')")
   public void updatePaidHoliday(
       @RequestBody @Validated final PaidHolidayDto paidHolidayDto) {
     paidHolidayService.updatePaidHoliday(paidHolidayDto);
