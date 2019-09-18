@@ -23,6 +23,7 @@ import shamu.company.hashids.HashidsFormat;
 import shamu.company.job.entity.Job;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserPersonalInformation;
+import shamu.company.user.service.UserService;
 import shamu.company.utils.UserNameUtil;
 
 @RestApiController
@@ -34,13 +35,17 @@ public class CompanyRestController extends BaseRestController {
 
   private final OfficeMapper officeMapper;
 
+  private final UserService userService;
+
   @Autowired
   public CompanyRestController(final CompanyService companyService,
       final EmployeeService employeeService,
-      final OfficeMapper officeMapper) {
+      final OfficeMapper officeMapper,
+      final UserService userService) {
     this.companyService = companyService;
     this.employeeService = employeeService;
     this.officeMapper = officeMapper;
+    this.userService = userService;
   }
 
 
@@ -121,6 +126,33 @@ public class CompanyRestController extends BaseRestController {
           String lastName = userInfo.getLastName();
           return new SelectFieldInformationDto(manager.getId(),
               UserNameUtil.getUserName(firstName, middleName, lastName));
+        })
+        .collect(Collectors.toList());
+  }
+
+  @GetMapping("departments/mayBeManager/{userId}/{departmentId}/users")
+  @PreAuthorize("hasPermission(#departmentId,'DEPARTMENT','VIEW_JOB')"
+          + "and hasPermission(#userId,'USER','VIEW_JOB')")
+  public List<SelectFieldInformationDto> getUsersFromDepartment(
+          @PathVariable @HashidsFormat final Long userId,
+          @PathVariable @HashidsFormat final Long departmentId) {
+    List<User> users;
+    final User user = userService.findUserById(userId);
+    if (user.getManagerUser() == null) {
+      users = employeeService.findDirectReportsEmployersAndEmployeesByDepartmentIdAndCompanyId(
+              departmentId, getCompanyId(), user.getId());
+    } else {
+      users = employeeService.findEmployersAndEmployeesByDepartmentIdAndCompanyId(departmentId,
+              getCompanyId());
+    }
+    return users.stream().map(
+        manager -> {
+          UserPersonalInformation userInfo = manager.getUserPersonalInformation();
+          String firstName = userInfo.getFirstName();
+          String middleName = userInfo.getMiddleName();
+          String lastName = userInfo.getLastName();
+          return new SelectFieldInformationDto(manager.getId(),
+                  UserNameUtil.getUserName(firstName, middleName, lastName));
         })
         .collect(Collectors.toList());
   }

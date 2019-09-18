@@ -75,4 +75,9 @@ public class DateUtil {
   public static LocalDateTime toLocalDateTime(final Date date) {
     return LocalDateTime.ofInstant(date.toInstant(), ZoneId.of("UTC"));
   }
+
+  //Get current UTC time
+  public static LocalDateTime getLocalUtcTime() {
+    return LocalDateTime.now(ZoneId.of("UTC"));
+  }
 }

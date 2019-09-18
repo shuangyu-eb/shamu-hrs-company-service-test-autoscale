@@ -32,6 +32,7 @@ public interface JobUserMapper {
   @Mapping(target = "department", source = "job.department")
   @Mapping(target = "manager", source = "user.managerUser")
   @Mapping(target = "manager.name", source = "user.managerUser.userPersonalInformation.name")
+  @Mapping(target = "manager.id", source = "user.managerUser.id")
   @Mapping(target = "job.name", source = "job.title")
   BasicJobInformationDto convertToBasicJobInformationDto(JobUser jobUser);
 

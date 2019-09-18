@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import shamu.company.job.entity.JobUser;
 import shamu.company.job.repository.JobUserRepository;
 import shamu.company.job.service.JobUserService;
+import shamu.company.user.entity.User;
 
 @Service
 public class JobUserServiceImpl implements JobUserService {
@@ -18,6 +19,11 @@ public class JobUserServiceImpl implements JobUserService {
   @Override
   public JobUser getJobUserByUserId(final Long userId) {
     return jobUserRepository.findByUserId(userId);
+  }
+
+  @Override
+  public JobUser getJobUserByUser(final User user) {
+    return jobUserRepository.findJobUserByUser(user);
   }
 
   @Override

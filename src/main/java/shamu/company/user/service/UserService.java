@@ -80,7 +80,7 @@ public interface UserService {
 
   void resetPassword(UpdatePasswordDto updatePasswordDto);
 
-  OrgChartDto getOrgChart(Long userId, Long companyId);
+  List<OrgChartDto> getOrgChart(Long userId, Long companyId);
 
   AccountInfoDto getPreSetAccountInfoByUserId(Long id);
 

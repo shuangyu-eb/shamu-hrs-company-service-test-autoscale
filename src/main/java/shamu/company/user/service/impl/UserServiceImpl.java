@@ -3,6 +3,7 @@ package shamu.company.user.service.impl;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -302,33 +303,37 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public OrgChartDto getOrgChart(final Long userId, final Long companyId) {
-    OrgChartDto manager = null;
+  public List<OrgChartDto> getOrgChart(final Long userId, final Long companyId) {
+    List<OrgChartDto> orgChartDtoList = new ArrayList<>();
+    List<OrgChartDto> orgChartManagerItemList = new ArrayList<>();
     if (userId != null) {
+      OrgChartDto manager = null;
       manager = userRepository.findOrgChartItemByUserId(userId, companyId);
+      orgChartManagerItemList.add(manager);
     } else {
       // retrieve company admin from database
-      final List<OrgChartDto> orgChartItemList = userRepository
+      orgChartManagerItemList = userRepository
           .findOrgChartItemByManagerId(null, companyId);
-      if (!orgChartItemList.isEmpty()) {
-        manager = orgChartItemList.get(0);
+    }
+    if (!orgChartManagerItemList.isEmpty()) {
+      for (OrgChartDto manager : orgChartManagerItemList) {
+        if (manager == null) {
+          throw new ForbiddenException("User with id " + userId + " not found!");
+        }
+
+        final List<OrgChartDto> orgChartUserItemList = userRepository
+                .findOrgChartItemByManagerId(manager.getId(), companyId);
+        orgChartUserItemList.forEach((orgUser -> {
+          final Integer directReportsCount = userRepository
+                  .findDirectReportsCount(orgUser.getId(), companyId);
+          orgUser.setDirectReportsCount(directReportsCount);
+        }));
+        manager.setDirectReports(orgChartUserItemList);
+        manager.setDirectReportsCount(orgChartUserItemList.size());
+        orgChartDtoList.add(manager);
       }
     }
-
-    if (manager == null) {
-      throw new ForbiddenException("User with id " + userId + " not found!");
-    }
-
-    final List<OrgChartDto> orgChartItemList = userRepository
-        .findOrgChartItemByManagerId(manager.getId(), companyId);
-    orgChartItemList.forEach((orgUser -> {
-      final Integer directReportsCount = userRepository
-          .findDirectReportsCount(orgUser.getId(), companyId);
-      orgUser.setDirectReportsCount(directReportsCount);
-    }));
-    manager.setDirectReports(orgChartItemList);
-    manager.setDirectReportsCount(orgChartItemList.size());
-    return manager;
+    return orgChartDtoList;
   }
 
   @Override

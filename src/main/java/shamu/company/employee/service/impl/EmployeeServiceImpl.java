@@ -205,6 +205,13 @@ public class EmployeeServiceImpl implements EmployeeService {
   }
 
   @Override
+  public List<User> findDirectReportsEmployersAndEmployeesByDepartmentIdAndCompanyId(
+          final Long departmentId, final Long companyId, Long userId) {
+    return userRepository.findDirectReportsEmployersAndEmployeesByDepartmentIdAndCompanyId(
+            departmentId, companyId, userId);
+  }
+
+  @Override
   public void addEmployee(final EmployeeDto employeeDto, final User currentUser) {
     final User employee = saveEmployeeBasicInformation(currentUser, employeeDto);
 

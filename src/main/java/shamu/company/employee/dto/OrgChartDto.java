@@ -27,6 +27,7 @@ public class OrgChartDto {
 
   private String department;
 
+  @HashidsFormat
   private Long managerId;
 
   private Integer directReportsCount;

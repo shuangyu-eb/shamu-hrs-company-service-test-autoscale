@@ -100,7 +100,7 @@ public class EmployeeRestController extends BaseRestController {
   }
 
   @GetMapping("employees/org-chart")
-  public OrgChartDto getOrgChart(
+  public List<OrgChartDto> getOrgChart(
       @HashidsFormat @RequestParam(value = "userId", required = false) final Long userId) {
     return userService.getOrgChart(userId, getCompanyId());
   }

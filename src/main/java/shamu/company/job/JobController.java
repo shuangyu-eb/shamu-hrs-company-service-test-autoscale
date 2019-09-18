@@ -1,5 +1,7 @@
 package shamu.company.job;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
@@ -10,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
+import shamu.company.employee.service.EmployeeService;
 import shamu.company.hashids.HashidsFormat;
 import shamu.company.job.dto.JobUpdateDto;
 import shamu.company.job.entity.JobUser;
@@ -33,6 +36,8 @@ public class JobController extends BaseRestController {
 
   private final UserCompensationMapper userCompensationMapper;
 
+  private final EmployeeService employeeService;
+
   private final Auth0Util auth0Util;
 
   @Autowired
@@ -40,11 +45,13 @@ public class JobController extends BaseRestController {
       final UserService userService,
       final JobUserMapper jobUserMapper,
       final UserCompensationMapper userCompensationMapper,
+      final EmployeeService employeeService,
       final Auth0Util auth0Util) {
     this.jobUserService = jobUserService;
     this.userService = userService;
     this.jobUserMapper = jobUserMapper;
     this.userCompensationMapper = userCompensationMapper;
+    this.employeeService = employeeService;
     this.auth0Util = auth0Util;
   }
 
@@ -54,10 +61,17 @@ public class JobController extends BaseRestController {
   public HttpEntity updateJobInfo(@PathVariable @HashidsFormat final Long id,
       @RequestBody final JobUpdateDto jobUpdateDto) {
     final User user = userService.findUserById(id);
-    JobUser jobUser = jobUserService.getJobUserByUserId(id);
+    JobUser jobUser = jobUserService.getJobUserByUser(user);
+    List<User> users = new ArrayList<>();
     if (jobUser == null) {
       jobUser = new JobUser();
       jobUser.setUser(user);
+    } else {
+      users = employeeService
+              .findDirectReportsEmployersAndEmployeesByDepartmentIdAndCompanyId(
+                      jobUser.getJob().getDepartment().getId(),
+                      getCompany().getId(),
+                      user.getId());
     }
     jobUserMapper.updateFromJobUpdateDto(jobUser, jobUpdateDto);
     jobUserService.save(jobUser);
@@ -78,16 +92,42 @@ public class JobController extends BaseRestController {
     final Long managerId = jobUpdateDto.getManagerId();
     if (managerId != null && !user.getId().equals(managerId)) {
       final User manager = userService.findUserById(managerId);
-      user.setManagerUser(manager);
-
       final String managerEmail = manager.getUserContactInformation().getEmailWork();
       final Role role = auth0Util.getUserRole(managerEmail);
       if (Role.EMPLOYEE == role) {
         auth0Util.updateRoleWithEmail(managerEmail, Role.MANAGER.name());
       }
+      if (userService.findUserById(id).getManagerUser() == null) {
+        manager.setManagerUser(null);
+
+      } else if (isSubordinate(id, managerId)) {
+        manager.setManagerUser(user.getManagerUser());
+      }
+      user.setManagerUser(manager);
+      userService.save(manager);
+      final String userEmail = user.getUserContactInformation().getEmailWork();
+      final Role userRole = auth0Util.getUserRole(userEmail);
+      if (userRole != Role.ADMIN) {
+        users.removeIf(user1 -> user1.getId() == managerId);
+        auth0Util.updateRoleWithEmail(
+                userEmail, users.isEmpty() ? Role.EMPLOYEE.name() : Role.MANAGER.name());
+      }
     }
     userService.save(user);
 
     return new ResponseEntity(HttpStatus.OK);
+  }
+
+  private boolean isSubordinate(Long userId, Long managerId) {
+    User user = userService.findUserById(managerId);
+    while (user.getManagerUser() != null && user.getManagerUser().getId() != userId) {
+      managerId = user.getManagerUser().getId();
+      user = userService.findUserById(managerId);
+    }
+    if (user.getManagerUser().getId() == userId) {
+      return true;
+    } else {
+      return false;
+    }
   }
 }

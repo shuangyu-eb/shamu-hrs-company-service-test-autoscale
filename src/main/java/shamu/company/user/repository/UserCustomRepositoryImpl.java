@@ -1,7 +1,9 @@
 package shamu.company.user.repository;
 
 import java.math.BigInteger;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -17,6 +19,7 @@ import shamu.company.job.entity.JobUserListItem;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
 import shamu.company.utils.Auth0Util;
+import shamu.company.utils.DateUtil;
 
 @Repository
 public class UserCustomRepositoryImpl implements UserCustomRepository {
@@ -171,7 +174,9 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
                 + "left join offices o on jobUser.office_id = o.id "
                 + "left join office_addresses a on o.office_address_id = a.id "
                 + "left join states_provinces province on a.state_province_id = province.id "
-                + "where u.deleted_at is null and u.company_id = ?2");
+                + "where u.deleted_at is null and u.company_id = ?2 "
+                + "and (u.deactivated_at is null "
+                + "or (u.deactivated_at is not null and u.deactivated_at > ?3 )) ");
 
     if (managerId == null) {
       findAllOrgChartByCondition.append(" and u.manager_user_id is null");
@@ -187,6 +192,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
       findAllOrgChartByConditionQuery.setParameter(1, managerId);
     }
     findAllOrgChartByConditionQuery.setParameter(2, companyId);
+    findAllOrgChartByConditionQuery.setParameter(3, DateUtil.getLocalUtcTime());
 
     final List<?> orgChartItemList = findAllOrgChartByConditionQuery.getResultList();
     final List<OrgChartDto> orgChartDtoList = new ArrayList<>();
@@ -229,12 +235,15 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
             + "left join office_addresses a on o.office_address_id = a.id "
             + "left join states_provinces province on a.state_province_id = province.id "
             + "where u.id = ?1 and u.company_id = ?2 and u.deleted_at is null "
+            + "and (u.deactivated_at is null "
+            + "or (u.deactivated_at is not null and u.deactivated_at > ?3 )) "
             + "order by u.created_at asc";
     final Query findAllOrgChartByConditionQuery =
         entityManager
             .createNativeQuery(findAllOrgChartByCondition)
             .setParameter(1, id)
-            .setParameter(2, companyId);
+            .setParameter(2, companyId)
+            .setParameter(3, DateUtil.getLocalUtcTime());
 
     final Object orgChartItem = findAllOrgChartByConditionQuery.getSingleResult();
     if (orgChartItem instanceof Object[]) {
