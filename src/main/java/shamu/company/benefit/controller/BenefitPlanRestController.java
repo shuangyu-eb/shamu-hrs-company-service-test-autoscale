@@ -90,6 +90,7 @@ public class BenefitPlanRestController extends BaseRestController {
   }
 
   @PatchMapping("benefit-plan/{benefitPlanId}/users")
+  @PreAuthorize("hasPermission(#benefitPlanId,'BENEFIT_PLAN', 'MANAGE_BENEFIT_PLAN')")
   public void updateBenefitPlanUsers(@PathVariable @HashidsFormat final Long benefitPlanId,
       @RequestBody final List<BenefitPlanUserCreateDto> benefitPlanUsers) {
     benefitPlanService.updateBenefitPlanUsers(benefitPlanId, benefitPlanUsers);
