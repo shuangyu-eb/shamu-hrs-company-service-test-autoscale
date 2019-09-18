@@ -40,6 +40,6 @@ email:
 
 auth0:
   algorithm: RS256
-  issuer: https://${auth0.domain}/
+  audience: hrs-backend
   jwks: https://${auth0.domain}/.well-known/jwks.json
   customNamespace: https://interviewed.com/
