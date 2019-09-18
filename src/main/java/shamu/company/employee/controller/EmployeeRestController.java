@@ -68,6 +68,7 @@ public class EmployeeRestController extends BaseRestController {
   }
 
   @PostMapping("employees/welcome-email")
+  @PreAuthorize("hasAuthority('CREATE_USER')")
   public String getWelcomeEmail(
       @RequestBody(required = false) final String welcomeEmailPersonalMessage) {
     final Context context = userService.getWelcomeEmailContext(welcomeEmailPersonalMessage, null);
