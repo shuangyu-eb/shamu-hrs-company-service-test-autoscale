@@ -6,5 +6,5 @@ import shamu.company.company.entity.Department;
 
 public interface DepartmentRepository extends BaseRepository<Department, Long> {
 
-  List<Department> findAllByCompany(Company company);
+  List<Department> findAllByCompanyId(Long companyId);
 }

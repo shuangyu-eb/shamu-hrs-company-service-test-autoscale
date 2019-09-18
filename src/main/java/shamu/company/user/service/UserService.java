@@ -49,11 +49,11 @@ public interface UserService {
   Context getWelcomeEmailContext(String welcomeMessage, String resetPasswordToken);
 
   Page<JobUserListItem> getAllEmployees(
-      EmployeeListSearchCondition employeeListSearchCondition, Company company, Role role);
+      EmployeeListSearchCondition employeeListSearchCondition, Long companyId, Role role);
 
   Page<JobUserListItem> getAllEmployeesByCompany(
       EmployeeListSearchCondition employeeListSearchCondition,
-      Company company, Pageable pageable, Role role);
+      Long companyId, Pageable pageable, Role role);
 
   User getOne(Long userId);
 
@@ -61,9 +61,9 @@ public interface UserService {
 
   void saveUserWithRole(User user, User.Role role);
 
-  List<JobUserDto> findAllJobUsers(Company company);
+  List<JobUserDto> findAllJobUsers(Long companyId);
 
-  List<User> findAllUsersByCompany(Company company);
+  List<User> findAllUsersByCompany(Long companyId);
 
   String getHeadPortrait(Long userId);
 
@@ -72,7 +72,7 @@ public interface UserService {
   void createPassword(CreatePasswordDto createPasswordDto);
 
   Page<JobUserListItem> getMyTeam(EmployeeListSearchCondition employeeListSearchCondition,
-      User user);
+      Long id);
 
   void sendResetPasswordEmail(String email);
 
@@ -80,13 +80,13 @@ public interface UserService {
 
   void resetPassword(UpdatePasswordDto updatePasswordDto);
 
-  OrgChartDto getOrgChart(Long userId, Company currentCompany);
+  OrgChartDto getOrgChart(Long userId, Long companyId);
 
   AccountInfoDto getPreSetAccountInfoByUserId(Long id);
 
-  User updateUserRole(User currentUser, UserRoleUpdatePojo userRoleUpdatePojo, User user);
+  User updateUserRole(String email, UserRoleUpdatePojo userRoleUpdatePojo, User user);
 
-  User inactivateUser(User currentUser, UserStatusUpdatePojo userStatusUpdatePojo, User user);
+  User inactivateUser(String email, UserStatusUpdatePojo userStatusUpdatePojo, User user);
 
   void signUp(UserSignUpDto signUpDto);
 
@@ -98,5 +98,5 @@ public interface UserService {
 
   Boolean existsByEmailWork(String email);
 
-  void updatePassword(ChangePasswordPojo changePasswordPojo, User user);
+  void updatePassword(ChangePasswordPojo changePasswordPojo, String email);
 }

@@ -57,12 +57,10 @@ public class BenefitPlanRestController extends BaseRestController {
 
     final List<BenefitPlanUserCreateDto> benefitPlanUserCreateDtoList = data.getSelectedEmployees();
 
-    final Company company = getCompany();
-
     final BenefitPlan benefitPlan = benefitPlanService
         .createBenefitPlan(benefitPlanCreateDto, benefitPlanCoverageDtoList,
             benefitPlanUserCreateDtoList,
-            company);
+            getCompanyId());
     return benefitPlanMapper.convertToBenefitPlanDto(benefitPlan);
   }
 
@@ -86,7 +84,7 @@ public class BenefitPlanRestController extends BaseRestController {
 
   @GetMapping("benefit-plan-clusters")
   public List<BenefitPlanClusterDto> getBenefitPlanClusters() {
-    return benefitPlanService.getBenefitPlanCluster(getCompany());
+    return benefitPlanService.getBenefitPlanCluster(getCompanyId());
   }
 
   @PatchMapping("benefit-plan/{benefitPlanId}/users")

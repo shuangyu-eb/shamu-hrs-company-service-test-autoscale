@@ -65,14 +65,13 @@ public class UserContactInformationRestController extends BaseRestController {
           + "or hasPermission(#id, 'USER', 'VIEW_SELF')")
   public BasicUserContactInformationDto getUserContactInformation(
       @PathVariable @HashidsFormat final Long id) {
-    final User user = getUser();
     final User targetUser = userService.findUserById(id);
     final User manager = targetUser.getManagerUser();
     final UserContactInformation userContactInformation = targetUser.getUserContactInformation();
 
-    final Role userRole = auth0Util.getUserRole(user.getUserContactInformation().getEmailWork());
-    if (user.getId().equals(id)
-        || (manager != null && manager.getId().equals(user.getId()))
+    final Role userRole = auth0Util.getUserRole(getAuthUser().getEmail());
+    if (getAuthUser().getId().equals(id)
+        || (manager != null && manager.getId().equals(getAuthUser().getId()))
         || userRole == Role.ADMIN) {
       return userContactInformationMapper
           .convertToUserContactInformationDto(userContactInformation);

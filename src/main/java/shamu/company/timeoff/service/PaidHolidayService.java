@@ -17,15 +17,15 @@ public interface PaidHolidayService {
 
   void updateHolidaySelects(List<PaidHolidayDto> paidHolidayDtos);
 
-  void createPaidHoliday(PaidHolidayDto paidHolidayDto, Company company);
+  void createPaidHoliday(PaidHolidayDto paidHolidayDto, Long companyId);
 
   void updatePaidHoliday(PaidHolidayDto paidHolidayDto);
 
   void deletePaidHoliday(Long id);
 
-  PaidHolidayRelatedUserListDto getPaidHolidayEmployees(Company company);
+  PaidHolidayRelatedUserListDto getPaidHolidayEmployees(Long companyId);
 
-  void updatePaidHolidayEmployees(List<JobUserDto> newPaidEmployees,Company company);
+  void updatePaidHolidayEmployees(List<JobUserDto> newPaidEmployees,Long companyId);
 
   PaidHoliday getPaidHoliday(Long id);
 }

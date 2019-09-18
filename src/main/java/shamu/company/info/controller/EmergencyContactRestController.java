@@ -54,12 +54,12 @@ public class EmergencyContactRestController extends BaseRestController {
       + " or hasPermission(#userId,'USER', 'VIEW_SELF')")
   public List<BasicUserEmergencyContactDto> getEmergencyContacts(
       @PathVariable @HashidsFormat final Long userId) {
-    final User user = this.getUser();
     final List<UserEmergencyContact> userEmergencyContacts = userEmergencyContactService
         .getUserEmergencyContacts(userId);
 
-    final Role userRole = auth0Util.getUserRole(user.getUserContactInformation().getEmailWork());
-    if (userId.equals(user.getId()) || Role.ADMIN == userRole) {
+    final Role userRole = auth0Util.getUserRole(getAuthUser().getEmail());
+    if (userId.equals(getAuthUser().getId())
+        || Role.ADMIN.equals(userRole)) {
       return userEmergencyContacts.stream()
           .map(userEmergencyContactMapper::convertToUserEmergencyContactDto)
           .collect(Collectors.toList());

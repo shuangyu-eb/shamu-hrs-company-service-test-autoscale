@@ -11,21 +11,23 @@ public interface CompanyService {
 
   Boolean existsByName(String companyName);
 
-  List<Department> getDepartmentsByCompany(Company company);
+  List<Department> getDepartmentsByCompanyId(Long companyId);
 
   Department getDepartmentsById(Long id);
 
-  Department saveDepartmentsByCompany(String name, Company company);
+  Department saveDepartmentsByCompany(String name, Long companyId);
 
   List<Job> getJobsByDepartmentId(Long id);
 
   Job saveJobsByDepartmentId(Long departmentId, String name);
 
-  List<Office> getOfficesByCompany(Company company);
+  List<Office> getOfficesByCompany(Long companyId);
 
   Office saveOffice(Office office);
 
-  List<EmploymentType> getEmploymentTypesByCompany(Company company);
+  List<EmploymentType> getEmploymentTypesByCompanyId(Long companyId);
 
-  EmploymentType saveEmploymentType(String employmentTypeName, Company company);
+  EmploymentType saveEmploymentType(String employmentTypeName, Long companyId);
+
+  Company findById(Long companyId);
 }

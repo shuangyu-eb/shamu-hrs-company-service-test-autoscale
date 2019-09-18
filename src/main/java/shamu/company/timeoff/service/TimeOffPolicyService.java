@@ -40,7 +40,7 @@ public interface TimeOffPolicyService {
   TimeOffPolicyRelatedInfoDto getTimeOffRelatedInfo(Long timeOffPolicyId);
 
   TimeOffPolicyRelatedUserListDto getAllEmployeesByTimeOffPolicyId(
-      Long timeOffPolicyId, Company company);
+      Long timeOffPolicyId, Long companyId);
 
   void updateTimeOffPolicy(TimeOffPolicy timeOffPolicy);
 
@@ -53,11 +53,12 @@ public interface TimeOffPolicyService {
   void updateTimeOffPolicyUserInfo(
       List<TimeOffPolicyUserFrontendDto> userStatBalances, Long timeOffPolicyId);
 
-  void deleteTimeOffPolicy(Long timeOffPolicyId, Company company);
+  void deleteTimeOffPolicy(Long timeOffPolicyId);
 
   List<TimeOffPolicyUser> getAllPolicyUsersByPolicyId(Long id);
 
-  void enrollTimeOffHours(List<TimeOffPolicyUser> users,TimeOffPolicy enrollPolicy,User currentU);
+  void enrollTimeOffHours(
+      List<TimeOffPolicyUser> users,TimeOffPolicy enrollPolicy,Long currentUserId);
 
   List<TimeOffPolicyListDto> getAllPolicies(Long companyId);
 

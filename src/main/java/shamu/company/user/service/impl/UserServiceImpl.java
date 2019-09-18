@@ -232,7 +232,7 @@ public class UserServiceImpl implements UserService {
   @Override
   public Page<JobUserListItem> getAllEmployees(
       final EmployeeListSearchCondition employeeListSearchCondition,
-      final Company company, final Role role) {
+      final Long companyId, final Role role) {
     final String sortDirection = employeeListSearchCondition.getSortDirection().toUpperCase();
 
     final String[] sortValue = employeeListSearchCondition.getSortField().getSortValue();
@@ -243,14 +243,13 @@ public class UserServiceImpl implements UserService {
             Sort.Direction.valueOf(sortDirection),
             sortValue);
 
-    return getAllEmployeesByCompany(employeeListSearchCondition, company, paramPageable, role);
+    return getAllEmployeesByCompany(employeeListSearchCondition, companyId, paramPageable, role);
   }
 
   @Override
   public Page<JobUserListItem> getAllEmployeesByCompany(
-      final EmployeeListSearchCondition employeeListSearchCondition, final Company company,
+      final EmployeeListSearchCondition employeeListSearchCondition, final Long companyId,
       final Pageable pageable, final Role role) {
-    final Long companyId = company.getId();
     return userRepository.getAllByCondition(
         employeeListSearchCondition, companyId, pageable, role);
   }
@@ -273,8 +272,8 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public List<JobUserDto> findAllJobUsers(final Company company) {
-    final List<User> policyEmployees = userRepository.findAllByCompanyId(company.getId());
+  public List<JobUserDto> findAllJobUsers(final Long companyId) {
+    final List<User> policyEmployees = userRepository.findAllByCompanyId(companyId);
 
     return policyEmployees.stream()
         .map(
@@ -286,8 +285,8 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public List<User> findAllUsersByCompany(final Company company) {
-    return userRepository.findAllByCompanyId(company.getId());
+  public List<User> findAllUsersByCompany(final Long companyId) {
+    return userRepository.findAllByCompanyId(companyId);
   }
 
   @Override
@@ -303,14 +302,14 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public OrgChartDto getOrgChart(final Long userId, final Company currentCompany) {
+  public OrgChartDto getOrgChart(final Long userId, final Long companyId) {
     OrgChartDto manager = null;
     if (userId != null) {
-      manager = userRepository.findOrgChartItemByUserId(userId, currentCompany.getId());
+      manager = userRepository.findOrgChartItemByUserId(userId, companyId);
     } else {
       // retrieve company admin from database
       final List<OrgChartDto> orgChartItemList = userRepository
-          .findOrgChartItemByManagerId(null, currentCompany.getId());
+          .findOrgChartItemByManagerId(null, companyId);
       if (!orgChartItemList.isEmpty()) {
         manager = orgChartItemList.get(0);
       }
@@ -321,10 +320,10 @@ public class UserServiceImpl implements UserService {
     }
 
     final List<OrgChartDto> orgChartItemList = userRepository
-        .findOrgChartItemByManagerId(manager.getId(), currentCompany.getId());
+        .findOrgChartItemByManagerId(manager.getId(), companyId);
     orgChartItemList.forEach((orgUser -> {
       final Integer directReportsCount = userRepository
-          .findDirectReportsCount(orgUser.getId(), currentCompany.getId());
+          .findDirectReportsCount(orgUser.getId(), companyId);
       orgUser.setDirectReportsCount(directReportsCount);
     }));
     manager.setDirectReports(orgChartItemList);
@@ -396,7 +395,7 @@ public class UserServiceImpl implements UserService {
   @Override
   public Page<JobUserListItem> getMyTeam(
       final EmployeeListSearchCondition employeeListSearchCondition,
-      final User user) {
+      final Long id) {
     final String sortDirection = employeeListSearchCondition.getSortDirection().toUpperCase();
 
     final String[] sortValue = employeeListSearchCondition.getSortField().getSortValue();
@@ -406,16 +405,17 @@ public class UserServiceImpl implements UserService {
             employeeListSearchCondition.getSize(),
             Sort.Direction.valueOf(sortDirection),
             sortValue);
+    User user =
+        userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(ERROR_MESSAGE));
     return userRepository
         .getMyTeamByManager(employeeListSearchCondition, user, paramPageable);
   }
 
   @Override
-  public User updateUserRole(final User currentUser, final UserRoleUpdatePojo userRoleUpdatePojo,
+  public User updateUserRole(final String email, final UserRoleUpdatePojo userRoleUpdatePojo,
       final User user) {
 
-    auth0Util.login(currentUser.getUserContactInformation().getEmailWork(),
-        userRoleUpdatePojo.getPassWord());
+    auth0Util.login(email, userRoleUpdatePojo.getPassWord());
 
     final String updateUserRole;
     if (userRoleUpdatePojo.getUserRole() == Role.ADMIN) {
@@ -434,12 +434,11 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public User inactivateUser(final User currentUser,
+  public User inactivateUser(final String email,
       final UserStatusUpdatePojo userStatusUpdatePojo,
       final User user) {
 
-    auth0Util.login(currentUser.getUserContactInformation().getEmailWork(),
-        userStatusUpdatePojo.getPassWord());
+    auth0Util.login(email, userStatusUpdatePojo.getPassWord());
 
     final Date deactivationDate = userStatusUpdatePojo.getDeactivationDate();
 
@@ -605,13 +604,11 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public void updatePassword(final ChangePasswordPojo changePasswordPojo, final User currentUser) {
+  public void updatePassword(final ChangePasswordPojo changePasswordPojo, final String email) {
     final com.auth0.json.mgmt.users.User user = auth0Util
-        .getUserByEmailFromAuth0(currentUser.getUserContactInformation().getEmailWork());
+        .getUserByEmailFromAuth0(email);
 
-    auth0Util.login(currentUser.getUserContactInformation().getEmailWork(),
-        changePasswordPojo.getPassWord());
-
+    auth0Util.login(email, changePasswordPojo.getPassWord());
     auth0Util.updatePassword(user, changePasswordPojo.getNewPassword());
 
     final Context context = new Context();
@@ -619,7 +616,7 @@ public class UserServiceImpl implements UserService {
     final String emailContent = templateEngine.process("password_change_email.html", context);
     final Timestamp sendDate = Timestamp.valueOf(LocalDateTime.now());
     final Email notificationEmail = new Email(systemEmailAddress,
-        currentUser.getUserContactInformation().getEmailWork(), "Password Changed!",
+        email, "Password Changed!",
         emailContent, sendDate);
     emailService.saveAndScheduleEmail(notificationEmail);
 

@@ -6,6 +6,7 @@ import org.mapstruct.Mapping;
 import shamu.company.benefit.dto.BenefitPlanUserDto;
 import shamu.company.common.mapper.Config;
 import shamu.company.employee.dto.BasicJobInformationDto;
+import shamu.company.server.AuthUser;
 import shamu.company.user.dto.UserAvatarDto;
 import shamu.company.user.dto.UserDto;
 import shamu.company.user.dto.UserRoleAndStatusInfoDto;
@@ -35,6 +36,12 @@ public interface UserMapper {
   @Mapping(target = "firstName", source = "userPersonalInformation.firstName")
   @Mapping(target = "lastName", source = "userPersonalInformation.lastName")
   BenefitPlanUserDto convertToBenefitPlanUserDto(User user);
+
+  @Mapping(target = "id", source = "id")
+  @Mapping(target = "email", source = "userContactInformation.emailWork")
+  @Mapping(target = "imageUrl", source = "imageUrl")
+  @Mapping(target = "companyId", source = "company.id")
+  AuthUser convertToAuthUser(User user);
 
   default Role convertFromUserRole(final Role userRole) {
     return userRole;

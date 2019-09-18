@@ -41,8 +41,8 @@ public class CompanyUserServiceImpl implements CompanyUserService {
   }
 
   @Override
-  public User findUserByUserId(final Long userId) {
-    return userRepository.findById(userId)
-      .orElseThrow(() -> new ResourceNotFoundException("User does not exist."));
+  public AuthUser findUserByUserId(final String userId) {
+    User user = userRepository.findByUserId(userId);
+    return new AuthUser(user);
   }
 }

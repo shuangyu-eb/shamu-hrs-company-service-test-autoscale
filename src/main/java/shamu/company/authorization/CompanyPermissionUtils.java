@@ -23,8 +23,8 @@ public class CompanyPermissionUtils extends BasePermissionUtils {
 
   boolean isMember(final Long userId) {
     final User targetUser = userService.findUserById(userId);
-    if (targetUser != null && getUser() != null) {
-      return targetUser.getCompany().getId().equals(getCompany().getId());
+    if (targetUser != null && getAuthUser() != null) {
+      return targetUser.getCompany().getId().equals(getCompanyId());
     }
     return false;
   }

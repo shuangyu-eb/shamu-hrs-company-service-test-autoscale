@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
-import shamu.company.company.entity.Company;
 import shamu.company.hashids.HashidsFormat;
 import shamu.company.job.dto.JobUserDto;
 import shamu.company.timeoff.dto.PaidHolidayDto;
@@ -31,36 +30,31 @@ public class PaidHolidayRestController extends BaseRestController {
 
   @GetMapping(value = "paid-holidays")
   public List<PaidHolidayDto> getAllPaidHolidays() {
-    final Company company = getCompany();
-    return paidHolidayService.getPaidHolidays(company.getId());
+    return paidHolidayService.getPaidHolidays(getCompanyId());
   }
 
 
   @GetMapping(value = "paid-holiday/employees")
   public PaidHolidayRelatedUserListDto getPaidHolidays() {
-    final Company company = getCompany();
-    return paidHolidayService.getPaidHolidayEmployees(company);
+    return paidHolidayService.getPaidHolidayEmployees(getCompanyId());
   }
 
   @GetMapping(value = "paid-holiday/employees/count")
   public Integer getPaidHolidaysEmployeesCount() {
-    final Company company = getCompany();
     return paidHolidayService
-        .getPaidHolidayEmployees(company)
+        .getPaidHolidayEmployees(getCompanyId())
         .getPaidHolidaySelectedEmployees().size();
   }
 
   @PatchMapping(value = "paid-holiday/employees")
   public void updatePaidHolidayEmployees(
       @RequestBody final List<JobUserDto> updatePaidHolidayEmployees) {
-    final Company company = getCompany();
-    paidHolidayService.updatePaidHolidayEmployees(updatePaidHolidayEmployees, company);
+    paidHolidayService.updatePaidHolidayEmployees(updatePaidHolidayEmployees, getCompanyId());
   }
 
   @GetMapping(value = "paid-holidays/years/{year}")
   public List<PaidHolidayDto> getPaidHolidaysByYear(@PathVariable final String year) {
-    final Company company = getCompany();
-    return paidHolidayService.getPaidHolidaysByYear(company.getId(), year);
+    return paidHolidayService.getPaidHolidaysByYear(getCompanyId(), year);
   }
 
   @PatchMapping(value = "paid-holidays/select")
@@ -71,8 +65,7 @@ public class PaidHolidayRestController extends BaseRestController {
   @PostMapping(value = "paid-holiday")
   public void createPaidHoliday(
       @RequestBody final PaidHolidayDto paidHolidayDto) {
-    final Company company = getCompany();
-    paidHolidayService.createPaidHoliday(paidHolidayDto, company);
+    paidHolidayService.createPaidHoliday(paidHolidayDto, getCompanyId());
   }
 
   @PatchMapping(value = "paid-holidays")

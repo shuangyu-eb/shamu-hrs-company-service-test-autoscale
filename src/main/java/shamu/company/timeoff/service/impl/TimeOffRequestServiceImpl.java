@@ -88,10 +88,10 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
 
   @Override
   public Page<TimeOffRequest> getByApproverAndStatusFilteredByStartDay(
-      final User approver, final Long[] statusIds,
+      final Long id, final Long[] statusIds,
       final Timestamp startDay, final PageRequest pageRequest) {
     return timeOffRequestRepository.findByApproversAndTimeOffApprovalStatusFilteredByStartDay(
-        approver.getId(), statusIds, startDay, pageRequest);
+        id, statusIds, startDay, pageRequest);
   }
 
   @Override

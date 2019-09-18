@@ -12,13 +12,13 @@ public interface BenefitPlanService {
 
   BenefitPlan createBenefitPlan(BenefitPlanCreateDto benefitPlanCreateDto,
       List<BenefitPlanCoverageDto> benefitPlanCoverageDtoList,
-      List<BenefitPlanUserCreateDto> benefitPlanUserCreateDtoList, Company company);
+      List<BenefitPlanUserCreateDto> benefitPlanUserCreateDtoList, Long companyId);
 
   BenefitPlan findBenefitPlanById(Long id);
 
   void save(BenefitPlan benefitPlan);
 
-  List<BenefitPlanClusterDto> getBenefitPlanCluster(Company company);
+  List<BenefitPlanClusterDto> getBenefitPlanCluster(Long companyId);
 
   void updateBenefitPlanUsers(Long benefitPlanId, List<BenefitPlanUserCreateDto> benefitPlanUsers);
 }

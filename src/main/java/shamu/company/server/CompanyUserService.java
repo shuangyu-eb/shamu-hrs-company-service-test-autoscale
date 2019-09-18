@@ -11,6 +11,6 @@ public interface CompanyUserService {
 
   List<User> getAllUsers(Long companyId);
 
-  User findUserByUserId(Long userId);
+  AuthUser findUserByUserId(String userId);
 }
 

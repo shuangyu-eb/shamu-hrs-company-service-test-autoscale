@@ -72,15 +72,14 @@ public class UserAddressRestController extends BaseRestController {
       "hasPermission(#id, 'USER', 'VIEW_USER_ADDRESS')"
           + "or hasPermission(#id, 'USER', 'VIEW_SELF')")
   public UserAddressDto getUserAddress(@PathVariable @HashidsFormat final Long id) {
-    final User user = getUser();
     final User targetUser = userService.findUserById(id);
     final User manager = targetUser.getManagerUser();
     final UserAddress userAddress = userAddressService.findUserAddressByUserId(id);
 
-    final Role userRole = auth0Util.getUserRole(user.getUserContactInformation().getEmailWork());
-    if (userAddress != null && (user.getId().equals(id)
+    final User.Role userRole = auth0Util.getUserRole(getAuthUser().getEmail());
+    if (userAddress != null && (getAuthUser().getId().equals(id)
         || userRole == Role.ADMIN
-        || (manager != null && manager.getId().equals(user.getId())))) {
+        || (manager != null && manager.getId().equals(getAuthUser().getId())))) {
       return userAddressMapper.convertToUserAddressDto(userAddress);
     }
 

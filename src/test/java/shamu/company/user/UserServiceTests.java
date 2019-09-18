@@ -71,24 +71,24 @@ class UserServiceTests {
   void init() {
     MockitoAnnotations.initMocks(this);
     userService = new UserServiceImpl(templateEngine,
-        userRepository,
-        jobUserRepository,
-        userStatusRepository,
-        emailService,
-        userCompensationRepository,
-        userPersonalInformationMapper,
-        userEmergencyContactService,
-        userAddressService,
-        companySizeRepository,
-        paidHolidayService,
-        companyRepository,
-        userContactInformationMapper,
-        userAddressMapper,
-        auth0Util,
-        userAccessLevelEventRepository,
-        taskScheduler,
-        departmentRepository,
-        jobRepository);
+      userRepository,
+      jobUserRepository,
+      userStatusRepository,
+      emailService,
+      userCompensationRepository,
+      userPersonalInformationMapper,
+      userEmergencyContactService,
+      userAddressService,
+      companySizeRepository,
+      paidHolidayService,
+      companyRepository,
+      userContactInformationMapper,
+      userAddressMapper,
+      auth0Util,
+      userAccessLevelEventRepository,
+      taskScheduler,
+      departmentRepository,
+      jobRepository);
   }
 
   @Test

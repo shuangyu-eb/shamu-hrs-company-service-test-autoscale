@@ -97,7 +97,7 @@ public class TimeOffRequestRestController extends BaseRestController {
       @RequestBody final TimeOffRequestPojo requestPojo) {
     final User user = userService.findUserById(userId);
     final TimeOffRequest timeOffRequest = requestPojo.getTimeOffRequest(user);
-    final User approver = getUser();
+    final User approver = new User(getAuthUser().getId());
     timeOffRequest.setApproverUser(approver);
     timeOffRequest.setApprover(approver);
     timeOffRequest.setApprovedDate(Timestamp.from(Instant.now()));
@@ -112,7 +112,7 @@ public class TimeOffRequestRestController extends BaseRestController {
   @PreAuthorize("hasAuthority('MANAGE_TIME_OFF_REQUEST')")
   public Integer getPendingTimeOffRequestsCount() {
 
-    return timeOffRequestService.getPendingRequestsCount(getUser());
+    return timeOffRequestService.getPendingRequestsCount(new User(getAuthUser().getId()));
   }
 
   @GetMapping("users/{id}/time-off-requests")
@@ -133,7 +133,7 @@ public class TimeOffRequestRestController extends BaseRestController {
           + "or hasPermission(#id,'TIME_OFF_REQUEST','MANAGE_TIME_OFF_REQUEST')")
   public TimeOffRequestDetailDto getTimeOffRequest(@PathVariable @HashidsFormat final Long id) {
 
-    return timeOffRequestService.getTimeOffRequestDetail(id, this.getUser().getId());
+    return timeOffRequestService.getTimeOffRequestDetail(id, getAuthUser().getId());
   }
 
 
@@ -149,7 +149,7 @@ public class TimeOffRequestRestController extends BaseRestController {
 
     final TimeOffRequestApprovalStatus status = updateDto.getStatus();
     if (status == APPROVED || status == DENIED) {
-      timeOffRequest.setApproverUser(getUser());
+      timeOffRequest.setApproverUser(new User(getAuthUser().getId()));
       timeOffRequest.setApprovedDate(Timestamp.from(Instant.now()));
     }
     TimeOffRequestComment comment = null;
@@ -157,7 +157,7 @@ public class TimeOffRequestRestController extends BaseRestController {
       comment = new TimeOffRequestComment();
       comment.setTimeOffRequestId(id);
       comment.setComment(updateDto.getApproverComment());
-      comment.setUser(getUser());
+      comment.setUser(new User(getAuthUser().getId()));
     }
 
     timeOffRequest = timeOffRequestService.updateTimeOffRequest(timeOffRequest, comment);
@@ -172,7 +172,7 @@ public class TimeOffRequestRestController extends BaseRestController {
 
     final Page<TimeOffRequest> timeOffRequests = timeOffRequestService
         .getByApproverAndStatusFilteredByStartDay(
-            getUser(), statusIds, startDayTimestamp, request);
+          getAuthUser().getId(), statusIds, startDayTimestamp, request);
 
     return (PageImpl<TimeOffRequestDto>) timeOffRequests
         .map(timeOffRequestMapper::convertToTimeOffRequestDto);

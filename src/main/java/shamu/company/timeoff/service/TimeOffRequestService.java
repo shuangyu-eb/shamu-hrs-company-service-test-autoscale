@@ -19,7 +19,7 @@ import shamu.company.user.entity.User;
 public interface TimeOffRequestService {
 
   Page<TimeOffRequest> getByApproverAndStatusFilteredByStartDay(
-      User approver, Long[] statusIds, Timestamp startDay, PageRequest pageRequest);
+      Long id, Long[] statusIds, Timestamp startDay, PageRequest pageRequest);
 
   Integer getPendingRequestsCount(User approver);
 

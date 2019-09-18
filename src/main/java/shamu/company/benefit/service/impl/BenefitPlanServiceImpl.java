@@ -74,11 +74,11 @@ public class BenefitPlanServiceImpl implements BenefitPlanService {
   @Override
   public BenefitPlan createBenefitPlan(final BenefitPlanCreateDto benefitPlanCreateDto,
       final List<BenefitPlanCoverageDto> benefitPlanCoverageDtoList,
-      final List<BenefitPlanUserCreateDto> benefitPlanUserCreateDtoList, final Company company) {
+      final List<BenefitPlanUserCreateDto> benefitPlanUserCreateDtoList, final Long companyId) {
 
     final BenefitPlan benefitPlan = benefitPlanMapper
         .createFromBenefitPlanCreateDto(benefitPlanCreateDto);
-    benefitPlan.setCompany(company);
+    benefitPlan.setCompany(new Company(companyId));
 
     final BenefitPlan createdBenefitPlan = benefitPlanRepository
         .save(benefitPlan);
@@ -127,8 +127,9 @@ public class BenefitPlanServiceImpl implements BenefitPlanService {
   }
 
   @Override
-  public List<BenefitPlanClusterDto> getBenefitPlanCluster(final Company company) {
-    final List<BenefitPlan> benefitPlans = benefitPlanRepository.findBenefitPlanByCompany(company);
+  public List<BenefitPlanClusterDto> getBenefitPlanCluster(final Long companyId) {
+    final List<BenefitPlan> benefitPlans =
+        benefitPlanRepository.findBenefitPlanByCompanyId(companyId);
     final List<BenefitPlanType> benefitPlanTypes = benefitPlanTypeRepository.findAll();
     return generateBenefitPlanClusters(benefitPlans, benefitPlanTypes);
   }

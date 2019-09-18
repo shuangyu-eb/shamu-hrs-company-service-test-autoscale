@@ -1,9 +1,11 @@
 package shamu.company.server;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import shamu.company.user.entity.User;
 
 @Data
+@NoArgsConstructor
 public class AuthUser {
 
   private Long id;

@@ -7,5 +7,5 @@ import shamu.company.company.entity.Company;
 
 public interface BenefitPlanRepository extends BaseRepository<BenefitPlan, Long> {
 
-  List<BenefitPlan> findBenefitPlanByCompany(Company company);
+  List<BenefitPlan> findBenefitPlanByCompanyId(Long companyId);
 }

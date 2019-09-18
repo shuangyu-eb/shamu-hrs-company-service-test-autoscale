@@ -1,14 +1,19 @@
 package shamu.company.common;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import shamu.company.common.config.DefaultJwtAuthenticationToken;
-import shamu.company.common.config.SecurityHolder;
 import shamu.company.common.exception.UnAuthenticatedException;
-import shamu.company.company.entity.Company;
-import shamu.company.user.entity.User;
+import shamu.company.redis.AuthUserCacheManager;
+import shamu.company.server.AuthUser;
+import shamu.company.user.service.UserService;
+import shamu.company.utils.Auth0Util;
 
 public class BaseRestController {
+
+  @Autowired
+  private AuthUserCacheManager authUserCacheManager;
 
   private DefaultJwtAuthenticationToken getAuthentication() {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -16,21 +21,23 @@ public class BaseRestController {
   }
 
   private void checkIsAuthenticated() {
-    if (SecurityHolder.getCurrentUser().get() == null) {
+    String token = getAuthentication().getToken().getTokenValue();
+    if (authUserCacheManager.getCachedUser(token) == null) {
       throw new UnAuthenticatedException("User not logged in.");
     }
   }
 
-  public User getUser() {
+  public AuthUser getAuthUser() {
     checkIsAuthenticated();
-    return SecurityHolder.getCurrentUser().get();
+    String token = getAuthentication().getToken().getTokenValue();
+    return authUserCacheManager.getCachedUser(token);
   }
 
   public String getUserId() {
     return getAuthentication().getId();
   }
 
-  public Company getCompany() {
-    return this.getUser().getCompany();
+  public Long getCompanyId() {
+    return this.getAuthUser().getCompanyId();
   }
 }

@@ -58,8 +58,8 @@ public class CompanyServiceImpl implements CompanyService {
   }
 
   @Override
-  public List<Department> getDepartmentsByCompany(final Company company) {
-    return departmentRepository.findAllByCompany(company);
+  public List<Department> getDepartmentsByCompanyId(final Long companyId) {
+    return departmentRepository.findAllByCompanyId(companyId);
   }
 
   @Override
@@ -69,10 +69,10 @@ public class CompanyServiceImpl implements CompanyService {
   }
 
   @Override
-  public Department saveDepartmentsByCompany(final String name, final Company company) {
+  public Department saveDepartmentsByCompany(final String name, final Long companyId) {
     final Department department = new Department();
     department.setName(name);
-    department.setCompany(company);
+    department.setCompany(new Company(companyId));
     return departmentRepository.save(department);
   }
 
@@ -94,8 +94,8 @@ public class CompanyServiceImpl implements CompanyService {
   }
 
   @Override
-  public List<Office> getOfficesByCompany(final Company company) {
-    return officeRepository.findByCompany(company);
+  public List<Office> getOfficesByCompany(final Long companyId) {
+    return officeRepository.findByCompanyId(companyId);
   }
 
   @Override
@@ -115,15 +115,22 @@ public class CompanyServiceImpl implements CompanyService {
   }
 
   @Override
-  public List<EmploymentType> getEmploymentTypesByCompany(final Company company) {
-    return employmentTypeRepository.findAllByCompany(company);
+  public List<EmploymentType> getEmploymentTypesByCompanyId(final Long companyId) {
+    return employmentTypeRepository.findAllByCompanyId(companyId);
   }
 
   @Override
-  public EmploymentType saveEmploymentType(final String employmentTypeName, final Company company) {
+  public EmploymentType saveEmploymentType(final String employmentTypeName, final Long companyId) {
     final EmploymentType employmentType = new EmploymentType(employmentTypeName);
-    employmentType.setCompany(company);
+    employmentType.setCompany(new Company(companyId));
 
     return employmentTypeRepository.save(employmentType);
+  }
+
+  @Override
+  public Company findById(Long companyId) {
+    return companyRepository
+        .findById(companyId)
+        .orElseThrow(() -> new ResourceNotFoundException("No such Company"));
   }
 }

@@ -12,6 +12,7 @@ import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.company.dto.OfficeCreateDto;
 import shamu.company.company.dto.OfficeDto;
+import shamu.company.company.entity.Company;
 import shamu.company.company.entity.Department;
 import shamu.company.company.entity.Office;
 import shamu.company.company.entity.mapper.OfficeMapper;
@@ -45,7 +46,7 @@ public class CompanyRestController extends BaseRestController {
 
   @GetMapping("departments")
   public List<SelectFieldInformationDto> getDepartments() {
-    return companyService.getDepartmentsByCompany(getCompany())
+    return companyService.getDepartmentsByCompanyId(getCompanyId())
         .stream()
         .map(SelectFieldInformationDto::new)
         .collect(Collectors.toList());
@@ -55,7 +56,7 @@ public class CompanyRestController extends BaseRestController {
   @PostMapping("departments")
   @PreAuthorize("hasAuthority('CREATE_DEPARTMENT')")
   public Department createDepartment(@RequestBody final String name) {
-    return companyService.saveDepartmentsByCompany(name, getCompany());
+    return companyService.saveDepartmentsByCompany(name, getCompanyId());
   }
 
   @GetMapping("departments/{id}/jobs")
@@ -78,7 +79,7 @@ public class CompanyRestController extends BaseRestController {
 
   @GetMapping("employment-types")
   public List<SelectFieldInformationDto> getEmploymentTypes() {
-    return companyService.getEmploymentTypesByCompany(getCompany())
+    return companyService.getEmploymentTypesByCompanyId(getCompanyId())
         .stream()
         .map(SelectFieldInformationDto::new)
         .collect(Collectors.toList());
@@ -88,7 +89,7 @@ public class CompanyRestController extends BaseRestController {
   @PostMapping(value = "employment-types")
   @PreAuthorize("hasAuthority('CREATE_EMPLOYEE_TYPE')")
   public SelectFieldInformationDto createEmploymentType(@RequestBody final String name) {
-    final EmploymentType employmentType = companyService.saveEmploymentType(name, getCompany());
+    final EmploymentType employmentType = companyService.saveEmploymentType(name, getCompanyId());
     return new SelectFieldInformationDto(employmentType.getId(), employmentType.getName());
   }
 
@@ -96,14 +97,14 @@ public class CompanyRestController extends BaseRestController {
   @GetMapping("offices")
   @PreAuthorize("hasAuthority('VIEW_USER_JOB')")
   public List<OfficeDto> getOffices() {
-    return officeMapper.convertToOfficeDto(companyService.getOfficesByCompany(getCompany()));
+    return officeMapper.convertToOfficeDto(companyService.getOfficesByCompany(getCompanyId()));
   }
 
   @PostMapping("offices")
   @PreAuthorize("hasAuthority('CREATE_OFFICE')")
   public OfficeDto saveOffice(@RequestBody final OfficeCreateDto officeCreateDto) {
     final Office office = officeCreateDto.getOffice();
-    office.setCompany(getCompany());
+    office.setCompany(new Company(getCompanyId()));
     return officeMapper.convertToOfficeDto(companyService.saveOffice(office));
   }
 
@@ -111,7 +112,7 @@ public class CompanyRestController extends BaseRestController {
   @PreAuthorize("hasPermission(#id,'DEPARTMENT','VIEW_USER_JOB')")
   public List<SelectFieldInformationDto> getUsers(@PathVariable @HashidsFormat final Long id) {
     final List<User> users = employeeService
-        .findEmployersAndEmployeesByDepartmentIdAndCompanyId(id, getCompany().getId());
+        .findEmployersAndEmployeesByDepartmentIdAndCompanyId(id, getCompanyId());
     return users.stream().map(
         manager -> {
           UserPersonalInformation userInfo = manager.getUserPersonalInformation();

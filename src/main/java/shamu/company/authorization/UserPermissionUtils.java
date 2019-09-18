@@ -123,8 +123,8 @@ public class UserPermissionUtils extends BasePermissionUtils {
     }
   }
 
-  private void companyEqual(final Authentication auth, final Company company) {
-    if (!getCompany().getId().equals(company.getId())) {
+  private void companyEqual(final Company company) {
+    if (!getCompanyId().equals(company.getId())) {
       throw new ForbiddenException("The target resources is not in the company where you are.");
     }
   }
@@ -132,7 +132,7 @@ public class UserPermissionUtils extends BasePermissionUtils {
   private boolean hasPermissionOfBenefitPlan(final Authentication auth, final Long id,
       final Permission.Name permission) {
     final BenefitPlan targetBenefitPlan = benefitPlanService.findBenefitPlanById(id);
-    companyEqual(auth, targetBenefitPlan.getCompany());
+    companyEqual(targetBenefitPlan.getCompany());
 
     return isAdminPermission(auth, permission);
   }
@@ -140,7 +140,7 @@ public class UserPermissionUtils extends BasePermissionUtils {
   private boolean hasPermissionOfDepartment(final Authentication auth, final Long id,
       final Permission.Name permission) {
     final Department department = companyService.getDepartmentsById(id);
-    companyEqual(auth, department.getCompany());
+    this.companyEqual(department.getCompany());
 
     return hasPermission((Collection<GrantedAuthority>) auth.getAuthorities(), permission);
   }
@@ -190,7 +190,7 @@ public class UserPermissionUtils extends BasePermissionUtils {
       final Authentication auth, final Long policyId, final Permission.Name permission) {
     final TimeOffPolicy timeOffPolicy = timeOffPolicyService.getTimeOffPolicyById(policyId);
     final Company company = timeOffPolicy.getCompany();
-    companyEqual(auth, company);
+    companyEqual(company);
     return isAdminPermission(auth, permission);
   }
 
@@ -198,7 +198,7 @@ public class UserPermissionUtils extends BasePermissionUtils {
       final Authentication auth, final Long policyId, final Permission.Name permission) {
     final PaidHoliday paidHoliday = paidHolidayService.getPaidHoliday(policyId);
     final Company company = paidHoliday.getCompany();
-    companyEqual(auth, company);
+    companyEqual(company);
     return isAdminPermission(auth, permission);
   }
 
@@ -206,10 +206,10 @@ public class UserPermissionUtils extends BasePermissionUtils {
       final Permission.Name permission) {
     final PermissionType permissionType = permission.getPermissionType();
     if (permissionType == PermissionType.SELF_PERMISSION) {
-      return getUser().getId().equals(targetUser.getId());
+      return getAuthUser().getId().equals(targetUser.getId());
     }
 
-    companyEqual(auth, targetUser.getCompany());
+    companyEqual(targetUser.getCompany());
 
     final Collection<GrantedAuthority> authorities = (Collection<GrantedAuthority>) auth
         .getAuthorities();
@@ -225,7 +225,7 @@ public class UserPermissionUtils extends BasePermissionUtils {
     }
 
     final Long managerUserId = userService.getManagerUserIdById(targetUser.getId());
-    final boolean isManager = managerUserId != null && managerUserId.equals(getUser().getId());
+    final boolean isManager = managerUserId != null && managerUserId.equals(getAuthUser().getId());
     return hasPermission(authorities, permission) && isManager;
   }
 }

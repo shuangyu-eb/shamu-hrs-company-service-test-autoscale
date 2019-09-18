@@ -263,7 +263,7 @@ public class TimeOffPolicyServiceImpl implements TimeOffPolicyService {
 
   @Override
   public TimeOffPolicyRelatedUserListDto getAllEmployeesByTimeOffPolicyId(
-      final Long timeOffPolicyId, final Company company) {
+      final Long timeOffPolicyId, final Long companyId) {
     final TimeOffPolicy timeOffPolicy = timeOffPolicyRepository.findById(timeOffPolicyId)
         .orElseThrow(() -> new ResourceNotFoundException("Time off policy does not exist."));
 
@@ -273,7 +273,7 @@ public class TimeOffPolicyServiceImpl implements TimeOffPolicyService {
         .findAllByTimeOffPolicyId(timeOffPolicyId);
 
     final List<User> selectableTimeOffPolicyUsers = userRepository
-        .findAllByCompanyId(company.getId());
+        .findAllByCompanyId(companyId);
 
     final ArrayList<Long> selectedUsersIds = new ArrayList<>();
 
@@ -575,7 +575,7 @@ public class TimeOffPolicyServiceImpl implements TimeOffPolicyService {
   }
 
   @Override
-  public void deleteTimeOffPolicy(final Long timeOffPolicyId, final Company company) {
+  public void deleteTimeOffPolicy(final Long timeOffPolicyId) {
     final TimeOffPolicy timeOffPolicy = timeOffPolicyRepository.getOne(timeOffPolicyId);
     final List<TimeOffRequestStatusPojo> requests = timeOffRequestRepository
         .findByTimeOffPolicyId(timeOffPolicyId);
@@ -608,7 +608,7 @@ public class TimeOffPolicyServiceImpl implements TimeOffPolicyService {
 
   @Override
   public void enrollTimeOffHours(final List<TimeOffPolicyUser> policyUsers,
-      final TimeOffPolicy enrollPolicy, final User currentUser) {
+      final TimeOffPolicy enrollPolicy, final Long currentUserId) {
     policyUsers.stream().forEach(policyUser -> {
       final TimeOffBreakdownDto timeOffBreakdown = timeOffDetailService
           .getTimeOffBreakdown(policyUser.getId(), LocalDateTime.now());
@@ -616,7 +616,7 @@ public class TimeOffPolicyServiceImpl implements TimeOffPolicyService {
       final Integer remainingBalance = timeOffBreakdown.getBalance();
       final TimeOffAdjustment timeOffAdjustment = TimeOffAdjustment.builder()
           .timeOffPolicy(enrollPolicy)
-          .adjusterUserId(currentUser.getId())
+          .adjusterUserId(currentUserId)
           .amount(remainingBalance)
           .comment(String.format("Rolled from policy %s", policyUser.getTimeOffPolicy().getName()))
           .company(policyUser.getUser().getCompany())

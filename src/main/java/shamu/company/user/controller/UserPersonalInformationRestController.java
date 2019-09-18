@@ -33,7 +33,7 @@ public class UserPersonalInformationRestController extends BaseRestController {
   private final UserPersonalInformationMapper userPersonalInformationMapper;
 
   private final UserMapper userMapper;
-  
+
   private final Auth0Util auth0Util;
 
   SimpleDateFormat sdf = new SimpleDateFormat("MM-dd");
@@ -75,13 +75,12 @@ public class UserPersonalInformationRestController extends BaseRestController {
           + "or hasPermission(#id, 'USER', 'VIEW_SELF')")
   public BasicUserPersonalInformationDto getUserPersonalInformation(
       @PathVariable @HashidsFormat final Long id) {
-    final User user = getUser();
     final User targetUser = userService.findUserById(id);
     final UserPersonalInformation userPersonalInformation = targetUser.getUserPersonalInformation();
     final String imageUrl = targetUser.getImageUrl();
 
-    final Role userRole = auth0Util.getUserRole(user.getUserContactInformation().getEmailWork());
-    if (user.getId().equals(id) || userRole == Role.ADMIN) {
+    final Role userRole = auth0Util.getUserRole(getAuthUser().getEmail());
+    if (getAuthUser().getId().equals(id) || userRole == Role.ADMIN) {
       return userPersonalInformationMapper
           .convertToUserPersonalInformationDto(userPersonalInformation, imageUrl);
     }

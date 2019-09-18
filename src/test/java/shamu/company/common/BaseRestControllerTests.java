@@ -19,15 +19,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import shamu.company.common.config.DefaultJwtAuthenticationToken;
-import shamu.company.common.config.SecurityHolder;
 import shamu.company.company.entity.Company;
-import shamu.company.user.entity.User;
+import shamu.company.server.AuthUser;
 
 class BaseRestControllerTests {
 
   @BeforeAll
   static void setUp() {
-
     final String token = JWT.create().withIssuer("http://www.google.com/")
         .sign(Algorithm.HMAC256("secret"));
     final DecodedJWT decodedJwt = JWT.decode(token);
@@ -47,13 +45,10 @@ class BaseRestControllerTests {
         Collections.emptyList());
     SecurityContextHolder.getContext().setAuthentication(authentication);
 
-    final User user = new User();
-    user.setId(1L);
-    user.setUserId(userId);
-    final Company company = new Company();
-    company.setId(1L);
-    user.setCompany(company);
-    SecurityHolder.getCurrentUser().set(user);
+    final AuthUser authUser = new AuthUser();
+    authUser.setId(1L);
+
+
   }
 
   @BeforeEach
@@ -64,15 +59,15 @@ class BaseRestControllerTests {
   @Test
   void testGetUser() {
     final BaseRestController baseRestController = PowerMockito.spy(new BaseRestController());
-    final User user = baseRestController.getUser();
+    final AuthUser user = baseRestController.getAuthUser();
     Assertions.assertNotNull(user);
   }
 
   @Test
-  void testGetCompany() {
+  void testGetCompanyId() {
     final BaseRestController baseRestController = PowerMockito.spy(new BaseRestController());
-    final Company company = baseRestController.getCompany();
-    Assertions.assertNotNull(company);
+    final Long companyId = baseRestController.getCompanyId();
+    Assertions.assertNotNull(companyId);
   }
 
   @Test

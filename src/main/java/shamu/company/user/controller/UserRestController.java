@@ -81,10 +81,8 @@ public class UserRestController extends BaseRestController {
   @GetMapping(value = "users/{id}/head-portrait")
   @PreAuthorize("hasPermission(#id,'USER','VIEW_USER_PERSONAL')")
   public String getHeadPortrait(@PathVariable @HashidsFormat final Long id) {
-    final User user = getUser();
-
-    final Role userRole = auth0Util.getUserRole(user.getUserContactInformation().getEmailWork());
-    if (user.getId().equals(id)
+    final Role userRole = auth0Util.getUserRole(getAuthUser().getEmail());
+    if (getAuthUser().getId().equals(id)
         || userRole == Role.ADMIN) {
       return userService.getHeadPortrait(id);
     }
@@ -134,8 +132,7 @@ public class UserRestController extends BaseRestController {
 
   @PatchMapping("user/password/update")
   public void updatePassword(@RequestBody @Valid final ChangePasswordPojo changePasswordPojo) {
-    final User currentUser = getUser();
-    userService.updatePassword(changePasswordPojo, currentUser);
+    userService.updatePassword(changePasswordPojo, getAuthUser().getEmail());
   }
 
   @PreAuthorize("hasPermission(#id,'USER', 'EDIT_SELF')")
@@ -154,9 +151,8 @@ public class UserRestController extends BaseRestController {
   @PreAuthorize("hasPermission(#id, 'USER', 'VIEW_SETTING')")
   public UserRoleAndStatusInfoDto updateUserRole(@PathVariable @HashidsFormat final Long id,
       @RequestBody final UserRoleUpdatePojo userRoleUpdatePojo) {
-    final User currentUser = getUser();
     User user = userService.findUserById(id);
-    user = userService.updateUserRole(currentUser, userRoleUpdatePojo, user);
+    user = userService.updateUserRole(getAuthUser().getEmail(), userRoleUpdatePojo, user);
     final UserRoleAndStatusInfoDto resultInformation = userMapper
         .convertToUserRoleAndStatusInfoDto(user);
     final Role userRole = auth0Util.getUserRole(user.getUserContactInformation().getEmailWork());
@@ -168,9 +164,8 @@ public class UserRestController extends BaseRestController {
   @PreAuthorize("hasPermission(#id, 'USER', 'VIEW_SETTING')")
   public UserRoleAndStatusInfoDto inactivateUser(@PathVariable @HashidsFormat final Long id,
       @RequestBody final UserStatusUpdatePojo userStatusUpdatePojo) {
-    final User currentUser = getUser();
     User user = userService.findUserById(id);
-    user = userService.inactivateUser(currentUser, userStatusUpdatePojo, user);
+    user = userService.inactivateUser(getAuthUser().getEmail(), userStatusUpdatePojo, user);
     final Role userRole = auth0Util.getUserRole(user.getUserContactInformation().getEmailWork());
     final UserRoleAndStatusInfoDto resultInformation =
         userMapper.convertToUserRoleAndStatusInfoDto(user);
@@ -180,7 +175,7 @@ public class UserRestController extends BaseRestController {
 
   @GetMapping("users/all")
   public List<UserDto> getAllUsers() {
-    final List<User> users = userService.findAllUsersByCompany(getCompany());
+    final List<User> users = userService.findAllUsersByCompany(getCompanyId());
     return userMapper.convertToUserDtos(users);
   }
 
@@ -191,6 +186,7 @@ public class UserRestController extends BaseRestController {
 
   @GetMapping("has-privilege/user/{userId}")
   public boolean hasUserPermission(@HashidsFormat @PathVariable final Long userId) {
-    return userService.hasUserAccess(getUser(), userId);
+    User currentUser = userService.findUserById(getAuthUser().getId());
+    return userService.hasUserAccess(currentUser, userId);
   }
 }

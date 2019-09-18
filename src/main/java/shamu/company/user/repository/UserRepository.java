@@ -19,7 +19,8 @@ public interface UserRepository extends BaseRepository<User, Long>, UserCustomRe
       nativeQuery = true)
   User findByUserIdAndStatus(String userId, String userStatus);
 
-  @Query(value = "select u from User u where u.deletedAt is null and u.userId = ?1")
+  @Query(value = "select * from users u where u.deleted_at is null and u.user_id = ?1",
+      nativeQuery = true)
   User findByUserId(String userId);
 
   User findByVerificationToken(String activationToken);
