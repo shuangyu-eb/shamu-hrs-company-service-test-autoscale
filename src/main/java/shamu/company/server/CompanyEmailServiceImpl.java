@@ -83,9 +83,9 @@ public class CompanyEmailServiceImpl implements CompanyEmailService {
     variables.put("documentTitle", documentTitle);
 
     if (!VIEW.equals(documentRequestEmailDto.getType())) {
-      final LocalDate dueDate = documentRequestEmailDto.getExpiredAt()
-              .toLocalDateTime().toLocalDate();
-      if (dueDate != null) {
+      final Timestamp expireDate = documentRequestEmailDto.getExpiredAt();
+      if (expireDate != null) {
+        LocalDate dueDate = expireDate.toLocalDateTime().toLocalDate();
         variables.put("dueDate", DateUtil.formatDateTo(dueDate,"MMM dd"));
       }
     }
