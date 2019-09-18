@@ -113,12 +113,13 @@ public class TimeOffPolicyRestController extends BaseRestController {
     timeOffPolicyService.updateTimeOffPolicyUserInfo(timeOffPolicyUserFrontendDtos, id);
   }
 
-  @PatchMapping("time-off-policy/employees/{id}")
-  public void updateTimeOffPolicyEmployeesInfo(@HashidsFormat @PathVariable final Long id,
+  @PatchMapping("time-off-policy/employees/{policyId}")
+  @PreAuthorize("hasPermission(#policyId, 'TIME_OFF_POLICY', 'MANAGE_TIME_OFF_POLICY')")
+  public void updateTimeOffPolicyEmployeesInfo(@HashidsFormat @PathVariable final Long policyId,
       @RequestBody final TimeOffPolicyWrapperDto timeOffPolicyWrapperDto) {
     final List<TimeOffPolicyUserFrontendDto> timeOffPolicyUserFrontendDtos = timeOffPolicyWrapperDto
         .getUserStartBalances();
-    timeOffPolicyService.updateTimeOffPolicyUserInfo(timeOffPolicyUserFrontendDtos, id);
+    timeOffPolicyService.updateTimeOffPolicyUserInfo(timeOffPolicyUserFrontendDtos, policyId);
   }
 
   @GetMapping("users/{userId}/time-off-balances")
@@ -142,6 +143,8 @@ public class TimeOffPolicyRestController extends BaseRestController {
   }
 
   @GetMapping("users/{userId}/policy-users")
+  @PreAuthorize("hasPermission(#userId, 'USER', 'VIEW_SELF') "
+      + "or hasPermission(#userId, 'USER', 'MANAGE_COMPANY_USER')")
   public List<TimeOffPolicyUserDto> getAllPolicyUsersByUser(
       @PathVariable @HashidsFormat final Long userId) {
     final User user = userService.findUserById(userId);
@@ -159,7 +162,7 @@ public class TimeOffPolicyRestController extends BaseRestController {
   @PreAuthorize("hasPermission(#policyId, 'TIME_OFF_POLICY', 'MANAGE_TIME_OFF_POLICY')")
   public TimeOffPolicyRelatedUserListDto getEmployeesByTimeOffPolicyId(
       @HashidsFormat @PathVariable final Long policyId) {
-    final Company company = getUser().getCompany();
+    final Company company = getCompany();
     return timeOffPolicyService.getAllEmployeesByTimeOffPolicyId(policyId, company);
   }
 
@@ -171,6 +174,8 @@ public class TimeOffPolicyRestController extends BaseRestController {
   }
 
   @DeleteMapping("time-off-policies/{policyId}/{rollId}")
+  @PreAuthorize("hasPermission(#policyId, 'TIME_OFF_POLICY', 'MANAGE_TIME_OFF_POLICY') "
+      + "and hasPermission(#rollId, 'TIME_OFF_POLICY', 'MANAGE_TIME_OFF_POLICY')")
   public HttpEntity enrollTimeOffPolicy(@PathVariable @HashidsFormat final Long policyId,
       @PathVariable @HashidsFormat final Long rollId) {
     final User user = getUser();
