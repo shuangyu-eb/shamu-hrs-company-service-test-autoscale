@@ -5,7 +5,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
@@ -41,30 +40,12 @@ public class UserAddressRestController extends BaseRestController {
     this.auth0Util = auth0Util;
   }
 
-  @PatchMapping("user-addresses/{id}")
+  @PatchMapping("users/{userId}/user-address")
   @PreAuthorize(
-      "hasPermission(#id,'USER_ADDRESS', 'EDIT_USER')"
-          + " or hasPermission(#id,'USER_ADDRESS', 'EDIT_SELF')")
-  public UserAddressDto updateUserAddress(
-      @PathVariable @HashidsFormat final Long id,
-      @RequestBody final UserAddressDto userAddressDto) {
-    final UserAddress origin = userAddressService.findUserAddressById(id);
-    userAddressMapper.updateFromUserAddressDto(origin, userAddressDto);
-    final UserAddress userAddressUpdated = userAddressService.updateUserAddress(origin);
-    return userAddressMapper.convertToUserAddressDto(userAddressUpdated);
-  }
-
-  @PostMapping("users/{id}/user-address")
-  @PreAuthorize(
-      "hasPermission(#id,'USER', 'EDIT_USER')"
-          + " or hasPermission(#id,'USER', 'EDIT_SELF')")
-  public UserAddressDto saveUserAddress(@PathVariable @HashidsFormat final Long id,
-      @RequestBody final UserAddressDto userAddressDto) {
-    userAddressDto.setUserId(id);
-    final UserAddress initUserAddress = userAddressService
-        .save(userAddressMapper
-            .createFromUserAddressDto(userAddressDto));
-    return userAddressMapper.convertToUserAddressDto(initUserAddress);
+      "hasPermission(#userAddressDto.userId,'USER', 'EDIT_USER')"
+          + " or hasPermission(#userAddressDto.userId,'USER', 'EDIT_SELF')")
+  public UserAddressDto saveUserAddress(@RequestBody final UserAddressDto userAddressDto) {
+    return userAddressMapper.convertToUserAddressDto(userAddressService.save(userAddressDto));
   }
 
   @GetMapping("users/{id}/user-address")

@@ -71,6 +71,9 @@ public class UserPermissionUtils extends BasePermissionUtils {
 
   boolean hasPermission(final Authentication auth, final Long targetId, final Type targetType,
       final Permission.Name permission) {
+    if (targetId == null) {
+      return false;
+    }
 
     switch (targetType) {
       case DEPARTMENT:
@@ -140,7 +143,7 @@ public class UserPermissionUtils extends BasePermissionUtils {
   private boolean hasPermissionOfDepartment(final Authentication auth, final Long id,
       final Permission.Name permission) {
     final Department department = companyService.getDepartmentsById(id);
-    this.companyEqual(department.getCompany());
+    companyEqual(department.getCompany());
 
     return hasPermission((Collection<GrantedAuthority>) auth.getAuthorities(), permission);
   }

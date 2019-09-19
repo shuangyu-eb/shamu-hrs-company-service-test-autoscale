@@ -70,7 +70,7 @@ public class JobController extends BaseRestController {
       users = employeeService
               .findDirectReportsEmployersAndEmployeesByDepartmentIdAndCompanyId(
                       jobUser.getJob().getDepartment().getId(),
-                      getCompany().getId(),
+                      getCompanyId(),
                       user.getId());
     }
     jobUserMapper.updateFromJobUpdateDto(jobUser, jobUpdateDto);
@@ -118,7 +118,7 @@ public class JobController extends BaseRestController {
     return new ResponseEntity(HttpStatus.OK);
   }
 
-  private boolean isSubordinate(Long userId, Long managerId) {
+  private boolean isSubordinate(final Long userId, Long managerId) {
     User user = userService.findUserById(managerId);
     while (user.getManagerUser() != null && user.getManagerUser().getId() != userId) {
       managerId = user.getManagerUser().getId();
