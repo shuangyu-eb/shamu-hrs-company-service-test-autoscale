@@ -92,6 +92,20 @@ public class Auth0Util {
     }
   }
 
+  public void updateEmail(final String originalEmail, final String newEmail) {
+    final ManagementAPI manager = auth0Manager.getManagementApi();
+    final com.auth0.json.mgmt.users.User authUser = getUserByEmailFromAuth0(originalEmail);
+    try {
+      final User emailUpdateUser = new User();
+      emailUpdateUser.setEmail(newEmail);
+      final Request<User> emailUpdateRequest = manager.users()
+              .update(authUser.getId(), emailUpdateUser);
+      emailUpdateRequest.execute();
+    } catch (final Auth0Exception e) {
+      throw new GeneralAuth0Exception(e.getMessage(), e);
+    }
+  }
+
   public void updateVerified(final User user, final boolean verified) {
     final ManagementAPI manager = auth0Manager.getManagementApi();
     try {

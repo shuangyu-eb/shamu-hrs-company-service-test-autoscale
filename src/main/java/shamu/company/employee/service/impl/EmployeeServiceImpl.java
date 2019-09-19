@@ -255,6 +255,8 @@ public class EmployeeServiceImpl implements EmployeeService {
       if (userRepository.existsByEmailWork(email)) {
         throw new ForbiddenException("This Email already exists!");
       }
+
+      auth0Util.updateEmail(originalEmail, emailResendDto.getEmail());
       user.setEmailWork(email);
       UserContactInformation userContactInformation = user.getUserContactInformation();
       if (userContactInformation == null) {
