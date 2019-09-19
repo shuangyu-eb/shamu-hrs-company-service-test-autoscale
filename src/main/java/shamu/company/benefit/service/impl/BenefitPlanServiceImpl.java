@@ -118,7 +118,7 @@ public class BenefitPlanServiceImpl implements BenefitPlanService {
   @Override
   public BenefitPlan findBenefitPlanById(final Long id) {
     return benefitPlanRepository.findById(id)
-        .orElseThrow(() -> new ResourceNotFoundException("Can not find benefit plan"));
+        .orElseThrow(() -> new ResourceNotFoundException("Cannot find benefit plan"));
   }
 
   @Override

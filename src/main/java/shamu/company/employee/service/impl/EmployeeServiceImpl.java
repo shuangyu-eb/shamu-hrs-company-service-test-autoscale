@@ -253,7 +253,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     final String originalEmail = user.getUserContactInformation().getEmailWork();
     if (!originalEmail.equals(email)) {
       if (userRepository.existsByEmailWork(email)) {
-        throw new ForbiddenException("This Email already exists!");
+        throw new ForbiddenException("This email already exists!");
       }
 
       auth0Util.updateEmail(originalEmail, emailResendDto.getEmail());
@@ -296,7 +296,7 @@ public class EmployeeServiceImpl implements EmployeeService {
           .validate(file, 2 * FileValidateUtil.MB, FileType.JPEG, FileType.PNG, FileType.GIF);
       return awsUtil.uploadFile(file.getCanonicalPath(), Type.IMAGE);
     } catch (final IOException e) {
-      throw new AwsUploadException("Error while upload employee photo!", e);
+      throw new AwsUploadException("Error while uploading employee photo!", e);
     }
   }
 

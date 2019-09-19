@@ -100,7 +100,7 @@ public class User extends BaseEntity {
       return;
     }
     if (null == managerUser.getId()) {
-      throw new GeneralException("Please save this manager before set this user's manager.");
+      throw new GeneralException("Please save this manager before setting this user's manager.");
     }
     if (managerUser.getId().equals(getId())) {
       throw new GeneralException("Users cannot set themselves to be their manager.");

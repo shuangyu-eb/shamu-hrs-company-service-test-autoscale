@@ -163,7 +163,7 @@ public class Auth0Util {
     try {
       final User user = getUserByEmailFromAuth0(email);
       if (user == null) {
-        throw new GeneralAuth0Exception(String.format("Can not get user with email %s", email));
+        throw new GeneralAuth0Exception(String.format("Cannot get user with email %s", email));
       }
 
       final ManagementAPI manager = auth0Manager.getManagementApi();

@@ -376,7 +376,7 @@ public class UserServiceImpl implements UserService {
         .getUserByEmailFromAuth0(createPasswordDto.getEmailWork());
 
     if (user == null) {
-      throw new ForbiddenException(String.format("Can not find user with email %s",
+      throw new ForbiddenException(String.format("Cannot find user with email %s",
           createPasswordDto.getEmailWork()));
     }
 
@@ -518,7 +518,7 @@ public class UserServiceImpl implements UserService {
 
     if (existingUser != null) {
       throw new DataIntegrityViolationException("User "
-          + "already sign up successfully in previous attempts.");
+          + "already signed up successfully in previous attempts.");
     }
 
     addSignUpInformation(signUpDto);
@@ -581,7 +581,7 @@ public class UserServiceImpl implements UserService {
     final User targetUser = userRepository.findByIdAndCompanyId(targetUserId,
         currentUser.getCompany().getId());
     if (targetUser == null) {
-      throw new ForbiddenException("Can not find user!");
+      throw new ForbiddenException("Cannot find user!");
     }
 
     final Role userRole = auth0Util
@@ -678,7 +678,7 @@ public class UserServiceImpl implements UserService {
 
     final String email = user.getUserContactInformation().getEmailWork();
     if (auth0Util.isPasswordValid(email, updatePasswordDto.getNewPassword())) {
-      throw new ForbiddenException("New password can not be the same as the old one.");
+      throw new ForbiddenException("New password cannot be the same as the old one.");
     }
 
     auth0Util.updatePassword(currentUser, updatePasswordDto.getNewPassword());
