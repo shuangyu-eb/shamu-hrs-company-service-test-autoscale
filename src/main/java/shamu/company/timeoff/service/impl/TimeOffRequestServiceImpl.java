@@ -347,26 +347,12 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
   public List<TimeOffRequestDto> getTimeOffRequest(
           final Long id, final TimeOffRequestApprovalStatus[] status, final AuthUser currentUser) {
     final User user = userService.findUserById(id);
-    final User.Role userRole = auth0Util.getUserRole(currentUser.getEmail());
 
     List<TimeOffRequestDto> timeOffRequestDtos;
     timeOffRequestDtos =  getRequestsByUserAndStatus(user, status).stream()
             .map(timeOffRequestMapper::convertToTimeOffRequestDto)
             .collect(Collectors.toList());
 
-    if (id == currentUser.getId()) {
-      for (TimeOffRequestDto requestDto:timeOffRequestDtos) {
-        requestDto.setHasPermissionCreateAndApprove(user.getManagerUser() == null);
-      }
-    } else if (userRole == User.Role.ADMIN) {
-      for (TimeOffRequestDto requestDto:timeOffRequestDtos) {
-        requestDto.setHasPermissionCreateAndApprove(true);
-      }
-    } else {
-      for (TimeOffRequestDto requestDto:timeOffRequestDtos) {
-        requestDto.setHasPermissionCreateAndApprove(false);
-      }
-    }
     return timeOffRequestDtos;
   }
 }
