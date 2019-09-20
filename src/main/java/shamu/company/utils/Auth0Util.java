@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import shamu.company.common.exception.AbstractException;
@@ -47,12 +48,14 @@ public class Auth0Util {
   private AbstractException handleAuth0Exception(final String message,
                                                      final Auth0Exception e,
                                                      final String api) {
-    if ((e.getMessage().contains("429") ||
-            e.getMessage().contains("Too Many Requests")) && api.equals("authApi")) {
+    if ((e.getMessage().contains(String.valueOf(HttpStatus.TOO_MANY_REQUESTS.value())) ||
+            e.getMessage().contains(HttpStatus.TOO_MANY_REQUESTS.getReasonPhrase())) &&
+            api.equals("authApi")) {
       return new TooManyRequestException("Too many requests. "
               + "System limits for request are 100 requests per second.",e);
-    } else if ((e.getMessage().contains("429") ||
-            e.getMessage().contains("Too Many Requests")) && api.equals(managementApi)) {
+    } else if ((e.getMessage().contains(String.valueOf(HttpStatus.TOO_MANY_REQUESTS.value())) ||
+            e.getMessage().contains(HttpStatus.TOO_MANY_REQUESTS.getReasonPhrase())) &&
+            api.equals(managementApi)) {
       return new TooManyRequestException("Too many requests. "
               + "System limits for request are 15 requests per second.",e);
     } else {
