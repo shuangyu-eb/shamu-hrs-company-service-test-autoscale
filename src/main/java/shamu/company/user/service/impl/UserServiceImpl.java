@@ -44,6 +44,8 @@ import shamu.company.job.entity.JobUser;
 import shamu.company.job.entity.JobUserListItem;
 import shamu.company.job.repository.JobRepository;
 import shamu.company.job.repository.JobUserRepository;
+import shamu.company.redis.AuthUserCacheManager;
+import shamu.company.server.AuthUser;
 import shamu.company.timeoff.service.PaidHolidayService;
 import shamu.company.user.dto.AccountInfoDto;
 import shamu.company.user.dto.CreatePasswordDto;
@@ -64,6 +66,7 @@ import shamu.company.user.entity.UserStatus;
 import shamu.company.user.entity.UserStatus.Status;
 import shamu.company.user.entity.mapper.UserAddressMapper;
 import shamu.company.user.entity.mapper.UserContactInformationMapper;
+import shamu.company.user.entity.mapper.UserMapper;
 import shamu.company.user.entity.mapper.UserPersonalInformationMapper;
 import shamu.company.user.pojo.ChangePasswordPojo;
 import shamu.company.user.pojo.UserRoleUpdatePojo;
@@ -103,6 +106,8 @@ public class UserServiceImpl implements UserService {
   private final EmailService emailService;
   private final UserCompensationRepository userCompensationRepository;
   private final Auth0Util auth0Util;
+  private final UserMapper userMapper;
+  private final AuthUserCacheManager authUserCacheManager;
   private final UserAccessLevelEventRepository userAccessLevelEventRepository;
 
   @Value("${application.systemEmailAddress}")
@@ -125,7 +130,9 @@ public class UserServiceImpl implements UserService {
       final UserAccessLevelEventRepository userAccessLevelEventRepository,
       final TaskScheduler taskScheduler,
       final DepartmentRepository departmentRepository,
-      final JobRepository jobRepository) {
+      final JobRepository jobRepository,
+      final UserMapper userMapper,
+      final AuthUserCacheManager authUserCacheManager) {
     this.templateEngine = templateEngine;
     this.userRepository = userRepository;
     this.jobUserRepository = jobUserRepository;
@@ -145,6 +152,8 @@ public class UserServiceImpl implements UserService {
     this.taskScheduler = taskScheduler;
     this.departmentRepository = departmentRepository;
     this.jobRepository = jobRepository;
+    this.userMapper = userMapper;
+    this.authUserCacheManager = authUserCacheManager;
   }
 
   @Override
@@ -165,13 +174,13 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public User findUserByEmail(final String email) {
-    return userRepository.findByEmailWork(email);
-  }
-
-  @Override
-  public User findUserByUserIdAndStatus(final String userId, final Status userStatus) {
-    return userRepository.findByUserIdAndStatus(userId, userStatus.name());
+  public void cacheUser(final String token, final Long userId) {
+    final User user = findUserById(userId);
+    final AuthUser authUser = userMapper.convertToAuthUser(user);
+    final List<String> permissions = auth0Util
+        .getPermissionBy(user.getUserContactInformation().getEmailWork());
+    authUser.setPermissions(permissions);
+    authUserCacheManager.cacheAuthUser(token, authUser);
   }
 
   @Override
@@ -633,17 +642,19 @@ public class UserServiceImpl implements UserService {
   @Override
   public CurrentUserDto getCurrentUserInfo(final String userId) {
     final User user = findByUserId(userId);
+    return getCurrentUserDto(user);
+  }
 
+  private CurrentUserDto getCurrentUserDto(final User user) {
+    final List<User> teamMembers = findByManagerUser(user);
+    final List<Long> teamMemberIds = teamMembers.stream().map(BaseEntity::getId)
+        .collect(Collectors.toList());
     if (user.getVerifiedAt() == null) {
       return CurrentUserDto.builder()
           .id(user.getId())
           .verified(false)
           .build();
     }
-
-    final List<User> teamMembers = findByManagerUser(user);
-    final List<Long> teamMemberIds = teamMembers.stream().map(BaseEntity::getId)
-        .collect(Collectors.toList());
 
     return CurrentUserDto.builder()
         .id(user.getId())
@@ -652,6 +663,12 @@ public class UserServiceImpl implements UserService {
         .imageUrl(user.getImageUrl())
         .verified(user.getVerifiedAt() != null)
         .build();
+  }
+
+  @Override
+  public CurrentUserDto getMockUserInfo(final Long userId) {
+    final User user = findUserById(userId);
+    return getCurrentUserDto(user);
   }
 
   @Override

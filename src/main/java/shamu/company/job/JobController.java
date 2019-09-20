@@ -68,10 +68,10 @@ public class JobController extends BaseRestController {
       jobUser.setUser(user);
     } else {
       users = employeeService
-              .findDirectReportsEmployersAndEmployeesByDepartmentIdAndCompanyId(
-                      jobUser.getJob().getDepartment().getId(),
-                      getCompanyId(),
-                      user.getId());
+          .findDirectReportsEmployersAndEmployeesByDepartmentIdAndCompanyId(
+              jobUser.getJob().getDepartment().getId(),
+              getCompanyId(),
+              user.getId());
     }
     jobUserMapper.updateFromJobUpdateDto(jobUser, jobUpdateDto);
     jobUserService.save(jobUser);
@@ -110,7 +110,7 @@ public class JobController extends BaseRestController {
       if (userRole != Role.ADMIN) {
         users.removeIf(user1 -> user1.getId() == managerId);
         auth0Util.updateRoleWithEmail(
-                userEmail, users.isEmpty() ? Role.EMPLOYEE.name() : Role.MANAGER.name());
+            userEmail, users.isEmpty() ? Role.EMPLOYEE.name() : Role.MANAGER.name());
       }
     }
     userService.save(user);

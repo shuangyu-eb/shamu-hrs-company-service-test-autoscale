@@ -2,6 +2,7 @@ package shamu.company.user.controller;
 
 import java.io.IOException;
 import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.http.HttpEntity;
@@ -19,6 +20,7 @@ import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.company.CompanyService;
 import shamu.company.hashids.HashidsFormat;
+import shamu.company.hashids.HashidsUtil;
 import shamu.company.user.dto.AccountInfoDto;
 import shamu.company.user.dto.CurrentUserDto;
 import shamu.company.user.dto.UpdatePasswordDto;
@@ -180,7 +182,20 @@ public class UserRestController extends BaseRestController {
   }
 
   @GetMapping("current/user-info")
-  public CurrentUserDto getUserInfo() {
-    return userService.getCurrentUserInfo(getUserId());
+  public CurrentUserDto getUserInfo(final HttpServletRequest request) {
+    final String mockId = request.getHeader("X-Mock-To");
+    if (Strings.isBlank(mockId)) {
+      final CurrentUserDto userDto = userService.getCurrentUserInfo(this.getUserId());
+      userService.cacheUser(this.getToken(), userDto.getId());
+      return userDto;
+    }
+
+    final String mockFrom = request.getHeader("X-Mock-From");
+    final Long mockFromId = HashidsUtil.decode(mockFrom);
+    // TOTO judge currentUser is super admin By Token
+
+    final Long useId = HashidsUtil.decode(mockId);
+    userService.cacheUser(this.getToken(), useId);
+    return userService.getMockUserInfo(useId);
   }
 }

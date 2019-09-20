@@ -4,18 +4,26 @@ import java.util.Collection;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import shamu.company.server.AuthUser;
 
 public class DefaultJwtAuthenticationToken extends JwtAuthenticationToken {
 
-  private String id;
+  private final String userId;
 
-  public DefaultJwtAuthenticationToken(Jwt jwt, String id,
-      Collection<? extends GrantedAuthority> authorities) {
+  private final AuthUser authUser;
+
+  public DefaultJwtAuthenticationToken(final Jwt jwt, final String userId,
+      final Collection<? extends GrantedAuthority> authorities, final AuthUser authUser) {
     super(jwt, authorities);
-    this.id = id;
+    this.userId = userId;
+    this.authUser = authUser;
   }
 
-  public String getId() {
-    return this.id;
+  public String getUserId() {
+    return this.userId;
+  }
+
+  public AuthUser getAuthUser() {
+    return authUser;
   }
 }

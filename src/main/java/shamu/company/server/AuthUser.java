@@ -1,5 +1,6 @@
 package shamu.company.server;
 
+import java.util.List;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import shamu.company.user.entity.User;
@@ -16,7 +17,9 @@ public class AuthUser {
 
   private Long companyId;
 
-  AuthUser(User user) {
+  private List<String> permissions;
+
+  AuthUser(final User user) {
     this.id = user.getId();
     this.imageUrl = user.getImageUrl();
     this.email = user.getUserContactInformation().getEmailWork();

@@ -7,8 +7,6 @@ import shamu.company.common.config.DefaultJwtAuthenticationToken;
 import shamu.company.common.exception.UnAuthenticatedException;
 import shamu.company.redis.AuthUserCacheManager;
 import shamu.company.server.AuthUser;
-import shamu.company.user.service.UserService;
-import shamu.company.utils.Auth0Util;
 
 public class BaseRestController {
 
@@ -16,25 +14,26 @@ public class BaseRestController {
   private AuthUserCacheManager authUserCacheManager;
 
   private DefaultJwtAuthenticationToken getAuthentication() {
-    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     return (DefaultJwtAuthenticationToken) authentication;
   }
 
-  private void checkIsAuthenticated() {
-    String token = getAuthentication().getToken().getTokenValue();
-    if (authUserCacheManager.getCachedUser(token) == null) {
-      throw new UnAuthenticatedException("User not logged in.");
-    }
+  protected String getToken() {
+    return getAuthentication().getToken().getTokenValue();
+
   }
 
   public AuthUser getAuthUser() {
-    checkIsAuthenticated();
-    String token = getAuthentication().getToken().getTokenValue();
-    return authUserCacheManager.getCachedUser(token);
+    final String token = getToken();
+    if (authUserCacheManager.getCachedUser(token) == null) {
+      throw new UnAuthenticatedException("User not logged in.");
+    }
+
+    return getAuthentication().getAuthUser();
   }
 
   public String getUserId() {
-    return getAuthentication().getId();
+    return getAuthentication().getUserId();
   }
 
   public Long getCompanyId() {

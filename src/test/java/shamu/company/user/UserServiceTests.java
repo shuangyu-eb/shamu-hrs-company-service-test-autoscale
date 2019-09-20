@@ -23,6 +23,7 @@ import shamu.company.email.EmailService;
 import shamu.company.info.service.UserEmergencyContactService;
 import shamu.company.job.repository.JobRepository;
 import shamu.company.job.repository.JobUserRepository;
+import shamu.company.redis.AuthUserCacheManager;
 import shamu.company.timeoff.service.PaidHolidayService;
 import shamu.company.user.dto.CreatePasswordDto;
 import shamu.company.user.dto.CurrentUserDto;
@@ -36,8 +37,12 @@ import shamu.company.user.entity.UserStatus;
 import shamu.company.user.entity.UserStatus.Status;
 import shamu.company.user.entity.mapper.UserAddressMapper;
 import shamu.company.user.entity.mapper.UserContactInformationMapper;
+import shamu.company.user.entity.mapper.UserMapper;
 import shamu.company.user.entity.mapper.UserPersonalInformationMapper;
-import shamu.company.user.repository.*;
+import shamu.company.user.repository.UserAccessLevelEventRepository;
+import shamu.company.user.repository.UserCompensationRepository;
+import shamu.company.user.repository.UserRepository;
+import shamu.company.user.repository.UserStatusRepository;
 import shamu.company.user.service.UserAddressService;
 import shamu.company.user.service.UserService;
 import shamu.company.user.service.impl.UserServiceImpl;
@@ -47,48 +52,71 @@ class UserServiceTests {
 
   private static UserService userService;
 
-  @Mock private ITemplateEngine templateEngine;
-  @Mock private UserRepository userRepository;
-  @Mock private JobUserRepository jobUserRepository;
-  @Mock private UserStatusRepository userStatusRepository;
-  @Mock private EmailService emailService;
-  @Mock private UserCompensationRepository userCompensationRepository;
-  @Mock private UserPersonalInformationMapper userPersonalInformationMapper;
-  @Mock private UserEmergencyContactService userEmergencyContactService;
-  @Mock private UserAddressService userAddressService;
-  @Mock private CompanySizeRepository companySizeRepository;
-  @Mock private PaidHolidayService paidHolidayService;
-  @Mock private CompanyRepository companyRepository;
-  @Mock private UserContactInformationMapper userContactInformationMapper;
-  @Mock private UserAddressMapper userAddressMapper;
-  @Mock private Auth0Util auth0Util;
-  @Mock private UserAccessLevelEventRepository userAccessLevelEventRepository;
-  @Mock private TaskScheduler taskScheduler;
-  @Mock private DepartmentRepository departmentRepository;
-  @Mock private JobRepository jobRepository;
+  @Mock
+  private ITemplateEngine templateEngine;
+  @Mock
+  private UserRepository userRepository;
+  @Mock
+  private JobUserRepository jobUserRepository;
+  @Mock
+  private UserStatusRepository userStatusRepository;
+  @Mock
+  private EmailService emailService;
+  @Mock
+  private UserCompensationRepository userCompensationRepository;
+  @Mock
+  private UserPersonalInformationMapper userPersonalInformationMapper;
+  @Mock
+  private UserEmergencyContactService userEmergencyContactService;
+  @Mock
+  private UserAddressService userAddressService;
+  @Mock
+  private CompanySizeRepository companySizeRepository;
+  @Mock
+  private PaidHolidayService paidHolidayService;
+  @Mock
+  private CompanyRepository companyRepository;
+  @Mock
+  private UserContactInformationMapper userContactInformationMapper;
+  @Mock
+  private UserAddressMapper userAddressMapper;
+  @Mock
+  private Auth0Util auth0Util;
+  @Mock
+  private UserAccessLevelEventRepository userAccessLevelEventRepository;
+  @Mock
+  private TaskScheduler taskScheduler;
+  @Mock
+  private DepartmentRepository departmentRepository;
+  @Mock
+  private JobRepository jobRepository;
+  @Mock
+  private UserMapper userMapper;
+  @Mock
+  private AuthUserCacheManager authUserCacheManager;
 
   @BeforeEach
   void init() {
     MockitoAnnotations.initMocks(this);
     userService = new UserServiceImpl(templateEngine,
-      userRepository,
-      jobUserRepository,
-      userStatusRepository,
-      emailService,
-      userCompensationRepository,
-      userPersonalInformationMapper,
-      userEmergencyContactService,
-      userAddressService,
-      companySizeRepository,
-      paidHolidayService,
-      companyRepository,
-      userContactInformationMapper,
-      userAddressMapper,
-      auth0Util,
-      userAccessLevelEventRepository,
-      taskScheduler,
-      departmentRepository,
-      jobRepository);
+        userRepository,
+        jobUserRepository,
+        userStatusRepository,
+        emailService,
+        userCompensationRepository,
+        userPersonalInformationMapper,
+        userEmergencyContactService,
+        userAddressService,
+        companySizeRepository,
+        paidHolidayService,
+        companyRepository,
+        userContactInformationMapper,
+        userAddressMapper,
+        auth0Util,
+        userAccessLevelEventRepository,
+        taskScheduler,
+        departmentRepository,
+        jobRepository, userMapper, authUserCacheManager);
   }
 
   @Test
@@ -103,20 +131,71 @@ class UserServiceTests {
         .phone(RandomStringUtils.randomAlphabetic(11))
         .build();
 
-    Mockito.when(companySizeRepository.findCompanySizeByName(Mockito.anyString())).thenReturn(new CompanySize());
+    Mockito.when(companySizeRepository.findCompanySizeByName(Mockito.anyString()))
+        .thenReturn(new CompanySize());
 
     final Company company = new Company();
     company.setName("company");
     company.setCompanySize(new CompanySize(userSignUpDto.getCompanySize()));
     Mockito.when(companyRepository.save(Mockito.any())).thenReturn(company);
 
-    Mockito.when(userStatusRepository.findByName(Mockito.anyString())).thenReturn(new UserStatus(Status.ACTIVE.name()));
+    Mockito.when(userStatusRepository.findByName(Mockito.anyString()))
+        .thenReturn(new UserStatus(Status.ACTIVE.name()));
 
     Mockito.when(userRepository.save(Mockito.any())).thenReturn(new User());
 
     userService.signUp(userSignUpDto);
 
     Mockito.verify(userRepository, Mockito.times(1)).save(Mockito.any());
+  }
+
+  @Test
+  void testGetCurrentUserInfo() {
+    final User currentUser = new User();
+    currentUser.setId(1L);
+    final String userId = UUID.randomUUID().toString().replaceAll("-", "");
+    currentUser.setUserId(userId);
+
+    final UserPersonalInformation userPersonalInformation = new UserPersonalInformation();
+    userPersonalInformation.setFirstName("Aa");
+    userPersonalInformation.setLastName("Bb");
+    currentUser.setUserPersonalInformation(userPersonalInformation);
+
+    currentUser.setImageUrl(RandomStringUtils.randomAlphabetic(11));
+
+    final Company company = new Company();
+    company.setId(1L);
+
+    Mockito.when(userRepository.findByUserId(Mockito.anyString())).thenReturn(currentUser);
+    Mockito.when(userRepository.findByManagerUser(Mockito.any()))
+        .thenReturn(Collections.emptyList());
+
+    final CurrentUserDto userInfo = userService
+        .getCurrentUserInfo(currentUser.getUserId());
+    Assertions.assertEquals(userInfo.getId(), currentUser.getId());
+  }
+
+  @Test
+  void testResetPassword() {
+    final UpdatePasswordDto updatePasswordDto = new UpdatePasswordDto();
+    updatePasswordDto.setNewPassword(RandomStringUtils.randomAlphabetic(10));
+    updatePasswordDto.setResetPasswordToken(RandomStringUtils.randomAlphabetic(10));
+
+    final User databaseUser = new User();
+    final UserContactInformation userContactInformation = new UserContactInformation();
+    userContactInformation.setEmailWork("example@indeed.com");
+    databaseUser.setUserContactInformation(userContactInformation);
+
+    final com.auth0.json.mgmt.users.User authUser = new com.auth0.json.mgmt.users.User();
+
+    Mockito.when(userRepository.findByResetPasswordToken(updatePasswordDto.getResetPasswordToken()))
+        .thenReturn(databaseUser);
+    Mockito.when(auth0Util.getUserByEmailFromAuth0(userContactInformation.getEmailWork()))
+        .thenReturn(authUser);
+
+    Assertions.assertDoesNotThrow(() -> {
+      userService.resetPassword(updatePasswordDto);
+    });
   }
 
   @Nested
@@ -165,7 +244,7 @@ class UserServiceTests {
       targetUser.setManagerUser(currentUser);
 
       Mockito.when(userRepository.findByIdAndCompanyId(Mockito.anyLong(), Mockito.anyLong()))
-        .thenReturn(targetUser);
+          .thenReturn(targetUser);
       Mockito.when(userRepository.getManagerUserIdById(Mockito.anyLong()))
           .thenReturn(currentUser.getId());
 
@@ -183,32 +262,6 @@ class UserServiceTests {
       final boolean hasAccess = userService.hasUserAccess(currentUser, targetUserId);
       Assertions.assertFalse(hasAccess);
     }
-  }
-
-  @Test
-  void testGetCurrentUserInfo() {
-    final User currentUser = new User();
-    currentUser.setId(1L);
-    final String userId = UUID.randomUUID().toString().replaceAll("-", "");
-    currentUser.setUserId(userId);
-
-    final UserPersonalInformation userPersonalInformation = new UserPersonalInformation();
-    userPersonalInformation.setFirstName("Aa");
-    userPersonalInformation.setLastName("Bb");
-    currentUser.setUserPersonalInformation(userPersonalInformation);
-
-    currentUser.setImageUrl(RandomStringUtils.randomAlphabetic(11));
-
-    final Company company = new Company();
-    company.setId(1L);
-
-    Mockito.when(userRepository.findByUserId(Mockito.anyString())).thenReturn(currentUser);
-    Mockito.when(userRepository.findByManagerUser(Mockito.any()))
-        .thenReturn(Collections.emptyList());
-
-    final CurrentUserDto userInfo = userService
-        .getCurrentUserInfo(currentUser.getUserId());
-    Assertions.assertEquals(userInfo.getId(), currentUser.getId());
   }
 
   @Nested
@@ -317,28 +370,5 @@ class UserServiceTests {
         userService.sendResetPasswordEmail("example@indeed.com");
       });
     }
-  }
-
-  @Test
-  void testResetPassword() {
-    final UpdatePasswordDto updatePasswordDto = new UpdatePasswordDto();
-    updatePasswordDto.setNewPassword(RandomStringUtils.randomAlphabetic(10));
-    updatePasswordDto.setResetPasswordToken(RandomStringUtils.randomAlphabetic(10));
-
-    final User databaseUser = new User();
-    final UserContactInformation userContactInformation = new UserContactInformation();
-    userContactInformation.setEmailWork("example@indeed.com");
-    databaseUser.setUserContactInformation(userContactInformation);
-
-    final com.auth0.json.mgmt.users.User authUser = new com.auth0.json.mgmt.users.User();
-
-    Mockito.when(userRepository.findByResetPasswordToken(updatePasswordDto.getResetPasswordToken()))
-        .thenReturn(databaseUser);
-    Mockito.when(auth0Util.getUserByEmailFromAuth0(userContactInformation.getEmailWork()))
-        .thenReturn(authUser);
-
-    Assertions.assertDoesNotThrow(() -> {
-      userService.resetPassword(updatePasswordDto);
-    });
   }
 }

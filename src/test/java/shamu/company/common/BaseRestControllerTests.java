@@ -19,7 +19,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import shamu.company.common.config.DefaultJwtAuthenticationToken;
-import shamu.company.company.entity.Company;
 import shamu.company.server.AuthUser;
 
 class BaseRestControllerTests {
@@ -39,15 +38,13 @@ class BaseRestControllerTests {
     final Instant jwtIssuedAt = LocalDateTime.now().toInstant(ZoneOffset.UTC);
     final Instant jwtExpiredAt = LocalDateTime.now().plusDays(1).toInstant(ZoneOffset.UTC);
     final Jwt jwt = new Jwt(token, jwtIssuedAt, jwtExpiredAt,  jwtHeaders, bodyClaims);
-
-    final String userId = "1";
-    final Authentication authentication = new DefaultJwtAuthenticationToken(jwt, userId,
-        Collections.emptyList());
-    SecurityContextHolder.getContext().setAuthentication(authentication);
-
     final AuthUser authUser = new AuthUser();
     authUser.setId(1L);
 
+    final String userId = "1";
+    final Authentication authentication = new DefaultJwtAuthenticationToken(jwt, userId,
+        Collections.emptyList(), authUser);
+    SecurityContextHolder.getContext().setAuthentication(authentication);
 
   }
 

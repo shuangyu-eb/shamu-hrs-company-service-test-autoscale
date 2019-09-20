@@ -4,7 +4,6 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.thymeleaf.context.Context;
-import shamu.company.company.entity.Company;
 import shamu.company.employee.dto.EmployeeListSearchCondition;
 import shamu.company.employee.dto.OrgChartDto;
 import shamu.company.job.dto.JobUserDto;
@@ -17,7 +16,6 @@ import shamu.company.user.dto.UserSignUpDto;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
 import shamu.company.user.entity.UserCompensation;
-import shamu.company.user.entity.UserStatus.Status;
 import shamu.company.user.pojo.ChangePasswordPojo;
 import shamu.company.user.pojo.UserRoleUpdatePojo;
 import shamu.company.user.pojo.UserStatusUpdatePojo;
@@ -30,9 +28,7 @@ public interface UserService {
 
   List<User> findByManagerUser(User managerUser);
 
-  User findUserByEmail(String email);
-
-  User findUserByUserIdAndStatus(String email, Status userStatus);
+  void cacheUser(String token, Long userId);
 
   User findUserByUserPersonalInformationId(Long userPersonalInformationId);
 
@@ -95,6 +91,8 @@ public interface UserService {
   Long getManagerUserIdById(Long userId);
 
   CurrentUserDto getCurrentUserInfo(String userId);
+
+  CurrentUserDto getMockUserInfo(Long userId);
 
   Boolean existsByEmailWork(String email);
 

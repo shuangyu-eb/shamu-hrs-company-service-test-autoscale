@@ -4,6 +4,8 @@ import com.auth0.client.auth.AuthAPI;
 import com.auth0.client.mgmt.ManagementAPI;
 import com.auth0.exception.Auth0Exception;
 import com.auth0.json.auth.TokenHolder;
+import com.auth0.json.mgmt.Permission;
+import com.auth0.json.mgmt.PermissionsPage;
 import com.auth0.json.mgmt.Role;
 import com.auth0.json.mgmt.RolesPage;
 import com.auth0.json.mgmt.users.User;
@@ -15,7 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
 import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -41,6 +42,7 @@ public class Auth0Util {
     this.auth0Config = auth0Config;
     this.auth0Manager = auth0Manager;
   }
+
   private AuthAPI getAuthAPI() {
     return auth0Config.getAuthApi();
   }
@@ -99,6 +101,28 @@ public class Auth0Util {
     }
 
     return CollectionUtils.isEmpty(users) ? null : users.get(0);
+  }
+
+  public List<String> getPermissionBy(final String email) {
+    final User user = getUserByEmailFromAuth0(email);
+    return getPermission(user.getId());
+  }
+
+  public List<String> getPermission(final String auth0UserId) {
+    final ManagementAPI manager = auth0Manager.getManagementApi();
+    final Request<PermissionsPage> permissionsPageRequest = manager.users()
+        .listPermissions(auth0UserId, null);
+    final PermissionsPage permissionsPage;
+    try {
+      permissionsPage = permissionsPageRequest.execute();
+      return permissionsPage.getItems()
+          .stream().map(Permission::getName)
+          .collect(Collectors.toList());
+    } catch (final Auth0Exception e) {
+      throw new GeneralAuth0Exception("Get permission error with auth0UserId: " + auth0UserId, e);
+    }
+
+
   }
 
   public void updatePassword(final User user, final String newPassword) {

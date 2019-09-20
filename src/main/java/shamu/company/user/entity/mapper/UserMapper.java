@@ -3,6 +3,7 @@ package shamu.company.user.entity.mapper;
 import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import shamu.company.admin.dto.MockUserDto;
 import shamu.company.benefit.dto.BenefitPlanUserDto;
 import shamu.company.common.mapper.Config;
 import shamu.company.employee.dto.BasicJobInformationDto;
@@ -37,11 +38,14 @@ public interface UserMapper {
   @Mapping(target = "lastName", source = "userPersonalInformation.lastName")
   BenefitPlanUserDto convertToBenefitPlanUserDto(User user);
 
-  @Mapping(target = "id", source = "id")
+
   @Mapping(target = "email", source = "userContactInformation.emailWork")
-  @Mapping(target = "imageUrl", source = "imageUrl")
   @Mapping(target = "companyId", source = "company.id")
   AuthUser convertToAuthUser(User user);
+
+  @Mapping(target = "email", source = "userContactInformation.emailWork")
+  @Mapping(target = "companyId", source = "company.id")
+  MockUserDto convertToMockUserDto(User user);
 
   default Role convertFromUserRole(final Role userRole) {
     return userRole;

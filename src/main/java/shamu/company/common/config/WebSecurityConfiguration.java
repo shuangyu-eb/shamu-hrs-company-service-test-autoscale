@@ -18,6 +18,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoderJwkSupport;
+import shamu.company.redis.AuthUserCacheManager;
+import shamu.company.server.AuthUser;
 import shamu.company.utils.Auth0Config;
 
 @Configuration
@@ -29,12 +31,16 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
   private final Auth0Config auth0Config;
 
+  private final AuthUserCacheManager authUserCacheManager;
+
   @Autowired
   public WebSecurityConfiguration(
       final DefaultAuthenticationEntryPoint defaultAuthenticationEntryPoint,
-      final Auth0Config auth0Config) {
+      final Auth0Config auth0Config,
+      final AuthUserCacheManager authUserCacheManager) {
     this.defaultAuthenticationEntryPoint = defaultAuthenticationEntryPoint;
     this.auth0Config = auth0Config;
+    this.authUserCacheManager = authUserCacheManager;
   }
 
   @Override
@@ -85,9 +91,11 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     public AbstractAuthenticationToken convert(final Jwt jwt) {
-      final List<String> authorities = (List<String>) jwt.getClaims()
-          .getOrDefault("permissions", Collections
-              .emptyList());
+
+      final AuthUser authUser = authUserCacheManager.getCachedUser(jwt.getTokenValue());
+
+      final List<String> authorities =
+          authUser == null ? Collections.EMPTY_LIST : authUser.getPermissions();
 
       final List<SimpleGrantedAuthority> grantedAuthorities = authorities.stream()
           .map(SimpleGrantedAuthority::new)
@@ -95,7 +103,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
       final String id = jwt.getClaimAsString(String.format("%sid", customNamespace));
 
-      return new DefaultJwtAuthenticationToken(jwt, id, grantedAuthorities);
+      return new DefaultJwtAuthenticationToken(jwt, id, grantedAuthorities, authUser);
     }
   }
 
