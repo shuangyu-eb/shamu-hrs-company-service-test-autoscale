@@ -19,6 +19,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shamu.company.common.exception.ResourceNotFoundException;
+import shamu.company.server.AuthUser;
 import shamu.company.timeoff.dto.BasicTimeOffRequestDto;
 import shamu.company.timeoff.dto.MyTimeOffDto;
 import shamu.company.timeoff.dto.TimeOffBreakdownDto;
@@ -40,6 +41,7 @@ import shamu.company.timeoff.service.TimeOffRequestEmailService;
 import shamu.company.timeoff.service.TimeOffRequestService;
 import shamu.company.user.entity.User;
 import shamu.company.user.repository.UserRepository;
+import shamu.company.user.service.UserService;
 import shamu.company.utils.Auth0Util;
 import shamu.company.utils.DateUtil;
 
@@ -61,8 +63,10 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
   private final TimeOffPolicyService timeOffPolicyService;
 
   private final TimeOffDetailService timeOffDetailService;
-  
+
   private final Auth0Util auth0Util;
+
+  private final UserService userService;
 
   @Autowired
   public TimeOffRequestServiceImpl(
@@ -74,7 +78,8 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
       final TimeOffRequestMapper timeOffRequestMapper,
       final TimeOffPolicyService timeOffPolicyService,
       final TimeOffDetailService timeOffDetailService,
-      final Auth0Util auth0Util) {
+      final Auth0Util auth0Util,
+      final UserService userService) {
     this.timeOffRequestRepository = timeOffRequestRepository;
     this.timeOffPolicyUserRepository = timeOffPolicyUserRepository;
     this.userRepository = userRepository;
@@ -84,6 +89,7 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
     this.timeOffPolicyService = timeOffPolicyService;
     this.timeOffDetailService = timeOffDetailService;
     this.auth0Util = auth0Util;
+    this.userService = userService;
   }
 
   @Override
@@ -131,14 +137,14 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
 
     final User.Role userRole = auth0Util
         .getUserRole(user.getUserContactInformation().getEmailWork());
-    if (userRole == User.Role.EMPLOYEE) {
-      return timeOffRequestRepository.employeeFindTeamRequests(
-          user.getManagerUser().getId(), statusNames);
+    if (user.getManagerUser() == null) {
+      return timeOffRequestRepository.adminFindTeamRequests(user.getId(), statusNames);
     } else if (userRole == User.Role.MANAGER) {
       return timeOffRequestRepository.managerFindTeamRequests(
-          user.getId(), user.getManagerUser().getId(), statusNames);
+              user.getId(), user.getManagerUser().getId(), statusNames);
     } else {
-      return timeOffRequestRepository.adminFindTeamRequests(user.getId(), statusNames);
+      return timeOffRequestRepository.employeeFindTeamRequests(
+              user.getManagerUser().getId(), statusNames);
     }
   }
 
@@ -335,5 +341,32 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
     timeOffRequest.setBalance(balance);
 
     return createTimeOffRequest(timeOffRequest);
+  }
+
+  @Override
+  public List<TimeOffRequestDto> getTimeOffRequest(
+          final Long id, final TimeOffRequestApprovalStatus[] status, final AuthUser currentUser) {
+    final User user = userService.findUserById(id);
+    final User.Role userRole = auth0Util.getUserRole(currentUser.getEmail());
+
+    List<TimeOffRequestDto> timeOffRequestDtos;
+    timeOffRequestDtos =  getRequestsByUserAndStatus(user, status).stream()
+            .map(timeOffRequestMapper::convertToTimeOffRequestDto)
+            .collect(Collectors.toList());
+
+    if (id == currentUser.getId()) {
+      for (TimeOffRequestDto requestDto:timeOffRequestDtos) {
+        requestDto.setHasPermissionCreateAndApprove(user.getManagerUser() == null);
+      }
+    } else if (userRole == User.Role.ADMIN) {
+      for (TimeOffRequestDto requestDto:timeOffRequestDtos) {
+        requestDto.setHasPermissionCreateAndApprove(true);
+      }
+    } else {
+      for (TimeOffRequestDto requestDto:timeOffRequestDtos) {
+        requestDto.setHasPermissionCreateAndApprove(false);
+      }
+    }
+    return timeOffRequestDtos;
   }
 }

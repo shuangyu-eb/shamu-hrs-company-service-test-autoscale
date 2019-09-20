@@ -91,7 +91,7 @@ public class TimeOffRequestRestController extends BaseRestController {
   }
 
   @PostMapping("users/{userId}/time-off-requests/approved")
-  @PreAuthorize("hasPermission(#userId,'USER','MANAGE_TIME_OFF_REQUEST')")
+  @PreAuthorize("hasPermission(#userId,'TIME_OFF_REQUEST','CREATE_AND_APPROVED_TIME_OFF_REQUEST')")
   public void createTimeOffRequestAndApproved(
       @PathVariable @HashidsFormat final Long userId,
       @RequestBody final TimeOffRequestPojo requestPojo) {
@@ -116,15 +116,11 @@ public class TimeOffRequestRestController extends BaseRestController {
   }
 
   @GetMapping("users/{id}/time-off-requests")
-  @PreAuthorize("hasPermission(#id,'USER','MANAGE_SELF_TIME_OFF_REQUEST')")
+  @PreAuthorize("hasPermission(#id,'USER','VIEW_TEAM_TIME_OFF_REQUEST')")
   public List<TimeOffRequestDto> getTimeOffRequests(
       @PathVariable @HashidsFormat final Long id,
       @RequestParam final TimeOffRequestApprovalStatus[] status) {
-    final User user = userService.findUserById(id);
-
-    return timeOffRequestService.getRequestsByUserAndStatus(user, status).stream()
-        .map(timeOffRequestMapper::convertToTimeOffRequestDto)
-        .collect(Collectors.toList());
+    return timeOffRequestService.getTimeOffRequest(id, status, getAuthUser());
   }
 
   @GetMapping("time-off-requests/{id}")

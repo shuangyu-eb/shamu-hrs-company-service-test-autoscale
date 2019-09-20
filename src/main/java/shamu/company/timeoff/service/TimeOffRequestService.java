@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import shamu.company.server.AuthUser;
 import shamu.company.timeoff.dto.MyTimeOffDto;
 import shamu.company.timeoff.dto.TimeOffRequestDetailDto;
 import shamu.company.timeoff.dto.TimeOffRequestDto;
@@ -54,4 +55,7 @@ public interface TimeOffRequestService {
   TimeOffRequest saveTimeOffRequest(
           final TimeOffRequest timeOffRequest, final Long policyId,
           final TimeOffRequestApprovalStatus status);
+
+  List<TimeOffRequestDto> getTimeOffRequest(
+          final Long id, final TimeOffRequestApprovalStatus[] status, final AuthUser currentUser);
 }

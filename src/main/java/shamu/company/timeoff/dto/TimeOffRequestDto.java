@@ -34,4 +34,6 @@ public class TimeOffRequestDto {
   private String comment;
 
   private Set<TimeOffRequestDateDto> dates;
+
+  private Boolean hasPermissionCreateAndApprove;
 }

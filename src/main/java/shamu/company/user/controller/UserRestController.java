@@ -183,10 +183,4 @@ public class UserRestController extends BaseRestController {
   public CurrentUserDto getUserInfo() {
     return userService.getCurrentUserInfo(getUserId());
   }
-
-  @GetMapping("has-privilege/user/{userId}")
-  public boolean hasUserPermission(@HashidsFormat @PathVariable final Long userId) {
-    final User currentUser = userService.findUserById(getAuthUser().getId());
-    return userService.hasUserAccess(currentUser, userId);
-  }
 }

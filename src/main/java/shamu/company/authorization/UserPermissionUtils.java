@@ -156,8 +156,13 @@ public class UserPermissionUtils extends BasePermissionUtils {
 
   private boolean hasPermissionOfTimeOffRequest(final Authentication auth, final Long id,
       final Permission.Name permission) {
-    final User user = timeOffRequestService.getById(id).getRequesterUser();
-    return hasPermissionOfUser(auth, user, permission);
+    if (permission == Name.CREATE_AND_APPROVED_TIME_OFF_REQUEST) {
+      final User user = userService.findUserById(id);
+      return user.getManagerUser() == null || getAuthUserRole() == User.Role.ADMIN;
+    } else {
+      final User user = timeOffRequestService.getById(id).getRequesterUser();
+      return hasPermissionOfUser(auth, user, permission);
+    }
   }
 
   private boolean hasPermissionOfPersonalInformation(
@@ -210,6 +215,8 @@ public class UserPermissionUtils extends BasePermissionUtils {
     final PermissionType permissionType = permission.getPermissionType();
     if (permissionType == PermissionType.SELF_PERMISSION) {
       return getAuthUser().getId().equals(targetUser.getId());
+    } else if (permission == Name.VIEW_TEAM_TIME_OFF_REQUEST) {
+      return targetUser.getCompany().getId() == getCompanyId();
     }
 
     companyEqual(targetUser.getCompany());
