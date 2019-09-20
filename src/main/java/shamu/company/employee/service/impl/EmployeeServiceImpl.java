@@ -79,6 +79,7 @@ import shamu.company.user.service.UserService;
 import shamu.company.utils.Auth0Util;
 import shamu.company.utils.AwsUtil;
 import shamu.company.utils.AwsUtil.Type;
+import shamu.company.utils.DateUtil;
 import shamu.company.utils.FileValidateUtil;
 import shamu.company.utils.FileValidateUtil.FileType;
 
@@ -206,7 +207,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
   @Override
   public List<User> findDirectReportsEmployersAndEmployeesByDepartmentIdAndCompanyId(
-          final Long departmentId, final Long companyId, Long userId) {
+          final Long departmentId, final Long companyId, final Long userId) {
     return userRepository.findDirectReportsEmployersAndEmployeesByDepartmentIdAndCompanyId(
             departmentId, companyId, userId);
   }
@@ -234,6 +235,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
   @Override
   public void updateEmployee(final EmployeeDto employeeDto, final User employee) {
+
     updateEmployeeBasicInformation(employee, employeeDto);
     updateEmergencyContacts(employee, employeeDto.getUserEmergencyContactDto());
     updateEmployeeAddress(employee, employeeDto);
@@ -403,6 +405,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         userContactInformationService.update(newUserContactInformation);
     employee.setUserContactInformation(savedUserContactInformation);
 
+    employee.setVerifiedAt(Timestamp.valueOf(DateUtil.getLocalUtcTime()));
     return userRepository.save(employee);
   }
 

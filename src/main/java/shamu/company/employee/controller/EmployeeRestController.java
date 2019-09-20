@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.thymeleaf.context.Context;
 import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
+import shamu.company.common.exception.ForbiddenException;
 import shamu.company.employee.dto.EmailResendDto;
 import shamu.company.employee.dto.EmployeeDto;
 import shamu.company.employee.dto.EmployeeListSearchCondition;
@@ -87,7 +88,7 @@ public class EmployeeRestController extends BaseRestController {
   @PostMapping("employees")
   @PreAuthorize("hasAuthority('CREATE_USER')")
   public HttpEntity addEmployee(@RequestBody final EmployeeDto employee) {
-    User currentUser = userService.findUserById(getAuthUser().getId());
+    final User currentUser = userService.findUserById(getAuthUser().getId());
     employeeService.addEmployee(employee, currentUser);
     return new ResponseEntity(HttpStatus.OK);
   }
@@ -95,7 +96,12 @@ public class EmployeeRestController extends BaseRestController {
   @PatchMapping("employees")
   @PreAuthorize("hasAuthority('EDIT_SELF')")
   public HttpEntity updateEmployee(@RequestBody final EmployeeDto employeeDto) {
-    User employee = userService.findUserById(getAuthUser().getId());
+    final User employee = userService.findUserById(getAuthUser().getId());
+    if (employee.getVerifiedAt() != null) {
+      throw new ForbiddenException(String.format("User with email %s already verified!",
+          employeeDto.getEmailWork()));
+    }
+
     employeeService.updateEmployee(employeeDto, employee);
     return new ResponseEntity(HttpStatus.OK);
   }

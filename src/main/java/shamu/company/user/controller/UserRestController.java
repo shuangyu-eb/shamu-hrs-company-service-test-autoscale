@@ -186,7 +186,7 @@ public class UserRestController extends BaseRestController {
 
   @GetMapping("has-privilege/user/{userId}")
   public boolean hasUserPermission(@HashidsFormat @PathVariable final Long userId) {
-    User currentUser = userService.findUserById(getAuthUser().getId());
+    final User currentUser = userService.findUserById(getAuthUser().getId());
     return userService.hasUserAccess(currentUser, userId);
   }
 }

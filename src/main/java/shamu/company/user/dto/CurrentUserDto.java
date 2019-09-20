@@ -25,6 +25,8 @@ public class CurrentUserDto {
 
   private List<Long> teamMembers;
 
+  private Boolean verified;
+
   public List<String> getTeamMembers() {
     if (CollectionUtils.isEmpty(teamMembers)) {
       return Collections.emptyList();

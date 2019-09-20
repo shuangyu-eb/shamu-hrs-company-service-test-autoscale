@@ -75,6 +75,7 @@ import shamu.company.user.repository.UserStatusRepository;
 import shamu.company.user.service.UserAddressService;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.Auth0Util;
+import shamu.company.utils.DateUtil;
 
 @Service
 @Transactional
@@ -304,7 +305,7 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public List<OrgChartDto> getOrgChart(final Long userId, final Long companyId) {
-    List<OrgChartDto> orgChartDtoList = new ArrayList<>();
+    final List<OrgChartDto> orgChartDtoList = new ArrayList<>();
     List<OrgChartDto> orgChartManagerItemList = new ArrayList<>();
     if (userId != null) {
       OrgChartDto manager = null;
@@ -316,7 +317,7 @@ public class UserServiceImpl implements UserService {
           .findOrgChartItemByManagerId(null, companyId);
     }
     if (!orgChartManagerItemList.isEmpty()) {
-      for (OrgChartDto manager : orgChartManagerItemList) {
+      for (final OrgChartDto manager : orgChartManagerItemList) {
         if (manager == null) {
           throw new ForbiddenException("User with id " + userId + " not found!");
         }
@@ -394,6 +395,7 @@ public class UserServiceImpl implements UserService {
     final UserStatus userStatus = userStatusRepository.findByName(Status.ACTIVE.name());
     targetUser.setUserStatus(userStatus);
     targetUser.setResetPasswordToken(null);
+    targetUser.setVerifiedAt(Timestamp.valueOf(DateUtil.getLocalUtcTime()));
     userRepository.save(targetUser);
   }
 
@@ -410,7 +412,7 @@ public class UserServiceImpl implements UserService {
             employeeListSearchCondition.getSize(),
             Sort.Direction.valueOf(sortDirection),
             sortValue);
-    User user =
+    final User user =
         userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(ERROR_MESSAGE));
     return userRepository
         .getMyTeamByManager(employeeListSearchCondition, user, paramPageable);
@@ -563,6 +565,7 @@ public class UserServiceImpl implements UserService {
         .userContactInformation(userContactInformation)
         .company(company)
         .emailWork(signUpDto.getEmail())
+        .verifiedAt(Timestamp.valueOf(DateUtil.getLocalUtcTime()))
         .build();
 
     user = userRepository.save(user);
@@ -630,6 +633,14 @@ public class UserServiceImpl implements UserService {
   @Override
   public CurrentUserDto getCurrentUserInfo(final String userId) {
     final User user = findByUserId(userId);
+
+    if (user.getVerifiedAt() == null) {
+      return CurrentUserDto.builder()
+          .id(user.getId())
+          .verified(false)
+          .build();
+    }
+
     final List<User> teamMembers = findByManagerUser(user);
     final List<Long> teamMemberIds = teamMembers.stream().map(BaseEntity::getId)
         .collect(Collectors.toList());
@@ -639,6 +650,7 @@ public class UserServiceImpl implements UserService {
         .teamMembers(teamMemberIds)
         .name(user.getUserPersonalInformation().getName())
         .imageUrl(user.getImageUrl())
+        .verified(user.getVerifiedAt() != null)
         .build();
   }
 
