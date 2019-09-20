@@ -20,8 +20,10 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+import shamu.company.common.exception.AbstractException;
 import shamu.company.common.exception.GeneralAuth0Exception;
 import shamu.company.common.exception.GeneralException;
+import shamu.company.common.exception.TooManyRequestException;
 
 @Component
 public class Auth0Util {
@@ -29,6 +31,8 @@ public class Auth0Util {
   private final Auth0Config auth0Config;
 
   private final Auth0Manager auth0Manager;
+
+  private static final String managementApi = "managementApi";
 
   @Autowired
   public Auth0Util(final Auth0Manager auth0Manager,
@@ -40,13 +44,29 @@ public class Auth0Util {
     return auth0Config.getAuthApi();
   }
 
+  private AbstractException handleAuth0Exception(final String message,
+                                                     final Auth0Exception e,
+                                                     final String api) {
+    if ((e.getMessage().contains("429") ||
+            e.getMessage().contains("Too Many Requests")) && api.equals("authApi")) {
+      return new TooManyRequestException("Too many requests. "
+              + "System limits for request are 100 requests per second.",e);
+    } else if ((e.getMessage().contains("429") ||
+            e.getMessage().contains("Too Many Requests")) && api.equals(managementApi)) {
+      return new TooManyRequestException("Too many requests. "
+              + "System limits for request are 15 requests per second.",e);
+    } else {
+      return new GeneralAuth0Exception(message, e);
+    }
+  }
+
   public TokenHolder login(final String email, final String password) {
     try {
       final AuthRequest request = getAuthAPI().login(email, password)
           .setAudience(auth0Config.getAudience());
       return request.execute();
     } catch (final Auth0Exception exception) {
-      throw new GeneralException(exception.getMessage(), exception);
+      throw handleAuth0Exception(exception.getMessage(), exception,"authApi");
     }
   }
 
@@ -67,7 +87,7 @@ public class Auth0Util {
     try {
       users = userRequest.execute();
     } catch (final Auth0Exception e) {
-      throw new GeneralAuth0Exception(e.getMessage(), e);
+      throw handleAuth0Exception(e.getMessage(), e, managementApi);
     }
 
     if (users.size() > 1) {
@@ -88,7 +108,7 @@ public class Auth0Util {
           .update(user.getId(), passwordUpdateUser);
       passwordUpdateRequest.execute();
     } catch (final Auth0Exception e) {
-      throw new GeneralAuth0Exception(e.getMessage(), e);
+      throw handleAuth0Exception(e.getMessage(), e, managementApi);
     }
   }
 
@@ -102,7 +122,7 @@ public class Auth0Util {
               .update(authUser.getId(), emailUpdateUser);
       emailUpdateRequest.execute();
     } catch (final Auth0Exception e) {
-      throw new GeneralAuth0Exception(e.getMessage(), e);
+      throw handleAuth0Exception(e.getMessage(), e, managementApi);
     }
   }
 
@@ -115,7 +135,7 @@ public class Auth0Util {
           .update(user.getId(), verifiedUpdate);
       verifiedRequest.execute();
     } catch (final Auth0Exception e) {
-      throw new GeneralAuth0Exception(e.getMessage(), e);
+      throw handleAuth0Exception(e.getMessage(), e, managementApi);
     }
   }
 
@@ -155,7 +175,7 @@ public class Auth0Util {
     try {
       return request.execute();
     } catch (final Auth0Exception e) {
-      throw new GeneralAuth0Exception(e.getMessage(), e);
+      throw handleAuth0Exception(e.getMessage(), e, managementApi);
     }
   }
 
@@ -178,7 +198,7 @@ public class Auth0Util {
       final Role targetRole = roles.get(0);
       return shamu.company.user.entity.User.Role.valueOf(targetRole.getName());
     } catch (final Auth0Exception e) {
-      throw new GeneralAuth0Exception(e.getMessage(), e);
+      throw handleAuth0Exception(e.getMessage(), e, managementApi);
     }
   }
 
@@ -210,7 +230,7 @@ public class Auth0Util {
       updateUserRoleRequest.execute();
 
     } catch (final Auth0Exception e) {
-      throw new GeneralAuth0Exception(e.getMessage(), e);
+      throw handleAuth0Exception(e.getMessage(), e, managementApi);
     }
   }
 
@@ -220,7 +240,7 @@ public class Auth0Util {
       final Request deleteUserRequest = manager.users().delete(userId);
       deleteUserRequest.execute();
     } catch (final Auth0Exception e) {
-      throw new GeneralException(e.getMessage(), e);
+      throw handleAuth0Exception(e.getMessage(), e, managementApi);
     }
 
   }
