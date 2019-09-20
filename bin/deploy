@@ -4,6 +4,7 @@ REPOSITORY_NAME=`sed -n 's/REPOSITORY_NAME=\(.*\)/\1/p' config/deploy.env`
 REPOSITORY_TAG=`sed -n 's/REPOSITORY_TAG=\(.*\)/\1/p' config/deploy.env`
 CLUSTER=`sed -n 's/CLUSTER=\(.*\)/\1/p' config/deploy.env`
 SERVICE_NAME=`sed -n 's/SERVICE_NAME=\(.*\)/\1/p' config/deploy.env`
+REGION=`sed -n 's/REGION=\(.*\)/\1/p' config/deploy.env`
 
 while [ -n "$1" ]
 do
@@ -33,7 +34,7 @@ do
 done
 
 
-DOCKER_LOGIN=`aws ecr get-login --no-include-email --region ap-northeast-1`
+DOCKER_LOGIN=`aws ecr get-login --no-include-email --region ${REGION}`
 ${DOCKER_LOGIN}
 
 mvn clean package -Dmaven.test.skip=true -e
@@ -46,5 +47,11 @@ docker tag ${REPOSITORY_NAME}:${REPOSITORY_TAG} ${REPOSITORY_URI}:${REPOSITORY_T
 
 docker push ${REPOSITORY_URI}:${REPOSITORY_TAG}
 
-aws ecs update-service --cluster ${CLUSTER} --service ${SERVICE_NAME} --task-definition company-service:5 --desired-count 1 --force-new-deployment
+ECS_SERVICES=`aws ecs list-services --cluster ${CLUSTER} | jq .serviceArns`
+
+if [ "[]" == "${ECS_SERVICES}" ];then
+  echo "skip update company service"
+else
+  aws ecs update-service --cluster ${CLUSTER} --service ${SERVICE_NAME} --task-definition ${SERVICE_NAME} --desired-count 1 --force-new-deployment
+fi
 
