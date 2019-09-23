@@ -3,15 +3,15 @@ package shamu.company.hashids;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.hashids.Hashids;
+import shamu.company.common.exception.GeneralException;
 
 public class HashidsUtil {
-  private static final String ALPHABET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
   private static final String SALT_NAME = "shamu-hrs-salt";
 
-  private static Hashids hashids = new Hashids(SALT_NAME,0, ALPHABET);
+  private static final Hashids hashids = new Hashids(SALT_NAME,22);
 
 
-  public static String encode(Object id) {
+  public static String encode(final Object id) {
     if (id instanceof Long) {
       return hashids.encode((Long) id);
     }
@@ -21,21 +21,21 @@ public class HashidsUtil {
     return null;
   }
 
-  public static String encode(Long id) {
+  public static String encode(final Long id) {
     return hashids.encode(id);
   }
 
-  public static String encode(List<Long> ids) {
+  public static String encode(final List<Long> ids) {
     return ids.stream()
         .map(id -> hashids.encode(id))
         .collect(Collectors.toList()).toString();
   }
 
-  public static Long decode(String encodedId) {
-    try {
-      return hashids.decode(encodedId)[0];
-    } catch (Exception e) {
-      return null;
+  public static Long decode(final String encodedId) {
+    final long[] result = hashids.decode(encodedId);
+    if (result.length == 0) {
+      throw new GeneralException("Can not decode target encoded id!");
     }
+    return result[0];
   }
 }

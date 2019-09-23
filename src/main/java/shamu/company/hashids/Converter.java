@@ -24,15 +24,15 @@ public class Converter extends FastJsonHttpMessageConverter {
 
   public Converter() {
     super();
-    FastJsonConfig fastJsonConfig = new FastJsonConfig();
-    LongDecode longDecode = new LongDecode();
+    final FastJsonConfig fastJsonConfig = new FastJsonConfig();
+    final LongDecode longDecode = new LongDecode();
     // id => hash id
     fastJsonConfig.setSerializeFilters(getSerializeFilter());
     // not filter the field when the value is null
     fastJsonConfig.setSerializerFeatures(SerializerFeature.WriteMapNullValue);
 
     //hash id => id
-    ParserConfig parserConfig = new ParserConfig();
+    final ParserConfig parserConfig = new ParserConfig();
     parserConfig.putDeserializer(Long.class, longDecode);
     parserConfig.putDeserializer(long.class, longDecode);
     fastJsonConfig.setParserConfig(parserConfig);
@@ -40,15 +40,16 @@ public class Converter extends FastJsonHttpMessageConverter {
   }
 
   @Override
-  public Object read(Type type, Class<?> contextClass, HttpInputMessage inputMessage) {
+  public Object read(final Type type, final Class<?> contextClass,
+      final HttpInputMessage inputMessage) {
     try {
-      InputStream in = inputMessage.getBody();
-      byte[] bytes = IOUtils.toByteArray(in);
+      final InputStream in = inputMessage.getBody();
+      final byte[] bytes = IOUtils.toByteArray(in);
       Charset charset = getFastJsonConfig().getCharset();
       if (charset == null) {
         charset = com.alibaba.fastjson.util.IOUtils.UTF8;
       }
-      String json = new String(bytes, charset);
+      final String json = new String(bytes, charset);
 
       if (type == String.class) {
         return json;
@@ -58,9 +59,9 @@ public class Converter extends FastJsonHttpMessageConverter {
 
       return JSON.parseObject(json, type, getFastJsonConfig().getParserConfig(),
           JSON.DEFAULT_PARSER_FEATURE, getFastJsonConfig().getFeatures());
-    } catch (JSONException ex) {
+    } catch (final JSONException ex) {
       throw new GeneralException("JSON parse error: " + ex.getMessage(), ex);
-    } catch (IOException ex) {
+    } catch (final IOException ex) {
       throw new GeneralException("I/O error while reading input message", ex);
     }
   }
@@ -78,8 +79,9 @@ public class Converter extends FastJsonHttpMessageConverter {
   private class LongDecode extends LongCodec {
 
     @Override
-    public <T> T deserialze(DefaultJSONParser parser, Type clazz, Object fieldName) {
-      String field;
+    public <T> T deserialze(final DefaultJSONParser parser,
+        final Type clazz, final Object fieldName) {
+      final String field;
       if (fieldName instanceof String) {
         field = fieldName.toString();
       } else {
@@ -94,19 +96,17 @@ public class Converter extends FastJsonHttpMessageConverter {
       if (contentObject != null && AnnotationUtil
           .fieldHasAnnotation(contentObject.getClass(), field,
               HashidsFormat.class)) {
-        JSONLexer lexer = parser.lexer;
-        int token = lexer.token();
+        final JSONLexer lexer = parser.lexer;
+        final int token = lexer.token();
         if (token == JSONToken.NULL) {
           lexer.nextToken(JSONToken.COMMA);
           return null;
         }
         // String => Long
         if (token == JSONToken.LITERAL_STRING) {
-          String value = (String) parser.parse();
-          if (!value.matches("\\d+")) {
-            Long id = HashidsUtil.decode(value);
-            return (T) id;
-          }
+          final String value = (String) parser.parse();
+          final Long id = HashidsUtil.decode(value);
+          return (T) id;
         }
       }
       return super.deserialze(parser, clazz, fieldName);
