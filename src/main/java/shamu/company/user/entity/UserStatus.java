@@ -28,6 +28,7 @@ public class UserStatus extends BaseEntity {
   public enum Status {
     ACTIVE,
     DISABLED,
-    PENDING_VERIFICATION
+    PENDING_VERIFICATION,
+    CHANGING_EMAIL_VERIFICATION
   }
 }

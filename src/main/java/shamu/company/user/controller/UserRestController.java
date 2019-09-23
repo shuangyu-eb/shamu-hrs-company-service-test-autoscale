@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.company.CompanyService;
+import shamu.company.employee.dto.EmailResendDto;
 import shamu.company.hashids.HashidsFormat;
 import shamu.company.hashids.HashidsUtil;
 import shamu.company.user.dto.AccountInfoDto;
@@ -132,6 +133,8 @@ public class UserRestController extends BaseRestController {
     return true;
   }
 
+
+
   @PatchMapping("user/password/update")
   public void updatePassword(@RequestBody @Valid final ChangePasswordPojo changePasswordPojo) {
     userService.updatePassword(changePasswordPojo, getAuthUser().getEmail());
@@ -198,4 +201,35 @@ public class UserRestController extends BaseRestController {
     userService.cacheUser(this.getToken(), useId);
     return userService.getMockUserInfo(useId);
   }
+
+  @GetMapping("/user/check-password/{password}")
+  @PreAuthorize("hasAuthority('EDIT_SELF')")
+  public void checkPassword(@PathVariable final String password) {
+    final User currentUser = userService.findUserById(getAuthUser().getId());
+    userService.checkPassword(currentUser, password);
+  }
+
+  @PatchMapping("/user/send-verify-email")
+  @PreAuthorize(
+      "hasPermission(#emailResendDto.userId,'USER', 'EDIT_USER')"
+          + " or hasPermission(#emailResendDto.userId,'USER', 'EDIT_SELF')")
+  public void sendChangeWorkEmail(@RequestBody @Valid final EmailResendDto emailResendDto) {
+    userService.sendChangeWorkEmail(emailResendDto.getUserId(),emailResendDto.getEmail());
+
+  }
+
+  @GetMapping("/user/change-work-email")
+  @PreAuthorize("hasAuthority('EDIT_SELF')")
+  public String getChangeWorkEmail() {
+    User user = userService.findUserById(getAuthUser().getId());
+    return user.getChangeWorkEmail();
+  }
+
+  @GetMapping("/user/send-verify-work-email")
+  @PreAuthorize("hasAuthority('EDIT_SELF')")
+  public void sendVerifyChangeWorkEmail() {
+    User user = userService.findUserById(getAuthUser().getId());
+    userService.sendVerifyChangeWorkEmail(user);
+  }
+
 }

@@ -45,4 +45,11 @@ public class AccountRestController {
     auth0Util.login(userLoginDto.getEmailWork(), userLoginDto.getPassword());
     return new ResponseEntity(HttpStatus.OK);
   }
+
+
+  @PatchMapping("account/change-work-email/{token}")
+  public boolean validateChangeWorkEmail(@PathVariable final String token) {
+    return userService.changeWorkEmailTokenExist(token);
+  }
+
 }

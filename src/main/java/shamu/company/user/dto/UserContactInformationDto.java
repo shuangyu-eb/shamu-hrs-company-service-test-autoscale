@@ -6,4 +6,6 @@ import lombok.Data;
 public class UserContactInformationDto extends BasicUserContactInformationDto {
 
   private String emailHome;
+
+  private String emailWork;
 }

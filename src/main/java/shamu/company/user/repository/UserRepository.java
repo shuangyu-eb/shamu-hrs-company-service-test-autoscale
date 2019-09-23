@@ -69,6 +69,8 @@ public interface UserRepository extends BaseRepository<User, Long>, UserCustomRe
 
   Boolean existsByResetPasswordToken(String token);
 
+  Boolean existsByChangeWorkEmailToken(String token);
+
   User findByResetPasswordToken(String token);
 
   @Query(
@@ -121,4 +123,6 @@ public interface UserRepository extends BaseRepository<User, Long>, UserCustomRe
           + "AND u.userPersonalInformation.firstName LIKE CONCAT('%',?1,'%')")
   Page<SuperAdminUserDto> findBy(String keyword, Pageable pageable);
 
+
+  User findByChangeWorkEmailToken(String token);
 }

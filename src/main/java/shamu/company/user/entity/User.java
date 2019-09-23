@@ -85,6 +85,12 @@ public class User extends BaseEntity {
 
   private String userId;
 
+  private String changeWorkEmail;
+
+  private String changeWorkEmailToken;
+
+  private Timestamp verifyChangeWorkEmailAt;
+
   public User(final Long id) {
     setId(id);
   }

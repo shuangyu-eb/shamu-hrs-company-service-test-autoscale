@@ -73,6 +73,7 @@ import shamu.company.user.pojo.UserRoleUpdatePojo;
 import shamu.company.user.pojo.UserStatusUpdatePojo;
 import shamu.company.user.repository.UserAccessLevelEventRepository;
 import shamu.company.user.repository.UserCompensationRepository;
+import shamu.company.user.repository.UserContactInformationRepository;
 import shamu.company.user.repository.UserRepository;
 import shamu.company.user.repository.UserStatusRepository;
 import shamu.company.user.service.UserAddressService;
@@ -88,6 +89,7 @@ public class UserServiceImpl implements UserService {
   private final ITemplateEngine templateEngine;
   private final UserRepository userRepository;
   private final JobUserRepository jobUserRepository;
+
   private final UserStatusRepository userStatusRepository;
   private final UserEmergencyContactService userEmergencyContactService;
   private final UserAddressService userAddressService;
@@ -109,6 +111,8 @@ public class UserServiceImpl implements UserService {
   private final UserMapper userMapper;
   private final AuthUserCacheManager authUserCacheManager;
   private final UserAccessLevelEventRepository userAccessLevelEventRepository;
+  private final UserContactInformationRepository userContactInformationRepository;
+
 
   @Value("${application.systemEmailAddress}")
   private String systemEmailAddress;
@@ -132,7 +136,8 @@ public class UserServiceImpl implements UserService {
       final DepartmentRepository departmentRepository,
       final JobRepository jobRepository,
       final UserMapper userMapper,
-      final AuthUserCacheManager authUserCacheManager) {
+      final AuthUserCacheManager authUserCacheManager,
+      final UserContactInformationRepository userContactInformationRepository) {
     this.templateEngine = templateEngine;
     this.userRepository = userRepository;
     this.jobUserRepository = jobUserRepository;
@@ -154,6 +159,7 @@ public class UserServiceImpl implements UserService {
     this.jobRepository = jobRepository;
     this.userMapper = userMapper;
     this.authUserCacheManager = authUserCacheManager;
+    this.userContactInformationRepository = userContactInformationRepository;
   }
 
   @Override
@@ -640,6 +646,98 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
+  public void checkPassword(User user, String password) {
+
+    auth0Util.login(user.getUserContactInformation().getEmailWork(), password);
+
+  }
+
+  @Override
+  public void sendChangeWorkEmail(Long userId, String newEmail) {
+
+    User user = userRepository.findById(userId).get();
+
+    user.setUserStatus(userStatusRepository.findByName(
+        String.valueOf(Status.CHANGING_EMAIL_VERIFICATION)));
+
+    user.setChangeWorkEmail(newEmail);
+
+    String newEmailToken = UUID.randomUUID().toString();
+    user.setChangeWorkEmailToken(newEmailToken);
+
+    final String emailContent = getVerifyiedEmail(newEmailToken);
+
+    final Timestamp sendDate = Timestamp.valueOf(LocalDateTime.now());
+
+    Email verifyChangeWorkEmail = new Email(systemEmailAddress,
+        user.getChangeWorkEmail(),"Verify New Work Email", emailContent, sendDate);
+
+    emailService.saveAndScheduleEmail(verifyChangeWorkEmail);
+
+    userRepository.save(user);
+  }
+
+  @Override
+  public String getChangeWorkEmailInfo(User user) {
+    return user.getChangeWorkEmail();
+  }
+
+  @Override
+  public void sendVerifyChangeWorkEmail(User user) {
+
+    String newEmailToken = UUID.randomUUID().toString();
+    user.setChangeWorkEmailToken(newEmailToken);
+
+    final String emailContent = getVerifyiedEmail(newEmailToken);
+
+    final Timestamp sendDate = Timestamp.valueOf(LocalDateTime.now());
+
+    Email verifyChangeWorkEmail = new Email(systemEmailAddress,
+        user.getChangeWorkEmail(),"Verify New Work Email", emailContent, sendDate);
+
+    emailService.saveAndScheduleEmail(verifyChangeWorkEmail);
+
+    user.setChangeWorkEmailToken(newEmailToken);
+
+    userRepository.save(user);
+  }
+
+  @Override
+  public boolean changeWorkEmailTokenExist(String token) {
+
+    User currentUser = userRepository.findByChangeWorkEmailToken(token);
+
+    if (userRepository.existsByChangeWorkEmailToken(token)) {
+      final com.auth0.json.mgmt.users.User user = auth0Util
+          .getUserByEmailFromAuth0(currentUser.getUserContactInformation().getEmailWork());
+
+      auth0Util.updateUserEmail(user,currentUser.getChangeWorkEmail());
+
+      currentUser.setVerifyChangeWorkEmailAt(Timestamp.valueOf(LocalDateTime.now()));
+      currentUser.getUserContactInformation().setEmailWork(currentUser.getChangeWorkEmail());
+      currentUser.setChangeWorkEmailToken(null);
+      currentUser.setUserStatus(userStatusRepository.findByName(
+          String.valueOf(Status.ACTIVE)));
+
+      UserContactInformationDto updateEmailWork = new UserContactInformationDto();
+      updateEmailWork.setEmailWork(currentUser.getChangeWorkEmail());
+      UserContactInformation updateContactInfo =
+          userContactInformationMapper.updateFromUserContactInformationDto(
+              currentUser.getUserContactInformation(),updateEmailWork);
+
+      userContactInformationRepository.save(updateContactInfo);
+
+
+      userRepository.save(currentUser);
+
+      return true;
+    }
+
+    return false;
+
+  }
+
+  @Override
   public CurrentUserDto getCurrentUserInfo(final String userId) {
     final User user = findByUserId(userId);
     return getCurrentUserDto(user);
@@ -722,5 +820,13 @@ public class UserServiceImpl implements UserService {
     context.setVariable(
         "passwordResetAddress", String.format("account/reset-password/%s", passwordRestToken));
     return templateEngine.process("password_reset_email.html", context);
+  }
+
+  private String getVerifyiedEmail(final String changePasswordToken) {
+    final Context context = new Context();
+    context.setVariable("frontEndAddress", frontEndAddress);
+    context.setVariable(
+        "changePasswordToken", String.format("account/change-work-email/%s",changePasswordToken));
+    return templateEngine.process("verify_change_work_email.html",context);
   }
 }

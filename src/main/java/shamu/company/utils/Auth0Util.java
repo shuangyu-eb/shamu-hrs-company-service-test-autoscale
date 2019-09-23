@@ -153,6 +153,24 @@ public class Auth0Util {
     }
   }
 
+  public void updateUserEmail(final User user, final String newWorkEmail) {
+    final ManagementAPI manager = auth0Manager.getManagementApi();
+
+    try {
+      final User emailUpdateUser =
+          new User();
+      emailUpdateUser.setEmail(newWorkEmail);
+      emailUpdateUser.setEmailVerified(true);
+      final Request<User> passwordUpdateRequest = manager.users()
+          .update(user.getId(), emailUpdateUser);
+      passwordUpdateRequest.execute();
+    } catch (final Auth0Exception e) {
+      throw new GeneralAuth0Exception(e.getMessage(), e);
+    }
+
+
+  }
+
   public void updateVerified(final User user, final boolean verified) {
     final ManagementAPI manager = auth0Manager.getManagementApi();
     try {

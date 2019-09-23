@@ -41,6 +41,7 @@ import shamu.company.user.entity.mapper.UserMapper;
 import shamu.company.user.entity.mapper.UserPersonalInformationMapper;
 import shamu.company.user.repository.UserAccessLevelEventRepository;
 import shamu.company.user.repository.UserCompensationRepository;
+import shamu.company.user.repository.UserContactInformationRepository;
 import shamu.company.user.repository.UserRepository;
 import shamu.company.user.repository.UserStatusRepository;
 import shamu.company.user.service.UserAddressService;
@@ -93,6 +94,8 @@ class UserServiceTests {
   @Mock
   private UserMapper userMapper;
   @Mock
+  private UserContactInformationRepository userContactInformationRepository;
+  @Mock
   private AuthUserCacheManager authUserCacheManager;
 
   @BeforeEach
@@ -116,7 +119,7 @@ class UserServiceTests {
         userAccessLevelEventRepository,
         taskScheduler,
         departmentRepository,
-        jobRepository, userMapper, authUserCacheManager);
+        jobRepository, userMapper, authUserCacheManager,userContactInformationRepository);
   }
 
   @Test

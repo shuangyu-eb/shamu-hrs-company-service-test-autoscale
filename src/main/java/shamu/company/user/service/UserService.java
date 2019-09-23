@@ -97,4 +97,14 @@ public interface UserService {
   Boolean existsByEmailWork(String email);
 
   void updatePassword(ChangePasswordPojo changePasswordPojo, String email);
+
+  void checkPassword(User user,String password);
+
+  void sendChangeWorkEmail(Long userId, String newEmail);
+
+  String getChangeWorkEmailInfo(User user);
+
+  void sendVerifyChangeWorkEmail(User user);
+
+  boolean changeWorkEmailTokenExist(String token);
 }

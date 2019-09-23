@@ -387,3 +387,37 @@ databaseChangeLog:
       changes:
         - dropTable:
             tableName: user_roles
+
+  - changeSet:
+      id: 1568859094014-6
+      author: shuangyu-eb
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: change_work_email
+                  type: varchar(255)
+            tableName: users
+
+  - changeSet:
+      id: 1568859123573-7
+      author: shuangyu-eb
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: change_work_email_token
+                  type: varchar(255)
+            tableName: users
+
+
+  - changeSet:
+      id: 1568859230088-8
+      author: shuangyu-eb
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: verify_change_work_email_at
+                  type: datetime
+            tableName: users
