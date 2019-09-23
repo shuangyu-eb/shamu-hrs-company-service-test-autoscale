@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -29,6 +30,7 @@ import shamu.company.common.exception.GeneralException;
 import shamu.company.common.exception.TooManyRequestException;
 
 @Component
+@Slf4j
 public class Auth0Util {
 
   private static final String managementApi = "managementApi";
@@ -234,9 +236,9 @@ public class Auth0Util {
       final Request<RolesPage> userRoleRequest = manager.users().listRoles(user.getId(), null);
       final RolesPage rolePages = userRoleRequest.execute();
       final List<Role> roles = rolePages.getItems();
-      if (roles.isEmpty()) {
-        throw new GeneralAuth0Exception(String
-            .format("User with email %s has wrong role size.", email));
+
+      if (roles.isEmpty() || roles.size() > 1) {
+        log.error("User has wrong role size with email: " + email);
       }
       final Role targetRole = roles.stream()
           .min(Comparator
