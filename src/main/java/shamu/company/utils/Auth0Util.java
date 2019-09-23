@@ -12,6 +12,7 @@ import com.auth0.json.mgmt.users.User;
 import com.auth0.net.AuthRequest;
 import com.auth0.net.Request;
 import io.micrometer.core.instrument.util.StringUtils;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,11 +31,9 @@ import shamu.company.common.exception.TooManyRequestException;
 @Component
 public class Auth0Util {
 
-  private final Auth0Config auth0Config;
-
-  private final Auth0Manager auth0Manager;
-
   private static final String managementApi = "managementApi";
+  private final Auth0Config auth0Config;
+  private final Auth0Manager auth0Manager;
 
   @Autowired
   public Auth0Util(final Auth0Manager auth0Manager,
@@ -48,18 +47,18 @@ public class Auth0Util {
   }
 
   private AbstractException handleAuth0Exception(final String message,
-                                                     final Auth0Exception e,
-                                                     final String api) {
+      final Auth0Exception e,
+      final String api) {
     if ((e.getMessage().contains(String.valueOf(HttpStatus.TOO_MANY_REQUESTS.value())) ||
-            e.getMessage().contains(HttpStatus.TOO_MANY_REQUESTS.getReasonPhrase())) &&
-            api.equals("authApi")) {
+        e.getMessage().contains(HttpStatus.TOO_MANY_REQUESTS.getReasonPhrase())) &&
+        api.equals("authApi")) {
       return new TooManyRequestException("Too many requests. "
-              + "System limits for request are 100 requests per second.",e);
+          + "System limits for request are 100 requests per second.", e);
     } else if ((e.getMessage().contains(String.valueOf(HttpStatus.TOO_MANY_REQUESTS.value())) ||
-            e.getMessage().contains(HttpStatus.TOO_MANY_REQUESTS.getReasonPhrase())) &&
-            api.equals(managementApi)) {
+        e.getMessage().contains(HttpStatus.TOO_MANY_REQUESTS.getReasonPhrase())) &&
+        api.equals(managementApi)) {
       return new TooManyRequestException("Too many requests. "
-              + "System limits for request are 15 requests per second.",e);
+          + "System limits for request are 15 requests per second.", e);
     } else {
       return new GeneralAuth0Exception(message, e);
     }
@@ -71,7 +70,7 @@ public class Auth0Util {
           .setAudience(auth0Config.getAudience());
       return request.execute();
     } catch (final Auth0Exception exception) {
-      throw handleAuth0Exception(exception.getMessage(), exception,"authApi");
+      throw handleAuth0Exception(exception.getMessage(), exception, "authApi");
     }
   }
 
@@ -146,7 +145,7 @@ public class Auth0Util {
       final User emailUpdateUser = new User();
       emailUpdateUser.setEmail(newEmail);
       final Request<User> emailUpdateRequest = manager.users()
-              .update(authUser.getId(), emailUpdateUser);
+          .update(authUser.getId(), emailUpdateUser);
       emailUpdateRequest.execute();
     } catch (final Auth0Exception e) {
       throw handleAuth0Exception(e.getMessage(), e, managementApi);
@@ -235,12 +234,16 @@ public class Auth0Util {
       final Request<RolesPage> userRoleRequest = manager.users().listRoles(user.getId(), null);
       final RolesPage rolePages = userRoleRequest.execute();
       final List<Role> roles = rolePages.getItems();
-      if (roles.size() != 1) {
+      if (roles.isEmpty()) {
         throw new GeneralAuth0Exception(String
             .format("User with email %s has wrong role size.", email));
       }
+      final Role targetRole = roles.stream()
+          .min(Comparator
+              .comparingInt(
+                  a -> shamu.company.user.entity.User.Role.valueOf(a.getName()).ordinal()))
+          .get();
 
-      final Role targetRole = roles.get(0);
       return shamu.company.user.entity.User.Role.valueOf(targetRole.getName());
     } catch (final Auth0Exception e) {
       throw handleAuth0Exception(e.getMessage(), e, managementApi);

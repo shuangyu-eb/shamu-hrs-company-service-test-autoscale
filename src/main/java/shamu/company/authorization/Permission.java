@@ -16,6 +16,7 @@ public class Permission {
   private Long permissionTypeId;
 
   public enum Name {
+    SUPER_PERMISSION(PermissionType.SUPER_ADMIN_PERMISSION),
     CREATE_USER(PermissionType.ADMIN_PERMISSION),
     DELETE_USER(PermissionType.ADMIN_PERMISSION),
     EDIT_USER(PermissionType.ADMIN_PERMISSION),
@@ -66,6 +67,10 @@ public class Permission {
   }
 
   public enum PermissionType {
-    ADMIN_PERMISSION, MANAGER_PERMISSION, EMPLOYEE_PERMISSION, SELF_PERMISSION,
+    ADMIN_PERMISSION,
+    MANAGER_PERMISSION,
+    EMPLOYEE_PERMISSION,
+    SELF_PERMISSION,
+    SUPER_ADMIN_PERMISSION
   }
 }

@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
+import shamu.company.common.exception.ForbiddenException;
 import shamu.company.company.CompanyService;
 import shamu.company.employee.dto.EmailResendDto;
 import shamu.company.hashids.HashidsFormat;
@@ -193,9 +194,11 @@ public class UserRestController extends BaseRestController {
       return userDto;
     }
 
-    final String mockFrom = request.getHeader("X-Mock-From");
-    final Long mockFromId = HashidsUtil.decode(mockFrom);
-    // TOTO judge currentUser is super admin By Token
+    final User user = userService.findByUserId(this.getUserId());
+    final Role role = auth0Util.getUserRole(user.getUserContactInformation().getEmailWork());
+    if (role != Role.SUPER_ADMIN) {
+      throw new ForbiddenException("You are not super admin!");
+    }
 
     final Long useId = HashidsUtil.decode(mockId);
     userService.cacheUser(this.getToken(), useId);
