@@ -421,3 +421,25 @@ databaseChangeLog:
                   name: verify_change_work_email_at
                   type: datetime
             tableName: users
+
+  - changeSet:
+      id: 1569287995020-1
+      author: haibo-eb
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: creator_id
+                  type: bigint
+            tableName: paid_holidays
+
+  - changeSet:
+      id: 1569287995020-2
+      author: haibo-eb
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: creator_id
+            baseTableName: paid_holidays
+            constraintName: fk_paid_holidays_users
+            referencedColumnNames: id
+            referencedTableName: users

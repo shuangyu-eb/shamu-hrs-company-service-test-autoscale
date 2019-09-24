@@ -1,9 +1,9 @@
 package shamu.company.timeoff.dto;
 
 import java.sql.Timestamp;
-import javax.validation.constraints.FutureOrPresent;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import shamu.company.common.validation.constraints.YesterdayOrLater;
 import shamu.company.hashids.HashidsFormat;
 
 @Data
@@ -17,10 +17,13 @@ public class PaidHolidayDto {
 
   private String nameShow;
 
-  @FutureOrPresent
+  @YesterdayOrLater
   private Timestamp date;
 
   private Boolean isSelected;
 
   private Boolean federal;
+
+  private Boolean editable;
+
 }

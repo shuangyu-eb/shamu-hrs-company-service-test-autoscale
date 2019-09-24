@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import shamu.company.common.entity.BaseEntity;
 import shamu.company.common.entity.Country;
 import shamu.company.company.entity.Company;
+import shamu.company.user.entity.User;
 
 @Data
 @Entity
@@ -23,6 +24,9 @@ public class PaidHoliday extends BaseEntity {
 
   @ManyToOne
   private Company company;
+
+  @ManyToOne
+  private User creator;
 
   private String name;
 

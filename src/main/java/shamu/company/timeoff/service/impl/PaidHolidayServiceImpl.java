@@ -16,6 +16,7 @@ import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.company.CompanyService;
 import shamu.company.company.entity.Company;
 import shamu.company.job.dto.JobUserDto;
+import shamu.company.server.AuthUser;
 import shamu.company.timeoff.dto.PaidHolidayDto;
 import shamu.company.timeoff.dto.PaidHolidayRelatedUserListDto;
 import shamu.company.timeoff.entity.CompanyPaidHoliday;
@@ -27,6 +28,7 @@ import shamu.company.timeoff.repository.CompanyPaidHolidayRepository;
 import shamu.company.timeoff.repository.PaidHolidayRepository;
 import shamu.company.timeoff.repository.PaidHolidayUserRepository;
 import shamu.company.timeoff.service.PaidHolidayService;
+import shamu.company.user.entity.User;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.FederalHolidays;
 
@@ -79,11 +81,11 @@ public class PaidHolidayServiceImpl implements PaidHolidayService {
     companyPaidHolidayRepository.saveAll(companyPaidHolidays);
   }
 
-  private List<PaidHolidayDto> getCurrentYearPaidHolidays(final Long companyId) {
+  private List<PaidHolidayDto> getCurrentYearPaidHolidays(final AuthUser user) {
     final List<CompanyPaidHoliday> companyPaidHolidays = companyPaidHolidayRepository
-        .findAllByCompanyId(companyId);
+        .findAllByCompanyId(user.getCompanyId());
     return companyPaidHolidays.stream()
-        .map(companyPaidHolidayMapper::convertToPaidHolidayDto)
+        .map(paidHoliday -> companyPaidHolidayMapper.convertToPaidHolidayDto(paidHoliday, user))
         .peek(paidHolidayDto -> {
           if (paidHolidayDto.getFederal()) {
             Date observance = federalHolidays.dateOf(paidHolidayDto.getName());
@@ -106,8 +108,8 @@ public class PaidHolidayServiceImpl implements PaidHolidayService {
    * Get this year, last year and next two years' federal holidays.
    */
   @Override
-  public List<PaidHolidayDto> getPaidHolidays(final Long companyId) {
-    final List<PaidHolidayDto> currentYearPaidHolidays = getCurrentYearPaidHolidays(companyId);
+  public List<PaidHolidayDto> getPaidHolidays(final AuthUser user) {
+    final List<PaidHolidayDto> currentYearPaidHolidays = getCurrentYearPaidHolidays(user);
     final int year = Calendar.getInstance().get(Calendar.YEAR);
     final List<PaidHolidayDto> otherYearsObservances = new ArrayList<>();
     currentYearPaidHolidays.forEach(paidHolidayDto -> {
@@ -122,8 +124,8 @@ public class PaidHolidayServiceImpl implements PaidHolidayService {
   }
 
   @Override
-  public List<PaidHolidayDto> getPaidHolidaysByYear(final Long companyId, final String year) {
-    final List<PaidHolidayDto> paidHolidayDtos = getCurrentYearPaidHolidays(companyId);
+  public List<PaidHolidayDto> getPaidHolidaysByYear(final AuthUser user, final String year) {
+    final List<PaidHolidayDto> paidHolidayDtos = getCurrentYearPaidHolidays(user);
     return paidHolidayDtos.stream().filter(paidHolidayDto -> {
       if (paidHolidayDto.getFederal()) {
         Date observance = federalHolidays.dateOf(paidHolidayDto.getName(), Integer.valueOf(year));
@@ -147,10 +149,11 @@ public class PaidHolidayServiceImpl implements PaidHolidayService {
 
   @Override
   public void createPaidHoliday(final PaidHolidayDto paidHolidayDto,
-      final Long companyId) {
-    final Company company = companyService.findById(companyId);
+      final AuthUser user) {
+    final User creator = userService.findUserById(user.getId());
+
     final PaidHoliday paidHoliday = paidHolidayMapper
-        .createFromPaidHolidayDtoAndCompany(paidHolidayDto, company);
+        .createFromPaidHolidayDtoAndCreator(paidHolidayDto, creator);
     final PaidHoliday paidHolidayReturned = paidHolidayRepository.save(paidHoliday);
 
     final CompanyPaidHoliday companyPaidHoliday = companyPaidHolidayMapper

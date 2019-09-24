@@ -30,7 +30,7 @@ public class PaidHolidayRestController extends BaseRestController {
 
   @GetMapping(value = "paid-holidays")
   public List<PaidHolidayDto> getAllPaidHolidays() {
-    return paidHolidayService.getPaidHolidays(getCompanyId());
+    return paidHolidayService.getPaidHolidays(getAuthUser());
   }
 
 
@@ -54,7 +54,7 @@ public class PaidHolidayRestController extends BaseRestController {
 
   @GetMapping(value = "paid-holidays/years/{year}")
   public List<PaidHolidayDto> getPaidHolidaysByYear(@PathVariable final String year) {
-    return paidHolidayService.getPaidHolidaysByYear(getCompanyId(), year);
+    return paidHolidayService.getPaidHolidaysByYear(getAuthUser(), year);
   }
 
   @PatchMapping(value = "paid-holidays/select")
@@ -64,8 +64,8 @@ public class PaidHolidayRestController extends BaseRestController {
 
   @PostMapping(value = "paid-holiday")
   public void createPaidHoliday(
-      @RequestBody final PaidHolidayDto paidHolidayDto) {
-    paidHolidayService.createPaidHoliday(paidHolidayDto, getCompanyId());
+      @RequestBody @Validated final PaidHolidayDto paidHolidayDto) {
+    paidHolidayService.createPaidHoliday(paidHolidayDto, getAuthUser());
   }
 
   @PatchMapping(value = "paid-holidays")

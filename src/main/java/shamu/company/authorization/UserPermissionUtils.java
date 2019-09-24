@@ -209,7 +209,8 @@ public class UserPermissionUtils extends BasePermissionUtils {
     final PaidHoliday paidHoliday = paidHolidayService.getPaidHoliday(policyId);
     final Company company = paidHoliday.getCompany();
     companyEqual(company);
-    return isAdminPermission(auth, permission);
+    return isAdminPermission(auth, permission)
+        && paidHoliday.getCreator().getId().equals(getAuthUser().getId());
   }
 
   boolean hasPermissionOfUser(final Authentication auth, final User targetUser,
