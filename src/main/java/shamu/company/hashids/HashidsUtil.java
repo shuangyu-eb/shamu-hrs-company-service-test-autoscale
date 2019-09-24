@@ -3,7 +3,6 @@ package shamu.company.hashids;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.hashids.Hashids;
-import shamu.company.common.exception.GeneralException;
 
 public class HashidsUtil {
   private static final String SALT_NAME = "shamu-hrs-salt";
@@ -33,9 +32,6 @@ public class HashidsUtil {
 
   public static Long decode(final String encodedId) {
     final long[] result = hashids.decode(encodedId);
-    if (result.length == 0) {
-      throw new GeneralException("Can not decode target encoded id!");
-    }
-    return result[0];
+    return result.length == 0 ? null : result[0];
   }
 }
