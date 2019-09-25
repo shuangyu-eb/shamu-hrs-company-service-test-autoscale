@@ -1,6 +1,7 @@
 package shamu.company.authorization;
 
 import java.io.Serializable;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.core.Authentication;
@@ -11,6 +12,7 @@ import shamu.company.common.exception.ForbiddenException;
 public class MethodPermissionEvaluator implements PermissionEvaluator {
 
   private final PermissionUtils permissionUtils;
+
 
   @Autowired
   public MethodPermissionEvaluator(final PermissionUtils permissionUtils) {
@@ -25,13 +27,22 @@ public class MethodPermissionEvaluator implements PermissionEvaluator {
   }
 
   @Override
-  public boolean hasPermission(final Authentication auth, final Serializable targetId,
+  public boolean hasPermission(final Authentication auth, final Serializable target,
       final String targetType,
       final Object permission) {
     final Type type = Type.valueOf(targetType);
-    final Long id = (Long) targetId;
-
     final Permission.Name permissionName = Permission.Name.valueOf(permission.toString());
-    return permissionUtils.hasPermission(auth, id, type, permissionName);
+
+    if (target instanceof Long) {
+      final Long id = (Long) target;
+      return permissionUtils.hasPermission(auth, id, type, permissionName);
+    }
+
+    if (target instanceof List) {
+      final List targets = (List) target;
+      return permissionUtils.hasPermission(auth,targets, type, permissionName);
+    }
+
+    return false;
   }
 }

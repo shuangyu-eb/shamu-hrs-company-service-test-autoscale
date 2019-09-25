@@ -9,6 +9,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.common.exception.ForbiddenException;
+import shamu.company.common.validation.constraints.FileValidate;
 import shamu.company.company.CompanyService;
 import shamu.company.employee.dto.EmailResendDto;
 import shamu.company.hashids.HashidsFormat;
@@ -40,10 +42,9 @@ import shamu.company.user.service.UserService;
 import shamu.company.utils.Auth0Util;
 import shamu.company.utils.AwsUtil;
 import shamu.company.utils.AwsUtil.Type;
-import shamu.company.utils.FileValidateUtil;
-import shamu.company.utils.FileValidateUtil.FileType;
 
 @RestApiController
+@Validated
 public class UserRestController extends BaseRestController {
 
   private final UserService userService;
@@ -99,11 +100,12 @@ public class UserRestController extends BaseRestController {
       "hasPermission(#id,'USER', 'EDIT_USER')"
           + " or hasPermission(#id,'USER', 'EDIT_SELF')")
   public String handleFileUpload(
-      @PathVariable @HashidsFormat final Long id, @RequestParam("file") final MultipartFile file)
-      throws IOException {
-    //TODO: Need an appropriate file size.
-    FileValidateUtil
-        .validate(file, 2 * FileValidateUtil.MB, FileType.JPEG, FileType.PNG, FileType.GIF);
+      @PathVariable @HashidsFormat final Long id,
+      @RequestParam("file")
+      //TODO: Need an appropriate file size.
+      @FileValidate(maxSize = 2 * 1024 * 1024, fileType = {"JPEG", "PNG", "GIF"})
+      final MultipartFile file
+  ) throws IOException {
     final String path = awsUtil.uploadFile(file, Type.IMAGE);
 
     if (Strings.isBlank(path)) {
@@ -189,19 +191,19 @@ public class UserRestController extends BaseRestController {
   public CurrentUserDto getUserInfo(final HttpServletRequest request) {
     final String mockId = request.getHeader("X-Mock-To");
     if (Strings.isBlank(mockId)) {
-      final CurrentUserDto userDto = userService.getCurrentUserInfo(this.getUserId());
-      userService.cacheUser(this.getToken(), userDto.getId());
+      final CurrentUserDto userDto = userService.getCurrentUserInfo(getUserId());
+      userService.cacheUser(getToken(), userDto.getId());
       return userDto;
     }
 
-    final User user = userService.findByUserId(this.getUserId());
+    final User user = userService.findByUserId(getUserId());
     final Role role = auth0Util.getUserRole(user.getUserContactInformation().getEmailWork());
     if (role != Role.SUPER_ADMIN) {
       throw new ForbiddenException("You are not super admin!");
     }
 
     final Long useId = HashidsUtil.decode(mockId);
-    userService.cacheUser(this.getToken(), useId);
+    userService.cacheUser(getToken(), useId);
     return userService.getMockUserInfo(useId);
   }
 
@@ -224,14 +226,14 @@ public class UserRestController extends BaseRestController {
   @GetMapping("/user/change-work-email")
   @PreAuthorize("hasAuthority('EDIT_SELF')")
   public String getChangeWorkEmail() {
-    User user = userService.findUserById(getAuthUser().getId());
+    final User user = userService.findUserById(getAuthUser().getId());
     return user.getChangeWorkEmail();
   }
 
   @GetMapping("/user/send-verify-work-email")
   @PreAuthorize("hasAuthority('EDIT_SELF')")
   public void sendVerifyChangeWorkEmail() {
-    User user = userService.findUserById(getAuthUser().getId());
+    final User user = userService.findUserById(getAuthUser().getId());
     userService.sendVerifyChangeWorkEmail(user);
   }
 
