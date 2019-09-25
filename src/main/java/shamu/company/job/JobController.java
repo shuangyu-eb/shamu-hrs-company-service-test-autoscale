@@ -90,7 +90,8 @@ public class JobController extends BaseRestController {
     user.setUserCompensation(userCompensation);
 
     final Long managerId = jobUpdateDto.getManagerId();
-    if (managerId != null && !user.getId().equals(managerId)) {
+    if (managerId != null && (user.getManagerUser() == null
+            || !user.getManagerUser().getId().equals(managerId))) {
       final User manager = userService.findUserById(managerId);
       final String managerEmail = manager.getUserContactInformation().getEmailWork();
       final Role role = auth0Util.getUserRole(managerEmail);
@@ -108,7 +109,7 @@ public class JobController extends BaseRestController {
       final String userEmail = user.getUserContactInformation().getEmailWork();
       final Role userRole = auth0Util.getUserRole(userEmail);
       if (userRole != Role.ADMIN) {
-        users.removeIf(user1 -> user1.getId() == managerId);
+        users.removeIf(user1 -> user1.getId().equals(managerId));
         auth0Util.updateRoleWithEmail(
             userEmail, users.isEmpty() ? Role.EMPLOYEE.name() : Role.MANAGER.name());
       }
@@ -120,14 +121,10 @@ public class JobController extends BaseRestController {
 
   private boolean isSubordinate(final Long userId, Long managerId) {
     User user = userService.findUserById(managerId);
-    while (user.getManagerUser() != null && user.getManagerUser().getId() != userId) {
+    while (user.getManagerUser() != null && !user.getManagerUser().getId().equals(userId)) {
       managerId = user.getManagerUser().getId();
       user = userService.findUserById(managerId);
     }
-    if (user.getManagerUser().getId() == userId) {
-      return true;
-    } else {
-      return false;
-    }
+    return user.getManagerUser() != null && user.getManagerUser().getId().equals(userId);
   }
 }

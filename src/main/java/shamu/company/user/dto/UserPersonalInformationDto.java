@@ -1,7 +1,6 @@
 package shamu.company.user.dto;
 
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import shamu.company.hashids.HashidsFormat;
 
 @Data
@@ -20,4 +19,9 @@ public class UserPersonalInformationDto extends BasicUserPersonalInformationDto 
   private String ssn;
 
   private String imageUrl;
+
+  @HashidsFormat
+  private Long maritalStatusId;
+
+  private String maritalStatusName;
 }

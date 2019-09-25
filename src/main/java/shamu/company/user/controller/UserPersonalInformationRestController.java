@@ -85,6 +85,13 @@ public class UserPersonalInformationRestController extends BaseRestController {
           .convertToUserPersonalInformationDto(userPersonalInformation, imageUrl);
     }
 
+    if (userRole == Role.MANAGER && targetUser.getManagerUser() != null
+        && getAuthUser().getId().equals(targetUser.getManagerUser().getId())) {
+      return userPersonalInformationMapper.convertToMyEmployeePersonalInformationDto(
+            userPersonalInformation);
+
+    }
+
     final Date birthDate = userPersonalInformation.getBirthDate();
     final String birthDateWithoutYear = birthDate != null ? sdf.format(birthDate) : "";
     final BasicUserPersonalInformationDto basicUserPersonalInformationDto =
@@ -95,7 +102,10 @@ public class UserPersonalInformationRestController extends BaseRestController {
   }
 
   @GetMapping("users/{id}/user-role-status")
-  @PreAuthorize("hasPermission(#id, 'USER', 'VIEW_SELF')")
+  @PreAuthorize("hasPermission(#id, 'USER', 'VIEW_SELF')"
+          + "or hasPermission(#id, 'USER', 'EDIT_USER')"
+          + "or hasPermission(#id, 'USER', 'VIEW_MY_TEAM')"
+          + "or hasPermission(#id, 'USER', 'VIEW_EMPLOYEES')")
   public UserRoleAndStatusInfoDto getUserRoleAndStatus(@PathVariable @HashidsFormat final Long id) {
     final User targetUser = userService.findUserById(id);
     final UserRoleAndStatusInfoDto resultInformation = userMapper

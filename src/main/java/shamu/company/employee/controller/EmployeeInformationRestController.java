@@ -162,6 +162,12 @@ public class EmployeeInformationRestController extends BaseRestController {
       return jobUserMapper.convertToJobInformationDto(target);
     }
 
+    if (userRole == Role.MANAGER && target.getUser().getManagerUser() != null
+            && getAuthUser().getId().equals(target.getUser().getManagerUser().getId())) {
+      return jobUserMapper.convertToJobInformationDto(target);
+
+    }
+
     final BasicJobInformationDto resultInformation = jobUserMapper
         .convertToBasicJobInformationDto(target);
     final User targetUser = target.getUser();
