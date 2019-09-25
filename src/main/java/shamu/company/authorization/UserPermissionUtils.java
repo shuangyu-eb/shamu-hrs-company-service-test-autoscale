@@ -96,8 +96,6 @@ public class UserPermissionUtils extends BasePermissionUtils {
         return hasPermissionOfTimeOffPolicy(auth, targetId, permission);
       case PAID_HOLIDAY:
         return hasPermissionOfPaidHoliday(auth, targetId, permission);
-      case EMPLOYEE_COMPANY:
-        return hasPermissionSameCompany(auth, targetId, permission);
       case USER:
       default:
         final User targetUser = userService.findUserById(targetId);
@@ -238,11 +236,5 @@ public class UserPermissionUtils extends BasePermissionUtils {
     final Long managerUserId = userService.getManagerUserIdById(targetUser.getId());
     final boolean isManager = managerUserId != null && managerUserId.equals(getAuthUser().getId());
     return hasPermission(authorities, permission) && isManager;
-  }
-
-  private boolean hasPermissionSameCompany(
-          final Authentication auth, final Long id, final Permission.Name permission) {
-    final User user = userService.findUserById(id);
-    return user.getCompany().getId() == getCompanyId();
   }
 }

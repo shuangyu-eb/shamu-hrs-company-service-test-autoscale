@@ -121,7 +121,7 @@ public class TimeOffRequestRestController extends BaseRestController {
   }
 
   @GetMapping("users/{id}/time-off-requests")
-  @PreAuthorize("hasPermission(#id,'EMPLOYEE_COMPANY','VIEW_TEAM_TIME_OFF_REQUEST')")
+  @PreAuthorize("hasPermission(#id,'USER','VIEW_TEAM_TIME_OFF_REQUEST')")
   public List<TimeOffRequestDto> getTimeOffRequests(
       @PathVariable @HashidsFormat final Long id,
       @RequestParam final TimeOffRequestApprovalStatus[] status) {
@@ -302,7 +302,7 @@ public class TimeOffRequestRestController extends BaseRestController {
   }
 
   @GetMapping("time-off-request/has-privilege/user/{id}")
-  @PreAuthorize("hasPermission(#id,'EMPLOYEE_COMPANY','VIEW_TEAM_TIME_OFF_REQUEST')")
+  @PreAuthorize("hasPermission(#id,'USER','VIEW_TEAM_TIME_OFF_REQUEST')")
   public boolean hasUserPermission(@HashidsFormat @PathVariable final Long id) {
     final User.Role userRole = auth0Util.getUserRole(getAuthUser().getEmail());
     final User targetUser = userService.findUserById(id);
