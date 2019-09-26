@@ -13,11 +13,12 @@ class FederalHolidaysTest {
 
   @BeforeEach
   public void init() {
-    sdf.setTimeZone(TimeZone.getTimeZone("EST"));
+    sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
   }
 
   private String getFederalHoliday(String holidayName, int year) {
-    return sdf.format(federalHolidays.dateOf(holidayName, year));
+    return sdf.format(federalHolidays.timestampOf(holidayName, year));
   }
 
   private void testRecentThreeYearsFederalHolidays(
@@ -93,7 +94,7 @@ class FederalHolidaysTest {
   @Test
   void invalidDay() {
     String invalidFederalHoliday = "";
-    Assert.assertNull(federalHolidays.dateOf(invalidFederalHoliday));
-    Assert.assertNull(federalHolidays.dateOf(invalidFederalHoliday, 2022));
+    Assert.assertNull(federalHolidays.timestampOf(invalidFederalHoliday));
+    Assert.assertNull(federalHolidays.timestampOf(invalidFederalHoliday, 2022));
   }
 }

@@ -1,25 +1,22 @@
 package shamu.company.utils;
 
-import static java.util.Calendar.DAY_OF_MONTH;
-import static java.util.Calendar.DAY_OF_WEEK;
-import static java.util.Calendar.DECEMBER;
-import static java.util.Calendar.FEBRUARY;
-import static java.util.Calendar.HOUR;
-import static java.util.Calendar.JANUARY;
-import static java.util.Calendar.JULY;
-import static java.util.Calendar.MAY;
-import static java.util.Calendar.MONDAY;
-import static java.util.Calendar.MONTH;
-import static java.util.Calendar.NOVEMBER;
-import static java.util.Calendar.OCTOBER;
-import static java.util.Calendar.SEPTEMBER;
-import static java.util.Calendar.THURSDAY;
-import static java.util.Calendar.YEAR;
+import static java.time.DayOfWeek.MONDAY;
+import static java.time.DayOfWeek.THURSDAY;
+import static java.time.Month.DECEMBER;
+import static java.time.Month.FEBRUARY;
+import static java.time.Month.JANUARY;
+import static java.time.Month.JULY;
+import static java.time.Month.MAY;
+import static java.time.Month.NOVEMBER;
+import static java.time.Month.OCTOBER;
+import static java.time.Month.SEPTEMBER;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
-import java.util.TimeZone;
+import java.sql.Timestamp;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.Month;
 
 import org.springframework.stereotype.Component;
 
@@ -85,19 +82,19 @@ public class FederalHolidays {
     private final int weekOfMonth;
     private static final int NA = 0;
 
-    private Observance(String name, int month, int dayOfMonth) {
+    private Observance(String name, Month month, int dayOfMonth) {
       this.name = name;
-      this.month = month;
+      this.month = month.getValue();
       this.dayOfMonth = dayOfMonth;
       this.dayOfWeek = NA;
       this.weekOfMonth = NA;
     }
 
-    private Observance(String name, int month, int dayOfWeek, int weekOfMonth) {
+    private Observance(String name, Month month, DayOfWeek dayOfWeek, int weekOfMonth) {
       this.name = name;
-      this.month = month;
+      this.month = month.getValue();
       this.dayOfMonth = NA;
-      this.dayOfWeek = dayOfWeek;
+      this.dayOfWeek = dayOfWeek.getValue();
       this.weekOfMonth = weekOfMonth;
     }
 
@@ -118,58 +115,52 @@ public class FederalHolidays {
     }
   }
 
-  public Date dateOf(Observance observance, int year) {
-    Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("EST"), Locale.ENGLISH);
-    cal.set(YEAR, year);
-    cal.set(MONTH, observance.month);
-    cal.clear(HOUR);
+  public Timestamp timestampOf(Observance observance, int year) {
+    LocalDate localDate;
     if (observance.isFixedDate()) {
-      cal.set(DAY_OF_MONTH, observance.dayOfMonth);
+      localDate = LocalDate.of(year, observance.month, observance.dayOfMonth);
     } else {
-      setNthDayOfWeek(cal, observance.dayOfWeek, observance.weekOfMonth);
+      localDate = setNthDayOfWeek(observance, year, observance.dayOfWeek, observance.weekOfMonth);
     }
-    return cal.getTime();
+
+    LocalDateTime localDateTime = localDate.atTime(LocalTime.of(12, 0, 0));
+    return Timestamp.valueOf(localDateTime);
   }
 
-  public Date dateOf(String observanceName, int year) {
+  public Timestamp timestampOf(String observanceName, int year) {
     for (Observance observance : Observance.values()) {
       if (observance.getName().equals(observanceName)) {
-        return dateOf(observance, year);
+        return timestampOf(observance, year);
       }
     }
     return null;
   }
 
-  public Date dateOf(String observanceName) {
-    int thisYear = Calendar.getInstance().get(YEAR);
-    return dateOf(observanceName, thisYear);
+  public Timestamp timestampOf(String observanceName) {
+    LocalDate now = LocalDate.now();
+    int currentYear = now.getYear();
+    return timestampOf(observanceName, currentYear);
   }
 
-  /**
-   * Mutates the given calendar;
-   * sets the date so that it corresponds to the nth occurrence of the given day of the week.
-   *
-   * @param cal       - the calendar to set the date for
-   * @param dayOfWeek - based on the values of Calendar, e.g. Calendar.MONDAY
-   * @param n         - the occurrences of the dayOfWeek to set. Can be a value of 1 to 5
-   *                 corresponding to the 1st through 5th
-   *                  occurrence. If -1, it means "last" occurrence.
-   */
-  private void setNthDayOfWeek(Calendar cal, int dayOfWeek, int n) {
+  private LocalDate setNthDayOfWeek(Observance observance, int year, int dayOfWeek, int n) {
+    LocalDate localDate = LocalDate.of(year, observance.month, 1);
     int week = 0;
-    int lastDay = cal.getActualMaximum(DAY_OF_MONTH);
+    int lastDay = localDate.lengthOfMonth();
     // if negative, we loop backwards and count the weeks backwards; if positive, count forward
     int startDay = n > 0 ? 1 : lastDay;
     int endDay = n > 0 ? lastDay : 1;
     int incrementValue = n > 0 ? 1 : -1;
-    for (int day = startDay; day != endDay; day += incrementValue) {
-      cal.set(DAY_OF_MONTH, day);
-      if (cal.get(DAY_OF_WEEK) == dayOfWeek) {
+    int dayOfMonth = startDay;
+    for (; dayOfMonth != endDay; dayOfMonth += incrementValue) {
+      localDate = localDate.withDayOfMonth(dayOfMonth);
+      if (localDate.getDayOfWeek().getValue() == dayOfWeek) {
         week += incrementValue;
         if (week == n) {
-          return;
+          break;
         }
       }
     }
+    localDate = localDate.withDayOfMonth(dayOfMonth);
+    return localDate;
   }
 }

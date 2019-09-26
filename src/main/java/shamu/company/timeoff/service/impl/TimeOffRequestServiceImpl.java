@@ -312,13 +312,11 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
       timeOffRequestRepository.save(timeOffRequest);
     }
 
-    if (requester.getManagerUser() != null) {
-      final List<BasicTimeOffRequestDto> timeOffRequests =
-          getOtherRequestsBy(timeOffRequest).stream()
-              .map(timeOffRequestMapper::convertToBasicTimeOffRequestDto)
-              .collect(Collectors.toList());
-      requestDetail.setOtherTimeOffRequests(timeOffRequests);
-    }
+    final List<BasicTimeOffRequestDto> timeOffRequests =
+        getOtherRequestsBy(timeOffRequest).stream()
+          .map(timeOffRequestMapper::convertToBasicTimeOffRequestDto)
+          .collect(Collectors.toList());
+    requestDetail.setOtherTimeOffRequests(timeOffRequests);
 
     return requestDetail;
   }

@@ -5,7 +5,6 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.BeanUtils;
@@ -84,19 +83,16 @@ public class PaidHolidayServiceImpl implements PaidHolidayService {
         .map(paidHoliday -> companyPaidHolidayMapper.convertToPaidHolidayDto(paidHoliday, user))
         .peek(paidHolidayDto -> {
           if (paidHolidayDto.getFederal()) {
-            Date observance = federalHolidays.dateOf(paidHolidayDto.getName());
-            paidHolidayDto.setDate(new Timestamp(observance.getTime()));
+            paidHolidayDto.setDate(federalHolidays.timestampOf(paidHolidayDto.getName()));
           }
         })
         .collect(Collectors.toList());
   }
 
   private PaidHolidayDto getNewPaidHolidayDto(final PaidHolidayDto paidHolidayDto, final int year) {
-    final Timestamp observanceYear = new Timestamp(
-        federalHolidays.dateOf(paidHolidayDto.getName(), year).getTime());
     final PaidHolidayDto newPaidHolidayDto = new PaidHolidayDto();
     BeanUtils.copyProperties(paidHolidayDto, newPaidHolidayDto);
-    newPaidHolidayDto.setDate(observanceYear);
+    newPaidHolidayDto.setDate(federalHolidays.timestampOf(paidHolidayDto.getName(), year));
     return newPaidHolidayDto;
   }
 
@@ -124,8 +120,8 @@ public class PaidHolidayServiceImpl implements PaidHolidayService {
     final List<PaidHolidayDto> paidHolidayDtos = getCurrentYearPaidHolidays(user);
     return paidHolidayDtos.stream().filter(paidHolidayDto -> {
       if (paidHolidayDto.getFederal()) {
-        Date observance = federalHolidays.dateOf(paidHolidayDto.getName(), Integer.valueOf(year));
-        paidHolidayDto.setDate(new Timestamp(observance.getTime()));
+        paidHolidayDto.setDate(
+            federalHolidays.timestampOf(paidHolidayDto.getName(), Integer.valueOf(year)));
         return true;
       }
       Timestamp date = paidHolidayDto.getDate();
