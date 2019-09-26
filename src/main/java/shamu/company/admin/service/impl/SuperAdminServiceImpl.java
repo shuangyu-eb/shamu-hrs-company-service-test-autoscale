@@ -44,7 +44,7 @@ public class SuperAdminServiceImpl implements SuperAdminService {
   public Page<SuperAdminUserDto> getUsersBy(final String keyword, final Pageable pageable) {
     final Page<SuperAdminUserDto> users = userRepository.findBy(keyword, pageable);
     users.forEach(user -> {
-      final Role userRole = auth0Util.getUserRole(user.getEmail());
+      final Role userRole = auth0Util.getUserRole(user.getAuth0UserId());
       user.setRole(userRole.getValue());
     });
     return users;
@@ -56,7 +56,7 @@ public class SuperAdminServiceImpl implements SuperAdminService {
     final AuthUser authUser = userMapper.convertToAuthUser(user);
     final MockUserDto mockUserDto = userMapper.convertToMockUserDto(user);
     final List<String> permissions = auth0Util
-        .getPermissionBy(user.getUserContactInformation().getEmailWork());
+        .getPermissionBy(user.getUserId());
     authUser.setPermissions(permissions);
     authUserCacheManager.cacheAuthUser(token, authUser);
     mockUserDto.setPermissions(permissions);

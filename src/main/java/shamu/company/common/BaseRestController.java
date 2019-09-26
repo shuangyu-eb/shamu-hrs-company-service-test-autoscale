@@ -13,7 +13,7 @@ public class BaseRestController {
   @Autowired
   private AuthUserCacheManager authUserCacheManager;
 
-  private DefaultJwtAuthenticationToken getAuthentication() {
+  protected DefaultJwtAuthenticationToken getAuthentication() {
     final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     return (DefaultJwtAuthenticationToken) authentication;
   }
@@ -33,7 +33,7 @@ public class BaseRestController {
   }
 
   public String getUserId() {
-    return getAuthentication().getUserId();
+    return getAuthUser().getUserId();
   }
 
   public Long getCompanyId() {

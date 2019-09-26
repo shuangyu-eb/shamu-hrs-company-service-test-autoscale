@@ -25,6 +25,7 @@ import org.thymeleaf.context.Context;
 import shamu.company.common.entity.BaseEntity;
 import shamu.company.common.exception.ForbiddenException;
 import shamu.company.common.exception.ResourceNotFoundException;
+import shamu.company.common.exception.response.ErrorType;
 import shamu.company.common.repository.DepartmentRepository;
 import shamu.company.company.CompanyRepository;
 import shamu.company.company.CompanySizeRepository;
@@ -184,7 +185,7 @@ public class UserServiceImpl implements UserService {
     final User user = findUserById(userId);
     final AuthUser authUser = userMapper.convertToAuthUser(user);
     final List<String> permissions = auth0Util
-        .getPermissionBy(user.getUserContactInformation().getEmailWork());
+        .getPermissionBy(user.getUserId());
     authUser.setPermissions(permissions);
     authUserCacheManager.cacheAuthUser(token, authUser);
   }
@@ -279,13 +280,6 @@ public class UserServiceImpl implements UserService {
   @Override
   public void save(final User user) {
     userRepository.save(user);
-  }
-
-  @Override
-  public void saveUserWithRole(final User user, final Role role) {
-    auth0Util.updateRoleWithEmail(user.getUserContactInformation().getEmailWork(),
-        role.getValue());
-    save(user);
   }
 
   @Override
@@ -388,30 +382,30 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public void createPassword(final CreatePasswordDto createPasswordDto) {
-    final com.auth0.json.mgmt.users.User user = auth0Util
-        .getUserByEmailFromAuth0(createPasswordDto.getEmailWork());
+    final User user = userRepository.findByEmailWork(createPasswordDto.getEmailWork());
 
-    if (user == null) {
-      throw new ForbiddenException(String.format("Cannot find user with email %s",
-          createPasswordDto.getEmailWork()));
-    }
-
-    final String userId = auth0Util.getUserId(user);
-    final User targetUser = userRepository.findByUserId(userId);
-    if (targetUser == null
-        || !createPasswordDto.getResetPasswordToken().equals(targetUser.getResetPasswordToken())) {
+    if (user == null
+        || !createPasswordDto.getResetPasswordToken().equals(user.getResetPasswordToken())) {
       throw new ResourceNotFoundException(String
           .format("The user with email %s does not exist.", createPasswordDto.getEmailWork()));
     }
 
-    auth0Util.updatePassword(user, createPasswordDto.getNewPassword());
-    auth0Util.updateVerified(user, true);
+    final com.auth0.json.mgmt.users.User authUser =
+        auth0Util.getUserByUserIdFromAuth0(user.getUserId());
+
+    if (authUser == null) {
+      throw new ForbiddenException(String.format("Cannot find user with email %s",
+          createPasswordDto.getEmailWork()));
+    }
+
+    auth0Util.updatePassword(authUser, createPasswordDto.getNewPassword());
+    auth0Util.updateVerified(authUser, true);
 
     final UserStatus userStatus = userStatusRepository.findByName(Status.ACTIVE.name());
-    targetUser.setUserStatus(userStatus);
-    targetUser.setResetPasswordToken(null);
-    targetUser.setVerifiedAt(Timestamp.valueOf(DateUtil.getLocalUtcTime()));
-    userRepository.save(targetUser);
+    user.setUserStatus(userStatus);
+    user.setResetPasswordToken(null);
+    user.setVerifiedAt(Timestamp.valueOf(DateUtil.getLocalUtcTime()));
+    userRepository.save(user);
   }
 
   @Override
@@ -449,8 +443,8 @@ public class UserServiceImpl implements UserService {
     } else {
       updateUserRole = Role.ADMIN.getValue();
     }
-    auth0Util.updateRoleWithEmail(user.getUserContactInformation().getEmailWork(),
-        updateUserRole);
+
+    auth0Util.updateRoleWithUserId(user.getUserId(), updateUserRole);
 
     return user;
   }
@@ -479,11 +473,11 @@ public class UserServiceImpl implements UserService {
     if (userStatusUpdatePojo.getUserStatus().name().equals(Status.ACTIVE.name())) {
       // inactivate user in auth0
       final com.auth0.json.mgmt.users.User auth0User = auth0Util
-          .getUserByEmailFromAuth0(user.getUserContactInformation().getEmailWork());
+          .getUserByUserIdFromAuth0(user.getUserId());
       auth0Util.updateAuthRole(auth0User.getId(), Role.INACTIVATE.name());
 
       final Role previousUserRole = auth0Util
-          .getUserRole(user.getUserContactInformation().getEmailWork());
+          .getUserRole(user.getUserId());
       userAccessLevelEventRepository.save(
           new UserAccessLevelEvent(user, previousUserRole.getValue()));
 
@@ -519,8 +513,7 @@ public class UserServiceImpl implements UserService {
           .getDeactivationReason().getId()));
       userRepository.save(user);
 
-      auth0Util.updateRoleWithEmail(user.getUserContactInformation().getEmailWork(),
-          Role.INACTIVATE.getValue());
+      auth0Util.updateRoleWithUserId(user.getUserId(), Role.INACTIVATE.getValue());
     }
   }
 
@@ -536,6 +529,10 @@ public class UserServiceImpl implements UserService {
     if (existingUser != null) {
       throw new DataIntegrityViolationException("User "
           + "already signed up successfully in previous attempts.");
+    }
+
+    if (companyRepository.existsByName(signUpDto.getCompanyName())) {
+      throw new ForbiddenException("Company name already exists!", ErrorType.COMPANY_NAME_CONFLICT);
     }
 
     addSignUpInformation(signUpDto);
@@ -579,7 +576,6 @@ public class UserServiceImpl implements UserService {
         .userPersonalInformation(userPersonalInformation)
         .userContactInformation(userContactInformation)
         .company(company)
-        .emailWork(signUpDto.getEmail())
         .verifiedAt(Timestamp.valueOf(DateUtil.getLocalUtcTime()))
         .build();
 
@@ -603,7 +599,7 @@ public class UserServiceImpl implements UserService {
     }
 
     final Role userRole = auth0Util
-        .getUserRole(currentUser.getUserContactInformation().getEmailWork());
+        .getUserRole(currentUser.getUserId());
     final Boolean isAdmin = Role.ADMIN == userRole;
     final User manager = targetUser.getManagerUser();
 
@@ -623,15 +619,16 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public Boolean existsByEmailWork(final String email) {
-    return auth0Util.getUserByEmailFromAuth0(email) != null;
+    return auth0Util.existsByEmail(email);
   }
 
   @Override
-  public void updatePassword(final ChangePasswordPojo changePasswordPojo, final String email) {
+  public void updatePassword(final ChangePasswordPojo changePasswordPojo, final String userId) {
     final com.auth0.json.mgmt.users.User user = auth0Util
-        .getUserByEmailFromAuth0(email);
+        .getUserByUserIdFromAuth0(userId);
 
-    auth0Util.login(email, changePasswordPojo.getPassWord());
+    final String emailAddress = user.getEmail();
+    auth0Util.login(emailAddress, changePasswordPojo.getPassWord());
     auth0Util.updatePassword(user, changePasswordPojo.getNewPassword());
 
     final Context context = new Context();
@@ -639,37 +636,36 @@ public class UserServiceImpl implements UserService {
     final String emailContent = templateEngine.process("password_change_email.html", context);
     final Timestamp sendDate = Timestamp.valueOf(LocalDateTime.now());
     final Email notificationEmail = new Email(systemEmailAddress,
-        email, "Password Changed!",
+        emailAddress, "Password Changed!",
         emailContent, sendDate);
     emailService.saveAndScheduleEmail(notificationEmail);
 
   }
 
   @Override
-  public void checkPassword(User user, String password) {
+  public void checkPassword(final User user, final String password) {
 
     auth0Util.login(user.getUserContactInformation().getEmailWork(), password);
-
   }
 
   @Override
-  public void sendChangeWorkEmail(Long userId, String newEmail) {
+  public void sendChangeWorkEmail(final Long userId, final String newEmail) {
 
-    User user = userRepository.findById(userId).get();
+    final User user = userRepository.findById(userId).get();
 
     user.setUserStatus(userStatusRepository.findByName(
         String.valueOf(Status.CHANGING_EMAIL_VERIFICATION)));
 
     user.setChangeWorkEmail(newEmail);
 
-    String newEmailToken = UUID.randomUUID().toString();
+    final String newEmailToken = UUID.randomUUID().toString();
     user.setChangeWorkEmailToken(newEmailToken);
 
     final String emailContent = getVerifyiedEmail(newEmailToken);
 
     final Timestamp sendDate = Timestamp.valueOf(LocalDateTime.now());
 
-    Email verifyChangeWorkEmail = new Email(systemEmailAddress,
+    final Email verifyChangeWorkEmail = new Email(systemEmailAddress,
         user.getChangeWorkEmail(),"Verify New Work Email", emailContent, sendDate);
 
     emailService.saveAndScheduleEmail(verifyChangeWorkEmail);
@@ -678,21 +674,16 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public String getChangeWorkEmailInfo(User user) {
-    return user.getChangeWorkEmail();
-  }
+  public void sendVerifyChangeWorkEmail(final User user) {
 
-  @Override
-  public void sendVerifyChangeWorkEmail(User user) {
-
-    String newEmailToken = UUID.randomUUID().toString();
+    final String newEmailToken = UUID.randomUUID().toString();
     user.setChangeWorkEmailToken(newEmailToken);
 
     final String emailContent = getVerifyiedEmail(newEmailToken);
 
     final Timestamp sendDate = Timestamp.valueOf(LocalDateTime.now());
 
-    Email verifyChangeWorkEmail = new Email(systemEmailAddress,
+    final Email verifyChangeWorkEmail = new Email(systemEmailAddress,
         user.getChangeWorkEmail(),"Verify New Work Email", emailContent, sendDate);
 
     emailService.saveAndScheduleEmail(verifyChangeWorkEmail);
@@ -703,13 +694,13 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public boolean changeWorkEmailTokenExist(String token) {
+  public boolean changeWorkEmailTokenExist(final String token) {
 
-    User currentUser = userRepository.findByChangeWorkEmailToken(token);
+    final User currentUser = userRepository.findByChangeWorkEmailToken(token);
 
     if (userRepository.existsByChangeWorkEmailToken(token)) {
       final com.auth0.json.mgmt.users.User user = auth0Util
-          .getUserByEmailFromAuth0(currentUser.getUserContactInformation().getEmailWork());
+          .getUserByUserIdFromAuth0(currentUser.getUserId());
 
       auth0Util.updateUserEmail(user,currentUser.getChangeWorkEmail());
 
@@ -719,9 +710,9 @@ public class UserServiceImpl implements UserService {
       currentUser.setUserStatus(userStatusRepository.findByName(
           String.valueOf(Status.ACTIVE)));
 
-      UserContactInformationDto updateEmailWork = new UserContactInformationDto();
+      final UserContactInformationDto updateEmailWork = new UserContactInformationDto();
       updateEmailWork.setEmailWork(currentUser.getChangeWorkEmail());
-      UserContactInformation updateContactInfo =
+      final UserContactInformation updateContactInfo =
           userContactInformationMapper.updateFromUserContactInformationDto(
               currentUser.getUserContactInformation(),updateEmailWork);
 
@@ -771,10 +762,11 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public void sendResetPasswordEmail(final String email) {
-    final com.auth0.json.mgmt.users.User user = auth0Util.getUserByEmailFromAuth0(email);
     final User targetUser = userRepository.findByEmailWork(email);
+    final com.auth0.json.mgmt.users.User user = auth0Util
+        .getUserByUserIdFromAuth0(targetUser.getUserId());
 
-    if (user == null || targetUser == null) {
+    if (targetUser == null || user == null) {
       throw new ForbiddenException("User account does not exist!");
     }
 
@@ -796,10 +788,10 @@ public class UserServiceImpl implements UserService {
       throw new ForbiddenException("Reset password Forbidden");
     }
 
-    final com.auth0.json.mgmt.users.User currentUser = auth0Util
-        .getUserByEmailFromAuth0(user.getUserContactInformation().getEmailWork());
+    final com.auth0.json.mgmt.users.User auth0User = auth0Util
+        .getUserByUserIdFromAuth0(user.getUserId());
 
-    if (currentUser == null) {
+    if (auth0User == null) {
       throw new ForbiddenException("Email account does not exist.");
     }
 
@@ -808,7 +800,7 @@ public class UserServiceImpl implements UserService {
       throw new ForbiddenException("New password cannot be the same as the old one.");
     }
 
-    auth0Util.updatePassword(currentUser, updatePasswordDto.getNewPassword());
+    auth0Util.updatePassword(auth0User, updatePasswordDto.getNewPassword());
 
     user.setResetPasswordToken(null);
     userRepository.save(user);

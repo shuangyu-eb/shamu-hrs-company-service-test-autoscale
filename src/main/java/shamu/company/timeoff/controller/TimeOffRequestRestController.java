@@ -10,7 +10,6 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -121,7 +120,7 @@ public class TimeOffRequestRestController extends BaseRestController {
   }
 
   @GetMapping("users/{id}/time-off-requests")
-  @PreAuthorize("hasPermission(#id,'EMPLOYEE_COMPANY','VIEW_TEAM_TIME_OFF_REQUEST')")
+  @PreAuthorize("hasPermission(#id,'USER','VIEW_TEAM_TIME_OFF_REQUEST')")
   public List<TimeOffRequestDto> getTimeOffRequests(
       @PathVariable @HashidsFormat final Long id,
       @RequestParam final TimeOffRequestApprovalStatus[] status) {
@@ -302,9 +301,9 @@ public class TimeOffRequestRestController extends BaseRestController {
   }
 
   @GetMapping("time-off-request/has-privilege/user/{id}")
-  @PreAuthorize("hasPermission(#id,'EMPLOYEE_COMPANY','VIEW_TEAM_TIME_OFF_REQUEST')")
+  @PreAuthorize("hasPermission(#id,'USER','VIEW_TEAM_TIME_OFF_REQUEST')")
   public boolean hasUserPermission(@HashidsFormat @PathVariable final Long id) {
-    final User.Role userRole = auth0Util.getUserRole(getAuthUser().getEmail());
+    final User.Role userRole = auth0Util.getUserRole(getUserId());
     final User targetUser = userService.findUserById(id);
     if (getAuthUser().getId() == targetUser.getId()) {
       return targetUser.getManagerUser() == null;

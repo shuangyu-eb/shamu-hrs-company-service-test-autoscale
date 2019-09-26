@@ -55,8 +55,6 @@ public interface UserService {
 
   void save(User user);
 
-  void saveUserWithRole(User user, User.Role role);
-
   List<JobUserDto> findAllJobUsers(Long companyId);
 
   List<User> findAllUsersByCompany(Long companyId);
@@ -96,13 +94,11 @@ public interface UserService {
 
   Boolean existsByEmailWork(String email);
 
-  void updatePassword(ChangePasswordPojo changePasswordPojo, String email);
+  void updatePassword(ChangePasswordPojo changePasswordPojo, String userId);
 
   void checkPassword(User user,String password);
 
   void sendChangeWorkEmail(Long userId, String newEmail);
-
-  String getChangeWorkEmailInfo(User user);
 
   void sendVerifyChangeWorkEmail(User user);
 

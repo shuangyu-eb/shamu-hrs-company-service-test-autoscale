@@ -193,7 +193,7 @@ class UserServiceTests {
 
     Mockito.when(userRepository.findByResetPasswordToken(updatePasswordDto.getResetPasswordToken()))
         .thenReturn(databaseUser);
-    Mockito.when(auth0Util.getUserByEmailFromAuth0(userContactInformation.getEmailWork()))
+    Mockito.when(auth0Util.getUserByUserIdFromAuth0(Mockito.any()))
         .thenReturn(authUser);
 
     Assertions.assertDoesNotThrow(() -> {
@@ -236,7 +236,7 @@ class UserServiceTests {
     void whenIsAdmin_thenShouldReturnTrue() {
       Mockito.when(userRepository.findByIdAndCompanyId(Mockito.anyLong(), Mockito.anyLong()))
           .thenReturn(new User());
-      Mockito.when(auth0Util.getUserRole(Mockito.anyString())).thenReturn(Role.ADMIN);
+      Mockito.when(auth0Util.getUserRole(Mockito.any())).thenReturn(Role.ADMIN);
       final boolean hasAccess = userService.hasUserAccess(currentUser, targetUserId);
       Assertions.assertTrue(hasAccess);
     }
@@ -251,7 +251,7 @@ class UserServiceTests {
       Mockito.when(userRepository.getManagerUserIdById(Mockito.anyLong()))
           .thenReturn(currentUser.getId());
 
-      Mockito.when(auth0Util.getUserRole(Mockito.anyString())).thenReturn(Role.MANAGER);
+      Mockito.when(auth0Util.getUserRole(Mockito.any())).thenReturn(Role.MANAGER);
       final boolean hasAccess = userService.hasUserAccess(currentUser, targetUserId);
       Assertions.assertTrue(hasAccess);
     }
@@ -291,16 +291,21 @@ class UserServiceTests {
     }
 
     @Test
-    void whenPasswordNotMatch_thenShouldThrow() {
-      createPasswordDto.setNewPassword(RandomStringUtils.randomAlphabetic(10));
-      Assertions.assertThrows(ForbiddenException.class, () -> {
+    void whenPasswordTokenNotMatch_thenShouldThrow() {
+      final User targetUser = new User();
+      targetUser.setResetPasswordToken(RandomStringUtils.randomAlphabetic(10));
+      Mockito.when(userRepository.findByEmailWork(Mockito.anyString())).thenReturn(targetUser);
+      Assertions.assertThrows(ResourceNotFoundException.class, () -> {
         userService.createPassword(createPasswordDto);
       });
     }
 
     @Test
     void whenNoSuchUserInAuth0_thenShouldThrow() {
-      Mockito.when(auth0Util.getUserByEmailFromAuth0(Mockito.anyString())).thenReturn(null);
+      final User targetUser = new User();
+      targetUser.setResetPasswordToken(createPasswordDto.getResetPasswordToken());
+      Mockito.when(userRepository.findByEmailWork(Mockito.anyString())).thenReturn(targetUser);
+      Mockito.when(auth0Util.getUserByUserIdFromAuth0(Mockito.any())).thenReturn(null);
       Assertions.assertThrows(ForbiddenException.class, () -> {
         userService.createPassword(createPasswordDto);
       });
@@ -308,10 +313,9 @@ class UserServiceTests {
 
     @Test
     void whenNoSuchUserInDatabase_thenShouldThrow() {
-      Mockito.when(auth0Util.getUserByEmailFromAuth0(Mockito.anyString())).thenReturn(user);
-      Mockito.when(auth0Util.getUserId(Mockito.any()))
-          .thenReturn(RandomStringUtils.randomAlphabetic(10));
-      Mockito.when(userRepository.findByUserId(Mockito.anyString())).thenReturn(null);
+      final User targetUser = new User();
+      targetUser.setResetPasswordToken(createPasswordDto.getResetPasswordToken());
+      Mockito.when(userRepository.findByEmailWork(Mockito.anyString())).thenReturn(null);
       Assertions.assertThrows(ResourceNotFoundException.class, () -> {
         userService.createPassword(createPasswordDto);
       });
@@ -319,13 +323,10 @@ class UserServiceTests {
 
     @Test
     void whenResetTokenNotEqual_thenShouldThrow() {
-      Mockito.when(auth0Util.getUserByEmailFromAuth0(Mockito.anyString())).thenReturn(user);
-      Mockito.when(auth0Util.getUserId(Mockito.any()))
-          .thenReturn(RandomStringUtils.randomAlphabetic(10));
-
+      Mockito.when(auth0Util.getUserByUserIdFromAuth0(Mockito.any())).thenReturn(user);
       final User targetUser = new User();
       targetUser.setResetPasswordToken(RandomStringUtils.randomAlphabetic(10));
-      Mockito.when(userRepository.findByUserId(Mockito.anyString())).thenReturn(targetUser);
+      Mockito.when(userRepository.findByEmailWork(Mockito.any())).thenReturn(targetUser);
       Assertions.assertThrows(ResourceNotFoundException.class, () -> {
         userService.createPassword(createPasswordDto);
       });
@@ -333,16 +334,15 @@ class UserServiceTests {
 
     @Test
     void whenNoError_thenShouldSuccess() {
-      Mockito.when(auth0Util.getUserByEmailFromAuth0(Mockito.anyString())).thenReturn(user);
-      Mockito.when(auth0Util.getUserId(Mockito.any()))
-          .thenReturn(RandomStringUtils.randomAlphabetic(10));
       final User targetUser = new User();
       targetUser.setResetPasswordToken(createPasswordDto.getResetPasswordToken());
-      Mockito.when(userRepository.findByUserId(Mockito.anyString())).thenReturn(targetUser);
+      Mockito.when(userRepository.findByEmailWork(Mockito.anyString())).thenReturn(targetUser);
+
+      Mockito.when(auth0Util.getUserByUserIdFromAuth0(Mockito.any())).thenReturn(user);
 
       final UserStatus targetStatus = new UserStatus();
       targetStatus.setName(Status.ACTIVE.name());
-      Mockito.when(userStatusRepository.findByName(Mockito.anyString())).thenReturn(targetStatus);
+      Mockito.when(userStatusRepository.findByName(Mockito.any())).thenReturn(targetStatus);
 
       Assertions.assertDoesNotThrow(() -> {
         userService.createPassword(createPasswordDto);
@@ -355,7 +355,8 @@ class UserServiceTests {
 
     @Test
     void whenUserIsNull_thenShouldThrow() {
-      Mockito.when(auth0Util.getUserByEmailFromAuth0(Mockito.anyString())).thenReturn(null);
+      Mockito.when(userRepository.findByEmailWork(Mockito.anyString())).thenReturn(new User());
+      Mockito.when(auth0Util.getUserByUserIdFromAuth0(Mockito.any())).thenReturn(null);
       Assertions.assertThrows(ForbiddenException.class, () -> {
         userService.sendResetPasswordEmail("example@indeed.com");
       });
@@ -366,8 +367,10 @@ class UserServiceTests {
       final com.auth0.json.mgmt.users.User auth0User = new com.auth0.json.mgmt.users.User();
 
       final User databaseUser = new User();
-      Mockito.when(auth0Util.getUserByEmailFromAuth0(Mockito.anyString())).thenReturn(auth0User);
+      Mockito.when(auth0Util.getUserByUserIdFromAuth0(Mockito.any())).thenReturn(auth0User);
       Mockito.when(userRepository.findByEmailWork(Mockito.anyString())).thenReturn(databaseUser);
+
+      Mockito.when(userRepository.findByEmailWork(Mockito.anyString())).thenReturn(new User());
 
       Assertions.assertDoesNotThrow(() -> {
         userService.sendResetPasswordEmail("example@indeed.com");

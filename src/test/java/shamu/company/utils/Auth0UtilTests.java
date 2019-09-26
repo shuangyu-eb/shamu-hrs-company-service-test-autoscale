@@ -4,6 +4,7 @@ import com.auth0.client.mgmt.ManagementAPI;
 import com.auth0.client.mgmt.UsersEntity;
 import com.auth0.exception.Auth0Exception;
 import com.auth0.json.mgmt.users.User;
+import com.auth0.json.mgmt.users.UsersPage;
 import com.auth0.net.Request;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -81,7 +82,7 @@ class Auth0UtilTests {
   }
 
   @Nested
-  class GetUserByEmailFromAuth0 {
+  class GetUserByUserIdFromAuth0 {
 
 
     Request mockedUserRequest;
@@ -89,30 +90,35 @@ class Auth0UtilTests {
     @BeforeEach
     void setUp() {
       mockedUserRequest = Mockito.mock(Request.class);
-      Mockito.when(usersEntity.listByEmail(Mockito.anyString(), Mockito.any()))
+      Mockito.when(usersEntity.list(Mockito.any()))
           .thenReturn(mockedUserRequest);
     }
 
     @Test
     void whenUserMoreThanOne_thenShouldThrow() throws Auth0Exception {
+      final UsersPage mockUsersPage = Mockito.mock(UsersPage.class);
       final List<User> fakeUsersResult = new ArrayList<>(2);
       fakeUsersResult.add(new User());
       fakeUsersResult.add(new User());
 
-      Mockito.when(mockedUserRequest.execute()).thenReturn(fakeUsersResult);
+      Mockito.when(mockUsersPage.getItems()).thenReturn(fakeUsersResult);
+
+      Mockito.when(mockedUserRequest.execute()).thenReturn(mockUsersPage);
       Assertions.assertThrows(GeneralAuth0Exception.class, () -> {
-        auth0Util.getUserByEmailFromAuth0(RandomStringUtils.randomAlphabetic(10));
+        auth0Util.getUserByUserIdFromAuth0(RandomStringUtils.randomAlphabetic(10));
       });
     }
 
     @Test
     void whenHasOneUser_thenShouldSuccess() throws Auth0Exception {
+      final UsersPage mockUsersPage = Mockito.mock(UsersPage.class);
       final List<User> fakeUsersResult = new ArrayList<>(1);
       fakeUsersResult.add(new User());
 
-      Mockito.when(mockedUserRequest.execute()).thenReturn(fakeUsersResult);
+      Mockito.when(mockUsersPage.getItems()).thenReturn(fakeUsersResult);
+      Mockito.when(mockedUserRequest.execute()).thenReturn(mockUsersPage);
       Assertions.assertDoesNotThrow(() -> {
-        auth0Util.getUserByEmailFromAuth0(RandomStringUtils.randomAlphabetic(10));
+        auth0Util.getUserByUserIdFromAuth0(RandomStringUtils.randomAlphabetic(10));
       });
     }
   }

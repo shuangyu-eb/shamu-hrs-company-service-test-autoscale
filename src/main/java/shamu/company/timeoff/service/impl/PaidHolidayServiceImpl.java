@@ -12,8 +12,8 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import shamu.company.common.BaseAuthorityDto;
 import shamu.company.common.exception.ResourceNotFoundException;
-import shamu.company.company.CompanyService;
 import shamu.company.company.entity.Company;
 import shamu.company.job.dto.JobUserDto;
 import shamu.company.server.AuthUser;
@@ -50,8 +50,6 @@ public class PaidHolidayServiceImpl implements PaidHolidayService {
 
   private final FederalHolidays federalHolidays;
 
-  private final CompanyService companyService;
-
   @Autowired
   public PaidHolidayServiceImpl(final PaidHolidayRepository paidHolidayRepository,
       final CompanyPaidHolidayRepository companyPaidHolidayRepository,
@@ -59,8 +57,7 @@ public class PaidHolidayServiceImpl implements PaidHolidayService {
       final PaidHolidayUserRepository paidHolidayUserRepository,
       final CompanyPaidHolidayMapper companyPaidHolidayMapper,
       final PaidHolidayMapper paidHolidayMapper,
-      final FederalHolidays federalHolidays,
-      final CompanyService companyService) {
+      final FederalHolidays federalHolidays) {
     this.paidHolidayRepository = paidHolidayRepository;
     this.companyPaidHolidayRepository = companyPaidHolidayRepository;
     this.userService = userService;
@@ -68,7 +65,6 @@ public class PaidHolidayServiceImpl implements PaidHolidayService {
     this.companyPaidHolidayMapper = companyPaidHolidayMapper;
     this.paidHolidayMapper = paidHolidayMapper;
     this.federalHolidays = federalHolidays;
-    this.companyService = companyService;
   }
 
   @Override
@@ -206,9 +202,10 @@ public class PaidHolidayServiceImpl implements PaidHolidayService {
   }
 
   @Override
-  public void updatePaidHolidayEmployees(final List<JobUserDto> newPaidEmployees,
+  public void updatePaidHolidayEmployees(final List<BaseAuthorityDto> newPaidEmployees,
       final Long companyId) {
-    final List<Long> paidEmployeeIdsNow = newPaidEmployees.stream().map(JobUserDto::getId)
+    final List<Long> paidEmployeeIdsNow = newPaidEmployees.stream().map(
+        BaseAuthorityDto::getId)
         .collect(Collectors.toList());
     final List<PaidHolidayUser> employeesStateBefore = paidHolidayUserRepository
         .findAllByCompanyId(companyId);

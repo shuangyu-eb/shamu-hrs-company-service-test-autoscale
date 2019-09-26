@@ -57,7 +57,7 @@ public class EmergencyContactRestController extends BaseRestController {
     final List<UserEmergencyContact> userEmergencyContacts = userEmergencyContactService
         .getUserEmergencyContacts(userId);
 
-    final Role userRole = auth0Util.getUserRole(getAuthUser().getEmail());
+    final Role userRole = auth0Util.getUserRole(getUserId());
     if (userId.equals(getAuthUser().getId())
         || Role.ADMIN.equals(userRole)) {
       return userEmergencyContacts.stream()

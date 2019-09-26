@@ -57,7 +57,7 @@ public class UserAddressRestController extends BaseRestController {
     final User manager = targetUser.getManagerUser();
     final UserAddress userAddress = userAddressService.findUserAddressByUserId(id);
 
-    final User.Role userRole = auth0Util.getUserRole(getAuthUser().getEmail());
+    final User.Role userRole = auth0Util.getUserRole(getUserId());
     if (userAddress != null && (getAuthUser().getId().equals(id)
         || userRole == Role.ADMIN
         || (manager != null && manager.getId().equals(getAuthUser().getId())))) {

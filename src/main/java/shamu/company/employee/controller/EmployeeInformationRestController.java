@@ -74,11 +74,13 @@ public class EmployeeInformationRestController extends BaseRestController {
   public EmployeeRelatedInformationDto getEmployeeInfoByUserId(
       @PathVariable @HashidsFormat final Long id) {
     final User employee = userService.findEmployeeInfoByUserId(id);
+    final String emailAddress = employee.getUserContactInformation().getEmailWork();
     final Status userStatus = employee.getUserStatus().getStatus();
 
     Timestamp sendDate = null;
     if (userStatus == Status.PENDING_VERIFICATION) {
-      final Email email = employeeService.getWelcomeEmail(employee.getEmailWork());
+
+      final Email email = employeeService.getWelcomeEmail(emailAddress);
       sendDate = email != null ? email.getSendDate() : null;
     }
 
@@ -93,7 +95,7 @@ public class EmployeeInformationRestController extends BaseRestController {
         .map((user) -> userService.findEmployeeInfoByEmployeeId(user.getId()))
         .collect(Collectors.toList());
 
-    return jobUserMapper.convertToEmployeeRelatedInformationDto(id, employee.getEmailWork(),
+    return jobUserMapper.convertToEmployeeRelatedInformationDto(id, emailAddress,
         userStatus.name(), sendDate, jobUserDto,
         managerjobUserDto, reports);
   }
@@ -106,7 +108,7 @@ public class EmployeeInformationRestController extends BaseRestController {
     final UserPersonalInformation personalInformation = targetUser.getUserPersonalInformation();
 
     // The user's full personal message can only be accessed by admin and himself.
-    final Role userRole = auth0Util.getUserRole(getAuthUser().getEmail());
+    final Role userRole = auth0Util.getUserRole(getUserId());
     if (getAuthUser().getId().equals(id) || userRole == Role.ADMIN) {
       return userPersonalInformationMapper
           .convertToEmployeePersonalInformationDto(personalInformation);
@@ -129,7 +131,7 @@ public class EmployeeInformationRestController extends BaseRestController {
 
     // The user's full contact message can only be accessed by admin, the manager and himself.
     final Role userRole = auth0Util
-        .getUserRole(getAuthUser().getEmail());
+        .getUserRole(getUserId());
     if (getAuthUser().getId().equals(id)
         || targetUser.getManagerUser().getId().equals(getAuthUser().getId())
         || userRole == Role.ADMIN) {
@@ -148,7 +150,7 @@ public class EmployeeInformationRestController extends BaseRestController {
     if (target == null) {
       final User targetUser = userService.findUserById(id);
       final Role targetUserRole = auth0Util
-          .getUserRole(targetUser.getUserContactInformation().getEmailWork());
+          .getUserRole(targetUser.getUserId());
       final BasicJobInformationDto resultUser =
           userMapper.convertToBasicJobInformationDto(targetUser);
       resultUser.setUserRole(targetUserRole);
@@ -157,16 +159,22 @@ public class EmployeeInformationRestController extends BaseRestController {
 
     // The user's full job message can only be accessed by admin, the manager and himself.
     final Role userRole = auth0Util
-        .getUserRole(getAuthUser().getEmail());
+        .getUserRole(getUserId());
     if (getAuthUser().getId().equals(id) || userRole == Role.ADMIN) {
       return jobUserMapper.convertToJobInformationDto(target);
+    }
+
+    if (userRole == Role.MANAGER && target.getUser().getManagerUser() != null
+            && getAuthUser().getId().equals(target.getUser().getManagerUser().getId())) {
+      return jobUserMapper.convertToJobInformationDto(target);
+
     }
 
     final BasicJobInformationDto resultInformation = jobUserMapper
         .convertToBasicJobInformationDto(target);
     final User targetUser = target.getUser();
     final Role targetUserRole = auth0Util
-        .getUserRole(targetUser.getUserContactInformation().getEmailWork());
+        .getUserRole(targetUser.getUserId());
     resultInformation.setUserRole(targetUserRole);
     return resultInformation;
   }

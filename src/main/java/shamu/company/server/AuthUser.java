@@ -17,6 +17,8 @@ public class AuthUser {
 
   private Long companyId;
 
+  private String userId;
+
   private List<String> permissions;
 
   AuthUser(final User user) {
@@ -24,5 +26,6 @@ public class AuthUser {
     this.imageUrl = user.getImageUrl();
     this.email = user.getUserContactInformation().getEmailWork();
     this.companyId = user.getCompany().getId();
+    this.userId = user.getUserId();
   }
 }

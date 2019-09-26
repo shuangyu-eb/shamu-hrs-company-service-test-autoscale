@@ -1,7 +1,10 @@
 package shamu.company.authorization;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -12,14 +15,18 @@ import shamu.company.benefit.entity.BenefitPlan;
 import shamu.company.benefit.entity.BenefitPlanDependent;
 import shamu.company.benefit.service.BenefitPlanDependentService;
 import shamu.company.benefit.service.BenefitPlanService;
+import shamu.company.common.BaseAuthorityDto;
+import shamu.company.common.entity.BaseEntity;
 import shamu.company.common.exception.ForbiddenException;
 import shamu.company.company.CompanyService;
 import shamu.company.company.entity.Company;
 import shamu.company.company.entity.Department;
+import shamu.company.timeoff.entity.CompanyPaidHoliday;
 import shamu.company.timeoff.entity.PaidHoliday;
 import shamu.company.timeoff.entity.TimeOffPolicy;
 import shamu.company.timeoff.entity.TimeOffPolicyUser;
 import shamu.company.timeoff.repository.TimeOffPolicyUserRepository;
+import shamu.company.timeoff.service.CompanyPaidHolidayService;
 import shamu.company.timeoff.service.PaidHolidayService;
 import shamu.company.timeoff.service.TimeOffPolicyService;
 import shamu.company.timeoff.service.TimeOffRequestService;
@@ -48,6 +55,8 @@ public class UserPermissionUtils extends BasePermissionUtils {
 
   private final PaidHolidayService paidHolidayService;
 
+  private final CompanyPaidHolidayService companyPaidHolidayService;
+
   @Autowired
   public UserPermissionUtils(final UserService userService,
       final CompanyService companyService,
@@ -57,7 +66,8 @@ public class UserPermissionUtils extends BasePermissionUtils {
       final BenefitPlanDependentService benefitPlanDependentService,
       final TimeOffPolicyUserRepository timeOffPolicyUserRepository,
       final TimeOffPolicyService timeOffPolicyService,
-      final PaidHolidayService paidHolidayService) {
+      final PaidHolidayService paidHolidayService,
+      final CompanyPaidHolidayService companyPaidHolidayService) {
     this.userService = userService;
     this.companyService = companyService;
     this.timeOffRequestService = timeOffRequestService;
@@ -67,10 +77,11 @@ public class UserPermissionUtils extends BasePermissionUtils {
     this.timeOffPolicyUserRepository = timeOffPolicyUserRepository;
     this.timeOffPolicyService = timeOffPolicyService;
     this.paidHolidayService = paidHolidayService;
+    this.companyPaidHolidayService = companyPaidHolidayService;
   }
 
   boolean hasPermission(final Authentication auth, final Long targetId, final Type targetType,
-      final Permission.Name permission) {
+      final Permission.Name permission, final BaseEntity... entities) {
     if (targetId == null) {
       return false;
     }
@@ -96,8 +107,8 @@ public class UserPermissionUtils extends BasePermissionUtils {
         return hasPermissionOfTimeOffPolicy(auth, targetId, permission);
       case PAID_HOLIDAY:
         return hasPermissionOfPaidHoliday(auth, targetId, permission);
-      case EMPLOYEE_COMPANY:
-        return hasPermissionSameCompany(auth, targetId, permission);
+      case COMPANY_PAID_HOLIDAY:
+        return hasPermissionOfCompanyPaidHoliday(auth, targetId, permission, entities);
       case USER:
       default:
         final User targetUser = userService.findUserById(targetId);
@@ -105,11 +116,42 @@ public class UserPermissionUtils extends BasePermissionUtils {
     }
   }
 
-  private boolean hasPermission(final Collection<GrantedAuthority> authorities,
+  boolean hasPermission(final Collection<GrantedAuthority> authorities,
       final Permission.Name permission) {
 
     return authorities.stream()
         .anyMatch(authority -> authority.getAuthority().equals(permission.name()));
+  }
+
+  boolean hasPermission(final Authentication auth, final List targets, final Type type,
+      final Permission.Name permission) {
+    if (targets.isEmpty()) {
+      final Collection<GrantedAuthority> authorities = (Collection<GrantedAuthority>) auth
+          .getAuthorities();
+      return hasPermission(authorities, permission);
+    }
+    if (targets.get(0) instanceof BaseAuthorityDto) {
+      final List<BaseAuthorityDto> baseAuthorityDtos = (List<BaseAuthorityDto>) targets;
+      for (final BaseAuthorityDto dto : baseAuthorityDtos) {
+        final Long id = dto.getId();
+        BaseEntity[] entities = {};
+        switch (type) {
+          case COMPANY_PAID_HOLIDAY:
+            entities = companyPaidHolidayService.findAllByCompanyId(getCompanyId()).stream()
+                .map(companyPaidHoliday -> (BaseEntity) companyPaidHoliday)
+                .toArray(BaseEntity[]::new);
+            break;
+          default:
+            break;
+        }
+        final boolean result = hasPermission(auth, id, type, permission, entities);
+        if (!result) {
+          return false;
+        }
+      }
+      return true;
+    }
+    return false;
   }
 
   private boolean isAdminPermission(final Authentication auth, final Permission.Name permission) {
@@ -213,6 +255,35 @@ public class UserPermissionUtils extends BasePermissionUtils {
         && paidHoliday.getCreator().getId().equals(getAuthUser().getId());
   }
 
+  private boolean hasPermissionOfCompanyPaidHoliday(
+      final Authentication auth, final Long paidHolidayId, final Permission.Name permission,
+      final BaseEntity... entities) {
+
+    final CompanyPaidHoliday companyPaidHoliday;
+    if (entities.length != 0) {
+      final List<CompanyPaidHoliday> companyPaidHolidays = Stream.of(entities)
+          .map(entity -> (CompanyPaidHoliday) entity).collect(Collectors.toList());
+      companyPaidHoliday = companyPaidHolidays.stream()
+          .filter(holiday -> holiday.getPaidHoliday().getId().equals(paidHolidayId))
+          .findAny().orElse(null);
+    } else {
+      companyPaidHoliday = companyPaidHolidayService
+          .findCompanyPaidHolidayByPaidHolidayIdAndCompanyId(paidHolidayId, getCompanyId());
+    }
+
+    if (companyPaidHoliday == null) {
+      return false;
+    }
+
+    final PaidHoliday paidHoliday = companyPaidHoliday.getPaidHoliday();
+    if (paidHoliday.getCompany() == null) {
+      return isAdminPermission(auth, permission);
+    }
+
+    return isAdminPermission(auth, permission) && getAuthUser().getId()
+        .equals(paidHoliday.getCreator().getId());
+  }
+
   boolean hasPermissionOfUser(final Authentication auth, final User targetUser,
       final Permission.Name permission) {
     final PermissionType permissionType = permission.getPermissionType();
@@ -241,8 +312,16 @@ public class UserPermissionUtils extends BasePermissionUtils {
   }
 
   private boolean hasPermissionSameCompany(
-          final Authentication auth, final Long id, final Permission.Name permission) {
+      final Authentication auth, final Long id, final Permission.Name permission) {
     final User user = userService.findUserById(id);
     return user.getCompany().getId() == getCompanyId();
+  }
+
+  boolean isCurrentUser(final Long id) {
+    return id != null && id.equals(getAuthUser().getId());
+  }
+
+  boolean isCurrentUser(final String email) {
+    return email != null && email.equals(getAuthUser().getEmail());
   }
 }

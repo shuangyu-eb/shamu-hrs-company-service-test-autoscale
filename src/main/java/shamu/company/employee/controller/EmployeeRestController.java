@@ -50,7 +50,7 @@ public class EmployeeRestController extends BaseRestController {
   @GetMapping("employees")
   public Page<JobUserListItem> getAllEmployees(
       final EmployeeListSearchCondition employeeListSearchCondition) {
-    final User.Role userRole = auth0Util.getUserRole(getAuthUser().getEmail());
+    final User.Role userRole = auth0Util.getUserRole(getUserId());
     return userService.getAllEmployees(
         employeeListSearchCondition, getCompanyId(), userRole);
   }
@@ -94,8 +94,8 @@ public class EmployeeRestController extends BaseRestController {
   }
 
   @PatchMapping("employees")
-  @PreAuthorize("hasAuthority('EDIT_SELF')")
-  public HttpEntity updateEmployee(@RequestBody final EmployeeDto employeeDto) {
+  @PreAuthorize("@permissionUtils.isCurrentUser(#employeeDto.emailWork)")
+  public HttpEntity saveEmployeeSetUpInformation(@RequestBody final EmployeeDto employeeDto) {
     final User employee = userService.findUserById(getAuthUser().getId());
     if (employee.getVerifiedAt() != null) {
       throw new ForbiddenException(String.format("User with email %s already verified!",

@@ -9,6 +9,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.common.exception.ForbiddenException;
+import shamu.company.common.validation.constraints.FileValidate;
 import shamu.company.company.CompanyService;
 import shamu.company.employee.dto.EmailResendDto;
 import shamu.company.hashids.HashidsFormat;
@@ -40,10 +42,9 @@ import shamu.company.user.service.UserService;
 import shamu.company.utils.Auth0Util;
 import shamu.company.utils.AwsUtil;
 import shamu.company.utils.AwsUtil.Type;
-import shamu.company.utils.FileValidateUtil;
-import shamu.company.utils.FileValidateUtil.FileType;
 
 @RestApiController
+@Validated
 public class UserRestController extends BaseRestController {
 
   private final UserService userService;
@@ -72,11 +73,6 @@ public class UserRestController extends BaseRestController {
     return new ResponseEntity(HttpStatus.OK);
   }
 
-  @GetMapping(value = "user/check/company-name/{companyName}")
-  public Boolean checkCompanyName(@PathVariable final String companyName) {
-    return companyService.existsByName(companyName);
-  }
-
   @GetMapping(value = "user/check/email/{email}")
   public Boolean checkEmail(@PathVariable final String email) {
     return userService.existsByEmailWork(email);
@@ -85,7 +81,7 @@ public class UserRestController extends BaseRestController {
   @GetMapping(value = "users/{id}/head-portrait")
   @PreAuthorize("hasPermission(#id,'USER','VIEW_USER_PERSONAL')")
   public String getHeadPortrait(@PathVariable @HashidsFormat final Long id) {
-    final Role userRole = auth0Util.getUserRole(getAuthUser().getEmail());
+    final Role userRole = auth0Util.getUserRole(getUserId());
     if (getAuthUser().getId().equals(id)
         || userRole == Role.ADMIN) {
       return userService.getHeadPortrait(id);
@@ -99,11 +95,12 @@ public class UserRestController extends BaseRestController {
       "hasPermission(#id,'USER', 'EDIT_USER')"
           + " or hasPermission(#id,'USER', 'EDIT_SELF')")
   public String handleFileUpload(
-      @PathVariable @HashidsFormat final Long id, @RequestParam("file") final MultipartFile file)
-      throws IOException {
-    //TODO: Need an appropriate file size.
-    FileValidateUtil
-        .validate(file, 2 * FileValidateUtil.MB, FileType.JPEG, FileType.PNG, FileType.GIF);
+      @PathVariable @HashidsFormat final Long id,
+      @RequestParam("file")
+      //TODO: Need an appropriate file size.
+      @FileValidate(maxSize = 2 * 1024 * 1024, fileType = {"JPEG", "PNG", "GIF"})
+      final MultipartFile file
+  ) throws IOException {
     final String path = awsUtil.uploadFile(file, Type.IMAGE);
 
     if (Strings.isBlank(path)) {
@@ -134,11 +131,9 @@ public class UserRestController extends BaseRestController {
     return true;
   }
 
-
-
   @PatchMapping("user/password/update")
   public void updatePassword(@RequestBody @Valid final ChangePasswordPojo changePasswordPojo) {
-    userService.updatePassword(changePasswordPojo, getAuthUser().getEmail());
+    userService.updatePassword(changePasswordPojo, getUserId());
   }
 
   @PreAuthorize("hasPermission(#id,'USER', 'EDIT_SELF')")
@@ -161,7 +156,7 @@ public class UserRestController extends BaseRestController {
     user = userService.updateUserRole(getAuthUser().getEmail(), userRoleUpdatePojo, user);
     final UserRoleAndStatusInfoDto resultInformation = userMapper
         .convertToUserRoleAndStatusInfoDto(user);
-    final Role userRole = auth0Util.getUserRole(user.getUserContactInformation().getEmailWork());
+    final Role userRole = auth0Util.getUserRole(user.getUserId());
     resultInformation.setUserRole(userRole.getValue());
     return resultInformation;
   }
@@ -172,7 +167,7 @@ public class UserRestController extends BaseRestController {
       @RequestBody final UserStatusUpdatePojo userStatusUpdatePojo) {
     User user = userService.findUserById(id);
     user = userService.inactivateUser(getAuthUser().getEmail(), userStatusUpdatePojo, user);
-    final Role userRole = auth0Util.getUserRole(user.getUserContactInformation().getEmailWork());
+    final Role userRole = auth0Util.getUserRole(user.getUserId());
     final UserRoleAndStatusInfoDto resultInformation =
         userMapper.convertToUserRoleAndStatusInfoDto(user);
     resultInformation.setUserRole(userRole.getValue());
@@ -189,19 +184,20 @@ public class UserRestController extends BaseRestController {
   public CurrentUserDto getUserInfo(final HttpServletRequest request) {
     final String mockId = request.getHeader("X-Mock-To");
     if (Strings.isBlank(mockId)) {
-      final CurrentUserDto userDto = userService.getCurrentUserInfo(this.getUserId());
-      userService.cacheUser(this.getToken(), userDto.getId());
+      final CurrentUserDto userDto = userService
+          .getCurrentUserInfo(getAuthentication().getUserId());
+      userService.cacheUser(getToken(), userDto.getId());
       return userDto;
     }
 
-    final User user = userService.findByUserId(this.getUserId());
-    final Role role = auth0Util.getUserRole(user.getUserContactInformation().getEmailWork());
+    final User user = userService.findByUserId(getAuthentication().getUserId());
+    final Role role = auth0Util.getUserRole(user.getUserId());
     if (role != Role.SUPER_ADMIN) {
       throw new ForbiddenException("You are not super admin!");
     }
 
     final Long useId = HashidsUtil.decode(mockId);
-    userService.cacheUser(this.getToken(), useId);
+    userService.cacheUser(getToken(), useId);
     return userService.getMockUserInfo(useId);
   }
 
@@ -224,14 +220,14 @@ public class UserRestController extends BaseRestController {
   @GetMapping("/user/change-work-email")
   @PreAuthorize("hasAuthority('EDIT_SELF')")
   public String getChangeWorkEmail() {
-    User user = userService.findUserById(getAuthUser().getId());
+    final User user = userService.findUserById(getAuthUser().getId());
     return user.getChangeWorkEmail();
   }
 
   @GetMapping("/user/send-verify-work-email")
   @PreAuthorize("hasAuthority('EDIT_SELF')")
   public void sendVerifyChangeWorkEmail() {
-    User user = userService.findUserById(getAuthUser().getId());
+    final User user = userService.findUserById(getAuthUser().getId());
     userService.sendVerifyChangeWorkEmail(user);
   }
 

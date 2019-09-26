@@ -79,10 +79,17 @@ public class UserPersonalInformationRestController extends BaseRestController {
     final UserPersonalInformation userPersonalInformation = targetUser.getUserPersonalInformation();
     final String imageUrl = targetUser.getImageUrl();
 
-    final Role userRole = auth0Util.getUserRole(getAuthUser().getEmail());
+    final Role userRole = auth0Util.getUserRole(getUserId());
     if (getAuthUser().getId().equals(id) || userRole == Role.ADMIN) {
       return userPersonalInformationMapper
           .convertToUserPersonalInformationDto(userPersonalInformation, imageUrl);
+    }
+
+    if (userRole == Role.MANAGER && targetUser.getManagerUser() != null
+        && getAuthUser().getId().equals(targetUser.getManagerUser().getId())) {
+      return userPersonalInformationMapper.convertToMyEmployeePersonalInformationDto(
+            userPersonalInformation);
+
     }
 
     final Date birthDate = userPersonalInformation.getBirthDate();
@@ -95,13 +102,16 @@ public class UserPersonalInformationRestController extends BaseRestController {
   }
 
   @GetMapping("users/{id}/user-role-status")
-  @PreAuthorize("hasPermission(#id, 'USER', 'VIEW_SELF')")
+  @PreAuthorize("hasPermission(#id, 'USER', 'VIEW_SELF')"
+          + "or hasPermission(#id, 'USER', 'EDIT_USER')"
+          + "or hasPermission(#id, 'USER', 'VIEW_MY_TEAM')"
+          + "or hasPermission(#id, 'USER', 'VIEW_EMPLOYEES')")
   public UserRoleAndStatusInfoDto getUserRoleAndStatus(@PathVariable @HashidsFormat final Long id) {
     final User targetUser = userService.findUserById(id);
     final UserRoleAndStatusInfoDto resultInformation = userMapper
         .convertToUserRoleAndStatusInfoDto(targetUser);
     final Role userRole = auth0Util
-        .getUserRole(targetUser.getUserContactInformation().getEmailWork());
+        .getUserRole(targetUser.getUserId());
     resultInformation.setUserRole(userRole.getValue());
     return resultInformation;
   }

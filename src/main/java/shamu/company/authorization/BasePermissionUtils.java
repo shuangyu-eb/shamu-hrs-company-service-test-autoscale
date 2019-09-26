@@ -17,19 +17,19 @@ class BasePermissionUtils {
 
   @Autowired
   public void setParameters(
-      AuthUserCacheManager authUserCacheManager,
-      Auth0Util auth0Util) {
+      final AuthUserCacheManager authUserCacheManager,
+      final Auth0Util auth0Util) {
     this.authUserCacheManager = authUserCacheManager;
     this.auth0Util = auth0Util;
   }
 
   private DefaultJwtAuthenticationToken getAuthentication() {
-    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     return (DefaultJwtAuthenticationToken) authentication;
   }
 
   private void checkIsAuthenticated() {
-    String token = getAuthentication().getToken().getTokenValue();
+    final String token = getAuthentication().getToken().getTokenValue();
     if (authUserCacheManager.getCachedUser(token) == null) {
       throw new UnAuthenticatedException("User not logged in.");
     }
@@ -37,7 +37,7 @@ class BasePermissionUtils {
 
   protected AuthUser getAuthUser() {
     checkIsAuthenticated();
-    String token = getAuthentication().getToken().getTokenValue();
+    final String token = getAuthentication().getToken().getTokenValue();
     return authUserCacheManager.getCachedUser(token);
   }
 
@@ -46,6 +46,12 @@ class BasePermissionUtils {
   }
 
   protected shamu.company.user.entity.User.Role getAuthUserRole() {
-    return auth0Util.getUserRole(getAuthUser().getEmail());
+    final String userId = getAuth0UserId();
+    return auth0Util.getUserRole(userId);
+  }
+
+  String getAuth0UserId() {
+    checkIsAuthenticated();
+    return getAuthentication().getUserId();
   }
 }

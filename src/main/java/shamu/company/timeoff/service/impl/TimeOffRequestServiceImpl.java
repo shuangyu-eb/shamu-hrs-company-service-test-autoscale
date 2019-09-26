@@ -136,7 +136,7 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
         .collect(Collectors.toList());
 
     final User.Role userRole = auth0Util
-        .getUserRole(user.getUserContactInformation().getEmailWork());
+        .getUserRole(user.getUserId());
     if (user.getManagerUser() == null) {
       return timeOffRequestRepository.adminFindTeamRequests(user.getId(), statusNames);
     } else if (userRole == User.Role.MANAGER) {
@@ -348,7 +348,7 @@ public class TimeOffRequestServiceImpl implements TimeOffRequestService {
           final Long id, final TimeOffRequestApprovalStatus[] status, final AuthUser currentUser) {
     final User user = userService.findUserById(id);
 
-    List<TimeOffRequestDto> timeOffRequestDtos;
+    final List<TimeOffRequestDto> timeOffRequestDtos;
     timeOffRequestDtos =  getRequestsByUserAndStatus(user, status).stream()
             .map(timeOffRequestMapper::convertToTimeOffRequestDto)
             .collect(Collectors.toList());

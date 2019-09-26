@@ -16,6 +16,9 @@ public interface CompanyPaidHolidayRepository extends BaseRepository<CompanyPaid
       nativeQuery = true)
   List<CompanyPaidHoliday> findAllByCompanyId(Long companyId);
 
+  CompanyPaidHoliday findCompanyPaidHolidayByPaidHolidayIdAndCompanyId(Long paidHolidayId,
+      Long companyId);
+
   @Modifying
   @Transactional
   @Query(

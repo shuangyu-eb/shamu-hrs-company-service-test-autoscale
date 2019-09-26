@@ -8,7 +8,7 @@ import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import javax.validation.constraints.Email;
+import javax.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,7 +16,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.hibernate.annotations.Where;
-import org.hibernate.validator.constraints.Length;
 import shamu.company.common.entity.BaseEntity;
 import shamu.company.common.exception.GeneralException;
 import shamu.company.company.entity.Company;
@@ -29,16 +28,6 @@ import shamu.company.company.entity.Company;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Where(clause = "deleted_at IS NULL")
 public class User extends BaseEntity {
-
-  /**
-   * @deprecated Please use email from table user_contact_information. Because we integrate Auth0,
-   * we do a mapping with Auth0 account by property userId( or column user_id in table users). One
-   * userId has one employee. Should reference an employee by user id.
-   */
-  @Deprecated
-  @Email
-  @Length(max = 255)
-  private String emailWork;
 
   private Timestamp latestLogin;
 
@@ -66,6 +55,7 @@ public class User extends BaseEntity {
   private UserPersonalInformation userPersonalInformation;
 
   @OneToOne(cascade = CascadeType.PERSIST)
+  @NotNull
   private UserContactInformation userContactInformation;
 
   @OneToOne(cascade = CascadeType.PERSIST)

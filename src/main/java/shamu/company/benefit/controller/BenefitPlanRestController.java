@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,13 +23,12 @@ import shamu.company.benefit.entity.mapper.BenefitPlanMapper;
 import shamu.company.benefit.service.BenefitPlanService;
 import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
-import shamu.company.company.entity.Company;
+import shamu.company.common.validation.constraints.FileValidate;
 import shamu.company.hashids.HashidsFormat;
 import shamu.company.utils.AwsUtil;
-import shamu.company.utils.FileValidateUtil;
-import shamu.company.utils.FileValidateUtil.FileType;
 
 @RestApiController
+@Validated
 public class BenefitPlanRestController extends BaseRestController {
 
 
@@ -67,10 +67,10 @@ public class BenefitPlanRestController extends BaseRestController {
   @PostMapping("benefit-plan/{id}/document")
   @PreAuthorize("hasPermission(#id,'BENEFIT_PLAN', 'MANAGE_BENEFIT_PLAN')")
   public void uploadBenefitPlanDocument(@PathVariable @HashidsFormat final Long id,
-      @RequestParam("file") final MultipartFile document) throws IOException {
-    //TODO: Need an appropriate file size.
-    FileValidateUtil
-        .validate(document, 10 * FileValidateUtil.MB, FileType.JPEG, FileType.PNG, FileType.GIF);
+      @RequestParam("file")
+      //TODO: Need an appropriate file size.
+      @FileValidate(maxSize = 10 * 1024 * 1024, fileType = {"PDF"})
+      final MultipartFile document) throws IOException {
     final String path = awsUtil.uploadFile(document);
 
     if (Strings.isBlank(path)) {

@@ -1,9 +1,7 @@
 package shamu.company.user.repository;
 
 import java.math.BigInteger;
-import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -96,7 +94,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
       final EmployeeListSearchCondition employeeListSearchCondition, final User user,
       final Pageable pageable) {
 
-    final Role role = auth0Util.getUserRole(user.getUserContactInformation().getEmailWork());
+    final Role role = auth0Util.getUserRole(user.getUserId());
     final boolean isEmployee = Role.EMPLOYEE == role;
 
     String userCondition = "u.manager_user_id=?1 ";

@@ -69,7 +69,7 @@ public class UserContactInformationRestController extends BaseRestController {
     final User manager = targetUser.getManagerUser();
     final UserContactInformation userContactInformation = targetUser.getUserContactInformation();
 
-    final Role userRole = auth0Util.getUserRole(getAuthUser().getEmail());
+    final Role userRole = auth0Util.getUserRole(getUserId());
     if (getAuthUser().getId().equals(id)
         || (manager != null && manager.getId().equals(getAuthUser().getId()))
         || userRole == Role.ADMIN) {

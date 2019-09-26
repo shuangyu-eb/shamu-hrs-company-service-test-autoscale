@@ -7,7 +7,6 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import org.apache.logging.log4j.util.Strings;
@@ -254,16 +253,12 @@ public class EmployeeServiceImpl implements EmployeeService {
     final String email = emailResendDto.getEmail();
     final String originalEmail = user.getUserContactInformation().getEmailWork();
     if (!originalEmail.equals(email)) {
-      if (userRepository.existsByEmailWork(email)) {
+      if (userRepository.findByEmailWork(email) != null) {
         throw new ForbiddenException("This email already exists!");
       }
 
-      auth0Util.updateEmail(originalEmail, emailResendDto.getEmail());
-      user.setEmailWork(email);
-      UserContactInformation userContactInformation = user.getUserContactInformation();
-      if (userContactInformation == null) {
-        userContactInformation = new UserContactInformation();
-      }
+      auth0Util.updateEmail(user.getUserId(), emailResendDto.getEmail());
+      final UserContactInformation userContactInformation = user.getUserContactInformation();
       userContactInformation.setEmailWork(email);
       userRepository.save(user);
       userContactInformationService.update(userContactInformation);
@@ -304,7 +299,6 @@ public class EmployeeServiceImpl implements EmployeeService {
 
   private User saveEmployeeBasicInformation(final User currentUser, final EmployeeDto employeeDto) {
     User employee = new User();
-    employee.setEmailWork(employeeDto.getEmailWork());
 
     final String base64EncodedPhoto = employeeDto.getPersonalPhoto();
     final String photoPath = saveEmployeePhoto(base64EncodedPhoto);
@@ -313,8 +307,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     employee.setCompany(currentUser.getCompany());
 
     employee = this.saveInvitedEmployeeAdditionalInformation(employee,
-        employeeDto.getUserPersonalInformationDto(),
-        employeeDto.getUserContactInformationDto());
+        employeeDto);
 
     final UserStatus userStatus = userStatusRepository
         .findByName(Status.PENDING_VERIFICATION.name());
@@ -327,22 +320,16 @@ public class EmployeeServiceImpl implements EmployeeService {
             null, Role.EMPLOYEE.getValue());
     applicationEventPublisher.publishEvent(new Auth0UserCreatedEvent(user));
 
-    String userId = null;
-    final Map<String, Object> appMetaData = user.getAppMetadata();
-    if (appMetaData != null) {
-      userId = (String) appMetaData.get("id");
-    }
-
+    final String userId = auth0Util.getUserId(user);
     employee.setUserId(userId);
     return userRepository.save(employee);
   }
 
   User saveInvitedEmployeeAdditionalInformation(final User employee,
-      final UserPersonalInformationDto userPersonalInformationDto,
-      final UserContactInformationDto userContactInformationDto) {
+      final EmployeeDto employeeDto) {
     final UserPersonalInformation userPersonalInformation =
         userPersonalInformationMapper
-            .createFromUserPersonalInformationDto(userPersonalInformationDto);
+            .createFromUserPersonalInformationDto(employeeDto.getUserPersonalInformationDto());
 
     if (userPersonalInformation != null) {
       Gender gender = userPersonalInformation.getGender();
@@ -363,12 +350,15 @@ public class EmployeeServiceImpl implements EmployeeService {
       employee.setUserPersonalInformation(userPersonalInformation);
     }
 
-    if (userContactInformationDto != null) {
-      employee.setUserContactInformation(
-          userContactInformationMapper
-              .createFromUserContactInformationDto(userContactInformationDto));
+    UserContactInformation userContactInformation = userContactInformationMapper
+        .createFromUserContactInformationDto(employeeDto.getUserContactInformationDto());
+
+    if (userContactInformation == null) {
+      userContactInformation = new UserContactInformation();
     }
 
+    userContactInformation.setEmailWork(employeeDto.getEmailWork());
+    employee.setUserContactInformation(userContactInformation);
     return employee;
   }
 
@@ -458,9 +448,9 @@ public class EmployeeServiceImpl implements EmployeeService {
                           "User with id " + managerUserId + " not found!"));
 
       final com.auth0.json.mgmt.users.User auth0User = auth0Util
-          .getUserByEmailFromAuth0(managerUser.getUserContactInformation().getEmailWork());
+          .getUserByUserIdFromAuth0(user.getUserId());
       final Role role = auth0Util
-          .getUserRole(managerUser.getUserContactInformation().getEmailWork());
+          .getUserRole(managerUser.getUserId());
       if (Role.EMPLOYEE == role) {
         auth0Util.updateAuthRole(auth0User.getId(), Role.MANAGER.getValue());
       }
@@ -586,7 +576,8 @@ public class EmployeeServiceImpl implements EmployeeService {
   }
 
   @TransactionalEventListener(phase = TransactionPhase.AFTER_ROLLBACK)
-  void removeAuth0User(final Auth0UserCreatedEvent userCreatedEvent) {
+  @SuppressWarnings("unused")
+  public void removeAuth0User(final Auth0UserCreatedEvent userCreatedEvent) {
     final com.auth0.json.mgmt.users.User auth0User = userCreatedEvent.getUser();
     auth0Util.deleteUser(auth0User.getId());
   }

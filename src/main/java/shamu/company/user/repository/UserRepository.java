@@ -6,24 +6,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import shamu.company.admin.dto.SuperAdminUserDto;
 import shamu.company.common.repository.BaseRepository;
-import shamu.company.company.entity.Company;
 import shamu.company.user.entity.User;
 
 public interface UserRepository extends BaseRepository<User, Long>, UserCustomRepository {
 
-  @Query(
-      value =
-          "select * from users u "
-              + "left join user_statuses us on u.user_status_id = us.id "
-              + "where u.deleted_at is null and u.user_id = ?1 and us.name = ?2",
-      nativeQuery = true)
-  User findByUserIdAndStatus(String userId, String userStatus);
-
   @Query(value = "select * from users u where u.deleted_at is null and u.user_id = ?1",
       nativeQuery = true)
   User findByUserId(String userId);
-
-  User findByVerificationToken(String activationToken);
 
   @Query(
       value = "select * from users where user_personal_information_id=?1 and deleted_at is null",
@@ -35,24 +24,15 @@ public interface UserRepository extends BaseRepository<User, Long>, UserCustomRe
       nativeQuery = true)
   User findByUserContactInformationId(Long contactInformationId);
 
-  List<User> findByCompany(Company company);
-
   @Query(value = "select u.* from users u "
       + "left join user_contact_information uc on u.user_contact_information_id = uc.id "
       + "where u.deleted_at is null and uc.email_work = ?1", nativeQuery = true)
   User findByEmailWork(String emailWork);
 
-  Boolean existsByEmailWork(String email);
-
   @Query(
       value = "SELECT * FROM users " + "WHERE manager_user_id = ?1 AND deleted_at IS NULL",
       nativeQuery = true)
   List<User> findAllByManagerUserId(Long id);
-
-  @Query(
-      value = "SELECT * FROM users WHERE user_role_id = ?1 AND deleted_at IS NULL",
-      nativeQuery = true)
-  List<User> findByUserRoleId(Long id);
 
   List<User> findByManagerUser(User managerUser);
 

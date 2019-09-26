@@ -1,6 +1,7 @@
 package shamu.company.timeoff.service;
 
 import java.util.List;
+import shamu.company.common.BaseAuthorityDto;
 import shamu.company.company.entity.Company;
 import shamu.company.job.dto.JobUserDto;
 import shamu.company.server.AuthUser;
@@ -26,7 +27,7 @@ public interface PaidHolidayService {
 
   PaidHolidayRelatedUserListDto getPaidHolidayEmployees(Long companyId);
 
-  void updatePaidHolidayEmployees(List<JobUserDto> newPaidEmployees,Long companyId);
+  void updatePaidHolidayEmployees(List<BaseAuthorityDto> newPaidEmployees,Long companyId);
 
   PaidHoliday getPaidHoliday(Long id);
 }

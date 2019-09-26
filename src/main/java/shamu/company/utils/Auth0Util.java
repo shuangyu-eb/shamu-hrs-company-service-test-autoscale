@@ -2,6 +2,7 @@ package shamu.company.utils;
 
 import com.auth0.client.auth.AuthAPI;
 import com.auth0.client.mgmt.ManagementAPI;
+import com.auth0.client.mgmt.filter.UserFilter;
 import com.auth0.exception.Auth0Exception;
 import com.auth0.json.auth.TokenHolder;
 import com.auth0.json.mgmt.Permission;
@@ -9,6 +10,7 @@ import com.auth0.json.mgmt.PermissionsPage;
 import com.auth0.json.mgmt.Role;
 import com.auth0.json.mgmt.RolesPage;
 import com.auth0.json.mgmt.users.User;
+import com.auth0.json.mgmt.users.UsersPage;
 import com.auth0.net.AuthRequest;
 import com.auth0.net.Request;
 import io.micrometer.core.instrument.util.StringUtils;
@@ -85,7 +87,7 @@ public class Auth0Util {
     }
   }
 
-  public User getUserByEmailFromAuth0(final String email) {
+  public Boolean existsByEmail(final String email) {
     final ManagementAPI manager = auth0Manager.getManagementApi();
     final Request<List<User>> userRequest = manager.users()
         .listByEmail(email, null);
@@ -101,18 +103,39 @@ public class Auth0Util {
           "Multiple account with same email address exist.");
     }
 
+    return users.size() == 1;
+  }
+
+  public User getUserByUserIdFromAuth0(final String userId) {
+    final ManagementAPI manager = auth0Manager.getManagementApi();
+    UserFilter userFilter = new UserFilter();
+    userFilter = userFilter
+        .withSearchEngine("v3")
+        .withQuery(String.format("app_metadata.id:\"%s\"", userId));
+    final Request<UsersPage> userRequest = manager.users().list(userFilter);
+
+    final UsersPage usersPage;
+    try {
+      usersPage = userRequest.execute();
+    } catch (final Auth0Exception e) {
+      throw handleAuth0Exception(e.getMessage(), e, managementApi);
+    }
+
+    final List<User> users = usersPage.getItems();
+    if (users.size() > 1) {
+      throw new GeneralAuth0Exception(
+          "Multiple account with same email address exist.");
+    }
+
     return CollectionUtils.isEmpty(users) ? null : users.get(0);
   }
 
-  public List<String> getPermissionBy(final String email) {
-    final User user = getUserByEmailFromAuth0(email);
-    return getPermission(user.getId());
-  }
+  public List<String> getPermissionBy(final String userId) {
+    final User user = getUserByUserIdFromAuth0(userId);
 
-  public List<String> getPermission(final String auth0UserId) {
     final ManagementAPI manager = auth0Manager.getManagementApi();
     final Request<PermissionsPage> permissionsPageRequest = manager.users()
-        .listPermissions(auth0UserId, null);
+        .listPermissions(user.getId(), null);
     final PermissionsPage permissionsPage;
     try {
       permissionsPage = permissionsPageRequest.execute();
@@ -120,10 +143,8 @@ public class Auth0Util {
           .stream().map(Permission::getName)
           .collect(Collectors.toList());
     } catch (final Auth0Exception e) {
-      throw new GeneralAuth0Exception("Get permission error with auth0UserId: " + auth0UserId, e);
+      throw new GeneralAuth0Exception("Get permission error with auth0UserId: " + user.getId(), e);
     }
-
-
   }
 
   public void updatePassword(final User user, final String newPassword) {
@@ -140,9 +161,9 @@ public class Auth0Util {
     }
   }
 
-  public void updateEmail(final String originalEmail, final String newEmail) {
+  public void updateEmail(final String userId, final String newEmail) {
     final ManagementAPI manager = auth0Manager.getManagementApi();
-    final com.auth0.json.mgmt.users.User authUser = getUserByEmailFromAuth0(originalEmail);
+    final com.auth0.json.mgmt.users.User authUser = getUserByUserIdFromAuth0(userId);
     try {
       final User emailUpdateUser = new User();
       emailUpdateUser.setEmail(newEmail);
@@ -186,7 +207,11 @@ public class Auth0Util {
   }
 
   public String getUserId(final User user) {
-    return (String) user.getAppMetadata().get("id");
+    final Map<String, Object> appMetadata = user.getAppMetadata();
+    if (appMetadata == null || appMetadata.size() == 0) {
+      return null;
+    }
+    return (String) appMetadata.get("id");
   }
 
   public User addUser(final String email, String password, final String roleName) {
@@ -225,11 +250,11 @@ public class Auth0Util {
     }
   }
 
-  public shamu.company.user.entity.User.Role getUserRole(final String email) {
+  public shamu.company.user.entity.User.Role getUserRole(final String userId) {
     try {
-      final User user = getUserByEmailFromAuth0(email);
+      final User user = getUserByUserIdFromAuth0(userId);
       if (user == null) {
-        throw new GeneralAuth0Exception(String.format("Cannot get user with email %s", email));
+        throw new GeneralAuth0Exception(String.format("Cannot get Auth0 user with user id %s", userId));
       }
 
       final ManagementAPI manager = auth0Manager.getManagementApi();
@@ -238,7 +263,7 @@ public class Auth0Util {
       final List<Role> roles = rolePages.getItems();
 
       if (roles.isEmpty() || roles.size() > 1) {
-        log.error("User has wrong role size with email: " + email);
+        log.error("User has wrong role size with email: " + user.getEmail());
       }
       final Role targetRole = roles.stream()
           .min(Comparator
@@ -252,12 +277,12 @@ public class Auth0Util {
     }
   }
 
-  public void updateRoleWithEmail(final String email, final String targetRoleName) {
-    final User user = getUserByEmailFromAuth0(email);
+  public void updateRoleWithUserId(final String userId, final String targetRoleName) {
+    final User user = getUserByUserIdFromAuth0(userId);
     updateAuthRole(user.getId(), targetRoleName);
   }
 
-  public void updateAuthRole(final String userId, final String updatedRole) {
+  public void updateAuthRole(final String auth0UserId, final String updatedRole) {
     final ManagementAPI manager = auth0Manager.getManagementApi();
     try {
       final Request<RolesPage> rolesPageRequest = manager.roles().list(null);
@@ -267,16 +292,16 @@ public class Auth0Util {
           .map(Role::getId)
           .collect(Collectors.toList());
 
-      final Request userRolesRequest = manager.users().listRoles(userId, null);
+      final Request userRolesRequest = manager.users().listRoles(auth0UserId, null);
       final RolesPage userRolesPage = (RolesPage) userRolesRequest.execute();
       final List<String> userRolesIds = userRolesPage.getItems().stream()
           .map(Role::getId)
           .collect(Collectors.toList());
 
-      final Request removeRolesRequest = manager.users().removeRoles(userId, userRolesIds);
+      final Request removeRolesRequest = manager.users().removeRoles(auth0UserId, userRolesIds);
       removeRolesRequest.execute();
 
-      final Request updateUserRoleRequest = manager.users().addRoles(userId, updatedRoleId);
+      final Request updateUserRoleRequest = manager.users().addRoles(auth0UserId, updatedRoleId);
       updateUserRoleRequest.execute();
 
     } catch (final Auth0Exception e) {
@@ -284,10 +309,10 @@ public class Auth0Util {
     }
   }
 
-  public void deleteUser(final String userId) {
+  public void deleteUser(final String auth0UserId) {
     try {
       final ManagementAPI manager = auth0Manager.getManagementApi();
-      final Request deleteUserRequest = manager.users().delete(userId);
+      final Request deleteUserRequest = manager.users().delete(auth0UserId);
       deleteUserRequest.execute();
     } catch (final Auth0Exception e) {
       throw handleAuth0Exception(e.getMessage(), e, managementApi);

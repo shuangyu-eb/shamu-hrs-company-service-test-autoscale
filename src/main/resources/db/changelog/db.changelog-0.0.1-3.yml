@@ -443,3 +443,11 @@ databaseChangeLog:
             constraintName: fk_paid_holidays_users
             referencedColumnNames: id
             referencedTableName: users
+
+  - changeSet:
+      id: 1569391145505-1
+      author: max-eb
+      changes:
+      - dropColumn:
+          columnName: email_work
+          tableName: users
