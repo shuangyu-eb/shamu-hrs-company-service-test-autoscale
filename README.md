@@ -2,10 +2,11 @@
 
 ## Local Setup
 
-### preparation  
+### Prerequisites
+
+
 #### Consul
-Before running it locally, you should run the consul in local.
-Here is the [document](https://github.com/tardisone/shamu-hrs/blob/master/consul-setup-in-local.md).
+Before running the company service, you should have [consul running locally](https://github.com/tardisone/shamu-hrs/blob/master/consul-setup-in-local.md).
 
 #### AWS Credentials
 Make sure you have configured your aws credentials in folder `~/.aws` on macOS, Linux, or `C:\Users\<YOUR_USERNAME>\.aws\` on windows. There are two configuration files in that folder - `config` and `credentials`.
@@ -24,24 +25,28 @@ aws_secret_access_key=YOUR_SECRET_ACCESS_KEY(replace with your own)
 
 You can also automatically generate it by AWS Cli command `aws configure`.
 
-**Note**:  
-Before start this micro service, make sure service gateway service is already running.
+#### Redis
+
+Install redis with [Homebrew](https://brew.sh/):
+
+```
+brew update
+brew install redis
+```
+
+If you run into issues with brew, you can compile redis from source by following the directions [here](https://redis.io/topics/quickstart).
+
+Then, run `redis-server`.
 
 ### Configuration
-We split developer database on backend as well. Before you can start the application, you need to create a file called `application-database.yml` \
-under folder `config`. This file is already ignore from git. This file contains configuration related to backend database and Auth0 validation configuration. The sample content shown as follow:
+Create `application-database.yml` in `/config` that contains configuration related to the company database. This file is gitignored. The file should be in the format:
+
 ```
 spring:
   datasource:
-    url: DATABASE URL
-    username: DATABASE USERNAME
-    password: DATABASE PASSWORD
-```
-
-`application-local.yml`:
-```
-auth0:
-  domain: account.interviewed-qa.com(replace this with your own)
+    url: jdbc:mysql://{DATABASE_HOST}/{DATABASE_NAME}
+    username: {DATABASE_USERNAME}
+    password: {DATABASE_PASSWORD}
 ```
 
 ### Using maven to serve the application
