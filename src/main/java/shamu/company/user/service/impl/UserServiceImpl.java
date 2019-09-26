@@ -404,7 +404,6 @@ public class UserServiceImpl implements UserService {
     final UserStatus userStatus = userStatusRepository.findByName(Status.ACTIVE.name());
     user.setUserStatus(userStatus);
     user.setResetPasswordToken(null);
-    user.setVerifiedAt(Timestamp.valueOf(DateUtil.getLocalUtcTime()));
     userRepository.save(user);
   }
 
