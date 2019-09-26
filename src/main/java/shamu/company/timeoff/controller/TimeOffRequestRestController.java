@@ -306,7 +306,7 @@ public class TimeOffRequestRestController extends BaseRestController {
   public boolean hasUserPermission(@HashidsFormat @PathVariable final Long id) {
     final User.Role userRole = auth0Util.getUserRole(getAuthUser().getEmail());
     final User targetUser = userService.findUserById(id);
-    if (getAuthUser().getId() == targetUser.getId()) {
+    if (getAuthUser().getId().equals(targetUser.getId())) {
       return targetUser.getManagerUser() == null;
     } else {
       return userRole == User.Role.ADMIN;
