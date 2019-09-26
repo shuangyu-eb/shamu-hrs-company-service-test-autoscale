@@ -12,6 +12,7 @@ import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.email.Email;
 import shamu.company.employee.dto.BasicJobInformationDto;
 import shamu.company.employee.dto.EmployeeRelatedInformationDto;
+import shamu.company.employee.dto.JobInformationDto;
 import shamu.company.employee.service.EmployeeService;
 import shamu.company.hashids.HashidsFormat;
 import shamu.company.job.dto.JobUserDto;
@@ -157,24 +158,27 @@ public class EmployeeInformationRestController extends BaseRestController {
       return resultUser;
     }
 
+    final User targetUser = target.getUser();
+    final Role targetUserRole = auth0Util
+        .getUserRole(targetUser.getUserId());
     // The user's full job message can only be accessed by admin, the manager and himself.
     final Role userRole = auth0Util
         .getUserRole(getUserId());
     if (getAuthUser().getId().equals(id) || userRole == Role.ADMIN) {
-      return jobUserMapper.convertToJobInformationDto(target);
+      final JobInformationDto resultInformation = jobUserMapper.convertToJobInformationDto(target);
+      resultInformation.setUserRole(targetUserRole);
+      return resultInformation;
     }
 
     if (userRole == Role.MANAGER && target.getUser().getManagerUser() != null
             && getAuthUser().getId().equals(target.getUser().getManagerUser().getId())) {
-      return jobUserMapper.convertToJobInformationDto(target);
-
+      final JobInformationDto resultInformation = jobUserMapper.convertToJobInformationDto(target);
+      resultInformation.setUserRole(targetUserRole);
+      return resultInformation;
     }
 
     final BasicJobInformationDto resultInformation = jobUserMapper
         .convertToBasicJobInformationDto(target);
-    final User targetUser = target.getUser();
-    final Role targetUserRole = auth0Util
-        .getUserRole(targetUser.getUserId());
     resultInformation.setUserRole(targetUserRole);
     return resultInformation;
   }
