@@ -102,10 +102,7 @@ public class UserPersonalInformationRestController extends BaseRestController {
   }
 
   @GetMapping("users/{id}/user-role-status")
-  @PreAuthorize("hasPermission(#id, 'USER', 'VIEW_SELF')"
-          + "or hasPermission(#id, 'USER', 'EDIT_USER')"
-          + "or hasPermission(#id, 'USER', 'VIEW_MY_TEAM')"
-          + "or hasPermission(#id, 'USER', 'VIEW_EMPLOYEES')")
+  @PreAuthorize("hasPermission(#id, 'USER', 'VIEW_USER_ROLE_AND_STATUS')")
   public UserRoleAndStatusInfoDto getUserRoleAndStatus(@PathVariable @HashidsFormat final Long id) {
     final User targetUser = userService.findUserById(id);
     final UserRoleAndStatusInfoDto resultInformation = userMapper
