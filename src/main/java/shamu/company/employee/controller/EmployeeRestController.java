@@ -72,8 +72,10 @@ public class EmployeeRestController extends BaseRestController {
   @PreAuthorize("hasAuthority('CREATE_USER')")
   public String getWelcomeEmail(
       @RequestBody(required = false) final String welcomeEmailPersonalMessage) {
+    final User currentUser = userService.findUserById(getAuthUser().getId());
     final Context context = userService.getWelcomeEmailContext(welcomeEmailPersonalMessage, null);
     context.setVariable("createPasswordAddress", "#");
+    context.setVariable("companyName", currentUser.getCompany().getName());
     return userService.getWelcomeEmail(context);
   }
 

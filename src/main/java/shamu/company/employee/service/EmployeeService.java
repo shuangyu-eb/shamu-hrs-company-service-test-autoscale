@@ -19,5 +19,5 @@ public interface EmployeeService {
 
   void resendEmail(EmailResendDto emailResendDto);
 
-  Email getWelcomeEmail(String email);
+  Email getWelcomeEmail(String email, String companyName);
 }

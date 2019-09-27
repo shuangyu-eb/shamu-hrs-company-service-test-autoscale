@@ -78,7 +78,8 @@ public class EmployeeInformationRestController extends BaseRestController {
 
     Timestamp sendDate = null;
     if (userStatus == Status.PENDING_VERIFICATION) {
-      final Email email = employeeService.getWelcomeEmail(employee.getEmailWork());
+      final Email email = employeeService.getWelcomeEmail(employee.getEmailWork(),
+                                                          employee.getCompany().getName());
       sendDate = email != null ? email.getSendDate() : null;
     }
 
@@ -90,7 +91,7 @@ public class EmployeeInformationRestController extends BaseRestController {
     final JobUserDto jobUserDto = userService.findEmployeeInfoByEmployeeId(id);
 
     final List<JobUserDto> reports = userService.findDirectReportsByManagerId(id).stream()
-        .map((user) -> userService.findEmployeeInfoByEmployeeId(user.getId()))
+        .map(user -> userService.findEmployeeInfoByEmployeeId(user.getId()))
         .collect(Collectors.toList());
 
     return jobUserMapper.convertToEmployeeRelatedInformationDto(id, employee.getEmailWork(),
