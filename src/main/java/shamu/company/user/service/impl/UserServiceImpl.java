@@ -678,11 +678,6 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public String getChangeWorkEmailInfo(User user) {
-    return user.getChangeWorkEmail();
-  }
-
-  @Override
   public void sendVerifyChangeWorkEmail(User user) {
 
     String newEmailToken = UUID.randomUUID().toString();

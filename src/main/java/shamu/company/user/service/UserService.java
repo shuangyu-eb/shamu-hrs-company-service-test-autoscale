@@ -102,8 +102,6 @@ public interface UserService {
 
   void sendChangeWorkEmail(Long userId, String newEmail);
 
-  String getChangeWorkEmailInfo(User user);
-
   void sendVerifyChangeWorkEmail(User user);
 
   boolean changeWorkEmailTokenExist(String token);
