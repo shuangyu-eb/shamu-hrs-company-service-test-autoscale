@@ -81,7 +81,8 @@ public class EmployeeInformationRestController extends BaseRestController {
     Timestamp sendDate = null;
     if (userStatus == Status.PENDING_VERIFICATION) {
 
-      final Email email = employeeService.getWelcomeEmail(emailAddress);
+      final Email email = employeeService
+          .getWelcomeEmail(emailAddress, employee.getCompany().getName());
       sendDate = email != null ? email.getSendDate() : null;
     }
 
@@ -93,7 +94,7 @@ public class EmployeeInformationRestController extends BaseRestController {
     final JobUserDto jobUserDto = userService.findEmployeeInfoByEmployeeId(id);
 
     final List<JobUserDto> reports = userService.findDirectReportsByManagerId(id).stream()
-        .map((user) -> userService.findEmployeeInfoByEmployeeId(user.getId()))
+        .map(user -> userService.findEmployeeInfoByEmployeeId(user.getId()))
         .collect(Collectors.toList());
 
     return jobUserMapper.convertToEmployeeRelatedInformationDto(id, emailAddress,
@@ -171,7 +172,7 @@ public class EmployeeInformationRestController extends BaseRestController {
     }
 
     if (userRole == Role.MANAGER && target.getUser().getManagerUser() != null
-            && getAuthUser().getId().equals(target.getUser().getManagerUser().getId())) {
+        && getAuthUser().getId().equals(target.getUser().getManagerUser().getId())) {
       final JobInformationDto resultInformation = jobUserMapper.convertToJobInformationDto(target);
       resultInformation.setUserRole(targetUserRole);
       return resultInformation;

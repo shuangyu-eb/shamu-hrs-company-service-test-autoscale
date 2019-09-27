@@ -138,8 +138,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
   private final ApplicationEventPublisher applicationEventPublisher;
 
-  private static final String subject = "Welcome to Champion Solutions";
-
+  private static final String subject = "Welcome to ";
 
   @Autowired
   public EmployeeServiceImpl(
@@ -264,7 +263,7 @@ public class EmployeeServiceImpl implements EmployeeService {
       userContactInformationService.update(userContactInformation);
     }
 
-    final Email emailInfo = getWelcomeEmail(originalEmail);
+    final Email emailInfo = getWelcomeEmail(originalEmail,user.getCompany().getName());
 
     final Email welcomeEmail = new Email(emailInfo);
     welcomeEmail.setSendDate(Timestamp.from(Instant.now()));
@@ -274,8 +273,8 @@ public class EmployeeServiceImpl implements EmployeeService {
   }
 
   @Override
-  public Email getWelcomeEmail(final String email) {
-    return emailRepository.getFirstByToAndSubjectOrderBySendDateDesc(email, subject);
+  public Email getWelcomeEmail(final String email, final String companyName) {
+    return emailRepository.getFirstByToAndSubjectOrderBySendDateDesc(email, subject + companyName);
   }
 
   private String saveEmployeePhoto(final String base64EncodedPhoto) {
@@ -283,7 +282,7 @@ public class EmployeeServiceImpl implements EmployeeService {
       return null;
     }
 
-    File file = null;
+    File file;
     try {
       final String imageString = base64EncodedPhoto.split(",")[1];
       file = File.createTempFile(UUID.randomUUID().toString(), ".png");
@@ -567,11 +566,12 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     final Context emailContext =
         userService.getWelcomeEmailContext(content, employee.getResetPasswordToken());
+    emailContext.setVariable("companyName", currentUser.getCompany().getName());
     content = userService.getWelcomeEmail(emailContext);
     final Timestamp sendDate = welcomeEmailDto.getSendDate();
-
+    String fullSubject = subject + currentUser.getCompany().getName();
     final Email email =
-        new Email(from, to, subject, content, currentUser, sendDate);
+        new Email(from, to, fullSubject, content, currentUser, sendDate);
     emailService.saveAndScheduleEmail(email);
   }
 

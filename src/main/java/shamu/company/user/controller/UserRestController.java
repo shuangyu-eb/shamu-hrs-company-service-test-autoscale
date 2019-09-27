@@ -217,6 +217,13 @@ public class UserRestController extends BaseRestController {
 
   }
 
+  @GetMapping("/user/{id}/change-work-email")
+  @PreAuthorize("hasPermission(#id, 'USER', 'VIEW_CHANGING_WORK_EMAIL')")
+  public String getChangeWorkEmail(@PathVariable @Valid @HashidsFormat final Long id) {
+    final User user = userService.findUserById(id);
+    return user.getChangeWorkEmail();
+  }
+
   @GetMapping("/user/change-work-email")
   @PreAuthorize("hasAuthority('EDIT_SELF')")
   public String getChangeWorkEmail() {
