@@ -282,7 +282,7 @@ public class TimeOffPolicyServiceImpl implements TimeOffPolicyService {
           JobUser employeeWithJobInfo = jobUserRepository
               .findJobUserByUser(timeOffPolicyUser.getUser());
           selectedUsersIds.add(timeOffPolicyUser.getUser().getId());
-          return jobUserMapper.convertToTimeOffPolicyRelatedUserDto(timeOffPolicyUser.getUser(),
+          return jobUserMapper.convertToTimeOffPolicyRelatedUserDto(timeOffPolicyUser,
               employeeWithJobInfo);
         }
     ).collect(Collectors.toList());
