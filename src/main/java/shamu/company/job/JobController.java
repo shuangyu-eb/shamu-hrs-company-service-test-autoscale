@@ -68,8 +68,7 @@ public class JobController extends BaseRestController {
       jobUser.setUser(user);
     } else {
       users = employeeService
-          .findDirectReportsEmployersAndEmployeesByDepartmentIdAndCompanyId(
-              jobUser.getJob().getDepartment().getId(),
+          .findDirectReportsEmployersAndEmployeesByCompanyId(
               getCompanyId(),
               user.getId());
     }

@@ -205,10 +205,10 @@ public class EmployeeServiceImpl implements EmployeeService {
   }
 
   @Override
-  public List<User> findDirectReportsEmployersAndEmployeesByDepartmentIdAndCompanyId(
-          final Long departmentId, final Long companyId, final Long userId) {
-    return userRepository.findDirectReportsEmployersAndEmployeesByDepartmentIdAndCompanyId(
-            departmentId, companyId, userId);
+  public List<User> findDirectReportsEmployersAndEmployeesByCompanyId(
+          final Long companyId, final Long userId) {
+    return userRepository.findDirectReportsEmployersAndEmployeesByCompanyId(
+            companyId, userId);
   }
 
   @Override

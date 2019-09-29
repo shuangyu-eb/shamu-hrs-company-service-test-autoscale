@@ -91,16 +91,14 @@ public interface UserRepository extends BaseRepository<User, Long>, UserCustomRe
   @Query(
           value = "select * from users u"
                   + " join jobs_users ju on u.id = ju.user_id"
-                  + " join jobs j on ju.job_id = j.id"
-                  + " where j.department_id = ?1"
-                  + " and u.company_id = ?2"
-                  + " and u.manager_user_id = ?3 "
+                  + " where u.company_id = ?1"
+                  + " and u.manager_user_id = ?2 "
                   + " and u.deactivated_at is null "
                   + " and u.deleted_at is null ",
           nativeQuery = true
   )
-  List<User> findDirectReportsEmployersAndEmployeesByDepartmentIdAndCompanyId(
-          Long departmentId, Long companyId, Long userId);
+  List<User> findDirectReportsEmployersAndEmployeesByCompanyId(
+          Long companyId, Long userId);
 
   @Query(value = "select count(1) from users u "
       + "where u.manager_user_id = ?1 "
