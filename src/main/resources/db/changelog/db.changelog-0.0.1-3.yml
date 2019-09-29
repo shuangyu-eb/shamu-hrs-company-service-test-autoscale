@@ -443,3 +443,19 @@ databaseChangeLog:
             constraintName: fk_paid_holidays_users
             referencedColumnNames: id
             referencedTableName: users
+
+  - changeSet:
+      id: 1569724784254-1
+      author: wenhao-eb
+      preConditions:
+        onFail: MARK_RAN
+        not:
+          columnExists:
+            columnName: users
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: deactivated
+                  type: BOOLEAN
+            tableName: users

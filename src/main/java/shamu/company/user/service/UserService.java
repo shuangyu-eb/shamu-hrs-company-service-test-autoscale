@@ -82,7 +82,7 @@ public interface UserService {
 
   User updateUserRole(String email, UserRoleUpdatePojo userRoleUpdatePojo, User user);
 
-  User inactivateUser(String email, UserStatusUpdatePojo userStatusUpdatePojo, User user);
+  User deactivateUser(String email, UserStatusUpdatePojo userStatusUpdatePojo, User user);
 
   void signUp(UserSignUpDto signUpDto);
 

@@ -168,12 +168,12 @@ public class UserRestController extends BaseRestController {
     return resultInformation;
   }
 
-  @PatchMapping("users/{id}/inactivate")
-  @PreAuthorize("hasPermission(#id, 'USER', 'VIEW_SETTING')")
-  public UserRoleAndStatusInfoDto inactivateUser(@PathVariable @HashidsFormat final Long id,
+  @PatchMapping("users/{id}/deactivate")
+  @PreAuthorize("hasPermission(#id, 'USER', 'DEACTIVATE_USER')")
+  public UserRoleAndStatusInfoDto deactivateUser(@PathVariable @HashidsFormat final Long id,
       @RequestBody final UserStatusUpdatePojo userStatusUpdatePojo) {
     User user = userService.findUserById(id);
-    user = userService.inactivateUser(getAuthUser().getEmail(), userStatusUpdatePojo, user);
+    user = userService.deactivateUser(getAuthUser().getEmail(), userStatusUpdatePojo, user);
     final Role userRole = auth0Util.getUserRole(user.getUserContactInformation().getEmailWork());
     final UserRoleAndStatusInfoDto resultInformation =
         userMapper.convertToUserRoleAndStatusInfoDto(user);
