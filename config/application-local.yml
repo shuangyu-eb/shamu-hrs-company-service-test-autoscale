@@ -33,7 +33,7 @@ spring:
     expiration: 36000
 
 application:
-  systemEmailAddress: noreply@interviewed.com
+  systemEmailAddress: noreply@SimplyHired.com
   frontEndAddress: http://localhost:3000/
   helpUrl: http://localhost:3000/
 
