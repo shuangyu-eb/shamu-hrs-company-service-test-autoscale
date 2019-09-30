@@ -33,6 +33,12 @@ public class PaidHolidayRestController extends BaseRestController {
     return paidHolidayService.getPaidHolidays(getAuthUser());
   }
 
+  @GetMapping(value = "paid-holidays/user/{targetUserId}")
+  public List<PaidHolidayDto> getUserAllPaidHolidays(
+          @HashidsFormat @PathVariable Long targetUserId) {
+    return paidHolidayService.getUserPaidHolidays(getAuthUser(), targetUserId);
+  }
+
 
   @GetMapping(value = "paid-holiday/employees")
   public PaidHolidayRelatedUserListDto getPaidHolidays() {

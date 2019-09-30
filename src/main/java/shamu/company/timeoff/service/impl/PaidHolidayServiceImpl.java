@@ -77,16 +77,30 @@ public class PaidHolidayServiceImpl implements PaidHolidayService {
   }
 
   private List<PaidHolidayDto> getCurrentYearPaidHolidays(final AuthUser user) {
-    final List<CompanyPaidHoliday> companyPaidHolidays = companyPaidHolidayRepository
-        .findAllByCompanyId(user.getCompanyId());
+    List<CompanyPaidHoliday> companyPaidHolidays;
+    companyPaidHolidays = companyPaidHolidayRepository
+            .findAllByCompanyId(user.getCompanyId());
+    return getPaidHolidayFromCompany(user, companyPaidHolidays);
+  }
+
+  private List<PaidHolidayDto> getCurrentYearUserPaidHolidays(
+          final AuthUser user, final Long userId) {
+    List<CompanyPaidHoliday> companyPaidHolidays;
+    companyPaidHolidays = companyPaidHolidayRepository
+            .findAllByCompanyIdAndUserId(user.getCompanyId(), userId);
+    return getPaidHolidayFromCompany(user, companyPaidHolidays);
+  }
+
+  private List<PaidHolidayDto> getPaidHolidayFromCompany(
+          final AuthUser user, List<CompanyPaidHoliday> companyPaidHolidays) {
     return companyPaidHolidays.stream()
-        .map(paidHoliday -> companyPaidHolidayMapper.convertToPaidHolidayDto(paidHoliday, user))
-        .peek(paidHolidayDto -> {
-          if (paidHolidayDto.getFederal()) {
-            paidHolidayDto.setDate(federalHolidays.timestampOf(paidHolidayDto.getName()));
-          }
-        })
-        .collect(Collectors.toList());
+            .map(paidHoliday -> companyPaidHolidayMapper.convertToPaidHolidayDto(paidHoliday, user))
+            .peek(paidHolidayDto -> {
+              if (paidHolidayDto.getFederal()) {
+                paidHolidayDto.setDate(federalHolidays.timestampOf(paidHolidayDto.getName()));
+              }
+            })
+            .collect(Collectors.toList());
   }
 
   private PaidHolidayDto getNewPaidHolidayDto(final PaidHolidayDto paidHolidayDto, final int year) {
@@ -99,9 +113,25 @@ public class PaidHolidayServiceImpl implements PaidHolidayService {
   /***
    * Get this year, last year and next two years' federal holidays.
    */
+  // PolicyPaidHolidays
   @Override
   public List<PaidHolidayDto> getPaidHolidays(final AuthUser user) {
     final List<PaidHolidayDto> currentYearPaidHolidays = getCurrentYearPaidHolidays(user);
+    currentYearPaidHolidays.addAll(getOtherYearsObservances(currentYearPaidHolidays));
+    return currentYearPaidHolidays;
+  }
+
+  // UserPaidHolidays
+  @Override
+  public List<PaidHolidayDto> getUserPaidHolidays(final AuthUser user, final Long userId) {
+    final List<PaidHolidayDto> currentYearPaidHolidays
+            = getCurrentYearUserPaidHolidays(user, userId);
+    currentYearPaidHolidays.addAll(getOtherYearsObservances(currentYearPaidHolidays));
+    return currentYearPaidHolidays;
+  }
+
+  private List<PaidHolidayDto> getOtherYearsObservances(
+          List<PaidHolidayDto> currentYearPaidHolidays) {
     final int year = Calendar.getInstance().get(Calendar.YEAR);
     final List<PaidHolidayDto> otherYearsObservances = new ArrayList<>();
     currentYearPaidHolidays.forEach(paidHolidayDto -> {
@@ -111,8 +141,7 @@ public class PaidHolidayServiceImpl implements PaidHolidayService {
         otherYearsObservances.add(getNewPaidHolidayDto(paidHolidayDto, year + 2));
       }
     });
-    currentYearPaidHolidays.addAll(otherYearsObservances);
-    return currentYearPaidHolidays;
+    return otherYearsObservances;
   }
 
   @Override

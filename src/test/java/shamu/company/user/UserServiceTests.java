@@ -24,6 +24,7 @@ import shamu.company.info.service.UserEmergencyContactService;
 import shamu.company.job.repository.JobRepository;
 import shamu.company.job.repository.JobUserRepository;
 import shamu.company.redis.AuthUserCacheManager;
+import shamu.company.scheduler.DynamicScheduler;
 import shamu.company.timeoff.service.PaidHolidayService;
 import shamu.company.user.dto.CreatePasswordDto;
 import shamu.company.user.dto.CurrentUserDto;
@@ -86,8 +87,6 @@ class UserServiceTests {
   @Mock
   private UserAccessLevelEventRepository userAccessLevelEventRepository;
   @Mock
-  private TaskScheduler taskScheduler;
-  @Mock
   private DepartmentRepository departmentRepository;
   @Mock
   private JobRepository jobRepository;
@@ -97,6 +96,8 @@ class UserServiceTests {
   private UserContactInformationRepository userContactInformationRepository;
   @Mock
   private AuthUserCacheManager authUserCacheManager;
+  @Mock
+  private DynamicScheduler dynamicScheduler;
 
   @BeforeEach
   void init() {
@@ -117,9 +118,9 @@ class UserServiceTests {
         userAddressMapper,
         auth0Util,
         userAccessLevelEventRepository,
-        taskScheduler,
         departmentRepository,
-        jobRepository, userMapper, authUserCacheManager,userContactInformationRepository);
+        jobRepository, userMapper, authUserCacheManager,userContactInformationRepository,
+        dynamicScheduler);
   }
 
   @Test

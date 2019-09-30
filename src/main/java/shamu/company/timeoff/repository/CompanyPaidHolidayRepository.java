@@ -16,6 +16,18 @@ public interface CompanyPaidHolidayRepository extends BaseRepository<CompanyPaid
       nativeQuery = true)
   List<CompanyPaidHoliday> findAllByCompanyId(Long companyId);
 
+  @Query(value = "select cph.* "
+          + "from companies_paid_holidays cph "
+          + "where cph.company_id = ( "
+          + "   select phu.company_id "
+          + "   from paid_holidays_users phu "
+          + "   where phu.company_id = ?1 "
+          + "   and phu.user_id = ?2 "
+          + "   and phu.is_selected = true ) "
+          + "and deleted_at is null ",
+          nativeQuery = true)
+  List<CompanyPaidHoliday> findAllByCompanyIdAndUserId(Long companyId, Long userId);
+
   CompanyPaidHoliday findCompanyPaidHolidayByPaidHolidayIdAndCompanyId(Long paidHolidayId,
       Long companyId);
 

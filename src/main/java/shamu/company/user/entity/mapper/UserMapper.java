@@ -23,6 +23,7 @@ public interface UserMapper {
   UserAvatarDto convertToUserAvatarDto(User user);
 
   @Mapping(target = "userStatus", source = "userStatus.name")
+  @Mapping(target = "deactivatedAt", source = "deactivatedAt")
   UserRoleAndStatusInfoDto convertToUserRoleAndStatusInfoDto(User user);
 
   @Mapping(target = "avatar", source = "imageUrl")

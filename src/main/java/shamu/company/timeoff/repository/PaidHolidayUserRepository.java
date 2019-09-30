@@ -15,7 +15,7 @@ public interface PaidHolidayUserRepository extends BaseRepository<PaidHolidayUse
           + "ON phu.user_id = u.id "
           + "WHERE phu.company_id = ?1 "
           + "AND phu.deleted_at IS NULL "
-          + "AND u.deactivated_at IS NULL "
+          + "AND u.deactivated = FALSE "
           + "AND u.deleted_at IS NULL ",
       nativeQuery = true
   )
@@ -28,7 +28,7 @@ public interface PaidHolidayUserRepository extends BaseRepository<PaidHolidayUse
           + "ON phu.user_id = u.id "
           + "WHERE phu.company_id = ?1 "
           + "AND phu.deleted_at IS NULL "
-          + "AND u.deactivated_at IS NULL "
+          + "AND u.deactivated = FALSE "
           + "AND u.deleted_at IS NULL ",
       nativeQuery = true
   )

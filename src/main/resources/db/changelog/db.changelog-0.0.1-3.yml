@@ -445,9 +445,26 @@ databaseChangeLog:
             referencedTableName: users
 
   - changeSet:
+      id: 1569724784254-1
+      author: wenhao-eb
+      preConditions:
+        onFail: MARK_RAN
+        not:
+          columnExists:
+            columnName: users
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: deactivated
+                  type: BOOLEAN
+            tableName: users
+
+  - changeSet:
       id: 1569391145505-1
       author: max-eb
       changes:
-      - dropColumn:
-          columnName: email_work
-          tableName: users
+        - dropColumn:
+            columnName: email_work
+            tableName: users
+

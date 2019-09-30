@@ -38,7 +38,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
     if (!isAdmin || !employeeListSearchCondition.isSearched()) {
       countAllEmployees =
           "select count(1) from users u where u.deleted_at is null "
-              + " and u.deactivated_at is null and u.company_id = ?1 ";
+              + " and u.deactivated = false and u.company_id = ?1 ";
     } else {
       countAllEmployees =
           "select count(1) from users u where u.deleted_at is null "
@@ -71,7 +71,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
             + "and (up.first_name like concat('%', ?2, '%') "
             + "or up.last_name like concat('%', ?2, '%') "
             + "or d.name like concat('%', ?2, '%') or j.title like concat('%', ?2, '%')) ";
-    final String additionalSql = " and u.deactivated_at is null ";
+    final String additionalSql = " and u.deactivated = false ";
 
     String resultSql = appendFilterCondition(originalSql, pageable);
     if (!isAdmin || !employeeListSearchCondition.isSearched()) {
@@ -111,7 +111,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
         + "left join jobs j on ju.job_id = j.id "
         + "left join departments d on j.department_id = d.id "
         + "where u.deleted_at is null "
-        + "and u.deactivated_at is null "
+        + "and u.deactivated = false "
         + "and ju.deleted_at is null "
         + "and j.deleted_at is null "
         + "and " + userCondition
@@ -173,8 +173,8 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
                 + "left join office_addresses a on o.office_address_id = a.id "
                 + "left join states_provinces province on a.state_province_id = province.id "
                 + "where u.deleted_at is null and u.company_id = ?2 "
-                + "and (u.deactivated_at is null "
-                + "or (u.deactivated_at is not null and u.deactivated_at > ?3 )) ");
+                + "and (u.deactivated = false "
+                + "or (u.deactivated = true and u.deactivated_at > ?3 )) ");
 
     if (managerId == null) {
       findAllOrgChartByCondition.append(" and u.manager_user_id is null");
@@ -233,8 +233,8 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
             + "left join office_addresses a on o.office_address_id = a.id "
             + "left join states_provinces province on a.state_province_id = province.id "
             + "where u.id = ?1 and u.company_id = ?2 and u.deleted_at is null "
-            + "and (u.deactivated_at is null "
-            + "or (u.deactivated_at is not null and u.deactivated_at > ?3 )) "
+            + "and (u.deactivated = false "
+            + "or (u.deactivated = true and u.deactivated_at > ?3 )) "
             + "order by u.created_at asc";
     final Query findAllOrgChartByConditionQuery =
         entityManager

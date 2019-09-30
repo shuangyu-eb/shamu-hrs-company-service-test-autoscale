@@ -139,8 +139,8 @@ public class CompanyRestController extends BaseRestController {
     List<User> users;
     final User user = userService.findUserById(userId);
     if (user.getManagerUser() == null) {
-      users = employeeService.findDirectReportsEmployersAndEmployeesByDepartmentIdAndCompanyId(
-              departmentId, getCompanyId(), user.getId());
+      users = employeeService.findDirectReportsEmployersAndEmployeesByCompanyId(
+              getCompanyId(), user.getId());
     } else {
       users = employeeService.findEmployersAndEmployeesByDepartmentIdAndCompanyId(departmentId,
               getCompanyId());

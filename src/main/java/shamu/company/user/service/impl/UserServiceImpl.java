@@ -17,7 +17,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.ITemplateEngine;
@@ -46,6 +45,7 @@ import shamu.company.job.entity.JobUserListItem;
 import shamu.company.job.repository.JobRepository;
 import shamu.company.job.repository.JobUserRepository;
 import shamu.company.redis.AuthUserCacheManager;
+import shamu.company.scheduler.DynamicScheduler;
 import shamu.company.server.AuthUser;
 import shamu.company.timeoff.service.PaidHolidayService;
 import shamu.company.user.dto.AccountInfoDto;
@@ -96,7 +96,6 @@ public class UserServiceImpl implements UserService {
   private final UserAddressService userAddressService;
   private final UserContactInformationMapper userContactInformationMapper;
   private final UserAddressMapper userAddressMapper;
-  private final TaskScheduler taskScheduler;
 
 
   private final UserPersonalInformationMapper userPersonalInformationMapper;
@@ -113,6 +112,7 @@ public class UserServiceImpl implements UserService {
   private final AuthUserCacheManager authUserCacheManager;
   private final UserAccessLevelEventRepository userAccessLevelEventRepository;
   private final UserContactInformationRepository userContactInformationRepository;
+  private final DynamicScheduler dynamicScheduler;
 
 
   @Value("${application.systemEmailAddress}")
@@ -133,12 +133,12 @@ public class UserServiceImpl implements UserService {
       final UserAddressMapper userAddressMapper,
       final Auth0Util auth0Util,
       final UserAccessLevelEventRepository userAccessLevelEventRepository,
-      final TaskScheduler taskScheduler,
       final DepartmentRepository departmentRepository,
       final JobRepository jobRepository,
       final UserMapper userMapper,
       final AuthUserCacheManager authUserCacheManager,
-      final UserContactInformationRepository userContactInformationRepository) {
+      final UserContactInformationRepository userContactInformationRepository,
+                         final DynamicScheduler dynamicScheduler) {
     this.templateEngine = templateEngine;
     this.userRepository = userRepository;
     this.jobUserRepository = jobUserRepository;
@@ -155,12 +155,12 @@ public class UserServiceImpl implements UserService {
     this.companyRepository = companyRepository;
     this.auth0Util = auth0Util;
     this.userAccessLevelEventRepository = userAccessLevelEventRepository;
-    this.taskScheduler = taskScheduler;
     this.departmentRepository = departmentRepository;
     this.jobRepository = jobRepository;
     this.userMapper = userMapper;
     this.authUserCacheManager = authUserCacheManager;
     this.userContactInformationRepository = userContactInformationRepository;
+    this.dynamicScheduler = dynamicScheduler;
   }
 
   @Override
@@ -449,7 +449,7 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public User inactivateUser(final String email,
+  public User deactivateUser(final String email,
       final UserStatusUpdatePojo userStatusUpdatePojo,
       final User user) {
 
@@ -458,16 +458,23 @@ public class UserServiceImpl implements UserService {
     final Date deactivationDate = userStatusUpdatePojo.getDeactivationDate();
 
     if (deactivationDate.toString().equals(LocalDate.now().toString())) {
-      inactivateUser(userStatusUpdatePojo, user);
+      deactivateUser(userStatusUpdatePojo, user);
     } else {
-      taskScheduler.schedule(
-          inactivateUserTask(userStatusUpdatePojo, user),
+      dynamicScheduler.updateOrAddUniqueTriggerTask(
+          "deactivate_" + user.getUserId(),
+          deactivateUserTask(userStatusUpdatePojo, user),
           userStatusUpdatePojo.getDeactivationDate());
     }
+
+    user.setDeactivatedAt(userStatusUpdatePojo.getDeactivationDate());
+    user.setDeactivationReason(new DeactivationReasons(userStatusUpdatePojo
+        .getDeactivationReason().getId()));
+    userRepository.save(user);
+
     return userRepository.findByUserId(user.getUserId());
   }
 
-  private void inactivateUser(final UserStatusUpdatePojo userStatusUpdatePojo,
+  private void deactivateUser(final UserStatusUpdatePojo userStatusUpdatePojo,
       final User user) {
     if (userStatusUpdatePojo.getUserStatus().name().equals(Status.ACTIVE.name())) {
       // inactivate user in auth0
@@ -507,18 +514,16 @@ public class UserServiceImpl implements UserService {
         userRepository.saveAll(teamEmployees);
 
       }
-      user.setDeactivatedAt(userStatusUpdatePojo.getDeactivationDate());
-      user.setDeactivationReason(new DeactivationReasons(userStatusUpdatePojo
-          .getDeactivationReason().getId()));
+      user.setDeactivated(true);
       userRepository.save(user);
 
       auth0Util.updateRoleWithUserId(user.getUserId(), Role.INACTIVATE.getValue());
     }
   }
 
-  private Runnable inactivateUserTask(final UserStatusUpdatePojo userStatusUpdatePojo,
+  private Runnable deactivateUserTask(final UserStatusUpdatePojo userStatusUpdatePojo,
       final User user) {
-    return () -> inactivateUser(userStatusUpdatePojo, user);
+    return () -> deactivateUser(userStatusUpdatePojo, user);
   }
 
   @Override

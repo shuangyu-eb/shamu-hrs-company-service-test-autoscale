@@ -43,7 +43,7 @@ public interface UserRepository extends BaseRepository<User, Long>, UserCustomRe
 
   @Query(
       value = "SELECT * FROM users "
-          + "WHERE company_id = ?1 and deactivated_at is null AND deleted_at IS NULL",
+          + "WHERE company_id = ?1 and deactivated = false AND deleted_at IS NULL",
       nativeQuery = true)
   List<User> findAllByCompanyId(Long companyId);
 
@@ -62,7 +62,7 @@ public interface UserRepository extends BaseRepository<User, Long>, UserCustomRe
           + " where department_id = ?1)"
           + " ) or company_id = ?2 "
           + " and manager_user_id is null) "
-          + " and deactivated_at is null "
+          + " and deactivated = false "
           + " and deleted_at is null ",
       nativeQuery = true
   )
@@ -71,16 +71,14 @@ public interface UserRepository extends BaseRepository<User, Long>, UserCustomRe
   @Query(
           value = "select * from users u"
                   + " join jobs_users ju on u.id = ju.user_id"
-                  + " join jobs j on ju.job_id = j.id"
-                  + " where j.department_id = ?1"
-                  + " and u.company_id = ?2"
-                  + " and u.manager_user_id = ?3 "
-                  + " and u.deactivated_at is null "
+                  + " where u.company_id = ?1"
+                  + " and u.manager_user_id = ?2 "
+                  + " and u.deactivated = false "
                   + " and u.deleted_at is null ",
           nativeQuery = true
   )
-  List<User> findDirectReportsEmployersAndEmployeesByDepartmentIdAndCompanyId(
-          Long departmentId, Long companyId, Long userId);
+  List<User> findDirectReportsEmployersAndEmployeesByCompanyId(
+          Long companyId, Long userId);
 
   @Query(value = "select count(1) from users u "
       + "where u.manager_user_id = ?1 "
