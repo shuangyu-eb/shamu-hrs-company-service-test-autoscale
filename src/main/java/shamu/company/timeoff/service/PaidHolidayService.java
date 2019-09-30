@@ -15,6 +15,8 @@ public interface PaidHolidayService {
 
   List<PaidHolidayDto> getPaidHolidays(AuthUser user);
 
+  List<PaidHolidayDto> getUserPaidHolidays(AuthUser user, Long userId);
+
   List<PaidHolidayDto> getPaidHolidaysByYear(AuthUser user, String year);
 
   void updateHolidaySelects(List<PaidHolidayDto> paidHolidayDtos);
