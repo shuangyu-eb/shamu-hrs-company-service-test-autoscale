@@ -82,7 +82,7 @@
                 <td>
                   <img
                       style="float: right; width: 45px; height: 45px; border: 1px solid gray; border-radius: 50%; overflow: hidden"
-                      th:src="${pathPrefix+approverComment.user.getImageUrl()}"
+                      th:src="${approverComment.user.getImageUrl()} ? ${pathPrefix+approverComment.user.getImageUrl()} : ${frontEndAddress}+'image/person.svg'"
                   >
                 </td>
               </tr>
