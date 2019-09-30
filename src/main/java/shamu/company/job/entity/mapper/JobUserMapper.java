@@ -19,6 +19,7 @@ import shamu.company.job.dto.JobUserDto;
 import shamu.company.job.entity.Job;
 import shamu.company.job.entity.JobUser;
 import shamu.company.timeoff.dto.TimeOffPolicyRelatedUserDto;
+import shamu.company.timeoff.entity.TimeOffPolicyUser;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.mapper.UserCompensationMapper;
 
@@ -65,6 +66,15 @@ public interface JobUserMapper {
   @Mapping(target = "id", source = "user.id")
   @Mapping(target = "imageUrl", source = "user.imageUrl")
   TimeOffPolicyRelatedUserDto convertToTimeOffPolicyRelatedUserDto(User user, JobUser jobUser);
+
+  @Mapping(target = "jobTitle", source = "jobUser.job.title")
+  @Mapping(target = "firstName", source = "policyUser.user.userPersonalInformation.firstName")
+  @Mapping(target = "lastName", source = "policyUser.user.userPersonalInformation.lastName")
+  @Mapping(target = "id", source = "policyUser.user.id")
+  @Mapping(target = "imageUrl", source = "policyUser.user.imageUrl")
+  @Mapping(target = "balance", source = "policyUser.balance")
+  TimeOffPolicyRelatedUserDto convertToTimeOffPolicyRelatedUserDto(TimeOffPolicyUser policyUser,
+                                                                   JobUser jobUser);
 
   @Mapping(target = "job", source = "jobId")
   @Mapping(target = "office", source = "officeId")

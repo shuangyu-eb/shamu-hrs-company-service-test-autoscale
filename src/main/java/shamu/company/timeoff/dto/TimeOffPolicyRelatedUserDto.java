@@ -20,4 +20,6 @@ public class TimeOffPolicyRelatedUserDto {
   private String jobTitle;
 
   private String lastName;
+
+  private Integer balance;
 }
