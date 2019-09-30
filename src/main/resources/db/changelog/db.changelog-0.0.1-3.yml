@@ -458,4 +458,5 @@ databaseChangeLog:
               - column:
                   name: deactivated
                   type: BOOLEAN
+                  defaultValue: false
             tableName: users
