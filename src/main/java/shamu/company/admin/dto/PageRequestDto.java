@@ -23,6 +23,10 @@ public class PageRequestDto {
     return PageRequest.of(page, size, direction, field.getValue());
   }
 
+  public String getKeyword() {
+    return this.keyword.trim();
+  }
+
   public enum Field {
     NAME("userPersonalInformation.firstName"),
     COMPANY("company.name"),

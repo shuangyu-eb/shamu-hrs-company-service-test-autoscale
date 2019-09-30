@@ -25,7 +25,6 @@ class SuperAdminRestController extends BaseRestController {
   }
 
   @GetMapping("/super-admin/users")
-  // TODO Sort and filter by user role
   @PreAuthorize("hasAuthority('SUPER_PERMISSION')")
   public Page<SuperAdminUserDto> getUsers(final PageRequestDto pageRequestDto) {
     return superAdminService.getUsersBy(pageRequestDto.getKeyword(), pageRequestDto.getPageable());
