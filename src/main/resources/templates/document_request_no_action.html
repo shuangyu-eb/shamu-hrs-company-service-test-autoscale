@@ -8,8 +8,8 @@
 </head>
 <body>
 <section align="center"
-         style="background-color: #edeef2; padding-bottom: 119px; padding-top: 58px; width: 100%;">
-  <table style="width: 552px; min-height: 465px; border-collapse: collapse;">
+         style="background-color: #edeef2; padding-bottom: 119px; width: 100%;">
+  <table style="width: 100%; min-height: 465px; border-collapse: collapse;">
     <tbody>
     <tr>
       <td style="display: block">
@@ -18,8 +18,8 @@
           <tr>
             <td>
               <div class="card-title" style="margin: auto; height: 45px; width: fit-content; margin-bottom: 20px;">
-                <img style="height: 47px; vertical-align: -18px; border: 1px solid #dfe2e9; border-radius: 50%; margin-right: 14px;" alt="avatar" th:src="${senderAvatar}" />
-                <span th:text="${senderName}" style="color: #488eff; width: fit-content"></span>
+                <img style="width: 47px;height: 47px; vertical-align: -18px; border: 1px solid #dfe2e9; border-radius: 50%; margin-right: 14px;" alt="avatar" th:src="${senderAvatar}" />
+                <span th:text="${senderName}" style="color: #0075DF; width: fit-content"></span>
                 &nbsp;Sent You a Document
               </div>
             </td>
@@ -36,7 +36,7 @@
           <tr>
             <td colspan="3">
               <div class="button-card" style="padding-bottom: 30px; border-bottom: solid 1px #dfe2e9;">
-                <a style="margin-top: 30px; text-decoration: none; padding: 10px 20px; border-radius: 20px; background: #488eff; border: 1px solid transparent;cursor: pointer; display: block; width: 151px; margin-left: auto; margin-right: auto;font-size: 14px; font-weight: 500; line-height: 1.17; letter-spacing: .2px; color: #ffffff; text-align: center;"
+                <a style="margin-top: 30px; text-decoration: none; padding: 10px 20px; border-radius: 20px; background: #0075DF; border: 1px solid transparent;cursor: pointer; display: block; width: 151px; margin-left: auto; margin-right: auto;font-size: 14px; font-weight: 500; line-height: 1.17; letter-spacing: .2px; color: #ffffff; text-align: center;"
                    th:href="@{${frontEndAddress} + ${documentUrl}}">View
                 </a>
               </div>
