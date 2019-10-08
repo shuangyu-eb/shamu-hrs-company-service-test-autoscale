@@ -769,7 +769,7 @@ databaseChangeLog:
 - changeSet:
     id: 1556008164280-4
     author: wenhao-eb
-    runOnchange: true
+    runOnChange: true
     changes:
     - loadUpdateData:
         columns:
@@ -1214,7 +1214,7 @@ databaseChangeLog:
 - changeSet:
     id: 1557390699512-73
     author: Qi-Jia
-    runOnchange: true
+    runOnChange: true
     changes:
     - loadUpdateData:
         columns:
@@ -1296,7 +1296,7 @@ databaseChangeLog:
 - changeSet:
     id: 1557390699512-75
     author: Qi-Jia
-    runOnchange: true
+    runOnChange: true
     changes:
     - loadUpdateData:
         columns:
@@ -1503,7 +1503,7 @@ databaseChangeLog:
 - changeSet:
       id: 1556008164280-45
       author: wenhao-eb
-      runOnchange: true
+      runOnChange: true
       changes:
       - loadUpdateData:
             columns:
@@ -1622,7 +1622,7 @@ databaseChangeLog:
 - changeSet:
       id: 1556008164280-52
       author: wenhao-eb
-      runOnchange: true
+      runOnChange: true
       changes:
       - loadUpdateData:
           columns:
@@ -2091,7 +2091,7 @@ databaseChangeLog:
 - changeSet:
       id: 1561343783113-4
       author: max-eb
-      runOnchange: true
+      runOnChange: true
       changes:
       - loadUpdateData:
           columns:
