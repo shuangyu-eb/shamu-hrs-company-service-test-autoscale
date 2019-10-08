@@ -75,7 +75,7 @@ public class CompanyEmailServiceImpl implements CompanyEmailService {
     final String senderName = UserNameUtil.getUserName(sender);
     final String senderAvatar =
         sender.getImageUrl() != null ? awsUtil.getAwsPath() + sender.getImageUrl()
-            : applicationConfig.getFrontEndAddress() + "image/person.svg";
+            : applicationConfig.getFrontEndAddress() + "image/person.png";
 
     variables.put("senderName", senderName);
     variables.put("senderAvatar", senderAvatar);
