@@ -1,4 +1,4 @@
-package shamu.company.company;
+package shamu.company.company.repository;
 
 import shamu.company.common.repository.BaseRepository;
 import shamu.company.company.entity.Company;

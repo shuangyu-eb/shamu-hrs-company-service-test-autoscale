@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
-import shamu.company.company.CompanyService;
+import shamu.company.company.service.CompanyService;
 import shamu.company.hashids.HashidsFormat;
 import shamu.company.timeoff.dto.TimeOffBalanceDto;
 import shamu.company.timeoff.dto.TimeOffBreakdownDto;
@@ -195,7 +195,7 @@ public class TimeOffPolicyRestController extends BaseRestController {
   @GetMapping("time-off-policies/users/{id}/has-policy")
   @PreAuthorize("hasPermission(#id, 'USER', 'VIEW_USER_TIME_OFF_BALANCE') "
       + "or @permissionUtils.isCurrentUser(#id)")
-  public boolean checkHasTimeOffPolicies(@PathVariable @HashidsFormat Long id) {
+  public boolean checkHasTimeOffPolicies(@PathVariable @HashidsFormat final Long id) {
     return timeOffPolicyUserRepository.existsByUserId(id);
   }
 }

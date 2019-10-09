@@ -4,8 +4,8 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import shamu.company.common.exception.ResourceNotFoundException;
-import shamu.company.company.CompanyRepository;
 import shamu.company.company.entity.Company;
+import shamu.company.company.repository.CompanyRepository;
 import shamu.company.user.entity.User;
 import shamu.company.user.repository.UserRepository;
 
@@ -42,7 +42,7 @@ public class CompanyUserServiceImpl implements CompanyUserService {
 
   @Override
   public AuthUser findUserByUserId(final String userId) {
-    User user = userRepository.findByUserId(userId);
+    final User user = userRepository.findByUserId(userId);
     return new AuthUser(user);
   }
 }

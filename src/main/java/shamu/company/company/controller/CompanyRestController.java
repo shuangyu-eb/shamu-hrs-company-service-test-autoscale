@@ -1,4 +1,4 @@
-package shamu.company.company;
+package shamu.company.company.controller;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -16,6 +16,7 @@ import shamu.company.company.entity.Company;
 import shamu.company.company.entity.Department;
 import shamu.company.company.entity.Office;
 import shamu.company.company.entity.mapper.OfficeMapper;
+import shamu.company.company.service.CompanyService;
 import shamu.company.employee.dto.SelectFieldInformationDto;
 import shamu.company.employee.entity.EmploymentType;
 import shamu.company.employee.service.EmployeeService;
@@ -118,16 +119,7 @@ public class CompanyRestController extends BaseRestController {
   public List<SelectFieldInformationDto> getUsers(@PathVariable @HashidsFormat final Long id) {
     final List<User> users = employeeService
         .findEmployersAndEmployeesByDepartmentIdAndCompanyId(id, getCompanyId());
-    return users.stream().map(
-        manager -> {
-          UserPersonalInformation userInfo = manager.getUserPersonalInformation();
-          String firstName = userInfo.getFirstName();
-          String middleName = userInfo.getMiddleName();
-          String lastName = userInfo.getLastName();
-          return new SelectFieldInformationDto(manager.getId(),
-              UserNameUtil.getUserName(firstName, middleName, lastName));
-        })
-        .collect(Collectors.toList());
+    return collectUserPersonInformations(users);
   }
 
   @GetMapping("departments/mayBeManager/{userId}/{departmentId}/users")
@@ -136,7 +128,7 @@ public class CompanyRestController extends BaseRestController {
   public List<SelectFieldInformationDto> getUsersFromDepartment(
           @PathVariable @HashidsFormat final Long userId,
           @PathVariable @HashidsFormat final Long departmentId) {
-    List<User> users;
+    final List<User> users;
     final User user = userService.findUserById(userId);
     if (user.getManagerUser() == null) {
       users = employeeService.findDirectReportsEmployersAndEmployeesByCompanyId(
@@ -145,15 +137,18 @@ public class CompanyRestController extends BaseRestController {
       users = employeeService.findEmployersAndEmployeesByDepartmentIdAndCompanyId(departmentId,
               getCompanyId());
     }
+    return collectUserPersonInformations(users);
+  }
+
+  private List<SelectFieldInformationDto> collectUserPersonInformations(final List<User> users) {
     return users.stream().map(
-        manager -> {
-          UserPersonalInformation userInfo = manager.getUserPersonalInformation();
+        user -> {
+          UserPersonalInformation userInfo = user.getUserPersonalInformation();
           String firstName = userInfo.getFirstName();
           String middleName = userInfo.getMiddleName();
           String lastName = userInfo.getLastName();
-          return new SelectFieldInformationDto(manager.getId(),
-                  UserNameUtil.getUserName(firstName, middleName, lastName));
-        })
-        .collect(Collectors.toList());
+          return new SelectFieldInformationDto(user.getId(),
+              UserNameUtil.getUserName(firstName, middleName, lastName));
+        }).collect(Collectors.toList());
   }
 }

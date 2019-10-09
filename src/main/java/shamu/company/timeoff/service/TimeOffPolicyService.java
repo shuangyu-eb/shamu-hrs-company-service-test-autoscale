@@ -24,8 +24,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import shamu.company.common.exception.ForbiddenException;
 import shamu.company.common.exception.ResourceNotFoundException;
-import shamu.company.company.CompanyService;
 import shamu.company.company.entity.Company;
+import shamu.company.company.service.CompanyService;
 import shamu.company.job.entity.JobUser;
 import shamu.company.job.entity.mapper.JobUserMapper;
 import shamu.company.job.repository.JobUserRepository;
@@ -443,16 +443,16 @@ public class TimeOffPolicyService {
     final TimeOffPolicyUser timeOffPolicyUser = timeOffPolicyUserRepository.findById(policyUserId)
         .get();
 
-    TimeOffPolicyAccrualSchedule accrualSchedule =
+    final TimeOffPolicyAccrualSchedule accrualSchedule =
         timeOffPolicyAccrualScheduleRepository
             .findByTimeOffPolicy(timeOffPolicyUser.getTimeOffPolicy());
-    Integer maxBalance = accrualSchedule.getMaxBalance();
+    final Integer maxBalance = accrualSchedule.getMaxBalance();
 
     Boolean adjustmentValid = true;
     if (maxBalance != null) {
-      Integer currentBalance = timeOffDetailService
+      final Integer currentBalance = timeOffDetailService
           .getTimeOffBreakdown(policyUserId, DateUtil.getLocalUtcTime()).getBalance();
-      Integer newBalance = currentBalance + adjustment;
+      final Integer newBalance = currentBalance + adjustment;
       adjustmentValid = newBalance <= maxBalance;
     }
 

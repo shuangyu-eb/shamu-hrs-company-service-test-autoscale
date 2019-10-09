@@ -1,4 +1,4 @@
-package shamu.company.company;
+package shamu.company.company.service;
 
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,12 +14,13 @@ import shamu.company.company.entity.Company;
 import shamu.company.company.entity.Department;
 import shamu.company.company.entity.Office;
 import shamu.company.company.entity.OfficeAddress;
+import shamu.company.company.repository.CompanyRepository;
 import shamu.company.employee.entity.EmploymentType;
 import shamu.company.job.entity.Job;
 import shamu.company.job.repository.JobRepository;
 
 @Service
-public class CompanyServiceImpl implements CompanyService {
+public class CompanyService {
 
   private final CompanyRepository companyRepository;
 
@@ -36,7 +37,7 @@ public class CompanyServiceImpl implements CompanyService {
   private final OfficeAddressRepository officeAddressRepository;
 
   @Autowired
-  public CompanyServiceImpl(final CompanyRepository companyRepository,
+  public CompanyService(final CompanyRepository companyRepository,
       final DepartmentRepository departmentRepository,
       final EmploymentTypeRepository employmentTypeRepository,
       final JobRepository jobRepository, final OfficeRepository officeRepository,
@@ -52,23 +53,19 @@ public class CompanyServiceImpl implements CompanyService {
   }
 
 
-  @Override
   public Boolean existsByName(final String companyName) {
     return companyRepository.existsByName(companyName);
   }
 
-  @Override
   public List<Department> getDepartmentsByCompanyId(final Long companyId) {
     return departmentRepository.findAllByCompanyId(companyId);
   }
 
-  @Override
   public Department getDepartmentsById(final Long id) {
     return departmentRepository.findById(id)
         .orElseThrow(() -> new ResourceNotFoundException("No Department with id: " + id));
   }
 
-  @Override
   public Department saveDepartmentsByCompany(final String name, final Long companyId) {
     final Department department = new Department();
     department.setName(name);
@@ -76,12 +73,10 @@ public class CompanyServiceImpl implements CompanyService {
     return departmentRepository.save(department);
   }
 
-  @Override
   public List<Job> getJobsByDepartmentId(final Long id) {
     return jobRepository.findAllByDepartmentId(id);
   }
 
-  @Override
   public Job saveJobsByDepartmentId(final Long departmentId, final String name) {
     final Job job = new Job();
     final Department department = new Department();
@@ -93,12 +88,10 @@ public class CompanyServiceImpl implements CompanyService {
     return jobRepository.save(job);
   }
 
-  @Override
   public List<Office> getOfficesByCompany(final Long companyId) {
     return officeRepository.findByCompanyId(companyId);
   }
 
-  @Override
   public Office saveOffice(final Office office) {
     OfficeAddress officeAddress = office.getOfficeAddress();
     final StateProvince stateProvince = officeAddress.getStateProvince();
@@ -114,12 +107,10 @@ public class CompanyServiceImpl implements CompanyService {
     return officeRepository.save(office);
   }
 
-  @Override
   public List<EmploymentType> getEmploymentTypesByCompanyId(final Long companyId) {
     return employmentTypeRepository.findAllByCompanyId(companyId);
   }
 
-  @Override
   public EmploymentType saveEmploymentType(final String employmentTypeName, final Long companyId) {
     final EmploymentType employmentType = new EmploymentType(employmentTypeName);
     employmentType.setCompany(new Company(companyId));
@@ -127,8 +118,7 @@ public class CompanyServiceImpl implements CompanyService {
     return employmentTypeRepository.save(employmentType);
   }
 
-  @Override
-  public Company findById(Long companyId) {
+  public Company findById(final Long companyId) {
     return companyRepository
         .findById(companyId)
         .orElseThrow(() -> new ResourceNotFoundException("No such Company"));
