@@ -19,11 +19,13 @@ import shamu.company.company.entity.Company;
 import shamu.company.email.EmailRepository;
 import shamu.company.email.EmailService;
 import shamu.company.employee.dto.EmployeeDto;
-import shamu.company.employee.service.impl.EmployeeServiceImpl;
+import shamu.company.employee.service.EmployeeService;
 import shamu.company.info.entity.mapper.UserEmergencyContactMapper;
 import shamu.company.info.repository.UserEmergencyContactRepository;
+import shamu.company.job.entity.mapper.JobUserMapper;
 import shamu.company.job.repository.JobRepository;
 import shamu.company.job.repository.JobUserRepository;
+import shamu.company.job.service.JobUserService;
 import shamu.company.user.dto.UserContactInformationDto;
 import shamu.company.user.dto.UserPersonalInformationDto;
 import shamu.company.user.entity.Gender;
@@ -34,6 +36,7 @@ import shamu.company.user.entity.UserStatus;
 import shamu.company.user.entity.UserStatus.Status;
 import shamu.company.user.entity.mapper.UserAddressMapper;
 import shamu.company.user.entity.mapper.UserContactInformationMapper;
+import shamu.company.user.entity.mapper.UserMapper;
 import shamu.company.user.entity.mapper.UserPersonalInformationMapper;
 import shamu.company.user.repository.CompensationFrequencyRepository;
 import shamu.company.user.repository.GenderRepository;
@@ -76,13 +79,16 @@ public class EmployeeServiceTests {
   @Mock private UserEmergencyContactMapper userEmergencyContactMapper;
   @Mock private Auth0Util auth0Util;
   @Mock private ApplicationEventPublisher applicationEventPublisher;
+  @Mock private JobUserMapper jobUserMapper;
+  @Mock private JobUserService jobUserService;
+  @Mock private UserMapper userMapper;
 
-  private EmployeeServiceImpl employeeService;
+  private EmployeeService employeeService;
 
   @BeforeEach
   void init() {
     MockitoAnnotations.initMocks(this);
-    employeeService = new EmployeeServiceImpl(userAddressRepository, userRepository,
+    employeeService = new EmployeeService(userAddressRepository, userRepository,
         jobUserRepository, employmentTypeRepository, officeRepository, userService,
         stateProvinceRepository, countryRepository, userCompensationRepository,
         userEmergencyContactRepository, jobRepository, userStatusRepository,
@@ -90,7 +96,7 @@ public class EmployeeServiceTests {
         compensationFrequencyRepository, emailRepository, userPersonalInformationService,
         userContactInformationService, userPersonalInformationMapper, userAddressMapper,
         userContactInformationMapper, userEmergencyContactMapper, auth0Util,
-        applicationEventPublisher);
+        applicationEventPublisher, jobUserMapper, jobUserService, userMapper);
   }
 
   @Nested
