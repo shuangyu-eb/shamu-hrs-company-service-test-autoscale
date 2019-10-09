@@ -1,19 +1,5 @@
 package shamu.company.timeoff;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.powermock.reflect.Whitebox;
-import shamu.company.timeoff.dto.*;
-import shamu.company.timeoff.entity.TimeOffAccrualFrequency;
-import shamu.company.timeoff.service.impl.TimeOffAccrualAnniversaryStrategyServiceImpl;
-import shamu.company.timeoff.service.impl.TimeOffAccrualMonthStrategyServiceImpl;
-import shamu.company.timeoff.service.impl.TimeOffAccrualNatureStrategyServiceImpl;
-import shamu.company.timeoff.service.impl.TimeOffAccrualServiceImpl;
-
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -21,21 +7,38 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.powermock.reflect.Whitebox;
+import shamu.company.timeoff.dto.TimeOffBreakdownAnniversaryDto;
+import shamu.company.timeoff.dto.TimeOffBreakdownDto;
+import shamu.company.timeoff.dto.TimeOffBreakdownItemDto;
+import shamu.company.timeoff.dto.TimeOffBreakdownMonthDto;
+import shamu.company.timeoff.dto.TimeOffBreakdownYearDto;
+import shamu.company.timeoff.entity.TimeOffAccrualFrequency;
+import shamu.company.timeoff.service.TimeOffAccrualAnniversaryStrategyService;
+import shamu.company.timeoff.service.TimeOffAccrualMonthStrategyService;
+import shamu.company.timeoff.service.TimeOffAccrualNatureStrategyService;
+import shamu.company.timeoff.service.TimeOffAccrualService;
 import shamu.company.utils.DateUtil;
 
 class TimeOffDetailServiceTests {
 
   @Mock
-  private TimeOffAccrualNatureStrategyServiceImpl accrualNatureStrategyService;
+  private TimeOffAccrualNatureStrategyService accrualNatureStrategyService;
 
   @Mock
-  private TimeOffAccrualAnniversaryStrategyServiceImpl accrualAnniversaryStrategyService;
+  private TimeOffAccrualAnniversaryStrategyService accrualAnniversaryStrategyService;
 
   @Mock
-  private TimeOffAccrualMonthStrategyServiceImpl accrualMonthStrategyService;
+  private TimeOffAccrualMonthStrategyService accrualMonthStrategyService;
 
   @Mock
-  private TimeOffAccrualServiceImpl accrualService;
+  private TimeOffAccrualService accrualService;
 
   @BeforeEach
   void setUp() {

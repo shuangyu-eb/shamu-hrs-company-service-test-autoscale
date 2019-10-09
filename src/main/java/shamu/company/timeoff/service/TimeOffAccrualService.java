@@ -1,4 +1,4 @@
-package shamu.company.timeoff.service.impl;
+package shamu.company.timeoff.service;
 
 import java.sql.Timestamp;
 import java.time.Duration;
@@ -20,68 +20,69 @@ import shamu.company.timeoff.pojo.TimeOffBalancePojo;
 import shamu.company.user.entity.User;
 import shamu.company.utils.DateUtil;
 
-public class TimeOffAccrualServiceImpl {
+public class TimeOffAccrualService {
 
   static final String TIME_OFF_ACCRUED = "Time Off Accrued";
 
-  List<Timestamp> getValidAccrualScheduleStartAndEndDate(LocalDateTime userJoinDate,
-      TimeOffPolicyAccrualSchedule accrualSchedule) {
+  List<Timestamp> getValidAccrualScheduleStartAndEndDate(final LocalDateTime userJoinDate,
+      final TimeOffPolicyAccrualSchedule accrualSchedule) {
 
     LocalDateTime startDateTime = userJoinDate;
 
-    Long frequencyId = accrualSchedule.getTimeOffAccrualFrequency().getId();
+    final Long frequencyId = accrualSchedule.getTimeOffAccrualFrequency().getId();
     if (AccrualFrequencyType.FREQUENCY_TYPE_THREE.equalsTo(frequencyId)) {
-      int startDayDelay = accrualSchedule.getDaysBeforeAccrualStarts() != null
+      final int startDayDelay = accrualSchedule.getDaysBeforeAccrualStarts() != null
           ? accrualSchedule.getDaysBeforeAccrualStarts() : 0;
       startDateTime = userJoinDate.plusDays(startDayDelay);
     }
 
-    LocalDateTime accrualScheduleEffectTime =
+    final LocalDateTime accrualScheduleEffectTime =
         DateUtil.toLocalDateTime(accrualSchedule.getCreatedAt());
 
-    LocalDateTime effectStartTime = startDateTime.isBefore(accrualScheduleEffectTime)
+    final LocalDateTime effectStartTime = startDateTime.isBefore(accrualScheduleEffectTime)
         ? accrualScheduleEffectTime
         : startDateTime;
 
-    List<Timestamp> dates = new ArrayList<>();
+    final List<Timestamp> dates = new ArrayList<>();
     dates.add(Timestamp.valueOf(effectStartTime));
     dates.add(accrualSchedule.getExpiredAt());
     return dates;
   }
 
-  List<Timestamp> getValidMilestoneStartAndEndDate(LocalDateTime userJoinDate,
-      AccrualScheduleMilestone accrualScheduleMilestone) {
+  List<Timestamp> getValidMilestoneStartAndEndDate(final LocalDateTime userJoinDate,
+      final AccrualScheduleMilestone accrualScheduleMilestone) {
 
-    Integer anniversaryYear = accrualScheduleMilestone.getAnniversaryYear();
-    LocalDateTime milestoneStartDate = userJoinDate.plusYears(anniversaryYear);
+    final Integer anniversaryYear = accrualScheduleMilestone.getAnniversaryYear();
+    final LocalDateTime milestoneStartDate = userJoinDate.plusYears(anniversaryYear);
 
-    LocalDateTime accrualMilestoneEffectTime =
+    final LocalDateTime accrualMilestoneEffectTime =
         DateUtil.toLocalDateTime(accrualScheduleMilestone.getCreatedAt());
-    LocalDateTime milestoneValidStart = milestoneStartDate.isBefore(accrualMilestoneEffectTime)
-        ? accrualMilestoneEffectTime
-        : milestoneStartDate;
+    final LocalDateTime milestoneValidStart =
+        milestoneStartDate.isBefore(accrualMilestoneEffectTime)
+            ? accrualMilestoneEffectTime
+            : milestoneStartDate;
 
-    List<Timestamp> dates = new ArrayList<>();
+    final List<Timestamp> dates = new ArrayList<>();
     dates.add(Timestamp.valueOf(milestoneValidStart));
     dates.add(accrualScheduleMilestone.getExpiredAt());
     return dates;
   }
 
   List<AccrualScheduleMilestone> trimTimeOffPolicyScheduleMilestones(
-      List<AccrualScheduleMilestone> accrualScheduleMilestoneList, User user,
-      TimeOffPolicyAccrualSchedule accrualSchedule) {
+      final List<AccrualScheduleMilestone> accrualScheduleMilestoneList, final User user,
+      final TimeOffPolicyAccrualSchedule accrualSchedule) {
 
-    List<AccrualScheduleMilestone> trimmedAccrualMilestones = new ArrayList<>();
-    for (AccrualScheduleMilestone accrualScheduleMilestone : accrualScheduleMilestoneList) {
+    final List<AccrualScheduleMilestone> trimmedAccrualMilestones = new ArrayList<>();
+    for (final AccrualScheduleMilestone accrualScheduleMilestone : accrualScheduleMilestoneList) {
 
       if (accrualScheduleMilestone.getExpiredAt() == null) {
         trimmedAccrualMilestones.add(accrualScheduleMilestone);
         continue;
       }
 
-      LocalDateTime userEnrollDateTime = DateUtil.toLocalDateTime(user.getCreatedAt());
+      final LocalDateTime userEnrollDateTime = DateUtil.toLocalDateTime(user.getCreatedAt());
 
-      Long frequencyId = accrualSchedule.getTimeOffAccrualFrequency().getId();
+      final Long frequencyId = accrualSchedule.getTimeOffAccrualFrequency().getId();
       if (invalidByStartDateAndEndDate(accrualScheduleMilestone.getCreatedAt(),
           accrualScheduleMilestone.getExpiredAt(), userEnrollDateTime, frequencyId)) {
         continue;
@@ -93,8 +94,9 @@ public class TimeOffAccrualServiceImpl {
   }
 
   void populateRemainingAdjustment(
-      LinkedList<TimeOffBreakdownItemDto> resultTimeOffBreakdownItemList,
-      List<TimeOffBreakdownItemDto> balanceAdjustmentList, TimeOffBalancePojo balancePojo) {
+      final LinkedList<TimeOffBreakdownItemDto> resultTimeOffBreakdownItemList,
+      final List<TimeOffBreakdownItemDto> balanceAdjustmentList,
+      final TimeOffBalancePojo balancePojo) {
 
     balanceAdjustmentList.forEach(balanceAdjustment -> {
 
@@ -106,7 +108,7 @@ public class TimeOffAccrualServiceImpl {
         newAppliedAccumulation = balancePojo.getMaxBalance() - balancePojo.getBalance();
         balancePojo.setAppliedAccumulation(newAppliedAccumulation);
       }
-      Integer newBalance = balancePojo.getBalance() + balancePojo.getAppliedAccumulation();
+      final Integer newBalance = balancePojo.getBalance() + balancePojo.getAppliedAccumulation();
       balanceAdjustment.setBalance(newBalance);
 
       resultTimeOffBreakdownItemList.add(balanceAdjustment);
@@ -116,13 +118,13 @@ public class TimeOffAccrualServiceImpl {
   }
 
   void populateBreakdownAdjustmentBefore(
-      LinkedList<TimeOffBreakdownItemDto> resultTimeOffBreakdownItemList,
-      LocalDateTime untilDateTime, List<TimeOffBreakdownItemDto> balanceAdjustmentList,
-      TimeOffBalancePojo calculatePojo) {
-    Iterator<TimeOffBreakdownItemDto> adjustmentIterator = balanceAdjustmentList.iterator();
+      final LinkedList<TimeOffBreakdownItemDto> resultTimeOffBreakdownItemList,
+      final LocalDateTime untilDateTime, final List<TimeOffBreakdownItemDto> balanceAdjustmentList,
+      final TimeOffBalancePojo calculatePojo) {
+    final Iterator<TimeOffBreakdownItemDto> adjustmentIterator = balanceAdjustmentList.iterator();
 
     while (adjustmentIterator.hasNext()) {
-      TimeOffBreakdownItemDto adjustment = adjustmentIterator.next();
+      final TimeOffBreakdownItemDto adjustment = adjustmentIterator.next();
       if (adjustment.getDate().isBefore(untilDateTime)) {
 
         setNewAppliedAccumulation(adjustment.getAmount(), calculatePojo);
@@ -135,8 +137,8 @@ public class TimeOffAccrualServiceImpl {
     }
   }
 
-  void tuneBalanceWithCarryOverLimit(TimeOffBreakdownItemDto lastTimeOffBreakdown,
-      TimeOffBalancePojo calculatePojo) {
+  void tuneBalanceWithCarryOverLimit(final TimeOffBreakdownItemDto lastTimeOffBreakdown,
+      final TimeOffBalancePojo calculatePojo) {
     if (lastTimeOffBreakdown == null) {
       return;
     }
@@ -145,77 +147,80 @@ public class TimeOffAccrualServiceImpl {
       calculatePojo.setAppliedAccumulation(0);
     }
 
-    Integer carryoverLimit = calculatePojo.getCarryOverLimit();
-    Integer maxBalance = calculatePojo.getMaxBalance();
-    Integer balance = calculatePojo.getBalance();
+    final Integer carryoverLimit = calculatePojo.getCarryOverLimit();
+    final Integer maxBalance = calculatePojo.getMaxBalance();
+    final Integer balance = calculatePojo.getBalance();
 
-    Integer previousAmount = calculatePojo.getAppliedAccumulation();
+    final Integer previousAmount = calculatePojo.getAppliedAccumulation();
 
     if (carryoverLimit != null && previousAmount > carryoverLimit) {
       calculatePojo.setAppliedAccumulation(carryoverLimit);
     }
 
     if (calculatePojo.reachMaxBalance(true)) {
-      int newAppliedAccumulation = maxBalance - balance;
+      final int newAppliedAccumulation = maxBalance - balance;
       calculatePojo.setAppliedAccumulation(newAppliedAccumulation);
     }
   }
 
 
-  private void setNewAppliedAccumulation(Integer adjustment, TimeOffBalancePojo calculatePojo) {
+  private void setNewAppliedAccumulation(final Integer adjustment,
+      final TimeOffBalancePojo calculatePojo) {
     if (calculatePojo.getAppliedAccumulation() == null) {
       calculatePojo.setAppliedAccumulation(adjustment);
     } else {
-      int newAccumulation = calculatePojo.getAppliedAccumulation() + adjustment;
+      final int newAccumulation = calculatePojo.getAppliedAccumulation() + adjustment;
       calculatePojo.setAppliedAccumulation(newAccumulation);
     }
   }
 
-  private void resetAccumulationIfExceed(TimeOffBalancePojo calculatePojo) {
+  private void resetAccumulationIfExceed(final TimeOffBalancePojo calculatePojo) {
     if (calculatePojo.reachMaxBalance(true)) {
-      int newAccumulation = calculatePojo.getMaxBalance() - calculatePojo.getBalance();
+      final int newAccumulation = calculatePojo.getMaxBalance() - calculatePojo.getBalance();
       calculatePojo.setAppliedAccumulation(newAccumulation);
     }
   }
 
-  private static boolean isSameYear(LocalDateTime createDateTime, LocalDateTime expireDateTime) {
-    LocalDate endDateOfYear = LocalDate.of(expireDateTime.getYear(), Month.DECEMBER,
+  private static boolean isSameYear(final LocalDateTime createDateTime,
+      final LocalDateTime expireDateTime) {
+    final LocalDate endDateOfYear = LocalDate.of(expireDateTime.getYear(), Month.DECEMBER,
         Month.DECEMBER.length(Year.isLeap(expireDateTime.getYear())));
-    LocalDateTime maxTimeInYear = LocalDateTime.of(endDateOfYear, LocalTime.MAX);
+    final LocalDateTime maxTimeInYear = LocalDateTime.of(endDateOfYear, LocalTime.MAX);
 
     return (createDateTime.getYear() == expireDateTime.getYear()
         && (expireDateTime.isBefore(maxTimeInYear)));
   }
 
-  private static boolean isSameAnniversaryYear(LocalDateTime userEnrollDateTime,
-      LocalDateTime createDateTime, LocalDateTime expireDateTime) {
-    Duration startDuration = Duration.between(userEnrollDateTime, createDateTime);
-    Duration expireDuration = Duration.between(userEnrollDateTime, expireDateTime);
+  private static boolean isSameAnniversaryYear(final LocalDateTime userEnrollDateTime,
+      final LocalDateTime createDateTime, final LocalDateTime expireDateTime) {
+    final Duration startDuration = Duration.between(userEnrollDateTime, createDateTime);
+    final Duration expireDuration = Duration.between(userEnrollDateTime, expireDateTime);
 
-    Long millisOfOneYear = 365L * 1000L * 60L * 60L * 24L;
+    final Long millisOfOneYear = 365L * 1000L * 60L * 60L * 24L;
     return expireDuration.toMillis() / millisOfOneYear
         == startDuration.toMillis() / millisOfOneYear;
   }
 
-  private static boolean isSameMonth(LocalDateTime createDateTime, LocalDateTime expireDateTime) {
+  private static boolean isSameMonth(final LocalDateTime createDateTime,
+      final LocalDateTime expireDateTime) {
 
-    LocalDateTime maxTimeInMonth = LocalDateTime
+    final LocalDateTime maxTimeInMonth = LocalDateTime
         .of(LocalDate.of(expireDateTime.getYear(), expireDateTime.getMonthValue(),
             Month.of(expireDateTime.getMonthValue())
                 .length(Year.isLeap(expireDateTime.getYear()))),
             LocalTime.MAX);
 
-    boolean inSameMonth = (createDateTime.getMonth().equals(expireDateTime.getMonth())
+    final boolean inSameMonth = (createDateTime.getMonth().equals(expireDateTime.getMonth())
         && expireDateTime.isBefore(maxTimeInMonth));
 
     return isSameYear(createDateTime, expireDateTime) && inSameMonth;
   }
 
-  static boolean invalidByStartDateAndEndDate(Timestamp startDate, Timestamp endDate,
-      LocalDateTime userEnrollDateTime, Long frequencyTypeId) {
+  static boolean invalidByStartDateAndEndDate(final Timestamp startDate, final Timestamp endDate,
+      final LocalDateTime userEnrollDateTime, final Long frequencyTypeId) {
 
-    LocalDateTime createDateTime = DateUtil.toLocalDateTime(startDate);
-    LocalDateTime expireDateTime = DateUtil.toLocalDateTime(endDate);
+    final LocalDateTime createDateTime = DateUtil.toLocalDateTime(startDate);
+    final LocalDateTime expireDateTime = DateUtil.toLocalDateTime(endDate);
 
     // case when expired before user enroll
     if (userEnrollDateTime.compareTo(expireDateTime) > 0) {

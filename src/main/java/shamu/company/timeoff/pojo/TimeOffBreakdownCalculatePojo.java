@@ -21,14 +21,4 @@ public class TimeOffBreakdownCalculatePojo {
   private TimeOffPolicyUser policyUser;
 
   private LocalDateTime untilDate;
-
-  public TimeOffBreakdownCalculatePojo(List<TimeOffPolicyAccrualSchedule> trimmedScheduleList,
-      List<TimeOffBreakdownItemDto> balanceAdjustment,
-      TimeOffPolicyUser policyUser,
-      LocalDateTime untilDate) {
-    this.trimmedScheduleList = trimmedScheduleList;
-    this.balanceAdjustment = balanceAdjustment;
-    this.policyUser = policyUser;
-    this.untilDate = untilDate;
-  }
 }

@@ -6,7 +6,6 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import javax.validation.Valid;
-import org.apache.commons.lang.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
@@ -21,13 +20,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.company.CompanyService;
-import shamu.company.company.entity.Company;
 import shamu.company.hashids.HashidsFormat;
-import shamu.company.timeoff.dto.AccrualScheduleMilestoneDto;
 import shamu.company.timeoff.dto.TimeOffBalanceDto;
 import shamu.company.timeoff.dto.TimeOffBreakdownDto;
-import shamu.company.timeoff.dto.TimeOffPolicyAccrualScheduleDto;
-import shamu.company.timeoff.dto.TimeOffPolicyFrontendDto;
 import shamu.company.timeoff.dto.TimeOffPolicyListDto;
 import shamu.company.timeoff.dto.TimeOffPolicyRelatedInfoDto;
 import shamu.company.timeoff.dto.TimeOffPolicyRelatedUserListDto;
@@ -77,21 +72,8 @@ public class TimeOffPolicyRestController extends BaseRestController {
   @PostMapping("time-off-policy")
   public void createTimeOffPolicy(
       @Valid @RequestBody final TimeOffPolicyWrapperDto timeOffPolicyWrapperDto) {
-
-    final TimeOffPolicyFrontendDto timeOffPolicyFrontendDto = timeOffPolicyWrapperDto
-        .getTimeOffPolicy();
-    final TimeOffPolicyAccrualScheduleDto timeOffPolicyAccrualScheduleDto = timeOffPolicyWrapperDto
-        .getTimeOffPolicyAccrualSchedule();
-    final List<AccrualScheduleMilestoneDto> accrualScheduleMilestoneDtoList =
-        timeOffPolicyWrapperDto.getMilestones();
-    final List<TimeOffPolicyUserFrontendDto> timeOffPolicyUserFrontendDtos = timeOffPolicyWrapperDto
-        .getUserStartBalances();
-
-    final Company company = companyService.findById(getCompanyId());
-
     timeOffPolicyService
-        .createTimeOffPolicy(timeOffPolicyFrontendDto, timeOffPolicyAccrualScheduleDto,
-            accrualScheduleMilestoneDtoList, timeOffPolicyUserFrontendDtos, company);
+        .createTimeOffPolicy(timeOffPolicyWrapperDto, getCompanyId());
   }
 
   @PatchMapping("time-off-policy/{id}")
@@ -99,23 +81,7 @@ public class TimeOffPolicyRestController extends BaseRestController {
   public void updateTimeOffPolicy(@Valid @HashidsFormat @PathVariable final Long id,
       @RequestBody final TimeOffPolicyWrapperDto infoWrapper) {
 
-    final TimeOffPolicyFrontendDto timeOffPolicyFrontendDto = infoWrapper.getTimeOffPolicy();
-    final TimeOffPolicy origin = timeOffPolicyService.getTimeOffPolicyById(id);
-    timeOffPolicyMapper.updateFromTimeOffPolicyFrontendDto(origin, timeOffPolicyFrontendDto);
-
-    timeOffPolicyService.updateTimeOffPolicy(origin);
-
-    if (BooleanUtils.isTrue(origin.getIsLimited())) {
-      timeOffPolicyService
-          .updateTimeOffPolicyMilestones(origin, infoWrapper.getMilestones());
-
-      timeOffPolicyService.updateTimeOffPolicySchedule(origin,
-          infoWrapper.getTimeOffPolicyAccrualSchedule());
-    }
-
-    final List<TimeOffPolicyUserFrontendDto> timeOffPolicyUserFrontendDtos = infoWrapper
-        .getUserStartBalances();
-    timeOffPolicyService.updateTimeOffPolicyUserInfo(timeOffPolicyUserFrontendDtos, id);
+    timeOffPolicyService.updateTimeOffPolicy(id, infoWrapper);
   }
 
   @PatchMapping("time-off-policy/employees/{policyId}")
@@ -217,7 +183,7 @@ public class TimeOffPolicyRestController extends BaseRestController {
       + "'TIME_OFF_POLICY_USER','MANAGE_USER_TIME_OFF_BALANCE')")
   public void addTimeOffAdjustments(@HashidsFormat @PathVariable final Long policyUserId,
       @RequestBody final Integer adjustment) {
-    User currentUser = userService.findUserById(getAuthUser().getId());
+    final User currentUser = userService.findUserById(getAuthUser().getId());
     timeOffPolicyService.addTimeOffAdjustments(currentUser, policyUserId, adjustment);
   }
 }

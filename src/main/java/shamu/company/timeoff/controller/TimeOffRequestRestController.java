@@ -28,19 +28,19 @@ import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.hashids.HashidsFormat;
 import shamu.company.timeoff.dto.MyTimeOffDto;
+import shamu.company.timeoff.dto.TimeOffRequestCreateDto;
 import shamu.company.timeoff.dto.TimeOffRequestDetailDto;
 import shamu.company.timeoff.dto.TimeOffRequestDto;
 import shamu.company.timeoff.dto.TimeOffRequestUpdateDto;
 import shamu.company.timeoff.dto.UnimplementedRequestDto;
 import shamu.company.timeoff.entity.TimeOffRequest;
 import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus;
-import shamu.company.timeoff.entity.TimeOffRequestComment;
 import shamu.company.timeoff.entity.TimeOffRequestDate;
 import shamu.company.timeoff.entity.mapper.TimeOffRequestMapper;
-import shamu.company.timeoff.pojo.TimeOffRequestPojo;
 import shamu.company.timeoff.service.TimeOffRequestDateService;
 import shamu.company.timeoff.service.TimeOffRequestEmailService;
 import shamu.company.timeoff.service.TimeOffRequestService;
+import shamu.company.timeoff.service.TimeOffRequestService.SortFields;
 import shamu.company.user.entity.User;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.Auth0Util;
@@ -81,15 +81,15 @@ public class TimeOffRequestRestController extends BaseRestController {
   @PreAuthorize("hasPermission(#userId,'USER','MANAGE_SELF_TIME_OFF_REQUEST')")
   public void createTimeOffRequest(
       @PathVariable @HashidsFormat final Long userId,
-      @RequestBody final TimeOffRequestPojo requestPojo) {
+      @RequestBody final TimeOffRequestCreateDto requestCreateDto) {
     final User user = userService.findUserById(userId);
-    final TimeOffRequest timeOffRequest = requestPojo.getTimeOffRequest(user);
+    final TimeOffRequest timeOffRequest = requestCreateDto.getTimeOffRequest(user);
     timeOffRequest.setApprover(user.getManagerUser());
 
     final TimeOffRequest timeOffRequestReturned = timeOffRequestService
         .saveTimeOffRequest(
-            timeOffRequest, requestPojo.getPolicyId(), TimeOffRequestApprovalStatus.NO_ACTION);
-    saveTimeOffRequestDates(requestPojo, timeOffRequestReturned);
+            timeOffRequest, requestCreateDto.getPolicyId(), TimeOffRequestApprovalStatus.NO_ACTION);
+    saveTimeOffRequestDates(requestCreateDto, timeOffRequestReturned);
 
     timeOffRequestEmailService.sendEmail(timeOffRequestReturned);
   }
@@ -98,18 +98,18 @@ public class TimeOffRequestRestController extends BaseRestController {
   @PreAuthorize("hasPermission(#userId,'TIME_OFF_REQUEST','CREATE_AND_APPROVED_TIME_OFF_REQUEST')")
   public void createTimeOffRequestAndApproved(
       @PathVariable @HashidsFormat final Long userId,
-      @RequestBody final TimeOffRequestPojo requestPojo) {
+      @RequestBody final TimeOffRequestCreateDto requestCreateDto) {
     final User user = userService.findUserById(userId);
-    final TimeOffRequest timeOffRequest = requestPojo.getTimeOffRequest(user);
+    final TimeOffRequest timeOffRequest = requestCreateDto.getTimeOffRequest(user);
     final User approver = new User(getAuthUser().getId());
     timeOffRequest.setApproverUser(approver);
     timeOffRequest.setApprover(approver);
     timeOffRequest.setApprovedDate(Timestamp.from(Instant.now()));
 
     final TimeOffRequest timeOffRequestReturned = timeOffRequestService
-        .saveTimeOffRequest(timeOffRequest, requestPojo.getPolicyId(), APPROVED);
+        .saveTimeOffRequest(timeOffRequest, requestCreateDto.getPolicyId(), APPROVED);
 
-    saveTimeOffRequestDates(requestPojo, timeOffRequestReturned);
+    saveTimeOffRequestDates(requestCreateDto, timeOffRequestReturned);
   }
 
   @GetMapping("time-off_requests/approver/status/pending/count")
@@ -124,7 +124,7 @@ public class TimeOffRequestRestController extends BaseRestController {
   public List<TimeOffRequestDto> getTimeOffRequests(
       @PathVariable @HashidsFormat final Long id,
       @RequestParam final TimeOffRequestApprovalStatus[] status) {
-    return timeOffRequestService.getTimeOffRequest(id, status, getAuthUser());
+    return timeOffRequestService.getTimeOffRequest(id, status);
   }
 
   @GetMapping("time-off-requests/{id}")
@@ -142,27 +142,7 @@ public class TimeOffRequestRestController extends BaseRestController {
   public TimeOffRequestDto updateTimeOffRequestStatus(
       @PathVariable @HashidsFormat final Long id,
       @RequestBody final TimeOffRequestUpdateDto updateDto) {
-
-    TimeOffRequest timeOffRequest = timeOffRequestMapper
-        .createFromTimeOffRequestUpdateDto(updateDto);
-    timeOffRequest.setId(id);
-
-    final TimeOffRequestApprovalStatus status = updateDto.getStatus();
-    if (status == APPROVED || status == DENIED) {
-      timeOffRequest.setApproverUser(new User(getAuthUser().getId()));
-      timeOffRequest.setApprovedDate(Timestamp.from(Instant.now()));
-    }
-    TimeOffRequestComment comment = null;
-    if (updateDto.getApproverComment() != null && updateDto.getApproverComment().length() > 0) {
-      comment = new TimeOffRequestComment();
-      comment.setTimeOffRequestId(id);
-      comment.setComment(updateDto.getApproverComment());
-      comment.setUser(new User(getAuthUser().getId()));
-    }
-
-    timeOffRequest = timeOffRequestService.updateTimeOffRequest(timeOffRequest, comment);
-
-    return timeOffRequestMapper.convertToTimeOffRequestDto(timeOffRequest);
+    return timeOffRequestService.updateTimeOffRequestStatus(id, updateDto, getAuthUser());
   }
 
   private PageImpl<TimeOffRequestDto> getTimeOffRequestsByApprover(
@@ -225,30 +205,7 @@ public class TimeOffRequestRestController extends BaseRestController {
       @RequestParam(value = "endDay") @Nullable final Long endDay,
       final int page,
       @RequestParam(defaultValue = "20", required = false) final int size) {
-
-    final PageRequest request = PageRequest.of(
-        page, size, Sort.by(SortFields.APPROVED_DATE.getValue()).descending());
-    final MyTimeOffDto myTimeOffDto;
-    final Timestamp startDayTimestamp;
-    final Long[] timeOffRequestStatuses = new Long[]{APPROVED.getValue(), DENIED.getValue()};
-
-    if (startDay == null) {
-      startDayTimestamp = DateUtil.getFirstDayOfCurrentYear();
-    } else {
-      startDayTimestamp = new Timestamp(startDay);
-    }
-
-    if (endDay != null) {
-      myTimeOffDto =
-          timeOffRequestService.getMyTimeOffRequestsByRequesterUserIdFilteredByStartAndEndDay(
-              id, startDayTimestamp, new Timestamp(endDay), timeOffRequestStatuses, request);
-    } else {
-      myTimeOffDto =
-          timeOffRequestService.getMyTimeOffRequestsByRequesterUserIdFilteredByStartDay(
-              id, startDayTimestamp, timeOffRequestStatuses, request);
-    }
-
-    return myTimeOffDto;
+    return timeOffRequestService.getReviewedRequests(id, startDay, endDay, page, size);
   }
 
   @GetMapping(value = "time-off-requests/approved-after-now/requester/{id}")
@@ -267,9 +224,9 @@ public class TimeOffRequestRestController extends BaseRestController {
   }
 
   private void saveTimeOffRequestDates(
-      final TimeOffRequestPojo requestPojo, final TimeOffRequest timeOffRequest) {
+      final TimeOffRequestCreateDto requestCreateDto, final TimeOffRequest timeOffRequest) {
     final List<TimeOffRequestDate> timeOffRequestDates =
-        requestPojo.getTimeOffRequestDates(timeOffRequest);
+        requestCreateDto.getTimeOffRequestDates(timeOffRequest);
     timeOffRequest.setTimeOffRequestDates(new HashSet<>(timeOffRequestDates));
     timeOffRequestDateService.saveAllTimeOffRequestDates(timeOffRequestDates);
   }
@@ -283,21 +240,6 @@ public class TimeOffRequestRestController extends BaseRestController {
       @PathVariable @HashidsFormat final Long requestId,
       @RequestBody final UnimplementedRequestDto unimplementedRequestDto) {
     timeOffRequestService.deleteUnimplementedRequest(requestId, unimplementedRequestDto);
-  }
-
-  private enum SortFields {
-    CREATED_AT("created_at"),
-    APPROVED_DATE("approved_date");
-
-    String value;
-
-    SortFields(final String value) {
-      this.value = value;
-    }
-
-    public String getValue() {
-      return value;
-    }
   }
 
   @GetMapping("time-off-request/has-privilege/user/{id}")
