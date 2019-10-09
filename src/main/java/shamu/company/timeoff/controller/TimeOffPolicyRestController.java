@@ -33,6 +33,7 @@ import shamu.company.timeoff.entity.TimeOffPolicy;
 import shamu.company.timeoff.entity.TimeOffPolicyUser;
 import shamu.company.timeoff.entity.mapper.TimeOffPolicyMapper;
 import shamu.company.timeoff.entity.mapper.TimeOffPolicyUserMapper;
+import shamu.company.timeoff.repository.TimeOffPolicyUserRepository;
 import shamu.company.timeoff.service.TimeOffDetailService;
 import shamu.company.timeoff.service.TimeOffPolicyService;
 import shamu.company.user.entity.User;
@@ -53,6 +54,8 @@ public class TimeOffPolicyRestController extends BaseRestController {
 
   private final CompanyService companyService;
 
+  private final TimeOffPolicyUserRepository timeOffPolicyUserRepository;
+
   @Autowired
   public TimeOffPolicyRestController(
       final TimeOffPolicyService timeOffPolicyService,
@@ -60,13 +63,15 @@ public class TimeOffPolicyRestController extends BaseRestController {
       final TimeOffDetailService timeOffDetailService,
       final TimeOffPolicyMapper timeOffPolicyMapper,
       final TimeOffPolicyUserMapper timeOffPolicyUserMapper,
-      final CompanyService companyService) {
+      final CompanyService companyService,
+      final TimeOffPolicyUserRepository timeOffPolicyUserRepository) {
     this.timeOffPolicyService = timeOffPolicyService;
     this.userService = userService;
     this.timeOffDetailService = timeOffDetailService;
     this.timeOffPolicyMapper = timeOffPolicyMapper;
     this.timeOffPolicyUserMapper = timeOffPolicyUserMapper;
     this.companyService = companyService;
+    this.timeOffPolicyUserRepository = timeOffPolicyUserRepository;
   }
 
   @PostMapping("time-off-policy")
@@ -185,5 +190,12 @@ public class TimeOffPolicyRestController extends BaseRestController {
       @RequestBody final Integer adjustment) {
     final User currentUser = userService.findUserById(getAuthUser().getId());
     timeOffPolicyService.addTimeOffAdjustments(currentUser, policyUserId, adjustment);
+  }
+
+  @GetMapping("time-off-policies/users/{id}/has-policy")
+  @PreAuthorize("hasPermission(#id, 'USER', 'VIEW_USER_TIME_OFF_BALANCE') "
+      + "or @permissionUtils.isCurrentUser(#id)")
+  public boolean checkHasTimeOffPolicies(@PathVariable @HashidsFormat Long id) {
+    return timeOffPolicyUserRepository.existsByUserId(id);
   }
 }

@@ -222,13 +222,19 @@
     </dependencies>
   </dependencyManagement>
 
-
   <profiles>
     <profile>
       <id>local</id>
       <properties>
         <profiles.active>local</profiles.active>
       </properties>
+      <dependencies>
+        <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-devtools</artifactId>
+          <optional>true</optional>
+        </dependency>
+      </dependencies>
     </profile>
     <profile>
       <id>qa</id>

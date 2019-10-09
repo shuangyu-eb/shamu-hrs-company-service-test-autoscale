@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import shamu.company.common.exception.ForbiddenException;
 import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.company.CompanyService;
 import shamu.company.company.entity.Company;
@@ -61,6 +62,7 @@ import shamu.company.timeoff.repository.TimeOffRequestRepository;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserPersonalInformation;
 import shamu.company.user.repository.UserRepository;
+import shamu.company.utils.DateUtil;
 
 @Service
 public class TimeOffPolicyService {
@@ -440,6 +442,23 @@ public class TimeOffPolicyService {
       final Integer adjustment) {
     final TimeOffPolicyUser timeOffPolicyUser = timeOffPolicyUserRepository.findById(policyUserId)
         .get();
+
+    TimeOffPolicyAccrualSchedule accrualSchedule =
+        timeOffPolicyAccrualScheduleRepository
+            .findByTimeOffPolicy(timeOffPolicyUser.getTimeOffPolicy());
+    Integer maxBalance = accrualSchedule.getMaxBalance();
+
+    Boolean adjustmentValid = true;
+    if (maxBalance != null) {
+      Integer currentBalance = timeOffDetailService
+          .getTimeOffBreakdown(policyUserId, DateUtil.getLocalUtcTime()).getBalance();
+      Integer newBalance = currentBalance + adjustment;
+      adjustmentValid = newBalance <= maxBalance;
+    }
+
+    if (!adjustmentValid) {
+      throw new ForbiddenException("Adjustment bigger than max allowed balance.");
+    }
 
     final TimeOffAdjustment timeOffAdjustment =
         new TimeOffAdjustment(timeOffPolicyUser, timeOffPolicyUser.getTimeOffPolicy(), currentUser);
