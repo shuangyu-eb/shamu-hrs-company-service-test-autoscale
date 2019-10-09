@@ -1,4 +1,4 @@
-package shamu.company.user.pojo;
+package shamu.company.user.dto;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import java.sql.Date;
@@ -9,7 +9,7 @@ import shamu.company.user.entity.UserStatus.Status;
 
 @Data
 @NoArgsConstructor
-public class UserStatusUpdatePojo {
+public class UserStatusUpdateDto {
 
   private String passWord;
 

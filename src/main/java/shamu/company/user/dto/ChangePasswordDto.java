@@ -1,4 +1,4 @@
-package shamu.company.user.pojo;
+package shamu.company.user.dto;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class ChangePasswordPojo {
+public class ChangePasswordDto {
 
   private String passWord;
 

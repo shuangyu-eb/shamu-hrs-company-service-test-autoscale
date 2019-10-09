@@ -1,10 +1,29 @@
 package shamu.company.user.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.user.entity.UserContactInformation;
+import shamu.company.user.repository.UserContactInformationRepository;
 
-public interface UserContactInformationService {
+@Service
+public class UserContactInformationService {
 
-  UserContactInformation update(UserContactInformation userContactInformation);
+  private final UserContactInformationRepository repository;
 
-  UserContactInformation findUserContactInformationById(Long id);
+  @Autowired
+  public UserContactInformationService(final UserContactInformationRepository repository) {
+    this.repository = repository;
+  }
+
+  public UserContactInformation update(final UserContactInformation userContactInformation) {
+    return repository.save(userContactInformation);
+  }
+
+  public UserContactInformation findUserContactInformationById(final Long id) {
+    return repository
+        .findById(id)
+        .orElseThrow(
+            () -> new ResourceNotFoundException("User contact information does not exist"));
+  }
 }

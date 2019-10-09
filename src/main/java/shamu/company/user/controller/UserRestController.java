@@ -21,27 +21,25 @@ import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.common.exception.ForbiddenException;
 import shamu.company.common.validation.constraints.FileValidate;
-import shamu.company.company.CompanyService;
 import shamu.company.employee.dto.EmailResendDto;
 import shamu.company.hashids.HashidsFormat;
 import shamu.company.hashids.HashidsUtil;
 import shamu.company.user.dto.AccountInfoDto;
+import shamu.company.user.dto.ChangePasswordDto;
 import shamu.company.user.dto.CurrentUserDto;
 import shamu.company.user.dto.UpdatePasswordDto;
 import shamu.company.user.dto.UserAvatarDto;
 import shamu.company.user.dto.UserDto;
 import shamu.company.user.dto.UserRoleAndStatusInfoDto;
+import shamu.company.user.dto.UserRoleUpdateDto;
 import shamu.company.user.dto.UserSignUpDto;
+import shamu.company.user.dto.UserStatusUpdateDto;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
 import shamu.company.user.entity.mapper.UserMapper;
-import shamu.company.user.pojo.ChangePasswordPojo;
-import shamu.company.user.pojo.UserRoleUpdatePojo;
-import shamu.company.user.pojo.UserStatusUpdatePojo;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.Auth0Util;
 import shamu.company.utils.AwsUtil;
-import shamu.company.utils.AwsUtil.Type;
 
 @RestApiController
 @Validated
@@ -49,19 +47,16 @@ public class UserRestController extends BaseRestController {
 
   private final UserService userService;
 
-  private final CompanyService companyService;
-
   private final AwsUtil awsUtil;
 
   private final UserMapper userMapper;
 
   private final Auth0Util auth0Util;
 
-  public UserRestController(final UserService userService, final CompanyService companyService,
+  public UserRestController(final UserService userService,
       final AwsUtil awsUtil, final UserMapper userMapper,
       final Auth0Util auth0Util) {
     this.userService = userService;
-    this.companyService = companyService;
     this.awsUtil = awsUtil;
     this.userMapper = userMapper;
     this.auth0Util = auth0Util;
@@ -101,22 +96,7 @@ public class UserRestController extends BaseRestController {
       @FileValidate(maxSize = 2 * 1024 * 1024, fileType = {"JPEG", "PNG", "GIF"})
       final MultipartFile file
   ) throws IOException {
-    final String path = awsUtil.uploadFile(file, Type.IMAGE);
-
-    if (Strings.isBlank(path)) {
-      return null;
-    }
-
-    final User user = userService.findUserById(id);
-    final String originalPath = user.getImageUrl();
-    if (originalPath != null) {
-      awsUtil.deleteFile(originalPath);
-    }
-
-    user.setImageUrl(path);
-    userService.save(user);
-
-    return path;
+    return userService.handleUploadFile(id, file);
   }
 
   @PostMapping(value = "user/password/reset/email")
@@ -132,8 +112,8 @@ public class UserRestController extends BaseRestController {
   }
 
   @PatchMapping("user/password/update")
-  public void updatePassword(@RequestBody @Valid final ChangePasswordPojo changePasswordPojo) {
-    userService.updatePassword(changePasswordPojo, getUserId());
+  public void updatePassword(@RequestBody @Valid final ChangePasswordDto changePasswordDto) {
+    userService.updatePassword(changePasswordDto, getUserId());
   }
 
   @PreAuthorize("hasPermission(#id,'USER', 'EDIT_SELF')")
@@ -151,9 +131,9 @@ public class UserRestController extends BaseRestController {
   @PatchMapping("users/{id}/user-role")
   @PreAuthorize("hasPermission(#id, 'USER', 'VIEW_SETTING')")
   public UserRoleAndStatusInfoDto updateUserRole(@PathVariable @HashidsFormat final Long id,
-      @RequestBody final UserRoleUpdatePojo userRoleUpdatePojo) {
+      @RequestBody final UserRoleUpdateDto userRoleUpdateDto) {
     User user = userService.findUserById(id);
-    user = userService.updateUserRole(getAuthUser().getEmail(), userRoleUpdatePojo, user);
+    user = userService.updateUserRole(getAuthUser().getEmail(), userRoleUpdateDto, user);
     final UserRoleAndStatusInfoDto resultInformation = userMapper
         .convertToUserRoleAndStatusInfoDto(user);
     final Role userRole = auth0Util.getUserRole(user.getUserId());
@@ -164,9 +144,9 @@ public class UserRestController extends BaseRestController {
   @PatchMapping("users/{id}/deactivate")
   @PreAuthorize("hasPermission(#id, 'USER', 'DEACTIVATE_USER')")
   public UserRoleAndStatusInfoDto deactivateUser(@PathVariable @HashidsFormat final Long id,
-      @RequestBody final UserStatusUpdatePojo userStatusUpdatePojo) {
+      @RequestBody final UserStatusUpdateDto userStatusUpdateDto) {
     User user = userService.findUserById(id);
-    user = userService.deactivateUser(getAuthUser().getEmail(), userStatusUpdatePojo, user);
+    user = userService.deactivateUser(getAuthUser().getEmail(), userStatusUpdateDto, user);
     final Role userRole = auth0Util.getUserRole(user.getUserId());
     final UserRoleAndStatusInfoDto resultInformation =
         userMapper.convertToUserRoleAndStatusInfoDto(user);

@@ -74,7 +74,7 @@ public class EmployeeInformationRestController extends BaseRestController {
   @PreAuthorize("hasPermission(#id,'USER','VIEW_USER_PERSONAL')")
   public EmployeeRelatedInformationDto getEmployeeInfoByUserId(
       @PathVariable @HashidsFormat final Long id) {
-    final User employee = userService.findEmployeeInfoByUserId(id);
+    final User employee = userService.findUserById(id);
     final String emailAddress = employee.getUserContactInformation().getEmailWork();
     final Status userStatus = employee.getUserStatus().getStatus();
 

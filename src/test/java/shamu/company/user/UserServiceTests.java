@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.springframework.scheduling.TaskScheduler;
 import org.thymeleaf.ITemplateEngine;
 import shamu.company.common.exception.ForbiddenException;
 import shamu.company.common.exception.ResourceNotFoundException;
@@ -47,8 +46,8 @@ import shamu.company.user.repository.UserRepository;
 import shamu.company.user.repository.UserStatusRepository;
 import shamu.company.user.service.UserAddressService;
 import shamu.company.user.service.UserService;
-import shamu.company.user.service.impl.UserServiceImpl;
 import shamu.company.utils.Auth0Util;
+import shamu.company.utils.AwsUtil;
 
 class UserServiceTests {
 
@@ -98,11 +97,13 @@ class UserServiceTests {
   private AuthUserCacheManager authUserCacheManager;
   @Mock
   private DynamicScheduler dynamicScheduler;
+  @Mock
+  private AwsUtil awsUtil;
 
   @BeforeEach
   void init() {
     MockitoAnnotations.initMocks(this);
-    userService = new UserServiceImpl(templateEngine,
+    userService = new UserService(templateEngine,
         userRepository,
         jobUserRepository,
         userStatusRepository,
@@ -120,7 +121,8 @@ class UserServiceTests {
         userAccessLevelEventRepository,
         departmentRepository,
         jobRepository, userMapper, authUserCacheManager,userContactInformationRepository,
-        dynamicScheduler);
+        dynamicScheduler,
+        awsUtil);
   }
 
   @Test
@@ -223,7 +225,7 @@ class UserServiceTests {
 
       currentUser.setCompany(company);
       this.currentUser = currentUser;
-      this.targetUserId = 2L;
+      targetUserId = 2L;
 
       final User targetUser = new User();
       targetUser.setId(targetUserId);
