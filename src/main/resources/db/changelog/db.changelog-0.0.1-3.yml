@@ -42,7 +42,7 @@ databaseChangeLog:
   - changeSet:
       id: 1563515660494-3
       author: shuangyu-eb
-      runOnchange: true
+      runOnChange: true
       changes:
         - loadUpdateData:
             columns:
@@ -316,7 +316,7 @@ databaseChangeLog:
   - changeSet:
       id: 1567662525081-2
       author: wenhao-eb
-      runOnchange: true
+      runOnChange: true
       changes:
         - loadUpdateData:
             columns:
@@ -451,7 +451,7 @@ databaseChangeLog:
         onFail: MARK_RAN
         not:
           columnExists:
-            columnName: users
+            columnName: deactivated
       changes:
         - addColumn:
             columns:
