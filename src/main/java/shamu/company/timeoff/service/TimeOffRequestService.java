@@ -136,7 +136,8 @@ public class TimeOffRequestService {
         .getUserRole(user.getUserId());
 
     List<TimeOffRequest> result;
-    List<TimeOffRequest> selfPendingRequests = timeOffRequestRepository.employeeFindSelfPendingRequests(user.getId());
+    List<TimeOffRequest> selfPendingRequests = timeOffRequestRepository
+            .employeeFindSelfPendingRequests(user.getId());
     if (user.getManagerUser() == null) {
       result = timeOffRequestRepository.adminFindTeamRequests(user.getId(), statusNames);
     } else if (userRole == User.Role.MANAGER) {

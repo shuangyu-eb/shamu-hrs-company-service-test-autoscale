@@ -469,3 +469,335 @@ databaseChangeLog:
             columnName: email_work
             tableName: users
 
+  - changeSet:
+      id: 1570686208542-1
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: middle_name
+            newDataType: VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: user_personal_information
+
+  - changeSet:
+      id: 1570686208542-2
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: first_name
+            newDataType: VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: user_personal_information
+
+  - changeSet:
+      id: 1570686208542-3
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: last_name
+            newDataType: VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: user_personal_information
+
+  - changeSet:
+      id: 1570686208542-4
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: preferred_name
+            newDataType: VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: user_personal_information
+
+  - changeSet:
+      id: 1570686208542-5
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: first_name
+            newDataType: VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: user_emergency_contacts
+
+  - changeSet:
+      id: 1570686208542-6
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: last_name
+            newDataType: VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: user_emergency_contacts
+
+  - changeSet:
+      id: 1570686208542-7
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: relationship
+            newDataType: VARCHAR(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: user_emergency_contacts
+
+  - changeSet:
+      id: 1570686208542-8
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: street_1
+            newDataType: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: user_emergency_contacts
+
+  - changeSet:
+      id: 1570686208542-9
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: street_2
+            newDataType: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: user_emergency_contacts
+
+  - changeSet:
+      id: 1570686208542-10
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: city
+            newDataType: VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: user_emergency_contacts
+
+  - changeSet:
+      id: 1570686208542-11
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: school
+            newDataType: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: user_educations
+
+  - changeSet:
+      id: 1570686208542-12
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: degree
+            newDataType: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: user_educations
+
+  - changeSet:
+      id: 1570686208542-13
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: major
+            newDataType: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: user_educations
+
+  - changeSet:
+      id: 1570686208542-14
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: comment
+            newDataType: TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: user_compensations
+
+  - changeSet:
+      id: 1570686208542-15
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: street_1
+            newDataType: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: user_addresses
+
+  - changeSet:
+      id: 1570686208542-16
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: street_2
+            newDataType: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: user_addresses
+
+  - changeSet:
+      id: 1570686208542-17
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: city
+            newDataType: VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: user_addresses
+
+  - changeSet:
+      id: 1570686208542-18
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: comment
+            newDataType: TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: time_off_request_comments
+
+  - changeSet:
+      id: 1570686208542-19
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: name
+            newDataType: VARCHAR(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: time_off_policies
+
+  - changeSet:
+      id: 1570686208542-20
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: name
+            newDataType: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: paid_holidays
+
+  - changeSet:
+      id: 1570686208542-21
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: name_show
+            newDataType: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: paid_holidays
+
+  - changeSet:
+      id: 1570686208542-22
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: name
+            newDataType: VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: offices
+
+  - changeSet:
+      id: 1570686208542-23
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: street_1
+            newDataType: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: office_addresses
+
+  - changeSet:
+      id: 1570686208542-24
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: street_2
+            newDataType: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: office_addresses
+
+  - changeSet:
+      id: 1570686208542-25
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: city
+            newDataType: VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: office_addresses
+
+  - changeSet:
+      id: 1570686208542-26
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: title
+            newDataType: VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: jobs
+
+  - changeSet:
+      id: 1570686208542-27
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: name
+            newDataType: VARCHAR(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: employment_types
+
+  - changeSet:
+      id: 1570686208542-28
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: name
+            newDataType: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: departments
+
+  - changeSet:
+      id: 1570686208542-29
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: name
+            newDataType: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: companies
+
+  - changeSet:
+      id: 1570686208542-30
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: name
+            newDataType: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: benefit_plans
+
+  - changeSet:
+      id: 1570686208542-31
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: document_name
+            newDataType: VARCHAR(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: benefit_plans
+
+  - changeSet:
+      id: 1570686208542-32
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: first_name
+            newDataType: VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: benefit_plan_dependents
+
+  - changeSet:
+      id: 1570686208542-33
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: last_name
+            newDataType: VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: benefit_plan_dependents
+
+  - changeSet:
+      id: 1570686208542-34
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: city
+            newDataType: VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: benefit_plan_dependents
+
+  - changeSet:
+      id: 1570686208542-35
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: middle_name
+            newDataType: VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: benefit_plan_dependents
+
+  - changeSet:
+      id: 1570686208542-36
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: street_1
+            newDataType: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: benefit_plan_dependents
+
+  - changeSet:
+      id: 1570686208542-37
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: street_2
+            newDataType: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: benefit_plan_dependents
