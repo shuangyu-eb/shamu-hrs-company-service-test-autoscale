@@ -134,15 +134,20 @@ public class TimeOffRequestService {
 
     final User.Role userRole = auth0Util
         .getUserRole(user.getUserId());
+
+    List<TimeOffRequest> result;
+    List<TimeOffRequest> selfPendingRequests = timeOffRequestRepository.employeeFindSelfPendingRequests(user.getId());
     if (user.getManagerUser() == null) {
-      return timeOffRequestRepository.adminFindTeamRequests(user.getId(), statusNames);
+      result = timeOffRequestRepository.adminFindTeamRequests(user.getId(), statusNames);
     } else if (userRole == User.Role.MANAGER) {
-      return timeOffRequestRepository.managerFindTeamRequests(
+      result =  timeOffRequestRepository.managerFindTeamRequests(
           user.getId(), user.getManagerUser().getId(), statusNames);
     } else {
-      return timeOffRequestRepository.employeeFindTeamRequests(
+      result =  timeOffRequestRepository.employeeFindTeamRequests(
           user.getManagerUser().getId(), statusNames);
     }
+    result.addAll(selfPendingRequests);
+    return result;
   }
 
   private MyTimeOffDto initMyTimeOff(

@@ -83,6 +83,25 @@ public interface TimeOffRequestRepository
               + "LEFT JOIN users u "
               + "   ON tr.requester_user_id = u.id "
               + "LEFT JOIN time_off_request_approval_statuses tras "
+              + "   ON tr.time_off_request_approval_status_id = 1 "
+              + "WHERE tr.requester_user_id = ?1 "
+              + "   and tr.deleted_at IS NULL "
+              + "   and tras.id = 1 "
+              + "group by tr.id "
+              + "   having min(td.date) >= date_add(curdate(), INTERVAL -day(curdate())+1 day) "
+              + "       and max(td.date) <= last_day(date_add(curdate(), INTERVAL +11 month)) ",
+      nativeQuery = true)
+  List<TimeOffRequest> employeeFindSelfPendingRequests(
+      Long employeeId);
+
+  @Query(
+      value =
+          "SELECT tr.* FROM time_off_requests tr "
+              + "LEFT JOIN time_off_request_dates td "
+              + "   ON tr.id = td.time_off_request_id "
+              + "LEFT JOIN users u "
+              + "   ON tr.requester_user_id = u.id "
+              + "LEFT JOIN time_off_request_approval_statuses tras "
               + "   ON tr.time_off_request_approval_status_id = tras.id "
               + "WHERE (tr.requester_user_id IN (?1, ?2) "
               + "   OR u.manager_user_id IN (?1, ?2)) "
