@@ -98,7 +98,11 @@ public interface UserRepository extends BaseRepository<User, Long>, UserCustomRe
       "SELECT new shamu.company.admin.dto.SuperAdminUserDto(u) "
           + "FROM User u "
           + "WHERE u.userStatus.name='ACTIVE' "
-          + "AND u.userPersonalInformation.firstName LIKE CONCAT('%',?1,'%')")
+          + "AND ( "
+          + " u.userPersonalInformation.firstName LIKE CONCAT('%',?1,'%') "
+          + "OR u.userPersonalInformation.lastName LIKE CONCAT('%',?1,'%') "
+          + "OR u.company.name  LIKE CONCAT('%',?1,'%') "
+          + "OR u.userContactInformation.emailWork LIKE CONCAT('%',?1,'%') )")
   Page<SuperAdminUserDto> findBy(String keyword, Pageable pageable);
 
 
