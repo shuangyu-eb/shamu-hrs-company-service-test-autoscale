@@ -25,6 +25,7 @@ import shamu.company.hashids.HashidsFormat;
 import shamu.company.job.dto.JobUserDto;
 import shamu.company.job.entity.JobUserListItem;
 import shamu.company.user.entity.User;
+import shamu.company.user.entity.User.Role;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.Auth0Util;
 
@@ -48,7 +49,8 @@ public class EmployeeRestController extends BaseRestController {
   @GetMapping("employees")
   public Page<JobUserListItem> getAllEmployees(
       final EmployeeListSearchCondition employeeListSearchCondition) {
-    final User.Role userRole = auth0Util.getUserRole(getUserId());
+    final User currentUser = userService.findByUserId(getUserId());
+    final Role userRole = currentUser.getRole();
     return userService.getAllEmployees(
         employeeListSearchCondition, getCompanyId(), userRole);
   }

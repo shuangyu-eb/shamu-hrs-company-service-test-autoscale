@@ -21,6 +21,8 @@ import shamu.company.job.entity.JobUser;
 import shamu.company.timeoff.dto.TimeOffPolicyRelatedUserDto;
 import shamu.company.timeoff.entity.TimeOffPolicyUser;
 import shamu.company.user.entity.User;
+import shamu.company.user.entity.User.Role;
+import shamu.company.user.entity.UserRole;
 import shamu.company.user.entity.mapper.UserCompensationMapper;
 
 @Mapper(
@@ -35,6 +37,7 @@ public interface JobUserMapper {
   @Mapping(target = "manager.name", source = "user.managerUser.userPersonalInformation.name")
   @Mapping(target = "manager.id", source = "user.managerUser.id")
   @Mapping(target = "job.name", source = "job.title")
+  @Mapping(target = "userRole", source = "user.userRole")
   BasicJobInformationDto convertToBasicJobInformationDto(JobUser jobUser);
 
   @InheritConfiguration
@@ -74,7 +77,7 @@ public interface JobUserMapper {
   @Mapping(target = "imageUrl", source = "policyUser.user.imageUrl")
   @Mapping(target = "balance", source = "policyUser.balance")
   TimeOffPolicyRelatedUserDto convertToTimeOffPolicyRelatedUserDto(TimeOffPolicyUser policyUser,
-                                                                   JobUser jobUser);
+      JobUser jobUser);
 
   @Mapping(target = "job", source = "jobId")
   @Mapping(target = "office", source = "officeId")
@@ -106,5 +109,9 @@ public interface JobUserMapper {
       return employmentType;
     }
     return null;
+  }
+
+  default Role convertToRole(final UserRole userRole) {
+    return Role.valueOf(userRole.getName());
   }
 }

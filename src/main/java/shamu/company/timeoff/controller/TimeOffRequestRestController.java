@@ -42,8 +42,8 @@ import shamu.company.timeoff.service.TimeOffRequestEmailService;
 import shamu.company.timeoff.service.TimeOffRequestService;
 import shamu.company.timeoff.service.TimeOffRequestService.SortFields;
 import shamu.company.user.entity.User;
+import shamu.company.user.entity.User.Role;
 import shamu.company.user.service.UserService;
-import shamu.company.utils.Auth0Util;
 import shamu.company.utils.DateUtil;
 
 @RestApiController
@@ -59,22 +59,18 @@ public class TimeOffRequestRestController extends BaseRestController {
 
   private final TimeOffRequestMapper timeOffRequestMapper;
 
-  private final Auth0Util auth0Util;
-
   @Autowired
   public TimeOffRequestRestController(
       final TimeOffRequestService timeOffRequestService,
       final TimeOffRequestEmailService timeOffRequestEmailService,
       final TimeOffRequestDateService timeOffRequestDateService,
       final UserService userService,
-      final TimeOffRequestMapper timeOffRequestMapper,
-      final Auth0Util auth0Util) {
+      final TimeOffRequestMapper timeOffRequestMapper) {
     this.timeOffRequestService = timeOffRequestService;
     this.timeOffRequestEmailService = timeOffRequestEmailService;
     this.timeOffRequestDateService = timeOffRequestDateService;
     this.userService = userService;
     this.timeOffRequestMapper = timeOffRequestMapper;
-    this.auth0Util = auth0Util;
   }
 
   @PostMapping("users/{userId}/time-off-requests")
@@ -245,7 +241,8 @@ public class TimeOffRequestRestController extends BaseRestController {
   @GetMapping("time-off-request/has-privilege/user/{id}")
   @PreAuthorize("hasPermission(#id,'USER','VIEW_TEAM_TIME_OFF_REQUEST')")
   public boolean hasUserPermission(@HashidsFormat @PathVariable final Long id) {
-    final User.Role userRole = auth0Util.getUserRole(getUserId());
+    final User currentUser = userService.findByUserId(getUserId());
+    final Role userRole = currentUser.getRole();
     final User targetUser = userService.findUserById(id);
     if (getAuthUser().getId().equals(targetUser.getId())) {
       return targetUser.getManagerUser() == null;

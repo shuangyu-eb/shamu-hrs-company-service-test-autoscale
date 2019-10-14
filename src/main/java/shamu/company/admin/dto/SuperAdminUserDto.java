@@ -27,12 +27,13 @@ public class SuperAdminUserDto {
   private String auth0UserId;
 
   public SuperAdminUserDto(final User user) {
-    this.userId = user.getId();
-    this.imageUrl = user.getImageUrl();
-    this.firstName = user.getUserPersonalInformation().getFirstName();
-    this.lastName = user.getUserPersonalInformation().getLastName();
-    this.email = user.getUserContactInformation().getEmailWork();
-    this.company = user.getCompany().getName();
-    this.auth0UserId = user.getUserId();
+    userId = user.getId();
+    imageUrl = user.getImageUrl();
+    firstName = user.getUserPersonalInformation().getFirstName();
+    lastName = user.getUserPersonalInformation().getLastName();
+    email = user.getUserContactInformation().getEmailWork();
+    company = user.getCompany().getName();
+    auth0UserId = user.getUserId();
+    role = user.getRole().getValue();
   }
 }

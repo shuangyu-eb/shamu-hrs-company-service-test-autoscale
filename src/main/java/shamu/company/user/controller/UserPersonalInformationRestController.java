@@ -79,7 +79,8 @@ public class UserPersonalInformationRestController extends BaseRestController {
     final UserPersonalInformation userPersonalInformation = targetUser.getUserPersonalInformation();
     final String imageUrl = targetUser.getImageUrl();
 
-    final Role userRole = auth0Util.getUserRole(getUserId());
+    final User currentUser = userService.findByUserId(getUserId());
+    final Role userRole = currentUser.getRole();
     if (getAuthUser().getId().equals(id) || userRole == Role.ADMIN) {
       return userPersonalInformationMapper
           .convertToUserPersonalInformationDto(userPersonalInformation, imageUrl);

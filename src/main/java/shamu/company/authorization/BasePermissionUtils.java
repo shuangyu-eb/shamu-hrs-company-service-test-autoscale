@@ -45,11 +45,6 @@ class BasePermissionUtils {
     return getAuthUser().getCompanyId();
   }
 
-  protected shamu.company.user.entity.User.Role getAuthUserRole() {
-    final String userId = getAuth0UserId();
-    return auth0Util.getUserRole(userId);
-  }
-
   String getAuth0UserId() {
     checkIsAuthenticated();
     return getAuthentication().getUserId();

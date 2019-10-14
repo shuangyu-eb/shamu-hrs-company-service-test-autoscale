@@ -31,6 +31,7 @@ import shamu.company.timeoff.service.PaidHolidayService;
 import shamu.company.timeoff.service.TimeOffPolicyService;
 import shamu.company.timeoff.service.TimeOffRequestService;
 import shamu.company.user.entity.User;
+import shamu.company.user.entity.User.Role;
 import shamu.company.user.service.UserAddressService;
 import shamu.company.user.service.UserService;
 
@@ -202,7 +203,8 @@ public class UserPermissionUtils extends BasePermissionUtils {
       final Permission.Name permission) {
     if (permission == Name.CREATE_AND_APPROVED_TIME_OFF_REQUEST) {
       final User user = userService.findUserById(id);
-      return user.getManagerUser() == null || getAuthUserRole() == User.Role.ADMIN;
+      final Role userRole = user.getRole();
+      return user.getManagerUser() == null || userRole == User.Role.ADMIN;
     } else {
       final User user = timeOffRequestService.getById(id).getRequesterUser();
       return hasPermissionOfUser(auth, user, permission);

@@ -11,7 +11,6 @@ import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.redis.AuthUserCacheManager;
 import shamu.company.server.AuthUser;
 import shamu.company.user.entity.User;
-import shamu.company.user.entity.User.Role;
 import shamu.company.user.entity.mapper.UserMapper;
 import shamu.company.user.repository.UserRepository;
 import shamu.company.utils.Auth0Util;
@@ -40,12 +39,7 @@ public class SuperAdminService {
   }
 
   public Page<SuperAdminUserDto> getUsersBy(final String keyword, final Pageable pageable) {
-    final Page<SuperAdminUserDto> users = userRepository.findBy(keyword, pageable);
-    users.forEach(user -> {
-      final Role userRole = auth0Util.getUserRole(user.getAuth0UserId());
-      user.setRole(userRole.getValue());
-    });
-    return users;
+    return userRepository.findBy(keyword, pageable);
   }
 
   public MockUserDto mockUser(final Long userId, final String token) {

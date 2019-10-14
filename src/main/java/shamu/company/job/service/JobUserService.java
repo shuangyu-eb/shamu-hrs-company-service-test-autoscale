@@ -11,9 +11,10 @@ import shamu.company.job.repository.JobUserRepository;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
 import shamu.company.user.entity.UserCompensation;
+import shamu.company.user.entity.UserRole;
 import shamu.company.user.entity.mapper.UserCompensationMapper;
+import shamu.company.user.service.UserRoleService;
 import shamu.company.user.service.UserService;
-import shamu.company.utils.Auth0Util;
 
 @Service
 public class JobUserService {
@@ -28,7 +29,7 @@ public class JobUserService {
 
   private final EmployeeService employeeService;
 
-  private final Auth0Util auth0Util;
+  private final UserRoleService userRoleService;
 
 
   public JobUserService(final JobUserRepository jobUserRepository,
@@ -36,13 +37,13 @@ public class JobUserService {
       final JobUserMapper jobUserMapper,
       final UserCompensationMapper userCompensationMapper,
       final EmployeeService employeeService,
-      final Auth0Util auth0Util) {
+      final UserRoleService userRoleService) {
     this.jobUserRepository = jobUserRepository;
     this.userService = userService;
     this.userCompensationMapper = userCompensationMapper;
     this.jobUserMapper = jobUserMapper;
     this.employeeService = employeeService;
-    this.auth0Util = auth0Util;
+    this.userRoleService = userRoleService;
 
   }
 
@@ -83,9 +84,9 @@ public class JobUserService {
     if (managerId != null && (user.getManagerUser() == null
         || !user.getManagerUser().getId().equals(managerId))) {
       final User manager = userService.findUserById(managerId);
-      final Role role = auth0Util.getUserRole(manager.getUserId());
+      final Role role = manager.getRole();
       if (Role.EMPLOYEE == role) {
-        auth0Util.updateRoleWithUserId(manager.getUserId(), Role.MANAGER.name());
+        manager.setUserRole(userRoleService.getManager());
       }
       if (userService.findUserById(id).getManagerUser() == null) {
         manager.setManagerUser(null);
@@ -95,11 +96,12 @@ public class JobUserService {
       }
       user.setManagerUser(manager);
       userService.save(manager);
-      final Role userRole = auth0Util.getUserRole(user.getUserId());
+      final Role userRole = user.getRole();
       if (userRole != Role.ADMIN) {
         users.removeIf(user1 -> user1.getId().equals(managerId));
-        auth0Util.updateRoleWithUserId(
-            user.getUserId(), users.isEmpty() ? Role.EMPLOYEE.name() : Role.MANAGER.name());
+        final UserRole targetRole = users.isEmpty()
+            ? userRoleService.getEmployee() : userRoleService.getManager();
+        user.setUserRole(targetRole);
       }
     }
     userService.save(user);

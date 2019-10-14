@@ -5,10 +5,12 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
@@ -38,7 +40,6 @@ import shamu.company.employee.dto.BasicJobInformationDto;
 import shamu.company.employee.dto.EmailResendDto;
 import shamu.company.employee.dto.EmployeeDto;
 import shamu.company.employee.dto.EmployeeRelatedInformationDto;
-import shamu.company.employee.dto.JobInformationDto;
 import shamu.company.employee.dto.NewEmployeeJobInformationDto;
 import shamu.company.employee.dto.WelcomeEmailDto;
 import shamu.company.employee.entity.EmploymentType;
@@ -83,6 +84,7 @@ import shamu.company.user.repository.UserRepository;
 import shamu.company.user.repository.UserStatusRepository;
 import shamu.company.user.service.UserContactInformationService;
 import shamu.company.user.service.UserPersonalInformationService;
+import shamu.company.user.service.UserRoleService;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.Auth0Util;
 import shamu.company.utils.AwsUtil;
@@ -153,6 +155,8 @@ public class EmployeeService {
 
   private final ApplicationEventPublisher applicationEventPublisher;
 
+  private final UserRoleService userRoleService;
+
   private static final String subject = "Welcome to ";
 
   @Autowired
@@ -185,7 +189,8 @@ public class EmployeeService {
       final ApplicationEventPublisher applicationEventPublisher,
       final JobUserMapper jobUserMapper,
       @Lazy final JobUserService jobUserService,
-      final UserMapper userMapper) {
+      final UserMapper userMapper,
+      final UserRoleService userRoleService) {
     this.userAddressRepository = userAddressRepository;
     this.userRepository = userRepository;
     this.jobUserRepository = jobUserRepository;
@@ -215,6 +220,7 @@ public class EmployeeService {
     this.jobUserMapper = jobUserMapper;
     this.jobUserService = jobUserService;
     this.userMapper = userMapper;
+    this.userRoleService = userRoleService;
   }
 
   public List<User> findEmployersAndEmployeesByDepartmentIdAndCompanyId(
@@ -336,6 +342,7 @@ public class EmployeeService {
 
     final String userId = auth0Util.getUserId(user);
     employee.setUserId(userId);
+    employee.setUserRole(userRoleService.getEmployee());
     return userRepository.save(employee);
   }
 
@@ -461,16 +468,12 @@ public class EmployeeService {
                       new ResourceNotFoundException(
                           "User with id " + managerUserId + " not found!"));
 
-      final com.auth0.json.mgmt.users.User auth0User = auth0Util
-          .getUserByUserIdFromAuth0(user.getUserId());
-      final Role role = auth0Util
-          .getUserRole(managerUser.getUserId());
-      if (Role.EMPLOYEE == role) {
-        auth0Util.updateAuthRole(auth0User.getId(), Role.MANAGER.getValue());
+      if (StringUtils.equals(managerUser.getUserRole().getName(), Role.EMPLOYEE.getValue())) {
+        managerUser.setUserRole(userRoleService.getManager());
       }
 
       user.setManagerUser(managerUser);
-      userRepository.save(user);
+      userRepository.saveAll(Arrays.asList(managerUser, user));
     }
   }
 
@@ -626,12 +629,14 @@ public class EmployeeService {
   }
 
   public BasicUserPersonalInformationDto getPersonalMessage(final Long targetUserId,
-      final String currentUserId, final Long authUserId) {
+      final Long authUserId) {
     final User targetUser = userService.findUserById(targetUserId);
     final UserPersonalInformation personalInformation = targetUser.getUserPersonalInformation();
 
     // The user's full personal message can only be accessed by admin and himself.
-    final Role userRole = auth0Util.getUserRole(currentUserId);
+    final User currentUser = userService.findUserById(authUserId);
+    final Role userRole = currentUser.getRole();
+
     if (authUserId.equals(targetUserId) || userRole == Role.ADMIN) {
       return userPersonalInformationMapper
           .convertToEmployeePersonalInformationDto(personalInformation);
@@ -646,13 +651,13 @@ public class EmployeeService {
   }
 
   public BasicUserContactInformationDto getContactMessage(final Long targetUserId,
-      final String currentUserId, final Long authUserId) {
+      final Long authUserId) {
     final User targetUser = userService.findUserById(targetUserId);
     final UserContactInformation contactInformation = targetUser.getUserContactInformation();
 
     // The user's full contact message can only be accessed by admin, the manager and himself.
-    final Role userRole = auth0Util
-        .getUserRole(currentUserId);
+    final User currentUser = userService.findUserById(authUserId);
+    final Role userRole = currentUser.getRole();
     if (authUserId.equals(targetUserId)
         || targetUser.getManagerUser().getId().equals(authUserId)
         || userRole == Role.ADMIN) {
@@ -663,42 +668,28 @@ public class EmployeeService {
     return userContactInformationMapper.convertToBasicUserContactInformationDto(contactInformation);
   }
 
-  public BasicJobInformationDto getJobMessage(final Long targetUserId, final String currentUserId,
+  public BasicJobInformationDto getJobMessage(final Long targetUserId,
       final Long authUserId) {
     final JobUser target = jobUserService.getJobUserByUserId(targetUserId);
 
     if (target == null) {
       final User targetUser = userService.findUserById(targetUserId);
-      final Role targetUserRole = auth0Util
-          .getUserRole(targetUser.getUserId());
-      final BasicJobInformationDto resultUser =
-          userMapper.convertToBasicJobInformationDto(targetUser);
-      resultUser.setUserRole(targetUserRole);
-      return resultUser;
+      return userMapper.convertToBasicJobInformationDto(targetUser);
     }
 
-    final User targetUser = target.getUser();
-    final Role targetUserRole = auth0Util
-        .getUserRole(targetUser.getUserId());
     // The user's full job message can only be accessed by admin, the manager and himself.
-    final Role userRole = auth0Util
-        .getUserRole(currentUserId);
+    final User currentUser = userService.findUserById(authUserId);
+    final Role userRole = currentUser.getRole();
     if (authUserId.equals(targetUserId) || userRole == Role.ADMIN) {
-      final JobInformationDto resultInformation = jobUserMapper.convertToJobInformationDto(target);
-      resultInformation.setUserRole(targetUserRole);
-      return resultInformation;
+      return jobUserMapper.convertToJobInformationDto(target);
     }
 
     if (userRole == Role.MANAGER && target.getUser().getManagerUser() != null
         && authUserId.equals(target.getUser().getManagerUser().getId())) {
-      final JobInformationDto resultInformation = jobUserMapper.convertToJobInformationDto(target);
-      resultInformation.setUserRole(targetUserRole);
-      return resultInformation;
+      return jobUserMapper.convertToJobInformationDto(target);
     }
 
-    final BasicJobInformationDto resultInformation = jobUserMapper
+    return jobUserMapper
         .convertToBasicJobInformationDto(target);
-    resultInformation.setUserRole(targetUserRole);
-    return resultInformation;
   }
 }

@@ -801,3 +801,59 @@ databaseChangeLog:
             columnName: street_2
             newDataType: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
             tableName: benefit_plan_dependents
+
+  - changeSet:
+      id: 1570757658000-1
+      author: max-eb
+      changes:
+      - createTable:
+          columns:
+          - column:
+              name: id
+              type: bigint
+              constraints:
+                primaryKey: true
+          - column:
+              name: name
+              type: varchar(255)
+          - column:
+              name: created_at
+              type: datetime
+          - column:
+              name: updated_at
+              type: datetime
+          - column:
+              name: deleted_at
+              type: datetime
+          tableName: user_roles
+
+  - changeSet:
+      id: 1570757658000-2
+      author: max-eb
+      runOnChange: true
+      changes:
+      - loadUpdateData:
+          columns:
+          - column:
+              name: id
+              type: NUMERIC
+          - column:
+              name: name
+              type: STRING
+          file: db/changelog/data/user-roles.csv
+          primaryKey: id
+          tableName: user_roles
+
+  - changeSet:
+      id: 1570757658000-3
+      author: max-eb
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: user_role_id
+                  type: bigint
+                  constraints:
+                    references: user_roles(id)
+                    foreignKeyName: fk_user_role_id
+            tableName: users

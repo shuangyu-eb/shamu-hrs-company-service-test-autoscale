@@ -21,4 +21,8 @@ public interface UserCustomRepository {
       Long companyId);
 
   OrgChartDto findOrgChartItemByUserId(Long id, Long companyId);
+  
+  User saveUser(User user);
+  
+  List<User> saveAllUsers(final Iterable<User> users);
 }

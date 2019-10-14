@@ -30,9 +30,12 @@ import shamu.company.company.entity.Company;
 public class User extends BaseEntity {
 
   private Timestamp latestLogin;
-
-  @OneToOne
+  
+  @ManyToOne
   private UserStatus userStatus;
+  
+  @ManyToOne
+  private UserRole userRole;
 
   private String imageUrl;
 
@@ -103,6 +106,13 @@ public class User extends BaseEntity {
       throw new GeneralException("Users cannot set themselves to be their manager.");
     }
     this.managerUser = managerUser;
+  }
+
+  public Role getRole() {
+    if (userRole == null) {
+      return null;
+    }
+    return Role.valueOf(userRole.getName());
   }
 
   public enum Role {

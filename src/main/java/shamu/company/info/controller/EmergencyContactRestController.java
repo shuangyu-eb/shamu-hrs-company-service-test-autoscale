@@ -24,7 +24,6 @@ import shamu.company.info.service.UserEmergencyContactService;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
 import shamu.company.user.service.UserService;
-import shamu.company.utils.Auth0Util;
 
 @RestApiController
 public class EmergencyContactRestController extends BaseRestController {
@@ -35,18 +34,14 @@ public class EmergencyContactRestController extends BaseRestController {
 
   private final UserEmergencyContactMapper userEmergencyContactMapper;
 
-  private final Auth0Util auth0Util;
-
   @Autowired
   public EmergencyContactRestController(
       final UserEmergencyContactService userEmergencyContactService,
       final UserService userService,
-      final UserEmergencyContactMapper userEmergencyContactMapper,
-      final Auth0Util auth0Util) {
+      final UserEmergencyContactMapper userEmergencyContactMapper) {
     this.userEmergencyContactService = userEmergencyContactService;
     this.userService = userService;
     this.userEmergencyContactMapper = userEmergencyContactMapper;
-    this.auth0Util = auth0Util;
   }
 
   @GetMapping("users/{userId}/user-emergency-contacts")
@@ -57,7 +52,8 @@ public class EmergencyContactRestController extends BaseRestController {
     final List<UserEmergencyContact> userEmergencyContacts = userEmergencyContactService
         .getUserEmergencyContacts(userId);
 
-    final Role userRole = auth0Util.getUserRole(getUserId());
+    final User currentUser = userService.findByUserId(getUserId());
+    final Role userRole = currentUser.getRole();
     if (userId.equals(getAuthUser().getId())
         || Role.ADMIN.equals(userRole)) {
       return userEmergencyContacts.stream()

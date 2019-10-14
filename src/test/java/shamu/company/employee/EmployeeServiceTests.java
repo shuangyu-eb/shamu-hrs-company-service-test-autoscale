@@ -47,6 +47,7 @@ import shamu.company.user.repository.UserRepository;
 import shamu.company.user.repository.UserStatusRepository;
 import shamu.company.user.service.UserContactInformationService;
 import shamu.company.user.service.UserPersonalInformationService;
+import shamu.company.user.service.UserRoleService;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.Auth0Util;
 import shamu.company.utils.AwsUtil;
@@ -82,6 +83,7 @@ public class EmployeeServiceTests {
   @Mock private JobUserMapper jobUserMapper;
   @Mock private JobUserService jobUserService;
   @Mock private UserMapper userMapper;
+  @Mock private UserRoleService userRoleService;
 
   private EmployeeService employeeService;
 
@@ -96,7 +98,7 @@ public class EmployeeServiceTests {
         compensationFrequencyRepository, emailRepository, userPersonalInformationService,
         userContactInformationService, userPersonalInformationMapper, userAddressMapper,
         userContactInformationMapper, userEmergencyContactMapper, auth0Util,
-        applicationEventPublisher, jobUserMapper, jobUserService, userMapper);
+        applicationEventPublisher, jobUserMapper, jobUserService, userMapper, userRoleService);
   }
 
   @Nested

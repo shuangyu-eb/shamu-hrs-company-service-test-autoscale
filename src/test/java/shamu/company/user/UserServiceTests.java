@@ -45,6 +45,7 @@ import shamu.company.user.repository.UserContactInformationRepository;
 import shamu.company.user.repository.UserRepository;
 import shamu.company.user.repository.UserStatusRepository;
 import shamu.company.user.service.UserAddressService;
+import shamu.company.user.service.UserRoleService;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.Auth0Util;
 import shamu.company.utils.AwsUtil;
@@ -99,6 +100,8 @@ class UserServiceTests {
   private DynamicScheduler dynamicScheduler;
   @Mock
   private AwsUtil awsUtil;
+  @Mock
+  private UserRoleService userRoleService;
 
   @BeforeEach
   void init() {
@@ -122,7 +125,7 @@ class UserServiceTests {
         departmentRepository,
         jobRepository, userMapper, authUserCacheManager,userContactInformationRepository,
         dynamicScheduler,
-        awsUtil);
+        awsUtil, userRoleService);
   }
 
   @Test

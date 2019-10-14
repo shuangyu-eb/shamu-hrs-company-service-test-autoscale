@@ -38,8 +38,6 @@ import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
 import shamu.company.user.entity.mapper.UserMapper;
 import shamu.company.user.service.UserService;
-import shamu.company.utils.Auth0Util;
-import shamu.company.utils.AwsUtil;
 
 @RestApiController
 @Validated
@@ -47,19 +45,12 @@ public class UserRestController extends BaseRestController {
 
   private final UserService userService;
 
-  private final AwsUtil awsUtil;
-
   private final UserMapper userMapper;
 
-  private final Auth0Util auth0Util;
-
   public UserRestController(final UserService userService,
-      final AwsUtil awsUtil, final UserMapper userMapper,
-      final Auth0Util auth0Util) {
+      final UserMapper userMapper) {
     this.userService = userService;
-    this.awsUtil = awsUtil;
     this.userMapper = userMapper;
-    this.auth0Util = auth0Util;
   }
 
   @PostMapping(value = "user/sign-up")
@@ -76,7 +67,8 @@ public class UserRestController extends BaseRestController {
   @GetMapping(value = "users/{id}/head-portrait")
   @PreAuthorize("hasPermission(#id,'USER','VIEW_USER_PERSONAL')")
   public String getHeadPortrait(@PathVariable @HashidsFormat final Long id) {
-    final Role userRole = auth0Util.getUserRole(getUserId());
+    final User currentUser = userService.findByUserId(getUserId());
+    final Role userRole = currentUser.getRole();
     if (getAuthUser().getId().equals(id)
         || userRole == Role.ADMIN) {
       return userService.getHeadPortrait(id);
@@ -134,11 +126,8 @@ public class UserRestController extends BaseRestController {
       @RequestBody final UserRoleUpdateDto userRoleUpdateDto) {
     User user = userService.findUserById(id);
     user = userService.updateUserRole(getAuthUser().getEmail(), userRoleUpdateDto, user);
-    final UserRoleAndStatusInfoDto resultInformation = userMapper
+    return userMapper
         .convertToUserRoleAndStatusInfoDto(user);
-    final Role userRole = auth0Util.getUserRole(user.getUserId());
-    resultInformation.setUserRole(userRole.getValue());
-    return resultInformation;
   }
 
   @PatchMapping("users/{id}/deactivate")
@@ -147,11 +136,7 @@ public class UserRestController extends BaseRestController {
       @RequestBody final UserStatusUpdateDto userStatusUpdateDto) {
     User user = userService.findUserById(id);
     user = userService.deactivateUser(getAuthUser().getEmail(), userStatusUpdateDto, user);
-    final Role userRole = auth0Util.getUserRole(user.getUserId());
-    final UserRoleAndStatusInfoDto resultInformation =
-        userMapper.convertToUserRoleAndStatusInfoDto(user);
-    resultInformation.setUserRole(userRole.getValue());
-    return resultInformation;
+    return userMapper.convertToUserRoleAndStatusInfoDto(user);
   }
 
   @GetMapping("users/all")
@@ -171,7 +156,7 @@ public class UserRestController extends BaseRestController {
     }
 
     final User user = userService.findByUserId(getAuthentication().getUserId());
-    final Role role = auth0Util.getUserRole(user.getUserId());
+    final Role role = user.getRole();
     if (role != Role.SUPER_ADMIN) {
       throw new ForbiddenException("You are not super admin!");
     }

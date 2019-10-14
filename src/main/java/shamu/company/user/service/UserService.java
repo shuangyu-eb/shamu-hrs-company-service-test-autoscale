@@ -20,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.Context;
@@ -68,6 +69,7 @@ import shamu.company.user.entity.UserAddress;
 import shamu.company.user.entity.UserCompensation;
 import shamu.company.user.entity.UserContactInformation;
 import shamu.company.user.entity.UserPersonalInformation;
+import shamu.company.user.entity.UserRole;
 import shamu.company.user.entity.UserStatus;
 import shamu.company.user.entity.UserStatus.Status;
 import shamu.company.user.entity.mapper.UserAddressMapper;
@@ -117,6 +119,8 @@ public class UserService {
   private final UserContactInformationRepository userContactInformationRepository;
   private final DynamicScheduler dynamicScheduler;
 
+  private final UserRoleService userRoleService;
+
 
   @Value("${application.systemEmailAddress}")
   private String systemEmailAddress;
@@ -142,7 +146,8 @@ public class UserService {
       final AuthUserCacheManager authUserCacheManager,
       final UserContactInformationRepository userContactInformationRepository,
       final DynamicScheduler dynamicScheduler,
-      final AwsUtil awsUtil) {
+      final AwsUtil awsUtil,
+      final UserRoleService userRoleService) {
     this.templateEngine = templateEngine;
     this.userRepository = userRepository;
     this.jobUserRepository = jobUserRepository;
@@ -166,6 +171,7 @@ public class UserService {
     this.userContactInformationRepository = userContactInformationRepository;
     this.dynamicScheduler = dynamicScheduler;
     this.awsUtil = awsUtil;
+    this.userRoleService = userRoleService;
   }
 
   public User findUserById(final Long id) {
@@ -246,10 +252,10 @@ public class UserService {
 
     final String[] sortValue = employeeListSearchCondition.getSortField().getSortValue();
     return PageRequest.of(
-            employeeListSearchCondition.getPage(),
-            employeeListSearchCondition.getSize(),
-            Sort.Direction.valueOf(sortDirection),
-            sortValue);
+        employeeListSearchCondition.getPage(),
+        employeeListSearchCondition.getSize(),
+        Sort.Direction.valueOf(sortDirection),
+        sortValue);
   }
 
   public Page<JobUserListItem> getAllEmployeesByCompany(
@@ -397,20 +403,18 @@ public class UserService {
 
     auth0Util.login(email, userRoleUpdateDto.getPassWord());
 
-    final String updateUserRole;
+    final UserRole targetRole;
     if (userRoleUpdateDto.getUserRole() == Role.ADMIN) {
       if (!userRepository.findAllByManagerUserId(user.getId()).isEmpty()) {
-        updateUserRole = Role.MANAGER.getValue();
+        targetRole = userRoleService.getManager();
       } else {
-        updateUserRole = Role.EMPLOYEE.getValue();
+        targetRole = userRoleService.getEmployee();
       }
     } else {
-      updateUserRole = Role.ADMIN.getValue();
+      targetRole = userRoleService.getAdmin();
     }
-
-    auth0Util.updateRoleWithUserId(user.getUserId(), updateUserRole);
-
-    return user;
+    user.setUserRole(targetRole);
+    return userRepository.save(user);
   }
 
   public User deactivateUser(final String email,
@@ -441,41 +445,31 @@ public class UserService {
   private void deactivateUser(final UserStatusUpdateDto userStatusUpdateDto,
       final User user) {
     if (userStatusUpdateDto.getUserStatus().name().equals(Status.ACTIVE.name())) {
-      // inactivate user in auth0
-      final com.auth0.json.mgmt.users.User auth0User = auth0Util
-          .getUserByUserIdFromAuth0(user.getUserId());
-      auth0Util.updateAuthRole(auth0User.getId(), Role.INACTIVATE.name());
-
-      final Role previousUserRole = auth0Util
-          .getUserRole(user.getUserId());
       userAccessLevelEventRepository.save(
-          new UserAccessLevelEvent(user, previousUserRole.getValue()));
+          new UserAccessLevelEvent(user, user.getUserRole().getName()));
 
+      user.setUserRole(userRoleService.getInactive());
       user.setUserStatus(userStatusRepository.findByName(
           Status.DISABLED.name()
       ));
       final List<User> teamEmployees = userRepository.findAllByManagerUserId(user.getId());
-      final User manager = user.getManagerUser();
 
-      if (!teamEmployees.isEmpty()) {
-        if (manager != null) {
-          teamEmployees.forEach(employee -> employee.setManagerUser(manager));
+      if (!CollectionUtils.isEmpty(teamEmployees)) {
+        if (user.getManagerUser() != null) {
+          teamEmployees.forEach(
+              employee -> employee.setManagerUser(user.getManagerUser()));
         } else {
           teamEmployees.forEach(
               employee -> {
                 employee.setManagerUser(null);
-                auth0Util.updateAuthRole(employee.getUserId(), Role.ADMIN.name());
-              }
-          );
+                employee.setUserRole(userRoleService.getAdmin());
+              });
         }
 
         userRepository.saveAll(teamEmployees);
-
       }
       user.setDeactivated(true);
       userRepository.save(user);
-
-      auth0Util.updateRoleWithUserId(user.getUserId(), Role.INACTIVATE.getValue());
     }
   }
 
@@ -538,6 +532,7 @@ public class UserService {
         .userContactInformation(userContactInformation)
         .company(company)
         .verifiedAt(Timestamp.valueOf(DateUtil.getLocalUtcTime()))
+        .userRole(userRoleService.getAdmin())
         .build();
 
     user = userRepository.save(user);
@@ -558,8 +553,7 @@ public class UserService {
       throw new ForbiddenException("Cannot find user!");
     }
 
-    final Role userRole = auth0Util
-        .getUserRole(currentUser.getUserId());
+    final Role userRole = currentUser.getRole();
     final Boolean isAdmin = Role.ADMIN == userRole;
     final User manager = targetUser.getManagerUser();
 

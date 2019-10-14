@@ -2,31 +2,45 @@ package shamu.company.user.repository;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 import shamu.company.employee.dto.EmployeeListSearchCondition;
 import shamu.company.employee.dto.OrgChartDto;
 import shamu.company.job.entity.JobUserListItem;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
+import shamu.company.user.event.UserRoleUpdatedEvent;
 import shamu.company.utils.Auth0Util;
 import shamu.company.utils.DateUtil;
 
 @Repository
 public class UserCustomRepositoryImpl implements UserCustomRepository {
 
-  @PersistenceContext
-  private EntityManager entityManager;
+  private final EntityManager entityManager;
+
+  private final Auth0Util auth0Util;
+
+  private final ApplicationEventPublisher applicationEventPublisher;
 
   @Autowired
-  private Auth0Util auth0Util;
+  public UserCustomRepositoryImpl(final EntityManager entityManager,
+      final Auth0Util auth0Util, final ApplicationEventPublisher applicationEventPublisher) {
+    this.entityManager = entityManager;
+    this.auth0Util = auth0Util;
+    this.applicationEventPublisher = applicationEventPublisher;
+  }
+
 
   @Override
   public Page<JobUserListItem> getAllByCondition(
@@ -94,8 +108,8 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
       final EmployeeListSearchCondition employeeListSearchCondition, final User user,
       final Pageable pageable) {
 
-    final Role role = auth0Util.getUserRole(user.getUserId());
-    final boolean isEmployee = Role.EMPLOYEE == role;
+    final String roleName = user.getUserRole().getName();
+    final boolean isEmployee = StringUtils.equals(Role.EMPLOYEE.getValue(), roleName);
 
     String userCondition = "u.manager_user_id=?1 ";
     if (isEmployee) {
@@ -263,6 +277,38 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
     return null;
   }
 
+  @Override
+  public User saveUser(final User user) {
+    if (user.getId() != null) {
+      final User existingUser = entityManager.find(User.class, user.getId());
+      if (existingUser != null && user.getUserRole() != existingUser.getUserRole()) {
+        auth0Util.updateRoleWithUserId(existingUser.getUserId(), user.getUserRole().getName());
+        applicationEventPublisher.publishEvent(new UserRoleUpdatedEvent(existingUser.getUserId(),
+            existingUser.getUserRole()));
+      }
+    }
+
+    final User returnUser;
+    if (user.getId() != null) {
+      returnUser = entityManager.merge(user);
+    } else {
+      entityManager.persist(user);
+      returnUser = user;
+    }
+
+    return returnUser;
+  }
+
+  @Override
+  public List<User> saveAllUsers(final Iterable<User> users) {
+    final Iterator<User> userIterator = users.iterator();
+    final List<User> returnUserList = new ArrayList<>();
+    while (userIterator.hasNext()) {
+      returnUserList.add(saveUser(userIterator.next()));
+    }
+    return returnUserList;
+  }
+
   private String appendFilterCondition(final String originalSql, final Pageable pageable) {
     StringBuilder resultSql = new StringBuilder(originalSql);
     resultSql.append("order by ");
@@ -304,5 +350,12 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
           }
         });
     return jobUserItemList;
+  }
+
+  @SuppressWarnings("unused")
+  @TransactionalEventListener(phase = TransactionPhase.AFTER_ROLLBACK)
+  public void restoreUserRole(final UserRoleUpdatedEvent userRoleUpdatedEvent) {
+    auth0Util.updateAuthRole(userRoleUpdatedEvent.getUserId(),
+        userRoleUpdatedEvent.getUserRole().getName());
   }
 }

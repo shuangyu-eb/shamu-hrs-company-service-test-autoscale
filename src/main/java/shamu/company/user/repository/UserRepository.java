@@ -107,4 +107,14 @@ public interface UserRepository extends BaseRepository<User, Long>, UserCustomRe
 
 
   User findByChangeWorkEmailToken(String token);
+  
+  @Override
+  default User save(final User user) {
+    return saveUser(user);
+  }
+  
+  @Override
+  default List<User> saveAll(final Iterable users) {
+    return saveAllUsers(users);
+  }
 }
