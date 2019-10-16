@@ -208,6 +208,12 @@
     <type>jar</type>
     </dependency>
 
+    <dependency>
+      <groupId>io.sentry</groupId>
+      <artifactId>sentry-spring</artifactId>
+      <version>1.7.27</version>
+    </dependency>
+
   </dependencies>
 
   <dependencyManagement>

@@ -17,3 +17,10 @@ cloud:
   aws:
     region:
       auto: true
+
+## Sentry
+sentry:
+  enable: true
+  dsn: https://76139c3c2fa24b6a832e34e3d772b4c9@sentry.io/1781126
+  env: qa
+  release: v1
