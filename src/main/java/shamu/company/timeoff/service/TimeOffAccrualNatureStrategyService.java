@@ -188,9 +188,12 @@ public class TimeOffAccrualNatureStrategyService extends TimeOffAccrualService {
     currentDate = currentDate.withYear(timeOffBreakdownYearDto.getYear());
     final LocalDateTime localDateTime = LocalDateTime.of(currentDate, LocalTime.MIN);
 
+    final String dateMessage =
+            TimeOffBreakdownItemDto.dateFormatConvert(localDateTime);
     final TimeOffBreakdownItemDto timeOffBreakdownItemDto =
         TimeOffBreakdownItemDto.builder()
             .date(localDateTime)
+            .dateMessage(dateMessage)
             .detail(TIME_OFF_ACCRUED)
             .amount(timeOffBreakdownYearDto.getAccrualHours())
             .balance(balancePojo.getBalance() + balancePojo.getAppliedAccumulation())

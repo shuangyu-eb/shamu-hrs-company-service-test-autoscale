@@ -289,9 +289,13 @@ public class TimeOffAccrualMonthStrategyService extends TimeOffAccrualService {
       balancePojo.setAppliedAccumulation(newAppliedAccumulation);
     }
 
+    final String dateMessage =
+            TimeOffBreakdownItemDto.dateFormatConvert(timeOffBreakdownMonthDto.getDate());
+
     final TimeOffBreakdownItemDto timeOffBreakdownItemDto =
         TimeOffBreakdownItemDto.builder()
             .date(timeOffBreakdownMonthDto.getDate())
+            .dateMessage(dateMessage)
             .amount(timeOffBreakdownMonthDto.getAccrualHours())
             .balance(balancePojo.getBalance() + balancePojo.getAppliedAccumulation())
             .detail(TIME_OFF_ACCRUED)

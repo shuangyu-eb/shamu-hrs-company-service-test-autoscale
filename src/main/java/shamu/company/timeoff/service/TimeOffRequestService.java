@@ -380,8 +380,14 @@ public class TimeOffRequestService {
     final TimeOffBreakdownDto timeOffBreakdownDto = timeOffDetailService
         .getTimeOffBreakdown(timeOffPolicyUser.getId(), currentTime);
     final Integer balance = timeOffBreakdownDto.getBalance();
+    final Integer approvedHours = timeOffPolicyService.getTimeOffRequestHoursFromStatus(
+            timeOffPolicyUser.getUser().getId(),
+            timeOffPolicyUser.getTimeOffPolicy().getId(), APPROVED,
+            Timestamp.valueOf(currentTime));
 
-    timeOffRequest.setBalance(balance);
+    Integer approvalBalance = (null == balance ? null : (balance - approvedHours));
+
+    timeOffRequest.setBalance(approvalBalance);
 
     return createTimeOffRequest(timeOffRequest);
   }

@@ -2,6 +2,7 @@ package shamu.company.timeoff.service;
 
 import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.APPROVED;
 import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.DENIED;
+import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.NO_ACTION;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -47,6 +48,8 @@ import shamu.company.timeoff.entity.TimeOffAdjustment;
 import shamu.company.timeoff.entity.TimeOffPolicy;
 import shamu.company.timeoff.entity.TimeOffPolicyAccrualSchedule;
 import shamu.company.timeoff.entity.TimeOffPolicyUser;
+import shamu.company.timeoff.entity.TimeOffRequest;
+import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus;
 import shamu.company.timeoff.entity.mapper.AccrualScheduleMilestoneMapper;
 import shamu.company.timeoff.entity.mapper.TimeOffPolicyAccrualScheduleMapper;
 import shamu.company.timeoff.entity.mapper.TimeOffPolicyMapper;
@@ -190,9 +193,21 @@ public class TimeOffPolicyService {
           .getTimeOffBreakdown(policyUserId, currentTime);
       final Integer balance = timeOffBreakdownDto.getBalance();
 
+      final Integer pendingHours = getTimeOffRequestHoursFromStatus(
+              user.getId(), policyUser.getTimeOffPolicy().getId(), NO_ACTION, null);
+      final Integer approvedHours = getTimeOffRequestHoursFromStatus(
+              user.getId(), policyUser.getTimeOffPolicy().getId(), APPROVED,
+              Timestamp.valueOf(currentTime));
+
+      Integer approvalBalance = (null == balance ? null : (balance - approvedHours));
+      Integer availableBalance = (
+              null == balance ? null : (balance - pendingHours - approvedHours));
+
       final TimeOffBalanceItemDto timeOffBalanceItemDto = TimeOffBalanceItemDto.builder()
           .id(policyUserId)
-          .balance(balance)
+          .currentBalance(balance)
+          .approvalBalance(approvalBalance)
+          .availableBalance(availableBalance)
           .name(policyUser.getTimeOffPolicy().getName())
           .showBalance(timeOffBreakdownDto.isShowBalance())
           .build();
@@ -208,24 +223,40 @@ public class TimeOffPolicyService {
         .build();
   }
 
-  public List<TimeOffPolicyUserDto> getTimeOffPolicyUser(final User user) {
+  public Integer getTimeOffRequestHoursFromStatus(
+          final Long userId, final Long policyId,
+          final TimeOffRequestApprovalStatus status, final Timestamp currentTime) {
+    List<TimeOffRequest> timeOffRequestList = timeOffRequestRepository
+            .findByTimeOffPolicyUserAndStatus(userId, policyId, status, currentTime);
+    return timeOffRequestList.stream().mapToInt(TimeOffRequest::getHours).sum();
+  }
+
+  public List<TimeOffPolicyUserDto> getTimeOffPolicyUser(
+          final User user, final LocalDateTime endDateTime) {
 
     final List<TimeOffPolicyUser> policyUsers = timeOffPolicyUserRepository
         .findTimeOffPolicyUsersByUser(user);
     final Iterator<TimeOffPolicyUser> policyUserIterator = policyUsers.iterator();
 
-    final LocalDateTime currentTime = LocalDateTime.now();
     final List<TimeOffPolicyUserDto> timeOffPolicyUserDtos = new ArrayList<>();
     while (policyUserIterator.hasNext()) {
       final TimeOffPolicyUser policyUser = policyUserIterator.next();
       final Long policyUserId = policyUser.getId();
       final TimeOffBreakdownDto timeOffBreakdownDto = timeOffDetailService
-          .getTimeOffBreakdown(policyUserId, currentTime);
+          .getTimeOffBreakdown(policyUserId, endDateTime);
       final Integer balance = timeOffBreakdownDto.getBalance();
+
+      final Integer pendingHours = getTimeOffRequestHoursFromStatus(
+              user.getId(), policyUser.getTimeOffPolicy().getId(), NO_ACTION, null);
+      final Integer approvedHours = getTimeOffRequestHoursFromStatus(
+              user.getId(), policyUser.getTimeOffPolicy().getId(), APPROVED,
+              Timestamp.valueOf(endDateTime));
+      Integer availableBalance = (
+              null == balance ? null : (balance - pendingHours - approvedHours));
 
       final TimeOffPolicyUserDto timeOffPolicyUserDto = timeOffPolicyUserMapper
           .convertToTimeOffPolicyUserDto(policyUser);
-      timeOffPolicyUserDto.setBalance(balance);
+      timeOffPolicyUserDto.setBalance(availableBalance);
       timeOffPolicyUserDtos.add(timeOffPolicyUserDto);
     }
 

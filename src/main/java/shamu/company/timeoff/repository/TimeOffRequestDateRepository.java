@@ -1,5 +1,6 @@
 package shamu.company.timeoff.repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -63,12 +64,13 @@ public interface TimeOffRequestDateRepository extends BaseRepository<TimeOffRequ
       + "WHERE "
       + "    rd.deleted_at IS NULL "
       + "        AND request.deleted_at IS NULL "
-      + "        AND t.name != 'DENIED' "
+      + "        AND t.name = 'APPROVED' "
       + "        AND request.requester_user_id = ?1 "
       + "        AND request.time_off_policy_id = ?2 "
+      + "        AND rd.date <= ?3 "
       + "GROUP BY request.id "
       + "ORDER BY createDate ASC",
       nativeQuery = true)
-  List<TimeOffRequestDatePojo> getNoRejectedRequestOffByUserIdAndPolicyId(
-      Long userId, Long policyId);
+  List<TimeOffRequestDatePojo> getTakenApprovedRequestOffByUserIdAndPolicyId(
+          Long userId, Long policyId, LocalDateTime currentTime);
 }
