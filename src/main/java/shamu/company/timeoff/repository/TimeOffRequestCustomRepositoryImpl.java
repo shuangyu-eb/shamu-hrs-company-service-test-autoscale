@@ -67,7 +67,7 @@ public class TimeOffRequestCustomRepositoryImpl implements TimeOffRequestCustomR
                             + "and tor.time_off_request_approval_status_id = ?3 "
                             + "group by tord.id ");
     if (null != currentTime) {
-      queryTimeOffRequestDate.append(" having min(tord.date > ?4) ");
+      queryTimeOffRequestDate.append(" having min(tord.date) > ?4 ");
     }
 
     final Query queryTimeOffRequestDateResult =
