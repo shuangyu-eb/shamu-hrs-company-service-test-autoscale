@@ -94,12 +94,7 @@ public class TimeOffBreakdownItemDto {
   }
 
   public static String dateFormatConvert(final LocalDateTime date) {
-    final DateTimeFormatter timeFormatter =
-            DateTimeFormatter.ofPattern(DateUtil.FULL_MONTH_DAY_YEAR);
-    final DateTimeFormatter currentYearFormatter =
-            DateTimeFormatter.ofPattern(DateUtil.FULL_MONTH_DAY);
-
     return date.getYear() == LocalDate.now().getYear()
-            ? date.format(currentYearFormatter) : date.format(timeFormatter);
+            ? DateUtil.formatDateTo(date, "MMM d") : DateUtil.formatDateTo(date, "MMM d, YYYY");
   }
 }

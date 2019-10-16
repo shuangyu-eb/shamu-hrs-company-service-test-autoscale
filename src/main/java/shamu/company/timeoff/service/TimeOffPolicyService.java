@@ -49,6 +49,7 @@ import shamu.company.timeoff.entity.TimeOffPolicy;
 import shamu.company.timeoff.entity.TimeOffPolicyAccrualSchedule;
 import shamu.company.timeoff.entity.TimeOffPolicyUser;
 import shamu.company.timeoff.entity.TimeOffRequest;
+import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus;
 import shamu.company.timeoff.entity.mapper.AccrualScheduleMilestoneMapper;
 import shamu.company.timeoff.entity.mapper.TimeOffPolicyAccrualScheduleMapper;
 import shamu.company.timeoff.entity.mapper.TimeOffPolicyMapper;
@@ -193,9 +194,9 @@ public class TimeOffPolicyService {
       final Integer balance = timeOffBreakdownDto.getBalance();
 
       final Integer pendingHours = getTimeOffRequestHoursFromStatus(
-              user.getId(), policyUser.getTimeOffPolicy().getId(), NO_ACTION.getValue(), null);
+              user.getId(), policyUser.getTimeOffPolicy().getId(), NO_ACTION, null);
       final Integer approvedHours = getTimeOffRequestHoursFromStatus(
-              user.getId(), policyUser.getTimeOffPolicy().getId(), APPROVED.getValue(),
+              user.getId(), policyUser.getTimeOffPolicy().getId(), APPROVED,
               Timestamp.valueOf(currentTime));
 
       Integer approvalBalance = (null == balance ? null : (balance - approvedHours));
@@ -224,10 +225,10 @@ public class TimeOffPolicyService {
 
   public Integer getTimeOffRequestHoursFromStatus(
           final Long userId, final Long policyId,
-          final Long statusId, final Timestamp currentTime) {
+          final TimeOffRequestApprovalStatus status, final Timestamp currentTime) {
     List<TimeOffRequest> timeOffRequestList = timeOffRequestRepository
-            .findByTimeOffPolicyUserAndStatus(userId, policyId, statusId, currentTime);
-    return timeOffRequestList.stream().map(TimeOffRequest::getHours).reduce(0, Integer::sum);
+            .findByTimeOffPolicyUserAndStatus(userId, policyId, status, currentTime);
+    return timeOffRequestList.stream().mapToInt(TimeOffRequest::getHours).reduce(0, Integer::sum);
   }
 
   public List<TimeOffPolicyUserDto> getTimeOffPolicyUser(
@@ -246,9 +247,9 @@ public class TimeOffPolicyService {
       final Integer balance = timeOffBreakdownDto.getBalance();
 
       final Integer pendingHours = getTimeOffRequestHoursFromStatus(
-              user.getId(), policyUser.getTimeOffPolicy().getId(), NO_ACTION.getValue(), null);
+              user.getId(), policyUser.getTimeOffPolicy().getId(), NO_ACTION, null);
       final Integer approvedHours = getTimeOffRequestHoursFromStatus(
-              user.getId(), policyUser.getTimeOffPolicy().getId(), APPROVED.getValue(),
+              user.getId(), policyUser.getTimeOffPolicy().getId(), APPROVED,
               Timestamp.valueOf(endDateTime));
       Integer availableBalance = (
               null == balance ? null : (balance - pendingHours - approvedHours));

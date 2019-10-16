@@ -16,6 +16,7 @@ import javax.persistence.Query;
 
 import org.springframework.stereotype.Repository;
 import shamu.company.timeoff.entity.TimeOffRequest;
+import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus;
 import shamu.company.timeoff.entity.TimeOffRequestDate;
 
 @Repository
@@ -54,7 +55,8 @@ public class TimeOffRequestCustomRepositoryImpl implements TimeOffRequestCustomR
 
   @Override
   public List<TimeOffRequest> findByTimeOffPolicyUserAndStatus(
-          final Long userId, final Long policyId, final Long statusId, Timestamp currentTime) {
+          final Long userId, final Long policyId,
+          final TimeOffRequestApprovalStatus status, Timestamp currentTime) {
     final StringBuilder queryTimeOffRequestDate =
             new StringBuilder(
                     "select tor.id as tid, tord.id as did, tord.hours, tord.date "
@@ -74,7 +76,7 @@ public class TimeOffRequestCustomRepositoryImpl implements TimeOffRequestCustomR
             entityManager.createNativeQuery(queryTimeOffRequestDate.toString());
     queryTimeOffRequestDateResult.setParameter(1, userId);
     queryTimeOffRequestDateResult.setParameter(2, policyId);
-    queryTimeOffRequestDateResult.setParameter(3, statusId);
+    queryTimeOffRequestDateResult.setParameter(3, status.getValue());
 
     if (null != currentTime) {
       queryTimeOffRequestDateResult.setParameter(4, currentTime);
@@ -91,7 +93,7 @@ public class TimeOffRequestCustomRepositoryImpl implements TimeOffRequestCustomR
             entityManager.createNativeQuery(queryTimeOffRequest.toString());
     queryTimeOffRequestResult.setParameter(1, userId);
     queryTimeOffRequestResult.setParameter(2, policyId);
-    queryTimeOffRequestResult.setParameter(3, statusId);
+    queryTimeOffRequestResult.setParameter(3, status.getValue());
     final List<?> timeOffRequestItemList = queryTimeOffRequestResult.getResultList();
 
     final List<?> timeOffItemList = queryTimeOffRequestDateResult.getResultList();

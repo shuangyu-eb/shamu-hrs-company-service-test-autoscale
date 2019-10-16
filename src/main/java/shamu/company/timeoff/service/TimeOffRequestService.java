@@ -382,7 +382,7 @@ public class TimeOffRequestService {
     final Integer balance = timeOffBreakdownDto.getBalance();
     final Integer approvedHours = timeOffPolicyService.getTimeOffRequestHoursFromStatus(
             timeOffPolicyUser.getUser().getId(),
-            timeOffPolicyUser.getTimeOffPolicy().getId(), APPROVED.getValue(),
+            timeOffPolicyUser.getTimeOffPolicy().getId(), APPROVED,
             Timestamp.valueOf(currentTime));
 
     Integer approvalBalance = (null == balance ? null : (balance - approvedHours));
