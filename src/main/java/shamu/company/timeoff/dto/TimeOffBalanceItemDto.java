@@ -18,7 +18,11 @@ public class TimeOffBalanceItemDto {
 
   private String name;
 
-  private Integer balance;
+  private Integer currentBalance;
+
+  private Integer approvalBalance;
+
+  private Integer availableBalance;
 
   private boolean showBalance;
 }

@@ -90,7 +90,8 @@ public class TimeOffDetailService {
     final TimeOffPolicy timeOffPolicy = timeOffPolicyUser.getTimeOffPolicy();
     final List<TimeOffRequestDatePojo> timeOffRequestDatePojos =
         timeOffRequestDateRepository
-            .getNoRejectedRequestOffByUserIdAndPolicyId(user.getId(), timeOffPolicy.getId());
+                .getTakenApprovedRequestOffByUserIdAndPolicyId(
+                        user.getId(), timeOffPolicy.getId(), DateUtil.getLocalUtcTime());
     final List<TimeOffBreakdownItemDto> requestDateBreakdownList = getBreakdownListFromRequestOff(
         timeOffRequestDatePojos);
 
@@ -125,7 +126,7 @@ public class TimeOffDetailService {
     final List<TimeOffPolicyAccrualSchedule> trimmedScheduleList = trimTimeOffPolicyScheduleList(
         timeOffPolicyScheduleList, timeOffPolicyUser.getUser());
     final List<TimeOffBreakdownItemDto> balanceAdjustment =
-        getBalanceAdjustmentList(timeOffPolicyUser);
+            getBalanceAdjustmentList(timeOffPolicyUser, endDateTime);
 
     final TimeOffBreakdownCalculatePojo timeOffBreakdownCalculatePojo =
         TimeOffBreakdownCalculatePojo.builder()
@@ -188,13 +189,14 @@ public class TimeOffDetailService {
   }
 
   private List<TimeOffBreakdownItemDto> getBalanceAdjustmentList(
-      final TimeOffPolicyUser timeOffPolicyUser) {
+          final TimeOffPolicyUser timeOffPolicyUser, final LocalDateTime endDateTime) {
     final User user = timeOffPolicyUser.getUser();
     final TimeOffPolicy timeOffPolicy = timeOffPolicyUser.getTimeOffPolicy();
 
     final List<TimeOffRequestDatePojo> timeOffRequestDatePojos =
         timeOffRequestDateRepository
-            .getNoRejectedRequestOffByUserIdAndPolicyId(user.getId(), timeOffPolicy.getId());
+                .getTakenApprovedRequestOffByUserIdAndPolicyId(
+                        user.getId(), timeOffPolicy.getId(), endDateTime);
 
     final List<TimeOffBreakdownItemDto> requestDateBreakdownList = getBreakdownListFromRequestOff(
         timeOffRequestDatePojos);
@@ -215,17 +217,22 @@ public class TimeOffDetailService {
       final LinkedList<TimeOffBreakdownItemDto> breakdownItemList,
       final TimeOffBreakdownItemDto timeOffBreakdownItemDto,
       final LocalDateTime startDate, final LocalDateTime endDate) {
-    final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("d MMM uuuu");
-    final DateTimeFormatter currentYearFormatter = DateTimeFormatter.ofPattern("d MMM");
+    final DateTimeFormatter timeFormatter =
+            DateTimeFormatter.ofPattern(DateUtil.FULL_MONTH_DAY_YEAR);
+    final DateTimeFormatter currentYearFormatter =
+            DateTimeFormatter.ofPattern(DateUtil.FULL_MONTH_DAY);
 
     final String startDateString = startDate.getYear() == LocalDate.now().getYear()
         ? startDate.format(currentYearFormatter) : startDate.format(timeFormatter);
     final String endDateString = endDate.getYear() == LocalDate.now().getYear()
         ? endDate.format(currentYearFormatter) : endDate.format(timeFormatter);
 
-    final String detailMessage =
-        String.format("Time Off Requested:%s - %s", startDateString, endDateString);
-    timeOffBreakdownItemDto.setDetail(detailMessage);
+    String dateMessage = (startDateString + " - " + endDateString);
+    if (startDateString.equals(endDateString)) {
+      dateMessage = (startDateString);
+    }
+    timeOffBreakdownItemDto.setDateMessage(dateMessage);
+    timeOffBreakdownItemDto.setDetail("Time Off Taken");
     timeOffBreakdownItemDto
         .setBreakdownType(TimeOffBreakdownItemDto.BreakDownType.TIME_OFF_REQUEST);
     breakdownItemList.push(timeOffBreakdownItemDto);

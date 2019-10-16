@@ -122,9 +122,15 @@ public class TimeOffPolicyRestController extends BaseRestController {
   @PreAuthorize("hasPermission(#userId, 'USER', 'VIEW_SELF') "
       + "or hasPermission(#userId, 'USER', 'MANAGE_COMPANY_USER')")
   public List<TimeOffPolicyUserDto> getAllPolicyUsersByUser(
-      @PathVariable @HashidsFormat final Long userId) {
+          @PathVariable @HashidsFormat final Long userId,
+          final Long untilDate) {
+    LocalDateTime endDateTime = LocalDateTime.now();
+
+    if (untilDate != null) {
+      endDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(untilDate), ZoneId.of("UTC"));
+    }
     final User user = userService.findUserById(userId);
-    return timeOffPolicyService.getTimeOffPolicyUser(user);
+    return timeOffPolicyService.getTimeOffPolicyUser(user, endDateTime);
   }
 
   @GetMapping("time-off-policy/{policyId}")
