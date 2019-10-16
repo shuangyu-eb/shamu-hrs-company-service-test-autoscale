@@ -228,7 +228,7 @@ public class TimeOffPolicyService {
           final TimeOffRequestApprovalStatus status, final Timestamp currentTime) {
     List<TimeOffRequest> timeOffRequestList = timeOffRequestRepository
             .findByTimeOffPolicyUserAndStatus(userId, policyId, status, currentTime);
-    return timeOffRequestList.stream().mapToInt(TimeOffRequest::getHours).reduce(0, Integer::sum);
+    return timeOffRequestList.stream().mapToInt(TimeOffRequest::getHours).sum();
   }
 
   public List<TimeOffPolicyUserDto> getTimeOffPolicyUser(
