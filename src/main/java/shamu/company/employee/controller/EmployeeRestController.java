@@ -27,7 +27,6 @@ import shamu.company.job.entity.JobUserListItem;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
 import shamu.company.user.service.UserService;
-import shamu.company.utils.Auth0Util;
 
 @RestApiController
 public class EmployeeRestController extends BaseRestController {
@@ -36,14 +35,10 @@ public class EmployeeRestController extends BaseRestController {
 
   private final UserService userService;
 
-  private final Auth0Util auth0Util;
-
   public EmployeeRestController(final EmployeeService employeeService,
-      final UserService userService,
-      final Auth0Util auth0Util) {
+      final UserService userService) {
     this.employeeService = employeeService;
     this.userService = userService;
-    this.auth0Util = auth0Util;
   }
 
   @GetMapping("employees")

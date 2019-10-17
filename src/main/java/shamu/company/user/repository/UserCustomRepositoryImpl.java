@@ -2,10 +2,13 @@ package shamu.company.user.repository;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import javax.persistence.Tuple;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
@@ -23,6 +26,7 @@ import shamu.company.user.entity.User.Role;
 import shamu.company.user.event.UserRoleUpdatedEvent;
 import shamu.company.utils.Auth0Util;
 import shamu.company.utils.DateUtil;
+import shamu.company.utils.TupleUtil;
 
 @Repository
 public class UserCustomRepositoryImpl implements UserCustomRepository {
@@ -65,19 +69,20 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
                 .setParameter(1, companyId)
                 .getSingleResult();
 
-    List<JobUserListItem> jobUserItemList = new ArrayList<>();
     if (employeeCount.longValue() == 0) {
-      return new PageImpl<>(jobUserItemList, pageable, employeeCount.longValue());
+      return new PageImpl<>(Collections.emptyList(), pageable, employeeCount.longValue());
     }
 
     final String originalSql =
         "select u.id as id, u.image_url as iamgeUrl, up.first_name as firstName, "
-            + "up.last_name as lastName, d.name as department, j.title as jobTitle "
+            + "up.last_name as lastName, d.name as department, j.title as jobTitle, "
+            + "ur.name as roleName "
             + "from users u "
             + "left join  user_personal_information up on u.user_personal_information_id = up.id "
             + "left join jobs_users ju on u.id = ju.user_id "
             + "left join jobs j on ju.job_id = j.id "
             + "left join departments d on j.department_id = d.id "
+            + "left join user_roles ur on u.user_role_id = ur.id "
             + "where u.deleted_at is null "
             + "and ju.deleted_at is null "
             + "and j.deleted_at is null "
@@ -94,12 +99,15 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
 
     final List<?> jobUserList =
         entityManager
-            .createNativeQuery(resultSql)
+            .createNativeQuery(resultSql, Tuple.class)
             .setParameter(1, companyId)
             .setParameter(2, employeeListSearchCondition.getKeyword().trim())
             .getResultList();
 
-    jobUserItemList = convertToJobUserList(jobUserList);
+    List<JobUserListItem> jobUserItemList = jobUserList.stream()
+        .map(jobUser -> TupleUtil.convertTo((Tuple) jobUser, JobUserListItem.class))
+        .collect(Collectors.toList());
+    
     return new PageImpl<>(jobUserItemList, pageable, employeeCount.longValue());
   }
 
@@ -117,13 +125,15 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
     }
     final String queryColumns =
         "select u.id as id, u.image_url as iamgeUrl, up.first_name as firstName, "
-            + "up.last_name as lastName, d.name as department, j.title as jobTitle ";
+            + "up.last_name as lastName, d.name as department, j.title as jobTitle, "
+            + "ur.name as roleName ";
 
     final String queryCondition = "from users u "
         + "left join  user_personal_information up on u.user_personal_information_id = up.id "
         + "left join jobs_users ju on u.id = ju.user_id "
         + "left join jobs j on ju.job_id = j.id "
         + "left join departments d on j.department_id = d.id "
+        + "left join user_roles ur on u.user_role_id = ur.id "
         + "where u.deleted_at is null "
         + "and u.deactivated = false "
         + "and ju.deleted_at is null "
@@ -134,11 +144,12 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
         + "or up.last_name like concat('%', ?3, '%') "
         + "or d.name like concat('%', ?3, '%') or j.title like concat('%', ?3, '%')) ";
 
-    final String countAllTeamMembers = "select count(u.id) " + queryCondition;
+    final String countAllTeamMembers = "select count(u.id) as num " + queryCondition;
     final Query queryCount = getQuery(employeeListSearchCondition, user, isEmployee,
         countAllTeamMembers);
 
-    final BigInteger employeeCount = (BigInteger) queryCount.getSingleResult();
+    final Tuple employeeTuple = (Tuple) queryCount.getSingleResult();
+    BigInteger employeeCount = (BigInteger) employeeTuple.get("num");
 
     List<JobUserListItem> jobUserItemList = new ArrayList<>();
     if (employeeCount.longValue() == 0) {
@@ -150,7 +161,10 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
     final Query query = getQuery(employeeListSearchCondition, user, isEmployee, resultSql);
     final List<?> jobUserList = query.getResultList();
 
-    jobUserItemList = convertToJobUserList(jobUserList);
+    jobUserItemList = jobUserList.stream()
+        .map(jobUser -> TupleUtil.convertTo((Tuple) jobUser, JobUserListItem.class))
+        .collect(Collectors.toList());
+
     return new PageImpl<>(jobUserItemList, pageable, employeeCount.longValue());
   }
 
@@ -158,13 +172,14 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
       final User user, final boolean isEmployee, final String resultSql) {
     final User manager = isEmployee ? user.getManagerUser() : user;
     final Query query = entityManager
-        .createNativeQuery(resultSql)
+        .createNativeQuery(resultSql, Tuple.class)
         .setParameter(1, manager.getId())
         .setParameter(2, manager.getCompany().getId())
         .setParameter(3, employeeListSearchCondition.getKeyword());
     if (isEmployee) {
       query.setParameter(4, user.getId());
     }
+
     return query;
   }
 
@@ -252,29 +267,13 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
             + "order by u.created_at asc";
     final Query findAllOrgChartByConditionQuery =
         entityManager
-            .createNativeQuery(findAllOrgChartByCondition)
+            .createNativeQuery(findAllOrgChartByCondition, Tuple.class)
             .setParameter(1, id)
             .setParameter(2, companyId)
             .setParameter(3, DateUtil.getLocalUtcTime());
 
     final Object orgChartItem = findAllOrgChartByConditionQuery.getSingleResult();
-    if (orgChartItem instanceof Object[]) {
-      final Object[] orgChartItemArray = (Object[]) orgChartItem;
-      final OrgChartDto orgChartDto = new OrgChartDto();
-      orgChartDto.setId(((BigInteger) orgChartItemArray[0]).longValue());
-      orgChartDto.setFirstName((String) orgChartItemArray[1]);
-      orgChartDto.setLastName((String) orgChartItemArray[2]);
-      orgChartDto.setImageUrl((String) orgChartItemArray[3]);
-      orgChartDto.setJobTitle((String) orgChartItemArray[4]);
-      orgChartDto.setCity((String) orgChartItemArray[5]);
-      orgChartDto.setState((String) orgChartItemArray[6]);
-      orgChartDto.setDepartment((String) orgChartItemArray[7]);
-      if (orgChartItemArray[8] != null) {
-        orgChartDto.setManagerId(((BigInteger) orgChartItemArray[8]).longValue());
-      }
-      return orgChartDto;
-    }
-    return null;
+    return TupleUtil.convertTo((Tuple) orgChartItem, OrgChartDto.class);
   }
 
   @Override
@@ -331,25 +330,6 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
         .append(",")
         .append(pageable.getPageSize());
     return resultSql.toString();
-  }
-
-  private List<JobUserListItem> convertToJobUserList(final List<?> jobUserList) {
-    final List<JobUserListItem> jobUserItemList = new ArrayList<>();
-    jobUserList.forEach(
-        jobUser -> {
-          if (jobUser instanceof Object[]) {
-            final Object[] jobUserItem = (Object[]) jobUser;
-            final JobUserListItem jobUserListItem = new JobUserListItem();
-            jobUserListItem.setId(((BigInteger) jobUserItem[0]).longValue());
-            jobUserListItem.setImageUrl((String) jobUserItem[1]);
-            jobUserListItem.setFirstName((String) jobUserItem[2]);
-            jobUserListItem.setLastName((String) jobUserItem[3]);
-            jobUserListItem.setDepartment((String) jobUserItem[4]);
-            jobUserListItem.setJobTitle((String) jobUserItem[5]);
-            jobUserItemList.add(jobUserListItem);
-          }
-        });
-    return jobUserItemList;
   }
 
   @SuppressWarnings("unused")

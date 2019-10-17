@@ -604,6 +604,7 @@ public class EmployeeService {
     final User employee = userService.findUserById(id);
     final String emailAddress = employee.getUserContactInformation().getEmailWork();
     final Status userStatus = employee.getUserStatus().getStatus();
+    final String roleName = employee.getUserRole().getName();
 
     Timestamp sendDate = null;
     if (userStatus == Status.PENDING_VERIFICATION) {
@@ -625,7 +626,7 @@ public class EmployeeService {
 
     return jobUserMapper.convertToEmployeeRelatedInformationDto(id, emailAddress,
         userStatus.name(), sendDate, jobUserDto,
-        managerjobUserDto, reports);
+        managerjobUserDto, reports, roleName);
   }
 
   public BasicUserPersonalInformationDto getPersonalMessage(final Long targetUserId,

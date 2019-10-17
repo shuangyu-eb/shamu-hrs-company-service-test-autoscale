@@ -59,9 +59,10 @@ public interface JobUserMapper {
   @Mapping(target = "managerImageUrl", source = "jobManagerDto.imageUrl")
   @Mapping(target = "managerJobTitle", source = "jobManagerDto.jobTitle")
   @Mapping(target = "directReporters", source = "directReporters")
+  @Mapping(target = "roleName", source = "roleName")
   EmployeeRelatedInformationDto convertToEmployeeRelatedInformationDto(Long userId, String email,
       String userStatus, Timestamp emailSendDate, JobUserDto jobEmployeeDto,
-      JobUserDto jobManagerDto, List<JobUserDto> directReporters);
+      JobUserDto jobManagerDto, List<JobUserDto> directReporters, String roleName);
 
   @Mapping(target = "jobTitle", source = "jobUser.job.title")
   @Mapping(target = "firstName", source = "user.userPersonalInformation.firstName")

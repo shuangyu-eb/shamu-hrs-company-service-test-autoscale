@@ -5,8 +5,10 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang.StringUtils;
 import shamu.company.hashids.HashidsFormat;
 import shamu.company.job.dto.JobUserDto;
+import shamu.company.user.entity.User.Role;
 
 @Data
 @AllArgsConstructor
@@ -43,5 +45,15 @@ public class EmployeeRelatedInformationDto {
 
   private String managerJobTitle;
 
+  private String roleName;
+
   private List<JobUserDto> directReporters;
+
+  public String getRoleName() {
+    if (StringUtils.equals(Role.ADMIN.getValue(), this.roleName)
+        || StringUtils.equals(Role.INACTIVATE.getValue(), this.roleName)) {
+      return this.roleName;
+    }
+    return null;
+  }
 }
