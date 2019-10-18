@@ -48,15 +48,13 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
     this.applicationEventPublisher = applicationEventPublisher;
   }
 
-
   @Override
   public Page<JobUserListItem> getAllByCondition(
       final EmployeeListSearchCondition employeeListSearchCondition, final Long companyId,
       final Pageable pageable, final Role role) {
 
     String countAllEmployees = "";
-    final boolean isAdmin = Role.ADMIN.equals(role);
-    if (!isAdmin || !employeeListSearchCondition.isSearched()) {
+    if (!employeeListSearchCondition.getIncludeDeactivated()) {
       countAllEmployees =
           "select count(1) from users u where u.deleted_at is null "
               + "and u.company_id = ?1 "
@@ -97,7 +95,8 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
     final String additionalSql = ACTIVE_USER_QUERY;
 
     String resultSql = appendFilterCondition(originalSql, pageable);
-    if (!isAdmin || !employeeListSearchCondition.isSearched()) {
+
+    if (!employeeListSearchCondition.getIncludeDeactivated()) {
       resultSql = appendFilterCondition(originalSql + additionalSql, pageable);
     }
 

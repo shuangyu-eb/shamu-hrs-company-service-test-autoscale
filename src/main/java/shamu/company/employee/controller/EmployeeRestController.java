@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.thymeleaf.context.Context;
+import shamu.company.authorization.Permission.Name;
+import shamu.company.authorization.PermissionUtils;
 import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.common.exception.ForbiddenException;
@@ -25,7 +27,6 @@ import shamu.company.hashids.HashidsFormat;
 import shamu.company.job.dto.JobUserDto;
 import shamu.company.job.entity.JobUserListItem;
 import shamu.company.user.entity.User;
-import shamu.company.user.entity.User.Role;
 import shamu.company.user.service.UserService;
 
 @RestApiController
@@ -35,19 +36,25 @@ public class EmployeeRestController extends BaseRestController {
 
   private final UserService userService;
 
+  private final PermissionUtils permissionUtils;
+
   public EmployeeRestController(final EmployeeService employeeService,
-      final UserService userService) {
+      final UserService userService,
+      final PermissionUtils permissionUtils) {
     this.employeeService = employeeService;
     this.userService = userService;
+    this.permissionUtils = permissionUtils;
   }
 
   @GetMapping("employees")
-  public Page<JobUserListItem> getAllEmployees(
+  public Page<JobUserListItem> getAllEmployeesWithDeactivated(
       final EmployeeListSearchCondition employeeListSearchCondition) {
-    final User currentUser = userService.findByUserId(getUserId());
-    final Role userRole = currentUser.getRole();
-    return userService.getAllEmployees(
-        employeeListSearchCondition, getCompanyId(), userRole);
+
+    if (permissionUtils.hasAuthority(Name.VIEW_DISABLED_USER.name())) {
+      employeeListSearchCondition.setIncludeDeactivated(false);
+    }
+
+    return userService.getAllEmployees(getUserId(), employeeListSearchCondition);
   }
 
   @GetMapping("employees/my-team")

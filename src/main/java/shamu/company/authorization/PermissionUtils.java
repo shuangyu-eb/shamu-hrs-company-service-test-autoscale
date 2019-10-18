@@ -50,4 +50,8 @@ public class PermissionUtils {
   public boolean isCurrentUser(final String email) {
     return userPermissionUtils.isCurrentUser(email);
   }
+
+  public boolean hasAuthority(final String permission) {
+    return userPermissionUtils.hasAuthority(permission);
+  }
 }

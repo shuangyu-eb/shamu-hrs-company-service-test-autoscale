@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 import shamu.company.authorization.Permission.Name;
 import shamu.company.authorization.Permission.PermissionType;
 import shamu.company.benefit.entity.BenefitPlan;
@@ -325,5 +326,14 @@ public class UserPermissionUtils extends BasePermissionUtils {
 
   boolean isCurrentUser(final String email) {
     return email != null && email.equals(getAuthUser().getEmail());
+  }
+
+  boolean hasAuthority(String permission) {
+    List<String> permissions = getAuthUser().getPermissions();
+    if (CollectionUtils.isEmpty(permissions)) {
+      return false;
+    }
+
+    return permissions.stream().anyMatch(permissionName -> permissionName.equals(permission));
   }
 }

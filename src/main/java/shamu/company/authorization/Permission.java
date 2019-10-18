@@ -56,7 +56,8 @@ public class Permission {
     DEACTIVATE_USER(PermissionType.ADMIN_PERMISSION),
     VIEW_USER_ROLE_AND_STATUS(PermissionType.EMPLOYEE_PERMISSION),
     VIEW_CHANGING_WORK_EMAIL(PermissionType.EMPLOYEE_PERMISSION),
-    VIEW_USER_TIME_OFF_BALANCE(PermissionType.MANAGER_PERMISSION);
+    VIEW_USER_TIME_OFF_BALANCE(PermissionType.MANAGER_PERMISSION),
+    VIEW_DISABLED_USER(PermissionType.ADMIN_PERMISSION);
 
 
     private final PermissionType permissionType;

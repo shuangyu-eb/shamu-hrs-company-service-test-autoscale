@@ -241,10 +241,14 @@ public class UserService {
   }
 
   public Page<JobUserListItem> getAllEmployees(
-      final EmployeeListSearchCondition employeeListSearchCondition,
-      final Long companyId, final Role role) {
+      final String userId, EmployeeListSearchCondition employeeListSearchCondition) {
+
+    User currentUser = findByUserId(userId);
+    Long companyId = currentUser.getCompany().getId();
+
     final Pageable paramPageable = getPageable(employeeListSearchCondition);
-    return getAllEmployeesByCompany(employeeListSearchCondition, companyId, paramPageable, role);
+    return getAllEmployeesByCompany(employeeListSearchCondition,
+        companyId, paramPageable, currentUser.getRole());
   }
 
   private Pageable getPageable(final EmployeeListSearchCondition employeeListSearchCondition) {

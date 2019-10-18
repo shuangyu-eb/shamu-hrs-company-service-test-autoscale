@@ -14,6 +14,7 @@ public class EmployeeListSearchCondition {
   private Integer size = 20;
   private SortField sortField = SortField.NAME;
   private SortDirection sortDirection = SortDirection.desc;
+  private Boolean includeDeactivated = false;
 
   public boolean isSearched() {
     return !this.keyword.isEmpty();
