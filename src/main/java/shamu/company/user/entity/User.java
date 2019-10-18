@@ -48,8 +48,6 @@ public class User extends BaseEntity {
   @JSONField(format = "yyyy-MM-dd")
   private Date deactivatedAt;
 
-  private boolean deactivated = false;
-
   @ManyToOne
   @JSONField(serialize = false)
   @ToString.Exclude

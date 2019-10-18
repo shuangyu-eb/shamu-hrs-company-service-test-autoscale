@@ -4,8 +4,6 @@ import com.alibaba.fastjson.annotation.JSONField;
 import java.sql.Date;
 import lombok.Data;
 
-
-
 @Data
 public class UserRoleAndStatusInfoDto {
 

@@ -9,41 +9,64 @@ import shamu.company.common.repository.BaseRepository;
 import shamu.company.user.entity.User;
 
 public interface UserRepository extends BaseRepository<User, Long>, UserCustomRepository {
+  String ACTIVE_USER_QUERY = "and (u.deactivated_at is null "
+       + "or (u.deactivated_at is not null "
+       + "and u.deactivated_at > current_timestamp)) ";
 
-  @Query(value = "select * from users u where u.deleted_at is null and u.user_id = ?1",
+  @Query(value =
+      "select * from users u"
+        + " where u.deleted_at is null"
+        + " and u.user_id = ?1 "
+        + ACTIVE_USER_QUERY,
       nativeQuery = true)
   User findByUserId(String userId);
 
   @Query(
-      value = "select * from users where user_personal_information_id=?1 and deleted_at is null",
+      value =
+          "select * from users u"
+            + " where u.user_personal_information_id=?1"
+            + " and u.deleted_at is null "
+            + ACTIVE_USER_QUERY,
       nativeQuery = true)
   User findByUserPersonalInformationId(Long personalInformationId);
 
   @Query(
-      value = "select * from users where user_contact_information_id=?1 and deleted_at is null",
+      value =
+          "select * from users u where"
+            + " u.user_contact_information_id=?1"
+            + " and u.deleted_at is null "
+            + ACTIVE_USER_QUERY,
       nativeQuery = true)
   User findByUserContactInformationId(Long contactInformationId);
 
   @Query(value = "select u.* from users u "
       + "left join user_contact_information uc on u.user_contact_information_id = uc.id "
-      + "where u.deleted_at is null and uc.email_work = ?1", nativeQuery = true)
+      + "where u.deleted_at is null and uc.email_work = ?1 "
+      + ACTIVE_USER_QUERY,
+      nativeQuery = true)
   User findByEmailWork(String emailWork);
 
   @Query(
-      value = "SELECT * FROM users " + "WHERE manager_user_id = ?1 AND deleted_at IS NULL",
+      value = "SELECT * FROM users u "
+          + "WHERE u.manager_user_id = ?1 AND u.deleted_at IS NULL "
+          + ACTIVE_USER_QUERY,
       nativeQuery = true)
   List<User> findAllByManagerUserId(Long id);
 
   List<User> findByManagerUser(User managerUser);
 
   @Query(
-      value = "SELECT count(1) FROM users WHERE company_id = ?1 AND deleted_at IS NULL",
+      value = "SELECT count(1) FROM users u"
+        + " WHERE u.company_id = ?1 AND u.deleted_at IS NULL "
+        + ACTIVE_USER_QUERY,
       nativeQuery = true)
   Integer findExistingUserCountByCompanyId(Long companyId);
 
   @Query(
-      value = "SELECT * FROM users "
-          + "WHERE company_id = ?1 and deactivated = false AND deleted_at IS NULL",
+      value = "SELECT * FROM users u"
+          + " WHERE u.company_id = ?1"
+          + " AND u.deleted_at IS NULL "
+          + ACTIVE_USER_QUERY,
       nativeQuery = true)
   List<User> findAllByCompanyId(Long companyId);
 
@@ -54,16 +77,16 @@ public interface UserRepository extends BaseRepository<User, Long>, UserCustomRe
   User findByResetPasswordToken(String token);
 
   @Query(
-      value = "select * from users"
-          + " where (users.id in (select user_id"
-          + " from jobs_users"
-          + " where job_id in (select id"
-          + " from jobs"
-          + " where department_id = ?1)"
-          + " ) or company_id = ?2 "
-          + " and manager_user_id is null) "
-          + " and deactivated = false "
-          + " and deleted_at is null ",
+      value = "select * from users u"
+          + " where (u.id in (select ju.user_id"
+          + " from jobs_users ju"
+          + " where ju.job_id in (select j.id"
+          + " from jobs j"
+          + " where j.department_id = ?1)"
+          + " ) or u.company_id = ?2 "
+          + " and u.manager_user_id is null) "
+          + " and u.deleted_at is null "
+          + ACTIVE_USER_QUERY,
       nativeQuery = true
   )
   List<User> findEmployersAndEmployeesByDepartmentIdAndCompanyId(Long departmentId, Long companyId);
@@ -73,7 +96,7 @@ public interface UserRepository extends BaseRepository<User, Long>, UserCustomRe
                   + " join jobs_users ju on u.id = ju.user_id"
                   + " where u.company_id = ?1"
                   + " and u.manager_user_id = ?2 "
-                  + " and u.deactivated = false "
+                  + ACTIVE_USER_QUERY
                   + " and u.deleted_at is null ",
           nativeQuery = true
   )
@@ -83,15 +106,22 @@ public interface UserRepository extends BaseRepository<User, Long>, UserCustomRe
   @Query(value = "select count(1) from users u "
       + "where u.manager_user_id = ?1 "
       + "and u.deleted_at is null "
-      + "and u.company_id = ?2", nativeQuery = true)
+      + "and u.company_id = ?2 "
+      + "and (u.deactivated_at is null "
+      + ACTIVE_USER_QUERY,
+      nativeQuery = true)
   Integer findDirectReportsCount(Long orgUserId, Long companyId);
 
   @Query(value = "select u.manager_user_id from users u where u.id = ?1 "
-      + "and u.deleted_at is null", nativeQuery = true)
+      + "and u.deleted_at is null "
+      + ACTIVE_USER_QUERY,
+      nativeQuery = true)
   Long getManagerUserIdById(Long userId);
 
   @Query(value = "select * from users u where u.deleted_at is null "
-      + "and u.id = ?1 and u.company_id = ?2", nativeQuery = true)
+      + "and u.id = ?1 and u.company_id = ?2 "
+      + ACTIVE_USER_QUERY,
+      nativeQuery = true)
   User findByIdAndCompanyId(Long userId, Long companyId);
 
   @Query(value =
@@ -102,7 +132,10 @@ public interface UserRepository extends BaseRepository<User, Long>, UserCustomRe
           + " u.userPersonalInformation.firstName LIKE CONCAT('%',?1,'%') "
           + "OR u.userPersonalInformation.lastName LIKE CONCAT('%',?1,'%') "
           + "OR u.company.name  LIKE CONCAT('%',?1,'%') "
-          + "OR u.userContactInformation.emailWork LIKE CONCAT('%',?1,'%') )")
+          + "OR u.userContactInformation.emailWork LIKE CONCAT('%',?1,'%') ) "
+          + "AND (u.deactivatedAt is null "
+          + "OR (u.deactivatedAt IS NOT NULL "
+          + "AND u.deactivatedAt > current_timestamp ))")
   Page<SuperAdminUserDto> findBy(String keyword, Pageable pageable);
 
 

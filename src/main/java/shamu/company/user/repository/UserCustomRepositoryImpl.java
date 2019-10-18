@@ -25,11 +25,14 @@ import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
 import shamu.company.user.event.UserRoleUpdatedEvent;
 import shamu.company.utils.Auth0Util;
-import shamu.company.utils.DateUtil;
 import shamu.company.utils.TupleUtil;
 
 @Repository
 public class UserCustomRepositoryImpl implements UserCustomRepository {
+  static final String ACTIVE_USER_QUERY = "and (u.deactivated_at is null "
+      + "or (u.deactivated_at is not null "
+      + "and u.deactivated_at > current_timestamp)) ";
+
 
   private final EntityManager entityManager;
 
@@ -56,7 +59,8 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
     if (!isAdmin || !employeeListSearchCondition.isSearched()) {
       countAllEmployees =
           "select count(1) from users u where u.deleted_at is null "
-              + " and u.deactivated = false and u.company_id = ?1 ";
+              + "and u.company_id = ?1 "
+              + ACTIVE_USER_QUERY;
     } else {
       countAllEmployees =
           "select count(1) from users u where u.deleted_at is null "
@@ -74,7 +78,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
     }
 
     final String originalSql =
-        "select u.id as id, u.image_url as iamgeUrl, up.first_name as firstName, "
+        "select u.id as id, u.image_url as imageUrl, up.first_name as firstName, "
             + "up.last_name as lastName, d.name as department, j.title as jobTitle, "
             + "ur.name as roleName "
             + "from users u "
@@ -90,7 +94,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
             + "and (up.first_name like concat('%', ?2, '%') "
             + "or up.last_name like concat('%', ?2, '%') "
             + "or d.name like concat('%', ?2, '%') or j.title like concat('%', ?2, '%')) ";
-    final String additionalSql = " and u.deactivated = false ";
+    final String additionalSql = ACTIVE_USER_QUERY;
 
     String resultSql = appendFilterCondition(originalSql, pageable);
     if (!isAdmin || !employeeListSearchCondition.isSearched()) {
@@ -124,7 +128,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
       userCondition = "(u.id=?1 or " + userCondition + " ) and u.id!=?4 ";
     }
     final String queryColumns =
-        "select u.id as id, u.image_url as iamgeUrl, up.first_name as firstName, "
+        "select u.id as id, u.image_url as imageUrl, up.first_name as firstName, "
             + "up.last_name as lastName, d.name as department, j.title as jobTitle, "
             + "ur.name as roleName ";
 
@@ -135,7 +139,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
         + "left join departments d on j.department_id = d.id "
         + "left join user_roles ur on u.user_role_id = ur.id "
         + "where u.deleted_at is null "
-        + "and u.deactivated = false "
+        + ACTIVE_USER_QUERY
         + "and ju.deleted_at is null "
         + "and j.deleted_at is null "
         + "and " + userCondition
@@ -202,8 +206,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
                 + "left join office_addresses a on o.office_address_id = a.id "
                 + "left join states_provinces province on a.state_province_id = province.id "
                 + "where u.deleted_at is null and u.company_id = ?2 "
-                + "and (u.deactivated = false "
-                + "or (u.deactivated = true and u.deactivated_at > ?3 )) ");
+                + ACTIVE_USER_QUERY);
 
     if (managerId == null) {
       findAllOrgChartByCondition.append(" and u.manager_user_id is null");
@@ -219,7 +222,6 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
       findAllOrgChartByConditionQuery.setParameter(1, managerId);
     }
     findAllOrgChartByConditionQuery.setParameter(2, companyId);
-    findAllOrgChartByConditionQuery.setParameter(3, DateUtil.getLocalUtcTime());
 
     final List<?> orgChartItemList = findAllOrgChartByConditionQuery.getResultList();
     final List<OrgChartDto> orgChartDtoList = new ArrayList<>();
@@ -262,15 +264,13 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
             + "left join office_addresses a on o.office_address_id = a.id "
             + "left join states_provinces province on a.state_province_id = province.id "
             + "where u.id = ?1 and u.company_id = ?2 and u.deleted_at is null "
-            + "and (u.deactivated = false "
-            + "or (u.deactivated = true and u.deactivated_at > ?3 )) "
+            + ACTIVE_USER_QUERY
             + "order by u.created_at asc";
     final Query findAllOrgChartByConditionQuery =
         entityManager
             .createNativeQuery(findAllOrgChartByCondition, Tuple.class)
             .setParameter(1, id)
-            .setParameter(2, companyId)
-            .setParameter(3, DateUtil.getLocalUtcTime());
+            .setParameter(2, companyId);
 
     final Object orgChartItem = findAllOrgChartByConditionQuery.getSingleResult();
     return TupleUtil.convertTo((Tuple) orgChartItem, OrgChartDto.class);

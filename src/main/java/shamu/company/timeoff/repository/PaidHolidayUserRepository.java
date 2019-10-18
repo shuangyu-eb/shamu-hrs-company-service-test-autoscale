@@ -7,6 +7,9 @@ import shamu.company.common.repository.BaseRepository;
 import shamu.company.timeoff.entity.PaidHolidayUser;
 
 public interface PaidHolidayUserRepository extends BaseRepository<PaidHolidayUser, Long> {
+  String ACTIVE_USER_QUERY = "and (u.deactivated_at is null "
+      + "or (u.deactivated_at is not null "
+      + "and u.deactivated_at > current_timestamp)) ";
 
   @Query(
       value = "SELECT phu.* "
@@ -15,7 +18,7 @@ public interface PaidHolidayUserRepository extends BaseRepository<PaidHolidayUse
           + "ON phu.user_id = u.id "
           + "WHERE phu.company_id = ?1 "
           + "AND phu.deleted_at IS NULL "
-          + "AND u.deactivated = FALSE "
+          + ACTIVE_USER_QUERY
           + "AND u.deleted_at IS NULL ",
       nativeQuery = true
   )
@@ -28,15 +31,20 @@ public interface PaidHolidayUserRepository extends BaseRepository<PaidHolidayUse
           + "ON phu.user_id = u.id "
           + "WHERE phu.company_id = ?1 "
           + "AND phu.deleted_at IS NULL "
-          + "AND u.deactivated = FALSE "
+          + ACTIVE_USER_QUERY
           + "AND u.deleted_at IS NULL ",
       nativeQuery = true
   )
   List<BigInteger> findAllUserIdByCompanyId(Long companyId);
 
   @Query(
-      value = "SELECT * FROM paid_holidays_users WHERE company_id = ?1 AND user_id = ?2 "
-          + "AND deleted_at IS NULL",
+      value = "SELECT phu.* FROM paid_holidays_users phu "
+          + "LEFT JOIN users u "
+          + "ON phu.user_id = u.id "
+          + "WHERE phu.company_id = ?1 AND phu.user_id = ?2 "
+          + "AND phu.deleted_at IS NULL "
+          + "AND u.deleted_at IS NULL "
+          + ACTIVE_USER_QUERY,
       nativeQuery = true
   )
   PaidHolidayUser findByCompanyIdAndUserId(Long companyId,Long userId);

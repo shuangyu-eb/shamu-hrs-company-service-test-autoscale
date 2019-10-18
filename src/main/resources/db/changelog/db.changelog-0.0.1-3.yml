@@ -857,3 +857,11 @@ databaseChangeLog:
                     references: user_roles(id)
                     foreignKeyName: fk_user_role_id
             tableName: users
+
+  - changeSet:
+      id: 1571365778552-1
+      author: wenhao-eb
+      changes:
+        - dropColumn:
+            columnName: deactivated
+            tableName: users

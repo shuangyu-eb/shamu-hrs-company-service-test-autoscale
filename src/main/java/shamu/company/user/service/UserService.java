@@ -465,10 +465,8 @@ public class UserService {
                 employee.setUserRole(userRoleService.getAdmin());
               });
         }
-
         userRepository.saveAll(teamEmployees);
       }
-      user.setDeactivated(true);
       userRepository.save(user);
     }
   }
