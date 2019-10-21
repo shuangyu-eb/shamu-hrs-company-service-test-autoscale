@@ -777,10 +777,7 @@ public class UserService {
     return path;
   }
 
-  public Boolean oldPwdIsCorrect(final String passWord, final String userId) {
-    final com.auth0.json.mgmt.users.User user = auth0Util
-            .getUserByUserIdFromAuth0(userId);
-    final String emailAddress = user.getEmail();
-    return auth0Util.isPasswordValid(emailAddress, passWord);
+  public Boolean isOldPwdCorrect(final String password, final String email) {
+    return auth0Util.isPasswordValid(email, password);
   }
 }
