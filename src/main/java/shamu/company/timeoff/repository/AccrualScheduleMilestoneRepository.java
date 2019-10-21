@@ -14,6 +14,11 @@ public interface AccrualScheduleMilestoneRepository extends
       + "and m.expiredAt is null")
   List<AccrualScheduleMilestone> findByTimeOffPolicyAccrualScheduleId(Long id);
 
+  @Query("select m from AccrualScheduleMilestone m where m.deletedAt is null "
+          + "and m.timeOffPolicyAccrualScheduleId in ?1 "
+          + "and m.expiredAt is null")
+  List<AccrualScheduleMilestone> findByTimeOffPolicyAccrualScheduleIds(List<Long> id);
+
   @Modifying
   @Query(value = "update time_off_policy_accrual_schedule_milestones "
       + "set time_off_policy_accrual_schedule_id = ?2 "

@@ -4,6 +4,7 @@ import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.APPROVED
 import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.DENIED;
 import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.NO_ACTION;
 
+import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -664,13 +665,16 @@ public class TimeOffPolicyService {
         .findAllByTimeOffPolicyId(timeOffPolicyId);
     timeOffPolicyUserRepository.delete(timeOffPolicyUsers);
 
-    final Long accrualScheduleId = timeOffPolicyAccrualScheduleRepository
-        .findIdByTimeOffPolicyId(timeOffPolicy.getId());
-    if (accrualScheduleId != null) {
-      timeOffPolicyAccrualScheduleRepository.delete(accrualScheduleId);
+    final List<BigInteger> accrualScheduleIds = timeOffPolicyAccrualScheduleRepository
+            .findIdByTimeOffPolicyId(timeOffPolicy.getId());
+    if (accrualScheduleIds != null) {
+      final List<Long> scheduleIds = accrualScheduleIds.stream().map(BigInteger::longValue)
+              .collect(Collectors.toList());
+
+      timeOffPolicyAccrualScheduleRepository.deleteInBatch(scheduleIds);
 
       final List<AccrualScheduleMilestone> milestones = accrualScheduleMilestoneRepository
-          .findByTimeOffPolicyAccrualScheduleId(accrualScheduleId);
+              .findByTimeOffPolicyAccrualScheduleIds(scheduleIds);
       accrualScheduleMilestoneRepository.deleteAll(milestones);
     }
 

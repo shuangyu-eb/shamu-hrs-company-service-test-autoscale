@@ -1,5 +1,6 @@
 package shamu.company.timeoff.repository;
 
+import java.math.BigInteger;
 import java.util.List;
 import org.springframework.data.jpa.repository.Query;
 import shamu.company.common.repository.BaseRepository;
@@ -20,7 +21,7 @@ public interface TimeOffPolicyAccrualScheduleRepository extends
           + " and deleted_at is null",
       nativeQuery = true
   )
-  Long findIdByTimeOffPolicyId(Long id);
+  List<BigInteger> findIdByTimeOffPolicyId(Long id);
 
   @Query("select s from TimeOffPolicyAccrualSchedule s where s.deletedAt is null "
       + "and s.timeOffPolicy = ?1")
