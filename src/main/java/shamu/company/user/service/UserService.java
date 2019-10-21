@@ -776,4 +776,8 @@ public class UserService {
 
     return path;
   }
+
+  public Boolean isOldPwdCorrect(final String password, final String email) {
+    return auth0Util.isPasswordValid(email, password);
+  }
 }
