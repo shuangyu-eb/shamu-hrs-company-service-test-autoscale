@@ -203,4 +203,9 @@ public class UserRestController extends BaseRestController {
     userService.sendVerifyChangeWorkEmail(user);
   }
 
+  @GetMapping("user/password/{passWord}/is-correct")
+  public Boolean oldPwdIsCorrect(@PathVariable final String passWord) {
+    return userService.oldPwdIsCorrect(passWord, getUserId());
+  }
+
 }

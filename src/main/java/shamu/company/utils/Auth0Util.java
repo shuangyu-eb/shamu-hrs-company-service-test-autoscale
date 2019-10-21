@@ -82,7 +82,7 @@ public class Auth0Util {
     try {
       login(email, password);
       return true;
-    } catch (final GeneralException exception) {
+    } catch (final GeneralAuth0Exception exception) {
       return false;
     }
   }
