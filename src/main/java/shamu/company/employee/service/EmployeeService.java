@@ -450,9 +450,11 @@ public class EmployeeService {
     if (!emergencyContactDtos.isEmpty()) {
       final List<BigInteger> userEmergencyContactIds =
           userEmergencyContactRepository.findAllIdByUserId(employee.getId());
-      userEmergencyContactRepository.deleteInBatch(userEmergencyContactIds.stream()
-          .map(BigInteger::longValue)
-          .collect(Collectors.toList()));
+      if (!userEmergencyContactIds.isEmpty()) {
+        userEmergencyContactRepository.deleteInBatch(userEmergencyContactIds.stream()
+                .map(BigInteger::longValue)
+                .collect(Collectors.toList()));
+      }
       saveEmergencyContacts(employee, emergencyContactDtos);
     }
   }
