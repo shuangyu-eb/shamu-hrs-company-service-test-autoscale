@@ -337,9 +337,12 @@ public class TimeOffRequestService {
       final TimeOffPolicyUser timeOffPolicyUser =
           timeOffPolicyUserRepository.findTimeOffPolicyUserByUserAndTimeOffPolicy(
               new User(unimplementedRequestDto.getUserId()), timeOffPolicy);
-      timeOffPolicyUser.setBalance(
-          timeOffPolicyUser.getBalance() + unimplementedRequestDto.getHours());
-      timeOffPolicyUserRepository.save(timeOffPolicyUser);
+      //if tmieOffPolicyUser is null,we dont need to calculate the balance left,because it means the policy is deleted.
+      if(null != timeOffPolicyUser) {
+        timeOffPolicyUser.setBalance(
+                timeOffPolicyUser.getBalance() + unimplementedRequestDto.getHours());
+        timeOffPolicyUserRepository.save(timeOffPolicyUser);
+      }
     }
     timeOffRequestRepository.delete(requestId);
     timeOffRequestDateRepository.deleteByTimeOffRequestId(requestId);
