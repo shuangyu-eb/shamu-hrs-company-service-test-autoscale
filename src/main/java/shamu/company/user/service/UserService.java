@@ -594,13 +594,6 @@ public class UserService {
   }
 
   public void checkPassword(final String email, final String password) {
-
-//    try {
-//      auth0Util.login(email, password);
-//      return null;
-//    } catch (final GeneralAuth0Exception exception) {
-//      return "Wrong email or password.";
-//    }
     auth0Util.login(email, password);
   }
 
