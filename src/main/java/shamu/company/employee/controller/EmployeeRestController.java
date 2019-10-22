@@ -50,7 +50,7 @@ public class EmployeeRestController extends BaseRestController {
   public Page<JobUserListItem> getAllEmployeesWithDeactivated(
       final EmployeeListSearchCondition employeeListSearchCondition) {
 
-    if (permissionUtils.hasAuthority(Name.VIEW_DISABLED_USER.name())) {
+    if (!permissionUtils.hasAuthority(Name.VIEW_DISABLED_USER.name())) {
       employeeListSearchCondition.setIncludeDeactivated(false);
     }
 
