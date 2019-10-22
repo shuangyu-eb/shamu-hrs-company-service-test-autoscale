@@ -593,7 +593,9 @@ public class UserService {
   }
 
   public void checkPassword(final String email, final String password) {
-    auth0Util.login(email, password);
+    if (!auth0Util.isPasswordValid(email, password)) {
+      throw new ForbiddenException("Wrong email or password.");
+    }
   }
 
   public void sendChangeWorkEmail(final Long userId, final String newEmail) {
