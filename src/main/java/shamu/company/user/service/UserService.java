@@ -26,7 +26,6 @@ import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.Context;
 import shamu.company.common.entity.BaseEntity;
 import shamu.company.common.exception.ForbiddenException;
-import shamu.company.common.exception.GeneralAuth0Exception;
 import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.common.exception.response.ErrorType;
 import shamu.company.common.repository.DepartmentRepository;
