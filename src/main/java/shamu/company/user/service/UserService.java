@@ -26,6 +26,7 @@ import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.Context;
 import shamu.company.common.entity.BaseEntity;
 import shamu.company.common.exception.ForbiddenException;
+import shamu.company.common.exception.GeneralAuth0Exception;
 import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.common.exception.response.ErrorType;
 import shamu.company.common.repository.DepartmentRepository;
@@ -592,9 +593,15 @@ public class UserService {
 
   }
 
-  public void checkPassword(final User user, final String password) {
+  public void checkPassword(final String email, final String password) {
 
-    auth0Util.login(user.getUserContactInformation().getEmailWork(), password);
+//    try {
+//      auth0Util.login(email, password);
+//      return null;
+//    } catch (final GeneralAuth0Exception exception) {
+//      return "Wrong email or password.";
+//    }
+    auth0Util.login(email, password);
   }
 
   public void sendChangeWorkEmail(final Long userId, final String newEmail) {
