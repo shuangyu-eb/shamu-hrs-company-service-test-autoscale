@@ -107,9 +107,7 @@ public interface UserRepository extends BaseRepository<User, Long>, UserCustomRe
       + "where u.manager_user_id = ?1 "
       + "and u.deleted_at is null "
       + "and u.company_id = ?2 "
-      + "and (u.deactivated_at is null "
-      + ACTIVE_USER_QUERY
-      + " )",
+      + ACTIVE_USER_QUERY,
       nativeQuery = true)
   Integer findDirectReportsCount(Long orgUserId, Long companyId);
 
