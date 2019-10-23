@@ -169,8 +169,7 @@ public class UserRestController extends BaseRestController {
   @GetMapping("/user/check-password/{password}")
   @PreAuthorize("hasAuthority('EDIT_SELF')")
   public void checkPassword(@PathVariable final String password) {
-    final User currentUser = userService.findUserById(getAuthUser().getId());
-    userService.checkPassword(currentUser, password);
+    userService.checkPassword(getAuthUser().getEmail(), password);
   }
 
   @PatchMapping("/user/send-verify-email")
@@ -201,11 +200,6 @@ public class UserRestController extends BaseRestController {
   public void sendVerifyChangeWorkEmail() {
     final User user = userService.findUserById(getAuthUser().getId());
     userService.sendVerifyChangeWorkEmail(user);
-  }
-
-  @GetMapping("user/password/{password}/is-correct")
-  public Boolean isOldPwdCorrect(@PathVariable final String password) {
-    return userService.isOldPwdCorrect(password, getAuthUser().getEmail());
   }
 
 }
