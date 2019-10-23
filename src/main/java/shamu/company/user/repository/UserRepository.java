@@ -107,7 +107,6 @@ public interface UserRepository extends BaseRepository<User, Long>, UserCustomRe
       + "where u.manager_user_id = ?1 "
       + "and u.deleted_at is null "
       + "and u.company_id = ?2 "
-      + "and (u.deactivated_at is null "
       + ACTIVE_USER_QUERY,
       nativeQuery = true)
   Integer findDirectReportsCount(Long orgUserId, Long companyId);
@@ -140,12 +139,12 @@ public interface UserRepository extends BaseRepository<User, Long>, UserCustomRe
 
 
   User findByChangeWorkEmailToken(String token);
-  
+
   @Override
   default User save(final User user) {
     return saveUser(user);
   }
-  
+
   @Override
   default List<User> saveAll(final Iterable users) {
     return saveAllUsers(users);
