@@ -337,9 +337,11 @@ public class TimeOffRequestService {
       final TimeOffPolicyUser timeOffPolicyUser =
           timeOffPolicyUserRepository.findTimeOffPolicyUserByUserAndTimeOffPolicy(
               new User(unimplementedRequestDto.getUserId()), timeOffPolicy);
-      timeOffPolicyUser.setBalance(
-          timeOffPolicyUser.getBalance() + unimplementedRequestDto.getHours());
-      timeOffPolicyUserRepository.save(timeOffPolicyUser);
+      if (null != timeOffPolicyUser) {
+        timeOffPolicyUser.setBalance(
+                timeOffPolicyUser.getBalance() + unimplementedRequestDto.getHours());
+        timeOffPolicyUserRepository.save(timeOffPolicyUser);
+      }
     }
     timeOffRequestRepository.delete(requestId);
     timeOffRequestDateRepository.deleteByTimeOffRequestId(requestId);
