@@ -1,6 +1,6 @@
 package shamu.company.timeoff.pojo;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -23,5 +23,5 @@ public class TimeOffBreakdownCalculatePojo {
 
   private TimeOffPolicyUser policyUser;
 
-  private LocalDateTime untilDate;
+  private LocalDate untilDate;
 }

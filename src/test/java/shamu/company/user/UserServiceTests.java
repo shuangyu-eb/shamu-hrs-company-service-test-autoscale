@@ -33,6 +33,7 @@ import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
 import shamu.company.user.entity.UserContactInformation;
 import shamu.company.user.entity.UserPersonalInformation;
+import shamu.company.user.entity.UserRole;
 import shamu.company.user.entity.UserStatus;
 import shamu.company.user.entity.UserStatus.Status;
 import shamu.company.user.entity.mapper.UserAddressMapper;
@@ -237,12 +238,13 @@ class UserServiceTests {
           .thenReturn(targetUser);
     }
 
-
     @Test
     void whenIsAdmin_thenShouldReturnTrue() {
       Mockito.when(userRepository.findByIdAndCompanyId(Mockito.anyLong(), Mockito.anyLong()))
           .thenReturn(new User());
-      Mockito.when(auth0Util.getUserRole(Mockito.any())).thenReturn(Role.ADMIN);
+      UserRole userRole = new UserRole();
+      userRole.setName(Role.ADMIN.name());
+      currentUser.setUserRole(userRole);
       final boolean hasAccess = userService.hasUserAccess(currentUser, targetUserId);
       Assertions.assertTrue(hasAccess);
     }
@@ -254,10 +256,10 @@ class UserServiceTests {
 
       Mockito.when(userRepository.findByIdAndCompanyId(Mockito.anyLong(), Mockito.anyLong()))
           .thenReturn(targetUser);
-      Mockito.when(userRepository.getManagerUserIdById(Mockito.anyLong()))
-          .thenReturn(currentUser.getId());
 
-      Mockito.when(auth0Util.getUserRole(Mockito.any())).thenReturn(Role.MANAGER);
+      UserRole userRole = new UserRole();
+      userRole.setName(Role.MANAGER.name());
+      currentUser.setUserRole(userRole);
       final boolean hasAccess = userService.hasUserAccess(currentUser, targetUserId);
       Assertions.assertTrue(hasAccess);
     }

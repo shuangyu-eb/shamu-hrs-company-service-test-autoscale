@@ -1,9 +1,6 @@
 package shamu.company.timeoff.service;
 
-import java.sql.Timestamp;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -14,7 +11,6 @@ import java.util.Map;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import shamu.company.common.entity.BaseEntity;
 import shamu.company.timeoff.dto.TimeOffBreakdownDto;
 import shamu.company.timeoff.dto.TimeOffBreakdownItemDto;
 import shamu.company.timeoff.dto.TimeOffBreakdownYearDto;
@@ -35,7 +31,7 @@ public class TimeOffAccrualNatureStrategyService extends TimeOffAccrualService {
     this.accrualScheduleMilestoneRepository = accrualScheduleMilestoneRepository;
   }
 
-  public TimeOffBreakdownDto getTimeOffBreakdown(final TimeOffBreakdownItemDto startingBreakdown,
+  TimeOffBreakdownDto getTimeOffBreakdown(final TimeOffBreakdownItemDto startingBreakdown,
       final TimeOffBreakdownCalculatePojo calculatePojo) {
 
     List<TimeOffBreakdownYearDto> timeOffBreakdownYearDtoList = getAccrualDataByYear(
@@ -52,14 +48,16 @@ public class TimeOffAccrualNatureStrategyService extends TimeOffAccrualService {
 
   private List<TimeOffBreakdownYearDto> getAccrualDataByYear(
       final TimeOffBreakdownCalculatePojo calculatePojo) {
-    final LocalDateTime userJoinDateTime = DateUtil.toLocalDateTime(
-        calculatePojo.getPolicyUser().getUser().getCreatedAt());
+    final LocalDate userJoinDate =
+        DateUtil.fromTimestamp(calculatePojo.getPolicyUser().getCreatedAt());
 
     final HashMap<Integer, TimeOffBreakdownYearDto> accrualDate = new HashMap<>();
     calculatePojo.getTrimmedScheduleList().forEach(accrualSchedule -> {
 
-      final List<Timestamp> validStartAndEndDate =
-          getValidAccrualScheduleStartAndEndDate(userJoinDateTime, accrualSchedule);
+      final List<LocalDate> validStartAndEndDate =
+          super.getValidScheduleOrMilestonePeriod(userJoinDate,
+              accrualSchedule.getCreatedAt(), accrualSchedule.getExpiredAt());
+
       final List<Integer> validYears =
           getValidYearPeriod(
               validStartAndEndDate.get(0),
@@ -74,15 +72,21 @@ public class TimeOffAccrualNatureStrategyService extends TimeOffAccrualService {
           accrualScheduleMilestoneRepository
               .findByTimeOffPolicyAccrualScheduleId(accrualSchedule.getId());
       accrualScheduleMilestoneList = trimTimeOffPolicyScheduleMilestones(
-          accrualScheduleMilestoneList, calculatePojo.getPolicyUser().getUser(),
+          accrualScheduleMilestoneList, calculatePojo.getPolicyUser(),
           accrualSchedule);
 
       // sort milestones
-      accrualScheduleMilestoneList.sort(Comparator.comparing(BaseEntity::getCreatedAt));
+      accrualScheduleMilestoneList.sort(Comparator
+          .comparing(AccrualScheduleMilestone::getCreatedAt, Comparator.reverseOrder()));
 
       accrualScheduleMilestoneList.forEach(accrualScheduleMilestone -> {
-        final List<Timestamp> validMilestoneStartAndEndDate =
-            getValidMilestoneStartAndEndDate(userJoinDateTime, accrualScheduleMilestone);
+
+        LocalDate milestoneStartTime = userJoinDate
+            .plusYears(accrualScheduleMilestone.getAnniversaryYear());
+        final List<LocalDate> validMilestoneStartAndEndDate =
+            super.getValidScheduleOrMilestonePeriod(milestoneStartTime,
+                accrualScheduleMilestone.getCreatedAt(), accrualScheduleMilestone.getExpiredAt());
+
         final List<Integer> validMilestoneYears = getValidYearPeriod(
             validMilestoneStartAndEndDate.get(0),
             validMilestoneStartAndEndDate.get(1),
@@ -128,37 +132,33 @@ public class TimeOffAccrualNatureStrategyService extends TimeOffAccrualService {
     timeOffBreakdownYearDtoList.sort(Comparator.comparingInt(TimeOffBreakdownYearDto::getYear));
 
     final TimeOffBalancePojo balancePojo =
-        new TimeOffBalancePojo(startingBreakdown.getBalance(), 0);
+        new TimeOffBalancePojo(startingBreakdown.getBalance());
 
     final LinkedList<TimeOffBreakdownItemDto> resultTimeOffBreakdownItemList = new LinkedList<>();
     resultTimeOffBreakdownItemList.add(startingBreakdown);
 
     for (final TimeOffBreakdownYearDto timeOffBreakdownYearDto : timeOffBreakdownYearDtoList) {
-      // apply carryoverLimit
-      final TimeOffBreakdownItemDto lastTimeOffBreakdown = resultTimeOffBreakdownItemList
-          .peekLast();
 
-      final LocalDate untilDate = LocalDate.MIN.withYear(timeOffBreakdownYearDto.getYear());
-      final LocalDateTime untilDateTime = LocalDateTime.of(untilDate, LocalTime.MIN);
-      super.populateBreakdownAdjustmentBefore(resultTimeOffBreakdownItemList, untilDateTime,
+      final LocalDate accrualTime = LocalDate.MIN.withYear(timeOffBreakdownYearDto.getYear());
+      // Adjustment
+      super.populateBreakdownAdjustmentBefore(resultTimeOffBreakdownItemList, accrualTime,
           balanceAdjustmentList, balancePojo);
 
-      super.tuneBalanceWithCarryOverLimit(lastTimeOffBreakdown, balancePojo);
+      // Carryover limit
+      super.populateBreakdownListFromCarryoverLimit(resultTimeOffBreakdownItemList,
+          accrualTime, balancePojo);
+
+      // Accrual
+      super.populateBreakdownListFromAccrualSchedule(resultTimeOffBreakdownItemList,
+          accrualTime, timeOffBreakdownYearDto.getAccrualHours(), balancePojo);
+
       balancePojo.setMaxBalance(timeOffBreakdownYearDto.getMaxBalance());
       balancePojo.setCarryOverLimit(timeOffBreakdownYearDto.getCarryoverLimit());
-      balancePojo.calculateLatestBalance();
 
-      // stop accrue if reach max balance
-      if (balancePojo.reachMaxBalance(false)) {
-        balancePojo.setBalance(
-            Math.min(balancePojo.getBalance(), balancePojo.getMaxBalance()));
-        continue;
-      }
-
-      populateBreakdownListFromYearDto(resultTimeOffBreakdownItemList, timeOffBreakdownYearDto,
-          balancePojo);
+      // Max balance
+      super.populateBreakdownListFromMaxBalance(resultTimeOffBreakdownItemList,
+          accrualTime, balancePojo);
     }
-    balancePojo.calculateLatestBalance();
     super.populateRemainingAdjustment(resultTimeOffBreakdownItemList, balanceAdjustmentList,
         balancePojo);
 
@@ -168,47 +168,11 @@ public class TimeOffAccrualNatureStrategyService extends TimeOffAccrualService {
     return timeOffBreakdownDto;
   }
 
-  private void populateBreakdownListFromYearDto(
-      final List<TimeOffBreakdownItemDto> resultTimeOffBreakdownItemList,
-      final TimeOffBreakdownYearDto timeOffBreakdownYearDto, final TimeOffBalancePojo balancePojo) {
-    if (balancePojo.getAppliedAccumulation() == null) {
-      balancePojo.setAppliedAccumulation(0);
-    }
+  private List<Integer> getValidYearPeriod(final LocalDate createdAt, final LocalDate expiredAt,
+      final LocalDate selectedDate) {
+    final LocalDate expireDate = expiredAt == null ? selectedDate : expiredAt;
 
-    Integer newAppliedAccumulation =
-        balancePojo.getAppliedAccumulation() + timeOffBreakdownYearDto.getAccrualHours();
-    balancePojo.setAppliedAccumulation(newAppliedAccumulation);
-
-    if (balancePojo.reachMaxBalance(true)) {
-      newAppliedAccumulation = balancePojo.getMaxBalance() - balancePojo.getBalance();
-      balancePojo.setAppliedAccumulation(newAppliedAccumulation);
-    }
-
-    LocalDate currentDate = LocalDate.MIN;
-    currentDate = currentDate.withYear(timeOffBreakdownYearDto.getYear());
-    final LocalDateTime localDateTime = LocalDateTime.of(currentDate, LocalTime.MIN);
-
-    final String dateMessage =
-            TimeOffBreakdownItemDto.dateFormatConvert(localDateTime);
-    final TimeOffBreakdownItemDto timeOffBreakdownItemDto =
-        TimeOffBreakdownItemDto.builder()
-            .date(localDateTime)
-            .dateMessage(dateMessage)
-            .detail(TIME_OFF_ACCRUED)
-            .amount(timeOffBreakdownYearDto.getAccrualHours())
-            .balance(balancePojo.getBalance() + balancePojo.getAppliedAccumulation())
-            .breakdownType(TimeOffBreakdownItemDto.BreakDownType.TIME_OFF_ACCRUAL)
-            .build();
-    resultTimeOffBreakdownItemList.add(timeOffBreakdownItemDto);
-  }
-
-  private List<Integer> getValidYearPeriod(final Timestamp createdAt, final Timestamp expiredAt,
-      final LocalDateTime selectedDate) {
-    final LocalDateTime createDate = DateUtil.toLocalDateTime(createdAt);
-    final LocalDateTime expireDate = expiredAt == null ? selectedDate
-        : DateUtil.toLocalDateTime(expiredAt);
-
-    Integer startYear = createDate.getYear();
+    Integer startYear = createdAt.getYear();
     final Integer endYear = expireDate.getYear();
 
     if (startYear > endYear) {
@@ -216,7 +180,7 @@ public class TimeOffAccrualNatureStrategyService extends TimeOffAccrualService {
     }
 
     final List<Integer> validYear = new ArrayList<>();
-    while (startYear < endYear) {
+    while (startYear <= endYear) {
       validYear.add(startYear++);
     }
     return validYear;

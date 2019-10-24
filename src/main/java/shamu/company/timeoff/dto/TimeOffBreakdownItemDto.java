@@ -2,8 +2,6 @@ package shamu.company.timeoff.dto;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,7 +14,7 @@ import shamu.company.utils.DateUtil;
 @Builder
 public class TimeOffBreakdownItemDto {
 
-  private LocalDateTime date;
+  private LocalDate date;
 
   private String dateMessage;
 
@@ -32,10 +30,12 @@ public class TimeOffBreakdownItemDto {
   public enum BreakDownType {
     TIME_OFF_ACCRUAL,
     TIME_OFF_ADJUSTMENT,
-    TIME_OFF_REQUEST
+    TIME_OFF_REQUEST,
+    CARRYOVER_LIMIT,
+    MAX_BALANCE,
   }
 
-  public TimeOffBreakdownItemDto(final LocalDateTime date, final String dateMessage,
+  public TimeOffBreakdownItemDto(final LocalDate date, final String dateMessage,
                                  final String detail, final Integer amount,
                                  final Integer balance, final BreakDownType breakdownType) {
     this.date = date;
@@ -46,7 +46,7 @@ public class TimeOffBreakdownItemDto {
     this.breakdownType = breakdownType;
   }
 
-  public TimeOffBreakdownItemDto(final LocalDateTime date, final String dateMessage,
+  public TimeOffBreakdownItemDto(final LocalDate date, final String dateMessage,
                                  final String detail, final Integer amount,
                                  final BreakDownType breakdownType) {
     this.date = date;
@@ -66,10 +66,10 @@ public class TimeOffBreakdownItemDto {
     }
 
     final String dateMessage = dateFormatConvert(
-            DateUtil.toLocalDateTime(timeOffPolicyUser.getUpdatedAt()));
+            DateUtil.fromTimestamp(timeOffPolicyUser.getUpdatedAt()));
 
     return new TimeOffBreakdownItemDto(
-        DateUtil.toLocalDateTime(timeOffPolicyUser.getUpdatedAt()),
+        DateUtil.fromTimestamp(timeOffPolicyUser.getUpdatedAt()),
         dateMessage,
         "Starting Balance",
         startingBalance,
@@ -81,11 +81,13 @@ public class TimeOffBreakdownItemDto {
   @JSONField(serialize = false)
   public static TimeOffBreakdownItemDto fromTimeOffAdjustment(
       final TimeOffAdjustmentPojo timeOffAdjustmentPojo) {
-    final String dateMessage = dateFormatConvert(
-            DateUtil.toLocalDateTime(timeOffAdjustmentPojo.getCreatedAt()));
+
+    LocalDate createTime = DateUtil.toLocalDate(timeOffAdjustmentPojo.getCreatedAt());
+
+    final String dateMessage = dateFormatConvert(createTime);
 
     return new TimeOffBreakdownItemDto(
-        DateUtil.toLocalDateTime(timeOffAdjustmentPojo.getCreatedAt()),
+        createTime,
         dateMessage,
         timeOffAdjustmentPojo.getComment(),
         timeOffAdjustmentPojo.getAmount(),
@@ -93,7 +95,7 @@ public class TimeOffBreakdownItemDto {
     );
   }
 
-  public static String dateFormatConvert(final LocalDateTime date) {
+  public static String dateFormatConvert(final LocalDate date) {
     return date.getYear() == LocalDate.now().getYear()
             ? DateUtil.formatDateTo(date, "MMM d") : DateUtil.formatDateTo(date, "MMM d, YYYY");
   }

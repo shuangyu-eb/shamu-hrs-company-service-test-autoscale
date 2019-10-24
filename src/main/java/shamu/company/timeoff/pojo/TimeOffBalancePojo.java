@@ -9,39 +9,15 @@ public class TimeOffBalancePojo {
 
   private Integer balance;
 
-  private Integer appliedAccumulation;
-
   private Integer maxBalance;
 
   private Integer carryOverLimit;
 
-  public TimeOffBalancePojo(Integer balance, Integer appliedAccumulation) {
+  public TimeOffBalancePojo(Integer balance) {
     this.balance = balance;
-    this.appliedAccumulation = appliedAccumulation;
   }
 
-  private void reCalculateBalance() {
-    if (this.getAppliedAccumulation() != null) {
-      Integer newBalance = this.balance + this.appliedAccumulation;
-      this.balance = newBalance;
-    }
-  }
-
-  public void calculateLatestBalance() {
-    reCalculateBalance();
-    resetAppliedAccumulation();
-  }
-
-  public void resetAppliedAccumulation() {
-    this.appliedAccumulation = 0;
-  }
-
-  public boolean reachMaxBalance(Boolean withAppliedAccumulation) {
-    if (withAppliedAccumulation != null && withAppliedAccumulation) {
-      return this.maxBalance != null
-          && (this.balance + this.appliedAccumulation) > this.maxBalance;
-    }
-
+  public boolean reachMaxBalance() {
     return this.maxBalance != null
       && this.balance > this.maxBalance;
   }

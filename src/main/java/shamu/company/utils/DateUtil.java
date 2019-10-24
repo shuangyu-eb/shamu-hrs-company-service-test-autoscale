@@ -5,7 +5,7 @@ import static java.time.temporal.TemporalAdjusters.firstDayOfYear;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
 import java.util.Date;
@@ -61,7 +61,7 @@ public class DateUtil {
   }
 
   public static LocalDate fromTimestamp(final Timestamp timestamp) {
-    return timestamp.toLocalDateTime().toLocalDate();
+    return toLocalDateTime(timestamp).toLocalDate();
   }
 
   public static Timestamp fromLocalDate(final LocalDate date) {
@@ -69,15 +69,19 @@ public class DateUtil {
   }
 
   public static LocalDateTime toLocalDateTime(final Timestamp timestamp) {
-    return LocalDateTime.ofInstant(timestamp.toInstant(), ZoneId.of("UTC"));
+    return LocalDateTime.ofInstant(timestamp.toInstant(), ZoneOffset.UTC);
   }
 
   public static LocalDateTime toLocalDateTime(final Date date) {
-    return LocalDateTime.ofInstant(date.toInstant(), ZoneId.of("UTC"));
+    return LocalDateTime.ofInstant(date.toInstant(), ZoneOffset.UTC);
+  }
+
+  public static LocalDate toLocalDate(final Date date) {
+    return toLocalDateTime(date).toLocalDate();
   }
 
   //Get current UTC time
   public static LocalDateTime getLocalUtcTime() {
-    return LocalDateTime.now(ZoneId.of("UTC"));
+    return LocalDateTime.now(ZoneOffset.UTC);
   }
 }

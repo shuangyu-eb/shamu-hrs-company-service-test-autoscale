@@ -1,6 +1,6 @@
 package shamu.company.timeoff.dto;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -8,18 +8,16 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class TimeOffBreakdownMonthDto {
 
-  private LocalDateTime date;
+  private LocalDate date;
 
   private Integer accrualHours;
 
-  private Boolean lastMonthOfTheYear;
+  private Boolean lastMonthOfPreviousAnniversaryYear = false;
 
   private TimeOffBreakdownYearDto yearData;
 
-  public TimeOffBreakdownMonthDto(LocalDateTime date, Integer accrualHours,
-      Boolean lastMonthOfTheYear) {
+  public TimeOffBreakdownMonthDto(LocalDate date, Integer accrualHours) {
     this.date = date;
     this.accrualHours = accrualHours;
-    this.lastMonthOfTheYear = lastMonthOfTheYear;
   }
 }

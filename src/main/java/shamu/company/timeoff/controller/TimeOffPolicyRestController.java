@@ -1,8 +1,11 @@
 package shamu.company.timeoff.controller;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import javax.validation.Valid;
@@ -180,13 +183,17 @@ public class TimeOffPolicyRestController extends BaseRestController {
   public TimeOffBreakdownDto getTimeOffBreakdown(
       @HashidsFormat @PathVariable final Long policyUserId,
       final Long untilDate) {
-    LocalDateTime endDateTime = LocalDateTime.now();
+    LocalDate endDate = LocalDate.now();
 
     if (untilDate != null) {
-      endDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(untilDate), ZoneId.of("UTC"));
+      endDate = ZonedDateTime.ofInstant(Instant.ofEpochMilli(untilDate),
+          ZoneOffset.UTC).toLocalDate();
     }
 
-    return timeOffDetailService.getTimeOffBreakdown(policyUserId, endDateTime);
+    TimeOffBreakdownDto timeOffBreakdownDto = timeOffDetailService
+        .getTimeOffBreakdown(policyUserId, endDate);
+    timeOffBreakdownDto.setUntilDateInMillis(untilDate);
+    return timeOffBreakdownDto;
   }
 
   @PostMapping("time-off-balances/{policyUserId}/adjustments")

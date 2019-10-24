@@ -2,6 +2,7 @@ package shamu.company.employee;
 
 import java.util.Base64;
 import java.util.UUID;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -51,8 +52,9 @@ import shamu.company.user.service.UserRoleService;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.Auth0Util;
 import shamu.company.utils.AwsUtil;
+import shamu.company.utils.FileValidateUtil.FileType;
 
-public class EmployeeServiceTests {
+class EmployeeServiceTests {
 
   @Mock private UserRepository userRepository;
   @Mock private JobUserRepository jobUserRepository;
@@ -141,10 +143,12 @@ public class EmployeeServiceTests {
       final EmployeeDto employeeDto = new EmployeeDto();
       employeeDto.setEmailWork("example@indeed.com");
 
-      String imageUrl = Base64.getEncoder()
-          .encodeToString(RandomStringUtils.randomAlphabetic(11).getBytes("UTF-8"));
-      imageUrl = "x," + imageUrl;
-      employeeDto.setPersonalPhoto(imageUrl);
+      String originalHexString = FileType.PNG.getValue();
+      byte[] imageBytes = Hex.decodeHex(originalHexString);
+      String imageString = Base64.getEncoder().encodeToString(imageBytes);
+
+      imageString = "x," + imageString;
+      employeeDto.setPersonalPhoto(imageString);
 
       final UserPersonalInformationDto userPersonalInformationDto = new UserPersonalInformationDto();
       userPersonalInformationDto.setGenderId(1L);

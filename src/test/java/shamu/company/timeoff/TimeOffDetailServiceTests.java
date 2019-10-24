@@ -1,9 +1,6 @@
 package shamu.company.timeoff;
 
-import java.sql.Timestamp;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -19,12 +16,9 @@ import shamu.company.timeoff.dto.TimeOffBreakdownDto;
 import shamu.company.timeoff.dto.TimeOffBreakdownItemDto;
 import shamu.company.timeoff.dto.TimeOffBreakdownMonthDto;
 import shamu.company.timeoff.dto.TimeOffBreakdownYearDto;
-import shamu.company.timeoff.entity.TimeOffAccrualFrequency;
 import shamu.company.timeoff.service.TimeOffAccrualAnniversaryStrategyService;
 import shamu.company.timeoff.service.TimeOffAccrualMonthStrategyService;
 import shamu.company.timeoff.service.TimeOffAccrualNatureStrategyService;
-import shamu.company.timeoff.service.TimeOffAccrualService;
-import shamu.company.utils.DateUtil;
 
 class TimeOffDetailServiceTests {
 
@@ -37,196 +31,39 @@ class TimeOffDetailServiceTests {
   @Mock
   private TimeOffAccrualMonthStrategyService accrualMonthStrategyService;
 
-  @Mock
-  private TimeOffAccrualService accrualService;
-
   @BeforeEach
   void setUp() {
     MockitoAnnotations.initMocks(this);
   }
 
   @Nested
-  class InvalidByStartDateAndEndDate {
-
-    @Nested
-    class WhenWithFrequencyTypeOne {
-
-      @Test
-      void thenWhenSameStartAndEndYear_thenInvalid() throws Exception {
-        LocalDateTime startDate = LocalDateTime.now().withYear(2016);
-        startDate = startDate.withMonth(1);
-
-        LocalDateTime endDate = LocalDateTime.now().withYear(2016);
-        endDate = endDate.withMonth(7);
-
-        final LocalDateTime userEnrollTime = LocalDateTime.of(
-            LocalDate.of(2016, 1, 1), LocalTime.MAX);
-
-        final Long frequencyType =
-            TimeOffAccrualFrequency.AccrualFrequencyType.FREQUENCY_TYPE_ONE.getValue();
-        final Boolean result =
-            Whitebox.invokeMethod(accrualService, "invalidByStartDateAndEndDate",
-            Timestamp.valueOf(startDate), Timestamp.valueOf(endDate), userEnrollTime,
-            frequencyType);
-
-        Assertions.assertTrue(result);
-      }
-
-      @Test
-      void thenWhenDifferentStartAndEndYear_thenValid() throws Exception {
-
-        LocalDateTime startDate = LocalDateTime.now().withYear(2016);
-        startDate = startDate.withMonth(1);
-
-        LocalDateTime endDate = LocalDateTime.now().withYear(2017);
-        endDate = endDate.withMonth(7);
-
-        final LocalDateTime userEnrollTime = LocalDateTime.of(
-            LocalDate.of(2016, 1, 1), LocalTime.MAX);
-
-        final Long frequencyType =
-            TimeOffAccrualFrequency.AccrualFrequencyType.FREQUENCY_TYPE_ONE.getValue();
-        final Boolean result =
-            Whitebox.invokeMethod(accrualService, "invalidByStartDateAndEndDate",
-            Timestamp.valueOf(startDate), Timestamp.valueOf(endDate), userEnrollTime,
-            frequencyType);
-
-        Assertions.assertFalse(result);
-      }
-
-    }
-
-    @Nested
-    class WhenWithFrequencyTypeTwo {
-
-      @Test
-      void thenWhenSameAnniversaryYear_thenInvalid() throws Exception {
-
-        final LocalDateTime startDate = LocalDateTime.of(
-            LocalDate.of(2016, 8, 2), LocalTime.MAX);
-
-        final LocalDateTime endDate = LocalDateTime.of(
-            LocalDate.of(2017, 2, 2), LocalTime.MAX);
-
-        final LocalDateTime userEnrollTime = LocalDateTime.of(
-            LocalDate.of(2016, 5, 5), LocalTime.MAX);
-
-        final Long frequencyType =
-            TimeOffAccrualFrequency.AccrualFrequencyType.FREQUENCY_TYPE_TWO.getValue();
-        final Boolean result =
-            Whitebox.invokeMethod(accrualService, "invalidByStartDateAndEndDate",
-            Timestamp.valueOf(startDate), Timestamp.valueOf(endDate), userEnrollTime,
-            frequencyType);
-
-        Assertions.assertTrue(result);
-      }
-
-      @Test
-      void thenWhenDifferentAnniversaryYear_thenValid() throws Exception {
-
-        final LocalDateTime startDate = LocalDateTime.of(
-            LocalDate.of(2016, 8, 2), LocalTime.MAX);
-
-        final LocalDateTime endDate = LocalDateTime.of(
-            LocalDate.of(2017, 2, 2), LocalTime.MAX);
-
-        final LocalDateTime userEnrollTime = LocalDateTime.of(
-            LocalDate.of(2016, 1, 1), LocalTime.MAX);
-
-        final Long frequencyType =
-            TimeOffAccrualFrequency.AccrualFrequencyType.FREQUENCY_TYPE_TWO.getValue();
-        final Boolean result =
-            Whitebox.invokeMethod(accrualService, "invalidByStartDateAndEndDate",
-            Timestamp.valueOf(startDate), Timestamp.valueOf(endDate), userEnrollTime,
-            frequencyType);
-
-        Assertions.assertFalse(result);
-      }
-    }
-
-    @Nested
-    class WhenWithFrequencyTypeThree {
-
-      @Test
-      void thenWhenSameMonth_thenInvalid() throws Exception {
-
-        final LocalDateTime startDate = LocalDateTime.of(
-            LocalDate.of(2016, 8, 2), LocalTime.MAX);
-
-        final LocalDateTime endDate = LocalDateTime.of(
-            LocalDate.of(2016, 8, 22), LocalTime.MAX);
-
-        final LocalDateTime userEnrollTime = LocalDateTime.of(
-            LocalDate.of(2016, 5, 5), LocalTime.MAX);
-
-        final Long frequencyType =
-            TimeOffAccrualFrequency.AccrualFrequencyType.FREQUENCY_TYPE_THREE.getValue();
-        final Boolean result =
-            Whitebox.invokeMethod(accrualService, "invalidByStartDateAndEndDate",
-            Timestamp.valueOf(startDate), Timestamp.valueOf(endDate), userEnrollTime,
-            frequencyType);
-
-        Assertions.assertTrue(result);
-      }
-
-      @Test
-      void thenWhenDifferentMonth_thenValid() throws Exception {
-
-        final LocalDateTime startDate = LocalDateTime.of(
-            LocalDate.of(2016, 3, 2), LocalTime.MAX);
-
-        final LocalDateTime endDate = LocalDateTime.of(
-            LocalDate.of(2016, 2, 2), LocalTime.MAX);
-
-        final LocalDateTime userEnrollTime = LocalDateTime.of(
-            LocalDate.of(2016, 1, 1), LocalTime.MAX);
-
-        final Long frequencyType =
-            TimeOffAccrualFrequency.AccrualFrequencyType.FREQUENCY_TYPE_THREE.getValue();
-        final Boolean result =
-            Whitebox.invokeMethod(accrualService, "invalidByStartDateAndEndDate",
-            Timestamp.valueOf(startDate), Timestamp.valueOf(endDate), userEnrollTime,
-            frequencyType);
-
-        Assertions.assertFalse(result);
-      }
-    }
-  }
-
-  @Nested
   class GetValidYearPeriod {
 
     @Test
-    void whenSameYear_thenReturnEmpty() throws Exception {
+    void whenSameYear_thenReturnOneElement() throws Exception {
 
-      final Timestamp startDate = Timestamp.valueOf(
-          LocalDateTime.of(LocalDate.of(2016, 1, 1), LocalTime.MAX));
-      final Timestamp endDate = Timestamp.valueOf(
-          LocalDateTime.of(LocalDate.of(2016, 2, 2), LocalTime.MAX));
+      final LocalDate startDate = LocalDate.of(2016, 1, 1);
+      final LocalDate endDate = LocalDate.of(2016, 2, 2);
 
       final List<Integer> validYears = Whitebox.invokeMethod(
           accrualNatureStrategyService, "getValidYearPeriod", startDate, endDate,
-          LocalDateTime.now());
+          LocalDate.now());
 
-      Assertions.assertTrue( validYears.isEmpty());
+      Assertions.assertEquals(1, validYears.size());
     }
   }
 
   @Test
-  void whenDifferentYear_thenReturnFilledArray() throws Exception {
+  void whenDifferentYear_thenReturnMoreElements() throws Exception {
 
-    final Timestamp startDate = Timestamp.valueOf(
-        LocalDateTime.of(LocalDate.of(2016, 1, 1), LocalTime.MAX));
-    final Timestamp endDate = Timestamp.valueOf(
-        LocalDateTime.of(LocalDate.of(2017, 2, 2), LocalTime.MAX));
+    final LocalDate startDate = LocalDate.of(2016, 1, 1);
+    final LocalDate endDate = LocalDate.of(2017, 2, 2);
 
     final List<Integer> validYears =
         Whitebox.invokeMethod(accrualNatureStrategyService, "getValidYearPeriod",
-            startDate, endDate, LocalDateTime.now());
+            startDate, endDate, LocalDate.now());
 
-    Assertions.assertAll(
-        () -> Assertions.assertEquals(1, validYears.size()),
-        () -> Assertions.assertEquals(validYears.get(0).intValue(), 2016));
+    Assertions.assertEquals(2, validYears.size());
   }
 
   @Nested
@@ -235,18 +72,15 @@ class TimeOffDetailServiceTests {
     @Test
     void whenSameAnniversary_thenReturnEmpty() throws Exception {
 
-      final Timestamp startDate = Timestamp.valueOf(
-          LocalDateTime.of(LocalDate.of(2016, 6, 1), LocalTime.MAX));
-      final Timestamp endDate = Timestamp.valueOf(
-          LocalDateTime.of(LocalDate.of(2017, 3, 2), LocalTime.MAX));
+      final LocalDate startDate = LocalDate.of(2016, 6, 1);
+      final LocalDate endDate = LocalDate.of(2017, 3, 2);
 
-      final Timestamp userEnrollTime = Timestamp.valueOf(
-          LocalDateTime.of(LocalDate.of(2016, 4, 4), LocalTime.MAX));
+      final LocalDate userJoinDate = LocalDate.of(2016, 4, 4);
 
-      final List<Integer> validYears =
+      final List<LocalDate> validYears =
           Whitebox.invokeMethod(accrualAnniversaryStrategyService,
-              "getValidAnniversaryPeriod", userEnrollTime, startDate, endDate,
-              LocalDateTime.now());
+              "getValidAnniversaryPeriod", userJoinDate, startDate, endDate,
+              LocalDate.now());
 
       Assertions.assertTrue( validYears.isEmpty());
     }
@@ -254,23 +88,20 @@ class TimeOffDetailServiceTests {
     @Test
     void whenDifferentAnniversary_thenReturnFilledArray() throws Exception {
 
-      final Timestamp startDate = Timestamp.valueOf(
-          LocalDateTime.of(LocalDate.of(2016, 2, 1), LocalTime.MAX));
-      final Timestamp endDate = Timestamp.valueOf(
-          LocalDateTime.of(LocalDate.of(2017, 4, 1), LocalTime.MAX));
+      final LocalDate startDate = LocalDate.of(2016, 2, 1);
+      final LocalDate endDate = LocalDate.of(2017, 4, 1);
 
-      final Timestamp userEnrollTime = Timestamp.valueOf(
-          LocalDateTime.of(LocalDate.of(2016, 3, 4), LocalTime.MAX));
+      final LocalDate userJoinDate = LocalDate.of(2016, 3, 4);
 
-      final List<LocalDateTime> validYears =
+      final List<LocalDate> validYears =
           Whitebox.invokeMethod(accrualAnniversaryStrategyService,
-              "getValidAnniversaryPeriod", userEnrollTime, startDate, endDate,
-              LocalDateTime.now());
+              "getValidAnniversaryPeriod", userJoinDate, startDate, endDate,
+              LocalDate.now());
 
       Assertions.assertAll(
           () -> Assertions.assertEquals(1, validYears.size()),
           () -> Assertions.assertTrue(
-              validYears.get(0).isEqual(DateUtil.toLocalDateTime(userEnrollTime))));
+              validYears.get(0).isEqual(userJoinDate)));
     }
   }
 
@@ -280,14 +111,12 @@ class TimeOffDetailServiceTests {
     @Test
     void whenAfterEndDate_thenReturnEmpty() throws Exception {
 
-      final Timestamp startDate = Timestamp.valueOf(
-          LocalDateTime.of(LocalDate.of(2016, 6, 1), LocalTime.MAX));
-      final Timestamp endDate = Timestamp.valueOf(
-          LocalDateTime.of(LocalDate.of(2016, 5, 2), LocalTime.MAX));
+      final LocalDate startDate = LocalDate.of(2016, 6, 1);
+      final LocalDate endDate = LocalDate.of(2016, 5, 2);
 
-      final List<Integer> monthPeriods =
+      final List<LocalDate> monthPeriods =
           Whitebox.invokeMethod(accrualMonthStrategyService, "getValidMonthPeriod",
-              startDate, endDate, LocalDateTime.now());
+              startDate, endDate, LocalDate.now());
 
       Assertions.assertTrue( monthPeriods.isEmpty());
     }
@@ -295,19 +124,14 @@ class TimeOffDetailServiceTests {
     @Test
     void whenBeforeEndDate_thenReturnFilledArray() throws Exception {
 
-      final Timestamp startDate = Timestamp.valueOf(
-          LocalDateTime.of(LocalDate.of(2016, 6, 2), LocalTime.MAX));
-      final Timestamp endDate = Timestamp.valueOf(
-          LocalDateTime.of(LocalDate.of(2016, 7, 1), LocalTime.MAX));
+      final LocalDate startDate = LocalDate.of(2016, 6, 2);
+      final LocalDate endDate = LocalDate.of(2016, 7, 1);
 
-      final List<LocalDateTime> monthPeriods =
+      final List<LocalDate> monthPeriods =
           Whitebox.invokeMethod(accrualMonthStrategyService, "getValidMonthPeriod",
-              startDate, endDate, LocalDateTime.now());
+              startDate, endDate, LocalDate.now());
 
-      Assertions.assertAll(
-          () -> Assertions.assertEquals(1, monthPeriods.size()),
-          () -> Assertions.assertTrue(
-              monthPeriods.get(0).isEqual(DateUtil.toLocalDateTime(startDate))));
+      Assertions.assertEquals(2, monthPeriods.size());
     }
   }
 
@@ -340,13 +164,11 @@ class TimeOffDetailServiceTests {
     void whenMissingOneAnniversaryYear_thenReturnFilled () throws Exception {
       final List<TimeOffBreakdownAnniversaryDto> timeOffBreakdownYearDtos = new ArrayList<>();
       final TimeOffBreakdownAnniversaryDto startBreakdownDto = new TimeOffBreakdownAnniversaryDto();
-      startBreakdownDto.setDate(
-          LocalDateTime.of(LocalDate.of(2016, 1, 1), LocalTime.MIN));
+      startBreakdownDto.setDate(LocalDate.of(2016, 1, 1));
       timeOffBreakdownYearDtos.add(startBreakdownDto);
 
       final TimeOffBreakdownAnniversaryDto endBreakdownYearDto = new TimeOffBreakdownAnniversaryDto();
-      endBreakdownYearDto.setDate(
-          LocalDateTime.of(LocalDate.of(2018, 1, 1), LocalTime.MIN));
+      endBreakdownYearDto.setDate(LocalDate.of(2018, 1, 1));
       timeOffBreakdownYearDtos.add(endBreakdownYearDto);
 
       final LinkedList<TimeOffBreakdownYearDto> filledYearDtos =
@@ -364,13 +186,11 @@ class TimeOffDetailServiceTests {
     void whenMissingOneMonth_thenReturnFilled () throws Exception {
       final List<TimeOffBreakdownMonthDto> timeOffBreakdownYearDtos = new ArrayList<>();
       final TimeOffBreakdownMonthDto startBreakdownDto = new TimeOffBreakdownMonthDto();
-      startBreakdownDto.setDate(
-          LocalDateTime.of(LocalDate.of(2016, 1, 1), LocalTime.MIN));
+      startBreakdownDto.setDate(LocalDate.of(2016, 1, 1));
       timeOffBreakdownYearDtos.add(startBreakdownDto);
 
       final TimeOffBreakdownMonthDto endBreakdownYearDto = new TimeOffBreakdownMonthDto();
-      endBreakdownYearDto.setDate(
-          LocalDateTime.of(LocalDate.of(2016, 3, 1), LocalTime.MIN));
+      endBreakdownYearDto.setDate(LocalDate.of(2016, 3, 1));
       timeOffBreakdownYearDtos.add(endBreakdownYearDto);
 
       final LinkedList<TimeOffBreakdownYearDto> filledYearDtos =
@@ -380,7 +200,6 @@ class TimeOffDetailServiceTests {
       Assertions.assertEquals(filledYearDtos.size(), 3);
     }
   }
-
 
   @Nested
   class GetFinalTimeOffBreakdown {
@@ -392,14 +211,12 @@ class TimeOffDetailServiceTests {
     @BeforeEach
     void setUp() {
       startingBreakdown = new TimeOffBreakdownItemDto();
-      startingBreakdown.setDate(
-          LocalDateTime.of(LocalDate.of(2016, 3, 10), LocalTime.MIN));
+      startingBreakdown.setDate(LocalDate.of(2016, 3, 10));
       startingBreakdown.setAmount(10);
       startingBreakdown.setBalance(10);
 
       final TimeOffBreakdownItemDto timeOffBreakdownItemDto = new TimeOffBreakdownItemDto();
-      timeOffBreakdownItemDto.setDate(
-          LocalDateTime.of(LocalDate.of(2016, 5, 5), LocalTime.MIN));
+      timeOffBreakdownItemDto.setDate(LocalDate.of(2016, 5, 5));
       timeOffBreakdownItemDto.setAmount(-4);
       timeOffBreakdownItemDto.setDetail("Request time off");
       balanceAdjustmentList.add(timeOffBreakdownItemDto);
@@ -434,7 +251,7 @@ class TimeOffDetailServiceTests {
             Whitebox.invokeMethod(accrualNatureStrategyService,
                 "getFinalTimeOffBreakdown", timeOffBreakdownYearDtoList,
                 startingBreakdown, balanceAdjustmentList);
-        Assertions.assertEquals(timeOffBreakdownDto.getBalance().intValue(), 19);
+        Assertions.assertEquals(9, timeOffBreakdownDto.getBalance().intValue());
       }
     }
 
@@ -446,8 +263,7 @@ class TimeOffDetailServiceTests {
       @BeforeEach
       void setUp() {
         final TimeOffBreakdownAnniversaryDto firstBreakdownYearDto = new TimeOffBreakdownAnniversaryDto();
-        final LocalDateTime firstYearDate =
-            LocalDateTime.of(LocalDate.of(2016, 5, 2), LocalTime.MIN);
+        final LocalDate firstYearDate = LocalDate.of(2016, 5, 2);
         firstBreakdownYearDto.setDate(firstYearDate);
         firstBreakdownYearDto.setAccrualHours(10);
         firstBreakdownYearDto.setMaxBalance(7);
@@ -455,8 +271,7 @@ class TimeOffDetailServiceTests {
         timeOffBreakdownAnniversaryDtoList.add(firstBreakdownYearDto);
 
         final TimeOffBreakdownAnniversaryDto secondBreakdownYearDto = new TimeOffBreakdownAnniversaryDto();
-        final LocalDateTime secondYearDate =
-            LocalDateTime.of(LocalDate.of(2017, 5, 2), LocalTime.MIN);
+        final LocalDate secondYearDate = LocalDate.of(2017, 5, 2);
         secondBreakdownYearDto.setAccrualHours(10);
         secondBreakdownYearDto.setDate(secondYearDate);
         secondBreakdownYearDto.setCarryoverLimit(5);
@@ -470,7 +285,7 @@ class TimeOffDetailServiceTests {
             Whitebox.invokeMethod(accrualAnniversaryStrategyService,
                 "getFinalAnniversaryBreakdown", timeOffBreakdownAnniversaryDtoList,
                 startingBreakdown, balanceAdjustmentList);
-        Assertions.assertEquals(13, timeOffBreakdownDto.getBalance().intValue());
+        Assertions.assertEquals(12, timeOffBreakdownDto.getBalance().intValue());
       }
     }
 
@@ -483,19 +298,17 @@ class TimeOffDetailServiceTests {
       @BeforeEach
       void setUp() {
         final TimeOffBreakdownMonthDto firstBreakdownMonthDto = new TimeOffBreakdownMonthDto();
-        final LocalDateTime firstMonthDate =
-            LocalDateTime.of(LocalDate.of(2016, 5, 1), LocalTime.MIN);
+        final LocalDate firstMonthDate = LocalDate.of(2016, 5, 1);
         firstBreakdownMonthDto.setDate(firstMonthDate);
         firstBreakdownMonthDto.setAccrualHours(10);
-        firstBreakdownMonthDto.setLastMonthOfTheYear(false);
+        firstBreakdownMonthDto.setLastMonthOfPreviousAnniversaryYear(false);
         timeOffBreakdownMonthDtos.add(firstBreakdownMonthDto);
 
         final TimeOffBreakdownMonthDto secondBreakdownMonthDto = new TimeOffBreakdownMonthDto();
-        final LocalDateTime secondMonthDate =
-        LocalDateTime.of(LocalDate.of(2016, 6, 1), LocalTime.MIN);
+        final LocalDate secondMonthDate = LocalDate.of(2016, 6, 1);
         secondBreakdownMonthDto.setAccrualHours(10);
         secondBreakdownMonthDto.setDate(secondMonthDate);
-        secondBreakdownMonthDto.setLastMonthOfTheYear(false);
+        secondBreakdownMonthDto.setLastMonthOfPreviousAnniversaryYear(false);
         timeOffBreakdownMonthDtos.add(secondBreakdownMonthDto);
       }
 

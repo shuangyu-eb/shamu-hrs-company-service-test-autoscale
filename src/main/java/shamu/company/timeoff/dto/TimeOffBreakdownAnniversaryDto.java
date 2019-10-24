@@ -1,12 +1,12 @@
 package shamu.company.timeoff.dto;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import lombok.Data;
 
 @Data
 public class TimeOffBreakdownAnniversaryDto {
 
-  private LocalDateTime date;
+  private LocalDate date;
 
   private Integer accrualHours;
 

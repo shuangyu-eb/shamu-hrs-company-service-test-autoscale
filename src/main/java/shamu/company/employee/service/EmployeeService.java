@@ -452,8 +452,8 @@ public class EmployeeService {
           userEmergencyContactRepository.findAllIdByUserId(employee.getId());
       if (!userEmergencyContactIds.isEmpty()) {
         userEmergencyContactRepository.deleteInBatch(userEmergencyContactIds.stream()
-                .map(BigInteger::longValue)
-                .collect(Collectors.toList()));
+            .map(BigInteger::longValue)
+            .collect(Collectors.toList()));
       }
       saveEmergencyContacts(employee, emergencyContactDtos);
     }

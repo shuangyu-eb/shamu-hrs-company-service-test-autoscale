@@ -6,6 +6,7 @@ import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.NO_ACTIO
 
 import java.math.BigInteger;
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -191,7 +192,7 @@ public class TimeOffPolicyService {
       final TimeOffPolicyUser policyUser = policyUserIterator.next();
       final Long policyUserId = policyUser.getId();
       final TimeOffBreakdownDto timeOffBreakdownDto = timeOffDetailService
-          .getTimeOffBreakdown(policyUserId, currentTime);
+          .getTimeOffBreakdown(policyUserId, currentTime.toLocalDate());
       final Integer balance = timeOffBreakdownDto.getBalance();
 
       final Integer pendingHours = getTimeOffRequestHoursFromStatus(
@@ -200,8 +201,8 @@ public class TimeOffPolicyService {
               user.getId(), policyUser.getTimeOffPolicy().getId(), APPROVED,
               Timestamp.valueOf(currentTime));
 
-      Integer approvalBalance = (null == balance ? null : (balance - approvedHours));
-      Integer availableBalance = (
+      final Integer approvalBalance = (null == balance ? null : (balance - approvedHours));
+      final Integer availableBalance = (
               null == balance ? null : (balance - pendingHours - approvedHours));
 
       final TimeOffBalanceItemDto timeOffBalanceItemDto = TimeOffBalanceItemDto.builder()
@@ -227,7 +228,7 @@ public class TimeOffPolicyService {
   public Integer getTimeOffRequestHoursFromStatus(
           final Long userId, final Long policyId,
           final TimeOffRequestApprovalStatus status, final Timestamp currentTime) {
-    List<TimeOffRequest> timeOffRequestList = timeOffRequestRepository
+    final List<TimeOffRequest> timeOffRequestList = timeOffRequestRepository
             .findByTimeOffPolicyUserAndStatus(userId, policyId, status, currentTime);
     return timeOffRequestList.stream().mapToInt(TimeOffRequest::getHours).sum();
   }
@@ -244,7 +245,7 @@ public class TimeOffPolicyService {
       final TimeOffPolicyUser policyUser = policyUserIterator.next();
       final Long policyUserId = policyUser.getId();
       final TimeOffBreakdownDto timeOffBreakdownDto = timeOffDetailService
-          .getTimeOffBreakdown(policyUserId, endDateTime);
+          .getTimeOffBreakdown(policyUserId, endDateTime.toLocalDate());
       final Integer balance = timeOffBreakdownDto.getBalance();
 
       final Integer pendingHours = getTimeOffRequestHoursFromStatus(
@@ -252,7 +253,7 @@ public class TimeOffPolicyService {
       final Integer approvedHours = getTimeOffRequestHoursFromStatus(
               user.getId(), policyUser.getTimeOffPolicy().getId(), APPROVED,
               Timestamp.valueOf(endDateTime));
-      Integer availableBalance = (
+      final Integer availableBalance = (
               null == balance ? null : (balance - pendingHours - approvedHours));
 
       final TimeOffPolicyUserDto timeOffPolicyUserDto = timeOffPolicyUserMapper
@@ -480,15 +481,9 @@ public class TimeOffPolicyService {
             .findByTimeOffPolicy(timeOffPolicyUser.getTimeOffPolicy());
     final Integer maxBalance = accrualSchedule.getMaxBalance();
 
-    Boolean adjustmentValid = true;
-    if (maxBalance != null) {
-      final Integer currentBalance = timeOffDetailService
-          .getTimeOffBreakdown(policyUserId, DateUtil.getLocalUtcTime()).getBalance();
-      final Integer newBalance = currentBalance + adjustment;
-      adjustmentValid = newBalance <= maxBalance;
-    }
-
-    if (!adjustmentValid) {
+    final Integer currentBalance = timeOffDetailService
+        .getTimeOffBreakdown(policyUserId, DateUtil.getLocalUtcTime().toLocalDate()).getBalance();
+    if (maxBalance != null && (currentBalance + adjustment) > maxBalance) {
       throw new ForbiddenException("Adjustment bigger than max allowed balance.");
     }
 
@@ -653,7 +648,6 @@ public class TimeOffPolicyService {
   }
 
   public void deleteTimeOffPolicy(final Long timeOffPolicyId) {
-    final TimeOffPolicy timeOffPolicy = timeOffPolicyRepository.getOne(timeOffPolicyId);
     final List<TimeOffRequestStatusPojo> requests = timeOffRequestRepository
         .findByTimeOffPolicyId(timeOffPolicyId);
     requests.stream().filter(request ->
@@ -666,15 +660,16 @@ public class TimeOffPolicyService {
     timeOffPolicyUserRepository.delete(timeOffPolicyUsers);
 
     final List<BigInteger> accrualScheduleIds = timeOffPolicyAccrualScheduleRepository
-            .findIdByTimeOffPolicyId(timeOffPolicy.getId());
+        .findIdByTimeOffPolicyId(timeOffPolicyId);
+
     if (accrualScheduleIds != null) {
       final List<Long> scheduleIds = accrualScheduleIds.stream().map(BigInteger::longValue)
-              .collect(Collectors.toList());
+          .collect(Collectors.toList());
 
       timeOffPolicyAccrualScheduleRepository.deleteInBatch(scheduleIds);
 
       final List<AccrualScheduleMilestone> milestones = accrualScheduleMilestoneRepository
-              .findByTimeOffPolicyAccrualScheduleIds(scheduleIds);
+          .findByTimeOffPolicyAccrualScheduleIds(scheduleIds);
       accrualScheduleMilestoneRepository.deleteAll(milestones);
     }
 
@@ -689,7 +684,7 @@ public class TimeOffPolicyService {
       final TimeOffPolicy enrollPolicy, final Long currentUserId) {
     policyUsers.stream().forEach(policyUser -> {
       final TimeOffBreakdownDto timeOffBreakdown = timeOffDetailService
-          .getTimeOffBreakdown(policyUser.getId(), LocalDateTime.now());
+          .getTimeOffBreakdown(policyUser.getId(), LocalDate.now());
 
       final Integer remainingBalance = timeOffBreakdown.getBalance();
       final TimeOffAdjustment timeOffAdjustment = TimeOffAdjustment.builder()

@@ -135,8 +135,8 @@ public class TimeOffRequestService {
     final User.Role userRole = auth0Util
         .getUserRole(user.getUserId());
 
-    List<TimeOffRequest> result;
-    List<TimeOffRequest> selfPendingRequests = timeOffRequestRepository
+    final List<TimeOffRequest> result;
+    final List<TimeOffRequest> selfPendingRequests = timeOffRequestRepository
             .employeeFindSelfPendingRequests(user.getId());
     if (user.getManagerUser() == null) {
       result = timeOffRequestRepository.adminFindTeamRequests(user.getId(), statusNames);
@@ -339,7 +339,7 @@ public class TimeOffRequestService {
               new User(unimplementedRequestDto.getUserId()), timeOffPolicy);
       if (null != timeOffPolicyUser) {
         timeOffPolicyUser.setBalance(
-                timeOffPolicyUser.getBalance() + unimplementedRequestDto.getHours());
+            timeOffPolicyUser.getBalance() + unimplementedRequestDto.getHours());
         timeOffPolicyUserRepository.save(timeOffPolicyUser);
       }
     }
@@ -380,14 +380,14 @@ public class TimeOffRequestService {
 
     final LocalDateTime currentTime = LocalDateTime.now();
     final TimeOffBreakdownDto timeOffBreakdownDto = timeOffDetailService
-        .getTimeOffBreakdown(timeOffPolicyUser.getId(), currentTime);
+        .getTimeOffBreakdown(timeOffPolicyUser.getId(), currentTime.toLocalDate());
     final Integer balance = timeOffBreakdownDto.getBalance();
     final Integer approvedHours = timeOffPolicyService.getTimeOffRequestHoursFromStatus(
             timeOffPolicyUser.getUser().getId(),
             timeOffPolicyUser.getTimeOffPolicy().getId(), APPROVED,
             Timestamp.valueOf(currentTime));
 
-    Integer approvalBalance = (null == balance ? null : (balance - approvedHours));
+    final Integer approvalBalance = (null == balance ? null : (balance - approvedHours));
 
     timeOffRequest.setBalance(approvalBalance);
 

@@ -1,8 +1,7 @@
 package shamu.company.timeoff.service;
 
-import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.Month;
 import java.time.Year;
 import java.util.ArrayList;
@@ -13,7 +12,6 @@ import java.util.TreeMap;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import shamu.company.common.entity.BaseEntity;
 import shamu.company.timeoff.dto.TimeOffBreakdownDto;
 import shamu.company.timeoff.dto.TimeOffBreakdownItemDto;
 import shamu.company.timeoff.dto.TimeOffBreakdownMonthDto;
@@ -36,12 +34,17 @@ public class TimeOffAccrualMonthStrategyService extends TimeOffAccrualService {
     this.accrualScheduleMilestoneRepository = accrualScheduleMilestoneRepository;
   }
 
-  public TimeOffBreakdownDto getTimeOffBreakdown(final TimeOffBreakdownItemDto startingBreakdown,
+  TimeOffBreakdownDto getTimeOffBreakdown(
+      final TimeOffBreakdownItemDto startingBreakdown,
       final TimeOffBreakdownCalculatePojo calculatePojo) {
 
     List<TimeOffBreakdownMonthDto> timeOffBreakdownMonthDtoList =
         getAccrualDataByMonth(calculatePojo);
     timeOffBreakdownMonthDtoList = addMissingMonthDto(timeOffBreakdownMonthDtoList);
+
+    // calculate the month which dividing day reside
+    // refer to https://tardisone.atlassian.net/browse/SH-689?focusedCommentId=28173&page=com.atlassian.jira.plugin.system.issuetabpanels%3Acomment-tabpanel#comment-28173
+    resetDividingMonths(timeOffBreakdownMonthDtoList, startingBreakdown.getDate());
 
     timeOffBreakdownMonthDtoList.forEach(timeOffBreakdownMonthDto -> {
       timeOffBreakdownMonthDto.setDate(timeOffBreakdownMonthDto.getDate().plusMonths(1));
@@ -51,19 +54,63 @@ public class TimeOffAccrualMonthStrategyService extends TimeOffAccrualService {
         startingBreakdown, calculatePojo.getBalanceAdjustment());
   }
 
+  private void resetDividingMonths(List<TimeOffBreakdownMonthDto> timeOffBreakdownMonthDtoList,
+      LocalDate dividingDay) {
+    LocalDate[] currentDividingDay = new LocalDate[]{LocalDate.from(dividingDay)};
+    currentDividingDay[0] = currentDividingDay[0].plusMonths(12);
+
+    final TimeOffBreakdownMonthDto[] currentMonthDto = {null};
+    TimeOffBreakdownMonthDto[] previousMonthDto = {null};
+
+    timeOffBreakdownMonthDtoList.forEach(timeOffBreakdownMonthDto -> {
+
+      previousMonthDto[0] = currentMonthDto[0];
+      currentMonthDto[0] = timeOffBreakdownMonthDto;
+
+      if (timeOffBreakdownMonthDto.getDate().getYear() != dividingDay.getYear()
+          && timeOffBreakdownMonthDto.getDate().getMonthValue()
+          == dividingDay.getMonthValue()) {
+        resetDividingMonth(currentMonthDto[0], previousMonthDto[0], dividingDay);
+      }
+    });
+  }
+
+  private void resetDividingMonth(TimeOffBreakdownMonthDto dividingMonth,
+      TimeOffBreakdownMonthDto previousMonth, LocalDate dividingDay) {
+
+    int dayOfMonth = dividingDay.getDayOfMonth();
+    int totalDays = dividingMonth.getDate().getMonth().length(
+        Year.isLeap(dividingMonth.getDate().getYear())
+    );
+
+    Double newBalance = previousMonth.getAccrualHours() * ((double)dayOfMonth / totalDays)
+        + dividingMonth.getAccrualHours() * (1d - (double)dayOfMonth / totalDays);
+
+    dividingMonth.setAccrualHours((int) Math.round(newBalance));
+    previousMonth.setLastMonthOfPreviousAnniversaryYear(true);
+  }
+
   private List<TimeOffBreakdownMonthDto> getAccrualDataByMonth(
       final TimeOffBreakdownCalculatePojo calculatePojo) {
 
-    final LocalDateTime userJoinDateTime = DateUtil.toLocalDateTime(
-        calculatePojo.getPolicyUser().getUser().getCreatedAt());
+    final LocalDate userHiredDate = DateUtil
+        .fromTimestamp(calculatePojo.getPolicyUser().getUser().getCreatedAt());
+    final LocalDateTime userJoinPolicyDate = DateUtil
+        .toLocalDateTime(calculatePojo.getPolicyUser().getCreatedAt());
+
     final TreeMap<Integer, TreeMap<Integer, TimeOffBreakdownMonthDto>> accrualDate
         = new TreeMap<>();
 
     calculatePojo.getTrimmedScheduleList().forEach(accrualSchedule -> {
-      final List<Timestamp> validStartAndEndDate =
-          getValidAccrualScheduleStartAndEndDate(userJoinDateTime, accrualSchedule);
 
-      final List<LocalDateTime> validPeriod = getValidMonthPeriod(
+      LocalDate scheduleBaseTime =
+          super.getScheduleStartBaseTime(userHiredDate,
+              userJoinPolicyDate.toLocalDate(), accrualSchedule);
+      final List<LocalDate> validStartAndEndDate =
+          super.getValidScheduleOrMilestonePeriod(scheduleBaseTime,
+          accrualSchedule.getCreatedAt(), accrualSchedule.getExpiredAt());
+
+      final List<LocalDate> validPeriod = getValidMonthPeriod(
           validStartAndEndDate.get(0),
           validStartAndEndDate.get(1),
           calculatePojo.getUntilDate()
@@ -76,16 +123,20 @@ public class TimeOffAccrualMonthStrategyService extends TimeOffAccrualService {
               .findByTimeOffPolicyAccrualScheduleId(accrualSchedule.getId());
       accrualScheduleMilestoneList = trimTimeOffPolicyScheduleMilestones(
           accrualScheduleMilestoneList,
-          calculatePojo.getPolicyUser().getUser(), accrualSchedule);
+          calculatePojo.getPolicyUser(), accrualSchedule);
 
       // sort milestones
-      accrualScheduleMilestoneList.sort(Comparator.comparing(BaseEntity::getCreatedAt));
+      accrualScheduleMilestoneList.sort(Comparator
+          .comparing(AccrualScheduleMilestone::getCreatedAt, Comparator.reverseOrder()));
 
       accrualScheduleMilestoneList.forEach(accrualScheduleMilestone -> {
+        LocalDateTime milestoneStartTime = userJoinPolicyDate
+            .plusYears(accrualScheduleMilestone.getAnniversaryYear());
+        final List<LocalDate> validMilestoneStartAndEndDate =
+            super.getValidScheduleOrMilestonePeriod(milestoneStartTime.toLocalDate(),
+                accrualScheduleMilestone.getCreatedAt(), accrualScheduleMilestone.getExpiredAt());
 
-        final List<Timestamp> validMilestoneStartAndEndDate =
-            getValidMilestoneStartAndEndDate(userJoinDateTime, accrualScheduleMilestone);
-        final List<LocalDateTime> validMilestonePeriod = getValidMonthPeriod(
+        final List<LocalDate> validMilestonePeriod = getValidMonthPeriod(
             validMilestoneStartAndEndDate.get(0), validMilestoneStartAndEndDate.get(1),
             calculatePojo.getUntilDate());
 
@@ -102,7 +153,7 @@ public class TimeOffAccrualMonthStrategyService extends TimeOffAccrualService {
     // recalculate first month's time off
     if (!monthList.isEmpty()) {
       final TimeOffBreakdownMonthDto firstMonth = monthList.get(0);
-      final LocalDateTime startDate = firstMonth.getDate();
+      final LocalDate startDate = firstMonth.getDate();
       final int dayOfMonth = startDate.getDayOfMonth();
       final int totalDays = Month.of(startDate.getMonthValue())
           .length(Year.isLeap(startDate.getYear()));
@@ -111,38 +162,33 @@ public class TimeOffAccrualMonthStrategyService extends TimeOffAccrualService {
       firstMonth.setAccrualHours(newTimeOffTime.intValue());
     }
 
-    // reset day value to be the first day of the month
-    monthList.forEach(timeOffBreakdownMonthDto -> {
-      timeOffBreakdownMonthDto
-          .setDate(timeOffBreakdownMonthDto.getDate().withDayOfMonth(1));
-    });
-
     return monthList;
   }
 
-  private List<LocalDateTime> getValidMonthPeriod(final Timestamp startDate,
-      final Timestamp endDate,
-      final LocalDateTime selectedDate) {
+  private List<LocalDate> getValidMonthPeriod(final LocalDate startDate,
+      final LocalDate endDate,
+      final LocalDate selectedDate) {
 
-    LocalDateTime startDateTime = DateUtil.toLocalDateTime(startDate);
+    LocalDate currentMonthDate = startDate.withDayOfMonth(1);
 
-    final LocalDateTime endDateTime = endDate == null ? selectedDate
-        : DateUtil.toLocalDateTime(endDate);
+    LocalDate endDateTime = endDate == null ? selectedDate
+        : endDate;
+    endDateTime = endDateTime.withDayOfMonth(1);
 
-    final List<LocalDateTime> validPeriod = new ArrayList<>();
+    final List<LocalDate> validPeriod = new ArrayList<>();
 
-    while (!startDateTime.isAfter(endDateTime)) {
-      validPeriod.add(startDateTime);
-      startDateTime = startDateTime.plusMonths(1);
+    while (!currentMonthDate.isAfter(endDateTime)) {
+      validPeriod.add(currentMonthDate);
+      currentMonthDate = currentMonthDate.plusMonths(1);
     }
     return validPeriod;
   }
 
   private void addToResultMonthMap(
       final TreeMap<Integer, TreeMap<Integer, TimeOffBreakdownMonthDto>> accrualDate,
-      final List<LocalDateTime> validPeriodList,
+      final List<LocalDate> validPeriodList,
       final TimeOffPolicyAccrualSchedule accrualSchedule) {
-    for (final LocalDateTime currentTime : validPeriodList) {
+    for (final LocalDate currentTime : validPeriodList) {
 
       final TimeOffBreakdownMonthDto timeOffBreakdownMonthDto = transferToMonthDto(accrualSchedule,
           currentTime, accrualSchedule.getAccrualHours() / 12);
@@ -162,23 +208,17 @@ public class TimeOffAccrualMonthStrategyService extends TimeOffAccrualService {
   }
 
   private <T> TimeOffBreakdownMonthDto transferToMonthDto(final T t,
-      final LocalDateTime currentTime,
+      final LocalDate currentTime,
       final Integer monthAccrualHours) {
     final TimeOffBreakdownMonthDto timeOffBreakdownMonthDto = new TimeOffBreakdownMonthDto(
-        LocalDateTime.of(currentTime.toLocalDate(), LocalTime.MIN),
-        monthAccrualHours,
-        false
+        currentTime,
+        monthAccrualHours
     );
 
-    if (Month.DECEMBER.equals(currentTime.getMonth())) {
-      timeOffBreakdownMonthDto.setLastMonthOfTheYear(true);
-
-      final TimeOffBreakdownYearDto timeOffBreakdownYearDto = new TimeOffBreakdownYearDto();
-      timeOffBreakdownYearDto.setYear(currentTime.getYear());
-      BeanUtils.copyProperties(t, timeOffBreakdownYearDto);
-
-      timeOffBreakdownMonthDto.setYearData(timeOffBreakdownYearDto);
-    }
+    TimeOffBreakdownYearDto timeOffBreakdownYearDto = new TimeOffBreakdownYearDto();
+    timeOffBreakdownYearDto.setYear(currentTime.getYear());
+    BeanUtils.copyProperties(t, timeOffBreakdownYearDto);
+    timeOffBreakdownMonthDto.setYearData(timeOffBreakdownYearDto);
     return timeOffBreakdownMonthDto;
   }
 
@@ -187,7 +227,7 @@ public class TimeOffAccrualMonthStrategyService extends TimeOffAccrualService {
 
     final LinkedList<TimeOffBreakdownMonthDto> newTimeOffBreakdownList = new LinkedList<>();
 
-    LocalDateTime previousDate = null;
+    LocalDate previousDate = null;
     for (final TimeOffBreakdownMonthDto timeOffBreakdownMonthDto : timeOffBreakdownMonthDtos) {
 
       TimeOffBreakdownMonthDto previousMonthDto;
@@ -198,11 +238,6 @@ public class TimeOffAccrualMonthStrategyService extends TimeOffAccrualService {
         previousMonthDto = newTimeOffBreakdownList.peekLast();
         BeanUtils.copyProperties(previousMonthDto, newMonthBreakdown);
         newMonthBreakdown.setDate(previousDate);
-
-        // check if the last month of the year and add year data to the last month
-        final boolean lastMonthOfTheYear = Month.DECEMBER.equals(previousDate.getMonth());
-        newMonthBreakdown.setLastMonthOfTheYear(lastMonthOfTheYear);
-        newMonthBreakdown.setYearData(lastMonthOfTheYear ? newMonthBreakdown.getYearData() : null);
 
         newTimeOffBreakdownList.add(newMonthBreakdown);
       }
@@ -219,8 +254,7 @@ public class TimeOffAccrualMonthStrategyService extends TimeOffAccrualService {
       final TimeOffBreakdownItemDto startingBreakdown,
       final List<TimeOffBreakdownItemDto> balanceAdjustment) {
 
-    final TimeOffBalancePojo balancePojo =
-        new TimeOffBalancePojo(startingBreakdown.getBalance(), 0);
+    final TimeOffBalancePojo balancePojo = new TimeOffBalancePojo(startingBreakdown.getBalance());
 
     TimeOffBreakdownYearDto timeOffBreakdownYearDto = null;
     final LinkedList<TimeOffBreakdownItemDto> resultTimeOffBreakdownItemList = new LinkedList<>();
@@ -228,40 +262,35 @@ public class TimeOffAccrualMonthStrategyService extends TimeOffAccrualService {
 
     for (final TimeOffBreakdownMonthDto timeOffBreakdownMonthDto : timeOffBreakdownMonthDtoList) {
 
+      final LocalDate firstDateOfTheMonth = timeOffBreakdownMonthDto.getDate().withDayOfMonth(1);
+      // Adjustment
       super.populateBreakdownAdjustmentBefore(resultTimeOffBreakdownItemList,
-          timeOffBreakdownMonthDto.getDate(), balanceAdjustment, balancePojo);
+          firstDateOfTheMonth, balanceAdjustment, balancePojo);
 
-      // apply carryover limit
-      if (timeOffBreakdownYearDto != null
-          && balancePojo.getCarryOverLimit() != null
-          && balancePojo.getAppliedAccumulation() > balancePojo.getCarryOverLimit()) {
+      // carryover
+      super.populateBreakdownListFromCarryoverLimit(resultTimeOffBreakdownItemList,
+          firstDateOfTheMonth, balancePojo);
 
-        balancePojo.setAppliedAccumulation(balancePojo.getCarryOverLimit());
-      }
+      // accrual
+      super.populateBreakdownListFromAccrualSchedule(resultTimeOffBreakdownItemList,
+          firstDateOfTheMonth, timeOffBreakdownMonthDto.getAccrualHours(), balancePojo);
 
-      balancePojo.calculateLatestBalance();
+      // max balance
+      super.populateBreakdownListFromMaxBalance(resultTimeOffBreakdownItemList,
+          firstDateOfTheMonth, balancePojo);
 
-      // set new max balance and carryover limit
-      if (timeOffBreakdownYearDto != null) {
-        balancePojo.setMaxBalance(timeOffBreakdownYearDto.getMaxBalance());
-        balancePojo.setCarryOverLimit(timeOffBreakdownYearDto.getCarryoverLimit());
-      }
-
-      // stop accrue if reach max balance
-      if (balancePojo.reachMaxBalance(false)) {
-        balancePojo
-            .setBalance(Math.min(balancePojo.getBalance(), balancePojo.getMaxBalance()));
-        continue;
-      }
-
-      timeOffBreakdownYearDto = timeOffBreakdownMonthDto.getLastMonthOfTheYear()
+      timeOffBreakdownYearDto = timeOffBreakdownMonthDto.getLastMonthOfPreviousAnniversaryYear()
           ? timeOffBreakdownMonthDto.getYearData()
           : null;
 
-      populateBreakdownListFromMonthDto(resultTimeOffBreakdownItemList, timeOffBreakdownMonthDto,
-          balancePojo);
+      if (timeOffBreakdownYearDto != null) {
+        balancePojo.setMaxBalance(timeOffBreakdownYearDto.getMaxBalance());
+
+        balancePojo.setCarryOverLimit(timeOffBreakdownYearDto.getCarryoverLimit());
+      } else {
+        balancePojo.setCarryOverLimit(null);
+      }
     }
-    balancePojo.calculateLatestBalance();
     super.populateRemainingAdjustment(resultTimeOffBreakdownItemList,
         balanceAdjustment, balancePojo);
 
@@ -269,38 +298,5 @@ public class TimeOffAccrualMonthStrategyService extends TimeOffAccrualService {
     timeOffBreakdownDto.setBalance(balancePojo.getBalance());
     timeOffBreakdownDto.setList(resultTimeOffBreakdownItemList);
     return timeOffBreakdownDto;
-  }
-
-  private void populateBreakdownListFromMonthDto(
-      final List<TimeOffBreakdownItemDto> resultTimeOffBreakdownItemList,
-      final TimeOffBreakdownMonthDto timeOffBreakdownMonthDto,
-      final TimeOffBalancePojo balancePojo) {
-
-    if (balancePojo.getAppliedAccumulation() == null) {
-      balancePojo.setAppliedAccumulation(0);
-    }
-
-    Integer newAppliedAccumulation =
-        balancePojo.getAppliedAccumulation() + timeOffBreakdownMonthDto.getAccrualHours();
-    balancePojo.setAppliedAccumulation(newAppliedAccumulation);
-
-    if (balancePojo.reachMaxBalance(true)) {
-      newAppliedAccumulation = balancePojo.getMaxBalance() - balancePojo.getBalance();
-      balancePojo.setAppliedAccumulation(newAppliedAccumulation);
-    }
-
-    final String dateMessage =
-            TimeOffBreakdownItemDto.dateFormatConvert(timeOffBreakdownMonthDto.getDate());
-
-    final TimeOffBreakdownItemDto timeOffBreakdownItemDto =
-        TimeOffBreakdownItemDto.builder()
-            .date(timeOffBreakdownMonthDto.getDate())
-            .dateMessage(dateMessage)
-            .amount(timeOffBreakdownMonthDto.getAccrualHours())
-            .balance(balancePojo.getBalance() + balancePojo.getAppliedAccumulation())
-            .detail(TIME_OFF_ACCRUED)
-            .breakdownType(TimeOffBreakdownItemDto.BreakDownType.TIME_OFF_ACCRUAL)
-            .build();
-    resultTimeOffBreakdownItemList.add(timeOffBreakdownItemDto);
   }
 }
