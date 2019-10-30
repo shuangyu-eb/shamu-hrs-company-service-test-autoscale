@@ -22,11 +22,6 @@ spring:
     cache: false
   profiles:
     include: database
-  servlet:
-    multipart:
-      enabled: true
-      max-file-size: 30MB
-      max-request-size: 30MB
   redis:
     host: localhost
     port: 6379
