@@ -73,4 +73,9 @@ public interface TimeOffRequestDateRepository extends BaseRepository<TimeOffRequ
       nativeQuery = true)
   List<TimeOffRequestDatePojo> getTakenApprovedRequestOffByUserIdAndPolicyId(
           Long userId, Long policyId, LocalDateTime currentTime);
+
+  @Modifying
+  @Query(value = "update TimeOffRequestDate  td set td.deletedAt = current_timestamp "
+      + "where td.timeOffRequestId in ?1")
+  void deleteByTimeOffRequestIds(List<Long> timeOffRequestIds);
 }

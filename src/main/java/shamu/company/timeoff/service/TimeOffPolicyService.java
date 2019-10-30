@@ -1,7 +1,6 @@
 package shamu.company.timeoff.service;
 
 import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.APPROVED;
-import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.DENIED;
 import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.NO_ACTION;
 
 import java.math.BigInteger;
@@ -63,6 +62,9 @@ import shamu.company.timeoff.repository.TimeOffAdjustmentRepository;
 import shamu.company.timeoff.repository.TimeOffPolicyAccrualScheduleRepository;
 import shamu.company.timeoff.repository.TimeOffPolicyRepository;
 import shamu.company.timeoff.repository.TimeOffPolicyUserRepository;
+import shamu.company.timeoff.repository.TimeOffRequestApproversRepository;
+import shamu.company.timeoff.repository.TimeOffRequestCommentsRepository;
+import shamu.company.timeoff.repository.TimeOffRequestDateRepository;
 import shamu.company.timeoff.repository.TimeOffRequestRepository;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserPersonalInformation;
@@ -70,6 +72,7 @@ import shamu.company.user.repository.UserRepository;
 import shamu.company.utils.DateUtil;
 
 @Service
+@Transactional
 public class TimeOffPolicyService {
 
   private final TimeOffPolicyRepository timeOffPolicyRepository;
@@ -102,6 +105,12 @@ public class TimeOffPolicyService {
 
   private final JobUserMapper jobUserMapper;
 
+  private final TimeOffRequestCommentsRepository timeOffRequestCommentsRepository;
+
+  private final TimeOffRequestDateRepository timeOffRequestDateRepository;
+
+  private final TimeOffRequestApproversRepository timeOffRequestApproversRepository;
+
   @Autowired
   public TimeOffPolicyService(
       final TimeOffPolicyRepository timeOffPolicyRepository,
@@ -117,7 +126,10 @@ public class TimeOffPolicyService {
       final TimeOffPolicyUserMapper timeOffPolicyUserMapper,
       final TimeOffPolicyMapper timeOffPolicyMapper,
       final JobUserMapper jobUserMapper,
-      final CompanyService companyService) {
+      final CompanyService companyService,
+      final TimeOffRequestCommentsRepository timeOffRequestCommentsRepository,
+      final TimeOffRequestDateRepository timeOffRequestDateRepository,
+      final TimeOffRequestApproversRepository timeOffRequestApproversRepository) {
     this.timeOffPolicyRepository = timeOffPolicyRepository;
     this.timeOffPolicyUserRepository = timeOffPolicyUserRepository;
     this.accrualScheduleMilestoneRepository = accrualScheduleMilestoneRepository;
@@ -133,6 +145,9 @@ public class TimeOffPolicyService {
     this.timeOffPolicyMapper = timeOffPolicyMapper;
     this.jobUserMapper = jobUserMapper;
     this.companyService = companyService;
+    this.timeOffRequestCommentsRepository = timeOffRequestCommentsRepository;
+    this.timeOffRequestDateRepository = timeOffRequestDateRepository;
+    this.timeOffRequestApproversRepository = timeOffRequestApproversRepository;
   }
 
   public void createTimeOffPolicy(final TimeOffPolicyWrapperDto timeOffPolicyWrapperDto,
@@ -648,31 +663,25 @@ public class TimeOffPolicyService {
   }
 
   public void deleteTimeOffPolicy(final Long timeOffPolicyId) {
-    final List<TimeOffRequestStatusPojo> requests = timeOffRequestRepository
+    List<TimeOffRequestStatusPojo> timeOffRequests = timeOffRequestRepository
         .findByTimeOffPolicyId(timeOffPolicyId);
-    requests.stream().filter(request ->
-        request.getTimeOffApprovalStatus() != APPROVED
-            && request.getTimeOffApprovalStatus() != DENIED)
-        .forEach(request -> timeOffRequestRepository.delete(request.getId()));
+    List<Long> timeOffRequestIds = timeOffRequests
+        .stream().map(TimeOffRequestStatusPojo::getId).collect(Collectors.toList());
 
-    final List<TimeOffPolicyUser> timeOffPolicyUsers = timeOffPolicyUserRepository
+    accrualScheduleMilestoneRepository.deleteByScheduleIds(timeOffRequestIds);
+
+    timeOffRequestCommentsRepository.deleteByTimeOffRequestIds(timeOffRequestIds);
+    timeOffRequestDateRepository.deleteByTimeOffRequestIds(timeOffRequestIds);
+    timeOffRequestApproversRepository.deleteAllByTimeOffRequestIds(timeOffRequestIds);
+
+    timeOffRequestRepository.deleteByTimeOffPolicyId(timeOffPolicyId);
+
+    // TODO hard delete directly, no query
+    List<TimeOffAdjustment> timeOffAdjustments = timeOffAdjustmentRepository
         .findAllByTimeOffPolicyId(timeOffPolicyId);
-    timeOffPolicyUserRepository.delete(timeOffPolicyUsers);
+    timeOffAdjustmentRepository.deleteAll(timeOffAdjustments);
 
-    final List<BigInteger> accrualScheduleIds = timeOffPolicyAccrualScheduleRepository
-        .findIdByTimeOffPolicyId(timeOffPolicyId);
-
-    if (accrualScheduleIds != null) {
-      final List<Long> scheduleIds = accrualScheduleIds.stream().map(BigInteger::longValue)
-          .collect(Collectors.toList());
-
-      timeOffPolicyAccrualScheduleRepository.deleteInBatch(scheduleIds);
-
-      final List<AccrualScheduleMilestone> milestones = accrualScheduleMilestoneRepository
-          .findByTimeOffPolicyAccrualScheduleIds(scheduleIds);
-      accrualScheduleMilestoneRepository.deleteAll(milestones);
-    }
-
+    timeOffPolicyUserRepository.deleteByTimeOffPolicyId(timeOffPolicyId);
     timeOffPolicyRepository.delete(timeOffPolicyId);
   }
 

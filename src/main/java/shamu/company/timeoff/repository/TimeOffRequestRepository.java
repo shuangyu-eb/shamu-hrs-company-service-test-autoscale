@@ -4,6 +4,7 @@ import java.sql.Timestamp;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import shamu.company.common.repository.BaseRepository;
 import shamu.company.timeoff.entity.TimeOffRequest;
@@ -203,4 +204,9 @@ public interface TimeOffRequestRepository
       + "(tr.id, tr.timeOffApprovalStatus) FROM TimeOffRequest tr"
               + " WHERE tr.deletedAt IS NULL AND tr.timeOffPolicy.id = ?1")
   List<TimeOffRequestStatusPojo> findByTimeOffPolicyId(Long timeOffPolicyId);
+
+  @Modifying
+  @Query(value = "update TimeOffRequest tr set tr.deletedAt = current_timestamp "
+      + "where tr.timeOffPolicy.id = ?1")
+  void deleteByTimeOffPolicyId(Long timeOffPolicyId);
 }

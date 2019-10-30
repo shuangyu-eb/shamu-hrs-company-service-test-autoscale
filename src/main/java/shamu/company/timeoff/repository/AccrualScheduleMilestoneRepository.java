@@ -24,4 +24,9 @@ public interface AccrualScheduleMilestoneRepository extends
       + "set time_off_policy_accrual_schedule_id = ?2 "
       + "where time_off_policy_accrual_schedule_id = ?1 and deleted_at is null", nativeQuery = true)
   void updateMilestoneSchedule(Long originScheduleId, Long newScheduleId);
+
+  @Modifying
+  @Query(value = "update AccrualScheduleMilestone m set m.deletedAt = current_timestamp "
+      + "where m.timeOffPolicyAccrualScheduleId in ?1")
+  void deleteByScheduleIds(List<Long> scheduleIds);
 }

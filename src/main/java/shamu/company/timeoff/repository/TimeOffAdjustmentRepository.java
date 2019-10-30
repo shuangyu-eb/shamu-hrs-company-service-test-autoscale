@@ -18,4 +18,6 @@ public interface TimeOffAdjustmentRepository extends JpaRepository<TimeOffAdjust
       + "ORDER BY tf.createdAt ASC")
   List<TimeOffAdjustmentPojo> findAllByUserIdAndTimeOffPolicyId(Long userId, Long policyId,
       Date endDate);
+
+  List<TimeOffAdjustment> findAllByTimeOffPolicyId(Long timeOffPolicyId);
 }

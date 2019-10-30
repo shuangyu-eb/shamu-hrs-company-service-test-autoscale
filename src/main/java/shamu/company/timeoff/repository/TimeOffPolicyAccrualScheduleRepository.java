@@ -2,6 +2,7 @@ package shamu.company.timeoff.repository;
 
 import java.math.BigInteger;
 import java.util.List;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import shamu.company.common.repository.BaseRepository;
 import shamu.company.timeoff.entity.TimeOffPolicy;
@@ -26,4 +27,8 @@ public interface TimeOffPolicyAccrualScheduleRepository extends
   @Query("select s from TimeOffPolicyAccrualSchedule s where s.deletedAt is null "
       + "and s.timeOffPolicy = ?1")
   List<TimeOffPolicyAccrualSchedule> findAllWithExpiredTimeOffPolicy(TimeOffPolicy timeOffPolicy);
+
+  @Modifying
+  @Query(value = "delete from TimeOffPolicyAccrualSchedule where id in ?1")
+  void deleteByIds(List<Long> scheduleIds);
 }
