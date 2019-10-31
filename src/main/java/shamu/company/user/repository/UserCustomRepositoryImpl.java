@@ -107,10 +107,10 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
             .setParameter(2, employeeListSearchCondition.getKeyword().trim())
             .getResultList();
 
-    List<JobUserListItem> jobUserItemList = jobUserList.stream()
+    final List<JobUserListItem> jobUserItemList = jobUserList.stream()
         .map(jobUser -> TupleUtil.convertTo((Tuple) jobUser, JobUserListItem.class))
         .collect(Collectors.toList());
-    
+
     return new PageImpl<>(jobUserItemList, pageable, employeeCount.longValue());
   }
 
@@ -152,7 +152,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
         countAllTeamMembers);
 
     final Tuple employeeTuple = (Tuple) queryCount.getSingleResult();
-    BigInteger employeeCount = (BigInteger) employeeTuple.get("num");
+    final BigInteger employeeCount = (BigInteger) employeeTuple.get("num");
 
     List<JobUserListItem> jobUserItemList = new ArrayList<>();
     if (employeeCount.longValue() == 0) {

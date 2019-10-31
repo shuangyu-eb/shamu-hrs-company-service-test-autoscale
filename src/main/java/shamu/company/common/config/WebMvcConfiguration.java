@@ -2,6 +2,7 @@ package shamu.company.common.config;
 
 import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter;
 import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
@@ -11,29 +12,34 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupp
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import shamu.company.hashids.Converter;
 import shamu.company.hashids.HashidsFormatterFactory;
+import shamu.company.s3.PreSignedValueFilter;
 
 @Configuration
 public class WebMvcConfiguration extends WebMvcConfigurationSupport {
+
+  @Autowired
+  PreSignedValueFilter preSignedValueFilter;
 
   @Bean
   @Override
   @Nullable
   public RequestMappingHandlerMapping requestMappingHandlerMapping() {
-    RequestMappingHandlerMapping handlerMapping = super.requestMappingHandlerMapping();
+    final RequestMappingHandlerMapping handlerMapping = super.requestMappingHandlerMapping();
     handlerMapping.setUseSuffixPatternMatch(false);
     return handlerMapping;
   }
 
   @Override
-  protected void addFormatters(FormatterRegistry registry) {
+  protected void addFormatters(final FormatterRegistry registry) {
     super.addFormatters(registry);
-    HashidsFormatterFactory hashidsFormatterFactory = new HashidsFormatterFactory();
+    final HashidsFormatterFactory hashidsFormatterFactory = new HashidsFormatterFactory();
     registry.addFormatterForFieldAnnotation(hashidsFormatterFactory);
   }
 
   @Override
-  protected void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
-    FastJsonHttpMessageConverter convert = new Converter();
+  protected void configureMessageConverters(final List<HttpMessageConverter<?>> converters) {
+    final FastJsonHttpMessageConverter convert = new Converter(preSignedValueFilter);
     converters.add(convert);
   }
+
 }

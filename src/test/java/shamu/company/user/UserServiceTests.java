@@ -23,6 +23,7 @@ import shamu.company.info.service.UserEmergencyContactService;
 import shamu.company.job.repository.JobRepository;
 import shamu.company.job.repository.JobUserRepository;
 import shamu.company.redis.AuthUserCacheManager;
+import shamu.company.s3.AwsUtil;
 import shamu.company.scheduler.DynamicScheduler;
 import shamu.company.timeoff.service.PaidHolidayService;
 import shamu.company.user.dto.CreatePasswordDto;
@@ -49,7 +50,6 @@ import shamu.company.user.service.UserAddressService;
 import shamu.company.user.service.UserRoleService;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.Auth0Util;
-import shamu.company.utils.AwsUtil;
 
 class UserServiceTests {
 
@@ -242,7 +242,7 @@ class UserServiceTests {
     void whenIsAdmin_thenShouldReturnTrue() {
       Mockito.when(userRepository.findByIdAndCompanyId(Mockito.anyLong(), Mockito.anyLong()))
           .thenReturn(new User());
-      UserRole userRole = new UserRole();
+      final UserRole userRole = new UserRole();
       userRole.setName(Role.ADMIN.name());
       currentUser.setUserRole(userRole);
       final boolean hasAccess = userService.hasUserAccess(currentUser, targetUserId);
@@ -257,7 +257,7 @@ class UserServiceTests {
       Mockito.when(userRepository.findByIdAndCompanyId(Mockito.anyLong(), Mockito.anyLong()))
           .thenReturn(targetUser);
 
-      UserRole userRole = new UserRole();
+      final UserRole userRole = new UserRole();
       userRole.setName(Role.MANAGER.name());
       currentUser.setUserRole(userRole);
       final boolean hasAccess = userService.hasUserAccess(currentUser, targetUserId);

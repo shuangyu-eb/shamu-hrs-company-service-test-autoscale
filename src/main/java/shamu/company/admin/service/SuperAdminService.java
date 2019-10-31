@@ -30,7 +30,8 @@ public class SuperAdminService {
 
   @Autowired
   public SuperAdminService(final UserRepository userRepository,
-      final Auth0Util auth0Util, final UserMapper userMapper,
+      final Auth0Util auth0Util,
+      final UserMapper userMapper,
       final AuthUserCacheManager authUserCacheManager) {
     this.userRepository = userRepository;
     this.auth0Util = auth0Util;

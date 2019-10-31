@@ -25,7 +25,7 @@ import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.common.validation.constraints.FileValidate;
 import shamu.company.hashids.HashidsFormat;
-import shamu.company.utils.AwsUtil;
+import shamu.company.s3.AwsUtil;
 
 @RestApiController
 @Validated

@@ -5,6 +5,7 @@ import java.util.List;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import shamu.company.hashids.HashidsFormat;
+import shamu.company.s3.PreSinged;
 
 @Data
 @NoArgsConstructor
@@ -17,6 +18,7 @@ public class OrgChartDto {
 
   private String lastName;
 
+  @PreSinged
   private String imageUrl;
 
   private String jobTitle;

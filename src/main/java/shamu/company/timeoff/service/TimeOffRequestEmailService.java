@@ -17,10 +17,10 @@ import org.thymeleaf.context.Context;
 import shamu.company.common.ApplicationConfig;
 import shamu.company.email.Email;
 import shamu.company.email.EmailService;
+import shamu.company.s3.AwsUtil;
 import shamu.company.timeoff.entity.TimeOffRequest;
 import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus;
 import shamu.company.user.entity.User;
-import shamu.company.utils.AwsUtil;
 import shamu.company.utils.DateUtil;
 
 @Service

@@ -211,14 +211,14 @@ public class TimeOffPolicyService {
       final Integer balance = timeOffBreakdownDto.getBalance();
 
       final Integer pendingHours = getTimeOffRequestHoursFromStatus(
-              user.getId(), policyUser.getTimeOffPolicy().getId(), NO_ACTION, null);
+          user.getId(), policyUser.getTimeOffPolicy().getId(), NO_ACTION, null);
       final Integer approvedHours = getTimeOffRequestHoursFromStatus(
-              user.getId(), policyUser.getTimeOffPolicy().getId(), APPROVED,
-              Timestamp.valueOf(currentTime));
+          user.getId(), policyUser.getTimeOffPolicy().getId(), APPROVED,
+          Timestamp.valueOf(currentTime));
 
       final Integer approvalBalance = (null == balance ? null : (balance - approvedHours));
       final Integer availableBalance = (
-              null == balance ? null : (balance - pendingHours - approvedHours));
+          null == balance ? null : (balance - pendingHours - approvedHours));
 
       final TimeOffBalanceItemDto timeOffBalanceItemDto = TimeOffBalanceItemDto.builder()
           .id(policyUserId)
@@ -241,15 +241,15 @@ public class TimeOffPolicyService {
   }
 
   public Integer getTimeOffRequestHoursFromStatus(
-          final Long userId, final Long policyId,
-          final TimeOffRequestApprovalStatus status, final Timestamp currentTime) {
+      final Long userId, final Long policyId,
+      final TimeOffRequestApprovalStatus status, final Timestamp currentTime) {
     final List<TimeOffRequest> timeOffRequestList = timeOffRequestRepository
-            .findByTimeOffPolicyUserAndStatus(userId, policyId, status, currentTime);
+        .findByTimeOffPolicyUserAndStatus(userId, policyId, status, currentTime);
     return timeOffRequestList.stream().mapToInt(TimeOffRequest::getHours).sum();
   }
 
   public List<TimeOffPolicyUserDto> getTimeOffPolicyUser(
-          final User user, final LocalDateTime endDateTime) {
+      final User user, final LocalDateTime endDateTime) {
 
     final List<TimeOffPolicyUser> policyUsers = timeOffPolicyUserRepository
         .findTimeOffPolicyUsersByUser(user);
@@ -264,12 +264,12 @@ public class TimeOffPolicyService {
       final Integer balance = timeOffBreakdownDto.getBalance();
 
       final Integer pendingHours = getTimeOffRequestHoursFromStatus(
-              user.getId(), policyUser.getTimeOffPolicy().getId(), NO_ACTION, null);
+          user.getId(), policyUser.getTimeOffPolicy().getId(), NO_ACTION, null);
       final Integer approvedHours = getTimeOffRequestHoursFromStatus(
-              user.getId(), policyUser.getTimeOffPolicy().getId(), APPROVED,
-              Timestamp.valueOf(endDateTime));
+          user.getId(), policyUser.getTimeOffPolicy().getId(), APPROVED,
+          Timestamp.valueOf(endDateTime));
       final Integer availableBalance = (
-              null == balance ? null : (balance - pendingHours - approvedHours));
+          null == balance ? null : (balance - pendingHours - approvedHours));
 
       final TimeOffPolicyUserDto timeOffPolicyUserDto = timeOffPolicyUserMapper
           .convertToTimeOffPolicyUserDto(policyUser);
@@ -346,6 +346,7 @@ public class TimeOffPolicyService {
           JobUser employeeWithJobInfo = jobUserRepository
               .findJobUserByUser(timeOffPolicyUser.getUser());
           selectedUsersIds.add(timeOffPolicyUser.getUser().getId());
+
           return jobUserMapper.convertToTimeOffPolicyRelatedUserDto(timeOffPolicyUser,
               employeeWithJobInfo);
         }
@@ -355,7 +356,8 @@ public class TimeOffPolicyService {
         .stream().filter(user -> !selectedUsersIds.contains(user.getId()))
         .map(user -> {
           JobUser employeeWithJobInfo = jobUserRepository.findJobUserByUser(user);
-          return jobUserMapper.convertToTimeOffPolicyRelatedUserDto(user, employeeWithJobInfo);
+          return jobUserMapper
+              .convertToTimeOffPolicyRelatedUserDto(user, employeeWithJobInfo);
         }).collect(Collectors.toList());
 
     return new TimeOffPolicyRelatedUserListDto(

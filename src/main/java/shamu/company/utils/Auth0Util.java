@@ -2,6 +2,7 @@ package shamu.company.utils;
 
 import com.auth0.client.auth.AuthAPI;
 import com.auth0.client.mgmt.ManagementAPI;
+import com.auth0.client.mgmt.filter.PageFilter;
 import com.auth0.client.mgmt.filter.UserFilter;
 import com.auth0.exception.Auth0Exception;
 import com.auth0.json.auth.TokenHolder;
@@ -28,7 +29,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import shamu.company.common.exception.AbstractException;
 import shamu.company.common.exception.GeneralAuth0Exception;
-import shamu.company.common.exception.GeneralException;
 import shamu.company.common.exception.TooManyRequestException;
 
 @Component
@@ -135,7 +135,8 @@ public class Auth0Util {
 
     final ManagementAPI manager = auth0Manager.getManagementApi();
     final Request<PermissionsPage> permissionsPageRequest = manager.users()
-        .listPermissions(user.getId(), null);
+        .listPermissions(user.getId(), new PageFilter().withPage(0, 100));
+
     final PermissionsPage permissionsPage;
     try {
       permissionsPage = permissionsPageRequest.execute();

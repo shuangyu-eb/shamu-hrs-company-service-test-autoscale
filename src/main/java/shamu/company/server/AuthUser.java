@@ -3,6 +3,7 @@ package shamu.company.server;
 import java.util.List;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import shamu.company.s3.PreSinged;
 import shamu.company.user.entity.User;
 
 @Data
@@ -13,6 +14,7 @@ public class AuthUser {
 
   private String email;
 
+  @PreSinged
   private String imageUrl;
 
   private Long companyId;

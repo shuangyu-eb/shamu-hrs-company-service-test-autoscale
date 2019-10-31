@@ -10,7 +10,7 @@ application:
   frontEndAddress: https://hrs.interviewed-qa.com/
 
 aws:
-  bucketName: shamu-hrs-qa
+  bucketName: shamu-hrs-qa-company
   folder: media
 
 cloud:

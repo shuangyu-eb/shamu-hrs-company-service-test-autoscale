@@ -1,6 +1,7 @@
 package shamu.company.server;
 
 import lombok.Data;
+import shamu.company.s3.PreSinged;
 import shamu.company.user.entity.User;
 
 @Data
@@ -12,6 +13,7 @@ public class CompanyUser {
 
   private String name;
 
+  @PreSinged
   private String imageUrl;
 
   CompanyUser(final User user) {

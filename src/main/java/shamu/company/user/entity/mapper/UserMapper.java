@@ -34,7 +34,7 @@ public interface UserMapper {
   UserDto convertToUserDto(User user);
 
   List<UserDto> convertToUserDtos(List<User> users);
-  
+
   @Mapping(target = "userRole", source = "user.userRole")
   BasicJobInformationDto convertToBasicJobInformationDto(User user);
 
@@ -51,7 +51,7 @@ public interface UserMapper {
   @Mapping(target = "email", source = "userContactInformation.emailWork")
   @Mapping(target = "companyId", source = "company.id")
   MockUserDto convertToMockUserDto(User user);
-  
+
   default Role convertFromUserRole(final UserRole userRole) {
     return Role.valueOf(userRole.getName());
   }

@@ -24,7 +24,7 @@ import org.springframework.util.FileCopyUtils;
 import org.thymeleaf.context.Context;
 import shamu.company.common.entity.Country;
 import shamu.company.common.entity.StateProvince;
-import shamu.company.common.exception.AwsUploadException;
+import shamu.company.common.exception.AwsException;
 import shamu.company.common.exception.ForbiddenException;
 import shamu.company.common.exception.GeneralException;
 import shamu.company.common.exception.ResourceNotFoundException;
@@ -56,6 +56,8 @@ import shamu.company.job.entity.mapper.JobUserMapper;
 import shamu.company.job.repository.JobRepository;
 import shamu.company.job.repository.JobUserRepository;
 import shamu.company.job.service.JobUserService;
+import shamu.company.s3.AwsUtil;
+import shamu.company.s3.AwsUtil.Type;
 import shamu.company.user.dto.BasicUserContactInformationDto;
 import shamu.company.user.dto.BasicUserPersonalInformationDto;
 import shamu.company.user.dto.UserAddressDto;
@@ -87,8 +89,6 @@ import shamu.company.user.service.UserPersonalInformationService;
 import shamu.company.user.service.UserRoleService;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.Auth0Util;
-import shamu.company.utils.AwsUtil;
-import shamu.company.utils.AwsUtil.Type;
 import shamu.company.utils.DateUtil;
 import shamu.company.utils.FileValidateUtil;
 import shamu.company.utils.FileValidateUtil.FileType;
@@ -97,67 +97,37 @@ import shamu.company.utils.FileValidateUtil.FileType;
 @Transactional
 public class EmployeeService {
 
-  private final UserRepository userRepository;
-
-  private final JobUserRepository jobUserRepository;
-
-  private final UserAddressRepository userAddressRepository;
-
-  private final EmploymentTypeRepository employmentTypeRepository;
-
-  private final UserCompensationRepository userCompensationRepository;
-
-  private final JobRepository jobRepository;
-
-  private final GenderRepository genderRepository;
-
-  private final MaritalStatusRepository maritalStatusRepository;
-
-  private final AwsUtil awsUtil;
-
-  private final CompensationFrequencyRepository compensationFrequencyRepository;
-
-  private final StateProvinceRepository stateProvinceRepository;
-
-  private final CountryRepository countryRepository;
-
-  private final UserEmergencyContactRepository userEmergencyContactRepository;
-
-  private final UserService userService;
-
-  private final UserStatusRepository userStatusRepository;
-
-  private final EmailRepository emailRepository;
-
-  private final EmailService emailService;
-
-  private final JobUserService jobUserService;
-
-  private final OfficeRepository officeRepository;
-
-  private final UserPersonalInformationService userPersonalInformationService;
-
-  private final UserContactInformationService userContactInformationService;
-
-  private final UserPersonalInformationMapper userPersonalInformationMapper;
-
-  private final UserAddressMapper userAddressMapper;
-
-  private final UserContactInformationMapper userContactInformationMapper;
-
-  private final UserEmergencyContactMapper userEmergencyContactMapper;
-
-  private final JobUserMapper jobUserMapper;
-
-  private final UserMapper userMapper;
-
-  private final Auth0Util auth0Util;
-
-  private final ApplicationEventPublisher applicationEventPublisher;
-
-  private final UserRoleService userRoleService;
-
   private static final String subject = "Welcome to ";
+  private final UserRepository userRepository;
+  private final JobUserRepository jobUserRepository;
+  private final UserAddressRepository userAddressRepository;
+  private final EmploymentTypeRepository employmentTypeRepository;
+  private final UserCompensationRepository userCompensationRepository;
+  private final JobRepository jobRepository;
+  private final GenderRepository genderRepository;
+  private final MaritalStatusRepository maritalStatusRepository;
+  private final AwsUtil awsUtil;
+  private final CompensationFrequencyRepository compensationFrequencyRepository;
+  private final StateProvinceRepository stateProvinceRepository;
+  private final CountryRepository countryRepository;
+  private final UserEmergencyContactRepository userEmergencyContactRepository;
+  private final UserService userService;
+  private final UserStatusRepository userStatusRepository;
+  private final EmailRepository emailRepository;
+  private final EmailService emailService;
+  private final JobUserService jobUserService;
+  private final OfficeRepository officeRepository;
+  private final UserPersonalInformationService userPersonalInformationService;
+  private final UserContactInformationService userContactInformationService;
+  private final UserPersonalInformationMapper userPersonalInformationMapper;
+  private final UserAddressMapper userAddressMapper;
+  private final UserContactInformationMapper userContactInformationMapper;
+  private final UserEmergencyContactMapper userEmergencyContactMapper;
+  private final JobUserMapper jobUserMapper;
+  private final UserMapper userMapper;
+  private final Auth0Util auth0Util;
+  private final ApplicationEventPublisher applicationEventPublisher;
+  private final UserRoleService userRoleService;
 
   @Autowired
   public EmployeeService(
@@ -313,7 +283,7 @@ public class EmployeeService {
           .validate(file, 2 * FileValidateUtil.MB, FileType.JPEG, FileType.PNG, FileType.GIF);
       return awsUtil.uploadFile(file.getCanonicalPath(), Type.IMAGE);
     } catch (final IOException e) {
-      throw new AwsUploadException("Error while uploading employee photo!", e);
+      throw new AwsException("Error while uploading employee photo!", e);
     }
   }
 

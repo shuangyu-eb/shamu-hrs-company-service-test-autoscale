@@ -17,7 +17,6 @@ import shamu.company.user.entity.UserContactInformation;
 import shamu.company.user.entity.mapper.UserContactInformationMapper;
 import shamu.company.user.service.UserContactInformationService;
 import shamu.company.user.service.UserService;
-import shamu.company.utils.Auth0Util;
 
 @RestApiController
 public class UserContactInformationRestController extends BaseRestController {
@@ -28,18 +27,13 @@ public class UserContactInformationRestController extends BaseRestController {
 
   private final UserContactInformationMapper userContactInformationMapper;
 
-  private final Auth0Util auth0Util;
-
   @Autowired
   public UserContactInformationRestController(
       final UserContactInformationService contactInformationService, final UserService userService,
-      final UserContactInformationMapper userContactInformationMapper,
-      final Auth0Util auth0Util) {
+      final UserContactInformationMapper userContactInformationMapper) {
     this.contactInformationService = contactInformationService;
     this.userService = userService;
-    this.userContactInformationMapper
-        = userContactInformationMapper;
-    this.auth0Util = auth0Util;
+    this.userContactInformationMapper = userContactInformationMapper;
   }
 
   @PatchMapping("user-contact-information/{id}")

@@ -3,6 +3,7 @@ package shamu.company.admin.dto;
 import lombok.Data;
 import lombok.ToString;
 import shamu.company.hashids.HashidsFormat;
+import shamu.company.s3.PreSinged;
 import shamu.company.user.entity.User;
 
 @Data
@@ -11,6 +12,7 @@ public class SuperAdminUserDto {
   @HashidsFormat
   private Long userId;
 
+  @PreSinged
   private String imageUrl;
 
   private String firstName;

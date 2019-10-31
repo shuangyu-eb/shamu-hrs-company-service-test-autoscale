@@ -7,20 +7,14 @@ import shamu.company.common.config.DefaultJwtAuthenticationToken;
 import shamu.company.common.exception.UnAuthenticatedException;
 import shamu.company.redis.AuthUserCacheManager;
 import shamu.company.server.AuthUser;
-import shamu.company.utils.Auth0Util;
 
 class BasePermissionUtils {
 
   private AuthUserCacheManager authUserCacheManager;
 
-  private Auth0Util auth0Util;
-
   @Autowired
-  public void setParameters(
-      final AuthUserCacheManager authUserCacheManager,
-      final Auth0Util auth0Util) {
+  public void setParameters(final AuthUserCacheManager authUserCacheManager) {
     this.authUserCacheManager = authUserCacheManager;
-    this.auth0Util = auth0Util;
   }
 
   private DefaultJwtAuthenticationToken getAuthentication() {

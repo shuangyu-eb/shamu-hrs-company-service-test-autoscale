@@ -19,10 +19,10 @@ import shamu.company.common.ApplicationConfig;
 import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.email.Email;
 import shamu.company.email.EmailService;
+import shamu.company.s3.AwsUtil;
 import shamu.company.server.DocumentRequestEmailDto.DocumentRequestType;
 import shamu.company.user.entity.User;
 import shamu.company.user.repository.UserRepository;
-import shamu.company.utils.AwsUtil;
 import shamu.company.utils.DateUtil;
 import shamu.company.utils.UserNameUtil;
 
@@ -85,7 +85,7 @@ public class CompanyEmailServiceImpl implements CompanyEmailService {
     if (!VIEW.equals(documentRequestEmailDto.getType())) {
       final Timestamp expireDate = documentRequestEmailDto.getExpiredAt();
       if (expireDate != null) {
-        LocalDate dueDate = expireDate.toLocalDateTime().toLocalDate();
+        final LocalDate dueDate = expireDate.toLocalDateTime().toLocalDate();
         variables.put("dueDate", DateUtil.formatDateTo(dueDate,"MMM dd"));
       }
     }

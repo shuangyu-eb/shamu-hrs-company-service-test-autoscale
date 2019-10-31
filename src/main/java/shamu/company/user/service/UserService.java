@@ -48,6 +48,8 @@ import shamu.company.job.entity.JobUserListItem;
 import shamu.company.job.repository.JobRepository;
 import shamu.company.job.repository.JobUserRepository;
 import shamu.company.redis.AuthUserCacheManager;
+import shamu.company.s3.AwsUtil;
+import shamu.company.s3.AwsUtil.Type;
 import shamu.company.scheduler.DynamicScheduler;
 import shamu.company.server.AuthUser;
 import shamu.company.timeoff.service.PaidHolidayService;
@@ -82,8 +84,6 @@ import shamu.company.user.repository.UserContactInformationRepository;
 import shamu.company.user.repository.UserRepository;
 import shamu.company.user.repository.UserStatusRepository;
 import shamu.company.utils.Auth0Util;
-import shamu.company.utils.AwsUtil;
-import shamu.company.utils.AwsUtil.Type;
 import shamu.company.utils.DateUtil;
 
 @Service
@@ -241,10 +241,10 @@ public class UserService {
   }
 
   public Page<JobUserListItem> getAllEmployees(
-      final String userId, EmployeeListSearchCondition employeeListSearchCondition) {
+      final String userId, final EmployeeListSearchCondition employeeListSearchCondition) {
 
-    User currentUser = findByUserId(userId);
-    Long companyId = currentUser.getCompany().getId();
+    final User currentUser = findByUserId(userId);
+    final Long companyId = currentUser.getCompany().getId();
 
     final Pageable paramPageable = getPageable(employeeListSearchCondition);
     return getAllEmployeesByCompany(employeeListSearchCondition,
@@ -295,7 +295,7 @@ public class UserService {
 
   public String getHeadPortrait(final Long userId) {
     final User user = findUserById(userId);
-    return user.getImageUrl();
+    return awsUtil.getPreSignedUrl(user.getImageUrl());
   }
 
   public UserCompensation saveUserCompensation(final UserCompensation userCompensation) {
@@ -775,7 +775,7 @@ public class UserService {
     user.setImageUrl(path);
     save(user);
 
-    return path;
+    return awsUtil.getPreSignedUrl(path);
   }
 
   public Boolean isOldPwdCorrect(final String password, final String email) {

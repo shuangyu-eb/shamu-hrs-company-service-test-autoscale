@@ -39,5 +39,5 @@ cloud:
       auto: false
 
 aws:
-  bucketName: shamu-hrs-qa
+  bucketName: shamu-hrs-qa-company
   folder: media-local

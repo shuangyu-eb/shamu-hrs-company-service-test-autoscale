@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import shamu.company.hashids.HashidsFormat;
 import shamu.company.job.entity.Job;
 import shamu.company.job.entity.JobUser;
+import shamu.company.s3.PreSinged;
 import shamu.company.user.entity.User;
 
 @Data
@@ -17,6 +18,7 @@ public class JobUserDto {
   @HashidsFormat
   private Long userId;
 
+  @PreSinged
   private String imageUrl;
 
   private String firstName;
@@ -35,7 +37,7 @@ public class JobUserDto {
 
   private String employmentType;
 
-  public JobUserDto(User user, JobUser userWithJob) {
+  public JobUserDto(final User user, final JobUser userWithJob) {
     this.setId(user.getId());
     if (user.getUserPersonalInformation() != null) {
       this.setFirstName(user.getUserPersonalInformation().getFirstName());
@@ -49,7 +51,7 @@ public class JobUserDto {
 
     this.setImageUrl(user.getImageUrl());
     if (userWithJob != null) {
-      Job job = userWithJob.getJob();
+      final Job job = userWithJob.getJob();
       this.setJobTitle(job.getTitle());
       this.setDepartment(job.getDepartment().getName());
       this.employmentType = userWithJob.getEmploymentType() == null

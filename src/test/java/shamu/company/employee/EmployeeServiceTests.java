@@ -27,6 +27,7 @@ import shamu.company.job.entity.mapper.JobUserMapper;
 import shamu.company.job.repository.JobRepository;
 import shamu.company.job.repository.JobUserRepository;
 import shamu.company.job.service.JobUserService;
+import shamu.company.s3.AwsUtil;
 import shamu.company.user.dto.UserContactInformationDto;
 import shamu.company.user.dto.UserPersonalInformationDto;
 import shamu.company.user.entity.Gender;
@@ -51,7 +52,6 @@ import shamu.company.user.service.UserPersonalInformationService;
 import shamu.company.user.service.UserRoleService;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.Auth0Util;
-import shamu.company.utils.AwsUtil;
 import shamu.company.utils.FileValidateUtil.FileType;
 
 class EmployeeServiceTests {
@@ -80,7 +80,8 @@ class EmployeeServiceTests {
   @Mock private UserAddressMapper userAddressMapper;
   @Mock private UserContactInformationMapper userContactInformationMapper;
   @Mock private UserEmergencyContactMapper userEmergencyContactMapper;
-  @Mock private Auth0Util auth0Util;
+  @Mock
+  private Auth0Util auth0Util;
   @Mock private ApplicationEventPublisher applicationEventPublisher;
   @Mock private JobUserMapper jobUserMapper;
   @Mock private JobUserService jobUserService;
@@ -143,8 +144,8 @@ class EmployeeServiceTests {
       final EmployeeDto employeeDto = new EmployeeDto();
       employeeDto.setEmailWork("example@indeed.com");
 
-      String originalHexString = FileType.PNG.getValue();
-      byte[] imageBytes = Hex.decodeHex(originalHexString);
+      final String originalHexString = FileType.PNG.getValue();
+      final byte[] imageBytes = Hex.decodeHex(originalHexString);
       String imageString = Base64.getEncoder().encodeToString(imageBytes);
 
       imageString = "x," + imageString;

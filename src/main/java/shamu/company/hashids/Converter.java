@@ -19,15 +19,16 @@ import java.nio.charset.Charset;
 import java.util.List;
 import org.springframework.http.HttpInputMessage;
 import shamu.company.common.exception.GeneralException;
+import shamu.company.utils.AnnotationUtil;
 
 public class Converter extends FastJsonHttpMessageConverter {
 
-  public Converter() {
+  public Converter(final ValueFilter valueFilters) {
     super();
     final FastJsonConfig fastJsonConfig = new FastJsonConfig();
     final LongDecode longDecode = new LongDecode();
     // id => hash id
-    fastJsonConfig.setSerializeFilters(getSerializeFilter());
+    fastJsonConfig.setSerializeFilters(getSerializeFilter(), valueFilters);
     // not filter the field when the value is null
     fastJsonConfig.setSerializerFeatures(SerializerFeature.WriteMapNullValue);
 

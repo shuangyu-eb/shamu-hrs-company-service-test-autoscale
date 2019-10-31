@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang.StringUtils;
 import shamu.company.hashids.HashidsFormat;
+import shamu.company.s3.PreSinged;
 import shamu.company.user.entity.User.Role;
 
 @Data
@@ -13,6 +14,7 @@ public class JobUserListItem {
   @HashidsFormat
   private Long id;
 
+  @PreSinged
   private String imageUrl;
 
   private String firstName;

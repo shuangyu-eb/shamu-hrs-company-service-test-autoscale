@@ -16,7 +16,6 @@ import shamu.company.user.entity.UserAddress;
 import shamu.company.user.entity.mapper.UserAddressMapper;
 import shamu.company.user.service.UserAddressService;
 import shamu.company.user.service.UserService;
-import shamu.company.utils.Auth0Util;
 
 @RestApiController
 public class UserAddressRestController extends BaseRestController {
@@ -27,17 +26,13 @@ public class UserAddressRestController extends BaseRestController {
 
   private final UserAddressMapper userAddressMapper;
 
-  private final Auth0Util auth0Util;
-
   @Autowired
   public UserAddressRestController(final UserAddressService userAddressService,
       final UserService userService,
-      final UserAddressMapper userAddressMapper,
-      final Auth0Util auth0Util) {
+      final UserAddressMapper userAddressMapper) {
     this.userAddressService = userAddressService;
     this.userService = userService;
     this.userAddressMapper = userAddressMapper;
-    this.auth0Util = auth0Util;
   }
 
   @PatchMapping("users/{userId}/user-address")
