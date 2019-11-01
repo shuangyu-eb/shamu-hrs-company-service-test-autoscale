@@ -2,7 +2,6 @@ package shamu.company.user.dto;
 
 import lombok.Data;
 import shamu.company.hashids.HashidsFormat;
-import shamu.company.s3.PreSinged;
 
 @Data
 public class UserPersonalInformationDto extends BasicUserPersonalInformationDto {
@@ -19,7 +18,6 @@ public class UserPersonalInformationDto extends BasicUserPersonalInformationDto 
 
   private String ssn;
 
-  @PreSinged
   private String imageUrl;
 
   @HashidsFormat

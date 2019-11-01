@@ -3,7 +3,6 @@ package shamu.company.timeoff.dto;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import shamu.company.hashids.HashidsFormat;
-import shamu.company.s3.PreSinged;
 import shamu.company.timeoff.entity.TimeOffRequestComment;
 
 @Data
@@ -16,7 +15,6 @@ public class TimeOffRequestCommentDto {
   @HashidsFormat
   private Long userId;
 
-  @PreSinged
   private String imageUrl;
 
   private String comment;

@@ -5,7 +5,6 @@ import lombok.NoArgsConstructor;
 import shamu.company.hashids.HashidsFormat;
 import shamu.company.job.entity.Job;
 import shamu.company.job.entity.JobUser;
-import shamu.company.s3.PreSinged;
 import shamu.company.user.entity.User;
 
 @Data
@@ -18,7 +17,6 @@ public class JobUserDto {
   @HashidsFormat
   private Long userId;
 
-  @PreSinged
   private String imageUrl;
 
   private String firstName;

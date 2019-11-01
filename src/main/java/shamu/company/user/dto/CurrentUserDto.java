@@ -10,7 +10,6 @@ import lombok.Data;
 import org.springframework.util.CollectionUtils;
 import shamu.company.hashids.HashidsFormat;
 import shamu.company.hashids.HashidsUtil;
-import shamu.company.s3.PreSinged;
 
 @Data
 @Builder
@@ -22,7 +21,6 @@ public class CurrentUserDto {
 
   private String name;
 
-  @PreSinged
   private String imageUrl;
 
   private List<Long> teamMembers;

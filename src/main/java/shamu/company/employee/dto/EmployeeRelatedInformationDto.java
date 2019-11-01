@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 import org.apache.commons.lang.StringUtils;
 import shamu.company.hashids.HashidsFormat;
 import shamu.company.job.dto.JobUserDto;
-import shamu.company.s3.PreSinged;
 import shamu.company.user.entity.User.Role;
 
 @Data
@@ -28,7 +27,6 @@ public class EmployeeRelatedInformationDto {
 
   private String employeeLastName;
 
-  @PreSinged
   private String employeeImageUrl;
 
   private String employeeWorkPhone;
@@ -44,7 +42,6 @@ public class EmployeeRelatedInformationDto {
 
   private String managerLastName;
 
-  @PreSinged
   private String managerImageUrl;
 
   private String managerJobTitle;

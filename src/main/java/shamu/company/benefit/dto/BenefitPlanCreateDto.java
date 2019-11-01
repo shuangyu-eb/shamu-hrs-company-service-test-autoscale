@@ -13,7 +13,6 @@ public class BenefitPlanCreateDto {
 
   private String planName;
 
-  @PreSinged
   private String imageUrl;
 
   private String description;

@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import shamu.company.hashids.HashidsFormat;
-import shamu.company.s3.PreSinged;
 
 @Data
 @NoArgsConstructor
@@ -16,7 +15,6 @@ public class TimeOffPolicyRelatedUserDto {
   @HashidsFormat
   private Long id;
 
-  @PreSinged
   private String imageUrl;
 
   private String jobTitle;

@@ -57,7 +57,7 @@ import shamu.company.job.repository.JobRepository;
 import shamu.company.job.repository.JobUserRepository;
 import shamu.company.job.service.JobUserService;
 import shamu.company.s3.AwsUtil;
-import shamu.company.s3.AwsUtil.Type;
+import shamu.company.s3.Type;
 import shamu.company.user.dto.BasicUserContactInformationDto;
 import shamu.company.user.dto.BasicUserPersonalInformationDto;
 import shamu.company.user.dto.UserAddressDto;

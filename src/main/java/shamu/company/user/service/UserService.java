@@ -1,6 +1,5 @@
 package shamu.company.user.service;
 
-import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -49,7 +48,7 @@ import shamu.company.job.repository.JobRepository;
 import shamu.company.job.repository.JobUserRepository;
 import shamu.company.redis.AuthUserCacheManager;
 import shamu.company.s3.AwsUtil;
-import shamu.company.s3.AwsUtil.Type;
+import shamu.company.s3.Type;
 import shamu.company.scheduler.DynamicScheduler;
 import shamu.company.server.AuthUser;
 import shamu.company.timeoff.service.PaidHolidayService;
@@ -295,7 +294,7 @@ public class UserService {
 
   public String getHeadPortrait(final Long userId) {
     final User user = findUserById(userId);
-    return awsUtil.getPreSignedUrl(user.getImageUrl());
+    return user.getImageUrl();
   }
 
   public UserCompensation saveUserCompensation(final UserCompensation userCompensation) {
@@ -622,7 +621,7 @@ public class UserService {
     final String newEmailToken = UUID.randomUUID().toString();
     user.setChangeWorkEmailToken(newEmailToken);
 
-    final String emailContent = getVerifyiedEmail(newEmailToken);
+    final String emailContent = getVerifiedEmail(newEmailToken);
 
     final Timestamp sendDate = Timestamp.valueOf(LocalDateTime.now());
 
@@ -751,7 +750,7 @@ public class UserService {
     return templateEngine.process("password_reset_email.html", context);
   }
 
-  private String getVerifyiedEmail(final String changePasswordToken) {
+  private String getVerifiedEmail(final String changePasswordToken) {
     final Context context = new Context();
     context.setVariable("frontEndAddress", frontEndAddress);
     context.setVariable(
@@ -759,7 +758,7 @@ public class UserService {
     return templateEngine.process("verify_change_work_email.html", context);
   }
 
-  public String handleUploadFile(final Long id, final MultipartFile file) throws IOException {
+  public String handleUploadFile(final Long id, final MultipartFile file) {
     final String path = awsUtil.uploadFile(file, Type.IMAGE);
 
     if (Strings.isBlank(path)) {
@@ -775,7 +774,7 @@ public class UserService {
     user.setImageUrl(path);
     save(user);
 
-    return awsUtil.getPreSignedUrl(path);
+    return path;
   }
 
   public Boolean isOldPwdCorrect(final String password, final String email) {

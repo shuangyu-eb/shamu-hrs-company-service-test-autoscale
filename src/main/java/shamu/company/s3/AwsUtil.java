@@ -10,6 +10,7 @@ import com.amazonaws.services.s3.model.CopyObjectRequest;
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Calendar;
@@ -39,22 +40,37 @@ public class AwsUtil {
     return AmazonS3ClientBuilder.defaultClient();
   }
 
-  private File generateFile(final String originalFilename) throws IOException {
-    final String projectDir = ResourceUtils.getURL(ResourceUtils.CLASSPATH_URL_PREFIX).getPath();
-    final String suffix = originalFilename.substring(originalFilename.lastIndexOf("."));
+  private File generateFile(final String originalFilename) {
+    try {
+      final String projectDir = ResourceUtils.getURL(ResourceUtils.CLASSPATH_URL_PREFIX).getPath();
+      final String suffix = originalFilename.substring(originalFilename.lastIndexOf("."));
 
-    final String fileName = String.format("%suploads/%s%s", projectDir,
-        System.currentTimeMillis(),
-        UUID.randomUUID().toString());
-    return File.createTempFile(fileName, suffix);
+      final String fileName = String.format("%suploads/%s%s", projectDir,
+          System.currentTimeMillis(),
+          UUID.randomUUID().toString());
+      return File.createTempFile(fileName, suffix);
+    } catch (final FileNotFoundException e) {
+      throw new AwsException("The file: " + originalFilename + " doesn't exist.");
+    } catch (final IOException e) {
+      throw new AwsException("Create the temp file failed.");
+    }
+
   }
 
-  public String uploadFile(final MultipartFile multipartFile) throws IOException {
+  public String uploadFile(final MultipartFile multipartFile) {
     return this.uploadFile(multipartFile, Type.DEFAULT);
   }
 
-  public String uploadFile(@NotNull final MultipartFile multipartFile, final Type type)
-      throws IOException {
+  public String uploadFile(final MultipartFile multipartFile, final AccessType accessType) {
+    return this.uploadFile(multipartFile, Type.DEFAULT, accessType);
+  }
+
+  public String uploadFile(@NotNull final MultipartFile multipartFile, final Type type) {
+    return this.uploadFile(multipartFile, type, AccessType.PublicRead);
+  }
+
+  public String uploadFile(@NotNull final MultipartFile multipartFile, final Type type,
+      final AccessType accessType) {
     final File file = this.generateFile(multipartFile.getOriginalFilename());
     if (multipartFile.isEmpty()) {
       throw new AwsException("File is empty.");
@@ -66,11 +82,14 @@ public class AwsUtil {
       throw new AwsException("Failed to upload file!");
     }
 
-    final String path = this.uploadFile(file.getPath(), type);
-    return path;
+    return this.uploadFile(file.getPath(), type, accessType);
   }
 
   public String uploadFile(final String filePath, final Type type) {
+    return this.uploadFile(filePath, type, AccessType.PublicRead);
+  }
+
+  public String uploadFile(final String filePath, final Type type, final AccessType accessType) {
     final AmazonS3 s3Client = this.getClient();
     final File file = new File(filePath);
     final String fileName = file.getName();
@@ -81,7 +100,8 @@ public class AwsUtil {
 
     try {
       log.info("=====Uploading an object to S3 from a file start=====");
-      s3Client.putObject(new PutObjectRequest(bucketName, path, file));
+      s3Client.putObject(new PutObjectRequest(bucketName, path, file)
+          .withCannedAcl(accessType.getAccessLevel()));
       log.info("=====Uploading an object to S3 from a file end  =====");
 
     } catch (final AmazonServiceException ase) {
@@ -113,7 +133,8 @@ public class AwsUtil {
     final String month = String.valueOf(now.get(Calendar.MONTH) + 1);
     final String day = String.valueOf(now.get(Calendar.DAY_OF_MONTH));
 
-    return String.format("%s/%s/%s/%s/%s/%s", folder, type.folder, year, month, day, fileName);
+    return String.format("%s/%s/%s/%s/%s/%s",
+        folder, type.getFolder(), year, month, day, fileName);
   }
 
   public String moveFileFromTemp(final String path) {
@@ -203,15 +224,5 @@ public class AwsUtil {
 
   public String getFullFileUrl(final String path) {
     return this.getAwsPath() + path;
-  }
-
-  public enum Type {
-    TEMP("temp"), IMAGE("image"), DEFAULT("uploads");
-
-    String folder;
-
-    Type(final String folder) {
-      this.folder = folder;
-    }
   }
 }
