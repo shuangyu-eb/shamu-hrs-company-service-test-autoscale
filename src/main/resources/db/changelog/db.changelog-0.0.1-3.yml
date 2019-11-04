@@ -865,3 +865,1912 @@ databaseChangeLog:
         - dropColumn:
             columnName: deactivated
             tableName: users
+
+  - changeSet:
+      id: 1572587818195-1
+      author: max-eb
+      preConditions:
+        tableExists:
+          tableName: time_off_policy_accruals
+      changes:
+      - dropTable:
+          tableName: time_off_policy_accruals
+
+  - changeSet:
+      id: 1572587818195-2
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: benefit_plan_coverages
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: benefit_plan_coverages
+
+  - changeSet:
+      id: 1572587818195-3
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: benefit_plan_dependent_relationships
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: benefit_plan_dependent_relationships
+
+  - changeSet:
+      id: 1572587818195-4
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: benefit_plan_dependents
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: benefit_plan_dependents
+
+  - changeSet:
+      id: 1572587818195-5
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: benefit_plan_types
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: benefit_plan_types
+
+  - changeSet:
+      id: 1572587818195-6
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: benefit_plans
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: benefit_plans
+
+  - changeSet:
+      id: 1572587818195-7
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: benefit_plans_users
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: benefit_plans_users
+
+  - changeSet:
+      id: 1572587818195-8
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: citizenship_statuses
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: citizenship_statuses
+
+  - changeSet:
+      id: 1572587818195-9
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: companies
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: companies
+
+  - changeSet:
+      id: 1572587818195-10
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: companies_paid_holidays
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: companies_paid_holidays
+
+  - changeSet:
+      id: 1572587818195-11
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: company_sizes
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: company_sizes
+
+  - changeSet:
+      id: 1572587818195-12
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: compensation_change_reasons
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: compensation_change_reasons
+
+  - changeSet:
+      id: 1572587818195-13
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: compensation_frequency
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: compensation_frequency
+
+  - changeSet:
+      id: 1572587818195-14
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: compensation_overtime_statuses
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: compensation_overtime_statuses
+
+  - changeSet:
+      id: 1572587818195-15
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: compensation_types
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: compensation_types
+
+  - changeSet:
+      id: 1572587818195-16
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: countries
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: countries
+
+  - changeSet:
+      id: 1572587818195-17
+      author: max-eb
+      preConditions:
+         columnExists:
+           columnName: deleted_at
+           tableName: deactivation_reasons
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: deactivation_reasons
+
+  - changeSet:
+      id: 1572587818195-18
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: departments
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: departments
+
+  - changeSet:
+      id: 1572587818195-24
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: emails
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: emails
+
+  - changeSet:
+      id: 1572587818195-25
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: employment_types
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: employment_types
+
+  - changeSet:
+      id: 1572587818195-26
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: ethnicities
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: ethnicities
+
+  - changeSet:
+      id: 1572587818195-27
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: folders
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: folders
+
+  - changeSet:
+      id: 1572587818195-28
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: genders
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: genders
+
+  - changeSet:
+      id: 1572587818195-29
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: jobs
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: jobs
+
+  - changeSet:
+      id: 1572587818195-30
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: jobs_users
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: jobs_users
+
+  - changeSet:
+      id: 1572587818195-31
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: marital_status
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: marital_status
+
+  - changeSet:
+      id: 1572587818195-32
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: office_addresses
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: office_addresses
+
+  - changeSet:
+      id: 1572587818195-33
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: offices
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: offices
+
+  - changeSet:
+      id: 1572587818195-34
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: paid_holidays
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: paid_holidays
+
+  - changeSet:
+      id: 1572587818195-35
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: paid_holidays_users
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: paid_holidays_users
+
+  - changeSet:
+      id: 1572587818195-36
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: retirement_plans_types
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: retirement_plans_types
+
+  - changeSet:
+      id: 1572587818195-37
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: retirement_types
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: retirement_types
+
+  - changeSet:
+      id: 1572587818195-38
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: states
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: states
+
+  - changeSet:
+      id: 1572587818195-39
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: states_provinces
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: states_provinces
+
+  - changeSet:
+      id: 1572587818195-40
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: time_off_accrual_frequencies
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: time_off_accrual_frequencies
+
+  - changeSet:
+      id: 1572587818195-41
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: time_off_policies
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: time_off_policies
+
+  - changeSet:
+      id: 1572587818195-42
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: time_off_policies_users
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: time_off_policies_users
+
+  - changeSet:
+      id: 1572587818195-43
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: time_off_policy_accrual_schedule_milestones
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: time_off_policy_accrual_schedule_milestones
+
+  - changeSet:
+      id: 1572587818195-44
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: time_off_policy_accrual_schedules
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: time_off_policy_accrual_schedules
+
+  - changeSet:
+      id: 1572587818195-45
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: time_off_request_approval_statuses
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: time_off_request_approval_statuses
+
+  - changeSet:
+      id: 1572587818195-46
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: time_off_request_comments
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: time_off_request_comments
+
+  - changeSet:
+      id: 1572587818195-47
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: time_off_request_dates
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: time_off_request_dates
+
+  - changeSet:
+      id: 1572587818195-48
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: time_off_requests
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: time_off_requests
+
+  - changeSet:
+      id: 1572587818195-49
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: user_access_level_events
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: user_access_level_events
+
+  - changeSet:
+      id: 1572587818195-50
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: user_addresses
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: user_addresses
+
+  - changeSet:
+      id: 1572587818195-51
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: user_benefit_plans
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: user_benefit_plans
+  - changeSet:
+      id: 1572587818195-52
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: user_compensations
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: user_compensations
+
+  - changeSet:
+      id: 1572587818195-53
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: user_contact_information
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: user_contact_information
+
+  - changeSet:
+      id: 1572587818195-54
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: user_educations
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: user_educations
+
+  - changeSet:
+      id: 1572587818195-55
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: user_emergency_contacts
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: user_emergency_contacts
+
+  - changeSet:
+      id: 1572587818195-56
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: user_employment_status_types
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: user_employment_status_types
+
+  - changeSet:
+      id: 1572587818195-57
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: user_employment_statuses
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: user_employment_statuses
+
+  - changeSet:
+      id: 1572587818195-58
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: user_personal_information
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: user_personal_information
+
+  - changeSet:
+      id: 1572587818195-59
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: user_roles
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: user_roles
+
+  - changeSet:
+      id: 1572587818195-60
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: user_statuses
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: user_statuses
+
+  - changeSet:
+      id: 1572587818195-61
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: users
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: users
+
+  - changeSet:
+      id: 1572587818195-62
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - dropAllForeignKeyConstraints:
+          baseTableName: users
+
+  - changeSet:
+      id: 1572587818195-63
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - addForeignKeyConstraint:
+          baseColumnNames: user_status_id
+          baseTableName: users
+          constraintName: fk_user_user_status
+          onDelete: RESTRICT
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: user_statuses
+      - addForeignKeyConstraint:
+          baseColumnNames: company_id
+          baseTableName: users
+          constraintName: fk_user_company
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: companies
+      - addForeignKeyConstraint:
+          baseColumnNames: manager_user_id
+          baseTableName: users
+          constraintName: fk_user_manager_user
+          onDelete: SET NULL
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: users
+      - addForeignKeyConstraint:
+          baseColumnNames: user_personal_information_id
+          baseTableName: users
+          constraintName: fk_user_user_personal_information
+          onDelete: RESTRICT
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: user_personal_information
+      - addForeignKeyConstraint:
+          baseColumnNames: user_contact_information_id
+          baseTableName: users
+          constraintName: fk_user_user_contact_information
+          onDelete: RESTRICT
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: user_contact_information
+      - addForeignKeyConstraint:
+          baseColumnNames: user_compensation_id
+          baseTableName: users
+          constraintName: fk_user_user_compensation
+          onDelete: RESTRICT
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: user_compensations
+      - addForeignKeyConstraint:
+          baseColumnNames: deactivation_reason_id
+          baseTableName: users
+          constraintName: fk_user_deactivation_reason
+          onDelete: SET NULL
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: deactivation_reasons
+      - addForeignKeyConstraint:
+          baseColumnNames: user_role_id
+          baseTableName: users
+          constraintName: fk_user_user_role
+          onDelete: RESTRICT
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: user_roles
+
+  - changeSet:
+      id: 1572587818195-64
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - dropAllForeignKeyConstraints:
+          baseTableName: user_personal_information
+
+  - changeSet:
+      id: 1572587818195-65
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - addForeignKeyConstraint:
+          baseColumnNames: gender_id
+          baseTableName: user_personal_information
+          constraintName: fk_personal_information_gender
+          onDelete: SET NULL
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: genders
+      - addForeignKeyConstraint:
+          baseColumnNames: marital_status_id
+          baseTableName: user_personal_information
+          constraintName: fk_personal_information_marital_status
+          onDelete: SET NULL
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: marital_status
+      - addForeignKeyConstraint:
+          baseColumnNames: ethnicity_id
+          baseTableName: user_personal_information
+          constraintName: fk_personal_information_ethnicity
+          onDelete: SET NULL
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: ethnicities
+      - addForeignKeyConstraint:
+          baseColumnNames: citizenship_status_id
+          baseTableName: user_personal_information
+          constraintName: fk_personal_information_citizenship
+          onDelete: SET NULL
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: citizenship_statuses
+
+  - changeSet:
+      id: 1572587818195-66
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - dropAllForeignKeyConstraints:
+          baseTableName: user_employment_statuses
+
+  - changeSet:
+      id: 1572587818195-67
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - addForeignKeyConstraint:
+          baseColumnNames: user_employment_status_type_id
+          baseTableName: user_employment_statuses
+          constraintName: fk_employment_status_status_type
+          onDelete: SET NULL
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: user_employment_status_types
+      - addForeignKeyConstraint:
+          baseColumnNames: user_id
+          baseTableName: user_employment_statuses
+          constraintName: fk_employment_status_user
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: users
+
+  - changeSet:
+      id: 1572587818195-68
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - dropAllForeignKeyConstraints:
+          baseTableName: user_emergency_contacts
+
+  - changeSet:
+      id: 1572587818195-69
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - addForeignKeyConstraint:
+          baseColumnNames: user_id
+          baseTableName: user_emergency_contacts
+          constraintName: fk_emergency_contacts_users
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: users
+      - addForeignKeyConstraint:
+          baseColumnNames: state_id
+          baseTableName: user_emergency_contacts
+          constraintName: fk_emergency_contacts_states
+          onDelete: SET NULL
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: states
+
+  - changeSet:
+      id: 1572587818195-70
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - dropAllForeignKeyConstraints:
+          baseTableName: user_educations
+
+  - changeSet:
+      id: 1572587818195-71
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - addForeignKeyConstraint:
+          baseColumnNames: user_id
+          baseTableName: user_educations
+          constraintName: fk_user_educations_users
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: users
+
+  - changeSet:
+      id: 1572587818195-72
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - dropAllForeignKeyConstraints:
+          baseTableName: user_compensations
+
+  - changeSet:
+      id: 1572587818195-73
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - addForeignKeyConstraint:
+          baseColumnNames: user_id
+          baseTableName: user_compensations
+          constraintName: fk_user_compensations_users
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: users
+      - addForeignKeyConstraint:
+          baseColumnNames: compensation_frequency_id
+          baseTableName: user_compensations
+          constraintName: fk_user_compensations_frequency
+          onDelete: RESTRICT
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: compensation_frequency
+      - addForeignKeyConstraint:
+          baseColumnNames: compensation_type_id
+          baseTableName: user_compensations
+          constraintName: fk_user_compensations_compensation_type
+          onDelete: RESTRICT
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: compensation_types
+      - addForeignKeyConstraint:
+          baseColumnNames: compensation_change_reason_id
+          baseTableName: user_compensations
+          constraintName: fk_user_compensations_change_reason
+          onDelete: SET NULL
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: compensation_change_reasons
+
+  - changeSet:
+      id: 1572587818195-74
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - dropAllForeignKeyConstraints:
+          baseTableName: user_benefit_plans
+
+  - changeSet:
+      id: 1572587818195-75
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - addForeignKeyConstraint:
+          baseColumnNames: user_id
+          baseTableName: user_benefit_plans
+          constraintName: fk_user_benefit_plans_users
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: users
+      - addForeignKeyConstraint:
+          baseColumnNames: benefit_plan_id
+          baseTableName: user_benefit_plans
+          constraintName: fk_user_benefit_plan_user
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: benefit_plans
+
+  - changeSet:
+      id: 1572587818195-76
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - dropAllForeignKeyConstraints:
+          baseTableName: user_addresses
+
+  - changeSet:
+      id: 1572587818195-77
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - addForeignKeyConstraint:
+          baseColumnNames: user_id
+          baseTableName: user_addresses
+          constraintName: fk_user_addresses_users
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: users
+      - addForeignKeyConstraint:
+          baseColumnNames: state_province_id
+          baseTableName: user_addresses
+          constraintName: fk_user_addresses_state_province
+          onDelete: SET NULL
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: states_provinces
+      - addForeignKeyConstraint:
+          baseColumnNames: country_id
+          baseTableName: user_addresses
+          constraintName: fk_user_address_countries
+          onDelete: SET NULL
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: countries
+
+  - changeSet:
+      id: 1572587818195-78
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - dropAllForeignKeyConstraints:
+          baseTableName: user_access_level_events
+
+  - changeSet:
+      id: 1572587818195-79
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - addForeignKeyConstraint:
+          baseColumnNames: user_id
+          baseTableName: user_access_level_events
+          constraintName: fk_user_access_level_events_users
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: users
+
+  - changeSet:
+      id: 1572587818195-80
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - dropAllForeignKeyConstraints:
+          baseTableName: time_off_requests_approvers
+
+  - changeSet:
+      id: 1572587818195-81
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - addForeignKeyConstraint:
+          baseColumnNames: time_off_request_id
+          baseTableName: time_off_requests_approvers
+          constraintName: fk_time_off_requests_approvers_requests
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: time_off_requests
+      - addForeignKeyConstraint:
+          baseColumnNames: approver_user_id
+          baseTableName: time_off_requests_approvers
+          constraintName: fk_time_off_requests_approvers_users
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: users
+
+  - changeSet:
+      id: 1572587818195-82
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - dropAllForeignKeyConstraints:
+          baseTableName: time_off_requests
+
+  - changeSet:
+      id: 1572587818195-83
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - addForeignKeyConstraint:
+          baseColumnNames: requester_user_id
+          baseTableName: time_off_requests
+          constraintName: fk_time_off_requests_requester_user
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: users
+      - addForeignKeyConstraint:
+          baseColumnNames: approver_user_id
+          baseTableName: time_off_requests
+          constraintName: fk_time_off_requests_approver_user
+          onDelete: SET NULL
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: users
+      - addForeignKeyConstraint:
+          baseColumnNames: time_off_policy_id
+          baseTableName: time_off_requests
+          constraintName: fk_time_off_requests_policy_id
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: time_off_policies
+      - addForeignKeyConstraint:
+          baseColumnNames: time_off_request_approval_status_id
+          baseTableName: time_off_requests
+          constraintName: fk_time_off_requests_approval_status
+          onDelete: RESTRICT
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: time_off_request_approval_statuses
+
+  - changeSet:
+      id: 1572587818195-84
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - dropAllForeignKeyConstraints:
+          baseTableName: time_off_request_dates
+
+  - changeSet:
+      id: 1572587818195-85
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - addForeignKeyConstraint:
+          baseColumnNames: time_off_request_id
+          baseTableName: time_off_request_dates
+          constraintName: fk_time_off_request_date_request
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: time_off_requests
+
+  - changeSet:
+      id: 1572587818195-86
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - dropAllForeignKeyConstraints:
+          baseTableName: time_off_request_comments
+
+  - changeSet:
+      id: 1572587818195-87
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - addForeignKeyConstraint:
+          baseColumnNames: time_off_request_id
+          baseTableName: time_off_request_comments
+          constraintName: fk_time_off_request_comments_request
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: time_off_requests
+      - addForeignKeyConstraint:
+          baseColumnNames: user_id
+          baseTableName: time_off_request_comments
+          constraintName: fk_time_off_request_comments_users
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: users
+
+  - changeSet:
+      id: 1572587818195-88
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - dropAllForeignKeyConstraints:
+          baseTableName: time_off_policy_accrual_schedules
+
+  - changeSet:
+      id: 1572587818195-89
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - addForeignKeyConstraint:
+          baseColumnNames: time_off_policy_id
+          baseTableName: time_off_policy_accrual_schedules
+          constraintName: fk_time_off_policy_accrual_schedules_policies
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: time_off_policies
+      - addForeignKeyConstraint:
+          baseColumnNames: time_off_accrual_frequency_id
+          baseTableName: time_off_policy_accrual_schedules
+          constraintName: fk_time_off_accrual_schedules_frequency
+          onDelete: RESTRICT
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: time_off_accrual_frequencies
+
+  - changeSet:
+      id: 1572587818195-90
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - dropAllForeignKeyConstraints:
+          baseTableName: time_off_policy_accrual_schedule_milestones
+
+  - changeSet:
+      id: 1572587818195-91
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - addForeignKeyConstraint:
+          baseColumnNames: time_off_policy_accrual_schedule_id
+          baseTableName: time_off_policy_accrual_schedule_milestones
+          constraintName: fk_time_off_policy_accrual_schedule_milestones_schedule
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: time_off_policy_accrual_schedules
+
+  - changeSet:
+      id: 1572587818195-92
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - dropAllForeignKeyConstraints:
+          baseTableName: time_off_policies_users
+
+  - changeSet:
+      id: 1572587818195-93
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - addForeignKeyConstraint:
+          baseColumnNames: user_id
+          baseTableName: time_off_policies_users
+          constraintName: fk_time_off_policies_users_user
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: users
+      - addForeignKeyConstraint:
+          baseColumnNames: time_off_policy_id
+          baseTableName: time_off_policies_users
+          constraintName: fk_time_off_policies_users_policy
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: time_off_policies
+
+  - changeSet:
+      id: 1572587818195-94
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - dropAllForeignKeyConstraints:
+          baseTableName: time_off_policies
+
+  - changeSet:
+      id: 1572587818195-95
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - addForeignKeyConstraint:
+          baseColumnNames: company_id
+          baseTableName: time_off_policies
+          constraintName: fk_time_off_policies_companies
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: companies
+
+  - changeSet:
+      id: 1572587818195-96
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - dropAllForeignKeyConstraints:
+          baseTableName: time_off_adjustments
+
+  - changeSet:
+      id: 1572587818195-97
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - addForeignKeyConstraint:
+          baseColumnNames: user_id
+          baseTableName: time_off_adjustments
+          constraintName: fk_time_off_adjustments_users
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: users
+      - addForeignKeyConstraint:
+          baseColumnNames: company_id
+          baseTableName: time_off_adjustments
+          constraintName: fk_time_off_adjustments_companies
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: companies
+      - addForeignKeyConstraint:
+          baseColumnNames: adjuster_user_id
+          baseTableName: time_off_adjustments
+          constraintName: fk_time_off_adjustments_adjuster
+          onDelete: SET NULL
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: users
+      - addForeignKeyConstraint:
+          baseColumnNames: time_off_policy_id
+          baseTableName: time_off_adjustments
+          constraintName: fk_time_off_adjustments_policies
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: time_off_policies
+
+  - changeSet:
+      id: 1572587818195-98
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - dropAllForeignKeyConstraints:
+          baseTableName: states_provinces
+
+  - changeSet:
+      id: 1572587818195-99
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - addForeignKeyConstraint:
+          baseColumnNames: country_id
+          baseTableName: states_provinces
+          constraintName: fk_states_provinces_users
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: countries
+
+  - changeSet:
+      id: 1572587818195-100
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - dropAllForeignKeyConstraints:
+          baseTableName: retirement_plans_types
+
+  - changeSet:
+      id: 1572587818195-101
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - addForeignKeyConstraint:
+          baseColumnNames: benefit_plan_id
+          baseTableName: retirement_plans_types
+          constraintName: fk_retirement_plans_types_plans
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: benefit_plans
+      - addForeignKeyConstraint:
+          baseColumnNames: retirement_type_id
+          baseTableName: retirement_plans_types
+          constraintName: fk_retirement_plans_types_retirement_type
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: retirement_types
+
+  - changeSet:
+      id: 1572587818195-102
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - dropAllForeignKeyConstraints:
+          baseTableName: paid_holidays_users
+
+  - changeSet:
+      id: 1572587818195-103
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - addForeignKeyConstraint:
+          baseColumnNames: company_id
+          baseTableName: paid_holidays_users
+          constraintName: fk_paid_holidays_users_company
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: companies
+      - addForeignKeyConstraint:
+          baseColumnNames: user_id
+          baseTableName: paid_holidays_users
+          constraintName: fk_paid_holidays_users_user
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: users
+
+  - changeSet:
+      id: 1572587818195-104
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - dropAllForeignKeyConstraints:
+          baseTableName: paid_holidays
+
+  - changeSet:
+      id: 1572587818195-105
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - addForeignKeyConstraint:
+          baseColumnNames: country_id
+          baseTableName: paid_holidays
+          constraintName: fk_paid_holidays_countries
+          onDelete: SET NULL
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: countries
+      - addForeignKeyConstraint:
+          baseColumnNames: company_id
+          baseTableName: paid_holidays
+          constraintName: fk_paid_holidays_companies
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: companies
+      - addForeignKeyConstraint:
+          baseColumnNames: creator_id
+          baseTableName: paid_holidays
+          constraintName: fk_paid_holidays_creator
+          onDelete: SET NULL
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: users
+
+  - changeSet:
+      id: 1572587818195-106
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - dropAllForeignKeyConstraints:
+          baseTableName: offices
+
+  - changeSet:
+      id: 1572587818195-107
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - addForeignKeyConstraint:
+          baseColumnNames: office_address_id
+          baseTableName: offices
+          constraintName: fk_offices_addresses
+          onDelete: RESTRICT
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: office_addresses
+      - addForeignKeyConstraint:
+          baseColumnNames: company_id
+          baseTableName: offices
+          constraintName: fk_offices_companies
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: companies
+
+  - changeSet:
+      id: 1572587818195-108
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - dropAllForeignKeyConstraints:
+          baseTableName: office_addresses
+
+  - changeSet:
+      id: 1572587818195-109
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - addForeignKeyConstraint:
+          baseColumnNames: state_province_id
+          baseTableName: office_addresses
+          constraintName: fk_offices_addresses_state
+          onDelete: SET NULL
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: states_provinces
+      - addForeignKeyConstraint:
+          baseColumnNames: country_id
+          baseTableName: office_addresses
+          constraintName: fk_offices_addresses_countries
+          onDelete: SET NULL
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: countries
+
+  - changeSet:
+      id: 1572587818195-110
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - dropAllForeignKeyConstraints:
+          baseTableName: jobs_users
+
+  - changeSet:
+      id: 1572587818195-111
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - addForeignKeyConstraint:
+          baseColumnNames: user_id
+          baseTableName: jobs_users
+          constraintName: fk_jobs_users_users
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: users
+      - addForeignKeyConstraint:
+          baseColumnNames: job_id
+          baseTableName: jobs_users
+          constraintName: fk_jobs_users_jobs
+          onDelete: SET NULL
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: jobs
+      - addForeignKeyConstraint:
+          baseColumnNames: employment_type_id
+          baseTableName: jobs_users
+          constraintName: fk_jobs_users_employment_type
+          onDelete: SET NULL
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: employment_types
+      - addForeignKeyConstraint:
+          baseColumnNames: office_id
+          baseTableName: jobs_users
+          constraintName: fk_jobs_users_offices
+          onDelete: SET NULL
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: offices
+      - addForeignKeyConstraint:
+          baseColumnNames: company_id
+          baseTableName: jobs_users
+          constraintName: fk_jobs_users_companies
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: companies
+
+  - changeSet:
+      id: 1572587818195-112
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - dropAllForeignKeyConstraints:
+          baseTableName: jobs
+
+  - changeSet:
+      id: 1572587818195-113
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - addForeignKeyConstraint:
+          baseColumnNames: department_id
+          baseTableName: jobs
+          constraintName: fk_jobs_deparments
+          onDelete: SET NULL
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: departments
+
+  - changeSet:
+      id: 1572587818195-114
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - dropAllForeignKeyConstraints:
+          baseTableName: employment_types
+
+  - changeSet:
+      id: 1572587818195-115
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - addForeignKeyConstraint:
+          baseColumnNames: company_id
+          baseTableName: employment_types
+          constraintName: fk_employment_types_companies
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: companies
+
+  - changeSet:
+      id: 1572587818195-116
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - dropAllForeignKeyConstraints:
+          baseTableName: emails
+
+  - changeSet:
+      id: 1572587818195-117
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - addForeignKeyConstraint:
+          baseColumnNames: user_id
+          baseTableName: emails
+          constraintName: fk_emails_users
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: users
+
+  - changeSet:
+      id: 1572587818195-118
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - dropAllForeignKeyConstraints:
+          baseTableName: departments
+
+  - changeSet:
+      id: 1572587818195-119
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - addForeignKeyConstraint:
+          baseColumnNames: company_id
+          baseTableName: departments
+          constraintName: fk_departments_companies
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: companies
+
+  - changeSet:
+      id: 1572587818195-120
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - dropAllForeignKeyConstraints:
+          baseTableName: compensation_types
+
+  - changeSet:
+      id: 1572587818195-121
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - addForeignKeyConstraint:
+          baseColumnNames: company_id
+          baseTableName: compensation_types
+          constraintName: fk_compensation_types_companies
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: companies
+
+  - changeSet:
+      id: 1572587818195-122
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - dropAllForeignKeyConstraints:
+          baseTableName: compensation_change_reasons
+
+  - changeSet:
+      id: 1572587818195-123
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - addForeignKeyConstraint:
+          baseColumnNames: company_id
+          baseTableName: compensation_change_reasons
+          constraintName: fk_compensation_change_reasons_companies
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: companies
+
+  - changeSet:
+      id: 1572587818195-124
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - dropAllForeignKeyConstraints:
+          baseTableName: companies_paid_holidays
+
+  - changeSet:
+      id: 1572587818195-125
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - addForeignKeyConstraint:
+          baseColumnNames: company_id
+          baseTableName: companies_paid_holidays
+          constraintName: fk_companies_paid_holidays_companies
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: companies
+      - addForeignKeyConstraint:
+          baseColumnNames: paid_holiday_id
+          baseTableName: companies_paid_holidays
+          constraintName: fk_companies_paid_holidays_paid_holidays
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: paid_holidays
+
+  - changeSet:
+      id: 1572587818195-126
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - dropAllForeignKeyConstraints:
+          baseTableName: companies
+
+  - changeSet:
+      id: 1572587818195-127
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - addForeignKeyConstraint:
+          baseColumnNames: company_size_id
+          baseTableName: companies
+          constraintName: fk_companies_company_sizes
+          onDelete: RESTRICT
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: company_sizes
+
+  - changeSet:
+      id: 1572587818195-128
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - dropAllForeignKeyConstraints:
+          baseTableName: benefit_plans_users
+
+  - changeSet:
+      id: 1572587818195-129
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - addForeignKeyConstraint:
+          baseColumnNames: benefit_plan_id
+          baseTableName: benefit_plans_users
+          constraintName: fk_benefit_plans_users_benefit_plans
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: benefit_plans
+      - addForeignKeyConstraint:
+          baseColumnNames: user_id
+          baseTableName: benefit_plans_users
+          constraintName: fk_benefit_plans_users_users
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: users
+
+  - changeSet:
+      id: 1572587818195-130
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - dropAllForeignKeyConstraints:
+          baseTableName: benefit_plans
+
+  - changeSet:
+      id: 1572587818195-131
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - addForeignKeyConstraint:
+          baseColumnNames: benefit_plan_type_id
+          baseTableName: benefit_plans
+          constraintName: fk_benefit_plans_benefit_types
+          onDelete: RESTRICT
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: benefit_plan_types
+      - addForeignKeyConstraint:
+          baseColumnNames: company_id
+          baseTableName: benefit_plans
+          constraintName: fk_benefit_plans_companies
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: companies
+
+  - changeSet:
+      id: 1572587818195-132
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - dropAllForeignKeyConstraints:
+          baseTableName: benefit_plan_dependents
+
+  - changeSet:
+      id: 1572587818195-133
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - addForeignKeyConstraint:
+          baseColumnNames: employee_id
+          baseTableName: benefit_plan_dependents
+          constraintName: fk_benefit_plans_dependents_employee
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: users
+      - addForeignKeyConstraint:
+          baseColumnNames: dependent_relationship_id
+          baseTableName: benefit_plan_dependents
+          constraintName: fk_benefit_plans_dependents_relationship
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: benefit_plan_dependent_relationships
+      - addForeignKeyConstraint:
+          baseColumnNames: gender_id
+          baseTableName: benefit_plan_dependents
+          constraintName: fk_benefit_plans_dependents_gender
+          onDelete: SET NULL
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: genders
+      - addForeignKeyConstraint:
+          baseColumnNames: state_id
+          baseTableName: benefit_plan_dependents
+          constraintName: fk_benefit_plans_dependents_state
+          onDelete: SET NULL
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: states
+
+  - changeSet:
+      id: 1572587818195-134
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - dropAllForeignKeyConstraints:
+          baseTableName: benefit_plan_coverages
+
+  - changeSet:
+      id: 1572587818195-135
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - addForeignKeyConstraint:
+          baseColumnNames: benefit_plan_id
+          baseTableName: benefit_plan_coverages
+          constraintName: fk_benefit_plan_coverages_plans
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: benefit_plans

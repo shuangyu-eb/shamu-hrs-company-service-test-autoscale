@@ -5,7 +5,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Where;
 import shamu.company.common.entity.BaseEntity;
 import shamu.company.company.entity.Company;
 
@@ -13,7 +12,6 @@ import shamu.company.company.entity.Company;
 @Entity
 @Table(name = "compensation_change_reasons")
 @NoArgsConstructor
-@Where(clause = "deleted_at IS NULL")
 public class CompensationChangeReason extends BaseEntity {
 
   @ManyToOne

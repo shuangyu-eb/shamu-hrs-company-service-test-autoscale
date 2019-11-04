@@ -17,9 +17,7 @@ public interface PaidHolidayUserRepository extends BaseRepository<PaidHolidayUse
           + "LEFT JOIN users u "
           + "ON phu.user_id = u.id "
           + "WHERE phu.company_id = ?1 "
-          + "AND phu.deleted_at IS NULL "
-          + ACTIVE_USER_QUERY
-          + "AND u.deleted_at IS NULL ",
+          + ACTIVE_USER_QUERY,
       nativeQuery = true
   )
   List<PaidHolidayUser> findAllByCompanyId(Long id);
@@ -30,9 +28,7 @@ public interface PaidHolidayUserRepository extends BaseRepository<PaidHolidayUse
           + "LEFT JOIN users u "
           + "ON phu.user_id = u.id "
           + "WHERE phu.company_id = ?1 "
-          + "AND phu.deleted_at IS NULL "
-          + ACTIVE_USER_QUERY
-          + "AND u.deleted_at IS NULL ",
+          + ACTIVE_USER_QUERY,
       nativeQuery = true
   )
   List<BigInteger> findAllUserIdByCompanyId(Long companyId);
@@ -42,8 +38,6 @@ public interface PaidHolidayUserRepository extends BaseRepository<PaidHolidayUse
           + "LEFT JOIN users u "
           + "ON phu.user_id = u.id "
           + "WHERE phu.company_id = ?1 AND phu.user_id = ?2 "
-          + "AND phu.deleted_at IS NULL "
-          + "AND u.deleted_at IS NULL "
           + ACTIVE_USER_QUERY,
       nativeQuery = true
   )

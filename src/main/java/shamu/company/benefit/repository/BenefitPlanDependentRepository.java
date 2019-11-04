@@ -10,7 +10,7 @@ public interface BenefitPlanDependentRepository extends BaseRepository
 
   @Query(
       value = "SELECT * FROM benefit_plan_dependents "
-          + "WHERE deleted_at IS NULL AND employee_id = ?1",
+          + "WHERE employee_id = ?1",
       nativeQuery = true)
   List<BenefitPlanDependent> findByUserId(Long id);
 }

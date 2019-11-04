@@ -8,7 +8,6 @@ import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Where;
 import shamu.company.common.entity.BaseEntity;
 import shamu.company.company.entity.Company;
 
@@ -17,7 +16,6 @@ import shamu.company.company.entity.Company;
 @Table(name = "benefit_plans")
 @NoArgsConstructor
 @AllArgsConstructor
-@Where(clause = "deleted_at IS NULL")
 public class BenefitPlan extends BaseEntity {
   private String name;
 
@@ -41,7 +39,7 @@ public class BenefitPlan extends BaseEntity {
   @OneToOne
   private BenefitPlanType benefitPlanType;
 
-  public BenefitPlan(Long id) {
-    this.setId(id);
+  public BenefitPlan(final Long id) {
+    setId(id);
   }
 }

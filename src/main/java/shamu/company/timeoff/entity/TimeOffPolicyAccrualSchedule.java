@@ -8,7 +8,6 @@ import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Where;
 import shamu.company.common.entity.BaseEntity;
 
 @Data
@@ -16,7 +15,6 @@ import shamu.company.common.entity.BaseEntity;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "time_off_policy_accrual_schedules")
-@Where(clause = "deleted_at IS NULL")
 public class TimeOffPolicyAccrualSchedule extends BaseEntity {
 
   @OneToOne

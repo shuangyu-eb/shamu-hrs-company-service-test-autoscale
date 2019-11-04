@@ -8,7 +8,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Where;
 import org.hibernate.validator.constraints.Length;
 import shamu.company.common.entity.BaseEntity;
 import shamu.company.common.entity.StateProvince;
@@ -18,7 +17,6 @@ import shamu.company.user.entity.User;
 @Data
 @Entity
 @Table(name = "benefit_plan_dependents")
-@Where(clause = "deleted_at IS NULL")
 @NoArgsConstructor
 public class BenefitPlanDependent extends BaseEntity {
 

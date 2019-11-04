@@ -15,8 +15,7 @@ public interface UserRepository extends BaseRepository<User, Long>, UserCustomRe
 
   @Query(value =
       "select * from users u"
-        + " where u.deleted_at is null"
-        + " and u.user_id = ?1 "
+        + " where u.user_id = ?1 "
         + ACTIVE_USER_QUERY,
       nativeQuery = true)
   User findByUserId(String userId);
@@ -25,7 +24,6 @@ public interface UserRepository extends BaseRepository<User, Long>, UserCustomRe
       value =
           "select * from users u"
             + " where u.user_personal_information_id=?1"
-            + " and u.deleted_at is null "
             + ACTIVE_USER_QUERY,
       nativeQuery = true)
   User findByUserPersonalInformationId(Long personalInformationId);
@@ -33,22 +31,21 @@ public interface UserRepository extends BaseRepository<User, Long>, UserCustomRe
   @Query(
       value =
           "select * from users u where"
-            + " u.user_contact_information_id=?1"
-            + " and u.deleted_at is null "
+            + " u.user_contact_information_id=?1 "
             + ACTIVE_USER_QUERY,
       nativeQuery = true)
   User findByUserContactInformationId(Long contactInformationId);
 
   @Query(value = "select u.* from users u "
       + "left join user_contact_information uc on u.user_contact_information_id = uc.id "
-      + "where u.deleted_at is null and uc.email_work = ?1 "
+      + "where uc.email_work = ?1 "
       + ACTIVE_USER_QUERY,
       nativeQuery = true)
   User findByEmailWork(String emailWork);
 
   @Query(
       value = "SELECT * FROM users u "
-          + "WHERE u.manager_user_id = ?1 AND u.deleted_at IS NULL "
+          + "WHERE u.manager_user_id = ?1 "
           + ACTIVE_USER_QUERY,
       nativeQuery = true)
   List<User> findAllByManagerUserId(Long id);
@@ -57,15 +54,14 @@ public interface UserRepository extends BaseRepository<User, Long>, UserCustomRe
 
   @Query(
       value = "SELECT count(1) FROM users u"
-        + " WHERE u.company_id = ?1 AND u.deleted_at IS NULL "
+        + " WHERE u.company_id = ?1 "
         + ACTIVE_USER_QUERY,
       nativeQuery = true)
   Integer findExistingUserCountByCompanyId(Long companyId);
 
   @Query(
       value = "SELECT * FROM users u"
-          + " WHERE u.company_id = ?1"
-          + " AND u.deleted_at IS NULL "
+          + " WHERE u.company_id = ?1 "
           + ACTIVE_USER_QUERY,
       nativeQuery = true)
   List<User> findAllByCompanyId(Long companyId);
@@ -78,14 +74,13 @@ public interface UserRepository extends BaseRepository<User, Long>, UserCustomRe
 
   @Query(
       value = "select * from users u"
-          + " where (u.id in (select ju.user_id"
+          + " where u.id in (select ju.user_id"
           + " from jobs_users ju"
           + " where ju.job_id in (select j.id"
           + " from jobs j"
           + " where j.department_id = ?1)"
           + " ) or u.company_id = ?2 "
-          + " and u.manager_user_id is null) "
-          + " and u.deleted_at is null "
+          + " and u.manager_user_id is null "
           + ACTIVE_USER_QUERY,
       nativeQuery = true
   )
@@ -96,8 +91,7 @@ public interface UserRepository extends BaseRepository<User, Long>, UserCustomRe
                   + " join jobs_users ju on u.id = ju.user_id"
                   + " where u.company_id = ?1"
                   + " and u.manager_user_id = ?2 "
-                  + ACTIVE_USER_QUERY
-                  + " and u.deleted_at is null ",
+                  + ACTIVE_USER_QUERY,
           nativeQuery = true
   )
   List<User> findDirectReportsEmployersAndEmployeesByCompanyId(
@@ -105,20 +99,17 @@ public interface UserRepository extends BaseRepository<User, Long>, UserCustomRe
 
   @Query(value = "select count(1) from users u "
       + "where u.manager_user_id = ?1 "
-      + "and u.deleted_at is null "
       + "and u.company_id = ?2 "
       + ACTIVE_USER_QUERY,
       nativeQuery = true)
   Integer findDirectReportsCount(Long orgUserId, Long companyId);
 
   @Query(value = "select u.manager_user_id from users u where u.id = ?1 "
-      + "and u.deleted_at is null "
       + ACTIVE_USER_QUERY,
       nativeQuery = true)
   Long getManagerUserIdById(Long userId);
 
-  @Query(value = "select * from users u where u.deleted_at is null "
-      + "and u.id = ?1 and u.company_id = ?2 "
+  @Query(value = "select * from users u where u.id = ?1 and u.company_id = ?2 "
       + ACTIVE_USER_QUERY,
       nativeQuery = true)
   User findByIdAndCompanyId(Long userId, Long companyId);

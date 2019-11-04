@@ -11,8 +11,7 @@ public interface CompanyPaidHolidayRepository extends BaseRepository<CompanyPaid
 
   @Query(value = "SELECT * "
       + "FROM companies_paid_holidays "
-      + "WHERE company_id = ?1 "
-      + "AND deleted_at IS NULL",
+      + "WHERE company_id = ?1 ",
       nativeQuery = true)
   List<CompanyPaidHoliday> findAllByCompanyId(Long companyId);
 
@@ -23,8 +22,7 @@ public interface CompanyPaidHolidayRepository extends BaseRepository<CompanyPaid
           + "   from paid_holidays_users phu "
           + "   where phu.company_id = ?1 "
           + "   and phu.user_id = ?2 "
-          + "   and phu.is_selected = true ) "
-          + "and deleted_at is null ",
+          + "   and phu.is_selected = true ) ",
           nativeQuery = true)
   List<CompanyPaidHoliday> findAllByCompanyIdAndUserId(Long companyId, Long userId);
 
@@ -34,15 +32,10 @@ public interface CompanyPaidHolidayRepository extends BaseRepository<CompanyPaid
   @Modifying
   @Transactional
   @Query(
-          value = "update "
+          value = "delete from "
                   + "companies_paid_holidays cph "
-                  + "set "
-                  + "cph.deleted_at=current_timestamp "
                   + "where "
-                  + "cph.paid_holiday_id=?1 "
-                  + "and ("
-                  + "deleted_at is null"
-                  + ")",
+                  + "cph.paid_holiday_id=?1 ",
           nativeQuery = true)
   void deleteByPaidHolidayId(Long id);
 }

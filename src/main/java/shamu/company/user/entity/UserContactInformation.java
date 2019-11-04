@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Where;
 import org.hibernate.validator.constraints.Length;
 import shamu.company.common.entity.BaseEntity;
 
@@ -15,7 +14,6 @@ import shamu.company.common.entity.BaseEntity;
 @NoArgsConstructor
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Where(clause = "deleted_at IS NULL")
 public class UserContactInformation extends BaseEntity {
 
   @Length(max = 50)

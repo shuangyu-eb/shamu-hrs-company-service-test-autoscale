@@ -7,10 +7,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Max;
-
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Where;
 import shamu.company.common.entity.BaseEntity;
 import shamu.company.job.entity.CompensationFrequency;
 
@@ -18,7 +16,6 @@ import shamu.company.job.entity.CompensationFrequency;
 @Entity
 @Table(name = "user_compensations")
 @NoArgsConstructor
-@Where(clause = "deleted_at IS NULL")
 public class UserCompensation extends BaseEntity {
   private static final int max_Wage = 2147483647;
 

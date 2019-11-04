@@ -15,7 +15,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.hibernate.annotations.Where;
 import shamu.company.common.entity.BaseEntity;
 import shamu.company.common.exception.GeneralException;
 import shamu.company.company.entity.Company;
@@ -26,7 +25,6 @@ import shamu.company.company.entity.Company;
 @NoArgsConstructor
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Where(clause = "deleted_at IS NULL")
 public class User extends BaseEntity {
 
   private Timestamp latestLogin;

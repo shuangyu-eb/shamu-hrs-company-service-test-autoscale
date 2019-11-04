@@ -42,10 +42,8 @@ public interface TimeOffRequestDateRepository extends BaseRepository<TimeOffRequ
   @Modifying
   @Query(
       value =
-          "update time_off_request_dates"
-              + " set deleted_at = current_timestamp"
-              + " where time_off_request_id = ?1"
-              + " and deleted_at is null ",
+          "delete from time_off_request_dates"
+              + " where time_off_request_id = ?1",
       nativeQuery = true)
   void deleteByTimeOffRequestId(Long requestId);
 
@@ -62,9 +60,7 @@ public interface TimeOffRequestDateRepository extends BaseRepository<TimeOffRequ
       + "    time_off_request_approval_statuses t "
       + "        ON request.time_off_request_approval_status_id = t.id "
       + "WHERE "
-      + "    rd.deleted_at IS NULL "
-      + "        AND request.deleted_at IS NULL "
-      + "        AND t.name = 'APPROVED' "
+      + "    t.name = 'APPROVED' "
       + "        AND request.requester_user_id = ?1 "
       + "        AND request.time_off_policy_id = ?2 "
       + "        AND rd.date <= ?3 "
@@ -73,9 +69,4 @@ public interface TimeOffRequestDateRepository extends BaseRepository<TimeOffRequ
       nativeQuery = true)
   List<TimeOffRequestDatePojo> getTakenApprovedRequestOffByUserIdAndPolicyId(
           Long userId, Long policyId, LocalDateTime currentTime);
-
-  @Modifying
-  @Query(value = "update TimeOffRequestDate  td set td.deletedAt = current_timestamp "
-      + "where td.timeOffRequestId in ?1")
-  void deleteByTimeOffRequestIds(List<Long> timeOffRequestIds);
 }

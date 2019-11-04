@@ -14,7 +14,7 @@ public class EnumRunner implements CommandLineRunner {
 
   private final EntityManager entityManager;
 
-  private final String sql = "SELECT id FROM %s WHERE name='%s' AND deleted_at is NULL";
+  private final String sql = "SELECT id FROM %s WHERE name='%s' ";
 
   @Autowired
   public EnumRunner(EntityManager entityManager) {

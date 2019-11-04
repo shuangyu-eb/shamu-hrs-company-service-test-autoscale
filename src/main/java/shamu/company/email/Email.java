@@ -51,7 +51,6 @@ public class Email extends BaseEntity {
     this.sentAt = emailInfo.sentAt;
     this.retryCount = emailInfo.retryCount;
     this.setCreatedAt(emailInfo.getCreatedAt());
-    this.setDeletedAt(emailInfo.getDeletedAt());
   }
 
   public Email(String from, String to, String subject, String content, User user,

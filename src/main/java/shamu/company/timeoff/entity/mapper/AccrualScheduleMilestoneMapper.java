@@ -17,7 +17,6 @@ public interface AccrualScheduleMilestoneMapper {
 
   @Mapping(target = "timeOffPolicyAccrualScheduleId", source = "timeOffPolicyAccrualScheduleId")
   @Mapping(target = "id", ignore = true)
-  @Mapping(target = "deletedAt", expression = "java(null)")
   void updateFromAccrualScheduleMilestoneDtoAndTimeOffPolicyAccrualScheduleId(
       @MappingTarget AccrualScheduleMilestone accrualScheduleMilestone,
       AccrualScheduleMilestoneDto accrualScheduleMilestoneDto, Long timeOffPolicyAccrualScheduleId);

@@ -4,7 +4,6 @@ import java.sql.Timestamp;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import shamu.company.common.repository.BaseRepository;
 import shamu.company.timeoff.entity.TimeOffRequest;
@@ -18,8 +17,7 @@ public interface TimeOffRequestRepository
   @Query(
       value =
           "select * from time_off_requests tr "
-              + "where tr.deleted_at is null "
-              + "and tr.id in "
+              + "where  tr.id in "
               + "(select tra.time_off_request_id "
               + "from time_off_requests_approvers tra "
               + "where tra.approver_user_id = ?1) "
@@ -44,9 +42,7 @@ public interface TimeOffRequestRepository
               + " and t.requesterUser in ?1"
               + " and t.id in"
               + " (select td.timeOffRequestId from TimeOffRequestDate td"
-              + " where td.date between ?3 and ?4"
-              + " and td.deletedAt is null)"
-              + " and t.deletedAt is null ")
+              + " where td.date between ?3 and ?4)")
   List<TimeOffRequest> findByRequesterUserInAndTimeOffApprovalStatus(
       List<User> requsters,
       TimeOffRequestApprovalStatus timeOffRequestApprovalStatus,
@@ -67,7 +63,6 @@ public interface TimeOffRequestRepository
                   + "   ON tr.time_off_request_approval_status_id = tras.id "
                   + "WHERE (tr.requester_user_id = ?1 "
                   + "   OR u.manager_user_id = ?1) "
-                  + "   and tr.deleted_at IS NULL "
                   + "   and tras.name in ?2 "
                   + "group by tr.id "
                   + "   having min(td.date) >= date_add(curdate(), INTERVAL -day(curdate())+1 day) "
@@ -86,7 +81,6 @@ public interface TimeOffRequestRepository
               + "LEFT JOIN time_off_request_approval_statuses tras "
               + "   ON tr.time_off_request_approval_status_id = 1 "
               + "WHERE tr.requester_user_id = ?1 "
-              + "   and tr.deleted_at IS NULL "
               + "   and tras.id = 1 "
               + "group by tr.id "
               + "   having min(td.date) >= date_add(curdate(), INTERVAL -day(curdate())+1 day) "
@@ -106,7 +100,6 @@ public interface TimeOffRequestRepository
               + "   ON tr.time_off_request_approval_status_id = tras.id "
               + "WHERE (tr.requester_user_id IN (?1, ?2) "
               + "   OR u.manager_user_id IN (?1, ?2)) "
-              + "   and tr.deleted_at is null "
               + "   AND tras.name in ?3 "
               + "group by tr.id "
               + "   having min(td.date) >= date_add(curdate(), INTERVAL -day(curdate())+1 day) "
@@ -126,7 +119,6 @@ public interface TimeOffRequestRepository
               + "   ON tr.time_off_request_approval_status_id = tras.id "
               + "WHERE (tr.requester_user_id = ?1 OR u.manager_user_id = ?1) "
               + "   and tras.name in ?2 "
-              + "   and tr.deleted_at is null "
               + "group by tr.id "
               + "   having min(td.date) >= date_add(curdate(), INTERVAL -day(curdate())+1 day) "
               + "       and max(td.date) <= last_day(date_add(curdate(), INTERVAL +11 month)) ",
@@ -136,8 +128,7 @@ public interface TimeOffRequestRepository
 
   @Query(
       value = "select * from time_off_requests tr "
-        + "where tr.deleted_at is null "
-        + "and tr.id in "
+        + "where tr.id in "
         + "  (select trspan.time_off_request_id from "
         + "    (select min(trd.date) startDay, max(trd.date) endDay, trd.time_off_request_id "
         + "       from time_off_request_dates trd "
@@ -171,8 +162,7 @@ public interface TimeOffRequestRepository
 
   @Query(
       value = "select * from time_off_requests tr "
-        + "where tr.deleted_at is null "
-        + "and tr.id in "
+        + "where tr.id in "
         + "  (select trspan.time_off_request_id from "
         + "    (select min(trd.date) startDay, max(trd.date) endDay, trd.time_off_request_id "
         + "       from time_off_request_dates trd "
@@ -191,8 +181,7 @@ public interface TimeOffRequestRepository
           value =
                   "select tr.* from time_off_requests tr "
                           + "join time_off_request_dates tord on tr.id = tord.time_off_request_id "
-                          + "where tr.deleted_at is null "
-                          + "and tr.time_off_request_approval_status_id = ?3 "
+                          + "where tr.time_off_request_approval_status_id = ?3 "
                           + "and tr.requester_user_id = ?1 "
                           + "and tord.DATE > ?2 "
                           + "order by tord.date , tr.created_at limit 1 ",
@@ -202,11 +191,6 @@ public interface TimeOffRequestRepository
 
   @Query("SELECT new shamu.company.timeoff.pojo.TimeOffRequestStatusPojo "
       + "(tr.id, tr.timeOffApprovalStatus) FROM TimeOffRequest tr"
-              + " WHERE tr.deletedAt IS NULL AND tr.timeOffPolicy.id = ?1")
+              + " WHERE tr.timeOffPolicy.id = ?1")
   List<TimeOffRequestStatusPojo> findByTimeOffPolicyId(Long timeOffPolicyId);
-
-  @Modifying
-  @Query(value = "update TimeOffRequest tr set tr.deletedAt = current_timestamp "
-      + "where tr.timeOffPolicy.id = ?1")
-  void deleteByTimeOffPolicyId(Long timeOffPolicyId);
 }

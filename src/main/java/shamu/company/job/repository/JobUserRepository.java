@@ -9,7 +9,7 @@ import shamu.company.user.entity.User;
 @Repository
 public interface JobUserRepository extends BaseRepository<JobUser, Long> {
 
-  @Query(value = "SELECT * FROM jobs_users WHERE user_id=?1 AND deleted_at IS NULL ",
+  @Query(value = "SELECT * FROM jobs_users WHERE user_id=?1",
       nativeQuery = true)
   JobUser findByUserId(Long userId);
 

@@ -6,7 +6,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Where;
 import org.hibernate.validator.constraints.Length;
 import shamu.company.common.entity.BaseEntity;
 import shamu.company.common.entity.Country;
@@ -16,7 +15,6 @@ import shamu.company.common.entity.StateProvince;
 @Entity
 @NoArgsConstructor
 @Table(name = "office_addresses")
-@Where(clause = "deleted_at IS NULL")
 public class OfficeAddress extends BaseEntity {
 
   @Column(name = "street_1")

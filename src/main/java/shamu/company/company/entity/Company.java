@@ -9,7 +9,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Where;
 import org.hibernate.validator.constraints.Length;
 import shamu.company.common.entity.BaseEntity;
 import shamu.company.common.entity.Country;
@@ -20,7 +19,6 @@ import shamu.company.common.entity.Country;
 @NoArgsConstructor
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Where(clause = "deleted_at IS NULL")
 public class Company extends BaseEntity {
 
   @Length(max = 255)
@@ -37,7 +35,7 @@ public class Company extends BaseEntity {
   @ManyToOne
   private Country country;
 
-  public Company(Long id) {
-    this.setId(id);
+  public Company(final Long id) {
+    setId(id);
   }
 }

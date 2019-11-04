@@ -35,7 +35,6 @@ import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus;
 import shamu.company.timeoff.entity.TimeOffRequestComment;
 import shamu.company.timeoff.entity.mapper.TimeOffRequestMapper;
 import shamu.company.timeoff.repository.TimeOffPolicyUserRepository;
-import shamu.company.timeoff.repository.TimeOffRequestDateRepository;
 import shamu.company.timeoff.repository.TimeOffRequestRepository;
 import shamu.company.user.entity.User;
 import shamu.company.user.repository.UserRepository;
@@ -49,8 +48,6 @@ public class TimeOffRequestService {
   private final TimeOffRequestRepository timeOffRequestRepository;
 
   private final TimeOffPolicyUserRepository timeOffPolicyUserRepository;
-
-  private final TimeOffRequestDateRepository timeOffRequestDateRepository;
 
   private final UserRepository userRepository;
 
@@ -71,7 +68,6 @@ public class TimeOffRequestService {
       final TimeOffRequestRepository timeOffRequestRepository,
       final TimeOffPolicyUserRepository timeOffPolicyUserRepository,
       final UserRepository userRepository,
-      final TimeOffRequestDateRepository timeOffRequestDateRepository,
       @Lazy final TimeOffRequestEmailService timeOffRequestEmailService,
       final TimeOffRequestMapper timeOffRequestMapper,
       final TimeOffPolicyService timeOffPolicyService,
@@ -81,7 +77,6 @@ public class TimeOffRequestService {
     this.timeOffRequestRepository = timeOffRequestRepository;
     this.timeOffPolicyUserRepository = timeOffPolicyUserRepository;
     this.userRepository = userRepository;
-    this.timeOffRequestDateRepository = timeOffRequestDateRepository;
     this.timeOffRequestEmailService = timeOffRequestEmailService;
     this.timeOffRequestMapper = timeOffRequestMapper;
     this.timeOffPolicyService = timeOffPolicyService;
@@ -344,7 +339,6 @@ public class TimeOffRequestService {
       }
     }
     timeOffRequestRepository.delete(requestId);
-    timeOffRequestDateRepository.deleteByTimeOffRequestId(requestId);
   }
 
 

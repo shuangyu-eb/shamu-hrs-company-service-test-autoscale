@@ -13,13 +13,13 @@ import shamu.company.timeoff.entity.PaidHoliday;
 public interface PaidHolidayRepository extends BaseRepository<PaidHoliday, Long> {
 
   @Query(
-      value = "SELECT * FROM paid_holidays WHERE company_id = ?1 AND deleted_at IS NULL",
+      value = "SELECT * FROM paid_holidays WHERE company_id = ?1",
       nativeQuery = true
   )
   List<PaidHoliday> findByCompanyId(Long companyId);
 
   @Query(
-      value = "SELECT * FROM paid_holidays WHERE company_id IS NULL AND deleted_at IS NULL",
+      value = "SELECT * FROM paid_holidays WHERE company_id IS NULL",
       nativeQuery = true
   )
   List<PaidHoliday> findDefaultPaidHolidays();
@@ -28,7 +28,7 @@ public interface PaidHolidayRepository extends BaseRepository<PaidHoliday, Long>
   @Transactional
   @Query(
       value = "UPDATE paid_holidays SET name = ?2, name_show = ?2,"
-          + " date = ?3 WHERE id = ?1 AND deleted_at IS NULL",
+          + " date = ?3 WHERE id = ?1",
       nativeQuery = true
   )
   void updateDetail(Long id, String name, Timestamp date);
@@ -38,7 +38,7 @@ public interface PaidHolidayRepository extends BaseRepository<PaidHoliday, Long>
   @Query(
       value = "UPDATE companies_paid_holidays "
           + "SET is_selected = ?2 "
-          + "WHERE paid_holiday_id = ?1 AND deleted_at IS NULL",
+          + "WHERE paid_holiday_id = ?1",
       nativeQuery = true
   )
   void updateHolidaySelect(Long id, Boolean isSelected);

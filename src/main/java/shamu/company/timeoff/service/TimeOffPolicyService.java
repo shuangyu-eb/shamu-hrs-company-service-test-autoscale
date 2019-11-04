@@ -3,7 +3,6 @@ package shamu.company.timeoff.service;
 import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.APPROVED;
 import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.NO_ACTION;
 
-import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -56,15 +55,11 @@ import shamu.company.timeoff.entity.mapper.TimeOffPolicyAccrualScheduleMapper;
 import shamu.company.timeoff.entity.mapper.TimeOffPolicyMapper;
 import shamu.company.timeoff.entity.mapper.TimeOffPolicyUserMapper;
 import shamu.company.timeoff.pojo.TimeOffPolicyListPojo;
-import shamu.company.timeoff.pojo.TimeOffRequestStatusPojo;
 import shamu.company.timeoff.repository.AccrualScheduleMilestoneRepository;
 import shamu.company.timeoff.repository.TimeOffAdjustmentRepository;
 import shamu.company.timeoff.repository.TimeOffPolicyAccrualScheduleRepository;
 import shamu.company.timeoff.repository.TimeOffPolicyRepository;
 import shamu.company.timeoff.repository.TimeOffPolicyUserRepository;
-import shamu.company.timeoff.repository.TimeOffRequestApproversRepository;
-import shamu.company.timeoff.repository.TimeOffRequestCommentsRepository;
-import shamu.company.timeoff.repository.TimeOffRequestDateRepository;
 import shamu.company.timeoff.repository.TimeOffRequestRepository;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserPersonalInformation;
@@ -105,12 +100,6 @@ public class TimeOffPolicyService {
 
   private final JobUserMapper jobUserMapper;
 
-  private final TimeOffRequestCommentsRepository timeOffRequestCommentsRepository;
-
-  private final TimeOffRequestDateRepository timeOffRequestDateRepository;
-
-  private final TimeOffRequestApproversRepository timeOffRequestApproversRepository;
-
   @Autowired
   public TimeOffPolicyService(
       final TimeOffPolicyRepository timeOffPolicyRepository,
@@ -126,10 +115,7 @@ public class TimeOffPolicyService {
       final TimeOffPolicyUserMapper timeOffPolicyUserMapper,
       final TimeOffPolicyMapper timeOffPolicyMapper,
       final JobUserMapper jobUserMapper,
-      final CompanyService companyService,
-      final TimeOffRequestCommentsRepository timeOffRequestCommentsRepository,
-      final TimeOffRequestDateRepository timeOffRequestDateRepository,
-      final TimeOffRequestApproversRepository timeOffRequestApproversRepository) {
+      final CompanyService companyService) {
     this.timeOffPolicyRepository = timeOffPolicyRepository;
     this.timeOffPolicyUserRepository = timeOffPolicyUserRepository;
     this.accrualScheduleMilestoneRepository = accrualScheduleMilestoneRepository;
@@ -145,9 +131,6 @@ public class TimeOffPolicyService {
     this.timeOffPolicyMapper = timeOffPolicyMapper;
     this.jobUserMapper = jobUserMapper;
     this.companyService = companyService;
-    this.timeOffRequestCommentsRepository = timeOffRequestCommentsRepository;
-    this.timeOffRequestDateRepository = timeOffRequestDateRepository;
-    this.timeOffRequestApproversRepository = timeOffRequestApproversRepository;
   }
 
   public void createTimeOffPolicy(final TimeOffPolicyWrapperDto timeOffPolicyWrapperDto,
@@ -589,43 +572,6 @@ public class TimeOffPolicyService {
     }
   }
 
-  public void updateMilestones(
-      final List<AccrualScheduleMilestoneDto> accrualScheduleMilestoneDtoList, final Long scheduleId
-  ) {
-    final List<Integer> anniversaryYears = accrualScheduleMilestoneDtoList.stream()
-        .map(AccrualScheduleMilestoneDto::getAnniversaryYear)
-        .collect(Collectors.toList());
-    final List<AccrualScheduleMilestone> all = accrualScheduleMilestoneRepository
-        .findByTimeOffPolicyAccrualScheduleId(scheduleId);
-    final List<Integer> anniversaryYearsBefore = all.stream()
-        .map(AccrualScheduleMilestone::getAnniversaryYear)
-        .collect(Collectors.toList());
-    all.stream().forEach(
-        accrualScheduleMilestone -> {
-          if (!anniversaryYears.contains(accrualScheduleMilestone.getAnniversaryYear())) {
-            accrualScheduleMilestoneRepository.delete(accrualScheduleMilestone);
-          }
-          final Optional<AccrualScheduleMilestoneDto> updateAccrualScheduleMilestoneDto =
-              accrualScheduleMilestoneDtoList.stream().filter(a -> a.getAnniversaryYear()
-                  == accrualScheduleMilestone.getAnniversaryYear()).findFirst();
-          if (updateAccrualScheduleMilestoneDto.isPresent()) {
-            accrualScheduleMilestoneMapper
-                .updateFromAccrualScheduleMilestoneDtoAndTimeOffPolicyAccrualScheduleId(
-                    accrualScheduleMilestone, updateAccrualScheduleMilestoneDto.get(), scheduleId);
-            accrualScheduleMilestoneRepository.save(accrualScheduleMilestone);
-          }
-        });
-    // add completed new milestones info
-    final List<AccrualScheduleMilestone> newAccrualMileStones = accrualScheduleMilestoneDtoList
-        .stream()
-        .filter(milestoneDto -> !anniversaryYearsBefore.contains(milestoneDto.getAnniversaryYear()))
-        .map(milestoneDto -> accrualScheduleMilestoneMapper
-            .createFromAccrualScheduleMilestoneDtoAndTimeOffPolicyAccrualScheduleId(milestoneDto,
-                scheduleId)).collect(
-            Collectors.toList());
-    accrualScheduleMilestoneRepository.saveAll(newAccrualMileStones);
-  }
-
   public void updateTimeOffPolicyUserInfo(
       final List<TimeOffPolicyUserFrontendDto> userStatBalances, final Long timeOffPolicyId) {
     final List<Long> newUserIds = userStatBalances.stream()
@@ -665,29 +611,6 @@ public class TimeOffPolicyService {
   }
 
   public void deleteTimeOffPolicy(final Long timeOffPolicyId) {
-    List<TimeOffRequestStatusPojo> timeOffRequests = timeOffRequestRepository
-        .findByTimeOffPolicyId(timeOffPolicyId);
-    if (null != timeOffRequests && !timeOffRequests.isEmpty()) {
-      List<Long> timeOffRequestIds = timeOffRequests
-              .stream().map(TimeOffRequestStatusPojo::getId).collect(Collectors.toList());
-
-      accrualScheduleMilestoneRepository.deleteByScheduleIds(timeOffRequestIds);
-
-      timeOffRequestCommentsRepository.deleteByTimeOffRequestIds(timeOffRequestIds);
-      timeOffRequestDateRepository.deleteByTimeOffRequestIds(timeOffRequestIds);
-      timeOffRequestApproversRepository.deleteAllByTimeOffRequestIds(timeOffRequestIds);
-    }
-
-    timeOffRequestRepository.deleteByTimeOffPolicyId(timeOffPolicyId);
-
-    // TODO hard delete directly, no query
-    List<TimeOffAdjustment> timeOffAdjustments = timeOffAdjustmentRepository
-        .findAllByTimeOffPolicyId(timeOffPolicyId);
-    if (null != timeOffAdjustments && !timeOffAdjustments.isEmpty()) {
-      timeOffAdjustmentRepository.deleteAll(timeOffAdjustments);
-    }
-
-    timeOffPolicyUserRepository.deleteByTimeOffPolicyId(timeOffPolicyId);
     timeOffPolicyRepository.delete(timeOffPolicyId);
   }
 

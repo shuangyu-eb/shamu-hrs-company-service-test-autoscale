@@ -10,7 +10,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Where;
 import org.hibernate.validator.constraints.Length;
 import shamu.company.common.entity.BaseEntity;
 
@@ -19,7 +18,6 @@ import shamu.company.common.entity.BaseEntity;
 @NoArgsConstructor
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Where(clause = "deleted_at IS NULL")
 public class UserPersonalInformation extends BaseEntity {
 
   @NotBlank
@@ -55,6 +53,6 @@ public class UserPersonalInformation extends BaseEntity {
   private CitizenshipStatus citizenshipStatus;
 
   public String getName() {
-    return this.firstName.concat(" ").concat(this.lastName);
+    return firstName.concat(" ").concat(lastName);
   }
 }

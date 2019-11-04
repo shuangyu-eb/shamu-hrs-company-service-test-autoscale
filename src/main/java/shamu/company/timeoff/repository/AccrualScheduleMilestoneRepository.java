@@ -9,24 +9,17 @@ import shamu.company.timeoff.entity.AccrualScheduleMilestone;
 public interface AccrualScheduleMilestoneRepository extends
     BaseRepository<AccrualScheduleMilestone, Long> {
 
-  @Query("select m from AccrualScheduleMilestone m where m.deletedAt is null "
-      + "and m.timeOffPolicyAccrualScheduleId = ?1 "
+  @Query("select m from AccrualScheduleMilestone m where m.timeOffPolicyAccrualScheduleId = ?1 "
       + "and m.expiredAt is null")
   List<AccrualScheduleMilestone> findByTimeOffPolicyAccrualScheduleId(Long id);
 
-  @Query("select m from AccrualScheduleMilestone m where m.deletedAt is null "
-          + "and m.timeOffPolicyAccrualScheduleId in ?1 "
+  @Query("select m from AccrualScheduleMilestone m where m.timeOffPolicyAccrualScheduleId in ?1 "
           + "and m.expiredAt is null")
   List<AccrualScheduleMilestone> findByTimeOffPolicyAccrualScheduleIds(List<Long> id);
 
   @Modifying
   @Query(value = "update time_off_policy_accrual_schedule_milestones "
       + "set time_off_policy_accrual_schedule_id = ?2 "
-      + "where time_off_policy_accrual_schedule_id = ?1 and deleted_at is null", nativeQuery = true)
+      + "where time_off_policy_accrual_schedule_id = ?1", nativeQuery = true)
   void updateMilestoneSchedule(Long originScheduleId, Long newScheduleId);
-
-  @Modifying
-  @Query(value = "update AccrualScheduleMilestone m set m.deletedAt = current_timestamp "
-      + "where m.timeOffPolicyAccrualScheduleId in ?1")
-  void deleteByScheduleIds(List<Long> scheduleIds);
 }

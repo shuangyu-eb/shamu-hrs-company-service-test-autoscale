@@ -7,7 +7,6 @@ import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Where;
 import shamu.company.common.entity.BaseEntity;
 
 @Data
@@ -15,7 +14,6 @@ import shamu.company.common.entity.BaseEntity;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Where(clause = "deleted_at IS NULL")
 public class BenefitPlanCoverage extends BaseEntity {
   private String name;
 

@@ -7,7 +7,7 @@ import shamu.company.job.entity.Job;
 
 public interface JobRepository extends BaseRepository<Job, Long> {
 
-  @Query(value = "SELECT * from jobs where department_id=?1 and deleted_at is null ",
+  @Query(value = "SELECT * from jobs where department_id=?1",
       nativeQuery = true)
   List<Job> findAllByDepartmentId(Long id);
 }

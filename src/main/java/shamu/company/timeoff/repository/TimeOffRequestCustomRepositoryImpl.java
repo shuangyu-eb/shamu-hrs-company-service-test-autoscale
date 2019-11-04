@@ -28,8 +28,8 @@ public class TimeOffRequestCustomRepositoryImpl implements TimeOffRequestCustomR
   public List<Long> getFilteredReviewedTimeOffRequestsIds(
       Long userId, Long startTime, Long endTime) {
     String query =
-        "SELECT id FROM time_off_requests WHERE deleted_at IS NULL"
-            + " AND time_off_request_approval_status_id IN (3,4)"
+        "SELECT id FROM time_off_requests WHERE "
+            + " time_off_request_approval_status_id IN (3,4)"
             + " AND requester_user_id = "
             + userId;
     SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
@@ -63,8 +63,7 @@ public class TimeOffRequestCustomRepositoryImpl implements TimeOffRequestCustomR
                             + "from time_off_requests tor "
                             + "join time_off_request_dates tord "
                             + "on tor.id = tord.time_off_request_id "
-                            + "where tor.deleted_at is null "
-                            + "and tor.requester_user_id = ?1 "
+                            + "where tor.requester_user_id = ?1 "
                             + "and tor.time_off_policy_id = ?2 "
                             + "and tor.time_off_request_approval_status_id = ?3 "
                             + "group by tord.id ");
@@ -85,8 +84,7 @@ public class TimeOffRequestCustomRepositoryImpl implements TimeOffRequestCustomR
     final StringBuilder queryTimeOffRequest =
             new StringBuilder(
                     "select * from time_off_requests tor "
-                            + "where tor.deleted_at is null "
-                            + "and tor.requester_user_id = ?1 "
+                            + "where tor.requester_user_id = ?1 "
                             + "and tor.time_off_policy_id = ?2 "
                             + "and tor.time_off_request_approval_status_id = ?3 ");
     final Query queryTimeOffRequestResult =

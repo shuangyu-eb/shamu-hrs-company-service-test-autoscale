@@ -56,13 +56,11 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
     String countAllEmployees = "";
     if (!employeeListSearchCondition.getIncludeDeactivated()) {
       countAllEmployees =
-          "select count(1) from users u where u.deleted_at is null "
-              + "and u.company_id = ?1 "
+          "select count(1) from users u where u.company_id = ?1 "
               + ACTIVE_USER_QUERY;
     } else {
       countAllEmployees =
-          "select count(1) from users u where u.deleted_at is null "
-              + "and u.company_id = ?1";
+          "select count(1) from users u where u.company_id = ?1";
     }
     final BigInteger employeeCount =
         (BigInteger)
@@ -85,10 +83,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
             + "left join jobs j on ju.job_id = j.id "
             + "left join departments d on j.department_id = d.id "
             + "left join user_roles ur on u.user_role_id = ur.id "
-            + "where u.deleted_at is null "
-            + "and ju.deleted_at is null "
-            + "and j.deleted_at is null "
-            + "and u.company_id = ?1 "
+            + "where u.company_id = ?1 "
             + "and (up.first_name like concat('%', ?2, '%') "
             + "or up.last_name like concat('%', ?2, '%') "
             + "or d.name like concat('%', ?2, '%') or j.title like concat('%', ?2, '%')) ";
@@ -137,11 +132,9 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
         + "left join jobs j on ju.job_id = j.id "
         + "left join departments d on j.department_id = d.id "
         + "left join user_roles ur on u.user_role_id = ur.id "
-        + "where u.deleted_at is null "
+        + "where "
+        + userCondition
         + ACTIVE_USER_QUERY
-        + "and ju.deleted_at is null "
-        + "and j.deleted_at is null "
-        + "and " + userCondition
         + " and u.company_id = ?2 "
         + "and (up.first_name like concat('%', ?3, '%') "
         + "or up.last_name like concat('%', ?3, '%') "
@@ -204,7 +197,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
                 + "left join offices o on jobUser.office_id = o.id "
                 + "left join office_addresses a on o.office_address_id = a.id "
                 + "left join states_provinces province on a.state_province_id = province.id "
-                + "where u.deleted_at is null and u.company_id = ?2 "
+                + "where u.company_id = ?2 "
                 + ACTIVE_USER_QUERY);
 
     if (managerId == null) {
@@ -262,7 +255,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
             + "left join offices o on jobUser.office_id = o.id "
             + "left join office_addresses a on o.office_address_id = a.id "
             + "left join states_provinces province on a.state_province_id = province.id "
-            + "where u.id = ?1 and u.company_id = ?2 and u.deleted_at is null "
+            + "where u.id = ?1 and u.company_id = ?2 "
             + ACTIVE_USER_QUERY
             + "order by u.created_at asc";
     final Query findAllOrgChartByConditionQuery =

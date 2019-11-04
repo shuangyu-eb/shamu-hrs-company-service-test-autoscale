@@ -13,14 +13,14 @@ public interface UserEmergencyContactRepository extends BaseRepository<UserEmerg
   @Query(
       value =
           "SELECT * FROM user_emergency_contacts "
-              + "WHERE deleted_at IS NULL AND user_id = ?1 ORDER BY is_primary DESC, id ASC",
+              + "WHERE user_id = ?1 ORDER BY is_primary DESC, id ASC",
       nativeQuery = true)
   List<UserEmergencyContact> findByUserId(Long userId);
 
   @Query(
       value =
           "SELECT id FROM user_emergency_contacts "
-              + "WHERE deleted_at IS NULL AND user_id = ?1 ORDER BY is_primary DESC, id ASC",
+              + "WHERE user_id = ?1 ORDER BY is_primary DESC, id ASC",
       nativeQuery = true)
   List<BigInteger> findAllIdByUserId(Long userId);
 
@@ -29,7 +29,7 @@ public interface UserEmergencyContactRepository extends BaseRepository<UserEmerg
   @Query(
       value =
           "UPDATE user_emergency_contacts SET is_primary = FALSE"
-              + " WHERE deleted_at IS NULL AND user_id = ?1",
+              + " WHERE user_id = ?1",
       nativeQuery = true)
   void releasePrimaryContact(Long userId);
 
@@ -38,7 +38,7 @@ public interface UserEmergencyContactRepository extends BaseRepository<UserEmerg
   @Query(
       value =
           "UPDATE user_emergency_contacts SET is_primary = TRUE "
-              + "WHERE deleted_at IS NULL AND user_id = ?1 ORDER BY id Limit 1",
+              + "WHERE user_id = ?1 ORDER BY id Limit 1",
       nativeQuery = true)
   void resetPrimaryContact(Long userId);
 }
