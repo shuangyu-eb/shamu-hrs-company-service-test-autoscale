@@ -203,7 +203,9 @@ public class UserPermissionUtils extends BasePermissionUtils {
       final Permission.Name permission) {
     if (permission == Name.CREATE_AND_APPROVED_TIME_OFF_REQUEST) {
       final User user = userService.findUserById(id);
-      return user.getManagerUser() == null || getAuthUser().getRole() == User.Role.ADMIN;
+      return user.getManagerUser() == null
+          || getAuthUser().getId().equals(user.getManagerUser().getId())
+          || getAuthUser().getRole() == User.Role.ADMIN;
     } else {
       final User user = timeOffRequestService.getById(id).getRequesterUser();
       return hasPermissionOfUser(auth, user, permission);
@@ -326,8 +328,8 @@ public class UserPermissionUtils extends BasePermissionUtils {
     return email != null && email.equals(getAuthUser().getEmail());
   }
 
-  boolean hasAuthority(final String permission) {
-    final List<String> permissions = getAuthUser().getPermissions();
+  boolean hasAuthority(String permission) {
+    List<String> permissions = getAuthUser().getPermissions();
     if (CollectionUtils.isEmpty(permissions)) {
       return false;
     }

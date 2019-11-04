@@ -248,7 +248,7 @@ public class TimeOffRequestRestController extends BaseRestController {
     if (getAuthUser().getId().equals(targetUser.getId())) {
       return targetUser.getManagerUser() == null;
     } else {
-      return userRole == User.Role.ADMIN;
+      return userRole == User.Role.ADMIN || currentUser.equals(targetUser.getManagerUser());
     }
   }
 }

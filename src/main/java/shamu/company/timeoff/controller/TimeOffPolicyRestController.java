@@ -123,7 +123,7 @@ public class TimeOffPolicyRestController extends BaseRestController {
 
   @GetMapping("users/{userId}/policy-users")
   @PreAuthorize("hasPermission(#userId, 'USER', 'VIEW_SELF') "
-      + "or hasPermission(#userId, 'USER', 'MANAGE_COMPANY_USER')")
+      + "or hasPermission(#userId, 'USER', 'MANAGE_TEAM_USER')")
   public List<TimeOffPolicyUserDto> getAllPolicyUsersByUser(
           @PathVariable @HashidsFormat final Long userId,
           final Long untilDate) {
@@ -190,7 +190,7 @@ public class TimeOffPolicyRestController extends BaseRestController {
           ZoneOffset.UTC).toLocalDate();
     }
 
-    TimeOffBreakdownDto timeOffBreakdownDto = timeOffDetailService
+    final TimeOffBreakdownDto timeOffBreakdownDto = timeOffDetailService
         .getTimeOffBreakdown(policyUserId, endDate);
     timeOffBreakdownDto.setUntilDateInMillis(untilDate);
     return timeOffBreakdownDto;
