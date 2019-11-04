@@ -667,21 +667,25 @@ public class TimeOffPolicyService {
   public void deleteTimeOffPolicy(final Long timeOffPolicyId) {
     List<TimeOffRequestStatusPojo> timeOffRequests = timeOffRequestRepository
         .findByTimeOffPolicyId(timeOffPolicyId);
-    List<Long> timeOffRequestIds = timeOffRequests
-        .stream().map(TimeOffRequestStatusPojo::getId).collect(Collectors.toList());
+    if (null != timeOffRequests && !timeOffRequests.isEmpty()) {
+      List<Long> timeOffRequestIds = timeOffRequests
+              .stream().map(TimeOffRequestStatusPojo::getId).collect(Collectors.toList());
 
-    accrualScheduleMilestoneRepository.deleteByScheduleIds(timeOffRequestIds);
+      accrualScheduleMilestoneRepository.deleteByScheduleIds(timeOffRequestIds);
 
-    timeOffRequestCommentsRepository.deleteByTimeOffRequestIds(timeOffRequestIds);
-    timeOffRequestDateRepository.deleteByTimeOffRequestIds(timeOffRequestIds);
-    timeOffRequestApproversRepository.deleteAllByTimeOffRequestIds(timeOffRequestIds);
+      timeOffRequestCommentsRepository.deleteByTimeOffRequestIds(timeOffRequestIds);
+      timeOffRequestDateRepository.deleteByTimeOffRequestIds(timeOffRequestIds);
+      timeOffRequestApproversRepository.deleteAllByTimeOffRequestIds(timeOffRequestIds);
+    }
 
     timeOffRequestRepository.deleteByTimeOffPolicyId(timeOffPolicyId);
 
     // TODO hard delete directly, no query
     List<TimeOffAdjustment> timeOffAdjustments = timeOffAdjustmentRepository
         .findAllByTimeOffPolicyId(timeOffPolicyId);
-    timeOffAdjustmentRepository.deleteAll(timeOffAdjustments);
+    if (null != timeOffAdjustments && !timeOffAdjustments.isEmpty()) {
+      timeOffAdjustmentRepository.deleteAll(timeOffAdjustments);
+    }
 
     timeOffPolicyUserRepository.deleteByTimeOffPolicyId(timeOffPolicyId);
     timeOffPolicyRepository.delete(timeOffPolicyId);
