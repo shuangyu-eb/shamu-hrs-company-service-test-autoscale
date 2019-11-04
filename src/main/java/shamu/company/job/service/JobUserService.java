@@ -1,13 +1,21 @@
 package shamu.company.job.service;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import shamu.company.employee.service.EmployeeService;
 import shamu.company.job.dto.JobUpdateDto;
 import shamu.company.job.entity.JobUser;
 import shamu.company.job.entity.mapper.JobUserMapper;
 import shamu.company.job.repository.JobUserRepository;
+import shamu.company.server.AuthUser;
+import shamu.company.timeoff.dto.MyTimeOffDto;
+import shamu.company.timeoff.dto.TimeOffRequestDto;
+import shamu.company.timeoff.dto.TimeOffRequestUpdateDto;
+import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus;
+import shamu.company.timeoff.service.TimeOffRequestService;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
 import shamu.company.user.entity.UserCompensation;
@@ -15,6 +23,7 @@ import shamu.company.user.entity.UserRole;
 import shamu.company.user.entity.mapper.UserCompensationMapper;
 import shamu.company.user.service.UserRoleService;
 import shamu.company.user.service.UserService;
+import shamu.company.utils.DateUtil;
 
 @Service
 public class JobUserService {
@@ -31,19 +40,24 @@ public class JobUserService {
 
   private final UserRoleService userRoleService;
 
+  private final TimeOffRequestService timeOffRequestService;
+
+
 
   public JobUserService(final JobUserRepository jobUserRepository,
       final UserService userService,
       final JobUserMapper jobUserMapper,
       final UserCompensationMapper userCompensationMapper,
       final EmployeeService employeeService,
-      final UserRoleService userRoleService) {
+      final UserRoleService userRoleService,
+      final TimeOffRequestService timeOffRequestService) {
     this.jobUserRepository = jobUserRepository;
     this.userService = userService;
     this.userCompensationMapper = userCompensationMapper;
     this.jobUserMapper = jobUserMapper;
     this.employeeService = employeeService;
     this.userRoleService = userRoleService;
+    this.timeOffRequestService = timeOffRequestService;
 
   }
 
@@ -103,6 +117,7 @@ public class JobUserService {
             ? userRoleService.getEmployee() : userRoleService.getManager();
         user.setUserRole(targetRole);
       }
+      handlePendingRequests(managerId);
     }
     userService.save(user);
   }
@@ -114,5 +129,27 @@ public class JobUserService {
       user = userService.findUserById(managerId);
     }
     return user.getManagerUser() != null && user.getManagerUser().getId().equals(userId);
+  }
+
+  private void handlePendingRequests(Long userId) {
+    final Timestamp startDayTimestamp = DateUtil.getFirstDayOfCurrentYear();
+    final Long[] timeOffRequestStatuses = new Long[]{
+            TimeOffRequestApprovalStatus.NO_ACTION.getValue(),
+            TimeOffRequestApprovalStatus.VIEWED.getValue()};
+    final PageRequest request = PageRequest.of(0, 1000);
+    MyTimeOffDto pendingRequests = timeOffRequestService
+            .getMyTimeOffRequestsByRequesterUserIdFilteredByStartDay(
+            userId, startDayTimestamp, timeOffRequestStatuses, request);
+    if (null != pendingRequests && pendingRequests.getTimeOffRequests().hasContent()) {
+      List<TimeOffRequestDto> timeOffRequests = pendingRequests.getTimeOffRequests().getContent();
+      AuthUser authUser = new AuthUser();
+      authUser.setId(userId);
+      timeOffRequests.stream().forEach(t -> {
+        TimeOffRequestUpdateDto timeOffRequestUpdateDto = new TimeOffRequestUpdateDto();
+        timeOffRequestUpdateDto.setStatus(TimeOffRequestApprovalStatus.APPROVED);
+        timeOffRequestService.updateTimeOffRequestStatus(
+                t.getId(), timeOffRequestUpdateDto, authUser);
+      });
+    }
   }
 }
