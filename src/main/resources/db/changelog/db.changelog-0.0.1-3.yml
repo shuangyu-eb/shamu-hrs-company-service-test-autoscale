@@ -1117,18 +1117,6 @@ databaseChangeLog:
           tableName: ethnicities
 
   - changeSet:
-      id: 1572587818195-27
-      author: max-eb
-      preConditions:
-        columnExists:
-          columnName: deleted_at
-          tableName: folders
-      changes:
-      - dropColumn:
-          columnName: deleted_at
-          tableName: folders
-
-  - changeSet:
       id: 1572587818195-28
       author: max-eb
       preConditions:
@@ -1404,17 +1392,6 @@ databaseChangeLog:
           columnName: deleted_at
           tableName: user_addresses
 
-  - changeSet:
-      id: 1572587818195-51
-      author: max-eb
-      preConditions:
-        columnExists:
-          columnName: deleted_at
-          tableName: user_benefit_plans
-      changes:
-      - dropColumn:
-          columnName: deleted_at
-          tableName: user_benefit_plans
   - changeSet:
       id: 1572587818195-52
       author: max-eb
@@ -1798,38 +1775,6 @@ databaseChangeLog:
           onUpdate: CASCADE
           referencedColumnNames: id
           referencedTableName: compensation_change_reasons
-
-  - changeSet:
-      id: 1572587818195-74
-      author: max-eb
-      preConditions:
-        onFail: WARN
-      changes:
-      - dropAllForeignKeyConstraints:
-          baseTableName: user_benefit_plans
-
-  - changeSet:
-      id: 1572587818195-75
-      author: max-eb
-      preConditions:
-        onFail: WARN
-      changes:
-      - addForeignKeyConstraint:
-          baseColumnNames: user_id
-          baseTableName: user_benefit_plans
-          constraintName: fk_user_benefit_plans_users
-          onDelete: CASCADE
-          onUpdate: CASCADE
-          referencedColumnNames: id
-          referencedTableName: users
-      - addForeignKeyConstraint:
-          baseColumnNames: benefit_plan_id
-          baseTableName: user_benefit_plans
-          constraintName: fk_user_benefit_plan_user
-          onDelete: CASCADE
-          onUpdate: CASCADE
-          referencedColumnNames: id
-          referencedTableName: benefit_plans
 
   - changeSet:
       id: 1572587818195-76
