@@ -2719,3 +2719,19 @@ databaseChangeLog:
           onUpdate: CASCADE
           referencedColumnNames: id
           referencedTableName: benefit_plans
+
+  - changeSet:
+      id: 1572847764535-1
+      author: Qi-Jia
+      preconditions:
+        onFail: MARK_RAN
+        columnExist:
+          tableName: time_off_policies_users
+          columnName: balance
+      changes:
+        - renameColumn:
+            columnDataType: INT
+            newColumnName: initial_balance
+            oldColumnName: balance
+            tableName: time_off_policies_users
+

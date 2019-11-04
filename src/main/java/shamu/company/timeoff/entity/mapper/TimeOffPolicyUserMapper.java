@@ -13,12 +13,15 @@ import shamu.company.user.entity.User;
 public interface TimeOffPolicyUserMapper {
 
   @Mapping(target = "policy", source = "timeOffPolicy")
+  @Mapping(target = "balance", source = "initialBalance")
   TimeOffPolicyUserDto convertToTimeOffPolicyUserDto(TimeOffPolicyUser timeOffPolicyUser);
 
   @Mapping(target = "user", source = "timeOffPolicyUserFrontendDto.userId")
   @Mapping(target = "timeOffPolicy", source = "timeOffPolicyId")
+  @Mapping(target = "initialBalance", source = "timeOffPolicyUserFrontendDto.balance")
   TimeOffPolicyUser createFromTimeOffPolicyUserFrontendDtoAndTimeOffPolicyId(
       TimeOffPolicyUserFrontendDto timeOffPolicyUserFrontendDto, Long timeOffPolicyId);
+
 
   default User convertFromUserId(final Long userId) {
     return userId != null ? new User(userId) : null;

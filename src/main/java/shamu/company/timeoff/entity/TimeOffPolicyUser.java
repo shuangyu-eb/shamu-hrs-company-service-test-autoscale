@@ -22,5 +22,5 @@ public class TimeOffPolicyUser extends BaseEntity {
   @ManyToOne
   private TimeOffPolicy timeOffPolicy;
 
-  private Integer balance;
+  private Integer initialBalance;
 }

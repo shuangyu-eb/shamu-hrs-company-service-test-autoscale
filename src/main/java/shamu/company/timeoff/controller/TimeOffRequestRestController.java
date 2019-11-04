@@ -232,10 +232,11 @@ public class TimeOffRequestRestController extends BaseRestController {
       + "and hasPermission(#unimplementedRequestDto.userId,'USER','EDIT_USER'))"
       + "or (hasPermission(#requestId,'TIME_OFF_REQUEST','MANAGE_SELF_TIME_OFF_REQUEST')"
       + "and hasPermission(#unimplementedRequestDto.userId, 'USER', 'EDIT_SELF'))")
+  // TODO remove UnimplementedRequestDto
   public void deleteUnimplementedRequest(
       @PathVariable @HashidsFormat final Long requestId,
       @RequestBody final UnimplementedRequestDto unimplementedRequestDto) {
-    timeOffRequestService.deleteUnimplementedRequest(requestId, unimplementedRequestDto);
+    timeOffRequestService.deleteUnimplementedRequest(requestId);
   }
 
   @GetMapping("time-off-request/has-privilege/user/{id}")

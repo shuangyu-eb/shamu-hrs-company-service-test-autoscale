@@ -27,14 +27,6 @@ public class TimeOffBreakdownItemDto {
   @JSONField(serialize = false)
   private BreakDownType breakdownType;
 
-  public enum BreakDownType {
-    TIME_OFF_ACCRUAL,
-    TIME_OFF_ADJUSTMENT,
-    TIME_OFF_REQUEST,
-    CARRYOVER_LIMIT,
-    MAX_BALANCE,
-  }
-
   public TimeOffBreakdownItemDto(final LocalDate date, final String dateMessage,
                                  final String detail, final Integer amount,
                                  final Integer balance, final BreakDownType breakdownType) {
@@ -60,7 +52,7 @@ public class TimeOffBreakdownItemDto {
   public static TimeOffBreakdownItemDto fromTimeOffPolicyUser(
       final TimeOffPolicyUser timeOffPolicyUser) {
 
-    Integer startingBalance = timeOffPolicyUser.getBalance();
+    Integer startingBalance = timeOffPolicyUser.getInitialBalance();
     if (startingBalance == null) {
       startingBalance = 0;
     }
@@ -82,7 +74,7 @@ public class TimeOffBreakdownItemDto {
   public static TimeOffBreakdownItemDto fromTimeOffAdjustment(
       final TimeOffAdjustmentPojo timeOffAdjustmentPojo) {
 
-    LocalDate createTime = DateUtil.toLocalDate(timeOffAdjustmentPojo.getCreatedAt());
+    final LocalDate createTime = DateUtil.toLocalDate(timeOffAdjustmentPojo.getCreatedAt());
 
     final String dateMessage = dateFormatConvert(createTime);
 
@@ -98,5 +90,13 @@ public class TimeOffBreakdownItemDto {
   public static String dateFormatConvert(final LocalDate date) {
     return date.getYear() == LocalDate.now().getYear()
             ? DateUtil.formatDateTo(date, "MMM d") : DateUtil.formatDateTo(date, "MMM d, YYYY");
+  }
+
+  public enum BreakDownType {
+    TIME_OFF_ACCRUAL,
+    TIME_OFF_ADJUSTMENT,
+    TIME_OFF_REQUEST,
+    CARRYOVER_LIMIT,
+    MAX_BALANCE,
   }
 }

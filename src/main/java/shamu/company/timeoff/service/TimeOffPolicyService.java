@@ -283,7 +283,7 @@ public class TimeOffPolicyService {
       final TimeOffPolicy timeOffPolicy) {
     return timeOffPolicyUserRepository
         .findTimeOffPolicyUserByUserAndTimeOffPolicy(user, timeOffPolicy)
-        .getBalance();
+        .getInitialBalance();
   }
 
   public TimeOffPolicy getTimeOffPolicyById(final Long id) {
@@ -593,7 +593,7 @@ public class TimeOffPolicyService {
                 if (updateUserStartBalance.isPresent()) {
                   final TimeOffPolicyUserFrontendDto newUserStartBalance = updateUserStartBalance
                       .get();
-                  oldUsersStartBalance.setBalance(newUserStartBalance.getBalance());
+                  oldUsersStartBalance.setInitialBalance(newUserStartBalance.getBalance());
                   timeOffPolicyUserRepository.save(oldUsersStartBalance);
                 }
                 return;

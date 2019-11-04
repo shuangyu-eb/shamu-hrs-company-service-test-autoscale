@@ -48,11 +48,12 @@ public class TimeOffAdjustment {
 
   private String comment;
 
-  public TimeOffAdjustment(TimeOffPolicyUser user,TimeOffPolicy enrollPolicy,User currentUser) {
+  public TimeOffAdjustment(final TimeOffPolicyUser user, final TimeOffPolicy enrollPolicy,
+      final User currentUser) {
     this.company = user.getUser().getCompany();
     this.user = user.getUser();
     this.timeOffPolicy = enrollPolicy;
     this.adjusterUserId = currentUser.getId();
-    this.amount = user.getBalance();
+    this.amount = user.getInitialBalance();
   }
 }

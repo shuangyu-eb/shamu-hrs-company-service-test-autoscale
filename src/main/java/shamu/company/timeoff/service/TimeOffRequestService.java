@@ -27,7 +27,6 @@ import shamu.company.timeoff.dto.TimeOffBreakdownDto;
 import shamu.company.timeoff.dto.TimeOffRequestDetailDto;
 import shamu.company.timeoff.dto.TimeOffRequestDto;
 import shamu.company.timeoff.dto.TimeOffRequestUpdateDto;
-import shamu.company.timeoff.dto.UnimplementedRequestDto;
 import shamu.company.timeoff.entity.TimeOffPolicy;
 import shamu.company.timeoff.entity.TimeOffPolicyUser;
 import shamu.company.timeoff.entity.TimeOffRequest;
@@ -322,22 +321,7 @@ public class TimeOffRequestService {
   }
 
   @Transactional
-  public void deleteUnimplementedRequest(
-      final Long requestId, final UnimplementedRequestDto unimplementedRequestDto) {
-    final TimeOffRequest timeOffRequest = findByRequestId(requestId);
-    final TimeOffRequestApprovalStatus timeOffRequestApprovalStatus =
-        timeOffRequest.getTimeOffApprovalStatus();
-    final TimeOffPolicy timeOffPolicy = timeOffRequest.getTimeOffPolicy();
-    if (timeOffRequestApprovalStatus.equals(APPROVED) && timeOffPolicy.getIsLimited()) {
-      final TimeOffPolicyUser timeOffPolicyUser =
-          timeOffPolicyUserRepository.findTimeOffPolicyUserByUserAndTimeOffPolicy(
-              new User(unimplementedRequestDto.getUserId()), timeOffPolicy);
-      if (null != timeOffPolicyUser) {
-        timeOffPolicyUser.setBalance(
-            timeOffPolicyUser.getBalance() + unimplementedRequestDto.getHours());
-        timeOffPolicyUserRepository.save(timeOffPolicyUser);
-      }
-    }
+  public void deleteUnimplementedRequest(final Long requestId) {
     timeOffRequestRepository.delete(requestId);
   }
 

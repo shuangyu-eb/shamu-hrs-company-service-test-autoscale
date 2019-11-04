@@ -76,7 +76,7 @@ public interface JobUserMapper {
   @Mapping(target = "lastName", source = "policyUser.user.userPersonalInformation.lastName")
   @Mapping(target = "id", source = "policyUser.user.id")
   @Mapping(target = "imageUrl", source = "policyUser.user.imageUrl")
-  @Mapping(target = "balance", source = "policyUser.balance")
+  @Mapping(target = "balance", source = "policyUser.initialBalance")
   TimeOffPolicyRelatedUserDto convertToTimeOffPolicyRelatedUserDto(TimeOffPolicyUser policyUser,
       JobUser jobUser);
 
