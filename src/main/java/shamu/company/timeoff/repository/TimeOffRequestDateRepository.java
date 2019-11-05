@@ -63,7 +63,7 @@ public interface TimeOffRequestDateRepository extends BaseRepository<TimeOffRequ
       + "    t.name = 'APPROVED' "
       + "        AND request.requester_user_id = ?1 "
       + "        AND request.time_off_policy_id = ?2 "
-      + "        AND rd.date <= ?3 "
+      + "        AND rd.date < ?3 "
       + "GROUP BY request.id "
       + "ORDER BY createDate ASC",
       nativeQuery = true)
