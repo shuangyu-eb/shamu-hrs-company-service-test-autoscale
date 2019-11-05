@@ -577,7 +577,10 @@ public class UserService {
         .getUserByUserIdFromAuth0(userId);
 
     final String emailAddress = user.getEmail();
-    auth0Util.login(emailAddress, changePasswordDto.getPassWord());
+    checkPassword(emailAddress, changePasswordDto.getPassWord());
+    if (changePasswordDto.getPassWord().equals(changePasswordDto.getNewPassword())) {
+      throw new ForbiddenException("New password cannot be the same as the old one.");
+    }
     auth0Util.updatePassword(user, changePasswordDto.getNewPassword());
 
     final Context context = new Context();
