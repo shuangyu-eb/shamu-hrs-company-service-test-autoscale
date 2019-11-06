@@ -146,6 +146,16 @@ public class TimeOffPolicyService {
         .getUserStartBalances();
     final Company company = companyService.findById(companyId);
 
+    List<TimeOffPolicyListDto> timeOffPolicyListDtos = getAllPolicies(companyId);
+    for (TimeOffPolicyListDto timeOffPolicy: timeOffPolicyListDtos) {
+      if (timeOffPolicy.getName().equals(
+              timeOffPolicyWrapperDto.getTimeOffPolicy().getPolicyName())) {
+        throw new ForbiddenException(
+                "A current Time Off policy with that name is already created. "
+                        + "Please enter another Policy Name.");
+      }
+    }
+
     createTimeOffPolicy(timeOffPolicyFrontendDto, timeOffPolicyAccrualScheduleDto,
         accrualScheduleMilestoneDtoList, timeOffPolicyUserFrontendDtos, company);
   }
