@@ -13,13 +13,16 @@ public interface AccrualScheduleMilestoneRepository extends
       + "and m.expiredAt is null")
   List<AccrualScheduleMilestone> findByTimeOffPolicyAccrualScheduleId(Long id);
 
-  @Query("select m from AccrualScheduleMilestone m where m.timeOffPolicyAccrualScheduleId in ?1 "
-          + "and m.expiredAt is null")
-  List<AccrualScheduleMilestone> findByTimeOffPolicyAccrualScheduleIds(List<Long> id);
+  @Query("select m from AccrualScheduleMilestone m where m.timeOffPolicyAccrualScheduleId = ?1")
+  List<AccrualScheduleMilestone> findByAccrualScheduleIdWithExpired(Long id);
 
   @Modifying
   @Query(value = "update time_off_policy_accrual_schedule_milestones "
       + "set time_off_policy_accrual_schedule_id = ?2 "
       + "where time_off_policy_accrual_schedule_id = ?1", nativeQuery = true)
   void updateMilestoneSchedule(Long originScheduleId, Long newScheduleId);
+
+  @Query("select m from AccrualScheduleMilestone m where m.timeOffPolicyAccrualScheduleId = ?1 "
+      + "and m.anniversaryYear <= ?2 and m.expiredAt is null")
+  List<AccrualScheduleMilestone> findByAccrualScheduleIdAndEndYear(Long id, Integer maxYears);
 }

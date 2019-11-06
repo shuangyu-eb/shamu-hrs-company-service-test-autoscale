@@ -476,17 +476,6 @@ public class TimeOffPolicyService {
     final TimeOffPolicyUser timeOffPolicyUser = timeOffPolicyUserRepository.findById(policyUserId)
         .get();
 
-    final TimeOffPolicyAccrualSchedule accrualSchedule =
-        timeOffPolicyAccrualScheduleRepository
-            .findByTimeOffPolicy(timeOffPolicyUser.getTimeOffPolicy());
-    final Integer maxBalance = accrualSchedule.getMaxBalance();
-
-    final Integer currentBalance = timeOffDetailService
-        .getTimeOffBreakdown(policyUserId, DateUtil.getLocalUtcTime().toLocalDate()).getBalance();
-    if (maxBalance != null && (currentBalance + adjustment) > maxBalance) {
-      throw new ForbiddenException("Adjustment bigger than max allowed balance.");
-    }
-
     final TimeOffAdjustment timeOffAdjustment =
         new TimeOffAdjustment(timeOffPolicyUser, timeOffPolicyUser.getTimeOffPolicy(), currentUser);
     timeOffAdjustment.setAmount(adjustment);

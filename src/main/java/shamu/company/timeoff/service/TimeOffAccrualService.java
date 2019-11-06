@@ -78,7 +78,7 @@ public class TimeOffAccrualService {
     return false;
   }
 
-  LocalDate getScheduleStartBaseTime(final LocalDate hireDate,
+  static LocalDate getScheduleStartBaseTime(final LocalDate hireDate,
       final LocalDate userJoinDate, final TimeOffPolicyAccrualSchedule accrualSchedule) {
     LocalDate delayedHireDate = hireDate;
 
@@ -113,7 +113,7 @@ public class TimeOffAccrualService {
     return dates;
   }
 
-  List<AccrualScheduleMilestone> trimTimeOffPolicyScheduleMilestones(
+  static List<AccrualScheduleMilestone> trimTimeOffPolicyScheduleMilestones(
       final List<AccrualScheduleMilestone> accrualScheduleMilestoneList,
       final TimeOffPolicyUser policyUser,
       final TimeOffPolicyAccrualSchedule accrualSchedule) {

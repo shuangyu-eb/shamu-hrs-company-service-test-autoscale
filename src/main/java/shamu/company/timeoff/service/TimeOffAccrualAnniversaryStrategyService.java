@@ -73,7 +73,7 @@ public class TimeOffAccrualAnniversaryStrategyService extends TimeOffAccrualServ
 
       List<AccrualScheduleMilestone> accrualScheduleMilestoneList =
           accrualScheduleMilestoneRepository
-              .findByTimeOffPolicyAccrualScheduleId(accrualSchedule.getId());
+              .findByAccrualScheduleIdWithExpired(accrualSchedule.getId());
       accrualScheduleMilestoneList =
           trimTimeOffPolicyScheduleMilestones(accrualScheduleMilestoneList,
               calculatePojo.getPolicyUser(), accrualSchedule);

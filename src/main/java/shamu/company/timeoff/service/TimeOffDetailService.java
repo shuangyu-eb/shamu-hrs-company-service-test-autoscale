@@ -3,6 +3,7 @@ package shamu.company.timeoff.service;
 import static shamu.company.timeoff.service.TimeOffAccrualService.invalidByStartDateAndEndDate;
 
 import java.sql.Date;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -18,8 +19,11 @@ import org.apache.commons.lang.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import shamu.company.common.exception.ResourceNotFoundException;
+import shamu.company.timeoff.dto.TimeOffAdjustmentCheckDto;
 import shamu.company.timeoff.dto.TimeOffBreakdownDto;
 import shamu.company.timeoff.dto.TimeOffBreakdownItemDto;
+import shamu.company.timeoff.entity.AccrualScheduleMilestone;
 import shamu.company.timeoff.entity.TimeOffAccrualFrequency;
 import shamu.company.timeoff.entity.TimeOffPolicy;
 import shamu.company.timeoff.entity.TimeOffPolicyAccrualSchedule;
@@ -27,6 +31,7 @@ import shamu.company.timeoff.entity.TimeOffPolicyUser;
 import shamu.company.timeoff.pojo.TimeOffAdjustmentPojo;
 import shamu.company.timeoff.pojo.TimeOffBreakdownCalculatePojo;
 import shamu.company.timeoff.pojo.TimeOffRequestDatePojo;
+import shamu.company.timeoff.repository.AccrualScheduleMilestoneRepository;
 import shamu.company.timeoff.repository.TimeOffAdjustmentRepository;
 import shamu.company.timeoff.repository.TimeOffPolicyAccrualScheduleRepository;
 import shamu.company.timeoff.repository.TimeOffPolicyUserRepository;
@@ -44,6 +49,7 @@ public class TimeOffDetailService {
   private final TimeOffAccrualNatureStrategyService accrualNatureStrategyService;
   private final TimeOffAccrualAnniversaryStrategyService accrualAnniversaryStrategyService;
   private final TimeOffAccrualMonthStrategyService accrualMonthStrategyService;
+  private final AccrualScheduleMilestoneRepository milestoneRepository;
 
   @Autowired
   public TimeOffDetailService(
@@ -53,7 +59,8 @@ public class TimeOffDetailService {
       final TimeOffAdjustmentRepository timeOffAdjustmentRepository,
       final TimeOffAccrualNatureStrategyService accrualNatureStrategyService,
       final TimeOffAccrualAnniversaryStrategyService accrualAnniversaryStrategyService,
-      final TimeOffAccrualMonthStrategyService accrualMonthStrategyService
+      final TimeOffAccrualMonthStrategyService accrualMonthStrategyService,
+      final AccrualScheduleMilestoneRepository milestoneRepository
   ) {
     this.timeOffPolicyUserRepository = timeOffPolicyUserRepository;
     this.timeOffPolicyAccrualScheduleRepository = timeOffPolicyAccrualScheduleRepository;
@@ -62,6 +69,7 @@ public class TimeOffDetailService {
     this.accrualNatureStrategyService = accrualNatureStrategyService;
     this.accrualAnniversaryStrategyService = accrualAnniversaryStrategyService;
     this.accrualMonthStrategyService = accrualMonthStrategyService;
+    this.milestoneRepository = milestoneRepository;
   }
 
   public TimeOffBreakdownDto getTimeOffBreakdown(
@@ -286,5 +294,54 @@ public class TimeOffDetailService {
     }
 
     return trimmedScheduleList;
+  }
+
+  public TimeOffAdjustmentCheckDto checkTimeOffAdjustments(Long policyUserId, Integer adjustment) {
+    TimeOffPolicyUser timeOffPolicyUser = timeOffPolicyUserRepository.findById(policyUserId)
+        .orElseThrow(() -> new ResourceNotFoundException("Time off policy user with id "
+            + policyUserId
+            + " not found!")
+        );
+    TimeOffPolicy timeOffPolicy = timeOffPolicyUser.getTimeOffPolicy();
+
+    TimeOffPolicyAccrualSchedule accrualSchedule =
+        timeOffPolicyAccrualScheduleRepository.findByTimeOffPolicy(timeOffPolicy);
+
+    LocalDate hireDate = DateUtil.fromTimestamp(timeOffPolicyUser.getUser().getCreatedAt());
+    LocalDate userJoinDate = DateUtil.fromTimestamp(timeOffPolicyUser.getCreatedAt());
+    LocalDate startDate = TimeOffAccrualService
+        .getScheduleStartBaseTime(hireDate, userJoinDate, accrualSchedule);
+
+    LocalDate now = DateUtil.getLocalUtcTime().toLocalDate();
+    Long maxYears = Duration.between(startDate.atStartOfDay(), now.atStartOfDay()).toDays() / 365L;
+
+    List<AccrualScheduleMilestone> milestones = milestoneRepository
+        .findByAccrualScheduleIdAndEndYear(accrualSchedule.getId(), maxYears.intValue());
+    milestones = TimeOffAccrualService.trimTimeOffPolicyScheduleMilestones(milestones,
+        timeOffPolicyUser, accrualSchedule);
+
+    milestones.sort(Comparator.comparing(AccrualScheduleMilestone::getAnniversaryYear,
+        Comparator.reverseOrder()));
+
+    Optional<AccrualScheduleMilestone> targetMilestone = milestones.stream()
+        .filter((accrualScheduleMilestone ->
+            !startDate.plusYears(accrualScheduleMilestone.getAnniversaryYear()).isAfter(now)))
+        .findFirst();
+
+    Integer maxBalance = targetMilestone.isPresent()
+        ? targetMilestone.get().getMaxBalance()
+        : accrualSchedule.getMaxBalance();
+
+    final Integer currentBalance = this.getTimeOffBreakdown(
+        policyUserId,
+        DateUtil.getLocalUtcTime().toLocalDate()
+    ).getBalance();
+
+    boolean exceed = maxBalance != null && (currentBalance + adjustment) > maxBalance;
+
+    return TimeOffAdjustmentCheckDto.builder()
+        .maxBalance(maxBalance)
+        .exceed(exceed)
+        .build();
   }
 }

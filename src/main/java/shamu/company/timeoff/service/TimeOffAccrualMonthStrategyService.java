@@ -120,7 +120,7 @@ public class TimeOffAccrualMonthStrategyService extends TimeOffAccrualService {
 
       List<AccrualScheduleMilestone> accrualScheduleMilestoneList =
           accrualScheduleMilestoneRepository
-              .findByTimeOffPolicyAccrualScheduleId(accrualSchedule.getId());
+              .findByAccrualScheduleIdWithExpired(accrualSchedule.getId());
       accrualScheduleMilestoneList = trimTimeOffPolicyScheduleMilestones(
           accrualScheduleMilestoneList,
           calculatePojo.getPolicyUser(), accrualSchedule);

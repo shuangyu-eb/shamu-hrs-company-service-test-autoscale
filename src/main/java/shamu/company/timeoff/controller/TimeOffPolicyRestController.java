@@ -22,8 +22,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
-import shamu.company.company.service.CompanyService;
+import shamu.company.common.exception.ForbiddenException;
 import shamu.company.hashids.HashidsFormat;
+import shamu.company.timeoff.dto.TimeOffAdjustmentCheckDto;
 import shamu.company.timeoff.dto.TimeOffBalanceDto;
 import shamu.company.timeoff.dto.TimeOffBreakdownDto;
 import shamu.company.timeoff.dto.TimeOffPolicyListDto;
@@ -34,7 +35,6 @@ import shamu.company.timeoff.dto.TimeOffPolicyUserFrontendDto;
 import shamu.company.timeoff.dto.TimeOffPolicyWrapperDto;
 import shamu.company.timeoff.entity.TimeOffPolicy;
 import shamu.company.timeoff.entity.TimeOffPolicyUser;
-import shamu.company.timeoff.entity.mapper.TimeOffPolicyMapper;
 import shamu.company.timeoff.entity.mapper.TimeOffPolicyUserMapper;
 import shamu.company.timeoff.repository.TimeOffPolicyUserRepository;
 import shamu.company.timeoff.service.TimeOffDetailService;
@@ -51,11 +51,7 @@ public class TimeOffPolicyRestController extends BaseRestController {
 
   private final TimeOffDetailService timeOffDetailService;
 
-  private final TimeOffPolicyMapper timeOffPolicyMapper;
-
   private final TimeOffPolicyUserMapper timeOffPolicyUserMapper;
-
-  private final CompanyService companyService;
 
   private final TimeOffPolicyUserRepository timeOffPolicyUserRepository;
 
@@ -64,16 +60,12 @@ public class TimeOffPolicyRestController extends BaseRestController {
       final TimeOffPolicyService timeOffPolicyService,
       final UserService userService,
       final TimeOffDetailService timeOffDetailService,
-      final TimeOffPolicyMapper timeOffPolicyMapper,
       final TimeOffPolicyUserMapper timeOffPolicyUserMapper,
-      final CompanyService companyService,
       final TimeOffPolicyUserRepository timeOffPolicyUserRepository) {
     this.timeOffPolicyService = timeOffPolicyService;
     this.userService = userService;
     this.timeOffDetailService = timeOffDetailService;
-    this.timeOffPolicyMapper = timeOffPolicyMapper;
     this.timeOffPolicyUserMapper = timeOffPolicyUserMapper;
-    this.companyService = companyService;
     this.timeOffPolicyUserRepository = timeOffPolicyUserRepository;
   }
 
@@ -201,8 +193,25 @@ public class TimeOffPolicyRestController extends BaseRestController {
       + "'TIME_OFF_POLICY_USER','MANAGE_USER_TIME_OFF_BALANCE')")
   public void addTimeOffAdjustments(@HashidsFormat @PathVariable final Long policyUserId,
       @RequestBody final Integer adjustment) {
+    TimeOffAdjustmentCheckDto checkResult = timeOffDetailService
+        .checkTimeOffAdjustments(policyUserId, adjustment);
+    if (checkResult.getExceed()) {
+      throw new ForbiddenException(String.format("Amount exceeds max balance of %s hours.",
+          checkResult.getMaxBalance()));
+    }
+
     final User currentUser = userService.findUserById(getAuthUser().getId());
     timeOffPolicyService.addTimeOffAdjustments(currentUser, policyUserId, adjustment);
+  }
+
+  @PostMapping("time-off-balances/{policyUserId}/adjustments/check")
+  @PreAuthorize("hasPermission(#policyUserId,"
+      + "'TIME_OFF_POLICY_USER','MANAGE_USER_TIME_OFF_BALANCE')")
+  public TimeOffAdjustmentCheckDto checkTimeOffAdjustments(
+      @HashidsFormat @PathVariable final Long policyUserId,
+      @RequestBody final Integer adjustment) {
+
+    return timeOffDetailService.checkTimeOffAdjustments(policyUserId, adjustment);
   }
 
   @GetMapping("time-off-policies/users/{id}/has-policy")
