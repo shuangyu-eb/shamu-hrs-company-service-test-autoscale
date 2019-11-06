@@ -15,4 +15,11 @@ public interface TimeOffPolicyRepository extends BaseRepository<TimeOffPolicy, L
       + "where p.company_id = ?1 "
       + "group by p.id", nativeQuery = true)
   List<TimeOffPolicyListPojo> getAllPolicies(Long company);
+
+  @Query(
+          value = "SELECT count(1) FROM time_off_policies top"
+                  + " WHERE top.name = ?1 "
+                  + " and top.company_id = ?2",
+          nativeQuery = true)
+  Integer findByPolicyNameAndCompanyId(String policyName, Long companyId);
 }

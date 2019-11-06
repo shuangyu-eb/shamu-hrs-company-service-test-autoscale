@@ -146,16 +146,6 @@ public class TimeOffPolicyService {
         .getUserStartBalances();
     final Company company = companyService.findById(companyId);
 
-    List<TimeOffPolicyListDto> timeOffPolicyListDtos = getAllPolicies(companyId);
-    for (TimeOffPolicyListDto timeOffPolicy: timeOffPolicyListDtos) {
-      if (timeOffPolicy.getName().equals(
-              timeOffPolicyWrapperDto.getTimeOffPolicy().getPolicyName())) {
-        throw new ForbiddenException(
-                "A current Time Off policy with that name is already created. "
-                        + "Please enter another Policy Name.");
-      }
-    }
-
     createTimeOffPolicy(timeOffPolicyFrontendDto, timeOffPolicyAccrualScheduleDto,
         accrualScheduleMilestoneDtoList, timeOffPolicyUserFrontendDtos, company);
   }
@@ -166,6 +156,14 @@ public class TimeOffPolicyService {
       final List<TimeOffPolicyUserFrontendDto> timeOffPolicyUserFrontendDtos,
       final Company company) {
 
+    Integer existSamePolicyName = timeOffPolicyRepository
+            .findByPolicyNameAndCompanyId(
+                    timeOffPolicyFrontendDto.getPolicyName(), company.getId());
+    if (existSamePolicyName > 0) {
+      throw new ForbiddenException(
+              "A current Time Off policy with that name is already created. "
+                      + "Please enter another Policy Name.");
+    }
     final TimeOffPolicy timeOffPolicy = timeOffPolicyRepository
         .save(timeOffPolicyMapper
             .createFromTimeOffPolicyFrontendDtoAndCompany(timeOffPolicyFrontendDto, company));
