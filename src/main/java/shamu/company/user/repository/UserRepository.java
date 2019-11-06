@@ -79,8 +79,7 @@ public interface UserRepository extends BaseRepository<User, Long>, UserCustomRe
           + " where ju.job_id in (select j.id"
           + " from jobs j"
           + " where j.department_id = ?1)"
-          + " ) or u.company_id = ?2 "
-          + " and u.manager_user_id is null "
+          + " ) and u.company_id = ?2 "
           + ACTIVE_USER_QUERY,
       nativeQuery = true
   )
