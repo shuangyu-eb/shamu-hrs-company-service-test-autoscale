@@ -15,10 +15,9 @@ public interface UserRepository extends BaseRepository<User, Long>, UserCustomRe
 
   @Query(value =
       "select * from users u"
-        + " where u.user_id = ?1 "
-        + ACTIVE_USER_QUERY,
+        + " where u.user_id = ?1 ",
       nativeQuery = true)
-  User findByUserId(String userId);
+  User findActiveAndDeactivatedUserByUserId(String userId);
 
   @Query(
       value =
