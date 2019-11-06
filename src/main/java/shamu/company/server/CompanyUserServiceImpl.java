@@ -42,7 +42,7 @@ public class CompanyUserServiceImpl implements CompanyUserService {
 
   @Override
   public AuthUser findUserByUserId(final String userId) {
-    final User user = userRepository.findByUserId(userId);
+    final User user = userRepository.findActiveAndDeactivatedUserByUserId(userId);
     return new AuthUser(user);
   }
 }

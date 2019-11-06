@@ -180,7 +180,7 @@ public class UserService {
   }
 
   public User findByUserId(final String userId) {
-    return userRepository.findByUserId(userId);
+    return userRepository.findActiveAndDeactivatedUserByUserId(userId);
   }
 
   public List<User> findByManagerUser(final User managerUser) {
@@ -442,7 +442,7 @@ public class UserService {
         .getDeactivationReason().getId()));
     userRepository.save(user);
 
-    return userRepository.findByUserId(user.getUserId());
+    return userRepository.findActiveAndDeactivatedUserByUserId(user.getUserId());
   }
 
   private void deactivateUser(final UserStatusUpdateDto userStatusUpdateDto,
@@ -480,7 +480,8 @@ public class UserService {
   }
 
   public void signUp(final UserSignUpDto signUpDto) {
-    final User existingUser = userRepository.findByUserId(signUpDto.getUserId());
+    final User existingUser = userRepository
+            .findActiveAndDeactivatedUserByUserId(signUpDto.getUserId());
 
     if (existingUser != null) {
       throw new DataIntegrityViolationException("User "
