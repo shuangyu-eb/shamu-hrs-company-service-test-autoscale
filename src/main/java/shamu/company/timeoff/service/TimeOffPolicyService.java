@@ -156,6 +156,14 @@ public class TimeOffPolicyService {
       final List<TimeOffPolicyUserFrontendDto> timeOffPolicyUserFrontendDtos,
       final Company company) {
 
+    Integer existSamePolicyName = timeOffPolicyRepository
+            .findByPolicyNameAndCompanyId(
+                    timeOffPolicyFrontendDto.getPolicyName(), company.getId());
+    if (existSamePolicyName > 0) {
+      throw new ForbiddenException(
+              "A current Time Off policy with that name is already created. "
+                      + "Please enter another Policy Name.");
+    }
     final TimeOffPolicy timeOffPolicy = timeOffPolicyRepository
         .save(timeOffPolicyMapper
             .createFromTimeOffPolicyFrontendDtoAndCompany(timeOffPolicyFrontendDto, company));
