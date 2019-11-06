@@ -621,6 +621,15 @@ public class TimeOffPolicyService {
   public void enrollTimeOffHours(final List<TimeOffPolicyUser> policyUsers,
       final TimeOffPolicy enrollPolicy, final Long currentUserId) {
     policyUsers.stream().forEach(policyUser -> {
+      TimeOffPolicyUser timeOffPolicyUser = timeOffPolicyUserRepository
+          .findTimeOffPolicyUserByUserAndTimeOffPolicy(policyUser.getUser(),enrollPolicy);
+
+      if (timeOffPolicyUser == null) {
+        TimeOffPolicyUser newPolicyUserRecord = new TimeOffPolicyUser(policyUser
+             .getUser(), enrollPolicy,0);
+        timeOffPolicyUserRepository.save(newPolicyUserRecord);
+      }
+
       final TimeOffBreakdownDto timeOffBreakdown = timeOffDetailService
           .getTimeOffBreakdown(policyUser.getId(), LocalDate.now());
 
