@@ -82,17 +82,21 @@ public class JobUserService {
     jobUserRepository.save(jobUser);
 
     UserCompensation userCompensation = user.getUserCompensation();
-    if (null == userCompensation) {
-      userCompensation = new UserCompensation();
+
+    if (null != userCompensation && jobUpdateDto.getCompensationWage() == null) {
+      user.setUserCompensation(new UserCompensation());
     }
+
     if (jobUpdateDto.getCompensationWage() != null
-        && jobUpdateDto.getCompensationFrequencyId() != null) {
+            && jobUpdateDto.getCompensationFrequencyId() != null) {
+      if (null == userCompensation) {
+        userCompensation = new UserCompensation();
+      }
       userCompensationMapper.updateFromJobUpdateDto(userCompensation, jobUpdateDto);
       userCompensation.setUserId(user.getId());
       userCompensation = userService.saveUserCompensation(userCompensation);
+      user.setUserCompensation(userCompensation);
     }
-
-    user.setUserCompensation(userCompensation);
 
     final Long managerId = jobUpdateDto.getManagerId();
     if (managerId != null && (user.getManagerUser() == null
