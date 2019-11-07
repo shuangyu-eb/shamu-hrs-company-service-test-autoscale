@@ -118,7 +118,7 @@ public class CompanyRestController extends BaseRestController {
   @PreAuthorize("hasPermission(#id,'DEPARTMENT','VIEW_USER_JOB')")
   public List<SelectFieldInformationDto> getUsers(@PathVariable @HashidsFormat final Long id) {
     final List<User> users = employeeService
-        .findEmployersAndEmployeesByDepartmentIdAndCompanyId(id, getCompanyId());
+        .findEmployersAndEmployeesByCompanyId(getCompanyId());
     return collectUserPersonInformations(users);
   }
 
@@ -134,10 +134,16 @@ public class CompanyRestController extends BaseRestController {
       users = employeeService.findDirectReportsEmployersAndEmployeesByCompanyId(
               getCompanyId(), user.getId());
     } else {
-      users = employeeService.findEmployersAndEmployeesByDepartmentIdAndCompanyId(departmentId,
-              getCompanyId());
+      users = employeeService.findEmployersAndEmployeesByCompanyId(getCompanyId());
     }
-    return collectUserPersonInformations(users);
+
+    List<SelectFieldInformationDto> selectFieldInformationDtos =
+            collectUserPersonInformations(users);
+
+    selectFieldInformationDtos.sort((s1, s2) -> s1.getName().toLowerCase()
+            .compareTo(s2.getName().toLowerCase()));
+
+    return selectFieldInformationDtos;
   }
 
   private List<SelectFieldInformationDto> collectUserPersonInformations(final List<User> users) {

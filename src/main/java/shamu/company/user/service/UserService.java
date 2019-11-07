@@ -180,7 +180,7 @@ public class UserService {
   }
 
   public User findByUserId(final String userId) {
-    return userRepository.findActiveAndDeactivatedUserByUserId(userId);
+    return userRepository.findByUserId(userId);
   }
 
   public List<User> findByManagerUser(final User managerUser) {
@@ -488,7 +488,7 @@ public class UserService {
 
   public void signUp(final UserSignUpDto signUpDto) {
     final User existingUser = userRepository
-            .findActiveAndDeactivatedUserByUserId(signUpDto.getUserId());
+            .findByUserId(signUpDto.getUserId());
 
     if (existingUser != null) {
       throw new DataIntegrityViolationException("User "

@@ -14,6 +14,13 @@ public interface UserRepository extends BaseRepository<User, Long>, UserCustomRe
        + "and u.deactivated_at > current_timestamp)) ";
 
   @Query(value =
+          "select * from users u"
+           + " where u.user_id = ?1 "
+           + ACTIVE_USER_QUERY,
+          nativeQuery = true)
+  User findByUserId(String userId);
+
+  @Query(value =
       "select * from users u"
         + " where u.user_id = ?1 ",
       nativeQuery = true)
@@ -72,17 +79,12 @@ public interface UserRepository extends BaseRepository<User, Long>, UserCustomRe
   User findByResetPasswordToken(String token);
 
   @Query(
-      value = "select * from users u"
-          + " where u.id in (select ju.user_id"
-          + " from jobs_users ju"
-          + " where ju.job_id in (select j.id"
-          + " from jobs j"
-          + " where j.department_id = ?1)"
-          + " ) and u.company_id = ?2 "
-          + ACTIVE_USER_QUERY,
-      nativeQuery = true
+          value = "select * from users u"
+                  + " where u.company_id = ?1 "
+                  + ACTIVE_USER_QUERY,
+          nativeQuery = true
   )
-  List<User> findEmployersAndEmployeesByDepartmentIdAndCompanyId(Long departmentId, Long companyId);
+  List<User> findEmployersAndEmployeesByCompanyId(Long companyId);
 
   @Query(
           value = "select * from users u"

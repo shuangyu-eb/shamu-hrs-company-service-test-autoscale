@@ -193,10 +193,8 @@ public class EmployeeService {
     this.userRoleService = userRoleService;
   }
 
-  public List<User> findEmployersAndEmployeesByDepartmentIdAndCompanyId(
-      final Long departmentId, final Long companyId) {
-    return userRepository.findEmployersAndEmployeesByDepartmentIdAndCompanyId(
-        departmentId, companyId);
+  public List<User> findEmployersAndEmployeesByCompanyId(final Long companyId) {
+    return userRepository.findEmployersAndEmployeesByCompanyId(companyId);
   }
 
   public List<User> findDirectReportsEmployersAndEmployeesByCompanyId(

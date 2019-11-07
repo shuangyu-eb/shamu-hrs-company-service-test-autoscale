@@ -176,7 +176,7 @@ class UserServiceTests {
     final Company company = new Company();
     company.setId(1L);
 
-    Mockito.when(userRepository.findActiveAndDeactivatedUserByUserId(Mockito.anyString()))
+    Mockito.when(userRepository.findByUserId(Mockito.anyString()))
             .thenReturn(currentUser);
     Mockito.when(userRepository.findByManagerUser(Mockito.any()))
         .thenReturn(Collections.emptyList());
