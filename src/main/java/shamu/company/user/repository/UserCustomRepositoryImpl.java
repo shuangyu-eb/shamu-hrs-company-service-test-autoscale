@@ -300,6 +300,66 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
     return returnUserList;
   }
 
+  @Override
+  public Page<JobUserListItem> getAllByName(
+          EmployeeListSearchCondition employeeListSearchCondition,
+          Long companyId, Pageable pageable) {
+    String countAllEmployees = "";
+    if (!employeeListSearchCondition.getIncludeDeactivated()) {
+      countAllEmployees =
+              "select count(1) from users u where u.company_id = ?1 "
+                      + ACTIVE_USER_QUERY;
+    } else {
+      countAllEmployees =
+              "select count(1) from users u where u.company_id = ?1";
+    }
+    final BigInteger employeeCount =
+            (BigInteger)
+                    entityManager
+                            .createNativeQuery(countAllEmployees)
+                            .setParameter(1, companyId)
+                            .getSingleResult();
+
+    if (employeeCount.longValue() == 0) {
+      return new PageImpl<>(Collections.emptyList(), pageable, employeeCount.longValue());
+    }
+
+    final String originalSql =
+            "select u.id as id, u.image_url as imageUrl, up.first_name as firstName, "
+          + "up.last_name as lastName, d.name as department, j.title as jobTitle, "
+          + "ur.name as roleName "
+          + "from users u "
+          + "left join  user_personal_information up on u.user_personal_information_id = up.id "
+          + "left join jobs_users ju on u.id = ju.user_id "
+          + "left join jobs j on ju.job_id = j.id "
+          + "left join departments d on j.department_id = d.id "
+          + "left join user_roles ur on u.user_role_id = ur.id "
+          + "where u.company_id = ?1 "
+          + "and (up.first_name like concat('%', ?2, '%') "
+          + "or up.last_name like concat('%', ?2, '%')) ";
+
+    final String additionalSql = ACTIVE_USER_QUERY;
+
+    String resultSql = appendFilterCondition(originalSql, pageable);
+
+    if (!employeeListSearchCondition.getIncludeDeactivated()) {
+      resultSql = appendFilterCondition(originalSql + additionalSql, pageable);
+    }
+
+    final List<?> jobUserList =
+            entityManager
+                    .createNativeQuery(resultSql, Tuple.class)
+                    .setParameter(1, companyId)
+                    .setParameter(2, employeeListSearchCondition.getKeyword().trim())
+                    .getResultList();
+
+    final List<JobUserListItem> jobUserItemList = jobUserList.stream()
+            .map(jobUser -> TupleUtil.convertTo((Tuple) jobUser, JobUserListItem.class))
+            .collect(Collectors.toList());
+
+    return new PageImpl<>(jobUserItemList, pageable, employeeCount.longValue());
+  }
+
   private String appendFilterCondition(final String originalSql, final Pageable pageable) {
     StringBuilder resultSql = new StringBuilder(originalSql);
     resultSql.append("order by ");

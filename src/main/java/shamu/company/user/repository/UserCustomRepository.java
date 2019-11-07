@@ -25,4 +25,7 @@ public interface UserCustomRepository {
   User saveUser(User user);
   
   List<User> saveAllUsers(final Iterable<User> users);
+
+  Page<JobUserListItem> getAllByName(EmployeeListSearchCondition employeeListSearchCondition,
+                                     Long companyId, Pageable pageable);
 }

@@ -3,6 +3,7 @@ package shamu.company.server;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import shamu.company.common.BaseRestController;
+import shamu.company.employee.dto.EmployeeListSearchCondition;
+import shamu.company.job.entity.JobUserListItem;
 
 @RestController
 @RequestMapping("/server/company")
@@ -53,5 +56,11 @@ public class CompanyServerController extends BaseRestController {
   @GetMapping(value = "/users/user-id/{userId}")
   public AuthUser getUserBy(@PathVariable final String userId) {
     return companyUserService.findUserByUserId(userId);
+  }
+
+  @GetMapping("/employees")
+  public Page<JobUserListItem> getAllEmployeesByName(
+          @RequestBody final EmployeeListSearchCondition employeeListSearchCondition) {
+    return companyUserService.getAllEmployees(getAuthUser(), employeeListSearchCondition);
   }
 }

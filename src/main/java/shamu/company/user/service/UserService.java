@@ -268,6 +268,13 @@ public class UserService {
         employeeListSearchCondition, companyId, pageable, role);
   }
 
+  public Page<JobUserListItem> getAllEmployeesByName(
+          final EmployeeListSearchCondition employeeListSearchCondition, final Long companyId) {
+    final Pageable pageable = getPageable(employeeListSearchCondition);
+    return userRepository.getAllByName(
+            employeeListSearchCondition, companyId, pageable);
+  }
+
   public User getOne(final Long userId) {
     return userRepository.getOne(userId);
   }
