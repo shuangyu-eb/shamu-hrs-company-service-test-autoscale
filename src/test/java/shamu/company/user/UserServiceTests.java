@@ -44,6 +44,7 @@ import shamu.company.user.entity.mapper.UserPersonalInformationMapper;
 import shamu.company.user.repository.UserAccessLevelEventRepository;
 import shamu.company.user.repository.UserCompensationRepository;
 import shamu.company.user.repository.UserContactInformationRepository;
+import shamu.company.user.repository.UserPersonalInformationRepository;
 import shamu.company.user.repository.UserRepository;
 import shamu.company.user.repository.UserStatusRepository;
 import shamu.company.user.service.UserAddressService;
@@ -96,6 +97,8 @@ class UserServiceTests {
   @Mock
   private UserContactInformationRepository userContactInformationRepository;
   @Mock
+  private UserPersonalInformationRepository userPersonalInformationRepository;
+  @Mock
   private AuthUserCacheManager authUserCacheManager;
   @Mock
   private DynamicScheduler dynamicScheduler;
@@ -125,6 +128,7 @@ class UserServiceTests {
         userAccessLevelEventRepository,
         departmentRepository,
         jobRepository, userMapper, authUserCacheManager,userContactInformationRepository,
+        userPersonalInformationRepository,
         dynamicScheduler,
         awsUtil, userRoleService);
   }

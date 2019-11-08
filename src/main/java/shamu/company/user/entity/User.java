@@ -51,14 +51,14 @@ public class User extends BaseEntity {
   @ToString.Exclude
   private User managerUser;
 
-  @OneToOne(cascade = CascadeType.PERSIST)
+  @OneToOne(cascade = CascadeType.ALL)
   private UserPersonalInformation userPersonalInformation;
 
-  @OneToOne(cascade = CascadeType.PERSIST)
+  @OneToOne(cascade = CascadeType.ALL)
   @NotNull
   private UserContactInformation userContactInformation;
 
-  @OneToOne(cascade = CascadeType.PERSIST)
+  @OneToOne(cascade = CascadeType.ALL)
   private UserCompensation userCompensation;
 
   private String invitationEmailToken;

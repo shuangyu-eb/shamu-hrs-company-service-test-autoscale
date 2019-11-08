@@ -80,6 +80,7 @@ import shamu.company.user.entity.mapper.UserPersonalInformationMapper;
 import shamu.company.user.repository.UserAccessLevelEventRepository;
 import shamu.company.user.repository.UserCompensationRepository;
 import shamu.company.user.repository.UserContactInformationRepository;
+import shamu.company.user.repository.UserPersonalInformationRepository;
 import shamu.company.user.repository.UserRepository;
 import shamu.company.user.repository.UserStatusRepository;
 import shamu.company.utils.Auth0Util;
@@ -116,6 +117,7 @@ public class UserService {
   private final AuthUserCacheManager authUserCacheManager;
   private final UserAccessLevelEventRepository userAccessLevelEventRepository;
   private final UserContactInformationRepository userContactInformationRepository;
+  private final UserPersonalInformationRepository userPersonalInformationRepository;
   private final DynamicScheduler dynamicScheduler;
 
   private final UserRoleService userRoleService;
@@ -144,6 +146,7 @@ public class UserService {
       final UserMapper userMapper,
       final AuthUserCacheManager authUserCacheManager,
       final UserContactInformationRepository userContactInformationRepository,
+      final UserPersonalInformationRepository userPersonalInformationRepository,
       final DynamicScheduler dynamicScheduler,
       final AwsUtil awsUtil,
       final UserRoleService userRoleService) {
@@ -168,6 +171,7 @@ public class UserService {
     this.userMapper = userMapper;
     this.authUserCacheManager = authUserCacheManager;
     this.userContactInformationRepository = userContactInformationRepository;
+    this.userPersonalInformationRepository = userPersonalInformationRepository;
     this.dynamicScheduler = dynamicScheduler;
     this.awsUtil = awsUtil;
     this.userRoleService = userRoleService;
@@ -427,6 +431,22 @@ public class UserService {
     return userRepository.save(user);
   }
 
+  private void deactivateUser(final UserStatusUpdateDto userStatusUpdateDto,
+      final User user) {
+    if (userStatusUpdateDto.getUserStatus().name().equals(Status.ACTIVE.name())) {
+      userAccessLevelEventRepository.save(
+          new UserAccessLevelEvent(user, user.getUserRole().getName()));
+
+      user.setUserRole(userRoleService.getInactive());
+      user.setUserStatus(userStatusRepository.findByName(
+          Status.DISABLED.name()
+      ));
+      adjustUserManagerRelationshipBeforeDeleteOrDeactivate(user);
+      userRepository.save(user);
+    }
+  }
+
+
   public User deactivateUser(final String email,
       final UserStatusUpdateDto userStatusUpdateDto,
       final User user) {
@@ -452,32 +472,37 @@ public class UserService {
     return userRepository.findActiveAndDeactivatedUserByUserId(user.getUserId());
   }
 
-  private void deactivateUser(final UserStatusUpdateDto userStatusUpdateDto,
-      final User user) {
-    if (userStatusUpdateDto.getUserStatus().name().equals(Status.ACTIVE.name())) {
-      userAccessLevelEventRepository.save(
-          new UserAccessLevelEvent(user, user.getUserRole().getName()));
+  public void deleteUser(String currentUserEmail, String password, User employee) {
 
-      user.setUserRole(userRoleService.getInactive());
-      user.setUserStatus(userStatusRepository.findByName(
-          Status.DISABLED.name()
-      ));
-      final List<User> teamEmployees = userRepository.findAllByManagerUserId(user.getId());
+    auth0Util.login(currentUserEmail, password);
 
-      if (!CollectionUtils.isEmpty(teamEmployees)) {
-        if (user.getManagerUser() != null) {
-          teamEmployees.forEach(
-              employee -> employee.setManagerUser(user.getManagerUser()));
-        } else {
-          teamEmployees.forEach(
-              employee -> {
-                employee.setManagerUser(null);
-                employee.setUserRole(userRoleService.getAdmin());
-              });
-        }
-        userRepository.saveAll(teamEmployees);
+    adjustUserManagerRelationshipBeforeDeleteOrDeactivate(employee);
+
+    auth0Util.deleteUser(auth0Util.getUserByUserIdFromAuth0(employee.getUserId()).getId());
+
+    userRepository.delete(employee);
+
+    userContactInformationRepository.delete(employee.getUserContactInformation());
+
+    userPersonalInformationRepository.delete(employee.getUserPersonalInformation());
+  }
+
+
+
+  private void adjustUserManagerRelationshipBeforeDeleteOrDeactivate(User user) {
+    final List<User> teamEmployees = userRepository.findAllByManagerUserId(user.getId());
+    if (!CollectionUtils.isEmpty(teamEmployees)) {
+      if (user.getManagerUser() != null) {
+        teamEmployees.forEach(
+            employee -> employee.setManagerUser(user.getManagerUser()));
+      } else {
+        teamEmployees.forEach(
+            employee -> {
+              employee.setManagerUser(null);
+              employee.setUserRole(userRoleService.getAdmin());
+            });
       }
-      userRepository.save(user);
+      userRepository.saveAll(teamEmployees);
     }
   }
 
