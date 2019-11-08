@@ -29,7 +29,7 @@ public interface UserRepository extends BaseRepository<User, Long>, UserCustomRe
   @Query(
       value =
           "select * from users u"
-            + " where u.user_personal_information_id=?1"
+            + " where u.user_personal_information_id=?1 "
             + ACTIVE_USER_QUERY,
       nativeQuery = true)
   User findByUserPersonalInformationId(Long personalInformationId);
