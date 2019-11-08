@@ -134,7 +134,7 @@ public class TimeOffRequestService {
             .employeeFindSelfPendingRequests(user.getId());
     if (user.getManagerUser() == null) {
       result = timeOffRequestRepository.adminFindTeamRequests(user.getId(), statusNames);
-    } else if (userRole == User.Role.MANAGER) {
+    } else if (userRole == User.Role.MANAGER || userRole == User.Role.ADMIN) {
       result =  timeOffRequestRepository.managerFindTeamRequests(
           user.getId(), user.getManagerUser().getId(), statusNames);
     } else {
