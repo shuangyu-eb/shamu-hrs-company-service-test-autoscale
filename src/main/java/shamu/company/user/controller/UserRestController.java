@@ -141,11 +141,10 @@ public class UserRestController extends BaseRestController {
   }
 
   @DeleteMapping("users/{id}/delete")
-  @PreAuthorize("hasPermission(#id, 'USER', 'USER_DELETE')")
-  public void deleteUser(@PathVariable @HashidsFormat final Long id,
-      @RequestBody final String password) {
+  @PreAuthorize("hasPermission(#id, 'USER', 'EDIT_USER')")
+  public void deleteUser(@PathVariable @HashidsFormat final Long id) {
     User employee = userService.findUserById(id);
-    userService.deleteUser(getAuthUser().getEmail(),password,employee);
+    userService.deleteUser(employee);
   }
 
   @GetMapping("users/all")

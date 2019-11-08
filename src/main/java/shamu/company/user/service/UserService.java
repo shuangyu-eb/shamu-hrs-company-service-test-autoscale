@@ -472,9 +472,7 @@ public class UserService {
     return userRepository.findActiveAndDeactivatedUserByUserId(user.getUserId());
   }
 
-  public void deleteUser(String currentUserEmail, String password, User employee) {
-
-    auth0Util.login(currentUserEmail, password);
+  public void deleteUser(User employee) {
 
     adjustUserManagerRelationshipBeforeDeleteOrDeactivate(employee);
 
