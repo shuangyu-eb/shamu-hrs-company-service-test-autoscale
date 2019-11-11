@@ -101,7 +101,6 @@ public class CompanyService {
       officeAddress.setStateProvince(stateProvinceReturned);
     }
 
-    officeAddress = officeAddressRepository.save(officeAddress);
     office.setOfficeAddress(officeAddress);
 
     return officeRepository.save(office);
