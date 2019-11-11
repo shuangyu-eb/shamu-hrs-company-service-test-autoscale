@@ -64,8 +64,7 @@ public interface TimeOffRequestRepository
                   + "WHERE (tr.requester_user_id = ?1 "
                   + "   OR u.manager_user_id = ?1) "
                   + "   and tras.name in ?2 "
-                  + "group by tr.id "
-                  + "   having max(td.date) <= last_day(date_add(curdate(), INTERVAL +11 month)) ",
+                  + "group by tr.id ",
       nativeQuery = true)
   List<TimeOffRequest> employeeFindTeamRequests(
       Long managerId, List<String> timeOffRequestApprovalStatus);
@@ -81,8 +80,7 @@ public interface TimeOffRequestRepository
               + "   ON tr.time_off_request_approval_status_id = 1 "
               + "WHERE tr.requester_user_id = ?1 "
               + "   and tras.id = 1 "
-              + "group by tr.id "
-              + "   having max(td.date) <= last_day(date_add(curdate(), INTERVAL +11 month)) ",
+              + "group by tr.id ",
       nativeQuery = true)
   List<TimeOffRequest> employeeFindSelfPendingRequests(
       Long employeeId);
@@ -99,8 +97,7 @@ public interface TimeOffRequestRepository
               + "WHERE (tr.requester_user_id IN (?1, ?2) "
               + "   OR u.manager_user_id IN (?1, ?2)) "
               + "   AND tras.name in ?3 "
-              + "group by tr.id "
-              + "   having max(td.date) <= last_day(date_add(curdate(), INTERVAL +11 month)) ",
+              + "group by tr.id ",
       nativeQuery = true)
   List<TimeOffRequest> managerFindTeamRequests(
       Long userId, Long managerId, List<String> timeOffRequestApprovalStatus);
@@ -116,8 +113,7 @@ public interface TimeOffRequestRepository
               + "   ON tr.time_off_request_approval_status_id = tras.id "
               + "WHERE (tr.requester_user_id = ?1 OR u.manager_user_id = ?1) "
               + "   and tras.name in ?2 "
-              + "group by tr.id "
-              + "   having max(td.date) <= last_day(date_add(curdate(), INTERVAL +11 month)) ",
+              + "group by tr.id ",
       nativeQuery = true)
   List<TimeOffRequest> adminFindTeamRequests(
       Long userId, List<String> timeOffRequestApprovalStatus);
