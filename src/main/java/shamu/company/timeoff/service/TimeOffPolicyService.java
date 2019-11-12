@@ -357,10 +357,20 @@ public class TimeOffPolicyService {
 
   @Transactional
   public void updateTimeOffPolicy(final Long id,
-      final TimeOffPolicyWrapperDto infoWrapper) {
+      final TimeOffPolicyWrapperDto infoWrapper, Long companyId) {
 
     final TimeOffPolicyFrontendDto timeOffPolicyFrontendDto = infoWrapper.getTimeOffPolicy();
     final TimeOffPolicy origin = getTimeOffPolicyById(id);
+
+    Integer existSamePolicyName = timeOffPolicyRepository
+            .findByPolicyNameAndCompanyId(
+                    timeOffPolicyFrontendDto.getPolicyName(), companyId);
+    if (existSamePolicyName > 1) {
+      throw new ForbiddenException(
+              "A current Time Off policy with that name is already created. "
+                      + "Please enter another Policy Name.");
+    }
+
     timeOffPolicyMapper.updateFromTimeOffPolicyFrontendDto(origin, timeOffPolicyFrontendDto);
 
     updateTimeOffPolicy(origin);

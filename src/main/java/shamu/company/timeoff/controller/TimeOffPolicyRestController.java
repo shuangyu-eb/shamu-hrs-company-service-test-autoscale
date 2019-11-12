@@ -81,7 +81,7 @@ public class TimeOffPolicyRestController extends BaseRestController {
   public void updateTimeOffPolicy(@Valid @HashidsFormat @PathVariable final Long id,
       @RequestBody final TimeOffPolicyWrapperDto infoWrapper) {
 
-    timeOffPolicyService.updateTimeOffPolicy(id, infoWrapper);
+    timeOffPolicyService.updateTimeOffPolicy(id, infoWrapper, getCompanyId());
   }
 
   @PatchMapping("time-off-policy/employees/{policyId}")
