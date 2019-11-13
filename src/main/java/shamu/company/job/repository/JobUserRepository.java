@@ -14,4 +14,10 @@ public interface JobUserRepository extends BaseRepository<JobUser, Long> {
   JobUser findByUserId(Long userId);
 
   JobUser findJobUserByUser(User user);
+
+  @Query(
+          value = "SELECT count(1) FROM jobs_users ju"
+                  + " WHERE ju.job_id = ?1 ",
+          nativeQuery = true)
+  Integer getCountByJobId(Long jobId);
 }

@@ -14,4 +14,6 @@ public class OfficeAddressDto {
   private String postalCode;
 
   private StateProvinceDto stateProvince;
+
+  private String zip;
 }

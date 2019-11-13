@@ -12,12 +12,14 @@ import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.company.dto.OfficeCreateDto;
 import shamu.company.company.dto.OfficeDto;
+import shamu.company.company.dto.OfficeSizeDto;
 import shamu.company.company.entity.Company;
 import shamu.company.company.entity.Department;
 import shamu.company.company.entity.Office;
 import shamu.company.company.entity.mapper.OfficeMapper;
 import shamu.company.company.service.CompanyService;
 import shamu.company.employee.dto.SelectFieldInformationDto;
+import shamu.company.employee.dto.SelectFieldSizeDto;
 import shamu.company.employee.entity.EmploymentType;
 import shamu.company.employee.service.EmployeeService;
 import shamu.company.hashids.HashidsFormat;
@@ -56,11 +58,8 @@ public class CompanyRestController extends BaseRestController {
 
 
   @GetMapping("departments")
-  public List<SelectFieldInformationDto> getDepartments() {
-    return companyService.getDepartmentsByCompanyId(getCompanyId())
-        .stream()
-        .map(SelectFieldInformationDto::new)
-        .collect(Collectors.toList());
+  public List<SelectFieldSizeDto> getDepartments() {
+    return companyService.getDepartmentsByCompanyId(getCompanyId());
   }
 
 
@@ -72,11 +71,9 @@ public class CompanyRestController extends BaseRestController {
 
   @GetMapping("departments/{id}/jobs")
   @PreAuthorize("hasPermission(#id,'DEPARTMENT','VIEW_JOB')")
-  public List<SelectFieldInformationDto> getJobsByDepartment(
+  public List<SelectFieldSizeDto> getJobsByDepartment(
       @PathVariable @HashidsFormat final Long id) {
-    return companyService.getJobsByDepartmentId(id).stream()
-        .map(job -> new SelectFieldInformationDto(job.getId(), job.getTitle()))
-        .collect(Collectors.toList());
+    return companyService.getJobsByDepartmentId(id);
   }
 
 
@@ -89,11 +86,8 @@ public class CompanyRestController extends BaseRestController {
   }
 
   @GetMapping("employment-types")
-  public List<SelectFieldInformationDto> getEmploymentTypes() {
-    return companyService.getEmploymentTypesByCompanyId(getCompanyId())
-        .stream()
-        .map(SelectFieldInformationDto::new)
-        .collect(Collectors.toList());
+  public List<SelectFieldSizeDto> getEmploymentTypes() {
+    return companyService.getEmploymentTypesByCompanyId(getCompanyId());
   }
 
 
@@ -107,8 +101,8 @@ public class CompanyRestController extends BaseRestController {
 
   @GetMapping("offices")
   @PreAuthorize("hasAuthority('VIEW_USER_JOB')")
-  public List<OfficeDto> getOffices() {
-    return officeMapper.convertToOfficeDto(companyService.getOfficesByCompany(getCompanyId()));
+  public List<OfficeSizeDto> getOffices() {
+    return companyService.getOfficesByCompany(getCompanyId());
   }
 
   @PostMapping("offices")
