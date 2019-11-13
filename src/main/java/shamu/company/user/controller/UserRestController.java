@@ -39,6 +39,7 @@ import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
 import shamu.company.user.entity.mapper.UserMapper;
 import shamu.company.user.service.UserService;
+import shamu.company.utils.Auth0Util;
 
 @RestApiController
 @Validated
@@ -48,10 +49,14 @@ public class UserRestController extends BaseRestController {
 
   private final UserMapper userMapper;
 
+  private final Auth0Util auth0Util;
+
   public UserRestController(final UserService userService,
-      final UserMapper userMapper) {
+      final UserMapper userMapper,
+      final Auth0Util auth0Util) {
     this.userService = userService;
     this.userMapper = userMapper;
+    this.auth0Util = auth0Util;
   }
 
   @PostMapping(value = "user/sign-up")
@@ -143,7 +148,7 @@ public class UserRestController extends BaseRestController {
   @DeleteMapping("users/{id}/delete")
   @PreAuthorize("hasPermission(#id, 'USER', 'EDIT_USER')")
   public void deleteUser(@PathVariable @HashidsFormat final Long id) {
-    User employee = userService.findUserById(id);
+    final User employee = userService.findUserById(id);
     userService.deleteUser(employee);
   }
 
@@ -209,5 +214,4 @@ public class UserRestController extends BaseRestController {
     final User user = userService.findUserById(getAuthUser().getId());
     userService.sendVerifyChangeWorkEmail(user);
   }
-
 }

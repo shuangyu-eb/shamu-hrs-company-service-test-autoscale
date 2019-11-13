@@ -9,6 +9,7 @@ import shamu.company.common.repository.DepartmentRepository;
 import shamu.company.common.repository.EmploymentTypeRepository;
 import shamu.company.common.repository.OfficeAddressRepository;
 import shamu.company.common.repository.OfficeRepository;
+import shamu.company.common.repository.SecretHashRepository;
 import shamu.company.common.repository.StateProvinceRepository;
 import shamu.company.company.entity.Company;
 import shamu.company.company.entity.Department;
@@ -36,13 +37,16 @@ public class CompanyService {
 
   private final OfficeAddressRepository officeAddressRepository;
 
+  private final SecretHashRepository secretHashRepository;
+
   @Autowired
   public CompanyService(final CompanyRepository companyRepository,
       final DepartmentRepository departmentRepository,
       final EmploymentTypeRepository employmentTypeRepository,
       final JobRepository jobRepository, final OfficeRepository officeRepository,
       final StateProvinceRepository stateProvinceRepository,
-      final OfficeAddressRepository officeAddressRepository) {
+      final OfficeAddressRepository officeAddressRepository,
+      final SecretHashRepository secretHashRepository) {
     this.companyRepository = companyRepository;
     this.departmentRepository = departmentRepository;
     this.employmentTypeRepository = employmentTypeRepository;
@@ -50,6 +54,7 @@ public class CompanyService {
     this.officeRepository = officeRepository;
     this.stateProvinceRepository = stateProvinceRepository;
     this.officeAddressRepository = officeAddressRepository;
+    this.secretHashRepository = secretHashRepository;
   }
 
 
@@ -93,7 +98,7 @@ public class CompanyService {
   }
 
   public Office saveOffice(final Office office) {
-    OfficeAddress officeAddress = office.getOfficeAddress();
+    final OfficeAddress officeAddress = office.getOfficeAddress();
     final StateProvince stateProvince = officeAddress.getStateProvince();
     if (stateProvince != null && stateProvince.getId() != null) {
       final StateProvince stateProvinceReturned =
@@ -121,5 +126,9 @@ public class CompanyService {
     return companyRepository
         .findById(companyId)
         .orElseThrow(() -> new ResourceNotFoundException("No such Company"));
+  }
+
+  public String getCompanySecretByCompanyId(final Long id) {
+    return secretHashRepository.getCompanySecretByCompanyId(id);
   }
 }

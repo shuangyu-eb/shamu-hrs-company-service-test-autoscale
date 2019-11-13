@@ -25,6 +25,7 @@ import shamu.company.job.entity.Job;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserPersonalInformation;
 import shamu.company.user.service.UserService;
+import shamu.company.utils.Auth0Util;
 import shamu.company.utils.UserNameUtil;
 
 @RestApiController
@@ -38,15 +39,19 @@ public class CompanyRestController extends BaseRestController {
 
   private final UserService userService;
 
+  private final Auth0Util auth0Util;
+
   @Autowired
   public CompanyRestController(final CompanyService companyService,
       final EmployeeService employeeService,
       final OfficeMapper officeMapper,
-      final UserService userService) {
+      final UserService userService,
+      final Auth0Util auth0Util) {
     this.companyService = companyService;
     this.employeeService = employeeService;
     this.officeMapper = officeMapper;
     this.userService = userService;
+    this.auth0Util = auth0Util;
   }
 
 
@@ -137,7 +142,7 @@ public class CompanyRestController extends BaseRestController {
       users = employeeService.findEmployersAndEmployeesByCompanyId(getCompanyId());
     }
 
-    List<SelectFieldInformationDto> selectFieldInformationDtos =
+    final List<SelectFieldInformationDto> selectFieldInformationDtos =
             collectUserPersonInformations(users);
 
     selectFieldInformationDtos.sort((s1, s2) -> s1.getName().toLowerCase()

@@ -320,4 +320,10 @@ public class Auth0Util {
     }
 
   }
+
+  public String getUserSecret(final String userId) {
+    final User user = getUserByUserIdFromAuth0(userId);
+    final Map<String, Object> appMetaData = user.getAppMetadata();
+    return (String) appMetaData.get("userSecret");
+  }
 }
