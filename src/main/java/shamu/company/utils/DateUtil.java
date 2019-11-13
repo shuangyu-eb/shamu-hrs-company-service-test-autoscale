@@ -15,6 +15,14 @@ public class DateUtil {
 
   public static final String FULL_MONTH_DAY = "MMMM d";
   public static final String FULL_MONTH_DAY_YEAR = "MMMM d, YYYY";
+  public static final String SIMPLE_MONTH_DAY_YEAR = "MMM d, yyyy";
+  public static final String SIMPLE_MONTH_DAY = "MMM d";
+  public static final String DAY_YEAR = "d, yyyy";
+  public static final String DAY = "d";
+
+  public static String formatDateTo(final Timestamp date, final String pattern) {
+    return formatDateTo(date.toLocalDateTime(), pattern);
+  }
 
   public static String formatDateTo(final TemporalAccessor date, final String pattern) {
     return DateTimeFormatter.ofPattern(pattern, Locale.ENGLISH).format(date);

@@ -19,4 +19,11 @@ public class TimeOffRequestDate extends BaseEntity {
 
   private Integer hours;
 
+  public TimeOffRequestDate(final Timestamp date) {
+    this.date = date;
+  }
+
+  public TimeOffRequestDate() {
+  }
+
 }

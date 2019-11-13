@@ -2,12 +2,15 @@ package shamu.company.timeoff.service;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
+import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -20,6 +23,7 @@ import shamu.company.email.EmailService;
 import shamu.company.s3.AwsUtil;
 import shamu.company.timeoff.entity.TimeOffRequest;
 import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus;
+import shamu.company.timeoff.entity.TimeOffRequestDate;
 import shamu.company.user.entity.User;
 import shamu.company.utils.DateUtil;
 
@@ -172,28 +176,12 @@ public class TimeOffRequestEmailService {
 
     final Map<String, Object> variables = new HashMap<>();
 
-    final LocalDate start = timeOffRequest.getStartDay().toLocalDateTime().toLocalDate();
-    final LocalDate end = timeOffRequest.getEndDay().toLocalDateTime().toLocalDate();
-    final String startDay;
-    final String endDay;
-    if (start.getYear() == end.getYear()) {
-      startDay = DateUtil.formatDateTo(start, DateUtil.FULL_MONTH_DAY);
-      if (start.getMonth() == end.getMonth()) {
-        endDay = DateUtil.formatDateTo(end, "d, YYYY");
-      } else {
-        endDay = DateUtil.formatDateTo(end, DateUtil.FULL_MONTH_DAY_YEAR);
-      }
-    } else {
-      startDay = DateUtil.formatDateTo(start, DateUtil.FULL_MONTH_DAY_YEAR);
-      endDay = DateUtil.formatDateTo(end, DateUtil.FULL_MONTH_DAY_YEAR);
-    }
-
     final User requester = timeOffRequest.getRequesterUser();
 
     variables.put("isLimited", timeOffRequest.getTimeOffPolicy().getIsLimited());
 
     variables.put("frontEndAddress", applicationConfig.getFrontEndAddress());
-    variables.put("timeRange", startDay.concat(" - ").concat(endDay));
+    variables.put("timeRange", getTimeOffRange(timeOffRequest));
     variables.put("status", timeOffRequest.getTimeOffApprovalStatus().name());
     variables.put("type", timeOffRequest.getTimeOffPolicy().getName());
     variables.put("hours", timeOffRequest.getHours());
@@ -222,4 +210,279 @@ public class TimeOffRequestEmailService {
                     && end.compareTo(tr.getStartDay().toLocalDateTime().toLocalDate()) >= 0))
         .count();
   }
+
+
+  public String getTimeOffRange(final TimeOffRequest timeOffRequest) {
+    final List<TimeOffDateRange> ranges = splitDates(timeOffRequest);
+    final List<String> results = new ArrayList<>();
+
+    for (int index = 0; index < ranges.size(); index++) {
+      final TimeOffDateRange range = ranges.get(index);
+      final LocalDate start = range.getStart();
+      final LocalDate end = range.getEnd();
+      if (isSameDate(range.getStart(), range.getEnd())) {
+        results.add(handleSameDate(start, ranges, index));
+        continue;
+      }
+      if (isSameMonth(start, end)) {
+        results.add(handleSameMonth(ranges, index));
+        continue;
+      }
+      if (isSameYear(start, end)) {
+        results.add(handleSameYear(ranges, index));
+        continue;
+      }
+      results.add(handleDifferentYear(ranges, index));
+    }
+    return String.join(", ", results.toArray(new String[0]));
+  }
+
+  private String handleDifferentYear(final List<TimeOffDateRange> ranges, final int index) {
+    final TimeOffDateRange range = ranges.get(index);
+    final LocalDate start = range.getStart();
+    final LocalDate end = range.getEnd();
+    String startDateString = DateUtil.formatDateTo(start, DateUtil.SIMPLE_MONTH_DAY_YEAR);
+    String endDateString = DateUtil.formatDateTo(end, DateUtil.SIMPLE_MONTH_DAY_YEAR);
+
+    if (index == 0) {
+      if (isSameAsCurrentYear(start)) {
+        startDateString = DateUtil.formatDateTo(start, DateUtil.SIMPLE_MONTH_DAY);
+      }
+      if (isSameAsCurrentYear(end) || (index + 1 < ranges.size()
+          && isSameYear(end, ranges.get(index + 1).getStart()))) {
+        endDateString = DateUtil.formatDateTo(end, DateUtil.SIMPLE_MONTH_DAY);
+      }
+      return startDateString + " - " + endDateString;
+    }
+
+    if (index == ranges.size() - 1) {
+      if (isSameAsCurrentYear(end)) {
+        endDateString = DateUtil.formatDateTo(end, DateUtil.SIMPLE_MONTH_DAY);
+      }
+      final LocalDate lastEnd = ranges.get(index - 1).getEnd();
+      if (isSameMonth(lastEnd, start)) {
+        startDateString = DateUtil.formatDateTo(start, DateUtil.DAY_YEAR);
+        if (isSameAsCurrentYear(start)) {
+          startDateString = DateUtil.formatDateTo(start, DateUtil.DAY);
+        }
+      }
+      return startDateString + " - " + endDateString;
+    }
+
+    final LocalDate lastEnd = ranges.get(index - 1).getEnd();
+    final LocalDate nextStart = ranges.get(index + 1).getStart();
+    startDateString = DateUtil.formatDateTo(start, DateUtil.SIMPLE_MONTH_DAY);
+    if (isSameMonth(lastEnd, start)) {
+      startDateString = DateUtil.formatDateTo(start, DateUtil.DAY_YEAR);
+      if (isSameAsCurrentYear(start)) {
+        startDateString = DateUtil.formatDateTo(start, DateUtil.DAY);
+      }
+    }
+    if (isSameYear(end, nextStart)) {
+      endDateString = DateUtil.formatDateTo(end, DateUtil.SIMPLE_MONTH_DAY);
+    }
+    return startDateString + " - " + endDateString;
+  }
+
+  private String handleSameYear(final List<TimeOffDateRange> ranges, final int index) {
+    final TimeOffDateRange range = ranges.get(index);
+    final LocalDate start = range.getStart();
+    final LocalDate end = range.getEnd();
+    String startDateString = DateUtil.formatDateTo(start, DateUtil.SIMPLE_MONTH_DAY);
+    String endDateString = DateUtil.formatDateTo(end, DateUtil.SIMPLE_MONTH_DAY);
+    if (index == 0) {
+      if (isSameAsCurrentYear(end) || (index + 1 < ranges.size()
+          && isSameYear(end, ranges.get(index + 1).getStart()))) {
+        return startDateString + " - " + endDateString;
+      }
+      if (index + 1 < ranges.size()) {
+        final LocalDate nextStart = ranges.get(index + 1).getStart();
+        if (!isSameYear(end, nextStart)) {
+          endDateString = DateUtil.formatDateTo(end, DateUtil.SIMPLE_MONTH_DAY_YEAR);
+          return startDateString + " - " + endDateString;
+        }
+      }
+    }
+
+    if (index == ranges.size() - 1) {
+      final LocalDate lastEnd = ranges.get(index - 1).getEnd();
+      if (isSameMonth(lastEnd, start)) {
+        startDateString = DateUtil.formatDateTo(start, DateUtil.SIMPLE_MONTH_DAY);
+      }
+      if (!isSameAsCurrentYear(end)) {
+        endDateString = DateUtil.formatDateTo(end, DateUtil.SIMPLE_MONTH_DAY_YEAR);
+      }
+      return startDateString + " - " + endDateString;
+    }
+
+    final LocalDate lastEnd = ranges.get(index - 1).getEnd();
+    final LocalDate nextStart = ranges.get(index + 1).getStart();
+
+    if (isSameMonth(lastEnd, start)) {
+      startDateString = DateUtil.formatDateTo(start, DateUtil.SIMPLE_MONTH_DAY);
+    }
+
+    if (!isSameAsCurrentYear(end) && !isSameYear(end, nextStart)) {
+      endDateString = DateUtil.formatDateTo(end, DateUtil.SIMPLE_MONTH_DAY_YEAR);
+    }
+    return startDateString + " - " + endDateString;
+  }
+
+  private String handleSameMonth(final List<TimeOffDateRange> ranges, final int index) {
+    final TimeOffDateRange range = ranges.get(index);
+    final LocalDate start = range.getStart();
+    final LocalDate end = range.getEnd();
+    if (index == 0) {
+      if (isSameAsCurrentYear(start) || (index + 1 < ranges.size()
+          && isSameYear(end, ranges.get(index + 1).getStart()))) {
+        return DateUtil.formatDateTo(start, DateUtil.SIMPLE_MONTH_DAY) + " - "
+            + DateUtil.formatDateTo(end, DateUtil.DAY);
+      }
+      if (index + 1 < ranges.size()) {
+        final LocalDate nextStart = ranges.get(index + 1).getStart();
+        if (!isSameYear(end, nextStart)) {
+          return DateUtil.formatDateTo(start, DateUtil.SIMPLE_MONTH_DAY) + " - "
+              + DateUtil.formatDateTo(end, DateUtil.DAY_YEAR);
+        }
+      }
+    }
+
+    String startDateString = DateUtil.formatDateTo(start, DateUtil.SIMPLE_MONTH_DAY);
+    String endDateString = DateUtil.formatDateTo(end, DateUtil.DAY_YEAR);
+
+    if (index == ranges.size() - 1) {
+      if (isSameAsCurrentYear(end)) {
+        endDateString = DateUtil.formatDateTo(end, DateUtil.DAY);
+      }
+      if (index - 1 >= 0) {
+        final LocalDate lastEnd = ranges.get(index - 1).getEnd();
+        if (isSameMonth(lastEnd, start)) {
+          startDateString = DateUtil.formatDateTo(end, DateUtil.SIMPLE_MONTH_DAY);
+        }
+      }
+      return startDateString + " - " + endDateString;
+    }
+
+    final LocalDate lastEnd = ranges.get(index - 1).getEnd();
+    final LocalDate nextStart = ranges.get(index + 1).getStart();
+    if (isSameAsCurrentYear(end) || isSameYear(end, nextStart)) {
+      endDateString = DateUtil.formatDateTo(end, DateUtil.DAY);
+    }
+
+    if (isSameMonth(lastEnd, start)) {
+      startDateString = DateUtil.formatDateTo(start, DateUtil.DAY);
+    }
+    return startDateString + " - " + endDateString;
+  }
+
+  private String handleSameDate(final LocalDate date, final List<TimeOffDateRange> ranges,
+      final int index) {
+    if (index == 0) {
+      if (isSameAsCurrentYear(date)) {
+        return DateUtil.formatDateTo(date, DateUtil.SIMPLE_MONTH_DAY);
+      }
+      if (index + 1 < ranges.size() && isSameYear(date, ranges.get(index + 1).getStart())) {
+        return DateUtil.formatDateTo(date, DateUtil.SIMPLE_MONTH_DAY);
+      }
+      return DateUtil.formatDateTo(date, DateUtil.SIMPLE_MONTH_DAY_YEAR);
+    }
+
+    if (index == ranges.size() - 1) {
+      if (isSameAsCurrentYear(date)) {
+        if (index - 1 >= 0 && isSameMonth(date, ranges.get(index - 1).getEnd())) {
+          return DateUtil.formatDateTo(date, DateUtil.SIMPLE_MONTH_DAY);
+        }
+        return DateUtil.formatDateTo(date, DateUtil.DAY);
+      }
+      if (index - 1 >= 0 && isSameMonth(date, ranges.get(index - 1).getEnd())) {
+        return DateUtil.formatDateTo(date, DateUtil.SIMPLE_MONTH_DAY_YEAR);
+      }
+      return DateUtil.formatDateTo(date, DateUtil.DAY_YEAR);
+    }
+
+    final LocalDate lastEnd = ranges.get(index - 1).getEnd();
+    final LocalDate nextStart = ranges.get(index + 1).getStart();
+
+    if (isSameAsCurrentYear(date) || isSameYear(date, nextStart)) {
+      if (!isSameMonth(lastEnd, date)) {
+        return DateUtil.formatDateTo(date, DateUtil.SIMPLE_MONTH_DAY);
+      }
+      return DateUtil.formatDateTo(date, DateUtil.DAY);
+    }
+
+    if (!isSameMonth(lastEnd, date)) {
+      return DateUtil.formatDateTo(date, DateUtil.SIMPLE_MONTH_DAY_YEAR);
+    }
+    return DateUtil.formatDateTo(date, DateUtil.DAY_YEAR);
+
+
+  }
+
+  private List<TimeOffDateRange> splitDates(final TimeOffRequest timeOffRequest) {
+    final List<TimeOffRequestDate> dates = new ArrayList<>(timeOffRequest.getTimeOffRequestDates());
+    dates.sort(Comparator.comparing(TimeOffRequestDate::getDate));
+    return getDateRanges(dates);
+  }
+
+  private List<TimeOffDateRange> getDateRanges(final List<TimeOffRequestDate> dates) {
+    final List<TimeOffDateRange> ranges = new ArrayList<>();
+    while (!dates.isEmpty()) {
+      final TimeOffRequestDate start = dates.remove(0);
+      final TimeOffRequestDate end = getEndDate(dates, start);
+      ranges.add(new TimeOffDateRange(start, end));
+    }
+    return ranges;
+  }
+
+
+  private TimeOffRequestDate getEndDate(
+      final List<TimeOffRequestDate> dates, final TimeOffRequestDate dateA) {
+    if (dates.isEmpty()) {
+      return dateA;
+    }
+    final TimeOffRequestDate dateB = dates.remove(0);
+    if (isNextDate(dateA.getDate(), dateB.getDate())) {
+      return getEndDate(dates, dateB);
+    }
+    dates.add(0, dateB);
+    return dateA;
+  }
+
+  private boolean isNextDate(final Timestamp dateA, final Timestamp dateB) {
+    return isSameDate(LocalDate.from(dateA.toLocalDateTime()).plusDays(1),
+        LocalDate.from(dateB.toLocalDateTime()));
+  }
+
+  private boolean isSameDate(final LocalDate dateA, final LocalDate dateB) {
+    return dateA.isEqual(dateB);
+  }
+
+  private boolean isSameYear(final LocalDate dateA, final LocalDate dateB) {
+    return dateA.getYear() == dateB.getYear();
+  }
+
+  private boolean isSameMonth(final LocalDate dateA, final LocalDate dateB) {
+    if (!isSameYear(dateA, dateB)) {
+      return false;
+    }
+    return dateA.getMonthValue() == dateB.getMonthValue();
+  }
+
+  private boolean isSameAsCurrentYear(final LocalDate date) {
+    return date.getYear() == LocalDate.now().getYear();
+  }
+
+  @Data
+  private class TimeOffDateRange {
+
+    private LocalDate start;
+
+    private LocalDate end;
+
+    TimeOffDateRange(final TimeOffRequestDate start, final TimeOffRequestDate end) {
+      this.start = LocalDate.from(start.getDate().toLocalDateTime());
+      this.end = LocalDate.from(end.getDate().toLocalDateTime());
+    }
+  }
+
 }
