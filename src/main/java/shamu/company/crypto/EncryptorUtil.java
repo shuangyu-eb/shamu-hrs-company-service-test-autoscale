@@ -29,6 +29,7 @@ public class EncryptorUtil {
       final BiConsumer<T, String> setter) {
 
     if (Strings.isBlank(value)) {
+      setter.accept(entity, null);
       return;
     }
     setter.accept(entity, encryptor.encrypt(userId, value));
