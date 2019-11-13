@@ -11,5 +11,7 @@ public class OfficeAddressDto {
 
   private String city;
 
+  private String postalCode;
+
   private StateProvinceDto stateProvince;
 }

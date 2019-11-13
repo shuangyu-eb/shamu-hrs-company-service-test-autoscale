@@ -23,6 +23,8 @@ public class UserEmergencyContactDto extends BasicUserEmergencyContactDto {
   @HashidsFormat
   private Long stateId;
 
+  private String stateName;
+
   private String postalCode;
 
 
@@ -33,6 +35,8 @@ public class UserEmergencyContactDto extends BasicUserEmergencyContactDto {
     this.city = userEmergencyContact.getCity();
     this.stateId =
         userEmergencyContact.getState() == null ? null : userEmergencyContact.getState().getId();
+    this.stateName =
+        userEmergencyContact.getState() == null ? null : userEmergencyContact.getState().getName();
     this.postalCode = userEmergencyContact.getPostalCode();
   }
 
