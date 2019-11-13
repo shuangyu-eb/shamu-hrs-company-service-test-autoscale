@@ -2,6 +2,9 @@ package shamu.company.user.entity.mapper;
 
 import io.micrometer.core.instrument.util.StringUtils;
 import java.sql.Date;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -86,9 +89,10 @@ public interface UserPersonalInformationMapper {
     return null == maritalStatusId ? null : new MaritalStatus(maritalStatusId);
   }
 
-  default Date convertFromString(final String birthDate) {
+  default Date convertFromString(final String birthDate) throws ParseException {
     if (StringUtils.isNotBlank(birthDate)) {
-      return Date.valueOf(birthDate);
+      DateFormat format = new SimpleDateFormat("MM/DD/yyyy");
+      return new Date(format.parse(birthDate).getTime());
     }
     return null;
   }

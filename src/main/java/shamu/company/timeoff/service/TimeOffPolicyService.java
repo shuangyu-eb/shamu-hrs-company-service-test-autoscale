@@ -589,14 +589,14 @@ public class TimeOffPolicyService {
     final List<Long> oldUserIds = oldUsersStartBalanceList.stream()
         .map(user -> user.getUser().getId())
         .collect(Collectors.toList());
-    oldUsersStartBalanceList.stream()
+    oldUsersStartBalanceList
         .forEach(
             oldUsersStartBalance -> {
               if (newUserIds.contains(oldUsersStartBalance.getUser().getId())) {
                 // update
                 final Optional<TimeOffPolicyUserFrontendDto> updateUserStartBalance =
                     userStatBalances.stream().filter(u -> u.getUserId()
-                        == oldUsersStartBalance.getUser().getId()).findFirst();
+                            .equals(oldUsersStartBalance.getUser().getId())).findFirst();
                 if (updateUserStartBalance.isPresent()) {
                   final TimeOffPolicyUserFrontendDto newUserStartBalance = updateUserStartBalance
                       .get();
