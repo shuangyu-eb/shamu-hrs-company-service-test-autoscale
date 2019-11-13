@@ -23,12 +23,12 @@ import shamu.company.utils.AnnotationUtil;
 
 public class Converter extends FastJsonHttpMessageConverter {
 
-  public Converter(final ValueFilter valueFilters) {
+  public Converter(final ValueFilter valueFilter, final ValueFilter valueFilter2) {
     super();
     final FastJsonConfig fastJsonConfig = new FastJsonConfig();
     final LongDecode longDecode = new LongDecode();
     // id => hash id
-    fastJsonConfig.setSerializeFilters(getSerializeFilter(), valueFilters);
+    fastJsonConfig.setSerializeFilters(getSerializeFilter(), valueFilter, valueFilter2);
     // not filter the field when the value is null
     fastJsonConfig.setSerializerFeatures(SerializerFeature.WriteMapNullValue);
 

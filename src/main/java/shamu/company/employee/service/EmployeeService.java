@@ -33,6 +33,7 @@ import shamu.company.common.repository.EmploymentTypeRepository;
 import shamu.company.common.repository.OfficeRepository;
 import shamu.company.common.repository.StateProvinceRepository;
 import shamu.company.company.entity.Office;
+import shamu.company.crypto.EncryptorUtil;
 import shamu.company.email.Email;
 import shamu.company.email.EmailRepository;
 import shamu.company.email.EmailService;
@@ -129,6 +130,8 @@ public class EmployeeService {
   private final ApplicationEventPublisher applicationEventPublisher;
   private final UserRoleService userRoleService;
 
+  private final EncryptorUtil encryptorUtil;
+
   @Autowired
   public EmployeeService(
       final UserAddressRepository userAddressRepository,
@@ -160,7 +163,8 @@ public class EmployeeService {
       final JobUserMapper jobUserMapper,
       @Lazy final JobUserService jobUserService,
       final UserMapper userMapper,
-      final UserRoleService userRoleService) {
+      final UserRoleService userRoleService,
+      final EncryptorUtil encryptorUtil) {
     this.userAddressRepository = userAddressRepository;
     this.userRepository = userRepository;
     this.jobUserRepository = jobUserRepository;
@@ -191,6 +195,7 @@ public class EmployeeService {
     this.jobUserService = jobUserService;
     this.userMapper = userMapper;
     this.userRoleService = userRoleService;
+    this.encryptorUtil = encryptorUtil;
   }
 
   public List<User> findEmployersAndEmployeesByCompanyId(final Long companyId) {
@@ -336,6 +341,10 @@ public class EmployeeService {
       } else {
         userPersonalInformation.setMaritalStatus(null);
       }
+
+      encryptorUtil
+          .encryptSsn(employee.getId(), userPersonalInformation.getSsn(), userPersonalInformation);
+
       employee.setUserPersonalInformation(userPersonalInformation);
     }
 
@@ -362,8 +371,14 @@ public class EmployeeService {
     final UserPersonalInformation userPersonalInformation = employee.getUserPersonalInformation();
     final UserPersonalInformationDto userPersonalInformationDto =
         employeeDto.getUserPersonalInformationDto();
+
     userPersonalInformationMapper
         .updateFromUserPersonalInformationDto(userPersonalInformation, userPersonalInformationDto);
+
+    encryptorUtil
+        .encryptSsn(employee.getId(), userPersonalInformationDto.getSsn(), userPersonalInformation);
+
+    // TODO remove @Wang
     if (userPersonalInformation != null) {
       userPersonalInformation.setId(userPersonalInformation.getId());
     }

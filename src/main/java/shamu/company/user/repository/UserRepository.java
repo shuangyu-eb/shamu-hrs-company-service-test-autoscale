@@ -9,7 +9,8 @@ import shamu.company.common.repository.BaseRepository;
 import shamu.company.user.entity.User;
 
 public interface UserRepository extends BaseRepository<User, Long>, UserCustomRepository {
-  String ACTIVE_USER_QUERY = "and (u.deactivated_at is null "
+
+  String ACTIVE_USER_QUERY = " and (u.deactivated_at is null "
        + "or (u.deactivated_at is not null "
        + "and u.deactivated_at > current_timestamp)) ";
 

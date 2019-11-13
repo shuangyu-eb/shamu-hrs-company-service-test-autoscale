@@ -28,4 +28,36 @@ public class AnnotationUtil {
 
     return false;
   }
+
+  public static <T extends Annotation> T getFieldAnnotation(
+      final Object object,
+      final String fieldName,
+      final Class<T> annotationClazz) {
+    Class c = object.getClass();
+    while (c != Object.class) {
+      try {
+        final Field field = c.getDeclaredField(fieldName);
+        return field.getDeclaredAnnotation(annotationClazz);
+      } catch (final NoSuchFieldException e) {
+        c = c.getSuperclass();
+      }
+    }
+    return null;
+  }
+
+  public static Object getFieldValue(
+      final Object object,
+      final String fieldName) {
+    Class c = object.getClass();
+    while (c != Object.class) {
+      try {
+        final Field field = c.getDeclaredField(fieldName);
+        field.setAccessible(true);
+        return field.get(object);
+      } catch (final NoSuchFieldException | IllegalAccessException e) {
+        c = c.getSuperclass();
+      }
+    }
+    return null;
+  }
 }

@@ -41,3 +41,6 @@ cloud:
 aws:
   bucketName: shamu-hrs-qa-company
   folder: media-local
+
+
+hash: system-hash

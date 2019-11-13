@@ -15,12 +15,12 @@ public class SecretHashRepository {
   }
 
   public String getCompanySecretByCompanyId(final Long companyId) {
-    final String sql = "SELECT secret_hash from company_secrets WHERE company_id = ?";
+    final String sql = "SELECT secret_hash FROM company_secrets WHERE company_id = ? LIMIT 1";
     String secret = "";
     try {
       secret = secretJdbcTemplate.queryForObject(sql, String.class, companyId);
     } catch (final EmptyResultDataAccessException e) {
-      throw new GeneralException("No secret hash of this company.");
+      throw new GeneralException("No secret hash of this company.", e);
     }
     return secret;
   }

@@ -17,6 +17,7 @@ import shamu.company.common.repository.EmploymentTypeRepository;
 import shamu.company.common.repository.OfficeRepository;
 import shamu.company.common.repository.StateProvinceRepository;
 import shamu.company.company.entity.Company;
+import shamu.company.crypto.EncryptorUtil;
 import shamu.company.email.EmailRepository;
 import shamu.company.email.EmailService;
 import shamu.company.employee.dto.EmployeeDto;
@@ -87,6 +88,9 @@ class EmployeeServiceTests {
   @Mock private JobUserService jobUserService;
   @Mock private UserMapper userMapper;
   @Mock private UserRoleService userRoleService;
+  @Mock
+  private EncryptorUtil encryptorUtil;
+
 
   private EmployeeService employeeService;
 
@@ -101,7 +105,8 @@ class EmployeeServiceTests {
         compensationFrequencyRepository, emailRepository, userPersonalInformationService,
         userContactInformationService, userPersonalInformationMapper, userAddressMapper,
         userContactInformationMapper, userEmergencyContactMapper, auth0Util,
-        applicationEventPublisher, jobUserMapper, jobUserService, userMapper, userRoleService);
+        applicationEventPublisher, jobUserMapper, jobUserService, userMapper, userRoleService,
+        encryptorUtil);
   }
 
   @Nested

@@ -10,6 +10,7 @@ import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.lang.Nullable;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
+import shamu.company.crypto.CryptoValueFilter;
 import shamu.company.hashids.Converter;
 import shamu.company.hashids.HashidsFormatterFactory;
 import shamu.company.s3.PreSignedValueFilter;
@@ -19,6 +20,9 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
 
   @Autowired
   PreSignedValueFilter preSignedValueFilter;
+
+  @Autowired
+  CryptoValueFilter cryptoValueFilter;
 
   @Bean
   @Override
@@ -38,7 +42,8 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
 
   @Override
   protected void configureMessageConverters(final List<HttpMessageConverter<?>> converters) {
-    final FastJsonHttpMessageConverter convert = new Converter(preSignedValueFilter);
+    final FastJsonHttpMessageConverter convert =
+        new Converter(preSignedValueFilter, cryptoValueFilter);
     converters.add(convert);
   }
 

@@ -19,6 +19,7 @@ import shamu.company.benefit.entity.BenefitPlanDependent;
 import shamu.company.benefit.entity.mapper.BenefitPlanDependentMapper;
 import shamu.company.benefit.service.BenefitPlanDependentService;
 import shamu.company.common.config.annotations.RestApiController;
+import shamu.company.crypto.EncryptorUtil;
 import shamu.company.hashids.HashidsFormat;
 import shamu.company.user.entity.User;
 import shamu.company.user.service.UserService;
@@ -32,13 +33,17 @@ public class BenefitPlanDependentController {
 
   private final BenefitPlanDependentMapper benefitPlanDependentMapper;
 
+  private final EncryptorUtil encryptorUtil;
+
   @Autowired
   public BenefitPlanDependentController(final UserService userService,
       final BenefitPlanDependentService benefitPlanDependentService,
-      final BenefitPlanDependentMapper benefitPlanDependentMapper) {
+      final BenefitPlanDependentMapper benefitPlanDependentMapper,
+      final EncryptorUtil encryptorUtil) {
     this.userService = userService;
     this.benefitPlanDependentService = benefitPlanDependentService;
     this.benefitPlanDependentMapper = benefitPlanDependentMapper;
+    this.encryptorUtil = encryptorUtil;
   }
 
   @PostMapping("employee/{userId}/user-dependent-contacts")
@@ -50,6 +55,7 @@ public class BenefitPlanDependentController {
     benefitDependentCreateDto.setEmployee(user);
     final BenefitPlanDependent dependentContact = benefitPlanDependentMapper
         .createFromBenefitDependentCreateDto(benefitDependentCreateDto);
+    encryptSsn(userId, benefitDependentCreateDto, dependentContact);
     benefitPlanDependentService.createBenefitPlanDependent(dependentContact);
     return new ResponseEntity<>(HttpStatus.OK);
   }
@@ -78,8 +84,15 @@ public class BenefitPlanDependentController {
         .findDependentById(benefitDependentCreateDto.getId());
     benefitPlanDependentMapper.updateFromBenefitDependentCreateDto(dependent,
         benefitDependentCreateDto);
+    encryptSsn(userId, benefitDependentCreateDto, dependent);
     benefitPlanDependentService.updateDependentContact(dependent);
     return new ResponseEntity<>(HttpStatus.OK);
+  }
+
+  private void encryptSsn(final Long userId,
+      final BenefitDependentCreateDto benefitDependentCreateDto,
+      final BenefitPlanDependent dependent) {
+    encryptorUtil.encryptSsn(userId, benefitDependentCreateDto.getSsn(), dependent);
   }
 
   @DeleteMapping("user-dependent-contacts/{dependentId}/dependent")

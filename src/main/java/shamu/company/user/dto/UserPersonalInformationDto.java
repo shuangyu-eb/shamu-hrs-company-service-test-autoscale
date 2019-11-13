@@ -1,7 +1,9 @@
 package shamu.company.user.dto;
 
 import lombok.Data;
+import shamu.company.crypto.Crypto;
 import shamu.company.hashids.HashidsFormat;
+import shamu.company.user.entity.UserPersonalInformation;
 
 @Data
 public class UserPersonalInformationDto extends BasicUserPersonalInformationDto {
@@ -16,6 +18,7 @@ public class UserPersonalInformationDto extends BasicUserPersonalInformationDto 
 
   private String ethnicityName;
 
+  @Crypto(field = "id", targetType = UserPersonalInformation.class)
   private String ssn;
 
   private String imageUrl;

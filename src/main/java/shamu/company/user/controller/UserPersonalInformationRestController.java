@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
+import shamu.company.crypto.EncryptorUtil;
 import shamu.company.hashids.HashidsFormat;
 import shamu.company.user.dto.BasicUserPersonalInformationDto;
 import shamu.company.user.dto.UserPersonalInformationDto;
@@ -36,6 +37,8 @@ public class UserPersonalInformationRestController extends BaseRestController {
 
   private final Auth0Util auth0Util;
 
+  private final EncryptorUtil encryptorUtil;
+
   SimpleDateFormat sdf = new SimpleDateFormat("MM-dd");
 
   @Autowired
@@ -44,12 +47,14 @@ public class UserPersonalInformationRestController extends BaseRestController {
       final UserService userService,
       final UserPersonalInformationMapper userPersonalInformationMapper,
       final UserMapper userMapper,
-      final Auth0Util auth0Util) {
+      final Auth0Util auth0Util,
+      final EncryptorUtil encryptorUtil) {
     this.userPersonalInformationService = userPersonalInformationService;
     this.userService = userService;
     this.userPersonalInformationMapper = userPersonalInformationMapper;
     this.userMapper = userMapper;
     this.auth0Util = auth0Util;
+    this.encryptorUtil = encryptorUtil;
   }
 
   @PatchMapping("user-personal-information/{id}")
@@ -59,10 +64,12 @@ public class UserPersonalInformationRestController extends BaseRestController {
   public UserPersonalInformationDto update(
       @PathVariable @HashidsFormat final Long id,
       @RequestBody final UserPersonalInformationDto userPersonalInformationDto) {
-    final UserPersonalInformation origin =
-        userPersonalInformationService.findUserPersonalInformationById(id);
+    final User user = userService.findUserByUserPersonalInformationId(id);
+    final UserPersonalInformation origin = user.getUserPersonalInformation();
     userPersonalInformationMapper
         .updateFromUserPersonalInformationDto(origin, userPersonalInformationDto);
+    encryptorUtil.encryptSsn(user.getId(), userPersonalInformationDto.getSsn(), origin);
+
     final UserPersonalInformation userPersonalInformationUpdated =
         userPersonalInformationService.update(origin);
     return userPersonalInformationMapper
@@ -89,7 +96,7 @@ public class UserPersonalInformationRestController extends BaseRestController {
     if (userRole == Role.MANAGER && targetUser.getManagerUser() != null
         && getAuthUser().getId().equals(targetUser.getManagerUser().getId())) {
       return userPersonalInformationMapper.convertToMyEmployeePersonalInformationDto(
-            userPersonalInformation);
+          userPersonalInformation);
 
     }
 

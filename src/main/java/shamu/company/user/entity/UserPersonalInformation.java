@@ -37,7 +37,6 @@ public class UserPersonalInformation extends BaseEntity {
   @JSONField(format = "yyyy-MM-dd")
   private Date birthDate;
 
-  @Length(max = 11)
   private String ssn;
 
   @ManyToOne
