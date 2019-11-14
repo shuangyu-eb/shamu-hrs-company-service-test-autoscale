@@ -27,8 +27,8 @@ public class Encryptor {
   private final String salt;
 
   @Autowired
-  Encryptor(final @Value("crypto.hash") String indeedHash,
-      final @Value("crypto.salt") String salt,
+  Encryptor(final @Value("${crypto.hash}") String indeedHash,
+      final @Value("${crypto.salt}") String salt,
       final UserRepository userRepository, final Auth0Util auth0Util,
       final SecretHashRepository secretHashRepository) {
     this.indeedHash = indeedHash;
