@@ -71,10 +71,10 @@ public class TimeOffRequestEmailServiceTests {
     dates.add((new TimeOffRequestDate(Timestamp.valueOf(nextYear + "-02-06 00:00:00"))));
     timeOffRequest.setTimeOffRequestDates(dates);
     final String result = timeOffRequestEmailService.getTimeOffRange(timeOffRequest);
-    final String expacted = "Oct 10, Nov 30 - Dec 1, 31, " + lastYear + " - Jan 1,"
+    final String expectedTimeOffRange = "Oct 10, Nov 30 - Dec 1, 31, " + lastYear + " - Jan 1,"
         + " Feb 28 - Mar 1, Apr 30 - May 1, Aug 8, 22, Sep 13, "
         + "Dec 31 - Jan 1, 21, Jan 31 - Feb 1, 6, " + nextYear;
-    Assertions.assertEquals(expacted, result);
+    Assertions.assertEquals(expectedTimeOffRange, result);
   }
 
   @Test
@@ -90,8 +90,8 @@ public class TimeOffRequestEmailServiceTests {
     dates.add((new TimeOffRequestDate(Timestamp.valueOf(nextYear + "-08-07 00:00:00"))));
     timeOffRequest.setTimeOffRequestDates(dates);
     final String result = timeOffRequestEmailService.getTimeOffRange(timeOffRequest);
-    final String expacted = "Nov 15, 22, Jul 8, 10, Aug 7, " + nextYear;
-    Assertions.assertEquals(expacted, result);
+    final String expectedTimeOffRange = "Nov 15, 22, Jul 8, 10, Aug 7, " + nextYear;
+    Assertions.assertEquals(expectedTimeOffRange, result);
   }
 
   @Test
@@ -112,8 +112,8 @@ public class TimeOffRequestEmailServiceTests {
     dates.add((new TimeOffRequestDate(Timestamp.valueOf(nextYear + "-08-21 00:00:00"))));
     timeOffRequest.setTimeOffRequestDates(dates);
     final String result = timeOffRequestEmailService.getTimeOffRange(timeOffRequest);
-    final String expacted = "Dec 2 - 4, 20, 27, Aug 4 - 6, 19, 21, " + nextYear;
-    Assertions.assertEquals(expacted, result);
+    final String expectedTimeOffRange = "Dec 2 - 4, 20, 27, Aug 4 - 6, 19, 21, " + nextYear;
+    Assertions.assertEquals(expectedTimeOffRange, result);
   }
 
 }
