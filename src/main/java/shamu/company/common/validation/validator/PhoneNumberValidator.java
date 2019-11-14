@@ -23,8 +23,8 @@ public class PhoneNumberValidator implements ConstraintValidator<PhoneNumberVali
 
     try {
       phoneNumber = phoneNumberUtil.parse(phone, "US");
-    } catch (final Exception e) {
-      throw new NumberFormatException(e.getMessage());
+    } catch (Exception e) {
+      e.getMessage();
     }
 
     return isValidNumber(phoneNumber);
