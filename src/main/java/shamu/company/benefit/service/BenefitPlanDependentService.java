@@ -23,7 +23,7 @@ public class BenefitPlanDependentService {
     benefitPlanDependentRepository.save(benefitPlanDependent);
   }
 
-  public List<BenefitPlanDependent> getDependentListsByEmployeeId(final Long id) {
+  public List<BenefitPlanDependent> getDependentListsByEmployeeId(final String id) {
     return benefitPlanDependentRepository.findByUserId(id);
   }
 
@@ -31,11 +31,11 @@ public class BenefitPlanDependentService {
     benefitPlanDependentRepository.save(benefitPlanDependent);
   }
 
-  public void deleteDependentContact(final Long id) {
+  public void deleteDependentContact(final String id) {
     benefitPlanDependentRepository.delete(id);
   }
 
-  public BenefitPlanDependent findDependentById(final Long dependentId) {
+  public BenefitPlanDependent findDependentById(final String dependentId) {
 
     final Optional<BenefitPlanDependent> benefitPlanDependent
         = benefitPlanDependentRepository.findById(dependentId);

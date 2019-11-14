@@ -1,25 +1,31 @@
 package shamu.company.common.entity;
 
 import java.sql.Timestamp;
+import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
-import shamu.company.hashids.HashidsFormat;
 
 @MappedSuperclass
 @Data
 public class BaseEntity {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @HashidsFormat
-  private Long id;
+  @GeneratedValue(generator = "UUID")
+  @GenericGenerator(
+      name = "UUID",
+      strategy = "org.hibernate.id.UUIDGenerator"
+  )
+  @Type(type = "shamu.company.common.PrimaryKeyTypeDescriptor")
+  private String id;
 
   @CreationTimestamp
+  @Column(name = "created_at")
   private Timestamp createdAt;
 
   @UpdateTimestamp

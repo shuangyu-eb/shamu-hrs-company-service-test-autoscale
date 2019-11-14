@@ -16,11 +16,11 @@ public class UserEmergencyContactService {
     this.userEmergencyContactRepository = userEmergencyContactRepository;
   }
 
-  public List<UserEmergencyContact> getUserEmergencyContacts(final Long userId) {
+  public List<UserEmergencyContact> getUserEmergencyContacts(final String userId) {
     return userEmergencyContactRepository.findByUserId(userId);
   }
 
-  public void createUserEmergencyContact(final Long userId,
+  public void createUserEmergencyContact(final String userId,
       final UserEmergencyContact userEmergencyContact) {
     if (userEmergencyContact.getIsPrimary()) {
       userEmergencyContactRepository.releasePrimaryContact(userId);
@@ -28,7 +28,7 @@ public class UserEmergencyContactService {
     userEmergencyContactRepository.save(userEmergencyContact);
   }
 
-  public void deleteEmergencyContact(final Long userId, final Long id) {
+  public void deleteEmergencyContact(final String userId, final String id) {
     final UserEmergencyContact userEmergencyContact =
         userEmergencyContactRepository.findById(id).orElseThrow(
             () -> new ResourceNotFoundException("UserEmergencyContact does not exist!"));
@@ -39,7 +39,7 @@ public class UserEmergencyContactService {
     }
   }
 
-  public void updateEmergencyContact(final Long userId,
+  public void updateEmergencyContact(final String userId,
       final UserEmergencyContact userEmergencyContact) {
     createUserEmergencyContact(userId, userEmergencyContact);
   }

@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
-import shamu.company.hashids.HashidsFormat;
 import shamu.company.info.dto.BasicUserEmergencyContactDto;
 import shamu.company.info.dto.UserEmergencyContactDto;
 import shamu.company.info.entity.UserEmergencyContact;
@@ -48,7 +47,7 @@ public class EmergencyContactRestController extends BaseRestController {
   @PreAuthorize("hasPermission(#userId,'USER', 'VIEW_USER_EMERGENCY_CONTACT')"
       + " or hasPermission(#userId,'USER', 'VIEW_SELF')")
   public List<BasicUserEmergencyContactDto> getEmergencyContacts(
-      @PathVariable @HashidsFormat final Long userId) {
+      @PathVariable final String userId) {
     final List<UserEmergencyContact> userEmergencyContacts = userEmergencyContactService
         .getUserEmergencyContacts(userId);
 
@@ -68,7 +67,7 @@ public class EmergencyContactRestController extends BaseRestController {
   @PostMapping("users/{userId}/user-emergency-contacts")
   @PreAuthorize("hasPermission(#userId,'USER', 'EDIT_USER')"
       + " or hasPermission(#userId,'USER', 'EDIT_SELF')")
-  public HttpEntity createEmergencyContacts(@PathVariable @HashidsFormat final Long userId,
+  public HttpEntity createEmergencyContacts(@PathVariable final String userId,
       @RequestBody final UserEmergencyContactDto emergencyContactDto) {
     final User user = userService.getOne(userId);
     final UserEmergencyContact userEmergencyContact = userEmergencyContactMapper
@@ -82,8 +81,8 @@ public class EmergencyContactRestController extends BaseRestController {
   @DeleteMapping("users/{userId}/user-emergency-contacts/{id}")
   @PreAuthorize("hasPermission(#userId,'USER', 'EDIT_USER')"
       + " or hasPermission(#userId,'USER', 'EDIT_SELF')")
-  public HttpEntity deleteEmergencyContacts(@PathVariable @HashidsFormat final Long userId,
-      @PathVariable @HashidsFormat final Long id) {
+  public HttpEntity deleteEmergencyContacts(@PathVariable final String userId,
+      @PathVariable final String id) {
     userEmergencyContactService.deleteEmergencyContact(userId, id);
     return new ResponseEntity<>(HttpStatus.OK);
   }
@@ -91,7 +90,7 @@ public class EmergencyContactRestController extends BaseRestController {
   @PatchMapping("users/{userId}/user-emergency-contacts")
   @PreAuthorize("hasPermission(#userId,'USER', 'EDIT_USER')"
       + " or hasPermission(#userId,'USER', 'EDIT_SELF')")
-  public HttpEntity updateEmergencyContact(@PathVariable @HashidsFormat final Long userId,
+  public HttpEntity updateEmergencyContact(@PathVariable final String userId,
       @RequestBody final UserEmergencyContactDto userEmergencyContactDto) {
     final User user = userService.getOne(userId);
     final UserEmergencyContact userEmergencyContact = userEmergencyContactMapper
@@ -103,7 +102,8 @@ public class EmergencyContactRestController extends BaseRestController {
   }
 
   private void checkEmergencyContactState(final UserEmergencyContact userEmergencyContact) {
-    if (userEmergencyContact.getState().getId() == null) {
+    if (userEmergencyContact.getState() != null
+        && userEmergencyContact.getState().getId() == null) {
       userEmergencyContact.setState(null);
     }
   }

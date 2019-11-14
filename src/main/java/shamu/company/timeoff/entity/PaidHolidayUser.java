@@ -5,6 +5,7 @@ import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Type;
 import shamu.company.common.entity.BaseEntity;
 
 @Data
@@ -14,9 +15,11 @@ import shamu.company.common.entity.BaseEntity;
 @AllArgsConstructor
 public class PaidHolidayUser extends BaseEntity {
 
-  private Long companyId;
+  @Type(type = "shamu.company.common.PrimaryKeyTypeDescriptor")
+  private String companyId;
 
-  private Long userId;
+  @Type(type = "shamu.company.common.PrimaryKeyTypeDescriptor")
+  private String userId;
 
   private boolean isSelected;
 }

@@ -1,7 +1,7 @@
 package shamu.company.timeoff.pojo;
 
 public interface TimeOffPolicyListPojo {
-  Long getId();
+  String getId();
 
   String getName();
 

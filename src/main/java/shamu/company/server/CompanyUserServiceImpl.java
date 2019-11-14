@@ -35,7 +35,7 @@ public class CompanyUserServiceImpl implements CompanyUserService {
   }
 
   @Override
-  public List<User> getUsersBy(final List<Long> ids) {
+  public List<User> getUsersBy(final List<String> ids) {
     return userRepository.findAllById(ids);
   }
 
@@ -45,7 +45,7 @@ public class CompanyUserServiceImpl implements CompanyUserService {
   }
 
   @Override
-  public List<User> getAllUsers(final Long companyId) {
+  public List<User> getAllUsers(final String companyId) {
     final Company company = companyRepository.findById(companyId)
         .orElseThrow(() -> new ResourceNotFoundException("Company does not exist"));
     return userRepository.findAllByCompanyId(company.getId());

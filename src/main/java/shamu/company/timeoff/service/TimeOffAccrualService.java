@@ -46,7 +46,7 @@ public class TimeOffAccrualService {
   }
 
   static boolean invalidByStartDateAndEndDate(final Timestamp startDate, final Timestamp endDate,
-      final LocalDateTime userJoinPolicyDateTime, final Long frequencyTypeId) {
+      final LocalDateTime userJoinPolicyDateTime, final String frequencyTypeId) {
 
     final LocalDateTime createDateTime = DateUtil.toLocalDateTime(startDate);
     final LocalDateTime expireDateTime = DateUtil.toLocalDateTime(endDate);
@@ -82,7 +82,7 @@ public class TimeOffAccrualService {
       final LocalDate userJoinDate, final TimeOffPolicyAccrualSchedule accrualSchedule) {
     LocalDate delayedHireDate = hireDate;
 
-    final Long frequencyId = accrualSchedule.getTimeOffAccrualFrequency().getId();
+    final String frequencyId = accrualSchedule.getTimeOffAccrualFrequency().getId();
     if (AccrualFrequencyType.FREQUENCY_TYPE_THREE.equalsTo(frequencyId)) {
       final int startDayDelay = accrualSchedule.getDaysBeforeAccrualStarts() != null
           ? accrualSchedule.getDaysBeforeAccrualStarts() : 0;
@@ -129,7 +129,7 @@ public class TimeOffAccrualService {
       final LocalDateTime userJoinPolicyDateTime =
           DateUtil.toLocalDateTime(policyUser.getCreatedAt());
 
-      final Long frequencyId = accrualSchedule.getTimeOffAccrualFrequency().getId();
+      final String frequencyId = accrualSchedule.getTimeOffAccrualFrequency().getId();
       if (invalidByStartDateAndEndDate(accrualScheduleMilestone.getCreatedAt(),
           accrualScheduleMilestone.getExpiredAt(), userJoinPolicyDateTime, frequencyId)) {
         continue;

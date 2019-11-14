@@ -43,7 +43,7 @@ public class UserPersonalInformationService {
     return repository.save(userPersonalInformation);
   }
 
-  public UserPersonalInformation findUserPersonalInformationById(final Long id) {
+  public UserPersonalInformation findUserPersonalInformationById(final String id) {
     return repository
         .findById(id)
         .orElseThrow(

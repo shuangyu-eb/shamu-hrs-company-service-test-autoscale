@@ -2,6 +2,7 @@ package shamu.company.benefit.entity.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.springframework.util.StringUtils;
 import shamu.company.benefit.dto.BenefitPlanCreateDto;
 import shamu.company.benefit.dto.BenefitPlanDto;
 import shamu.company.benefit.entity.BenefitPlan;
@@ -18,8 +19,8 @@ public interface BenefitPlanMapper {
   @Mapping(target = "website", source = "planWebSite")
   BenefitPlan createFromBenefitPlanCreateDto(BenefitPlanCreateDto benefitPlanCreateDto);
 
-  default BenefitPlanType convertFromBenefitPlanTypeId(final Long benefitPlanTypeId) {
+  default BenefitPlanType convertFromBenefitPlanTypeId(final String benefitPlanTypeId) {
 
-    return benefitPlanTypeId != null ? new BenefitPlanType(benefitPlanTypeId) : null;
+    return !StringUtils.isEmpty(benefitPlanTypeId) ? new BenefitPlanType(benefitPlanTypeId) : null;
   }
 }

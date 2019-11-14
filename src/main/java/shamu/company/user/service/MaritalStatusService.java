@@ -16,7 +16,7 @@ public class  MaritalStatusService {
     this.maritalStatusRepository = maritalStatusRepository;
   }
 
-  public MaritalStatus findMaritalStatusById(final Long id) {
+  public MaritalStatus findMaritalStatusById(final String id) {
     return maritalStatusRepository
         .findById(id)
         .orElseThrow(() -> new ResourceNotFoundException("MaritalStatus does not exist"));

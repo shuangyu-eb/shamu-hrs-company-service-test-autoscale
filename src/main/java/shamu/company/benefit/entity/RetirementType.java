@@ -13,7 +13,7 @@ import shamu.company.common.entity.BaseEntity;
 public class RetirementType extends BaseEntity {
   private String name;
 
-  public RetirementType(final Long id) {
+  public RetirementType(final String id) {
     setId(id);
   }
 }

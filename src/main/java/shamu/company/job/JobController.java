@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
-import shamu.company.hashids.HashidsFormat;
 import shamu.company.job.dto.JobSelectOptionUpdateDto;
 import shamu.company.job.dto.JobUpdateDto;
 import shamu.company.job.service.JobUserService;
@@ -28,7 +27,7 @@ public class JobController extends BaseRestController {
 
   @PatchMapping("users/{id}/jobs")
   @PreAuthorize("hasPermission(#id,'USER', 'EDIT_USER')")
-  public HttpEntity updateJobInfo(@PathVariable @HashidsFormat final Long id,
+  public HttpEntity updateJobInfo(@PathVariable final String id,
       @RequestBody final JobUpdateDto jobUpdateDto) {
     jobUserService.updateJobInfo(id, jobUpdateDto, getCompanyId());
     return new ResponseEntity(HttpStatus.OK);
@@ -37,7 +36,7 @@ public class JobController extends BaseRestController {
   @PatchMapping("users/{jobUserId}/jobs/select/option/update")
   @PreAuthorize("hasPermission(#jobUserId,'USER', 'EDIT_USER')")
   public HttpEntity updateJobSelectOption(
-          @PathVariable @HashidsFormat final Long jobUserId,
+          @PathVariable final String jobUserId,
           @RequestBody final JobSelectOptionUpdateDto jobSelectOptionUpdateDto) {
     jobUserService.updateJobSelectOption(jobUserId, jobSelectOptionUpdateDto);
     return new ResponseEntity(HttpStatus.OK);
@@ -46,7 +45,7 @@ public class JobController extends BaseRestController {
   @DeleteMapping("users/{jobUserId}/jobs/select/option/delete")
   @PreAuthorize("hasPermission(#jobUserId,'USER', 'EDIT_USER')")
   public void deleteJobSelectOption(
-          @PathVariable @HashidsFormat final Long jobUserId,
+          @PathVariable final String jobUserId,
           @RequestBody final JobSelectOptionUpdateDto jobSelectOptionUpdateDto) {
     jobUserService.deleteJobSelectOption(jobUserId, jobSelectOptionUpdateDto);
   }

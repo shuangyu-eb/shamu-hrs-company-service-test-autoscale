@@ -23,7 +23,7 @@ public class EncryptorUtil {
   }
 
   private <T extends BaseEntity> void encrypt(
-      final long userId,
+      final String userId,
       final String value,
       final T entity,
       final BiConsumer<T, String> setter) {
@@ -36,14 +36,14 @@ public class EncryptorUtil {
   }
 
   public void encryptSsn(
-      final long userId,
+      final String userId,
       final String value,
       final UserPersonalInformation entity) {
     encrypt(userId, value, entity, personalInformationBiConsumer);
   }
 
   public void encryptSsn(
-      final long userId,
+      final String userId,
       final String value,
       final BenefitPlanDependent entity) {
     encrypt(userId, value, entity, benefitPlanDependentBiConsumer);

@@ -4,6 +4,7 @@ import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -12,6 +13,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "states_provinces")
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class StateProvince extends BaseEntity {
 
   @ManyToOne
@@ -19,7 +21,7 @@ public class StateProvince extends BaseEntity {
 
   private String name;
 
-  public StateProvince(final Long id) {
+  public StateProvince(final String id) {
     setId(id);
   }
 }

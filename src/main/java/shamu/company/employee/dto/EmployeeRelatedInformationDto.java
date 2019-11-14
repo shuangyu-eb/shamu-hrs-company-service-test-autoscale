@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang.StringUtils;
-import shamu.company.hashids.HashidsFormat;
 import shamu.company.job.dto.JobUserDto;
 import shamu.company.user.entity.User.Role;
 
@@ -16,8 +15,7 @@ import shamu.company.user.entity.User.Role;
 // TODO refactor this DTO
 public class EmployeeRelatedInformationDto {
 
-  @HashidsFormat
-  private Long userId;
+  private String userId;
 
   private String userStatus;
 
@@ -35,8 +33,7 @@ public class EmployeeRelatedInformationDto {
 
   private String employeeJobTitle;
 
-  @HashidsFormat
-  private Long managerId;
+  private String managerId;
 
   private String managerFirstName;
 

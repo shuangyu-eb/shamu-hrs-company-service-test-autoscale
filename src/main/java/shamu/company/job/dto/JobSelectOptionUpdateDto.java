@@ -2,13 +2,11 @@ package shamu.company.job.dto;
 
 import lombok.Data;
 import shamu.company.company.dto.OfficeCreateDto;
-import shamu.company.hashids.HashidsFormat;
 
 @Data
 public class JobSelectOptionUpdateDto {
 
-  @HashidsFormat
-  private Long id;
+  private String id;
 
   private String oldName;
 

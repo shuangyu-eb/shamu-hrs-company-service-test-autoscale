@@ -9,11 +9,11 @@ import shamu.company.user.entity.User;
 
 public interface CompanyUserService {
 
-  List<User> getUsersBy(List<Long> ids);
+  List<User> getUsersBy(List<String> ids);
 
   User findUserByEmail(String email);
 
-  List<User> getAllUsers(Long companyId);
+  List<User> getAllUsers(String companyId);
 
   AuthUser findUserByUserId(String userId);
 

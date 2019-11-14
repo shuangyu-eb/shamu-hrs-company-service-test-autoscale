@@ -55,7 +55,7 @@ public class CompanyEmailServiceImpl implements CompanyEmailService {
   @Override
   public void sendDocumentRequestEmail(final DocumentRequestEmailDto documentRequestEmailDto) {
 
-    final Long senderId = documentRequestEmailDto.getSenderId();
+    final String senderId = documentRequestEmailDto.getSenderId();
     final User sender = userRepository.findById(senderId)
         .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
@@ -97,7 +97,7 @@ public class CompanyEmailServiceImpl implements CompanyEmailService {
       final Map<String, Object> variables, final User sender) {
     final String message = documentRequestEmailDto.getMessage();
     final DocumentRequestType type = documentRequestEmailDto.getType();
-    final List<Long> recipientUserIds = documentRequestEmailDto.getRecipientUserIds();
+    final List<String> recipientUserIds = documentRequestEmailDto.getRecipientUserIds();
     recipientUserIds.forEach(recipientUserId -> {
       final User recipienter = userRepository.findById(recipientUserId)
           .orElseThrow(() -> new ResourceNotFoundException("User not found"));

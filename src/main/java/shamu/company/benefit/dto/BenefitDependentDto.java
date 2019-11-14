@@ -5,16 +5,13 @@ import java.sql.Date;
 import lombok.Data;
 import shamu.company.crypto.Crypto;
 import shamu.company.employee.dto.SelectFieldInformationDto;
-import shamu.company.hashids.HashidsFormat;
 
 @Data
 public class BenefitDependentDto {
 
-  @HashidsFormat
-  private Long id;
+  private String id;
 
-  @HashidsFormat
-  private Long employeeId;
+  private String employeeId;
 
   private String firstName;
 

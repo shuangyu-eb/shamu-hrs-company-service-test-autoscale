@@ -82,7 +82,7 @@ public class PaidHolidayService {
   }
 
   private List<PaidHolidayDto> getCurrentYearUserPaidHolidays(
-          final AuthUser user, final Long userId) {
+          final AuthUser user, final String userId) {
     final List<CompanyPaidHoliday> companyPaidHolidays;
     companyPaidHolidays = companyPaidHolidayRepository
             .findAllByCompanyIdAndUserId(user.getCompanyId(), userId);
@@ -119,7 +119,7 @@ public class PaidHolidayService {
   }
 
   // UserPaidHolidays
-  public List<PaidHolidayDto> getUserPaidHolidays(final AuthUser user, final Long userId) {
+  public List<PaidHolidayDto> getUserPaidHolidays(final AuthUser user, final String userId) {
     final List<PaidHolidayDto> currentYearPaidHolidays
             = getCurrentYearUserPaidHolidays(user, userId);
     currentYearPaidHolidays.addAll(getOtherYearsObservances(currentYearPaidHolidays));
@@ -180,17 +180,16 @@ public class PaidHolidayService {
         paidHolidayDto.getId(), paidHolidayDto.getName(), paidHolidayDto.getDate());
   }
 
-  public void deletePaidHoliday(final Long id) {
+  public void deletePaidHoliday(final String id) {
     paidHolidayRepository.delete(id);
     companyPaidHolidayRepository.deleteByPaidHolidayId(id);
   }
 
-  public PaidHolidayRelatedUserListDto getPaidHolidayEmployees(final Long companyId) {
+  public PaidHolidayRelatedUserListDto getPaidHolidayEmployees(final String companyId) {
     final List<JobUserDto> allEmployees = userService.findAllJobUsers(companyId);
 
-    final List<Long> filterIds = paidHolidayUserRepository
-        .findAllUserIdByCompanyId(companyId).stream().map(BigInteger::longValue).collect(
-            Collectors.toList());
+    final List<String> filterIds = paidHolidayUserRepository
+        .findAllUserIdByCompanyId(companyId);
 
     allEmployees.forEach(e -> {
       if (!filterIds.contains(e.getId())) {
@@ -204,7 +203,7 @@ public class PaidHolidayService {
     final List<PaidHolidayUser> newFilterDataSet = paidHolidayUserRepository
         .findAllByCompanyId(companyId);
 
-    final List<Long> unSelectedEmployeeIds = newFilterDataSet.stream()
+    final List<String> unSelectedEmployeeIds = newFilterDataSet.stream()
         .filter(e -> !e.isSelected()).map(PaidHolidayUser::getUserId).collect(Collectors.toList());
 
     final List<JobUserDto> selectedEmployees = allEmployees.stream()
@@ -217,13 +216,13 @@ public class PaidHolidayService {
   }
 
   public void updatePaidHolidayEmployees(final List<BaseAuthorityDto> newPaidEmployees,
-      final Long companyId) {
-    final List<Long> paidEmployeeIdsNow = newPaidEmployees.stream().map(
+      final String companyId) {
+    final List<String> paidEmployeeIdsNow = newPaidEmployees.stream().map(
         BaseAuthorityDto::getId)
         .collect(Collectors.toList());
     final List<PaidHolidayUser> employeesStateBefore = paidHolidayUserRepository
         .findAllByCompanyId(companyId);
-    final List<Long> employeesIdsBefore = new ArrayList<>();
+    final List<String> employeesIdsBefore = new ArrayList<>();
 
     employeesStateBefore.forEach(u -> {
       employeesIdsBefore.add(u.getUserId());
@@ -251,7 +250,7 @@ public class PaidHolidayService {
 
   }
 
-  public PaidHoliday getPaidHoliday(final Long id) {
+  public PaidHoliday getPaidHoliday(final String id) {
     return paidHolidayRepository.findById(id)
         .orElseThrow(() -> new ResourceNotFoundException("Paid holiday was not found"));
   }

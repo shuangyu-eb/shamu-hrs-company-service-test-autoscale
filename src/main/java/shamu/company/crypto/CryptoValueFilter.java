@@ -24,7 +24,7 @@ public class CryptoValueFilter implements ValueFilter {
         && !Strings.isBlank((String) value)) {
       final Crypto crypto = AnnotationUtil
           .getFieldAnnotation(object, name, Crypto.class);
-      final Long id = (Long) AnnotationUtil.getFieldValue(object, crypto.field());
+      final String id = (String) AnnotationUtil.getFieldValue(object, crypto.field());
       final Class aClass = crypto.targetType();
 
       return encryptor.decrypt(id, aClass, (String) value);

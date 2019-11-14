@@ -5,15 +5,13 @@ import java.sql.Date;
 import lombok.Data;
 import shamu.company.benefit.entity.DependentRelationship;
 import shamu.company.common.entity.StateProvince;
-import shamu.company.hashids.HashidsFormat;
 import shamu.company.user.entity.Gender;
 import shamu.company.user.entity.User;
 
 @Data
 public class BenefitDependentCreateDto {
 
-  @HashidsFormat
-  private Long id;
+  private String id;
 
   private User employee;
 

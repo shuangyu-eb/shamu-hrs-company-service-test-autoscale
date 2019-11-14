@@ -9,43 +9,16 @@ import shamu.company.common.repository.BaseRepository;
 import shamu.company.timeoff.entity.TimeOffRequestDate;
 import shamu.company.timeoff.pojo.TimeOffRequestDatePojo;
 
-public interface TimeOffRequestDateRepository extends BaseRepository<TimeOffRequestDate, Long> {
-
-  @Query(
-      value =
-          "select * "
-              + "from time_off_request_dates "
-              + "where time_off_request_id in "
-              + "(select id "
-              + "from time_off_requests "
-              + "where time_off_policy_id in ("
-              + "select id "
-              + "from time_off_policies "
-              + "where company_id = ?1)) "
-              + "order by date",
-      nativeQuery = true)
-  List<TimeOffRequestDate> getByCompanyId(Long companyId);
-
-  @Query(
-      value =
-          "select * "
-              + "from time_off_request_dates "
-              + "where time_off_request_id in "
-              + "(select id "
-              + "from time_off_requests "
-              + "where requester_user_id = ?1) "
-              + "order by date",
-      nativeQuery = true)
-  List<TimeOffRequestDate> getByRequesterUserId(Long userId);
+public interface TimeOffRequestDateRepository extends BaseRepository<TimeOffRequestDate, String> {
 
   @Transactional
   @Modifying
   @Query(
       value =
           "delete from time_off_request_dates"
-              + " where time_off_request_id = ?1",
+              + " where time_off_request_id = unhex(?1)",
       nativeQuery = true)
-  void deleteByTimeOffRequestId(Long requestId);
+  void deleteByTimeOffRequestId(String requestId);
 
   @Query(value = "SELECT "
       + "request.created_at AS createDate,"
@@ -61,12 +34,12 @@ public interface TimeOffRequestDateRepository extends BaseRepository<TimeOffRequ
       + "        ON request.time_off_request_approval_status_id = t.id "
       + "WHERE "
       + "    t.name = 'APPROVED' "
-      + "        AND request.requester_user_id = ?1 "
-      + "        AND request.time_off_policy_id = ?2 "
+      + "        AND request.requester_user_id = unhex(?1) "
+      + "        AND request.time_off_policy_id = unhex(?2) "
       + "        AND rd.date < ?3 "
       + "GROUP BY request.id "
       + "ORDER BY createDate ASC",
       nativeQuery = true)
   List<TimeOffRequestDatePojo> getTakenApprovedRequestOffByUserIdAndPolicyId(
-          Long userId, Long policyId, LocalDateTime currentTime);
+      String userId, String policyId, LocalDateTime currentTime);
 }

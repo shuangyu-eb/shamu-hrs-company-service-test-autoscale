@@ -32,6 +32,7 @@ import shamu.company.timeoff.pojo.TimeOffAdjustmentPojo;
 import shamu.company.timeoff.pojo.TimeOffBreakdownCalculatePojo;
 import shamu.company.timeoff.pojo.TimeOffRequestDatePojo;
 import shamu.company.timeoff.repository.AccrualScheduleMilestoneRepository;
+import shamu.company.timeoff.repository.TimeOffAccrualFrequencyRepository;
 import shamu.company.timeoff.repository.TimeOffAdjustmentRepository;
 import shamu.company.timeoff.repository.TimeOffPolicyAccrualScheduleRepository;
 import shamu.company.timeoff.repository.TimeOffPolicyUserRepository;
@@ -50,6 +51,7 @@ public class TimeOffDetailService {
   private final TimeOffAccrualAnniversaryStrategyService accrualAnniversaryStrategyService;
   private final TimeOffAccrualMonthStrategyService accrualMonthStrategyService;
   private final AccrualScheduleMilestoneRepository milestoneRepository;
+  private final TimeOffAccrualFrequencyRepository frequencyRepository;
 
   @Autowired
   public TimeOffDetailService(
@@ -60,7 +62,8 @@ public class TimeOffDetailService {
       final TimeOffAccrualNatureStrategyService accrualNatureStrategyService,
       final TimeOffAccrualAnniversaryStrategyService accrualAnniversaryStrategyService,
       final TimeOffAccrualMonthStrategyService accrualMonthStrategyService,
-      final AccrualScheduleMilestoneRepository milestoneRepository
+      final AccrualScheduleMilestoneRepository milestoneRepository,
+      final TimeOffAccrualFrequencyRepository frequencyRepository
   ) {
     this.timeOffPolicyUserRepository = timeOffPolicyUserRepository;
     this.timeOffPolicyAccrualScheduleRepository = timeOffPolicyAccrualScheduleRepository;
@@ -70,10 +73,11 @@ public class TimeOffDetailService {
     this.accrualAnniversaryStrategyService = accrualAnniversaryStrategyService;
     this.accrualMonthStrategyService = accrualMonthStrategyService;
     this.milestoneRepository = milestoneRepository;
+    this.frequencyRepository = frequencyRepository;
   }
 
   public TimeOffBreakdownDto getTimeOffBreakdown(
-      final Long policyUserId, final LocalDate endDate) {
+      final String policyUserId, final LocalDate endDate) {
     final Optional<TimeOffPolicyUser> timeOffPolicyUserContainer = timeOffPolicyUserRepository
         .findById(policyUserId);
 
@@ -128,7 +132,7 @@ public class TimeOffDetailService {
 
     final TimeOffAccrualFrequency timeOffFrequency = timeOffPolicyScheduleList.get(0)
         .getTimeOffAccrualFrequency();
-    final Long timeOffFrequencyId = timeOffFrequency.getId();
+    final String timeOffFrequencyId = timeOffFrequency.getId();
 
     final List<TimeOffPolicyAccrualSchedule> trimmedScheduleList = trimTimeOffPolicyScheduleList(
         timeOffPolicyScheduleList, timeOffPolicyUser.getUser());
@@ -151,7 +155,7 @@ public class TimeOffDetailService {
     return getTimeOffBreakdownByFrequency(timeOffFrequencyId, timeOffBreakdownCalculatePojo);
   }
 
-  private TimeOffBreakdownDto getTimeOffBreakdownByFrequency(final Long timeOffFrequencyId,
+  private TimeOffBreakdownDto getTimeOffBreakdownByFrequency(final String timeOffFrequencyId,
       final TimeOffBreakdownCalculatePojo calculatePojo) {
 
     final TimeOffBreakdownItemDto startingBreakdown = TimeOffBreakdownItemDto
@@ -159,18 +163,23 @@ public class TimeOffDetailService {
 
     TimeOffBreakdownDto resultTimeOffBreakdownDto = null;
 
+    TimeOffAccrualFrequency timeOffFrequency = frequencyRepository.findById(timeOffFrequencyId)
+        .orElseThrow(()
+            -> new ResourceNotFoundException(
+            String.format("Time off frequency with id %s not found.", timeOffFrequencyId)));
+
     if (TimeOffAccrualFrequency.AccrualFrequencyType.FREQUENCY_TYPE_ONE
-        .equalsTo(timeOffFrequencyId)) {
+        .equalsTo(timeOffFrequency.getName())) {
 
       resultTimeOffBreakdownDto =
           accrualNatureStrategyService.getTimeOffBreakdown(startingBreakdown, calculatePojo);
     } else if (TimeOffAccrualFrequency.AccrualFrequencyType.FREQUENCY_TYPE_TWO
-        .equalsTo(timeOffFrequencyId)) {
+        .equalsTo(timeOffFrequency.getName())) {
 
       resultTimeOffBreakdownDto =
           accrualAnniversaryStrategyService.getTimeOffBreakdown(startingBreakdown, calculatePojo);
     } else if (TimeOffAccrualFrequency.AccrualFrequencyType.FREQUENCY_TYPE_THREE
-        .equalsTo(timeOffFrequencyId)) {
+        .equalsTo(timeOffFrequency.getName())) {
 
       resultTimeOffBreakdownDto =
           accrualMonthStrategyService.getTimeOffBreakdown(startingBreakdown, calculatePojo);
@@ -279,7 +288,7 @@ public class TimeOffDetailService {
     for (final TimeOffPolicyAccrualSchedule accrualSchedule : timeOffPolicyAccrualScheduleList) {
 
       final LocalDateTime userEnrollDateTime = DateUtil.toLocalDateTime(user.getCreatedAt());
-      final Long frequencyId = accrualSchedule.getTimeOffAccrualFrequency().getId();
+      final String frequencyId = accrualSchedule.getTimeOffAccrualFrequency().getId();
       if (accrualSchedule.getExpiredAt() == null) {
         trimmedScheduleList.add(accrualSchedule);
         continue;
@@ -296,7 +305,8 @@ public class TimeOffDetailService {
     return trimmedScheduleList;
   }
 
-  public TimeOffAdjustmentCheckDto checkTimeOffAdjustments(Long policyUserId, Integer adjustment) {
+  public TimeOffAdjustmentCheckDto checkTimeOffAdjustments(String policyUserId,
+      Integer adjustment) {
     TimeOffPolicyUser timeOffPolicyUser = timeOffPolicyUserRepository.findById(policyUserId)
         .orElseThrow(() -> new ResourceNotFoundException("Time off policy user with id "
             + policyUserId

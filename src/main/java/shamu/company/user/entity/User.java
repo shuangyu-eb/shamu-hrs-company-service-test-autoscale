@@ -5,6 +5,9 @@ import java.sql.Date;
 import java.sql.Timestamp;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -15,7 +18,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import shamu.company.common.entity.BaseEntity;
+import org.apache.commons.lang.StringUtils;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.UpdateTimestamp;
 import shamu.company.common.exception.GeneralException;
 import shamu.company.company.entity.Company;
 
@@ -25,7 +31,11 @@ import shamu.company.company.entity.Company;
 @NoArgsConstructor
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class User extends BaseEntity {
+public class User {
+
+  @Id
+  @Type(type = "shamu.company.common.PrimaryKeyTypeDescriptor")
+  private String id;
 
   private Timestamp latestLogin;
   
@@ -73,19 +83,23 @@ public class User extends BaseEntity {
 
   private Timestamp verifiedAt;
 
-  private String userId;
-
   private String changeWorkEmail;
 
   private String changeWorkEmailToken;
 
   private Timestamp verifyChangeWorkEmailAt;
 
-  public User(final Long id) {
+  @CreationTimestamp
+  private Timestamp createdAt;
+
+  @UpdateTimestamp
+  private Timestamp updatedAt;
+
+  public User(final String id) {
     setId(id);
   }
 
-  public User(final Long id, final String imageUrl) {
+  public User(final String id, final String imageUrl) {
     setId(id);
     setImageUrl(imageUrl);
   }
@@ -95,7 +109,7 @@ public class User extends BaseEntity {
       this.managerUser = null;
       return;
     }
-    if (null == managerUser.getId()) {
+    if (StringUtils.isEmpty(managerUser.getId())) {
       throw new GeneralException("Please save this manager before setting this user's manager.");
     }
     if (managerUser.getId().equals(getId())) {

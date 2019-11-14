@@ -1,13 +1,11 @@
 package shamu.company.user.dto;
 
 import lombok.Data;
-import shamu.company.hashids.HashidsFormat;
 
 @Data
 public class UserDto {
 
-  @HashidsFormat
-  private Long id;
+  private String id;
 
   private String name;
 

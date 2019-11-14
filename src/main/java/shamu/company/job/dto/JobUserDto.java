@@ -2,7 +2,6 @@ package shamu.company.job.dto;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import shamu.company.hashids.HashidsFormat;
 import shamu.company.job.entity.Job;
 import shamu.company.job.entity.JobUser;
 import shamu.company.user.entity.User;
@@ -11,11 +10,9 @@ import shamu.company.user.entity.User;
 @NoArgsConstructor
 public class JobUserDto {
 
-  @HashidsFormat
-  private Long id;
+  private String id;
 
-  @HashidsFormat
-  private Long userId;
+  private String userId;
 
   private String imageUrl;
 

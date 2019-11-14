@@ -12,7 +12,6 @@ import shamu.company.admin.dto.SuperAdminUserDto;
 import shamu.company.admin.service.SuperAdminService;
 import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
-import shamu.company.hashids.HashidsFormat;
 
 @RestApiController
 class SuperAdminRestController extends BaseRestController {
@@ -32,7 +31,7 @@ class SuperAdminRestController extends BaseRestController {
 
   @PostMapping("/super-admin/mock/users/{id}")
   @PreAuthorize("hasAuthority('SUPER_PERMISSION')")
-  public MockUserDto mockUser(@PathVariable @HashidsFormat final Long id) {
+  public MockUserDto mockUser(@PathVariable final String id) {
     return superAdminService.mockUser(id, this.getToken());
   }
 

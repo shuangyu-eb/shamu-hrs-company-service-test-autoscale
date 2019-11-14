@@ -14,7 +14,7 @@ public class BenefitPlanType extends BaseEntity {
 
   private String name;
 
-  public BenefitPlanType(final Long id) {
+  public BenefitPlanType(final String id) {
     setId(id);
   }
 }

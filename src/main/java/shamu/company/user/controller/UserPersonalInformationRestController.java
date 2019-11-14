@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.crypto.EncryptorUtil;
-import shamu.company.hashids.HashidsFormat;
 import shamu.company.user.dto.BasicUserPersonalInformationDto;
 import shamu.company.user.dto.UserPersonalInformationDto;
 import shamu.company.user.dto.UserRoleAndStatusInfoDto;
@@ -63,7 +62,7 @@ public class UserPersonalInformationRestController extends BaseRestController {
       "hasPermission(#id,'USER_PERSONAL_INFORMATION', 'EDIT_USER')"
           + " or hasPermission(#id,'USER_PERSONAL_INFORMATION', 'EDIT_SELF')")
   public UserPersonalInformationDto update(
-      @PathVariable @HashidsFormat final Long id,
+      @PathVariable final String id,
       @Valid @RequestBody final UserPersonalInformationDto userPersonalInformationDto) {
     final User user = userService.findUserByUserPersonalInformationId(id);
     final UserPersonalInformation origin = user.getUserPersonalInformation();
@@ -82,7 +81,7 @@ public class UserPersonalInformationRestController extends BaseRestController {
       "hasPermission(#id, 'USER', 'VIEW_USER_PERSONAL')"
           + "or hasPermission(#id, 'USER', 'VIEW_SELF')")
   public BasicUserPersonalInformationDto getUserPersonalInformation(
-      @PathVariable @HashidsFormat final Long id) {
+      @PathVariable final String id) {
     final User targetUser = userService.findUserById(id);
     final UserPersonalInformation userPersonalInformation = targetUser.getUserPersonalInformation();
     final String imageUrl = targetUser.getImageUrl();
@@ -112,12 +111,12 @@ public class UserPersonalInformationRestController extends BaseRestController {
 
   @GetMapping("users/{id}/user-role-status")
   @PreAuthorize("hasPermission(#id, 'USER', 'VIEW_USER_ROLE_AND_STATUS')")
-  public UserRoleAndStatusInfoDto getUserRoleAndStatus(@PathVariable @HashidsFormat final Long id) {
+  public UserRoleAndStatusInfoDto getUserRoleAndStatus(@PathVariable final String id) {
     final User targetUser = userService.findUserById(id);
     final UserRoleAndStatusInfoDto resultInformation = userMapper
         .convertToUserRoleAndStatusInfoDto(targetUser);
     final Role userRole = auth0Util
-        .getUserRole(targetUser.getUserId());
+        .getUserRole(targetUser.getId());
     resultInformation.setUserRole(userRole.getValue());
     return resultInformation;
   }

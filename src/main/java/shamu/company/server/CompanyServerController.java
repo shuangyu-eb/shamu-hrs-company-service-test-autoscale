@@ -36,7 +36,7 @@ public class CompanyServerController extends BaseRestController {
   }
 
   @GetMapping(value = "/users/id")
-  public List<CompanyUser> getUsersBy(@RequestParam final List<Long> ids) {
+  public List<CompanyUser> getUsersBy(@RequestParam final List<String> ids) {
     return companyUserService.getUsersBy(ids).parallelStream().map(CompanyUser::new)
         .collect(Collectors.toList());
   }

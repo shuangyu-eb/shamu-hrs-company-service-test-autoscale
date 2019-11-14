@@ -11,4 +11,8 @@ import shamu.company.common.entity.BaseEntity;
 public class State extends BaseEntity {
 
   private String name;
+
+  public State(String id) {
+    this.setId(id);
+  }
 }

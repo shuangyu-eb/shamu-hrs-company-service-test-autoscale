@@ -6,6 +6,7 @@ import org.mapstruct.InheritConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import org.springframework.util.StringUtils;
 import shamu.company.common.mapper.Config;
 import shamu.company.company.entity.Office;
 import shamu.company.company.entity.mapper.OfficeMapper;
@@ -60,7 +61,7 @@ public interface JobUserMapper {
   @Mapping(target = "managerJobTitle", source = "jobManagerDto.jobTitle")
   @Mapping(target = "directReporters", source = "directReporters")
   @Mapping(target = "roleName", source = "roleName")
-  EmployeeRelatedInformationDto convertToEmployeeRelatedInformationDto(Long userId, String email,
+  EmployeeRelatedInformationDto convertToEmployeeRelatedInformationDto(String userId, String email,
       String userStatus, Timestamp emailSendDate, JobUserDto jobEmployeeDto,
       JobUserDto jobManagerDto, List<JobUserDto> directReporters, String roleName);
 
@@ -85,8 +86,8 @@ public interface JobUserMapper {
   @Mapping(target = "employmentType", source = "employmentTypeId")
   void updateFromJobUpdateDto(@MappingTarget JobUser jobUser, JobUpdateDto jobUpdateDto);
 
-  default Job convertToJob(final Long jobId) {
-    if (jobId != null) {
+  default Job convertToJob(final String jobId) {
+    if (!StringUtils.isEmpty(jobId)) {
       final Job job = new Job();
       job.setId(jobId);
       return job;
@@ -94,8 +95,8 @@ public interface JobUserMapper {
     return null;
   }
 
-  default Office convertFromOfficeId(final Long officeId) {
-    if (officeId != null) {
+  default Office convertFromOfficeId(final String officeId) {
+    if (!StringUtils.isEmpty(officeId)) {
       final Office office = new Office();
       office.setId(officeId);
       return office;
@@ -103,8 +104,8 @@ public interface JobUserMapper {
     return null;
   }
 
-  default EmploymentType convertFromEmploymentTypeId(final Long employmentTypeId) {
-    if (employmentTypeId != null) {
+  default EmploymentType convertFromEmploymentTypeId(final String employmentTypeId) {
+    if (!StringUtils.isEmpty(employmentTypeId)) {
       final EmploymentType employmentType = new EmploymentType();
       employmentType.setId(employmentTypeId);
       return employmentType;

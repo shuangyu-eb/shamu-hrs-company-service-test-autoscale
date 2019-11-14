@@ -5,8 +5,8 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Type;
 import shamu.company.common.entity.BaseEntity;
-import shamu.company.hashids.HashidsFormat;
 
 @Data
 @Entity
@@ -16,8 +16,8 @@ public class AccrualScheduleMilestone extends BaseEntity {
 
   private Integer anniversaryYear;
 
-  @HashidsFormat
-  private Long timeOffPolicyAccrualScheduleId;
+  @Type(type = "shamu.company.common.PrimaryKeyTypeDescriptor")
+  private String timeOffPolicyAccrualScheduleId;
 
   private Integer accrualHours;
 

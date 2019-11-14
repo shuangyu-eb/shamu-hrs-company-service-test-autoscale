@@ -14,7 +14,7 @@ public class MaritalStatus extends BaseEntity {
 
   private String name;
 
-  public MaritalStatus(final Long id) {
+  public MaritalStatus(final String id) {
     setId(id);
   }
 }

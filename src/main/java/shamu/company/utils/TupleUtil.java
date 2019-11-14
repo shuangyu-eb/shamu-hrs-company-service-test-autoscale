@@ -2,7 +2,6 @@ package shamu.company.utils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.math.BigInteger;
 import javax.persistence.Tuple;
 import org.springframework.util.ReflectionUtils;
 import shamu.company.common.exception.ForbiddenException;
@@ -18,9 +17,11 @@ public class TupleUtil {
         if (fieldResult != null) {
           ReflectionUtils.makeAccessible(fieldResult);
           Object resultValue = tuple.get(property.getAlias());
-          if (resultValue != null && property.getJavaType().isAssignableFrom(BigInteger.class)) {
-            resultValue = ((BigInteger) resultValue).longValue();
+
+          if (resultValue != null && resultValue.getClass().isAssignableFrom(byte[].class)) {
+            resultValue = UuidUtil.toHexString((byte[]) resultValue);
           }
+
           ReflectionUtils.setField(fieldResult, result, resultValue);
         }
       });

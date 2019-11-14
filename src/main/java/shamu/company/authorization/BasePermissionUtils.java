@@ -35,7 +35,7 @@ class BasePermissionUtils {
     return authUserCacheManager.getCachedUser(token);
   }
 
-  protected Long getCompanyId() {
+  protected String getCompanyId() {
     return getAuthUser().getCompanyId();
   }
 

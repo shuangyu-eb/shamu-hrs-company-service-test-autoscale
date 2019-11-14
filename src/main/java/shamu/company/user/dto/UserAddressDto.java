@@ -2,17 +2,14 @@ package shamu.company.user.dto;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import shamu.company.hashids.HashidsFormat;
 
 @Data
 @NoArgsConstructor
 public class UserAddressDto {
 
-  @HashidsFormat
-  private Long id;
+  private String id;
 
-  @HashidsFormat
-  private Long userId;
+  private String userId;
 
   private String street1;
 
@@ -22,13 +19,11 @@ public class UserAddressDto {
 
   private String countryName;
 
-  @HashidsFormat
-  private Long countryId;
+  private String countryId;
 
   private String stateProvinceName;
 
-  @HashidsFormat
-  private Long stateProvinceId;
+  private String stateProvinceId;
 
   private String postalCode;
 }

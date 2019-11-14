@@ -24,7 +24,7 @@ public class UserSignUpDto {
 
   private String companyName;
 
-  private String companySize;
+  private String companySizeId;
 
   private String department;
 

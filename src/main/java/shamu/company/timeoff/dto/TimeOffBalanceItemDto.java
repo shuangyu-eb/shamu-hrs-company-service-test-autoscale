@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import shamu.company.hashids.HashidsFormat;
 
 @Data
 @Builder
@@ -13,8 +12,7 @@ import shamu.company.hashids.HashidsFormat;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class TimeOffBalanceItemDto {
 
-  @HashidsFormat
-  private Long id;
+  private String id;
 
   private String name;
 

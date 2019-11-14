@@ -33,8 +33,8 @@ public class MethodPermissionEvaluator implements PermissionEvaluator {
     final Type type = Type.valueOf(targetType);
     final Permission.Name permissionName = Permission.Name.valueOf(permission.toString());
 
-    if (target instanceof Long) {
-      final Long id = (Long) target;
+    if (target instanceof String) {
+      final String id = (String) target;
       return permissionUtils.hasPermission(auth, id, type, permissionName);
     }
 

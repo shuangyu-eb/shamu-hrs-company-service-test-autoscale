@@ -35,18 +35,18 @@ public class UserAddressService {
     this.userAddressMapper = userAddressMapper;
   }
 
-  public UserAddress findUserAddressById(final Long id) {
+  public UserAddress findUserAddressById(final String id) {
     return userAddressRepository
         .findById(id)
         .orElseThrow(() -> new ResourceNotFoundException("User address does not exist"));
   }
 
-  public UserAddress findUserAddressByUserId(final Long id) {
+  public UserAddress findUserAddressByUserId(final String id) {
     return userAddressRepository.findUserAddressByUserId(id);
   }
 
   public UserAddress save(final UserAddressDto userAddressDto) {
-    final Long userId = userAddressDto.getUserId();
+    final String userId = userAddressDto.getUserId();
     final UserAddress userAddress = findUserAddressByUserId(userId);
     if (userAddress == null) {
       final UserAddress initUserAddress = userAddressMapper

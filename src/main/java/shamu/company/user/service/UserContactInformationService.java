@@ -20,7 +20,7 @@ public class UserContactInformationService {
     return repository.save(userContactInformation);
   }
 
-  public UserContactInformation findUserContactInformationById(final Long id) {
+  public UserContactInformation findUserContactInformationById(final String id) {
     return repository
         .findById(id)
         .orElseThrow(

@@ -3,7 +3,6 @@ package shamu.company.timeoff.dto;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import shamu.company.hashids.HashidsFormat;
 import shamu.company.timeoff.entity.AccrualScheduleMilestone;
 import shamu.company.timeoff.entity.TimeOffPolicy;
 import shamu.company.timeoff.entity.TimeOffPolicyAccrualSchedule;
@@ -11,8 +10,7 @@ import shamu.company.timeoff.entity.TimeOffPolicyAccrualSchedule;
 @Data
 @AllArgsConstructor
 public class TimeOffPolicyRelatedInfoDto {
-  @HashidsFormat
-  private Long id;
+  private String id;
 
   private String policyName;
 
@@ -22,8 +20,7 @@ public class TimeOffPolicyRelatedInfoDto {
 
   private Integer startDate;
 
-  @HashidsFormat
-  private Long timeOffAccrualFrequency;
+  private String timeOffAccrualFrequency;
 
   private Integer maxBalanceBaseRate;
 

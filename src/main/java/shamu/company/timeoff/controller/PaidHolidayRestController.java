@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import shamu.company.common.BaseAuthorityDto;
 import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
-import shamu.company.hashids.HashidsFormat;
 import shamu.company.timeoff.dto.PaidHolidayDto;
 import shamu.company.timeoff.dto.PaidHolidayRelatedUserListDto;
 import shamu.company.timeoff.service.PaidHolidayService;
@@ -35,7 +34,7 @@ public class PaidHolidayRestController extends BaseRestController {
 
   @GetMapping(value = "paid-holidays/user/{targetUserId}")
   public List<PaidHolidayDto> getUserAllPaidHolidays(
-          @HashidsFormat @PathVariable Long targetUserId) {
+          @PathVariable String targetUserId) {
     return paidHolidayService.getUserPaidHolidays(getAuthUser(), targetUserId);
   }
 
@@ -86,7 +85,7 @@ public class PaidHolidayRestController extends BaseRestController {
 
   @DeleteMapping(value = "paid-holidays/{id}")
   @PreAuthorize("hasPermission(#id, 'PAID_HOLIDAY', 'DELETE_PAID_HOLIDAY')")
-  public void updatePaidHoliday(@HashidsFormat @PathVariable final Long id) {
+  public void updatePaidHoliday(@PathVariable final String id) {
     paidHolidayService.deletePaidHoliday(id);
   }
 

@@ -9,6 +9,7 @@ import javax.persistence.Table;
 import javax.validation.constraints.Max;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Type;
 import shamu.company.common.entity.BaseEntity;
 import shamu.company.job.entity.CompensationFrequency;
 
@@ -29,7 +30,8 @@ public class UserCompensation extends BaseEntity {
   private String overtimeStatus;
 
   @Column(name = "user_id")
-  private Long userId;
+  @Type(type = "shamu.company.common.PrimaryKeyTypeDescriptor")
+  private String userId;
 
   @OneToOne
   private CompensationType compensationType;

@@ -5,7 +5,6 @@ import lombok.Data;
 import shamu.company.benefit.entity.BenefitPlan;
 import shamu.company.benefit.entity.BenefitPlanType;
 import shamu.company.company.entity.Company;
-import shamu.company.hashids.HashidsFormat;
 import shamu.company.s3.PreSinged;
 
 @Data
@@ -21,11 +20,9 @@ public class BenefitPlanCreateDto {
 
   private String planWebSite;
 
-  @HashidsFormat
-  private Long retirementTypeId;
+  private String retirementTypeId;
 
-  @HashidsFormat
-  private Long benefitPlanTypeId;
+  private String benefitPlanTypeId;
 
   private String documentName;
 

@@ -13,11 +13,13 @@ public interface AccrualScheduleMilestoneMapper {
   @Mapping(target = "timeOffPolicyAccrualScheduleId", source = "timeOffPolicyAccrualScheduleId")
   @Mapping(target = "id", ignore = true)
   AccrualScheduleMilestone createFromAccrualScheduleMilestoneDtoAndTimeOffPolicyAccrualScheduleId(
-      AccrualScheduleMilestoneDto accrualScheduleMilestoneDto, Long timeOffPolicyAccrualScheduleId);
+      AccrualScheduleMilestoneDto accrualScheduleMilestoneDto,
+      String timeOffPolicyAccrualScheduleId);
 
   @Mapping(target = "timeOffPolicyAccrualScheduleId", source = "timeOffPolicyAccrualScheduleId")
   @Mapping(target = "id", ignore = true)
   void updateFromAccrualScheduleMilestoneDtoAndTimeOffPolicyAccrualScheduleId(
       @MappingTarget AccrualScheduleMilestone accrualScheduleMilestone,
-      AccrualScheduleMilestoneDto accrualScheduleMilestoneDto, Long timeOffPolicyAccrualScheduleId);
+      AccrualScheduleMilestoneDto accrualScheduleMilestoneDto,
+      String timeOffPolicyAccrualScheduleId);
 }

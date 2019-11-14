@@ -3,15 +3,13 @@ package shamu.company.user.dto;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import shamu.company.common.validation.constraints.PhoneNumberValidate;
-import shamu.company.hashids.HashidsFormat;
 import shamu.company.user.entity.UserContactInformation;
 
 @Data
 @NoArgsConstructor
 public class BasicUserContactInformationDto {
 
-  @HashidsFormat
-  private Long id;
+  private String id;
 
   private String userStatus;
 

@@ -35,7 +35,7 @@ public class Company extends BaseEntity {
   @ManyToOne
   private Country country;
 
-  public Company(final Long id) {
+  public Company(final String id) {
     setId(id);
   }
 }

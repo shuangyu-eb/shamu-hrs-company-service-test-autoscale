@@ -2,31 +2,24 @@ package shamu.company.employee.dto;
 
 import java.sql.Timestamp;
 import lombok.Data;
-import shamu.company.hashids.HashidsFormat;
 
 @Data
 public class NewEmployeeJobInformationDto {
 
-  @HashidsFormat
-  private Long jobId;
+  private String jobId;
 
-  @HashidsFormat
-  private Long employmentTypeId;
+  private String employmentTypeId;
 
   private Timestamp hireDate;
 
-  @HashidsFormat
-  private Long reportsTo;
+  private String reportsTo;
 
   // TODO remove it, we can get it from job
-  @HashidsFormat
-  private Long departmentId;
+  private String departmentId;
 
   private Integer compensation;
 
-  @HashidsFormat
-  private Long compensationFrequencyId;
+  private String compensationFrequencyId;
 
-  @HashidsFormat
-  private Long officeId;
+  private String officeId;
 }

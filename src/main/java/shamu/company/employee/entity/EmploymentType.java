@@ -4,7 +4,9 @@ import com.alibaba.fastjson.annotation.JSONField;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
@@ -15,7 +17,8 @@ import shamu.company.company.entity.Company;
 @Entity
 @Table(name = "employment_types")
 @NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 public class EmploymentType extends BaseEntity {
 
   @Length(max = 30)
@@ -24,12 +27,4 @@ public class EmploymentType extends BaseEntity {
   @ManyToOne
   @JSONField(serialize = false)
   private Company company;
-
-  public EmploymentType(final Long employmentTypeId) {
-    setId(employmentTypeId);
-  }
-
-  public EmploymentType(final String name) {
-    setName(name);
-  }
 }

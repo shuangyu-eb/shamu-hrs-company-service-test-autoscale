@@ -7,9 +7,9 @@ import lombok.Data;
 @Data
 public class DocumentRequestEmailDto {
 
-  private Long senderId;
+  private String senderId;
 
-  private List<Long> recipientUserIds;
+  private List<String> recipientUserIds;
 
   private String documentTitle;
 

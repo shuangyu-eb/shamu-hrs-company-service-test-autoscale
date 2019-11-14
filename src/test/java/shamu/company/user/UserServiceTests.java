@@ -51,6 +51,7 @@ import shamu.company.user.service.UserAddressService;
 import shamu.company.user.service.UserRoleService;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.Auth0Util;
+import shamu.company.utils.UuidUtil;
 
 class UserServiceTests {
 
@@ -139,7 +140,7 @@ class UserServiceTests {
     final UserSignUpDto userSignUpDto = UserSignUpDto.builder()
         .userId(userId)
         .companyName(RandomStringUtils.randomAlphabetic(4))
-        .companySize("1-10")
+        .companySizeId(UUID.randomUUID().toString())
         .firstName(RandomStringUtils.randomAlphabetic(3))
         .lastName(RandomStringUtils.randomAlphabetic(3))
         .phone(RandomStringUtils.randomAlphabetic(11))
@@ -150,7 +151,7 @@ class UserServiceTests {
 
     final Company company = new Company();
     company.setName("company");
-    company.setCompanySize(new CompanySize(userSignUpDto.getCompanySize()));
+    company.setCompanySize(new CompanySize(userSignUpDto.getCompanySizeId()));
     Mockito.when(companyRepository.save(Mockito.any())).thenReturn(company);
 
     Mockito.when(userStatusRepository.findByName(Mockito.anyString()))
@@ -166,9 +167,9 @@ class UserServiceTests {
   @Test
   void testGetCurrentUserInfo() {
     final User currentUser = new User();
-    currentUser.setId(1L);
+    currentUser.setId("1");
     final String userId = UUID.randomUUID().toString().replaceAll("-", "");
-    currentUser.setUserId(userId);
+    currentUser.setId(userId);
 
     final UserPersonalInformation userPersonalInformation = new UserPersonalInformation();
     userPersonalInformation.setFirstName("Aa");
@@ -178,7 +179,7 @@ class UserServiceTests {
     currentUser.setImageUrl(RandomStringUtils.randomAlphabetic(11));
 
     final Company company = new Company();
-    company.setId(1L);
+    company.setId("1");
 
     Mockito.when(userRepository.findByUserId(Mockito.anyString()))
             .thenReturn(currentUser);
@@ -186,7 +187,7 @@ class UserServiceTests {
         .thenReturn(Collections.emptyList());
 
     final CurrentUserDto userInfo = userService
-        .getCurrentUserInfo(currentUser.getUserId());
+        .getCurrentUserInfo(currentUser.getId());
     Assertions.assertEquals(userInfo.getId(), currentUser.getId());
   }
 
@@ -218,34 +219,34 @@ class UserServiceTests {
 
     User currentUser;
 
-    Long targetUserId;
+    String targetUserId;
 
     @BeforeEach
     void setUp() {
       final User currentUser = new User();
-      currentUser.setId(1L);
+      currentUser.setId("1");
 
       final UserContactInformation userContactInformation = new UserContactInformation();
       userContactInformation.setEmailWork("example@example.com");
       currentUser.setUserContactInformation(userContactInformation);
 
       final Company company = new Company();
-      company.setId(1L);
+      company.setId("1");
 
       currentUser.setCompany(company);
       this.currentUser = currentUser;
-      targetUserId = 2L;
+      targetUserId = "2";
 
       final User targetUser = new User();
       targetUser.setId(targetUserId);
 
-      Mockito.when(userRepository.findByIdAndCompanyId(Mockito.anyLong(), Mockito.anyLong()))
+      Mockito.when(userRepository.findByIdAndCompanyId(Mockito.anyString(), Mockito.anyString()))
           .thenReturn(targetUser);
     }
 
     @Test
     void whenIsAdmin_thenShouldReturnTrue() {
-      Mockito.when(userRepository.findByIdAndCompanyId(Mockito.anyLong(), Mockito.anyLong()))
+      Mockito.when(userRepository.findByIdAndCompanyId(Mockito.anyString(), Mockito.anyString()))
           .thenReturn(new User());
       final UserRole userRole = new UserRole();
       userRole.setName(Role.ADMIN.name());
@@ -259,7 +260,7 @@ class UserServiceTests {
       final User targetUser = new User();
       targetUser.setManagerUser(currentUser);
 
-      Mockito.when(userRepository.findByIdAndCompanyId(Mockito.anyLong(), Mockito.anyLong()))
+      Mockito.when(userRepository.findByIdAndCompanyId(Mockito.anyString(), Mockito.anyString()))
           .thenReturn(targetUser);
 
       final UserRole userRole = new UserRole();
@@ -271,7 +272,7 @@ class UserServiceTests {
 
     @Test
     void whenIsNotManagerAndAdmin_thenShouldReturnFalse() {
-      Mockito.when(userRepository.getManagerUserIdById(Mockito.anyLong()))
+      Mockito.when(userRepository.getManagerUserIdById(Mockito.anyString()))
           .thenReturn(null);
       Mockito.when(auth0Util.getUserRole(Mockito.anyString())).thenReturn(Role.EMPLOYEE);
 

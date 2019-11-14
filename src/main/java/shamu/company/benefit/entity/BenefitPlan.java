@@ -39,7 +39,7 @@ public class BenefitPlan extends BaseEntity {
   @OneToOne
   private BenefitPlanType benefitPlanType;
 
-  public BenefitPlan(final Long id) {
+  public BenefitPlan(final String id) {
     setId(id);
   }
 }

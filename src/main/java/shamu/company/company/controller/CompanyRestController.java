@@ -1,6 +1,7 @@
 package shamu.company.company.controller;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,7 +23,6 @@ import shamu.company.employee.dto.SelectFieldInformationDto;
 import shamu.company.employee.dto.SelectFieldSizeDto;
 import shamu.company.employee.entity.EmploymentType;
 import shamu.company.employee.service.EmployeeService;
-import shamu.company.hashids.HashidsFormat;
 import shamu.company.job.entity.Job;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserPersonalInformation;
@@ -72,14 +72,14 @@ public class CompanyRestController extends BaseRestController {
   @GetMapping("departments/{id}/jobs")
   @PreAuthorize("hasPermission(#id,'DEPARTMENT','VIEW_JOB')")
   public List<SelectFieldSizeDto> getJobsByDepartment(
-      @PathVariable @HashidsFormat final Long id) {
+      @PathVariable final String id) {
     return companyService.getJobsByDepartmentId(id);
   }
 
 
   @PostMapping("departments/{id}/jobs")
   @PreAuthorize("hasPermission(#id,'DEPARTMENT','CREATE_JOB')")
-  public SelectFieldInformationDto saveJobsByDepartment(@PathVariable @HashidsFormat final Long id,
+  public SelectFieldInformationDto saveJobsByDepartment(@PathVariable final String id,
       @RequestBody final String name) {
     final Job job = companyService.saveJobsByDepartmentId(id, name);
     return new SelectFieldInformationDto(job.getId(), job.getTitle());
@@ -115,7 +115,7 @@ public class CompanyRestController extends BaseRestController {
 
   @GetMapping("departments/{id}/users")
   @PreAuthorize("hasPermission(#id,'DEPARTMENT','VIEW_USER_JOB')")
-  public List<SelectFieldInformationDto> getUsers(@PathVariable @HashidsFormat final Long id) {
+  public List<SelectFieldInformationDto> getUsers(@PathVariable final String id) {
     final List<User> users = employeeService
         .findEmployersAndEmployeesByCompanyId(getCompanyId());
     return collectUserPersonInformations(users);
@@ -125,8 +125,8 @@ public class CompanyRestController extends BaseRestController {
   @PreAuthorize("hasPermission(#departmentId,'DEPARTMENT','VIEW_JOB')"
           + "and hasPermission(#userId,'USER','VIEW_JOB')")
   public List<SelectFieldInformationDto> getUsersFromDepartment(
-          @PathVariable @HashidsFormat final Long userId,
-          @PathVariable @HashidsFormat final Long departmentId) {
+          @PathVariable final String userId,
+          @PathVariable final String departmentId) {
     final List<User> users;
     final User user = userService.findUserById(userId);
     if (user.getManagerUser() == null) {
@@ -149,11 +149,16 @@ public class CompanyRestController extends BaseRestController {
     return users.stream().map(
         user -> {
           UserPersonalInformation userInfo = user.getUserPersonalInformation();
-          String firstName = userInfo.getFirstName();
-          String middleName = userInfo.getMiddleName();
-          String lastName = userInfo.getLastName();
-          return new SelectFieldInformationDto(user.getId(),
-              UserNameUtil.getUserName(firstName, middleName, lastName));
-        }).collect(Collectors.toList());
+          if (userInfo != null) {
+            String firstName = userInfo.getFirstName();
+            String middleName = userInfo.getMiddleName();
+            String lastName = userInfo.getLastName();
+            return new SelectFieldInformationDto(user.getId(),
+                UserNameUtil.getUserName(firstName, middleName, lastName));
+          }
+          return null;
+        })
+        .filter(Objects::nonNull)
+        .collect(Collectors.toList());
   }
 }

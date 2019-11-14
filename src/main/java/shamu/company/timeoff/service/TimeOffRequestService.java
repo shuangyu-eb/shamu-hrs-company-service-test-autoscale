@@ -1,9 +1,8 @@
 package shamu.company.timeoff.service;
 
-import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.APPROVED;
-import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.DENIED;
-import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.NO_ACTION;
-import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.VIEWED;
+import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.TimeOffApprovalStatus.APPROVED;
+import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.TimeOffApprovalStatus.DENIED;
+import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.TimeOffApprovalStatus.NO_ACTION;
 
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -31,15 +30,18 @@ import shamu.company.timeoff.entity.TimeOffPolicy;
 import shamu.company.timeoff.entity.TimeOffPolicyUser;
 import shamu.company.timeoff.entity.TimeOffRequest;
 import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus;
+import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.TimeOffApprovalStatus;
 import shamu.company.timeoff.entity.TimeOffRequestComment;
 import shamu.company.timeoff.entity.mapper.TimeOffRequestMapper;
 import shamu.company.timeoff.repository.TimeOffPolicyUserRepository;
+import shamu.company.timeoff.repository.TimeOffRequestApprovalStatusRepository;
 import shamu.company.timeoff.repository.TimeOffRequestRepository;
 import shamu.company.user.entity.User;
 import shamu.company.user.repository.UserRepository;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.Auth0Util;
 import shamu.company.utils.DateUtil;
+import shamu.company.utils.UuidUtil;
 
 @Service
 public class TimeOffRequestService {
@@ -62,6 +64,9 @@ public class TimeOffRequestService {
 
   private final UserService userService;
 
+  private final TimeOffRequestApprovalStatusRepository requestApprovalStatusRepository;
+
+
   @Autowired
   public TimeOffRequestService(
       final TimeOffRequestRepository timeOffRequestRepository,
@@ -72,7 +77,8 @@ public class TimeOffRequestService {
       final TimeOffPolicyService timeOffPolicyService,
       final TimeOffDetailService timeOffDetailService,
       final Auth0Util auth0Util,
-      final UserService userService) {
+      final UserService userService,
+      final TimeOffRequestApprovalStatusRepository approvalStatusRepository) {
     this.timeOffRequestRepository = timeOffRequestRepository;
     this.timeOffPolicyUserRepository = timeOffPolicyUserRepository;
     this.userRepository = userRepository;
@@ -82,29 +88,30 @@ public class TimeOffRequestService {
     this.timeOffDetailService = timeOffDetailService;
     this.auth0Util = auth0Util;
     this.userService = userService;
+    this.requestApprovalStatusRepository = approvalStatusRepository;
   }
 
-  public TimeOffRequest findByRequestId(final Long id) {
+  public TimeOffRequest findByRequestId(final String id) {
     return timeOffRequestRepository.findById(id)
         .orElseThrow(() -> new ResourceNotFoundException("Request does not exist."));
   }
 
   public Page<TimeOffRequest> getByApproverAndStatusFilteredByStartDay(
-      final Long id, final Long[] statusIds,
+      final String id, final String[] statuses,
       final Timestamp startDay, final PageRequest pageRequest) {
     return timeOffRequestRepository.findByApproversAndTimeOffApprovalStatusFilteredByStartDay(
-        id, statusIds, startDay, pageRequest);
+        id, statuses, startDay, pageRequest);
   }
 
   public Integer getPendingRequestsCount(final User approver) {
-    final TimeOffRequestApprovalStatus[] statuses = new TimeOffRequestApprovalStatus[]{
-        NO_ACTION, VIEWED
+    final String[] statuses = new String[]{
+        NO_ACTION.name(), TimeOffApprovalStatus.VIEWED.name()
     };
     return timeOffRequestRepository.countByApproversContainingAndTimeOffApprovalStatusIsIn(
-        approver, statuses);
+        approver.getId(), statuses);
   }
 
-  public TimeOffRequest getById(final Long timeOffRequestId) {
+  public TimeOffRequest getById(final String timeOffRequestId) {
     return timeOffRequestRepository
         .findById(timeOffRequestId)
         .orElseThrow(
@@ -121,17 +128,18 @@ public class TimeOffRequestService {
   }
 
   public List<TimeOffRequest> getRequestsByUserAndStatus(
-      final User user, final TimeOffRequestApprovalStatus[] status) {
-    final List<TimeOffRequestApprovalStatus> statusList = Arrays.asList(status);
-    final List<String> statusNames = statusList.stream().map(Enum::name)
-        .collect(Collectors.toList());
+      final User user, final TimeOffApprovalStatus[] status) {
+
+    final List<String> statusNames = Arrays.stream(status)
+        .map(TimeOffApprovalStatus::name).collect(Collectors.toList());
 
     final User.Role userRole = auth0Util
-        .getUserRole(user.getUserId());
+        .getUserRole(user.getId());
 
     final List<TimeOffRequest> result;
     final List<TimeOffRequest> selfPendingRequests = timeOffRequestRepository
-            .employeeFindSelfPendingRequests(user.getId());
+            .employeeFindSelfPendingRequests(user.getId(),
+                NO_ACTION.name());
     if (user.getManagerUser() == null) {
       result = timeOffRequestRepository.adminFindTeamRequests(user.getId(), statusNames);
     } else if (userRole == User.Role.MANAGER || userRole == User.Role.ADMIN) {
@@ -146,9 +154,9 @@ public class TimeOffRequestService {
   }
 
   private MyTimeOffDto initMyTimeOff(
-      final Long id, final Timestamp startDay, final Timestamp endDay,
+      final String id, final Timestamp startDay, final Timestamp endDay,
       final Boolean filteredByEndDay,
-      final Long[] statuses, final PageRequest request) {
+      final String[] statuses, final PageRequest request) {
     final MyTimeOffDto myTimeOffDto = new MyTimeOffDto();
     final Boolean policiesAdded = timeOffPolicyUserRepository.existsByUserId(id);
     myTimeOffDto.setPoliciesAdded(policiesAdded);
@@ -173,13 +181,13 @@ public class TimeOffRequestService {
   }
 
   public TimeOffRequestDto getRecentApprovedRequestByRequesterUserId(
-      final Long id, final Timestamp startDay, final Long statusId) {
+      final String id, final Timestamp startDay, final String statusName) {
     final TimeOffRequest timeOffRequest = timeOffRequestRepository
-        .findRecentApprovedRequestByRequesterUserId(id, startDay, statusId);
+        .findRecentApprovedRequestByRequesterUserId(id, startDay, statusName);
     return timeOffRequestMapper.convertToTimeOffRequestDto(timeOffRequest);
   }
 
-  public MyTimeOffDto getReviewedRequests(final Long id,
+  public MyTimeOffDto getReviewedRequests(final String id,
       final Long startDay,
       final Long endDay,
       final int page,
@@ -188,7 +196,7 @@ public class TimeOffRequestService {
         page, size, Sort.by(SortFields.APPROVED_DATE.getValue()).descending());
     final MyTimeOffDto myTimeOffDto;
     final Timestamp startDayTimestamp;
-    final Long[] timeOffRequestStatuses = new Long[]{APPROVED.getValue(), DENIED.getValue()};
+    final String[] timeOffRequestStatuses = new String[]{APPROVED.name(), DENIED.name()};
 
     if (startDay == null) {
       startDayTimestamp = DateUtil.getFirstDayOfCurrentYear();
@@ -208,18 +216,19 @@ public class TimeOffRequestService {
   }
 
   public MyTimeOffDto getMyTimeOffRequestsByRequesterUserIdFilteredByStartDay(
-      final Long id, final Timestamp startDay, final Long[] statuses, final PageRequest request) {
+      final String id, final Timestamp startDay, final String[] statuses,
+      final PageRequest request) {
     return initMyTimeOff(id, startDay, null, false, statuses, request);
   }
 
   private MyTimeOffDto getMyTimeOffRequestsByRequesterUserIdFilteredByStartAndEndDay(
-      final Long id, final Timestamp startDay, final Timestamp endDay,
-      final Long[] statuses, final PageRequest request) {
+      final String id, final Timestamp startDay, final Timestamp endDay,
+      final String[] statuses, final PageRequest request) {
     return initMyTimeOff(id, startDay, endDay, true, statuses, request);
   }
 
   public MyTimeOffDto getMyTimeOffRequestsByRequesterUserId(
-      final Long id, final Timestamp startDay) {
+      final String id, final Timestamp startDay) {
     final MyTimeOffDto myTimeOffDto = new MyTimeOffDto();
     final Boolean policiesAdded = timeOffPolicyUserRepository.existsByUserId(id);
     myTimeOffDto.setPoliciesAdded(policiesAdded);
@@ -258,11 +267,17 @@ public class TimeOffRequestService {
     } else {
       requesters.add(requester);
     }
+
+    List<byte[]> requesterIds = requesters.stream().map(User::getId)
+        .map(UuidUtil::toBytes)
+        .collect(Collectors.toList());
+
     List<TimeOffRequest> timeOffRequests =
         timeOffRequestRepository
-            .findByRequesterUserInAndTimeOffApprovalStatus(requesters, APPROVED, start, end);
+            .findByRequesterUserInAndTimeOffApprovalStatus(requesterIds,
+                APPROVED.name(), start, end);
 
-    if (timeOffRequest.getTimeOffApprovalStatus() == APPROVED) {
+    if (timeOffRequest.getApprovalStatus() == APPROVED) {
       timeOffRequests =
           timeOffRequests.stream()
               .filter(request -> !timeOffRequest.getId().equals(request.getId()))
@@ -272,13 +287,13 @@ public class TimeOffRequestService {
     return timeOffRequests;
   }
 
-  public TimeOffRequestDto updateTimeOffRequestStatus(final Long id,
+  public TimeOffRequestDto updateTimeOffRequestStatus(final String id,
       final TimeOffRequestUpdateDto updateDto, final AuthUser user) {
     TimeOffRequest timeOffRequest = timeOffRequestMapper
         .createFromTimeOffRequestUpdateDto(updateDto);
     timeOffRequest.setId(id);
 
-    final TimeOffRequestApprovalStatus status = updateDto.getStatus();
+    final TimeOffApprovalStatus status = updateDto.getStatus();
     if (status == APPROVED || status == DENIED) {
       timeOffRequest.setApproverUser(new User(user.getId()));
       timeOffRequest.setApprovedDate(Timestamp.from(Instant.now()));
@@ -301,9 +316,11 @@ public class TimeOffRequestService {
       final TimeOffRequest timeOffRequest, final TimeOffRequestComment timeOffRequestComment) {
 
     TimeOffRequest original = getById(timeOffRequest.getId());
-    final TimeOffRequestApprovalStatus status = timeOffRequest.getTimeOffApprovalStatus();
+    final TimeOffApprovalStatus status = timeOffRequest.getApprovalStatus();
 
-    original.setTimeOffApprovalStatus(status);
+    TimeOffRequestApprovalStatus timeOffRequestApprovalStatus =
+        requestApprovalStatusRepository.findByName(status.name());
+    original.setTimeOffApprovalStatus(timeOffRequestApprovalStatus);
     original.setApproverUser(timeOffRequest.getApproverUser());
     original.setApprovedDate(Timestamp.from(Instant.now()));
 
@@ -321,20 +338,22 @@ public class TimeOffRequestService {
   }
 
   @Transactional
-  public void deleteUnimplementedRequest(final Long requestId) {
+  public void deleteUnimplementedRequest(final String requestId) {
     timeOffRequestRepository.delete(requestId);
   }
 
 
-  public TimeOffRequestDetailDto getTimeOffRequestDetail(final Long id, final Long userId) {
+  public TimeOffRequestDetailDto getTimeOffRequestDetail(final String id, final String userId) {
     final TimeOffRequest timeOffRequest = getById(id);
     final User requester = timeOffRequest.getRequesterUser();
     final TimeOffRequestDetailDto requestDetail = timeOffRequestMapper
         .convertToTimeOffRequestDetailDto(timeOffRequest);
 
-    if (timeOffRequest.getTimeOffApprovalStatus() == NO_ACTION
+    if (timeOffRequest.getApprovalStatus() == NO_ACTION
         && userId.equals(requester.getManagerUser().getId())) {
-      timeOffRequest.setTimeOffApprovalStatus(TimeOffRequestApprovalStatus.VIEWED);
+      TimeOffRequestApprovalStatus timeOffRequestStatus = requestApprovalStatusRepository
+          .findByName(TimeOffApprovalStatus.VIEWED.name());
+      timeOffRequest.setTimeOffApprovalStatus(timeOffRequestStatus);
       timeOffRequestRepository.save(timeOffRequest);
     }
 
@@ -348,11 +367,14 @@ public class TimeOffRequestService {
   }
 
   public TimeOffRequest saveTimeOffRequest(
-      final TimeOffRequest timeOffRequest, final Long policyId,
-      final TimeOffRequestApprovalStatus status) {
+      final TimeOffRequest timeOffRequest, final String policyId,
+      final TimeOffApprovalStatus status) {
     final TimeOffPolicy policy = timeOffPolicyService.getTimeOffPolicyById(policyId);
     timeOffRequest.setTimeOffPolicy(policy);
-    timeOffRequest.setTimeOffApprovalStatus(status);
+
+    TimeOffRequestApprovalStatus timeOffRequestApprovalStatus = requestApprovalStatusRepository
+        .findByName(status.name());
+    timeOffRequest.setTimeOffApprovalStatus(timeOffRequestApprovalStatus);
     final TimeOffPolicyUser timeOffPolicyUser = timeOffPolicyUserRepository
         .findTimeOffPolicyUserByUserAndTimeOffPolicy(timeOffRequest.getRequesterUser(), policy);
 
@@ -373,7 +395,7 @@ public class TimeOffRequestService {
   }
 
   public List<TimeOffRequestDto> getTimeOffRequest(
-      final Long id, final TimeOffRequestApprovalStatus[] status) {
+      final String id, final TimeOffApprovalStatus[] status) {
     final User user = userService.findUserById(id);
 
     final List<TimeOffRequestDto> timeOffRequestDtos;

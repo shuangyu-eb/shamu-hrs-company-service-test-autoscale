@@ -1,6 +1,6 @@
-id,name
-1,Spouse
-2,Child
-3,Domestic Partner
-4,Step Child
-5,Foster Child
+name
+Spouse
+Child
+Domestic Partner
+Step Child
+Foster Child

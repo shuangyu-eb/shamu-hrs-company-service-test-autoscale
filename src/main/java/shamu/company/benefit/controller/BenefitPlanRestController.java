@@ -24,7 +24,6 @@ import shamu.company.benefit.service.BenefitPlanService;
 import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.common.validation.constraints.FileValidate;
-import shamu.company.hashids.HashidsFormat;
 import shamu.company.s3.AccessType;
 import shamu.company.s3.AwsUtil;
 
@@ -67,7 +66,7 @@ public class BenefitPlanRestController extends BaseRestController {
 
   @PostMapping("benefit-plan/{id}/document")
   @PreAuthorize("hasPermission(#id,'BENEFIT_PLAN', 'MANAGE_BENEFIT_PLAN')")
-  public void uploadBenefitPlanDocument(@PathVariable @HashidsFormat final Long id,
+  public void uploadBenefitPlanDocument(@PathVariable final String id,
       @RequestParam("file")
       //TODO: Need an appropriate file size.
       @FileValidate(maxSize = 10 * 1024 * 1024, fileType = {"PDF"})
@@ -90,7 +89,7 @@ public class BenefitPlanRestController extends BaseRestController {
 
   @PatchMapping("benefit-plan/{benefitPlanId}/users")
   @PreAuthorize("hasPermission(#benefitPlanId,'BENEFIT_PLAN', 'MANAGE_BENEFIT_PLAN')")
-  public void updateBenefitPlanUsers(@PathVariable @HashidsFormat final Long benefitPlanId,
+  public void updateBenefitPlanUsers(@PathVariable final String benefitPlanId,
       @RequestBody final List<BenefitPlanUserCreateDto> benefitPlanUsers) {
     benefitPlanService.updateBenefitPlanUsers(benefitPlanId, benefitPlanUsers);
   }

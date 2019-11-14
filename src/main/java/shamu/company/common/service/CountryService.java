@@ -15,7 +15,7 @@ public class CountryService  {
     this.countryRepository = countryRepository;
   }
 
-  public Country getCountryById(final Long id) {
+  public Country getCountryById(final String id) {
     final Optional<Country> optionalCountry = countryRepository.findById(id);
     return optionalCountry
         .orElseThrow(() -> new ResourceNotFoundException("Country does not exist"));

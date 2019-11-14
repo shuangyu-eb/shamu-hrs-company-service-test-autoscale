@@ -4,7 +4,7 @@ import java.util.List;
 import org.springframework.data.jpa.repository.Query;
 import shamu.company.common.repository.BaseRepository;
 
-public interface EmailRepository extends BaseRepository<Email, Long> {
+public interface EmailRepository extends BaseRepository<Email, String> {
 
   @Query(
       value =

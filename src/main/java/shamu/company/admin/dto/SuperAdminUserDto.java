@@ -2,14 +2,12 @@ package shamu.company.admin.dto;
 
 import lombok.Data;
 import lombok.ToString;
-import shamu.company.hashids.HashidsFormat;
 import shamu.company.user.entity.User;
 
 @Data
 public class SuperAdminUserDto {
 
-  @HashidsFormat
-  private Long userId;
+  private String userId;
 
   private String imageUrl;
 
@@ -33,7 +31,7 @@ public class SuperAdminUserDto {
     lastName = user.getUserPersonalInformation().getLastName();
     email = user.getUserContactInformation().getEmailWork();
     company = user.getCompany().getName();
-    auth0UserId = user.getUserId();
+    auth0UserId = user.getId();
     role = user.getRole().getValue();
   }
 }

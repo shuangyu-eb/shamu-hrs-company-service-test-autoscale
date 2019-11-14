@@ -4,14 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import shamu.company.hashids.HashidsFormat;
 
 @Data
 @NoArgsConstructor
 public class OrgChartDto {
 
-  @HashidsFormat
-  private Long id;
+  private String id;
 
   private String firstName;
 
@@ -27,8 +25,7 @@ public class OrgChartDto {
 
   private String department;
 
-  @HashidsFormat
-  private Long managerId;
+  private String managerId;
 
   private Integer directReportsCount;
 

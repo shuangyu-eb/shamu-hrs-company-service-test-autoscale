@@ -21,12 +21,4 @@ public class Department extends BaseEntity {
 
   @Length(max = 100)
   private String name;
-
-  public Department(final Long departmentId) {
-    setId(departmentId);
-  }
-
-  public Department(final String name) {
-    setName(name);
-  }
 }

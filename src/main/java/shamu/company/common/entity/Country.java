@@ -13,7 +13,7 @@ public class Country extends BaseEntity {
 
   private String name;
 
-  public Country(final Long id) {
+  public Country(final String id) {
     setId(id);
   }
 }

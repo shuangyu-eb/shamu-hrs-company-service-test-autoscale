@@ -1,12 +1,11 @@
 package shamu.company.timeoff.repository;
 
-import java.math.BigInteger;
 import java.util.List;
 import org.springframework.data.jpa.repository.Query;
 import shamu.company.common.repository.BaseRepository;
 import shamu.company.timeoff.entity.PaidHolidayUser;
 
-public interface PaidHolidayUserRepository extends BaseRepository<PaidHolidayUser, Long> {
+public interface PaidHolidayUserRepository extends BaseRepository<PaidHolidayUser, String> {
   String ACTIVE_USER_QUERY = "and (u.deactivated_at is null "
       + "or (u.deactivated_at is not null "
       + "and u.deactivated_at > current_timestamp)) ";
@@ -16,31 +15,31 @@ public interface PaidHolidayUserRepository extends BaseRepository<PaidHolidayUse
           + "FROM paid_holidays_users phu "
           + "LEFT JOIN users u "
           + "ON phu.user_id = u.id "
-          + "WHERE phu.company_id = ?1 "
+          + "WHERE phu.company_id = unhex(?1) "
           + ACTIVE_USER_QUERY,
       nativeQuery = true
   )
-  List<PaidHolidayUser> findAllByCompanyId(Long id);
+  List<PaidHolidayUser> findAllByCompanyId(String id);
 
   @Query(
       value = "SELECT phu.user_id "
           + "FROM paid_holidays_users phu "
           + "LEFT JOIN users u "
           + "ON phu.user_id = u.id "
-          + "WHERE phu.company_id = ?1 "
+          + "WHERE phu.company_id = unhex(?1) "
           + ACTIVE_USER_QUERY,
       nativeQuery = true
   )
-  List<BigInteger> findAllUserIdByCompanyId(Long companyId);
+  List<String> findAllUserIdByCompanyId(String companyId);
 
   @Query(
       value = "SELECT phu.* FROM paid_holidays_users phu "
           + "LEFT JOIN users u "
           + "ON phu.user_id = u.id "
-          + "WHERE phu.company_id = ?1 AND phu.user_id = ?2 "
+          + "WHERE phu.company_id = unhex(?1) AND phu.user_id = unhex(?2) "
           + ACTIVE_USER_QUERY,
       nativeQuery = true
   )
-  PaidHolidayUser findByCompanyIdAndUserId(Long companyId,Long userId);
+  PaidHolidayUser findByCompanyIdAndUserId(String companyId,String userId);
 
 }

@@ -49,7 +49,7 @@ class TimeOffAccrualServiceTests {
         final LocalDateTime userEnrollTime = LocalDateTime.of(
             LocalDate.of(2016, 1, 1), LocalTime.MAX);
 
-        final Long frequencyType =
+        final String frequencyType =
             TimeOffAccrualFrequency.AccrualFrequencyType.FREQUENCY_TYPE_ONE.getValue();
         final Boolean result =
             Whitebox.invokeMethod(accrualService, "invalidByStartDateAndEndDate",
@@ -71,7 +71,7 @@ class TimeOffAccrualServiceTests {
         final LocalDateTime userEnrollTime = LocalDateTime.of(
             LocalDate.of(2016, 1, 1), LocalTime.MAX);
 
-        final Long frequencyType =
+        final String frequencyType =
             TimeOffAccrualFrequency.AccrualFrequencyType.FREQUENCY_TYPE_ONE.getValue();
         final Boolean result =
             Whitebox.invokeMethod(accrualService, "invalidByStartDateAndEndDate",
@@ -98,7 +98,7 @@ class TimeOffAccrualServiceTests {
         final LocalDateTime userEnrollTime = LocalDateTime.of(
             LocalDate.of(2016, 5, 5), LocalTime.MAX);
 
-        final Long frequencyType =
+        final String frequencyType =
             TimeOffAccrualFrequency.AccrualFrequencyType.FREQUENCY_TYPE_TWO.getValue();
         final Boolean result =
             Whitebox.invokeMethod(accrualService, "invalidByStartDateAndEndDate",
@@ -120,7 +120,7 @@ class TimeOffAccrualServiceTests {
         final LocalDateTime userEnrollTime = LocalDateTime.of(
             LocalDate.of(2016, 1, 1), LocalTime.MAX);
 
-        final Long frequencyType =
+        final String frequencyType =
             TimeOffAccrualFrequency.AccrualFrequencyType.FREQUENCY_TYPE_TWO.getValue();
         final Boolean result =
             Whitebox.invokeMethod(accrualService, "invalidByStartDateAndEndDate",
@@ -146,7 +146,7 @@ class TimeOffAccrualServiceTests {
         final LocalDateTime userEnrollTime = LocalDateTime.of(
             LocalDate.of(2016, 5, 5), LocalTime.MAX);
 
-        final Long frequencyType =
+        final String frequencyType =
             TimeOffAccrualFrequency.AccrualFrequencyType.FREQUENCY_TYPE_THREE.getValue();
         final Boolean result =
             Whitebox.invokeMethod(accrualService, "invalidByStartDateAndEndDate",
@@ -168,7 +168,7 @@ class TimeOffAccrualServiceTests {
         final LocalDateTime userEnrollTime = LocalDateTime.of(
             LocalDate.of(2016, 1, 1), LocalTime.MAX);
 
-        final Long frequencyType =
+        final String frequencyType =
             TimeOffAccrualFrequency.AccrualFrequencyType.FREQUENCY_TYPE_THREE.getValue();
         final Boolean result =
             Whitebox.invokeMethod(accrualService, "invalidByStartDateAndEndDate",

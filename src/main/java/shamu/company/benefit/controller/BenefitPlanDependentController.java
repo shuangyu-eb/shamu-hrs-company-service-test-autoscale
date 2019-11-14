@@ -16,13 +16,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 import shamu.company.benefit.dto.BenefitDependentCreateDto;
 import shamu.company.benefit.dto.BenefitDependentDto;
 import shamu.company.benefit.entity.BenefitPlanDependent;
+import shamu.company.benefit.entity.DependentRelationship;
 import shamu.company.benefit.entity.mapper.BenefitPlanDependentMapper;
+import shamu.company.benefit.repository.BenefitPlanDependentRelationshipRepository;
 import shamu.company.benefit.service.BenefitPlanDependentService;
+import shamu.company.common.CommonDictionaryDto;
 import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.crypto.EncryptorUtil;
-import shamu.company.hashids.HashidsFormat;
 import shamu.company.user.entity.User;
 import shamu.company.user.service.UserService;
+import shamu.company.utils.ReflectionUtil;
 
 @RestApiController
 public class BenefitPlanDependentController {
@@ -35,21 +38,25 @@ public class BenefitPlanDependentController {
 
   private final EncryptorUtil encryptorUtil;
 
+  private final BenefitPlanDependentRelationshipRepository relationshipRepository;
+
   @Autowired
   public BenefitPlanDependentController(final UserService userService,
       final BenefitPlanDependentService benefitPlanDependentService,
       final BenefitPlanDependentMapper benefitPlanDependentMapper,
-      final EncryptorUtil encryptorUtil) {
+      final EncryptorUtil encryptorUtil,
+      final BenefitPlanDependentRelationshipRepository relationshipRepository) {
     this.userService = userService;
     this.benefitPlanDependentService = benefitPlanDependentService;
     this.benefitPlanDependentMapper = benefitPlanDependentMapper;
     this.encryptorUtil = encryptorUtil;
+    this.relationshipRepository = relationshipRepository;
   }
 
   @PostMapping("employee/{userId}/user-dependent-contacts")
   @PreAuthorize("hasPermission(#userId,'USER', 'EDIT_USER')"
       + " or hasPermission(#userId,'USER', 'EDIT_SELF')")
-  public HttpEntity createBenefitDependents(@PathVariable @HashidsFormat final Long userId,
+  public HttpEntity createBenefitDependents(@PathVariable final String userId,
       @RequestBody final BenefitDependentCreateDto benefitDependentCreateDto) {
     final User user = userService.findUserById(userId);
     benefitDependentCreateDto.setEmployee(user);
@@ -65,7 +72,7 @@ public class BenefitPlanDependentController {
   @PreAuthorize("hasPermission(#userId,'USER', 'EDIT_USER')"
       + " or hasPermission(#userId,'USER', 'EDIT_SELF')")
   public List<BenefitDependentDto> getDependentContacts(
-      @PathVariable @HashidsFormat final Long userId) {
+      @PathVariable final String userId) {
     final List<BenefitPlanDependent> userDependentContacts = benefitPlanDependentService
         .getDependentListsByEmployeeId(userId);
 
@@ -78,7 +85,7 @@ public class BenefitPlanDependentController {
   @PatchMapping("users/{userId}/user-dependent-contacts")
   @PreAuthorize("hasPermission(#userId,'USER', 'EDIT_USER')"
       + " or hasPermission(#userId,'USER', 'EDIT_SELF')")
-  public HttpEntity updateDependentContact(@PathVariable @HashidsFormat final Long userId,
+  public HttpEntity updateDependentContact(@PathVariable final String userId,
       @RequestBody final BenefitDependentCreateDto benefitDependentCreateDto) {
     final BenefitPlanDependent dependent = benefitPlanDependentService
         .findDependentById(benefitDependentCreateDto.getId());
@@ -89,7 +96,7 @@ public class BenefitPlanDependentController {
     return new ResponseEntity<>(HttpStatus.OK);
   }
 
-  private void encryptSsn(final Long userId,
+  private void encryptSsn(final String userId,
       final BenefitDependentCreateDto benefitDependentCreateDto,
       final BenefitPlanDependent dependent) {
     encryptorUtil.encryptSsn(userId, benefitDependentCreateDto.getSsn(), dependent);
@@ -98,9 +105,14 @@ public class BenefitPlanDependentController {
   @DeleteMapping("user-dependent-contacts/{dependentId}/dependent")
   @PreAuthorize("hasPermission(#dependentId,'BENEFIT_DEPENDENT', 'EDIT_USER')"
       + " or hasPermission(#dependentId,'BENEFIT_DEPENDENT', 'EDIT_SELF')")
-  public HttpEntity deleteEmergencyContacts(@PathVariable @HashidsFormat final Long dependentId) {
+  public HttpEntity deleteEmergencyContacts(@PathVariable final String dependentId) {
     benefitPlanDependentService.deleteDependentContact(dependentId);
     return new ResponseEntity<>(HttpStatus.OK);
   }
 
+  @GetMapping("dependent-relationships")
+  public List<CommonDictionaryDto> getAllDependentRelationships() {
+    List<DependentRelationship> results = relationshipRepository.findAll();
+    return ReflectionUtil.convertTo(results, CommonDictionaryDto.class);
+  }
 }

@@ -12,20 +12,20 @@ import shamu.company.user.entity.User.Role;
 public interface UserCustomRepository {
 
   Page<JobUserListItem> getAllByCondition(EmployeeListSearchCondition employeeListSearchCondition,
-                                          Long companyId, Pageable pageable, Role role);
+      String companyId, Pageable pageable, Role role);
 
   Page<JobUserListItem> getMyTeamByManager(EmployeeListSearchCondition employeeListSearchCondition,
       User user, Pageable paramPageable);
 
-  List<OrgChartDto> findOrgChartItemByManagerId(Long managerId,
-      Long companyId);
+  List<OrgChartDto> findOrgChartItemByManagerId(String managerId,
+      String companyId);
 
-  OrgChartDto findOrgChartItemByUserId(Long id, Long companyId);
+  OrgChartDto findOrgChartItemByUserId(String id, String companyId);
   
   User saveUser(User user);
   
   List<User> saveAllUsers(final Iterable<User> users);
 
   Page<JobUserListItem> getAllByName(EmployeeListSearchCondition employeeListSearchCondition,
-                                     Long companyId, Pageable pageable);
+      String companyId, Pageable pageable);
 }

@@ -46,8 +46,8 @@ class BaseRestControllerTests {
     final Instant jwtExpiredAt = LocalDateTime.now().plusDays(1).toInstant(ZoneOffset.UTC);
     final Jwt jwt = new Jwt(token, jwtIssuedAt, jwtExpiredAt,  jwtHeaders, bodyClaims);
     final AuthUser authUser = new AuthUser();
-    authUser.setId(1L);
-    authUser.setCompanyId(1L);
+    authUser.setId("1");
+    authUser.setCompanyId("1");
     authUser.setUserId(RandomStringUtils.randomAlphabetic(10));
 
     final String userId = "1";
@@ -80,7 +80,7 @@ class BaseRestControllerTests {
     final BaseRestController baseRestController = PowerMockito.spy(new BaseRestController());
     Whitebox.setInternalState(baseRestController,
         "authUserCacheManager", mockedCacheManager);
-    final Long companyId = baseRestController.getCompanyId();
+    final String companyId = baseRestController.getCompanyId();
     Assertions.assertNotNull(companyId);
   }
 

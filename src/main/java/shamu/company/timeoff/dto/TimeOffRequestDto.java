@@ -3,17 +3,16 @@ package shamu.company.timeoff.dto;
 import java.sql.Timestamp;
 import java.util.Set;
 import lombok.Data;
-import shamu.company.hashids.HashidsFormat;
 import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus;
 
 @Data
 public class TimeOffRequestDto {
 
-  @HashidsFormat private Long id;
+  private String id;
 
   private String imageUrl;
 
-  @HashidsFormat private Long userId;
+  private String userId;
 
   private String name;
 

@@ -75,7 +75,7 @@ public class CompanyService {
     return companyRepository.existsByName(companyName);
   }
 
-  public List<SelectFieldSizeDto> getDepartmentsByCompanyId(final Long companyId) {
+  public List<SelectFieldSizeDto> getDepartmentsByCompanyId(final String companyId) {
     List<SelectFieldSizeDto> selectFieldSizeDtoList = new ArrayList<>();
     List<Department> departments = departmentRepository.findAllByCompanyId(companyId);
 
@@ -91,19 +91,19 @@ public class CompanyService {
     return selectFieldSizeDtoList;
   }
 
-  public Department getDepartmentsById(final Long id) {
+  public Department getDepartmentsById(final String id) {
     return departmentRepository.findById(id)
         .orElseThrow(() -> new ResourceNotFoundException("No Department with id: " + id));
   }
 
-  public Department saveDepartmentsByCompany(final String name, final Long companyId) {
+  public Department saveDepartmentsByCompany(final String name, final String companyId) {
     final Department department = new Department();
     department.setName(name);
     department.setCompany(new Company(companyId));
     return departmentRepository.save(department);
   }
 
-  public List<SelectFieldSizeDto> getJobsByDepartmentId(final Long id) {
+  public List<SelectFieldSizeDto> getJobsByDepartmentId(final String id) {
     List<SelectFieldSizeDto> selectFieldSizeDtoList = new ArrayList<>();
     List<Job> jobs = jobRepository.findAllByDepartmentId(id);
     for (Job job: jobs) {
@@ -118,7 +118,7 @@ public class CompanyService {
     return selectFieldSizeDtoList;
   }
 
-  public Job saveJobsByDepartmentId(final Long departmentId, final String name) {
+  public Job saveJobsByDepartmentId(final String departmentId, final String name) {
     final Job job = new Job();
     final Department department = new Department();
     department.setId(departmentId);
@@ -129,7 +129,7 @@ public class CompanyService {
     return jobRepository.save(job);
   }
 
-  public List<OfficeSizeDto> getOfficesByCompany(final Long companyId) {
+  public List<OfficeSizeDto> getOfficesByCompany(final String companyId) {
     List<OfficeSizeDto> officeSizeDtoList = new ArrayList<>();
     List<Office> offices = officeRepository.findByCompanyId(companyId);
     for (Office office: offices) {
@@ -160,7 +160,7 @@ public class CompanyService {
     return officeRepository.save(office);
   }
 
-  public List<SelectFieldSizeDto> getEmploymentTypesByCompanyId(final Long companyId) {
+  public List<SelectFieldSizeDto> getEmploymentTypesByCompanyId(final String companyId) {
     List<SelectFieldSizeDto> selectFieldSizeDtoList = new ArrayList<>();
     List<EmploymentType> types = employmentTypeRepository.findAllByCompanyId(companyId);
     for (EmploymentType type: types) {
@@ -175,20 +175,21 @@ public class CompanyService {
     return selectFieldSizeDtoList;
   }
 
-  public EmploymentType saveEmploymentType(final String employmentTypeName, final Long companyId) {
-    final EmploymentType employmentType = new EmploymentType(employmentTypeName);
+  public EmploymentType saveEmploymentType(final String employmentTypeName,
+      final String companyId) {
+    final EmploymentType employmentType = EmploymentType.builder().name(employmentTypeName).build();
     employmentType.setCompany(new Company(companyId));
 
     return employmentTypeRepository.save(employmentType);
   }
 
-  public Company findById(final Long companyId) {
+  public Company findById(final String companyId) {
     return companyRepository
         .findById(companyId)
         .orElseThrow(() -> new ResourceNotFoundException("No such Company"));
   }
 
-  public String getCompanySecretByCompanyId(final Long id) {
+  public String getCompanySecretByCompanyId(final String id) {
     return secretHashRepository.getCompanySecretByCompanyId(id);
   }
 }

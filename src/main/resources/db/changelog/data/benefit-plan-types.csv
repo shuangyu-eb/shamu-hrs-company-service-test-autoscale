@@ -1,6 +1,6 @@
-id,name
-1,Medical
-2,Dental
-3,Vision
-4,Retirement
-5,Custom
+name
+Medical
+Dental
+Vision
+Retirement
+Custom

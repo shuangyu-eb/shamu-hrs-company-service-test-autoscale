@@ -7,17 +7,17 @@ import shamu.company.job.entity.JobUser;
 import shamu.company.user.entity.User;
 
 @Repository
-public interface JobUserRepository extends BaseRepository<JobUser, Long> {
+public interface JobUserRepository extends BaseRepository<JobUser, String> {
 
-  @Query(value = "SELECT * FROM jobs_users WHERE user_id=?1",
+  @Query(value = "SELECT * FROM jobs_users WHERE user_id=unhex(?1)",
       nativeQuery = true)
-  JobUser findByUserId(Long userId);
+  JobUser findByUserId(String userId);
 
   JobUser findJobUserByUser(User user);
 
   @Query(
           value = "SELECT count(1) FROM jobs_users ju"
-                  + " WHERE ju.job_id = ?1 ",
+                  + " WHERE ju.job_id = unhex(?1) ",
           nativeQuery = true)
-  Integer getCountByJobId(Long jobId);
+  Integer getCountByJobId(String jobId);
 }

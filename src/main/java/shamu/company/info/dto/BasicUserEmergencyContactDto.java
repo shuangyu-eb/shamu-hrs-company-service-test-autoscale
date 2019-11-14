@@ -3,7 +3,6 @@ package shamu.company.info.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import shamu.company.hashids.HashidsFormat;
 import shamu.company.info.entity.UserEmergencyContact;
 
 @Data
@@ -11,11 +10,9 @@ import shamu.company.info.entity.UserEmergencyContact;
 @AllArgsConstructor
 public class BasicUserEmergencyContactDto {
 
-  @HashidsFormat
-  private Long id;
+  private String id;
 
-  @HashidsFormat
-  private Long userId;
+  private String userId;
 
   private String firstName;
 

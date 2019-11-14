@@ -2,7 +2,6 @@ package shamu.company.employee.service;
 
 import java.io.File;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Arrays;
@@ -198,12 +197,12 @@ public class EmployeeService {
     this.encryptorUtil = encryptorUtil;
   }
 
-  public List<User> findEmployersAndEmployeesByCompanyId(final Long companyId) {
+  public List<User> findEmployersAndEmployeesByCompanyId(final String companyId) {
     return userRepository.findEmployersAndEmployeesByCompanyId(companyId);
   }
 
   public List<User> findDirectReportsEmployersAndEmployeesByCompanyId(
-      final Long companyId, final Long userId) {
+      final String companyId, final String userId) {
     return userRepository.findDirectReportsEmployersAndEmployeesByCompanyId(
         companyId, userId);
   }
@@ -251,7 +250,7 @@ public class EmployeeService {
         throw new ForbiddenException("This email already exists!");
       }
 
-      auth0Util.updateEmail(user.getUserId(), emailResendDto.getEmail());
+      auth0Util.updateEmail(user.getId(), emailResendDto.getEmail());
       final UserContactInformation userContactInformation = user.getUserContactInformation();
       userContactInformation.setEmailWork(email);
       userRepository.save(user);
@@ -314,7 +313,7 @@ public class EmployeeService {
     applicationEventPublisher.publishEvent(new Auth0UserCreatedEvent(user));
 
     final String userId = auth0Util.getUserId(user);
-    employee.setUserId(userId);
+    employee.setId(userId);
     employee.setUserRole(userRoleService.getEmployee());
     return userRepository.save(employee);
   }
@@ -327,7 +326,8 @@ public class EmployeeService {
 
     if (userPersonalInformation != null) {
       Gender gender = userPersonalInformation.getGender();
-      if (gender != null) {
+      if (userPersonalInformation.getGender() != null
+          && !StringUtils.isEmpty(gender.getId())) {
         gender = genderRepository.getOne(gender.getId());
         userPersonalInformation.setGender(gender);
       } else {
@@ -335,7 +335,7 @@ public class EmployeeService {
       }
 
       MaritalStatus martialStatus = userPersonalInformation.getMaritalStatus();
-      if (martialStatus != null) {
+      if (martialStatus != null && !StringUtils.isEmpty(martialStatus.getId())) {
         martialStatus = maritalStatusRepository.getOne(martialStatus.getId());
         userPersonalInformation.setMaritalStatus(martialStatus);
       } else {
@@ -414,8 +414,8 @@ public class EmployeeService {
           final UserEmergencyContact emergencyContact = userEmergencyContactMapper
               .createFromUserEmergencyContactDto(emergencyContactDto);
 
-          final Long stateProvinceId = emergencyContact.getState().getId();
-          if (stateProvinceId != null) {
+          final String stateProvinceId = emergencyContact.getState().getId();
+          if (!StringUtils.isEmpty(stateProvinceId)) {
             final StateProvince stateProvince = stateProvinceRepository.getOne(stateProvinceId);
             emergencyContact.setState(stateProvince);
           } else {
@@ -431,20 +431,18 @@ public class EmployeeService {
   private void updateEmergencyContacts(
       final User employee, final List<UserEmergencyContactDto> emergencyContactDtos) {
     if (!emergencyContactDtos.isEmpty()) {
-      final List<BigInteger> userEmergencyContactIds =
+      final List<String> userEmergencyContactIds =
           userEmergencyContactRepository.findAllIdByUserId(employee.getId());
       if (!userEmergencyContactIds.isEmpty()) {
-        userEmergencyContactRepository.deleteInBatch(userEmergencyContactIds.stream()
-            .map(BigInteger::longValue)
-            .collect(Collectors.toList()));
+        userEmergencyContactRepository.deleteInBatch(userEmergencyContactIds);
       }
       saveEmergencyContacts(employee, emergencyContactDtos);
     }
   }
 
   private void saveManagerUser(final User user, final NewEmployeeJobInformationDto jobInformation) {
-    final Long managerUserId = jobInformation.getReportsTo();
-    if (managerUserId != null && !managerUserId.equals(user.getId())) {
+    final String managerUserId = jobInformation.getReportsTo();
+    if (!StringUtils.isEmpty(managerUserId) && !managerUserId.equals(user.getId())) {
       final User managerUser =
           userRepository
               .findById(managerUserId)
@@ -469,7 +467,7 @@ public class EmployeeService {
       final UserCompensation userCompensation = new UserCompensation();
       userCompensation.setWage(jobInformation.getCompensation());
 
-      final Long compensationFrequencyId = jobInformation.getCompensationFrequencyId();
+      final String compensationFrequencyId = jobInformation.getCompensationFrequencyId();
       final CompensationFrequency compensationFrequency =
           compensationFrequencyRepository.findById(compensationFrequencyId)
               .orElseThrow(() -> new GeneralException(
@@ -494,8 +492,8 @@ public class EmployeeService {
     jobUser.setCompany(currentUser.getCompany());
     jobUser.setUser(employee);
 
-    final Long employmentTypeId = jobInformation.getEmploymentTypeId();
-    if (employmentTypeId != null) {
+    final String employmentTypeId = jobInformation.getEmploymentTypeId();
+    if (!StringUtils.isEmpty(employmentTypeId)) {
       final EmploymentType employmentType = employmentTypeRepository.getOne(employmentTypeId);
       jobUser.setEmploymentType(employmentType);
     } else {
@@ -507,8 +505,8 @@ public class EmployeeService {
       jobUser.setStartDate(new Timestamp(hireDate.getTime()));
     }
 
-    final Long officeId = jobInformation.getOfficeId();
-    if (officeId != null) {
+    final String officeId = jobInformation.getOfficeId();
+    if (!StringUtils.isEmpty(officeId)) {
       final Office office = officeRepository.getOne(officeId);
       jobUser.setOffice(office);
     } else {
@@ -550,8 +548,8 @@ public class EmployeeService {
     userAddress.setStreet1(userAddressDto.getStreet1());
     userAddress.setStreet2(userAddressDto.getStreet2());
     userAddress.setCity(userAddressDto.getCity());
-    final Long stateProvinceId = employeeDto.getUserAddress().getStateProvinceId();
-    if (stateProvinceId != null) {
+    final String stateProvinceId = employeeDto.getUserAddress().getStateProvinceId();
+    if (!StringUtils.isEmpty(stateProvinceId)) {
       final StateProvince stateProvince = stateProvinceRepository.getOne(stateProvinceId);
       userAddress.setStateProvince(stateProvince);
     } else {
@@ -585,7 +583,7 @@ public class EmployeeService {
     auth0Util.deleteUser(auth0User.getId());
   }
 
-  public EmployeeRelatedInformationDto getEmployeeInfoByUserId(final Long id) {
+  public EmployeeRelatedInformationDto getEmployeeInfoByUserId(final String id) {
     final User employee = userService.findUserById(id);
     final String emailAddress = employee.getUserContactInformation().getEmailWork();
     final Status userStatus = employee.getUserStatus().getStatus();
@@ -614,8 +612,8 @@ public class EmployeeService {
         managerjobUserDto, reports, roleName);
   }
 
-  public BasicUserPersonalInformationDto getPersonalMessage(final Long targetUserId,
-      final Long authUserId) {
+  public BasicUserPersonalInformationDto getPersonalMessage(final String targetUserId,
+      final String authUserId) {
     final User targetUser = userService.findUserById(targetUserId);
     final UserPersonalInformation personalInformation = targetUser.getUserPersonalInformation();
 
@@ -636,8 +634,8 @@ public class EmployeeService {
         .convertToBasicUserPersonalInformationDto(personalInformation);
   }
 
-  public BasicUserContactInformationDto getContactMessage(final Long targetUserId,
-      final Long authUserId) {
+  public BasicUserContactInformationDto getContactMessage(final String targetUserId,
+      final String authUserId) {
     final User targetUser = userService.findUserById(targetUserId);
     final UserContactInformation contactInformation = targetUser.getUserContactInformation();
 
@@ -654,8 +652,8 @@ public class EmployeeService {
     return userContactInformationMapper.convertToBasicUserContactInformationDto(contactInformation);
   }
 
-  public BasicJobInformationDto getJobMessage(final Long targetUserId,
-      final Long authUserId) {
+  public BasicJobInformationDto getJobMessage(final String targetUserId,
+      final String authUserId) {
     final JobUser target = jobUserService.getJobUserByUserId(targetUserId);
 
     if (target == null) {

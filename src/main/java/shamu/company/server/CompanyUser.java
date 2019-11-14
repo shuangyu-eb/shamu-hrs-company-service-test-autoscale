@@ -6,7 +6,7 @@ import shamu.company.user.entity.User;
 @Data
 public class CompanyUser {
 
-  private Long id;
+  private String id;
 
   private String email;
 

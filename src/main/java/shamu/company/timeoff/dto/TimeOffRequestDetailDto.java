@@ -4,13 +4,11 @@ import java.util.LinkedList;
 import java.util.List;
 import lombok.Data;
 import shamu.company.employee.dto.SelectFieldInformationDto;
-import shamu.company.hashids.HashidsFormat;
 
 @Data
 public class TimeOffRequestDetailDto extends TimeOffRequestDto {
 
-  @HashidsFormat
-  private Long userId;
+  private String userId;
 
   private Integer balance;
 

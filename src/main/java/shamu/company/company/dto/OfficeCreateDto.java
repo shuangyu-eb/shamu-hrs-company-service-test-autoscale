@@ -3,10 +3,10 @@ package shamu.company.company.dto;
 import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
+import org.springframework.util.StringUtils;
 import shamu.company.common.entity.StateProvince;
 import shamu.company.company.entity.Office;
 import shamu.company.company.entity.OfficeAddress;
-import shamu.company.hashids.HashidsFormat;
 
 @Data
 public class OfficeCreateDto {
@@ -19,15 +19,14 @@ public class OfficeCreateDto {
 
   private String city;
 
-  @HashidsFormat
-  private Long stateId;
+  private String stateId;
 
   private String zip;
 
   @JSONField(serialize = false)
   public Office getOffice() {
     StateProvince stateProvince = null;
-    if (stateId != null) {
+    if (!StringUtils.isEmpty(stateId)) {
       stateProvince = new StateProvince();
       stateProvince.setId(stateId);
     }

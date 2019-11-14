@@ -72,7 +72,7 @@ public class BenefitPlanService {
 
   public BenefitPlan createBenefitPlan(final BenefitPlanCreateDto benefitPlanCreateDto,
       final List<BenefitPlanCoverageDto> benefitPlanCoverageDtoList,
-      final List<BenefitPlanUserCreateDto> benefitPlanUserCreateDtoList, final Long companyId) {
+      final List<BenefitPlanUserCreateDto> benefitPlanUserCreateDtoList, final String companyId) {
 
     final BenefitPlan benefitPlan = benefitPlanMapper
         .createFromBenefitPlanCreateDto(benefitPlanCreateDto);
@@ -113,7 +113,7 @@ public class BenefitPlanService {
     return createdBenefitPlan;
   }
 
-  public BenefitPlan findBenefitPlanById(final Long id) {
+  public BenefitPlan findBenefitPlanById(final String id) {
     return benefitPlanRepository.findById(id)
         .orElseThrow(() -> new ResourceNotFoundException("Cannot find benefit plan"));
   }
@@ -122,14 +122,14 @@ public class BenefitPlanService {
     benefitPlanRepository.save(benefitPlan);
   }
 
-  public List<BenefitPlanClusterDto> getBenefitPlanCluster(final Long companyId) {
+  public List<BenefitPlanClusterDto> getBenefitPlanCluster(final String companyId) {
     final List<BenefitPlan> benefitPlans =
         benefitPlanRepository.findBenefitPlanByCompanyId(companyId);
     final List<BenefitPlanType> benefitPlanTypes = benefitPlanTypeRepository.findAll();
     return generateBenefitPlanClusters(benefitPlans, benefitPlanTypes);
   }
 
-  public void updateBenefitPlanUsers(final Long benefitPlanId,
+  public void updateBenefitPlanUsers(final String benefitPlanId,
       final List<BenefitPlanUserCreateDto> benefitPlanUsers) {
     final List<BenefitPlanUser> originalBenefitPlanUsers = benefitPlanUserRepository
         .findAllByBenefitPlan(new BenefitPlan(benefitPlanId));

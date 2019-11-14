@@ -1,5 +1,6 @@
 package shamu.company.benefit.entity.mapper;
 
+import org.apache.commons.lang.StringUtils;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -30,7 +31,7 @@ public interface BenefitPlanDependentMapper {
       BenefitDependentCreateDto benefitDependentCreateDto);
 
   default Gender getGender(final Gender gender) {
-    if (null == gender.getId()) {
+    if (StringUtils.isEmpty(gender.getId())) {
       return null;
     } else {
       return gender;
@@ -38,7 +39,7 @@ public interface BenefitPlanDependentMapper {
   }
 
   default StateProvince getStateProvince(final StateProvince state) {
-    if (null == state.getId()) {
+    if (StringUtils.isEmpty(state.getId())) {
       return null;
     } else {
       return state;
@@ -47,7 +48,7 @@ public interface BenefitPlanDependentMapper {
 
   default DependentRelationship getDependentRelationship(
       final DependentRelationship dependentRelationship) {
-    if (null == dependentRelationship.getId()) {
+    if (StringUtils.isEmpty(dependentRelationship.getId())) {
       return null;
     } else {
       return dependentRelationship;

@@ -21,7 +21,7 @@ public interface UserCompensationMapper {
 
   CompensationDto convertToCompensationDto(UserCompensation userCompensation);
 
-  default CompensationFrequency convertToCompensationFrequency(final Long id) {
+  default CompensationFrequency convertToCompensationFrequency(final String id) {
     final CompensationFrequency compensationFrequency = new CompensationFrequency();
     compensationFrequency.setId(id);
     return compensationFrequency;

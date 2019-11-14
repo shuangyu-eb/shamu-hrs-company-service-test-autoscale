@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.common.exception.ForbiddenException;
-import shamu.company.hashids.HashidsFormat;
 import shamu.company.timeoff.dto.TimeOffAdjustmentCheckDto;
 import shamu.company.timeoff.dto.TimeOffBalanceDto;
 import shamu.company.timeoff.dto.TimeOffBreakdownDto;
@@ -78,7 +77,7 @@ public class TimeOffPolicyRestController extends BaseRestController {
 
   @PatchMapping("time-off-policy/{id}")
   @PreAuthorize("hasPermission(#id, 'TIME_OFF_POLICY', 'MANAGE_TIME_OFF_POLICY')")
-  public void updateTimeOffPolicy(@Valid @HashidsFormat @PathVariable final Long id,
+  public void updateTimeOffPolicy(@Valid @PathVariable final String id,
       @RequestBody final TimeOffPolicyWrapperDto infoWrapper) {
 
     timeOffPolicyService.updateTimeOffPolicy(id, infoWrapper, getCompanyId());
@@ -86,7 +85,7 @@ public class TimeOffPolicyRestController extends BaseRestController {
 
   @PatchMapping("time-off-policy/employees/{policyId}")
   @PreAuthorize("hasPermission(#policyId, 'TIME_OFF_POLICY', 'MANAGE_TIME_OFF_POLICY')")
-  public void updateTimeOffPolicyEmployeesInfo(@HashidsFormat @PathVariable final Long policyId,
+  public void updateTimeOffPolicyEmployeesInfo(@PathVariable final String policyId,
       @RequestBody final TimeOffPolicyWrapperDto timeOffPolicyWrapperDto) {
     final List<TimeOffPolicyUserFrontendDto> timeOffPolicyUserFrontendDtos = timeOffPolicyWrapperDto
         .getUserStartBalances();
@@ -96,14 +95,14 @@ public class TimeOffPolicyRestController extends BaseRestController {
   @GetMapping("users/{userId}/time-off-balances")
   @PreAuthorize("hasPermission(#userId,'USER','MANAGE_USER_TIME_OFF_BALANCE') "
       + "or hasAnyAuthority('MANAGE_SELF_TIME_OFF_BALANCE')")
-  public TimeOffBalanceDto getTimeOffBalances(@HashidsFormat @PathVariable final Long userId) {
+  public TimeOffBalanceDto getTimeOffBalances(@PathVariable final String userId) {
     final User user = userService.findUserById(userId);
     return timeOffPolicyService.getTimeOffBalances(user);
   }
 
   @PostMapping("time-off-policy/{policyId}/users")
   @PreAuthorize("hasPermission(#policyId, 'TIME_OFF_POLICY', 'MANAGE_TIME_OFF_POLICY')")
-  public void createTimeOffPolicyUsers(@PathVariable @HashidsFormat final Long policyId,
+  public void createTimeOffPolicyUsers(@PathVariable final String policyId,
       @RequestBody final List<TimeOffPolicyUserFrontendDto> timeOffPolicyUserFrontendDtos) {
     final List<TimeOffPolicyUser> timeOffPolicyUserList = new ArrayList<>();
     timeOffPolicyUserFrontendDtos.forEach(timeOffPolicyUserFrontendDto -> timeOffPolicyUserList
@@ -117,7 +116,7 @@ public class TimeOffPolicyRestController extends BaseRestController {
   @PreAuthorize("hasPermission(#userId, 'USER', 'VIEW_SELF') "
       + "or hasPermission(#userId, 'USER', 'MANAGE_TEAM_USER')")
   public List<TimeOffPolicyUserDto> getAllPolicyUsersByUser(
-          @PathVariable @HashidsFormat final Long userId,
+          @PathVariable final String userId,
           final Long untilDate) {
     LocalDateTime endDateTime = LocalDateTime.now();
 
@@ -131,20 +130,20 @@ public class TimeOffPolicyRestController extends BaseRestController {
   @GetMapping("time-off-policy/{policyId}")
   @PreAuthorize("hasPermission(#policyId, 'TIME_OFF_POLICY', 'MANAGE_TIME_OFF_POLICY')")
   public TimeOffPolicyRelatedInfoDto getTimeOffPolicyByTimeOffPolicyId(
-      @HashidsFormat @PathVariable final Long policyId) {
+      @PathVariable final String policyId) {
     return timeOffPolicyService.getTimeOffRelatedInfo(policyId);
   }
 
   @GetMapping("time-off-policies/{policyId}/users")
   @PreAuthorize("hasPermission(#policyId, 'TIME_OFF_POLICY', 'MANAGE_TIME_OFF_POLICY')")
   public TimeOffPolicyRelatedUserListDto getEmployeesByTimeOffPolicyId(
-      @HashidsFormat @PathVariable final Long policyId) {
+      @PathVariable final String policyId) {
     return timeOffPolicyService.getAllEmployeesByTimeOffPolicyId(policyId, getCompanyId());
   }
 
   @DeleteMapping("time-off/{policyId}")
   @PreAuthorize("hasPermission(#policyId, 'TIME_OFF_POLICY', 'MANAGE_TIME_OFF_POLICY')")
-  public HttpEntity deleteTimeOffPolicy(@PathVariable @HashidsFormat final Long policyId) {
+  public HttpEntity deleteTimeOffPolicy(@PathVariable final String policyId) {
     timeOffPolicyService.deleteTimeOffPolicy(policyId);
     return new ResponseEntity<>(HttpStatus.OK);
   }
@@ -152,8 +151,8 @@ public class TimeOffPolicyRestController extends BaseRestController {
   @DeleteMapping("time-off-policies/{policyId}/{rollId}")
   @PreAuthorize("hasPermission(#policyId, 'TIME_OFF_POLICY', 'MANAGE_TIME_OFF_POLICY') "
       + "and hasPermission(#rollId, 'TIME_OFF_POLICY', 'MANAGE_TIME_OFF_POLICY')")
-  public HttpEntity enrollTimeOffPolicy(@PathVariable @HashidsFormat final Long policyId,
-      @PathVariable @HashidsFormat final Long rollId) {
+  public HttpEntity enrollTimeOffPolicy(@PathVariable final String policyId,
+      @PathVariable final String rollId) {
     final List<TimeOffPolicyUser> deletedPolicyUsers = timeOffPolicyService
         .getAllPolicyUsersByPolicyId(policyId);
     final TimeOffPolicy enrollPolicy = timeOffPolicyService.getTimeOffPolicyById(rollId);
@@ -173,7 +172,7 @@ public class TimeOffPolicyRestController extends BaseRestController {
       + "'TIME_OFF_POLICY_USER','MANAGE_USER_TIME_OFF_BALANCE') "
       + "or hasAnyAuthority('MANAGE_SELF_TIME_OFF_BALANCE')")
   public TimeOffBreakdownDto getTimeOffBreakdown(
-      @HashidsFormat @PathVariable final Long policyUserId,
+      @PathVariable final String policyUserId,
       final Long untilDate) {
     LocalDate endDate = LocalDate.now();
 
@@ -191,7 +190,7 @@ public class TimeOffPolicyRestController extends BaseRestController {
   @PostMapping("time-off-balances/{policyUserId}/adjustments")
   @PreAuthorize("hasPermission(#policyUserId,"
       + "'TIME_OFF_POLICY_USER','MANAGE_USER_TIME_OFF_BALANCE')")
-  public void addTimeOffAdjustments(@HashidsFormat @PathVariable final Long policyUserId,
+  public void addTimeOffAdjustments(@PathVariable final String policyUserId,
       @RequestBody final Integer adjustment) {
     TimeOffAdjustmentCheckDto checkResult = timeOffDetailService
         .checkTimeOffAdjustments(policyUserId, adjustment);
@@ -208,7 +207,7 @@ public class TimeOffPolicyRestController extends BaseRestController {
   @PreAuthorize("hasPermission(#policyUserId,"
       + "'TIME_OFF_POLICY_USER','MANAGE_USER_TIME_OFF_BALANCE')")
   public TimeOffAdjustmentCheckDto checkTimeOffAdjustments(
-      @HashidsFormat @PathVariable final Long policyUserId,
+      @PathVariable final String policyUserId,
       @RequestBody final Integer adjustment) {
 
     return timeOffDetailService.checkTimeOffAdjustments(policyUserId, adjustment);
@@ -216,8 +215,8 @@ public class TimeOffPolicyRestController extends BaseRestController {
 
   @GetMapping("time-off-policies/users/{id}/has-policy")
   @PreAuthorize("hasPermission(#id, 'USER', 'VIEW_USER_TIME_OFF_BALANCE') "
-      + "or @permissionUtils.isCurrentUser(#id)")
-  public boolean checkHasTimeOffPolicies(@PathVariable @HashidsFormat final Long id) {
+      + "or @permissionUtils.isCurrentUserId(#id)")
+  public boolean checkHasTimeOffPolicies(@PathVariable final String id) {
     return timeOffPolicyUserRepository.existsByUserId(id);
   }
 }

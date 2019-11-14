@@ -19,7 +19,7 @@ public class CompensationType extends BaseEntity {
 
   private String name;
 
-  public CompensationType(final Long compensationId) {
+  public CompensationType(final String compensationId) {
     setId(compensationId);
   }
 }

@@ -1,7 +1,6 @@
 package shamu.company.employee.dto;
 
 import lombok.Data;
-import shamu.company.hashids.HashidsFormat;
 import shamu.company.user.dto.BasicUserPersonalInformationDto;
 
 @Data
@@ -15,8 +14,7 @@ public class UserPersonalInformationForManagerDto extends BasicUserPersonalInfor
 
   private SelectFieldInformationDto citizenshipStatus;
 
-  @HashidsFormat
-  private Long maritalStatusId;
+  private String maritalStatusId;
 
   private String maritalStatusName;
 }

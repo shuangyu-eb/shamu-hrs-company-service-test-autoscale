@@ -6,11 +6,11 @@ import shamu.company.benefit.entity.BenefitPlanDependent;
 import shamu.company.common.repository.BaseRepository;
 
 public interface BenefitPlanDependentRepository extends BaseRepository
-    <BenefitPlanDependent, Long> {
+    <BenefitPlanDependent, String> {
 
   @Query(
       value = "SELECT * FROM benefit_plan_dependents "
-          + "WHERE employee_id = ?1",
+          + "WHERE employee_id = unhex(?1)",
       nativeQuery = true)
-  List<BenefitPlanDependent> findByUserId(Long id);
+  List<BenefitPlanDependent> findByUserId(String id);
 }

@@ -1,5 +1,6 @@
 package shamu.company.timeoff.entity;
 
+import io.micrometer.core.instrument.util.StringUtils;
 import java.sql.Timestamp;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -7,8 +8,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
@@ -19,7 +18,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import lombok.Data;
 import shamu.company.common.entity.BaseEntity;
-import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.Converter;
+import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.TimeOffApprovalStatus;
 import shamu.company.user.entity.User;
 
 @Data
@@ -40,10 +39,8 @@ public class TimeOffRequest extends BaseEntity {
   @ManyToOne
   private TimeOffPolicy timeOffPolicy;
 
-  @Column(name = "time_off_request_approval_status_id")
-  @Convert(converter = Converter.class)
-  private TimeOffRequestApprovalStatus timeOffApprovalStatus =
-      TimeOffRequestApprovalStatus.NO_ACTION;
+  @ManyToOne
+  private TimeOffRequestApprovalStatus timeOffApprovalStatus;
 
   private Timestamp expiresAt;
 
@@ -118,5 +115,10 @@ public class TimeOffRequest extends BaseEntity {
 
   private boolean checkEmpty() {
     return timeOffRequestDates.isEmpty();
+  }
+
+  public TimeOffApprovalStatus getApprovalStatus() {
+    String name = this.timeOffApprovalStatus.getName();
+    return StringUtils.isEmpty(name) ? null : TimeOffApprovalStatus.valueOf(name);
   }
 }

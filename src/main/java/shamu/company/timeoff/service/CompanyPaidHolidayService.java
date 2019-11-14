@@ -16,12 +16,12 @@ public class CompanyPaidHolidayService {
   }
 
   public CompanyPaidHoliday findCompanyPaidHolidayByPaidHolidayIdAndCompanyId(
-      final Long paidHolidayId, final Long companyId) {
+      final String paidHolidayId, final String companyId) {
     return companyPaidHolidayRepository
         .findCompanyPaidHolidayByPaidHolidayIdAndCompanyId(paidHolidayId, companyId);
   }
 
-  public List<CompanyPaidHoliday> findAllByCompanyId(final Long companyId) {
+  public List<CompanyPaidHoliday> findAllByCompanyId(final String companyId) {
     return companyPaidHolidayRepository.findAllByCompanyId(companyId);
   }
 

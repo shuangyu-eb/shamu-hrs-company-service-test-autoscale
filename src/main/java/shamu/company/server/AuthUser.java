@@ -10,13 +10,13 @@ import shamu.company.user.entity.User.Role;
 @NoArgsConstructor
 public class AuthUser {
 
-  private Long id;
+  private String id;
 
   private String email;
 
   private String imageUrl;
 
-  private Long companyId;
+  private String companyId;
 
   private String userId;
 
@@ -29,7 +29,7 @@ public class AuthUser {
     this.imageUrl = user.getImageUrl();
     this.email = user.getUserContactInformation().getEmailWork();
     this.companyId = user.getCompany().getId();
-    this.userId = user.getUserId();
+    this.userId = user.getId();
     this.role = user.getRole();
   }
 }

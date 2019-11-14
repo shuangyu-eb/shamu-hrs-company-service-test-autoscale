@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import shamu.company.timeoff.entity.TimeOffAdjustment;
 import shamu.company.timeoff.pojo.TimeOffAdjustmentPojo;
 
-public interface TimeOffAdjustmentRepository extends JpaRepository<TimeOffAdjustment, Long> {
+public interface TimeOffAdjustmentRepository extends JpaRepository<TimeOffAdjustment, String> {
 
   @Query("SELECT new "
       + "shamu.company.timeoff.pojo.TimeOffAdjustmentPojo(tf.createdAt, tf.amount, tf.comment) "
@@ -16,6 +16,6 @@ public interface TimeOffAdjustmentRepository extends JpaRepository<TimeOffAdjust
       + "AND tf.timeOffPolicy.id = ?2 "
       + "AND tf.createdAt <= ?3 "
       + "ORDER BY tf.createdAt ASC")
-  List<TimeOffAdjustmentPojo> findAllByUserIdAndTimeOffPolicyId(Long userId, Long policyId,
+  List<TimeOffAdjustmentPojo> findAllByUserIdAndTimeOffPolicyId(String userId, String policyId,
       Date endDate);
 }

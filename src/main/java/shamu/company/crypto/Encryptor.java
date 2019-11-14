@@ -42,11 +42,11 @@ public class Encryptor {
     return Base64.getEncoder().encodeToString(encryptor.encrypt(value.getBytes(charset)));
   }
 
-  public String encrypt(final long userId, final String value) {
+  public String encrypt(final String userId, final String value) {
     return encrypt(value, getEncryptor(userId));
   }
 
-  private String decrypt(final long userId, final String value) {
+  private String decrypt(final String userId, final String value) {
     final User user = getUserById(userId);
     return decrypt(user, value);
   }
@@ -56,7 +56,7 @@ public class Encryptor {
         getEncryptor(user).decrypt(Base64.getDecoder().decode(value)), charset);
   }
 
-  String decrypt(final long id, final Class entityClass, final String value) {
+  String decrypt(final String id, final Class entityClass, final String value) {
     try {
       if (entityClass == User.class) {
         return decrypt(id, value);
@@ -76,7 +76,7 @@ public class Encryptor {
     return Encryptors.stronger(String.valueOf(getHashCode(user)), salt);
   }
 
-  private BytesEncryptor getEncryptor(final long userId) {
+  private BytesEncryptor getEncryptor(final String userId) {
     final User user = this.getUserById(userId);
     return Encryptors.stronger(String.valueOf(getHashCode(user)), salt);
   }
@@ -89,13 +89,13 @@ public class Encryptor {
   }
 
 
-  private User getUserById(final long userId) {
+  private User getUserById(final String userId) {
     return userRepository.findById(userId)
         .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
   }
 
   private String getUserHash(final User user) {
-    return auth0Util.getUserSecret(user.getUserId());
+    return auth0Util.getUserSecret(user.getId());
   }
 
   private String getCompanyHash(final User user) {

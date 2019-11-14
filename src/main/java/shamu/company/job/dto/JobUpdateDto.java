@@ -2,33 +2,25 @@ package shamu.company.job.dto;
 
 import java.sql.Timestamp;
 import lombok.Data;
-import shamu.company.hashids.HashidsFormat;
 
 @Data
 public class JobUpdateDto {
 
-  @HashidsFormat
-  private Long jobUserId;
+  private String jobUserId;
 
-  @HashidsFormat
-  private Long userCompensationId;
+  private String userCompensationId;
 
   private Integer compensationWage;
 
-  @HashidsFormat
-  private Long compensationFrequencyId;
+  private String compensationFrequencyId;
 
-  @HashidsFormat
-  private Long employmentTypeId;
+  private String employmentTypeId;
 
-  @HashidsFormat
-  private Long jobId;
+  private String jobId;
 
-  @HashidsFormat
-  private Long managerId;
+  private String managerId;
 
-  @HashidsFormat
-  private Long officeId;
+  private String officeId;
 
   private Timestamp startDate;
 }

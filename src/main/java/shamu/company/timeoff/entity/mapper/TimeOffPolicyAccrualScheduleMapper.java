@@ -18,9 +18,9 @@ public interface TimeOffPolicyAccrualScheduleMapper {
   @Mapping(target = "timeOffAccrualFrequency", source = "timeOffAccrualFrequencyId")
   TimeOffPolicyAccrualSchedule createTimeOffPolicyAccrualSchedule(
       TimeOffPolicyAccrualScheduleDto timeOffPolicyAccrualScheduleDto, TimeOffPolicy timeOffPolicy,
-      Long timeOffAccrualFrequencyId);
+      String timeOffAccrualFrequencyId);
 
-  default TimeOffAccrualFrequency convertTotimeOffAccrualFrequency(final Long id) {
+  default TimeOffAccrualFrequency convertTotimeOffAccrualFrequency(final String id) {
     return new TimeOffAccrualFrequency(id);
   }
 }

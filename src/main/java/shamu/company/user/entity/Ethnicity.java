@@ -14,7 +14,7 @@ public class Ethnicity extends BaseEntity {
 
   private String name;
 
-  public Ethnicity(final Long id) {
+  public Ethnicity(final String id) {
     setId(id);
   }
 }

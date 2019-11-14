@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.logging.log4j.util.Strings;
-import shamu.company.hashids.HashidsFormat;
 import shamu.company.timeoff.entity.TimeOffRequest;
 import shamu.company.timeoff.entity.TimeOffRequestComment;
 import shamu.company.timeoff.entity.TimeOffRequestDate;
@@ -21,9 +20,9 @@ public class TimeOffRequestCreateDto {
 
   private String comment;
 
-  @HashidsFormat private Long policyId;
+  private String policyId;
 
-  @HashidsFormat private Long policyUser;
+  private String policyUser;
 
   private Integer hours;
 

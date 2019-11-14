@@ -2,18 +2,15 @@ package shamu.company.timeoff.dto;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import shamu.company.hashids.HashidsFormat;
 import shamu.company.timeoff.entity.TimeOffRequestComment;
 
 @Data
 @NoArgsConstructor
 public class TimeOffRequestCommentDto {
 
-  @HashidsFormat
-  private Long id;
+  private String id;
 
-  @HashidsFormat
-  private Long userId;
+  private String userId;
 
   private String imageUrl;
 

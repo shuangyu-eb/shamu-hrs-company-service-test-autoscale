@@ -9,13 +9,13 @@ import org.springframework.transaction.annotation.Transactional;
 import shamu.company.common.entity.BaseEntity;
 
 @NoRepositoryBean
-public interface BaseRepository<T extends BaseEntity, IdT extends Long> extends
+public interface BaseRepository<T extends BaseEntity, IdT extends String> extends
     JpaRepository<T, IdT> {
 
   @Query(value = "delete from #{#entityName} where id = ?1 ")
   @Transactional
   @Modifying
-  void delete(long id);
+  void delete(String id);
 
   @Override
   @Transactional
@@ -31,5 +31,5 @@ public interface BaseRepository<T extends BaseEntity, IdT extends Long> extends
   @Query(value = "delete from #{#entityName} e where e.id in ?1 ")
   @Transactional
   @Modifying
-  void deleteInBatch(List<Long> ids);
+  void deleteInBatch(List<String> ids);
 }

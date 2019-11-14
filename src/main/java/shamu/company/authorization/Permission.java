@@ -13,7 +13,7 @@ public class Permission {
   @Basic(optional = false)
   @Enumerated(EnumType.STRING)
   private Name name;
-  private Long permissionTypeId;
+  private String permissionTypeId;
 
   public enum Name {
     SUPER_PERMISSION(PermissionType.SUPER_ADMIN_PERMISSION),

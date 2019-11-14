@@ -3,10 +3,10 @@ package shamu.company.job.service;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import shamu.company.common.entity.StateProvince;
 import shamu.company.common.exception.ForbiddenException;
 import shamu.company.common.exception.ResourceNotFoundException;
@@ -31,7 +31,7 @@ import shamu.company.server.AuthUser;
 import shamu.company.timeoff.dto.MyTimeOffDto;
 import shamu.company.timeoff.dto.TimeOffRequestDto;
 import shamu.company.timeoff.dto.TimeOffRequestUpdateDto;
-import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus;
+import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.TimeOffApprovalStatus;
 import shamu.company.timeoff.service.TimeOffRequestService;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
@@ -97,11 +97,12 @@ public class JobUserService {
     this.officeAddressRepository = officeAddressRepository;
   }
 
-  public JobUser getJobUserByUserId(final Long userId) {
+  public JobUser getJobUserByUserId(final String userId) {
     return jobUserRepository.findByUserId(userId);
   }
 
-  public void updateJobInfo(final Long id, final JobUpdateDto jobUpdateDto, final Long companyId) {
+  public void updateJobInfo(final String id, final JobUpdateDto jobUpdateDto,
+      final String companyId) {
     final User user = userService.findUserById(id);
     JobUser jobUser = jobUserRepository.findJobUserByUser(user);
     List<User> users = new ArrayList<>();
@@ -134,8 +135,8 @@ public class JobUserService {
       user.setUserCompensation(userCompensation);
     }
 
-    final Long managerId = jobUpdateDto.getManagerId();
-    if (managerId != null && (user.getManagerUser() == null
+    final String managerId = jobUpdateDto.getManagerId();
+    if (!StringUtils.isEmpty(managerId) && (user.getManagerUser() == null
         || !user.getManagerUser().getId().equals(managerId))) {
       final User manager = userService.findUserById(managerId);
       final Role role = manager.getRole();
@@ -162,7 +163,7 @@ public class JobUserService {
     userService.save(user);
   }
 
-  private boolean isSubordinate(final Long userId, Long managerId) {
+  private boolean isSubordinate(final String userId, String managerId) {
     User user = userService.findUserById(managerId);
     while (user.getManagerUser() != null && !user.getManagerUser().getId().equals(userId)) {
       managerId = user.getManagerUser().getId();
@@ -171,11 +172,11 @@ public class JobUserService {
     return user.getManagerUser() != null && user.getManagerUser().getId().equals(userId);
   }
 
-  private void handlePendingRequests(Long userId) {
+  private void handlePendingRequests(String userId) {
     final Timestamp startDayTimestamp = DateUtil.getFirstDayOfCurrentYear();
-    final Long[] timeOffRequestStatuses = new Long[]{
-            TimeOffRequestApprovalStatus.NO_ACTION.getValue(),
-            TimeOffRequestApprovalStatus.VIEWED.getValue()};
+    final String[] timeOffRequestStatuses = new String[]{
+            TimeOffApprovalStatus.NO_ACTION.name(),
+        TimeOffApprovalStatus.VIEWED.name()};
     final PageRequest request = PageRequest.of(0, 1000);
     MyTimeOffDto pendingRequests = timeOffRequestService
             .getMyTimeOffRequestsByRequesterUserIdFilteredByStartDay(
@@ -186,7 +187,7 @@ public class JobUserService {
       authUser.setId(userId);
       timeOffRequests.stream().forEach(t -> {
         TimeOffRequestUpdateDto timeOffRequestUpdateDto = new TimeOffRequestUpdateDto();
-        timeOffRequestUpdateDto.setStatus(TimeOffRequestApprovalStatus.APPROVED);
+        timeOffRequestUpdateDto.setStatus(TimeOffApprovalStatus.APPROVED);
         timeOffRequestService.updateTimeOffRequestStatus(
                 t.getId(), timeOffRequestUpdateDto, authUser);
       });
@@ -194,8 +195,8 @@ public class JobUserService {
   }
 
   public void updateJobSelectOption(
-          final Long userId, final JobSelectOptionUpdateDto jobSelectOptionUpdateDto) {
-    Long id = jobSelectOptionUpdateDto.getId();
+          final String userId, final JobSelectOptionUpdateDto jobSelectOptionUpdateDto) {
+    String id = jobSelectOptionUpdateDto.getId();
     String name = jobSelectOptionUpdateDto.getNewName();
 
     switch (jobSelectOptionUpdateDto.getUpdateField()) {
@@ -217,28 +218,28 @@ public class JobUserService {
 
   }
 
-  private void updateDepartmentName(Long id, String name) {
+  private void updateDepartmentName(String id, String name) {
     Department department = departmentRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Department not found"));
     department.setName(name);
     departmentRepository.save(department);
   }
 
-  private void updateJobName(Long id, String name) {
+  private void updateJobName(String id, String name) {
     Job job = jobRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Job not found"));
     job.setTitle(name);
     jobRepository.save(job);
   }
 
-  private void updateEmployeeTypeName(Long id, String name) {
+  private void updateEmployeeTypeName(String id, String name) {
     EmploymentType employmentType = employmentTypeRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("EmploymentType not found"));
     employmentType.setName(name);
     employmentTypeRepository.save(employmentType);
   }
 
-  private void updateOfficeName(Long id, OfficeCreateDto officeCreateDto) {
+  private void updateOfficeName(String id, OfficeCreateDto officeCreateDto) {
     Office office = officeRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Office not found"));
     office.setName(officeCreateDto.getOfficeName());
@@ -258,8 +259,8 @@ public class JobUserService {
   }
 
   public void deleteJobSelectOption(
-          final Long userId, final JobSelectOptionUpdateDto jobSelectOptionUpdateDto) {
-    Long id = jobSelectOptionUpdateDto.getId();
+          final String userId, final JobSelectOptionUpdateDto jobSelectOptionUpdateDto) {
+    String id = jobSelectOptionUpdateDto.getId();
 
     switch (jobSelectOptionUpdateDto.getUpdateField()) {
       case "Department ":
@@ -279,7 +280,7 @@ public class JobUserService {
     }
   }
 
-  private void deleteDepartmentName(Long id) {
+  private void deleteDepartmentName(String id) {
     Integer count = departmentRepository.getCountByDepartment(id);
     if (count > 0) {
       throw new ForbiddenException(
@@ -288,7 +289,7 @@ public class JobUserService {
     departmentRepository.delete(id);
   }
 
-  private void deleteJobName(Long id) {
+  private void deleteJobName(String id) {
     Integer count = jobUserRepository.getCountByJobId(id);
     if (count > 0) {
       throw new ForbiddenException(
@@ -297,7 +298,7 @@ public class JobUserService {
     jobRepository.delete(id);
   }
 
-  private void deleteEmployeeTypeName(Long id) {
+  private void deleteEmployeeTypeName(String id) {
     Integer count = employmentTypeRepository.getCountByType(id);
     if (count > 0) {
       throw new ForbiddenException(
@@ -306,7 +307,7 @@ public class JobUserService {
     employmentTypeRepository.delete(id);
   }
 
-  private void deleteOfficeName(Long id) {
+  private void deleteOfficeName(String id) {
     Integer count = officeRepository.getCountByOffice(id);
     if (count > 0) {
       throw new ForbiddenException(

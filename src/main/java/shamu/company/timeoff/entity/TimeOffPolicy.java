@@ -24,7 +24,7 @@ public class TimeOffPolicy extends BaseEntity {
 
   private Boolean isLimited;
 
-  public TimeOffPolicy(Long id) {
+  public TimeOffPolicy(String id) {
     this.setId(id);
   }
 }

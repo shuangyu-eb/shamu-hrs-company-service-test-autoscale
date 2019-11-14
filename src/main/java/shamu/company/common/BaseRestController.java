@@ -36,7 +36,7 @@ public class BaseRestController {
     return getAuthUser().getUserId();
   }
 
-  public Long getCompanyId() {
+  public String getCompanyId() {
     return this.getAuthUser().getCompanyId();
   }
 }

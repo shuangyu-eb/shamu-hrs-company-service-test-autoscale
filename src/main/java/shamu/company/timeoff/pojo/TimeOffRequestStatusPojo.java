@@ -1,19 +1,22 @@
 package shamu.company.timeoff.pojo;
 
 import javax.persistence.Column;
-import javax.persistence.Convert;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus;
-import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.Converter;
+import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.TimeOffApprovalStatus;
 
 @Data
 @AllArgsConstructor
 public class TimeOffRequestStatusPojo {
 
-  private Long id;
+  private String id;
 
   @Column(name = "time_off_request_approval_status_id")
-  @Convert(converter = Converter.class)
-  private TimeOffRequestApprovalStatus timeOffApprovalStatus;
+  private TimeOffApprovalStatus timeOffApprovalStatus;
+
+  public TimeOffRequestStatusPojo(String id, TimeOffRequestApprovalStatus approvalStatus) {
+    this.id = id;
+    this.timeOffApprovalStatus = TimeOffApprovalStatus.valueOf(approvalStatus.getName());
+  }
 }

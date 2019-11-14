@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import shamu.company.common.entity.StateProvince;
-import shamu.company.hashids.HashidsFormat;
 import shamu.company.info.entity.UserEmergencyContact;
 
 @Data
@@ -20,8 +19,7 @@ public class UserEmergencyContactDto extends BasicUserEmergencyContactDto {
 
   private String city;
 
-  @HashidsFormat
-  private Long stateId;
+  private String stateId;
 
   private String stateName;
 

@@ -13,8 +13,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.Type;
 import shamu.company.company.entity.Company;
-import shamu.company.hashids.HashidsFormat;
 import shamu.company.user.entity.User;
 
 @Data
@@ -27,8 +27,7 @@ public class TimeOffAdjustment {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @HashidsFormat
-  private Long id;
+  private String id;
 
   @CreationTimestamp
   private Timestamp createdAt;
@@ -42,7 +41,8 @@ public class TimeOffAdjustment {
   @ManyToOne
   private TimeOffPolicy timeOffPolicy;
 
-  private Long adjusterUserId;
+  @Type(type = "shamu.company.common.PrimaryKeyTypeDescriptor")
+  private String adjusterUserId;
 
   private Integer amount;
 

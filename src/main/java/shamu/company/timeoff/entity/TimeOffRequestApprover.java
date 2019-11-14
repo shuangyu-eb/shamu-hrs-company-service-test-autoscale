@@ -9,6 +9,7 @@ import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.Table;
 import lombok.Data;
+import org.hibernate.annotations.Type;
 
 @Entity
 @Table(name = "time_off_requests_approvers")
@@ -19,10 +20,12 @@ public class TimeOffRequestApprover implements Serializable {
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   @Column(name = "time_off_request_id")
-  private Long timeOffRequestId;
+  @Type(type = "shamu.company.common.PrimaryKeyTypeDescriptor")
+  private String timeOffRequestId;
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   @Column(name = "approver_user_id")
-  private Long approverUserId;
+  @Type(type = "shamu.company.common.PrimaryKeyTypeDescriptor")
+  private String approverUserId;
 }

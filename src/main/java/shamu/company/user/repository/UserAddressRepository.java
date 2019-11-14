@@ -5,9 +5,9 @@ import shamu.company.common.repository.BaseRepository;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserAddress;
 
-public interface UserAddressRepository extends BaseRepository<UserAddress, Long> {
+public interface UserAddressRepository extends BaseRepository<UserAddress, String> {
 
   List<UserAddress> findAllByUserIn(List<User> users);
 
-  UserAddress findUserAddressByUserId(Long userId);
+  UserAddress findUserAddressByUserId(String userId);
 }

@@ -3,19 +3,16 @@ package shamu.company.user.dto;
 import javax.validation.constraints.Pattern;
 import lombok.Data;
 import shamu.company.crypto.Crypto;
-import shamu.company.hashids.HashidsFormat;
 import shamu.company.user.entity.UserPersonalInformation;
 
 @Data
 public class UserPersonalInformationDto extends BasicUserPersonalInformationDto {
 
-  @HashidsFormat
-  private Long genderId;
+  private String genderId;
 
   private String genderName;
 
-  @HashidsFormat
-  private Long ethnicityId;
+  private String ethnicityId;
 
   private String ethnicityName;
 
@@ -28,8 +25,7 @@ public class UserPersonalInformationDto extends BasicUserPersonalInformationDto 
 
   private String imageUrl;
 
-  @HashidsFormat
-  private Long maritalStatusId;
+  private String maritalStatusId;
 
   private String maritalStatusName;
 }

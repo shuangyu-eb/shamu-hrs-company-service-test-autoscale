@@ -114,7 +114,7 @@ class EmployeeServiceTests {
 
     @BeforeEach
     void init() {
-      Mockito.when(userRepository.findExistingUserCountByCompanyId(Mockito.anyLong()))
+      Mockito.when(userRepository.findExistingUserCountByCompanyId(Mockito.anyString()))
           .thenReturn(0);
 
       Mockito.when(userPersonalInformationMapper.createFromUserPersonalInformationDto(Mockito.any()))
@@ -130,8 +130,8 @@ class EmployeeServiceTests {
       Mockito.when(auth0Util.addUser(Mockito.anyString(), Mockito.any(), Mockito.anyString()))
           .thenReturn(user);
 
-      Mockito.when(genderRepository.getOne(Mockito.anyLong())).thenReturn(new Gender());
-      Mockito.when(maritalStatusRepository.getOne(Mockito.anyLong()))
+      Mockito.when(genderRepository.getOne(Mockito.anyString())).thenReturn(new Gender());
+      Mockito.when(maritalStatusRepository.getOne(Mockito.anyString()))
           .thenReturn(new MaritalStatus());
 
       Mockito.when(userContactInformationMapper.createFromUserContactInformationDto(Mockito.any()))
@@ -142,7 +142,7 @@ class EmployeeServiceTests {
     void testSaveEmployeeBasicInformation() throws Exception {
       final User currentUser = new User();
       final Company company = new Company();
-      company.setId(1L);
+      company.setId("1");
       company.setName(RandomStringUtils.randomAlphabetic(4));
       currentUser.setCompany(company);
 
@@ -157,8 +157,8 @@ class EmployeeServiceTests {
       employeeDto.setPersonalPhoto(imageString);
 
       final UserPersonalInformationDto userPersonalInformationDto = new UserPersonalInformationDto();
-      userPersonalInformationDto.setGenderId(1L);
-      userPersonalInformationDto.setMaritalStatusId(1L);
+      userPersonalInformationDto.setGenderId("1");
+      userPersonalInformationDto.setMaritalStatusId("1");
       employeeDto.setUserPersonalInformationDto(userPersonalInformationDto);
 
       final UserContactInformationDto userContactInformationDto = new UserContactInformationDto();

@@ -50,17 +50,17 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
 
   @Override
   public Page<JobUserListItem> getAllByCondition(
-      final EmployeeListSearchCondition employeeListSearchCondition, final Long companyId,
+      final EmployeeListSearchCondition employeeListSearchCondition, final String companyId,
       final Pageable pageable, final Role role) {
 
     String countAllEmployees = "";
     if (!employeeListSearchCondition.getIncludeDeactivated()) {
       countAllEmployees =
-          "select count(1) from users u where u.company_id = ?1 "
+          "select count(1) from users u where u.company_id = unhex(?1) "
               + ACTIVE_USER_QUERY;
     } else {
       countAllEmployees =
-          "select count(1) from users u where u.company_id = ?1";
+          "select count(1) from users u where u.company_id = unhex(?1)";
     }
     final BigInteger employeeCount =
         (BigInteger)
@@ -83,7 +83,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
             + "left join jobs j on ju.job_id = j.id "
             + "left join departments d on j.department_id = d.id "
             + "left join user_roles ur on u.user_role_id = ur.id "
-            + "where u.company_id = ?1 "
+            + "where u.company_id = unhex(?1) "
             + "and (up.first_name like concat('%', ?2, '%') "
             + "or up.last_name like concat('%', ?2, '%') "
             + "or d.name like concat('%', ?2, '%') or j.title like concat('%', ?2, '%')) ";
@@ -117,9 +117,9 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
     final String roleName = user.getUserRole().getName();
     final boolean isEmployee = StringUtils.equals(Role.EMPLOYEE.getValue(), roleName);
 
-    String userCondition = "u.manager_user_id=?1 ";
+    String userCondition = "u.manager_user_id= unhex(?1) ";
     if (isEmployee) {
-      userCondition = "(u.id=?1 or " + userCondition + " ) and u.id!=?4 ";
+      userCondition = "(u.id=unhex(?1) or " + userCondition + " ) and u.id!=unhex(?4) ";
     }
     final String queryColumns =
         "select u.id as id, u.image_url as imageUrl, up.first_name as firstName, "
@@ -135,7 +135,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
         + "where "
         + userCondition
         + ACTIVE_USER_QUERY
-        + " and u.company_id = ?2 "
+        + " and u.company_id = unhex(?2) "
         + "and (up.first_name like concat('%', ?3, '%') "
         + "or up.last_name like concat('%', ?3, '%') "
         + "or d.name like concat('%', ?3, '%') or j.title like concat('%', ?3, '%')) ";
@@ -180,7 +180,8 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
   }
 
   @Override
-  public List<OrgChartDto> findOrgChartItemByManagerId(final Long managerId, final Long companyId) {
+  public List<OrgChartDto> findOrgChartItemByManagerId(final String managerId,
+      final String companyId) {
 
     final StringBuilder findAllOrgChartByCondition =
         new StringBuilder(
@@ -197,50 +198,32 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
                 + "left join offices o on jobUser.office_id = o.id "
                 + "left join office_addresses a on o.office_address_id = a.id "
                 + "left join states_provinces province on a.state_province_id = province.id "
-                + "where u.company_id = ?2 "
+                + "where u.company_id = unhex(?2) "
                 + ACTIVE_USER_QUERY);
 
     if (managerId == null) {
       findAllOrgChartByCondition.append(" and u.manager_user_id is null");
     } else {
-      findAllOrgChartByCondition.append(" and u.manager_user_id = ?1");
+      findAllOrgChartByCondition.append(" and u.manager_user_id = unhex(?1)");
     }
     findAllOrgChartByCondition.append(" order by u.created_at asc");
 
     final Query findAllOrgChartByConditionQuery =
-        entityManager.createNativeQuery(findAllOrgChartByCondition.toString());
+        entityManager.createNativeQuery(findAllOrgChartByCondition.toString(), Tuple.class);
 
-    if (managerId != null) {
+    if (!StringUtils.isEmpty(managerId)) {
       findAllOrgChartByConditionQuery.setParameter(1, managerId);
     }
     findAllOrgChartByConditionQuery.setParameter(2, companyId);
 
     final List<?> orgChartItemList = findAllOrgChartByConditionQuery.getResultList();
-    final List<OrgChartDto> orgChartDtoList = new ArrayList<>();
-    orgChartItemList.forEach(
-        orgChartItem -> {
-          if (orgChartItem instanceof Object[]) {
-            final Object[] orgChartItemArray = (Object[]) orgChartItem;
-            final OrgChartDto orgChartDto = new OrgChartDto();
-            orgChartDto.setId(((BigInteger) orgChartItemArray[0]).longValue());
-            orgChartDto.setFirstName((String) orgChartItemArray[1]);
-            orgChartDto.setLastName((String) orgChartItemArray[2]);
-            orgChartDto.setImageUrl((String) orgChartItemArray[3]);
-            orgChartDto.setJobTitle((String) orgChartItemArray[4]);
-            orgChartDto.setCity((String) orgChartItemArray[5]);
-            orgChartDto.setState((String) orgChartItemArray[6]);
-            orgChartDto.setDepartment((String) orgChartItemArray[7]);
-            if (orgChartItemArray[8] != null) {
-              orgChartDto.setManagerId(((BigInteger) orgChartItemArray[8]).longValue());
-            }
-            orgChartDtoList.add(orgChartDto);
-          }
-        });
-    return orgChartDtoList;
+    return orgChartItemList.stream()
+        .map(orgChart -> TupleUtil.convertTo((Tuple) orgChart, OrgChartDto.class))
+        .collect(Collectors.toList());
   }
 
   @Override
-  public OrgChartDto findOrgChartItemByUserId(final Long id, final Long companyId) {
+  public OrgChartDto findOrgChartItemByUserId(final String id, final String companyId) {
 
     final String findAllOrgChartByCondition =
         "select u.id as id, up.first_name as firstName, up.last_name as lastName,"
@@ -255,7 +238,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
             + "left join offices o on jobUser.office_id = o.id "
             + "left join office_addresses a on o.office_address_id = a.id "
             + "left join states_provinces province on a.state_province_id = province.id "
-            + "where u.id = ?1 and u.company_id = ?2 "
+            + "where u.id = unhex(?1) and u.company_id = unhex(?2) "
             + ACTIVE_USER_QUERY
             + "order by u.created_at asc";
     final Query findAllOrgChartByConditionQuery =
@@ -270,17 +253,15 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
 
   @Override
   public User saveUser(final User user) {
-    if (user.getId() != null) {
-      final User existingUser = entityManager.find(User.class, user.getId());
-      if (existingUser != null && user.getUserRole() != existingUser.getUserRole()) {
-        auth0Util.updateRoleWithUserId(existingUser.getUserId(), user.getUserRole().getName());
-        applicationEventPublisher.publishEvent(new UserRoleUpdatedEvent(existingUser.getUserId(),
-            existingUser.getUserRole()));
-      }
+    final User existingUser = entityManager.find(User.class, user.getId());
+    if (existingUser != null && user.getUserRole() != existingUser.getUserRole()) {
+      auth0Util.updateRoleWithUserId(existingUser.getId(), user.getUserRole().getName());
+      applicationEventPublisher.publishEvent(new UserRoleUpdatedEvent(existingUser.getId(),
+          existingUser.getUserRole()));
     }
 
     final User returnUser;
-    if (user.getId() != null) {
+    if (user.getId() != null && existingUser != null) {
       returnUser = entityManager.merge(user);
     } else {
       entityManager.persist(user);
@@ -303,7 +284,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
   @Override
   public Page<JobUserListItem> getAllByName(
           EmployeeListSearchCondition employeeListSearchCondition,
-          Long companyId, Pageable pageable) {
+      String companyId, Pageable pageable) {
     String countAllEmployees = "";
     if (!employeeListSearchCondition.getIncludeDeactivated()) {
       countAllEmployees =

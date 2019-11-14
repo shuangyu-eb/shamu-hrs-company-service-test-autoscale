@@ -2,15 +2,13 @@ package shamu.company.timeoff.dto;
 
 import javax.validation.constraints.NotNull;
 import lombok.Data;
-import shamu.company.hashids.HashidsFormat;
 
 @Data
 public class AccrualScheduleMilestoneDto {
 
   private Integer anniversaryYear;
 
-  @HashidsFormat
-  private Long timeOffPolicyAccrualScheduleId;
+  private String timeOffPolicyAccrualScheduleId;
 
   @NotNull
   private Integer accrualHours;

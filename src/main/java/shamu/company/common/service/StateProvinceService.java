@@ -15,7 +15,7 @@ public class StateProvinceService {
     this.stateProvinceRepository = stateProvinceRepository;
   }
 
-  public StateProvince getStateProvinceById(final Long id) {
+  public StateProvince getStateProvinceById(final String id) {
     final Optional<StateProvince> optionalStateProvince = stateProvinceRepository.findById(id);
     return optionalStateProvince.orElseThrow(
         () -> new ResourceNotFoundException("StateProvince does not exist"));

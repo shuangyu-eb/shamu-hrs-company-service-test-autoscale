@@ -17,31 +17,27 @@ public class TimeOffAccrualFrequency extends BaseEntity {
   @Transient
   private AccrualFrequencyType accrualFrequencyType;
 
-  public TimeOffAccrualFrequency(Long id) {
+  public TimeOffAccrualFrequency(String id) {
     this.setId(id);
   }
 
   public enum AccrualFrequencyType {
-    FREQUENCY_TYPE_ONE(1L),
-    FREQUENCY_TYPE_TWO(2L),
-    FREQUENCY_TYPE_THREE(3L);
+    FREQUENCY_TYPE_ONE("All at once (beginning of each year)"),
+    FREQUENCY_TYPE_TWO("All at once (each anniversary date)"),
+    FREQUENCY_TYPE_THREE("Throughout the year (at the start of each month)");
 
-    private Long value;
+    private String value;
 
-    AccrualFrequencyType(Long frequencyId) {
-      this.value = frequencyId;
+    AccrualFrequencyType(String value) {
+      this.value = value;
     }
 
-    public Long getValue() {
+    public String getValue() {
       return this.value;
     }
 
-    public void setValue(Long frequencyId) {
-      this.value = frequencyId;
-    }
-
-    public boolean equalsTo(Long param) {
-      return this.getValue() == param;
+    public boolean equalsTo(String param) {
+      return this.getValue().equals(param);
     }
   }
 }

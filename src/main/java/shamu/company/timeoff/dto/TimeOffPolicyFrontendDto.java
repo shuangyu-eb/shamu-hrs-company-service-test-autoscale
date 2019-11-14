@@ -1,7 +1,6 @@
 package shamu.company.timeoff.dto;
 
 import lombok.Data;
-import shamu.company.hashids.HashidsFormat;
 
 @Data
 public class TimeOffPolicyFrontendDto {
@@ -14,6 +13,5 @@ public class TimeOffPolicyFrontendDto {
 
   private Integer startDate;
 
-  @HashidsFormat
-  private Long timeOffAccrualFrequency;
+  private String timeOffAccrualFrequency;
 }

@@ -14,7 +14,7 @@ public class Gender extends BaseEntity {
 
   private String name;
 
-  public Gender(final Long id) {
+  public Gender(final String id) {
     setId(id);
   }
 }

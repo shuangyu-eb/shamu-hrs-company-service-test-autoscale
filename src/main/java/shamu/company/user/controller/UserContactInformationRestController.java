@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
-import shamu.company.hashids.HashidsFormat;
 import shamu.company.user.dto.BasicUserContactInformationDto;
 import shamu.company.user.dto.UserContactInformationDto;
 import shamu.company.user.entity.User;
@@ -42,7 +41,7 @@ public class UserContactInformationRestController extends BaseRestController {
       "hasPermission(#id,'USER_CONTACT_INFORMATION', 'EDIT_USER')"
           + " or hasPermission(#id,'USER_CONTACT_INFORMATION', 'EDIT_SELF')")
   public UserContactInformationDto update(
-      @PathVariable @HashidsFormat final Long id,
+      @PathVariable final String id,
       @Valid @RequestBody final UserContactInformationDto userContactInformationDto) {
     final UserContactInformation origin = contactInformationService
         .findUserContactInformationById(id);
@@ -59,7 +58,7 @@ public class UserContactInformationRestController extends BaseRestController {
       "hasPermission(#id, 'USER', 'VIEW_USER_CONTACT')"
           + "or hasPermission(#id, 'USER', 'VIEW_SELF')")
   public BasicUserContactInformationDto getUserContactInformation(
-      @PathVariable @HashidsFormat final Long id) {
+      @PathVariable final String id) {
     final User targetUser = userService.findUserById(id);
     final User manager = targetUser.getManagerUser();
     final UserContactInformation userContactInformation = targetUser.getUserContactInformation();

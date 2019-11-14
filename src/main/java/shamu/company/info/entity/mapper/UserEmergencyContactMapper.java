@@ -2,10 +2,12 @@ package shamu.company.info.entity.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.springframework.util.StringUtils;
 import shamu.company.common.entity.StateProvince;
 import shamu.company.common.mapper.Config;
 import shamu.company.info.dto.BasicUserEmergencyContactDto;
 import shamu.company.info.dto.UserEmergencyContactDto;
+import shamu.company.info.entity.State;
 import shamu.company.info.entity.UserEmergencyContact;
 import shamu.company.user.entity.User;
 
@@ -28,11 +30,15 @@ public interface UserEmergencyContactMapper {
   UserEmergencyContact createFromUserEmergencyContactDto(
       UserEmergencyContactDto userEmergencyContactDto);
 
-  default StateProvince convertFromStateProvinceId(final Long stateProvinceId) {
-    return new StateProvince(stateProvinceId);
+  default StateProvince convertFromStateProvinceId(final String stateProvinceId) {
+    return StringUtils.isEmpty(stateProvinceId) ? null : new StateProvince(stateProvinceId);
   }
 
-  default User convertFromUserId(final Long userId) {
-    return userId != null ? new User(userId) : null;
+  default User convertFromUserId(final String userId) {
+    return !StringUtils.isEmpty(userId) ? new User(userId) : null;
+  }
+
+  default State convertFromId(final String stateId) {
+    return StringUtils.isEmpty(stateId) ? null : new State(stateId);
   }
 }

@@ -14,14 +14,14 @@ public class CompanyPermissionUtils extends BasePermissionUtils {
     this.userService = userService;
   }
 
-  boolean isMember(final String targetType, final Long id) {
+  boolean isMember(final String targetType, final String id) {
     if (StringUtils.isBlank(targetType)) {
       return isMember(id);
     }
     return false;
   }
 
-  boolean isMember(final Long userId) {
+  boolean isMember(final String userId) {
     final User targetUser = userService.findUserById(userId);
     if (targetUser != null && getAuthUser() != null) {
       return targetUser.getCompany().getId().equals(getCompanyId());

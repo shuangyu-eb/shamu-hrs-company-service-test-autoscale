@@ -23,6 +23,7 @@ import shamu.company.email.EmailService;
 import shamu.company.s3.AwsUtil;
 import shamu.company.timeoff.entity.TimeOffRequest;
 import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus;
+import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.TimeOffApprovalStatus;
 import shamu.company.timeoff.entity.TimeOffRequestDate;
 import shamu.company.user.entity.User;
 import shamu.company.utils.DateUtil;
@@ -55,13 +56,13 @@ public class TimeOffRequestEmailService {
 
   public void sendEmail(TimeOffRequest timeOffRequest) {
     timeOffRequest = timeOffRequestService.findByRequestId(timeOffRequest.getId());
-    final TimeOffRequestApprovalStatus status = timeOffRequest.getTimeOffApprovalStatus();
-    if (status == TimeOffRequestApprovalStatus.DENIED) {
+    final TimeOffApprovalStatus status = timeOffRequest.getApprovalStatus();
+    if (status == TimeOffApprovalStatus.DENIED) {
       sendDeniedEmail(timeOffRequest);
       return;
     }
 
-    if (status == TimeOffRequestApprovalStatus.APPROVED) {
+    if (status == TimeOffApprovalStatus.APPROVED) {
       sendApprovedEmail(timeOffRequest);
       return;
     }
@@ -182,7 +183,7 @@ public class TimeOffRequestEmailService {
 
     variables.put("frontEndAddress", applicationConfig.getFrontEndAddress());
     variables.put("timeRange", getTimeOffRange(timeOffRequest));
-    variables.put("status", timeOffRequest.getTimeOffApprovalStatus().name());
+    variables.put("status", timeOffRequest.getApprovalStatus().name());
     variables.put("type", timeOffRequest.getTimeOffPolicy().getName());
     variables.put("hours", timeOffRequest.getHours());
     variables.put("comment", timeOffRequest.getRequsterComment());

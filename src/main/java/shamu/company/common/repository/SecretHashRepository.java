@@ -14,8 +14,10 @@ public class SecretHashRepository {
     this.secretJdbcTemplate = secretJdbcTemplate;
   }
 
-  public String getCompanySecretByCompanyId(final Long companyId) {
-    final String sql = "SELECT secret_hash FROM company_secrets WHERE company_id = ? LIMIT 1";
+  public String getCompanySecretByCompanyId(final String companyId) {
+
+    final String sql = "SELECT secret_hash FROM company_secrets WHERE "
+        + "company_id = unhex(?) LIMIT 1";
     String secret = "";
     try {
       secret = secretJdbcTemplate.queryForObject(sql, String.class, companyId);

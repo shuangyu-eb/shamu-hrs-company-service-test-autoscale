@@ -7,6 +7,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Type;
 import shamu.company.common.entity.BaseEntity;
 import shamu.company.user.entity.User;
 
@@ -17,7 +18,8 @@ import shamu.company.user.entity.User;
 public class TimeOffRequestComment extends BaseEntity {
 
   @Column(name = "time_off_request_id")
-  private Long timeOffRequestId;
+  @Type(type = "shamu.company.common.PrimaryKeyTypeDescriptor")
+  private String timeOffRequestId;
 
   @ManyToOne(fetch = FetchType.LAZY)
   private User user;

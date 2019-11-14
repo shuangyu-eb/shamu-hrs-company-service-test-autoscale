@@ -77,16 +77,16 @@ public interface UserPersonalInformationMapper {
   EmployeePersonalInformationDto convertToEmployeePersonalInformationDto(
       UserPersonalInformation userPersonalInformation);
 
-  default Gender convertFromGenderId(final Long genderId) {
-    return null == genderId ? null : new Gender(genderId);
+  default Gender convertFromGenderId(final String genderId) {
+    return StringUtils.isEmpty(genderId) ? null : new Gender(genderId);
   }
 
-  default Ethnicity convertFromEthnicityId(final Long ethnicityId) {
-    return null == ethnicityId ? null : new Ethnicity(ethnicityId);
+  default Ethnicity convertFromEthnicityId(final String ethnicityId) {
+    return StringUtils.isEmpty(ethnicityId) ? null : new Ethnicity(ethnicityId);
   }
 
-  default MaritalStatus convertFromMaritalStatusId(final Long maritalStatusId) {
-    return null == maritalStatusId ? null : new MaritalStatus(maritalStatusId);
+  default MaritalStatus convertFromMaritalStatusId(final String maritalStatusId) {
+    return StringUtils.isEmpty(maritalStatusId)  ? null : new MaritalStatus(maritalStatusId);
   }
 
   default Date convertFromString(final String birthDate) throws ParseException {

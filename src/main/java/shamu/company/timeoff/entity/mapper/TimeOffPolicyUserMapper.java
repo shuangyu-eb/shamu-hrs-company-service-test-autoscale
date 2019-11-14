@@ -2,6 +2,7 @@ package shamu.company.timeoff.entity.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.springframework.util.StringUtils;
 import shamu.company.common.mapper.Config;
 import shamu.company.timeoff.dto.TimeOffPolicyUserDto;
 import shamu.company.timeoff.dto.TimeOffPolicyUserFrontendDto;
@@ -20,14 +21,14 @@ public interface TimeOffPolicyUserMapper {
   @Mapping(target = "timeOffPolicy", source = "timeOffPolicyId")
   @Mapping(target = "initialBalance", source = "timeOffPolicyUserFrontendDto.balance")
   TimeOffPolicyUser createFromTimeOffPolicyUserFrontendDtoAndTimeOffPolicyId(
-      TimeOffPolicyUserFrontendDto timeOffPolicyUserFrontendDto, Long timeOffPolicyId);
+      TimeOffPolicyUserFrontendDto timeOffPolicyUserFrontendDto, String timeOffPolicyId);
 
 
-  default User convertFromUserId(final Long userId) {
-    return userId != null ? new User(userId) : null;
+  default User convertFromUserId(final String userId) {
+    return !StringUtils.isEmpty(userId) ? new User(userId) : null;
   }
 
-  default TimeOffPolicy convertFromTimeOffPolicyId(final Long timeOffPolicyId) {
-    return timeOffPolicyId != null ? new TimeOffPolicy(timeOffPolicyId) : null;
+  default TimeOffPolicy convertFromTimeOffPolicyId(final String timeOffPolicyId) {
+    return !StringUtils.isEmpty(timeOffPolicyId) ? new TimeOffPolicy(timeOffPolicyId) : null;
   }
 }

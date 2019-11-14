@@ -10,13 +10,13 @@ import shamu.company.common.repository.BaseRepository;
 import shamu.company.timeoff.entity.PaidHoliday;
 
 @Repository
-public interface PaidHolidayRepository extends BaseRepository<PaidHoliday, Long> {
+public interface PaidHolidayRepository extends BaseRepository<PaidHoliday, String> {
 
   @Query(
-      value = "SELECT * FROM paid_holidays WHERE company_id = ?1",
+      value = "SELECT * FROM paid_holidays WHERE company_id = unhex(?1)",
       nativeQuery = true
   )
-  List<PaidHoliday> findByCompanyId(Long companyId);
+  List<PaidHoliday> findByCompanyId(String companyId);
 
   @Query(
       value = "SELECT * FROM paid_holidays WHERE company_id IS NULL",
@@ -28,18 +28,18 @@ public interface PaidHolidayRepository extends BaseRepository<PaidHoliday, Long>
   @Transactional
   @Query(
       value = "UPDATE paid_holidays SET name = ?2, name_show = ?2,"
-          + " date = ?3 WHERE id = ?1",
+          + " date = ?3 WHERE id = unhex(?1)",
       nativeQuery = true
   )
-  void updateDetail(Long id, String name, Timestamp date);
+  void updateDetail(String id, String name, Timestamp date);
 
   @Modifying
   @Transactional
   @Query(
       value = "UPDATE companies_paid_holidays "
           + "SET is_selected = ?2 "
-          + "WHERE paid_holiday_id = ?1",
+          + "WHERE paid_holiday_id = unhex(?1)",
       nativeQuery = true
   )
-  void updateHolidaySelect(Long id, Boolean isSelected);
+  void updateHolidaySelect(String id, Boolean isSelected);
 }

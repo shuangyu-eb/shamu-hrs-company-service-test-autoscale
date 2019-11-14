@@ -43,19 +43,19 @@ public class SuperAdminService {
     return userRepository.findBy(keyword, pageable);
   }
 
-  public MockUserDto mockUser(final Long userId, final String token) {
+  public MockUserDto mockUser(final String userId, final String token) {
     final User user = getUser(userId);
     final AuthUser authUser = userMapper.convertToAuthUser(user);
     final MockUserDto mockUserDto = userMapper.convertToMockUserDto(user);
     final List<String> permissions = auth0Util
-        .getPermissionBy(user.getUserId());
+        .getPermissionBy(user.getId());
     authUser.setPermissions(permissions);
     authUserCacheManager.cacheAuthUser(token, authUser);
     mockUserDto.setPermissions(permissions);
     return mockUserDto;
   }
 
-  private User getUser(final Long userId) {
+  private User getUser(final String userId) {
     return userRepository.findById(userId)
         .orElseThrow(() -> new ResourceNotFoundException(ERROR_MESSAGE));
   }

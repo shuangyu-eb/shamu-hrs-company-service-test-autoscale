@@ -23,7 +23,6 @@ import shamu.company.employee.dto.EmployeeDto;
 import shamu.company.employee.dto.EmployeeListSearchCondition;
 import shamu.company.employee.dto.OrgChartDto;
 import shamu.company.employee.service.EmployeeService;
-import shamu.company.hashids.HashidsFormat;
 import shamu.company.job.dto.JobUserDto;
 import shamu.company.job.entity.JobUserListItem;
 import shamu.company.user.entity.User;
@@ -98,7 +97,7 @@ public class EmployeeRestController extends BaseRestController {
   }
 
   @PatchMapping("employees")
-  @PreAuthorize("@permissionUtils.isCurrentUser(#employeeDto.emailWork)")
+  @PreAuthorize("@permissionUtils.isCurrentUserEmail(#employeeDto.emailWork)")
   public HttpEntity saveEmployeeSetUpInformation(@RequestBody final EmployeeDto employeeDto) {
     final User employee = userService.findUserById(getAuthUser().getId());
     if (employee.getVerifiedAt() != null) {
@@ -112,7 +111,7 @@ public class EmployeeRestController extends BaseRestController {
 
   @GetMapping("employees/org-chart")
   public List<OrgChartDto> getOrgChart(
-      @HashidsFormat @RequestParam(value = "userId", required = false) final Long userId) {
+      @RequestParam(value = "userId", required = false) final String userId) {
     return userService.getOrgChart(userId, getCompanyId());
   }
 }

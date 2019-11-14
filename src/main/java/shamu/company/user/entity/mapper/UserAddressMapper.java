@@ -1,5 +1,6 @@
 package shamu.company.user.entity.mapper;
 
+import org.apache.commons.lang.StringUtils;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -31,16 +32,16 @@ public interface UserAddressMapper {
   @Mapping(target = "user", source = "userId")
   UserAddress createFromUserAddressDto(UserAddressDto userAddressDto);
 
-  default StateProvince convertFromStateProvinceId(final Long id) {
-    return null == id ? null : new StateProvince(id);
+  default StateProvince convertFromStateProvinceId(final String id) {
+    return StringUtils.isEmpty(id)  ? null : new StateProvince(id);
   }
 
-  default Country convertFromCountryId(final Long id) {
-    return null == id ? null : new Country(id);
+  default Country convertFromCountryId(final String id) {
+    return StringUtils.isEmpty(id) ? null : new Country(id);
   }
 
-  default User convertFromUserId(final Long userId) {
-    return null == userId ? null : new User(userId);
+  default User convertFromUserId(final String userId) {
+    return StringUtils.isEmpty(userId) ? null : new User(userId);
   }
 }
 
