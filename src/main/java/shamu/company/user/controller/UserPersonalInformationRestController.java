@@ -2,6 +2,7 @@ package shamu.company.user.controller;
 
 import java.sql.Date;
 import java.text.SimpleDateFormat;
+import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -63,7 +64,7 @@ public class UserPersonalInformationRestController extends BaseRestController {
           + " or hasPermission(#id,'USER_PERSONAL_INFORMATION', 'EDIT_SELF')")
   public UserPersonalInformationDto update(
       @PathVariable @HashidsFormat final Long id,
-      @RequestBody final UserPersonalInformationDto userPersonalInformationDto) {
+      @Valid @RequestBody final UserPersonalInformationDto userPersonalInformationDto) {
     final User user = userService.findUserByUserPersonalInformationId(id);
     final UserPersonalInformation origin = user.getUserPersonalInformation();
     userPersonalInformationMapper

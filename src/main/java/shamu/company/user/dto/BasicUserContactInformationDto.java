@@ -2,6 +2,7 @@ package shamu.company.user.dto;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import shamu.company.common.validation.constraints.PhoneNumberValidate;
 import shamu.company.hashids.HashidsFormat;
 import shamu.company.user.entity.UserContactInformation;
 
@@ -14,8 +15,10 @@ public class BasicUserContactInformationDto {
 
   private String userStatus;
 
+  @PhoneNumberValidate
   private String phoneWork;
 
+  @PhoneNumberValidate
   private String phoneHome;
 
   private String emailWork;

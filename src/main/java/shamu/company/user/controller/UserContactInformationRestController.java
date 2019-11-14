@@ -1,5 +1,6 @@
 package shamu.company.user.controller;
 
+import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -42,7 +43,7 @@ public class UserContactInformationRestController extends BaseRestController {
           + " or hasPermission(#id,'USER_CONTACT_INFORMATION', 'EDIT_SELF')")
   public UserContactInformationDto update(
       @PathVariable @HashidsFormat final Long id,
-      @RequestBody final UserContactInformationDto userContactInformationDto) {
+      @Valid @RequestBody final UserContactInformationDto userContactInformationDto) {
     final UserContactInformation origin = contactInformationService
         .findUserContactInformationById(id);
     userContactInformationMapper
