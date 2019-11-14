@@ -394,7 +394,7 @@ public class TimeOffRequestEmailService {
         }
         return DateUtil.formatDateTo(date, DateUtil.DAY);
       }
-      if (index - 1 >= 0 && isSameMonth(date, ranges.get(index - 1).getEnd())) {
+      if (index - 1 >= 0 && !isSameMonth(date, ranges.get(index - 1).getEnd())) {
         return DateUtil.formatDateTo(date, DateUtil.SIMPLE_MONTH_DAY_YEAR);
       }
       return DateUtil.formatDateTo(date, DateUtil.DAY_YEAR);

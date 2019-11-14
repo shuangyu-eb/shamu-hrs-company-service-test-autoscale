@@ -45,7 +45,7 @@ public class TimeOffRequestEmailServiceTests {
   }
 
   @Test
-  void testTimeOffRange() {
+  void testTimeOffRangeOver3Years() {
     final TimeOffRequest timeOffRequest = new TimeOffRequest();
     final Set<TimeOffRequestDate> dates = new HashSet<>();
     final int currentYear = LocalDateTime.now().getYear();
@@ -73,10 +73,47 @@ public class TimeOffRequestEmailServiceTests {
     final String result = timeOffRequestEmailService.getTimeOffRange(timeOffRequest);
     final String expacted = "Oct 10, Nov 30 - Dec 1, 31, " + lastYear + " - Jan 1,"
         + " Feb 28 - Mar 1, Apr 30 - May 1, Aug 8, 22, Sep 13, "
-        + "Dec 31 - Jan 1, 21, Jan 31 - Feb 1, Feb 6, " + nextYear;
+        + "Dec 31 - Jan 1, 21, Jan 31 - Feb 1, 6, " + nextYear;
     Assertions.assertEquals(expacted, result);
+  }
 
+  @Test
+  void testTimeOffRangeOver2Years() {
+    final TimeOffRequest timeOffRequest = new TimeOffRequest();
+    final Set<TimeOffRequestDate> dates = new HashSet<>();
+    final int currentYear = LocalDateTime.now().getYear();
+    final int nextYear = currentYear + 1;
+    dates.add((new TimeOffRequestDate(Timestamp.valueOf(currentYear + "-11-15 00:00:00"))));
+    dates.add((new TimeOffRequestDate(Timestamp.valueOf(currentYear + "-11-22 00:00:00"))));
+    dates.add((new TimeOffRequestDate(Timestamp.valueOf(nextYear + "-07-08 00:00:00"))));
+    dates.add((new TimeOffRequestDate(Timestamp.valueOf(nextYear + "-07-10 00:00:00"))));
+    dates.add((new TimeOffRequestDate(Timestamp.valueOf(nextYear + "-08-07 00:00:00"))));
+    timeOffRequest.setTimeOffRequestDates(dates);
+    final String result = timeOffRequestEmailService.getTimeOffRange(timeOffRequest);
+    final String expacted = "Nov 15, 22, Jul 8, 10, Aug 7, " + nextYear;
+    Assertions.assertEquals(expacted, result);
+  }
 
+  @Test
+  void testTimeOffRangeOver2YearsAndSingleDate() {
+    final TimeOffRequest timeOffRequest = new TimeOffRequest();
+    final Set<TimeOffRequestDate> dates = new HashSet<>();
+    final int currentYear = LocalDateTime.now().getYear();
+    final int nextYear = currentYear + 1;
+    dates.add((new TimeOffRequestDate(Timestamp.valueOf(currentYear + "-12-02 00:00:00"))));
+    dates.add((new TimeOffRequestDate(Timestamp.valueOf(currentYear + "-12-03 00:00:00"))));
+    dates.add((new TimeOffRequestDate(Timestamp.valueOf(currentYear + "-12-04 00:00:00"))));
+    dates.add((new TimeOffRequestDate(Timestamp.valueOf(currentYear + "-12-20 00:00:00"))));
+    dates.add((new TimeOffRequestDate(Timestamp.valueOf(currentYear + "-12-27 00:00:00"))));
+    dates.add((new TimeOffRequestDate(Timestamp.valueOf(nextYear + "-08-04 00:00:00"))));
+    dates.add((new TimeOffRequestDate(Timestamp.valueOf(nextYear + "-08-05 00:00:00"))));
+    dates.add((new TimeOffRequestDate(Timestamp.valueOf(nextYear + "-08-06 00:00:00"))));
+    dates.add((new TimeOffRequestDate(Timestamp.valueOf(nextYear + "-08-19 00:00:00"))));
+    dates.add((new TimeOffRequestDate(Timestamp.valueOf(nextYear + "-08-21 00:00:00"))));
+    timeOffRequest.setTimeOffRequestDates(dates);
+    final String result = timeOffRequestEmailService.getTimeOffRange(timeOffRequest);
+    final String expacted = "Dec 2 - 4, 20, 27, Aug 4 - 6, 19, 21, " + nextYear;
+    Assertions.assertEquals(expacted, result);
   }
 
 }
