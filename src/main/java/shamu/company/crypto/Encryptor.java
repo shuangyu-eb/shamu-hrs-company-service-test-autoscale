@@ -19,23 +19,20 @@ import shamu.company.utils.Auth0Util;
 @Component
 public class Encryptor {
 
-  private static final String SALT = "12ab";
-
   private static final Charset charset = StandardCharsets.ISO_8859_1;
-
   private final String indeedHash;
-
   private final UserRepository userRepository;
-
   private final Auth0Util auth0Util;
-
   private final SecretHashRepository secretHashRepository;
+  private final String salt;
 
   @Autowired
-  Encryptor(final @Value("hash") String indeedHash,
+  Encryptor(final @Value("crypto.hash") String indeedHash,
+      final @Value("crypto.salt") String salt,
       final UserRepository userRepository, final Auth0Util auth0Util,
       final SecretHashRepository secretHashRepository) {
     this.indeedHash = indeedHash;
+    this.salt = salt;
     this.userRepository = userRepository;
     this.auth0Util = auth0Util;
     this.secretHashRepository = secretHashRepository;
@@ -76,12 +73,12 @@ public class Encryptor {
   }
 
   private BytesEncryptor getEncryptor(final User user) {
-    return Encryptors.stronger(String.valueOf(getHashCode(user)), SALT);
+    return Encryptors.stronger(String.valueOf(getHashCode(user)), salt);
   }
 
   private BytesEncryptor getEncryptor(final long userId) {
     final User user = this.getUserById(userId);
-    return Encryptors.stronger(String.valueOf(getHashCode(user)), SALT);
+    return Encryptors.stronger(String.valueOf(getHashCode(user)), salt);
   }
 
   private int getHashCode(final User user) {

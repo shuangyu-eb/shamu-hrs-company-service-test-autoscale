@@ -43,4 +43,6 @@ aws:
   folder: media-local
 
 
-hash: system-hash
+crypto:
+  salt: 12ab
+  hash: system-hash
