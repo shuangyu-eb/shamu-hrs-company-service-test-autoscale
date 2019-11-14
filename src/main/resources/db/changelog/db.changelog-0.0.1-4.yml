@@ -1584,16 +1584,6 @@ databaseChangeLog:
         tableName: deactivation_reasons
 
 - changeSet:
-    id: 1573021838000-105
-    author: max-eb
-    runOnChange: true
-    changes:
-    - addUniqueConstraint:
-        columnNames: name
-        constraintName: uq_paid_holidays
-        tableName: paid_holidays
-
-- changeSet:
     id: 1573021838000-106
     author: max-eb
     runOnChange: true
