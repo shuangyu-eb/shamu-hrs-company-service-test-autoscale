@@ -37,7 +37,7 @@ public class BenefitDependentDto {
 
   private String city;
 
-  @JSONField(format = "yyyy-MM-dd")
+  @JSONField(format = "MM/dd/yyyy")
   private Date birthDate;
 
   private SelectFieldInformationDto gender;

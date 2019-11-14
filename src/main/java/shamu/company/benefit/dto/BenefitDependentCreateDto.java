@@ -41,7 +41,7 @@ public class BenefitDependentCreateDto {
 
   private String postalCode;
 
-  @JSONField(format = "yyyy-MM-dd")
+  @JSONField(format = "MM/dd/yyyy")
   private Date birthDate;
 
   private String ssn;

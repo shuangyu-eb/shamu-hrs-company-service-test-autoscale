@@ -61,7 +61,7 @@ public class BenefitPlanDependent extends BaseEntity {
   @Length(max = 30)
   private String postalCode;
 
-  @JSONField(format = "yyyy-MM-dd")
+  @JSONField(format = "MM/dd/yyyy")
   private Date birthDate;
 
   @Length(max = 11)

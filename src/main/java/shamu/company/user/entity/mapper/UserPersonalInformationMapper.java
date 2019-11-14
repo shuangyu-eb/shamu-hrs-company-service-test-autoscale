@@ -91,7 +91,7 @@ public interface UserPersonalInformationMapper {
 
   default Date convertFromString(final String birthDate) throws ParseException {
     if (StringUtils.isNotBlank(birthDate)) {
-      DateFormat format = new SimpleDateFormat("MM/DD/yyyy");
+      DateFormat format = new SimpleDateFormat("MM/dd/yyyy");
       return new Date(format.parse(birthDate).getTime());
     }
     return null;

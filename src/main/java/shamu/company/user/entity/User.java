@@ -43,7 +43,7 @@ public class User extends BaseEntity {
   @OneToOne
   private DeactivationReasons deactivationReason;
 
-  @JSONField(format = "yyyy-MM-dd")
+  @JSONField(format = "MM/dd/yyyy")
   private Date deactivatedAt;
 
   @ManyToOne

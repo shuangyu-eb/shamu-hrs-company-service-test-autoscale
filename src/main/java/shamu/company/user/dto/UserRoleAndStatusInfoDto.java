@@ -11,6 +11,6 @@ public class UserRoleAndStatusInfoDto {
 
   private String userStatus;
 
-  @JSONField(format = "yyyy-MM-dd")
+  @JSONField(format = "MM/dd/yyyy")
   private Date deactivatedAt;
 }

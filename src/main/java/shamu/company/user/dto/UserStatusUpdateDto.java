@@ -17,8 +17,6 @@ public class UserStatusUpdateDto {
 
   private SelectFieldInformationDto deactivationReason;
 
-  @JSONField(format = "yyyy-MM-dd")
+  @JSONField(format = "MM/dd/yyyy")
   private Date deactivationDate;
-
-
 }
