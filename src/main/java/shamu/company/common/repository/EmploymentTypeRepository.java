@@ -10,8 +10,8 @@ public interface EmploymentTypeRepository extends BaseRepository<EmploymentType,
   List<EmploymentType> findAllByCompanyId(Long companyId);
 
   @Query(
-          value = "SELECT count(1) FROM user_employment_status_types uest"
-                  + " WHERE uest.id = ?1 ",
+          value = "SELECT count(1) FROM jobs_users ju"
+                  + " WHERE ju.employment_type_id = ?1 ",
           nativeQuery = true)
   Integer getCountByType(Long typeId);
 }
