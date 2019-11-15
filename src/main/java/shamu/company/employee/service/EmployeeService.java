@@ -298,9 +298,6 @@ public class EmployeeService {
 
     employee.setCompany(currentUser.getCompany());
 
-    employee = saveInvitedEmployeeAdditionalInformation(employee,
-        employeeDto);
-
     final UserStatus userStatus = userStatusRepository
         .findByName(Status.PENDING_VERIFICATION.name());
     employee.setUserStatus(userStatus);
@@ -315,7 +312,13 @@ public class EmployeeService {
     final String userId = auth0Util.getUserId(user);
     employee.setId(userId);
     employee.setUserRole(userRoleService.getEmployee());
-    return userRepository.save(employee);
+    // save employee id to database for ssn encrypting
+    userRepository.save(employee);
+    employee = saveInvitedEmployeeAdditionalInformation(employee,
+      employeeDto);
+    // save employee's other information
+    userRepository.save(employee);
+    return employee;
   }
 
   User saveInvitedEmployeeAdditionalInformation(final User employee,
