@@ -1,6 +1,5 @@
 package shamu.company.timeoff.service;
 
-import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -189,10 +188,10 @@ public class PaidHolidayService {
     final List<JobUserDto> allEmployees = userService.findAllJobUsers(companyId);
 
     final List<String> filterIds = paidHolidayUserRepository
-        .findAllUserIdByCompanyId(companyId);
+            .findAllUserIdByCompanyId(companyId);
 
     allEmployees.forEach(e -> {
-      if (!filterIds.contains(e.getId())) {
+      if (!filterIds.contains(e.getId().toUpperCase())) {
         final PaidHolidayUser newAddedPaidHolidayUser = new PaidHolidayUser(companyId,
             e.getId(),
             false);

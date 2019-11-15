@@ -22,7 +22,7 @@ public interface PaidHolidayUserRepository extends BaseRepository<PaidHolidayUse
   List<PaidHolidayUser> findAllByCompanyId(String id);
 
   @Query(
-      value = "SELECT phu.user_id "
+      value = "SELECT hex(phu.user_id) "
           + "FROM paid_holidays_users phu "
           + "LEFT JOIN users u "
           + "ON phu.user_id = u.id "
