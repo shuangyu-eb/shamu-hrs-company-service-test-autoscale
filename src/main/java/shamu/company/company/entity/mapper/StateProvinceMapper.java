@@ -13,4 +13,8 @@ import shamu.company.employee.dto.SelectFieldInformationDto;
 public interface StateProvinceMapper {
 
   StateProvinceDto convertToStateProvinceDto(StateProvince stateProvince);
+
+  default StateProvince createFromStateId(String id) {
+    return new StateProvince(id);
+  }
 }

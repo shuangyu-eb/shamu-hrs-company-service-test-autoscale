@@ -7,7 +7,6 @@ import java.util.List;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-import shamu.company.common.entity.StateProvince;
 import shamu.company.common.exception.ForbiddenException;
 import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.common.repository.DepartmentRepository;
@@ -18,6 +17,8 @@ import shamu.company.company.dto.OfficeCreateDto;
 import shamu.company.company.entity.Department;
 import shamu.company.company.entity.Office;
 import shamu.company.company.entity.OfficeAddress;
+import shamu.company.company.entity.mapper.OfficeAddressMapper;
+import shamu.company.company.entity.mapper.OfficeMapper;
 import shamu.company.employee.entity.EmploymentType;
 import shamu.company.employee.service.EmployeeService;
 import shamu.company.job.dto.JobSelectOptionUpdateDto;
@@ -69,6 +70,10 @@ public class JobUserService {
 
   private final OfficeAddressRepository officeAddressRepository;
 
+  private final OfficeAddressMapper officeAddressMapper;
+
+  private final OfficeMapper officeMapper;
+
 
 
   public JobUserService(final JobUserRepository jobUserRepository,
@@ -82,7 +87,9 @@ public class JobUserService {
       final JobRepository jobRepository,
       final EmploymentTypeRepository employmentTypeRepository,
       final OfficeRepository officeRepository,
-      final OfficeAddressRepository officeAddressRepository) {
+      final OfficeAddressRepository officeAddressRepository,
+      final OfficeAddressMapper officeAddressMapper,
+      final OfficeMapper officeMapper) {
     this.jobUserRepository = jobUserRepository;
     this.userService = userService;
     this.userCompensationMapper = userCompensationMapper;
@@ -95,6 +102,8 @@ public class JobUserService {
     this.employmentTypeRepository = employmentTypeRepository;
     this.officeRepository = officeRepository;
     this.officeAddressRepository = officeAddressRepository;
+    this.officeAddressMapper = officeAddressMapper;
+    this.officeMapper = officeMapper;
   }
 
   public JobUser getJobUserByUserId(final String userId) {
@@ -244,18 +253,11 @@ public class JobUserService {
             .orElseThrow(() -> new ResourceNotFoundException("Office not found"));
     office.setName(officeCreateDto.getOfficeName());
 
-    OfficeAddress officeAddress = office.getOfficeAddress();
-    officeAddress.setStreet1(officeCreateDto.getStreet1());
-    officeAddress.setStreet2(officeCreateDto.getStreet2());
-    officeAddress.setCity(officeCreateDto.getCity());
-    if (null != officeCreateDto.getStateId()) {
-      officeAddress.setStateProvince(new StateProvince(officeCreateDto.getStateId()));
-    }
-    officeAddress.setPostalCode(officeCreateDto.getZip());
-    OfficeAddress updateOfficeAddress = officeAddressRepository.save(officeAddress);
+    OfficeAddress officeAddress = officeAddressMapper
+            .updateFromOfficeCreateDto(office.getOfficeAddress(), officeCreateDto);
 
-    office.setOfficeAddress(updateOfficeAddress);
-    officeRepository.save(office);
+    Office newOffice = officeMapper.convertToOffice(office, officeCreateDto, officeAddress);
+    officeRepository.save(newOffice);
   }
 
   public void deleteJobSelectOption(
