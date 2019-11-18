@@ -16,6 +16,10 @@ spring:
   liquibase:
     enabled: true
     change-log: classpath:/db/changelog/db.changelog-master.yml
+  secret:
+    liquibase:
+      enabled: true
+      change-log: classpath:/db/changelog/db.secret.changelog-master.yml
   thymeleaf:
     prefix: classpath:templates/
     cache: false

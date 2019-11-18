@@ -1,7 +1,9 @@
 package shamu.company.common.config;
 
 import javax.sql.DataSource;
+import liquibase.integration.spring.SpringLiquibase;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.liquibase.LiquibaseProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
@@ -26,6 +28,17 @@ public class DataSourceConfiguration {
     return new JdbcTemplate(dataSource);
   }
 
+  @Bean
+  @ConfigurationProperties(prefix = "spring.liquibase")
+  public LiquibaseProperties companyLiquibaseProperties() {
+    return new LiquibaseProperties();
+  }
+
+  @Bean(name = "liquibase")
+  public SpringLiquibase companyLiquibase() {
+    return getSpringLiquibase(companyDataSource(), companyLiquibaseProperties());
+  }
+
   @Bean(name = "secretDataSource")
   @Qualifier("secretDataSource")
   @ConfigurationProperties(prefix = "spring.secret.datasource")
@@ -37,5 +50,31 @@ public class DataSourceConfiguration {
   public JdbcTemplate secretJdbcTemplate(
       @Qualifier("secretDataSource") final DataSource dataSource) {
     return new JdbcTemplate(dataSource);
+  }
+
+  @Bean
+  @ConfigurationProperties(prefix = "spring.secret.liquibase")
+  public LiquibaseProperties secretLiquibaseProperties() {
+    return new LiquibaseProperties();
+  }
+
+  @Bean
+  public SpringLiquibase secretLiquibase() {
+    return getSpringLiquibase(secretDataSource(), secretLiquibaseProperties());
+  }
+
+  private SpringLiquibase getSpringLiquibase(final DataSource dataSource,
+      final LiquibaseProperties properties) {
+    final SpringLiquibase liquibase = new SpringLiquibase();
+    liquibase.setDataSource(dataSource);
+    liquibase.setChangeLog(properties.getChangeLog());
+    liquibase.setContexts(properties.getContexts());
+    liquibase.setDefaultSchema(properties.getDefaultSchema());
+    liquibase.setDropFirst(properties.isDropFirst());
+    liquibase.setShouldRun(properties.isEnabled());
+    liquibase.setLabels(properties.getLabels());
+    liquibase.setChangeLogParameters(properties.getParameters());
+    liquibase.setRollbackFile(properties.getRollbackFile());
+    return liquibase;
   }
 }
