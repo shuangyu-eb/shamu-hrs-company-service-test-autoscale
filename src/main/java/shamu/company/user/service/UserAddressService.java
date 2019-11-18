@@ -51,7 +51,8 @@ public class UserAddressService {
     if (userAddress == null) {
       final UserAddress initUserAddress = userAddressMapper
           .createFromUserAddressDto(userAddressDto);
-      return userAddressRepository.save(initUserAddress);
+      userAddressRepository.save(initUserAddress);
+      return userAddressRepository.findUserAddressByUserId(userId);
     }
     userAddressMapper.updateFromUserAddressDto(userAddress, userAddressDto);
     return updateUserAddress(userAddress);
