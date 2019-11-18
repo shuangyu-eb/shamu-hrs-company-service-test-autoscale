@@ -194,7 +194,7 @@ public interface TimeOffRequestRepository
       String id, Timestamp startDay, String status);
 
   @Query("SELECT new shamu.company.timeoff.pojo.TimeOffRequestStatusPojo "
-      + "(tr.id, tr.timeOffApprovalStatus) FROM TimeOffRequest tr"
+      + "(tr.id, tr.timeOffRequestApprovalStatus) FROM TimeOffRequest tr"
               + " WHERE tr.timeOffPolicy.id = ?1")
   List<TimeOffRequestStatusPojo> findByTimeOffPolicyId(String timeOffPolicyId);
 }

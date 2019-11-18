@@ -3,7 +3,6 @@ package shamu.company.timeoff.dto;
 import java.sql.Timestamp;
 import java.util.Set;
 import lombok.Data;
-import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus;
 
 @Data
 public class TimeOffRequestDto {
@@ -28,7 +27,7 @@ public class TimeOffRequestDto {
 
   private Timestamp approvedDate;
 
-  private TimeOffRequestApprovalStatus status;
+  private String status;
 
   private String comment;
 

@@ -40,7 +40,7 @@ public class TimeOffRequest extends BaseEntity {
   private TimeOffPolicy timeOffPolicy;
 
   @ManyToOne
-  private TimeOffRequestApprovalStatus timeOffApprovalStatus;
+  private TimeOffRequestApprovalStatus timeOffRequestApprovalStatus;
 
   private Timestamp expiresAt;
 
@@ -118,7 +118,7 @@ public class TimeOffRequest extends BaseEntity {
   }
 
   public TimeOffApprovalStatus getApprovalStatus() {
-    String name = this.timeOffApprovalStatus.getName();
+    String name = this.timeOffRequestApprovalStatus.getName();
     return StringUtils.isEmpty(name) ? null : TimeOffApprovalStatus.valueOf(name);
   }
 }

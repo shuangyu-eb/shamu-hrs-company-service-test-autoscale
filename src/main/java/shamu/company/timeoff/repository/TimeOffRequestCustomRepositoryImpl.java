@@ -3,6 +3,7 @@ package shamu.company.timeoff.repository;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
@@ -12,9 +13,9 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
+import org.apache.commons.codec.binary.Hex;
 import org.springframework.stereotype.Repository;
 import shamu.company.timeoff.entity.TimeOffRequest;
-import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus;
 import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.TimeOffApprovalStatus;
 import shamu.company.timeoff.entity.TimeOffRequestDate;
 
@@ -121,7 +122,8 @@ public class TimeOffRequestCustomRepositoryImpl implements TimeOffRequestCustomR
                   }
                 }
             );
-            timeOffRequest.setId((String) timeOffRequestItemArray[0]);
+            timeOffRequest.setId(
+                Arrays.toString(Hex.encodeHex((byte[]) timeOffRequestItemArray[0])));
             timeOffRequest.setTimeOffRequestDates(timeOffRequestDateList);
             if (timeOffRequestDateList.size() > 0) {
               timeOffRequestList.add(timeOffRequest);

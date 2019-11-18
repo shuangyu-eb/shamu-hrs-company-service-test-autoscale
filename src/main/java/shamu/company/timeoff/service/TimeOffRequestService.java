@@ -320,7 +320,7 @@ public class TimeOffRequestService {
 
     TimeOffRequestApprovalStatus timeOffRequestApprovalStatus =
         requestApprovalStatusRepository.findByName(status.name());
-    original.setTimeOffApprovalStatus(timeOffRequestApprovalStatus);
+    original.setTimeOffRequestApprovalStatus(timeOffRequestApprovalStatus);
     original.setApproverUser(timeOffRequest.getApproverUser());
     original.setApprovedDate(Timestamp.from(Instant.now()));
 
@@ -353,7 +353,7 @@ public class TimeOffRequestService {
         && userId.equals(requester.getManagerUser().getId())) {
       TimeOffRequestApprovalStatus timeOffRequestStatus = requestApprovalStatusRepository
           .findByName(TimeOffApprovalStatus.VIEWED.name());
-      timeOffRequest.setTimeOffApprovalStatus(timeOffRequestStatus);
+      timeOffRequest.setTimeOffRequestApprovalStatus(timeOffRequestStatus);
       timeOffRequestRepository.save(timeOffRequest);
     }
 
@@ -374,7 +374,7 @@ public class TimeOffRequestService {
 
     TimeOffRequestApprovalStatus timeOffRequestApprovalStatus = requestApprovalStatusRepository
         .findByName(status.name());
-    timeOffRequest.setTimeOffApprovalStatus(timeOffRequestApprovalStatus);
+    timeOffRequest.setTimeOffRequestApprovalStatus(timeOffRequestApprovalStatus);
     final TimeOffPolicyUser timeOffPolicyUser = timeOffPolicyUserRepository
         .findTimeOffPolicyUserByUserAndTimeOffPolicy(timeOffRequest.getRequesterUser(), policy);
 

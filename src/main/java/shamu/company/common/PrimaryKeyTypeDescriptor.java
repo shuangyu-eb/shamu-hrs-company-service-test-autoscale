@@ -61,7 +61,7 @@ public class PrimaryKeyTypeDescriptor implements UserType {
   @Override
   public Object deepCopy(Object o) {
     String objectString = JsonUtil.formatToString(o);
-    return JsonUtil.deserialize(objectString, o.getClass());
+    return o == null ? null : JsonUtil.deserialize(objectString, o.getClass());
   }
 
   @Override
