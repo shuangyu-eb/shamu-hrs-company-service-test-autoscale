@@ -2545,3 +2545,10 @@ databaseChangeLog:
         baseTableName: users
         constraintName: fk_user_user_contact_information
 
+- changeSet:
+    id: 1574131117441-1
+    author: haibo-eb
+    changes:
+    - sql:
+       sql: drop trigger ins_paid_holidays
+
