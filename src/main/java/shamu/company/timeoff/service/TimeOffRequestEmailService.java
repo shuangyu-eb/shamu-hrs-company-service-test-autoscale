@@ -91,7 +91,12 @@ public class TimeOffRequestEmailService {
 
     final User requester = timeOffRequest.getRequesterUser();
 
-    processAndSendEmail(variables, template, new Email(approver, requester, subject));
+    processAndSendEmail(variables, template, new Email(
+            applicationConfig.getSystemEmailAddress(),
+            approver.getUserPersonalInformation().getName(),
+            requester.getUserContactInformation().getEmailWork(),
+            requester.getUserPersonalInformation().getName(),
+            subject));
 
     sendToManagers(timeOffRequest, variables, template, approver, subject);
 
@@ -118,7 +123,13 @@ public class TimeOffRequestEmailService {
       variables.put("toManager", true);
       manager.forEach(
           user -> {
-            final Email managerEmail = new Email(approver, user, subject2);
+            final Email managerEmail = new Email(
+                    applicationConfig.getSystemEmailAddress(),
+                    approver.getUserPersonalInformation().getName(),
+                    user.getUserContactInformation().getEmailWork(),
+                    user.getUserPersonalInformation().getName(),
+                    subject2);
+
             processAndSendEmail(variables, template, managerEmail);
           });
     }
@@ -134,7 +145,12 @@ public class TimeOffRequestEmailService {
 
     final String subject = "Time Off Denied";
     final String template = "time_off_request_deny.html";
-    final Email email = new Email(approver, requester, subject);
+    final Email email = new Email(
+            applicationConfig.getSystemEmailAddress(),
+            approver.getUserPersonalInformation().getName(),
+            requester.getUserContactInformation().getEmailWork(),
+            requester.getUserPersonalInformation().getName(),
+            subject);
 
     setAproverMessage(timeOffRequest, variables, approver);
 
@@ -157,7 +173,12 @@ public class TimeOffRequestEmailService {
     variables.put("conflict", conflict);
 
     final User approver = (User) timeOffRequest.getApprovers().toArray()[0];
-    final Email email = new Email(requester, approver, "Time Off Request");
+    final Email email = new Email(
+            applicationConfig.getSystemEmailAddress(),
+            requester.getUserPersonalInformation().getName(),
+            approver.getUserContactInformation().getEmailWork(),
+            approver.getUserPersonalInformation().getName(),
+            "Time Off Request");
 
     processAndSendEmail(variables, "time_off_request_pending.html", email);
   }
