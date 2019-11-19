@@ -417,9 +417,9 @@ public class EmployeeService {
           final UserEmergencyContact emergencyContact = userEmergencyContactMapper
               .createFromUserEmergencyContactDto(emergencyContactDto);
 
-          final String stateProvinceId = emergencyContact.getState().getId();
-          if (!StringUtils.isEmpty(stateProvinceId)) {
-            final StateProvince stateProvince = stateProvinceRepository.getOne(stateProvinceId);
+          final StateProvince state = emergencyContact.getState();
+          if (null != state && !StringUtils.isEmpty(state.getId())) {
+            final StateProvince stateProvince = stateProvinceRepository.getOne(state.getId());
             emergencyContact.setState(stateProvince);
           } else {
             emergencyContact.setState(null);
