@@ -13,7 +13,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
+import shamu.company.common.entity.BaseEntity;
 import shamu.company.company.entity.Company;
 import shamu.company.user.entity.User;
 
@@ -26,7 +28,12 @@ import shamu.company.user.entity.User;
 public class TimeOffAdjustment {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @GeneratedValue(generator = "UUID")
+  @GenericGenerator(
+      name = "UUID",
+      strategy = "org.hibernate.id.UUIDGenerator"
+  )
+  @Type(type = "shamu.company.common.PrimaryKeyTypeDescriptor")
   private String id;
 
   @CreationTimestamp
