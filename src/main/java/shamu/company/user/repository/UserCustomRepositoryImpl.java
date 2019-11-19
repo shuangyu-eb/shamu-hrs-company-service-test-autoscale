@@ -288,11 +288,11 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
     String countAllEmployees = "";
     if (!employeeListSearchCondition.getIncludeDeactivated()) {
       countAllEmployees =
-              "select count(1) from users u where u.company_id = ?1 "
+              "select count(1) from users u where u.company_id = unhex(?1) "
                       + ACTIVE_USER_QUERY;
     } else {
       countAllEmployees =
-              "select count(1) from users u where u.company_id = ?1";
+              "select count(1) from users u where u.company_id = unhex(?1)";
     }
     final BigInteger employeeCount =
             (BigInteger)
@@ -315,7 +315,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
           + "left join jobs j on ju.job_id = j.id "
           + "left join departments d on j.department_id = d.id "
           + "left join user_roles ur on u.user_role_id = ur.id "
-          + "where u.company_id = ?1 "
+          + "where u.company_id = unhex(?1) "
           + "and (up.first_name like concat('%', ?2, '%') "
           + "or up.last_name like concat('%', ?2, '%')) ";
 
