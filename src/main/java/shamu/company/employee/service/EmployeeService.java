@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -130,6 +131,9 @@ public class EmployeeService {
   private final UserRoleService userRoleService;
 
   private final EncryptorUtil encryptorUtil;
+
+  @Value("${application.systemEmailAddress}")
+  private String systemEmailAddress;
 
   @Autowired
   public EmployeeService(
@@ -564,7 +568,6 @@ public class EmployeeService {
 
   private void saveEmailTasks(final WelcomeEmailDto welcomeEmailDto, final User employee,
       final User currentUser) {
-    final String from = currentUser.getUserContactInformation().getEmailWork();
     final String to = welcomeEmailDto.getSendTo();
     String content = welcomeEmailDto.getPersonalInformation();
 
@@ -575,7 +578,7 @@ public class EmployeeService {
     final Timestamp sendDate = welcomeEmailDto.getSendDate();
     final String fullSubject = subject + currentUser.getCompany().getName();
     final Email email =
-        new Email(from, to, fullSubject, content, currentUser, sendDate);
+        new Email(systemEmailAddress, to, fullSubject, content, currentUser, sendDate);
     emailService.saveAndScheduleEmail(email);
   }
 

@@ -99,19 +99,29 @@ public class CompanyEmailServiceImpl implements CompanyEmailService {
     final DocumentRequestType type = documentRequestEmailDto.getType();
     final List<String> recipientUserIds = documentRequestEmailDto.getRecipientUserIds();
     recipientUserIds.forEach(recipientUserId -> {
-      final User recipienter = userRepository.findById(recipientUserId)
+      final User recipient = userRepository.findById(recipientUserId)
           .orElseThrow(() -> new ResourceNotFoundException("User not found"));
       if (SIGN.equals(type)) {
         final String template = "document_request_signature.html";
         variables.put("message", "\"" + message + "\"");
-        final Email email = new Email(sender, recipienter, "Signature Request");
+        final Email email = new Email(
+                applicationConfig.getSystemEmailAddress(),
+                sender.getUserPersonalInformation().getName(),
+                recipient.getUserContactInformation().getEmailWork(),
+                recipient.getUserPersonalInformation().getName(),
+                "Signature Request");
         sendEmail(variables, template, email);
       }
 
       if (ACKNOWLEDGE.equals(type)) {
         final String template = "document_request_acknowledge.html";
         variables.put("message", "\"" + message + "\"");
-        final Email email = new Email(sender, recipienter, "Acknowledgement Request");
+        final Email email = new Email(
+                applicationConfig.getSystemEmailAddress(),
+                sender.getUserPersonalInformation().getName(),
+                recipient.getUserContactInformation().getEmailWork(),
+                recipient.getUserPersonalInformation().getName(),
+                "Acknowledgement Request");
         sendEmail(variables, template, email);
       }
 
@@ -119,7 +129,12 @@ public class CompanyEmailServiceImpl implements CompanyEmailService {
         final String template = "document_request_no_action.html";
         final String senderFirstName = sender.getUserPersonalInformation().getFirstName();
         final String subject = senderFirstName + " Sent You a Document";
-        final Email email = new Email(sender, recipienter, subject);
+        final Email email = new Email(
+                applicationConfig.getSystemEmailAddress(),
+                sender.getUserPersonalInformation().getName(),
+                recipient.getUserContactInformation().getEmailWork(),
+                recipient.getUserPersonalInformation().getName(),
+                subject);
         sendEmail(variables, template, email);
       }
     });

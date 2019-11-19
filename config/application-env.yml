@@ -6,7 +6,7 @@ spring:
     cache: false
 
 application:
-  systemEmailAddress: noreply@SimplyHired.com
+  systemEmailAddress: no-reply@interviewed-qa.com
   frontEndAddress: https://hrs.interviewed-qa.com/
 
 aws:

@@ -71,11 +71,11 @@ public class Email extends BaseEntity {
     this.sendDate = sendDate;
   }
 
-  public Email(User from, User to, String subject) {
-    this.from = from.getUserContactInformation().getEmailWork();
-    this.fromName = from.getUserPersonalInformation().getName();
-    this.to = to.getUserContactInformation().getEmailWork();
-    this.toName = to.getUserPersonalInformation().getName();
+  public Email(String from, String fromName, String to, String toName, String subject) {
+    this.from = from;
+    this.fromName = fromName;
+    this.to = to;
+    this.toName = toName;
     this.subject = subject;
   }
 }
