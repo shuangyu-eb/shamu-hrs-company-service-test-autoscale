@@ -3,7 +3,6 @@ package shamu.company.timeoff.repository;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
@@ -12,12 +11,11 @@ import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
-
-import org.apache.commons.codec.binary.Hex;
 import org.springframework.stereotype.Repository;
 import shamu.company.timeoff.entity.TimeOffRequest;
 import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.TimeOffApprovalStatus;
 import shamu.company.timeoff.entity.TimeOffRequestDate;
+import shamu.company.utils.UuidUtil;
 
 @Repository
 public class TimeOffRequestCustomRepositoryImpl implements TimeOffRequestCustomRepository {
@@ -54,7 +52,6 @@ public class TimeOffRequestCustomRepositoryImpl implements TimeOffRequestCustomR
     return (List<String>) this.entityManager.createNativeQuery(query).getResultList();
   }
 
-  // TODO test id transform
   @Override
   public List<TimeOffRequest> findByTimeOffPolicyUserAndStatus(
           final String userId, final String policyId,
@@ -112,10 +109,12 @@ public class TimeOffRequestCustomRepositoryImpl implements TimeOffRequestCustomR
             timeOffItemList.forEach(
                 timeOffItem -> {
                   if (timeOffItem instanceof Object[]
-                          && timeOffRequestItemArray[0].equals(((Object[]) timeOffItem)[0])) {
+                          && UuidUtil.toHexString((byte[]) timeOffRequestItemArray[0])
+                          .equals(UuidUtil.toHexString((byte[]) ((Object[]) timeOffItem)[0]))) {
                     final Object[] timeOffItemArray = (Object[]) timeOffItem;
                     final TimeOffRequestDate timeOffRequestDate = new TimeOffRequestDate();
-                    timeOffRequestDate.setId((String) timeOffItemArray[1]);
+                    timeOffRequestDate.setId(
+                            UuidUtil.toHexString((byte[]) timeOffItemArray[1]));
                     timeOffRequestDate.setHours(((Integer) timeOffItemArray[2]));
                     timeOffRequestDate.setDate((Timestamp) timeOffItemArray[3]);
                     timeOffRequestDateList.add(timeOffRequestDate);
@@ -123,7 +122,7 @@ public class TimeOffRequestCustomRepositoryImpl implements TimeOffRequestCustomR
                 }
             );
             timeOffRequest.setId(
-                Arrays.toString(Hex.encodeHex((byte[]) timeOffRequestItemArray[0])));
+                UuidUtil.toHexString((byte[]) timeOffRequestItemArray[0]));
             timeOffRequest.setTimeOffRequestDates(timeOffRequestDateList);
             if (timeOffRequestDateList.size() > 0) {
               timeOffRequestList.add(timeOffRequest);
