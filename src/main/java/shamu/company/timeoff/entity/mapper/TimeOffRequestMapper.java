@@ -27,8 +27,7 @@ public interface TimeOffRequestMapper {
   @Mapping(target = "userId", source = "requesterUser.id")
   BasicTimeOffRequestDto convertToBasicTimeOffRequestDto(TimeOffRequest timeOffRequest);
 
-  @Mapping(
-      target = "status", expression = "java(getTimeOffRequestApprovalStatusName(timeOffRequest))")
+  @Mapping(target = "status", source = "timeOffRequestApprovalStatus.name")
   @Mapping(target = "comment", source = "requsterComment")
   @Mapping(target = "imageUrl", source = "requesterUser.imageUrl")
   @Mapping(target = "userId", source = "requesterUser.id")
@@ -45,8 +44,4 @@ public interface TimeOffRequestMapper {
 
   @Mapping(target = "timeOffRequestApprovalStatus", source = "status")
   TimeOffRequest createFromTimeOffRequestUpdateDto(TimeOffRequestUpdateDto timeOffRequestUpdateDto);
-
-  default String getTimeOffRequestApprovalStatusName(TimeOffRequest timeOffRequest) {
-    return timeOffRequest.getTimeOffRequestApprovalStatus().getName();
-  }
 }

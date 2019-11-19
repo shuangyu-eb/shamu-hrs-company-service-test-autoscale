@@ -55,7 +55,8 @@ public class TimeOffRequestEmailService {
   }
 
   public void sendEmail(TimeOffRequest timeOffRequest) {
-    timeOffRequest = timeOffRequestService.findByRequestId(timeOffRequest.getId());
+    timeOffRequest = timeOffRequestService
+        .findByRequestId(timeOffRequest.getId().replace("-", ""));
     final TimeOffApprovalStatus status = timeOffRequest.getApprovalStatus();
     if (status == TimeOffApprovalStatus.DENIED) {
       sendDeniedEmail(timeOffRequest);

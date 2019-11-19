@@ -92,8 +92,7 @@ public class TimeOffRequestService {
   }
 
   public TimeOffRequest findByRequestId(final String id) {
-    return timeOffRequestRepository.findById(id)
-        .orElseThrow(() -> new ResourceNotFoundException("Request does not exist."));
+    return timeOffRequestRepository.findByRequestId(id);
   }
 
   public Page<TimeOffRequest> getByApproverAndStatusFilteredByStartDay(

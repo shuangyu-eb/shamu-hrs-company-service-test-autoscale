@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 import shamu.company.common.repository.BaseRepository;
 import shamu.company.timeoff.entity.TimeOffRequest;
 import shamu.company.timeoff.pojo.TimeOffRequestStatusPojo;
-import shamu.company.user.entity.User;
 
 public interface TimeOffRequestRepository
     extends BaseRepository<TimeOffRequest, String>, TimeOffRequestCustomRepository {
@@ -197,4 +196,12 @@ public interface TimeOffRequestRepository
       + "(tr.id, tr.timeOffRequestApprovalStatus) FROM TimeOffRequest tr"
               + " WHERE tr.timeOffPolicy.id = ?1")
   List<TimeOffRequestStatusPojo> findByTimeOffPolicyId(String timeOffPolicyId);
+
+  @Query(
+      value = "select tr.* from time_off_requests tr "
+        + "join time_off_request_dates tord on tr.id = tord.time_off_request_id "
+        + "where tr.id = unhex(?1)",
+      nativeQuery = true
+  )
+  TimeOffRequest findByRequestId(String timeOffRequestId);
 }

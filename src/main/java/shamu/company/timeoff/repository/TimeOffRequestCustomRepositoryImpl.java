@@ -121,8 +121,7 @@ public class TimeOffRequestCustomRepositoryImpl implements TimeOffRequestCustomR
                   }
                 }
             );
-            timeOffRequest.setId(
-                UuidUtil.toHexString((byte[]) timeOffRequestItemArray[0]));
+            timeOffRequest.setId(UuidUtil.toHexString((byte[]) timeOffRequestItemArray[0]));
             timeOffRequest.setTimeOffRequestDates(timeOffRequestDateList);
             if (timeOffRequestDateList.size() > 0) {
               timeOffRequestList.add(timeOffRequest);
