@@ -316,8 +316,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
           + "left join departments d on j.department_id = d.id "
           + "left join user_roles ur on u.user_role_id = ur.id "
           + "where u.company_id = unhex(?1) "
-          + "and (up.first_name like concat('%', ?2, '%') "
-          + "or up.last_name like concat('%', ?2, '%')) ";
+          + "and concat(up.first_name, ' ', up.last_name) like concat('%', ?2, '%') ";
 
     final String additionalSql = ACTIVE_USER_QUERY;
 
