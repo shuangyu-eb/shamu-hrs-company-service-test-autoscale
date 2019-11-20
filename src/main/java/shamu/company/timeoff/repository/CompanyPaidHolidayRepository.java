@@ -33,9 +33,9 @@ public interface CompanyPaidHolidayRepository extends BaseRepository<CompanyPaid
   @Transactional
   @Query(
           value = "delete from "
-                  + "companies_paid_holidays cph "
+                  + "companies_paid_holidays "
                   + "where "
-                  + "cph.paid_holiday_id=unhex(?1) ",
+                  + "paid_holiday_id=unhex(?1) ",
           nativeQuery = true)
   void deleteByPaidHolidayId(String id);
 }
