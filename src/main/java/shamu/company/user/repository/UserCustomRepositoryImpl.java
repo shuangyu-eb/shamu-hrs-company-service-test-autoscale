@@ -260,16 +260,15 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
           existingUser.getUserRole()));
     }
 
+    final User returnUser;
     if (user.getId() != null && existingUser != null) {
-      entityManager.merge(user);
+      returnUser = entityManager.merge(user);
     } else {
       entityManager.persist(user);
+      returnUser = user;
     }
 
-    entityManager.flush();
-    entityManager.refresh(user);
-
-    return user;
+    return returnUser;
   }
 
   @Override
