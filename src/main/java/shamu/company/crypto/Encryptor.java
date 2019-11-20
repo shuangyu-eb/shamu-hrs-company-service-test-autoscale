@@ -46,6 +46,10 @@ public class Encryptor {
     return encrypt(value, getEncryptor(userId));
   }
 
+  public String encrypt(final User user, final String value) {
+    return encrypt(value, getEncryptor(user));
+  }
+
   private String decrypt(final String userId, final String value) {
     final User user = getUserById(userId);
     return decrypt(user, value);

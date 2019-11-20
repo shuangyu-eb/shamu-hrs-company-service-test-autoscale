@@ -229,6 +229,8 @@ public class EmployeeService {
     final WelcomeEmailDto welcomeEmailDto = employeeDto.getWelcomeEmail();
 
     saveEmailTasks(welcomeEmailDto, employee, currentUser);
+
+    userRepository.save(employee);
   }
 
   public void updateEmployee(final EmployeeDto employeeDto, final User employee) {
@@ -316,16 +318,11 @@ public class EmployeeService {
     final String userId = auth0Util.getUserId(user);
     employee.setId(userId);
     employee.setUserRole(userRoleService.getEmployee());
-    // save employee id to database for ssn encrypting
-    userRepository.save(employee);
-    employee = saveInvitedEmployeeAdditionalInformation(employee,
-      employeeDto);
-    // save employee's other information
-    userRepository.save(employee);
+    saveInvitedEmployeeAdditionalInformation(employee, employeeDto);
     return employee;
   }
 
-  User saveInvitedEmployeeAdditionalInformation(final User employee,
+  private void saveInvitedEmployeeAdditionalInformation(final User employee,
       final EmployeeDto employeeDto) {
     final UserPersonalInformation userPersonalInformation =
         userPersonalInformationMapper
@@ -350,7 +347,7 @@ public class EmployeeService {
       }
 
       encryptorUtil
-          .encryptSsn(employee.getId(), userPersonalInformation.getSsn(), userPersonalInformation);
+          .encryptSsn(employee, userPersonalInformation.getSsn(), userPersonalInformation);
 
       employee.setUserPersonalInformation(userPersonalInformation);
     }
@@ -364,7 +361,6 @@ public class EmployeeService {
 
     userContactInformation.setEmailWork(employeeDto.getEmailWork());
     employee.setUserContactInformation(userContactInformation);
-    return employee;
   }
 
   private User updateEmployeeBasicInformation(final User employee, final EmployeeDto employeeDto) {
@@ -463,7 +459,7 @@ public class EmployeeService {
       }
 
       user.setManagerUser(managerUser);
-      userRepository.saveAll(Arrays.asList(managerUser, user));
+      userRepository.save(managerUser);
     }
   }
 
@@ -484,7 +480,6 @@ public class EmployeeService {
       final UserCompensation userCompensationReturned = userCompensationRepository
           .save(userCompensation);
       user.setUserCompensation(userCompensationReturned);
-      userRepository.save(user);
     }
   }
 
