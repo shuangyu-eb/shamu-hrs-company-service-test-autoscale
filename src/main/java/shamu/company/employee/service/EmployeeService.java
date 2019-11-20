@@ -229,8 +229,6 @@ public class EmployeeService {
     final WelcomeEmailDto welcomeEmailDto = employeeDto.getWelcomeEmail();
 
     saveEmailTasks(welcomeEmailDto, employee, currentUser);
-
-    userRepository.save(employee);
   }
 
   public void updateEmployee(final EmployeeDto employeeDto, final User employee) {
@@ -319,7 +317,7 @@ public class EmployeeService {
     employee.setId(userId);
     employee.setUserRole(userRoleService.getEmployee());
     saveInvitedEmployeeAdditionalInformation(employee, employeeDto);
-    return employee;
+    return userRepository.save(employee);
   }
 
   private void saveInvitedEmployeeAdditionalInformation(final User employee,

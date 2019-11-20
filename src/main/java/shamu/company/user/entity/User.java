@@ -4,6 +4,7 @@ import com.alibaba.fastjson.annotation.JSONField;
 import java.sql.Date;
 import java.sql.Timestamp;
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
@@ -88,6 +89,7 @@ public class User {
   private Timestamp verifyChangeWorkEmailAt;
 
   @CreationTimestamp
+  @Column(name = "created_at", updatable = false)
   private Timestamp createdAt;
 
   @UpdateTimestamp
