@@ -1,10 +1,12 @@
 package shamu.company.user.dto;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import shamu.company.crypto.Crypto;
 import shamu.company.user.entity.UserPersonalInformation;
 
 @Data
+@NoArgsConstructor
 public class UserPersonalInformationDto extends BasicUserPersonalInformationDto {
 
   private String genderId;

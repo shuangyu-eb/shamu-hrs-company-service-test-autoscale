@@ -440,7 +440,6 @@ public class TimeOffPolicyService {
     originTimeOffSchedule.setExpiredAt(new Timestamp(new Date().getTime()));
     timeOffPolicyAccrualScheduleRepository.save(originTimeOffSchedule);
 
-    // TODO check - in id
     newTimeOffSchedule = timeOffPolicyAccrualScheduleRepository.save(newTimeOffSchedule);
 
     accrualScheduleMilestoneRepository

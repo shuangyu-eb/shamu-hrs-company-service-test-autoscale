@@ -1,6 +1,7 @@
 package shamu.company.employee.dto;
 
 import lombok.Data;
+import shamu.company.common.config.annotations.CanEmpty;
 
 @Data
 public class EmployeeListSearchCondition {
@@ -9,6 +10,7 @@ public class EmployeeListSearchCondition {
   private static final String FIRST_NAME = "firstName";
   private static final String DEPARTMENT = "department";
   private static final String JOB_TITLE = "jobTitle";
+  @CanEmpty
   private String keyword = "";
   private Integer page = 0;
   private Integer size = 20;

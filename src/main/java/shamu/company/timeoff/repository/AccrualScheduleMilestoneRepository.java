@@ -18,8 +18,8 @@ public interface AccrualScheduleMilestoneRepository extends
 
   @Modifying
   @Query(value = "update time_off_policy_accrual_schedule_milestones "
-      + "set time_off_policy_accrual_schedule_id = unhex(replace(?2, '-', '')) "
-      + "where time_off_policy_accrual_schedule_id = unhex(replace(?1, '-', ''))",
+      + "set time_off_policy_accrual_schedule_id = unhex(?2) "
+      + "where time_off_policy_accrual_schedule_id = unhex(?1)",
       nativeQuery = true)
   void updateMilestoneSchedule(String originScheduleId, String newScheduleId);
 

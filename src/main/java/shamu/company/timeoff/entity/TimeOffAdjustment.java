@@ -3,7 +3,6 @@ package shamu.company.timeoff.entity;
 import java.sql.Timestamp;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -15,7 +14,6 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
-import shamu.company.common.entity.BaseEntity;
 import shamu.company.company.entity.Company;
 import shamu.company.user.entity.User;
 
@@ -31,7 +29,7 @@ public class TimeOffAdjustment {
   @GeneratedValue(generator = "UUID")
   @GenericGenerator(
       name = "UUID",
-      strategy = "org.hibernate.id.UUIDGenerator"
+      strategy = "shamu.company.common.DefaultUuidGenerator"
   )
   @Type(type = "shamu.company.common.PrimaryKeyTypeDescriptor")
   private String id;

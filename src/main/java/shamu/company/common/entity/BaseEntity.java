@@ -19,7 +19,7 @@ public class BaseEntity {
   @GeneratedValue(generator = "UUID")
   @GenericGenerator(
       name = "UUID",
-      strategy = "org.hibernate.id.UUIDGenerator"
+      strategy = "shamu.company.common.DefaultUuidGenerator"
   )
   @Type(type = "shamu.company.common.PrimaryKeyTypeDescriptor")
   private String id;

@@ -5,22 +5,27 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.format.FormatterRegistry;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.lang.Nullable;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import shamu.company.crypto.CryptoValueFilter;
-import shamu.company.hashids.Converter;
 import shamu.company.s3.PreSignedValueFilter;
 
 @Configuration
 public class WebMvcConfiguration extends WebMvcConfigurationSupport {
 
-  @Autowired
-  PreSignedValueFilter preSignedValueFilter;
+  private final PreSignedValueFilter preSignedValueFilter;
+
+  private final CryptoValueFilter cryptoValueFilter;
 
   @Autowired
-  CryptoValueFilter cryptoValueFilter;
+  public WebMvcConfiguration(final PreSignedValueFilter preSignedValueFilter,
+      final CryptoValueFilter cryptoValueFilter) {
+    this.preSignedValueFilter = preSignedValueFilter;
+    this.cryptoValueFilter = cryptoValueFilter;
+  }
 
   @Bean
   @Override
@@ -34,7 +39,12 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
   @Override
   protected void configureMessageConverters(final List<HttpMessageConverter<?>> converters) {
     final FastJsonHttpMessageConverter convert =
-        new Converter(preSignedValueFilter, cryptoValueFilter);
+        new HttpJsonMessageConverter(preSignedValueFilter, cryptoValueFilter);
     converters.add(convert);
+  }
+
+  @Override
+  protected void addFormatters(FormatterRegistry registry) {
+    registry.addConverter(new StringFieldConditionalConverter());
   }
 }

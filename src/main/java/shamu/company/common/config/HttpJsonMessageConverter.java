@@ -1,7 +1,9 @@
-package shamu.company.hashids;
+package shamu.company.common.config;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.parser.ParserConfig;
+import com.alibaba.fastjson.parser.deserializer.ParseProcess;
 import com.alibaba.fastjson.serializer.ValueFilter;
 import com.alibaba.fastjson.support.config.FastJsonConfig;
 import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter;
@@ -13,12 +15,16 @@ import java.nio.charset.Charset;
 import org.springframework.http.HttpInputMessage;
 import shamu.company.common.exception.GeneralException;
 
-public class Converter extends FastJsonHttpMessageConverter {
+public class HttpJsonMessageConverter extends FastJsonHttpMessageConverter {
 
-  public Converter(final ValueFilter valueFilter, final ValueFilter valueFilter2) {
+  public HttpJsonMessageConverter(final ValueFilter... valueFilter) {
     super();
     final FastJsonConfig fastJsonConfig = new FastJsonConfig();
-    fastJsonConfig.setSerializeFilters(valueFilter, valueFilter2);
+    fastJsonConfig.setSerializeFilters(valueFilter);
+
+    ParserConfig parserConfig = new ParserConfig();
+    parserConfig.putDeserializer(String.class, new StringFieldJsonDecoder());
+    fastJsonConfig.setParserConfig(parserConfig);
 
     this.setFastJsonConfig(fastJsonConfig);
   }
@@ -41,8 +47,11 @@ public class Converter extends FastJsonHttpMessageConverter {
         return Long.parseLong(json);
       }
 
-      return JSON.parseObject(json, type, getFastJsonConfig().getParserConfig(),
-          JSON.DEFAULT_PARSER_FEATURE, getFastJsonConfig().getFeatures());
+      ParserConfig parseConfig = getFastJsonConfig().getParserConfig();
+      ParseProcess parseProcess = getFastJsonConfig().getParseProcess();
+      return JSON.parseObject(json, type, parseConfig,
+          parseProcess, JSON.DEFAULT_PARSER_FEATURE,
+          getFastJsonConfig().getFeatures());
     } catch (final JSONException ex) {
       throw new GeneralException("JSON parse error: " + ex.getMessage(), ex);
     } catch (final IOException ex) {
