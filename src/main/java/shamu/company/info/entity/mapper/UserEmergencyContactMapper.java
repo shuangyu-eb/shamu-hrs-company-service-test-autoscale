@@ -3,6 +3,7 @@ package shamu.company.info.entity.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.springframework.util.StringUtils;
+import shamu.company.common.entity.Country;
 import shamu.company.common.entity.StateProvince;
 import shamu.company.common.mapper.Config;
 import shamu.company.info.dto.BasicUserEmergencyContactDto;
@@ -21,10 +22,12 @@ public interface UserEmergencyContactMapper {
   @Mapping(target = "userId", source = "user.id")
   @Mapping(target = "stateId", source = "state.id")
   @Mapping(target = "stateName", source = "state.name")
+  @Mapping(target = "country", source = "country.id")
   UserEmergencyContactDto convertToUserEmergencyContactDto(
       UserEmergencyContact userEmergencyContact);
 
   @Mapping(target = "state", source = "stateId")
+  @Mapping(target = "country", source = "country")
   @Mapping(target = "user", source = "userId")
   @Mapping(target = "id", source = "id")
   UserEmergencyContact createFromUserEmergencyContactDto(
@@ -40,5 +43,9 @@ public interface UserEmergencyContactMapper {
 
   default State convertFromId(final String stateId) {
     return StringUtils.isEmpty(stateId) ? null : new State(stateId);
+  }
+
+  default Country convertFromCountryId(final String countryId) {
+    return StringUtils.isEmpty(countryId) ? null : new Country(countryId);
   }
 }

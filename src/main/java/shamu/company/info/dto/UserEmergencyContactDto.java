@@ -25,24 +25,28 @@ public class UserEmergencyContactDto extends BasicUserEmergencyContactDto {
 
   private String postalCode;
 
+  private String country;
 
-  public UserEmergencyContactDto(UserEmergencyContact userEmergencyContact) {
+
+  public UserEmergencyContactDto(final UserEmergencyContact userEmergencyContact) {
     super(userEmergencyContact);
-    this.street1 = userEmergencyContact.getStreet1();
-    this.street2 = userEmergencyContact.getStreet2();
-    this.city = userEmergencyContact.getCity();
-    this.stateId =
+    street1 = userEmergencyContact.getStreet1();
+    street2 = userEmergencyContact.getStreet2();
+    city = userEmergencyContact.getCity();
+    stateId =
         userEmergencyContact.getState() == null ? null : userEmergencyContact.getState().getId();
-    this.stateName =
+    stateName =
         userEmergencyContact.getState() == null ? null : userEmergencyContact.getState().getName();
-    this.postalCode = userEmergencyContact.getPostalCode();
+    postalCode = userEmergencyContact.getPostalCode();
+    country = userEmergencyContact.getCountry() == null ? null
+        : userEmergencyContact.getCountry().getId();
   }
 
   @JSONField(serialize = false)
   public UserEmergencyContact getEmergencyContact() {
-    UserEmergencyContact userEmergencyContact = new UserEmergencyContact();
+    final UserEmergencyContact userEmergencyContact = new UserEmergencyContact();
     BeanUtils.copyProperties(this, userEmergencyContact);
-    userEmergencyContact.setState(new StateProvince(this.stateId));
+    userEmergencyContact.setState(new StateProvince(stateId));
     return userEmergencyContact;
   }
 }

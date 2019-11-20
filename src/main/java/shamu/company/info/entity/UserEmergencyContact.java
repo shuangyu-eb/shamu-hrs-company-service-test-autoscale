@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
 import shamu.company.common.entity.BaseEntity;
+import shamu.company.common.entity.Country;
 import shamu.company.common.entity.StateProvince;
 import shamu.company.user.entity.User;
 
@@ -51,6 +52,9 @@ public class UserEmergencyContact extends BaseEntity {
 
   @Length(max = 30)
   private String postalCode;
+
+  @ManyToOne
+  private Country country;
 
   private Boolean isPrimary = false;
 }

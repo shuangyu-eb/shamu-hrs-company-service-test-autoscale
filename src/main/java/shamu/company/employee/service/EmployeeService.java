@@ -555,7 +555,7 @@ public class EmployeeService {
     userAddress.setStreet1(userAddressDto.getStreet1());
     userAddress.setStreet2(userAddressDto.getStreet2());
     userAddress.setCity(userAddressDto.getCity());
-    final String stateProvinceId = employeeDto.getUserAddress().getStateProvinceId();
+    final String stateProvinceId = employeeDto.getUserAddress().getStateId();
     if (!StringUtils.isEmpty(stateProvinceId)) {
       final StateProvince stateProvince = stateProvinceRepository.getOne(stateProvinceId);
       userAddress.setStateProvince(stateProvince);

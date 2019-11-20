@@ -21,9 +21,9 @@ public class UserAddressDto {
 
   private String countryId;
 
-  private String stateProvinceName;
+  private String stateName;
 
-  private String stateProvinceId;
+  private String stateId;
 
   private String postalCode;
 }

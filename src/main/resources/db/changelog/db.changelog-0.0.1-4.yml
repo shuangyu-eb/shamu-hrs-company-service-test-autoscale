@@ -2552,3 +2552,29 @@ databaseChangeLog:
     - sql:
        sql: drop trigger ins_paid_holidays
 
+- changeSet:
+      id: 1574236693843-1
+      author: haibo-eb
+      changes:
+          - addColumn:
+                columns:
+                    - column:
+                          name: country_id
+                          type: BINARY(16)
+                tableName: user_emergency_contacts
+
+- changeSet:
+    id: 1574236693843-2
+    author: haibo-eb
+    preConditions:
+      onFail: WARN
+    changes:
+      - addForeignKeyConstraint:
+          baseColumnNames: country_id
+          baseTableName: user_emergency_contacts
+          constraintName: fk_emergency_contacts_countries
+          onDelete: SET NULL
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: countries
+

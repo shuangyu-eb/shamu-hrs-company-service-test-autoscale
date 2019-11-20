@@ -16,18 +16,18 @@ public interface UserAddressMapper {
 
   @Mapping(target = "countryName", source = "country.name")
   @Mapping(target = "countryId", source = "country.id")
-  @Mapping(target = "stateProvinceId", source = "stateProvince.id")
-  @Mapping(target = "stateProvinceName", source = "stateProvince.name")
+  @Mapping(target = "stateId", source = "stateProvince.id")
+  @Mapping(target = "stateName", source = "stateProvince.name")
   @Mapping(target = "userId", source = "user.id")
   UserAddressDto convertToUserAddressDto(UserAddress userAddress);
 
-  @Mapping(target = "stateProvince", source = "stateProvinceId")
+  @Mapping(target = "stateProvince", source = "stateId")
   @Mapping(target = "country", source = "countryId")
   @Mapping(target = "user", source = "userId")
   void updateFromUserAddressDto(@MappingTarget UserAddress userAddress,
       UserAddressDto userAddressDto);
 
-  @Mapping(target = "stateProvince", source = "stateProvinceId")
+  @Mapping(target = "stateProvince", source = "stateId")
   @Mapping(target = "country", source = "countryId")
   @Mapping(target = "user", source = "userId")
   UserAddress createFromUserAddressDto(UserAddressDto userAddressDto);
