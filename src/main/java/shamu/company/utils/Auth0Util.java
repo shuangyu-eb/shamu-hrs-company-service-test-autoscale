@@ -4,6 +4,7 @@ import com.auth0.client.auth.AuthAPI;
 import com.auth0.client.mgmt.ManagementAPI;
 import com.auth0.client.mgmt.filter.PageFilter;
 import com.auth0.client.mgmt.filter.UserFilter;
+import com.auth0.exception.APIException;
 import com.auth0.exception.Auth0Exception;
 import com.auth0.json.auth.TokenHolder;
 import com.auth0.json.mgmt.Permission;
@@ -13,15 +14,20 @@ import com.auth0.json.mgmt.RolesPage;
 import com.auth0.json.mgmt.users.User;
 import com.auth0.json.mgmt.users.UsersPage;
 import com.auth0.net.AuthRequest;
+import com.auth0.net.CustomRequest;
 import com.auth0.net.Request;
+import com.fasterxml.jackson.core.type.TypeReference;
 import io.micrometer.core.instrument.util.StringUtils;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
+import okhttp3.OkHttpClient;
+import okhttp3.OkHttpClient.Builder;
 import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -35,9 +41,13 @@ import shamu.company.common.exception.TooManyRequestException;
 @Slf4j
 public class Auth0Util {
 
-  private static final String managementApi = "managementApi";
+  private static final String MANAGEMENT_API = "managementApi";
   private final Auth0Config auth0Config;
   private final Auth0Manager auth0Manager;
+  private static final String MFA_REQUIRED = "mfa_required";
+  private final OkHttpClient httpClient = new Builder().build();
+  private static final String MFA_ENDPOINT = "http://auth0.com/oauth/grant-type/mfa-otp";
+  private static final String MFA_CONTENT_TYPE = "application/x-www-form-urlencoded";
 
   @Autowired
   public Auth0Util(final Auth0Manager auth0Manager,
@@ -50,8 +60,7 @@ public class Auth0Util {
     return auth0Config.getAuthApi();
   }
 
-  private AbstractException handleAuth0Exception(final String message,
-      final Auth0Exception e,
+  private AbstractException handleAuth0Exception(final Auth0Exception e,
       final String api) {
     if ((e.getMessage().contains(String.valueOf(HttpStatus.TOO_MANY_REQUESTS.value())) ||
         e.getMessage().contains(HttpStatus.TOO_MANY_REQUESTS.getReasonPhrase())) &&
@@ -60,27 +69,64 @@ public class Auth0Util {
           + "System limits for request are 100 requests per second.", e);
     } else if ((e.getMessage().contains(String.valueOf(HttpStatus.TOO_MANY_REQUESTS.value())) ||
         e.getMessage().contains(HttpStatus.TOO_MANY_REQUESTS.getReasonPhrase())) &&
-        api.equals(managementApi)) {
+        api.equals(MANAGEMENT_API)) {
       return new TooManyRequestException("Too many requests. "
           + "System limits for request are 15 requests per second.", e);
     } else {
-      return new GeneralAuth0Exception(message, e);
+      return new GeneralAuth0Exception(e.getMessage(), e);
     }
   }
 
-  public TokenHolder login(final String email, final String password) {
+  @SuppressWarnings("unchecked")
+  public TokenHolder login(final String email, final String password, Function mfaCallback) {
     try {
       final AuthRequest request = getAuthAPI().login(email, password)
           .setAudience(auth0Config.getAudience());
       return request.execute();
-    } catch (final Auth0Exception exception) {
-      throw handleAuth0Exception(exception.getMessage(), exception, "authApi");
+    } catch (APIException apiException) {
+      if (MFA_REQUIRED.equals(apiException.getError())) {
+        if (mfaCallback != null) {
+          String mfaToken = (String) apiException.getValue("mfa_token");
+          mfaCallback.apply(mfaToken);
+        }
+        return null;
+      }
+      throw handleAuth0Exception(apiException, "authApi");
+    } catch(final Auth0Exception exception) {
+      throw handleAuth0Exception(exception, "authApi");
+    } catch (Exception e) {
+      throw e;
     }
+  }
+
+  @SuppressWarnings("unchecked")
+  public TokenHolder validateMfa(String mfaToken, String otp) {
+
+    CustomRequest<TokenHolder> customRequest = new CustomRequest(httpClient,
+        String.format("https://%s/oauth/token", auth0Config.getDomain()),
+        "POST",
+        new TypeReference<TokenHolder>() {});
+    customRequest.addHeader("content-type", MFA_CONTENT_TYPE);
+
+    customRequest
+        .addParameter("mfa_token", mfaToken)
+        .addParameter("otp", otp)
+        .addParameter("grant_type", MFA_ENDPOINT)
+        .addParameter("client_id", auth0Config.getClientId())
+        .addParameter("client_secret", auth0Config.getClientSecret());
+
+    try {
+      TokenHolder result = customRequest.execute();
+      return result;
+    } catch (Auth0Exception e) {
+      handleAuth0Exception(e, "authApi");
+    }
+    return null;
   }
 
   public boolean isPasswordValid(final String email, final String password) {
     try {
-      login(email, password);
+      login(email, password, null);
       return true;
     } catch (final GeneralAuth0Exception exception) {
       return false;
@@ -95,7 +141,7 @@ public class Auth0Util {
     try {
       users = userRequest.execute();
     } catch (final Auth0Exception e) {
-      throw handleAuth0Exception(e.getMessage(), e, managementApi);
+      throw handleAuth0Exception(e, MANAGEMENT_API);
     }
 
     if (users.size() > 1) {
@@ -118,7 +164,7 @@ public class Auth0Util {
     try {
       usersPage = userRequest.execute();
     } catch (final Auth0Exception e) {
-      throw handleAuth0Exception(e.getMessage(), e, managementApi);
+      throw handleAuth0Exception(e, MANAGEMENT_API);
     }
 
     final List<User> users = usersPage.getItems();
@@ -158,7 +204,7 @@ public class Auth0Util {
           .update(user.getId(), passwordUpdateUser);
       passwordUpdateRequest.execute();
     } catch (final Auth0Exception e) {
-      throw handleAuth0Exception(e.getMessage(), e, managementApi);
+      throw handleAuth0Exception(e, MANAGEMENT_API);
     }
   }
 
@@ -172,7 +218,7 @@ public class Auth0Util {
           .update(authUser.getId(), emailUpdateUser);
       emailUpdateRequest.execute();
     } catch (final Auth0Exception e) {
-      throw handleAuth0Exception(e.getMessage(), e, managementApi);
+      throw handleAuth0Exception(e, MANAGEMENT_API);
     }
   }
 
@@ -203,7 +249,7 @@ public class Auth0Util {
           .update(user.getId(), verifiedUpdate);
       verifiedRequest.execute();
     } catch (final Auth0Exception e) {
-      throw handleAuth0Exception(e.getMessage(), e, managementApi);
+      throw handleAuth0Exception(e, MANAGEMENT_API);
     }
   }
 
@@ -247,7 +293,7 @@ public class Auth0Util {
     try {
       return request.execute();
     } catch (final Auth0Exception e) {
-      throw handleAuth0Exception(e.getMessage(), e, managementApi);
+      throw handleAuth0Exception(e, MANAGEMENT_API);
     }
   }
 
@@ -274,7 +320,7 @@ public class Auth0Util {
 
       return shamu.company.user.entity.User.Role.valueOf(targetRole.getName());
     } catch (final Auth0Exception e) {
-      throw handleAuth0Exception(e.getMessage(), e, managementApi);
+      throw handleAuth0Exception(e, MANAGEMENT_API);
     }
   }
 
@@ -306,7 +352,7 @@ public class Auth0Util {
       updateUserRoleRequest.execute();
 
     } catch (final Auth0Exception e) {
-      throw handleAuth0Exception(e.getMessage(), e, managementApi);
+      throw handleAuth0Exception(e, MANAGEMENT_API);
     }
   }
 
@@ -316,7 +362,7 @@ public class Auth0Util {
       final Request deleteUserRequest = manager.users().delete(auth0UserId);
       deleteUserRequest.execute();
     } catch (final Auth0Exception e) {
-      throw handleAuth0Exception(e.getMessage(), e, managementApi);
+      throw handleAuth0Exception(e, MANAGEMENT_API);
     }
 
   }

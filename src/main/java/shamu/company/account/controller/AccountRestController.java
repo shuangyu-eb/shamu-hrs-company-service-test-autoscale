@@ -42,7 +42,7 @@ public class AccountRestController {
 
   @PatchMapping("account/unlock")
   public HttpEntity unlock(@RequestBody @Valid final UserLoginDto userLoginDto) {
-    auth0Util.login(userLoginDto.getEmailWork(), userLoginDto.getPassword());
+    auth0Util.login(userLoginDto.getEmailWork(), userLoginDto.getPassword(), null);
     return new ResponseEntity(HttpStatus.OK);
   }
 

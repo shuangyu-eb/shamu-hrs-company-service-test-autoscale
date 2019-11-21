@@ -25,6 +25,7 @@ import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
 import shamu.company.user.event.UserRoleUpdatedEvent;
 import shamu.company.utils.Auth0Util;
+import shamu.company.utils.BeanUtils;
 import shamu.company.utils.TupleUtil;
 
 @Repository
@@ -253,8 +254,10 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
 
   @Override
   public User saveUser(final User user) {
+    entityManager.detach(user);
     final User existingUser = entityManager.find(User.class, user.getId());
-    if (existingUser != null && user.getUserRole() != existingUser.getUserRole()) {
+
+    if (existingUser != null && existingUser.getRole() != user.getRole()) {
       auth0Util.updateRoleWithUserId(existingUser.getId(), user.getUserRole().getName());
       applicationEventPublisher.publishEvent(new UserRoleUpdatedEvent(existingUser.getId(),
           existingUser.getUserRole()));

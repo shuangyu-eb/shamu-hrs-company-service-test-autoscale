@@ -417,7 +417,7 @@ public class UserService {
   public User updateUserRole(final String email, final UserRoleUpdateDto userRoleUpdateDto,
       final User user) {
 
-    auth0Util.login(email, userRoleUpdateDto.getPassWord());
+    auth0Util.login(email, userRoleUpdateDto.getPassWord(), null);
 
     final UserRole targetRole;
     if (userRoleUpdateDto.getUserRole() == Role.ADMIN) {
@@ -453,7 +453,7 @@ public class UserService {
       final UserStatusUpdateDto userStatusUpdateDto,
       final User user) {
 
-    auth0Util.login(email, userStatusUpdateDto.getPassWord());
+    auth0Util.login(email, userStatusUpdateDto.getPassWord(), null);
 
     final Date deactivationDate = userStatusUpdateDto.getDeactivationDate();
 
