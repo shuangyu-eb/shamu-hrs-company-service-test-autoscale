@@ -555,6 +555,11 @@ public class EmployeeService {
     } else {
       userAddress.setStateProvince(null);
     }
+    if (!StringUtils.isEmpty(userAddressDto.getCountryId())) {
+      Country country = new Country();
+      country.setId(userAddressDto.getCountryId());
+      userAddress.setCountry(country);
+    }
     userAddress.setPostalCode(userAddressDto.getPostalCode());
     userAddressRepository.save(userAddress);
   }

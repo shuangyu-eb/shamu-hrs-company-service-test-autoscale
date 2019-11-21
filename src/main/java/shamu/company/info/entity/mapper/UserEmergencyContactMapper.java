@@ -23,6 +23,7 @@ public interface UserEmergencyContactMapper {
   @Mapping(target = "stateId", source = "state.id")
   @Mapping(target = "stateName", source = "state.name")
   @Mapping(target = "country", source = "country.id")
+  @Mapping(target = "countryName", source = "country.name")
   UserEmergencyContactDto convertToUserEmergencyContactDto(
       UserEmergencyContact userEmergencyContact);
 

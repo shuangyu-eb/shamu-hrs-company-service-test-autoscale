@@ -27,6 +27,8 @@ public class UserEmergencyContactDto extends BasicUserEmergencyContactDto {
 
   private String country;
 
+  private String countryName;
+
 
   public UserEmergencyContactDto(final UserEmergencyContact userEmergencyContact) {
     super(userEmergencyContact);
@@ -40,6 +42,8 @@ public class UserEmergencyContactDto extends BasicUserEmergencyContactDto {
     postalCode = userEmergencyContact.getPostalCode();
     country = userEmergencyContact.getCountry() == null ? null
         : userEmergencyContact.getCountry().getId();
+    countryName = userEmergencyContact.getCountry() == null ? null
+            : userEmergencyContact.getCountry().getName();
   }
 
   @JSONField(serialize = false)
