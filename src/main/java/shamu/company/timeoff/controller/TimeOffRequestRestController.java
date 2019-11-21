@@ -1,6 +1,7 @@
 package shamu.company.timeoff.controller;
 
 import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.TimeOffApprovalStatus.APPROVED;
+import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.TimeOffApprovalStatus.AWAITING_REVIEW;
 import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.TimeOffApprovalStatus.DENIED;
 import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.TimeOffApprovalStatus.NO_ACTION;
 import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.TimeOffApprovalStatus.VIEWED;
@@ -97,7 +98,7 @@ public class TimeOffRequestRestController extends BaseRestController {
 
     final TimeOffRequest timeOffRequestReturned = timeOffRequestService
         .saveTimeOffRequest(
-            timeOffRequest, requestCreateDto.getPolicyId(), NO_ACTION);
+            timeOffRequest, requestCreateDto.getPolicyId(), AWAITING_REVIEW);
     saveTimeOffRequestDates(requestCreateDto, timeOffRequestReturned);
 
     timeOffRequestEmailService.sendEmail(timeOffRequestReturned);
@@ -195,7 +196,7 @@ public class TimeOffRequestRestController extends BaseRestController {
         page, size, Sort.by(SortFields.CREATED_AT.getValue()).descending());
     final MyTimeOffDto myTimeOffDto;
     final Timestamp startDayTimestamp = DateUtil.getFirstDayOfCurrentYear();
-    final String[] timeOffRequestStatuses = new String[]{NO_ACTION.name(), VIEWED.name()};
+    final String[] timeOffRequestStatuses = new String[]{AWAITING_REVIEW.name()};
 
     myTimeOffDto =
         timeOffRequestService.getMyTimeOffRequestsByRequesterUserIdFilteredByStartDay(

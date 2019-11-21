@@ -15,6 +15,7 @@ public class TimeOffRequestApprovalStatus extends BaseEntity {
   public enum TimeOffApprovalStatus {
     NO_ACTION,
     VIEWED,
+    AWAITING_REVIEW,
     APPROVED,
     DENIED
   }
