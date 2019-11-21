@@ -44,4 +44,11 @@ public interface TimeOffRequestMapper {
 
   @Mapping(target = "timeOffRequestApprovalStatus", source = "status")
   TimeOffRequest createFromTimeOffRequestUpdateDto(TimeOffRequestUpdateDto timeOffRequestUpdateDto);
+
+  default TimeOffRequestApprovalStatus convertByTimeOffApprovalStatus(
+          TimeOffRequestApprovalStatus.TimeOffApprovalStatus status) {
+    TimeOffRequestApprovalStatus timeOffRequestApprovalStatus = new TimeOffRequestApprovalStatus();
+    timeOffRequestApprovalStatus.setName(status.name());
+    return timeOffRequestApprovalStatus;
+  }
 }
