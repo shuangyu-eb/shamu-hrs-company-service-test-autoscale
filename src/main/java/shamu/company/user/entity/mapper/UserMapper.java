@@ -30,7 +30,8 @@ public interface UserMapper {
 
   @Mapping(target = "avatar", source = "imageUrl")
   @Mapping(target = "email", source = "userContactInformation.emailWork")
-  @Mapping(target = "name", source = "userPersonalInformation")
+  @Mapping(target = "firstName", source = "userPersonalInformation.firstName")
+  @Mapping(target = "lastName", source = "userPersonalInformation.lastName")
   UserDto convertToUserDto(User user);
 
   List<UserDto> convertToUserDtos(List<User> users);
