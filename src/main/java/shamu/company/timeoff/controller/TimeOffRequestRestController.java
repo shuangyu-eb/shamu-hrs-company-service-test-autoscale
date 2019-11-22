@@ -172,7 +172,7 @@ public class TimeOffRequestRestController extends BaseRestController {
   @PreAuthorize("hasAuthority('MANAGE_TIME_OFF_REQUEST')")
   public PageImpl<TimeOffRequestDto> getPendingRequestsByApprover(final int page,
       @RequestParam(defaultValue = "5", required = false) final int size) {
-    final String[] statuses = new String[]{NO_ACTION.name(), VIEWED.name()};
+    final String[] statuses = new String[]{AWAITING_REVIEW.name()};
     return getTimeOffRequestsByApprover(page, size, statuses, SortFields.CREATED_AT.getValue());
   }
 

@@ -1,6 +1,7 @@
 package shamu.company.timeoff.service;
 
 import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.TimeOffApprovalStatus.APPROVED;
+import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.TimeOffApprovalStatus.AWAITING_REVIEW;
 import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.TimeOffApprovalStatus.DENIED;
 import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.TimeOffApprovalStatus.NO_ACTION;
 
@@ -103,11 +104,9 @@ public class TimeOffRequestService {
   }
 
   public Integer getPendingRequestsCount(final User approver) {
-    final String[] statuses = new String[]{
-        NO_ACTION.name(), TimeOffApprovalStatus.VIEWED.name()
-    };
-    return timeOffRequestRepository.countByApproversContainingAndTimeOffApprovalStatusIsIn(
-        approver.getId(), statuses);
+    final String status = AWAITING_REVIEW.name();
+    return timeOffRequestRepository.countByApproverIdAndTimeOffApprovalStatus(
+        approver.getId(), status);
   }
 
   public TimeOffRequest getById(final String timeOffRequestId) {

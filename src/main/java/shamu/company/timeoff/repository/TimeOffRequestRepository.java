@@ -46,12 +46,19 @@ public interface TimeOffRequestRepository
   List<TimeOffRequest> findByRequesterUserInAndTimeOffApprovalStatus(
       List<byte[]> requsters, String approvalStatus, Timestamp start, Timestamp end);
 
-  @Query(value = "select count(1) from time_off_requests tr "
-      + " left join time_off_request_approval_statuses trs "
-      + "    on tr.time_off_request_approval_status_id = trs.id"
-      + " where tr.approver_user_id = unhex(?1) and trs.name in ?2", nativeQuery = true)
-  Integer countByApproversContainingAndTimeOffApprovalStatusIsIn(
-      String approver, String[] timeOffRequestApprovalStatus);
+  @Query(
+      value =
+          "select count(1) "
+              + "from time_off_requests tr "
+              + "left join time_off_requests_approvers ora "
+              + "on ora.time_off_request_id=tr.id "
+              + "left join time_off_request_approval_statuses trs "
+              + "on tr.time_off_request_approval_status_id = trs.id "
+              + "where ora.approver_user_id=unhex(?1) "
+              + "and trs.name=?2",
+      nativeQuery = true)
+  Integer countByApproverIdAndTimeOffApprovalStatus(
+      String approver, String timeOffRequestApprovalStatus);
 
   // TODO test entity transform with native query
   @Query(
