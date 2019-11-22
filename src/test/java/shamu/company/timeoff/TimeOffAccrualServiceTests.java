@@ -25,8 +25,6 @@ import shamu.company.utils.DateUtil;
 
 class TimeOffAccrualServiceTests {
 
-  private TimeOffAccrualService accrualService = new TimeOffAccrualService();
-
   @BeforeEach
   void setUp() {
     MockitoAnnotations.initMocks(this);
@@ -52,7 +50,7 @@ class TimeOffAccrualServiceTests {
         final String frequencyType =
             TimeOffAccrualFrequency.AccrualFrequencyType.FREQUENCY_TYPE_ONE.getValue();
         final Boolean result =
-            Whitebox.invokeMethod(accrualService, "invalidByStartDateAndEndDate",
+            Whitebox.invokeMethod(TimeOffAccrualService.class, "invalidByStartDateAndEndDate",
                 Timestamp.valueOf(startDate), Timestamp.valueOf(endDate), userEnrollTime,
                 frequencyType);
 
@@ -74,7 +72,7 @@ class TimeOffAccrualServiceTests {
         final String frequencyType =
             TimeOffAccrualFrequency.AccrualFrequencyType.FREQUENCY_TYPE_ONE.getValue();
         final Boolean result =
-            Whitebox.invokeMethod(accrualService, "invalidByStartDateAndEndDate",
+            Whitebox.invokeMethod(TimeOffAccrualService.class, "invalidByStartDateAndEndDate",
                 Timestamp.valueOf(startDate), Timestamp.valueOf(endDate), userEnrollTime,
                 frequencyType);
 
@@ -101,7 +99,7 @@ class TimeOffAccrualServiceTests {
         final String frequencyType =
             TimeOffAccrualFrequency.AccrualFrequencyType.FREQUENCY_TYPE_TWO.getValue();
         final Boolean result =
-            Whitebox.invokeMethod(accrualService, "invalidByStartDateAndEndDate",
+            Whitebox.invokeMethod(TimeOffAccrualService.class, "invalidByStartDateAndEndDate",
                 Timestamp.valueOf(startDate), Timestamp.valueOf(endDate), userEnrollTime,
                 frequencyType);
 
@@ -123,7 +121,7 @@ class TimeOffAccrualServiceTests {
         final String frequencyType =
             TimeOffAccrualFrequency.AccrualFrequencyType.FREQUENCY_TYPE_TWO.getValue();
         final Boolean result =
-            Whitebox.invokeMethod(accrualService, "invalidByStartDateAndEndDate",
+            Whitebox.invokeMethod(TimeOffAccrualService.class, "invalidByStartDateAndEndDate",
                 Timestamp.valueOf(startDate), Timestamp.valueOf(endDate), userEnrollTime,
                 frequencyType);
 
@@ -149,7 +147,7 @@ class TimeOffAccrualServiceTests {
         final String frequencyType =
             TimeOffAccrualFrequency.AccrualFrequencyType.FREQUENCY_TYPE_THREE.getValue();
         final Boolean result =
-            Whitebox.invokeMethod(accrualService, "invalidByStartDateAndEndDate",
+            Whitebox.invokeMethod(TimeOffAccrualService.class, "invalidByStartDateAndEndDate",
                 Timestamp.valueOf(startDate), Timestamp.valueOf(endDate), userEnrollTime,
                 frequencyType);
 
@@ -171,7 +169,7 @@ class TimeOffAccrualServiceTests {
         final String frequencyType =
             TimeOffAccrualFrequency.AccrualFrequencyType.FREQUENCY_TYPE_THREE.getValue();
         final Boolean result =
-            Whitebox.invokeMethod(accrualService, "invalidByStartDateAndEndDate",
+            Whitebox.invokeMethod(TimeOffAccrualService.class, "invalidByStartDateAndEndDate",
                 Timestamp.valueOf(startDate), Timestamp.valueOf(endDate), userEnrollTime,
                 frequencyType);
 
@@ -189,7 +187,7 @@ class TimeOffAccrualServiceTests {
       LocalDateTime firstTime = LocalDateTime.now().plusYears(1);
       LocalDateTime secondTime = LocalDateTime.now().plusDays(363);
       final Boolean result =
-          Whitebox.invokeMethod(accrualService, "isSameAnniversaryYear",
+          Whitebox.invokeMethod(TimeOffAccrualService.class, "isSameAnniversaryYear",
               baseTime, firstTime, secondTime);
       Assertions.assertFalse(result);
     }
@@ -200,7 +198,7 @@ class TimeOffAccrualServiceTests {
       LocalDateTime firstTime = LocalDateTime.now().plusDays(364);
       LocalDateTime secondTime = LocalDateTime.now().plusDays(363);
       final Boolean result =
-          Whitebox.invokeMethod(accrualService, "isSameAnniversaryYear",
+          Whitebox.invokeMethod(TimeOffAccrualService.class, "isSameAnniversaryYear",
               baseTime, firstTime, secondTime);
       Assertions.assertTrue(result);
     }
@@ -220,7 +218,7 @@ class TimeOffAccrualServiceTests {
       accrualSchedule.setTimeOffAccrualFrequency(timeOffAccrualFrequency);
 
       final LocalDate result =
-          Whitebox.invokeMethod(accrualService, "getScheduleStartBaseTime",
+          Whitebox.invokeMethod(TimeOffAccrualService.class, "getScheduleStartBaseTime",
               hireDate, userJoinPolicyDate, accrualSchedule);
       Assertions.assertTrue(
           result.isEqual(hireDate.plusDays(accrualSchedule.getDaysBeforeAccrualStarts())));
@@ -236,7 +234,7 @@ class TimeOffAccrualServiceTests {
       accrualSchedule.setTimeOffAccrualFrequency(timeOffAccrualFrequency);
 
       final LocalDate result =
-          Whitebox.invokeMethod(accrualService, "getScheduleStartBaseTime",
+          Whitebox.invokeMethod(TimeOffAccrualService.class, "getScheduleStartBaseTime",
               hireDate, userJoinPolicyDate, accrualSchedule);
       Assertions.assertTrue(result.isEqual(userJoinPolicyDate));
     }
@@ -251,7 +249,7 @@ class TimeOffAccrualServiceTests {
       LocalDate createTime = LocalDate.of(2019, 10, 19);
 
       final List<LocalDate> result =
-          Whitebox.invokeMethod(accrualService, "getValidScheduleOrMilestonePeriod",
+          Whitebox.invokeMethod(TimeOffAccrualService.class, "getValidScheduleOrMilestonePeriod",
               baseTime, DateUtil.fromLocalDate(createTime), null);
 
       Assertions.assertTrue(result.size() > 0);
@@ -268,7 +266,7 @@ class TimeOffAccrualServiceTests {
       Timestamp createTime = Timestamp.from(zonedDateTime.toInstant());
 
       final List<LocalDate> result =
-          Whitebox.invokeMethod(accrualService, "getValidScheduleOrMilestonePeriod",
+          Whitebox.invokeMethod(TimeOffAccrualService.class, "getValidScheduleOrMilestonePeriod",
               baseTime, createTime, null);
 
       Assertions.assertTrue(result.size() > 0);
@@ -283,7 +281,7 @@ class TimeOffAccrualServiceTests {
     void whenNoMaxBalance_thenReturnEmpty() throws Exception {
       List<TimeOffBreakdownItemDto> resultTimeOffBreakdownItemList = new ArrayList<>();
       TimeOffBalancePojo timeOffBalancePojo = new TimeOffBalancePojo();
-      Whitebox.invokeMethod(accrualService, "populateBreakdownListFromMaxBalance",
+      Whitebox.invokeMethod(TimeOffAccrualService.class, "populateBreakdownListFromMaxBalance",
           resultTimeOffBreakdownItemList, null, timeOffBalancePojo);
 
       Assertions.assertTrue(resultTimeOffBreakdownItemList.isEmpty());
@@ -296,7 +294,7 @@ class TimeOffAccrualServiceTests {
       timeOffBalancePojo.setBalance(20);
       timeOffBalancePojo.setMaxBalance(19);
 
-      Whitebox.invokeMethod(accrualService, "populateBreakdownListFromMaxBalance",
+      Whitebox.invokeMethod(TimeOffAccrualService.class, "populateBreakdownListFromMaxBalance",
           resultTimeOffBreakdownItemList, LocalDate.now(), timeOffBalancePojo);
 
       Assertions.assertEquals(1, resultTimeOffBreakdownItemList.size());
@@ -310,7 +308,7 @@ class TimeOffAccrualServiceTests {
     void whenNoCarryoverLimit_thenReturnEmpty() throws Exception {
       List<TimeOffBreakdownItemDto> resultTimeOffBreakdownItemList = new ArrayList<>();
       TimeOffBalancePojo timeOffBalancePojo = new TimeOffBalancePojo();
-      Whitebox.invokeMethod(accrualService, "populateBreakdownListFromCarryoverLimit",
+      Whitebox.invokeMethod(TimeOffAccrualService.class, "populateBreakdownListFromCarryoverLimit",
           resultTimeOffBreakdownItemList, null, timeOffBalancePojo);
 
       Assertions.assertTrue(resultTimeOffBreakdownItemList.isEmpty());
@@ -323,7 +321,7 @@ class TimeOffAccrualServiceTests {
       timeOffBalancePojo.setBalance(20);
       timeOffBalancePojo.setCarryOverLimit(15);
 
-      Whitebox.invokeMethod(accrualService, "populateBreakdownListFromCarryoverLimit",
+      Whitebox.invokeMethod(TimeOffAccrualService.class, "populateBreakdownListFromCarryoverLimit",
           resultTimeOffBreakdownItemList, LocalDate.now(), timeOffBalancePojo);
 
       Assertions.assertEquals(1, resultTimeOffBreakdownItemList.size());
@@ -336,7 +334,7 @@ class TimeOffAccrualServiceTests {
     TimeOffBalancePojo timeOffBalancePojo = new TimeOffBalancePojo();
     timeOffBalancePojo.setBalance(0);
 
-    Whitebox.invokeMethod(accrualService, "populateBreakdownListFromAccrualSchedule",
+    Whitebox.invokeMethod(TimeOffAccrualService.class, "populateBreakdownListFromAccrualSchedule",
         resultTimeOffBreakdownItemList, LocalDate.now(), 10, timeOffBalancePojo);
 
     Assertions.assertEquals(1, resultTimeOffBreakdownItemList.size());
@@ -359,7 +357,7 @@ class TimeOffAccrualServiceTests {
       itemDto.setAmount(20);
       adjustments.add(itemDto);
 
-      Whitebox.invokeMethod(accrualService, "populateBreakdownAdjustmentBefore",
+      Whitebox.invokeMethod(TimeOffAccrualService.class, "populateBreakdownAdjustmentBefore",
           resultTimeOffBreakdownItemList, untilDate, adjustments, balancePojo);
 
       Assertions.assertEquals(1, resultTimeOffBreakdownItemList.size());
@@ -379,7 +377,7 @@ class TimeOffAccrualServiceTests {
       itemDto.setAmount(20);
       adjustments.add(itemDto);
 
-      Whitebox.invokeMethod(accrualService, "populateBreakdownAdjustmentBefore",
+      Whitebox.invokeMethod(TimeOffAccrualService.class, "populateBreakdownAdjustmentBefore",
           resultTimeOffBreakdownItemList, untilDate, adjustments, balancePojo);
 
       Assertions.assertTrue(resultTimeOffBreakdownItemList.isEmpty());
@@ -406,7 +404,7 @@ class TimeOffAccrualServiceTests {
     itemDtoTwo.setAmount(30);
     adjustments.add(itemDtoTwo);
 
-    Whitebox.invokeMethod(accrualService, "populateRemainingAdjustment",
+    Whitebox.invokeMethod(TimeOffAccrualService.class, "populateRemainingAdjustment",
         resultTimeOffBreakdownItemList, adjustments, balancePojo);
 
     Assertions.assertEquals(2, resultTimeOffBreakdownItemList.size());

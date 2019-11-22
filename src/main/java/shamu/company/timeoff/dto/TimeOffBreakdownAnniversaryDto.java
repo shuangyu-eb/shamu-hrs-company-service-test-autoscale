@@ -13,4 +13,6 @@ public class TimeOffBreakdownAnniversaryDto {
   private Integer maxBalance;
 
   private Integer carryoverLimit;
+
+  private boolean hasParent = false;
 }

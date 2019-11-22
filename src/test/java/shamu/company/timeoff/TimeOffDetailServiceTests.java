@@ -142,11 +142,11 @@ class TimeOffDetailServiceTests {
     void whenMissingOneYear_thenReturnFilled () throws Exception {
       final List<TimeOffBreakdownYearDto> timeOffBreakdownYearDtos = new ArrayList<>();
       final TimeOffBreakdownYearDto startBreakdownYearDto = new TimeOffBreakdownYearDto();
-      startBreakdownYearDto.setYear(2016);
+      startBreakdownYearDto.setDate(LocalDate.MIN.withYear(2016));
       timeOffBreakdownYearDtos.add(startBreakdownYearDto);
 
       final TimeOffBreakdownYearDto endBreakdownYearDto = new TimeOffBreakdownYearDto();
-      endBreakdownYearDto.setYear(2018);
+      endBreakdownYearDto.setDate(LocalDate.MIN.withYear(2018));
       timeOffBreakdownYearDtos.add(endBreakdownYearDto);
 
       final LinkedList<TimeOffBreakdownYearDto> filledYearDtos =
@@ -204,16 +204,16 @@ class TimeOffDetailServiceTests {
   @Nested
   class GetFinalTimeOffBreakdown {
 
-    TimeOffBreakdownItemDto startingBreakdown;
+    TimeOffBreakdownYearDto startingBreakdown;
 
     List<TimeOffBreakdownItemDto> balanceAdjustmentList = new ArrayList<>();
 
     @BeforeEach
     void setUp() {
-      startingBreakdown = new TimeOffBreakdownItemDto();
+      startingBreakdown = new TimeOffBreakdownYearDto();
       startingBreakdown.setDate(LocalDate.of(2016, 3, 10));
-      startingBreakdown.setAmount(10);
-      startingBreakdown.setBalance(10);
+      startingBreakdown.setAccrualHours(10);
+
 
       final TimeOffBreakdownItemDto timeOffBreakdownItemDto = new TimeOffBreakdownItemDto();
       timeOffBreakdownItemDto.setDate(LocalDate.of(2016, 5, 5));
@@ -230,16 +230,17 @@ class TimeOffDetailServiceTests {
       @BeforeEach
       void setUp() {
         timeOffBreakdownYearDtoList = new ArrayList<>();
+        timeOffBreakdownYearDtoList.add(startingBreakdown);
         final TimeOffBreakdownYearDto firstBreakdownYearDto = new TimeOffBreakdownYearDto();
         firstBreakdownYearDto.setAccrualHours(10);
-        firstBreakdownYearDto.setYear(2016);
+        firstBreakdownYearDto.setDate(LocalDate.MIN.withYear(2016));
         firstBreakdownYearDto.setCarryoverLimit(3);
         firstBreakdownYearDto.setMaxBalance(20);
         timeOffBreakdownYearDtoList.add(firstBreakdownYearDto);
 
         final TimeOffBreakdownYearDto secondBreakdownYearDto = new TimeOffBreakdownYearDto();
         secondBreakdownYearDto.setAccrualHours(6);
-        secondBreakdownYearDto.setYear(2017);
+        secondBreakdownYearDto.setDate(LocalDate.MIN.withYear(2017));
         secondBreakdownYearDto.setCarryoverLimit(3);
         secondBreakdownYearDto.setMaxBalance(20);
         timeOffBreakdownYearDtoList.add(secondBreakdownYearDto);
@@ -250,7 +251,7 @@ class TimeOffDetailServiceTests {
         final TimeOffBreakdownDto timeOffBreakdownDto =
             Whitebox.invokeMethod(accrualNatureStrategyService,
                 "getFinalTimeOffBreakdown", timeOffBreakdownYearDtoList,
-                startingBreakdown, balanceAdjustmentList);
+                balanceAdjustmentList);
         Assertions.assertEquals(9, timeOffBreakdownDto.getBalance().intValue());
       }
     }
@@ -284,11 +285,10 @@ class TimeOffDetailServiceTests {
         final TimeOffBreakdownDto timeOffBreakdownDto =
             Whitebox.invokeMethod(accrualAnniversaryStrategyService,
                 "getFinalAnniversaryBreakdown", timeOffBreakdownAnniversaryDtoList,
-                startingBreakdown, balanceAdjustmentList);
+                balanceAdjustmentList);
         Assertions.assertEquals(12, timeOffBreakdownDto.getBalance().intValue());
       }
     }
-
 
     @Nested
     class GetFinalMonthBreakdown {
@@ -317,8 +317,8 @@ class TimeOffDetailServiceTests {
         final TimeOffBreakdownDto timeOffBreakdownDto =
             Whitebox.invokeMethod(accrualMonthStrategyService,
                 "getFinalMonthBreakdown", timeOffBreakdownMonthDtos,
-                startingBreakdown, balanceAdjustmentList);
-        Assertions.assertEquals(26, timeOffBreakdownDto.getBalance().intValue());
+                balanceAdjustmentList);
+        Assertions.assertEquals(16, timeOffBreakdownDto.getBalance().intValue());
       }
     }
   }

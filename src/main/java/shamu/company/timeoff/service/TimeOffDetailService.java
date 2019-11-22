@@ -32,7 +32,6 @@ import shamu.company.timeoff.pojo.TimeOffAdjustmentPojo;
 import shamu.company.timeoff.pojo.TimeOffBreakdownCalculatePojo;
 import shamu.company.timeoff.pojo.TimeOffRequestDatePojo;
 import shamu.company.timeoff.repository.AccrualScheduleMilestoneRepository;
-import shamu.company.timeoff.repository.TimeOffAccrualFrequencyRepository;
 import shamu.company.timeoff.repository.TimeOffAdjustmentRepository;
 import shamu.company.timeoff.repository.TimeOffPolicyAccrualScheduleRepository;
 import shamu.company.timeoff.repository.TimeOffPolicyUserRepository;
@@ -47,11 +46,8 @@ public class TimeOffDetailService {
   private final TimeOffPolicyAccrualScheduleRepository timeOffPolicyAccrualScheduleRepository;
   private final TimeOffRequestDateRepository timeOffRequestDateRepository;
   private final TimeOffAdjustmentRepository timeOffAdjustmentRepository;
-  private final TimeOffAccrualNatureStrategyService accrualNatureStrategyService;
-  private final TimeOffAccrualAnniversaryStrategyService accrualAnniversaryStrategyService;
-  private final TimeOffAccrualMonthStrategyService accrualMonthStrategyService;
   private final AccrualScheduleMilestoneRepository milestoneRepository;
-  private final TimeOffAccrualFrequencyRepository frequencyRepository;
+  private final TimeOffAccrualDelegator accrualDelegator;
 
   @Autowired
   public TimeOffDetailService(
@@ -59,21 +55,15 @@ public class TimeOffDetailService {
       final TimeOffPolicyAccrualScheduleRepository timeOffPolicyAccrualScheduleRepository,
       final TimeOffRequestDateRepository timeOffRequestDateRepository,
       final TimeOffAdjustmentRepository timeOffAdjustmentRepository,
-      final TimeOffAccrualNatureStrategyService accrualNatureStrategyService,
-      final TimeOffAccrualAnniversaryStrategyService accrualAnniversaryStrategyService,
-      final TimeOffAccrualMonthStrategyService accrualMonthStrategyService,
       final AccrualScheduleMilestoneRepository milestoneRepository,
-      final TimeOffAccrualFrequencyRepository frequencyRepository
+      final TimeOffAccrualDelegator accrualDelegator
   ) {
     this.timeOffPolicyUserRepository = timeOffPolicyUserRepository;
     this.timeOffPolicyAccrualScheduleRepository = timeOffPolicyAccrualScheduleRepository;
     this.timeOffRequestDateRepository = timeOffRequestDateRepository;
     this.timeOffAdjustmentRepository = timeOffAdjustmentRepository;
-    this.accrualNatureStrategyService = accrualNatureStrategyService;
-    this.accrualAnniversaryStrategyService = accrualAnniversaryStrategyService;
-    this.accrualMonthStrategyService = accrualMonthStrategyService;
     this.milestoneRepository = milestoneRepository;
-    this.frequencyRepository = frequencyRepository;
+    this.accrualDelegator = accrualDelegator;
   }
 
   public TimeOffBreakdownDto getTimeOffBreakdown(
@@ -138,8 +128,7 @@ public class TimeOffDetailService {
         timeOffPolicyScheduleList, timeOffPolicyUser.getUser());
 
     // Sort schedule list
-    trimmedScheduleList.sort(Comparator
-        .comparing(TimeOffPolicyAccrualSchedule::getCreatedAt, Comparator.reverseOrder()));
+    trimmedScheduleList.sort(Comparator.comparing(TimeOffPolicyAccrualSchedule::getCreatedAt));
 
     final List<TimeOffBreakdownItemDto> balanceAdjustment =
         getBalanceAdjustmentList(timeOffPolicyUser, endDate);
@@ -152,58 +141,7 @@ public class TimeOffDetailService {
             .untilDate(endDate)
             .build();
 
-    return getTimeOffBreakdownByFrequency(timeOffFrequencyId, timeOffBreakdownCalculatePojo);
-  }
-
-  private TimeOffBreakdownDto getTimeOffBreakdownByFrequency(final String timeOffFrequencyId,
-      final TimeOffBreakdownCalculatePojo calculatePojo) {
-
-    final TimeOffBreakdownItemDto startingBreakdown = TimeOffBreakdownItemDto
-        .fromTimeOffPolicyUser(calculatePojo.getPolicyUser());
-
-    TimeOffBreakdownDto resultTimeOffBreakdownDto = null;
-
-    TimeOffAccrualFrequency timeOffFrequency = frequencyRepository.findById(timeOffFrequencyId)
-        .orElseThrow(()
-            -> new ResourceNotFoundException(
-            String.format("Time off frequency with id %s not found.", timeOffFrequencyId)));
-
-    if (TimeOffAccrualFrequency.AccrualFrequencyType.FREQUENCY_TYPE_ONE
-        .equalsTo(timeOffFrequency.getName())) {
-
-      resultTimeOffBreakdownDto =
-          accrualNatureStrategyService.getTimeOffBreakdown(startingBreakdown, calculatePojo);
-    } else if (TimeOffAccrualFrequency.AccrualFrequencyType.FREQUENCY_TYPE_TWO
-        .equalsTo(timeOffFrequency.getName())) {
-
-      resultTimeOffBreakdownDto =
-          accrualAnniversaryStrategyService.getTimeOffBreakdown(startingBreakdown, calculatePojo);
-    } else if (TimeOffAccrualFrequency.AccrualFrequencyType.FREQUENCY_TYPE_THREE
-        .equalsTo(timeOffFrequency.getName())) {
-
-      resultTimeOffBreakdownDto =
-          accrualMonthStrategyService.getTimeOffBreakdown(startingBreakdown, calculatePojo);
-    }
-
-    if (resultTimeOffBreakdownDto != null) {
-      postProcessOfTimeOffBreakdown(resultTimeOffBreakdownDto, calculatePojo);
-    }
-    return resultTimeOffBreakdownDto;
-  }
-
-  private void postProcessOfTimeOffBreakdown(final TimeOffBreakdownDto timeOffBreakdownDto,
-      final TimeOffBreakdownCalculatePojo calculatePojo) {
-
-    final List<TimeOffBreakdownItemDto> timeOffBreakdownItemList = timeOffBreakdownDto.getList();
-
-    final List<TimeOffBreakdownItemDto> newTimeOffBreakdownItemList = timeOffBreakdownItemList
-        .stream()
-        .filter((timeOffBreakdownItemDto -> !timeOffBreakdownItemDto.getDate()
-            .isAfter(calculatePojo.getUntilDate())))
-        .collect(Collectors.toList());
-    timeOffBreakdownDto.setList(newTimeOffBreakdownItemList);
-    timeOffBreakdownDto.resetBalance();
-    timeOffBreakdownDto.setShowBalance(true);
+    return accrualDelegator.getTimeOffBreakdown(timeOffFrequencyId, timeOffBreakdownCalculatePojo);
   }
 
   private List<TimeOffBreakdownItemDto> getBalanceAdjustmentList(

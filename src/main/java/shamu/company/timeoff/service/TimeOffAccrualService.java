@@ -8,19 +8,57 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
+import shamu.company.timeoff.dto.TimeOffBreakdownDto;
 import shamu.company.timeoff.dto.TimeOffBreakdownItemDto;
 import shamu.company.timeoff.dto.TimeOffBreakdownItemDto.BreakDownType;
+import shamu.company.timeoff.dto.TimeOffBreakdownYearDto;
 import shamu.company.timeoff.entity.AccrualScheduleMilestone;
 import shamu.company.timeoff.entity.TimeOffAccrualFrequency;
 import shamu.company.timeoff.entity.TimeOffAccrualFrequency.AccrualFrequencyType;
 import shamu.company.timeoff.entity.TimeOffPolicyAccrualSchedule;
 import shamu.company.timeoff.entity.TimeOffPolicyUser;
 import shamu.company.timeoff.pojo.TimeOffBalancePojo;
+import shamu.company.timeoff.pojo.TimeOffBreakdownCalculatePojo;
 import shamu.company.utils.DateUtil;
 
-public class TimeOffAccrualService {
+public abstract class TimeOffAccrualService {
 
-  static final String TIME_OFF_ACCRUED = "Time Off Accrued";
+  private static final String TIME_OFF_ACCRUED = "Time Off Accrued";
+
+  private static final String STARTING_BREAKDOWN_DETAIL = "Starting Balance";
+
+  private static final String CARRYOVER_LIMIT_DETAIL = "Carryover Limit";
+
+  private static final String MAX_BALANCE_DETAIL = "Max Balance";
+
+  TimeOffBreakdownDto getTimeOffBreakdown(final TimeOffBreakdownYearDto startingBreakdown,
+      final TimeOffBreakdownCalculatePojo calculatePojo) {
+    TimeOffBreakdownDto timeOffBreakdownDto = getTimeOffBreakdownInternal(startingBreakdown,
+        calculatePojo);
+    postProcessOfTimeOffBreakdown(timeOffBreakdownDto, calculatePojo);
+
+    return timeOffBreakdownDto;
+  }
+
+  abstract TimeOffBreakdownDto getTimeOffBreakdownInternal(
+      final TimeOffBreakdownYearDto startingBreakdown,
+      final TimeOffBreakdownCalculatePojo calculatePojo);
+
+  private void postProcessOfTimeOffBreakdown(final TimeOffBreakdownDto timeOffBreakdownDto,
+      final TimeOffBreakdownCalculatePojo calculatePojo) {
+
+    final List<TimeOffBreakdownItemDto> timeOffBreakdownItemList = timeOffBreakdownDto.getList();
+
+    final List<TimeOffBreakdownItemDto> newTimeOffBreakdownItemList = timeOffBreakdownItemList
+        .stream()
+        .filter((timeOffBreakdownItemDto -> !timeOffBreakdownItemDto.getDate()
+            .isAfter(calculatePojo.getUntilDate())))
+        .collect(Collectors.toList());
+    timeOffBreakdownDto.setList(newTimeOffBreakdownItemList);
+    timeOffBreakdownDto.resetBalance();
+    timeOffBreakdownDto.setShowBalance(true);
+  }
 
   private static boolean isSameYear(final LocalDateTime createDateTime,
       final LocalDateTime expireDateTime) {
@@ -46,7 +84,7 @@ public class TimeOffAccrualService {
   }
 
   static boolean invalidByStartDateAndEndDate(final Timestamp startDate, final Timestamp endDate,
-      final LocalDateTime userJoinPolicyDateTime, final String frequencyTypeId) {
+      final LocalDateTime userJoinPolicyDateTime, final String frequencyType) {
 
     final LocalDateTime createDateTime = DateUtil.toLocalDateTime(startDate);
     final LocalDateTime expireDateTime = DateUtil.toLocalDateTime(endDate);
@@ -57,11 +95,11 @@ public class TimeOffAccrualService {
     }
 
     if (TimeOffAccrualFrequency.AccrualFrequencyType.FREQUENCY_TYPE_ONE
-        .equalsTo(frequencyTypeId)) {
+        .equalsTo(frequencyType)) {
 
       return isSameYear(createDateTime, expireDateTime);
     } else if (TimeOffAccrualFrequency.AccrualFrequencyType.FREQUENCY_TYPE_TWO
-        .equalsTo(frequencyTypeId)) {
+        .equalsTo(frequencyType)) {
 
       // in valid time window, return false
       if (userJoinPolicyDateTime.compareTo(createDateTime) > 0
@@ -70,7 +108,7 @@ public class TimeOffAccrualService {
       }
       return isSameAnniversaryYear(userJoinPolicyDateTime, createDateTime, expireDateTime);
     } else if (TimeOffAccrualFrequency.AccrualFrequencyType.FREQUENCY_TYPE_THREE
-        .equalsTo(frequencyTypeId)) {
+        .equalsTo(frequencyType)) {
 
       return isSameMonth(createDateTime, expireDateTime);
     }
@@ -93,7 +131,7 @@ public class TimeOffAccrualService {
         ? delayedHireDate : userJoinDate;
   }
 
-  List<LocalDate> getValidScheduleOrMilestonePeriod(final LocalDate scheduleBaseTime,
+  static List<LocalDate> getValidScheduleOrMilestonePeriod(final LocalDate scheduleBaseTime,
       final Timestamp startTime, final Timestamp endTime) {
 
     final LocalDate startDate = DateUtil.fromTimestamp(startTime);
@@ -129,9 +167,9 @@ public class TimeOffAccrualService {
       final LocalDateTime userJoinPolicyDateTime =
           DateUtil.toLocalDateTime(policyUser.getCreatedAt());
 
-      final String frequencyId = accrualSchedule.getTimeOffAccrualFrequency().getId();
+      final String frequencyType = accrualSchedule.getTimeOffAccrualFrequency().getName();
       if (invalidByStartDateAndEndDate(accrualScheduleMilestone.getCreatedAt(),
-          accrualScheduleMilestone.getExpiredAt(), userJoinPolicyDateTime, frequencyId)) {
+          accrualScheduleMilestone.getExpiredAt(), userJoinPolicyDateTime, frequencyType)) {
         continue;
       }
 
@@ -140,7 +178,7 @@ public class TimeOffAccrualService {
     return trimmedAccrualMilestones;
   }
 
-  void populateRemainingAdjustment(
+  static void populateRemainingAdjustment(
       final LinkedList<TimeOffBreakdownItemDto> resultTimeOffBreakdownItemList,
       final List<TimeOffBreakdownItemDto> balanceAdjustmentList,
       final TimeOffBalancePojo balancePojo) {
@@ -159,7 +197,7 @@ public class TimeOffAccrualService {
     });
   }
 
-  void populateBreakdownAdjustmentBefore(
+  static void populateBreakdownAdjustmentBefore(
       final LinkedList<TimeOffBreakdownItemDto> resultTimeOffBreakdownItemList,
       final LocalDate untilDate, final List<TimeOffBreakdownItemDto> balanceAdjustmentList,
       final TimeOffBalancePojo balancePojo) {
@@ -183,7 +221,7 @@ public class TimeOffAccrualService {
     }
   }
 
-  void populateBreakdownListFromAccrualSchedule(
+  static void populateBreakdownListFromAccrualSchedule(
       final List<TimeOffBreakdownItemDto> resultTimeOffBreakdownItemList,
       final LocalDate date, final Integer accrualHours,
       final TimeOffBalancePojo balancePojo) {
@@ -193,19 +231,27 @@ public class TimeOffAccrualService {
 
     balancePojo.setBalance(balancePojo.getBalance() + accrualHours);
 
+    String accrualDetail = resultTimeOffBreakdownItemList.isEmpty()
+        ? STARTING_BREAKDOWN_DETAIL
+        : TIME_OFF_ACCRUED;
+
     final TimeOffBreakdownItemDto timeOffBreakdownItemDto =
         TimeOffBreakdownItemDto.builder()
             .date(date)
             .dateMessage(dateMessage)
             .amount(accrualHours)
             .balance(balancePojo.getBalance())
-            .detail(TIME_OFF_ACCRUED)
+            .detail(accrualDetail)
             .breakdownType(TimeOffBreakdownItemDto.BreakDownType.TIME_OFF_ACCRUAL)
             .build();
     resultTimeOffBreakdownItemList.add(timeOffBreakdownItemDto);
+
+    // max balance
+    populateBreakdownListFromMaxBalance(resultTimeOffBreakdownItemList,
+        date, balancePojo);
   }
 
-  void populateBreakdownListFromCarryoverLimit(
+  static void populateBreakdownListFromCarryoverLimit(
       final List<TimeOffBreakdownItemDto> resultTimeOffBreakdownItemList,
       final LocalDate date,
       final TimeOffBalancePojo balancePojo) {
@@ -227,13 +273,13 @@ public class TimeOffAccrualService {
             .dateMessage(dateMessage)
             .amount(adjustment)
             .balance(balancePojo.getBalance())
-            .detail("Carryover Limit")
+            .detail(CARRYOVER_LIMIT_DETAIL)
             .breakdownType(BreakDownType.CARRYOVER_LIMIT)
             .build();
     resultTimeOffBreakdownItemList.add(timeOffBreakdownItemDto);
   }
 
-  void populateBreakdownListFromMaxBalance(
+  static void populateBreakdownListFromMaxBalance(
       final List<TimeOffBreakdownItemDto> resultTimeOffBreakdownItemList,
       final LocalDate date,
       final TimeOffBalancePojo balancePojo) {
@@ -255,9 +301,11 @@ public class TimeOffAccrualService {
             .dateMessage(dateMessage)
             .amount(adjustment)
             .balance(balancePojo.getBalance())
-            .detail("Max Balance")
+            .detail(MAX_BALANCE_DETAIL)
             .breakdownType(BreakDownType.MAX_BALANCE)
             .build();
     resultTimeOffBreakdownItemList.add(timeOffBreakdownItemDto);
   }
+
+  abstract boolean support(String frequencyType);
 }

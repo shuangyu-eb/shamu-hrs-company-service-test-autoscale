@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import shamu.company.timeoff.entity.TimeOffPolicyUser;
 import shamu.company.timeoff.pojo.TimeOffAdjustmentPojo;
+import shamu.company.timeoff.pojo.TimeOffBreakdownCalculatePojo;
 import shamu.company.utils.DateUtil;
 
 @Data
@@ -26,6 +27,8 @@ public class TimeOffBreakdownItemDto {
 
   @JSONField(serialize = false)
   private BreakDownType breakdownType;
+
+  private static final String STARTING_BREAKDOWN_DETAIL = "Starting Balance";
 
   public TimeOffBreakdownItemDto(final LocalDate date, final String dateMessage,
                                  final String detail, final Integer amount,
@@ -49,25 +52,31 @@ public class TimeOffBreakdownItemDto {
   }
 
   @JSONField(serialize = false)
-  public static TimeOffBreakdownItemDto fromTimeOffPolicyUser(
-      final TimeOffPolicyUser timeOffPolicyUser) {
+  public static TimeOffBreakdownYearDto fromTimeOffPolicyUser(
+      final TimeOffBreakdownCalculatePojo calculatePojo) {
 
-    Integer startingBalance = timeOffPolicyUser.getInitialBalance();
+    TimeOffPolicyUser timeOffPolicyUser = calculatePojo.getPolicyUser();
+    Integer startingBalance = calculatePojo.getPolicyUser().getInitialBalance();
     if (startingBalance == null) {
       startingBalance = 0;
     }
 
-    final String dateMessage = dateFormatConvert(
-            DateUtil.fromTimestamp(timeOffPolicyUser.getUpdatedAt()));
+    TimeOffBreakdownYearDto timeOffBreakdownYearDto =
+        TimeOffBreakdownYearDto.builder()
+        .accrualHours(startingBalance)
+        .date(DateUtil.fromTimestamp(timeOffPolicyUser.getUpdatedAt()))
+        .build();
 
-    return new TimeOffBreakdownItemDto(
-        DateUtil.fromTimestamp(timeOffPolicyUser.getUpdatedAt()),
-        dateMessage,
-        "Starting Balance",
-        startingBalance,
-        startingBalance,
-        BreakDownType.TIME_OFF_ACCRUAL
-    );
+    calculatePojo.getTrimmedScheduleList().stream()
+        .filter(timeOffSchedule ->
+            DateUtil.fromTimestamp(timeOffSchedule.getCreatedAt()).getYear()
+                == timeOffBreakdownYearDto.getDate().getYear())
+        .forEach((accrualSchedule -> {
+          timeOffBreakdownYearDto.setMaxBalance(accrualSchedule.getMaxBalance());
+          timeOffBreakdownYearDto.setCarryoverLimit(accrualSchedule.getCarryoverLimit());
+        }));
+
+    return timeOffBreakdownYearDto;
   }
 
   @JSONField(serialize = false)

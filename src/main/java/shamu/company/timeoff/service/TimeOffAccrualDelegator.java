@@ -1,0 +1,47 @@
+package shamu.company.timeoff.service;
+
+import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import shamu.company.common.exception.ForbiddenException;
+import shamu.company.common.exception.ResourceNotFoundException;
+import shamu.company.timeoff.dto.TimeOffBreakdownDto;
+import shamu.company.timeoff.dto.TimeOffBreakdownItemDto;
+import shamu.company.timeoff.dto.TimeOffBreakdownYearDto;
+import shamu.company.timeoff.entity.TimeOffAccrualFrequency;
+import shamu.company.timeoff.pojo.TimeOffBreakdownCalculatePojo;
+import shamu.company.timeoff.repository.TimeOffAccrualFrequencyRepository;
+
+@Service
+public class TimeOffAccrualDelegator {
+
+  private final List<TimeOffAccrualService> accrualServices;
+
+  private final TimeOffAccrualFrequencyRepository frequencyRepository;
+
+  @Autowired
+  public TimeOffAccrualDelegator(final List<TimeOffAccrualService> accrualServices,
+      final TimeOffAccrualFrequencyRepository frequencyRepository) {
+    this.accrualServices = accrualServices;
+    this.frequencyRepository = frequencyRepository;
+  }
+
+  public TimeOffBreakdownDto getTimeOffBreakdown(String frequencyTypeId,
+      TimeOffBreakdownCalculatePojo calculatePojo) {
+    TimeOffAccrualFrequency timeOffFrequency = frequencyRepository.findById(frequencyTypeId)
+        .orElseThrow(()
+            -> new ResourceNotFoundException(
+            String.format("Time off frequency with id %s not found.", frequencyTypeId)));
+
+    final TimeOffBreakdownYearDto startingBreakdown = TimeOffBreakdownItemDto
+        .fromTimeOffPolicyUser(calculatePojo);
+
+    TimeOffAccrualService accrualService = accrualServices
+        .stream()
+        .filter(timeOffAccrualService -> timeOffAccrualService.support(timeOffFrequency.getName()))
+        .findFirst()
+        .orElseThrow(() -> new ForbiddenException("Can not find appropriate accrual strategy."));
+
+    return accrualService.getTimeOffBreakdown(startingBreakdown, calculatePojo);
+  }
+}

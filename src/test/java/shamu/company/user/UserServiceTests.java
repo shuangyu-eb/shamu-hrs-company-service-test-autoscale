@@ -1,6 +1,7 @@
 package shamu.company.user;
 
 import java.util.Collections;
+import java.util.Optional;
 import java.util.UUID;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.jupiter.api.Assertions;
@@ -51,7 +52,6 @@ import shamu.company.user.service.UserAddressService;
 import shamu.company.user.service.UserRoleService;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.Auth0Util;
-import shamu.company.utils.UuidUtil;
 
 class UserServiceTests {
 
@@ -146,15 +146,15 @@ class UserServiceTests {
         .phone(RandomStringUtils.randomAlphabetic(11))
         .build();
 
-    Mockito.when(companySizeRepository.findCompanySizeByName(Mockito.anyString()))
-        .thenReturn(new CompanySize());
+    Mockito.when(companySizeRepository.findById(Mockito.anyString()))
+        .thenReturn(Optional.of(new CompanySize()));
 
     final Company company = new Company();
     company.setName("company");
     company.setCompanySize(new CompanySize(userSignUpDto.getCompanySizeId()));
     Mockito.when(companyRepository.save(Mockito.any())).thenReturn(company);
 
-    Mockito.when(userStatusRepository.findByName(Mockito.anyString()))
+    Mockito.when(userStatusRepository.findByName(Mockito.any()))
         .thenReturn(new UserStatus(Status.ACTIVE.name()));
 
     Mockito.when(userRepository.save(Mockito.any())).thenReturn(new User());

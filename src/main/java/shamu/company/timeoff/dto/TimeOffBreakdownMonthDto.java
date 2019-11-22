@@ -16,6 +16,8 @@ public class TimeOffBreakdownMonthDto {
 
   private TimeOffBreakdownYearDto yearData;
 
+  private boolean hasParent = false;
+
   public TimeOffBreakdownMonthDto(LocalDate date, Integer accrualHours) {
     this.date = date;
     this.accrualHours = accrualHours;
