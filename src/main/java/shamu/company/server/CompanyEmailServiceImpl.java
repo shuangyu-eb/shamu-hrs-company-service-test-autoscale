@@ -95,7 +95,9 @@ public class CompanyEmailServiceImpl implements CompanyEmailService {
 
   private void createTemplate(final DocumentRequestEmailDto documentRequestEmailDto,
       final Map<String, Object> variables, final User sender) {
-    final String message = documentRequestEmailDto.getMessage();
+    final String message = null == documentRequestEmailDto.getMessage()
+        ? "" : documentRequestEmailDto.getMessage();
+
     final DocumentRequestType type = documentRequestEmailDto.getType();
     final List<String> recipientUserIds = documentRequestEmailDto.getRecipientUserIds();
     recipientUserIds.forEach(recipientUserId -> {
