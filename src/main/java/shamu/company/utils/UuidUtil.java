@@ -57,6 +57,8 @@ public class UuidUtil {
   }
 
   public static String toHexString(final byte[] id) {
-    return fromBytes(id).toString().replaceAll("-", "");
+    return fromBytes(id).toString()
+        .toUpperCase()
+        .replaceAll("-", "");
   }
 }

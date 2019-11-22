@@ -153,11 +153,14 @@ public class Auth0Util {
   }
 
   public User getUserByUserIdFromAuth0(final String userId) {
+    if (StringUtils.isEmpty(userId)) {
+      return null;
+    }
     final ManagementAPI manager = auth0Manager.getManagementApi();
     UserFilter userFilter = new UserFilter();
     userFilter = userFilter
         .withSearchEngine("v3")
-        .withQuery(String.format("app_metadata.id:\"%s\"", userId));
+        .withQuery(String.format("app_metadata.id:\"%s\"", userId.toLowerCase()));
     final Request<UsersPage> userRequest = manager.users().list(userFilter);
 
     final UsersPage usersPage;
