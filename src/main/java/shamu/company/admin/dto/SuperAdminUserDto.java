@@ -13,6 +13,8 @@ public class SuperAdminUserDto {
 
   private String firstName;
 
+  private String preferredName;
+
   private String lastName;
 
   private String company;
@@ -29,6 +31,7 @@ public class SuperAdminUserDto {
     imageUrl = user.getImageUrl();
     firstName = user.getUserPersonalInformation().getFirstName();
     lastName = user.getUserPersonalInformation().getLastName();
+    preferredName = user.getUserPersonalInformation().getPreferredName();
     email = user.getUserContactInformation().getEmailWork();
     company = user.getCompany().getName();
     auth0UserId = user.getId();

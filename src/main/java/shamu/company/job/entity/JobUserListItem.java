@@ -15,6 +15,8 @@ public class JobUserListItem {
 
   private String firstName;
 
+  private String preferredName;
+
   private String lastName;
 
   private String department;
@@ -25,7 +27,7 @@ public class JobUserListItem {
 
   public JobUserListItem(final String id, final String imageUrl, final String firstName,
       final String lastName, final String department, final String jobTitle,
-      final String roleName) {
+      final String roleName, final String preferredName) {
     this.id = id;
     this.imageUrl = imageUrl;
     this.firstName = firstName;
@@ -33,6 +35,7 @@ public class JobUserListItem {
     this.department = department;
     this.jobTitle = jobTitle;
     this.roleName = roleName;
+    this.preferredName = preferredName;
   }
 
   public String getRoleName() {

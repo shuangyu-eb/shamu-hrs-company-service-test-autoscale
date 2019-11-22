@@ -77,7 +77,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
     final String originalSql =
         "select u.id as id, u.image_url as imageUrl, up.first_name as firstName, "
             + "up.last_name as lastName, d.name as department, j.title as jobTitle, "
-            + "ur.name as roleName "
+            + "up.preferred_name as preferredName, ur.name as roleName "
             + "from users u "
             + "left join  user_personal_information up on u.user_personal_information_id = up.id "
             + "left join jobs_users ju on u.id = ju.user_id "
@@ -85,8 +85,8 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
             + "left join departments d on j.department_id = d.id "
             + "left join user_roles ur on u.user_role_id = ur.id "
             + "where u.company_id = unhex(?1) "
-            + "and (up.first_name like concat('%', ?2, '%') "
-            + "or up.last_name like concat('%', ?2, '%') "
+            + "and (concat(up.first_name, ' ', up.last_name) like concat('%', ?2, '%') "
+            + "or concat(up.preferred_name, ' ', up.last_name) like concat('%', ?2, '%') "
             + "or d.name like concat('%', ?2, '%') or j.title like concat('%', ?2, '%')) ";
     final String additionalSql = ACTIVE_USER_QUERY;
 
@@ -124,8 +124,8 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
     }
     final String queryColumns =
         "select u.id as id, u.image_url as imageUrl, up.first_name as firstName, "
-            + "up.last_name as lastName, d.name as department, j.title as jobTitle, "
-            + "ur.name as roleName ";
+            + "up.last_name as lastName, up.preferred_name as preferredName, "
+            + "d.name as department, j.title as jobTitle, ur.name as roleName ";
 
     final String queryCondition = "from users u "
         + "left join  user_personal_information up on u.user_personal_information_id = up.id "
@@ -187,20 +187,20 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
     final StringBuilder findAllOrgChartByCondition =
         new StringBuilder(
             "select u.id as id, up.first_name as firstName, up.last_name as lastName,"
-                + "u.image_url as imageUrl, j.title as jobTitle,"
-                + "a.city as city, province.name as state, "
-                + "d.name as department, u.manager_user_id as managerId "
-                + "from users u "
-                + "left join user_personal_information up "
-                + "on u.user_personal_information_id = up.id "
-                + "left join jobs_users jobUser on u.id = jobUser.user_id "
-                + "left join jobs j on jobUser.job_id = j.id "
-                + "left join departments d on j.department_id=d.id "
-                + "left join offices o on jobUser.office_id = o.id "
-                + "left join office_addresses a on o.office_address_id = a.id "
-                + "left join states_provinces province on a.state_province_id = province.id "
-                + "where u.company_id = unhex(?2) "
-                + ACTIVE_USER_QUERY);
+            + "up.preferred_name as preferredName, u.image_url as imageUrl, j.title as jobTitle,"
+            + "a.city as city, province.name as state, "
+            + "d.name as department, u.manager_user_id as managerId "
+            + "from users u "
+            + "left join user_personal_information up "
+            + "on u.user_personal_information_id = up.id "
+            + "left join jobs_users jobUser on u.id = jobUser.user_id "
+            + "left join jobs j on jobUser.job_id = j.id "
+            + "left join departments d on j.department_id=d.id "
+            + "left join offices o on jobUser.office_id = o.id "
+            + "left join office_addresses a on o.office_address_id = a.id "
+            + "left join states_provinces province on a.state_province_id = province.id "
+            + "where u.company_id = unhex(?2) "
+            + ACTIVE_USER_QUERY);
 
     if (managerId == null) {
       findAllOrgChartByCondition.append(" and u.manager_user_id is null");
@@ -228,7 +228,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
 
     final String findAllOrgChartByCondition =
         "select u.id as id, up.first_name as firstName, up.last_name as lastName,"
-            + "u.image_url as imageUrl, j.title as jobTitle,"
+            + "up.preferred_name as preferredName, u.image_url as imageUrl, j.title as jobTitle,"
             + "a.city as city, province.name as state, d.name as department, "
             + "u.manager_user_id as managerId "
             + "from users u "
@@ -311,7 +311,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
     final String originalSql =
             "select u.id as id, u.image_url as imageUrl, up.first_name as firstName, "
           + "up.last_name as lastName, d.name as department, j.title as jobTitle, "
-          + "ur.name as roleName "
+          + "up.preferred_name as preferredName, ur.name as roleName "
           + "from users u "
           + "left join  user_personal_information up on u.user_personal_information_id = up.id "
           + "left join jobs_users ju on u.id = ju.user_id "
@@ -319,7 +319,8 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
           + "left join departments d on j.department_id = d.id "
           + "left join user_roles ur on u.user_role_id = ur.id "
           + "where u.company_id = unhex(?1) "
-          + "and concat(up.first_name, ' ', up.last_name) like concat('%', ?2, '%') ";
+          + "and (concat(up.first_name, ' ', up.last_name) like concat('%', ?2, '%') "
+          + "or concat(up.preferred_name, ' ', up.last_name) like concat('%', ?2, '%'))";
 
     final String additionalSql = ACTIVE_USER_QUERY;
 

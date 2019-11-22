@@ -11,6 +11,8 @@ public class TimeOffPolicyRelatedUserDto {
 
   private String firstName;
 
+  private String preferredName;
+
   private String id;
 
   private String imageUrl;

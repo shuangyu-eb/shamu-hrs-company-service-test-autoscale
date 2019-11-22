@@ -120,16 +120,19 @@ public interface UserRepository extends JpaRepository<User, String>, UserCustomR
 
   @Query(value =
       "SELECT new shamu.company.admin.dto.SuperAdminUserDto(u) "
-          + "FROM User u "
-          + "WHERE u.userStatus.name='ACTIVE' "
-          + "AND ( "
-          + " u.userPersonalInformation.firstName LIKE CONCAT('%',?1,'%') "
-          + "OR u.userPersonalInformation.lastName LIKE CONCAT('%',?1,'%') "
-          + "OR u.company.name  LIKE CONCAT('%',?1,'%') "
-          + "OR u.userContactInformation.emailWork LIKE CONCAT('%',?1,'%') ) "
-          + "AND (u.deactivatedAt is null "
-          + "OR (u.deactivatedAt IS NOT NULL "
-          + "AND u.deactivatedAt > current_timestamp ))")
+      + "FROM User u "
+      + "WHERE u.userStatus.name='ACTIVE' "
+      + "AND ( "
+      + "CONCAT(u.userPersonalInformation.firstName, ' ', u.userPersonalInformation.lastName) "
+      + "LIKE CONCAT('%',?1,'%') "
+      + "OR "
+      + "CONCAT(u.userPersonalInformation.preferredName, ' ', u.userPersonalInformation.lastName) "
+      + "LIKE CONCAT('%',?1,'%') "
+      + "OR u.company.name  LIKE CONCAT('%',?1,'%') "
+      + "OR u.userContactInformation.emailWork LIKE CONCAT('%',?1,'%') ) "
+      + "AND (u.deactivatedAt is null "
+      + "OR (u.deactivatedAt IS NOT NULL "
+      + "AND u.deactivatedAt > current_timestamp ))")
   Page<SuperAdminUserDto> findBy(String keyword, Pageable pageable);
 
 

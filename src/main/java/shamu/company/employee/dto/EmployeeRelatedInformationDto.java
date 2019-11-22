@@ -25,6 +25,8 @@ public class EmployeeRelatedInformationDto {
 
   private String employeeLastName;
 
+  private String employeePreferredName;
+
   private String employeeImageUrl;
 
   private String employeeWorkPhone;
@@ -38,6 +40,8 @@ public class EmployeeRelatedInformationDto {
   private String managerFirstName;
 
   private String managerLastName;
+
+  private String managerPreferredName;
 
   private String managerImageUrl;
 

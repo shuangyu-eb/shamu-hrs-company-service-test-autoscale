@@ -150,11 +150,8 @@ public class CompanyRestController extends BaseRestController {
         user -> {
           UserPersonalInformation userInfo = user.getUserPersonalInformation();
           if (userInfo != null) {
-            String firstName = userInfo.getFirstName();
-            String middleName = userInfo.getMiddleName();
-            String lastName = userInfo.getLastName();
             return new SelectFieldInformationDto(user.getId(),
-                UserNameUtil.getUserName(firstName, middleName, lastName));
+                UserNameUtil.getUserName(userInfo));
           }
           return null;
         })

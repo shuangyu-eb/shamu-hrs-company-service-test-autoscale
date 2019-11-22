@@ -9,6 +9,8 @@ public class UserDto {
 
   private String firstName;
 
+  private String preferredName;
+
   private String lastName;
 
   private String email;

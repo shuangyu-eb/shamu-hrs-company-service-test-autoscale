@@ -13,6 +13,8 @@ public class OrgChartDto {
 
   private String firstName;
 
+  private String preferredName;
+
   private String lastName;
 
   private String imageUrl;

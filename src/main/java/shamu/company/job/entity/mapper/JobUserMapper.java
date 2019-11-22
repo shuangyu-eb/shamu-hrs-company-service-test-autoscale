@@ -51,12 +51,14 @@ public interface JobUserMapper {
   @Mapping(target = "employeeWorkEmail", source = "email")
   @Mapping(target = "employeeFirstName", source = "jobEmployeeDto.firstName")
   @Mapping(target = "employeeLastName", source = "jobEmployeeDto.lastName")
+  @Mapping(target = "employeePreferredName", source = "jobEmployeeDto.preferredName")
   @Mapping(target = "employeeImageUrl", source = "jobEmployeeDto.imageUrl")
   @Mapping(target = "employeeWorkPhone", source = "jobEmployeeDto.phoneNumber")
   @Mapping(target = "employeeJobTitle", source = "jobEmployeeDto.jobTitle")
   @Mapping(target = "managerId", source = "jobManagerDto.id")
   @Mapping(target = "managerFirstName", source = "jobManagerDto.firstName")
   @Mapping(target = "managerLastName", source = "jobManagerDto.lastName")
+  @Mapping(target = "managerPreferredName", source = "jobManagerDto.preferredName")
   @Mapping(target = "managerImageUrl", source = "jobManagerDto.imageUrl")
   @Mapping(target = "managerJobTitle", source = "jobManagerDto.jobTitle")
   @Mapping(target = "directReporters", source = "directReporters")
@@ -67,6 +69,7 @@ public interface JobUserMapper {
 
   @Mapping(target = "jobTitle", source = "jobUser.job.title")
   @Mapping(target = "firstName", source = "user.userPersonalInformation.firstName")
+  @Mapping(target = "preferredName", source = "user.userPersonalInformation.preferredName")
   @Mapping(target = "lastName", source = "user.userPersonalInformation.lastName")
   @Mapping(target = "id", source = "user.id")
   @Mapping(target = "imageUrl", source = "user.imageUrl")
@@ -74,6 +77,8 @@ public interface JobUserMapper {
 
   @Mapping(target = "jobTitle", source = "jobUser.job.title")
   @Mapping(target = "firstName", source = "policyUser.user.userPersonalInformation.firstName")
+  @Mapping(target = "preferredName",
+           source = "policyUser.user.userPersonalInformation.preferredName")
   @Mapping(target = "lastName", source = "policyUser.user.userPersonalInformation.lastName")
   @Mapping(target = "id", source = "policyUser.user.id")
   @Mapping(target = "imageUrl", source = "policyUser.user.imageUrl")

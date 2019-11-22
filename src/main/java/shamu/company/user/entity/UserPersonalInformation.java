@@ -11,6 +11,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
+import org.springframework.util.StringUtils;
 import shamu.company.common.entity.BaseEntity;
 
 @Entity
@@ -52,6 +53,8 @@ public class UserPersonalInformation extends BaseEntity {
   private CitizenshipStatus citizenshipStatus;
 
   public String getName() {
-    return firstName.concat(" ").concat(lastName);
+    return StringUtils.isEmpty(preferredName)
+            ? firstName.concat(" ").concat(lastName)
+            : preferredName.concat(" ").concat(lastName);
   }
 }

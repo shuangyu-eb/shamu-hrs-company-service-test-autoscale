@@ -18,6 +18,8 @@ public class JobUserDto {
 
   private String firstName;
 
+  private String preferredName;
+
   private String lastName;
 
   private String email;
@@ -37,6 +39,7 @@ public class JobUserDto {
     if (user.getUserPersonalInformation() != null) {
       this.setFirstName(user.getUserPersonalInformation().getFirstName());
       this.setLastName(user.getUserPersonalInformation().getLastName());
+      this.setPreferredName(user.getUserPersonalInformation().getPreferredName());
     }
 
     if (user.getUserContactInformation() != null) {
