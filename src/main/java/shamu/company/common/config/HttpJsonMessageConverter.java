@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.fastjson.parser.deserializer.ParseProcess;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.serializer.ValueFilter;
 import com.alibaba.fastjson.support.config.FastJsonConfig;
 import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter;
@@ -22,6 +23,7 @@ public class HttpJsonMessageConverter extends FastJsonHttpMessageConverter {
     final FastJsonConfig fastJsonConfig = new FastJsonConfig();
     fastJsonConfig.setSerializeFilters(valueFilter);
 
+    fastJsonConfig.setSerializerFeatures(SerializerFeature.WriteMapNullValue);
     ParserConfig parserConfig = new ParserConfig();
     parserConfig.putDeserializer(String.class, new StringFieldJsonDecoder());
     fastJsonConfig.setParserConfig(parserConfig);
