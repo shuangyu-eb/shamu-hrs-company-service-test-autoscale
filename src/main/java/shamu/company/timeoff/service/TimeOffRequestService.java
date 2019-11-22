@@ -137,7 +137,7 @@ public class TimeOffRequestService {
     final List<TimeOffRequest> result;
     final List<TimeOffRequest> selfPendingRequests = timeOffRequestRepository
             .employeeFindSelfPendingRequests(user.getId(),
-                NO_ACTION.name());
+                AWAITING_REVIEW.name());
     if (user.getManagerUser() == null) {
       result = timeOffRequestRepository.adminFindTeamRequests(user.getId(), statusNames);
     } else if (userRole == User.Role.MANAGER || userRole == User.Role.ADMIN) {
@@ -347,10 +347,10 @@ public class TimeOffRequestService {
     final TimeOffRequestDetailDto requestDetail = timeOffRequestMapper
         .convertToTimeOffRequestDetailDto(timeOffRequest);
 
-    if (timeOffRequest.getApprovalStatus() == NO_ACTION
+    if (timeOffRequest.getApprovalStatus() == AWAITING_REVIEW
         && userId.equals(requester.getManagerUser().getId())) {
       TimeOffRequestApprovalStatus timeOffRequestStatus = requestApprovalStatusRepository
-          .findByName(TimeOffApprovalStatus.VIEWED.name());
+          .findByName(TimeOffApprovalStatus.AWAITING_REVIEW.name());
       timeOffRequest.setTimeOffRequestApprovalStatus(timeOffRequestStatus);
       timeOffRequestRepository.save(timeOffRequest);
     }

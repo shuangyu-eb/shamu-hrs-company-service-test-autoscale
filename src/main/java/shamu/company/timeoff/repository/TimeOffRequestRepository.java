@@ -89,7 +89,7 @@ public interface TimeOffRequestRepository
               + "LEFT JOIN time_off_request_approval_statuses tras "
               + "   ON tras.name = ?2 "
               + "WHERE tr.requester_user_id = unhex(?1) "
-              + "   and tras.id = 1 "
+              + "   and tras.id = tr.time_off_request_approval_status_id "
               + "group by tr.id ",
       nativeQuery = true)
   List<TimeOffRequest> employeeFindSelfPendingRequests(
