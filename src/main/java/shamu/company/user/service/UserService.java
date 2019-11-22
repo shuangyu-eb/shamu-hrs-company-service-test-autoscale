@@ -275,10 +275,10 @@ public class UserService {
   }
 
   public Page<JobUserListItem> getAllEmployeesByName(
-          final EmployeeListSearchCondition employeeListSearchCondition, final String companyId) {
+      final EmployeeListSearchCondition employeeListSearchCondition, final String companyId) {
     final Pageable pageable = getPageable(employeeListSearchCondition);
     return userRepository.getAllByName(
-            employeeListSearchCondition, companyId, pageable);
+        employeeListSearchCondition, companyId, pageable);
   }
 
   public User getOne(final String userId) {
@@ -352,7 +352,8 @@ public class UserService {
 
     final UserPersonalInformation userPersonalInformation = user.getUserPersonalInformation();
     final UserPersonalInformationDto userPersonalInformationDto =
-        userPersonalInformationMapper.convertToUserPersonalInformationDto(userPersonalInformation);
+        userPersonalInformationMapper
+            .convertToUserPersonalInformationDtoWithoutSsn(userPersonalInformation);
 
     final String headPortrait = user.getImageUrl();
 
@@ -537,7 +538,7 @@ public class UserService {
 
     final CompanySize companySize = companySizeRepository
         .findById(signUpDto.getCompanySizeId())
-            .orElseThrow(() -> new ResourceNotFoundException("CompanySize was not found."));
+        .orElseThrow(() -> new ResourceNotFoundException("CompanySize was not found."));
 
     Company company = Company.builder()
         .name(signUpDto.getCompanyName())
