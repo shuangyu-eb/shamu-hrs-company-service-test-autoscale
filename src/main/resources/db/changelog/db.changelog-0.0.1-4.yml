@@ -2578,3 +2578,13 @@ databaseChangeLog:
           referencedColumnNames: id
           referencedTableName: countries
 
+- changeSet:
+    id: 1574383435713-1
+    author: jordanc-indeed
+    changes:
+      - addColumn:
+          columns:
+            - column:
+                name: salt
+                type: VARCHAR(255)
+          tableName: users

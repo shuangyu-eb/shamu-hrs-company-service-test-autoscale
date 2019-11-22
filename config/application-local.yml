@@ -44,5 +44,4 @@ aws:
 
 
 crypto:
-  salt: 12ab
   hash: system-hash

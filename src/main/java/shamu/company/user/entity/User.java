@@ -3,12 +3,14 @@ package shamu.company.user.entity;
 import com.alibaba.fastjson.annotation.JSONField;
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.util.UUID;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
+import javax.persistence.PostLoad;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import lombok.AccessLevel;
@@ -95,6 +97,8 @@ public class User {
   @UpdateTimestamp
   private Timestamp updatedAt;
 
+  private String salt;
+
   public User(final String id) {
     setId(id);
   }
@@ -123,6 +127,13 @@ public class User {
       return null;
     }
     return Role.valueOf(userRole.getName());
+  }
+
+  @PostLoad
+  private void setSalt() {
+    if (this.salt == null) {
+      this.salt = UUID.randomUUID().toString().replace("-", "");;
+    }
   }
 
   public enum Role {

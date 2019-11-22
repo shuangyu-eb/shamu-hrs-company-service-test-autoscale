@@ -24,15 +24,12 @@ public class Encryptor {
   private final UserRepository userRepository;
   private final Auth0Util auth0Util;
   private final SecretHashRepository secretHashRepository;
-  private final String salt;
 
   @Autowired
   Encryptor(final @Value("${crypto.hash}") String indeedHash,
-      final @Value("${crypto.salt}") String salt,
       final UserRepository userRepository, final Auth0Util auth0Util,
       final SecretHashRepository secretHashRepository) {
     this.indeedHash = indeedHash;
-    this.salt = salt;
     this.userRepository = userRepository;
     this.auth0Util = auth0Util;
     this.secretHashRepository = secretHashRepository;
@@ -77,12 +74,12 @@ public class Encryptor {
   }
 
   private BytesEncryptor getEncryptor(final User user) {
-    return Encryptors.stronger(String.valueOf(getHashCode(user)), salt);
+    return Encryptors.stronger(String.valueOf(getHashCode(user)), user.getSalt());
   }
 
   private BytesEncryptor getEncryptor(final String userId) {
     final User user = this.getUserById(userId);
-    return Encryptors.stronger(String.valueOf(getHashCode(user)), salt);
+    return Encryptors.stronger(String.valueOf(getHashCode(user)), user.getSalt());
   }
 
   private int getHashCode(final User user) {
