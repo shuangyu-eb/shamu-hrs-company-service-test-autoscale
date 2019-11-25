@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.ITemplateEngine;
@@ -95,17 +96,19 @@ public class CompanyEmailServiceImpl implements CompanyEmailService {
 
   private void createTemplate(final DocumentRequestEmailDto documentRequestEmailDto,
       final Map<String, Object> variables, final User sender) {
-    final String message = null == documentRequestEmailDto.getMessage()
-        ? "" : documentRequestEmailDto.getMessage();
+    final String message = documentRequestEmailDto.getMessage();
+    if (StringUtils.isNotEmpty(message)) {
+      variables.put("message", "\"" + message + "\"");
+    }
 
     final DocumentRequestType type = documentRequestEmailDto.getType();
     final List<String> recipientUserIds = documentRequestEmailDto.getRecipientUserIds();
     recipientUserIds.forEach(recipientUserId -> {
       final User recipient = userRepository.findById(recipientUserId)
           .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
       if (SIGN.equals(type)) {
         final String template = "document_request_signature.html";
-        variables.put("message", "\"" + message + "\"");
         final Email email = new Email(
                 applicationConfig.getSystemEmailAddress(),
                 sender.getUserPersonalInformation().getName(),
@@ -117,7 +120,6 @@ public class CompanyEmailServiceImpl implements CompanyEmailService {
 
       if (ACKNOWLEDGE.equals(type)) {
         final String template = "document_request_acknowledge.html";
-        variables.put("message", "\"" + message + "\"");
         final Email email = new Email(
                 applicationConfig.getSystemEmailAddress(),
                 sender.getUserPersonalInformation().getName(),
