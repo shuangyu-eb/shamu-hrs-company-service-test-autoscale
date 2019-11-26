@@ -635,14 +635,23 @@ public class UserService {
 
     final User user = findUserById(userId);
 
-    user.setUserStatus(userStatusRepository.findByName(
-        String.valueOf(Status.CHANGING_EMAIL_VERIFICATION)));
+    if (user.getUserContactInformation().getEmailWork() == newEmail) {
+      throw new ForbiddenException(String.format(" your new work email should be different"));
+    }
 
-    user.setChangeWorkEmail(newEmail);
+    if (!auth0Util.existsByEmail(newEmail)) {
 
-    handleEmail(user);
+      user.setUserStatus(
+          userStatusRepository.findByName(String.valueOf(Status.CHANGING_EMAIL_VERIFICATION)));
 
-    userRepository.save(user);
+      user.setChangeWorkEmail(newEmail);
+
+      handleEmail(user);
+
+      userRepository.save(user);
+    } else {
+      throw new ForbiddenException(String.format(" %s already be used by other", newEmail));
+    }
   }
 
   public void sendVerifyChangeWorkEmail(final User user) {
