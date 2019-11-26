@@ -566,17 +566,17 @@ public class EmployeeService {
 
   private void saveEmailTasks(final WelcomeEmailDto welcomeEmailDto, final User employee,
       final User currentUser) {
-    final String to = welcomeEmailDto.getSendTo();
+    final String toEmail = welcomeEmailDto.getSendTo();
     String content = welcomeEmailDto.getPersonalInformation();
 
     final Context emailContext =
-        userService.getWelcomeEmailContext(content, employee.getResetPasswordToken());
+        userService.getWelcomeEmailContext(content, employee.getResetPasswordToken(), toEmail);
     emailContext.setVariable("companyName", currentUser.getCompany().getName());
     content = userService.getWelcomeEmail(emailContext);
     final Timestamp sendDate = welcomeEmailDto.getSendDate();
     final String fullSubject = subject + currentUser.getCompany().getName();
     final Email email =
-        new Email(systemEmailAddress, to, fullSubject, content, currentUser, sendDate);
+        new Email(systemEmailAddress, toEmail, fullSubject, content, currentUser, sendDate);
     emailService.saveAndScheduleEmail(email);
   }
 

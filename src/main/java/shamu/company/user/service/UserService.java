@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -217,15 +218,36 @@ public class UserService {
     return templateEngine.process("employee_invitation_email.html", context);
   }
 
-  public Context getWelcomeEmailContext(String welcomeMessage, final String resetPasswordToken) {
+  public Context getWelcomeEmailContext(
+          final String welcomeMessage,
+          final String resetPasswordToken) {
+    return getWelcomeEmailContext(welcomeMessage, resetPasswordToken, "");
+  }
+
+  public Context getWelcomeEmailContext(
+          String welcomeMessage,
+          final String resetPasswordToken,
+          final String toEmail) {
     final Context context = new Context();
     context.setVariable("frontEndAddress", frontEndAddress);
-    context.setVariable(
-        "createPasswordAddress",
-        frontEndAddress + "account/password/" + resetPasswordToken);
+    final String emailAddress = getEncodedEmailAddress(toEmail);
+    String targetLink = frontEndAddress + "account/password/" + resetPasswordToken;
+    if (!"".equals(emailAddress)) {
+      targetLink += "/" + emailAddress;
+    }
+    context.setVariable("createPasswordAddress", targetLink);
     welcomeMessage = getFilteredWelcomeMessage(welcomeMessage);
     context.setVariable("welcomeMessage", welcomeMessage);
     return context;
+  }
+
+  private String getEncodedEmailAddress(final String emailAddress) {
+    if (Strings.isBlank(emailAddress) || !Pattern.matches("^[a-zA-Z0-9@.+]*$", emailAddress)) {
+      return "";
+    }
+    return emailAddress
+            .replaceAll("@", "-at-")
+            .replaceAll("\\.", "-dot-");
   }
 
   private String getFilteredWelcomeMessage(String welcomeMessage) {
