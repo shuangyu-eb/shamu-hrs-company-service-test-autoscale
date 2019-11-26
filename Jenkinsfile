@@ -20,7 +20,7 @@ pipeline {
                 echo '---------------------------------\n' +
                         '      SonarQube analysis         ' +
                         '\n---------------------------------'
-                withSonarQubeEnv('SonarQube') {
+                withSonarQubeEnv('ShamuCompanySonarQube') {
                     sh "${sonarqubeScannerHome}/bin/sonar-scanner"
                 }
             }
