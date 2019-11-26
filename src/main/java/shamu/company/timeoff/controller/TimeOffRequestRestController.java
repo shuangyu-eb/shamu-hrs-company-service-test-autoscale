@@ -37,7 +37,6 @@ import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus;
 import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.TimeOffApprovalStatus;
 import shamu.company.timeoff.entity.TimeOffRequestDate;
 import shamu.company.timeoff.entity.mapper.TimeOffRequestMapper;
-import shamu.company.timeoff.pojo.TimeOffRequestStatusPojo;
 import shamu.company.timeoff.repository.TimeOffRequestApprovalStatusRepository;
 import shamu.company.timeoff.repository.TimeOffRequestRepository;
 import shamu.company.timeoff.service.TimeOffRequestDateService;
@@ -92,7 +91,7 @@ public class TimeOffRequestRestController extends BaseRestController {
       @RequestBody final TimeOffRequestCreateDto requestCreateDto) {
     final User user = userService.findUserById(userId);
     final TimeOffRequest timeOffRequest = requestCreateDto.getTimeOffRequest(user);
-    timeOffRequest.setApprover(user.getManagerUser());
+    timeOffRequest.setApproverUser(user.getManagerUser());
 
     final TimeOffRequest timeOffRequestReturned = timeOffRequestService
         .saveTimeOffRequest(
@@ -111,7 +110,7 @@ public class TimeOffRequestRestController extends BaseRestController {
     final TimeOffRequest timeOffRequest = requestCreateDto.getTimeOffRequest(user);
     final User approver = new User(getAuthUser().getId());
     timeOffRequest.setApproverUser(approver);
-    timeOffRequest.setApprover(approver);
+    timeOffRequest.setApproverUser(approver);
     timeOffRequest.setApprovedDate(Timestamp.from(Instant.now()));
 
     final TimeOffRequest timeOffRequestReturned = timeOffRequestService
@@ -140,8 +139,17 @@ public class TimeOffRequestRestController extends BaseRestController {
       "hasPermission(#id,'TIME_OFF_REQUEST','MANAGE_SELF_TIME_OFF_REQUEST') "
           + "or hasPermission(#id,'TIME_OFF_REQUEST','MANAGE_TIME_OFF_REQUEST')")
   public TimeOffRequestDetailDto getTimeOffRequest(@PathVariable final String id) {
+    TimeOffRequestDetailDto timeOffRequestDetailDto = timeOffRequestService
+        .getTimeOffRequestDetail(id, getAuthUser().getId());
 
-    return timeOffRequestService.getTimeOffRequestDetail(id, getAuthUser().getId());
+    User targetUser = userService.findUserById(timeOffRequestDetailDto.getUserId());
+    if (getAuthUser().getRole() == Role.ADMIN
+        || (targetUser.getManagerUser() != null
+            && targetUser.getManagerUser().getId().equals(getAuthUser().getId()))) {
+      timeOffRequestDetailDto.setIsCurrentUserPrivileged(true);
+    }
+
+    return timeOffRequestDetailDto;
   }
 
 
@@ -262,11 +270,6 @@ public class TimeOffRequestRestController extends BaseRestController {
     } else {
       return userRole == User.Role.ADMIN || currentUser.equals(targetUser.getManagerUser());
     }
-  }
-
-  @GetMapping("time-off-request/test/{id}")
-  public List<TimeOffRequestStatusPojo> getTimeOffRequestPolicy(@PathVariable String id) {
-    return timeOffRequestRepository.findByTimeOffPolicyId(id);
   }
 
   @GetMapping("time-off-approval-statuses")

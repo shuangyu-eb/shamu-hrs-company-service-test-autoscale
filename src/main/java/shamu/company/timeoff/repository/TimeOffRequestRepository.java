@@ -11,15 +11,12 @@ import shamu.company.timeoff.pojo.TimeOffRequestStatusPojo;
 
 public interface TimeOffRequestRepository
     extends BaseRepository<TimeOffRequest, String>, TimeOffRequestCustomRepository {
-  // TODO unhex in list ?2
   @Query(
       value =
           "select * from time_off_requests tr "
-              + "left join time_off_requests_approvers tra "
-              + "   on tra.time_off_request_id = tr.id "
               + "left join time_off_request_approval_statuses tras "
               + "   on tr.time_off_request_approval_status_id = tras.id "
-              + "where tra.approver_user_id = unhex(?1) "
+              + "where tr.approver_user_id = unhex(?1) "
               + " and tras.name in ?2"
               + " and tr.id in "
               + "   (select trspan.time_off_request_id from "
@@ -50,17 +47,14 @@ public interface TimeOffRequestRepository
       value =
           "select count(1) "
               + "from time_off_requests tr "
-              + "left join time_off_requests_approvers ora "
-              + "on ora.time_off_request_id=tr.id "
               + "left join time_off_request_approval_statuses trs "
               + "on tr.time_off_request_approval_status_id = trs.id "
-              + "where ora.approver_user_id=unhex(?1) "
+              + "where tr.approver_user_id=unhex(?1) "
               + "and trs.name=?2",
       nativeQuery = true)
   Integer countByApproverIdAndTimeOffApprovalStatus(
       String approver, String timeOffRequestApprovalStatus);
 
-  // TODO test entity transform with native query
   @Query(
       value =
               "SELECT tr.* FROM time_off_requests tr "
@@ -78,7 +72,6 @@ public interface TimeOffRequestRepository
   List<TimeOffRequest> employeeFindTeamRequests(
       String managerId, List<String> timeOffRequestApprovalStatus);
 
-  // TODO replace hard encode
   @Query(
       value =
           "SELECT tr.* FROM time_off_requests tr "
@@ -128,7 +121,6 @@ public interface TimeOffRequestRepository
   List<TimeOffRequest> adminFindTeamRequests(
       String userId, List<String> timeOffRequestApprovalStatus);
 
-  // TODO replace hard status id
   @Query(
       value = "select * from time_off_requests tr "
           + "left join time_off_request_approval_statuses tras "
@@ -147,7 +139,6 @@ public interface TimeOffRequestRepository
   Page<TimeOffRequest> findByRequesterUserIdFilteredByStartDay(
       String id, Timestamp startDay, String[] statuses, PageRequest pageRequest);
 
-  // TODO replace hard status id
   @Query(
       value =
         "select * from time_off_requests tr "
@@ -184,7 +175,6 @@ public interface TimeOffRequestRepository
       String id, Timestamp startDay
   );
 
-  // TODO status id
   @Query(
           value =
                   "select tr.* from time_off_requests tr "

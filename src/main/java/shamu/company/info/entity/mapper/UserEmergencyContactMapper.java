@@ -8,7 +8,6 @@ import shamu.company.common.entity.StateProvince;
 import shamu.company.common.mapper.Config;
 import shamu.company.info.dto.BasicUserEmergencyContactDto;
 import shamu.company.info.dto.UserEmergencyContactDto;
-import shamu.company.info.entity.State;
 import shamu.company.info.entity.UserEmergencyContact;
 import shamu.company.user.entity.User;
 
@@ -40,10 +39,6 @@ public interface UserEmergencyContactMapper {
 
   default User convertFromUserId(final String userId) {
     return !StringUtils.isEmpty(userId) ? new User(userId) : null;
-  }
-
-  default State convertFromId(final String stateId) {
-    return StringUtils.isEmpty(stateId) ? null : new State(stateId);
   }
 
   default Country convertFromCountryId(final String countryId) {

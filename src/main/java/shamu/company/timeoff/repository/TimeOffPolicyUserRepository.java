@@ -13,7 +13,7 @@ public interface TimeOffPolicyUserRepository extends BaseRepository<TimeOffPolic
 
   List<TimeOffPolicyUser> findAllByTimeOffPolicyId(String timeOffPolicyId);
 
-  @Query(value = "select sum(balance) "
+  @Query(value = "select sum(initial_balance) "
       + "from time_off_policies_users "
       + "where user_id=unhex(?1)", nativeQuery = true)
   Integer getBalanceByUserId(String userId);

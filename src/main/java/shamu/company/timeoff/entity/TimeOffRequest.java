@@ -11,8 +11,6 @@ import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -53,17 +51,6 @@ public class TimeOffRequest extends BaseEntity {
       cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
   @JoinColumn(name = "time_off_request_id")
   private Set<TimeOffRequestDate> timeOffRequestDates = new HashSet<>();
-
-  @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
-  @JoinTable(
-      name = "time_off_requests_approvers",
-      joinColumns = @JoinColumn(name = "time_off_request_id"),
-      inverseJoinColumns = @JoinColumn(name = "approver_user_id"))
-  private Set<User> approvers = new HashSet<>();
-
-  public void setApprover(final User user) {
-    approvers.add(user);
-  }
 
   public void setComment(final TimeOffRequestComment comment) {
     comments.add(comment);

@@ -2588,3 +2588,24 @@ databaseChangeLog:
                 name: salt
                 type: VARCHAR(255)
           tableName: users
+
+- changeSet:
+    id: 1574752067000-1
+    author: max-eb
+    changes:
+    - sql:
+        sql: drop trigger if exists ins_states
+
+- changeSet:
+    id: 1574752067000-2
+    author: max-eb
+    changes:
+    - dropTable:
+        tableName: states
+
+- changeSet:
+    id: 1574752067000-3
+    author: max-eb
+    changes:
+    - dropTable:
+        tableName: time_off_requests_approvers

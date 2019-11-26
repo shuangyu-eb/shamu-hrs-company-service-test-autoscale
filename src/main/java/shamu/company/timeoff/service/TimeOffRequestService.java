@@ -347,14 +347,6 @@ public class TimeOffRequestService {
     final TimeOffRequestDetailDto requestDetail = timeOffRequestMapper
         .convertToTimeOffRequestDetailDto(timeOffRequest);
 
-    if (timeOffRequest.getApprovalStatus() == AWAITING_REVIEW
-        && userId.equals(requester.getManagerUser().getId())) {
-      TimeOffRequestApprovalStatus timeOffRequestStatus = requestApprovalStatusRepository
-          .findByName(TimeOffApprovalStatus.AWAITING_REVIEW.name());
-      timeOffRequest.setTimeOffRequestApprovalStatus(timeOffRequestStatus);
-      timeOffRequestRepository.save(timeOffRequest);
-    }
-
     final List<BasicTimeOffRequestDto> timeOffRequests =
         getOtherRequestsBy(timeOffRequest).stream()
             .map(timeOffRequestMapper::convertToBasicTimeOffRequestDto)

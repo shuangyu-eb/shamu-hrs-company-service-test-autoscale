@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.stream.Collectors;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -22,7 +21,6 @@ import shamu.company.email.Email;
 import shamu.company.email.EmailService;
 import shamu.company.s3.AwsUtil;
 import shamu.company.timeoff.entity.TimeOffRequest;
-import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus;
 import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.TimeOffApprovalStatus;
 import shamu.company.timeoff.entity.TimeOffRequestDate;
 import shamu.company.user.entity.User;
@@ -55,8 +53,7 @@ public class TimeOffRequestEmailService {
   }
 
   public void sendEmail(TimeOffRequest timeOffRequest) {
-    timeOffRequest = timeOffRequestService
-        .findByRequestId(timeOffRequest.getId().replace("-", ""));
+    timeOffRequest = timeOffRequestService.findByRequestId(timeOffRequest.getId());
     final TimeOffApprovalStatus status = timeOffRequest.getApprovalStatus();
     if (status == TimeOffApprovalStatus.DENIED) {
       sendDeniedEmail(timeOffRequest);
@@ -114,24 +111,23 @@ public class TimeOffRequestEmailService {
   private void sendToManagers(final TimeOffRequest timeOffRequest,
       final Map<String, Object> variables,
       final String template, final User approver, final String subject) {
-    final List<User> manager =
-        timeOffRequest.getApprovers().stream()
-            .filter(user -> !user.getId().equals(approver.getId()))
-            .collect(Collectors.toList());
-    if (!manager.isEmpty()) {
+
+    User requesterUser = timeOffRequest.getRequesterUser();
+    User managerUser = requesterUser.getManagerUser();
+    boolean approvedByManager = managerUser != null
+        && managerUser.getId().equals(approver.getId());
+
+    if (!approvedByManager) {
       final String subject2 = subject + " by " + approver.getUserPersonalInformation().getName();
       variables.put("toManager", true);
-      manager.forEach(
-          user -> {
-            final Email managerEmail = new Email(
-                    applicationConfig.getSystemEmailAddress(),
-                    approver.getUserPersonalInformation().getName(),
-                    user.getUserContactInformation().getEmailWork(),
-                    user.getUserPersonalInformation().getName(),
-                    subject2);
+      final Email managerEmail = new Email(
+              applicationConfig.getSystemEmailAddress(),
+              approver.getUserPersonalInformation().getName(),
+              managerUser.getUserContactInformation().getEmailWork(),
+              managerUser.getUserPersonalInformation().getName(),
+              subject2);
 
-            processAndSendEmail(variables, template, managerEmail);
-          });
+      processAndSendEmail(variables, template, managerEmail);
     }
   }
 
@@ -172,7 +168,7 @@ public class TimeOffRequestEmailService {
 
     variables.put("conflict", conflict);
 
-    final User approver = (User) timeOffRequest.getApprovers().toArray()[0];
+    final User approver = timeOffRequest.getApproverUser();
     final Email email = new Email(
             applicationConfig.getSystemEmailAddress(),
             requester.getUserPersonalInformation().getName(),

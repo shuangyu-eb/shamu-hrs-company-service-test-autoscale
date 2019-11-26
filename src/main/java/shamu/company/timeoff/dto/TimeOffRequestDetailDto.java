@@ -19,4 +19,6 @@ public class TimeOffRequestDetailDto extends TimeOffRequestDto {
   private List<TimeOffRequestCommentDto> approverComments;
 
   private Boolean isLimited;
+
+  private Boolean isCurrentUserPrivileged = false;
 }
