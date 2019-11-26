@@ -48,9 +48,10 @@ spring:
     username: {DATABASE_USERNAME}
     password: {DATABASE_PASSWORD}
   secret:
-    jdbc-url: jdbc:mysql://{SECRET_DATABASE_HOST}/{SECRET_DATABASE_NAME}
-    username: {SECRET_DATABASE_USERNAME}
-    password: {SECRET_DATABASE_PASSWORD}
+    datasource:
+      jdbc-url: jdbc:mysql://{SECRET_DATABASE_HOST}/{SECRET_DATABASE_NAME}
+      username: {SECRET_DATABASE_USERNAME}
+      password: {SECRET_DATABASE_PASSWORD}
 ```
 Note: These configs of secret is used to store secrets of companies, but Auth0 can't connect your local database and store the secret hash to your local database, so it is just used to help you start up your local environment.
 
