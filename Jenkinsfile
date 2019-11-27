@@ -15,6 +15,15 @@ pipeline {
         sonarqubeScannerHome = tool name: 'Hrs Sonarqube Scanner'
     }
     stages {
+        stage('unit tests') {
+                    steps {
+                        echo '---------------------------------\n' +
+                                '            Unit test            ' +
+                                '\n---------------------------------'
+
+                        sh 'mvn clean test -Dspring.profiles.active=test > junit_output.txt'
+                    }
+                }
         stage('sonarqube analysis') {
             steps {
                 echo '---------------------------------\n' +
