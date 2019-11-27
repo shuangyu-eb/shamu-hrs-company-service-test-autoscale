@@ -191,16 +191,16 @@ public class TimeOffPolicyRestController extends BaseRestController {
   @PreAuthorize("hasPermission(#policyUserId,"
       + "'TIME_OFF_POLICY_USER','MANAGE_USER_TIME_OFF_BALANCE')")
   public void addTimeOffAdjustments(@PathVariable final String policyUserId,
-      @RequestBody final Integer adjustment) {
+      @RequestBody final Integer newBalance) {
     TimeOffAdjustmentCheckDto checkResult = timeOffDetailService
-        .checkTimeOffAdjustments(policyUserId, adjustment);
+        .checkTimeOffAdjustments(policyUserId, newBalance);
     if (checkResult.getExceed()) {
       throw new ForbiddenException(String.format("Amount exceeds max balance of %s hours.",
           checkResult.getMaxBalance()));
     }
 
     final User currentUser = userService.findUserById(getAuthUser().getId());
-    timeOffPolicyService.addTimeOffAdjustments(currentUser, policyUserId, adjustment);
+    timeOffPolicyService.addTimeOffAdjustments(currentUser, policyUserId, newBalance);
   }
 
   @PostMapping("time-off-balances/{policyUserId}/adjustments/check")
@@ -208,9 +208,9 @@ public class TimeOffPolicyRestController extends BaseRestController {
       + "'TIME_OFF_POLICY_USER','MANAGE_USER_TIME_OFF_BALANCE')")
   public TimeOffAdjustmentCheckDto checkTimeOffAdjustments(
       @PathVariable final String policyUserId,
-      @RequestBody final Integer adjustment) {
+      @RequestBody final Integer newBalance) {
 
-    return timeOffDetailService.checkTimeOffAdjustments(policyUserId, adjustment);
+    return timeOffDetailService.checkTimeOffAdjustments(policyUserId, newBalance);
   }
 
   @GetMapping("time-off-policies/users/{id}/has-policy")

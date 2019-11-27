@@ -49,7 +49,6 @@ import shamu.company.timeoff.entity.TimeOffPolicy;
 import shamu.company.timeoff.entity.TimeOffPolicyAccrualSchedule;
 import shamu.company.timeoff.entity.TimeOffPolicyUser;
 import shamu.company.timeoff.entity.TimeOffRequest;
-import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus;
 import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.TimeOffApprovalStatus;
 import shamu.company.timeoff.entity.mapper.AccrualScheduleMilestoneMapper;
 import shamu.company.timeoff.entity.mapper.TimeOffPolicyAccrualScheduleMapper;
@@ -64,7 +63,6 @@ import shamu.company.timeoff.repository.TimeOffPolicyUserRepository;
 import shamu.company.timeoff.repository.TimeOffRequestApprovalStatusRepository;
 import shamu.company.timeoff.repository.TimeOffRequestRepository;
 import shamu.company.user.entity.User;
-import shamu.company.user.entity.UserPersonalInformation;
 import shamu.company.user.repository.UserRepository;
 
 @Service
@@ -293,13 +291,6 @@ public class TimeOffPolicyService {
     }
   }
 
-  public Integer getTimeOffBalanceByUserAndPolicy(final User user,
-      final TimeOffPolicy timeOffPolicy) {
-    return timeOffPolicyUserRepository
-        .findTimeOffPolicyUserByUserAndTimeOffPolicy(user, timeOffPolicy)
-        .getInitialBalance();
-  }
-
   public TimeOffPolicy getTimeOffPolicyById(final String id) {
     return timeOffPolicyRepository.findById(id)
         .orElseThrow(() -> new ResourceNotFoundException("Time off policy was not found."));
@@ -402,10 +393,6 @@ public class TimeOffPolicyService {
     return timeOffPolicyAccrualScheduleRepository.findByTimeOffPolicy(timeOffPolicy);
   }
 
-  public List<TimeOffPolicyUser> getAllPolicyUsersByUser(final User user) {
-    return timeOffPolicyUserRepository.findTimeOffPolicyUsersByUser(user);
-  }
-
   public List<TimeOffPolicyListDto> getAllPolicies(final String companyId) {
     final List<TimeOffPolicyListPojo> timeOffPolicies = timeOffPolicyRepository
         .getAllPolicies(companyId);
@@ -497,17 +484,19 @@ public class TimeOffPolicyService {
   }
 
   public void addTimeOffAdjustments(final User currentUser, final String policyUserId,
-      final Integer adjustment) {
+      final Integer newBalance) {
     final TimeOffPolicyUser timeOffPolicyUser = timeOffPolicyUserRepository.findById(policyUserId)
         .get();
-
+    TimeOffBreakdownDto timeOffBreakdownDto = timeOffDetailService
+        .getTimeOffBreakdown(policyUserId, LocalDate.now());
+    Integer currentBalance = timeOffBreakdownDto.getBalance();
+    Integer adjustment = newBalance - currentBalance;
     final TimeOffAdjustment timeOffAdjustment =
         new TimeOffAdjustment(timeOffPolicyUser, timeOffPolicyUser.getTimeOffPolicy(), currentUser);
     timeOffAdjustment.setAmount(adjustment);
 
-    final UserPersonalInformation userPersonalInformation = currentUser
-        .getUserPersonalInformation();
-    timeOffAdjustment.setComment("Adjusted by User " + userPersonalInformation.getName());
+    final String adjusterName = currentUser.getUserPersonalInformation().getName();
+    timeOffAdjustment.setComment("Adjusted by User " + adjusterName);
     timeOffAdjustmentRepository.save(timeOffAdjustment);
   }
 

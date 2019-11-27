@@ -244,16 +244,25 @@ public class TimeOffDetailService {
   }
 
   public TimeOffAdjustmentCheckDto checkTimeOffAdjustments(String policyUserId,
-      Integer adjustment) {
+      Integer newBalance) {
+
+    Integer maxBalance = getMaxBalance(policyUserId);
+    boolean exceed = maxBalance != null && newBalance > maxBalance;
+
+    return TimeOffAdjustmentCheckDto.builder()
+        .maxBalance(maxBalance)
+        .exceed(exceed)
+        .build();
+  }
+
+  private Integer getMaxBalance(String policyUserId) {
     TimeOffPolicyUser timeOffPolicyUser = timeOffPolicyUserRepository.findById(policyUserId)
         .orElseThrow(() -> new ResourceNotFoundException("Time off policy user with id "
             + policyUserId
             + " not found!")
         );
-    TimeOffPolicy timeOffPolicy = timeOffPolicyUser.getTimeOffPolicy();
-
-    TimeOffPolicyAccrualSchedule accrualSchedule =
-        timeOffPolicyAccrualScheduleRepository.findByTimeOffPolicy(timeOffPolicy);
+    TimeOffPolicyAccrualSchedule accrualSchedule = timeOffPolicyAccrualScheduleRepository
+            .findByTimeOffPolicy(timeOffPolicyUser.getTimeOffPolicy());
 
     LocalDate hireDate = DateUtil.fromTimestamp(timeOffPolicyUser.getUser().getCreatedAt());
     LocalDate userJoinDate = DateUtil.fromTimestamp(timeOffPolicyUser.getCreatedAt());
@@ -261,35 +270,21 @@ public class TimeOffDetailService {
         .getScheduleStartBaseTime(hireDate, userJoinDate, accrualSchedule);
 
     LocalDate now = DateUtil.getLocalUtcTime().toLocalDate();
-    Long maxYears = Duration.between(startDate.atStartOfDay(), now.atStartOfDay()).toDays() / 365L;
-
+    long maxYears = Duration.between(startDate.atStartOfDay(), now.atStartOfDay()).toDays() / 365L;
     List<AccrualScheduleMilestone> milestones = milestoneRepository
-        .findByAccrualScheduleIdAndEndYear(accrualSchedule.getId(), maxYears.intValue());
+        .findByAccrualScheduleIdAndEndYear(accrualSchedule.getId(), (int) maxYears);
     milestones = TimeOffAccrualService.trimTimeOffPolicyScheduleMilestones(milestones,
         timeOffPolicyUser, accrualSchedule);
 
     milestones.sort(Comparator.comparing(AccrualScheduleMilestone::getAnniversaryYear,
         Comparator.reverseOrder()));
-
     Optional<AccrualScheduleMilestone> targetMilestone = milestones.stream()
         .filter((accrualScheduleMilestone ->
             !startDate.plusYears(accrualScheduleMilestone.getAnniversaryYear()).isAfter(now)))
         .findFirst();
 
-    Integer maxBalance = targetMilestone.isPresent()
+    return targetMilestone.isPresent()
         ? targetMilestone.get().getMaxBalance()
         : accrualSchedule.getMaxBalance();
-
-    final Integer currentBalance = this.getTimeOffBreakdown(
-        policyUserId,
-        DateUtil.getLocalUtcTime().toLocalDate()
-    ).getBalance();
-
-    boolean exceed = maxBalance != null && (currentBalance + adjustment) > maxBalance;
-
-    return TimeOffAdjustmentCheckDto.builder()
-        .maxBalance(maxBalance)
-        .exceed(exceed)
-        .build();
   }
 }
