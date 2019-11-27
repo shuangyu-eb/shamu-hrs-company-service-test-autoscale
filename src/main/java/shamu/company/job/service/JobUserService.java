@@ -209,16 +209,16 @@ public class JobUserService {
     String name = jobSelectOptionUpdateDto.getNewName();
 
     switch (jobSelectOptionUpdateDto.getUpdateField()) {
-      case "Department ":
+      case DEPARTMENT:
         updateDepartmentName(id, name);
         break;
-      case "Job Title ":
+      case JOB_TITLE:
         updateJobName(id, name);
         break;
-      case "Employment Type":
+      case EMPLOYMENT_TYPE:
         updateEmployeeTypeName(id, name);
         break;
-      case "Office Location":
+      case OFFICE_LOCATION:
         updateOfficeName(id, jobSelectOptionUpdateDto.getOfficeCreateDto());
         break;
       default:
@@ -265,16 +265,16 @@ public class JobUserService {
     String id = jobSelectOptionUpdateDto.getId();
 
     switch (jobSelectOptionUpdateDto.getUpdateField()) {
-      case "Department ":
+      case DEPARTMENT:
         deleteDepartmentName(id);
         break;
-      case "Job Title ":
+      case JOB_TITLE:
         deleteJobName(id);
         break;
-      case "Employment Type":
+      case EMPLOYMENT_TYPE:
         deleteEmployeeTypeName(id);
         break;
-      case "Office Location":
+      case OFFICE_LOCATION:
         deleteOfficeName(id);
         break;
       default:

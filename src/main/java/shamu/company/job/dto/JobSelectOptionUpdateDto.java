@@ -12,7 +12,7 @@ public class JobSelectOptionUpdateDto {
 
   private String newName;
 
-  private String updateField;
+  private JobSelectOptionUpdateField updateField;
 
   private OfficeCreateDto officeCreateDto;
 }
