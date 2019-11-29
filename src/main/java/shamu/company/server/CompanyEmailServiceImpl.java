@@ -5,7 +5,8 @@ import static shamu.company.server.DocumentRequestEmailDto.DocumentRequestType.S
 import static shamu.company.server.DocumentRequestEmailDto.DocumentRequestType.VIEW;
 
 import java.sql.Timestamp;
-import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -86,8 +87,11 @@ public class CompanyEmailServiceImpl implements CompanyEmailService {
     if (!VIEW.equals(documentRequestEmailDto.getType())) {
       final Timestamp expireDate = documentRequestEmailDto.getExpiredAt();
       if (expireDate != null) {
-        final LocalDate dueDate = expireDate.toLocalDateTime().toLocalDate();
-        variables.put("dueDate", DateUtil.formatDateTo(dueDate,"MMM dd"));
+        // utc to cst
+        ZonedDateTime zonedDateTime = ZonedDateTime
+                .of(expireDate.toLocalDateTime(), ZoneId.of("UTC"));
+        variables.put("dueDate", DateUtil.formatDateTo(zonedDateTime
+                .withZoneSameInstant(ZoneId.of("America/Managua")).toLocalDateTime(),"MMM dd"));
       }
     }
 
