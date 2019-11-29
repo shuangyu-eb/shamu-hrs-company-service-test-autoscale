@@ -1,7 +1,7 @@
 package shamu.company.timeoff.service;
 
 import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.TimeOffApprovalStatus.APPROVED;
-import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.TimeOffApprovalStatus.NO_ACTION;
+import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.TimeOffApprovalStatus.AWAITING_REVIEW;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
@@ -205,7 +205,7 @@ public class TimeOffPolicyService {
       final Integer balance = timeOffBreakdownDto.getBalance();
 
       final Integer pendingHours = getTimeOffRequestHoursFromStatus(
-          user.getId(), policyUser.getTimeOffPolicy().getId(), NO_ACTION, null);
+          user.getId(), policyUser.getTimeOffPolicy().getId(), AWAITING_REVIEW, null);
       final Integer approvedHours = getTimeOffRequestHoursFromStatus(
           user.getId(), policyUser.getTimeOffPolicy().getId(), APPROVED,
           Timestamp.valueOf(currentTime));
@@ -259,7 +259,7 @@ public class TimeOffPolicyService {
       final Integer balance = timeOffBreakdownDto.getBalance();
 
       final Integer pendingHours = getTimeOffRequestHoursFromStatus(
-          user.getId(), policyUser.getTimeOffPolicy().getId(), NO_ACTION, null);
+          user.getId(), policyUser.getTimeOffPolicy().getId(), AWAITING_REVIEW, null);
       final Integer approvedHours = getTimeOffRequestHoursFromStatus(
           user.getId(), policyUser.getTimeOffPolicy().getId(), APPROVED,
           Timestamp.valueOf(endDateTime));
