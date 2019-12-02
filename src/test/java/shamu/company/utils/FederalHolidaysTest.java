@@ -1,11 +1,10 @@
 package shamu.company.utils;
 
-import org.junit.Assert;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 class FederalHolidaysTest {
   final private FederalHolidays federalHolidays = new FederalHolidays();
@@ -17,18 +16,19 @@ class FederalHolidaysTest {
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
   }
 
-  private String getFederalHoliday(String holidayName, int year) {
+  private String getFederalHoliday(final String holidayName, final int year) {
     return sdf.format(federalHolidays.timestampOf(holidayName, year));
   }
 
   private void testRecentThreeYearsFederalHolidays(
-      String federalHoliday, String dayIn2019, String dayIn2020, String dayIn2021) {
-    String federalHoliday2019 = getFederalHoliday(federalHoliday, 2019);
-    String federalHoliday2020 = getFederalHoliday(federalHoliday, 2020);
-    String federalHoliday2021 = getFederalHoliday(federalHoliday, 2021);
-    Assert.assertEquals(dayIn2019, federalHoliday2019);
-    Assert.assertEquals(dayIn2020, federalHoliday2020);
-    Assert.assertEquals(dayIn2021, federalHoliday2021);
+      final String federalHoliday, final String dayIn2019, final String dayIn2020,
+      final String dayIn2021) {
+    final String federalHoliday2019 = getFederalHoliday(federalHoliday, 2019);
+    final String federalHoliday2020 = getFederalHoliday(federalHoliday, 2020);
+    final String federalHoliday2021 = getFederalHoliday(federalHoliday, 2021);
+    Assertions.assertEquals(dayIn2019, federalHoliday2019);
+    Assertions.assertEquals(dayIn2020, federalHoliday2020);
+    Assertions.assertEquals(dayIn2021, federalHoliday2021);
   }
 
   @Test
@@ -93,8 +93,8 @@ class FederalHolidaysTest {
 
   @Test
   void invalidDay() {
-    String invalidFederalHoliday = "";
-    Assert.assertNull(federalHolidays.timestampOf(invalidFederalHoliday));
-    Assert.assertNull(federalHolidays.timestampOf(invalidFederalHoliday, 2022));
+    final String invalidFederalHoliday = "";
+    Assertions.assertNull(federalHolidays.timestampOf(invalidFederalHoliday));
+    Assertions.assertNull(federalHolidays.timestampOf(invalidFederalHoliday, 2022));
   }
 }

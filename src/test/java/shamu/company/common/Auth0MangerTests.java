@@ -9,29 +9,27 @@ import com.auth0.jwk.UrlJwkProvider;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.net.AuthRequest;
 import org.apache.commons.lang.RandomStringUtils;
-import org.junit.Before;
-import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.reflect.Whitebox;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import shamu.company.utils.Auth0Config;
 import shamu.company.utils.Auth0Manager;
 
-@RunWith(SpringJUnit4ClassRunner.class)
 @PrepareForTest(value = {UrlJwkProvider.class, Algorithm.class})
-public class Auth0MangerTests {
+class Auth0MangerTests {
 
   private Auth0Manager auth0Manager;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     final String clientId = RandomStringUtils.randomAlphabetic(10);
     final String clientSecret = RandomStringUtils.randomAlphabetic(10);
     final String domain = "indeed.com";
     final String issuer = String.format("https://%s/", domain);
+    final String managementIdentifier = String.format("https://%s/api/v2/", domain);
     final String jwks = String.format("https://%s/.well-known/jwks.json", domain);
 
     final Auth0Config auth0Config = Auth0Config.builder()
@@ -40,13 +38,14 @@ public class Auth0MangerTests {
         .domain(domain)
         .jwks(jwks)
         .issuer(issuer)
+        .managementIdentifier(managementIdentifier)
         .build();
 
     auth0Manager = new Auth0Manager(auth0Config);
   }
 
   @Test
-  public void whenManagerIsNull_thenShouldReturnNew() throws Auth0Exception {
+  void whenManagerIsNull_thenShouldReturnNew() throws Auth0Exception {
     final AuthAPI mockAuthApi = Mockito.mock(AuthAPI.class);
     final AuthRequest mockAuthRequest = Mockito.mock(AuthRequest.class);
 
