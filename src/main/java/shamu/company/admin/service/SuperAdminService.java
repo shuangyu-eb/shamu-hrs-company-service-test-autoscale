@@ -7,20 +7,20 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import shamu.company.admin.dto.MockUserDto;
 import shamu.company.admin.dto.SuperAdminUserDto;
-import shamu.company.common.exception.ResourceNotFoundException;
+import shamu.company.admin.repository.SuperAdminRepository;
 import shamu.company.redis.AuthUserCacheManager;
 import shamu.company.server.AuthUser;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.mapper.UserMapper;
-import shamu.company.user.repository.UserRepository;
+import shamu.company.user.service.UserService;
 import shamu.company.utils.Auth0Util;
 
 @Service
 public class SuperAdminService {
 
-  private static final String ERROR_MESSAGE = "User does not exist!";
+  private final UserService userService;
 
-  private final UserRepository userRepository;
+  private final SuperAdminRepository superAdminRepository;
 
   private final Auth0Util auth0Util;
 
@@ -29,22 +29,25 @@ public class SuperAdminService {
   private final AuthUserCacheManager authUserCacheManager;
 
   @Autowired
-  public SuperAdminService(final UserRepository userRepository,
+  public SuperAdminService(final UserService userService,
+      final SuperAdminRepository superAdminRepository,
       final Auth0Util auth0Util,
       final UserMapper userMapper,
       final AuthUserCacheManager authUserCacheManager) {
-    this.userRepository = userRepository;
+    this.userService = userService;
+    this.superAdminRepository = superAdminRepository;
     this.auth0Util = auth0Util;
     this.userMapper = userMapper;
     this.authUserCacheManager = authUserCacheManager;
   }
 
-  public Page<SuperAdminUserDto> getUsersBy(final String keyword, final Pageable pageable) {
-    return userRepository.findBy(keyword, pageable);
+  public Page<SuperAdminUserDto> getUsersByKeywordAndPageable(final String keyword,
+      final Pageable pageable) {
+    return superAdminRepository.getUsersByKeywordAndPageable(keyword, pageable);
   }
 
   public MockUserDto mockUser(final String userId, final String token) {
-    final User user = getUser(userId);
+    final User user = userService.findByUserId(userId);
     final AuthUser authUser = userMapper.convertToAuthUser(user);
     final MockUserDto mockUserDto = userMapper.convertToMockUserDto(user);
     final List<String> permissions = auth0Util
@@ -53,10 +56,5 @@ public class SuperAdminService {
     authUserCacheManager.cacheAuthUser(token, authUser);
     mockUserDto.setPermissions(permissions);
     return mockUserDto;
-  }
-
-  private User getUser(final String userId) {
-    return userRepository.findById(userId)
-        .orElseThrow(() -> new ResourceNotFoundException(ERROR_MESSAGE));
   }
 }

@@ -2,15 +2,13 @@ package shamu.company.user.repository;
 
 import java.util.List;
 import java.util.Optional;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import shamu.company.admin.dto.SuperAdminUserDto;
 import shamu.company.user.entity.User;
 
 public interface UserRepository extends JpaRepository<User, String>, UserCustomRepository {
 
+  @Override
   Optional<User> findById(String id);
 
   String ACTIVE_USER_QUERY = " and (u.deactivated_at is null "
@@ -117,24 +115,6 @@ public interface UserRepository extends JpaRepository<User, String>, UserCustomR
       + ACTIVE_USER_QUERY,
       nativeQuery = true)
   User findByIdAndCompanyId(String userId, String companyId);
-
-  @Query(value =
-      "SELECT new shamu.company.admin.dto.SuperAdminUserDto(u) "
-      + "FROM User u "
-      + "WHERE u.userStatus.name='ACTIVE' "
-      + "AND ( "
-      + "CONCAT(u.userPersonalInformation.firstName, ' ', u.userPersonalInformation.lastName) "
-      + "LIKE CONCAT('%',?1,'%') "
-      + "OR "
-      + "CONCAT(u.userPersonalInformation.preferredName, ' ', u.userPersonalInformation.lastName) "
-      + "LIKE CONCAT('%',?1,'%') "
-      + "OR u.company.name  LIKE CONCAT('%',?1,'%') "
-      + "OR u.userContactInformation.emailWork LIKE CONCAT('%',?1,'%') ) "
-      + "AND (u.deactivatedAt is null "
-      + "OR (u.deactivatedAt IS NOT NULL "
-      + "AND u.deactivatedAt > current_timestamp ))")
-  Page<SuperAdminUserDto> findBy(String keyword, Pageable pageable);
-
 
   User findByChangeWorkEmailToken(String token);
 
