@@ -156,6 +156,7 @@ public class UserPermissionUtils extends BasePermissionUtils {
     return false;
   }
 
+  //TODO refactor isAdminPermission, seems duplicate
   private boolean isAdminPermission(final Authentication auth, final Permission.Name permission) {
     final Collection<GrantedAuthority> authorities = (Collection<GrantedAuthority>) auth
         .getAuthorities();
@@ -316,12 +317,6 @@ public class UserPermissionUtils extends BasePermissionUtils {
     return hasPermission(authorities, permission) && isManager;
   }
 
-  private boolean hasPermissionSameCompany(
-      final Authentication auth, final String id, final Permission.Name permission) {
-    final User user = userService.findUserById(id);
-    return user.getCompany().getId() == getCompanyId();
-  }
-
   boolean isCurrentUserId(final String id) {
     return !StringUtils.isEmpty(id) && id.equals(getAuthUser().getId());
   }
@@ -330,8 +325,8 @@ public class UserPermissionUtils extends BasePermissionUtils {
     return email != null && email.equals(getAuthUser().getEmail());
   }
 
-  boolean hasAuthority(String permission) {
-    List<String> permissions = getAuthUser().getPermissions();
+  boolean hasAuthority(final String permission) {
+    final List<String> permissions = getAuthUser().getPermissions();
     if (CollectionUtils.isEmpty(permissions)) {
       return false;
     }

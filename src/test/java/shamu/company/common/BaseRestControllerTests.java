@@ -1,14 +1,6 @@
 package shamu.company.common;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.interfaces.DecodedJWT;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -25,6 +17,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import shamu.company.common.config.DefaultJwtAuthenticationToken;
 import shamu.company.redis.AuthUserCacheManager;
 import shamu.company.server.AuthUser;
+import shamu.company.tests.utils.JwtUtil;
 
 class BaseRestControllerTests {
 
@@ -32,19 +25,7 @@ class BaseRestControllerTests {
 
   @BeforeAll
   static void setUp() {
-    final String token = JWT.create().withIssuer("http://www.google.com/")
-        .sign(Algorithm.HMAC256("secret"));
-    final DecodedJWT decodedJwt = JWT.decode(token);
-    final Map<String, Object> jwtHeaders = new HashMap<>();
-    jwtHeaders.put("typ", decodedJwt.getHeaderClaim("typ"));
-    jwtHeaders.put("alg", decodedJwt.getHeaderClaim("alg"));
-
-    final Map<String, Object> bodyClaims = new HashMap<>();
-    bodyClaims.put("iss", decodedJwt.getClaim("iss"));
-
-    final Instant jwtIssuedAt = LocalDateTime.now().toInstant(ZoneOffset.UTC);
-    final Instant jwtExpiredAt = LocalDateTime.now().plusDays(1).toInstant(ZoneOffset.UTC);
-    final Jwt jwt = new Jwt(token, jwtIssuedAt, jwtExpiredAt,  jwtHeaders, bodyClaims);
+    final Jwt jwt = JwtUtil.getJwt();
     final AuthUser authUser = new AuthUser();
     authUser.setId("1");
     authUser.setCompanyId("1");
@@ -54,9 +35,6 @@ class BaseRestControllerTests {
     final Authentication authentication = new DefaultJwtAuthenticationToken(jwt, userId,
         Collections.emptyList(), authUser);
     SecurityContextHolder.getContext().setAuthentication(authentication);
-
-
-
   }
 
   @BeforeEach

@@ -39,8 +39,7 @@ class BasePermissionUtils {
     return getAuthUser().getCompanyId();
   }
 
-  String getAuth0UserId() {
-    checkIsAuthenticated();
-    return getAuthentication().getUserId();
+  String getUserId() {
+    return getAuthUser().getId();
   }
 }

@@ -10,13 +10,9 @@ public class PermissionUtils {
 
   private final UserPermissionUtils userPermissionUtils;
 
-  private final CompanyPermissionUtils companyPermissionUtils;
-
   @Autowired
-  public PermissionUtils(final UserPermissionUtils userPermissionUtils,
-      final CompanyPermissionUtils companyPermissionUtils) {
+  public PermissionUtils(final UserPermissionUtils userPermissionUtils) {
     this.userPermissionUtils = userPermissionUtils;
-    this.companyPermissionUtils = companyPermissionUtils;
   }
 
   boolean hasPermission(final Authentication auth, final String targetId, final Type targetType,
@@ -27,20 +23,6 @@ public class PermissionUtils {
   boolean hasPermission(final Authentication auth, final List target, final Type type,
       final Permission.Name permission) {
     return userPermissionUtils.hasPermission(auth, target, type, permission);
-  }
-
-  public boolean isMember(final String targetType, final String id) {
-    return companyPermissionUtils.isMember(targetType, id);
-  }
-
-  /**
-   * @param userId The user id
-   * @return true | false
-   *
-   * Usage: @PreAuthorize("@permissionUtils.isMember(#id)")
-   */
-  public boolean isMember(final String userId) {
-    return companyPermissionUtils.isMember(userId);
   }
 
   public boolean isCurrentUserId(final String id) {
