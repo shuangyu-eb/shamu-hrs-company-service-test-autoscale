@@ -1,15 +1,17 @@
 package shamu.company.email;
 
 import java.sql.Timestamp;
-import java.util.Calendar;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
+import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
 import shamu.company.utils.EmailUtil;
 
+@Data
 @Service
 public class EmailService {
 
@@ -19,15 +21,15 @@ public class EmailService {
 
   private final EmailUtil emailUtil;
 
-  @Value("${email.retryLimit}")
-  Integer emailRetryLimit;
+  private final Integer emailRetryLimit;
 
   @Autowired
   public EmailService(final EmailRepository emailRepository, final TaskScheduler taskScheduler,
-      final EmailUtil emailUtil) {
+      final EmailUtil emailUtil, @Value("${email.retryLimit}") final Integer emailRetryLimit) {
     this.emailRepository = emailRepository;
     this.taskScheduler = taskScheduler;
     this.emailUtil = emailUtil;
+    this.emailRetryLimit = emailRetryLimit;
   }
 
   public Email save(final Email email) {
@@ -41,7 +43,7 @@ public class EmailService {
   public void scheduleEmail(final Email email) {
     Timestamp sendDate = email.getSendDate();
     if (sendDate == null) {
-      sendDate = new Timestamp(new Date().getTime());
+      sendDate = Timestamp.valueOf(LocalDateTime.now());
     }
     taskScheduler.schedule(getEmailTask(email), sendDate);
   }
@@ -51,7 +53,7 @@ public class EmailService {
     scheduleEmail(email);
   }
 
-  private void reScheduleFailedEmail(final Email email) {
+  private void rescheduleFailedEmail(final Email email) {
     final Integer currentRetryCount = email.getRetryCount() == null ? 0 : email.getRetryCount() + 1;
     email.setRetryCount(currentRetryCount);
     save(email);
@@ -60,9 +62,8 @@ public class EmailService {
       return;
     }
 
-    final Calendar calendar = Calendar.getInstance();
-    calendar.add(Calendar.HOUR, 1);
-    email.setSendDate(new Timestamp(calendar.getTimeInMillis()));
+    final LocalDateTime afterOneHour = LocalDateTime.now().plusHours(1);
+    email.setSendDate(Timestamp.valueOf(afterOneHour));
     saveAndScheduleEmail(email);
   }
 
@@ -73,7 +74,7 @@ public class EmailService {
         email.setSentAt(new Timestamp(new Date().getTime()));
         emailRepository.save(email);
       } catch (final Exception exception) {
-        reScheduleFailedEmail(email);
+        rescheduleFailedEmail(email);
       }
     };
   }
