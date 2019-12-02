@@ -6,6 +6,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 import org.hibernate.validator.constraints.Length;
 import shamu.company.common.entity.BaseEntity;
 import shamu.company.common.entity.Country;
@@ -29,6 +31,7 @@ public class OfficeAddress extends BaseEntity {
   private String city;
 
   @ManyToOne
+  @NotFound(action = NotFoundAction.IGNORE)
   private StateProvince stateProvince;
 
   // TODO remove it, we can get it from StateProvince

@@ -2,10 +2,13 @@ package shamu.company.job.service;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import shamu.company.common.exception.ForbiddenException;
 import shamu.company.common.exception.ResourceNotFoundException;
@@ -287,6 +290,11 @@ public class JobUserService {
     if (count > 0) {
       throw new ForbiddenException(
               "The Department has people, please remove then to another Department");
+    }
+    List<Job> jobs = jobRepository.findAllByDepartmentId(id);
+    if (!CollectionUtils.isEmpty(jobs)) {
+      List<String> jobIds = jobs.stream().map(Job::getId).collect(Collectors.toList());
+      jobRepository.deleteInBatch(jobIds);
     }
     departmentRepository.delete(id);
   }
