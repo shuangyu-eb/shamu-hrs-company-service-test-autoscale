@@ -9,11 +9,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.encrypt.BytesEncryptor;
 import org.springframework.security.crypto.encrypt.Encryptors;
 import org.springframework.stereotype.Component;
-import shamu.company.common.exception.ResourceNotFoundException;
-import shamu.company.common.repository.SecretHashRepository;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserPersonalInformation;
-import shamu.company.user.repository.UserRepository;
+import shamu.company.user.service.UserService;
 import shamu.company.utils.Auth0Util;
 
 @Component
@@ -21,16 +19,16 @@ public class Encryptor {
 
   private static final Charset charset = StandardCharsets.ISO_8859_1;
   private final String indeedHash;
-  private final UserRepository userRepository;
+  private final UserService userService;
   private final Auth0Util auth0Util;
   private final SecretHashRepository secretHashRepository;
 
   @Autowired
   Encryptor(final @Value("${crypto.hash}") String indeedHash,
-      final UserRepository userRepository, final Auth0Util auth0Util,
+      final UserService userService, final Auth0Util auth0Util,
       final SecretHashRepository secretHashRepository) {
     this.indeedHash = indeedHash;
-    this.userRepository = userRepository;
+    this.userService = userService;
     this.auth0Util = auth0Util;
     this.secretHashRepository = secretHashRepository;
   }
@@ -48,7 +46,7 @@ public class Encryptor {
   }
 
   private String decrypt(final String userId, final String value) {
-    final User user = getUserById(userId);
+    final User user = userService.findByUserId(userId);
     return decrypt(user, value);
   }
 
@@ -62,7 +60,7 @@ public class Encryptor {
       if (entityClass == User.class) {
         return decrypt(id, value);
       } else if (entityClass == UserPersonalInformation.class) {
-        final User user = userRepository.findByUserPersonalInformationId(id);
+        final User user = userService.findUserByUserPersonalInformationId(id);
         return decrypt(user, value);
       }
     } catch (final Exception e) {
@@ -78,7 +76,7 @@ public class Encryptor {
   }
 
   private BytesEncryptor getEncryptor(final String userId) {
-    final User user = this.getUserById(userId);
+    final User user = userService.findByUserId(userId);
     return Encryptors.stronger(String.valueOf(getHashCode(user)), user.getSalt());
   }
 
@@ -86,13 +84,7 @@ public class Encryptor {
     final String companyHash = getCompanyHash(user);
     final String userHash = getUserHash(user);
 
-    return Objects.hash(this.indeedHash, companyHash, userHash);
-  }
-
-
-  private User getUserById(final String userId) {
-    return userRepository.findById(userId)
-        .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+    return Objects.hash(indeedHash, companyHash, userHash);
   }
 
   private String getUserHash(final User user) {

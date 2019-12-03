@@ -21,7 +21,7 @@ import shamu.company.user.entity.mapper.UserMapper;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.Auth0Util;
 
-public class SuperAdminServiceTests {
+class SuperAdminServiceTests {
 
   @Mock
   private UserService userService;

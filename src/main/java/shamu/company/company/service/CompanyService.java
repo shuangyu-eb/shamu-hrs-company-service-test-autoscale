@@ -10,7 +10,6 @@ import shamu.company.common.repository.DepartmentRepository;
 import shamu.company.common.repository.EmploymentTypeRepository;
 import shamu.company.common.repository.OfficeAddressRepository;
 import shamu.company.common.repository.OfficeRepository;
-import shamu.company.common.repository.SecretHashRepository;
 import shamu.company.common.repository.StateProvinceRepository;
 import shamu.company.company.dto.OfficeSizeDto;
 import shamu.company.company.entity.Company;
@@ -42,8 +41,6 @@ public class CompanyService {
 
   private final OfficeAddressRepository officeAddressRepository;
 
-  private final SecretHashRepository secretHashRepository;
-
   private final JobUserRepository jobUserRepository;
 
   private final OfficeAddressMapper officeAddressMapper;
@@ -55,7 +52,6 @@ public class CompanyService {
       final JobRepository jobRepository, final OfficeRepository officeRepository,
       final StateProvinceRepository stateProvinceRepository,
       final OfficeAddressRepository officeAddressRepository,
-      final SecretHashRepository secretHashRepository,
       final JobUserRepository jobUserRepository,
       final OfficeAddressMapper officeAddressMapper) {
     this.companyRepository = companyRepository;
@@ -65,7 +61,6 @@ public class CompanyService {
     this.officeRepository = officeRepository;
     this.stateProvinceRepository = stateProvinceRepository;
     this.officeAddressRepository = officeAddressRepository;
-    this.secretHashRepository = secretHashRepository;
     this.jobUserRepository = jobUserRepository;
     this.officeAddressMapper = officeAddressMapper;
   }
@@ -76,12 +71,12 @@ public class CompanyService {
   }
 
   public List<SelectFieldSizeDto> getDepartmentsByCompanyId(final String companyId) {
-    List<SelectFieldSizeDto> selectFieldSizeDtoList = new ArrayList<>();
-    List<Department> departments = departmentRepository.findAllByCompanyId(companyId);
+    final List<SelectFieldSizeDto> selectFieldSizeDtoList = new ArrayList<>();
+    final List<Department> departments = departmentRepository.findAllByCompanyId(companyId);
 
-    for (Department department: departments) {
-      SelectFieldSizeDto selectFieldSizeDto = new SelectFieldSizeDto();
-      Integer size = departmentRepository.getCountByDepartment(department.getId());
+    for (final Department department: departments) {
+      final SelectFieldSizeDto selectFieldSizeDto = new SelectFieldSizeDto();
+      final Integer size = departmentRepository.getCountByDepartment(department.getId());
       selectFieldSizeDto.setId(department.getId());
       selectFieldSizeDto.setName(department.getName());
       selectFieldSizeDto.setSize(size);
@@ -104,11 +99,11 @@ public class CompanyService {
   }
 
   public List<SelectFieldSizeDto> getJobsByDepartmentId(final String id) {
-    List<SelectFieldSizeDto> selectFieldSizeDtoList = new ArrayList<>();
-    List<Job> jobs = jobRepository.findAllByDepartmentId(id);
-    for (Job job: jobs) {
-      SelectFieldSizeDto selectFieldSizeDto = new SelectFieldSizeDto();
-      Integer size = jobUserRepository.getCountByJobId(job.getId());
+    final List<SelectFieldSizeDto> selectFieldSizeDtoList = new ArrayList<>();
+    final List<Job> jobs = jobRepository.findAllByDepartmentId(id);
+    for (final Job job: jobs) {
+      final SelectFieldSizeDto selectFieldSizeDto = new SelectFieldSizeDto();
+      final Integer size = jobUserRepository.getCountByJobId(job.getId());
       selectFieldSizeDto.setId(job.getId());
       selectFieldSizeDto.setName(job.getTitle());
       selectFieldSizeDto.setSize(size);
@@ -130,11 +125,11 @@ public class CompanyService {
   }
 
   public List<OfficeSizeDto> getOfficesByCompany(final String companyId) {
-    List<OfficeSizeDto> officeSizeDtoList = new ArrayList<>();
-    List<Office> offices = officeRepository.findByCompanyId(companyId);
-    for (Office office: offices) {
-      OfficeSizeDto officeSizeDto = new OfficeSizeDto();
-      Integer size = officeRepository.getCountByOffice(office.getId());
+    final List<OfficeSizeDto> officeSizeDtoList = new ArrayList<>();
+    final List<Office> offices = officeRepository.findByCompanyId(companyId);
+    for (final Office office: offices) {
+      final OfficeSizeDto officeSizeDto = new OfficeSizeDto();
+      final Integer size = officeRepository.getCountByOffice(office.getId());
       officeSizeDto.setId(office.getId());
       officeSizeDto.setName(office.getName());
       officeSizeDto.setOfficeAddress(
@@ -161,11 +156,11 @@ public class CompanyService {
   }
 
   public List<SelectFieldSizeDto> getEmploymentTypesByCompanyId(final String companyId) {
-    List<SelectFieldSizeDto> selectFieldSizeDtoList = new ArrayList<>();
-    List<EmploymentType> types = employmentTypeRepository.findAllByCompanyId(companyId);
-    for (EmploymentType type: types) {
-      SelectFieldSizeDto selectFieldSizeDto = new SelectFieldSizeDto();
-      Integer size = employmentTypeRepository.getCountByType(type.getId());
+    final List<SelectFieldSizeDto> selectFieldSizeDtoList = new ArrayList<>();
+    final List<EmploymentType> types = employmentTypeRepository.findAllByCompanyId(companyId);
+    for (final EmploymentType type: types) {
+      final SelectFieldSizeDto selectFieldSizeDto = new SelectFieldSizeDto();
+      final Integer size = employmentTypeRepository.getCountByType(type.getId());
       selectFieldSizeDto.setId(type.getId());
       selectFieldSizeDto.setName(type.getName());
       selectFieldSizeDto.setSize(size);
@@ -187,9 +182,5 @@ public class CompanyService {
     return companyRepository
         .findById(companyId)
         .orElseThrow(() -> new ResourceNotFoundException("No such Company"));
-  }
-
-  public String getCompanySecretByCompanyId(final String id) {
-    return secretHashRepository.getCompanySecretByCompanyId(id);
   }
 }

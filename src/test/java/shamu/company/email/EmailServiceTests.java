@@ -10,7 +10,7 @@ import org.powermock.reflect.Whitebox;
 import org.springframework.scheduling.TaskScheduler;
 import shamu.company.utils.EmailUtil;
 
-public class EmailServiceTests {
+class EmailServiceTests {
 
   @Mock
   private EmailRepository emailRepository;

@@ -1,4 +1,4 @@
-package shamu.company.common.repository;
+package shamu.company.crypto;
 
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
