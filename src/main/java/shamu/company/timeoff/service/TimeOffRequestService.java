@@ -370,7 +370,7 @@ public class TimeOffRequestService {
 
     final LocalDateTime currentTime = LocalDateTime.now();
     final TimeOffBreakdownDto timeOffBreakdownDto = timeOffDetailService
-        .getTimeOffBreakdown(timeOffPolicyUser.getId(), currentTime.toLocalDate());
+        .getTimeOffBreakdown(timeOffPolicyUser.getId(), null);
     final Integer balance = timeOffBreakdownDto.getBalance();
     final Integer approvedHours = timeOffPolicyService.getTimeOffRequestHoursFromStatus(
             timeOffPolicyUser.getUser().getId(),

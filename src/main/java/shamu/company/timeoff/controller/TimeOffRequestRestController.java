@@ -62,8 +62,6 @@ public class TimeOffRequestRestController extends BaseRestController {
 
   private final TimeOffRequestMapper timeOffRequestMapper;
 
-  private final TimeOffRequestRepository timeOffRequestRepository;
-
   private final TimeOffRequestApprovalStatusRepository approvalStatusRepository;
 
   @Autowired
@@ -73,14 +71,12 @@ public class TimeOffRequestRestController extends BaseRestController {
       final TimeOffRequestDateService timeOffRequestDateService,
       final UserService userService,
       final TimeOffRequestMapper timeOffRequestMapper,
-      final TimeOffRequestRepository timeOffRequestRepository,
       final TimeOffRequestApprovalStatusRepository approvalStatusRepository) {
     this.timeOffRequestService = timeOffRequestService;
     this.timeOffRequestEmailService = timeOffRequestEmailService;
     this.timeOffRequestDateService = timeOffRequestDateService;
     this.userService = userService;
     this.timeOffRequestMapper = timeOffRequestMapper;
-    this.timeOffRequestRepository = timeOffRequestRepository;
     this.approvalStatusRepository = approvalStatusRepository;
   }
 

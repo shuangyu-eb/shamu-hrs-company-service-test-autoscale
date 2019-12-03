@@ -4,10 +4,12 @@ import static shamu.company.timeoff.service.TimeOffAccrualService.invalidByStart
 
 import java.sql.Date;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -67,7 +69,15 @@ public class TimeOffDetailService {
   }
 
   public TimeOffBreakdownDto getTimeOffBreakdown(
-      final String policyUserId, final LocalDate endDate) {
+      final String policyUserId, final Long untilDate) {
+
+    LocalDate endDate = LocalDate.now();
+
+    if (untilDate != null) {
+      endDate = ZonedDateTime.ofInstant(Instant.ofEpochMilli(untilDate),
+          ZoneOffset.UTC).toLocalDate();
+    }
+
     final Optional<TimeOffPolicyUser> timeOffPolicyUserContainer = timeOffPolicyUserRepository
         .findById(policyUserId);
 
@@ -255,6 +265,7 @@ public class TimeOffDetailService {
         .build();
   }
 
+  //TODO simplify
   private Integer getMaxBalance(String policyUserId) {
     TimeOffPolicyUser timeOffPolicyUser = timeOffPolicyUserRepository.findById(policyUserId)
         .orElseThrow(() -> new ResourceNotFoundException("Time off policy user with id "

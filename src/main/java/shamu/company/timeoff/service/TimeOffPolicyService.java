@@ -4,8 +4,10 @@ import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.TimeOffA
 import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.TimeOffApprovalStatus.AWAITING_REVIEW;
 
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -31,6 +33,7 @@ import shamu.company.job.entity.JobUser;
 import shamu.company.job.entity.mapper.JobUserMapper;
 import shamu.company.job.repository.JobUserRepository;
 import shamu.company.timeoff.dto.AccrualScheduleMilestoneDto;
+import shamu.company.timeoff.dto.TimeOffAdjustmentCheckDto;
 import shamu.company.timeoff.dto.TimeOffBalanceDto;
 import shamu.company.timeoff.dto.TimeOffBalanceItemDto;
 import shamu.company.timeoff.dto.TimeOffBreakdownDto;
@@ -64,6 +67,7 @@ import shamu.company.timeoff.repository.TimeOffRequestApprovalStatusRepository;
 import shamu.company.timeoff.repository.TimeOffRequestRepository;
 import shamu.company.user.entity.User;
 import shamu.company.user.repository.UserRepository;
+import shamu.company.user.service.UserService;
 
 @Service
 @Transactional
@@ -99,7 +103,7 @@ public class TimeOffPolicyService {
 
   private final JobUserMapper jobUserMapper;
 
-  private final TimeOffRequestApprovalStatusRepository requestApprovalStatusRepository;
+  private final UserService userService;
 
   @Autowired
   public TimeOffPolicyService(
@@ -117,7 +121,8 @@ public class TimeOffPolicyService {
       final TimeOffPolicyMapper timeOffPolicyMapper,
       final JobUserMapper jobUserMapper,
       final CompanyService companyService,
-      final TimeOffRequestApprovalStatusRepository requestApprovalStatusRepository) {
+      final TimeOffRequestApprovalStatusRepository requestApprovalStatusRepository,
+      final UserService userService) {
     this.timeOffPolicyRepository = timeOffPolicyRepository;
     this.timeOffPolicyUserRepository = timeOffPolicyUserRepository;
     this.accrualScheduleMilestoneRepository = accrualScheduleMilestoneRepository;
@@ -133,7 +138,7 @@ public class TimeOffPolicyService {
     this.timeOffPolicyMapper = timeOffPolicyMapper;
     this.jobUserMapper = jobUserMapper;
     this.companyService = companyService;
-    this.requestApprovalStatusRepository = requestApprovalStatusRepository;
+    this.userService = userService;
   }
 
   public void createTimeOffPolicy(final TimeOffPolicyWrapperDto timeOffPolicyWrapperDto,
@@ -188,7 +193,8 @@ public class TimeOffPolicyService {
     createTimeOffPolicyUsers(timeOffPolicyUserFrontendDtos, policyId);
   }
 
-  public TimeOffBalanceDto getTimeOffBalances(final User user) {
+  public TimeOffBalanceDto getTimeOffBalances(final String userId) {
+    final User user = userService.findUserById(userId);
 
     final List<TimeOffPolicyUser> policyUsers = timeOffPolicyUserRepository
         .findTimeOffPolicyUsersByUser(user);
@@ -201,7 +207,7 @@ public class TimeOffPolicyService {
       final TimeOffPolicyUser policyUser = policyUserIterator.next();
       final String policyUserId = policyUser.getId();
       final TimeOffBreakdownDto timeOffBreakdownDto = timeOffDetailService
-          .getTimeOffBreakdown(policyUserId, currentTime.toLocalDate());
+          .getTimeOffBreakdown(policyUserId, null);
       final Integer balance = timeOffBreakdownDto.getBalance();
 
       final Integer pendingHours = getTimeOffRequestHoursFromStatus(
@@ -244,7 +250,15 @@ public class TimeOffPolicyService {
   }
 
   public List<TimeOffPolicyUserDto> getTimeOffPolicyUser(
-      final User user, final LocalDateTime endDateTime) {
+      final String userId, final Long untilDate) {
+
+    final User user = userService.findUserById(userId);
+
+    LocalDateTime endDateTime = LocalDateTime.now();
+
+    if (untilDate != null) {
+      endDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(untilDate), ZoneId.of("UTC"));
+    }
 
     final List<TimeOffPolicyUser> policyUsers = timeOffPolicyUserRepository
         .findTimeOffPolicyUsersByUser(user);
@@ -255,7 +269,7 @@ public class TimeOffPolicyService {
       final TimeOffPolicyUser policyUser = policyUserIterator.next();
       final String policyUserId = policyUser.getId();
       final TimeOffBreakdownDto timeOffBreakdownDto = timeOffDetailService
-          .getTimeOffBreakdown(policyUserId, endDateTime.toLocalDate());
+          .getTimeOffBreakdown(policyUserId, untilDate);
       final Integer balance = timeOffBreakdownDto.getBalance();
 
       final Integer pendingHours = getTimeOffRequestHoursFromStatus(
@@ -485,10 +499,18 @@ public class TimeOffPolicyService {
 
   public void addTimeOffAdjustments(final User currentUser, final String policyUserId,
       final Integer newBalance) {
+
+    TimeOffAdjustmentCheckDto checkResult = timeOffDetailService
+        .checkTimeOffAdjustments(policyUserId, newBalance);
+    if (checkResult.getExceed()) {
+      throw new ForbiddenException(String.format("Amount exceeds max balance of %s hours.",
+          checkResult.getMaxBalance()));
+    }
+
     final TimeOffPolicyUser timeOffPolicyUser = timeOffPolicyUserRepository.findById(policyUserId)
         .get();
     TimeOffBreakdownDto timeOffBreakdownDto = timeOffDetailService
-        .getTimeOffBreakdown(policyUserId, LocalDate.now());
+        .getTimeOffBreakdown(policyUserId, null);
     Integer currentBalance = timeOffBreakdownDto.getBalance();
     Integer adjustment = newBalance - currentBalance;
     final TimeOffAdjustment timeOffAdjustment =
@@ -621,8 +643,14 @@ public class TimeOffPolicyService {
     return timeOffPolicyUserRepository.findAllByTimeOffPolicyId(id);
   }
 
-  public void enrollTimeOffHours(final List<TimeOffPolicyUser> policyUsers,
-      final TimeOffPolicy enrollPolicy, final String currentUserId) {
+  public void enrollTimeOffHours(final String policyId,
+      final String rollId, final String currentUserId) {
+
+    final List<TimeOffPolicyUser> policyUsers = getAllPolicyUsersByPolicyId(policyId);
+
+    final TimeOffPolicy enrollPolicy = getTimeOffPolicyById(rollId);
+
+
     policyUsers.stream().forEach(policyUser -> {
       TimeOffPolicyUser timeOffPolicyUser = timeOffPolicyUserRepository
           .findTimeOffPolicyUserByUserAndTimeOffPolicy(policyUser.getUser(),enrollPolicy);
@@ -634,7 +662,7 @@ public class TimeOffPolicyService {
       }
 
       final TimeOffBreakdownDto timeOffBreakdown = timeOffDetailService
-          .getTimeOffBreakdown(policyUser.getId(), LocalDate.now());
+          .getTimeOffBreakdown(policyUser.getId(), null);
 
       final Integer remainingBalance = timeOffBreakdown.getBalance();
       final TimeOffAdjustment timeOffAdjustment = TimeOffAdjustment.builder()
@@ -647,5 +675,9 @@ public class TimeOffPolicyService {
           .build();
       timeOffAdjustmentRepository.save(timeOffAdjustment);
     });
+  }
+
+  public boolean checkHasTimeOffPolicies(final String id) {
+    return timeOffPolicyUserRepository.existsByUserId(id);
   }
 }
