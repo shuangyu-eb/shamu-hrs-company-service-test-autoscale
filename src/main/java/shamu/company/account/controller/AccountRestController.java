@@ -10,23 +10,23 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import shamu.company.common.config.annotations.RestApiController;
+import shamu.company.helpers.auth0.Auth0Helper;
 import shamu.company.user.dto.CreatePasswordDto;
 import shamu.company.user.dto.UserLoginDto;
 import shamu.company.user.service.UserService;
-import shamu.company.utils.Auth0Util;
 
 @RestApiController
 public class AccountRestController {
 
   private final UserService userService;
 
-  private final Auth0Util auth0Util;
+  private final Auth0Helper auth0Helper;
 
   @Autowired
   public AccountRestController(final UserService userService,
-      final Auth0Util auth0Util) {
+      final Auth0Helper auth0Helper) {
     this.userService = userService;
-    this.auth0Util = auth0Util;
+    this.auth0Helper = auth0Helper;
   }
 
   @GetMapping("account/password/{token}")
@@ -42,7 +42,7 @@ public class AccountRestController {
 
   @PatchMapping("account/unlock")
   public HttpEntity unlock(@RequestBody @Valid final UserLoginDto userLoginDto) {
-    auth0Util.login(userLoginDto.getEmailWork(), userLoginDto.getPassword(), null);
+    auth0Helper.login(userLoginDto.getEmailWork(), userLoginDto.getPassword(), null);
     return new ResponseEntity(HttpStatus.OK);
   }
 

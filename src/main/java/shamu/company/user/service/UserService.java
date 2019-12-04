@@ -39,6 +39,7 @@ import shamu.company.email.Email;
 import shamu.company.email.EmailService;
 import shamu.company.employee.dto.EmployeeListSearchCondition;
 import shamu.company.employee.dto.OrgChartDto;
+import shamu.company.helpers.auth0.Auth0Helper;
 import shamu.company.info.dto.UserEmergencyContactDto;
 import shamu.company.info.entity.UserEmergencyContact;
 import shamu.company.info.service.UserEmergencyContactService;
@@ -85,7 +86,6 @@ import shamu.company.user.repository.UserContactInformationRepository;
 import shamu.company.user.repository.UserPersonalInformationRepository;
 import shamu.company.user.repository.UserRepository;
 import shamu.company.user.repository.UserStatusRepository;
-import shamu.company.utils.Auth0Util;
 import shamu.company.utils.DateUtil;
 
 @Service
@@ -113,7 +113,7 @@ public class UserService {
 
   private final EmailService emailService;
   private final UserCompensationRepository userCompensationRepository;
-  private final Auth0Util auth0Util;
+  private final Auth0Helper auth0Helper;
   private final AwsUtil awsUtil;
   private final UserMapper userMapper;
   private final AuthUserCacheManager authUserCacheManager;
@@ -141,7 +141,7 @@ public class UserService {
       @Lazy final PaidHolidayService paidHolidayService, final CompanyRepository companyRepository,
       final UserContactInformationMapper userContactInformationMapper,
       final UserAddressMapper userAddressMapper,
-      final Auth0Util auth0Util,
+      final Auth0Helper auth0Helper,
       final UserAccessLevelEventRepository userAccessLevelEventRepository,
       final DepartmentRepository departmentRepository,
       final JobRepository jobRepository,
@@ -166,7 +166,7 @@ public class UserService {
     this.companySizeRepository = companySizeRepository;
     this.paidHolidayService = paidHolidayService;
     this.companyRepository = companyRepository;
-    this.auth0Util = auth0Util;
+    this.auth0Helper = auth0Helper;
     this.userAccessLevelEventRepository = userAccessLevelEventRepository;
     this.departmentRepository = departmentRepository;
     this.jobRepository = jobRepository;
@@ -196,7 +196,7 @@ public class UserService {
   public void cacheUser(final String token, final String userId) {
     final User user = findUserById(userId);
     final AuthUser authUser = userMapper.convertToAuthUser(user);
-    final List<String> permissions = auth0Util
+    final List<String> permissions = auth0Helper
         .getPermissionBy(user.getId());
     authUser.setPermissions(permissions);
     authUserCacheManager.cacheAuthUser(token, authUser);
@@ -411,15 +411,15 @@ public class UserService {
     }
 
     final com.auth0.json.mgmt.users.User authUser =
-        auth0Util.getUserByUserIdFromAuth0(user.getId());
+        auth0Helper.getUserByUserIdFromAuth0(user.getId());
 
     if (authUser == null) {
       throw new ForbiddenException(String.format("Cannot find user with email %s",
           createPasswordDto.getEmailWork()));
     }
 
-    auth0Util.updatePassword(authUser, createPasswordDto.getNewPassword());
-    auth0Util.updateVerified(authUser, true);
+    auth0Helper.updatePassword(authUser, createPasswordDto.getNewPassword());
+    auth0Helper.updateVerified(authUser, true);
 
     final UserStatus userStatus = userStatusRepository.findByName(Status.ACTIVE.name());
     user.setUserStatus(userStatus);
@@ -439,7 +439,7 @@ public class UserService {
   public User updateUserRole(final String email, final UserRoleUpdateDto userRoleUpdateDto,
       final User user) {
 
-    auth0Util.login(email, userRoleUpdateDto.getPassWord(), null);
+    auth0Helper.login(email, userRoleUpdateDto.getPassWord(), null);
 
     final UserRole targetRole;
     if (userRoleUpdateDto.getUserRole() == Role.ADMIN) {
@@ -475,7 +475,7 @@ public class UserService {
       final UserStatusUpdateDto userStatusUpdateDto,
       final User user) {
 
-    auth0Util.login(email, userStatusUpdateDto.getPassWord(), null);
+    auth0Helper.login(email, userStatusUpdateDto.getPassWord(), null);
 
     final Date deactivationDate = userStatusUpdateDto.getDeactivationDate();
 
@@ -496,11 +496,11 @@ public class UserService {
     return userRepository.findActiveAndDeactivatedUserByUserId(user.getId());
   }
 
-  public void deleteUser(User employee) {
+  public void deleteUser(final User employee) {
 
     adjustUserManagerRelationshipBeforeDeleteOrDeactivate(employee);
 
-    auth0Util.deleteUser(auth0Util.getUserByUserIdFromAuth0(employee.getId()).getId());
+    auth0Helper.deleteUser(auth0Helper.getUserByUserIdFromAuth0(employee.getId()).getId());
 
     userRepository.delete(employee);
 
@@ -509,7 +509,7 @@ public class UserService {
     userPersonalInformationRepository.delete(employee.getUserPersonalInformation());
   }
 
-  private void adjustUserManagerRelationshipBeforeDeleteOrDeactivate(User user) {
+  private void adjustUserManagerRelationshipBeforeDeleteOrDeactivate(final User user) {
     final List<User> teamEmployees = userRepository.findAllByManagerUserId(user.getId());
     if (!CollectionUtils.isEmpty(teamEmployees)) {
       if (user.getManagerUser() != null) {
@@ -622,11 +622,11 @@ public class UserService {
   }
 
   public Boolean existsByEmailWork(final String email) {
-    return auth0Util.existsByEmail(email);
+    return auth0Helper.existsByEmail(email);
   }
 
   public void updatePassword(final ChangePasswordDto changePasswordDto, final String userId) {
-    final com.auth0.json.mgmt.users.User user = auth0Util
+    final com.auth0.json.mgmt.users.User user = auth0Helper
         .getUserByUserIdFromAuth0(userId);
 
     final String emailAddress = user.getEmail();
@@ -634,7 +634,7 @@ public class UserService {
     if (changePasswordDto.getPassWord().equals(changePasswordDto.getNewPassword())) {
       throw new ForbiddenException("New password cannot be the same as the old one.");
     }
-    auth0Util.updatePassword(user, changePasswordDto.getNewPassword());
+    auth0Helper.updatePassword(user, changePasswordDto.getNewPassword());
 
     final Context context = new Context();
     context.setVariable("frontEndAddress", frontEndAddress);
@@ -648,7 +648,7 @@ public class UserService {
   }
 
   public void checkPassword(final String email, final String password) {
-    if (!auth0Util.isPasswordValid(email, password)) {
+    if (!auth0Helper.isPasswordValid(email, password)) {
       throw new ForbiddenException("Wrong email or password.");
     }
   }
@@ -661,7 +661,7 @@ public class UserService {
       throw new ForbiddenException(String.format(" your new work email should be different"));
     }
 
-    if (!auth0Util.existsByEmail(newEmail)) {
+    if (!auth0Helper.existsByEmail(newEmail)) {
 
       user.setUserStatus(
           userStatusRepository.findByName(String.valueOf(Status.CHANGING_EMAIL_VERIFICATION)));
@@ -702,10 +702,10 @@ public class UserService {
     final User currentUser = userRepository.findByChangeWorkEmailToken(token);
 
     if (userRepository.existsByChangeWorkEmailToken(token)) {
-      final com.auth0.json.mgmt.users.User user = auth0Util
+      final com.auth0.json.mgmt.users.User user = auth0Helper
           .getUserByUserIdFromAuth0(currentUser.getId());
 
-      auth0Util.updateUserEmail(user, currentUser.getChangeWorkEmail());
+      auth0Helper.updateUserEmail(user, currentUser.getChangeWorkEmail());
 
       currentUser.setVerifyChangeWorkEmailAt(Timestamp.valueOf(LocalDateTime.now()));
       currentUser.getUserContactInformation().setEmailWork(currentUser.getChangeWorkEmail());
@@ -766,7 +766,7 @@ public class UserService {
       throw new ForbiddenException("User account does not exist!");
     }
 
-    final com.auth0.json.mgmt.users.User user = auth0Util
+    final com.auth0.json.mgmt.users.User user = auth0Helper
         .getUserByUserIdFromAuth0(targetUser.getId());
     if (user == null) {
       throw new ForbiddenException("User account does not exist!");
@@ -789,7 +789,7 @@ public class UserService {
       throw new ForbiddenException("Reset password Forbidden");
     }
 
-    final com.auth0.json.mgmt.users.User auth0User = auth0Util
+    final com.auth0.json.mgmt.users.User auth0User = auth0Helper
         .getUserByUserIdFromAuth0(user.getId());
 
     if (auth0User == null) {
@@ -797,11 +797,11 @@ public class UserService {
     }
 
     final String email = user.getUserContactInformation().getEmailWork();
-    if (auth0Util.isPasswordValid(email, updatePasswordDto.getNewPassword())) {
+    if (auth0Helper.isPasswordValid(email, updatePasswordDto.getNewPassword())) {
       throw new ForbiddenException("New password cannot be the same as the old one.");
     }
 
-    auth0Util.updatePassword(auth0User, updatePasswordDto.getNewPassword());
+    auth0Helper.updatePassword(auth0User, updatePasswordDto.getNewPassword());
 
     user.setResetPasswordToken(null);
     userRepository.save(user);
@@ -843,6 +843,6 @@ public class UserService {
   }
 
   public Boolean isOldPwdCorrect(final String password, final String email) {
-    return auth0Util.isPasswordValid(email, password);
+    return auth0Helper.isPasswordValid(email, password);
   }
 }

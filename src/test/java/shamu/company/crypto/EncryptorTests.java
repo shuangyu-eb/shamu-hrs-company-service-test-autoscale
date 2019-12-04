@@ -15,10 +15,10 @@ import org.powermock.reflect.Whitebox;
 import org.springframework.security.crypto.encrypt.BytesEncryptor;
 import org.springframework.security.crypto.encrypt.Encryptors;
 import shamu.company.company.entity.Company;
+import shamu.company.helpers.auth0.Auth0Helper;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserPersonalInformation;
 import shamu.company.user.service.UserService;
-import shamu.company.utils.Auth0Util;
 
 class EncryptorTests {
 
@@ -26,7 +26,7 @@ class EncryptorTests {
   private UserService userService;
 
   @Mock
-  private Auth0Util auth0Util;
+  private Auth0Helper auth0Helper;
 
   @Mock
   private SecretHashRepository secretHashRepository;
@@ -51,7 +51,7 @@ class EncryptorTests {
   void init() throws NoSuchFieldException, IllegalAccessException {
     MockitoAnnotations.initMocks(this);
 
-    encryptor = new Encryptor(indeedHash, userService, auth0Util, secretHashRepository);
+    encryptor = new Encryptor(indeedHash, userService, auth0Helper, secretHashRepository);
     initTestUser();
     initMockBehavior();
     initEncryptSsn();
@@ -81,7 +81,7 @@ class EncryptorTests {
   }
 
   private void initMockBehavior() {
-    Mockito.when(auth0Util.getUserSecret(testUser.getId())).thenReturn(userSecret);
+    Mockito.when(auth0Helper.getUserSecret(testUser.getId())).thenReturn(userSecret);
     Mockito.when(secretHashRepository.getCompanySecretByCompanyId(testUser.getCompany().getId()))
         .thenReturn(companySecret);
     Mockito.when(userService.findByUserId(testUser.getId())).thenReturn(testUser);

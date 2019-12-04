@@ -1,4 +1,4 @@
-package shamu.company.utils;
+package shamu.company.helpers.auth0;
 
 import com.auth0.client.auth.AuthAPI;
 import lombok.AccessLevel;
@@ -35,8 +35,8 @@ public class Auth0Config {
 
   private String managementIdentifier;
 
-  AuthAPI getAuthApi() {
-    return new AuthAPI(domain, this.clientId, this.clientSecret);
+  public AuthAPI getAuthApi() {
+    return new AuthAPI(domain, clientId, clientSecret);
   }
 
 }

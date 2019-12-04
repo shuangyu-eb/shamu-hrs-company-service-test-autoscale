@@ -5,9 +5,10 @@ import java.util.TimeZone;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import shamu.company.helpers.FederalHolidayHelper;
 
-class FederalHolidaysTest {
-  final private FederalHolidays federalHolidays = new FederalHolidays();
+class FederalHolidayHelperTests {
+  final private FederalHolidayHelper federalHolidayHelper = new FederalHolidayHelper();
   private final static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
   @BeforeEach
@@ -17,7 +18,7 @@ class FederalHolidaysTest {
   }
 
   private String getFederalHoliday(final String holidayName, final int year) {
-    return sdf.format(federalHolidays.timestampOf(holidayName, year));
+    return sdf.format(federalHolidayHelper.timestampOf(holidayName, year));
   }
 
   private void testRecentThreeYearsFederalHolidays(
@@ -94,7 +95,7 @@ class FederalHolidaysTest {
   @Test
   void invalidDay() {
     final String invalidFederalHoliday = "";
-    Assertions.assertNull(federalHolidays.timestampOf(invalidFederalHoliday));
-    Assertions.assertNull(federalHolidays.timestampOf(invalidFederalHoliday, 2022));
+    Assertions.assertNull(federalHolidayHelper.timestampOf(invalidFederalHoliday));
+    Assertions.assertNull(federalHolidayHelper.timestampOf(invalidFederalHoliday, 2022));
   }
 }

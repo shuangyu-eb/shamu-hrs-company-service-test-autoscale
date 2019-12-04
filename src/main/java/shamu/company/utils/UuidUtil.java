@@ -2,9 +2,9 @@ package shamu.company.utils;
 
 import java.util.UUID;
 
-public class UuidUtil {
+public interface UuidUtil {
 
-  public static UUID fromBytes(final byte[] id) {
+  static UUID fromBytes(final byte[] id) {
     long mostSigBits = 0;
     long leastSigBits = 0;
     for (int i = 0; i < 8; i++) {
@@ -16,7 +16,7 @@ public class UuidUtil {
     return new UUID(mostSigBits, leastSigBits);
   }
 
-  public static String toJavaString(final String hexString) {
+  static String toJavaString(final String hexString) {
     String targetString = hexString;
     if (hexString.contains("-")) {
       targetString = hexString.replaceAll("-", "");
@@ -31,14 +31,14 @@ public class UuidUtil {
     return result.toString();
   }
 
-  public static byte[] toBytes(final String hexString) {
+  static byte[] toBytes(final String hexString) {
     String targetString = hexString;
     if (hexString.contains("-")) {
       targetString = hexString.replaceAll("-", "");
     }
 
-    int stringLen = targetString.length();
-    byte[] data = new byte[stringLen / 2];
+    final int stringLen = targetString.length();
+    final byte[] data = new byte[stringLen / 2];
     for (int i = 0; i < stringLen; i += 2) {
       data[i / 2] = (byte) ((Character.digit(targetString.charAt(i), 16) << 4)
           + Character.digit(targetString.charAt(i + 1), 16));
@@ -46,7 +46,7 @@ public class UuidUtil {
     return data;
   }
 
-  public static String toHexString(final String javaString) {
+  static String toHexString(final String javaString) {
 
     final char[] chars = javaString.toCharArray();
     final StringBuilder result = new StringBuilder();
@@ -56,7 +56,7 @@ public class UuidUtil {
     return result.toString();
   }
 
-  public static String toHexString(final byte[] id) {
+  static String toHexString(final byte[] id) {
     return fromBytes(id).toString()
         .toUpperCase()
         .replaceAll("-", "");

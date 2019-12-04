@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
@@ -45,6 +44,7 @@ import shamu.company.employee.dto.NewEmployeeJobInformationDto;
 import shamu.company.employee.dto.WelcomeEmailDto;
 import shamu.company.employee.entity.EmploymentType;
 import shamu.company.employee.event.Auth0UserCreatedEvent;
+import shamu.company.helpers.auth0.Auth0Helper;
 import shamu.company.info.dto.UserEmergencyContactDto;
 import shamu.company.info.entity.UserEmergencyContact;
 import shamu.company.info.entity.mapper.UserEmergencyContactMapper;
@@ -89,7 +89,6 @@ import shamu.company.user.service.UserContactInformationService;
 import shamu.company.user.service.UserPersonalInformationService;
 import shamu.company.user.service.UserRoleService;
 import shamu.company.user.service.UserService;
-import shamu.company.utils.Auth0Util;
 import shamu.company.utils.DateUtil;
 import shamu.company.utils.FileValidateUtil;
 import shamu.company.utils.FileValidateUtil.FileType;
@@ -126,7 +125,7 @@ public class EmployeeService {
   private final UserEmergencyContactMapper userEmergencyContactMapper;
   private final JobUserMapper jobUserMapper;
   private final UserMapper userMapper;
-  private final Auth0Util auth0Util;
+  private final Auth0Helper auth0Helper;
   private final ApplicationEventPublisher applicationEventPublisher;
   private final UserRoleService userRoleService;
 
@@ -161,7 +160,7 @@ public class EmployeeService {
       final UserAddressMapper userAddressMapper,
       final UserContactInformationMapper userContactInformationMapper,
       final UserEmergencyContactMapper userEmergencyContactMapper,
-      final Auth0Util auth0Util,
+      final Auth0Helper auth0Helper,
       final ApplicationEventPublisher applicationEventPublisher,
       final JobUserMapper jobUserMapper,
       @Lazy final JobUserService jobUserService,
@@ -192,7 +191,7 @@ public class EmployeeService {
     this.userAddressMapper = userAddressMapper;
     this.userContactInformationMapper = userContactInformationMapper;
     this.userEmergencyContactMapper = userEmergencyContactMapper;
-    this.auth0Util = auth0Util;
+    this.auth0Helper = auth0Helper;
     this.applicationEventPublisher = applicationEventPublisher;
     this.jobUserMapper = jobUserMapper;
     this.jobUserService = jobUserService;
@@ -254,7 +253,7 @@ public class EmployeeService {
         throw new ForbiddenException("This email already exists!");
       }
 
-      auth0Util.updateEmail(user.getId(), emailResendDto.getEmail());
+      auth0Helper.updateEmail(user.getId(), emailResendDto.getEmail());
       final UserContactInformation userContactInformation = user.getUserContactInformation();
       userContactInformation.setEmailWork(email);
       userRepository.save(user);
@@ -294,7 +293,7 @@ public class EmployeeService {
   }
 
   private User saveEmployeeBasicInformation(final User currentUser, final EmployeeDto employeeDto) {
-    User employee = new User();
+    final User employee = new User();
 
     final String base64EncodedPhoto = employeeDto.getPersonalPhoto();
     final String photoPath = saveEmployeePhoto(base64EncodedPhoto);
@@ -309,11 +308,11 @@ public class EmployeeService {
     employee.setResetPasswordToken(UUID.randomUUID().toString());
 
     final com.auth0.json.mgmt.users.User user =
-        auth0Util.addUser(employeeDto.getEmailWork(),
+        auth0Helper.addUser(employeeDto.getEmailWork(),
             null, Role.EMPLOYEE.getValue());
     applicationEventPublisher.publishEvent(new Auth0UserCreatedEvent(user));
 
-    final String userId = auth0Util.getUserId(user);
+    final String userId = auth0Helper.getUserId(user);
     employee.setId(userId);
     employee.setUserRole(userRoleService.getEmployee());
     saveInvitedEmployeeAdditionalInformation(employee, employeeDto);
@@ -556,7 +555,7 @@ public class EmployeeService {
       userAddress.setStateProvince(null);
     }
     if (!StringUtils.isEmpty(userAddressDto.getCountryId())) {
-      Country country = new Country();
+      final Country country = new Country();
       country.setId(userAddressDto.getCountryId());
       userAddress.setCountry(country);
     }
@@ -584,7 +583,7 @@ public class EmployeeService {
   @SuppressWarnings("unused")
   public void removeAuth0User(final Auth0UserCreatedEvent userCreatedEvent) {
     final com.auth0.json.mgmt.users.User auth0User = userCreatedEvent.getUser();
-    auth0Util.deleteUser(auth0User.getId());
+    auth0Helper.deleteUser(auth0User.getId());
   }
 
   public EmployeeRelatedInformationDto getEmployeeInfoByUserId(final String id) {

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.crypto.EncryptorUtil;
+import shamu.company.helpers.auth0.Auth0Helper;
 import shamu.company.user.dto.BasicUserPersonalInformationDto;
 import shamu.company.user.dto.UserPersonalInformationDto;
 import shamu.company.user.dto.UserRoleAndStatusInfoDto;
@@ -22,7 +23,6 @@ import shamu.company.user.entity.mapper.UserMapper;
 import shamu.company.user.entity.mapper.UserPersonalInformationMapper;
 import shamu.company.user.service.UserPersonalInformationService;
 import shamu.company.user.service.UserService;
-import shamu.company.utils.Auth0Util;
 
 @RestApiController
 public class UserPersonalInformationRestController extends BaseRestController {
@@ -35,7 +35,7 @@ public class UserPersonalInformationRestController extends BaseRestController {
 
   private final UserMapper userMapper;
 
-  private final Auth0Util auth0Util;
+  private final Auth0Helper auth0Helper;
 
   private final EncryptorUtil encryptorUtil;
 
@@ -47,13 +47,13 @@ public class UserPersonalInformationRestController extends BaseRestController {
       final UserService userService,
       final UserPersonalInformationMapper userPersonalInformationMapper,
       final UserMapper userMapper,
-      final Auth0Util auth0Util,
+      final Auth0Helper auth0Helper,
       final EncryptorUtil encryptorUtil) {
     this.userPersonalInformationService = userPersonalInformationService;
     this.userService = userService;
     this.userPersonalInformationMapper = userPersonalInformationMapper;
     this.userMapper = userMapper;
-    this.auth0Util = auth0Util;
+    this.auth0Helper = auth0Helper;
     this.encryptorUtil = encryptorUtil;
   }
 
@@ -115,7 +115,7 @@ public class UserPersonalInformationRestController extends BaseRestController {
     final User targetUser = userService.findUserById(id);
     final UserRoleAndStatusInfoDto resultInformation = userMapper
         .convertToUserRoleAndStatusInfoDto(targetUser);
-    final Role userRole = auth0Util
+    final Role userRole = auth0Helper
         .getUserRole(targetUser.getId());
     resultInformation.setUserRole(userRole.getValue());
     return resultInformation;

@@ -11,7 +11,7 @@ import java.time.temporal.TemporalAccessor;
 import java.util.Date;
 import java.util.Locale;
 
-public class DateUtil {
+public abstract class DateUtil {
 
   public static final String FULL_MONTH_DAY = "MMMM d";
   public static final String FULL_MONTH_DAY_YEAR = "MMMM d, YYYY";
@@ -20,9 +20,7 @@ public class DateUtil {
   public static final String DAY_YEAR = "d, yyyy";
   public static final String DAY = "d";
 
-  public static String formatDateTo(final Timestamp date, final String pattern) {
-    return formatDateTo(date.toLocalDateTime(), pattern);
-  }
+  private DateUtil() {}
 
   public static String formatDateTo(final TemporalAccessor date, final String pattern) {
     return DateTimeFormatter.ofPattern(pattern, Locale.ENGLISH).format(date);

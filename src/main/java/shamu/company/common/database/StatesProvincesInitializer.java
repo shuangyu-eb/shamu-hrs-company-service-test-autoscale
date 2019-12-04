@@ -1,4 +1,4 @@
-package shamu.company.utils.database;
+package shamu.company.common.database;
 
 import java.io.InputStream;
 import java.util.List;
@@ -29,18 +29,18 @@ public class StatesProvincesInitializer implements CommandLineRunner {
   }
 
   @Override
-  public void run(String... args) {
+  public void run(final String... args) {
 
-    Yaml yaml = new Yaml(new Constructor(CountryList.class));
-    InputStream inputStream = this.getClass().getClassLoader()
+    final Yaml yaml = new Yaml(new Constructor(CountryList.class));
+    final InputStream inputStream = getClass().getClassLoader()
         .getResourceAsStream("db/application/states-provinces.yml");
-    CountryList countryList = yaml.load(inputStream);
+    final CountryList countryList = yaml.load(inputStream);
 
     countryList.getCountries().forEach((countryItem -> {
-      Country country = countryRepository.findByName(countryItem.getName());
-      List<String> cities = stateProvinceRepository.findAllNameByCountry(country);
+      final Country country = countryRepository.findByName(countryItem.getName());
+      final List<String> cities = stateProvinceRepository.findAllNameByCountry(country);
 
-      List<StateProvince> stateProvinces = countryItem.getCities().stream()
+      final List<StateProvince> stateProvinces = countryItem.getCities().stream()
           .filter(cityName -> !cities.contains(cityName))
           .map((cityName) -> StateProvince.builder()
               .country(country)

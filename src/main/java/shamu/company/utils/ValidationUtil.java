@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
-import lombok.Data;
 import org.hibernate.validator.HibernateValidator;
 import org.hibernate.validator.internal.engine.path.PathImpl;
 import org.springframework.util.CollectionUtils;
@@ -18,8 +17,7 @@ import shamu.company.common.exception.ValidationFailedException;
 import shamu.company.common.exception.response.ErrorMessage;
 import shamu.company.common.exception.response.ErrorType;
 
-@Data
-public class ValidationUtil {
+public abstract class ValidationUtil {
 
   private static final Validator validator = Validation.byProvider(HibernateValidator.class)
       .configure().failFast(false).buildValidatorFactory().getValidator();

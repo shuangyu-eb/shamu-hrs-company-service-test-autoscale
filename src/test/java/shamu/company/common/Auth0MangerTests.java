@@ -15,8 +15,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.reflect.Whitebox;
-import shamu.company.utils.Auth0Config;
-import shamu.company.utils.Auth0Manager;
+import shamu.company.helpers.auth0.Auth0Config;
+import shamu.company.helpers.auth0.Auth0Manager;
 
 @PrepareForTest(value = {UrlJwkProvider.class, Algorithm.class})
 class Auth0MangerTests {

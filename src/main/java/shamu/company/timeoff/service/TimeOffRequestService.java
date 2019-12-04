@@ -3,7 +3,6 @@ package shamu.company.timeoff.service;
 import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.TimeOffApprovalStatus.APPROVED;
 import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.TimeOffApprovalStatus.AWAITING_REVIEW;
 import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.TimeOffApprovalStatus.DENIED;
-import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.TimeOffApprovalStatus.NO_ACTION;
 
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -20,6 +19,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shamu.company.common.exception.ResourceNotFoundException;
+import shamu.company.helpers.auth0.Auth0Helper;
 import shamu.company.server.AuthUser;
 import shamu.company.timeoff.dto.BasicTimeOffRequestDto;
 import shamu.company.timeoff.dto.MyTimeOffDto;
@@ -40,7 +40,6 @@ import shamu.company.timeoff.repository.TimeOffRequestRepository;
 import shamu.company.user.entity.User;
 import shamu.company.user.repository.UserRepository;
 import shamu.company.user.service.UserService;
-import shamu.company.utils.Auth0Util;
 import shamu.company.utils.DateUtil;
 import shamu.company.utils.UuidUtil;
 
@@ -61,7 +60,7 @@ public class TimeOffRequestService {
 
   private final TimeOffDetailService timeOffDetailService;
 
-  private final Auth0Util auth0Util;
+  private final Auth0Helper auth0Helper;
 
   private final UserService userService;
 
@@ -77,7 +76,7 @@ public class TimeOffRequestService {
       final TimeOffRequestMapper timeOffRequestMapper,
       final TimeOffPolicyService timeOffPolicyService,
       final TimeOffDetailService timeOffDetailService,
-      final Auth0Util auth0Util,
+      final Auth0Helper auth0Helper,
       final UserService userService,
       final TimeOffRequestApprovalStatusRepository approvalStatusRepository) {
     this.timeOffRequestRepository = timeOffRequestRepository;
@@ -87,9 +86,9 @@ public class TimeOffRequestService {
     this.timeOffRequestMapper = timeOffRequestMapper;
     this.timeOffPolicyService = timeOffPolicyService;
     this.timeOffDetailService = timeOffDetailService;
-    this.auth0Util = auth0Util;
+    this.auth0Helper = auth0Helper;
     this.userService = userService;
-    this.requestApprovalStatusRepository = approvalStatusRepository;
+    requestApprovalStatusRepository = approvalStatusRepository;
   }
 
   public TimeOffRequest findByRequestId(final String id) {
@@ -131,20 +130,20 @@ public class TimeOffRequestService {
     final List<String> statusNames = Arrays.stream(status)
         .map(TimeOffApprovalStatus::name).collect(Collectors.toList());
 
-    final User.Role userRole = auth0Util
+    final User.Role userRole = auth0Helper
         .getUserRole(user.getId());
 
     final List<TimeOffRequest> result;
     final List<TimeOffRequest> selfPendingRequests = timeOffRequestRepository
-            .employeeFindSelfPendingRequests(user.getId(),
-                AWAITING_REVIEW.name());
+        .employeeFindSelfPendingRequests(user.getId(),
+            AWAITING_REVIEW.name());
     if (user.getManagerUser() == null) {
       result = timeOffRequestRepository.adminFindTeamRequests(user.getId(), statusNames);
     } else if (userRole == User.Role.MANAGER || userRole == User.Role.ADMIN) {
-      result =  timeOffRequestRepository.managerFindTeamRequests(
+      result = timeOffRequestRepository.managerFindTeamRequests(
           user.getId(), user.getManagerUser().getId(), statusNames);
     } else {
-      result =  timeOffRequestRepository.employeeFindTeamRequests(
+      result = timeOffRequestRepository.employeeFindTeamRequests(
           user.getManagerUser().getId(), statusNames);
     }
     result.addAll(selfPendingRequests);
@@ -266,7 +265,7 @@ public class TimeOffRequestService {
       requesters.add(requester);
     }
 
-    List<byte[]> requesterIds = requesters.stream().map(User::getId)
+    final List<byte[]> requesterIds = requesters.stream().map(User::getId)
         .map(UuidUtil::toBytes)
         .collect(Collectors.toList());
 
@@ -316,7 +315,7 @@ public class TimeOffRequestService {
     TimeOffRequest original = getById(timeOffRequest.getId());
     final TimeOffApprovalStatus status = timeOffRequest.getApprovalStatus();
 
-    TimeOffRequestApprovalStatus timeOffRequestApprovalStatus =
+    final TimeOffRequestApprovalStatus timeOffRequestApprovalStatus =
         requestApprovalStatusRepository.findByName(status.name());
     original.setTimeOffRequestApprovalStatus(timeOffRequestApprovalStatus);
     original.setApproverUser(timeOffRequest.getApproverUser());
@@ -362,8 +361,8 @@ public class TimeOffRequestService {
     final TimeOffPolicy policy = timeOffPolicyService.getTimeOffPolicyById(policyId);
     timeOffRequest.setTimeOffPolicy(policy);
 
-    TimeOffRequestApprovalStatus timeOffRequestApprovalStatus = requestApprovalStatusRepository
-        .findByName(status.name());
+    final TimeOffRequestApprovalStatus timeOffRequestApprovalStatus =
+        requestApprovalStatusRepository.findByName(status.name());
     timeOffRequest.setTimeOffRequestApprovalStatus(timeOffRequestApprovalStatus);
     final TimeOffPolicyUser timeOffPolicyUser = timeOffPolicyUserRepository
         .findTimeOffPolicyUserByUserAndTimeOffPolicy(timeOffRequest.getRequesterUser(), policy);
@@ -373,9 +372,9 @@ public class TimeOffRequestService {
         .getTimeOffBreakdown(timeOffPolicyUser.getId(), null);
     final Integer balance = timeOffBreakdownDto.getBalance();
     final Integer approvedHours = timeOffPolicyService.getTimeOffRequestHoursFromStatus(
-            timeOffPolicyUser.getUser().getId(),
-            timeOffPolicyUser.getTimeOffPolicy().getId(), APPROVED,
-            Timestamp.valueOf(currentTime));
+        timeOffPolicyUser.getUser().getId(),
+        timeOffPolicyUser.getTimeOffPolicy().getId(), APPROVED,
+        Timestamp.valueOf(currentTime));
 
     final Integer approvalBalance = (null == balance ? null : (balance - approvedHours));
 

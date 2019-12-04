@@ -1,4 +1,4 @@
-package shamu.company.utils;
+package shamu.company.helpers.auth0;
 
 import com.auth0.client.auth.AuthAPI;
 import com.auth0.client.mgmt.ManagementAPI;
@@ -39,7 +39,7 @@ import shamu.company.common.exception.TooManyRequestException;
 
 @Component
 @Slf4j
-public class Auth0Util {
+public class Auth0Helper {
 
   private static final String MANAGEMENT_API = "managementApi";
   private final Auth0Config auth0Config;
@@ -50,26 +50,26 @@ public class Auth0Util {
   private static final String MFA_CONTENT_TYPE = "application/x-www-form-urlencoded";
 
   @Autowired
-  public Auth0Util(final Auth0Manager auth0Manager,
+  public Auth0Helper(final Auth0Manager auth0Manager,
       final Auth0Config auth0Config) {
     this.auth0Config = auth0Config;
     this.auth0Manager = auth0Manager;
   }
 
-  private AuthAPI getAuthAPI() {
+  private AuthAPI getAuthApi() {
     return auth0Config.getAuthApi();
   }
 
   private AbstractException handleAuth0Exception(final Auth0Exception e,
       final String api) {
-    if ((e.getMessage().contains(String.valueOf(HttpStatus.TOO_MANY_REQUESTS.value())) ||
-        e.getMessage().contains(HttpStatus.TOO_MANY_REQUESTS.getReasonPhrase())) &&
-        api.equals("authApi")) {
+    if ((e.getMessage().contains(String.valueOf(HttpStatus.TOO_MANY_REQUESTS.value()))
+        || e.getMessage().contains(HttpStatus.TOO_MANY_REQUESTS.getReasonPhrase()))
+        && api.equals("authApi")) {
       return new TooManyRequestException("Too many requests. "
           + "System limits for request are 100 requests per second.", e);
-    } else if ((e.getMessage().contains(String.valueOf(HttpStatus.TOO_MANY_REQUESTS.value())) ||
-        e.getMessage().contains(HttpStatus.TOO_MANY_REQUESTS.getReasonPhrase())) &&
-        api.equals(MANAGEMENT_API)) {
+    } else if ((e.getMessage().contains(String.valueOf(HttpStatus.TOO_MANY_REQUESTS.value()))
+        || e.getMessage().contains(HttpStatus.TOO_MANY_REQUESTS.getReasonPhrase()))
+        && api.equals(MANAGEMENT_API)) {
       return new TooManyRequestException("Too many requests. "
           + "System limits for request are 15 requests per second.", e);
     } else {
@@ -78,34 +78,35 @@ public class Auth0Util {
   }
 
   @SuppressWarnings("unchecked")
-  public TokenHolder login(final String email, final String password, Function mfaCallback) {
+  public TokenHolder login(final String email, final String password, final Function mfaCallback) {
     try {
-      final AuthRequest request = getAuthAPI().login(email, password)
+      final AuthRequest request = getAuthApi().login(email, password)
           .setAudience(auth0Config.getAudience());
       return request.execute();
-    } catch (APIException apiException) {
+    } catch (final APIException apiException) {
       if (MFA_REQUIRED.equals(apiException.getError())) {
         if (mfaCallback != null) {
-          String mfaToken = (String) apiException.getValue("mfa_token");
+          final String mfaToken = (String) apiException.getValue("mfa_token");
           mfaCallback.apply(mfaToken);
         }
         return null;
       }
       throw handleAuth0Exception(apiException, "authApi");
-    } catch(final Auth0Exception exception) {
+    } catch (final Auth0Exception exception) {
       throw handleAuth0Exception(exception, "authApi");
-    } catch (Exception e) {
+    } catch (final Exception e) {
       throw e;
     }
   }
 
   @SuppressWarnings("unchecked")
-  public TokenHolder validateMfa(String mfaToken, String otp) {
+  public TokenHolder validateMfa(final String mfaToken, final String otp) {
 
-    CustomRequest<TokenHolder> customRequest = new CustomRequest(httpClient,
+    final CustomRequest<TokenHolder> customRequest = new CustomRequest(httpClient,
         String.format("https://%s/oauth/token", auth0Config.getDomain()),
         "POST",
-        new TypeReference<TokenHolder>() {});
+        new TypeReference<TokenHolder>() {
+        });
     customRequest.addHeader("content-type", MFA_CONTENT_TYPE);
 
     customRequest
@@ -116,12 +117,10 @@ public class Auth0Util {
         .addParameter("client_secret", auth0Config.getClientSecret());
 
     try {
-      TokenHolder result = customRequest.execute();
-      return result;
-    } catch (Auth0Exception e) {
-      handleAuth0Exception(e, "authApi");
+      return customRequest.execute();
+    } catch (final Auth0Exception e) {
+      throw handleAuth0Exception(e, "authApi");
     }
-    return null;
   }
 
   public boolean isPasswordValid(final String email, final String password) {
@@ -304,7 +303,8 @@ public class Auth0Util {
     try {
       final User user = getUserByUserIdFromAuth0(userId);
       if (user == null) {
-        throw new GeneralAuth0Exception(String.format("Cannot get Auth0 user with user id %s", userId));
+        throw new GeneralAuth0Exception(
+            String.format("Cannot get Auth0 user with user id %s", userId));
       }
 
       final ManagementAPI manager = auth0Manager.getManagementApi();

@@ -8,7 +8,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.powermock.reflect.Whitebox;
 import org.springframework.scheduling.TaskScheduler;
-import shamu.company.utils.EmailUtil;
+import shamu.company.helpers.EmailHelper;
 
 class EmailServiceTests {
 
@@ -19,7 +19,7 @@ class EmailServiceTests {
   private TaskScheduler taskScheduler;
 
   @Mock
-  private EmailUtil emailUtil;
+  private EmailHelper emailHelper;
 
   private Email email;
 
@@ -31,7 +31,7 @@ class EmailServiceTests {
   void init() {
     MockitoAnnotations.initMocks(this);
     emailRetryLimit = 5;
-    emailService = new EmailService(emailRepository, taskScheduler, emailUtil, emailRetryLimit);
+    emailService = new EmailService(emailRepository, taskScheduler, emailHelper, emailRetryLimit);
     email = new Email();
   }
 

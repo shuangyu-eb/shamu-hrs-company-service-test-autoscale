@@ -19,12 +19,15 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import shamu.company.common.exception.GeneralAuth0Exception;
+import shamu.company.helpers.auth0.Auth0Config;
+import shamu.company.helpers.auth0.Auth0Helper;
+import shamu.company.helpers.auth0.Auth0Manager;
 import shamu.company.user.entity.User.Role;
 
-class Auth0UtilTests {
+class Auth0HelperTests {
 
   private final Auth0Config auth0Config = new Auth0Config();
-  private Auth0Util auth0Util;
+  private Auth0Helper auth0Helper;
   @Mock
   private Auth0Manager auth0Manager;
   @Mock
@@ -39,7 +42,7 @@ class Auth0UtilTests {
     Mockito.when(auth0Manager.getManagementApi()).thenReturn(managementAPI);
     Mockito.when(managementAPI.users()).thenReturn(usersEntity);
 
-    auth0Util = new Auth0Util(auth0Manager, auth0Config);
+    auth0Helper = new Auth0Helper(auth0Manager, auth0Config);
   }
 
   @Test
@@ -48,7 +51,7 @@ class Auth0UtilTests {
     final Request mockedRequest = Mockito.mock(Request.class);
     Mockito.when(usersEntity.update(Mockito.any(), Mockito.any(User.class)))
         .thenReturn(mockedRequest);
-    Assertions.assertDoesNotThrow(() -> auth0Util.updatePassword(new User(),
+    Assertions.assertDoesNotThrow(() -> auth0Helper.updatePassword(new User(),
         RandomStringUtils.randomAlphabetic(10)));
   }
 
@@ -58,7 +61,7 @@ class Auth0UtilTests {
     final Request mockedRequest = Mockito.mock(Request.class);
     Mockito.when(usersEntity.update(Mockito.any(), Mockito.any(User.class)))
         .thenReturn(mockedRequest);
-    Assertions.assertDoesNotThrow(() -> auth0Util.updateVerified(new User(), true));
+    Assertions.assertDoesNotThrow(() -> auth0Helper.updateVerified(new User(), true));
   }
 
   @Test
@@ -69,7 +72,7 @@ class Auth0UtilTests {
     final String userId = RandomStringUtils.randomAlphabetic(10);
     appMetadata.put("id", userId);
     user.setAppMetadata(appMetadata);
-    final String resultUserId = auth0Util.getUserId(user);
+    final String resultUserId = auth0Helper.getUserId(user);
     Assertions.assertEquals(userId, resultUserId);
   }
 
@@ -77,7 +80,7 @@ class Auth0UtilTests {
   void testAddUser() throws Auth0Exception {
     final Request mockedRequest = Mockito.mock(Request.class);
     Mockito.when(usersEntity.create(Mockito.any())).thenReturn(mockedRequest);
-    auth0Util.addUser("example@indeed.com", null, Role.EMPLOYEE.getValue());
+    auth0Helper.addUser("example@indeed.com", null, Role.EMPLOYEE.getValue());
     Mockito.verify(mockedRequest, Mockito.times(1)).execute();
   }
 
@@ -105,7 +108,7 @@ class Auth0UtilTests {
 
       Mockito.when(mockedUserRequest.execute()).thenReturn(mockUsersPage);
       Assertions.assertThrows(GeneralAuth0Exception.class, () -> {
-        auth0Util.getUserByUserIdFromAuth0(RandomStringUtils.randomAlphabetic(10));
+        auth0Helper.getUserByUserIdFromAuth0(RandomStringUtils.randomAlphabetic(10));
       });
     }
 
@@ -118,7 +121,7 @@ class Auth0UtilTests {
       Mockito.when(mockUsersPage.getItems()).thenReturn(fakeUsersResult);
       Mockito.when(mockedUserRequest.execute()).thenReturn(mockUsersPage);
       Assertions.assertDoesNotThrow(() -> {
-        auth0Util.getUserByUserIdFromAuth0(RandomStringUtils.randomAlphabetic(10));
+        auth0Helper.getUserByUserIdFromAuth0(RandomStringUtils.randomAlphabetic(10));
       });
     }
   }

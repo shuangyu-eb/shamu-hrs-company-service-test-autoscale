@@ -14,9 +14,8 @@ import shamu.company.user.dto.UserRoleAndStatusInfoDto;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
 import shamu.company.user.entity.UserRole;
-import shamu.company.utils.UserNameUtil;
 
-@Mapper(config = Config.class, uses = UserNameUtil.class, imports = Role.class)
+@Mapper(config = Config.class, imports = Role.class)
 public interface UserMapper {
 
   @Mapping(target = "userAvatar", source = "imageUrl")

@@ -1,4 +1,4 @@
-package shamu.company.utils;
+package shamu.company.helpers.auth0;
 
 import com.auth0.client.auth.AuthAPI;
 import com.auth0.client.mgmt.ManagementAPI;
@@ -30,7 +30,7 @@ public class Auth0Manager {
   private final Auth0Config auth0Config;
 
   public Auth0Manager(final Auth0Config auth0Config) {
-    this.authApi = auth0Config.getAuthApi();
+    authApi = auth0Config.getAuthApi();
     this.auth0Config = auth0Config;
   }
 
@@ -54,27 +54,27 @@ public class Auth0Manager {
   }
 
   private TokenHolder getTokenHolder() {
-    if (this.tokenHolder != null && this.verifyToken(tokenHolder.getAccessToken())) {
-      return this.tokenHolder;
+    if (tokenHolder != null && verifyToken(tokenHolder.getAccessToken())) {
+      return tokenHolder;
     }
 
     final AuthRequest authRequest = authApi.requestToken(auth0Config.getManagementIdentifier());
     try {
-      this.tokenHolder = authRequest.execute();
-      return this.tokenHolder;
+      tokenHolder = authRequest.execute();
+      return tokenHolder;
     } catch (final Auth0Exception e) {
       throw new GeneralAuth0Exception(e.getMessage(), e);
     }
   }
 
   public ManagementAPI getManagementApi() {
-    if (this.manager == null) {
-      this.manager = new ManagementAPI(auth0Config.getDomain(), getTokenHolder().getAccessToken());
-      return this.manager;
+    if (manager == null) {
+      manager = new ManagementAPI(auth0Config.getDomain(), getTokenHolder().getAccessToken());
+      return manager;
     }
 
     final String accessToken = getTokenHolder().getAccessToken();
-    this.manager.setApiToken(accessToken);
-    return this.manager;
+    manager.setApiToken(accessToken);
+    return manager;
   }
 }

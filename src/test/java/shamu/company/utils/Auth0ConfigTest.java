@@ -8,9 +8,9 @@ import java.io.UnsupportedEncodingException;
 import java.util.UUID;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import shamu.company.helpers.auth0.Auth0Config;
 
 class Auth0ConfigTest {
 
@@ -39,30 +39,30 @@ class Auth0ConfigTest {
 //    byte[] a = "hello world".getBytes();
 //    System.out.println(a);
 
-    String randomUUIID = UUID.randomUUID().toString().replaceAll("-", "");
-    byte[] bytes = Hex.decodeHex(randomUUIID.toCharArray());
-    String convertedString = new String(bytes, "UTF-8");
-    byte[] revertedBytes = convertedString.getBytes("UTF-8");
-    String revertedHexString = Hex.encodeHexString(revertedBytes);
-    String revertedHexString2 = Hex.encodeHexString(bytes);
+    final String randomUUIID = UUID.randomUUID().toString().replaceAll("-", "");
+    final byte[] bytes = Hex.decodeHex(randomUUIID.toCharArray());
+    final String convertedString = new String(bytes, "UTF-8");
+    final byte[] revertedBytes = convertedString.getBytes("UTF-8");
+    final String revertedHexString = Hex.encodeHexString(revertedBytes);
+    final String revertedHexString2 = Hex.encodeHexString(bytes);
 
-    String randomUUID2 = UUID.randomUUID().toString().replaceAll("-", "");
+    final String randomUUID2 = UUID.randomUUID().toString().replaceAll("-", "");
     String str = "";
     for(int i=0;i<randomUUID2.length();i+=2)
     {
-      String s = randomUUID2.substring(i, (i + 2));
-      int decimal = Integer.parseInt(s, 16);
+      final String s = randomUUID2.substring(i, (i + 2));
+      final int decimal = Integer.parseInt(s, 16);
       str = str + (char) decimal;
     }
-    String convertedString2 = str;
+    final String convertedString2 = str;
 
-    char[] chars = convertedString2.toCharArray();
-    StringBuilder hex = new StringBuilder();
-    for (char ch : chars) {
+    final char[] chars = convertedString2.toCharArray();
+    final StringBuilder hex = new StringBuilder();
+    for (final char ch : chars) {
       hex.append(Integer.toHexString((int) ch));
     }
 
-    String revertedString = hex.toString();
+    final String revertedString = hex.toString();
   }
 
 

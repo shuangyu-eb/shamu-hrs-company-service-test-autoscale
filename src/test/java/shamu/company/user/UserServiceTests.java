@@ -20,6 +20,7 @@ import shamu.company.company.entity.CompanySize;
 import shamu.company.company.repository.CompanyRepository;
 import shamu.company.company.repository.CompanySizeRepository;
 import shamu.company.email.EmailService;
+import shamu.company.helpers.auth0.Auth0Helper;
 import shamu.company.info.service.UserEmergencyContactService;
 import shamu.company.job.repository.JobRepository;
 import shamu.company.job.repository.JobUserRepository;
@@ -51,7 +52,6 @@ import shamu.company.user.repository.UserStatusRepository;
 import shamu.company.user.service.UserAddressService;
 import shamu.company.user.service.UserRoleService;
 import shamu.company.user.service.UserService;
-import shamu.company.utils.Auth0Util;
 
 class UserServiceTests {
 
@@ -86,7 +86,7 @@ class UserServiceTests {
   @Mock
   private UserAddressMapper userAddressMapper;
   @Mock
-  private Auth0Util auth0Util;
+  private Auth0Helper auth0Helper;
   @Mock
   private UserAccessLevelEventRepository userAccessLevelEventRepository;
   @Mock
@@ -125,7 +125,7 @@ class UserServiceTests {
         companyRepository,
         userContactInformationMapper,
         userAddressMapper,
-        auth0Util,
+        auth0Helper,
         userAccessLevelEventRepository,
         departmentRepository,
         jobRepository, userMapper, authUserCacheManager,userContactInformationRepository,
@@ -206,7 +206,7 @@ class UserServiceTests {
 
     Mockito.when(userRepository.findByResetPasswordToken(updatePasswordDto.getResetPasswordToken()))
         .thenReturn(databaseUser);
-    Mockito.when(auth0Util.getUserByUserIdFromAuth0(Mockito.any()))
+    Mockito.when(auth0Helper.getUserByUserIdFromAuth0(Mockito.any()))
         .thenReturn(authUser);
 
     Assertions.assertDoesNotThrow(() -> {
@@ -274,7 +274,7 @@ class UserServiceTests {
     void whenIsNotManagerAndAdmin_thenShouldReturnFalse() {
       Mockito.when(userRepository.getManagerUserIdById(Mockito.anyString()))
           .thenReturn(null);
-      Mockito.when(auth0Util.getUserRole(Mockito.anyString())).thenReturn(Role.EMPLOYEE);
+      Mockito.when(auth0Helper.getUserRole(Mockito.anyString())).thenReturn(Role.EMPLOYEE);
 
       final boolean hasAccess = userService.hasUserAccess(currentUser, targetUserId);
       Assertions.assertFalse(hasAccess);
@@ -319,7 +319,7 @@ class UserServiceTests {
       final User targetUser = new User();
       targetUser.setResetPasswordToken(createPasswordDto.getResetPasswordToken());
       Mockito.when(userRepository.findByEmailWork(Mockito.anyString())).thenReturn(targetUser);
-      Mockito.when(auth0Util.getUserByUserIdFromAuth0(Mockito.any())).thenReturn(null);
+      Mockito.when(auth0Helper.getUserByUserIdFromAuth0(Mockito.any())).thenReturn(null);
       Assertions.assertThrows(ForbiddenException.class, () -> {
         userService.createPassword(createPasswordDto);
       });
@@ -337,7 +337,7 @@ class UserServiceTests {
 
     @Test
     void whenResetTokenNotEqual_thenShouldThrow() {
-      Mockito.when(auth0Util.getUserByUserIdFromAuth0(Mockito.any())).thenReturn(user);
+      Mockito.when(auth0Helper.getUserByUserIdFromAuth0(Mockito.any())).thenReturn(user);
       final User targetUser = new User();
       targetUser.setResetPasswordToken(RandomStringUtils.randomAlphabetic(10));
       Mockito.when(userRepository.findByEmailWork(Mockito.any())).thenReturn(targetUser);
@@ -352,7 +352,7 @@ class UserServiceTests {
       targetUser.setResetPasswordToken(createPasswordDto.getResetPasswordToken());
       Mockito.when(userRepository.findByEmailWork(Mockito.anyString())).thenReturn(targetUser);
 
-      Mockito.when(auth0Util.getUserByUserIdFromAuth0(Mockito.any())).thenReturn(user);
+      Mockito.when(auth0Helper.getUserByUserIdFromAuth0(Mockito.any())).thenReturn(user);
 
       final UserStatus targetStatus = new UserStatus();
       targetStatus.setName(Status.ACTIVE.name());
@@ -370,7 +370,7 @@ class UserServiceTests {
     @Test
     void whenUserIsNull_thenShouldThrow() {
       Mockito.when(userRepository.findByEmailWork(Mockito.anyString())).thenReturn(new User());
-      Mockito.when(auth0Util.getUserByUserIdFromAuth0(Mockito.any())).thenReturn(null);
+      Mockito.when(auth0Helper.getUserByUserIdFromAuth0(Mockito.any())).thenReturn(null);
       Assertions.assertThrows(ForbiddenException.class, () -> {
         userService.sendResetPasswordEmail("example@indeed.com");
       });
@@ -381,7 +381,7 @@ class UserServiceTests {
       final com.auth0.json.mgmt.users.User auth0User = new com.auth0.json.mgmt.users.User();
 
       final User databaseUser = new User();
-      Mockito.when(auth0Util.getUserByUserIdFromAuth0(Mockito.any())).thenReturn(auth0User);
+      Mockito.when(auth0Helper.getUserByUserIdFromAuth0(Mockito.any())).thenReturn(auth0User);
       Mockito.when(userRepository.findByEmailWork(Mockito.anyString())).thenReturn(databaseUser);
 
       Mockito.when(userRepository.findByEmailWork(Mockito.anyString())).thenReturn(new User());

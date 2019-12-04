@@ -18,9 +18,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoderJwkSupport;
+import shamu.company.helpers.auth0.Auth0Config;
 import shamu.company.redis.AuthUserCacheManager;
 import shamu.company.server.AuthUser;
-import shamu.company.utils.Auth0Config;
 
 @Configuration
 @EnableWebSecurity

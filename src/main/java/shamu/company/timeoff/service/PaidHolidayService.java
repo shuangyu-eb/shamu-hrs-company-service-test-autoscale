@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import shamu.company.common.BaseAuthorityDto;
 import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.company.entity.Company;
+import shamu.company.helpers.FederalHolidayHelper;
 import shamu.company.job.dto.JobUserDto;
 import shamu.company.server.AuthUser;
 import shamu.company.timeoff.dto.PaidHolidayDto;
@@ -27,7 +28,6 @@ import shamu.company.timeoff.repository.PaidHolidayRepository;
 import shamu.company.timeoff.repository.PaidHolidayUserRepository;
 import shamu.company.user.entity.User;
 import shamu.company.user.service.UserService;
-import shamu.company.utils.FederalHolidays;
 
 @Service
 @Transactional
@@ -45,7 +45,7 @@ public class PaidHolidayService {
 
   private final PaidHolidayMapper paidHolidayMapper;
 
-  private final FederalHolidays federalHolidays;
+  private final FederalHolidayHelper federalHolidayHelper;
 
   @Autowired
   public PaidHolidayService(final PaidHolidayRepository paidHolidayRepository,
@@ -54,14 +54,14 @@ public class PaidHolidayService {
       final PaidHolidayUserRepository paidHolidayUserRepository,
       final CompanyPaidHolidayMapper companyPaidHolidayMapper,
       final PaidHolidayMapper paidHolidayMapper,
-      final FederalHolidays federalHolidays) {
+      final FederalHolidayHelper federalHolidayHelper) {
     this.paidHolidayRepository = paidHolidayRepository;
     this.companyPaidHolidayRepository = companyPaidHolidayRepository;
     this.userService = userService;
     this.paidHolidayUserRepository = paidHolidayUserRepository;
     this.companyPaidHolidayMapper = companyPaidHolidayMapper;
     this.paidHolidayMapper = paidHolidayMapper;
-    this.federalHolidays = federalHolidays;
+    this.federalHolidayHelper = federalHolidayHelper;
   }
 
   public void initDefaultPaidHolidays(final Company company) {
@@ -94,7 +94,7 @@ public class PaidHolidayService {
             .map(paidHoliday -> companyPaidHolidayMapper.convertToPaidHolidayDto(paidHoliday, user))
             .peek(paidHolidayDto -> {
               if (paidHolidayDto.getFederal()) {
-                paidHolidayDto.setDate(federalHolidays.timestampOf(paidHolidayDto.getName()));
+                paidHolidayDto.setDate(federalHolidayHelper.timestampOf(paidHolidayDto.getName()));
               }
             })
             .collect(Collectors.toList());
@@ -103,7 +103,7 @@ public class PaidHolidayService {
   private PaidHolidayDto getNewPaidHolidayDto(final PaidHolidayDto paidHolidayDto, final int year) {
     final PaidHolidayDto newPaidHolidayDto = new PaidHolidayDto();
     BeanUtils.copyProperties(paidHolidayDto, newPaidHolidayDto);
-    newPaidHolidayDto.setDate(federalHolidays.timestampOf(paidHolidayDto.getName(), year));
+    newPaidHolidayDto.setDate(federalHolidayHelper.timestampOf(paidHolidayDto.getName(), year));
     return newPaidHolidayDto;
   }
 
@@ -144,7 +144,7 @@ public class PaidHolidayService {
     return paidHolidayDtos.stream().filter(paidHolidayDto -> {
       if (paidHolidayDto.getFederal()) {
         paidHolidayDto.setDate(
-            federalHolidays.timestampOf(paidHolidayDto.getName(), Integer.valueOf(year)));
+            federalHolidayHelper.timestampOf(paidHolidayDto.getName(), Integer.valueOf(year)));
         return true;
       }
       Timestamp date = paidHolidayDto.getDate();

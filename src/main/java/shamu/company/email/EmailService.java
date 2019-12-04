@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
-import shamu.company.utils.EmailUtil;
+import shamu.company.helpers.EmailHelper;
 
 @Data
 @Service
@@ -19,16 +19,16 @@ public class EmailService {
 
   private final TaskScheduler taskScheduler;
 
-  private final EmailUtil emailUtil;
+  private final EmailHelper emailHelper;
 
   private final Integer emailRetryLimit;
 
   @Autowired
   public EmailService(final EmailRepository emailRepository, final TaskScheduler taskScheduler,
-      final EmailUtil emailUtil, @Value("${email.retryLimit}") final Integer emailRetryLimit) {
+      final EmailHelper emailHelper, @Value("${email.retryLimit}") final Integer emailRetryLimit) {
     this.emailRepository = emailRepository;
     this.taskScheduler = taskScheduler;
-    this.emailUtil = emailUtil;
+    this.emailHelper = emailHelper;
     this.emailRetryLimit = emailRetryLimit;
   }
 
@@ -70,7 +70,7 @@ public class EmailService {
   public Runnable getEmailTask(final Email email) {
     return () -> {
       try {
-        emailUtil.send(email);
+        emailHelper.send(email);
         email.setSentAt(new Timestamp(new Date().getTime()));
         emailRepository.save(email);
       } catch (final Exception exception) {

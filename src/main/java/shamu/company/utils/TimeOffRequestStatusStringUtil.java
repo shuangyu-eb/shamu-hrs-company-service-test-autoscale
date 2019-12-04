@@ -2,13 +2,15 @@ package shamu.company.utils;
 
 import shamu.company.timeoff.entity.TimeOffRequest;
 
-public class TimeOffRequestStatusStringUtil {
+public abstract class TimeOffRequestStatusStringUtil {
+
+  private TimeOffRequestStatusStringUtil() {}
 
   public static String getUpperCaseString(final TimeOffRequest timeOffRequest) {
 
-    String status = timeOffRequest.getApprovalStatus().name();
+    final String status = timeOffRequest.getApprovalStatus().name();
     if (status.contains("_")) {
-      String[] strings = status.split("_");
+      final String[] strings = status.split("_");
       String result = upperCase(strings[0]);
       for (int i = 1; i < strings.length; i++) {
         result = result + " " + upperCase(strings[i]);
@@ -20,7 +22,7 @@ public class TimeOffRequestStatusStringUtil {
 
   }
 
-  public static String upperCase(String str) {
+  public static String upperCase(final String str) {
     return str.substring(0, 1).toUpperCase() + str.substring(1).toLowerCase();
   }
 

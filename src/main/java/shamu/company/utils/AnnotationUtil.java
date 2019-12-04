@@ -2,16 +2,10 @@ package shamu.company.utils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
-public class AnnotationUtil {
+public interface AnnotationUtil {
 
-  private AnnotationUtil() {
-
-  }
-
-  public static boolean fieldHasAnnotation(
+  static boolean fieldHasAnnotation(
       final Class clazz,
       final String fieldName,
       final Class annotationClazz) {
@@ -29,7 +23,7 @@ public class AnnotationUtil {
     return false;
   }
 
-  public static <T extends Annotation> T getFieldAnnotation(
+  static <T extends Annotation> T getFieldAnnotation(
       final Object object,
       final String fieldName,
       final Class<T> annotationClazz) {
@@ -45,7 +39,7 @@ public class AnnotationUtil {
     return null;
   }
 
-  public static Object getFieldValue(
+  static Object getFieldValue(
       final Object object,
       final String fieldName) {
     Class c = object.getClass();

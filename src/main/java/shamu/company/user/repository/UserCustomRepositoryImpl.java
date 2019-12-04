@@ -20,12 +20,11 @@ import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 import shamu.company.employee.dto.EmployeeListSearchCondition;
 import shamu.company.employee.dto.OrgChartDto;
+import shamu.company.helpers.auth0.Auth0Helper;
 import shamu.company.job.entity.JobUserListItem;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
 import shamu.company.user.event.UserRoleUpdatedEvent;
-import shamu.company.utils.Auth0Util;
-import shamu.company.utils.BeanUtils;
 import shamu.company.utils.TupleUtil;
 
 @Repository
@@ -37,15 +36,15 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
 
   private final EntityManager entityManager;
 
-  private final Auth0Util auth0Util;
+  private final Auth0Helper auth0Helper;
 
   private final ApplicationEventPublisher applicationEventPublisher;
 
   @Autowired
   public UserCustomRepositoryImpl(final EntityManager entityManager,
-      final Auth0Util auth0Util, final ApplicationEventPublisher applicationEventPublisher) {
+      final Auth0Helper auth0Helper, final ApplicationEventPublisher applicationEventPublisher) {
     this.entityManager = entityManager;
-    this.auth0Util = auth0Util;
+    this.auth0Helper = auth0Helper;
     this.applicationEventPublisher = applicationEventPublisher;
   }
 
@@ -258,7 +257,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
     final User existingUser = entityManager.find(User.class, user.getId());
 
     if (existingUser != null && existingUser.getRole() != user.getRole()) {
-      auth0Util.updateRoleWithUserId(existingUser.getId(), user.getUserRole().getName());
+      auth0Helper.updateRoleWithUserId(existingUser.getId(), user.getUserRole().getName());
       applicationEventPublisher.publishEvent(new UserRoleUpdatedEvent(existingUser.getId(),
           existingUser.getUserRole()));
     }
@@ -286,8 +285,8 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
 
   @Override
   public Page<JobUserListItem> getAllByName(
-          EmployeeListSearchCondition employeeListSearchCondition,
-      String companyId, Pageable pageable) {
+          final EmployeeListSearchCondition employeeListSearchCondition,
+      final String companyId, final Pageable pageable) {
     String countAllEmployees = "";
     if (!employeeListSearchCondition.getIncludeDeactivated()) {
       countAllEmployees =
@@ -371,7 +370,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
   @SuppressWarnings("unused")
   @TransactionalEventListener(phase = TransactionPhase.AFTER_ROLLBACK)
   public void restoreUserRole(final UserRoleUpdatedEvent userRoleUpdatedEvent) {
-    auth0Util.updateAuthRole(userRoleUpdatedEvent.getUserId(),
+    auth0Helper.updateAuthRole(userRoleUpdatedEvent.getUserId(),
         userRoleUpdatedEvent.getUserRole().getName());
   }
 }

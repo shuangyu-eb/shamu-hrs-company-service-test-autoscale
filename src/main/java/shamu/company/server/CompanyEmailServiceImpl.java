@@ -26,7 +26,6 @@ import shamu.company.server.DocumentRequestEmailDto.DocumentRequestType;
 import shamu.company.user.entity.User;
 import shamu.company.user.repository.UserRepository;
 import shamu.company.utils.DateUtil;
-import shamu.company.utils.UserNameUtil;
 
 @Service
 public class CompanyEmailServiceImpl implements CompanyEmailService {
@@ -74,7 +73,7 @@ public class CompanyEmailServiceImpl implements CompanyEmailService {
     variables.put("frontEndAddress", applicationConfig.getFrontEndAddress());
     variables.put("helpUrl", applicationConfig.getHelpUrl());
 
-    final String senderName = UserNameUtil.getUserName(sender);
+    final String senderName = sender.getUserPersonalInformation().getName();
     final String senderAvatar =
         sender.getImageUrl() != null ? awsUtil.getFullFileUrl(sender.getImageUrl())
             : applicationConfig.getFrontEndAddress() + "image/person.png";
@@ -88,7 +87,7 @@ public class CompanyEmailServiceImpl implements CompanyEmailService {
       final Timestamp expireDate = documentRequestEmailDto.getExpiredAt();
       if (expireDate != null) {
         // utc to cst
-        ZonedDateTime zonedDateTime = ZonedDateTime
+        final ZonedDateTime zonedDateTime = ZonedDateTime
                 .of(expireDate.toLocalDateTime(), ZoneId.of("UTC"));
         variables.put("dueDate", DateUtil.formatDateTo(zonedDateTime
                 .withZoneSameInstant(ZoneId.of("America/Managua")).toLocalDateTime(),"MMM dd"));

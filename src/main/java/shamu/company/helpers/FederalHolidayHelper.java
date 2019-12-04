@@ -1,4 +1,4 @@
-package shamu.company.utils;
+package shamu.company.helpers;
 
 import static java.time.DayOfWeek.MONDAY;
 import static java.time.DayOfWeek.THURSDAY;
@@ -17,11 +17,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Month;
-
 import org.springframework.stereotype.Component;
 
 @Component
-public class FederalHolidays {
+public class FederalHolidayHelper {
 
   /**
    * The list of Federal Observances, as per section 6103(a) of title 5 of the United States Code.
@@ -75,33 +74,34 @@ public class FederalHolidays {
      */
     PRESIDENTS_DAY("President's Day", FEBRUARY, MONDAY, 3);
 
-    private String name;
+    private final String name;
     private final int month;
     private final int dayOfMonth;
     private final int dayOfWeek;
     private final int weekOfMonth;
     private static final int NA = 0;
 
-    private Observance(String name, Month month, int dayOfMonth) {
+    private Observance(final String name, final Month month, final int dayOfMonth) {
       this.name = name;
       this.month = month.getValue();
       this.dayOfMonth = dayOfMonth;
-      this.dayOfWeek = NA;
-      this.weekOfMonth = NA;
+      dayOfWeek = NA;
+      weekOfMonth = NA;
     }
 
-    private Observance(String name, Month month, DayOfWeek dayOfWeek, int weekOfMonth) {
+    private Observance(final String name, final Month month, final DayOfWeek dayOfWeek,
+        final int weekOfMonth) {
       this.name = name;
       this.month = month.getValue();
-      this.dayOfMonth = NA;
+      dayOfMonth = NA;
       this.dayOfWeek = dayOfWeek.getValue();
       this.weekOfMonth = weekOfMonth;
     }
 
     /**
-     * Returns true if this observance is a fixed date, e.g. December 25th or January 1st.
-     * Non-fixed dates are those that are on a particular day of week and week of the month,
-     * e.g. 3rd Thursday in November.
+     * Returns true if this observance is a fixed date, e.g. December 25th or January 1st. Non-fixed
+     * dates are those that are on a particular day of week and week of the month, e.g. 3rd Thursday
+     * in November.
      */
     boolean isFixedDate() {
       return dayOfMonth != NA;
@@ -111,24 +111,24 @@ public class FederalHolidays {
      * Returns Observance's name
      */
     private String getName() {
-      return this.name;
+      return name;
     }
   }
 
-  public Timestamp timestampOf(Observance observance, int year) {
-    LocalDate localDate;
+  public Timestamp timestampOf(final Observance observance, final int year) {
+    final LocalDate localDate;
     if (observance.isFixedDate()) {
       localDate = LocalDate.of(year, observance.month, observance.dayOfMonth);
     } else {
       localDate = setNthDayOfWeek(observance, year, observance.dayOfWeek, observance.weekOfMonth);
     }
 
-    LocalDateTime localDateTime = localDate.atTime(LocalTime.of(12, 0, 0));
+    final LocalDateTime localDateTime = localDate.atTime(LocalTime.of(12, 0, 0));
     return Timestamp.valueOf(localDateTime);
   }
 
-  public Timestamp timestampOf(String observanceName, int year) {
-    for (Observance observance : Observance.values()) {
+  public Timestamp timestampOf(final String observanceName, final int year) {
+    for (final Observance observance : Observance.values()) {
       if (observance.getName().equals(observanceName)) {
         return timestampOf(observance, year);
       }
@@ -136,20 +136,21 @@ public class FederalHolidays {
     return null;
   }
 
-  public Timestamp timestampOf(String observanceName) {
-    LocalDate now = LocalDate.now();
-    int currentYear = now.getYear();
+  public Timestamp timestampOf(final String observanceName) {
+    final LocalDate now = LocalDate.now();
+    final int currentYear = now.getYear();
     return timestampOf(observanceName, currentYear);
   }
 
-  private LocalDate setNthDayOfWeek(Observance observance, int year, int dayOfWeek, int n) {
+  private LocalDate setNthDayOfWeek(final Observance observance, final int year,
+      final int dayOfWeek, final int n) {
     LocalDate localDate = LocalDate.of(year, observance.month, 1);
     int week = 0;
-    int lastDay = localDate.lengthOfMonth();
+    final int lastDay = localDate.lengthOfMonth();
     // if negative, we loop backwards and count the weeks backwards; if positive, count forward
-    int startDay = n > 0 ? 1 : lastDay;
-    int endDay = n > 0 ? lastDay : 1;
-    int incrementValue = n > 0 ? 1 : -1;
+    final int startDay = n > 0 ? 1 : lastDay;
+    final int endDay = n > 0 ? lastDay : 1;
+    final int incrementValue = n > 0 ? 1 : -1;
     int dayOfMonth = startDay;
     for (; dayOfMonth != endDay; dayOfMonth += incrementValue) {
       localDate = localDate.withDayOfMonth(dayOfMonth);

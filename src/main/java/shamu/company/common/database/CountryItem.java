@@ -1,4 +1,4 @@
-package shamu.company.utils.database;
+package shamu.company.common.database;
 
 import java.util.List;
 import lombok.Data;

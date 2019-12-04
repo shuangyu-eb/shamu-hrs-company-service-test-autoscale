@@ -9,10 +9,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.encrypt.BytesEncryptor;
 import org.springframework.security.crypto.encrypt.Encryptors;
 import org.springframework.stereotype.Component;
+import shamu.company.helpers.auth0.Auth0Helper;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserPersonalInformation;
 import shamu.company.user.service.UserService;
-import shamu.company.utils.Auth0Util;
 
 @Component
 public class Encryptor {
@@ -20,16 +20,16 @@ public class Encryptor {
   private static final Charset charset = StandardCharsets.ISO_8859_1;
   private final String indeedHash;
   private final UserService userService;
-  private final Auth0Util auth0Util;
+  private final Auth0Helper auth0Helper;
   private final SecretHashRepository secretHashRepository;
 
   @Autowired
   Encryptor(final @Value("${crypto.hash}") String indeedHash,
-      final UserService userService, final Auth0Util auth0Util,
+      final UserService userService, final Auth0Helper auth0Helper,
       final SecretHashRepository secretHashRepository) {
     this.indeedHash = indeedHash;
     this.userService = userService;
-    this.auth0Util = auth0Util;
+    this.auth0Helper = auth0Helper;
     this.secretHashRepository = secretHashRepository;
   }
 
@@ -88,7 +88,7 @@ public class Encryptor {
   }
 
   private String getUserHash(final User user) {
-    return auth0Util.getUserSecret(user.getId());
+    return auth0Helper.getUserSecret(user.getId());
   }
 
   private String getCompanyHash(final User user) {

@@ -5,22 +5,24 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import shamu.company.common.exception.ForbiddenException;
 
-public class JsonUtil {
+public abstract class JsonUtil {
 
-  private static ObjectMapper objectMapper = new ObjectMapper();
+  private static final ObjectMapper objectMapper = new ObjectMapper();
 
-  public static String formatToString(Object object) {
+  private JsonUtil() {}
+
+  public static String formatToString(final Object object) {
     try {
       return objectMapper.writeValueAsString(object);
-    } catch (JsonProcessingException e) {
+    } catch (final JsonProcessingException e) {
       throw new ForbiddenException("Error while serializing.", e);
     }
   }
 
-  public static <T> T deserialize(String objectString, Class<T> className) {
+  public static <T> T deserialize(final String objectString, final Class<T> className) {
     try {
       return objectMapper.readValue(objectString, className);
-    } catch (IOException e) {
+    } catch (final IOException e) {
       throw new ForbiddenException("Error while parse json string.", e);
     }
   }

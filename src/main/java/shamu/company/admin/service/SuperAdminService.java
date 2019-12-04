@@ -8,12 +8,12 @@ import org.springframework.stereotype.Service;
 import shamu.company.admin.dto.MockUserDto;
 import shamu.company.admin.dto.SuperAdminUserDto;
 import shamu.company.admin.repository.SuperAdminRepository;
+import shamu.company.helpers.auth0.Auth0Helper;
 import shamu.company.redis.AuthUserCacheManager;
 import shamu.company.server.AuthUser;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.mapper.UserMapper;
 import shamu.company.user.service.UserService;
-import shamu.company.utils.Auth0Util;
 
 @Service
 public class SuperAdminService {
@@ -22,7 +22,7 @@ public class SuperAdminService {
 
   private final SuperAdminRepository superAdminRepository;
 
-  private final Auth0Util auth0Util;
+  private final Auth0Helper auth0Helper;
 
   private final UserMapper userMapper;
 
@@ -31,12 +31,12 @@ public class SuperAdminService {
   @Autowired
   public SuperAdminService(final UserService userService,
       final SuperAdminRepository superAdminRepository,
-      final Auth0Util auth0Util,
+      final Auth0Helper auth0Helper,
       final UserMapper userMapper,
       final AuthUserCacheManager authUserCacheManager) {
     this.userService = userService;
     this.superAdminRepository = superAdminRepository;
-    this.auth0Util = auth0Util;
+    this.auth0Helper = auth0Helper;
     this.userMapper = userMapper;
     this.authUserCacheManager = authUserCacheManager;
   }
@@ -50,7 +50,7 @@ public class SuperAdminService {
     final User user = userService.findByUserId(userId);
     final AuthUser authUser = userMapper.convertToAuthUser(user);
     final MockUserDto mockUserDto = userMapper.convertToMockUserDto(user);
-    final List<String> permissions = auth0Util
+    final List<String> permissions = auth0Helper
         .getPermissionBy(user.getId());
     authUser.setPermissions(permissions);
     authUserCacheManager.cacheAuthUser(token, authUser);

@@ -13,13 +13,13 @@ import org.mockito.MockitoAnnotations;
 import shamu.company.admin.dto.MockUserDto;
 import shamu.company.admin.repository.SuperAdminRepository;
 import shamu.company.admin.service.SuperAdminService;
+import shamu.company.helpers.auth0.Auth0Helper;
 import shamu.company.redis.AuthUserCacheManager;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
 import shamu.company.user.entity.UserRole;
 import shamu.company.user.entity.mapper.UserMapper;
 import shamu.company.user.service.UserService;
-import shamu.company.utils.Auth0Util;
 
 class SuperAdminServiceTests {
 
@@ -30,7 +30,7 @@ class SuperAdminServiceTests {
   private SuperAdminRepository superAdminRepository;
 
   @Mock
-  private Auth0Util auth0Util;
+  private Auth0Helper auth0Helper;
 
   private final UserMapper userMapper = Mappers.getMapper(UserMapper.class);
 
@@ -42,7 +42,7 @@ class SuperAdminServiceTests {
   @BeforeEach
   void init() {
     MockitoAnnotations.initMocks(this);
-    superAdminService = new SuperAdminService(userService, superAdminRepository, auth0Util, userMapper,
+    superAdminService = new SuperAdminService(userService, superAdminRepository, auth0Helper, userMapper,
         authUserCacheManager);
   }
 
@@ -57,7 +57,7 @@ class SuperAdminServiceTests {
     Mockito.when(userService.findByUserId(userId)).thenReturn(user);
 
     final List<String> permissions = new ArrayList<>();
-    Mockito.when(auth0Util.getPermissionBy(userId)).thenReturn(permissions);
+    Mockito.when(auth0Helper.getPermissionBy(userId)).thenReturn(permissions);
 
     final MockUserDto mockUserDto = new MockUserDto();
     mockUserDto.setId(userId);

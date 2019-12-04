@@ -13,14 +13,13 @@ import org.springframework.web.multipart.MultipartFile;
 import shamu.company.common.exception.FileValidateException;
 
 @Slf4j
-public class FileValidateUtil {
+public abstract class FileValidateUtil {
 
   public static final Long KB = 1024L;
 
   public static final Long MB = 1024 * KB;
 
-  private FileValidateUtil() {
-  }
+  private FileValidateUtil() {}
 
   private static String bytesToHexString(final Byte[] src) {
     final StringBuilder stringBuilder = new StringBuilder();

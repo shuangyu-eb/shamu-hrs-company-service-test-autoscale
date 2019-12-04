@@ -6,14 +6,13 @@ import javax.persistence.Tuple;
 import org.springframework.util.ReflectionUtils;
 import shamu.company.common.exception.ForbiddenException;
 
-public class TupleUtil {
-  private TupleUtil() {}
+public interface TupleUtil {
 
-  public static <T> T convertTo(Tuple tuple, Class<T> t) {
+  static <T> T convertTo(final Tuple tuple, final Class<T> t) {
     try {
-      T result = t.getDeclaredConstructor().newInstance();
+      final T result = t.getDeclaredConstructor().newInstance();
       tuple.getElements().forEach(property -> {
-        Field fieldResult = ReflectionUtils.findField(t, property.getAlias());
+        final Field fieldResult = ReflectionUtils.findField(t, property.getAlias());
         if (fieldResult != null) {
           ReflectionUtils.makeAccessible(fieldResult);
           Object resultValue = tuple.get(property.getAlias());
@@ -26,9 +25,9 @@ public class TupleUtil {
         }
       });
       return result;
-    } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+    } catch (final InstantiationException | IllegalAccessException | InvocationTargetException e) {
       throw new ForbiddenException(e.getMessage(), e);
-    } catch (NoSuchMethodException e) {
+    } catch (final NoSuchMethodException e) {
       throw new ForbiddenException("No arg constructor not found in class " + t.getName());
     }
   }

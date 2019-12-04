@@ -22,6 +22,7 @@ import shamu.company.email.EmailRepository;
 import shamu.company.email.EmailService;
 import shamu.company.employee.dto.EmployeeDto;
 import shamu.company.employee.service.EmployeeService;
+import shamu.company.helpers.auth0.Auth0Helper;
 import shamu.company.info.entity.mapper.UserEmergencyContactMapper;
 import shamu.company.info.repository.UserEmergencyContactRepository;
 import shamu.company.job.entity.mapper.JobUserMapper;
@@ -52,7 +53,6 @@ import shamu.company.user.service.UserContactInformationService;
 import shamu.company.user.service.UserPersonalInformationService;
 import shamu.company.user.service.UserRoleService;
 import shamu.company.user.service.UserService;
-import shamu.company.utils.Auth0Util;
 import shamu.company.utils.FileValidateUtil.FileType;
 
 class EmployeeServiceTests {
@@ -82,7 +82,7 @@ class EmployeeServiceTests {
   @Mock private UserContactInformationMapper userContactInformationMapper;
   @Mock private UserEmergencyContactMapper userEmergencyContactMapper;
   @Mock
-  private Auth0Util auth0Util;
+  private Auth0Helper auth0Helper;
   @Mock private ApplicationEventPublisher applicationEventPublisher;
   @Mock private JobUserMapper jobUserMapper;
   @Mock private JobUserService jobUserService;
@@ -104,7 +104,7 @@ class EmployeeServiceTests {
         awsUtil, genderRepository, maritalStatusRepository, emailService,
         compensationFrequencyRepository, emailRepository, userPersonalInformationService,
         userContactInformationService, userPersonalInformationMapper, userAddressMapper,
-        userContactInformationMapper, userEmergencyContactMapper, auth0Util,
+        userContactInformationMapper, userEmergencyContactMapper, auth0Helper,
         applicationEventPublisher, jobUserMapper, jobUserService, userMapper, userRoleService,
         encryptorUtil);
   }
@@ -127,7 +127,7 @@ class EmployeeServiceTests {
       final com.auth0.json.mgmt.users.User user = new com.auth0.json.mgmt.users.User();
       user.setId("1");
       user.setId(UUID.randomUUID().toString().replaceAll("-", ""));
-      Mockito.when(auth0Util.addUser(Mockito.anyString(), Mockito.any(), Mockito.anyString()))
+      Mockito.when(auth0Helper.addUser(Mockito.anyString(), Mockito.any(), Mockito.anyString()))
           .thenReturn(user);
 
       Mockito.when(genderRepository.getOne(Mockito.anyString())).thenReturn(new Gender());

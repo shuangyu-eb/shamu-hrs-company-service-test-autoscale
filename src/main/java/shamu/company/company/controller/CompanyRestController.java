@@ -23,12 +23,11 @@ import shamu.company.employee.dto.SelectFieldInformationDto;
 import shamu.company.employee.dto.SelectFieldSizeDto;
 import shamu.company.employee.entity.EmploymentType;
 import shamu.company.employee.service.EmployeeService;
+import shamu.company.helpers.auth0.Auth0Helper;
 import shamu.company.job.entity.Job;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserPersonalInformation;
 import shamu.company.user.service.UserService;
-import shamu.company.utils.Auth0Util;
-import shamu.company.utils.UserNameUtil;
 
 @RestApiController
 public class CompanyRestController extends BaseRestController {
@@ -41,19 +40,19 @@ public class CompanyRestController extends BaseRestController {
 
   private final UserService userService;
 
-  private final Auth0Util auth0Util;
+  private final Auth0Helper auth0Helper;
 
   @Autowired
   public CompanyRestController(final CompanyService companyService,
       final EmployeeService employeeService,
       final OfficeMapper officeMapper,
       final UserService userService,
-      final Auth0Util auth0Util) {
+      final Auth0Helper auth0Helper) {
     this.companyService = companyService;
     this.employeeService = employeeService;
     this.officeMapper = officeMapper;
     this.userService = userService;
-    this.auth0Util = auth0Util;
+    this.auth0Helper = auth0Helper;
   }
 
 
@@ -151,7 +150,7 @@ public class CompanyRestController extends BaseRestController {
           UserPersonalInformation userInfo = user.getUserPersonalInformation();
           if (userInfo != null) {
             return new SelectFieldInformationDto(user.getId(),
-                UserNameUtil.getUserName(userInfo));
+                userInfo.getName());
           }
           return null;
         })
