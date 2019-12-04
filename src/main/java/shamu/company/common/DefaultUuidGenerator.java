@@ -8,6 +8,6 @@ import org.hibernate.id.IdentifierGenerator;
 public class DefaultUuidGenerator implements IdentifierGenerator {
 
   public Serializable generate(SharedSessionContractImplementor session, Object object) {
-    return UUID.randomUUID().toString().replaceAll("-", "");
+    return UUID.randomUUID().toString().toUpperCase().replaceAll("-", "");
   }
 }
