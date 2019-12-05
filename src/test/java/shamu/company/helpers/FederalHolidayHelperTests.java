@@ -1,11 +1,10 @@
-package shamu.company.utils;
+package shamu.company.helpers;
 
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import shamu.company.helpers.FederalHolidayHelper;
 
 class FederalHolidayHelperTests {
   final private FederalHolidayHelper federalHolidayHelper = new FederalHolidayHelper();

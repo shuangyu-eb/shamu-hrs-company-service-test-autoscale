@@ -1,4 +1,4 @@
-package shamu.company.utils;
+package shamu.company.helpers;
 
 import com.auth0.client.mgmt.ManagementAPI;
 import com.auth0.client.mgmt.UsersEntity;

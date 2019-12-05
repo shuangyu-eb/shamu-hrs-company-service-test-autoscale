@@ -2,6 +2,7 @@ package shamu.company.utils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.util.Optional;
 
 public interface AnnotationUtil {
 
@@ -23,7 +24,7 @@ public interface AnnotationUtil {
     return false;
   }
 
-  static <T extends Annotation> T getFieldAnnotation(
+  static <T extends Annotation> Optional<T> getFieldAnnotation(
       final Object object,
       final String fieldName,
       final Class<T> annotationClazz) {
@@ -31,15 +32,15 @@ public interface AnnotationUtil {
     while (c != Object.class) {
       try {
         final Field field = c.getDeclaredField(fieldName);
-        return field.getDeclaredAnnotation(annotationClazz);
+        return Optional.of(field.getDeclaredAnnotation(annotationClazz));
       } catch (final NoSuchFieldException e) {
         c = c.getSuperclass();
       }
     }
-    return null;
+    return Optional.empty();
   }
 
-  static Object getFieldValue(
+  static Optional<Object> getFieldValue(
       final Object object,
       final String fieldName) {
     Class c = object.getClass();
@@ -47,11 +48,11 @@ public interface AnnotationUtil {
       try {
         final Field field = c.getDeclaredField(fieldName);
         field.setAccessible(true);
-        return field.get(object);
+        return Optional.of(field.get(object));
       } catch (final NoSuchFieldException | IllegalAccessException e) {
         c = c.getSuperclass();
       }
     }
-    return null;
+    return Optional.empty();
   }
 }

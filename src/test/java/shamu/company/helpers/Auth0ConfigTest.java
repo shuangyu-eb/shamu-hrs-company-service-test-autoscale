@@ -1,4 +1,4 @@
-package shamu.company.utils;
+package shamu.company.helpers;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;

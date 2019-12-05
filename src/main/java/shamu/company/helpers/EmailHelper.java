@@ -19,7 +19,7 @@ import shamu.company.common.exception.EmailException;
 @Component
 public class EmailHelper {
 
-  private static SendGrid sendGrid;
+  private final SendGrid sendGrid;
 
   @Autowired
   public EmailHelper(@Value("${sendGrid.apiKey}") final String sendGridKey) {

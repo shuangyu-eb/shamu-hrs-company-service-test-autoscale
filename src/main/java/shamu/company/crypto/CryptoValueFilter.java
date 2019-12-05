@@ -4,6 +4,7 @@ import com.alibaba.fastjson.serializer.ValueFilter;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import shamu.company.common.exception.GeneralException;
 import shamu.company.utils.AnnotationUtil;
 
 @Component
@@ -23,8 +24,10 @@ public class CryptoValueFilter implements ValueFilter {
         && AnnotationUtil.fieldHasAnnotation(object.getClass(), name, Crypto.class)
         && !Strings.isBlank((String) value)) {
       final Crypto crypto = AnnotationUtil
-          .getFieldAnnotation(object, name, Crypto.class);
-      final String id = (String) AnnotationUtil.getFieldValue(object, crypto.field());
+          .getFieldAnnotation(object, name, Crypto.class)
+          .orElseThrow(() -> new GeneralException("The field has no annotation"));
+      final String id = (String) AnnotationUtil.getFieldValue(object, crypto.field())
+          .orElseThrow(() -> new GeneralException("The field was not found"));
       final Class aClass = crypto.targetType();
 
       return encryptor.decrypt(id, aClass, (String) value);
