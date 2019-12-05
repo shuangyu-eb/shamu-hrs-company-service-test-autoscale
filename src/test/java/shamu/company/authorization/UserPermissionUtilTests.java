@@ -3,7 +3,7 @@ package shamu.company.authorization;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,10 +31,10 @@ import shamu.company.server.AuthUser;
 import shamu.company.tests.utils.JwtUtil;
 import shamu.company.timeoff.entity.TimeOffPolicyUser;
 import shamu.company.timeoff.entity.TimeOffRequest;
-import shamu.company.timeoff.repository.TimeOffPolicyUserRepository;
 import shamu.company.timeoff.service.CompanyPaidHolidayService;
 import shamu.company.timeoff.service.PaidHolidayService;
 import shamu.company.timeoff.service.TimeOffPolicyService;
+import shamu.company.timeoff.service.TimeOffPolicyUserService;
 import shamu.company.timeoff.service.TimeOffRequestService;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
@@ -56,7 +56,7 @@ class UserPermissionUtilTests {
   @Mock
   private BenefitPlanDependentService benefitPlanDependentService;
   @Mock
-  private TimeOffPolicyUserRepository timeOffPolicyUserRepository;
+  private TimeOffPolicyUserService timeOffPolicyUserService;
   @Mock
   private TimeOffPolicyService timeOffPolicyService;
   @Mock
@@ -105,7 +105,7 @@ class UserPermissionUtilTests {
 
       final Name permission = Name.CREATE_DEPARTMENT;
       final Type permissionType = Type.DEPARTMENT;
-      initAuthenticationWithPermission(permission.name());
+      initAuthenticationWithPermission(Collections.singletonList(permission.name()));
       final boolean hasPermission = userPermissionUtils.hasPermission(getAuthentication(),
           RandomStringUtils.randomAlphabetic(16),
           permissionType,
@@ -225,9 +225,8 @@ class UserPermissionUtilTests {
       targetUser.setId(authUser.getId());
       final TimeOffPolicyUser timeOffPolicyUser = new TimeOffPolicyUser();
       timeOffPolicyUser.setUser(targetUser);
-      final Optional<TimeOffPolicyUser> policyUser = Optional.of(timeOffPolicyUser);
-      Mockito.when(timeOffPolicyUserRepository.findById(Mockito.anyString()))
-          .thenReturn(policyUser);
+      Mockito.when(timeOffPolicyUserService.findById(Mockito.anyString()))
+          .thenReturn(timeOffPolicyUser);
       final boolean hasPermission = userPermissionUtils.hasPermission(getAuthentication(),
           RandomStringUtils.randomAlphabetic(16),
           Type.TIME_OFF_POLICY_USER,
@@ -241,9 +240,8 @@ class UserPermissionUtilTests {
       targetUser.setId(RandomStringUtils.randomAlphabetic(16));
       final TimeOffPolicyUser timeOffPolicyUser = new TimeOffPolicyUser();
       timeOffPolicyUser.setUser(targetUser);
-      final Optional<TimeOffPolicyUser> policyUser = Optional.of(timeOffPolicyUser);
-      Mockito.when(timeOffPolicyUserRepository.findById(Mockito.anyString()))
-          .thenReturn(policyUser);
+      Mockito.when(timeOffPolicyUserService.findById(Mockito.anyString()))
+          .thenReturn(timeOffPolicyUser);
       final boolean hasPermission = userPermissionUtils.hasPermission(getAuthentication(),
           RandomStringUtils.randomAlphabetic(16),
           Type.TIME_OFF_POLICY_USER,
@@ -300,7 +298,8 @@ class UserPermissionUtilTests {
 
       @Test
       void whenHasPermission_thenShouldReturnTrue() {
-        initAuthenticationWithPermission(Name.VIEW_DOCUMENT_REPORTS.name());
+        initAuthenticationWithPermission(
+            Collections.singletonList(Name.VIEW_DOCUMENT_REPORTS.name()));
         final boolean hasPermission = userPermissionUtils.hasPermission(getAuthentication(),
             RandomStringUtils.randomAlphabetic(16),
             Type.USER,
@@ -323,7 +322,7 @@ class UserPermissionUtilTests {
 
       @Test
       void whenHasPermission_thenShouldReturnTrue() {
-        initAuthenticationWithPermission(Name.CREATE_DEPARTMENT.name());
+        initAuthenticationWithPermission(Collections.singletonList(Name.CREATE_DEPARTMENT.name()));
         final boolean hasPermission = userPermissionUtils.hasPermission(getAuthentication(),
             RandomStringUtils.randomAlphabetic(16),
             Type.USER,
@@ -349,7 +348,8 @@ class UserPermissionUtilTests {
 
         Mockito.when(userService.getManagerUserIdById(Mockito.anyString()))
             .thenReturn(RandomStringUtils.randomAlphabetic(16));
-        initAuthenticationWithPermission(Name.VIEW_USER_EMERGENCY_CONTACT.name());
+        initAuthenticationWithPermission(
+            Arrays.asList(Name.MANAGE_TEAM_USER.name(), Name.VIEW_USER_EMERGENCY_CONTACT.name()));
 
         final boolean hasPermission = userPermissionUtils.hasPermission(getAuthentication(),
             RandomStringUtils.randomAlphabetic(16),
@@ -363,7 +363,8 @@ class UserPermissionUtilTests {
 
         Mockito.when(userService.getManagerUserIdById(Mockito.anyString()))
             .thenReturn(authUser.getId());
-        initAuthenticationWithPermission(Name.VIEW_USER_EMERGENCY_CONTACT.name());
+        initAuthenticationWithPermission(
+            Collections.singletonList(Name.VIEW_USER_EMERGENCY_CONTACT.name()));
 
         final boolean hasPermission = userPermissionUtils.hasPermission(getAuthentication(),
             RandomStringUtils.randomAlphabetic(16),
@@ -413,7 +414,7 @@ class UserPermissionUtilTests {
 
     @BeforeEach
     void init() {
-      authUser.setPermissions(Arrays.asList(Name.CREATE_DEPARTMENT.name()));
+      initAuthenticationWithPermission(Collections.singletonList(Name.CREATE_DEPARTMENT.name()));
     }
 
     @Test
@@ -430,9 +431,10 @@ class UserPermissionUtilTests {
     }
   }
 
-  void initAuthenticationWithPermission(final String permissionName) {
-    final List<GrantedAuthority> authorities =
-        Collections.singletonList(new SimpleGrantedAuthority(permissionName));
+  void initAuthenticationWithPermission(final List<String> permissionNames) {
+    final List<GrantedAuthority> authorities = permissionNames.stream()
+        .map(SimpleGrantedAuthority::new)
+        .collect(Collectors.toList());
     final Authentication authentication = new DefaultJwtAuthenticationToken(jwt,
         RandomStringUtils.randomAlphabetic(16), authorities, authUser);
     SecurityContextHolder.getContext().setAuthentication(authentication);

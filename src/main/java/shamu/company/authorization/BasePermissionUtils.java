@@ -1,7 +1,6 @@
 package shamu.company.authorization;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import shamu.company.common.config.DefaultJwtAuthenticationToken;
 import shamu.company.common.exception.UnAuthenticatedException;
@@ -18,19 +17,17 @@ class BasePermissionUtils {
   }
 
   private DefaultJwtAuthenticationToken getAuthentication() {
-    final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    return (DefaultJwtAuthenticationToken) authentication;
-  }
 
-  private void checkIsAuthenticated() {
-    final String token = getAuthentication().getToken().getTokenValue();
-    if (authUserCacheManager.getCachedUser(token) == null) {
+    final DefaultJwtAuthenticationToken authentication =
+        (DefaultJwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
+    if (authentication == null
+        || authUserCacheManager.getCachedUser(authentication.getToken().getTokenValue()) == null) {
       throw new UnAuthenticatedException("User not logged in.");
     }
+    return authentication;
   }
 
   protected AuthUser getAuthUser() {
-    checkIsAuthenticated();
     final String token = getAuthentication().getToken().getTokenValue();
     return authUserCacheManager.getCachedUser(token);
   }
