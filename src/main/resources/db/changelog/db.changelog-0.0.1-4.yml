@@ -2609,3 +2609,11 @@ databaseChangeLog:
     changes:
     - dropTable:
         tableName: time_off_requests_approvers
+
+- changeSet:
+    id: 1575666601000-1
+    author: lei-eb
+    changes:
+     - sql:
+         sql: update users set salt = REPLACE(UUID(), '-', '') where salt is null;
+

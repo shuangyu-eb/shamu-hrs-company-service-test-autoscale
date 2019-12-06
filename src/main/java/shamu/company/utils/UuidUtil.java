@@ -61,4 +61,9 @@ public interface UuidUtil {
         .toUpperCase()
         .replaceAll("-", "");
   }
+
+  static String getUuidString() {
+    return UUID.randomUUID().toString()
+        .replace("-", "");
+  }
 }

@@ -87,6 +87,7 @@ import shamu.company.user.repository.UserPersonalInformationRepository;
 import shamu.company.user.repository.UserRepository;
 import shamu.company.user.repository.UserStatusRepository;
 import shamu.company.utils.DateUtil;
+import shamu.company.utils.UuidUtil;
 
 @Service
 @Transactional
@@ -586,6 +587,7 @@ public class UserService {
         .company(company)
         .verifiedAt(Timestamp.valueOf(DateUtil.getLocalUtcTime()))
         .userRole(userRoleService.getAdmin())
+        .salt(UuidUtil.getUuidString())
         .build();
     user.setId(signUpDto.getUserId());
 

@@ -3,7 +3,6 @@ package shamu.company.user.entity;
 import com.alibaba.fastjson.annotation.JSONField;
 import java.sql.Date;
 import java.sql.Timestamp;
-import java.util.UUID;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -24,6 +23,7 @@ import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
 import shamu.company.common.exception.GeneralException;
 import shamu.company.company.entity.Company;
+import shamu.company.utils.UuidUtil;
 
 @Data
 @Entity
@@ -130,7 +130,7 @@ public class User {
 
   private void setSalt() {
     if (salt == null) {
-      salt = UUID.randomUUID().toString().replace("-", "");
+      salt = UuidUtil.getUuidString();
     }
   }
 

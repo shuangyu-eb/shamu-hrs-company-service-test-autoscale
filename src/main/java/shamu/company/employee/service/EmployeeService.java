@@ -8,6 +8,7 @@ import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -92,6 +93,7 @@ import shamu.company.user.service.UserService;
 import shamu.company.utils.DateUtil;
 import shamu.company.utils.FileValidateUtil;
 import shamu.company.utils.FileValidateUtil.FileType;
+import shamu.company.utils.UuidUtil;
 
 @Service
 @Transactional
@@ -294,7 +296,7 @@ public class EmployeeService {
 
   private User saveEmployeeBasicInformation(final User currentUser, final EmployeeDto employeeDto) {
     final User employee = new User();
-
+    employee.setSalt(UuidUtil.getUuidString());
     final String base64EncodedPhoto = employeeDto.getPersonalPhoto();
     final String photoPath = saveEmployeePhoto(base64EncodedPhoto);
     employee.setImageUrl(photoPath);
