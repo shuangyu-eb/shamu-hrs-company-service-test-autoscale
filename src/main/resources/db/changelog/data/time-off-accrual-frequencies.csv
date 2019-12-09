@@ -1,4 +1,4 @@
-name
-All at once (beginning of each year)
-All at once (each anniversary date)
-Throughout the year (at the start of each month)
+name,ref_id
+All at once (beginning of each year),1
+All at once (each anniversary date),2
+Throughout the year (at the start of each month),3

@@ -1,0 +1,521 @@
+databaseChangeLog:
+- changeSet:
+    id: 1575535861-1
+    author: alex-eb
+    preConditions:
+      onFail: WARN
+    changes:
+      - addColumn:
+          columns:
+            - column:
+                name: ref_id
+                type: INT
+          tableName: benefit_plan_dependent_relationships
+
+- changeSet:
+    id: 1575535861-2
+    author: alex-eb
+    preConditions:
+      onFail: WARN
+    changes:
+      - addColumn:
+          columns:
+            - column:
+                name: ref_id
+                type: INT
+          tableName: benefit_plan_types
+
+- changeSet:
+    id: 1575535861-3
+    author: alex-eb
+    preConditions:
+      onFail: WARN
+    changes:
+      - addColumn:
+          columns:
+            - column:
+                name: ref_id
+                type: INT
+          tableName: company_sizes
+
+- changeSet:
+    id: 1575535861-4
+    author: alex-eb
+    preConditions:
+      onFail: WARN
+    changes:
+      - addColumn:
+          columns:
+            - column:
+                name: ref_id
+                type: INT
+          tableName: compensation_frequency
+
+- changeSet:
+    id: 1575535861-5
+    author: alex-eb
+    preConditions:
+      onFail: WARN
+    changes:
+      - addColumn:
+          columns:
+            - column:
+                name: ref_id
+                type: INT
+          tableName: countries
+
+- changeSet:
+    id: 1575535861-6
+    author: alex-eb
+    preConditions:
+      onFail: WARN
+    changes:
+      - addColumn:
+          columns:
+            - column:
+                name: ref_id
+                type: INT
+          tableName: ethnicities
+
+- changeSet:
+    id: 1575535861-7
+    author: alex-eb
+    preConditions:
+      onFail: WARN
+    changes:
+      - addColumn:
+          columns:
+            - column:
+                name: ref_id
+                type: INT
+          tableName: genders
+
+- changeSet:
+    id: 1575535861-8
+    author: alex-eb
+    preConditions:
+      onFail: WARN
+    changes:
+      - addColumn:
+          columns:
+            - column:
+                name: ref_id
+                type: INT
+          tableName: marital_status
+
+- changeSet:
+    id: 1575535861-9
+    author: alex-eb
+    preConditions:
+      onFail: WARN
+    changes:
+      - addColumn:
+          columns:
+            - column:
+                name: ref_id
+                type: INT
+          tableName: time_off_request_approval_statuses
+
+- changeSet:
+    id: 1575535861-10
+    author: alex-eb
+    preConditions:
+      onFail: WARN
+    changes:
+      - addColumn:
+          columns:
+            - column:
+                name: ref_id
+                type: INT
+          tableName: retirement_types
+
+- changeSet:
+    id: 1575535861-11
+    author: alex-eb
+    preConditions:
+      onFail: WARN
+    changes:
+      - addColumn:
+          columns:
+            - column:
+                name: ref_id
+                type: INT
+          tableName: time_off_accrual_frequencies
+
+- changeSet:
+    id: 1575535861-12
+    author: alex-eb
+    preConditions:
+      onFail: WARN
+    changes:
+      - addColumn:
+          columns:
+            - column:
+                name: ref_id
+                type: INT
+          tableName: user_roles
+
+- changeSet:
+    id: 1575535861-13
+    author: alex-eb
+    preConditions:
+      onFail: WARN
+    changes:
+      - addColumn:
+          columns:
+            - column:
+                name: ref_id
+                type: INT
+          tableName: deactivation_reasons
+
+- changeSet:
+    id: 1575535861-14
+    author: alex-eb
+    preConditions:
+      onFail: WARN
+    changes:
+      - addColumn:
+          columns:
+            - column:
+                name: ref_id
+                type: INT
+          tableName: user_statuses
+
+- changeSet:
+    id: 1575535861-15
+    author: alex-eb
+    runOnChange: true
+    changes:
+      - loadUpdateData:
+          columns:
+            - column:
+                name: name
+                type: STRING
+          file: db/changelog/data/benefit-plan-dependent-relationships.csv
+          primaryKey: id
+          tableName: benefit_plan_dependent_relationships
+
+- changeSet:
+    id: 1575535861-16
+    author: alex-eb
+    runOnChange: true
+    changes:
+      - loadUpdateData:
+          columns:
+            - column:
+                name: name
+                type: STRING
+          file: db/changelog/data/benefit-plan-types.csv
+          primaryKey: id
+          tableName: benefit_plan_types
+
+- changeSet:
+    id: 1575535861-17
+    author: alex-eb
+    runOnChange: true
+    changes:
+      - loadUpdateData:
+          columns:
+            - column:
+                name: name
+                type: STRING
+          file: db/changelog/data/company-sizes.csv
+          primaryKey: id
+          tableName: company_sizes
+
+- changeSet:
+    id: 1575535861-18
+    author: alex-eb
+    runOnChange: true
+    changes:
+      - loadUpdateData:
+          columns:
+            - column:
+                name: name
+                type: STRING
+          file: db/changelog/data/compensation-frequency.csv
+          primaryKey: id
+          tableName: compensation_frequency
+
+- changeSet:
+    id: 1575535861-19
+    author: alex-eb
+    runOnChange: true
+    changes:
+      - loadUpdateData:
+          columns:
+            - column:
+                name: name
+                type: STRING
+            - column:
+                name: ref_id
+                type: NUMERIC
+          file: db/changelog/data/countries.csv
+          primaryKey: id
+          tableName: countries
+
+- changeSet:
+    id: 1575535861-20
+    author: alex-eb
+    runOnChange: true
+    changes:
+      - loadUpdateData:
+          columns:
+            - column:
+                name: name
+                type: STRING
+          file: db/changelog/data/ethnicities.csv
+          primaryKey: id
+          tableName: ethnicities
+
+- changeSet:
+    id: 1575535861-21
+    author: alex-eb
+    runOnChange: true
+    changes:
+      - loadUpdateData:
+          columns:
+            - column:
+                name: name
+                type: STRING
+          file: db/changelog/data/genders.csv
+          primaryKey: id
+          tableName: genders
+
+- changeSet:
+    id: 1575535861-22
+    author: alex-eb
+    runOnChange: true
+    changes:
+      - loadUpdateData:
+          columns:
+            - column:
+                name: name
+                type: STRING
+          file: db/changelog/data/marital-status.csv
+          primaryKey: id
+          tableName: marital_status
+
+- changeSet:
+    id: 1575535861-23
+    author: alex-eb
+    runOnChange: true
+    changes:
+      - loadUpdateData:
+          columns:
+            - column:
+                name: name
+                type: STRING
+          file: db/changelog/data/request-approval-statuses.csv
+          primaryKey: id
+          tableName: time_off_request_approval_statuses
+
+- changeSet:
+    id: 1575535861-24
+    author: alex-eb
+    runOnChange: true
+    changes:
+      - loadUpdateData:
+          columns:
+            - column:
+                name: name
+                type: STRING
+          file: db/changelog/data/retirement-types.csv
+          primaryKey: id
+          tableName: retirement_types
+
+- changeSet:
+    id: 1575535861-25
+    author: alex-eb
+    runOnChange: true
+    changes:
+      - loadUpdateData:
+          columns:
+            - column:
+                name: name
+                type: STRING
+          file: db/changelog/data/time-off-accrual-frequencies.csv
+          primaryKey: id
+          tableName: time_off_accrual_frequencies
+
+- changeSet:
+    id: 1575535861-26
+    author: alex-eb
+    runOnChange: true
+    changes:
+      - loadUpdateData:
+          columns:
+            - column:
+                name: name
+                type: STRING
+          file: db/changelog/data/user-roles.csv
+          primaryKey: id
+          tableName: user_roles
+
+- changeSet:
+    id: 1575535861-27
+    author: alex-eb
+    runOnChange: true
+    changes:
+      - loadUpdateData:
+          columns:
+            - column:
+                name: name
+                type: STRING
+          file: db/changelog/data/user-status-deactivation-reasons.csv
+          primaryKey: id
+          tableName: deactivation_reasons
+
+- changeSet:
+    id: 1575535861-28
+    author: alex-eb
+    runOnChange: true
+    changes:
+      - loadUpdateData:
+          columns:
+            - column:
+                name: name
+                type: STRING
+          file: db/changelog/data/user-statuses.csv
+          primaryKey: id
+          tableName: user_statuses
+
+- changeSet:
+    id: 1575595837-1
+    author: alex-eb
+    runOnChange: true
+    changes:
+      - addUniqueConstraint:
+          columnNames: ref_id
+          constraintName: uq_marital_status_ref_id
+          tableName: marital_status
+
+- changeSet:
+    id: 1575595837-2
+    author: alex-eb
+    runOnChange: true
+    changes:
+      - addUniqueConstraint:
+          columnNames: ref_id
+          constraintName: uq_company_sizes_ref_id
+          tableName: company_sizes
+
+- changeSet:
+    id: 1575595837-3
+    author: alex-eb
+    runOnChange: true
+    changes:
+      - addUniqueConstraint:
+          columnNames: ref_id
+          constraintName: uq_user_statuses_ref_id
+          tableName: user_statuses
+
+- changeSet:
+    id: 1575595837-4
+    author: alex-eb
+    runOnChange: true
+    changes:
+      - addUniqueConstraint:
+          columnNames: ref_id
+          constraintName: uq_genders_ref_id
+          tableName: genders
+
+- changeSet:
+    id: 1575595837-5
+    author: alex-eb
+    runOnChange: true
+    changes:
+      - addUniqueConstraint:
+          columnNames: ref_id
+          constraintName: uq_ethnicities_ref_id
+          tableName: ethnicities
+
+- changeSet:
+    id: 1575595837-6
+    author: alex-eb
+    runOnChange: true
+    changes:
+      - addUniqueConstraint:
+          columnNames: ref_id
+          constraintName: uq_benefit_plan_types_ref_id
+          tableName: benefit_plan_types
+
+- changeSet:
+    id: 1575595837-7
+    author: alex-eb
+    runOnChange: true
+    changes:
+      - addUniqueConstraint:
+          columnNames: ref_id
+          constraintName: uq_retirement_types_ref_id
+          tableName: retirement_types
+
+- changeSet:
+    id: 1575595837-8
+    author: alex-eb
+    runOnChange: true
+    changes:
+      - addUniqueConstraint:
+          columnNames: ref_id
+          constraintName: uq_benefit_plan_dependent_relationships_ref_id
+          tableName: benefit_plan_dependent_relationships
+
+- changeSet:
+    id: 1575595837-9
+    author: alex-eb
+    runOnChange: true
+    changes:
+      - addUniqueConstraint:
+          columnNames: ref_id
+          constraintName: uq_time_off_accrual_frequencies_ref_id
+          tableName: time_off_accrual_frequencies
+
+- changeSet:
+    id: 1575595837-10
+    author: alex-eb
+    runOnChange: true
+    changes:
+      - addUniqueConstraint:
+          columnNames: ref_id
+          constraintName: uq_countries_ref_id
+          tableName: countries
+
+- changeSet:
+    id: 1575595837-11
+    author: alex-eb
+    runOnChange: true
+    changes:
+      - addUniqueConstraint:
+          columnNames: ref_id
+          constraintName: uq_compensation_frequency_ref_id
+          tableName: compensation_frequency
+
+- changeSet:
+    id: 1575595837-12
+    author: alex-eb
+    runOnChange: true
+    changes:
+      - addUniqueConstraint:
+          columnNames: ref_id
+          constraintName: uq_time_off_request_approval_statuses_ref_id
+          tableName: time_off_request_approval_statuses
+
+- changeSet:
+    id: 1575595837-13
+    author: alex-eb
+    runOnChange: true
+    changes:
+      - addUniqueConstraint:
+          columnNames: ref_id
+          constraintName: uq_deactivation_reasons_ref_id
+          tableName: deactivation_reasons
+
+- changeSet:
+    id: 1575595837-14
+    author: alex-eb
+    runOnChange: true
+    changes:
+      - addUniqueConstraint:
+          columnNames: ref_id
+          constraintName: uq_user_roles_ref_id
+          tableName: user_roles

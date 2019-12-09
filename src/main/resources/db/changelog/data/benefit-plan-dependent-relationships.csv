@@ -1,6 +1,6 @@
-name
-Spouse
-Child
-Domestic Partner
-Step Child
-Foster Child
+name,ref_id
+Spouse,1
+Child,2
+Domestic Partner,3
+Step Child,4
+Foster Child,5

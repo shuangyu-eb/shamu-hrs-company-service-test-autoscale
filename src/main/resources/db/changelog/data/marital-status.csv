@@ -1,5 +1,5 @@
-name
-Unmarried
-Married
-Common Law
-Domestic Partnership
+name,ref_id
+Unmarried,1
+Married,2
+Common Law,3
+Domestic Partnership,4

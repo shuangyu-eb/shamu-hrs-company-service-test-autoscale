@@ -1,6 +1,6 @@
-name
-Attendance
-Other Employment
-Performance
-Relocation
-Other
+name,ref_id
+Attendance,1
+Other Employment,2
+Performance,3
+Relocation,4
+Other,5
