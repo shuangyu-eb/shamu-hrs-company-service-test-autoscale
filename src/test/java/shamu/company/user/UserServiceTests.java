@@ -12,6 +12,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.thymeleaf.ITemplateEngine;
+import shamu.company.authorization.PermissionUtils;
 import shamu.company.common.exception.ForbiddenException;
 import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.common.repository.DepartmentRepository;
@@ -107,6 +108,8 @@ class UserServiceTests {
   private AwsUtil awsUtil;
   @Mock
   private UserRoleService userRoleService;
+  @Mock
+  private PermissionUtils permissionUtils;
 
   @BeforeEach
   void init() {
@@ -131,7 +134,7 @@ class UserServiceTests {
         jobRepository, userMapper, authUserCacheManager,userContactInformationRepository,
         userPersonalInformationRepository,
         dynamicScheduler,
-        awsUtil, userRoleService);
+        awsUtil, userRoleService, permissionUtils);
   }
 
   @Test

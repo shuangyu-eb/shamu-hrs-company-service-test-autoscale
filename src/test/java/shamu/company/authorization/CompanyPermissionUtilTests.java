@@ -65,7 +65,7 @@ class CompanyPermissionUtilTests {
 
     @Test
     void whenCanNotFindUser_thenShouldReturnFalse() {
-      Mockito.when(userService.findUserById(Mockito.anyString())).thenReturn(null);
+      Mockito.when(userService.findById(Mockito.anyString())).thenReturn(null);
       final boolean isMember = companyPermissionUtils
           .isMember(null, RandomStringUtils.randomAlphabetic(16));
       Assertions.assertFalse(isMember);
@@ -80,7 +80,7 @@ class CompanyPermissionUtilTests {
       void init() {
         final Company userCompany = new Company();
         user = User.builder().company(userCompany).build();
-        Mockito.when(userService.findUserById(Mockito.anyString())).thenReturn(user);
+        Mockito.when(userService.findById(Mockito.anyString())).thenReturn(user);
       }
 
       @Test

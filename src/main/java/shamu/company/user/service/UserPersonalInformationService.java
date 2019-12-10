@@ -32,12 +32,12 @@ public class UserPersonalInformationService {
     final MaritalStatus maritalStatus = userPersonalInformation.getMaritalStatus();
 
     if (gender != null) {
-      final Gender genderUpdated = genderService.findGenderById(gender.getId());
+      final Gender genderUpdated = genderService.findById(gender.getId());
       userPersonalInformation.setGender(genderUpdated);
     }
     if (maritalStatus != null) {
       final MaritalStatus maritalStatusUpdated =
-          maritalStatusService.findMaritalStatusById(maritalStatus.getId());
+          maritalStatusService.findById(maritalStatus.getId());
       userPersonalInformation.setMaritalStatus(maritalStatusUpdated);
     }
     return repository.save(userPersonalInformation);

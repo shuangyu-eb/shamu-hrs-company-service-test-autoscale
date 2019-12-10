@@ -58,7 +58,7 @@ public class BenefitPlanDependentController {
       + " or hasPermission(#userId,'USER', 'EDIT_SELF')")
   public HttpEntity createBenefitDependents(@PathVariable final String userId,
       @RequestBody final BenefitDependentCreateDto benefitDependentCreateDto) {
-    final User user = userService.findUserById(userId);
+    final User user = userService.findById(userId);
     benefitDependentCreateDto.setEmployee(user);
     final BenefitPlanDependent dependentContact = benefitPlanDependentMapper
         .createFromBenefitDependentCreateDto(benefitDependentCreateDto);
@@ -112,7 +112,7 @@ public class BenefitPlanDependentController {
 
   @GetMapping("dependent-relationships")
   public List<CommonDictionaryDto> getAllDependentRelationships() {
-    List<DependentRelationship> results = relationshipRepository.findAll();
+    final List<DependentRelationship> results = relationshipRepository.findAll();
     return ReflectionUtil.convertTo(results, CommonDictionaryDto.class);
   }
 }

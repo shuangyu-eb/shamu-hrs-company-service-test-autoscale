@@ -16,7 +16,7 @@ public class GenderService {
     this.genderRepository = genderRepository;
   }
 
-  public Gender findGenderById(final String id) {
+  public Gender findById(final String id) {
     return genderRepository
         .findById(id)
         .orElseThrow(() -> new ResourceNotFoundException("Gender does not exist"));

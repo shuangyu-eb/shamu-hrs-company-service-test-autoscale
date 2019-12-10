@@ -153,7 +153,7 @@ class UserPermissionUtilTests {
 
       @Test
       void whenNoManager_thenShouldSuccess() {
-        Mockito.when(userService.findUserById(Mockito.anyString())).thenReturn(new User());
+        Mockito.when(userService.findById(Mockito.anyString())).thenReturn(new User());
         final boolean hasPermission = userPermissionUtils.hasPermission(getAuthentication(),
             RandomStringUtils.randomAlphabetic(16),
             type,
@@ -168,7 +168,7 @@ class UserPermissionUtilTests {
         managerUser.setId(authUser.getId());
         targetUser.setManagerUser(managerUser);
 
-        Mockito.when(userService.findUserById(Mockito.anyString())).thenReturn(targetUser);
+        Mockito.when(userService.findById(Mockito.anyString())).thenReturn(targetUser);
         final boolean hasPermission = userPermissionUtils.hasPermission(getAuthentication(),
             RandomStringUtils.randomAlphabetic(16),
             type,
@@ -184,7 +184,7 @@ class UserPermissionUtilTests {
         targetUser.setManagerUser(managerUser);
         authUser.setRole(Role.ADMIN);
 
-        Mockito.when(userService.findUserById(Mockito.anyString())).thenReturn(targetUser);
+        Mockito.when(userService.findById(Mockito.anyString())).thenReturn(targetUser);
         final boolean hasPermission = userPermissionUtils.hasPermission(getAuthentication(),
             RandomStringUtils.randomAlphabetic(16),
             type,
@@ -263,7 +263,7 @@ class UserPermissionUtilTests {
       targetUser.setId(RandomStringUtils.randomAlphabetic(16));
       targetUser.setCompany(targetCompany);
 
-      Mockito.when(userService.findUserById(Mockito.anyString())).thenReturn(targetUser);
+      Mockito.when(userService.findById(Mockito.anyString())).thenReturn(targetUser);
     }
 
     @Nested
@@ -274,7 +274,7 @@ class UserPermissionUtilTests {
 
         final User currentUser = new User();
         currentUser.setId(authUser.getId());
-        Mockito.when(userService.findUserById(Mockito.anyString())).thenReturn(currentUser);
+        Mockito.when(userService.findById(Mockito.anyString())).thenReturn(currentUser);
         final boolean hasPermission = userPermissionUtils.hasPermission(getAuthentication(),
             RandomStringUtils.randomAlphabetic(16),
             Type.USER,

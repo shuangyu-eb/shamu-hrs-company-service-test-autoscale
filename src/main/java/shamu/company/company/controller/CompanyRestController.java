@@ -116,7 +116,7 @@ public class CompanyRestController extends BaseRestController {
   @PreAuthorize("hasPermission(#id,'DEPARTMENT','VIEW_USER_JOB')")
   public List<SelectFieldInformationDto> getUsers(@PathVariable final String id) {
     final List<User> users = employeeService
-        .findEmployersAndEmployeesByCompanyId(getCompanyId());
+        .findByCompanyId(getCompanyId());
     return collectUserPersonInformations(users);
   }
 
@@ -127,12 +127,12 @@ public class CompanyRestController extends BaseRestController {
           @PathVariable final String userId,
           @PathVariable final String departmentId) {
     final List<User> users;
-    final User user = userService.findUserById(userId);
+    final User user = userService.findById(userId);
     if (user.getManagerUser() == null) {
-      users = employeeService.findDirectReportsEmployersAndEmployeesByCompanyId(
+      users = employeeService.findDirectReportsByManagerUserId(
               getCompanyId(), user.getId());
     } else {
-      users = employeeService.findEmployersAndEmployeesByCompanyId(getCompanyId());
+      users = employeeService.findByCompanyId(getCompanyId());
     }
 
     final List<SelectFieldInformationDto> selectFieldInformationDtos =

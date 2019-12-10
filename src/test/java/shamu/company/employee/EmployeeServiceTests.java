@@ -7,6 +7,7 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -43,35 +44,36 @@ import shamu.company.user.entity.mapper.UserContactInformationMapper;
 import shamu.company.user.entity.mapper.UserMapper;
 import shamu.company.user.entity.mapper.UserPersonalInformationMapper;
 import shamu.company.user.repository.CompensationFrequencyRepository;
-import shamu.company.user.repository.GenderRepository;
-import shamu.company.user.repository.MaritalStatusRepository;
 import shamu.company.user.repository.UserAddressRepository;
 import shamu.company.user.repository.UserCompensationRepository;
-import shamu.company.user.repository.UserRepository;
-import shamu.company.user.repository.UserStatusRepository;
+import shamu.company.user.service.GenderService;
+import shamu.company.user.service.MaritalStatusService;
 import shamu.company.user.service.UserContactInformationService;
 import shamu.company.user.service.UserPersonalInformationService;
 import shamu.company.user.service.UserRoleService;
 import shamu.company.user.service.UserService;
+import shamu.company.user.service.UserStatusService;
 import shamu.company.utils.FileValidateUtil.FileType;
 
 class EmployeeServiceTests {
 
-  @Mock private UserRepository userRepository;
   @Mock private JobUserRepository jobUserRepository;
   @Mock private UserAddressRepository userAddressRepository;
   @Mock private EmploymentTypeRepository employmentTypeRepository;
   @Mock private UserCompensationRepository userCompensationRepository;
   @Mock private JobRepository jobRepository;
-  @Mock private GenderRepository genderRepository;
-  @Mock private MaritalStatusRepository maritalStatusRepository;
+  @Mock
+  private GenderService genderService;
+  @Mock
+  private MaritalStatusService maritalStatusService;
   @Mock private AwsUtil awsUtil;
   @Mock private CompensationFrequencyRepository compensationFrequencyRepository;
   @Mock private StateProvinceRepository stateProvinceRepository;
   @Mock private CountryRepository countryRepository;
   @Mock private UserEmergencyContactRepository userEmergencyContactRepository;
   @Mock private UserService userService;
-  @Mock private UserStatusRepository userStatusRepository;
+  @Mock
+  private UserStatusService userStatusService;
   @Mock private EmailRepository emailRepository;
   @Mock private EmailService emailService;
   @Mock private OfficeRepository officeRepository;
@@ -91,22 +93,12 @@ class EmployeeServiceTests {
   @Mock
   private EncryptorUtil encryptorUtil;
 
-
+  @InjectMocks
   private EmployeeService employeeService;
 
   @BeforeEach
   void init() {
     MockitoAnnotations.initMocks(this);
-    employeeService = new EmployeeService(userAddressRepository, userRepository,
-        jobUserRepository, employmentTypeRepository, officeRepository, userService,
-        stateProvinceRepository, countryRepository, userCompensationRepository,
-        userEmergencyContactRepository, jobRepository, userStatusRepository,
-        awsUtil, genderRepository, maritalStatusRepository, emailService,
-        compensationFrequencyRepository, emailRepository, userPersonalInformationService,
-        userContactInformationService, userPersonalInformationMapper, userAddressMapper,
-        userContactInformationMapper, userEmergencyContactMapper, auth0Helper,
-        applicationEventPublisher, jobUserMapper, jobUserService, userMapper, userRoleService,
-        encryptorUtil);
   }
 
   @Nested
@@ -114,15 +106,12 @@ class EmployeeServiceTests {
 
     @BeforeEach
     void init() {
-      Mockito.when(userRepository.findExistingUserCountByCompanyId(Mockito.anyString()))
-          .thenReturn(0);
-
       Mockito.when(userPersonalInformationMapper.createFromUserPersonalInformationDto(Mockito.any()))
           .thenReturn(null);
 
       final UserStatus userStatus = new UserStatus();
       userStatus.setName(Status.PENDING_VERIFICATION.name());
-      Mockito.when(userStatusRepository.findByName(Mockito.anyString())).thenReturn(userStatus);
+      Mockito.when(userStatusService.findByName(Mockito.anyString())).thenReturn(userStatus);
 
       final com.auth0.json.mgmt.users.User user = new com.auth0.json.mgmt.users.User();
       user.setId("1");
@@ -130,8 +119,8 @@ class EmployeeServiceTests {
       Mockito.when(auth0Helper.addUser(Mockito.anyString(), Mockito.any(), Mockito.anyString()))
           .thenReturn(user);
 
-      Mockito.when(genderRepository.getOne(Mockito.anyString())).thenReturn(new Gender());
-      Mockito.when(maritalStatusRepository.getOne(Mockito.anyString()))
+      Mockito.when(genderService.findById(Mockito.anyString())).thenReturn(new Gender());
+      Mockito.when(maritalStatusService.findById(Mockito.anyString()))
           .thenReturn(new MaritalStatus());
 
       Mockito.when(userContactInformationMapper.createFromUserContactInformationDto(Mockito.any()))
@@ -166,7 +155,7 @@ class EmployeeServiceTests {
 
       Whitebox.invokeMethod(employeeService, "saveEmployeeBasicInformation",
           currentUser, employeeDto);
-      Mockito.verify(userRepository, Mockito.times(1)).save(Mockito.any());
+      Mockito.verify(userService, Mockito.times(1)).save(Mockito.any());
     }
   }
 }

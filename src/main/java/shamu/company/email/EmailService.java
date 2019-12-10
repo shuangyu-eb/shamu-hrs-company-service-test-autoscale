@@ -78,4 +78,8 @@ public class EmailService {
       }
     };
   }
+
+  public Email findFirstByToAndSubjectOrderBySendDateDesc(final String email, final String s) {
+    return emailRepository.findFirstByToAndSubjectOrderBySendDateDesc(email, s);
+  }
 }

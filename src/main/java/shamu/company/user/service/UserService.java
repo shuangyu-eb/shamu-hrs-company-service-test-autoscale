@@ -26,6 +26,8 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.Context;
+import shamu.company.authorization.Permission.Name;
+import shamu.company.authorization.PermissionUtils;
 import shamu.company.common.exception.ForbiddenException;
 import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.common.exception.response.ErrorType;
@@ -125,6 +127,8 @@ public class UserService {
 
   private final UserRoleService userRoleService;
 
+  private final PermissionUtils permissionUtils;
+
 
   @Value("${application.systemEmailAddress}")
   private String systemEmailAddress;
@@ -152,7 +156,8 @@ public class UserService {
       final UserPersonalInformationRepository userPersonalInformationRepository,
       final DynamicScheduler dynamicScheduler,
       final AwsUtil awsUtil,
-      final UserRoleService userRoleService) {
+      final UserRoleService userRoleService,
+      @Lazy final PermissionUtils permissionUtils) {
     this.templateEngine = templateEngine;
     this.userRepository = userRepository;
     this.jobUserRepository = jobUserRepository;
@@ -178,9 +183,10 @@ public class UserService {
     this.dynamicScheduler = dynamicScheduler;
     this.awsUtil = awsUtil;
     this.userRoleService = userRoleService;
+    this.permissionUtils = permissionUtils;
   }
 
-  public User findUserById(final String id) {
+  public User findById(final String id) {
     return userRepository
         .findById(id)
         .orElseThrow(() -> new ResourceNotFoundException(ERROR_MESSAGE));
@@ -195,7 +201,7 @@ public class UserService {
   }
 
   public void cacheUser(final String token, final String userId) {
-    final User user = findUserById(userId);
+    final User user = findById(userId);
     final AuthUser authUser = userMapper.convertToAuthUser(user);
     final List<String> permissions = auth0Helper
         .getPermissionBy(user.getId());
@@ -262,13 +268,17 @@ public class UserService {
 
   public JobUserDto findEmployeeInfoByEmployeeId(final String id) {
 
-    final User employee = findUserById(id);
+    final User employee = findById(id);
     final JobUser jobUser = jobUserRepository.findJobUserByUser(employee);
     return new JobUserDto(employee, jobUser);
   }
 
-  public Page<JobUserListItem> getAllEmployees(
+  public Page<JobUserListItem> findAllEmployees(
       final String userId, final EmployeeListSearchCondition employeeListSearchCondition) {
+
+    if (!permissionUtils.hasAuthority(Name.VIEW_DISABLED_USER.name())) {
+      employeeListSearchCondition.setIncludeDeactivated(false);
+    }
 
     final User currentUser = findByUserId(userId);
     final String companyId = currentUser.getCompany().getId();
@@ -307,8 +317,8 @@ public class UserService {
     return userRepository.getOne(userId);
   }
 
-  public void save(final User user) {
-    userRepository.save(user);
+  public User save(final User user) {
+    return userRepository.save(user);
   }
 
   public List<JobUserDto> findAllJobUsers(final String companyId) {
@@ -328,7 +338,7 @@ public class UserService {
   }
 
   public String getHeadPortrait(final String userId) {
-    final User user = findUserById(userId);
+    final User user = findById(userId);
     return user.getImageUrl();
   }
 
@@ -370,7 +380,7 @@ public class UserService {
   }
 
   public AccountInfoDto getPreSetAccountInfoByUserId(final String id) {
-    final User user = findUserById(id);
+    final User user = findById(id);
 
     final UserPersonalInformation userPersonalInformation = user.getUserPersonalInformation();
     final UserPersonalInformationDto userPersonalInformationDto =
@@ -432,7 +442,7 @@ public class UserService {
       final EmployeeListSearchCondition employeeListSearchCondition,
       final String id) {
     final Pageable paramPageable = getPageable(employeeListSearchCondition);
-    final User user = findUserById(id);
+    final User user = findById(id);
     return userRepository
         .getMyTeamByManager(employeeListSearchCondition, user, paramPageable);
   }
@@ -657,7 +667,7 @@ public class UserService {
 
   public void sendChangeWorkEmail(final String userId, final String newEmail) {
 
-    final User user = findUserById(userId);
+    final User user = findById(userId);
 
     if (user.getUserContactInformation().getEmailWork() == newEmail) {
       throw new ForbiddenException(String.format(" your new work email should be different"));
@@ -758,7 +768,7 @@ public class UserService {
   }
 
   public CurrentUserDto getMockUserInfo(final String userId) {
-    final User user = findUserById(userId);
+    final User user = findById(userId);
     return getCurrentUserDto(user);
   }
 
@@ -832,7 +842,7 @@ public class UserService {
       return null;
     }
 
-    final User user = findUserById(id);
+    final User user = findById(id);
     final String originalPath = user.getImageUrl();
     if (originalPath != null) {
       awsUtil.deleteFile(originalPath);
@@ -846,5 +856,27 @@ public class UserService {
 
   public Boolean isOldPwdCorrect(final String password, final String email) {
     return auth0Helper.isPasswordValid(email, password);
+  }
+
+  public Context findWelcomeEmailPreviewContext(final String id,
+      final String welcomeEmailPersonalMessage) {
+    final User currentUser = findById(id);
+    final Context context = getWelcomeEmailContext(welcomeEmailPersonalMessage,
+        null);
+    context.setVariable("createPasswordAddress", "#");
+    context.setVariable("companyName", currentUser.getCompany().getName());
+    return context;
+  }
+
+  public List<User> findByCompanyId(final String companyId) {
+    return userRepository.findByCompanyId(companyId);
+  }
+
+  public List<User> findDirectReportsByManagerUserId(final String companyId, final String userId) {
+    return userRepository.findDirectReportsByManagerUserId(companyId, userId);
+  }
+
+  public User findByEmailWork(final String email) {
+    return userRepository.findByEmailWork(email);
   }
 }

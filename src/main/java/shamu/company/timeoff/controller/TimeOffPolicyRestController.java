@@ -151,7 +151,7 @@ public class TimeOffPolicyRestController extends BaseRestController {
       + "'TIME_OFF_POLICY_USER','MANAGE_USER_TIME_OFF_BALANCE')")
   public void addTimeOffAdjustments(@PathVariable final String policyUserId,
       @RequestBody final Integer newBalance) {
-    final User currentUser = userService.findUserById(getAuthUser().getId());
+    final User currentUser = userService.findById(getAuthUser().getId());
     timeOffPolicyService.addTimeOffAdjustments(currentUser, policyUserId, newBalance);
   }
 

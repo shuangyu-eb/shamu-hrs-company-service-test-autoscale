@@ -12,6 +12,6 @@ public interface EmailRepository extends BaseRepository<Email, String> {
   List<Email> findAllUnfinishedTasks(Integer emailRetryLimit);
 
 
-  Email getFirstByToAndSubjectOrderBySendDateDesc(String to, String subject);
+  Email findFirstByToAndSubjectOrderBySendDateDesc(String to, String subject);
 
 }

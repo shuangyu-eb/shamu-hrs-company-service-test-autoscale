@@ -45,6 +45,10 @@ public class UserAddressService {
     return userAddressRepository.findUserAddressByUserId(id);
   }
 
+  public UserAddress save(final UserAddress userAddress) {
+    return userAddressRepository.save(userAddress);
+  }
+
   public UserAddress save(final UserAddressDto userAddressDto) {
     final String userId = userAddressDto.getUserId();
     final UserAddress userAddress = findUserAddressByUserId(userId);
@@ -63,13 +67,13 @@ public class UserAddressService {
     final StateProvince stateProvince = userAddress.getStateProvince();
 
     if (country != null) {
-      final Country countryUpdated = countryService.getCountryById(country.getId());
+      final Country countryUpdated = countryService.findById(country.getId());
       userAddress.setCountry(countryUpdated);
     }
 
     if (stateProvince != null) {
       final StateProvince stateProvinceUpdated =
-          stateProvinceService.getStateProvinceById(stateProvince.getId());
+          stateProvinceService.findById(stateProvince.getId());
       userAddress.setStateProvince(stateProvinceUpdated);
     }
     return userAddressRepository.save(userAddress);

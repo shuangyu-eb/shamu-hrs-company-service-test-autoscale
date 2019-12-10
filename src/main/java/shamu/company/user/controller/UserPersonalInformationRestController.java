@@ -82,7 +82,7 @@ public class UserPersonalInformationRestController extends BaseRestController {
           + "or hasPermission(#id, 'USER', 'VIEW_SELF')")
   public BasicUserPersonalInformationDto getUserPersonalInformation(
       @PathVariable final String id) {
-    final User targetUser = userService.findUserById(id);
+    final User targetUser = userService.findById(id);
     final UserPersonalInformation userPersonalInformation = targetUser.getUserPersonalInformation();
     final String imageUrl = targetUser.getImageUrl();
 
@@ -112,7 +112,7 @@ public class UserPersonalInformationRestController extends BaseRestController {
   @GetMapping("users/{id}/user-role-status")
   @PreAuthorize("hasPermission(#id, 'USER', 'VIEW_USER_ROLE_AND_STATUS')")
   public UserRoleAndStatusInfoDto getUserRoleAndStatus(@PathVariable final String id) {
-    final User targetUser = userService.findUserById(id);
+    final User targetUser = userService.findById(id);
     final UserRoleAndStatusInfoDto resultInformation = userMapper
         .convertToUserRoleAndStatusInfoDto(targetUser);
     final Role userRole = auth0Helper

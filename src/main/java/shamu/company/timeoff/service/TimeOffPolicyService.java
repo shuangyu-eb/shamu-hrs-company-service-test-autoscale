@@ -202,7 +202,7 @@ public class TimeOffPolicyService {
 
 
   public TimeOffBalanceDto getTimeOffBalances(final String userId) {
-    final User user = userService.findUserById(userId);
+    final User user = userService.findById(userId);
 
     final List<TimeOffPolicyUser> policyUsers = timeOffPolicyUserRepository
         .findTimeOffPolicyUsersByUser(user);
@@ -260,7 +260,7 @@ public class TimeOffPolicyService {
   public List<TimeOffPolicyUserDto> getTimeOffPolicyUser(
       final String userId, final Long untilDate) {
 
-    final User user = userService.findUserById(userId);
+    final User user = userService.findById(userId);
 
     LocalDateTime endDateTime = LocalDateTime.now();
 
@@ -377,7 +377,7 @@ public class TimeOffPolicyService {
   }
 
   public void updateTimeOffPolicy(final String id,
-      final TimeOffPolicyWrapperDto infoWrapper, String companyId) {
+      final TimeOffPolicyWrapperDto infoWrapper, final String companyId) {
 
     final TimeOffPolicyFrontendDto timeOffPolicyFrontendDto = infoWrapper.getTimeOffPolicy();
     final TimeOffPolicy origin = getTimeOffPolicyById(id);
@@ -511,7 +511,7 @@ public class TimeOffPolicyService {
   public void addTimeOffAdjustments(final User currentUser, final String policyUserId,
       final Integer newBalance) {
 
-    TimeOffAdjustmentCheckDto checkResult = timeOffDetailService
+    final TimeOffAdjustmentCheckDto checkResult = timeOffDetailService
         .checkTimeOffAdjustments(policyUserId, newBalance);
     if (checkResult.getExceed()) {
       throw new ForbiddenException(String.format("Amount exceeds max balance of %s hours.",
@@ -520,10 +520,10 @@ public class TimeOffPolicyService {
 
     final TimeOffPolicyUser timeOffPolicyUser = timeOffPolicyUserRepository.findById(policyUserId)
         .get();
-    TimeOffBreakdownDto timeOffBreakdownDto = timeOffDetailService
+    final TimeOffBreakdownDto timeOffBreakdownDto = timeOffDetailService
         .getTimeOffBreakdown(policyUserId, null);
-    Integer currentBalance = timeOffBreakdownDto.getBalance();
-    Integer adjustment = newBalance - currentBalance;
+    final Integer currentBalance = timeOffBreakdownDto.getBalance();
+    final Integer adjustment = newBalance - currentBalance;
     final TimeOffAdjustment timeOffAdjustment =
         new TimeOffAdjustment(timeOffPolicyUser, timeOffPolicyUser.getTimeOffPolicy(), currentUser);
     timeOffAdjustment.setAmount(adjustment);
@@ -663,11 +663,11 @@ public class TimeOffPolicyService {
 
 
     policyUsers.stream().forEach(policyUser -> {
-      TimeOffPolicyUser timeOffPolicyUser = timeOffPolicyUserRepository
+      final TimeOffPolicyUser timeOffPolicyUser = timeOffPolicyUserRepository
           .findTimeOffPolicyUserByUserAndTimeOffPolicy(policyUser.getUser(),enrollPolicy);
 
       if (timeOffPolicyUser == null) {
-        TimeOffPolicyUser newPolicyUserRecord = new TimeOffPolicyUser(policyUser
+        final TimeOffPolicyUser newPolicyUserRecord = new TimeOffPolicyUser(policyUser
              .getUser(), enrollPolicy,0);
         timeOffPolicyUserRepository.save(newPolicyUserRecord);
       }

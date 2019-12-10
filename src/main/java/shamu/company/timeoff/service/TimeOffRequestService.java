@@ -385,7 +385,7 @@ public class TimeOffRequestService {
 
   public List<TimeOffRequestDto> getTimeOffRequest(
       final String id, final TimeOffApprovalStatus[] status) {
-    final User user = userService.findUserById(id);
+    final User user = userService.findById(id);
 
     final List<TimeOffRequestDto> timeOffRequestDtos;
     timeOffRequestDtos = getRequestsByUserAndStatus(user, status).stream()

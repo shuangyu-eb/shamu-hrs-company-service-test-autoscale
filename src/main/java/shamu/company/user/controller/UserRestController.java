@@ -171,7 +171,7 @@ public class UserRestController extends BaseRestController {
 
   @GetMapping("users/{id}/avatar")
   public UserAvatarDto getUserAvatar(@PathVariable final String id) {
-    final User user = userService.findUserById(id);
+    final User user = userService.findById(id);
     return userMapper.convertToUserAvatarDto(user);
   }
 
@@ -179,7 +179,7 @@ public class UserRestController extends BaseRestController {
   @PreAuthorize("hasPermission(#id, 'USER', 'VIEW_SETTING')")
   public UserRoleAndStatusInfoDto updateUserRole(@PathVariable final String id,
       @RequestBody final UserRoleUpdateDto userRoleUpdateDto) {
-    User user = userService.findUserById(id);
+    User user = userService.findById(id);
     user = userService.updateUserRole(getAuthUser().getEmail(), userRoleUpdateDto, user);
     return userMapper
         .convertToUserRoleAndStatusInfoDto(user);
@@ -189,7 +189,7 @@ public class UserRestController extends BaseRestController {
   @PreAuthorize("hasPermission(#id, 'USER', 'DEACTIVATE_USER')")
   public UserRoleAndStatusInfoDto deactivateUser(@PathVariable final String id,
       @RequestBody final UserStatusUpdateDto userStatusUpdateDto) {
-    User user = userService.findUserById(id);
+    User user = userService.findById(id);
     user = userService.deactivateUser(getAuthUser().getEmail(), userStatusUpdateDto, user);
     return userMapper.convertToUserRoleAndStatusInfoDto(user);
   }
@@ -197,7 +197,7 @@ public class UserRestController extends BaseRestController {
   @DeleteMapping("users/{id}/delete")
   @PreAuthorize("hasPermission(#id, 'USER', 'EDIT_USER')")
   public void deleteUser(@PathVariable final String id) {
-    final User employee = userService.findUserById(id);
+    final User employee = userService.findById(id);
     userService.deleteUser(employee);
   }
 
@@ -246,78 +246,78 @@ public class UserRestController extends BaseRestController {
   @GetMapping("/user/{id}/change-work-email")
   @PreAuthorize("hasPermission(#id, 'USER', 'VIEW_CHANGING_WORK_EMAIL')")
   public String getChangeWorkEmail(@PathVariable @Valid final String id) {
-    final User user = userService.findUserById(id);
+    final User user = userService.findById(id);
     return user.getChangeWorkEmail();
   }
 
   @GetMapping("/user/change-work-email")
   @PreAuthorize("hasAuthority('EDIT_SELF')")
   public String getChangeWorkEmail() {
-    final User user = userService.findUserById(getAuthUser().getId());
+    final User user = userService.findById(getAuthUser().getId());
     return user.getChangeWorkEmail();
   }
 
   @GetMapping("/user/send-verify-work-email")
   @PreAuthorize("hasAuthority('EDIT_SELF')")
   public void sendVerifyChangeWorkEmail() {
-    final User user = userService.findUserById(getAuthUser().getId());
+    final User user = userService.findById(getAuthUser().getId());
     userService.sendVerifyChangeWorkEmail(user);
   }
 
   @GetMapping("compensation-frequencies")
   public List<CommonDictionaryDto> getCompensationFrequencies() {
-    List<CompensationFrequency> frequencies = frequencyRepository.findAll();
+    final List<CompensationFrequency> frequencies = frequencyRepository.findAll();
     return ReflectionUtil.convertTo(frequencies, CommonDictionaryDto.class);
   }
 
   @GetMapping("compensation-overtime-statuses")
   public List<CommonDictionaryDto> getCompensationStatuses() {
-    List<CompensationOvertimeStatus> overtimeStatuses =
+    final List<CompensationOvertimeStatus> overtimeStatuses =
         compensationOvertimeStatusRepository.findAll();
     return ReflectionUtil.convertTo(overtimeStatuses, CommonDictionaryDto.class);
   }
   
   @GetMapping("deactivation-reasons")
   public List<CommonDictionaryDto> getDeactivationReasons() {
-    List<DeactivationReasons> deactivationReasons = deactivationReasonRepository
+    final List<DeactivationReasons> deactivationReasons = deactivationReasonRepository
         .findAll();
     return ReflectionUtil.convertTo(deactivationReasons, CommonDictionaryDto.class);
   }
 
   @GetMapping("ethnicities")
   public List<CommonDictionaryDto> getEthnicities() {
-    List<Ethnicity> ethnicities = ethnicityRepository.findAll();
+    final List<Ethnicity> ethnicities = ethnicityRepository.findAll();
     return ReflectionUtil.convertTo(ethnicities, CommonDictionaryDto.class);
   }
 
   @GetMapping("genders")
   public List<CommonDictionaryDto> getGenders() {
-    List<Gender> genders = genderRepository.findAll();
+    final List<Gender> genders = genderRepository.findAll();
     return ReflectionUtil.convertTo(genders, CommonDictionaryDto.class);
   }
 
   @GetMapping("marital-statuses")
   public List<CommonDictionaryDto> getMaritalStatuses() {
-    List<MaritalStatus> maritalStatuses = maritalStatusRepository.findAll();
+    final List<MaritalStatus> maritalStatuses = maritalStatusRepository.findAll();
     return ReflectionUtil.convertTo(maritalStatuses, CommonDictionaryDto.class);
   }
 
   @GetMapping("retirement-types")
   public List<CommonDictionaryDto> getRetirementTypes() {
-    List<RetirementType> retirementTypes = retirementTypeRepository.findAll();
+    final List<RetirementType> retirementTypes = retirementTypeRepository.findAll();
     return ReflectionUtil.convertTo(retirementTypes, CommonDictionaryDto.class);
   }
 
 
   @GetMapping("user-roles")
   public List<CommonDictionaryDto> getAllUserRoles() {
-    List<UserRole> userRoles = userRolesRepository.findAll();
+    final List<UserRole> userRoles = userRolesRepository.findAll();
     return ReflectionUtil.convertTo(userRoles, CommonDictionaryDto.class);
   }
 
   @GetMapping("user-statuses")
   public List<CommonDictionaryDto> getAllUserStatuses() {
-    List<UserStatus> userStatuses = userStatusRepository.findAll();
+    final List<UserStatus> userStatuses = userStatusRepository.findAll();
     return ReflectionUtil.convertTo(userStatuses, CommonDictionaryDto.class);
   }
 }

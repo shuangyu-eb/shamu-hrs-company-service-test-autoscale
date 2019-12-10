@@ -47,7 +47,7 @@ public class UserAddressRestController extends BaseRestController {
       "hasPermission(#id, 'USER', 'VIEW_USER_ADDRESS')"
           + "or hasPermission(#id, 'USER', 'VIEW_SELF')")
   public UserAddressDto getUserAddress(@PathVariable final String id) {
-    final User targetUser = userService.findUserById(id);
+    final User targetUser = userService.findById(id);
     final User manager = targetUser.getManagerUser();
     final UserAddress userAddress = userAddressService.findUserAddressByUserId(id);
 

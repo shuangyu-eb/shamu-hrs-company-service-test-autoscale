@@ -13,8 +13,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.thymeleaf.context.Context;
-import shamu.company.authorization.Permission.Name;
-import shamu.company.authorization.PermissionUtils;
 import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.common.exception.ForbiddenException;
@@ -35,54 +33,44 @@ public class EmployeeRestController extends BaseRestController {
 
   private final UserService userService;
 
-  private final PermissionUtils permissionUtils;
-
   public EmployeeRestController(final EmployeeService employeeService,
-      final UserService userService,
-      final PermissionUtils permissionUtils) {
+      final UserService userService) {
     this.employeeService = employeeService;
     this.userService = userService;
-    this.permissionUtils = permissionUtils;
   }
 
   @GetMapping("employees")
-  public Page<JobUserListItem> getAllEmployeesWithDeactivated(
+  public Page<JobUserListItem> findAllEmployees(
       final EmployeeListSearchCondition employeeListSearchCondition) {
-
-    if (!permissionUtils.hasAuthority(Name.VIEW_DISABLED_USER.name())) {
-      employeeListSearchCondition.setIncludeDeactivated(false);
-    }
-
-    return userService.getAllEmployees(getUserId(), employeeListSearchCondition);
+    return userService.findAllEmployees(getUserId(), employeeListSearchCondition);
   }
 
   @GetMapping("employees/my-team")
   @PreAuthorize("hasAuthority('VIEW_MY_TEAM')")
-  public Page<JobUserListItem> getMyTeam(
+  public Page<JobUserListItem> findMyTeam(
       final EmployeeListSearchCondition employeeListSearchCondition) {
     return userService.getMyTeam(employeeListSearchCondition, getAuthUser().getId());
   }
 
-  @GetMapping("users")
+  @GetMapping("employees/employees-jobs")
   @PreAuthorize("hasAuthority('CREATE_USER')")
-  public List<JobUserDto> getAllPolicyEmployees() {
+  public List<JobUserDto> findAllPolicyEmployees() {
     return userService.findAllJobUsers(getCompanyId());
   }
 
   @PostMapping("employees/welcome-email")
   @PreAuthorize("hasAuthority('CREATE_USER')")
-  public String getWelcomeEmail(
+  public String findWelcomeEmail(
       @RequestBody(required = false) final String welcomeEmailPersonalMessage) {
-    final User currentUser = userService.findUserById(getAuthUser().getId());
-    final Context context = userService.getWelcomeEmailContext(welcomeEmailPersonalMessage, null);
-    context.setVariable("createPasswordAddress", "#");
-    context.setVariable("companyName", currentUser.getCompany().getName());
+
+    final Context context = userService
+        .findWelcomeEmailPreviewContext(getAuthUser().getId(), welcomeEmailPersonalMessage);
     return userService.getWelcomeEmail(context);
   }
 
   @PostMapping("employees/welcome-email/resend")
   @PreAuthorize("hasPermission(#emailResend.userId, 'USER', 'EDIT_USER')")
-  public HttpEntity getWelcomeEmail(@RequestBody @Valid final EmailResendDto emailResend) {
+  public HttpEntity resendWelcomeEmail(@RequestBody @Valid final EmailResendDto emailResend) {
 
     employeeService.resendEmail(emailResend);
     return new ResponseEntity(HttpStatus.OK);
@@ -91,15 +79,15 @@ public class EmployeeRestController extends BaseRestController {
   @PostMapping("employees")
   @PreAuthorize("hasAuthority('CREATE_USER')")
   public HttpEntity addEmployee(@RequestBody final EmployeeDto employee) {
-    final User currentUser = userService.findUserById(getAuthUser().getId());
+    final User currentUser = userService.findById(getAuthUser().getId());
     employeeService.addEmployee(employee, currentUser);
     return new ResponseEntity(HttpStatus.OK);
   }
 
-  @PatchMapping("employees")
+  @PatchMapping("employees/current")
   @PreAuthorize("@permissionUtils.isCurrentUserEmail(#employeeDto.emailWork)")
   public HttpEntity saveEmployeeSetUpInformation(@RequestBody final EmployeeDto employeeDto) {
-    final User employee = userService.findUserById(getAuthUser().getId());
+    final User employee = userService.findById(getAuthUser().getId());
     if (employee.getVerifiedAt() != null) {
       throw new ForbiddenException(String.format("User with email %s already verified!",
           employeeDto.getEmailWork()));
@@ -110,7 +98,7 @@ public class EmployeeRestController extends BaseRestController {
   }
 
   @GetMapping("employees/org-chart")
-  public List<OrgChartDto> getOrgChart(
+  public List<OrgChartDto> findOrgChart(
       @RequestParam(value = "userId", required = false) final String userId) {
     return userService.getOrgChart(userId, getCompanyId());
   }

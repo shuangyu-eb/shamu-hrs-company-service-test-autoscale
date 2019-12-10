@@ -59,7 +59,7 @@ public class UserContactInformationRestController extends BaseRestController {
           + "or hasPermission(#id, 'USER', 'VIEW_SELF')")
   public BasicUserContactInformationDto getUserContactInformation(
       @PathVariable final String id) {
-    final User targetUser = userService.findUserById(id);
+    final User targetUser = userService.findById(id);
     final User manager = targetUser.getManagerUser();
     final UserContactInformation userContactInformation = targetUser.getUserContactInformation();
 

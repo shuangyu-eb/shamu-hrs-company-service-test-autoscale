@@ -112,7 +112,7 @@ public class UserPermissionUtils extends BasePermissionUtils {
         return hasPermissionOfCompanyPaidHoliday(auth, targetId, permission, entities);
       case USER:
       default:
-        final User targetUser = userService.findUserById(targetId);
+        final User targetUser = userService.findById(targetId);
         return hasPermissionOfUser(auth, targetUser, permission);
     }
   }
@@ -191,7 +191,7 @@ public class UserPermissionUtils extends BasePermissionUtils {
   private boolean hasPermissionOfTimeOffRequest(final Authentication auth, final String id,
       final Permission.Name permission) {
     if (permission == Name.CREATE_AND_APPROVED_TIME_OFF_REQUEST) {
-      final User user = userService.findUserById(id);
+      final User user = userService.findById(id);
       return user.getManagerUser() == null
           || getAuthUser().getId().equals(user.getManagerUser().getId())
           || getAuthUser().getRole() == User.Role.ADMIN;

@@ -163,7 +163,7 @@ public class PaidHolidayService {
 
   public void createPaidHoliday(final PaidHolidayDto paidHolidayDto,
       final AuthUser user) {
-    final User creator = userService.findUserById(user.getId());
+    final User creator = userService.findById(user.getId());
 
     final PaidHoliday paidHoliday = paidHolidayMapper
         .createFromPaidHolidayDtoAndCreator(paidHolidayDto, creator);

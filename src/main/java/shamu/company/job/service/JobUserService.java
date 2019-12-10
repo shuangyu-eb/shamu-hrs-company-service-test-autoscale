@@ -2,10 +2,8 @@ package shamu.company.job.service;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -109,13 +107,17 @@ public class JobUserService {
     this.officeMapper = officeMapper;
   }
 
+  public JobUser save(final JobUser jobUser) {
+    return jobUserRepository.save(jobUser);
+  }
+
   public JobUser getJobUserByUserId(final String userId) {
     return jobUserRepository.findByUserId(userId);
   }
 
   public void updateJobInfo(final String id, final JobUpdateDto jobUpdateDto,
       final String companyId) {
-    final User user = userService.findUserById(id);
+    final User user = userService.findById(id);
     JobUser jobUser = jobUserRepository.findJobUserByUser(user);
     List<User> users = new ArrayList<>();
     if (jobUser == null) {
@@ -123,7 +125,7 @@ public class JobUserService {
       jobUser.setUser(user);
     } else {
       users = employeeService
-          .findDirectReportsEmployersAndEmployeesByCompanyId(
+          .findDirectReportsByManagerUserId(
               companyId,
               user.getId());
     }
@@ -150,12 +152,12 @@ public class JobUserService {
     final String managerId = jobUpdateDto.getManagerId();
     if (!StringUtils.isEmpty(managerId) && (user.getManagerUser() == null
         || !user.getManagerUser().getId().equals(managerId))) {
-      final User manager = userService.findUserById(managerId);
+      final User manager = userService.findById(managerId);
       final Role role = manager.getRole();
       if (Role.EMPLOYEE == role) {
         manager.setUserRole(userRoleService.getManager());
       }
-      if (userService.findUserById(id).getManagerUser() == null) {
+      if (userService.findById(id).getManagerUser() == null) {
         manager.setManagerUser(null);
 
       } else if (isSubordinate(id, managerId)) {
@@ -176,29 +178,30 @@ public class JobUserService {
   }
 
   private boolean isSubordinate(final String userId, String managerId) {
-    User user = userService.findUserById(managerId);
+    User user = userService.findById(managerId);
     while (user.getManagerUser() != null && !user.getManagerUser().getId().equals(userId)) {
       managerId = user.getManagerUser().getId();
-      user = userService.findUserById(managerId);
+      user = userService.findById(managerId);
     }
     return user.getManagerUser() != null && user.getManagerUser().getId().equals(userId);
   }
 
-  private void handlePendingRequests(String userId) {
+  private void handlePendingRequests(final String userId) {
     final Timestamp startDayTimestamp = DateUtil.getFirstDayOfCurrentYear();
     final String[] timeOffRequestStatuses = new String[]{
             TimeOffApprovalStatus.NO_ACTION.name(),
         TimeOffApprovalStatus.VIEWED.name()};
     final PageRequest request = PageRequest.of(0, 1000);
-    MyTimeOffDto pendingRequests = timeOffRequestService
+    final MyTimeOffDto pendingRequests = timeOffRequestService
             .getMyTimeOffRequestsByRequesterUserIdFilteredByStartDay(
             userId, startDayTimestamp, timeOffRequestStatuses, request);
     if (null != pendingRequests && pendingRequests.getTimeOffRequests().hasContent()) {
-      List<TimeOffRequestDto> timeOffRequests = pendingRequests.getTimeOffRequests().getContent();
-      AuthUser authUser = new AuthUser();
+      final List<TimeOffRequestDto> timeOffRequests = pendingRequests.getTimeOffRequests()
+          .getContent();
+      final AuthUser authUser = new AuthUser();
       authUser.setId(userId);
       timeOffRequests.stream().forEach(t -> {
-        TimeOffRequestUpdateDto timeOffRequestUpdateDto = new TimeOffRequestUpdateDto();
+        final TimeOffRequestUpdateDto timeOffRequestUpdateDto = new TimeOffRequestUpdateDto();
         timeOffRequestUpdateDto.setStatus(TimeOffApprovalStatus.APPROVED);
         timeOffRequestService.updateTimeOffRequestStatus(
                 t.getId(), timeOffRequestUpdateDto, authUser);
@@ -208,8 +211,8 @@ public class JobUserService {
 
   public void updateJobSelectOption(
           final String userId, final JobSelectOptionUpdateDto jobSelectOptionUpdateDto) {
-    String id = jobSelectOptionUpdateDto.getId();
-    String name = jobSelectOptionUpdateDto.getNewName();
+    final String id = jobSelectOptionUpdateDto.getId();
+    final String name = jobSelectOptionUpdateDto.getNewName();
 
     switch (jobSelectOptionUpdateDto.getUpdateField()) {
       case DEPARTMENT:
@@ -230,42 +233,42 @@ public class JobUserService {
 
   }
 
-  private void updateDepartmentName(String id, String name) {
-    Department department = departmentRepository.findById(id)
+  private void updateDepartmentName(final String id, final String name) {
+    final Department department = departmentRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Department not found"));
     department.setName(name);
     departmentRepository.save(department);
   }
 
-  private void updateJobName(String id, String name) {
-    Job job = jobRepository.findById(id)
+  private void updateJobName(final String id, final String name) {
+    final Job job = jobRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Job not found"));
     job.setTitle(name);
     jobRepository.save(job);
   }
 
-  private void updateEmployeeTypeName(String id, String name) {
-    EmploymentType employmentType = employmentTypeRepository.findById(id)
+  private void updateEmployeeTypeName(final String id, final String name) {
+    final EmploymentType employmentType = employmentTypeRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("EmploymentType not found"));
     employmentType.setName(name);
     employmentTypeRepository.save(employmentType);
   }
 
-  private void updateOfficeName(String id, OfficeCreateDto officeCreateDto) {
-    Office office = officeRepository.findById(id)
+  private void updateOfficeName(final String id, final OfficeCreateDto officeCreateDto) {
+    final Office office = officeRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Office not found"));
     office.setName(officeCreateDto.getOfficeName());
 
-    OfficeAddress officeAddress = officeAddressMapper
+    final OfficeAddress officeAddress = officeAddressMapper
             .updateFromOfficeCreateDto(office.getOfficeAddress(), officeCreateDto);
 
-    Office newOffice = officeMapper.convertToOffice(office, officeCreateDto, officeAddress);
+    final Office newOffice = officeMapper.convertToOffice(office, officeCreateDto, officeAddress);
     officeRepository.save(newOffice);
   }
 
   public void deleteJobSelectOption(
           final String userId, final JobSelectOptionUpdateDto jobSelectOptionUpdateDto) {
-    String id = jobSelectOptionUpdateDto.getId();
+    final String id = jobSelectOptionUpdateDto.getId();
 
     switch (jobSelectOptionUpdateDto.getUpdateField()) {
       case DEPARTMENT:
@@ -285,22 +288,22 @@ public class JobUserService {
     }
   }
 
-  private void deleteDepartmentName(String id) {
-    Integer count = departmentRepository.getCountByDepartment(id);
+  private void deleteDepartmentName(final String id) {
+    final Integer count = departmentRepository.getCountByDepartment(id);
     if (count > 0) {
       throw new ForbiddenException(
               "The Department has people, please remove then to another Department");
     }
-    List<Job> jobs = jobRepository.findAllByDepartmentId(id);
+    final List<Job> jobs = jobRepository.findAllByDepartmentId(id);
     if (!CollectionUtils.isEmpty(jobs)) {
-      List<String> jobIds = jobs.stream().map(Job::getId).collect(Collectors.toList());
+      final List<String> jobIds = jobs.stream().map(Job::getId).collect(Collectors.toList());
       jobRepository.deleteInBatch(jobIds);
     }
     departmentRepository.delete(id);
   }
 
-  private void deleteJobName(String id) {
-    Integer count = jobUserRepository.getCountByJobId(id);
+  private void deleteJobName(final String id) {
+    final Integer count = jobUserRepository.getCountByJobId(id);
     if (count > 0) {
       throw new ForbiddenException(
               "The Job has people, please remove then to another Job");
@@ -308,8 +311,8 @@ public class JobUserService {
     jobRepository.delete(id);
   }
 
-  private void deleteEmployeeTypeName(String id) {
-    Integer count = employmentTypeRepository.getCountByType(id);
+  private void deleteEmployeeTypeName(final String id) {
+    final Integer count = employmentTypeRepository.getCountByType(id);
     if (count > 0) {
       throw new ForbiddenException(
               "The EmployeeType has people, please remove then to another EmployeeType");
@@ -317,13 +320,13 @@ public class JobUserService {
     employmentTypeRepository.delete(id);
   }
 
-  private void deleteOfficeName(String id) {
-    Integer count = officeRepository.getCountByOffice(id);
+  private void deleteOfficeName(final String id) {
+    final Integer count = officeRepository.getCountByOffice(id);
     if (count > 0) {
       throw new ForbiddenException(
               "The Office has people, please remove then to another Office");
     }
-    Office office = officeRepository.findById(id)
+    final Office office = officeRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Office not found"));
     officeRepository.delete(id);
     officeAddressRepository.delete(office.getOfficeAddress());

@@ -16,6 +16,10 @@ public class UserEmergencyContactService {
     this.userEmergencyContactRepository = userEmergencyContactRepository;
   }
 
+  public UserEmergencyContact save(final UserEmergencyContact userEmergencyContact) {
+    return userEmergencyContactRepository.save(userEmergencyContact);
+  }
+
   public List<UserEmergencyContact> getUserEmergencyContacts(final String userId) {
     return userEmergencyContactRepository.findByUserId(userId);
   }
@@ -42,5 +46,13 @@ public class UserEmergencyContactService {
   public void updateEmergencyContact(final String userId,
       final UserEmergencyContact userEmergencyContact) {
     createUserEmergencyContact(userId, userEmergencyContact);
+  }
+
+  public List<String> findAllIdByUserId(final String id) {
+    return userEmergencyContactRepository.findAllIdByUserId(id);
+  }
+
+  public void deleteInBatch(final List<String> userEmergencyContactIds) {
+    userEmergencyContactRepository.deleteInBatch(userEmergencyContactIds);
   }
 }
