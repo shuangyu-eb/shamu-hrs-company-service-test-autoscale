@@ -5,7 +5,6 @@ import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.TimeOffA
 
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -14,6 +13,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -68,6 +68,7 @@ import shamu.company.timeoff.repository.TimeOffRequestRepository;
 import shamu.company.user.entity.User;
 import shamu.company.user.repository.UserRepository;
 import shamu.company.user.service.UserService;
+import shamu.company.utils.DateUtil;
 
 @Service
 @Transactional
@@ -121,7 +122,6 @@ public class TimeOffPolicyService {
       final TimeOffPolicyMapper timeOffPolicyMapper,
       final JobUserMapper jobUserMapper,
       final CompanyService companyService,
-      final TimeOffRequestApprovalStatusRepository requestApprovalStatusRepository,
       final UserService userService) {
     this.timeOffPolicyRepository = timeOffPolicyRepository;
     this.timeOffPolicyUserRepository = timeOffPolicyUserRepository;
@@ -164,14 +164,8 @@ public class TimeOffPolicyService {
       final List<TimeOffPolicyUserFrontendDto> timeOffPolicyUserFrontendDtos,
       final Company company) {
 
-    Integer existSamePolicyName = timeOffPolicyRepository
-            .findByPolicyNameAndCompanyId(
-                    timeOffPolicyFrontendDto.getPolicyName(), company.getId());
-    if (existSamePolicyName > 0) {
-      throw new ForbiddenException(
-              "A current Time Off policy with that name is already created. "
-                      + "Please enter another Policy Name.");
-    }
+    checkPolicyNameIsExists(timeOffPolicyFrontendDto,company.getId());
+
     final TimeOffPolicy timeOffPolicy = timeOffPolicyRepository
         .save(timeOffPolicyMapper
             .createFromTimeOffPolicyFrontendDtoAndCompany(timeOffPolicyFrontendDto, company));
@@ -192,6 +186,20 @@ public class TimeOffPolicyService {
 
     createTimeOffPolicyUsers(timeOffPolicyUserFrontendDtos, policyId);
   }
+
+  private void checkPolicyNameIsExists(final TimeOffPolicyFrontendDto timeOffPolicyFrontendDto,
+      final String companyId) {
+    Integer existSamePolicyName = timeOffPolicyRepository
+        .findByPolicyNameAndCompanyId(
+            timeOffPolicyFrontendDto.getPolicyName(), companyId);
+    if (existSamePolicyName > 0) {
+      throw new ForbiddenException(
+          "A current Time Off policy with that name is already created. "
+              + "Please enter another Policy Name.");
+    }
+  }
+
+
 
   public TimeOffBalanceDto getTimeOffBalances(final String userId) {
     final User user = userService.findUserById(userId);
@@ -324,14 +332,16 @@ public class TimeOffPolicyService {
         accrualScheduleMilestoneRepository
             .findByTimeOffPolicyAccrualScheduleId(timeOffPolicyAccrualSchedule.getId());
 
-    return new TimeOffPolicyRelatedInfoDto(
-        timeOffPolicy, timeOffPolicyAccrualSchedule, accrualScheduleMilestones);
+    return timeOffPolicyMapper
+        .createFromTimeOffPolicyAndTimeOffPolicyAccrualScheduleAndAccrualScheduleMilestones(
+        timeOffPolicy,timeOffPolicyAccrualSchedule,accrualScheduleMilestones
+    );
   }
 
   public TimeOffPolicyRelatedUserListDto getAllEmployeesByTimeOffPolicyId(
       final String timeOffPolicyId, final String companyId) {
-    final TimeOffPolicy timeOffPolicy = timeOffPolicyRepository.findById(timeOffPolicyId)
-        .orElseThrow(() -> new ResourceNotFoundException("Time off policy does not exist."));
+
+    final TimeOffPolicy timeOffPolicy = this.getTimeOffPolicyById(timeOffPolicyId);
 
     final Boolean isLimited = timeOffPolicy.getIsLimited();
 
@@ -366,7 +376,6 @@ public class TimeOffPolicyService {
         isLimited, unselectedEmployees, selectedEmployees);
   }
 
-  @Transactional
   public void updateTimeOffPolicy(final String id,
       final TimeOffPolicyWrapperDto infoWrapper, String companyId) {
 
@@ -374,12 +383,12 @@ public class TimeOffPolicyService {
     final TimeOffPolicy origin = getTimeOffPolicyById(id);
 
     Integer existSamePolicyName = timeOffPolicyRepository
-            .findByPolicyNameAndCompanyId(
-                    timeOffPolicyFrontendDto.getPolicyName(), companyId);
-    if (existSamePolicyName > 1) {
+        .findByPolicyNameAndCompanyId(
+            timeOffPolicyFrontendDto.getPolicyName(), companyId);
+    if (existSamePolicyName > 0) {
       throw new ForbiddenException(
-              "A current Time Off policy with that name is already created. "
-                      + "Please enter another Policy Name.");
+          "A current Time Off policy with that name is already created. "
+              + "Please enter another Policy Name.");
     }
 
     timeOffPolicyMapper.updateFromTimeOffPolicyFrontendDto(origin, timeOffPolicyFrontendDto);
@@ -438,7 +447,8 @@ public class TimeOffPolicyService {
       return originTimeOffSchedule;
     }
 
-    originTimeOffSchedule.setExpiredAt(new Timestamp(new Date().getTime()));
+
+    originTimeOffSchedule.setExpiredAt(DateUtil.getToday());
     timeOffPolicyAccrualScheduleRepository.save(originTimeOffSchedule);
 
     newTimeOffSchedule = timeOffPolicyAccrualScheduleRepository.save(newTimeOffSchedule);
@@ -451,10 +461,11 @@ public class TimeOffPolicyService {
 
   private boolean isScheduleChanged(final TimeOffPolicyAccrualSchedule originalSchedule,
       final TimeOffPolicyAccrualSchedule newSchedule) {
-    return originalSchedule.getDaysBeforeAccrualStarts() != newSchedule.getDaysBeforeAccrualStarts()
-        || originalSchedule.getAccrualHours() != newSchedule.getAccrualHours()
-        || originalSchedule.getCarryoverLimit() != newSchedule.getCarryoverLimit()
-        || originalSchedule.getMaxBalance() != newSchedule.getMaxBalance();
+    return !originalSchedule.getDaysBeforeAccrualStarts()
+        .equals(newSchedule.getDaysBeforeAccrualStarts())
+        || !originalSchedule.getAccrualHours().equals(newSchedule.getAccrualHours())
+        || !originalSchedule.getCarryoverLimit().equals(newSchedule.getCarryoverLimit())
+        || !originalSchedule.getMaxBalance().equals(newSchedule.getMaxBalance());
   }
 
   public List<AccrualScheduleMilestone> updateTimeOffPolicyMilestones(
@@ -464,7 +475,7 @@ public class TimeOffPolicyService {
         getTimeOffPolicyAccrualScheduleByTimeOffPolicy(timeOffPolicyUpdated);
 
     if (originTimeOffSchedule == null && CollectionUtils.isEmpty(milestones)) {
-      return null;
+      return new LinkedList<>();
     }
 
     final List<AccrualScheduleMilestone> accrualScheduleMilestoneList;
@@ -571,7 +582,7 @@ public class TimeOffPolicyService {
       return originalMilestone;
     }
 
-    originalMilestone.setExpiredAt(new Timestamp(new Date().getTime()));
+    originalMilestone.setExpiredAt(DateUtil.getToday());
     accrualScheduleMilestoneRepository.save(originalMilestone);
     return accrualScheduleMilestoneRepository.save(nowMilestone);
   }

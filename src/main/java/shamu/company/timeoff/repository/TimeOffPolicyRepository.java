@@ -22,4 +22,5 @@ public interface TimeOffPolicyRepository extends BaseRepository<TimeOffPolicy, S
                   + " and top.company_id = unhex(?2)",
           nativeQuery = true)
   Integer findByPolicyNameAndCompanyId(String policyName, String companyId);
+
 }

@@ -3,12 +3,14 @@ package shamu.company.timeoff.dto;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import shamu.company.timeoff.entity.AccrualScheduleMilestone;
 import shamu.company.timeoff.entity.TimeOffPolicy;
 import shamu.company.timeoff.entity.TimeOffPolicyAccrualSchedule;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class TimeOffPolicyRelatedInfoDto {
   private String id;
 
