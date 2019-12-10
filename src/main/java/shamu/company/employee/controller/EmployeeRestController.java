@@ -52,7 +52,7 @@ public class EmployeeRestController extends BaseRestController {
     return userService.getMyTeam(employeeListSearchCondition, getAuthUser().getId());
   }
 
-  @GetMapping("employees/employees-jobs")
+  @GetMapping("employees/jobs-users")
   @PreAuthorize("hasAuthority('CREATE_USER')")
   public List<JobUserDto> findAllPolicyEmployees() {
     return userService.findAllJobUsers(getCompanyId());
