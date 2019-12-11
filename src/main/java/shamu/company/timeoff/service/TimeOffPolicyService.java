@@ -10,7 +10,6 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -63,7 +62,6 @@ import shamu.company.timeoff.repository.TimeOffAdjustmentRepository;
 import shamu.company.timeoff.repository.TimeOffPolicyAccrualScheduleRepository;
 import shamu.company.timeoff.repository.TimeOffPolicyRepository;
 import shamu.company.timeoff.repository.TimeOffPolicyUserRepository;
-import shamu.company.timeoff.repository.TimeOffRequestApprovalStatusRepository;
 import shamu.company.timeoff.repository.TimeOffRequestRepository;
 import shamu.company.user.entity.User;
 import shamu.company.user.repository.UserRepository;
@@ -382,14 +380,7 @@ public class TimeOffPolicyService {
     final TimeOffPolicyFrontendDto timeOffPolicyFrontendDto = infoWrapper.getTimeOffPolicy();
     final TimeOffPolicy origin = getTimeOffPolicyById(id);
 
-    Integer existSamePolicyName = timeOffPolicyRepository
-        .findByPolicyNameAndCompanyId(
-            timeOffPolicyFrontendDto.getPolicyName(), companyId);
-    if (existSamePolicyName > 0) {
-      throw new ForbiddenException(
-          "A current Time Off policy with that name is already created. "
-              + "Please enter another Policy Name.");
-    }
+    checkPolicyNameIsExists(timeOffPolicyFrontendDto, companyId);
 
     timeOffPolicyMapper.updateFromTimeOffPolicyFrontendDto(origin, timeOffPolicyFrontendDto);
 

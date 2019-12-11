@@ -2,6 +2,9 @@ package shamu.company.timeoff.controller;
 
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -39,23 +42,25 @@ public class PaidHolidayRestController extends BaseRestController {
   }
 
 
-  @GetMapping(value = "paid-holiday/employees")
+  @GetMapping(value = "paid-holidays/employees")
   public PaidHolidayRelatedUserListDto getPaidHolidays() {
     return paidHolidayService.getPaidHolidayEmployees(getCompanyId());
   }
 
-  @GetMapping(value = "paid-holiday/employees/count")
+  @GetMapping(value = "paid-holidays/employees/count")
   public Integer getPaidHolidaysEmployeesCount() {
     return paidHolidayService
         .getPaidHolidayEmployees(getCompanyId())
         .getPaidHolidaySelectedEmployees().size();
   }
 
-  @PatchMapping(value = "paid-holiday/employees")
+  @PatchMapping(value = "paid-holidays/employees")
   @PreAuthorize("hasPermission(#updatePaidHolidayEmployees, 'USER', 'EDIT_USER')")
-  public void updatePaidHolidayEmployees(
+  public HttpEntity updatePaidHolidayEmployees(
       @RequestBody final List<BaseAuthorityDto> updatePaidHolidayEmployees) {
     paidHolidayService.updatePaidHolidayEmployees(updatePaidHolidayEmployees, getCompanyId());
+    return new ResponseEntity<>(HttpStatus.OK);
+
   }
 
   @GetMapping(value = "paid-holidays/years/{year}")
@@ -65,28 +70,32 @@ public class PaidHolidayRestController extends BaseRestController {
 
   @PatchMapping(value = "paid-holidays/select")
   @PreAuthorize("hasPermission(#paidHolidayDtos, 'COMPANY_PAID_HOLIDAY', 'EDIT_PAID_HOLIDAY')")
-  public void updateHolidaySelects(@RequestBody final List<PaidHolidayDto> paidHolidayDtos) {
+  public HttpEntity updateHolidaySelects(@RequestBody final List<PaidHolidayDto> paidHolidayDtos) {
     paidHolidayService.updateHolidaySelects(paidHolidayDtos);
+    return new ResponseEntity<>(HttpStatus.OK);
   }
 
-  @PostMapping(value = "paid-holiday")
+  @PostMapping(value = "paid-holidays")
   @PreAuthorize("hasAuthority('EDIT_PAID_HOLIDAY')")
-  public void createPaidHoliday(
+  public HttpEntity createPaidHoliday(
       @RequestBody @Validated final PaidHolidayDto paidHolidayDto) {
     paidHolidayService.createPaidHoliday(paidHolidayDto, getAuthUser());
+    return new ResponseEntity<>(HttpStatus.OK);
   }
 
-  @PatchMapping(value = "paid-holidays")
+  @PatchMapping(value = "paid-holidays/{id}")
   @PreAuthorize("hasPermission(#paidHolidayDto.id, 'PAID_HOLIDAY', 'EDIT_PAID_HOLIDAY')")
-  public void updatePaidHoliday(
+  public HttpEntity updatePaidHoliday(
       @RequestBody @Validated final PaidHolidayDto paidHolidayDto) {
     paidHolidayService.updatePaidHoliday(paidHolidayDto);
+    return new ResponseEntity<>(HttpStatus.OK);
   }
 
   @DeleteMapping(value = "paid-holidays/{id}")
   @PreAuthorize("hasPermission(#id, 'PAID_HOLIDAY', 'DELETE_PAID_HOLIDAY')")
-  public void updatePaidHoliday(@PathVariable final String id) {
+  public HttpEntity updatePaidHoliday(@PathVariable final String id) {
     paidHolidayService.deletePaidHoliday(id);
+    return new ResponseEntity<>(HttpStatus.OK);
   }
 
 
