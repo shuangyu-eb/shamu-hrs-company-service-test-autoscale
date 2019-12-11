@@ -38,7 +38,7 @@ public interface UserEmergencyContactRepository
   @Query(
       value =
           "UPDATE user_emergency_contacts SET is_primary = TRUE "
-              + "WHERE user_id = unhex(?1) ORDER BY id Limit 1",
+              + "WHERE user_id = unhex(?1) ORDER BY created_at Limit 1",
       nativeQuery = true)
   void resetPrimaryContact(String userId);
 }

@@ -25,7 +25,7 @@ public class BaseEntity {
   private String id;
 
   @CreationTimestamp
-  @Column(name = "created_at")
+  @Column(name = "created_at", updatable = false)
   private Timestamp createdAt;
 
   @UpdateTimestamp

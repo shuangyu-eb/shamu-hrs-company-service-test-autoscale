@@ -45,12 +45,4 @@ public class UserEmergencyContactDto extends BasicUserEmergencyContactDto {
     countryName = userEmergencyContact.getCountry() == null ? null
             : userEmergencyContact.getCountry().getName();
   }
-
-  @JSONField(serialize = false)
-  public UserEmergencyContact getEmergencyContact() {
-    final UserEmergencyContact userEmergencyContact = new UserEmergencyContact();
-    BeanUtils.copyProperties(this, userEmergencyContact);
-    userEmergencyContact.setState(new StateProvince(stateId));
-    return userEmergencyContact;
-  }
 }
