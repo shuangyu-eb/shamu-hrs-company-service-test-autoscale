@@ -50,18 +50,7 @@ public class EmergencyContactRestController extends BaseRestController {
       @PathVariable final String userId) {
     final List<UserEmergencyContact> userEmergencyContacts = userEmergencyContactService
         .getUserEmergencyContacts(userId);
-
-    final User currentUser = userService.findByUserId(getUserId());
-    final Role userRole = currentUser.getRole();
-    if (userId.equals(getAuthUser().getId())
-        || Role.ADMIN.equals(userRole)) {
-      return userEmergencyContacts.stream()
-          .map(userEmergencyContactMapper::convertToUserEmergencyContactDto)
-          .collect(Collectors.toList());
-    }
-    return userEmergencyContacts.stream()
-        .map(userEmergencyContactMapper::convertToBasicUserEmergencyContactDto)
-        .collect(Collectors.toList());
+    return convertToUserEmergencyContactDtoByPermission(userId, userEmergencyContacts);
   }
 
   @PostMapping("users/{userId}/user-emergency-contacts")
@@ -69,10 +58,9 @@ public class EmergencyContactRestController extends BaseRestController {
       + " or hasPermission(#userId,'USER', 'EDIT_SELF')")
   public HttpEntity createEmergencyContacts(@PathVariable final String userId,
       @RequestBody final UserEmergencyContactDto emergencyContactDto) {
-    final User user = userService.getOne(userId);
+    emergencyContactDto.setUserId(userId);
     final UserEmergencyContact userEmergencyContact = userEmergencyContactMapper
         .createFromUserEmergencyContactDto(emergencyContactDto);
-    userEmergencyContact.setUser(user);
     checkEmergencyContactState(userEmergencyContact);
     userEmergencyContactService.createUserEmergencyContact(userId, userEmergencyContact);
     return new ResponseEntity<>(HttpStatus.OK);
@@ -87,15 +75,14 @@ public class EmergencyContactRestController extends BaseRestController {
     return new ResponseEntity<>(HttpStatus.OK);
   }
 
-  @PatchMapping("users/{userId}/user-emergency-contacts")
+  @PatchMapping("users/{userId}/user-emergency-contacts/{id}")
   @PreAuthorize("hasPermission(#userId,'USER', 'EDIT_USER')"
       + " or hasPermission(#userId,'USER', 'EDIT_SELF')")
   public HttpEntity updateEmergencyContact(@PathVariable final String userId,
       @RequestBody final UserEmergencyContactDto userEmergencyContactDto) {
-    final User user = userService.getOne(userId);
+    userEmergencyContactDto.setUserId(userId);
     final UserEmergencyContact userEmergencyContact = userEmergencyContactMapper
         .createFromUserEmergencyContactDto(userEmergencyContactDto);
-    userEmergencyContact.setUser(user);
     checkEmergencyContactState(userEmergencyContact);
     userEmergencyContactService.updateEmergencyContact(userId, userEmergencyContact);
     return new ResponseEntity<>(HttpStatus.OK);
@@ -106,5 +93,18 @@ public class EmergencyContactRestController extends BaseRestController {
         && userEmergencyContact.getState().getId() == null) {
       userEmergencyContact.setState(null);
     }
+  }
+
+  private List<BasicUserEmergencyContactDto> convertToUserEmergencyContactDtoByPermission(
+          String userId, List<UserEmergencyContact> userEmergencyContacts) {
+    final User currentUser = userService.findByUserId(getUserId());
+    if (userId.equals(getAuthUser().getId()) || Role.ADMIN.equals(currentUser.getRole())) {
+      return userEmergencyContacts.stream()
+              .map(userEmergencyContactMapper::convertToUserEmergencyContactDto)
+              .collect(Collectors.toList());
+    }
+    return userEmergencyContacts.stream()
+            .map(userEmergencyContactMapper::convertToBasicUserEmergencyContactDto)
+            .collect(Collectors.toList());
   }
 }
