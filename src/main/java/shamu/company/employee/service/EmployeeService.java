@@ -74,6 +74,7 @@ import shamu.company.user.entity.mapper.UserAddressMapper;
 import shamu.company.user.entity.mapper.UserContactInformationMapper;
 import shamu.company.user.entity.mapper.UserMapper;
 import shamu.company.user.entity.mapper.UserPersonalInformationMapper;
+import shamu.company.user.event.UserEmailUpdatedEvent;
 import shamu.company.user.service.CompensationFrequencyService;
 import shamu.company.user.service.GenderService;
 import shamu.company.user.service.MaritalStatusService;
@@ -236,19 +237,16 @@ public class EmployeeService {
       }
 
       auth0Helper.updateEmail(user.getId(), emailResendDto.getEmail());
-      final UserContactInformation userContactInformation = user.getUserContactInformation();
-      userContactInformation.setEmailWork(email);
+      applicationEventPublisher
+          .publishEvent(new UserEmailUpdatedEvent(user.getId(), originalEmail));
+      user.getUserContactInformation().setEmailWork(email);
       userService.save(user);
-      userContactInformationService.update(userContactInformation);
     }
 
     final Email emailInfo = findWelcomeEmail(originalEmail, user.getCompany().getName());
-
-    final Email welcomeEmail = new Email(emailInfo);
-    welcomeEmail.setSendDate(Timestamp.from(Instant.now()));
-    welcomeEmail.setTo(email);
-
-    emailService.saveAndScheduleEmail(welcomeEmail);
+    emailInfo.setSendDate(Timestamp.from(Instant.now()));
+    emailInfo.setTo(email);
+    emailService.saveAndScheduleEmail(emailInfo);
   }
 
   public Email findWelcomeEmail(final String email, final String companyName) {
@@ -404,47 +402,53 @@ public class EmployeeService {
 
   private void updateEmergencyContacts(
       final User employee, final List<UserEmergencyContactDto> emergencyContactDtos) {
-    if (!emergencyContactDtos.isEmpty()) {
-      final List<String> userEmergencyContactIds =
-          userEmergencyContactService.findAllIdByUserId(employee.getId());
-      if (!userEmergencyContactIds.isEmpty()) {
-        userEmergencyContactService.deleteInBatch(userEmergencyContactIds);
-      }
-      saveEmergencyContacts(employee, emergencyContactDtos);
+    if (emergencyContactDtos.isEmpty()) {
+      return;
     }
+
+    final List<String> userEmergencyContactIds =
+        userEmergencyContactService.findAllIdByUserId(employee.getId());
+    if (!userEmergencyContactIds.isEmpty()) {
+      userEmergencyContactService.deleteInBatch(userEmergencyContactIds);
+    }
+    saveEmergencyContacts(employee, emergencyContactDtos);
   }
 
   private void saveManagerUser(final User user, final NewEmployeeJobInformationDto jobInformation) {
     final String managerUserId = jobInformation.getReportsTo();
-    if (!StringUtils.isEmpty(managerUserId) && !managerUserId.equals(user.getId())) {
-      final User managerUser =
-          userService.findById(managerUserId);
-
-      if (StringUtils.equals(managerUser.getUserRole().getName(), Role.EMPLOYEE.getValue())) {
-        managerUser.setUserRole(userRoleService.getManager());
-      }
-
-      user.setManagerUser(managerUser);
-      userService.save(managerUser);
+    if (StringUtils.isEmpty(managerUserId) || managerUserId.equals(user.getId())) {
+      return;
     }
+
+    final User managerUser =
+        userService.findById(managerUserId);
+    if (StringUtils.equals(managerUser.getUserRole().getName(), Role.EMPLOYEE.getValue())) {
+      managerUser.setUserRole(userRoleService.getManager());
+    }
+
+    user.setManagerUser(managerUser);
+    userService.save(managerUser);
   }
 
   private void saveEmployeeCompensation(final User user,
       final NewEmployeeJobInformationDto jobInformation) {
-    if (jobInformation.getCompensation() != null
-        && jobInformation.getCompensationFrequencyId() != null) {
-      final UserCompensation userCompensation = new UserCompensation();
-      userCompensation.setWage(jobInformation.getCompensation());
 
-      final String compensationFrequencyId = jobInformation.getCompensationFrequencyId();
-      final CompensationFrequency compensationFrequency =
-          compensationFrequencyService.findById(compensationFrequencyId);
-      userCompensation.setCompensationFrequency(compensationFrequency);
-      userCompensation.setUserId(user.getId());
-      final UserCompensation userCompensationReturned = userCompensationService
-          .save(userCompensation);
-      user.setUserCompensation(userCompensationReturned);
+    if (jobInformation.getCompensation() == null
+        || jobInformation.getCompensationFrequencyId() == null) {
+      return;
     }
+
+    final UserCompensation userCompensation = new UserCompensation();
+    userCompensation.setWage(jobInformation.getCompensation());
+
+    final String compensationFrequencyId = jobInformation.getCompensationFrequencyId();
+    final CompensationFrequency compensationFrequency =
+        compensationFrequencyService.findById(compensationFrequencyId);
+    userCompensation.setCompensationFrequency(compensationFrequency);
+    userCompensation.setUserId(user.getId());
+    final UserCompensation userCompensationReturned = userCompensationService
+        .save(userCompensation);
+    user.setUserCompensation(userCompensationReturned);
   }
 
   private void saveEmployeeJob(
@@ -533,13 +537,6 @@ public class EmployeeService {
     emailService.saveAndScheduleEmail(email);
   }
 
-  @TransactionalEventListener(phase = TransactionPhase.AFTER_ROLLBACK)
-  @SuppressWarnings("unused")
-  public void removeAuth0User(final Auth0UserCreatedEvent userCreatedEvent) {
-    final com.auth0.json.mgmt.users.User auth0User = userCreatedEvent.getUser();
-    auth0Helper.deleteUser(auth0User.getId());
-  }
-
   public EmployeeRelatedInformationDto getEmployeeInfoByUserId(final String id) {
     final User employee = userService.findById(id);
     final String emailAddress = employee.getUserContactInformation().getEmailWork();
@@ -553,9 +550,9 @@ public class EmployeeService {
       sendDate = email.getSendDate();
     }
 
-    JobUserDto managerjobUserDto = null;
+    JobUserDto managerJobUserDto = null;
     if (employee.getManagerUser() != null) {
-      managerjobUserDto =
+      managerJobUserDto =
           userService.findEmployeeInfoByEmployeeId(employee.getManagerUser().getId());
     }
     final JobUserDto jobUserDto = userService.findEmployeeInfoByEmployeeId(id);
@@ -566,7 +563,7 @@ public class EmployeeService {
 
     return jobUserMapper.convertToEmployeeRelatedInformationDto(id, emailAddress,
         userStatus.name(), sendDate, jobUserDto,
-        managerjobUserDto, reports, roleName);
+        managerJobUserDto, reports, roleName);
   }
 
   public BasicUserPersonalInformationDto findPersonalMessage(final String targetUserId,
@@ -632,5 +629,18 @@ public class EmployeeService {
 
     return jobUserMapper
         .convertToBasicJobInformationDto(target);
+  }
+
+  @TransactionalEventListener(phase = TransactionPhase.AFTER_ROLLBACK)
+  @SuppressWarnings("unused")
+  public void removeAuth0User(final Auth0UserCreatedEvent userCreatedEvent) {
+    final com.auth0.json.mgmt.users.User auth0User = userCreatedEvent.getUser();
+    auth0Helper.deleteUser(auth0User.getId());
+  }
+
+  @TransactionalEventListener(phase = TransactionPhase.AFTER_ROLLBACK)
+  @SuppressWarnings("unused")
+  public void restoreUserRole(final UserEmailUpdatedEvent userEmailUpdatedEvent) {
+    auth0Helper.updateEmail(userEmailUpdatedEvent.getUserId(), userEmailUpdatedEvent.getEmail());
   }
 }
