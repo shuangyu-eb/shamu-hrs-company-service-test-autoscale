@@ -63,10 +63,10 @@ public class UserContactInformationRestController extends BaseRestController {
     final User manager = targetUser.getManagerUser();
     final UserContactInformation userContactInformation = targetUser.getUserContactInformation();
 
-    final User currentUser = userService.findByUserId(getUserId());
+    final User currentUser = userService.findByUserId(findUserId());
     final Role userRole = currentUser.getRole();
-    if (getAuthUser().getId().equals(id)
-        || (manager != null && manager.getId().equals(getAuthUser().getId()))
+    if (findAuthUser().getId().equals(id)
+        || (manager != null && manager.getId().equals(findAuthUser().getId()))
         || userRole == Role.ADMIN) {
       return userContactInformationMapper
           .convertToUserContactInformationDto(userContactInformation);

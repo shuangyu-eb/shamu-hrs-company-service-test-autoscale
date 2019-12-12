@@ -7,6 +7,7 @@ import org.hibernate.id.IdentifierGenerator;
 
 public class DefaultUuidGenerator implements IdentifierGenerator {
 
+  @Override
   public Serializable generate(SharedSessionContractImplementor session, Object object) {
     return UUID.randomUUID().toString().toUpperCase().replaceAll("-", "");
   }

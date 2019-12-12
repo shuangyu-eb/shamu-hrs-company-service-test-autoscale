@@ -13,5 +13,5 @@ public interface OfficeRepository extends BaseRepository<Office, String> {
           value = "SELECT count(1) FROM jobs_users ju"
                   + " WHERE ju.office_id = unhex(?1) ",
           nativeQuery = true)
-  Integer getCountByOffice(String officeId);
+  Integer findCountByOffice(String officeId);
 }

@@ -29,7 +29,7 @@ public class JobController extends BaseRestController {
   @PreAuthorize("hasPermission(#id,'USER', 'EDIT_USER')")
   public HttpEntity updateJobInfo(@PathVariable final String id,
       @RequestBody final JobUpdateDto jobUpdateDto) {
-    jobUserService.updateJobInfo(id, jobUpdateDto, getCompanyId());
+    jobUserService.updateJobInfo(id, jobUpdateDto, findCompanyId());
     return new ResponseEntity(HttpStatus.OK);
   }
 

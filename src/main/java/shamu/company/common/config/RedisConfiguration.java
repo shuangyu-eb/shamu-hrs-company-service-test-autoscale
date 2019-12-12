@@ -21,12 +21,12 @@ public class RedisConfiguration {
   private String redisHostname;
 
   @Value("${spring.redis.port}")
-  private int redistPort;
+  private int redisPort;
 
   @Bean
   protected JedisConnectionFactory jedisConnectionFactory() {
     RedisStandaloneConfiguration configuration =
-        new RedisStandaloneConfiguration(redisHostname, redistPort);
+        new RedisStandaloneConfiguration(redisHostname, redisPort);
 
     JedisClientConfiguration jedisClientConfiguration =
         JedisClientConfiguration.builder().usePooling().build();

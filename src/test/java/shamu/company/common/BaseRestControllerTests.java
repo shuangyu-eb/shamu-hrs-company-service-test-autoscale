@@ -49,7 +49,7 @@ class BaseRestControllerTests {
     Whitebox.setInternalState(baseRestController,
         "authUserCacheManager", mockedCacheManager);
 
-    final AuthUser user = baseRestController.getAuthUser();
+    final AuthUser user = baseRestController.findAuthUser();
     Assertions.assertNotNull(user);
   }
 
@@ -58,7 +58,7 @@ class BaseRestControllerTests {
     final BaseRestController baseRestController = PowerMockito.spy(new BaseRestController());
     Whitebox.setInternalState(baseRestController,
         "authUserCacheManager", mockedCacheManager);
-    final String companyId = baseRestController.getCompanyId();
+    final String companyId = baseRestController.findCompanyId();
     Assertions.assertNotNull(companyId);
   }
 
@@ -67,7 +67,7 @@ class BaseRestControllerTests {
     final BaseRestController baseRestController = PowerMockito.spy(new BaseRestController());
     Whitebox.setInternalState(baseRestController,
         "authUserCacheManager", mockedCacheManager);
-    final String userId = baseRestController.getUserId();
+    final String userId = baseRestController.findUserId();
     Assertions.assertNotNull(userId);
   }
 }

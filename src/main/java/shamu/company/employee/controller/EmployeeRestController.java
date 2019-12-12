@@ -42,20 +42,20 @@ public class EmployeeRestController extends BaseRestController {
   @GetMapping("employees")
   public Page<JobUserListItem> findAllEmployees(
       final EmployeeListSearchCondition employeeListSearchCondition) {
-    return userService.findAllEmployees(getUserId(), employeeListSearchCondition);
+    return userService.findAllEmployees(findUserId(), employeeListSearchCondition);
   }
 
   @GetMapping("employees/my-team")
   @PreAuthorize("hasAuthority('VIEW_MY_TEAM')")
   public Page<JobUserListItem> findMyTeam(
       final EmployeeListSearchCondition employeeListSearchCondition) {
-    return userService.getMyTeam(employeeListSearchCondition, getAuthUser().getId());
+    return userService.getMyTeam(employeeListSearchCondition, findAuthUser().getId());
   }
 
   @GetMapping("employees/jobs-users")
   @PreAuthorize("hasAuthority('CREATE_USER')")
   public List<JobUserDto> findAllPolicyEmployees() {
-    return userService.findAllJobUsers(getCompanyId());
+    return userService.findAllJobUsers(findCompanyId());
   }
 
   @PostMapping("employees/welcome-email")
@@ -64,7 +64,7 @@ public class EmployeeRestController extends BaseRestController {
       @RequestBody(required = false) final String welcomeEmailPersonalMessage) {
 
     final Context context = userService
-        .findWelcomeEmailPreviewContext(getAuthUser().getId(), welcomeEmailPersonalMessage);
+        .findWelcomeEmailPreviewContext(findAuthUser().getId(), welcomeEmailPersonalMessage);
     return userService.getWelcomeEmail(context);
   }
 
@@ -79,7 +79,7 @@ public class EmployeeRestController extends BaseRestController {
   @PostMapping("employees")
   @PreAuthorize("hasAuthority('CREATE_USER')")
   public HttpEntity addEmployee(@RequestBody final EmployeeDto employee) {
-    final User currentUser = userService.findById(getAuthUser().getId());
+    final User currentUser = userService.findById(findAuthUser().getId());
     employeeService.addEmployee(employee, currentUser);
     return new ResponseEntity(HttpStatus.OK);
   }
@@ -87,7 +87,7 @@ public class EmployeeRestController extends BaseRestController {
   @PatchMapping("employees/current")
   @PreAuthorize("@permissionUtils.isCurrentUserEmail(#employeeDto.emailWork)")
   public HttpEntity saveEmployeeSetUpInformation(@RequestBody final EmployeeDto employeeDto) {
-    final User employee = userService.findById(getAuthUser().getId());
+    final User employee = userService.findById(findAuthUser().getId());
     if (employee.getVerifiedAt() != null) {
       throw new ForbiddenException(String.format("User with email %s already verified!",
           employeeDto.getEmailWork()));
@@ -100,6 +100,6 @@ public class EmployeeRestController extends BaseRestController {
   @GetMapping("employees/org-chart")
   public List<OrgChartDto> findOrgChart(
       @RequestParam(value = "userId", required = false) final String userId) {
-    return userService.getOrgChart(userId, getCompanyId());
+    return userService.getOrgChart(userId, findCompanyId());
   }
 }

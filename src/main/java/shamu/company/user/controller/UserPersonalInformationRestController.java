@@ -86,15 +86,15 @@ public class UserPersonalInformationRestController extends BaseRestController {
     final UserPersonalInformation userPersonalInformation = targetUser.getUserPersonalInformation();
     final String imageUrl = targetUser.getImageUrl();
 
-    final User currentUser = userService.findByUserId(getUserId());
+    final User currentUser = userService.findByUserId(findUserId());
     final Role userRole = currentUser.getRole();
-    if (getAuthUser().getId().equals(id) || userRole == Role.ADMIN) {
+    if (findAuthUser().getId().equals(id) || userRole == Role.ADMIN) {
       return userPersonalInformationMapper
           .convertToUserPersonalInformationDto(userPersonalInformation, imageUrl);
     }
 
     if (userRole == Role.MANAGER && targetUser.getManagerUser() != null
-        && getAuthUser().getId().equals(targetUser.getManagerUser().getId())) {
+        && findAuthUser().getId().equals(targetUser.getManagerUser().getId())) {
       return userPersonalInformationMapper.convertToMyEmployeePersonalInformationDto(
           userPersonalInformation);
 

@@ -32,25 +32,25 @@ public class PaidHolidayRestController extends BaseRestController {
 
   @GetMapping(value = "paid-holidays")
   public List<PaidHolidayDto> getAllPaidHolidays() {
-    return paidHolidayService.getPaidHolidays(getAuthUser());
+    return paidHolidayService.getPaidHolidays(findAuthUser());
   }
 
   @GetMapping(value = "paid-holidays/user/{targetUserId}")
   public List<PaidHolidayDto> getUserAllPaidHolidays(
           @PathVariable String targetUserId) {
-    return paidHolidayService.getUserPaidHolidays(getAuthUser(), targetUserId);
+    return paidHolidayService.getUserPaidHolidays(findAuthUser(), targetUserId);
   }
 
 
   @GetMapping(value = "paid-holidays/employees")
   public PaidHolidayRelatedUserListDto getPaidHolidays() {
-    return paidHolidayService.getPaidHolidayEmployees(getCompanyId());
+    return paidHolidayService.getPaidHolidayEmployees(findCompanyId());
   }
 
   @GetMapping(value = "paid-holidays/employees/count")
   public Integer getPaidHolidaysEmployeesCount() {
     return paidHolidayService
-        .getPaidHolidayEmployees(getCompanyId())
+        .getPaidHolidayEmployees(findCompanyId())
         .getPaidHolidaySelectedEmployees().size();
   }
 
@@ -58,14 +58,14 @@ public class PaidHolidayRestController extends BaseRestController {
   @PreAuthorize("hasPermission(#updatePaidHolidayEmployees, 'USER', 'EDIT_USER')")
   public HttpEntity updatePaidHolidayEmployees(
       @RequestBody final List<BaseAuthorityDto> updatePaidHolidayEmployees) {
-    paidHolidayService.updatePaidHolidayEmployees(updatePaidHolidayEmployees, getCompanyId());
+    paidHolidayService.updatePaidHolidayEmployees(updatePaidHolidayEmployees, findCompanyId());
     return new ResponseEntity<>(HttpStatus.OK);
 
   }
 
   @GetMapping(value = "paid-holidays/years/{year}")
   public List<PaidHolidayDto> getPaidHolidaysByYear(@PathVariable final String year) {
-    return paidHolidayService.getPaidHolidaysByYear(getAuthUser(), year);
+    return paidHolidayService.getPaidHolidaysByYear(findAuthUser(), year);
   }
 
   @PatchMapping(value = "paid-holidays/select")
@@ -79,7 +79,7 @@ public class PaidHolidayRestController extends BaseRestController {
   @PreAuthorize("hasAuthority('EDIT_PAID_HOLIDAY')")
   public HttpEntity createPaidHoliday(
       @RequestBody @Validated final PaidHolidayDto paidHolidayDto) {
-    paidHolidayService.createPaidHoliday(paidHolidayDto, getAuthUser());
+    paidHolidayService.createPaidHoliday(paidHolidayDto, findAuthUser());
     return new ResponseEntity<>(HttpStatus.OK);
   }
 

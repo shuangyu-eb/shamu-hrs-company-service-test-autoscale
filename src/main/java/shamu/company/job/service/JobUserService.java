@@ -289,7 +289,7 @@ public class JobUserService {
   }
 
   private void deleteDepartmentName(final String id) {
-    final Integer count = departmentRepository.getCountByDepartment(id);
+    final Integer count = departmentRepository.findCountByDepartment(id);
     if (count > 0) {
       throw new ForbiddenException(
               "The Department has people, please remove then to another Department");
@@ -312,7 +312,7 @@ public class JobUserService {
   }
 
   private void deleteEmployeeTypeName(final String id) {
-    final Integer count = employmentTypeRepository.getCountByType(id);
+    final Integer count = employmentTypeRepository.findCountByType(id);
     if (count > 0) {
       throw new ForbiddenException(
               "The EmployeeType has people, please remove then to another EmployeeType");
@@ -321,7 +321,7 @@ public class JobUserService {
   }
 
   private void deleteOfficeName(final String id) {
-    final Integer count = officeRepository.getCountByOffice(id);
+    final Integer count = officeRepository.findCountByOffice(id);
     if (count > 0) {
       throw new ForbiddenException(
               "The Office has people, please remove then to another Office");

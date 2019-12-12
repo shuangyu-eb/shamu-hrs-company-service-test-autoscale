@@ -5,23 +5,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import shamu.company.common.CommonDictionaryDto;
 import shamu.company.common.config.annotations.RestApiController;
-import shamu.company.common.entity.Country;
-import shamu.company.common.repository.CountryRepository;
-import shamu.company.utils.ReflectionUtil;
+import shamu.company.common.service.CountryService;
 
 @RestApiController
 public class CountryRestController {
 
-  private final CountryRepository countryRepository;
+  private final CountryService countryService;
 
   @Autowired
-  public CountryRestController(final CountryRepository countryRepository) {
-    this.countryRepository = countryRepository;
+  public CountryRestController(final CountryService countryService) {
+    this.countryService = countryService;
   }
 
   @GetMapping("countries")
-  public List<CommonDictionaryDto> getCountries() {
-    List<Country> countries = countryRepository.findAll();
-    return ReflectionUtil.convertTo(countries, CommonDictionaryDto.class);
+  public List<CommonDictionaryDto> findCountries() {
+    return countryService.findCountries();
   }
 }

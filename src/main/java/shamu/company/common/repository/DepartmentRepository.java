@@ -18,5 +18,5 @@ public interface DepartmentRepository extends BaseRepository<Department, String>
                   + " join jobs j on ju.job_id = j.id"
                   + " WHERE j.department_id = unhex(?1) ",
           nativeQuery = true)
-  Integer getCountByDepartment(String departmentId);
+  Integer findCountByDepartment(String departmentId);
 }

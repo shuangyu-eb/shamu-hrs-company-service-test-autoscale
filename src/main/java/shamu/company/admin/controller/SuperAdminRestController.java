@@ -33,7 +33,7 @@ class SuperAdminRestController extends BaseRestController {
   @PostMapping("/super-admin/mock/users/{id}")
   @PreAuthorize("hasAuthority('SUPER_PERMISSION')")
   public MockUserDto mockUser(@PathVariable final String id) {
-    return superAdminService.mockUser(id, getToken());
+    return superAdminService.mockUser(id, findToken());
   }
 
 }

@@ -31,19 +31,19 @@ public class EmployeeInformationRestController extends BaseRestController {
   @PreAuthorize("hasPermission(#id,'USER','VIEW_USER_PERSONAL')")
   public BasicUserPersonalInformationDto findPersonalMessage(
       @PathVariable final String id) {
-    return employeeService.findPersonalMessage(id, getAuthUser().getId());
+    return employeeService.findPersonalMessage(id, findAuthUser().getId());
   }
 
   @GetMapping("users/{id}/contact")
   @PreAuthorize("hasPermission(#id,'USER','VIEW_USER_CONTACT')")
   public BasicUserContactInformationDto findContactMessage(
       @PathVariable final String id) {
-    return employeeService.findContactMessage(id, getAuthUser().getId());
+    return employeeService.findContactMessage(id, findAuthUser().getId());
   }
 
   @GetMapping("users/{id}/job")
   @PreAuthorize("hasPermission(#id,'USER','VIEW_USER_JOB')")
   public BasicJobInformationDto findJobMessage(@PathVariable final String id) {
-    return employeeService.findJobMessage(id, getAuthUser().getId());
+    return employeeService.findJobMessage(id, findAuthUser().getId());
   }
 }

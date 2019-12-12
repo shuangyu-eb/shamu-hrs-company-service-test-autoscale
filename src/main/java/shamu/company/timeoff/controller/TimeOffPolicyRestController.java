@@ -58,7 +58,7 @@ public class TimeOffPolicyRestController extends BaseRestController {
   public ResponseEntity createTimeOffPolicy(
       @Valid @RequestBody final TimeOffPolicyWrapperDto timeOffPolicyWrapperDto) {
     timeOffPolicyService
-        .createTimeOffPolicy(timeOffPolicyWrapperDto, getCompanyId());
+        .createTimeOffPolicy(timeOffPolicyWrapperDto, findCompanyId());
     return new ResponseEntity(HttpStatus.OK);
   }
 
@@ -67,7 +67,7 @@ public class TimeOffPolicyRestController extends BaseRestController {
   public void updateTimeOffPolicy(@Valid @PathVariable final String id,
       @RequestBody final TimeOffPolicyWrapperDto infoWrapper) {
 
-    timeOffPolicyService.updateTimeOffPolicy(id, infoWrapper, getCompanyId());
+    timeOffPolicyService.updateTimeOffPolicy(id, infoWrapper, findCompanyId());
   }
 
   @PatchMapping("time-off-policies/employees/{policyId}")
@@ -107,7 +107,7 @@ public class TimeOffPolicyRestController extends BaseRestController {
   @PreAuthorize("hasPermission(#policyId, 'TIME_OFF_POLICY', 'MANAGE_TIME_OFF_POLICY')")
   public TimeOffPolicyRelatedUserListDto getEmployeesByTimeOffPolicyId(
       @PathVariable final String policyId) {
-    return timeOffPolicyService.getAllEmployeesByTimeOffPolicyId(policyId, getCompanyId());
+    return timeOffPolicyService.getAllEmployeesByTimeOffPolicyId(policyId, findCompanyId());
   }
 
   @DeleteMapping("time-off-policies/{policyId}")
@@ -123,14 +123,14 @@ public class TimeOffPolicyRestController extends BaseRestController {
   public HttpEntity enrollTimeOffPolicy(@PathVariable final String policyId,
       @PathVariable final String rollId) {
     timeOffPolicyService.enrollTimeOffHours(
-        policyId, rollId, getAuthUser().getId());
+        policyId, rollId, findAuthUser().getId());
     timeOffPolicyService.deleteTimeOffPolicy(policyId);
     return new ResponseEntity<>(HttpStatus.OK);
   }
 
   @GetMapping("time-off-policies")
   public List<TimeOffPolicyListDto> getAllPolicies() {
-    return timeOffPolicyService.getAllPolicies(getCompanyId());
+    return timeOffPolicyService.getAllPolicies(findCompanyId());
   }
 
   @GetMapping("time-off-balances/{policyUserId}/breakdown")
@@ -151,7 +151,7 @@ public class TimeOffPolicyRestController extends BaseRestController {
       + "'TIME_OFF_POLICY_USER','MANAGE_USER_TIME_OFF_BALANCE')")
   public void addTimeOffAdjustments(@PathVariable final String policyUserId,
       @RequestBody final Integer newBalance) {
-    final User currentUser = userService.findById(getAuthUser().getId());
+    final User currentUser = userService.findById(findAuthUser().getId());
     timeOffPolicyService.addTimeOffAdjustments(currentUser, policyUserId, newBalance);
   }
 

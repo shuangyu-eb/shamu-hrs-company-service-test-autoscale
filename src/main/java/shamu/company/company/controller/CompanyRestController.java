@@ -58,14 +58,14 @@ public class CompanyRestController extends BaseRestController {
 
   @GetMapping("departments")
   public List<SelectFieldSizeDto> getDepartments() {
-    return companyService.getDepartmentsByCompanyId(getCompanyId());
+    return companyService.getDepartmentsByCompanyId(findCompanyId());
   }
 
 
   @PostMapping("departments")
   @PreAuthorize("hasAuthority('CREATE_DEPARTMENT')")
   public Department createDepartment(@RequestBody final String name) {
-    return companyService.saveDepartmentsByCompany(name, getCompanyId());
+    return companyService.saveDepartmentsByCompany(name, findCompanyId());
   }
 
   @GetMapping("departments/{id}/jobs")
@@ -86,14 +86,14 @@ public class CompanyRestController extends BaseRestController {
 
   @GetMapping("employment-types")
   public List<SelectFieldSizeDto> getEmploymentTypes() {
-    return companyService.getEmploymentTypesByCompanyId(getCompanyId());
+    return companyService.getEmploymentTypesByCompanyId(findCompanyId());
   }
 
 
   @PostMapping(value = "employment-types")
   @PreAuthorize("hasAuthority('CREATE_EMPLOYEE_TYPE')")
   public SelectFieldInformationDto createEmploymentType(@RequestBody final String name) {
-    final EmploymentType employmentType = companyService.saveEmploymentType(name, getCompanyId());
+    final EmploymentType employmentType = companyService.saveEmploymentType(name, findCompanyId());
     return new SelectFieldInformationDto(employmentType.getId(), employmentType.getName());
   }
 
@@ -101,14 +101,14 @@ public class CompanyRestController extends BaseRestController {
   @GetMapping("offices")
   @PreAuthorize("hasAuthority('VIEW_USER_JOB')")
   public List<OfficeSizeDto> getOffices() {
-    return companyService.getOfficesByCompany(getCompanyId());
+    return companyService.getOfficesByCompany(findCompanyId());
   }
 
   @PostMapping("offices")
   @PreAuthorize("hasAuthority('CREATE_OFFICE')")
   public OfficeDto saveOffice(@RequestBody final OfficeCreateDto officeCreateDto) {
     final Office office = officeCreateDto.getOffice();
-    office.setCompany(new Company(getCompanyId()));
+    office.setCompany(new Company(findCompanyId()));
     return officeMapper.convertToOfficeDto(companyService.saveOffice(office));
   }
 
@@ -116,7 +116,7 @@ public class CompanyRestController extends BaseRestController {
   @PreAuthorize("hasPermission(#id,'DEPARTMENT','VIEW_USER_JOB')")
   public List<SelectFieldInformationDto> getUsers(@PathVariable final String id) {
     final List<User> users = employeeService
-        .findByCompanyId(getCompanyId());
+        .findByCompanyId(findCompanyId());
     return collectUserPersonInformations(users);
   }
 
@@ -130,9 +130,9 @@ public class CompanyRestController extends BaseRestController {
     final User user = userService.findById(userId);
     if (user.getManagerUser() == null) {
       users = employeeService.findDirectReportsByManagerUserId(
-              getCompanyId(), user.getId());
+              findCompanyId(), user.getId());
     } else {
-      users = employeeService.findByCompanyId(getCompanyId());
+      users = employeeService.findByCompanyId(findCompanyId());
     }
 
     final List<SelectFieldInformationDto> selectFieldInformationDtos =

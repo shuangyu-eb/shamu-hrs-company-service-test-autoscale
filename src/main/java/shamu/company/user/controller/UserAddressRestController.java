@@ -51,11 +51,11 @@ public class UserAddressRestController extends BaseRestController {
     final User manager = targetUser.getManagerUser();
     final UserAddress userAddress = userAddressService.findUserAddressByUserId(id);
 
-    final User currentUser = userService.findByUserId(getUserId());
+    final User currentUser = userService.findByUserId(findUserId());
     final Role userRole = currentUser.getRole();
-    if (userAddress != null && (getAuthUser().getId().equals(id)
+    if (userAddress != null && (findAuthUser().getId().equals(id)
         || userRole == Role.ADMIN
-        || (manager != null && manager.getId().equals(getAuthUser().getId())))) {
+        || (manager != null && manager.getId().equals(findAuthUser().getId())))) {
       return userAddressMapper.convertToUserAddressDto(userAddress);
     }
 

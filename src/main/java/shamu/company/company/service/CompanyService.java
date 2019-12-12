@@ -76,7 +76,7 @@ public class CompanyService {
 
     for (final Department department: departments) {
       final SelectFieldSizeDto selectFieldSizeDto = new SelectFieldSizeDto();
-      final Integer size = departmentRepository.getCountByDepartment(department.getId());
+      final Integer size = departmentRepository.findCountByDepartment(department.getId());
       selectFieldSizeDto.setId(department.getId());
       selectFieldSizeDto.setName(department.getName());
       selectFieldSizeDto.setSize(size);
@@ -129,7 +129,7 @@ public class CompanyService {
     final List<Office> offices = officeRepository.findByCompanyId(companyId);
     for (final Office office: offices) {
       final OfficeSizeDto officeSizeDto = new OfficeSizeDto();
-      final Integer size = officeRepository.getCountByOffice(office.getId());
+      final Integer size = officeRepository.findCountByOffice(office.getId());
       officeSizeDto.setId(office.getId());
       officeSizeDto.setName(office.getName());
       officeSizeDto.setOfficeAddress(
@@ -160,7 +160,7 @@ public class CompanyService {
     final List<EmploymentType> types = employmentTypeRepository.findAllByCompanyId(companyId);
     for (final EmploymentType type: types) {
       final SelectFieldSizeDto selectFieldSizeDto = new SelectFieldSizeDto();
-      final Integer size = employmentTypeRepository.getCountByType(type.getId());
+      final Integer size = employmentTypeRepository.findCountByType(type.getId());
       selectFieldSizeDto.setId(type.getId());
       selectFieldSizeDto.setName(type.getName());
       selectFieldSizeDto.setSize(size);

@@ -13,5 +13,5 @@ public interface EmploymentTypeRepository extends BaseRepository<EmploymentType,
           value = "SELECT count(1) FROM jobs_users ju"
                   + " WHERE ju.employment_type_id = unhex(?1) ",
           nativeQuery = true)
-  Integer getCountByType(String typeId);
+  Integer findCountByType(String typeId);
 }

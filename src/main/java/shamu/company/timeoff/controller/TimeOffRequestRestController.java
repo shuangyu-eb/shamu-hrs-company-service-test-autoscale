@@ -103,7 +103,7 @@ public class TimeOffRequestRestController extends BaseRestController {
       @RequestBody final TimeOffRequestCreateDto requestCreateDto) {
     final User user = userService.findById(userId);
     final TimeOffRequest timeOffRequest = requestCreateDto.getTimeOffRequest(user);
-    final User approver = new User(getAuthUser().getId());
+    final User approver = new User(findAuthUser().getId());
     timeOffRequest.setApproverUser(approver);
     timeOffRequest.setApproverUser(approver);
     timeOffRequest.setApprovedDate(Timestamp.from(Instant.now()));
@@ -118,7 +118,7 @@ public class TimeOffRequestRestController extends BaseRestController {
   @PreAuthorize("hasAuthority('MANAGE_TIME_OFF_REQUEST')")
   public Integer getPendingTimeOffRequestsCount() {
 
-    return timeOffRequestService.getPendingRequestsCount(new User(getAuthUser().getId()));
+    return timeOffRequestService.getPendingRequestsCount(new User(findAuthUser().getId()));
   }
 
   @GetMapping("users/{id}/time-off-requests")
@@ -135,12 +135,12 @@ public class TimeOffRequestRestController extends BaseRestController {
           + "or hasPermission(#id,'TIME_OFF_REQUEST','MANAGE_TIME_OFF_REQUEST')")
   public TimeOffRequestDetailDto getTimeOffRequest(@PathVariable final String id) {
     final TimeOffRequestDetailDto timeOffRequestDetailDto = timeOffRequestService
-        .getTimeOffRequestDetail(id, getAuthUser().getId());
+        .getTimeOffRequestDetail(id, findAuthUser().getId());
 
     final User targetUser = userService.findById(timeOffRequestDetailDto.getUserId());
-    if (getAuthUser().getRole() == Role.ADMIN
+    if (findAuthUser().getRole() == Role.ADMIN
         || (targetUser.getManagerUser() != null
-            && targetUser.getManagerUser().getId().equals(getAuthUser().getId()))) {
+            && targetUser.getManagerUser().getId().equals(findAuthUser().getId()))) {
       timeOffRequestDetailDto.setIsCurrentUserPrivileged(true);
     }
 
@@ -153,7 +153,7 @@ public class TimeOffRequestRestController extends BaseRestController {
   public TimeOffRequestDto updateTimeOffRequestStatus(
       @PathVariable final String id,
       @RequestBody final TimeOffRequestUpdateDto updateDto) {
-    return timeOffRequestService.updateTimeOffRequestStatus(id, updateDto, getAuthUser());
+    return timeOffRequestService.updateTimeOffRequestStatus(id, updateDto, findAuthUser());
   }
 
   private PageImpl<TimeOffRequestDto> getTimeOffRequestsByApprover(
@@ -163,7 +163,7 @@ public class TimeOffRequestRestController extends BaseRestController {
 
     final Page<TimeOffRequest> timeOffRequests = timeOffRequestService
         .getByApproverAndStatusFilteredByStartDay(
-          getAuthUser().getId(), statuses, startDayTimestamp, request);
+          findAuthUser().getId(), statuses, startDayTimestamp, request);
 
     return (PageImpl<TimeOffRequestDto>) timeOffRequests
         .map(timeOffRequestMapper::convertToTimeOffRequestDto);
@@ -257,10 +257,10 @@ public class TimeOffRequestRestController extends BaseRestController {
   @GetMapping("time-off-request/has-privilege/user/{id}")
   @PreAuthorize("hasPermission(#id,'USER','VIEW_TEAM_TIME_OFF_REQUEST')")
   public boolean hasUserPermission(@PathVariable final String id) {
-    final User currentUser = userService.findByUserId(getUserId());
+    final User currentUser = userService.findByUserId(findUserId());
     final Role userRole = currentUser.getRole();
     final User targetUser = userService.findById(id);
-    if (getAuthUser().getId().equals(targetUser.getId())) {
+    if (findAuthUser().getId().equals(targetUser.getId())) {
       return targetUser.getManagerUser() == null;
     } else {
       return userRole == User.Role.ADMIN || currentUser.equals(targetUser.getManagerUser());

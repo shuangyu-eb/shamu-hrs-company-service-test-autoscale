@@ -122,9 +122,9 @@ public class UserRestController extends BaseRestController {
   @GetMapping(value = "users/{id}/head-portrait")
   @PreAuthorize("hasPermission(#id,'USER','VIEW_USER_PERSONAL')")
   public String getHeadPortrait(@PathVariable final String id) {
-    final User currentUser = userService.findByUserId(getUserId());
+    final User currentUser = userService.findByUserId(findUserId());
     final Role userRole = currentUser.getRole();
-    if (getAuthUser().getId().equals(id)
+    if (findAuthUser().getId().equals(id)
         || userRole == Role.ADMIN) {
       return userService.getHeadPortrait(id);
     }
@@ -160,7 +160,7 @@ public class UserRestController extends BaseRestController {
 
   @PatchMapping("user/password/update")
   public void updatePassword(@RequestBody @Valid final ChangePasswordDto changePasswordDto) {
-    userService.updatePassword(changePasswordDto, getUserId());
+    userService.updatePassword(changePasswordDto, findUserId());
   }
 
   @PreAuthorize("hasPermission(#id,'USER', 'EDIT_SELF')")
@@ -180,7 +180,7 @@ public class UserRestController extends BaseRestController {
   public UserRoleAndStatusInfoDto updateUserRole(@PathVariable final String id,
       @RequestBody final UserRoleUpdateDto userRoleUpdateDto) {
     User user = userService.findById(id);
-    user = userService.updateUserRole(getAuthUser().getEmail(), userRoleUpdateDto, user);
+    user = userService.updateUserRole(findAuthUser().getEmail(), userRoleUpdateDto, user);
     return userMapper
         .convertToUserRoleAndStatusInfoDto(user);
   }
@@ -190,7 +190,7 @@ public class UserRestController extends BaseRestController {
   public UserRoleAndStatusInfoDto deactivateUser(@PathVariable final String id,
       @RequestBody final UserStatusUpdateDto userStatusUpdateDto) {
     User user = userService.findById(id);
-    user = userService.deactivateUser(getAuthUser().getEmail(), userStatusUpdateDto, user);
+    user = userService.deactivateUser(findAuthUser().getEmail(), userStatusUpdateDto, user);
     return userMapper.convertToUserRoleAndStatusInfoDto(user);
   }
 
@@ -203,7 +203,7 @@ public class UserRestController extends BaseRestController {
 
   @GetMapping("users/all")
   public List<UserDto> getAllUsers() {
-    final List<User> users = userService.findAllUsersByCompany(getCompanyId());
+    final List<User> users = userService.findAllUsersByCompany(findCompanyId());
     return userMapper.convertToUserDtos(users);
   }
 
@@ -212,26 +212,26 @@ public class UserRestController extends BaseRestController {
     final String mockId = request.getHeader("X-Mock-To");
     if (Strings.isBlank(mockId)) {
       final CurrentUserDto userDto = userService
-          .getCurrentUserInfo(getAuthentication().getUserId());
-      userService.cacheUser(getToken(), userDto.getId());
+          .getCurrentUserInfo(findAuthentication().getUserId());
+      userService.cacheUser(findToken(), userDto.getId());
       return userDto;
     }
 
-    final User user = userService.findByUserId(getAuthentication().getUserId());
+    final User user = userService.findByUserId(findAuthentication().getUserId());
     final Role role = user.getRole();
     if (role != Role.SUPER_ADMIN) {
       throw new ForbiddenException("You are not super admin!");
     }
 
     final String useId = mockId;
-    userService.cacheUser(getToken(), useId);
+    userService.cacheUser(findToken(), useId);
     return userService.getMockUserInfo(useId);
   }
 
   @GetMapping("/user/check-password/{password}")
   @PreAuthorize("hasAuthority('EDIT_SELF')")
   public void checkPassword(@PathVariable final String password) {
-    userService.checkPassword(getAuthUser().getEmail(), password);
+    userService.checkPassword(findAuthUser().getEmail(), password);
   }
 
   @PatchMapping("/user/send-verify-email")
@@ -253,14 +253,14 @@ public class UserRestController extends BaseRestController {
   @GetMapping("/user/change-work-email")
   @PreAuthorize("hasAuthority('EDIT_SELF')")
   public String getChangeWorkEmail() {
-    final User user = userService.findById(getAuthUser().getId());
+    final User user = userService.findById(findAuthUser().getId());
     return user.getChangeWorkEmail();
   }
 
   @GetMapping("/user/send-verify-work-email")
   @PreAuthorize("hasAuthority('EDIT_SELF')")
   public void sendVerifyChangeWorkEmail() {
-    final User user = userService.findById(getAuthUser().getId());
+    final User user = userService.findById(findAuthUser().getId());
     userService.sendVerifyChangeWorkEmail(user);
   }
 

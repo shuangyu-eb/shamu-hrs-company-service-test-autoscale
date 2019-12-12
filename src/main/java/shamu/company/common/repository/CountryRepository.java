@@ -7,5 +7,6 @@ public interface CountryRepository extends BaseRepository<Country, String> {
 
   Country findByName(String name);
 
+  @Override
   List<Country> findAll();
 }

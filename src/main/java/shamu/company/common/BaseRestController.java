@@ -13,30 +13,30 @@ public class BaseRestController {
   @Autowired
   private AuthUserCacheManager authUserCacheManager;
 
-  protected DefaultJwtAuthenticationToken getAuthentication() {
+  protected DefaultJwtAuthenticationToken findAuthentication() {
     final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     return (DefaultJwtAuthenticationToken) authentication;
   }
 
-  protected String getToken() {
-    return getAuthentication().getToken().getTokenValue();
+  protected String findToken() {
+    return findAuthentication().getToken().getTokenValue();
 
   }
 
-  public AuthUser getAuthUser() {
-    final String token = getToken();
+  public AuthUser findAuthUser() {
+    final String token = findToken();
     if (authUserCacheManager.getCachedUser(token) == null) {
       throw new UnAuthenticatedException("User not logged in.");
     }
 
-    return getAuthentication().getAuthUser();
+    return findAuthentication().getAuthUser();
   }
 
-  public String getUserId() {
-    return getAuthUser().getId();
+  public String findUserId() {
+    return findAuthUser().getId();
   }
 
-  public String getCompanyId() {
-    return this.getAuthUser().getCompanyId();
+  public String findCompanyId() {
+    return this.findAuthUser().getCompanyId();
   }
 }

@@ -36,7 +36,7 @@ public class CompanyServerController extends BaseRestController {
 
   @GetMapping("/users/current")
   public AuthUser findCurrentUser() {
-    return getAuthUser();
+    return findAuthUser();
   }
 
   @GetMapping(value = "/users/id")
@@ -60,6 +60,6 @@ public class CompanyServerController extends BaseRestController {
   @GetMapping("/employees")
   public Page<JobUserListItem> findAllEmployeesByName(
           @RequestBody final EmployeeListSearchCondition employeeListSearchCondition) {
-    return companyUserService.findAllEmployees(getAuthUser(), employeeListSearchCondition);
+    return companyUserService.findAllEmployees(findAuthUser(), employeeListSearchCondition);
   }
 }
