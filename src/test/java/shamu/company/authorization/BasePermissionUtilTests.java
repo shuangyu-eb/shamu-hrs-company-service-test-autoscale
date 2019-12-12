@@ -16,7 +16,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import shamu.company.common.config.DefaultJwtAuthenticationToken;
 import shamu.company.common.exception.UnAuthenticatedException;
 import shamu.company.redis.AuthUserCacheManager;
-import shamu.company.server.AuthUser;
+import shamu.company.server.dto.AuthUser;
 import shamu.company.tests.utils.JwtUtil;
 
 class BasePermissionUtilTests {

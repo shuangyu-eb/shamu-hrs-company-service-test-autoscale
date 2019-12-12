@@ -1,4 +1,4 @@
-package shamu.company.server;
+package shamu.company.server.dto;
 
 import java.sql.Timestamp;
 import java.util.List;

@@ -7,7 +7,7 @@ import shamu.company.admin.dto.MockUserDto;
 import shamu.company.benefit.dto.BenefitPlanUserDto;
 import shamu.company.common.mapper.Config;
 import shamu.company.employee.dto.BasicJobInformationDto;
-import shamu.company.server.AuthUser;
+import shamu.company.server.dto.AuthUser;
 import shamu.company.user.dto.UserAvatarDto;
 import shamu.company.user.dto.UserDto;
 import shamu.company.user.dto.UserRoleAndStatusInfoDto;
@@ -46,7 +46,6 @@ public interface UserMapper {
 
   @Mapping(target = "email", source = "userContactInformation.emailWork")
   @Mapping(target = "companyId", source = "company.id")
-  @Mapping(target = "userId", source = "id")
   @Mapping(target = "role", source = "userRole")
   AuthUser convertToAuthUser(User user);
 

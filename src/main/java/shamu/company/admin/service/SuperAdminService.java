@@ -10,7 +10,7 @@ import shamu.company.admin.dto.SuperAdminUserDto;
 import shamu.company.admin.repository.SuperAdminRepository;
 import shamu.company.helpers.auth0.Auth0Helper;
 import shamu.company.redis.AuthUserCacheManager;
-import shamu.company.server.AuthUser;
+import shamu.company.server.dto.AuthUser;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.mapper.UserMapper;
 import shamu.company.user.service.UserService;

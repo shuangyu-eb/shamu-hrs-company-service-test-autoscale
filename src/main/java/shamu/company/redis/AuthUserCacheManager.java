@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import shamu.company.helpers.RedisHelper;
-import shamu.company.server.AuthUser;
+import shamu.company.server.dto.AuthUser;
 
 
 @Configuration

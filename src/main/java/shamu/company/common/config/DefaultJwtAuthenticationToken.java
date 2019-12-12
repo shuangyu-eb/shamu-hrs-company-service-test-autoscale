@@ -4,7 +4,7 @@ import java.util.Collection;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
-import shamu.company.server.AuthUser;
+import shamu.company.server.dto.AuthUser;
 
 public class DefaultJwtAuthenticationToken extends JwtAuthenticationToken {
 

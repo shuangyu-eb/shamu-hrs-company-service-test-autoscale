@@ -1,4 +1,4 @@
-package shamu.company.server;
+package shamu.company.server.dto;
 
 import lombok.Data;
 import shamu.company.user.entity.User;
@@ -14,7 +14,7 @@ public class CompanyUser {
 
   private String imageUrl;
 
-  CompanyUser(final User user) {
+  public CompanyUser(final User user) {
     this.id = user.getId();
     this.name = user.getUserPersonalInformation().getName();
     this.imageUrl = user.getImageUrl();

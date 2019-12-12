@@ -16,7 +16,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import shamu.company.common.config.DefaultJwtAuthenticationToken;
 import shamu.company.redis.AuthUserCacheManager;
-import shamu.company.server.AuthUser;
+import shamu.company.server.dto.AuthUser;
 import shamu.company.tests.utils.JwtUtil;
 
 class BaseRestControllerTests {
@@ -29,7 +29,7 @@ class BaseRestControllerTests {
     final AuthUser authUser = new AuthUser();
     authUser.setId("1");
     authUser.setCompanyId("1");
-    authUser.setUserId(RandomStringUtils.randomAlphabetic(10));
+    authUser.setId(RandomStringUtils.randomAlphabetic(10));
 
     final String userId = "1";
     final Authentication authentication = new DefaultJwtAuthenticationToken(jwt, userId,

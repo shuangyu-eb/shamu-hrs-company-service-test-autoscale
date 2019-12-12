@@ -17,7 +17,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import shamu.company.common.config.DefaultJwtAuthenticationToken;
 import shamu.company.company.entity.Company;
 import shamu.company.redis.AuthUserCacheManager;
-import shamu.company.server.AuthUser;
+import shamu.company.server.dto.AuthUser;
 import shamu.company.tests.utils.JwtUtil;
 import shamu.company.user.entity.User;
 import shamu.company.user.service.UserService;

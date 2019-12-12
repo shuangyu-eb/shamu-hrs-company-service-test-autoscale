@@ -3,7 +3,7 @@ package shamu.company.timeoff.entity.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import shamu.company.common.mapper.Config;
-import shamu.company.server.AuthUser;
+import shamu.company.server.dto.AuthUser;
 import shamu.company.timeoff.dto.PaidHolidayDto;
 import shamu.company.timeoff.entity.CompanyPaidHoliday;
 import shamu.company.timeoff.entity.PaidHoliday;

@@ -55,7 +55,7 @@ import shamu.company.redis.AuthUserCacheManager;
 import shamu.company.s3.AwsUtil;
 import shamu.company.s3.Type;
 import shamu.company.scheduler.DynamicScheduler;
-import shamu.company.server.AuthUser;
+import shamu.company.server.dto.AuthUser;
 import shamu.company.timeoff.service.PaidHolidayService;
 import shamu.company.user.dto.AccountInfoDto;
 import shamu.company.user.dto.ChangePasswordDto;
@@ -306,7 +306,7 @@ public class UserService {
         employeeListSearchCondition, companyId, pageable, role);
   }
 
-  public Page<JobUserListItem> getAllEmployeesByName(
+  public Page<JobUserListItem> findAllEmployeesByName(
       final EmployeeListSearchCondition employeeListSearchCondition, final String companyId) {
     final Pageable pageable = getPageable(employeeListSearchCondition);
     return userRepository.getAllByName(
@@ -878,5 +878,13 @@ public class UserService {
 
   public User findByEmailWork(final String email) {
     return userRepository.findByEmailWork(email);
+  }
+
+  public List<User> findAllById(final List<String> ids) {
+    return userRepository.findAllById(ids);
+  }
+
+  public List<User> findAllByCompanyId(String companyId) {
+    return userRepository.findAllByCompanyId(companyId);
   }
 }

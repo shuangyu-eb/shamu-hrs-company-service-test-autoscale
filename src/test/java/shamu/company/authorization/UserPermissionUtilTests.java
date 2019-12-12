@@ -27,7 +27,7 @@ import shamu.company.company.entity.Company;
 import shamu.company.company.entity.Department;
 import shamu.company.company.service.CompanyService;
 import shamu.company.redis.AuthUserCacheManager;
-import shamu.company.server.AuthUser;
+import shamu.company.server.dto.AuthUser;
 import shamu.company.tests.utils.JwtUtil;
 import shamu.company.timeoff.entity.TimeOffPolicyUser;
 import shamu.company.timeoff.entity.TimeOffRequest;

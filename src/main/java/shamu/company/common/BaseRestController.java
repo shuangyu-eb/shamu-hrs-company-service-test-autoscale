@@ -6,7 +6,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import shamu.company.common.config.DefaultJwtAuthenticationToken;
 import shamu.company.common.exception.UnAuthenticatedException;
 import shamu.company.redis.AuthUserCacheManager;
-import shamu.company.server.AuthUser;
+import shamu.company.server.dto.AuthUser;
 
 public class BaseRestController {
 
@@ -33,7 +33,7 @@ public class BaseRestController {
   }
 
   public String getUserId() {
-    return getAuthUser().getUserId();
+    return getAuthUser().getId();
   }
 
   public String getCompanyId() {

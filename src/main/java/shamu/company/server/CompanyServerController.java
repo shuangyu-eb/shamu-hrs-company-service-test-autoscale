@@ -5,7 +5,6 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,6 +13,11 @@ import org.springframework.web.bind.annotation.RestController;
 import shamu.company.common.BaseRestController;
 import shamu.company.employee.dto.EmployeeListSearchCondition;
 import shamu.company.job.entity.JobUserListItem;
+import shamu.company.server.dto.AuthUser;
+import shamu.company.server.dto.CompanyUser;
+import shamu.company.server.dto.DocumentRequestEmailDto;
+import shamu.company.server.service.CompanyEmailService;
+import shamu.company.server.service.CompanyUserService;
 
 @RestController
 @RequestMapping("/server/company")
@@ -31,19 +35,19 @@ public class CompanyServerController extends BaseRestController {
   }
 
   @GetMapping("/users/current")
-  public AuthUser getCurrentUser() {
+  public AuthUser findCurrentUser() {
     return getAuthUser();
   }
 
   @GetMapping(value = "/users/id")
-  public List<CompanyUser> getUsersBy(@RequestParam final List<String> ids) {
-    return companyUserService.getUsersBy(ids).parallelStream().map(CompanyUser::new)
+  public List<CompanyUser> findUsersById(@RequestParam final List<String> ids) {
+    return companyUserService.findAllById(ids).parallelStream().map(CompanyUser::new)
         .collect(Collectors.toList());
   }
 
   @GetMapping(value = "/users")
-  public List<CompanyUser> getAllUsers() {
-    return companyUserService.getAllUsers(getCurrentUser().getCompanyId()).stream()
+  public List<CompanyUser> findAllUsers() {
+    return companyUserService.findAllUsers(findCurrentUser().getCompanyId()).stream()
         .map(CompanyUser::new).collect(Collectors.toList());
   }
 
@@ -53,14 +57,9 @@ public class CompanyServerController extends BaseRestController {
     companyEmailService.sendDocumentRequestEmail(documentRequestEmailDto);
   }
 
-  @GetMapping(value = "/users/user-id/{userId}")
-  public AuthUser getUserBy(@PathVariable final String userId) {
-    return companyUserService.findUserByUserId(userId);
-  }
-
   @GetMapping("/employees")
-  public Page<JobUserListItem> getAllEmployeesByName(
+  public Page<JobUserListItem> findAllEmployeesByName(
           @RequestBody final EmployeeListSearchCondition employeeListSearchCondition) {
-    return companyUserService.getAllEmployees(getAuthUser(), employeeListSearchCondition);
+    return companyUserService.findAllEmployees(getAuthUser(), employeeListSearchCondition);
   }
 }
