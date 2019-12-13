@@ -23,8 +23,8 @@ public class HttpJsonMessageConverter extends FastJsonHttpMessageConverter {
     final FastJsonConfig fastJsonConfig = new FastJsonConfig();
     fastJsonConfig.setSerializeFilters(valueFilter);
 
-    fastJsonConfig.setSerializerFeatures(SerializerFeature.WriteMapNullValue);
-    fastJsonConfig.setSerializerFeatures(SerializerFeature.DisableCircularReferenceDetect);
+    fastJsonConfig.setSerializerFeatures(SerializerFeature.WriteMapNullValue,
+            SerializerFeature.DisableCircularReferenceDetect);
     ParserConfig parserConfig = new ParserConfig();
     parserConfig.putDeserializer(String.class, new StringFieldJsonDecoder());
     fastJsonConfig.setParserConfig(parserConfig);
