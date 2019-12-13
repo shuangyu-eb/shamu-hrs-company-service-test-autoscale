@@ -1,5 +1,6 @@
 package shamu.company.company.controller;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -57,8 +58,8 @@ public class CompanyRestController extends BaseRestController {
 
 
   @GetMapping("departments")
-  public List<SelectFieldSizeDto> getDepartments() {
-    return companyService.getDepartmentsByCompanyId(findCompanyId());
+  public List<SelectFieldSizeDto> findDepartments() {
+    return companyService.findDepartmentsByCompanyId(findCompanyId());
   }
 
 
@@ -66,13 +67,6 @@ public class CompanyRestController extends BaseRestController {
   @PreAuthorize("hasAuthority('CREATE_DEPARTMENT')")
   public Department createDepartment(@RequestBody final String name) {
     return companyService.saveDepartmentsByCompany(name, findCompanyId());
-  }
-
-  @GetMapping("departments/{id}/jobs")
-  @PreAuthorize("hasPermission(#id,'DEPARTMENT','VIEW_JOB')")
-  public List<SelectFieldSizeDto> getJobsByDepartment(
-      @PathVariable final String id) {
-    return companyService.getJobsByDepartmentId(id);
   }
 
 
@@ -85,8 +79,8 @@ public class CompanyRestController extends BaseRestController {
   }
 
   @GetMapping("employment-types")
-  public List<SelectFieldSizeDto> getEmploymentTypes() {
-    return companyService.getEmploymentTypesByCompanyId(findCompanyId());
+  public List<SelectFieldSizeDto> findEmploymentTypes() {
+    return companyService.findEmploymentTypesByCompanyId(findCompanyId());
   }
 
 
@@ -100,8 +94,8 @@ public class CompanyRestController extends BaseRestController {
 
   @GetMapping("offices")
   @PreAuthorize("hasAuthority('VIEW_USER_JOB')")
-  public List<OfficeSizeDto> getOffices() {
-    return companyService.getOfficesByCompany(findCompanyId());
+  public List<OfficeSizeDto> findOffices() {
+    return companyService.findOfficesByCompany(findCompanyId());
   }
 
   @PostMapping("offices")
@@ -114,16 +108,16 @@ public class CompanyRestController extends BaseRestController {
 
   @GetMapping("departments/{id}/users")
   @PreAuthorize("hasPermission(#id,'DEPARTMENT','VIEW_USER_JOB')")
-  public List<SelectFieldInformationDto> getUsers(@PathVariable final String id) {
+  public List<SelectFieldInformationDto> findUsers(@PathVariable final String id) {
     final List<User> users = employeeService
         .findByCompanyId(findCompanyId());
     return collectUserPersonInformations(users);
   }
 
-  @GetMapping("departments/mayBeManager/{userId}/{departmentId}/users")
+  @GetMapping("departments/manager-candidate/{userId}/{departmentId}/users")
   @PreAuthorize("hasPermission(#departmentId,'DEPARTMENT','VIEW_JOB')"
           + "and hasPermission(#userId,'USER','VIEW_JOB')")
-  public List<SelectFieldInformationDto> getUsersFromDepartment(
+  public List<SelectFieldInformationDto> findUsersFromDepartment(
           @PathVariable final String userId,
           @PathVariable final String departmentId) {
     final List<User> users;
@@ -138,8 +132,7 @@ public class CompanyRestController extends BaseRestController {
     final List<SelectFieldInformationDto> selectFieldInformationDtos =
             collectUserPersonInformations(users);
 
-    selectFieldInformationDtos.sort((s1, s2) -> s1.getName().toLowerCase()
-            .compareTo(s2.getName().toLowerCase()));
+    selectFieldInformationDtos.sort(Comparator.comparing(s -> s.getName().toLowerCase()));
 
     return selectFieldInformationDtos;
   }

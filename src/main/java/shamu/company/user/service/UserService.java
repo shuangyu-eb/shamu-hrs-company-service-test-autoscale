@@ -39,6 +39,7 @@ import shamu.company.company.repository.CompanyRepository;
 import shamu.company.company.repository.CompanySizeRepository;
 import shamu.company.email.Email;
 import shamu.company.email.EmailService;
+import shamu.company.employee.dto.BasicJobInformationDto;
 import shamu.company.employee.dto.EmployeeListSearchCondition;
 import shamu.company.employee.dto.OrgChartDto;
 import shamu.company.helpers.auth0.Auth0Helper;
@@ -49,8 +50,10 @@ import shamu.company.job.dto.JobUserDto;
 import shamu.company.job.entity.Job;
 import shamu.company.job.entity.JobUser;
 import shamu.company.job.entity.JobUserListItem;
+import shamu.company.job.entity.mapper.JobUserMapper;
 import shamu.company.job.repository.JobRepository;
 import shamu.company.job.repository.JobUserRepository;
+import shamu.company.job.service.JobUserService;
 import shamu.company.redis.AuthUserCacheManager;
 import shamu.company.s3.AwsUtil;
 import shamu.company.s3.Type;
@@ -126,6 +129,8 @@ public class UserService {
   private final DynamicScheduler dynamicScheduler;
 
   private final UserRoleService userRoleService;
+  private final JobUserService jobUserService;
+  private final JobUserMapper jobUserMapper;
 
   private final PermissionUtils permissionUtils;
 
@@ -157,7 +162,9 @@ public class UserService {
       final DynamicScheduler dynamicScheduler,
       final AwsUtil awsUtil,
       final UserRoleService userRoleService,
-      @Lazy final PermissionUtils permissionUtils) {
+      @Lazy final PermissionUtils permissionUtils,
+      @Lazy final JobUserService jobUserService,
+      final JobUserMapper jobUserMapper) {
     this.templateEngine = templateEngine;
     this.userRepository = userRepository;
     this.jobUserRepository = jobUserRepository;
@@ -184,6 +191,8 @@ public class UserService {
     this.awsUtil = awsUtil;
     this.userRoleService = userRoleService;
     this.permissionUtils = permissionUtils;
+    this.jobUserService = jobUserService;
+    this.jobUserMapper = jobUserMapper;
   }
 
   public User findById(final String id) {
@@ -872,7 +881,8 @@ public class UserService {
     return userRepository.findByCompanyId(companyId);
   }
 
-  public List<User> findDirectReportsByManagerUserId(final String companyId, final String userId) {
+  public List<User> findDirectReportsByManagerUserId(
+          final String companyId, final String userId) {
     return userRepository.findDirectReportsByManagerUserId(companyId, userId);
   }
 
@@ -886,5 +896,30 @@ public class UserService {
 
   public List<User> findAllByCompanyId(String companyId) {
     return userRepository.findAllByCompanyId(companyId);
+  }
+
+  public BasicJobInformationDto findJobMessage(final String targetUserId,
+                                              final String authUserId) {
+    final JobUser target = jobUserService.getJobUserByUserId(targetUserId);
+
+    if (target == null) {
+      final User targetUser = findById(targetUserId);
+      return userMapper.convertToBasicJobInformationDto(targetUser);
+    }
+
+    // The user's full job message can only be accessed by admin, the manager and himself.
+    final User currentUser = findById(authUserId);
+    final Role userRole = currentUser.getRole();
+    if (authUserId.equals(targetUserId) || userRole == Role.ADMIN) {
+      return jobUserMapper.convertToJobInformationDto(target);
+    }
+
+    if (userRole == Role.MANAGER && target.getUser().getManagerUser() != null
+            && authUserId.equals(target.getUser().getManagerUser().getId())) {
+      return jobUserMapper.convertToJobInformationDto(target);
+    }
+
+    return jobUserMapper
+            .convertToBasicJobInformationDto(target);
   }
 }

@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mapstruct.factory.Mappers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -18,13 +19,20 @@ import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.common.repository.DepartmentRepository;
 import shamu.company.company.entity.Company;
 import shamu.company.company.entity.CompanySize;
+import shamu.company.company.entity.mapper.*;
 import shamu.company.company.repository.CompanyRepository;
 import shamu.company.company.repository.CompanySizeRepository;
 import shamu.company.email.EmailService;
+import shamu.company.employee.dto.BasicJobInformationDto;
+import shamu.company.employee.dto.JobInformationDto;
 import shamu.company.helpers.auth0.Auth0Helper;
 import shamu.company.info.service.UserEmergencyContactService;
+import shamu.company.job.entity.JobUser;
+import shamu.company.job.entity.mapper.JobUserMapper;
+import shamu.company.job.entity.mapper.JobUserMapperImpl;
 import shamu.company.job.repository.JobRepository;
 import shamu.company.job.repository.JobUserRepository;
+import shamu.company.job.service.JobUserService;
 import shamu.company.redis.AuthUserCacheManager;
 import shamu.company.s3.AwsUtil;
 import shamu.company.scheduler.DynamicScheduler;
@@ -40,10 +48,7 @@ import shamu.company.user.entity.UserPersonalInformation;
 import shamu.company.user.entity.UserRole;
 import shamu.company.user.entity.UserStatus;
 import shamu.company.user.entity.UserStatus.Status;
-import shamu.company.user.entity.mapper.UserAddressMapper;
-import shamu.company.user.entity.mapper.UserContactInformationMapper;
-import shamu.company.user.entity.mapper.UserMapper;
-import shamu.company.user.entity.mapper.UserPersonalInformationMapper;
+import shamu.company.user.entity.mapper.*;
 import shamu.company.user.repository.UserAccessLevelEventRepository;
 import shamu.company.user.repository.UserCompensationRepository;
 import shamu.company.user.repository.UserContactInformationRepository;
@@ -94,8 +99,7 @@ class UserServiceTests {
   private DepartmentRepository departmentRepository;
   @Mock
   private JobRepository jobRepository;
-  @Mock
-  private UserMapper userMapper;
+  private final UserMapper userMapper = Mappers.getMapper(UserMapper.class);
   @Mock
   private UserContactInformationRepository userContactInformationRepository;
   @Mock
@@ -110,6 +114,18 @@ class UserServiceTests {
   private UserRoleService userRoleService;
   @Mock
   private PermissionUtils permissionUtils;
+  @Mock
+  private JobUserService jobUserService;
+
+  private final StateProvinceMapper stateProvinceMapper = Mappers
+          .getMapper(StateProvinceMapper.class);
+  private final OfficeAddressMapper officeAddressMapper = new OfficeAddressMapperImpl(
+          stateProvinceMapper);
+  private final OfficeMapper officeMapper = new OfficeMapperImpl(officeAddressMapper);
+  private final UserCompensationMapper userCompensationMapper = Mappers
+          .getMapper(UserCompensationMapper.class);
+  private final JobUserMapper jobUserMapper =
+          new JobUserMapperImpl(officeMapper, userCompensationMapper);
 
   @BeforeEach
   void init() {
@@ -134,7 +150,8 @@ class UserServiceTests {
         jobRepository, userMapper, authUserCacheManager,userContactInformationRepository,
         userPersonalInformationRepository,
         dynamicScheduler,
-        awsUtil, userRoleService, permissionUtils);
+        awsUtil, userRoleService, permissionUtils,
+        jobUserService, jobUserMapper);
   }
 
   @Test
@@ -392,6 +409,86 @@ class UserServiceTests {
       Assertions.assertDoesNotThrow(() -> {
         userService.sendResetPasswordEmail("example@indeed.com");
       });
+    }
+  }
+
+  @Nested
+  class FindJobMessage {
+
+    private String targetUserId;
+
+    private String userId;
+
+    private JobUser jobUser;
+
+    private User currentUser;
+
+    @BeforeEach
+    void init() {
+      jobUser = new JobUser();
+      final User targetUser = new User();
+      targetUserId = RandomStringUtils.randomAlphabetic(16);
+      targetUser.setId(targetUserId);
+      final UserRole userRole = new UserRole();
+      userRole.setName(Role.MANAGER.name());
+      targetUser.setUserRole(userRole);
+      jobUser.setUser(targetUser);
+      Optional<User> optionalTargetUser = Optional.ofNullable(targetUser);
+      Mockito.when(jobUserService.getJobUserByUserId(Mockito.anyString())).thenReturn(jobUser);
+      Mockito.when(userRepository.findById(targetUserId)).thenReturn(optionalTargetUser);
+
+      currentUser = new User();
+      userId = RandomStringUtils.randomAlphabetic(16);
+      currentUser.setId(userId);
+      final UserRole currentUserRole = new UserRole();
+      currentUserRole.setName(Role.MANAGER.name());
+      currentUser.setUserRole(currentUserRole);
+      Optional<User> optionalCurrentUser = Optional.ofNullable(currentUser);
+      Mockito.when(userRepository.findById(userId)).thenReturn(optionalCurrentUser);
+    }
+
+    @Test
+    void whenCanNotFindUserJob_thenReturnBasicJobInformation() {
+      Mockito.when(jobUserService.getJobUserByUserId(Mockito.anyString())).thenReturn(null);
+
+      final BasicJobInformationDto jobInformation = userService
+              .findJobMessage(targetUserId, userId);
+      Assertions.assertNotNull(jobInformation);
+    }
+
+    @Test
+    void whenIsCurrentUser_thenReturnJobInformation() {
+      final BasicJobInformationDto jobInformation = userService
+              .findJobMessage(targetUserId, targetUserId);
+      Assertions.assertTrue(jobInformation instanceof JobInformationDto);
+    }
+
+    @Test
+    void whenIsAdmin_thenReturnJobInformation() {
+      final UserRole adminRole = new UserRole();
+      adminRole.setName(Role.ADMIN.name());
+      currentUser.setUserRole(adminRole);
+      final BasicJobInformationDto jobInformation = userService
+              .findJobMessage(targetUserId, userId);
+      Assertions.assertTrue(jobInformation instanceof JobInformationDto);
+    }
+
+    @Test
+    void whenIsUserManager_thenReturnJobInformation() {
+      jobUser.getUser().setManagerUser(currentUser);
+      final BasicJobInformationDto jobInformation = userService
+              .findJobMessage(targetUserId, userId);
+      Assertions.assertTrue(jobInformation instanceof JobInformationDto);
+    }
+
+    @Test
+    void whenIsEmployee_thenReturnBasicJobInformation() {
+      final User randomManagerUser = new User();
+      jobUser.getUser().setManagerUser(currentUser);
+      randomManagerUser.setId(RandomStringUtils.randomAlphabetic(16));
+      final BasicJobInformationDto jobInformation = userService
+              .findJobMessage(targetUserId, userId);
+      Assertions.assertNotNull(jobInformation);
     }
   }
 }

@@ -21,7 +21,6 @@ public interface OfficeMapper {
   List<OfficeDto> convertToOfficeDto(List<Office> office);
 
   @Mapping(target = "name", source = "officeCreateDto.officeName")
-  @Mapping(target = "officeAddress", source = "officeAddress")
   @Mapping(target = "id", ignore = true)
   @Mapping(target = "createdAt", ignore = true)
   @Mapping(target = "updatedAt", expression = "java(shamu.company.utils.DateUtil.getToday())")

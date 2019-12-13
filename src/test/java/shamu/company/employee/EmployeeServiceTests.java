@@ -27,19 +27,16 @@ import shamu.company.company.entity.mapper.StateProvinceMapper;
 import shamu.company.crypto.EncryptorUtil;
 import shamu.company.email.Email;
 import shamu.company.email.EmailService;
-import shamu.company.employee.dto.BasicJobInformationDto;
 import shamu.company.employee.dto.EmailResendDto;
 import shamu.company.employee.dto.EmployeeContactInformationDto;
 import shamu.company.employee.dto.EmployeeDto;
 import shamu.company.employee.dto.EmployeePersonalInformationDto;
-import shamu.company.employee.dto.JobInformationDto;
 import shamu.company.employee.dto.UserPersonalInformationForManagerDto;
 import shamu.company.employee.service.EmployeeService;
 import shamu.company.employee.service.EmploymentTypeService;
 import shamu.company.helpers.auth0.Auth0Helper;
 import shamu.company.info.entity.mapper.UserEmergencyContactMapper;
 import shamu.company.info.service.UserEmergencyContactService;
-import shamu.company.job.entity.JobUser;
 import shamu.company.job.entity.mapper.JobUserMapper;
 import shamu.company.job.entity.mapper.JobUserMapperImpl;
 import shamu.company.job.service.JobService;
@@ -128,7 +125,6 @@ class EmployeeServiceTests {
       .getMapper(UserCompensationMapper.class);
   private final JobUserMapper jobUserMapper =
       new JobUserMapperImpl(officeMapper, userCompensationMapper);
-  private final UserMapper userMapper = Mappers.getMapper(UserMapper.class);
   @Mock private UserRoleService userRoleService;
   @Mock
   private EncryptorUtil encryptorUtil;
@@ -146,7 +142,7 @@ class EmployeeServiceTests {
         userContactInformationService, userPersonalInformationMapper, userAddressMapper,
         userContactInformationMapper, userEmergencyContactMapper, auth0Helper,
         applicationEventPublisher,
-        jobUserMapper, jobUserService, userMapper, userRoleService, encryptorUtil);
+        jobUserMapper, jobUserService, userRoleService, encryptorUtil);
   }
 
   @Nested
@@ -401,84 +397,6 @@ class EmployeeServiceTests {
       final BasicUserContactInformationDto contactInformation = employeeService
           .findContactMessage(targetUserId, userId);
       Assertions.assertNotNull(contactInformation);
-    }
-  }
-
-  @Nested
-  class FindJobMessage {
-
-    private String targetUserId;
-
-    private String userId;
-
-    private JobUser jobUser;
-
-    private User currentUser;
-
-    @BeforeEach
-    void init() {
-      jobUser = new JobUser();
-      final User targetUser = new User();
-      targetUserId = RandomStringUtils.randomAlphabetic(16);
-      targetUser.setId(targetUserId);
-      final UserRole userRole = new UserRole();
-      userRole.setName(Role.MANAGER.name());
-      targetUser.setUserRole(userRole);
-      jobUser.setUser(targetUser);
-      Mockito.when(jobUserService.getJobUserByUserId(Mockito.anyString())).thenReturn(jobUser);
-      Mockito.when(userService.findById(targetUserId)).thenReturn(jobUser.getUser());
-
-      currentUser = new User();
-      userId = RandomStringUtils.randomAlphabetic(16);
-      currentUser.setId(userId);
-      final UserRole currentUserRole = new UserRole();
-      currentUserRole.setName(Role.MANAGER.name());
-      currentUser.setUserRole(currentUserRole);
-      Mockito.when(userService.findById(userId)).thenReturn(currentUser);
-    }
-
-    @Test
-    void whenCanNotFindUserJob_thenReturnBasicJobInformation() {
-      Mockito.when(jobUserService.getJobUserByUserId(Mockito.anyString())).thenReturn(null);
-
-      final BasicJobInformationDto jobInformation = employeeService
-          .findJobMessage(targetUserId, userId);
-      Assertions.assertNotNull(jobInformation);
-    }
-
-    @Test
-    void whenIsCurrentUser_thenReturnJobInformation() {
-      final BasicJobInformationDto jobInformation = employeeService
-          .findJobMessage(targetUserId, targetUserId);
-      Assertions.assertTrue(jobInformation instanceof JobInformationDto);
-    }
-
-    @Test
-    void whenIsAdmin_thenReturnJobInformation() {
-      final UserRole adminRole = new UserRole();
-      adminRole.setName(Role.ADMIN.name());
-      currentUser.setUserRole(adminRole);
-      final BasicJobInformationDto jobInformation = employeeService
-          .findJobMessage(targetUserId, userId);
-      Assertions.assertTrue(jobInformation instanceof JobInformationDto);
-    }
-
-    @Test
-    void whenIsUserManager_thenReturnJobInformation() {
-      jobUser.getUser().setManagerUser(currentUser);
-      final BasicJobInformationDto jobInformation = employeeService
-          .findJobMessage(targetUserId, userId);
-      Assertions.assertTrue(jobInformation instanceof JobInformationDto);
-    }
-
-    @Test
-    void whenIsEmployee_thenReturnBasicJobInformation() {
-      final User randomManagerUser = new User();
-      jobUser.getUser().setManagerUser(currentUser);
-      randomManagerUser.setId(RandomStringUtils.randomAlphabetic(16));
-      final BasicJobInformationDto jobInformation = employeeService
-          .findJobMessage(targetUserId, userId);
-      Assertions.assertNotNull(jobInformation);
     }
   }
 }

@@ -10,7 +10,6 @@ import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 import org.hibernate.validator.constraints.Length;
 import shamu.company.common.entity.BaseEntity;
-import shamu.company.common.entity.Country;
 import shamu.company.common.entity.StateProvince;
 
 @Data
@@ -33,10 +32,6 @@ public class OfficeAddress extends BaseEntity {
   @ManyToOne
   @NotFound(action = NotFoundAction.IGNORE)
   private StateProvince stateProvince;
-
-  // TODO remove it, we can get it from StateProvince
-  @ManyToOne
-  private Country country;
 
   @Length(max = 30)
   private String postalCode;

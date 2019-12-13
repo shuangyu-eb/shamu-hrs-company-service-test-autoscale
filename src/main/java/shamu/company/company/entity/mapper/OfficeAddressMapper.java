@@ -18,9 +18,6 @@ public interface OfficeAddressMapper {
   OfficeAddressDto convertToOfficeAddressDto(OfficeAddress officeAddress);
 
   @Mapping(target = "stateProvince", source = "stateId")
-  @Mapping(target = "street1", source = "street1")
-  @Mapping(target = "street2", source = "street2")
-  @Mapping(target = "city", source = "city")
   @Mapping(target = "postalCode", source = "zip")
   OfficeAddress updateFromOfficeCreateDto(
           @MappingTarget OfficeAddress officeAddress, OfficeCreateDto officeCreateDto);

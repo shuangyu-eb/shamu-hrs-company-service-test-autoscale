@@ -2419,3 +2419,20 @@ databaseChangeLog:
      - sql:
          sql: update users set salt = REPLACE(UUID(), '-', '') where salt is null;
 
+- changeSet:
+      id: 1575883980072-1
+      author: bin-eb
+      preConditions:
+        onFail: WARN
+      changes:
+          - dropForeignKeyConstraint:
+                baseTableName: office_addresses
+                constraintName: fk_offices_addresses_countries
+
+- changeSet:
+      id: 1575883980072-2
+      author: bin-eb
+      changes:
+      - dropColumn:
+          columnName: country_id
+          tableName: office_addresses

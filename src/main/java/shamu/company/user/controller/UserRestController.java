@@ -24,6 +24,7 @@ import shamu.company.common.CommonDictionaryDto;
 import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.common.exception.ForbiddenException;
 import shamu.company.common.validation.constraints.FileValidate;
+import shamu.company.employee.dto.BasicJobInformationDto;
 import shamu.company.employee.dto.EmailResendDto;
 import shamu.company.job.entity.CompensationFrequency;
 import shamu.company.user.dto.AccountInfoDto;
@@ -276,7 +277,7 @@ public class UserRestController extends BaseRestController {
         compensationOvertimeStatusRepository.findAll();
     return ReflectionUtil.convertTo(overtimeStatuses, CommonDictionaryDto.class);
   }
-  
+
   @GetMapping("deactivation-reasons")
   public List<CommonDictionaryDto> getDeactivationReasons() {
     final List<DeactivationReasons> deactivationReasons = deactivationReasonRepository
@@ -319,5 +320,11 @@ public class UserRestController extends BaseRestController {
   public List<CommonDictionaryDto> getAllUserStatuses() {
     final List<UserStatus> userStatuses = userStatusRepository.findAll();
     return ReflectionUtil.convertTo(userStatuses, CommonDictionaryDto.class);
+  }
+
+  @GetMapping("users/{id}/job")
+  @PreAuthorize("hasPermission(#id,'USER','VIEW_USER_JOB')")
+  public BasicJobInformationDto findJobMessage(@PathVariable final String id) {
+    return userService.findJobMessage(id, findAuthUser().getId());
   }
 }

@@ -33,7 +33,6 @@ import shamu.company.company.entity.Office;
 import shamu.company.crypto.EncryptorUtil;
 import shamu.company.email.Email;
 import shamu.company.email.EmailService;
-import shamu.company.employee.dto.BasicJobInformationDto;
 import shamu.company.employee.dto.EmailResendDto;
 import shamu.company.employee.dto.EmployeeDto;
 import shamu.company.employee.dto.EmployeeRelatedInformationDto;
@@ -72,7 +71,6 @@ import shamu.company.user.entity.UserStatus;
 import shamu.company.user.entity.UserStatus.Status;
 import shamu.company.user.entity.mapper.UserAddressMapper;
 import shamu.company.user.entity.mapper.UserContactInformationMapper;
-import shamu.company.user.entity.mapper.UserMapper;
 import shamu.company.user.entity.mapper.UserPersonalInformationMapper;
 import shamu.company.user.event.UserEmailUpdatedEvent;
 import shamu.company.user.service.CompensationFrequencyService;
@@ -118,7 +116,6 @@ public class EmployeeService {
   private final UserContactInformationMapper userContactInformationMapper;
   private final UserEmergencyContactMapper userEmergencyContactMapper;
   private final JobUserMapper jobUserMapper;
-  private final UserMapper userMapper;
   private final Auth0Helper auth0Helper;
   private final ApplicationEventPublisher applicationEventPublisher;
   private final UserRoleService userRoleService;
@@ -155,7 +152,6 @@ public class EmployeeService {
       final ApplicationEventPublisher applicationEventPublisher,
       final JobUserMapper jobUserMapper,
       @Lazy final JobUserService jobUserService,
-      final UserMapper userMapper,
       final UserRoleService userRoleService,
       final EncryptorUtil encryptorUtil) {
     this.userAddressService = userAddressService;
@@ -183,7 +179,6 @@ public class EmployeeService {
     this.applicationEventPublisher = applicationEventPublisher;
     this.jobUserMapper = jobUserMapper;
     this.jobUserService = jobUserService;
-    this.userMapper = userMapper;
     this.userRoleService = userRoleService;
     this.encryptorUtil = encryptorUtil;
   }
@@ -604,31 +599,6 @@ public class EmployeeService {
     }
 
     return userContactInformationMapper.convertToBasicUserContactInformationDto(contactInformation);
-  }
-
-  public BasicJobInformationDto findJobMessage(final String targetUserId,
-      final String authUserId) {
-    final JobUser target = jobUserService.getJobUserByUserId(targetUserId);
-
-    if (target == null) {
-      final User targetUser = userService.findById(targetUserId);
-      return userMapper.convertToBasicJobInformationDto(targetUser);
-    }
-
-    // The user's full job message can only be accessed by admin, the manager and himself.
-    final User currentUser = userService.findById(authUserId);
-    final Role userRole = currentUser.getRole();
-    if (authUserId.equals(targetUserId) || userRole == Role.ADMIN) {
-      return jobUserMapper.convertToJobInformationDto(target);
-    }
-
-    if (userRole == Role.MANAGER && target.getUser().getManagerUser() != null
-        && authUserId.equals(target.getUser().getManagerUser().getId())) {
-      return jobUserMapper.convertToJobInformationDto(target);
-    }
-
-    return jobUserMapper
-        .convertToBasicJobInformationDto(target);
   }
 
   @TransactionalEventListener(phase = TransactionPhase.AFTER_ROLLBACK)

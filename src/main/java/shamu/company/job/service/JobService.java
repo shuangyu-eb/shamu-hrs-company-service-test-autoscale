@@ -1,5 +1,6 @@
 package shamu.company.job.service;
 
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,7 +15,8 @@ public class JobService {
   private final JobRepository jobRepository;
 
   @Autowired
-  public JobService(final JobRepository jobRepository) {
+  public JobService(
+          final JobRepository jobRepository) {
     this.jobRepository = jobRepository;
   }
 
@@ -22,5 +24,21 @@ public class JobService {
     return jobRepository.findById(id)
        .orElseThrow(() ->
            new ResourceNotFoundException(String.format("Job with id %s not found!", id)));
+  }
+
+  public List<Job> findAllByDepartmentId(String id) {
+    return jobRepository.findAllByDepartmentId(id);
+  }
+
+  public Job save(Job job) {
+    return jobRepository.save(job);
+  }
+
+  public void deleteInBatch(List<String> list) {
+    jobRepository.deleteInBatch(list);
+  }
+
+  public void delete(String id) {
+    jobRepository.delete(id);
   }
 }

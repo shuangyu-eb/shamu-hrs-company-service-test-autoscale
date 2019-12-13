@@ -101,7 +101,7 @@ class UserPermissionUtilTests {
       final Department department = new Department();
       department.setCompany(company);
 
-      Mockito.when(companyService.getDepartmentsById(Mockito.anyString())).thenReturn(department);
+      Mockito.when(companyService.findDepartmentsById(Mockito.anyString())).thenReturn(department);
 
       final Name permission = Name.CREATE_DEPARTMENT;
       final Type permissionType = Type.DEPARTMENT;
@@ -119,7 +119,7 @@ class UserPermissionUtilTests {
       final Department department = new Department();
       department.setCompany(company);
 
-      Mockito.when(companyService.getDepartmentsById(Mockito.anyString())).thenReturn(department);
+      Mockito.when(companyService.findDepartmentsById(Mockito.anyString())).thenReturn(department);
 
       final Name permission = Name.CREATE_DEPARTMENT;
       final Type permissionType = Type.DEPARTMENT;

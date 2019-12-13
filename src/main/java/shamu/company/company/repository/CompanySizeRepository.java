@@ -6,7 +6,5 @@ import shamu.company.company.entity.CompanySize;
 
 public interface CompanySizeRepository extends BaseRepository<CompanySize, String> {
 
-  CompanySize findCompanySizeByName(String companySize);
-
   List<CompanySize> findAll();
 }

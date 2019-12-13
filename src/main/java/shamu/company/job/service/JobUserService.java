@@ -1,33 +1,32 @@
 package shamu.company.job.service;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.apache.commons.lang.StringUtils;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 import shamu.company.common.exception.ForbiddenException;
-import shamu.company.common.exception.ResourceNotFoundException;
-import shamu.company.common.repository.DepartmentRepository;
-import shamu.company.common.repository.EmploymentTypeRepository;
-import shamu.company.common.repository.OfficeAddressRepository;
-import shamu.company.common.repository.OfficeRepository;
+import shamu.company.common.service.DepartmentService;
+import shamu.company.common.service.OfficeAddressService;
+import shamu.company.common.service.OfficeService;
 import shamu.company.company.dto.OfficeCreateDto;
 import shamu.company.company.entity.Department;
 import shamu.company.company.entity.Office;
 import shamu.company.company.entity.OfficeAddress;
 import shamu.company.company.entity.mapper.OfficeAddressMapper;
 import shamu.company.company.entity.mapper.OfficeMapper;
+import shamu.company.employee.dto.SelectFieldSizeDto;
 import shamu.company.employee.entity.EmploymentType;
-import shamu.company.employee.service.EmployeeService;
+import shamu.company.employee.service.EmploymentTypeService;
 import shamu.company.job.dto.JobSelectOptionUpdateDto;
 import shamu.company.job.dto.JobUpdateDto;
 import shamu.company.job.entity.Job;
 import shamu.company.job.entity.JobUser;
 import shamu.company.job.entity.mapper.JobUserMapper;
-import shamu.company.job.repository.JobRepository;
 import shamu.company.job.repository.JobUserRepository;
 import shamu.company.server.dto.AuthUser;
 import shamu.company.timeoff.dto.MyTimeOffDto;
@@ -45,6 +44,7 @@ import shamu.company.user.service.UserService;
 import shamu.company.utils.DateUtil;
 
 @Service
+@Transactional
 public class JobUserService {
 
   private final JobUserRepository jobUserRepository;
@@ -55,25 +55,23 @@ public class JobUserService {
 
   private final UserCompensationMapper userCompensationMapper;
 
-  private final EmployeeService employeeService;
-
   private final UserRoleService userRoleService;
 
   private final TimeOffRequestService timeOffRequestService;
 
-  private final DepartmentRepository departmentRepository;
+  private final DepartmentService departmentService;
 
-  private final JobRepository jobRepository;
+  private final EmploymentTypeService employmentTypeService;
 
-  private final EmploymentTypeRepository employmentTypeRepository;
+  private final OfficeService officeService;
 
-  private final OfficeRepository officeRepository;
-
-  private final OfficeAddressRepository officeAddressRepository;
+  private final OfficeAddressService officeAddressService;
 
   private final OfficeAddressMapper officeAddressMapper;
 
   private final OfficeMapper officeMapper;
+
+  private final JobService jobService;
 
 
 
@@ -81,30 +79,28 @@ public class JobUserService {
       final UserService userService,
       final JobUserMapper jobUserMapper,
       final UserCompensationMapper userCompensationMapper,
-      final EmployeeService employeeService,
       final UserRoleService userRoleService,
       final TimeOffRequestService timeOffRequestService,
-      final DepartmentRepository departmentRepository,
-      final JobRepository jobRepository,
-      final EmploymentTypeRepository employmentTypeRepository,
-      final OfficeRepository officeRepository,
-      final OfficeAddressRepository officeAddressRepository,
+      final DepartmentService departmentService,
+      final EmploymentTypeService employmentTypeService,
+      final OfficeService officeService,
+      final OfficeAddressService officeAddressService,
       final OfficeAddressMapper officeAddressMapper,
-      final OfficeMapper officeMapper) {
+      final OfficeMapper officeMapper,
+      final JobService jobService) {
     this.jobUserRepository = jobUserRepository;
     this.userService = userService;
     this.userCompensationMapper = userCompensationMapper;
     this.jobUserMapper = jobUserMapper;
-    this.employeeService = employeeService;
     this.userRoleService = userRoleService;
     this.timeOffRequestService = timeOffRequestService;
-    this.departmentRepository = departmentRepository;
-    this.jobRepository = jobRepository;
-    this.employmentTypeRepository = employmentTypeRepository;
-    this.officeRepository = officeRepository;
-    this.officeAddressRepository = officeAddressRepository;
+    this.departmentService = departmentService;
+    this.employmentTypeService = employmentTypeService;
+    this.officeService = officeService;
+    this.officeAddressService = officeAddressService;
     this.officeAddressMapper = officeAddressMapper;
     this.officeMapper = officeMapper;
+    this.jobService = jobService;
   }
 
   public JobUser save(final JobUser jobUser) {
@@ -115,64 +111,51 @@ public class JobUserService {
     return jobUserRepository.findByUserId(userId);
   }
 
-  public void updateJobInfo(final String id, final JobUpdateDto jobUpdateDto,
-      final String companyId) {
+  public void updateJobInfo(
+          final String id, final JobUpdateDto jobUpdateDto, final String companyId) {
     final User user = userService.findById(id);
     JobUser jobUser = jobUserRepository.findJobUserByUser(user);
-    List<User> users = new ArrayList<>();
-    if (jobUser == null) {
+    final List<User> directReports;
+    // handle jobUser info
+    if (null == jobUser) {
       jobUser = new JobUser();
       jobUser.setUser(user);
-    } else {
-      users = employeeService
-          .findDirectReportsByManagerUserId(
-              companyId,
-              user.getId());
     }
     jobUserMapper.updateFromJobUpdateDto(jobUser, jobUpdateDto);
     jobUserRepository.save(jobUser);
-
-    UserCompensation userCompensation = user.getUserCompensation();
-
-    if (null != userCompensation && jobUpdateDto.getCompensationWage() == null) {
-      user.setUserCompensation(new UserCompensation());
-    }
-
-    if (jobUpdateDto.getCompensationWage() != null
-            && jobUpdateDto.getCompensationFrequencyId() != null) {
-      if (null == userCompensation) {
-        userCompensation = new UserCompensation();
-      }
-      userCompensationMapper.updateFromJobUpdateDto(userCompensation, jobUpdateDto);
-      userCompensation.setUserId(user.getId());
-      userCompensation = userService.saveUserCompensation(userCompensation);
-      user.setUserCompensation(userCompensation);
-    }
-
+    // handle manager info
+    directReports = userService
+            .findDirectReportsByManagerUserId(companyId, user.getId());
     final String managerId = jobUpdateDto.getManagerId();
-    if (!StringUtils.isEmpty(managerId) && (user.getManagerUser() == null
-        || !user.getManagerUser().getId().equals(managerId))) {
+    if (StringUtils.isNotEmpty(managerId) && (user.getManagerUser() == null
+            || !user.getManagerUser().getId().equals(managerId))) {
       final User manager = userService.findById(managerId);
-      final Role role = manager.getRole();
-      if (Role.EMPLOYEE == role) {
+      if (Role.EMPLOYEE == manager.getRole()) {
         manager.setUserRole(userRoleService.getManager());
       }
-      if (userService.findById(id).getManagerUser() == null) {
-        manager.setManagerUser(null);
-
-      } else if (isSubordinate(id, managerId)) {
+      if (isSubordinate(id, managerId)) {
         manager.setManagerUser(user.getManagerUser());
       }
       user.setManagerUser(manager);
       userService.save(manager);
-      final Role userRole = user.getRole();
-      if (userRole != Role.ADMIN) {
-        users.removeIf(user1 -> user1.getId().equals(managerId));
-        final UserRole targetRole = users.isEmpty()
-            ? userRoleService.getEmployee() : userRoleService.getManager();
-        user.setUserRole(targetRole);
+      if (user.getRole() != Role.ADMIN) {
+        directReports.removeIf(employee -> employee.getId().equals(managerId));
+        final UserRole targetUserRole = directReports.isEmpty()
+                ? userRoleService.getEmployee() : userRoleService.getManager();
+        user.setUserRole(targetUserRole);
       }
       handlePendingRequests(managerId);
+    }
+    //handle Compensation info
+    if (jobUpdateDto.getCompensationWage() != null
+            && jobUpdateDto.getCompensationFrequencyId() != null) {
+      UserCompensation userCompensation = user.getUserCompensation();
+      if (userCompensation == null) {
+        userCompensation = new UserCompensation();
+      }
+      userCompensationMapper.updateFromJobUpdateDto(userCompensation, jobUpdateDto);
+      userCompensation.setUserId(user.getId());
+      user.setUserCompensation(userCompensation);
     }
     userService.save(user);
   }
@@ -210,22 +193,22 @@ public class JobUserService {
   }
 
   public void updateJobSelectOption(
-          final String userId, final JobSelectOptionUpdateDto jobSelectOptionUpdateDto) {
-    final String id = jobSelectOptionUpdateDto.getId();
-    final String name = jobSelectOptionUpdateDto.getNewName();
+          final JobSelectOptionUpdateDto jobSelectOptionUpdateDto) {
+    String id = jobSelectOptionUpdateDto.getId();
+    String name = jobSelectOptionUpdateDto.getNewName();
 
     switch (jobSelectOptionUpdateDto.getUpdateField()) {
       case DEPARTMENT:
         updateDepartmentName(id, name);
         break;
       case JOB_TITLE:
-        updateJobName(id, name);
+        updateJobTitleName(id, name);
         break;
       case EMPLOYMENT_TYPE:
         updateEmployeeTypeName(id, name);
         break;
       case OFFICE_LOCATION:
-        updateOfficeName(id, jobSelectOptionUpdateDto.getOfficeCreateDto());
+        updateOfficeContent(id, jobSelectOptionUpdateDto.getOfficeCreateDto());
         break;
       default:
         break;
@@ -234,101 +217,111 @@ public class JobUserService {
   }
 
   private void updateDepartmentName(final String id, final String name) {
-    final Department department = departmentRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Department not found"));
+    final Department department = departmentService.findById(id);
     department.setName(name);
-    departmentRepository.save(department);
+    departmentService.save(department);
   }
 
-  private void updateJobName(final String id, final String name) {
-    final Job job = jobRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Job not found"));
+  private void updateJobTitleName(final String id, final String name) {
+    final Job job = jobService.findById(id);
     job.setTitle(name);
-    jobRepository.save(job);
+    jobService.save(job);
   }
 
   private void updateEmployeeTypeName(final String id, final String name) {
-    final EmploymentType employmentType = employmentTypeRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("EmploymentType not found"));
+    final EmploymentType employmentType = employmentTypeService.findById(id);
     employmentType.setName(name);
-    employmentTypeRepository.save(employmentType);
+    employmentTypeService.save(employmentType);
   }
 
-  private void updateOfficeName(final String id, final OfficeCreateDto officeCreateDto) {
-    final Office office = officeRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Office not found"));
+  private void updateOfficeContent(final String id, final OfficeCreateDto officeCreateDto) {
+    final Office office = officeService.findById(id);
     office.setName(officeCreateDto.getOfficeName());
 
     final OfficeAddress officeAddress = officeAddressMapper
             .updateFromOfficeCreateDto(office.getOfficeAddress(), officeCreateDto);
 
     final Office newOffice = officeMapper.convertToOffice(office, officeCreateDto, officeAddress);
-    officeRepository.save(newOffice);
+    officeService.save(newOffice);
   }
 
-  public void deleteJobSelectOption(
-          final String userId, final JobSelectOptionUpdateDto jobSelectOptionUpdateDto) {
+  public void deleteJobSelectOption(final JobSelectOptionUpdateDto jobSelectOptionUpdateDto) {
     final String id = jobSelectOptionUpdateDto.getId();
 
     switch (jobSelectOptionUpdateDto.getUpdateField()) {
       case DEPARTMENT:
-        deleteDepartmentName(id);
+        deleteDepartment(id);
         break;
       case JOB_TITLE:
-        deleteJobName(id);
+        deleteJobTitle(id);
         break;
       case EMPLOYMENT_TYPE:
-        deleteEmployeeTypeName(id);
+        deleteEmployeeType(id);
         break;
       case OFFICE_LOCATION:
-        deleteOfficeName(id);
+        deleteOffice(id);
         break;
       default:
         break;
     }
   }
 
-  private void deleteDepartmentName(final String id) {
-    final Integer count = departmentRepository.findCountByDepartment(id);
+  private void deleteDepartment(final String id) {
+    final Integer count = departmentService.findCountByDepartment(id);
     if (count > 0) {
       throw new ForbiddenException(
               "The Department has people, please remove then to another Department");
     }
-    final List<Job> jobs = jobRepository.findAllByDepartmentId(id);
+    final List<Job> jobs = jobService.findAllByDepartmentId(id);
     if (!CollectionUtils.isEmpty(jobs)) {
       final List<String> jobIds = jobs.stream().map(Job::getId).collect(Collectors.toList());
-      jobRepository.deleteInBatch(jobIds);
+      jobService.deleteInBatch(jobIds);
     }
-    departmentRepository.delete(id);
+    departmentService.delete(id);
   }
 
-  private void deleteJobName(final String id) {
-    final Integer count = jobUserRepository.getCountByJobId(id);
+  private void deleteJobTitle(final String id) {
+    final Integer count = getCountByJobId(id);
     if (count > 0) {
       throw new ForbiddenException(
               "The Job has people, please remove then to another Job");
     }
-    jobRepository.delete(id);
+    jobService.delete(id);
   }
 
-  private void deleteEmployeeTypeName(final String id) {
-    final Integer count = employmentTypeRepository.findCountByType(id);
+  private void deleteEmployeeType(final String id) {
+    final Integer count = employmentTypeService.findCountByType(id);
     if (count > 0) {
       throw new ForbiddenException(
               "The EmployeeType has people, please remove then to another EmployeeType");
     }
-    employmentTypeRepository.delete(id);
+    employmentTypeService.delete(id);
   }
 
-  private void deleteOfficeName(final String id) {
-    final Integer count = officeRepository.findCountByOffice(id);
+  private void deleteOffice(final String id) {
+    final Integer count = officeService.findCountByOffice(id);
     if (count > 0) {
       throw new ForbiddenException(
               "The Office has people, please remove then to another Office");
     }
-    final Office office = officeRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Office not found"));
-    officeRepository.delete(id);
-    officeAddressRepository.delete(office.getOfficeAddress());
+    final Office office = officeService.findById(id);
+    officeService.delete(id);
+    officeAddressService.delete(office.getOfficeAddress());
+  }
+
+  public Integer getCountByJobId(String jobId) {
+    return jobUserRepository.getCountByJobId(jobId);
+  }
+
+  public List<SelectFieldSizeDto> findJobsByDepartmentId(final String id) {
+    final List<Job> jobs = jobService.findAllByDepartmentId(id);
+    return jobs.stream().map(job -> {
+      final SelectFieldSizeDto selectFieldSizeDto = new SelectFieldSizeDto();
+      final Integer size = getCountByJobId(job.getId());
+      selectFieldSizeDto.setId(job.getId());
+      selectFieldSizeDto.setName(job.getTitle());
+      selectFieldSizeDto.setSize(size);
+      return selectFieldSizeDto;
+    }).collect(Collectors.toList());
   }
 }

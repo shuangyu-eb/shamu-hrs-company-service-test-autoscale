@@ -40,10 +40,4 @@ public class EmployeeInformationRestController extends BaseRestController {
       @PathVariable final String id) {
     return employeeService.findContactMessage(id, findAuthUser().getId());
   }
-
-  @GetMapping("users/{id}/job")
-  @PreAuthorize("hasPermission(#id,'USER','VIEW_USER_JOB')")
-  public BasicJobInformationDto findJobMessage(@PathVariable final String id) {
-    return employeeService.findJobMessage(id, findAuthUser().getId());
-  }
 }
