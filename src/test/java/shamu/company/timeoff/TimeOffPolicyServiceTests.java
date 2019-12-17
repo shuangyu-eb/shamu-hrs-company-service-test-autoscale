@@ -131,7 +131,7 @@ public class TimeOffPolicyServiceTests {
           .thenReturn(0);
 
       Assertions.assertDoesNotThrow(() -> {
-        Whitebox.invokeMethod(timeOffPolicyService,"checkPolicyNameIsExists",timeOffPolicy,company.getId());
+        Whitebox.invokeMethod(timeOffPolicyService,"checkPolicyNameIsExists",timeOffPolicy,company.getId(),0);
       });
     }
 
@@ -143,10 +143,12 @@ public class TimeOffPolicyServiceTests {
           .thenReturn(1);
 
       Assertions.assertThrows(ForbiddenException.class, () -> {
-        Whitebox.invokeMethod(timeOffPolicyService,"checkPolicyNameIsExists",timeOffPolicy,company.getId());
+        Whitebox.invokeMethod(timeOffPolicyService,"checkPolicyNameIsExists",timeOffPolicy,company.getId(),0);
       });
 
     }
+
+
 
 
   }

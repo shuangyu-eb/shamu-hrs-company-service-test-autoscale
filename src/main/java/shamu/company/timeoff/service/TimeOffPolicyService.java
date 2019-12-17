@@ -162,7 +162,7 @@ public class TimeOffPolicyService {
       final List<TimeOffPolicyUserFrontendDto> timeOffPolicyUserFrontendDtos,
       final Company company) {
 
-    checkPolicyNameIsExists(timeOffPolicyFrontendDto,company.getId());
+    checkPolicyNameIsExists(timeOffPolicyFrontendDto,company.getId(), 0);
 
     final TimeOffPolicy timeOffPolicy = timeOffPolicyRepository
         .save(timeOffPolicyMapper
@@ -186,11 +186,11 @@ public class TimeOffPolicyService {
   }
 
   private void checkPolicyNameIsExists(final TimeOffPolicyFrontendDto timeOffPolicyFrontendDto,
-      final String companyId) {
+      final String companyId,final Integer existNumber) {
     Integer existSamePolicyName = timeOffPolicyRepository
         .findByPolicyNameAndCompanyId(
             timeOffPolicyFrontendDto.getPolicyName(), companyId);
-    if (existSamePolicyName > 0) {
+    if (existSamePolicyName > existNumber) {
       throw new ForbiddenException(
           "A current Time Off policy with that name is already created. "
               + "Please enter another Policy Name.");
@@ -380,7 +380,7 @@ public class TimeOffPolicyService {
     final TimeOffPolicyFrontendDto timeOffPolicyFrontendDto = infoWrapper.getTimeOffPolicy();
     final TimeOffPolicy origin = getTimeOffPolicyById(id);
 
-    checkPolicyNameIsExists(timeOffPolicyFrontendDto, companyId);
+    checkPolicyNameIsExists(timeOffPolicyFrontendDto, companyId, 1);
 
     timeOffPolicyMapper.updateFromTimeOffPolicyFrontendDto(origin, timeOffPolicyFrontendDto);
 
@@ -452,11 +452,10 @@ public class TimeOffPolicyService {
 
   private boolean isScheduleChanged(final TimeOffPolicyAccrualSchedule originalSchedule,
       final TimeOffPolicyAccrualSchedule newSchedule) {
-    return !originalSchedule.getDaysBeforeAccrualStarts()
-        .equals(newSchedule.getDaysBeforeAccrualStarts())
-        || !originalSchedule.getAccrualHours().equals(newSchedule.getAccrualHours())
-        || !originalSchedule.getCarryoverLimit().equals(newSchedule.getCarryoverLimit())
-        || !originalSchedule.getMaxBalance().equals(newSchedule.getMaxBalance());
+    return originalSchedule.getDaysBeforeAccrualStarts() != newSchedule.getDaysBeforeAccrualStarts()
+        || originalSchedule.getAccrualHours() != newSchedule.getAccrualHours()
+        || originalSchedule.getCarryoverLimit() != newSchedule.getCarryoverLimit()
+        || originalSchedule.getMaxBalance() != newSchedule.getMaxBalance();
   }
 
   public List<AccrualScheduleMilestone> updateTimeOffPolicyMilestones(
