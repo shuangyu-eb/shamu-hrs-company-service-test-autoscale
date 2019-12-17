@@ -5,6 +5,8 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+import shamu.company.authorization.Permission;
+import shamu.company.authorization.PermissionUtils;
 import shamu.company.company.entity.Company;
 import shamu.company.company.service.CompanyService;
 import shamu.company.employee.dto.EmployeeListSearchCondition;
@@ -20,11 +22,14 @@ public class CompanyUserService {
 
   private final UserService userService;
 
+  private final PermissionUtils permissionUtils;
+
   @Autowired
   public CompanyUserService(final CompanyService companyService,
-      final UserService userService) {
+      final UserService userService, final PermissionUtils permissionUtils) {
     this.companyService = companyService;
     this.userService = userService;
+    this.permissionUtils = permissionUtils;
   }
 
   public List<User> findAllById(final List<String> ids) {
@@ -38,7 +43,7 @@ public class CompanyUserService {
 
   public Page<JobUserListItem> findAllEmployees(
           AuthUser user, EmployeeListSearchCondition employeeListSearchCondition) {
-    if (user.getRole() == User.Role.ADMIN) {
+    if (permissionUtils.hasAuthority(Permission.Name.VIEW_DISABLED_USER.name())) {
       employeeListSearchCondition.setIncludeDeactivated(true);
     }
     return userService.findAllEmployeesByName(employeeListSearchCondition, user.getCompanyId());

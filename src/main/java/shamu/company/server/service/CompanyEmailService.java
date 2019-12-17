@@ -81,15 +81,13 @@ public class CompanyEmailService {
     variables.put("documentUrl", documentUrl);
     variables.put("documentTitle", documentTitle);
 
-    if (!VIEW.equals(documentRequestEmailDto.getType())) {
-      final Timestamp expireDate = documentRequestEmailDto.getExpiredAt();
-      if (expireDate != null) {
-        // utc to cst
-        final ZonedDateTime zonedDateTime = ZonedDateTime
-                .of(expireDate.toLocalDateTime(), ZoneId.of("UTC"));
-        variables.put("dueDate", DateUtil.formatDateTo(zonedDateTime
-                .withZoneSameInstant(ZoneId.of("America/Managua")).toLocalDateTime(),"MMM dd"));
-      }
+    if (!VIEW.equals(documentRequestEmailDto.getType())
+            && null != documentRequestEmailDto.getExpiredAt()) {
+      // utc to cst
+      final ZonedDateTime zonedDateTime = ZonedDateTime
+              .of(documentRequestEmailDto.getExpiredAt().toLocalDateTime(), ZoneId.of("UTC"));
+      variables.put("dueDate", DateUtil.formatDateTo(zonedDateTime
+              .withZoneSameInstant(ZoneId.of("America/Managua")).toLocalDateTime(),"MMM dd"));
     }
 
     return variables;
