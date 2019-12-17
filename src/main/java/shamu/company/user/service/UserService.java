@@ -262,7 +262,7 @@ public class UserService {
       return "";
     }
     return emailAddress
-            .replaceAll("@", "-at-")
+            .replace("@", "-at-")
             .replaceAll("\\.", "-dot-");
   }
 
@@ -335,7 +335,7 @@ public class UserService {
 
     return policyEmployees.stream()
         .map(
-            (user) -> {
+            user -> {
               JobUser employeeWithJob = jobUserRepository.findJobUserByUser(user);
               return new JobUserDto(user, employeeWithJob);
             })
@@ -359,8 +359,7 @@ public class UserService {
     final List<OrgChartDto> orgChartDtoList = new ArrayList<>();
     List<OrgChartDto> orgChartManagerItemList = new ArrayList<>();
     if (!StringUtils.isBlank(userId)) {
-      OrgChartDto manager = null;
-      manager = userRepository.findOrgChartItemByUserId(userId, companyId);
+      OrgChartDto manager = userRepository.findOrgChartItemByUserId(userId, companyId);
       orgChartManagerItemList.add(manager);
     } else {
       // retrieve company admin from database
@@ -405,7 +404,7 @@ public class UserService {
         userContactInformationMapper.convertToUserContactInformationDto(userContactInformation);
 
     final List<UserEmergencyContact> userEmergencyContacts = userEmergencyContactService
-        .getUserEmergencyContacts(id);
+        .findUserEmergencyContacts(id);
 
     final List<UserEmergencyContactDto> userEmergencyContactDtos =
         userEmergencyContacts.stream()
@@ -678,8 +677,8 @@ public class UserService {
 
     final User user = findById(userId);
 
-    if (user.getUserContactInformation().getEmailWork() == newEmail) {
-      throw new ForbiddenException(String.format(" your new work email should be different"));
+    if (user.getUserContactInformation().getEmailWork().equals(newEmail)) {
+      throw new ForbiddenException(" your new work email should be different");
     }
 
     if (!auth0Helper.existsByEmail(newEmail)) {

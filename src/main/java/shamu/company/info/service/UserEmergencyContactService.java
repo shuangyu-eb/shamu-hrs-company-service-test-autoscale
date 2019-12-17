@@ -20,7 +20,7 @@ public class UserEmergencyContactService {
     return userEmergencyContactRepository.save(userEmergencyContact);
   }
 
-  public List<UserEmergencyContact> getUserEmergencyContacts(final String userId) {
+  public List<UserEmergencyContact> findUserEmergencyContacts(final String userId) {
     return userEmergencyContactRepository.findByUserId(userId);
   }
 

@@ -49,7 +49,7 @@ public class EmergencyContactRestController extends BaseRestController {
   public List<BasicUserEmergencyContactDto> getEmergencyContacts(
       @PathVariable final String userId) {
     final List<UserEmergencyContact> userEmergencyContacts = userEmergencyContactService
-        .getUserEmergencyContacts(userId);
+        .findUserEmergencyContacts(userId);
     return convertToUserEmergencyContactDtoByPermission(userId, userEmergencyContacts);
   }
 
