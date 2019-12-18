@@ -19,7 +19,11 @@ import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.common.repository.DepartmentRepository;
 import shamu.company.company.entity.Company;
 import shamu.company.company.entity.CompanySize;
-import shamu.company.company.entity.mapper.*;
+import shamu.company.company.entity.mapper.OfficeAddressMapper;
+import shamu.company.company.entity.mapper.OfficeAddressMapperImpl;
+import shamu.company.company.entity.mapper.OfficeMapper;
+import shamu.company.company.entity.mapper.OfficeMapperImpl;
+import shamu.company.company.entity.mapper.StateProvinceMapper;
 import shamu.company.company.repository.CompanyRepository;
 import shamu.company.company.repository.CompanySizeRepository;
 import shamu.company.email.EmailService;
@@ -48,7 +52,11 @@ import shamu.company.user.entity.UserPersonalInformation;
 import shamu.company.user.entity.UserRole;
 import shamu.company.user.entity.UserStatus;
 import shamu.company.user.entity.UserStatus.Status;
-import shamu.company.user.entity.mapper.*;
+import shamu.company.user.entity.mapper.UserAddressMapper;
+import shamu.company.user.entity.mapper.UserCompensationMapper;
+import shamu.company.user.entity.mapper.UserContactInformationMapper;
+import shamu.company.user.entity.mapper.UserMapper;
+import shamu.company.user.entity.mapper.UserPersonalInformationMapper;
 import shamu.company.user.repository.UserAccessLevelEventRepository;
 import shamu.company.user.repository.UserCompensationRepository;
 import shamu.company.user.repository.UserContactInformationRepository;
@@ -154,34 +162,48 @@ class UserServiceTests {
         jobUserService, jobUserMapper);
   }
 
-  @Test
-  void testSignUp() {
-    final String userId = UUID.randomUUID().toString().replaceAll("-", "");
-    final UserSignUpDto userSignUpDto = UserSignUpDto.builder()
-        .userId(userId)
-        .companyName(RandomStringUtils.randomAlphabetic(4))
-        .companySizeId(UUID.randomUUID().toString())
-        .firstName(RandomStringUtils.randomAlphabetic(3))
-        .lastName(RandomStringUtils.randomAlphabetic(3))
-        .phone(RandomStringUtils.randomAlphabetic(11))
-        .build();
+  @Nested
+  class SignUp {
 
-    Mockito.when(companySizeRepository.findById(Mockito.anyString()))
-        .thenReturn(Optional.of(new CompanySize()));
+    private String userId;
+    private UserSignUpDto userSignUpDto;
 
-    final Company company = new Company();
-    company.setName("company");
-    company.setCompanySize(new CompanySize(userSignUpDto.getCompanySizeId()));
-    Mockito.when(companyRepository.save(Mockito.any())).thenReturn(company);
+    @BeforeEach
+    void init() {
+      userId = UUID.randomUUID().toString().replaceAll("-", "");
+      userSignUpDto = UserSignUpDto.builder()
+          .userId(userId)
+          .companyName(RandomStringUtils.randomAlphabetic(4))
+          .companySizeId(UUID.randomUUID().toString())
+          .firstName(RandomStringUtils.randomAlphabetic(3))
+          .lastName(RandomStringUtils.randomAlphabetic(3))
+          .phone(RandomStringUtils.randomAlphabetic(11))
+          .build();
+    }
 
-    Mockito.when(userStatusRepository.findByName(Mockito.any()))
-        .thenReturn(new UserStatus(Status.ACTIVE.name()));
+    @Test
+    void whenCanNotFindEmail_thenShouldThrow() {
+      Assertions.assertThrows(ForbiddenException.class, () -> userService.signUp(userSignUpDto));
+    }
 
-    Mockito.when(userRepository.save(Mockito.any())).thenReturn(new User());
+    @Test
+    void whenCanFindEmail_thenShouldSuccess() {
+      Mockito.when(companySizeRepository.findById(Mockito.anyString()))
+          .thenReturn(Optional.of(new CompanySize()));
+      final com.auth0.json.mgmt.users.User auth0User = new com.auth0.json.mgmt.users.User();
+      auth0User.setEmail("example@mail.com");
+      Mockito.when(auth0Helper.getUserByUserIdFromAuth0(userId)).thenReturn(auth0User);
+      final Company company = new Company();
+      company.setName("company");
+      company.setCompanySize(new CompanySize(userSignUpDto.getCompanySizeId()));
+      Mockito.when(companyRepository.save(Mockito.any())).thenReturn(company);
+      Mockito.when(userStatusRepository.findByName(Mockito.any()))
+          .thenReturn(new UserStatus(Status.ACTIVE.name()));
+      Mockito.when(userRepository.save(Mockito.any())).thenReturn(new User());
 
-    userService.signUp(userSignUpDto);
-
-    Mockito.verify(userRepository, Mockito.times(1)).save(Mockito.any());
+      userService.signUp(userSignUpDto);
+      Mockito.verify(userRepository, Mockito.times(1)).save(Mockito.any());
+    }
   }
 
   @Test
@@ -238,7 +260,6 @@ class UserServiceTests {
   class HasUserAccess {
 
     User currentUser;
-
     String targetUserId;
 
     @BeforeEach
@@ -252,14 +273,11 @@ class UserServiceTests {
 
       final Company company = new Company();
       company.setId("1");
-
       currentUser.setCompany(company);
       this.currentUser = currentUser;
       targetUserId = "2";
-
       final User targetUser = new User();
       targetUser.setId(targetUserId);
-
       Mockito.when(userRepository.findByIdAndCompanyId(Mockito.anyString(), Mockito.anyString()))
           .thenReturn(targetUser);
     }
@@ -279,10 +297,8 @@ class UserServiceTests {
     void whenIsManager_thenShouldReturnTrue() {
       final User targetUser = new User();
       targetUser.setManagerUser(currentUser);
-
       Mockito.when(userRepository.findByIdAndCompanyId(Mockito.anyString(), Mockito.anyString()))
           .thenReturn(targetUser);
-
       final UserRole userRole = new UserRole();
       userRole.setName(Role.MANAGER.name());
       currentUser.setUserRole(userRole);
@@ -295,7 +311,6 @@ class UserServiceTests {
       Mockito.when(userRepository.getManagerUserIdById(Mockito.anyString()))
           .thenReturn(null);
       Mockito.when(auth0Helper.getUserRole(Mockito.anyString())).thenReturn(Role.EMPLOYEE);
-
       final boolean hasAccess = userService.hasUserAccess(currentUser, targetUserId);
       Assertions.assertFalse(hasAccess);
     }
@@ -312,15 +327,12 @@ class UserServiceTests {
     void setUp() {
       createPasswordDto = new CreatePasswordDto();
       createPasswordDto.setEmailWork("example@indeed.com");
-
       final String password = RandomStringUtils.randomAlphabetic(4).toUpperCase()
           + RandomStringUtils.randomAlphabetic(4).toLowerCase()
           + RandomStringUtils.randomNumeric(4);
-
       final String resetPasswordToken = UUID.randomUUID().toString().replaceAll("-", "");
       createPasswordDto.setNewPassword(password);
       createPasswordDto.setResetPasswordToken(resetPasswordToken);
-
       user = new com.auth0.json.mgmt.users.User();
     }
 
@@ -371,9 +383,7 @@ class UserServiceTests {
       final User targetUser = new User();
       targetUser.setResetPasswordToken(createPasswordDto.getResetPasswordToken());
       Mockito.when(userRepository.findByEmailWork(Mockito.anyString())).thenReturn(targetUser);
-
       Mockito.when(auth0Helper.getUserByUserIdFromAuth0(Mockito.any())).thenReturn(user);
-
       final UserStatus targetStatus = new UserStatus();
       targetStatus.setName(Status.ACTIVE.name());
       Mockito.when(userStatusRepository.findByName(Mockito.any())).thenReturn(targetStatus);
@@ -403,9 +413,7 @@ class UserServiceTests {
       final User databaseUser = new User();
       Mockito.when(auth0Helper.getUserByUserIdFromAuth0(Mockito.any())).thenReturn(auth0User);
       Mockito.when(userRepository.findByEmailWork(Mockito.anyString())).thenReturn(databaseUser);
-
       Mockito.when(userRepository.findByEmailWork(Mockito.anyString())).thenReturn(new User());
-
       Assertions.assertDoesNotThrow(() -> {
         userService.sendResetPasswordEmail("example@indeed.com");
       });
@@ -416,11 +424,8 @@ class UserServiceTests {
   class FindJobMessage {
 
     private String targetUserId;
-
     private String userId;
-
     private JobUser jobUser;
-
     private User currentUser;
 
     @BeforeEach
@@ -433,7 +438,7 @@ class UserServiceTests {
       userRole.setName(Role.MANAGER.name());
       targetUser.setUserRole(userRole);
       jobUser.setUser(targetUser);
-      Optional<User> optionalTargetUser = Optional.ofNullable(targetUser);
+      final Optional<User> optionalTargetUser = Optional.ofNullable(targetUser);
       Mockito.when(jobUserService.getJobUserByUserId(Mockito.anyString())).thenReturn(jobUser);
       Mockito.when(userRepository.findById(targetUserId)).thenReturn(optionalTargetUser);
 
@@ -443,14 +448,13 @@ class UserServiceTests {
       final UserRole currentUserRole = new UserRole();
       currentUserRole.setName(Role.MANAGER.name());
       currentUser.setUserRole(currentUserRole);
-      Optional<User> optionalCurrentUser = Optional.ofNullable(currentUser);
+      final Optional<User> optionalCurrentUser = Optional.ofNullable(currentUser);
       Mockito.when(userRepository.findById(userId)).thenReturn(optionalCurrentUser);
     }
 
     @Test
     void whenCanNotFindUserJob_thenReturnBasicJobInformation() {
       Mockito.when(jobUserService.getJobUserByUserId(Mockito.anyString())).thenReturn(null);
-
       final BasicJobInformationDto jobInformation = userService
               .findJobMessage(targetUserId, userId);
       Assertions.assertNotNull(jobInformation);

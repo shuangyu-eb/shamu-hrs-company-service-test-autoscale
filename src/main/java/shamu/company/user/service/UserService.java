@@ -359,7 +359,7 @@ public class UserService {
     final List<OrgChartDto> orgChartDtoList = new ArrayList<>();
     List<OrgChartDto> orgChartManagerItemList = new ArrayList<>();
     if (!StringUtils.isBlank(userId)) {
-      OrgChartDto manager = userRepository.findOrgChartItemByUserId(userId, companyId);
+      final OrgChartDto manager = userRepository.findOrgChartItemByUserId(userId, companyId);
       orgChartManagerItemList.add(manager);
     } else {
       // retrieve company admin from database
@@ -571,8 +571,9 @@ public class UserService {
         .lastName(signUpDto.getLastName())
         .build();
 
+    final String emailAddress = findUserEmailOnAuth0(signUpDto.getUserId());
     final UserContactInformation userContactInformation = UserContactInformation.builder()
-        .emailWork(signUpDto.getEmail())
+        .emailWork(emailAddress)
         .phoneWork(signUpDto.getPhone())
         .build();
 
@@ -618,6 +619,16 @@ public class UserService {
     jobUserRepository.save(jobUser);
 
     paidHolidayService.initDefaultPaidHolidays(user.getCompany());
+  }
+
+  private String findUserEmailOnAuth0(final String userId) {
+    final com.auth0.json.mgmt.users.User auth0User = auth0Helper
+        .getUserByUserIdFromAuth0(userId);
+    if (auth0User == null) {
+      throw new ForbiddenException("User not registered!");
+    }
+
+    return auth0User.getEmail();
   }
 
   public boolean hasUserAccess(final User currentUser, final String targetUserId) {
@@ -893,7 +904,7 @@ public class UserService {
     return userRepository.findAllById(ids);
   }
 
-  public List<User> findAllByCompanyId(String companyId) {
+  public List<User> findAllByCompanyId(final String companyId) {
     return userRepository.findAllByCompanyId(companyId);
   }
 
