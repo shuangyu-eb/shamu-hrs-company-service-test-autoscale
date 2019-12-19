@@ -1,4 +1,4 @@
-package shamu.company.s3;
+package shamu.company.helpers.s3;
 
 
 public enum Type {

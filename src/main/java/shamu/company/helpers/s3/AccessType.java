@@ -1,4 +1,4 @@
-package shamu.company.s3;
+package shamu.company.helpers.s3;
 
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 

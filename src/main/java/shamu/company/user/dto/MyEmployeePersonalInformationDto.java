@@ -1,7 +1,7 @@
 package shamu.company.user.dto;
 
 import lombok.Data;
-import shamu.company.s3.PreSinged;
+import shamu.company.helpers.s3.PreSinged;
 
 @Data
 public class MyEmployeePersonalInformationDto extends BasicUserPersonalInformationDto {

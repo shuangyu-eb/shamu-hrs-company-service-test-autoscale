@@ -43,6 +43,8 @@ import shamu.company.employee.dto.BasicJobInformationDto;
 import shamu.company.employee.dto.EmployeeListSearchCondition;
 import shamu.company.employee.dto.OrgChartDto;
 import shamu.company.helpers.auth0.Auth0Helper;
+import shamu.company.helpers.s3.AwsHelper;
+import shamu.company.helpers.s3.Type;
 import shamu.company.info.dto.UserEmergencyContactDto;
 import shamu.company.info.entity.UserEmergencyContact;
 import shamu.company.info.service.UserEmergencyContactService;
@@ -55,8 +57,6 @@ import shamu.company.job.repository.JobRepository;
 import shamu.company.job.repository.JobUserRepository;
 import shamu.company.job.service.JobUserService;
 import shamu.company.redis.AuthUserCacheManager;
-import shamu.company.s3.AwsUtil;
-import shamu.company.s3.Type;
 import shamu.company.scheduler.DynamicScheduler;
 import shamu.company.server.dto.AuthUser;
 import shamu.company.timeoff.service.PaidHolidayService;
@@ -120,7 +120,7 @@ public class UserService {
   private final EmailService emailService;
   private final UserCompensationRepository userCompensationRepository;
   private final Auth0Helper auth0Helper;
-  private final AwsUtil awsUtil;
+  private final AwsHelper awsHelper;
   private final UserMapper userMapper;
   private final AuthUserCacheManager authUserCacheManager;
   private final UserAccessLevelEventRepository userAccessLevelEventRepository;
@@ -160,7 +160,7 @@ public class UserService {
       final UserContactInformationRepository userContactInformationRepository,
       final UserPersonalInformationRepository userPersonalInformationRepository,
       final DynamicScheduler dynamicScheduler,
-      final AwsUtil awsUtil,
+      final AwsHelper awsHelper,
       final UserRoleService userRoleService,
       @Lazy final PermissionUtils permissionUtils,
       @Lazy final JobUserService jobUserService,
@@ -188,7 +188,7 @@ public class UserService {
     this.userContactInformationRepository = userContactInformationRepository;
     this.userPersonalInformationRepository = userPersonalInformationRepository;
     this.dynamicScheduler = dynamicScheduler;
-    this.awsUtil = awsUtil;
+    this.awsHelper = awsHelper;
     this.userRoleService = userRoleService;
     this.permissionUtils = permissionUtils;
     this.jobUserService = jobUserService;
@@ -859,7 +859,7 @@ public class UserService {
   }
 
   public String handleUploadFile(final String id, final MultipartFile file) {
-    final String path = awsUtil.uploadFile(file, Type.IMAGE);
+    final String path = awsHelper.uploadFile(file, Type.IMAGE);
 
     if (Strings.isBlank(path)) {
       return null;
@@ -868,7 +868,7 @@ public class UserService {
     final User user = findById(id);
     final String originalPath = user.getImageUrl();
     if (originalPath != null) {
-      awsUtil.deleteFile(originalPath);
+      awsHelper.deleteFile(originalPath);
     }
 
     user.setImageUrl(path);

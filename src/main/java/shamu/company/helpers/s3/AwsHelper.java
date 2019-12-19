@@ -1,4 +1,4 @@
-package shamu.company.s3;
+package shamu.company.helpers.s3;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
@@ -17,6 +17,7 @@ import java.util.Calendar;
 import java.util.UUID;
 import javax.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ResourceUtils;
@@ -26,17 +27,26 @@ import shamu.company.common.exception.response.ErrorType;
 
 @Component
 @Slf4j
-public class AwsUtil {
+public class AwsHelper {
 
   private static final long expires = 1000 * 60 * 60 * 6;
 
-  @Value("${aws.bucketName}")
+  private static String tempUrl = "/temp";
+
+  private static String uploads = "/uploads";
+
   private String bucketName;
 
-  @Value("${aws.folder}")
   private String folder;
 
-  private AmazonS3 getClient() {
+  @Autowired
+  public AwsHelper(@Value("${aws.bucketName}") final String bucketName,
+                   @Value("${aws.folder}") final String folder) {
+    this.bucketName = bucketName;
+    this.folder = folder;
+  }
+
+  private AmazonS3 findClient() {
     return AmazonS3ClientBuilder.defaultClient();
   }
 
@@ -90,10 +100,10 @@ public class AwsUtil {
   }
 
   public String uploadFile(final String filePath, final Type type, final AccessType accessType) {
-    final AmazonS3 s3Client = getClient();
+    final AmazonS3 s3Client = findClient();
     final File file = new File(filePath);
     final String fileName = file.getName();
-    final String path = getSavePathInAws(fileName, type);
+    final String path = findSavePathInAws(fileName, type);
     if (!file.exists() || !file.isFile()) {
       throw new AwsException("The file: " + filePath + " doesn't exist.");
     }
@@ -127,7 +137,7 @@ public class AwsUtil {
     return path;
   }
 
-  private String getSavePathInAws(final String fileName, final Type type) {
+  private String findSavePathInAws(final String fileName, final Type type) {
     final Calendar now = Calendar.getInstance();
     final String year = String.valueOf(now.get(Calendar.YEAR));
     final String month = String.valueOf(now.get(Calendar.MONTH) + 1);
@@ -138,9 +148,9 @@ public class AwsUtil {
   }
 
   public String moveFileFromTemp(final String path) {
-    final AmazonS3 amazonS3 = getClient();
+    final AmazonS3 amazonS3 = findClient();
     try {
-      final String key = path.replace("/temp", "/uploads");
+      final String key = path.replace(tempUrl, uploads);
       log.info("move file from /temp");
       amazonS3.copyObject(new CopyObjectRequest(bucketName, path, bucketName, key));
       amazonS3.deleteObject(bucketName, path);
@@ -170,7 +180,7 @@ public class AwsUtil {
   }
 
   public void deleteFile(final String path) {
-    final AmazonS3 amazonS3 = getClient();
+    final AmazonS3 amazonS3 = findClient();
     try {
       log.info("delete file from Amazon S3");
       amazonS3.deleteObject(bucketName, path);
@@ -190,9 +200,9 @@ public class AwsUtil {
     }
   }
 
-  public String getPreSignedUrl(final String key) {
+  public String findPreSignedUrl(final String key) {
     try {
-      final AmazonS3 s3Client = getClient();
+      final AmazonS3 s3Client = findClient();
 
       // Set the pre-signed URL to expire after one hour.
       final java.util.Date expiration = new java.util.Date();
@@ -218,11 +228,11 @@ public class AwsUtil {
     }
   }
 
-  public String getAwsPath() {
+  public String findAwsPath() {
     return "https://" + bucketName + ".s3.amazonaws.com/";
   }
 
-  public String getFullFileUrl(final String path) {
-    return getAwsPath() + path;
+  public String findFullFileUrl(final String path) {
+    return findAwsPath() + path;
   }
 }

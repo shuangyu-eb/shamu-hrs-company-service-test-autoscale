@@ -12,7 +12,7 @@ import org.mockito.MockitoAnnotations;
 import org.thymeleaf.TemplateEngine;
 import shamu.company.common.ApplicationConfig;
 import shamu.company.email.EmailService;
-import shamu.company.s3.AwsUtil;
+import shamu.company.helpers.s3.AwsHelper;
 import shamu.company.timeoff.entity.TimeOffRequest;
 import shamu.company.timeoff.entity.TimeOffRequestDate;
 import shamu.company.timeoff.service.TimeOffRequestEmailService;
@@ -24,7 +24,7 @@ public class TimeOffRequestEmailServiceTests {
   private EmailService emailService;
 
   @Mock
-  private AwsUtil awsUtil;
+  private AwsHelper awsHelper;
 
   @Mock
   private TemplateEngine templateEngine;
@@ -40,7 +40,7 @@ public class TimeOffRequestEmailServiceTests {
   @BeforeEach
   void setUp() {
     MockitoAnnotations.initMocks(this);
-    timeOffRequestEmailService = new TimeOffRequestEmailService(emailService, awsUtil,
+    timeOffRequestEmailService = new TimeOffRequestEmailService(emailService, awsHelper,
         templateEngine, applicationConfig, timeOffRequestService);
   }
 

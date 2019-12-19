@@ -3,7 +3,10 @@ package shamu.company.benefit.dto;
 import com.alibaba.fastjson.annotation.JSONField;
 import java.sql.Timestamp;
 import lombok.Data;
-import shamu.company.s3.PreSinged;
+import shamu.company.benefit.entity.BenefitPlan;
+import shamu.company.benefit.entity.BenefitPlanType;
+import shamu.company.company.entity.Company;
+import shamu.company.helpers.s3.PreSinged;
 
 @Data
 public class BenefitPlanCreateDto {

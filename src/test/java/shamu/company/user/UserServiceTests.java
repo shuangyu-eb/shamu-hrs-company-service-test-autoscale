@@ -38,7 +38,7 @@ import shamu.company.job.repository.JobRepository;
 import shamu.company.job.repository.JobUserRepository;
 import shamu.company.job.service.JobUserService;
 import shamu.company.redis.AuthUserCacheManager;
-import shamu.company.s3.AwsUtil;
+import shamu.company.helpers.s3.AwsHelper;
 import shamu.company.scheduler.DynamicScheduler;
 import shamu.company.timeoff.service.PaidHolidayService;
 import shamu.company.user.dto.CreatePasswordDto;
@@ -117,7 +117,7 @@ class UserServiceTests {
   @Mock
   private DynamicScheduler dynamicScheduler;
   @Mock
-  private AwsUtil awsUtil;
+  private AwsHelper awsHelper;
   @Mock
   private UserRoleService userRoleService;
   @Mock
@@ -158,7 +158,7 @@ class UserServiceTests {
         jobRepository, userMapper, authUserCacheManager,userContactInformationRepository,
         userPersonalInformationRepository,
         dynamicScheduler,
-        awsUtil, userRoleService, permissionUtils,
+            awsHelper, userRoleService, permissionUtils,
         jobUserService, jobUserMapper);
   }
 

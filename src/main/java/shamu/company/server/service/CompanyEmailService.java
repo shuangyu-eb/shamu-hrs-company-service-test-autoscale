@@ -20,7 +20,7 @@ import org.thymeleaf.context.Context;
 import shamu.company.common.ApplicationConfig;
 import shamu.company.email.Email;
 import shamu.company.email.EmailService;
-import shamu.company.s3.AwsUtil;
+import shamu.company.helpers.s3.AwsHelper;
 import shamu.company.server.dto.DocumentRequestEmailDto;
 import shamu.company.server.dto.DocumentRequestEmailDto.DocumentRequestType;
 import shamu.company.user.entity.User;
@@ -36,7 +36,7 @@ public class CompanyEmailService {
 
   private final ITemplateEngine templateEngine;
 
-  private final AwsUtil awsUtil;
+  private final AwsHelper awsHelper;
 
   private final ApplicationConfig applicationConfig;
 
@@ -44,12 +44,12 @@ public class CompanyEmailService {
   public CompanyEmailService(final UserService userService,
       final EmailService emailService,
       final ITemplateEngine templateEngine,
-      final AwsUtil awsUtil,
+      final AwsHelper awsHelper,
       final ApplicationConfig applicationConfig) {
     this.userService = userService;
     this.emailService = emailService;
     this.templateEngine = templateEngine;
-    this.awsUtil = awsUtil;
+    this.awsHelper = awsHelper;
     this.applicationConfig = applicationConfig;
   }
 
@@ -73,7 +73,7 @@ public class CompanyEmailService {
 
     final String senderName = sender.getUserPersonalInformation().getName();
     final String senderAvatar =
-        sender.getImageUrl() != null ? awsUtil.getFullFileUrl(sender.getImageUrl())
+        sender.getImageUrl() != null ? awsHelper.findFullFileUrl(sender.getImageUrl())
             : applicationConfig.getFrontEndAddress() + "image/person.png";
 
     variables.put("senderName", senderName);

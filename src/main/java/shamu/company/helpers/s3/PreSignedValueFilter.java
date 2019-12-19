@@ -1,4 +1,4 @@
-package shamu.company.s3;
+package shamu.company.helpers.s3;
 
 import com.alibaba.fastjson.serializer.ValueFilter;
 import org.apache.logging.log4j.util.Strings;
@@ -9,11 +9,11 @@ import shamu.company.utils.AnnotationUtil;
 @Component
 public class PreSignedValueFilter implements ValueFilter {
 
-  private final AwsUtil awsUtil;
+  private final AwsHelper awsHelper;
 
   @Autowired
-  public PreSignedValueFilter(final AwsUtil awsUtil) {
-    this.awsUtil = awsUtil;
+  public PreSignedValueFilter(final AwsHelper awsHelper) {
+    this.awsHelper = awsHelper;
   }
 
 
@@ -23,7 +23,7 @@ public class PreSignedValueFilter implements ValueFilter {
         && AnnotationUtil.fieldHasAnnotation(object.getClass(), name, PreSinged.class)
         && !Strings.isBlank((String) value)
         && !((String) value).startsWith("http")) {
-      return awsUtil.getPreSignedUrl((String) value);
+      return awsHelper.findPreSignedUrl((String) value);
     }
     return value;
   }

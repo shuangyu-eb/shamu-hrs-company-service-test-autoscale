@@ -41,7 +41,7 @@ import shamu.company.job.entity.mapper.JobUserMapper;
 import shamu.company.job.entity.mapper.JobUserMapperImpl;
 import shamu.company.job.service.JobService;
 import shamu.company.job.service.JobUserService;
-import shamu.company.s3.AwsUtil;
+import shamu.company.helpers.s3.AwsHelper;
 import shamu.company.user.dto.BasicUserContactInformationDto;
 import shamu.company.user.dto.BasicUserPersonalInformationDto;
 import shamu.company.user.dto.UserContactInformationDto;
@@ -58,7 +58,6 @@ import shamu.company.user.entity.UserStatus.Status;
 import shamu.company.user.entity.mapper.UserAddressMapper;
 import shamu.company.user.entity.mapper.UserCompensationMapper;
 import shamu.company.user.entity.mapper.UserContactInformationMapper;
-import shamu.company.user.entity.mapper.UserMapper;
 import shamu.company.user.entity.mapper.UserPersonalInformationMapper;
 import shamu.company.user.service.CompensationFrequencyService;
 import shamu.company.user.service.GenderService;
@@ -88,7 +87,7 @@ class EmployeeServiceTests {
   private GenderService genderService;
   @Mock
   private MaritalStatusService maritalStatusService;
-  @Mock private AwsUtil awsUtil;
+  @Mock private AwsHelper awsHelper;
   @Mock
   private CompensationFrequencyService compensationFrequencyService;
   @Mock
@@ -136,7 +135,7 @@ class EmployeeServiceTests {
     MockitoAnnotations.initMocks(this);
     employeeService = new EmployeeService(userAddressService, employmentTypeService,
         officeService, userService, stateProvinceService, countryService, userCompensationService,
-        userEmergencyContactService, jobService, userStatusService, awsUtil, genderService,
+        userEmergencyContactService, jobService, userStatusService, awsHelper, genderService,
         maritalStatusService, emailService, compensationFrequencyService,
         userPersonalInformationService,
         userContactInformationService, userPersonalInformationMapper, userAddressMapper,

@@ -41,6 +41,8 @@ import shamu.company.employee.dto.WelcomeEmailDto;
 import shamu.company.employee.entity.EmploymentType;
 import shamu.company.employee.event.Auth0UserCreatedEvent;
 import shamu.company.helpers.auth0.Auth0Helper;
+import shamu.company.helpers.s3.AwsHelper;
+import shamu.company.helpers.s3.Type;
 import shamu.company.info.dto.UserEmergencyContactDto;
 import shamu.company.info.entity.UserEmergencyContact;
 import shamu.company.info.entity.mapper.UserEmergencyContactMapper;
@@ -52,8 +54,6 @@ import shamu.company.job.entity.JobUser;
 import shamu.company.job.entity.mapper.JobUserMapper;
 import shamu.company.job.service.JobService;
 import shamu.company.job.service.JobUserService;
-import shamu.company.s3.AwsUtil;
-import shamu.company.s3.Type;
 import shamu.company.user.dto.BasicUserContactInformationDto;
 import shamu.company.user.dto.BasicUserPersonalInformationDto;
 import shamu.company.user.dto.UserAddressDto;
@@ -99,7 +99,7 @@ public class EmployeeService {
   private final JobService jobService;
   private final GenderService genderService;
   private final MaritalStatusService maritalStatusService;
-  private final AwsUtil awsUtil;
+  private final AwsHelper awsHelper;
   private final CompensationFrequencyService compensationFrequencyService;
   private final StateProvinceService stateProvinceService;
   private final CountryService countryService;
@@ -137,7 +137,7 @@ public class EmployeeService {
       final UserEmergencyContactService userEmergencyContactService,
       final JobService jobService,
       final UserStatusService userStatusService,
-      final AwsUtil awsUtil,
+      final AwsHelper awsHelper,
       final GenderService genderService,
       final MaritalStatusService maritalStatusService,
       final EmailService emailService,
@@ -163,7 +163,7 @@ public class EmployeeService {
     this.userEmergencyContactService = userEmergencyContactService;
     this.jobService = jobService;
     this.userStatusService = userStatusService;
-    this.awsUtil = awsUtil;
+    this.awsHelper = awsHelper;
     this.genderService = genderService;
     this.maritalStatusService = maritalStatusService;
     this.emailService = emailService;
@@ -261,7 +261,7 @@ public class EmployeeService {
       FileCopyUtils.copy(photo, file);
       FileValidateUtil
           .validate(file, 2 * FileValidateUtil.MB, FileType.JPEG, FileType.PNG, FileType.GIF);
-      return awsUtil.uploadFile(file.getCanonicalPath(), Type.IMAGE);
+      return awsHelper.uploadFile(file.getCanonicalPath(), Type.IMAGE);
     } catch (final IOException e) {
       throw new AwsException("Error while uploading employee photo!", e);
     }

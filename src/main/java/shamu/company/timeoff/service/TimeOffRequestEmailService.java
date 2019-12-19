@@ -19,7 +19,7 @@ import org.thymeleaf.context.Context;
 import shamu.company.common.ApplicationConfig;
 import shamu.company.email.Email;
 import shamu.company.email.EmailService;
-import shamu.company.s3.AwsUtil;
+import shamu.company.helpers.s3.AwsHelper;
 import shamu.company.timeoff.entity.TimeOffRequest;
 import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.TimeOffApprovalStatus;
 import shamu.company.timeoff.entity.TimeOffRequestDate;
@@ -32,7 +32,7 @@ public class TimeOffRequestEmailService {
   private final EmailService emailService;
 
 
-  private final AwsUtil awsUtil;
+  private final AwsHelper awsHelper;
 
   private final ITemplateEngine templateEngine;
 
@@ -42,11 +42,11 @@ public class TimeOffRequestEmailService {
 
   @Autowired
   public TimeOffRequestEmailService(final EmailService emailService,
-      final AwsUtil awsUtil,
+      final AwsHelper awsHelper,
       final TemplateEngine templateEngine, final ApplicationConfig applicationConfig,
       @Lazy final TimeOffRequestService timeOffRequestService) {
     this.emailService = emailService;
-    this.awsUtil = awsUtil;
+    this.awsHelper = awsHelper;
     this.templateEngine = templateEngine;
     this.applicationConfig = applicationConfig;
     this.timeOffRequestService = timeOffRequestService;
@@ -209,7 +209,7 @@ public class TimeOffRequestEmailService {
     variables.put("requesterId", requester.getId());
     variables.put("requesterName", requester.getUserPersonalInformation().getName());
     variables.put("helpUrl", applicationConfig.getHelpUrl());
-    variables.put("pathPrefix", awsUtil.getAwsPath());
+    variables.put("pathPrefix", awsHelper.findAwsPath());
 
     return variables;
   }

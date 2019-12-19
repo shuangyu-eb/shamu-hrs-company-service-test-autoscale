@@ -1,4 +1,4 @@
-package shamu.company.s3;
+package shamu.company.helpers.s3;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;

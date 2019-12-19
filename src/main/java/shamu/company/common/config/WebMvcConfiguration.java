@@ -11,7 +11,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import shamu.company.crypto.CryptoValueFilter;
-import shamu.company.s3.PreSignedValueFilter;
+import shamu.company.helpers.s3.PreSignedValueFilter;
 
 @Configuration
 public class WebMvcConfiguration extends WebMvcConfigurationSupport {

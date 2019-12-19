@@ -29,8 +29,8 @@ import shamu.company.benefit.service.BenefitPlanService;
 import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.common.validation.constraints.FileValidate;
-import shamu.company.s3.AccessType;
-import shamu.company.s3.AwsUtil;
+import shamu.company.helpers.s3.AccessType;
+import shamu.company.helpers.s3.AwsHelper;
 
 @RestApiController
 @Validated
@@ -39,17 +39,17 @@ public class BenefitPlanRestController extends BaseRestController {
 
   private final BenefitPlanService benefitPlanService;
 
-  private final AwsUtil awsUtil;
+  private final AwsHelper awsHelper;
 
   private final BenefitPlanMapper benefitPlanMapper;
 
 
   public BenefitPlanRestController(
       final BenefitPlanService benefitPlanService,
-      final AwsUtil awsUtil,
+      final AwsHelper awsHelper,
       final BenefitPlanMapper benefitPlanMapper) {
     this.benefitPlanService = benefitPlanService;
-    this.awsUtil = awsUtil;
+    this.awsHelper = awsHelper;
     this.benefitPlanMapper = benefitPlanMapper;
   }
 
@@ -73,7 +73,7 @@ public class BenefitPlanRestController extends BaseRestController {
       //TODO: Need an appropriate file size.
       @FileValidate(maxSize = 10 * 1024 * 1024, fileType = {"PDF"}) final MultipartFile document)
       throws IOException {
-    final String path = awsUtil.uploadFile(document, AccessType.Private);
+    final String path = awsHelper.uploadFile(document, AccessType.Private);
 
     if (Strings.isBlank(path)) {
       return;

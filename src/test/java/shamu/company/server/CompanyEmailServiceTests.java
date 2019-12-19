@@ -10,10 +10,9 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.powermock.reflect.Whitebox;
 import org.thymeleaf.ITemplateEngine;
-import org.thymeleaf.context.Context;
 import shamu.company.common.ApplicationConfig;
 import shamu.company.email.EmailService;
-import shamu.company.s3.AwsUtil;
+import shamu.company.helpers.s3.AwsHelper;
 import shamu.company.server.dto.DocumentRequestEmailDto;
 import shamu.company.server.service.CompanyEmailService;
 import shamu.company.user.entity.User;
@@ -40,7 +39,7 @@ public class CompanyEmailServiceTests {
   private ITemplateEngine templateEngine;
 
   @Mock
-  private AwsUtil awsUtil;
+  private AwsHelper awsHelper;
 
   @Mock
   private ApplicationConfig applicationConfig;
@@ -72,7 +71,7 @@ public class CompanyEmailServiceTests {
     void whenSendHasAvatar_thenReturnS3ImageUrl() throws Exception {
       documentRequestEmailDto.setType(DocumentRequestEmailDto.DocumentRequestType.VIEW);
       sender.setImageUrl(Mockito.anyString());
-      Mockito.when(awsUtil.getFullFileUrl(sender.getImageUrl())).thenReturn(s3ImageUrl);
+      Mockito.when(awsHelper.findFullFileUrl(sender.getImageUrl())).thenReturn(s3ImageUrl);
       Map<String, Object> variables =  Whitebox.invokeMethod(companyEmailService, "findVariables", documentRequestEmailDto, sender);
       Assertions.assertEquals(s3ImageUrl, variables.get("senderAvatar"));
     }
