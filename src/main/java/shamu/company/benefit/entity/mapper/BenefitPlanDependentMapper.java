@@ -6,6 +6,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import shamu.company.benefit.dto.BenefitDependentCreateDto;
 import shamu.company.benefit.dto.BenefitDependentDto;
+import shamu.company.benefit.dto.BenefitPlanUserDto;
 import shamu.company.benefit.entity.BenefitPlanDependent;
 import shamu.company.benefit.entity.DependentRelationship;
 import shamu.company.common.entity.StateProvince;
@@ -23,6 +24,9 @@ public interface BenefitPlanDependentMapper {
   @Mapping(target = "phone", source = "phoneHome")
   @Mapping(target = "relationShip", source = "dependentRelationship")
   BenefitDependentDto convertToBenefitDependentDto(BenefitPlanDependent benefitPlanDependent);
+
+  @Mapping(target = "imageUrl", source = "employee.imageUrl")
+  BenefitPlanUserDto convertToBenefitPlanUserDto(BenefitPlanDependent benefitPlanDependent);
 
   BenefitPlanDependent createFromBenefitDependentCreateDto(
       BenefitDependentCreateDto benefitDependentCreateDto);

@@ -346,29 +346,31 @@ databaseChangeLog:
         tableName: benefit_plan_dependent_relationships
 
 - changeSet:
-    id: 1573021838000-3
-    author: max-eb
-    changes:
-    - modifyDataType:
-        columnName: id
-        newDataType: BINARY(16)
-        tableName: benefit_plan_dependents
-    - modifyDataType:
-        columnName: employee_id
-        newDataType: BINARY(16)
-        tableName: benefit_plan_dependents
-    - modifyDataType:
-        columnName: dependent_relationship_id
-        newDataType: BINARY(16)
-        tableName: benefit_plan_dependents
-    - modifyDataType:
-        columnName: gender_id
-        newDataType: BINARY(16)
-        tableName: benefit_plan_dependents
-    - modifyDataType:
-        columnName: state_id
-        newDataType: BINARY(16)
-        tableName: benefit_plan_dependents
+      id: 1573021838000-3
+      author: max-eb
+      runOnChange: true
+      changes:
+          - modifyDataType:
+                columnName: id
+                newDataType: BINARY(16)
+                tableName: benefit_plan_dependents
+          - modifyDataType:
+                columnName: employee_id
+                newDataType: BINARY(16)
+                tableName: benefit_plan_dependents
+          - modifyDataType:
+                columnName: dependent_relationship_id
+                newDataType: BINARY(16)
+                tableName: benefit_plan_dependents
+          - modifyDataType:
+                columnName: gender_id
+                newDataType: BINARY(16)
+                tableName: benefit_plan_dependents
+          - modifyDataType:
+                columnName: state_id
+                newDataType: BINARY(16)
+                tableName: benefit_plan_dependents
+
 - changeSet:
     id: 1573021838000-4
     author: max-eb
@@ -2245,43 +2247,43 @@ databaseChangeLog:
         referencedTableName: companies
 
 - changeSet:
-    id: 1573021838000-143
-    author: max-eb
-    preConditions:
-      onFail: WARN
-    changes:
-    - addForeignKeyConstraint:
-        baseColumnNames: employee_id
-        baseTableName: benefit_plan_dependents
-        constraintName: fk_benefit_plans_dependents_employee
-        onDelete: CASCADE
-        onUpdate: CASCADE
-        referencedColumnNames: id
-        referencedTableName: users
-    - addForeignKeyConstraint:
-        baseColumnNames: dependent_relationship_id
-        baseTableName: benefit_plan_dependents
-        constraintName: fk_benefit_plans_dependents_relationship
-        onDelete: CASCADE
-        onUpdate: CASCADE
-        referencedColumnNames: id
-        referencedTableName: benefit_plan_dependent_relationships
-    - addForeignKeyConstraint:
-        baseColumnNames: gender_id
-        baseTableName: benefit_plan_dependents
-        constraintName: fk_benefit_plans_dependents_gender
-        onDelete: SET NULL
-        onUpdate: CASCADE
-        referencedColumnNames: id
-        referencedTableName: genders
-    - addForeignKeyConstraint:
-        baseColumnNames: state_id
-        baseTableName: benefit_plan_dependents
-        constraintName: fk_benefit_plans_dependents_state
-        onDelete: SET NULL
-        onUpdate: CASCADE
-        referencedColumnNames: id
-        referencedTableName: states
+      id: 1573021838000-143
+      author: max-eb
+      preConditions:
+          onFail: WARN
+      changes:
+          - addForeignKeyConstraint:
+                baseColumnNames: employee_id
+                baseTableName: benefit_plan_dependents
+                constraintName: fk_benefit_plans_dependents_employee
+                onDelete: CASCADE
+                onUpdate: CASCADE
+                referencedColumnNames: id
+                referencedTableName: users
+          - addForeignKeyConstraint:
+                baseColumnNames: dependent_relationship_id
+                baseTableName: benefit_plan_dependents
+                constraintName: fk_benefit_plans_dependents_relationship
+                onDelete: CASCADE
+                onUpdate: CASCADE
+                referencedColumnNames: id
+                referencedTableName: benefit_plan_dependent_relationships
+          - addForeignKeyConstraint:
+                baseColumnNames: gender_id
+                baseTableName: benefit_plan_dependents
+                constraintName: fk_benefit_plans_dependents_gender
+                onDelete: SET NULL
+                onUpdate: CASCADE
+                referencedColumnNames: id
+                referencedTableName: genders
+          - addForeignKeyConstraint:
+                baseColumnNames: state_id
+                baseTableName: benefit_plan_dependents
+                constraintName: fk_benefit_plans_dependents_state
+                onDelete: SET NULL
+                onUpdate: CASCADE
+                referencedColumnNames: id
+                referencedTableName: states
 
 - changeSet:
     id: 1573021838000-144
@@ -2299,40 +2301,41 @@ databaseChangeLog:
         referencedTableName: benefit_plans
 
 - changeSet:
-    id: 1573021838000-145
-    author: max-eb
-    preConditions:
-      onFail: WARN
-    changes:
-    - dropForeignKeyConstraint:
-        baseTableName: user_emergency_contacts
-        constraintName: fk_emergency_contacts_states
-    - dropForeignKeyConstraint:
-        baseTableName: benefit_plan_dependents
-        constraintName: fk_benefit_plans_dependents_state
+      id: 1573021838000-145
+      author: max-eb
+      preConditions:
+          onFail: WARN
+      changes:
+          - dropForeignKeyConstraint:
+                baseTableName: user_emergency_contacts
+                constraintName: fk_emergency_contacts_states
+          - dropForeignKeyConstraint:
+                baseTableName: benefit_plan_dependents
+                constraintName: fk_benefit_plans_dependents_state
 
 - changeSet:
-    id: 1573021838000-146
-    author: max-eb
-    preConditions:
-      onFail: WARN
-    changes:
-    - addForeignKeyConstraint:
-        baseColumnNames: state_id
-        baseTableName: user_emergency_contacts
-        constraintName: fk_emergency_contacts_states_provinces
-        onDelete: SET NULL
-        onUpdate: CASCADE
-        referencedColumnNames: id
-        referencedTableName: states_provinces
-    - addForeignKeyConstraint:
-        baseColumnNames: state_id
-        baseTableName: benefit_plan_dependents
-        constraintName: fk_benefit_plans_dependents_state_provinces
-        onDelete: SET NULL
-        onUpdate: CASCADE
-        referencedColumnNames: id
-        referencedTableName: states_provinces
+      id: 1573021838000-146
+      author: max-eb
+      preConditions:
+          onFail: WARN
+      changes:
+          - addForeignKeyConstraint:
+                baseColumnNames: state_id
+                baseTableName: user_emergency_contacts
+                constraintName: fk_emergency_contacts_states_provinces
+                onDelete: SET NULL
+                onUpdate: CASCADE
+                referencedColumnNames: id
+                referencedTableName: states_provinces
+          - addForeignKeyConstraint:
+                baseColumnNames: state_id
+                baseTableName: benefit_plan_dependents
+                constraintName: fk_benefit_plans_dependents_state_provinces
+                onDelete: SET NULL
+                onUpdate: CASCADE
+                referencedColumnNames: id
+                referencedTableName: states_provinces
+
 
 - changeSet:
     id: 1573021838000-147
@@ -2392,32 +2395,237 @@ databaseChangeLog:
           tableName: users
 
 - changeSet:
-    id: 1574752067000-1
-    author: max-eb
-    changes:
-    - sql:
-        sql: drop trigger if exists ins_states
-
-- changeSet:
-    id: 1574752067000-2
-    author: max-eb
-    changes:
-    - dropTable:
-        tableName: states
-
-- changeSet:
-    id: 1574752067000-3
-    author: max-eb
-    changes:
-    - dropTable:
-        tableName: time_off_requests_approvers
-
-- changeSet:
     id: 1575666601000-1
     author: lei-eb
     changes:
      - sql:
          sql: update users set salt = REPLACE(UUID(), '-', '') where salt is null;
+
+- changeSet:
+    id: 1571290949899-1
+    author: michaelkong-eb
+    changes:
+        - modifyDataType:
+              columnName: employee_cost
+              newDataType: decimal(18,2)
+              tableName: benefit_plan_coverages
+
+- changeSet:
+    id: 1571290949899-2
+    author: michaelkong-eb
+    changes:
+        - modifyDataType:
+              columnName: employer_cost
+              newDataType: decimal(18,2)
+              tableName: benefit_plan_coverages
+
+- changeSet:
+    id: 1571290949899-3
+    author: michaelkong-eb
+    preConditions:
+      onFail: MARK_RAN
+      not:
+        columnExists:
+          columnName: coverage_id
+          tableName: benefit_plans_users
+    changes:
+        - addColumn:
+              columns:
+                  - column:
+                        name: coverage_id
+                        type: BINARY(16)
+                        constraints:
+                            references: benefit_plan_coverages(id)
+                            foreignKeyName: fk_benefit_plan_coverages_id
+              tableName: benefit_plans_users
+
+- changeSet:
+      id: 1571620472864-9
+      author: shuangyu-eb
+      changes:
+          - renameTable:
+                newTableName: user_dependents
+                oldTableName: benefit_plan_dependents
+
+- changeSet:
+      id: 1571621125551-10
+      author: shuangyu-eb
+      changes:
+          - createTable:
+                columns:
+                    - column:
+                          name: id
+                          type: BINARY(16)
+                          constraints:
+                              primaryKey: true
+                    - column:
+                          name: benefit_plans_users_id
+                          type: BINARY(16)
+                    - column:
+                          name: user_dependents_id
+                          type: BINARY(16)
+                          constraints:
+                              references: user_dependents(id)
+                              foreignKeyName: fk_benefit_plan_user_dependents_id
+                    - column:
+                          name: created_at
+                          type: DATETIME
+                    - column:
+                          name: updated_at
+                          type: DATETIME
+                    - column:
+                          name: deleted_at
+                          type: DATETIME
+                tableName: benefit_plan_dependents
+
+- changeSet:
+      id: 1571625604552-11
+      author: shuangyu-eb
+      changes:
+          - addColumn:
+                columns:
+                    - column:
+                          name: dependent_id
+                          type: BINARY(16)
+                          constraints:
+                              references: benefit_plan_dependents(id)
+                              foreignKeyName: fk_benefit_plan_user_dependent_id
+                tableName: benefit_plans_users
+
+
+- changeSet:
+      id: 1571970875712-12
+      author: shuangyu-eb
+      changes:
+          - dropForeignKeyConstraint:
+                baseTableName: benefit_plans_users
+                constraintName: fk_benefit_plan_user_dependent_id
+
+- changeSet:
+      id: 1572851675874-15
+      author: shuangyu-eb
+      changes:
+          - addForeignKeyConstraint:
+                baseColumnNames: benefit_plans_users_id
+                baseTableName: benefit_plan_dependents
+                onDelete: CASCADE
+                onUpdate: CASCADE
+                constraintName: fk_benefit_plan_dependent_plans_users_id
+                referencedColumnNames: id
+                referencedTableName: benefit_plans_users
+
+- changeSet:
+      id: 1572316537321-16
+      author: shuangyu-eb
+      changes:
+          - addColumn:
+                columns:
+                    - column:
+                          name: confirmed
+                          type: BOOLEAN
+                          defaultValue: false
+                tableName: benefit_plans_users
+
+- changeSet:
+      id: 1573004837450-1
+      author: haibo-eb
+      changes:
+          - dropColumn:
+                columnName: deleted_at
+                tableName: benefit_plan_dependents
+
+- changeSet:
+      id: 1574752067000-1
+      author: max-eb
+      changes:
+          - sql:
+                sql: drop trigger if exists ins_states
+
+- changeSet:
+      id: 1574752067000-2
+      author: max-eb
+      changes:
+          - dropTable:
+                tableName: states
+
+- changeSet:
+      id: 1574752067000-3
+      author: max-eb
+      changes:
+          - dropTable:
+                tableName: time_off_requests_approvers
+
+- changeSet:
+    id: 1576218997786-1
+    author: haibo-eb
+    preConditions:
+        onFail: WARN
+    changes:
+        - dropForeignKeyConstraint:
+              baseTableName: user_dependents
+              constraintName: fk_benefit_plans_dependents_employee
+        - addForeignKeyConstraint:
+              baseColumnNames: employee_id
+              baseTableName: user_dependents
+              constraintName: fk_user_dependents_employee
+              onDelete: CASCADE
+              onUpdate: CASCADE
+              referencedColumnNames: id
+              referencedTableName: users
+
+- changeSet:
+      id: 1576218997786-2
+      author: haibo-eb
+      preConditions:
+          onFail: WARN
+      changes:
+          - dropForeignKeyConstraint:
+                baseTableName: user_dependents
+                constraintName: fk_benefit_plans_dependents_relationship
+          - addForeignKeyConstraint:
+                baseColumnNames: dependent_relationship_id
+                baseTableName: user_dependents
+                constraintName: fk_user_dependents_relationship
+                onDelete: CASCADE
+                onUpdate: CASCADE
+                referencedColumnNames: id
+                referencedTableName: benefit_plan_dependent_relationships
+
+- changeSet:
+    id: 1576218997786-3
+    author: haibo-eb
+    preConditions:
+      onFail: WARN
+    changes:
+      - dropForeignKeyConstraint:
+          baseTableName: user_dependents
+          constraintName: fk_benefit_plans_dependents_gender
+      - addForeignKeyConstraint:
+          baseColumnNames: gender_id
+          baseTableName: user_dependents
+          constraintName: fk_user_dependents_gender
+          onDelete: SET NULL
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: genders
+
+- changeSet:
+    id: 1576218997786-4
+    author: haibo-eb
+    preConditions:
+      onFail: WARN
+    changes:
+      - dropForeignKeyConstraint:
+          baseTableName: user_dependents
+          constraintName: fk_benefit_plans_dependents_state_provinces
+      - addForeignKeyConstraint:
+          baseColumnNames: state_id
+          baseTableName: user_dependents
+          constraintName: fk_user_dependents_state_provinces
+          onDelete: SET NULL
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: states_provinces
 
 - changeSet:
       id: 1575883980072-1
@@ -2428,11 +2636,10 @@ databaseChangeLog:
           - dropForeignKeyConstraint:
                 baseTableName: office_addresses
                 constraintName: fk_offices_addresses_countries
-
 - changeSet:
       id: 1575883980072-2
       author: bin-eb
       changes:
-      - dropColumn:
-          columnName: country_id
-          tableName: office_addresses
+          - dropColumn:
+                columnName: country_id
+                tableName: office_addresses

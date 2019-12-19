@@ -6,5 +6,8 @@ import shamu.company.common.repository.BaseRepository;
 
 public interface BenefitPlanTypeRepository extends BaseRepository<BenefitPlanType, String> {
 
+  @Override
   List<BenefitPlanType> findAll();
+
+  BenefitPlanType findByName(String planType);
 }

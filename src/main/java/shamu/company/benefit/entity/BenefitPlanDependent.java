@@ -16,10 +16,11 @@ import shamu.company.user.entity.User;
 
 @Data
 @Entity
-@Table(name = "benefit_plan_dependents")
+@Table(name = "user_dependents")
 @NoArgsConstructor
 public class BenefitPlanDependent extends BaseEntity {
 
+  private static final long serialVersionUID = -4190925451913461606L;
   @ManyToOne
   private User employee;
 

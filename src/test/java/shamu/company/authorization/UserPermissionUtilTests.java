@@ -299,11 +299,11 @@ class UserPermissionUtilTests {
       @Test
       void whenHasPermission_thenShouldReturnTrue() {
         initAuthenticationWithPermission(
-            Collections.singletonList(Name.VIEW_DOCUMENT_REPORTS.name()));
+            Collections.singletonList(Name.CREATE_USER.name()));
         final boolean hasPermission = userPermissionUtils.hasPermission(getAuthentication(),
             RandomStringUtils.randomAlphabetic(16),
             Type.USER,
-            Name.VIEW_DOCUMENT_REPORTS);
+            Name.CREATE_USER);
         Assertions.assertTrue(hasPermission);
       }
 
@@ -312,7 +312,7 @@ class UserPermissionUtilTests {
         final boolean hasPermission = userPermissionUtils.hasPermission(getAuthentication(),
             RandomStringUtils.randomAlphabetic(16),
             Type.USER,
-            Name.VIEW_DOCUMENT_REPORTS);
+            Name.CREATE_USER);
         Assertions.assertFalse(hasPermission);
       }
     }

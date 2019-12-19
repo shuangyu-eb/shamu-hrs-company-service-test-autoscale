@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import shamu.company.benefit.dto.BenefitDependentCreateDto;
 import shamu.company.benefit.dto.BenefitDependentDto;
+import shamu.company.benefit.dto.BenefitPlanUserDto;
 import shamu.company.benefit.entity.BenefitPlanDependent;
 import shamu.company.benefit.entity.DependentRelationship;
 import shamu.company.benefit.entity.mapper.BenefitPlanDependentMapper;
@@ -114,5 +115,17 @@ public class BenefitPlanDependentController {
   public List<CommonDictionaryDto> getAllDependentRelationships() {
     final List<DependentRelationship> results = relationshipRepository.findAll();
     return ReflectionUtil.convertTo(results, CommonDictionaryDto.class);
+  }
+
+  @GetMapping("users/{userId}/benefit-plan-dependents")
+  @PreAuthorize("hasPermission(#userId,'USER', 'EDIT_SELF')")
+  public List<BenefitPlanUserDto> getUserDependentContacts(
+      @PathVariable final String userId) {
+    final List<BenefitPlanDependent> userDependentContacts = benefitPlanDependentService
+        .getDependentListsByEmployeeId(userId);
+
+    return userDependentContacts.stream()
+        .map(benefitPlanDependentMapper::convertToBenefitPlanUserDto)
+        .collect(Collectors.toList());
   }
 }

@@ -48,4 +48,8 @@ public class CompanyUserService {
     }
     return userService.findAllEmployeesByName(employeeListSearchCondition, user.getCompanyId());
   }
+
+  public User findUserByUserId(final String userId) {
+    return userService.findActiveAndDeactivatedUserByUserId(userId);
+  }
 }

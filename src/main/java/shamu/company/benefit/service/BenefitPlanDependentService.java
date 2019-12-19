@@ -5,40 +5,40 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import shamu.company.benefit.entity.BenefitPlanDependent;
-import shamu.company.benefit.repository.BenefitPlanDependentRepository;
+import shamu.company.benefit.repository.UserDependentsRepository;
 
 @Service
 public class BenefitPlanDependentService {
 
-  private final BenefitPlanDependentRepository benefitPlanDependentRepository;
+  private final UserDependentsRepository userDependentsRepository;
 
   @Autowired
   public BenefitPlanDependentService(
-      final BenefitPlanDependentRepository benefitPlanDependentRepository) {
-    this.benefitPlanDependentRepository = benefitPlanDependentRepository;
+      final UserDependentsRepository userDependentsRepository) {
+    this.userDependentsRepository = userDependentsRepository;
   }
 
 
   public void createBenefitPlanDependent(final BenefitPlanDependent benefitPlanDependent) {
-    benefitPlanDependentRepository.save(benefitPlanDependent);
+    userDependentsRepository.save(benefitPlanDependent);
   }
 
   public List<BenefitPlanDependent> getDependentListsByEmployeeId(final String id) {
-    return benefitPlanDependentRepository.findByUserId(id);
+    return userDependentsRepository.findByUserId(id);
   }
 
   public void updateDependentContact(final BenefitPlanDependent benefitPlanDependent) {
-    benefitPlanDependentRepository.save(benefitPlanDependent);
+    userDependentsRepository.save(benefitPlanDependent);
   }
 
   public void deleteDependentContact(final String id) {
-    benefitPlanDependentRepository.delete(id);
+    userDependentsRepository.delete(id);
   }
 
   public BenefitPlanDependent findDependentById(final String dependentId) {
 
     final Optional<BenefitPlanDependent> benefitPlanDependent
-        = benefitPlanDependentRepository.findById(dependentId);
+        = userDependentsRepository.findById(dependentId);
     return benefitPlanDependent.orElse(null);
   }
 }

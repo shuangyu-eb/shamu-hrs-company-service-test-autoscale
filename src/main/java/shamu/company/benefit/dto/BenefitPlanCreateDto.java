@@ -1,10 +1,8 @@
 package shamu.company.benefit.dto;
 
-import java.sql.Date;
+import com.alibaba.fastjson.annotation.JSONField;
+import java.sql.Timestamp;
 import lombok.Data;
-import shamu.company.benefit.entity.BenefitPlan;
-import shamu.company.benefit.entity.BenefitPlanType;
-import shamu.company.company.entity.Company;
 import shamu.company.s3.PreSinged;
 
 @Data
@@ -29,14 +27,9 @@ public class BenefitPlanCreateDto {
   @PreSinged
   private String documentUrl;
 
-  private Date startDate;
+  @JSONField(format = "MM/dd/yyyy")
+  private Timestamp startDate;
 
-  private Date endDate;
-
-  public BenefitPlan getBenefitPlan(final Company company) {
-    return new BenefitPlan(this.planName, this.description, this.planId, this.startDate,
-        this.endDate,
-        this.documentName, this.documentUrl, company, this.planWebSite,
-        new BenefitPlanType(this.benefitPlanTypeId));
-  }
+  @JSONField(format = "MM/dd/yyyy")
+  private Timestamp endDate;
 }

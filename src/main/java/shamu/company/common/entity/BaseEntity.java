@@ -1,5 +1,6 @@
 package shamu.company.common.entity;
 
+import java.io.Serializable;
 import java.sql.Timestamp;
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
@@ -13,7 +14,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 @MappedSuperclass
 @Data
-public class BaseEntity {
+public class BaseEntity implements Serializable {
 
   @Id
   @GeneratedValue(generator = "UUID")

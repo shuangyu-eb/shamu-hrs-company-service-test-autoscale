@@ -11,4 +11,6 @@ public class NewBenefitPlanWrapperDto {
   private List<BenefitPlanCoverageDto> coverages;
 
   private List<BenefitPlanUserCreateDto> selectedEmployees;
+
+  private Boolean forAllEmployees;
 }

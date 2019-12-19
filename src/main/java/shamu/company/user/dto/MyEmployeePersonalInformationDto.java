@@ -1,6 +1,7 @@
 package shamu.company.user.dto;
 
 import lombok.Data;
+import shamu.company.s3.PreSinged;
 
 @Data
 public class MyEmployeePersonalInformationDto extends BasicUserPersonalInformationDto {
@@ -13,6 +14,7 @@ public class MyEmployeePersonalInformationDto extends BasicUserPersonalInformati
 
   private String ethnicityName;
 
+  @PreSinged
   private String imageUrl;
 
   private String maritalStatusId;

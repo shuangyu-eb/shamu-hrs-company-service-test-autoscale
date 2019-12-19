@@ -23,7 +23,6 @@ public interface TimeOffPolicyUserMapper {
   TimeOffPolicyUser createFromTimeOffPolicyUserFrontendDtoAndTimeOffPolicyId(
       TimeOffPolicyUserFrontendDto timeOffPolicyUserFrontendDto, String timeOffPolicyId);
 
-
   default User convertFromUserId(final String userId) {
     return !StringUtils.isEmpty(userId) ? new User(userId) : null;
   }

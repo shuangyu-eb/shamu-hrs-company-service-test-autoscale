@@ -19,7 +19,7 @@ public class BenefitPlanTypeRestController {
     this.benefitPlanTypeRepository = benefitPlanTypeRepository;
   }
 
-  @GetMapping("benefit-plan-types")
+  @GetMapping("all-benefit-plan-types")
   public List<CommonDictionaryDto> getBenefitPlanTypes() {
 
     List<BenefitPlanType> planTypes = benefitPlanTypeRepository

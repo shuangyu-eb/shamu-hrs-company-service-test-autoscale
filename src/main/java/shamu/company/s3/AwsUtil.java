@@ -58,20 +58,20 @@ public class AwsUtil {
   }
 
   public String uploadFile(final MultipartFile multipartFile) {
-    return this.uploadFile(multipartFile, Type.DEFAULT);
+    return uploadFile(multipartFile, Type.DEFAULT);
   }
 
   public String uploadFile(final MultipartFile multipartFile, final AccessType accessType) {
-    return this.uploadFile(multipartFile, Type.DEFAULT, accessType);
+    return uploadFile(multipartFile, Type.DEFAULT, accessType);
   }
 
   public String uploadFile(@NotNull final MultipartFile multipartFile, final Type type) {
-    return this.uploadFile(multipartFile, type, AccessType.PublicRead);
+    return uploadFile(multipartFile, type, AccessType.PublicRead);
   }
 
   public String uploadFile(@NotNull final MultipartFile multipartFile, final Type type,
       final AccessType accessType) {
-    final File file = this.generateFile(multipartFile.getOriginalFilename());
+    final File file = generateFile(multipartFile.getOriginalFilename());
     if (multipartFile.isEmpty()) {
       throw new AwsException("File is empty.");
     }
@@ -82,15 +82,15 @@ public class AwsUtil {
       throw new AwsException("Failed to upload file!");
     }
 
-    return this.uploadFile(file.getPath(), type, accessType);
+    return uploadFile(file.getPath(), type, accessType);
   }
 
   public String uploadFile(final String filePath, final Type type) {
-    return this.uploadFile(filePath, type, AccessType.PublicRead);
+    return uploadFile(filePath, type, AccessType.PublicRead);
   }
 
   public String uploadFile(final String filePath, final Type type, final AccessType accessType) {
-    final AmazonS3 s3Client = this.getClient();
+    final AmazonS3 s3Client = getClient();
     final File file = new File(filePath);
     final String fileName = file.getName();
     final String path = getSavePathInAws(fileName, type);
@@ -123,7 +123,7 @@ public class AwsUtil {
       throw new AwsException("Failed to upload file!");
     }
 
-    this.deleteFile(file);
+    deleteFile(file);
     return path;
   }
 
@@ -138,7 +138,7 @@ public class AwsUtil {
   }
 
   public String moveFileFromTemp(final String path) {
-    final AmazonS3 amazonS3 = this.getClient();
+    final AmazonS3 amazonS3 = getClient();
     try {
       final String key = path.replace("/temp", "/uploads");
       log.info("move file from /temp");
@@ -170,7 +170,7 @@ public class AwsUtil {
   }
 
   public void deleteFile(final String path) {
-    final AmazonS3 amazonS3 = this.getClient();
+    final AmazonS3 amazonS3 = getClient();
     try {
       log.info("delete file from Amazon S3");
       amazonS3.deleteObject(bucketName, path);
@@ -219,10 +219,10 @@ public class AwsUtil {
   }
 
   public String getAwsPath() {
-    return "https://" + this.bucketName + ".s3.amazonaws.com/";
+    return "https://" + bucketName + ".s3.amazonaws.com/";
   }
 
   public String getFullFileUrl(final String path) {
-    return this.getAwsPath() + path;
+    return getAwsPath() + path;
   }
 }

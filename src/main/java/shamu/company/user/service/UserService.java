@@ -515,6 +515,10 @@ public class UserService {
     return userRepository.findActiveAndDeactivatedUserByUserId(user.getId());
   }
 
+  public User findActiveAndDeactivatedUserByUserId(final String id) {
+    return userRepository.findActiveAndDeactivatedUserByUserId(id);
+  }
+
   public void deleteUser(final User employee) {
 
     adjustUserManagerRelationshipBeforeDeleteOrDeactivate(employee);

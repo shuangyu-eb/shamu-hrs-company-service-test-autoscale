@@ -7,7 +7,10 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class BenefitPlanUserCreateDto {
+public class BenefitPlanTypeDto {
+  private String benefitPlanTypeId;
 
-  private String id;
+  private String benefitPlanType;
+
+  private Number benefitPlanNumber = 0;
 }

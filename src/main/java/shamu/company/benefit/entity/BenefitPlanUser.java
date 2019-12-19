@@ -1,6 +1,12 @@
 package shamu.company.benefit.entity;
 
+import java.util.Set;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -22,7 +28,17 @@ public class BenefitPlanUser extends BaseEntity {
   @ManyToOne
   private BenefitPlan benefitPlan;
 
+  @ManyToOne
+  @JoinColumn(name = "coverage_id")
+  private BenefitPlanCoverage benefitPlanCoverage;
 
   private Boolean enrolled;
+
+  @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+  @JoinTable(
+      name = "benefit_plan_dependents",
+      joinColumns = @JoinColumn(name = "benefit_plans_users_id"),
+      inverseJoinColumns = @JoinColumn(name = "user_dependents_id"))
+  private Set<BenefitPlanDependent> benefitPlanDependents;
 
 }

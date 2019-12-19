@@ -47,6 +47,7 @@ public interface UserMapper {
   @Mapping(target = "email", source = "userContactInformation.emailWork")
   @Mapping(target = "companyId", source = "company.id")
   @Mapping(target = "role", source = "userRole")
+  @Mapping(target = "managerId", source = "managerUser.id")
   AuthUser convertToAuthUser(User user);
 
   @Mapping(target = "email", source = "userContactInformation.emailWork")

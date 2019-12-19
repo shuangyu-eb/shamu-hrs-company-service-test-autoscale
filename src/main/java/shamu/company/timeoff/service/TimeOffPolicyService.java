@@ -311,6 +311,13 @@ public class TimeOffPolicyService {
     }
   }
 
+  public Integer getTimeOffBalanceByUserAndPolicy(final User user,
+      final TimeOffPolicy timeOffPolicy) {
+    return timeOffPolicyUserRepository
+        .findTimeOffPolicyUserByUserAndTimeOffPolicy(user, timeOffPolicy)
+        .getInitialBalance();
+  }
+
   public TimeOffPolicy getTimeOffPolicyById(final String id) {
     return timeOffPolicyRepository.findById(id)
         .orElseThrow(() -> new ResourceNotFoundException("Time off policy was not found."));

@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,12 +13,16 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
-import shamu.company.benefit.dto.BenefitPlanClusterDto;
-import shamu.company.benefit.dto.BenefitPlanCoverageDto;
-import shamu.company.benefit.dto.BenefitPlanCreateDto;
+import shamu.company.benefit.dto.BenefitPlanDetailDto;
 import shamu.company.benefit.dto.BenefitPlanDto;
+import shamu.company.benefit.dto.BenefitPlanPreviewDto;
+import shamu.company.benefit.dto.BenefitPlanTypeDto;
+import shamu.company.benefit.dto.BenefitPlanUpdateDto;
 import shamu.company.benefit.dto.BenefitPlanUserCreateDto;
+import shamu.company.benefit.dto.BenefitSummaryDto;
 import shamu.company.benefit.dto.NewBenefitPlanWrapperDto;
+import shamu.company.benefit.dto.SelectedEnrollmentInfoDto;
+import shamu.company.benefit.dto.UserBenefitPlanDto;
 import shamu.company.benefit.entity.BenefitPlan;
 import shamu.company.benefit.entity.mapper.BenefitPlanMapper;
 import shamu.company.benefit.service.BenefitPlanService;
@@ -51,17 +56,14 @@ public class BenefitPlanRestController extends BaseRestController {
   @PostMapping("benefit-plan")
   @PreAuthorize("hasAuthority('MANAGE_BENEFIT_PLAN')")
   public BenefitPlanDto createBenefitPlan(@RequestBody final NewBenefitPlanWrapperDto data) {
-    final BenefitPlanCreateDto benefitPlanCreateDto = data.getBenefitPlan();
+    return benefitPlanService.createBenefitPlan(data, findCompanyId());
+  }
 
-    final List<BenefitPlanCoverageDto> benefitPlanCoverageDtoList = data.getCoverages();
-
-    final List<BenefitPlanUserCreateDto> benefitPlanUserCreateDtoList = data.getSelectedEmployees();
-
-    final BenefitPlan benefitPlan = benefitPlanService
-        .createBenefitPlan(benefitPlanCreateDto, benefitPlanCoverageDtoList,
-            benefitPlanUserCreateDtoList,
-            findCompanyId());
-    return benefitPlanMapper.convertToBenefitPlanDto(benefitPlan);
+  @PatchMapping("benefit-plans/{id}")
+  @PreAuthorize("hasPermission(#id,'BENEFIT_PLAN', 'MANAGE_BENEFIT_PLAN')")
+  public BenefitPlanDto updateBenefitPlan(@RequestBody final NewBenefitPlanWrapperDto data,
+      @PathVariable final String id) {
+    return benefitPlanService.updateBenefitPlan(data, id, findCompanyId());
   }
 
   @PostMapping("benefit-plan/{id}/document")
@@ -69,8 +71,8 @@ public class BenefitPlanRestController extends BaseRestController {
   public void uploadBenefitPlanDocument(@PathVariable final String id,
       @RequestParam("file")
       //TODO: Need an appropriate file size.
-      @FileValidate(maxSize = 10 * 1024 * 1024, fileType = {"PDF"})
-      final MultipartFile document) throws IOException {
+      @FileValidate(maxSize = 10 * 1024 * 1024, fileType = {"PDF"}) final MultipartFile document)
+      throws IOException {
     final String path = awsUtil.uploadFile(document, AccessType.Private);
 
     if (Strings.isBlank(path)) {
@@ -82,9 +84,15 @@ public class BenefitPlanRestController extends BaseRestController {
     benefitPlanService.save(benefitPlan);
   }
 
-  @GetMapping("benefit-plan-clusters")
-  public List<BenefitPlanClusterDto> getBenefitPlanClusters() {
-    return benefitPlanService.getBenefitPlanCluster(findCompanyId());
+  @GetMapping("benefit-plan-types")
+  public List<BenefitPlanTypeDto> getBenefitPlanTypes() {
+    return benefitPlanService.getBenefitPlanTypes(findCompanyId());
+  }
+
+  @GetMapping("benefit-plan-types/{planTypeId}/plan-preview")
+  public List<BenefitPlanPreviewDto> getBenefitPlanPreview(
+      @PathVariable final String planTypeId) {
+    return benefitPlanService.getBenefitPlanPreview(findCompanyId(), planTypeId);
   }
 
   @PatchMapping("benefit-plan/{benefitPlanId}/users")
@@ -92,5 +100,55 @@ public class BenefitPlanRestController extends BaseRestController {
   public void updateBenefitPlanUsers(@PathVariable final String benefitPlanId,
       @RequestBody final List<BenefitPlanUserCreateDto> benefitPlanUsers) {
     benefitPlanService.updateBenefitPlanUsers(benefitPlanId, benefitPlanUsers);
+  }
+
+  @GetMapping("my-benefit/{userId}/benefit-summary")
+  @PreAuthorize("hasPermission(#userId,'USER','VIEW_SELF_BENEFITS')")
+  public BenefitSummaryDto getEnrolledBenefitNumber(
+      @PathVariable final String userId) {
+    return benefitPlanService.getBenefitSummary(userId);
+  }
+
+  @GetMapping("users/{userId}/benefit-plans")
+  @PreAuthorize("hasPermission(#userId,'USER','VIEW_SELF_BENEFITS')")
+  public List<UserBenefitPlanDto> getUserBenefitPlans(
+      @PathVariable final String userId) {
+    return benefitPlanService.getUserBenefitPlans(userId);
+  }
+
+  @GetMapping("benefit-plans/{id}/plan-detail")
+  @PreAuthorize("hasPermission(#id,'BENEFIT_PLAN','VIEW_SELF_BENEFITS')")
+  public BenefitPlanDetailDto getBenefitPlanDetail(@PathVariable final String id) {
+    final BenefitPlan benefitPlan = benefitPlanService.findBenefitPlanById(id);
+    return benefitPlanMapper.concertTo(benefitPlan);
+  }
+
+  @GetMapping("users/{userId}/benefit-info")
+  @PreAuthorize("hasPermission(#userId,'USER','VIEW_SELF_BENEFITS')")
+  public List<UserBenefitPlanDto> getUserAvailableBenefitPlans(
+      @PathVariable final String userId) {
+    return benefitPlanService.getUserAvailableBenefitPlans(userId);
+  }
+
+  @DeleteMapping("benefit-plans/{id}")
+  @PreAuthorize("hasPermission(#id,'BENEFIT_PLAN', 'MANAGE_BENEFIT_PLAN')")
+  public void deleteBenefitPlan(@PathVariable final String id) {
+    benefitPlanService.deleteBenefitPlanByPlanId(id);
+  }
+
+  @GetMapping("benefit-plans/{id}")
+  @PreAuthorize("hasPermission(#id,'BENEFIT_PLAN', 'MANAGE_BENEFIT_PLAN')")
+  public BenefitPlanUpdateDto getBenefitPlan(
+      @PathVariable final String id) {
+    return benefitPlanService.getBenefitPlanByPlanId(id);
+  }
+
+  @PatchMapping("users/benefit-enrollment")
+  @PreAuthorize("hasAuthority('EDIT_SELF')")
+  public void updateSelectedBenefitEnrollmentInfo(@RequestBody final
+      List<SelectedEnrollmentInfoDto> selectedInfos) {
+    final String userId = findAuthUser().getId();
+    benefitPlanService.updateUserBenefitPlanEnrollmentInfo(userId,
+        selectedInfos, findCompanyId());
   }
 }

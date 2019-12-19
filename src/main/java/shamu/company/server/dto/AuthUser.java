@@ -18,15 +18,24 @@ public class AuthUser {
 
   private String companyId;
 
+  private String userId;
+
+  private String managerId;
+
   private List<String> permissions;
 
   private Role role;
 
   public AuthUser(final User user) {
-    this.id = user.getId();
-    this.imageUrl = user.getImageUrl();
-    this.email = user.getUserContactInformation().getEmailWork();
-    this.companyId = user.getCompany().getId();
-    this.role = user.getRole();
+    id = user.getId();
+    imageUrl = user.getImageUrl();
+    email = user.getUserContactInformation().getEmailWork();
+    companyId = user.getCompany().getId();
+    userId = user.getId();
+    role = user.getRole();
+
+    if (user.getManagerUser() != null) {
+      managerId = user.getManagerUser().getId();
+    }
   }
 }
