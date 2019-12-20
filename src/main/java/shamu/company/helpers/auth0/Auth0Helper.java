@@ -281,11 +281,10 @@ public class Auth0Helper {
     final String userId = UUID.randomUUID().toString().replaceAll("-", "");
     appMetaData.put("id", userId);
     appMetaData.put("idVerified", true);
+    appMetaData.put("role", roleName);
     auth0User.setAppMetadata(appMetaData);
 
-    final Map<String, Object> userMetaData = new HashMap<>();
-    userMetaData.put("role", roleName);
-    auth0User.setUserMetadata(userMetaData);
+
     auth0User.setEmailVerified(true);
 
     final ManagementAPI manager = auth0Manager.getManagementApi();
