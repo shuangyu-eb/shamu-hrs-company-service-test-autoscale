@@ -85,7 +85,7 @@ public interface TimeOffRequestRepository
               + "   and tras.id = tr.time_off_request_approval_status_id "
               + "group by tr.id ",
       nativeQuery = true)
-  List<TimeOffRequest> employeeFindSelfPendingRequests(
+  List<TimeOffRequest> findEmployeeSelfPendingRequests(
       String employeeId, String statusName);
 
   @Query(
@@ -102,7 +102,7 @@ public interface TimeOffRequestRepository
               + "   AND tras.name in ?3 "
               + "group by tr.id ",
       nativeQuery = true)
-  List<TimeOffRequest> managerFindTeamRequests(
+  List<TimeOffRequest> findManagerTeamRequests(
       String userId, String managerId, List<String> timeOffRequestApprovalStatus);
 
   @Query(
@@ -118,7 +118,7 @@ public interface TimeOffRequestRepository
               + "   and tras.name in ?2 "
               + "group by tr.id ",
       nativeQuery = true)
-  List<TimeOffRequest> adminFindTeamRequests(
+  List<TimeOffRequest> findAdminTeamRequests(
       String userId, List<String> timeOffRequestApprovalStatus);
 
   @Query(
