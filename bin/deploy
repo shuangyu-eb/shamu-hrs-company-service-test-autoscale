@@ -1,32 +1,32 @@
 #!/usr/bin/env bash
 
-REPOSITORY_NAME=`sed -n 's/REPOSITORY_NAME=\(.*\)/\1/p' config/deploy.env`
-REPOSITORY_TAG=`sed -n 's/REPOSITORY_TAG=\(.*\)/\1/p' config/deploy.env`
-CLUSTER=`sed -n 's/CLUSTER=\(.*\)/\1/p' config/deploy.env`
-SERVICE_NAME=`sed -n 's/SERVICE_NAME=\(.*\)/\1/p' config/deploy.env`
-REGION=`sed -n 's/REGION=\(.*\)/\1/p' config/deploy.env`
+REPOSITORY_NAME=`sed -n 's/REPOSITORY_NAME=\(.*\)/\1/p' config/"$1"`
+REPOSITORY_TAG=`sed -n 's/REPOSITORY_TAG=\(.*\)/\1/p' config/"$1"`
+CLUSTER=`sed -n 's/CLUSTER=\(.*\)/\1/p' config/"$1"`
+SERVICE_NAME=`sed -n 's/SERVICE_NAME=\(.*\)/\1/p' config/"$1"`
+REGION=`sed -n 's/REGION=\(.*\)/\1/p' config/"$1"`
 
-while [ -n "$1" ]
+while [ -n "$2" ]
 do
-  case "$1" in
+  case "$2" in
     -repository-name)
-        REPOSITORY_TAG=$2
+        REPOSITORY_TAG=$3
         shift
         ;;
     -repository-tag)
-        REPOSITORY_TAG=$2
+        REPOSITORY_TAG=$3
         shift
         ;;
     -cluster)
-        CLUSTER=$2
+        CLUSTER=$3
         shift
         ;;
     -service-name)
-        SERVICE_NAME=$2
+        SERVICE_NAME=$3
         shift
         ;;
     *)
-        echo "$1 is not an option"
+        echo "$2 is not an option"
         exit 0
         ;;
   esac
