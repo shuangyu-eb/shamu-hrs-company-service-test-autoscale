@@ -748,13 +748,7 @@ public class UserService {
       currentUser.setUserStatus(userStatusRepository.findByName(
           String.valueOf(Status.ACTIVE)));
 
-      final UserContactInformationDto updateEmailWork = new UserContactInformationDto();
-      updateEmailWork.setEmailWork(currentUser.getChangeWorkEmail());
-      final UserContactInformation updateContactInfo =
-          userContactInformationMapper.updateFromUserContactInformationDto(
-              currentUser.getUserContactInformation(), updateEmailWork);
-
-      userContactInformationRepository.save(updateContactInfo);
+      userContactInformationRepository.save(currentUser.getUserContactInformation());
 
       userRepository.save(currentUser);
 
