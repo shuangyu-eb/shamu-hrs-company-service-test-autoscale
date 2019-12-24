@@ -1,6 +1,6 @@
 package shamu.company.benefit.dto;
 
-import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import java.sql.Date;
 import lombok.Data;
 import shamu.company.crypto.Crypto;
@@ -34,7 +34,7 @@ public class BenefitDependentDto {
 
   private String city;
 
-  @JSONField(format = "MM/dd/yyyy")
+  @JsonFormat(pattern = "MM/dd/yyyy")
   private Date birthDate;
 
   private SelectFieldInformationDto gender;

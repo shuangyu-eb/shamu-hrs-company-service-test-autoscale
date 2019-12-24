@@ -1,12 +1,12 @@
 package shamu.company.redis;
 
-import com.alibaba.fastjson.JSON;
 import java.util.concurrent.TimeUnit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import shamu.company.helpers.RedisHelper;
 import shamu.company.server.dto.AuthUser;
+import shamu.company.utils.JsonUtil;
 
 
 @Configuration
@@ -25,13 +25,13 @@ public class AuthUserCacheManager {
   }
 
   public void cacheAuthUser(final String key, final AuthUser authUser) {
-    final String authUserJson = JSON.toJSONString(authUser);
+    final String authUserJson = JsonUtil.formatToString(authUser);
     redisHelper.putValueWithExpireTime(key, authUserJson, expiration, EXPIRATION_UNIT);
 
   }
 
   public AuthUser getCachedUser(final String key) {
     final String jsonAuthUser = (String) redisHelper.getValue(key);
-    return jsonAuthUser == null ? null : JSON.parseObject(jsonAuthUser, AuthUser.class);
+    return jsonAuthUser == null ? null : JsonUtil.deserialize(jsonAuthUser, AuthUser.class);
   }
 }

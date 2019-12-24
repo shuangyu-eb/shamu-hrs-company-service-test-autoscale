@@ -1,6 +1,6 @@
 package shamu.company.user.dto;
 
-import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import java.sql.Date;
 import lombok.Data;
 
@@ -11,6 +11,6 @@ public class UserRoleAndStatusInfoDto {
 
   private String userStatus;
 
-  @JSONField(format = "MM/dd/yyyy")
+  @JsonFormat(pattern = "MM/dd/yyyy")
   private Date deactivatedAt;
 }

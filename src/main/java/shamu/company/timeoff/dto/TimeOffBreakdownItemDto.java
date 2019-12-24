@@ -1,6 +1,6 @@
 package shamu.company.timeoff.dto;
 
-import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDate;
 import lombok.Builder;
 import lombok.Data;
@@ -25,7 +25,7 @@ public class TimeOffBreakdownItemDto {
 
   private Integer balance;
 
-  @JSONField(serialize = false)
+  @JsonIgnore
   private BreakDownType breakdownType;
 
   private static final String STARTING_BREAKDOWN_DETAIL = "Starting Balance";
@@ -51,7 +51,7 @@ public class TimeOffBreakdownItemDto {
     this.breakdownType = breakdownType;
   }
 
-  @JSONField(serialize = false)
+  @JsonIgnore
   public static TimeOffBreakdownYearDto fromTimeOffPolicyUser(
       final TimeOffBreakdownCalculatePojo calculatePojo) {
 
@@ -79,7 +79,7 @@ public class TimeOffBreakdownItemDto {
     return timeOffBreakdownYearDto;
   }
 
-  @JSONField(serialize = false)
+  @JsonIgnore
   public static TimeOffBreakdownItemDto fromTimeOffAdjustment(
       final TimeOffAdjustmentPojo timeOffAdjustmentPojo) {
 

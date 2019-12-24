@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ChangePasswordDto {
 
-  private String passWord;
+  private String password;
 
   @NotNull
   @Pattern(

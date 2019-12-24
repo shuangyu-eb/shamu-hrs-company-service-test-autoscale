@@ -1,6 +1,6 @@
 package shamu.company.benefit.entity;
 
-import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import java.sql.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -62,7 +62,7 @@ public class BenefitPlanDependent extends BaseEntity {
   @Length(max = 30)
   private String postalCode;
 
-  @JSONField(format = "MM/dd/yyyy")
+  @JsonFormat(pattern = "MM/dd/yyyy")
   private Date birthDate;
 
   @Length(max = 11)

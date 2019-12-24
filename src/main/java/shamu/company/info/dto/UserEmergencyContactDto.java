@@ -1,11 +1,8 @@
 package shamu.company.info.dto;
 
-import com.alibaba.fastjson.annotation.JSONField;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.beans.BeanUtils;
-import shamu.company.common.entity.StateProvince;
 import shamu.company.info.entity.UserEmergencyContact;
 
 @Data

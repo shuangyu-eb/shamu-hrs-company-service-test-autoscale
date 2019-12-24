@@ -1,6 +1,5 @@
 package shamu.company.common.config;
 
-import com.alibaba.fastjson.JSON;
 import java.io.IOException;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -16,6 +15,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.GenericFilterBean;
 import shamu.company.common.exception.AbstractException;
 import shamu.company.common.exception.response.ErrorMessage;
+import shamu.company.utils.JsonUtil;
 
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
@@ -35,7 +35,7 @@ public class DefaultExceptionFilter extends GenericFilterBean {
 
       final ErrorMessage errorMessage = new ErrorMessage(abstractException.getType(),
           abstractException.getMessage());
-      res.getWriter().write(JSON.toJSONString(errorMessage));
+      res.getWriter().write(JsonUtil.formatToString(errorMessage));
     }
   }
 }

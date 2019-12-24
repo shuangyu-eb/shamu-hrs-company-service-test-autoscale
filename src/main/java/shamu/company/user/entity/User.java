@@ -1,6 +1,7 @@
 package shamu.company.user.entity;
 
-import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.sql.Date;
 import java.sql.Timestamp;
 import javax.persistence.CascadeType;
@@ -38,10 +39,10 @@ public class User {
   private String id;
 
   private Timestamp latestLogin;
-  
+
   @ManyToOne
   private UserStatus userStatus;
-  
+
   @ManyToOne
   private UserRole userRole;
 
@@ -53,11 +54,11 @@ public class User {
   @OneToOne
   private DeactivationReasons deactivationReason;
 
-  @JSONField(format = "MM/dd/yyyy")
+  @JsonFormat(pattern = "MM/dd/yyyy")
   private Date deactivatedAt;
 
   @ManyToOne
-  @JSONField(serialize = false)
+  @JsonIgnore
   @ToString.Exclude
   private User managerUser;
 

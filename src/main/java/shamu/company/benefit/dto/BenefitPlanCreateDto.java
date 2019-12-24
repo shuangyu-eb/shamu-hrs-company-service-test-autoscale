@@ -1,12 +1,10 @@
 package shamu.company.benefit.dto;
 
-import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.sql.Timestamp;
 import lombok.Data;
-import shamu.company.benefit.entity.BenefitPlan;
-import shamu.company.benefit.entity.BenefitPlanType;
-import shamu.company.company.entity.Company;
-import shamu.company.helpers.s3.PreSinged;
+import shamu.company.common.config.SerializerUrl;
 
 @Data
 public class BenefitPlanCreateDto {
@@ -27,12 +25,12 @@ public class BenefitPlanCreateDto {
 
   private String documentName;
 
-  @PreSinged
+  @JsonSerialize(using = SerializerUrl.class)
   private String documentUrl;
 
-  @JSONField(format = "MM/dd/yyyy")
+  @JsonFormat(pattern = "MM/dd/yyyy")
   private Timestamp startDate;
 
-  @JSONField(format = "MM/dd/yyyy")
+  @JsonFormat(pattern = "MM/dd/yyyy")
   private Timestamp endDate;
 }

@@ -1,6 +1,6 @@
 package shamu.company.company.dto;
 
-import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
 import org.springframework.util.StringUtils;
@@ -23,7 +23,7 @@ public class OfficeCreateDto {
 
   private String zip;
 
-  @JSONField(serialize = false)
+  @JsonIgnore
   public Office getOffice() {
     StateProvince stateProvince = null;
     if (!StringUtils.isEmpty(stateId)) {
