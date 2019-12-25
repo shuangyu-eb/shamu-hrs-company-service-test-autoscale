@@ -117,7 +117,7 @@ public class TimeOffRequestEmailService {
     boolean approvedByManager = managerUser != null
         && managerUser.getId().equals(approver.getId());
 
-    if (!approvedByManager) {
+    if (managerUser != null && !approvedByManager) {
       final String subject2 = subject + " by " + approver.getUserPersonalInformation().getName();
       variables.put("toManager", true);
       final Email managerEmail = new Email(
