@@ -15,7 +15,7 @@ public class EmployeeListSearchCondition {
   private Integer page = 0;
   private Integer size = 20;
   private SortField sortField = SortField.NAME;
-  private SortDirection sortDirection = SortDirection.desc;
+  private SortDirection sortDirection = SortDirection.DESC;
   private Boolean includeDeactivated = false;
 
   public boolean isSearched() {
@@ -56,7 +56,7 @@ public class EmployeeListSearchCondition {
   }
 
   public enum SortDirection {
-    desc,
-    asc
+    DESC,
+    ASC
   }
 }
