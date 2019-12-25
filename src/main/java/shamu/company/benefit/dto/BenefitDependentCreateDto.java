@@ -1,12 +1,18 @@
 package shamu.company.benefit.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.sql.Date;
 import lombok.Data;
+import shamu.company.benefit.entity.BenefitPlanDependent;
 import shamu.company.benefit.entity.DependentRelationship;
 import shamu.company.common.entity.StateProvince;
+import shamu.company.common.validation.constraints.SsnValidate;
+import shamu.company.crypto.Crypto;
+import shamu.company.crypto.CryptoSsnSerializer;
 import shamu.company.user.entity.Gender;
 import shamu.company.user.entity.User;
+import shamu.company.user.entity.UserPersonalInformation;
 
 @Data
 public class BenefitDependentCreateDto {
@@ -42,6 +48,9 @@ public class BenefitDependentCreateDto {
   @JsonFormat(pattern = "MM/dd/yyyy")
   private Date birthDate;
 
+  @Crypto(field = "id", targetType = BenefitPlanDependent.class)
+  @SsnValidate
+  @JsonSerialize(using = CryptoSsnSerializer.class)
   private String ssn;
 
   private Gender gender;

@@ -65,7 +65,6 @@ public class BenefitPlanDependent extends BaseEntity {
   @JsonFormat(pattern = "MM/dd/yyyy")
   private Date birthDate;
 
-  @Length(max = 11)
   private String ssn;
 
   @ManyToOne
