@@ -302,7 +302,7 @@ public class TimeOffRequestService {
         timeOffRequestApprovalStatusService.findByName(status.name());
     original.setTimeOffRequestApprovalStatus(timeOffRequestApprovalStatus);
     original.setApproverUser(timeOffRequest.getApproverUser());
-    original.setApprovedDate(Timestamp.from(Instant.from(DateUtil.getLocalUtcTime())));
+    original.setApprovedDate(Timestamp.valueOf(DateUtil.getLocalUtcTime()));
 
     if (timeOffRequestComment != null) {
       original.setComment(timeOffRequestComment);
