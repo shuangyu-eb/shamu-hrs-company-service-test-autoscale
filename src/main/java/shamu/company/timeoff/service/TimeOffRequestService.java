@@ -276,7 +276,7 @@ public class TimeOffRequestService {
     final TimeOffApprovalStatus status = updateDto.getStatus();
     if (status == APPROVED || status == DENIED) {
       timeOffRequest.setApproverUser(new User(user.getId()));
-      timeOffRequest.setApprovedDate(Timestamp.from(Instant.from(DateUtil.getLocalUtcTime())));
+      timeOffRequest.setApprovedDate(Timestamp.valueOf(DateUtil.getLocalUtcTime()));
     }
     TimeOffRequestComment comment = null;
     if (updateDto.getApproverComment() != null && updateDto.getApproverComment().length() > 0) {
