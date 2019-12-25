@@ -930,4 +930,17 @@ public class UserService {
     return jobUserMapper
             .convertToBasicJobInformationDto(target);
   }
+
+  public void resendVerificationEmail(final String email) {
+    final com.auth0.json.mgmt.users.User auth0User = auth0Helper.findByEmail(email);
+    if (auth0User == null) {
+      throw new ForbiddenException(String.format("User with email %s does not exist!", email));
+    }
+
+    if (auth0User.isEmailVerified()) {
+      throw new ForbiddenException(String.format("User with email %s is already verified!", email));
+    }
+
+    auth0Helper.sendVerificationEmail(auth0User.getId());
+  }
 }

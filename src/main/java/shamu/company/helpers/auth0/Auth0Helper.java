@@ -11,6 +11,7 @@ import com.auth0.json.mgmt.Permission;
 import com.auth0.json.mgmt.PermissionsPage;
 import com.auth0.json.mgmt.Role;
 import com.auth0.json.mgmt.RolesPage;
+import com.auth0.json.mgmt.jobs.Job;
 import com.auth0.json.mgmt.users.User;
 import com.auth0.json.mgmt.users.UsersPage;
 import com.auth0.net.AuthRequest;
@@ -132,7 +133,7 @@ public class Auth0Helper {
     }
   }
 
-  public Boolean existsByEmail(final String email) {
+  public User findByEmail(final String email) {
     final ManagementAPI manager = auth0Manager.getManagementApi();
     final Request<List<User>> userRequest = manager.users()
         .listByEmail(email, null);
@@ -147,8 +148,11 @@ public class Auth0Helper {
       throw new GeneralAuth0Exception(
           "Multiple account with same email address exist.");
     }
+    return users.size() > 0 ? users.get(0) : null;
+  }
 
-    return users.size() == 1;
+  public Boolean existsByEmail(final String email) {
+    return findByEmail(email) != null;
   }
 
   public User getUserByUserIdFromAuth0(final String userId) {
@@ -373,5 +377,16 @@ public class Auth0Helper {
     final User user = getUserByUserIdFromAuth0(userId);
     final Map<String, Object> appMetaData = user.getAppMetadata();
     return (String) appMetaData.get("userSecret");
+  }
+
+  public void sendVerificationEmail(final String authUserId) {
+    final ManagementAPI managementApi = auth0Manager.getManagementApi();
+    final Request<Job> sendVerificationEmail = managementApi.jobs()
+        .sendVerificationEmail(authUserId, auth0Config.getClientId());
+    try {
+      sendVerificationEmail.execute();
+    } catch (final Auth0Exception e) {
+      throw new GeneralAuth0Exception(e.getMessage(), e);
+    }
   }
 }

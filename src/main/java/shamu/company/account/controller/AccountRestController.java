@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.helpers.auth0.Auth0Helper;
@@ -46,10 +47,14 @@ public class AccountRestController {
     return new ResponseEntity(HttpStatus.OK);
   }
 
-
   @PatchMapping("account/change-work-email/{token}")
   public boolean validateChangeWorkEmail(@PathVariable final String token) {
     return userService.changeWorkEmailTokenExist(token);
   }
 
+  @PostMapping("account/{email}/verification-email")
+  public HttpEntity resendVerificationEmail(@RequestBody final String email) {
+    userService.resendVerificationEmail(email);
+    return new ResponseEntity(HttpStatus.NO_CONTENT);
+  }
 }
