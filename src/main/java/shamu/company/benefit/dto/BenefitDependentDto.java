@@ -1,9 +1,10 @@
 package shamu.company.benefit.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.sql.Date;
 import lombok.Data;
-import shamu.company.crypto.Crypto;
+import shamu.company.crypto.CryptoSsnSerializer;
 import shamu.company.employee.dto.SelectFieldInformationDto;
 
 @Data
@@ -21,7 +22,7 @@ public class BenefitDependentDto {
 
   private String email;
 
-  @Crypto(field = "employeeId")
+  @JsonSerialize(using = CryptoSsnSerializer.class)
   private String ssn;
 
   private String phone;
