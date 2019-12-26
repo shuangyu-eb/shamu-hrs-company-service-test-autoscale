@@ -139,20 +139,22 @@ public class TimeOffRequestEmailService {
 
     final User approver = timeOffRequest.getApproverUser();
 
-    final String subject = "Time Off Denied";
-    final String template = "time_off_request_deny.html";
-    final Email email = new Email(
-            applicationConfig.getSystemEmailAddress(),
-            approver.getUserPersonalInformation().getName(),
-            requester.getUserContactInformation().getEmailWork(),
-            requester.getUserPersonalInformation().getName(),
-            subject);
+    if (!requester.getId().equals(approver.getId())) {
+      final String subject = "Time Off Denied";
+      final String template = "time_off_request_deny.html";
+      final Email email = new Email(
+          applicationConfig.getSystemEmailAddress(),
+          approver.getUserPersonalInformation().getName(),
+          requester.getUserContactInformation().getEmailWork(),
+          requester.getUserPersonalInformation().getName(),
+          subject);
 
-    setAproverMessage(timeOffRequest, variables, approver);
+      setAproverMessage(timeOffRequest, variables, approver);
 
-    processAndSendEmail(variables, template, email);
+      processAndSendEmail(variables, template, email);
 
-    sendToManagers(timeOffRequest, variables, template, approver, subject);
+      sendToManagers(timeOffRequest, variables, template, approver, subject);
+    }
   }
 
   public void sendPendingEmail(final TimeOffRequest timeOffRequest) {
