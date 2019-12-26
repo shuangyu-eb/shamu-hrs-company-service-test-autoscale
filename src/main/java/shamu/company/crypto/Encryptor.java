@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.encrypt.BytesEncryptor;
 import org.springframework.security.crypto.encrypt.Encryptors;
 import org.springframework.stereotype.Component;
+import shamu.company.benefit.entity.BenefitPlanDependent;
 import shamu.company.helpers.auth0.Auth0Helper;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserPersonalInformation;
@@ -62,6 +63,8 @@ public class Encryptor {
       } else if (entityClass == UserPersonalInformation.class) {
         final User user = userService.findUserByUserPersonalInformationId(id);
         return decrypt(user, value);
+      } else if (entityClass == BenefitPlanDependent.class) {
+        return decrypt(id,value);
       }
     } catch (final Exception e) {
       // for the unencoded value
