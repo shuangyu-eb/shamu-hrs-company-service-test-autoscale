@@ -46,6 +46,11 @@ public class CompanyServerController extends BaseRestController {
         .collect(Collectors.toList());
   }
 
+  @GetMapping(value = "/user/id")
+  public CompanyUser findUserById(@RequestParam final String id) {
+    return new CompanyUser(companyUserService.findUserById(id));
+  }
+
   @GetMapping(value = "/users")
   public List<CompanyUser> findAllUsers() {
     return companyUserService.findAllUsers(findCurrentUser().getCompanyId()).stream()

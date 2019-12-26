@@ -36,6 +36,10 @@ public class CompanyUserService {
     return userService.findAllById(ids);
   }
 
+  public User findUserById(final String id) {
+    return userService.findById(id);
+  }
+
   public List<User> findAllUsers(final String companyId) {
     final Company company = companyService.findById(companyId);
     return userService.findAllByCompanyId(company.getId());
