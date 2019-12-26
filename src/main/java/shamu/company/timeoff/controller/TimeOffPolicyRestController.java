@@ -65,7 +65,7 @@ public class TimeOffPolicyRestController extends BaseRestController {
   @PatchMapping("time-off-policies/{id}")
   @PreAuthorize("hasPermission(#id, 'TIME_OFF_POLICY', 'MANAGE_TIME_OFF_POLICY')")
   public void updateTimeOffPolicy(@Valid @PathVariable final String id,
-      @RequestBody final TimeOffPolicyWrapperDto infoWrapper) {
+      @Valid @RequestBody final TimeOffPolicyWrapperDto infoWrapper) {
 
     timeOffPolicyService.updateTimeOffPolicy(id, infoWrapper, findCompanyId());
   }
