@@ -24,11 +24,15 @@ import shamu.company.benefit.dto.NewBenefitPlanWrapperDto;
 import shamu.company.benefit.dto.SelectedEnrollmentInfoDto;
 import shamu.company.benefit.dto.UserBenefitPlanDto;
 import shamu.company.benefit.entity.BenefitPlan;
+import shamu.company.benefit.entity.BenefitPlanType;
 import shamu.company.benefit.entity.mapper.BenefitPlanMapper;
+import shamu.company.benefit.entity.mapper.BenefitPlanTypeMapper;
 import shamu.company.benefit.service.BenefitPlanService;
+import shamu.company.benefit.service.BenefitPlanTypeService;
 import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.common.validation.constraints.FileValidate;
+import shamu.company.employee.dto.SelectFieldInformationDto;
 import shamu.company.helpers.s3.AccessType;
 import shamu.company.helpers.s3.AwsHelper;
 
@@ -39,18 +43,33 @@ public class BenefitPlanRestController extends BaseRestController {
 
   private final BenefitPlanService benefitPlanService;
 
+  private final BenefitPlanTypeService benefitPlanTypeService;
+
   private final AwsHelper awsHelper;
 
   private final BenefitPlanMapper benefitPlanMapper;
+
+  private final BenefitPlanTypeMapper benefitPlanTypeMapper;
 
 
   public BenefitPlanRestController(
       final BenefitPlanService benefitPlanService,
       final AwsHelper awsHelper,
-      final BenefitPlanMapper benefitPlanMapper) {
+      final BenefitPlanMapper benefitPlanMapper,
+      final BenefitPlanTypeService benefitPlanTypeService,
+      final BenefitPlanTypeMapper benefitPlanTypeMapper) {
     this.benefitPlanService = benefitPlanService;
     this.awsHelper = awsHelper;
     this.benefitPlanMapper = benefitPlanMapper;
+    this.benefitPlanTypeService = benefitPlanTypeService;
+    this.benefitPlanTypeMapper = benefitPlanTypeMapper;
+  }
+
+  @GetMapping("benefit-plan-types/default")
+  @PreAuthorize("hasAuthority('MANAGE_BENEFIT_PLAN')")
+  public List<SelectFieldInformationDto> findAllBenefitPlanTypes() {
+    final List<BenefitPlanType> benefitPlanTypes = benefitPlanTypeService.findAllBenefitPlanTypes();
+    return benefitPlanTypeMapper.convertAllToDefaultBenefitPlanTypeDtos(benefitPlanTypes);
   }
 
   @PostMapping("benefit-plan")
@@ -145,8 +164,8 @@ public class BenefitPlanRestController extends BaseRestController {
 
   @PatchMapping("users/benefit-enrollment")
   @PreAuthorize("hasAuthority('EDIT_SELF')")
-  public void updateSelectedBenefitEnrollmentInfo(@RequestBody final
-      List<SelectedEnrollmentInfoDto> selectedInfos) {
+  public void updateSelectedBenefitEnrollmentInfo(
+      @RequestBody final List<SelectedEnrollmentInfoDto> selectedInfos) {
     final String userId = findAuthUser().getId();
     benefitPlanService.updateUserBenefitPlanEnrollmentInfo(userId,
         selectedInfos, findCompanyId());

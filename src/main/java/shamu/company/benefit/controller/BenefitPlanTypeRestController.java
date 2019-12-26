@@ -22,7 +22,7 @@ public class BenefitPlanTypeRestController {
   @GetMapping("all-benefit-plan-types")
   public List<CommonDictionaryDto> getBenefitPlanTypes() {
 
-    List<BenefitPlanType> planTypes = benefitPlanTypeRepository
+    final List<BenefitPlanType> planTypes = benefitPlanTypeRepository
         .findAll();
     return ReflectionUtil.convertTo(planTypes, CommonDictionaryDto.class);
   }
