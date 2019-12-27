@@ -1,8 +1,8 @@
 package shamu.company.benefit.controller;
 
-import java.io.IOException;
 import java.util.List;
-import org.apache.logging.log4j.util.Strings;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -33,8 +33,6 @@ import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.common.validation.constraints.FileValidate;
 import shamu.company.employee.dto.SelectFieldInformationDto;
-import shamu.company.helpers.s3.AccessType;
-import shamu.company.helpers.s3.AwsHelper;
 
 @RestApiController
 @Validated
@@ -45,8 +43,6 @@ public class BenefitPlanRestController extends BaseRestController {
 
   private final BenefitPlanTypeService benefitPlanTypeService;
 
-  private final AwsHelper awsHelper;
-
   private final BenefitPlanMapper benefitPlanMapper;
 
   private final BenefitPlanTypeMapper benefitPlanTypeMapper;
@@ -54,12 +50,10 @@ public class BenefitPlanRestController extends BaseRestController {
 
   public BenefitPlanRestController(
       final BenefitPlanService benefitPlanService,
-      final AwsHelper awsHelper,
       final BenefitPlanMapper benefitPlanMapper,
       final BenefitPlanTypeService benefitPlanTypeService,
       final BenefitPlanTypeMapper benefitPlanTypeMapper) {
     this.benefitPlanService = benefitPlanService;
-    this.awsHelper = awsHelper;
     this.benefitPlanMapper = benefitPlanMapper;
     this.benefitPlanTypeService = benefitPlanTypeService;
     this.benefitPlanTypeMapper = benefitPlanTypeMapper;
@@ -87,20 +81,13 @@ public class BenefitPlanRestController extends BaseRestController {
 
   @PostMapping("benefit-plan/{id}/document")
   @PreAuthorize("hasPermission(#id,'BENEFIT_PLAN', 'MANAGE_BENEFIT_PLAN')")
-  public void uploadBenefitPlanDocument(@PathVariable final String id,
+  public ResponseEntity uploadBenefitPlanDocument(@PathVariable final String id,
       @RequestParam("file")
       //TODO: Need an appropriate file size.
-      @FileValidate(maxSize = 10 * 1024 * 1024, fileType = {"PDF"}) final MultipartFile document)
-      throws IOException {
-    final String path = awsHelper.uploadFile(document, AccessType.Private);
-
-    if (Strings.isBlank(path)) {
-      return;
-    }
-
-    final BenefitPlan benefitPlan = benefitPlanService.findBenefitPlanById(id);
-    benefitPlan.setDocumentUrl(path);
-    benefitPlanService.save(benefitPlan);
+      @FileValidate(maxSize = 10 * 1024 * 1024, fileType = {"PDF"})
+      final List<MultipartFile> files) {
+    benefitPlanService.saveBenefitPlanDocuments(id, files);
+    return new ResponseEntity(HttpStatus.OK);
   }
 
   @GetMapping("benefit-plan-types")

@@ -24,6 +24,7 @@ import shamu.company.company.entity.Company;
 @AllArgsConstructor
 public class BenefitPlan extends BaseEntity {
 
+  private static final long serialVersionUID = 521991440880072065L;
   private String name;
 
   private String description;
@@ -33,10 +34,6 @@ public class BenefitPlan extends BaseEntity {
   private Timestamp startDate;
 
   private Timestamp endDate;
-
-  private String documentName;
-
-  private String documentUrl;
 
   @ManyToOne
   private Company company;
@@ -48,24 +45,17 @@ public class BenefitPlan extends BaseEntity {
 
   @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
   @JoinColumn(name = "benefit_plan_id")
+  private Set<BenefitPlanDocument> benefitPlanDocuments = new HashSet<>();
+
+  @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+  @JoinColumn(name = "benefit_plan_id")
   private Set<BenefitPlanCoverage> coverages = new HashSet<>();
 
   public BenefitPlan(final String id) {
     setId(id);
   }
 
-  public BenefitPlan(String name, String description, String planId, Timestamp startDate,
-                     Timestamp endDate, String documentName, String documentUrl,
-      Company company, String website, BenefitPlanType benefitPlanType) {
-    this.name = name;
-    this.description = description;
-    this.planId = planId;
-    this.startDate = startDate;
-    this.endDate = endDate;
-    this.documentName = documentName;
-    this.documentUrl = documentUrl;
-    this.company = company;
-    this.website = website;
-    this.benefitPlanType = benefitPlanType;
+  public void addBenefitPlanDocument(final BenefitPlanDocument benefitPlanDocument) {
+    benefitPlanDocuments.add(benefitPlanDocument);
   }
 }

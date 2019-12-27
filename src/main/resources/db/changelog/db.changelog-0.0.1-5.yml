@@ -519,3 +519,58 @@ databaseChangeLog:
           columnNames: ref_id
           constraintName: uq_user_roles_ref_id
           tableName: user_roles
+
+- changeSet:
+      id: 1572414787135-1
+      author: haibo-eb
+      changes:
+          - dropColumn:
+                columnName: document_url
+                tableName: benefit_plans
+
+- changeSet:
+      id: 1572414787135-2
+      author: haibo-eb
+      changes:
+          - dropColumn:
+                columnName: document_name
+                tableName: benefit_plans
+
+- changeSet:
+      id: 1572414787135-3
+      author: haibo-eb
+      changes:
+          - createTable:
+                columns:
+                    - column:
+                          name: id
+                          type: binary(16)
+                          constraints:
+                              primaryKey: true
+                    - column:
+                          name: title
+                          type: varchar(255)
+                    - column:
+                          name: url
+                          type: varchar(255)
+                    - column:
+                          name: benefit_plan_id
+                          type: binary(16)
+                    - column:
+                          name: created_at
+                          type: DATETIME
+                    - column:
+                          name: updated_at
+                          type: DATETIME
+                tableName: benefit_plan_documents
+
+- changeSet:
+      id: 1572414787135-4
+      author: haibo-eb
+      changes:
+          - addForeignKeyConstraint:
+                baseColumnNames: benefit_plan_id
+                baseTableName: benefit_plan_documents
+                constraintName: fk_benefit_plan_documents_benefit_plans
+                referencedColumnNames: id
+                referencedTableName: benefit_plans

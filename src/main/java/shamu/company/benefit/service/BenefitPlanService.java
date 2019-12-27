@@ -6,7 +6,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.apache.commons.lang.StringUtils;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import shamu.company.benefit.dto.BenefitPlanCoverageDto;
 import shamu.company.benefit.dto.BenefitPlanCreateDto;
 import shamu.company.benefit.dto.BenefitPlanDto;
@@ -23,6 +26,7 @@ import shamu.company.benefit.entity.BenefitDependentRecord;
 import shamu.company.benefit.entity.BenefitPlan;
 import shamu.company.benefit.entity.BenefitPlanCoverage;
 import shamu.company.benefit.entity.BenefitPlanDependent;
+import shamu.company.benefit.entity.BenefitPlanDocument;
 import shamu.company.benefit.entity.BenefitPlanType;
 import shamu.company.benefit.entity.BenefitPlanUser;
 import shamu.company.benefit.entity.RetirementPlanType;
@@ -34,13 +38,18 @@ import shamu.company.benefit.entity.mapper.MyBenefitsMapper;
 import shamu.company.benefit.entity.mapper.RetirementPlanTypeMapper;
 import shamu.company.benefit.repository.BenefitPlanCoverageRepository;
 import shamu.company.benefit.repository.BenefitPlanDependentRepository;
+import shamu.company.benefit.repository.BenefitPlanDocumentRepository;
 import shamu.company.benefit.repository.BenefitPlanRepository;
 import shamu.company.benefit.repository.BenefitPlanTypeRepository;
 import shamu.company.benefit.repository.BenefitPlanUserRepository;
 import shamu.company.benefit.repository.RetirementPlanTypeRepository;
 import shamu.company.benefit.repository.UserDependentsRepository;
+import shamu.company.common.exception.AwsException;
 import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.company.entity.Company;
+import shamu.company.helpers.s3.AccessType;
+import shamu.company.helpers.s3.AwsHelper;
+import shamu.company.user.entity.mapper.UserMapper;
 import shamu.company.user.repository.UserRepository;
 
 @Service
@@ -51,6 +60,8 @@ public class BenefitPlanService {
   private final BenefitPlanUserRepository benefitPlanUserRepository;
 
   private final BenefitPlanCoverageRepository benefitPlanCoverageRepository;
+
+  private final BenefitPlanDocumentRepository benefitPlanDocumentRepository;
 
   private final RetirementPlanTypeRepository retirementPlanTypeRepository;
 
@@ -72,6 +83,8 @@ public class BenefitPlanService {
 
   private final BenefitPlanDependentRepository benefitPlanDependentRepository;
 
+  private final AwsHelper awsHelper;
+
   public BenefitPlanService(
       final BenefitPlanRepository benefitPlanRepository,
       final BenefitPlanUserRepository benefitPlanUserRepository,
@@ -85,7 +98,9 @@ public class BenefitPlanService {
       final MyBenefitsMapper myBenefitsMapper,
       final UserRepository userRepository,
       final UserDependentsRepository userDependentsRepository,
-      final BenefitPlanDependentRepository benefitPlanDependentRepository) {
+      final BenefitPlanDependentRepository benefitPlanDependentRepository,
+      final BenefitPlanDocumentRepository benefitPlanDocumentRepository,
+      final AwsHelper awsHelper) {
     this.benefitPlanRepository = benefitPlanRepository;
     this.benefitPlanUserRepository = benefitPlanUserRepository;
     this.benefitPlanCoverageRepository = benefitPlanCoverageRepository;
@@ -99,6 +114,8 @@ public class BenefitPlanService {
     this.userRepository = userRepository;
     this.userDependentsRepository = userDependentsRepository;
     this.benefitPlanDependentRepository = benefitPlanDependentRepository;
+    this.benefitPlanDocumentRepository = benefitPlanDocumentRepository;
+    this.awsHelper = awsHelper;
   }
 
   public BenefitPlanDto createBenefitPlan(
@@ -386,8 +403,7 @@ public class BenefitPlanService {
     benefitPlanRepository.findByBenefitPlanTypeIdAndCompanyId(benefitPlanTypeRepository
         .findByName(selectedEnrollmentInfoDto.getBenefitPlanType()).getId(), companyId)
         .stream().forEach(benefitPlan -> {
-
-          if (benefitPlan.getId() == selectedEnrollmentInfoDto.getPlanId()) {
+          if (benefitPlan.getId().equals(selectedEnrollmentInfoDto.getPlanId())) {
             //find which benefitPlan under this type is selected and
             // update the information
             final BenefitPlanUser originBenefitPlanUser = benefitPlanUserRepository
@@ -419,10 +435,7 @@ public class BenefitPlanService {
               newBenefitPlanUser.setBenefitPlanCoverage(null);
               benefitPlanUserRepository.save(newBenefitPlanUser);
             }
-
-
           }
-
         });
   }
 
@@ -446,7 +459,7 @@ public class BenefitPlanService {
       if (!newDependentIds.contains(oldDependentId)) {
         final Optional<BenefitDependentRecord> oldBenefitDependentRecord =
             benefitPlanDependentRepository
-            .findByBenefitPlansUsersIdAndUserDependentsId(benefitPlanUserId, oldDependentId);
+                .findByBenefitPlansUsersIdAndUserDependentsId(benefitPlanUserId, oldDependentId);
         benefitPlanDependentRepository.delete(oldBenefitDependentRecord.get());
       }
     });
@@ -478,5 +491,23 @@ public class BenefitPlanService {
         retirementPlanTypeRepository.findByBenefitPlan(new BenefitPlan(planId));
     return benefitPlanMapper.convertToOldBenefitPlanDto(
         benefitPlan, benefitPlanCoverage, benefitPlanUsers, retirementPlanType);
+  }
+
+  public void saveBenefitPlanDocuments(final String benefitPlanId,
+      final List<MultipartFile> files) {
+    final BenefitPlan benefitPlan = findBenefitPlanById(benefitPlanId);
+    files.forEach(file -> {
+      final String path = awsHelper.uploadFile(file, AccessType.Private);
+
+      if (Strings.isBlank(path)) {
+        throw new AwsException("AWS upload failed");
+      }
+      final String fileName =
+          StringUtils.isNotBlank(file.getOriginalFilename()) ? file.getOriginalFilename() : "";
+      final String title = fileName.substring(0, fileName.lastIndexOf('.'));
+      final BenefitPlanDocument document = new BenefitPlanDocument(title, path);
+      benefitPlan.addBenefitPlanDocument(document);
+    });
+    save(benefitPlan);
   }
 }
