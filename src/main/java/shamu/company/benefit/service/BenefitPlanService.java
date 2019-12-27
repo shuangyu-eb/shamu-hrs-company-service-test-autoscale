@@ -328,11 +328,9 @@ public class BenefitPlanService {
     final List<BenefitPlanUser> benefitPlanUsers = benefitPlanUserRepository
         .findAllByUserId(userId);
 
-    final List<UserBenefitPlanDto> benefitPlanDtos = benefitPlanUsers.stream()
+    return benefitPlanUsers.stream()
         .map(benefitPlanUserMapper::convertFrom)
         .collect(Collectors.toList());
-
-    return benefitPlanDtos;
   }
 
   public void updateUserBenefitPlanEnrollmentInfo(final String userId,
@@ -467,9 +465,6 @@ public class BenefitPlanService {
 
 
   public void deleteBenefitPlanByPlanId(final String benefitPlanId) {
-    benefitPlanCoverageRepository.deleteAllByBenefitPlanId(benefitPlanId);
-    benefitPlanUserRepository.deleteAllByBenefitPlanId(benefitPlanId);
-    retirementPlanTypeRepository.deleteByBenefitPlanId(benefitPlanId);
     benefitPlanRepository.delete(benefitPlanId);
   }
 

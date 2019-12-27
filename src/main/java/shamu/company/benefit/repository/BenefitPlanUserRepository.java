@@ -2,9 +2,7 @@ package shamu.company.benefit.repository;
 
 import java.util.List;
 import java.util.Optional;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.transaction.annotation.Transactional;
 import shamu.company.benefit.entity.BenefitPlan;
 import shamu.company.benefit.entity.BenefitPlanUser;
 import shamu.company.common.repository.BaseRepository;
@@ -29,12 +27,4 @@ public interface BenefitPlanUserRepository extends BaseRepository<BenefitPlanUse
   Long countByUserIdAndEnrolled(String userId, Boolean enrolled);
 
   Optional<BenefitPlanUser> findByUserIdAndBenefitPlanId(String userId, String benefitPlanId);
-
-  @Transactional
-  @Modifying
-  @Query(value =
-      "delete from benefit_plans_users"
-          + " where benefit_plan_id = ?1 ",
-      nativeQuery = true)
-  void deleteAllByBenefitPlanId(String planId);
 }

@@ -17,7 +17,7 @@ import shamu.company.common.entity.BaseEntity;
 @NoArgsConstructor
 public class BenefitPlanCoverage extends BaseEntity {
   @Column(name = "benefit_plan_id")
-  private Long benefitPlanId;
+  private String benefitPlanId;
 
   private String name;
 
