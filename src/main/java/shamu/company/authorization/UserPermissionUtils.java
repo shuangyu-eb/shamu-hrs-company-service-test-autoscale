@@ -154,17 +154,13 @@ public class UserPermissionUtils extends BasePermissionUtils {
     final List<BaseAuthorityDto> baseAuthorityDtos = (List<BaseAuthorityDto>) targets;
     for (final BaseAuthorityDto dto : baseAuthorityDtos) {
       final String id = dto.getId();
-      BaseEntity[] entities = {};
-      switch (type) {
-        case COMPANY_PAID_HOLIDAY:
-          entities = companyPaidHolidayService.findAllByCompanyId(getCompanyId()).stream()
-              .map(companyPaidHoliday -> (BaseEntity) companyPaidHoliday)
-              .toArray(BaseEntity[]::new);
-          break;
-        default:
-          break;
+      final BaseEntity[] entities;
+      if (type == Type.COMPANY_PAID_HOLIDAY) {
+        entities = companyPaidHolidayService.findAllByCompanyId(getCompanyId()).stream()
+            .map(companyPaidHoliday -> (BaseEntity) companyPaidHoliday)
+            .toArray(BaseEntity[]::new);
+        return hasPermission(auth, id, type, permission, entities);
       }
-      return hasPermission(auth, id, type, permission, entities);
     }
     return false;
   }
