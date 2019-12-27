@@ -11,7 +11,6 @@ import shamu.company.common.mapper.Config;
 public interface BenefitPlanCoverageMapper {
 
   @Mapping(target = "name", source = "benefitPlanCoverageDto.coverageName")
-  @Mapping(target = "benefitPlanId", source = "benefitPlan.id")
   @Mapping(target = "id", ignore = true)
   @Mapping(target = "createdAt", ignore = true)
   @Mapping(target = "updatedAt", ignore = true)
@@ -19,7 +18,6 @@ public interface BenefitPlanCoverageMapper {
       BenefitPlanCoverageDto benefitPlanCoverageDto, BenefitPlan benefitPlan);
 
   @Mapping(target = "name", source = "benefitPlanCoverageDto.coverageName")
-  @Mapping(target = "benefitPlanId", source = "benefitPlan.id")
   @Mapping(target = "id", source = "benefitPlanCoverageDto.id")
   @Mapping(target = "createdAt", ignore = true)
   @Mapping(target = "updatedAt", ignore = true)
