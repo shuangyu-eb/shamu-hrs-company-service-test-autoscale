@@ -43,6 +43,7 @@ import shamu.company.common.exception.TooManyRequestException;
 public class Auth0Helper {
 
   private static final String MANAGEMENT_API = "managementApi";
+  private static final String AUTH_API = "authApi";
   private final Auth0Config auth0Config;
   private final Auth0Manager auth0Manager;
   private static final String MFA_REQUIRED = "mfa_required";
@@ -65,7 +66,7 @@ public class Auth0Helper {
       final String api) {
     if ((e.getMessage().contains(String.valueOf(HttpStatus.TOO_MANY_REQUESTS.value()))
         || e.getMessage().contains(HttpStatus.TOO_MANY_REQUESTS.getReasonPhrase()))
-        && api.equals("authApi")) {
+        && AUTH_API.equals(api)) {
       return new TooManyRequestException("Too many requests. "
           + "System limits for request are 100 requests per second.", e);
     } else if ((e.getMessage().contains(String.valueOf(HttpStatus.TOO_MANY_REQUESTS.value()))
@@ -92,9 +93,9 @@ public class Auth0Helper {
         }
         return null;
       }
-      throw handleAuth0Exception(apiException, "authApi");
+      throw handleAuth0Exception(apiException, AUTH_API);
     } catch (final Auth0Exception exception) {
-      throw handleAuth0Exception(exception, "authApi");
+      throw handleAuth0Exception(exception, AUTH_API);
     } catch (final Exception e) {
       throw e;
     }
@@ -120,17 +121,17 @@ public class Auth0Helper {
     try {
       return customRequest.execute();
     } catch (final Auth0Exception e) {
-      throw handleAuth0Exception(e, "authApi");
+      throw handleAuth0Exception(e, AUTH_API);
     }
   }
 
   public boolean isPasswordValid(final String email, final String password) {
     try {
       login(email, password, null);
-      return true;
     } catch (final GeneralAuth0Exception exception) {
       return false;
     }
+    return true;
   }
 
   public User findByEmail(final String email) {
@@ -148,7 +149,7 @@ public class Auth0Helper {
       throw new GeneralAuth0Exception(
           "Multiple account with same email address exist.");
     }
-    return users.size() > 0 ? users.get(0) : null;
+    return !users.isEmpty() ? users.get(0) : null;
   }
 
   public Boolean existsByEmail(final String email) {
@@ -322,7 +323,7 @@ public class Auth0Helper {
           .min(Comparator
               .comparingInt(
                   a -> shamu.company.user.entity.User.Role.valueOf(a.getName()).ordinal()))
-          .get();
+          .orElseThrow(() -> new Auth0Exception("Role is empty"));
 
       return shamu.company.user.entity.User.Role.valueOf(targetRole.getName());
     } catch (final Auth0Exception e) {
