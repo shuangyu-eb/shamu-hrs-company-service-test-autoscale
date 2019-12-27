@@ -105,7 +105,7 @@ public class BenefitPlanRestController extends BaseRestController {
 
   @GetMapping("benefit-plan-types")
   public List<BenefitPlanTypeDto> getBenefitPlanTypes() {
-    return benefitPlanService.getBenefitPlanTypes(findCompanyId());
+    return benefitPlanService.getBenefitPlanTypesAndNum(findCompanyId());
   }
 
   @GetMapping("benefit-plan-types/{planTypeId}/plan-preview")

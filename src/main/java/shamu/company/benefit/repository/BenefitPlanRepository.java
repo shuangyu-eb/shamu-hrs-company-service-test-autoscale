@@ -14,11 +14,14 @@ public interface BenefitPlanRepository extends BaseRepository<BenefitPlan, Strin
   List<BenefitPlan> findByBenefitPlanTypeIdAndCompanyId(String benefitPlanTypeId, String companyId);
 
   @Query("select new shamu.company.benefit.dto.BenefitPlanTypeDto("
-      + "bp.benefitPlanType.id, bp.benefitPlanType.name, count(bp.benefitPlanType) )"
-      + " from BenefitPlan bp where bp.company.id = ?1"
-      + " group by bp.benefitPlanType"
-      + " order by bp.benefitPlanType")
-  List<BenefitPlanTypeDto> findPlanTypeAndNumByCompanyIdOrderTypeId(String companyId);
+      + "bp.benefitPlanType.id, bpt.name, count(bp.benefitPlanType.id) )"
+      + " from shamu.company.benefit.entity.BenefitPlanType bpt"
+      + " left join BenefitPlan bp"
+      + " on bp.benefitPlanType.id = bpt.id"
+      + " and bp.company.id = ?1"
+      + " group by bpt.id"
+      + " order by bpt.id")
+  List<BenefitPlanTypeDto> findPlanTypeAndNumByCompanyIdOrderByTypeId(String companyId);
 
   BenefitPlan findBenefitPlanById(String planId);
 }

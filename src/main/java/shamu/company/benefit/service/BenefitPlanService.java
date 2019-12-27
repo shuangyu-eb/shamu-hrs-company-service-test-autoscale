@@ -41,7 +41,6 @@ import shamu.company.benefit.repository.RetirementPlanTypeRepository;
 import shamu.company.benefit.repository.UserDependentsRepository;
 import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.company.entity.Company;
-import shamu.company.user.entity.mapper.UserMapper;
 import shamu.company.user.repository.UserRepository;
 
 @Service
@@ -56,8 +55,6 @@ public class BenefitPlanService {
   private final RetirementPlanTypeRepository retirementPlanTypeRepository;
 
   private final BenefitPlanTypeRepository benefitPlanTypeRepository;
-
-  private final UserMapper userMapper;
 
   private final BenefitPlanCoverageMapper benefitPlanCoverageMapper;
 
@@ -81,7 +78,6 @@ public class BenefitPlanService {
       final BenefitPlanCoverageRepository benefitPlanCoverageRepository,
       final RetirementPlanTypeRepository retirementPlanTypeRepository,
       final BenefitPlanTypeRepository benefitPlanTypeRepository,
-      final UserMapper userMapper,
       final BenefitPlanCoverageMapper benefitPlanCoverageMapper,
       final RetirementPlanTypeMapper retirementPlanTypeMapper,
       final BenefitPlanUserMapper benefitPlanUserMapper,
@@ -95,7 +91,6 @@ public class BenefitPlanService {
     this.benefitPlanCoverageRepository = benefitPlanCoverageRepository;
     this.retirementPlanTypeRepository = retirementPlanTypeRepository;
     this.benefitPlanTypeRepository = benefitPlanTypeRepository;
-    this.userMapper = userMapper;
     this.benefitPlanCoverageMapper = benefitPlanCoverageMapper;
     this.benefitPlanUserMapper = benefitPlanUserMapper;
     this.retirementPlanTypeMapper = retirementPlanTypeMapper;
@@ -262,8 +257,8 @@ public class BenefitPlanService {
     benefitPlanRepository.save(benefitPlan);
   }
 
-  public List<BenefitPlanTypeDto> getBenefitPlanTypes(final String companyId) {
-    return benefitPlanRepository.findPlanTypeAndNumByCompanyIdOrderTypeId(companyId);
+  public List<BenefitPlanTypeDto> getBenefitPlanTypesAndNum(final String companyId) {
+    return benefitPlanRepository.findPlanTypeAndNumByCompanyIdOrderByTypeId(companyId);
   }
 
   public List<BenefitPlanPreviewDto> getBenefitPlanPreview(
