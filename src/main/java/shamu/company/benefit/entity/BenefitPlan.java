@@ -47,7 +47,7 @@ public class BenefitPlan extends BaseEntity {
   @JoinColumn(name = "benefit_plan_id")
   private Set<BenefitPlanDocument> benefitPlanDocuments = new HashSet<>();
 
-  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
   @JoinColumn(name = "benefit_plan_id")
   private Set<BenefitPlanCoverage> coverages = new HashSet<>();
 
