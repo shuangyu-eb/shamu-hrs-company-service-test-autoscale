@@ -88,7 +88,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private final String customNamespace;
 
-    public AuthenticationConverter(final String customNamespace) {
+    AuthenticationConverter(final String customNamespace) {
       this.customNamespace = customNamespace;
     }
 
@@ -98,7 +98,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
       final AuthUser authUser = authUserCacheManager.getCachedUser(jwt.getTokenValue());
 
       final List<String> authorities =
-          authUser == null ? Collections.EMPTY_LIST : authUser.getPermissions();
+          authUser == null ? Collections.emptyList() : authUser.getPermissions();
 
       final List<SimpleGrantedAuthority> grantedAuthorities = authorities.stream()
           .map(SimpleGrantedAuthority::new)
