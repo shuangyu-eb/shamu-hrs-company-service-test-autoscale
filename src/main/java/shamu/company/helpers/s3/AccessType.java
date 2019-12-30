@@ -4,9 +4,9 @@ import com.amazonaws.services.s3.model.CannedAccessControlList;
 
 public enum AccessType {
 
-  PublicRead(CannedAccessControlList.PublicRead),
+  PUBLIC_READ(CannedAccessControlList.PublicRead),
 
-  Private(CannedAccessControlList.Private);
+  PRIVATE(CannedAccessControlList.Private);
 
   private final CannedAccessControlList accessLevel;
 

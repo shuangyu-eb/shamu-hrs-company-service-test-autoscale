@@ -81,7 +81,7 @@ public class AwsHelper {
   }
 
   public String uploadFile(@NotNull final MultipartFile multipartFile, final Type type) {
-    return uploadFile(multipartFile, type, AccessType.PublicRead);
+    return uploadFile(multipartFile, type, AccessType.PUBLIC_READ);
   }
 
   public String uploadFile(@NotNull final MultipartFile multipartFile, final Type type,
@@ -101,7 +101,7 @@ public class AwsHelper {
   }
 
   public String uploadFile(final String filePath, final Type type) {
-    return uploadFile(filePath, type, AccessType.PublicRead);
+    return uploadFile(filePath, type, AccessType.PUBLIC_READ);
   }
 
   public String uploadFile(final String filePath, final Type type, final AccessType accessType) {

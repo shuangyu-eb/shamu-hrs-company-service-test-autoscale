@@ -49,7 +49,6 @@ import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.company.entity.Company;
 import shamu.company.helpers.s3.AccessType;
 import shamu.company.helpers.s3.AwsHelper;
-import shamu.company.user.entity.mapper.UserMapper;
 import shamu.company.user.repository.UserRepository;
 
 @Service
@@ -497,7 +496,7 @@ public class BenefitPlanService {
       final List<MultipartFile> files) {
     final BenefitPlan benefitPlan = findBenefitPlanById(benefitPlanId);
     files.forEach(file -> {
-      final String path = awsHelper.uploadFile(file, AccessType.Private);
+      final String path = awsHelper.uploadFile(file, AccessType.PRIVATE);
 
       if (Strings.isBlank(path)) {
         throw new AwsException("AWS upload failed");
