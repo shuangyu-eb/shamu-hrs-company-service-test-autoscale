@@ -2,7 +2,6 @@ package shamu.company.user.dto;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import shamu.company.common.config.annotations.CanEmpty;
 
 @Data
 @NoArgsConstructor
@@ -16,7 +15,6 @@ public class UserAddressDto {
 
   private String street2;
 
-  @CanEmpty
   private String city;
 
   private String countryName;
@@ -27,6 +25,5 @@ public class UserAddressDto {
 
   private String stateId;
 
-  @CanEmpty
   private String postalCode;
 }

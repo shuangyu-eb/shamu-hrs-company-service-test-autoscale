@@ -1,5 +1,6 @@
 package shamu.company.company.entity.mapper;
 
+import org.apache.commons.lang.StringUtils;
 import org.mapstruct.Mapper;
 import shamu.company.common.entity.StateProvince;
 import shamu.company.common.mapper.Config;
@@ -15,6 +16,9 @@ public interface StateProvinceMapper {
   StateProvinceDto convertToStateProvinceDto(StateProvince stateProvince);
 
   default StateProvince createFromStateId(String id) {
-    return new StateProvince(id);
+    if (StringUtils.isNotEmpty(id)) {
+      return new StateProvince(id);
+    }
+    return null;
   }
 }

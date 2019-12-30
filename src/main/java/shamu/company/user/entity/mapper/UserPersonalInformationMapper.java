@@ -29,9 +29,6 @@ public interface UserPersonalInformationMapper {
   @Mapping(target = "gender", source = "genderId")
   @Mapping(target = "ethnicity", source = "ethnicityId")
   @Mapping(target = "maritalStatus", source = "maritalStatusId")
-  @Mapping(target = "preferredName",
-          expression = "java(userPersonalInformationDto.getPreferredName() == null ? "
-                  + "null : userPersonalInformationDto.getPreferredName())")
   void updateFromUserPersonalInformationDto(
       @MappingTarget UserPersonalInformation userPersonalInformation,
       UserPersonalInformationDto userPersonalInformationDto);

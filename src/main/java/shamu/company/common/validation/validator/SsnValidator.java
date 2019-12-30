@@ -4,6 +4,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+import org.apache.commons.lang.StringUtils;
 import shamu.company.common.validation.constraints.SsnValidate;
 
 public class SsnValidator implements ConstraintValidator<SsnValidate, String> {
@@ -15,7 +16,7 @@ public class SsnValidator implements ConstraintValidator<SsnValidate, String> {
 
   @Override
   public boolean isValid(String ssn, ConstraintValidatorContext constraintValidatorContext) {
-    if (ssn == null) {
+    if (StringUtils.isEmpty(ssn)) {
       return true;
     }
 

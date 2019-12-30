@@ -2,7 +2,6 @@ package shamu.company.common.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.format.FormatterRegistry;
 import org.springframework.lang.Nullable;
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
@@ -20,10 +19,6 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
     return handlerMapping;
   }
 
-  @Override
-  protected void addFormatters(FormatterRegistry registry) {
-    registry.addConverter(new StringFieldConditionalConverter());
-  }
 
   @Override
   public void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
