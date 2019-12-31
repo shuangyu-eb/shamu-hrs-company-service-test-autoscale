@@ -5,7 +5,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
-import shamu.company.employee.dto.BasicJobInformationDto;
 import shamu.company.employee.dto.EmployeeRelatedInformationDto;
 import shamu.company.employee.service.EmployeeService;
 import shamu.company.user.dto.BasicUserContactInformationDto;
