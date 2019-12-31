@@ -574,3 +574,39 @@ databaseChangeLog:
                 constraintName: fk_benefit_plan_documents_benefit_plans
                 referencedColumnNames: id
                 referencedTableName: benefit_plans
+
+- changeSet:
+    id: 1577669578961-1
+    author: michael-eb
+    changes:
+      - dropForeignKeyConstraint:
+          baseTableName: benefit_plan_documents
+          constraintName: fk_benefit_plan_documents_benefit_plans
+
+- changeSet:
+    id: 1577669578961-2
+    author: michael-eb
+    preConditions:
+      onFail: WARN
+    changes:
+      - addForeignKeyConstraint:
+          baseColumnNames: benefit_plan_id
+          baseTableName: benefit_plan_documents
+          constraintName: fk_benefit_plan_documents_benefit_plans
+          onDelete: CASCADE
+          onUpdate: CASCADE
+          referencedColumnNames: id
+          referencedTableName: benefit_plans
+
+- changeSet:
+    id: 1577669578961-3
+    author: michael-eb
+    preConditions:
+      onFail: WARN
+    changes:
+      - addColumn:
+          columns:
+            - column:
+                name: pdf_name
+                type: varchar(255)
+          tableName: benefit_plan_documents

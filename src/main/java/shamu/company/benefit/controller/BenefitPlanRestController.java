@@ -85,8 +85,9 @@ public class BenefitPlanRestController extends BaseRestController {
       @RequestParam("file")
       //TODO: Need an appropriate file size.
       @FileValidate(maxSize = 10 * 1024 * 1024, fileType = {"PDF"})
-      final List<MultipartFile> files) {
-    benefitPlanService.saveBenefitPlanDocuments(id, files);
+      final List<MultipartFile> files,
+      @RequestParam("title") final List<String> fileTitles) {
+    benefitPlanService.saveBenefitPlanDocuments(id, files, fileTitles);
     return new ResponseEntity(HttpStatus.OK);
   }
 
@@ -156,5 +157,13 @@ public class BenefitPlanRestController extends BaseRestController {
     final String userId = findAuthUser().getId();
     benefitPlanService.updateUserBenefitPlanEnrollmentInfo(userId,
         selectedInfos, findCompanyId());
+  }
+
+  @DeleteMapping("benefit-plan/{id}/documents")
+  @PreAuthorize("hasPermission(#id,'BENEFIT_PLAN', 'MANAGE_BENEFIT_PLAN')")
+  public ResponseEntity deleteBenefitPlanDocuments(@PathVariable final String id,
+      @RequestBody final List<String> benefitPlanDocumentIds) {
+    benefitPlanService.deleteBenefitPlanDocumentsByDocumentIds(benefitPlanDocumentIds);
+    return new ResponseEntity(HttpStatus.OK);
   }
 }

@@ -21,10 +21,13 @@ public class BenefitPlanDocument extends BaseEntity {
   private String url;
 
   @Column(name = "benefit_plan_id")
-  private Long benefitPlanId;
+  private String benefitPlanId;
 
-  public BenefitPlanDocument(final String title, final String url) {
+  private String fileName;
+
+  public BenefitPlanDocument(final String title, final String url, final String fileName) {
     this.title = title;
     this.url = url;
+    this.fileName = fileName;
   }
 }

@@ -488,12 +488,15 @@ public class BenefitPlanService {
         benefitPlanUserRepository.findAllByBenefitPlan(new BenefitPlan(planId));
     final RetirementPlanType retirementPlanType =
         retirementPlanTypeRepository.findByBenefitPlan(new BenefitPlan(planId));
+    final List<BenefitPlanDocument> benefitPlanDocuments =
+            benefitPlanDocumentRepository.findAllByBenefitPlanId(planId);
     return benefitPlanMapper.convertToOldBenefitPlanDto(
-        benefitPlan, benefitPlanCoverage, benefitPlanUsers, retirementPlanType);
+        benefitPlan, benefitPlanCoverage, benefitPlanUsers, retirementPlanType,
+            benefitPlanDocuments);
   }
 
   public void saveBenefitPlanDocuments(final String benefitPlanId,
-      final List<MultipartFile> files) {
+      final List<MultipartFile> files, final List<String> fileTitles) {
     final BenefitPlan benefitPlan = findBenefitPlanById(benefitPlanId);
     files.forEach(file -> {
       final String path = awsHelper.uploadFile(file, AccessType.PRIVATE);
@@ -503,10 +506,19 @@ public class BenefitPlanService {
       }
       final String fileName =
           StringUtils.isNotBlank(file.getOriginalFilename()) ? file.getOriginalFilename() : "";
-      final String title = fileName.substring(0, fileName.lastIndexOf('.'));
-      final BenefitPlanDocument document = new BenefitPlanDocument(title, path);
+      final String[] fileTitle = {""};
+      fileTitles.forEach(name -> {
+        if (fileName.equals(name.split(":")[1])) {
+          fileTitle[0] = name.split(":")[0];
+        }
+      });
+      final BenefitPlanDocument document = new BenefitPlanDocument(fileTitle[0], path, fileName);
       benefitPlan.addBenefitPlanDocument(document);
     });
     save(benefitPlan);
+  }
+
+  public void deleteBenefitPlanDocumentsByDocumentIds(final List<String> documentIds) {
+    benefitPlanDocumentRepository.deleteInBatch(documentIds);
   }
 }
