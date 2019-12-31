@@ -14,9 +14,6 @@ public class NewEmployeeJobInformationDto {
 
   private String reportsTo;
 
-  // TODO remove it, we can get it from job
-  private String departmentId;
-
   private Integer compensation;
 
   private String compensationFrequencyId;
