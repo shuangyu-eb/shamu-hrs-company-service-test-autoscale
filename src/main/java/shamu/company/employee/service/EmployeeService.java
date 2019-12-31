@@ -92,7 +92,7 @@ import shamu.company.utils.UuidUtil;
 @Transactional
 public class EmployeeService {
 
-  private static final String subject = "Welcome to ";
+  private static final String SUBJECT = "Welcome to ";
   private final UserAddressService userAddressService;
   private final EmploymentTypeService employmentTypeService;
   private final UserCompensationService userCompensationService;
@@ -245,7 +245,7 @@ public class EmployeeService {
   }
 
   public Email findWelcomeEmail(final String email, final String companyName) {
-    return emailService.findFirstByToAndSubjectOrderBySendDateDesc(email, subject + companyName);
+    return emailService.findFirstByToAndSubjectOrderBySendDateDesc(email, SUBJECT + companyName);
   }
 
   private String saveEmployeePhoto(final String base64EncodedPhoto) {
@@ -526,7 +526,7 @@ public class EmployeeService {
     emailContext.setVariable("companyName", currentUser.getCompany().getName());
     content = userService.getWelcomeEmail(emailContext);
     final Timestamp sendDate = welcomeEmailDto.getSendDate();
-    final String fullSubject = subject + currentUser.getCompany().getName();
+    final String fullSubject = SUBJECT + currentUser.getCompany().getName();
     final Email email =
         new Email(systemEmailAddress, toEmail, fullSubject, content, currentUser, sendDate);
     emailService.saveAndScheduleEmail(email);
