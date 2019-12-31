@@ -17,7 +17,7 @@ public class  UserBenefitPlanDto {
 
   private String coverageType;
 
-  private Integer coverageId;
+  private String coverageId;
 
   private Integer cost;
 
