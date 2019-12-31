@@ -11,7 +11,7 @@ import shamu.company.common.mapper.Config;
 import shamu.company.company.entity.Office;
 import shamu.company.company.entity.mapper.OfficeMapper;
 import shamu.company.employee.dto.BasicJobInformationDto;
-import shamu.company.employee.dto.EmployeeRelatedInformationDto;
+import shamu.company.employee.dto.EmployeeDetailDto;
 import shamu.company.employee.dto.JobInformationDto;
 import shamu.company.employee.dto.SelectFieldInformationDto;
 import shamu.company.employee.entity.EmploymentType;
@@ -45,25 +45,24 @@ public interface JobUserMapper {
   @Mapping(target = "compensation", source = "user.userCompensation")
   JobInformationDto convertToJobInformationDto(JobUser jobUser);
 
-  @Mapping(target = "userId", source = "userId")
   @Mapping(target = "userStatus", source = "userStatus")
   @Mapping(target = "emailSendDate", source = "emailSendDate")
-  @Mapping(target = "employeeWorkEmail", source = "email")
-  @Mapping(target = "employeeFirstName", source = "jobEmployeeDto.firstName")
-  @Mapping(target = "employeeLastName", source = "jobEmployeeDto.lastName")
-  @Mapping(target = "employeePreferredName", source = "jobEmployeeDto.preferredName")
-  @Mapping(target = "employeeImageUrl", source = "jobEmployeeDto.imageUrl")
-  @Mapping(target = "employeeWorkPhone", source = "jobEmployeeDto.phoneNumber")
-  @Mapping(target = "employeeJobTitle", source = "jobEmployeeDto.jobTitle")
-  @Mapping(target = "managerId", source = "jobManagerDto.id")
-  @Mapping(target = "managerFirstName", source = "jobManagerDto.firstName")
-  @Mapping(target = "managerLastName", source = "jobManagerDto.lastName")
-  @Mapping(target = "managerPreferredName", source = "jobManagerDto.preferredName")
-  @Mapping(target = "managerImageUrl", source = "jobManagerDto.imageUrl")
-  @Mapping(target = "managerJobTitle", source = "jobManagerDto.jobTitle")
+  @Mapping(target = "workEmail", source = "email")
+  @Mapping(target = "firstName", source = "jobEmployeeDto.firstName")
+  @Mapping(target = "lastName", source = "jobEmployeeDto.lastName")
+  @Mapping(target = "preferredName", source = "jobEmployeeDto.preferredName")
+  @Mapping(target = "imageUrl", source = "jobEmployeeDto.imageUrl")
+  @Mapping(target = "workPhone", source = "jobEmployeeDto.phoneNumber")
+  @Mapping(target = "jobTitle", source = "jobEmployeeDto.jobTitle")
+  @Mapping(target = "manager.userId", source = "jobManagerDto.id")
+  @Mapping(target = "manager.firstName", source = "jobManagerDto.firstName")
+  @Mapping(target = "manager.lastName", source = "jobManagerDto.lastName")
+  @Mapping(target = "manager.preferredName", source = "jobManagerDto.preferredName")
+  @Mapping(target = "manager.imageUrl", source = "jobManagerDto.imageUrl")
+  @Mapping(target = "manager.jobTitle", source = "jobManagerDto.jobTitle")
   @Mapping(target = "directReporters", source = "directReporters")
   @Mapping(target = "roleName", source = "roleName")
-  EmployeeRelatedInformationDto convertToEmployeeRelatedInformationDto(String userId, String email,
+  EmployeeDetailDto convertToEmployeeRelatedInformationDto(String email,
       String userStatus, Timestamp emailSendDate, JobUserDto jobEmployeeDto,
       JobUserDto jobManagerDto, List<JobUserDto> directReporters, String roleName);
 

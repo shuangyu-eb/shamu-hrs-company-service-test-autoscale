@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
-import shamu.company.employee.dto.EmployeeRelatedInformationDto;
+import shamu.company.employee.dto.EmployeeDetailDto;
 import shamu.company.employee.service.EmployeeService;
 import shamu.company.user.dto.BasicUserContactInformationDto;
 import shamu.company.user.dto.BasicUserPersonalInformationDto;
@@ -21,7 +21,7 @@ public class EmployeeInformationRestController extends BaseRestController {
 
   @GetMapping("/employees/{id}/info")
   @PreAuthorize("hasPermission(#id,'USER','VIEW_USER_PERSONAL')")
-  public EmployeeRelatedInformationDto getEmployeeInfoByUserId(
+  public EmployeeDetailDto getEmployeeInfoByUserId(
       @PathVariable final String id) {
     return employeeService.getEmployeeInfoByUserId(id);
   }

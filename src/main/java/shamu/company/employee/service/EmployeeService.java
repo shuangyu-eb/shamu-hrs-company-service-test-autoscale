@@ -34,8 +34,8 @@ import shamu.company.crypto.EncryptorUtil;
 import shamu.company.email.Email;
 import shamu.company.email.EmailService;
 import shamu.company.employee.dto.EmailResendDto;
+import shamu.company.employee.dto.EmployeeDetailDto;
 import shamu.company.employee.dto.EmployeeDto;
-import shamu.company.employee.dto.EmployeeRelatedInformationDto;
 import shamu.company.employee.dto.NewEmployeeJobInformationDto;
 import shamu.company.employee.dto.WelcomeEmailDto;
 import shamu.company.employee.entity.EmploymentType;
@@ -532,7 +532,7 @@ public class EmployeeService {
     emailService.saveAndScheduleEmail(email);
   }
 
-  public EmployeeRelatedInformationDto getEmployeeInfoByUserId(final String id) {
+  public EmployeeDetailDto getEmployeeInfoByUserId(final String id) {
     final User employee = userService.findById(id);
     final String emailAddress = employee.getUserContactInformation().getEmailWork();
     final Status userStatus = employee.getUserStatus().getStatus();
@@ -556,7 +556,7 @@ public class EmployeeService {
         .map(user -> userService.findEmployeeInfoByEmployeeId(user.getId()))
         .collect(Collectors.toList());
 
-    return jobUserMapper.convertToEmployeeRelatedInformationDto(id, emailAddress,
+    return jobUserMapper.convertToEmployeeRelatedInformationDto(emailAddress,
         userStatus.name(), sendDate, jobUserDto,
         managerJobUserDto, reports, roleName);
   }
