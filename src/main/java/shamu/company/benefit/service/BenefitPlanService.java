@@ -539,8 +539,6 @@ public class BenefitPlanService {
         benefitPlanUserRepository.findAllByBenefitPlan(new BenefitPlan(planId));
     final RetirementPlanType retirementPlanType =
         retirementPlanTypeRepository.findByBenefitPlan(new BenefitPlan(planId));
-    final List<BenefitPlanDocument> benefitPlanDocuments =
-        benefitPlanDocumentRepository.findAllByBenefitPlanId(planId);
     return benefitPlanMapper.convertToOldBenefitPlanDto(
         benefitPlan, benefitPlanCoverage, benefitPlanUsers, retirementPlanType);
   }
@@ -555,17 +553,18 @@ public class BenefitPlanService {
           if (Strings.isBlank(path)) {
             throw new AwsException("AWS upload failed");
           }
-          final String fileName =
+          final String title =
               StringUtils.isNotBlank(file.getOriginalFilename()) ? file.getOriginalFilename() : "";
+          final String fileName = title.substring(0, title.lastIndexOf('.'));
           final String[] fileTitle = {""};
           fileTitles.forEach(
               name -> {
-                if (fileName.equals(name.split(":")[1])) {
-                  fileTitle[0] = name.split(":")[0];
+                if (fileName.equals(name.split(":")[0])) {
+                  fileTitle[0] = name.split(":")[1];
                 }
               });
           final BenefitPlanDocument document =
-              new BenefitPlanDocument(fileTitle[0], path, fileName);
+              new BenefitPlanDocument(fileName, path, fileTitle[0]);
           benefitPlan.addBenefitPlanDocument(document);
         });
     save(benefitPlan);
