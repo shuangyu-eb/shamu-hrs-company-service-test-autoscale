@@ -52,6 +52,6 @@ ECS_SERVICES=`aws ecs list-services --cluster ${CLUSTER} --region ${REGION} | jq
 if [ "[]" == "${ECS_SERVICES}" ];then
   echo "skip update company service"
 else
-  aws ecs update-service --cluster ${CLUSTER} --service ${SERVICE_NAME} --task-definition ${SERVICE_NAME} --desired-count 1 --force-new-deployment
+  aws ecs update-service --cluster ${CLUSTER} --service ${SERVICE_NAME} --task-definition ${SERVICE_NAME} --desired-count 1 --force-new-deployment --region ${REGION}
 fi
 
