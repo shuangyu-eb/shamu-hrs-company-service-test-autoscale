@@ -610,3 +610,24 @@ databaseChangeLog:
                 name: pdf_name
                 type: varchar(255)
           tableName: benefit_plan_documents
+
+- changeSet:
+    id: 1577669578961-4
+    author: michael-eb
+    changes:
+      - dropColumn:
+          columnName: pdf_name
+          tableName: benefit_plan_documents
+
+- changeSet:
+    id: 1577669578961-5
+    author: michael-eb
+    preConditions:
+      onFail: WARN
+    changes:
+      - addColumn:
+          columns:
+            - column:
+                name: file_name
+                type: varchar(255)
+          tableName: benefit_plan_documents

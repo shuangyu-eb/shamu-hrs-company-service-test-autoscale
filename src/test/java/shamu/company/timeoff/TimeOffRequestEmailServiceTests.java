@@ -56,7 +56,6 @@ public class TimeOffRequestEmailServiceTests {
     dates.add((new TimeOffRequestDate(Timestamp.valueOf(lastYear + "-12-01 00:00:00"))));
     dates.add((new TimeOffRequestDate(Timestamp.valueOf(lastYear + "-12-31 00:00:00"))));
     dates.add((new TimeOffRequestDate(Timestamp.valueOf(currentYear + "-01-01 00:00:00"))));
-    dates.add((new TimeOffRequestDate(Timestamp.valueOf(currentYear + "-02-28 00:00:00"))));
     dates.add((new TimeOffRequestDate(Timestamp.valueOf(currentYear + "-03-01 00:00:00"))));
     dates.add((new TimeOffRequestDate(Timestamp.valueOf(currentYear + "-04-30 00:00:00"))));
     dates.add((new TimeOffRequestDate(Timestamp.valueOf(currentYear + "-05-01 00:00:00"))));
@@ -72,7 +71,7 @@ public class TimeOffRequestEmailServiceTests {
     timeOffRequest.setTimeOffRequestDates(dates);
     final String result = timeOffRequestEmailService.getTimeOffRange(timeOffRequest);
     final String expectedTimeOffRange = "Oct 10, Nov 30 - Dec 1, 31, " + lastYear + " - Jan 1,"
-        + " Feb 28 - Mar 1, Apr 30 - May 1, Aug 8, 22, Sep 13, "
+        + " Mar 1, Apr 30 - May 1, Aug 8, 22, Sep 13, "
         + "Dec 31 - Jan 1, 21, Jan 31 - Feb 1, 6, " + nextYear;
     Assertions.assertEquals(expectedTimeOffRange, result);
   }
