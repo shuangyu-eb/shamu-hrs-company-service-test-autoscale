@@ -1,7 +1,7 @@
 package shamu.company.benefit.dto;
 
 import java.sql.Timestamp;
-
+import java.util.List;
 import lombok.Data;
 import shamu.company.benefit.entity.BenefitPlanType;
 import shamu.company.company.entity.Company;
@@ -21,13 +21,11 @@ public class BenefitPlanDto {
 
   private Timestamp endDate;
 
-  private String documentName;
-
-  private String documentUrl;
-
   private String website;
 
   private Company company;
 
   private BenefitPlanType benefitPlanType;
+
+  private List<BenefitPlanDocumentDto> benefitPlanDocuments;
 }

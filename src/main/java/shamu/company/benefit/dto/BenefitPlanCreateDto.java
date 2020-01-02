@@ -1,10 +1,9 @@
 package shamu.company.benefit.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.sql.Timestamp;
+import java.util.List;
 import lombok.Data;
-import shamu.company.common.config.SerializerUrl;
 
 @Data
 public class BenefitPlanCreateDto {
@@ -23,14 +22,11 @@ public class BenefitPlanCreateDto {
 
   private String benefitPlanTypeId;
 
-  private String documentName;
-
-  @JsonSerialize(using = SerializerUrl.class)
-  private String documentUrl;
-
   @JsonFormat(pattern = "MM/dd/yyyy")
   private Timestamp startDate;
 
   @JsonFormat(pattern = "MM/dd/yyyy")
   private Timestamp endDate;
+
+  private List<String> remainingDocumentIds;
 }

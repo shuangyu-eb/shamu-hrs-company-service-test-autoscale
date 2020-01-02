@@ -2,7 +2,6 @@ package shamu.company.benefit.dto;
 
 import java.util.List;
 import lombok.Data;
-import shamu.company.benefit.entity.BenefitPlanDocument;
 
 @Data
 public class BenefitPlanUpdateDto {
@@ -14,6 +13,4 @@ public class BenefitPlanUpdateDto {
   private List<BenefitPlanUserDto> benefitPlanUsers;
 
   private RetirementPlanTypeDto retirementPlanType;
-
-  private List<BenefitPlanDocument> benefitPlanDocuments;
 }

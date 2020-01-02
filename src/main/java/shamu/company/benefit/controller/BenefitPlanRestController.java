@@ -158,12 +158,4 @@ public class BenefitPlanRestController extends BaseRestController {
     benefitPlanService.updateUserBenefitPlanEnrollmentInfo(userId,
         selectedInfos, findCompanyId());
   }
-
-  @DeleteMapping("benefit-plan/{id}/documents")
-  @PreAuthorize("hasPermission(#id,'BENEFIT_PLAN', 'MANAGE_BENEFIT_PLAN')")
-  public ResponseEntity deleteBenefitPlanDocuments(@PathVariable final String id,
-      @RequestBody final List<String> benefitPlanDocumentIds) {
-    benefitPlanService.deleteBenefitPlanDocumentsByDocumentIds(benefitPlanDocumentIds);
-    return new ResponseEntity(HttpStatus.OK);
-  }
 }

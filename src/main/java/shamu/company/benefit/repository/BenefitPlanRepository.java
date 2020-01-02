@@ -1,7 +1,6 @@
 package shamu.company.benefit.repository;
 
 import java.util.List;
-
 import org.springframework.data.jpa.repository.Query;
 import shamu.company.benefit.dto.BenefitPlanTypeDto;
 import shamu.company.benefit.entity.BenefitPlan;
@@ -14,7 +13,7 @@ public interface BenefitPlanRepository extends BaseRepository<BenefitPlan, Strin
   List<BenefitPlan> findByBenefitPlanTypeIdAndCompanyId(String benefitPlanTypeId, String companyId);
 
   @Query("select new shamu.company.benefit.dto.BenefitPlanTypeDto("
-      + "bp.benefitPlanType.id, bpt.name, count(bp.benefitPlanType.id) )"
+      + "bpt.id, bpt.name, count(bp.benefitPlanType.id) )"
       + " from shamu.company.benefit.entity.BenefitPlanType bpt"
       + " left join BenefitPlan bp"
       + " on bp.benefitPlanType.id = bpt.id"

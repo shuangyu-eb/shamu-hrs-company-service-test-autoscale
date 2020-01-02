@@ -10,7 +10,7 @@ import shamu.company.common.mapper.Config;
 @Mapper(config = Config.class)
 public interface RetirementPlanTypeMapper {
 
-  @Mapping(target = "retirementTypeId", source = "retirementPlanType.id")
+  @Mapping(target = "retirementTypeId", source = "retirementPlanType.retirementType.id")
   RetirementPlanTypeDto convertToRetirementPlanTypeDto(RetirementPlanType retirementPlanType);
 
   void updateFromNewRetirementPlanType(@MappingTarget RetirementPlanType retirementPlanType,

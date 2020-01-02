@@ -6,6 +6,7 @@ import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Type;
 import shamu.company.common.entity.BaseEntity;
 
 @Data
@@ -21,6 +22,7 @@ public class BenefitPlanDocument extends BaseEntity {
   private String url;
 
   @Column(name = "benefit_plan_id")
+  @Type(type = "shamu.company.common.PrimaryKeyTypeDescriptor")
   private String benefitPlanId;
 
   private String fileName;

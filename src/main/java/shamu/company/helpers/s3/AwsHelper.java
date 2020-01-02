@@ -7,6 +7,7 @@ import com.amazonaws.SdkClientException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.CopyObjectRequest;
+import com.amazonaws.services.s3.model.DeleteObjectsRequest;
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import java.io.File;
@@ -15,6 +16,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.util.Calendar;
+import java.util.List;
 import java.util.UUID;
 import javax.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
@@ -45,8 +47,9 @@ public class AwsHelper {
   private final String folder;
 
   @Autowired
-  public AwsHelper(@Value("${aws.bucketName}") final String bucketName,
-                   @Value("${aws.folder}") final String folder) {
+  public AwsHelper(
+      @Value("${aws.bucketName}") final String bucketName,
+      @Value("${aws.folder}") final String folder) {
     this.bucketName = bucketName;
     this.folder = folder;
   }
@@ -60,16 +63,26 @@ public class AwsHelper {
       final String projectDir = ResourceUtils.getURL(ResourceUtils.CLASSPATH_URL_PREFIX).getPath();
       final String suffix = originalFilename.substring(originalFilename.lastIndexOf('.'));
 
-      final String fileName = String.format("%suploads/%s%s", projectDir,
-          System.currentTimeMillis(),
-          UUID.randomUUID().toString());
+      final String fileName =
+          String.format(
+              "%suploads/%s%s",
+              projectDir, System.currentTimeMillis(), UUID.randomUUID().toString());
       return File.createTempFile(fileName, suffix);
     } catch (final FileNotFoundException e) {
       throw new AwsException("The file: " + originalFilename + " doesn't exist.");
     } catch (final IOException e) {
       throw new AwsException("Create the temp file failed.");
     }
+  }
 
+  public void amazonS3DeleteObject(final List<String> keys) {
+    if (keys.isEmpty()) {
+      return;
+    }
+    final String[] documentIds = keys.toArray(new String[keys.size()]);
+    final AmazonS3 s3Client = findClient();
+    final DeleteObjectsRequest dor = new DeleteObjectsRequest(bucketName).withKeys(documentIds);
+    s3Client.deleteObjects(dor);
   }
 
   public String uploadFile(final MultipartFile multipartFile) {
@@ -84,8 +97,8 @@ public class AwsHelper {
     return uploadFile(multipartFile, type, AccessType.PUBLIC_READ);
   }
 
-  public String uploadFile(@NotNull final MultipartFile multipartFile, final Type type,
-      final AccessType accessType) {
+  public String uploadFile(
+      @NotNull final MultipartFile multipartFile, final Type type, final AccessType accessType) {
     final File file = generateFile(multipartFile.getOriginalFilename());
     if (multipartFile.isEmpty()) {
       throw new AwsException("File is empty.");
@@ -115,8 +128,8 @@ public class AwsHelper {
 
     try {
       log.info("=====Uploading an object to S3 from a file start=====");
-      s3Client.putObject(new PutObjectRequest(bucketName, path, file)
-          .withCannedAcl(accessType.getAccessLevel()));
+      s3Client.putObject(
+          new PutObjectRequest(bucketName, path, file).withCannedAcl(accessType.getAccessLevel()));
       log.info("=====Uploading an object to S3 from a file end  =====");
 
     } catch (final AmazonServiceException ase) {
@@ -144,8 +157,7 @@ public class AwsHelper {
     final String month = String.valueOf(now.get(Calendar.MONTH) + 1);
     final String day = String.valueOf(now.get(Calendar.DAY_OF_MONTH));
 
-    return String.format("%s/%s/%s/%s/%s/%s",
-        folder, type.getFolder(), year, month, day, fileName);
+    return String.format("%s/%s/%s/%s/%s/%s", folder, type.getFolder(), year, month, day, fileName);
   }
 
   public String moveFileFromTemp(final String path) {
