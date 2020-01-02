@@ -2,7 +2,7 @@ void setBuildStatus(String message, String state) {
     step([
             $class            : "GitHubCommitStatusSetter",
             reposSource       : [$class: "ManuallyEnteredRepositorySource", url: "https://github.com/tardisone/shamu-hrs-company-service.git"],
-            contextSource     : [$class: "ManuallyEnteredCommitContextSource", context: "shamu-company-service-master-build"],
+            contextSource     : [$class: "ManuallyEnteredCommitContextSource", context: "shamu-company-master-build"],
             errorHandlers     : [[$class: "ChangingBuildStatusErrorHandler", result: "UNSTABLE"]],
             statusResultSource: [$class: "ConditionalStatusResultSource", results: [[$class: "AnyBuildResult", message: message, state: state]]]
     ])
@@ -11,7 +11,6 @@ void setBuildStatus(String message, String state) {
 pipeline {
     agent any
     environment {
-        recipient = 'jiwenhao@easternbay.cn'
         sonarqubeScannerHome = tool name: 'Shamu Hrs Company Service Sonarqube Scanner'
     }
     stages {
