@@ -41,13 +41,13 @@ mvn clean package -Dmaven.test.skip=true -e
 
 docker build -t ${REPOSITORY_NAME} .
 
-REPOSITORY_URI=`aws ecr describe-repositories --repository-names ${REPOSITORY_NAME} | jq .repositories[].repositoryUri | tr -d '"'`
+REPOSITORY_URI=`aws ecr describe-repositories --repository-names ${REPOSITORY_NAME} --region ${REGION} | jq .repositories[].repositoryUri | tr -d '"'`
 
 docker tag ${REPOSITORY_NAME}:${REPOSITORY_TAG} ${REPOSITORY_URI}:${REPOSITORY_TAG}
 
 docker push ${REPOSITORY_URI}:${REPOSITORY_TAG}
 
-ECS_SERVICES=`aws ecs list-services --cluster ${CLUSTER} | jq .serviceArns`
+ECS_SERVICES=`aws ecs list-services --cluster ${CLUSTER} --region ${REGION} | jq .serviceArns`
 
 if [ "[]" == "${ECS_SERVICES}" ];then
   echo "skip update company service"
