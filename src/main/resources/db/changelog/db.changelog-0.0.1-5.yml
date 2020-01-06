@@ -631,3 +631,225 @@ databaseChangeLog:
                 name: file_name
                 type: varchar(255)
           tableName: benefit_plan_documents
+
+- changeSet:
+    id: 1578297937-1
+    author: lei-eb
+    changes:
+      - createTable:
+          columns:
+            - column:
+                name: id
+                type: binary(16)
+                constraints:
+                  primaryKey: true
+            - column:
+                name: company_id
+                type: binary(16)
+            - column:
+                name: automatic_rollover
+                type: bool
+                defaultValue: true
+            - column:
+                name: period_start_date
+                type: datetime
+            - column:
+                name: period_end_date
+                type: datetime
+            - column:
+                name: created_at
+                type: datetime
+            - column:
+                name: updated_at
+                type: datetime
+          tableName: company_benefits_setting
+
+
+- changeSet:
+    id: 1578297937-2
+    author: lei-eb
+    changes:
+      - createTable:
+          columns:
+            - column:
+                name: id
+                type: binary(16)
+                constraints:
+                  primaryKey: true
+            - column:
+                name: request_user_id
+                type: binary(16)
+            - column:
+                name: approver_user_id
+                type: binary(16)
+            - column:
+                name: life_event_type
+                type: binary(16)
+            - column:
+                name: life_event_date
+                type: datetime
+            - column:
+                name: prve_enrollment_id
+                type: binary(16)
+            - column:
+                name: next_enrollment_id
+                type: binary(16)
+            - column:
+                name: effective_date
+                type: datetime
+            - column:
+                name: request_status
+                type: binary(16)
+            - column:
+                name: created_at
+                type: datetime
+            - column:
+                name: updated_at
+                type: datetime
+          tableName: benefits_requests
+
+- changeSet:
+    id: 1578297937-3
+    author: lei-eb
+    changes:
+      - createTable:
+          columns:
+            - column:
+                name: id
+                type: binary(16)
+                constraints:
+                  primaryKey: true
+            - column:
+                name: benefit_plan_request_id
+                type: binary(16)
+            - column:
+                name: user_id
+                type: binary(16)
+            - column:
+                name: comment
+                type: text
+            - column:
+                name: created_at
+                type: datetime
+            - column:
+                name: updated_at
+                type: datetime
+          tableName: benefits_request_comments
+
+- changeSet:
+    id: 1578297937-4
+    author: lei-eb
+    changes:
+      - createTable:
+          columns:
+            - column:
+                name: id
+                type: binary(16)
+                constraints:
+                  primaryKey: true
+            - column:
+                name: title
+                type: varchar(255)
+            - column:
+                name: request_id
+                type: binary(16)
+            - column:
+                name: url
+                type: varchar(255)
+            - column:
+                name: created_at
+                type: datetime
+            - column:
+                name: updated_at
+                type: datetime
+          tableName: benefits_request_documents
+
+- changeSet:
+    id: 1578297937-5
+    author: lei-eb
+    changes:
+      - createTable:
+          columns:
+            - column:
+                name: id
+                type: binary(16)
+            - column:
+                name: name
+                type: varchar(100)
+            - column:
+                name: ref_id
+                type: INT
+            - column:
+                name: created_at
+                type: datetime
+            - column:
+                name: updated_at
+                type: datetime
+          tableName: benefit_request_status
+
+- changeSet:
+    id: 1578297937-6
+    author: lei-eb
+    changes:
+      - createTable:
+          columns:
+            - column:
+                name: id
+                type: binary(16)
+            - column:
+                name: name
+                type: varchar(100)
+            - column:
+                name: ref_id
+                type: INT
+            - column:
+                name: created_at
+                type: datetime
+            - column:
+                name: updated_at
+                type: datetime
+          tableName: benefit_life_event_types
+
+- changeSet:
+    id: 1578297937-7
+    author: lei-eb
+    changes:
+      - sql:
+          sql: create trigger ins_benefit_request_status before insert on benefit_request_status for each row set new.id = unhex(replace(uuid(), '-', ''));
+
+- changeSet:
+    id: 1578297937-8
+    author: lei-eb
+    changes:
+      - sql:
+          sql: create trigger ins_benefit_life_event_types before insert on benefit_life_event_types for each row set new.id = unhex(replace(uuid(), '-', ''));
+
+
+- changeSet:
+    id: 1578297937-9
+    author: lei-eb
+    runOnChange: true
+    changes:
+      - loadUpdateData:
+          columns:
+            - column:
+                name: name
+                type: STRING
+          file: db/changelog/data/request-approval-statuses.csv
+          primaryKey: id
+          tableName: benefit_request_status
+
+- changeSet:
+    id: 1578297937-10
+    author: lei-eb
+    runOnChange: true
+    changes:
+      - loadUpdateData:
+          columns:
+            - column:
+                name: name
+                type: STRING
+          file: db/changelog/data/life-event-types.csv
+          primaryKey: id
+          tableName: benefit_life_event_types
+
