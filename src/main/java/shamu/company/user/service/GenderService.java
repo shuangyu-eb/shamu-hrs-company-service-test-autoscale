@@ -1,5 +1,6 @@
 package shamu.company.user.service;
 
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import shamu.company.common.exception.ResourceNotFoundException;
@@ -17,8 +18,11 @@ public class GenderService {
   }
 
   public Gender findById(final String id) {
-    return genderRepository
-        .findById(id)
+    return genderRepository.findById(id)
         .orElseThrow(() -> new ResourceNotFoundException("Gender does not exist"));
+  }
+
+  public List<Gender> findAll() {
+    return genderRepository.findAll();
   }
 }

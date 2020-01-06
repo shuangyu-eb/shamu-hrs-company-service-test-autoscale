@@ -522,9 +522,9 @@ public class EmployeeService {
     String content = welcomeEmailDto.getPersonalInformation();
 
     final Context emailContext =
-        userService.getWelcomeEmailContext(content, employee.getResetPasswordToken(), toEmail);
+        emailService.getWelcomeEmailContext(content, employee.getResetPasswordToken(), toEmail);
     emailContext.setVariable("companyName", currentUser.getCompany().getName());
-    content = userService.getWelcomeEmail(emailContext);
+    content = emailService.getWelcomeEmail(emailContext);
     final Timestamp sendDate = welcomeEmailDto.getSendDate();
     final String fullSubject = SUBJECT + currentUser.getCompany().getName();
     final Email email =
@@ -539,7 +539,7 @@ public class EmployeeService {
     final String roleName = employee.getUserRole().getName();
 
     Timestamp sendDate = null;
-    Email email = null;
+    Email email;
     if (userStatus == Status.PENDING_VERIFICATION
         && ((email = findWelcomeEmail(emailAddress, employee.getCompany().getName())) != null)) {
       sendDate = email.getSendDate();

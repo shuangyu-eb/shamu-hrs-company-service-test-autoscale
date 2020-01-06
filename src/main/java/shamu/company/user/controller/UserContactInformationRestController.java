@@ -12,7 +12,6 @@ import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.user.dto.BasicUserContactInformationDto;
 import shamu.company.user.dto.UserContactInformationDto;
 import shamu.company.user.entity.User;
-import shamu.company.user.entity.User.Role;
 import shamu.company.user.entity.UserContactInformation;
 import shamu.company.user.entity.mapper.UserContactInformationMapper;
 import shamu.company.user.service.UserContactInformationService;
@@ -60,18 +59,12 @@ public class UserContactInformationRestController extends BaseRestController {
   public BasicUserContactInformationDto getUserContactInformation(
       @PathVariable final String id) {
     final User targetUser = userService.findById(id);
-    final User manager = targetUser.getManagerUser();
     final UserContactInformation userContactInformation = targetUser.getUserContactInformation();
 
-    final User currentUser = userService.findByUserId(findUserId());
-    final Role userRole = currentUser.getRole();
-    if (findAuthUser().getId().equals(id)
-        || (manager != null && manager.getId().equals(findAuthUser().getId()))
-        || userRole == Role.ADMIN) {
+    if (isCurrentUserSelfOrAdminOrManager(id)) {
       return userContactInformationMapper
           .convertToUserContactInformationDto(userContactInformation);
     }
-
     return new BasicUserContactInformationDto(userContactInformation);
   }
 }

@@ -4,6 +4,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.company.entity.CompanySize;
 import shamu.company.company.repository.CompanySizeRepository;
 
@@ -17,6 +18,11 @@ public class CompanySizeService {
   @Autowired
   public CompanySizeService(final CompanySizeRepository companySizeRepository) {
     this.companySizeRepository = companySizeRepository;
+  }
+
+  public CompanySize findById(final String id) {
+    return companySizeRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("CompanySize was not found."));
   }
 
   public List<CompanySize> findAll() {

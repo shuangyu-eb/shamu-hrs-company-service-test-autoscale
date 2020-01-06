@@ -1,9 +1,11 @@
 package shamu.company.job.service;
 
+import org.apache.commons.lang.RandomStringUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mapstruct.factory.Mappers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -13,15 +15,21 @@ import shamu.company.common.service.OfficeAddressService;
 import shamu.company.common.service.OfficeService;
 import shamu.company.company.entity.mapper.OfficeAddressMapper;
 import shamu.company.company.entity.mapper.OfficeMapper;
+import shamu.company.company.entity.mapper.OfficeMapperImpl;
+import shamu.company.employee.dto.BasicJobInformationDto;
+import shamu.company.employee.dto.JobInformationDto;
 import shamu.company.employee.service.EmploymentTypeService;
 import shamu.company.job.dto.JobUpdateDto;
 import shamu.company.job.entity.JobUser;
 import shamu.company.job.entity.mapper.JobUserMapper;
+import shamu.company.job.entity.mapper.JobUserMapperImpl;
 import shamu.company.job.repository.JobUserRepository;
 import shamu.company.timeoff.service.TimeOffRequestService;
 import shamu.company.user.entity.User;
+import shamu.company.user.entity.User.Role;
 import shamu.company.user.entity.UserRole;
 import shamu.company.user.entity.mapper.UserCompensationMapper;
+import shamu.company.user.entity.mapper.UserMapper;
 import shamu.company.user.service.UserRoleService;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.DateUtil;
@@ -36,12 +44,6 @@ class JobUserServiceTests {
 
     @Mock
     private UserService userService;
-
-    @Mock
-    private JobUserMapper jobUserMapper;
-
-    @Mock
-    private UserCompensationMapper userCompensationMapper;
 
     @Mock
     private UserRoleService userRoleService;
@@ -67,15 +69,24 @@ class JobUserServiceTests {
     @Mock
     private OfficeAddressMapper officeAddressMapper;
 
-    @Mock
-    private OfficeMapper officeMapper;
+    private final OfficeMapper officeMapper = new OfficeMapperImpl(officeAddressMapper);
 
-    @InjectMocks
+    private final UserCompensationMapper userCompensationMapper = Mappers.getMapper(UserCompensationMapper.class);
+
+    private final JobUserMapper jobUserMapper =
+        new JobUserMapperImpl(officeMapper, userCompensationMapper);
+
+    private final UserMapper userMapper = Mappers.getMapper(UserMapper.class);
+
     private JobUserService jobUserService;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.initMocks(this);
+        jobUserService = new JobUserService(jobUserRepository, userService, jobUserMapper,
+            userCompensationMapper, userRoleService, timeOffRequestService, departmentService,
+            employmentTypeService, officeService, officeAddressService, officeAddressMapper,
+            officeMapper, jobService, userMapper);
     }
 
     @Nested
@@ -129,9 +140,8 @@ class JobUserServiceTests {
             Mockito.when(userService.save(manager)).thenReturn(manager);
             Mockito.when(userService.save(user)).thenReturn(user);
 
-            Assertions.assertDoesNotThrow(() -> {
-                jobUserService.updateJobInfo("1", jobUpdateDto, "1");
-            });
+            Assertions.assertDoesNotThrow(() ->
+                jobUserService.updateJobInfo("1", jobUpdateDto, "1"));
             Assertions.assertEquals(manager.getUserRole(), user.getManagerUser().getUserRole());
             Mockito.verify(userService, Mockito.times(1)).findDirectReportsByManagerUserId(Mockito.any(), Mockito.any());
             Mockito.verify(userService, Mockito.times(1)).save(Mockito.any());
@@ -169,9 +179,8 @@ class JobUserServiceTests {
             Mockito.when(userService.save(oldManager)).thenReturn(oldManager);
             Mockito.when(userService.save(user)).thenReturn(user);
 
-            Assertions.assertDoesNotThrow(() -> {
-                jobUserService.updateJobInfo("1", jobUpdateDto, "1");
-            });
+            Assertions.assertDoesNotThrow(() ->
+                jobUserService.updateJobInfo("1", jobUpdateDto, "1"));
             Assertions.assertEquals(jobUpdateDto.getManagerId(), user.getManagerUser().getId());
             Mockito.verify(userService, Mockito.times(1)).findDirectReportsByManagerUserId(Mockito.any(), Mockito.any());
             Mockito.verify(userService, Mockito.times(2)).save(Mockito.any());
@@ -208,9 +217,8 @@ class JobUserServiceTests {
             Mockito.when(userService.save(oldManager)).thenReturn(oldManager);
             Mockito.when(userService.save(user)).thenReturn(user);
 
-            Assertions.assertDoesNotThrow(() -> {
-                jobUserService.updateJobInfo("1", jobUpdateDto, "1");
-            });
+            Assertions.assertDoesNotThrow(() ->
+                jobUserService.updateJobInfo("1", jobUpdateDto, "1"));
             Assertions.assertEquals(jobUpdateDto.getManagerId(), user.getManagerUser().getId());
             Assertions.assertEquals(oldManager.getId(), user.getManagerUser().getManagerUser().getId());
             Mockito.verify(userService, Mockito.times(1)).findDirectReportsByManagerUserId(Mockito.any(), Mockito.any());
@@ -218,4 +226,78 @@ class JobUserServiceTests {
         }
 
     }
+
+  @Nested
+  class FindJobMessage {
+
+    private String targetUserId;
+    private String userId;
+    private JobUser jobUser;
+    private User currentUser;
+
+    @BeforeEach
+    void init() {
+      jobUser = new JobUser();
+      final User targetUser = new User();
+      targetUserId = RandomStringUtils.randomAlphabetic(16);
+      targetUser.setId(targetUserId);
+      final UserRole userRole = new UserRole();
+      userRole.setName(Role.MANAGER.name());
+      targetUser.setUserRole(userRole);
+      jobUser.setUser(targetUser);
+      Mockito.when(jobUserService.getJobUserByUserId(Mockito.anyString())).thenReturn(jobUser);
+      Mockito.when(userService.findById(targetUserId)).thenReturn(targetUser);
+
+      currentUser = new User();
+      userId = RandomStringUtils.randomAlphabetic(16);
+      currentUser.setId(userId);
+      final UserRole currentUserRole = new UserRole();
+      currentUserRole.setName(Role.MANAGER.name());
+      currentUser.setUserRole(currentUserRole);
+      Mockito.when(userService.findById(userId)).thenReturn(currentUser);
+    }
+
+    @Test
+    void whenCanNotFindUserJob_thenReturnBasicJobInformation() {
+      Mockito.when(jobUserService.getJobUserByUserId(Mockito.anyString())).thenReturn(null);
+      final BasicJobInformationDto jobInformation = jobUserService
+          .findJobMessage(targetUserId, userId);
+      Assertions.assertNotNull(jobInformation);
+    }
+
+    @Test
+    void whenIsCurrentUser_thenReturnJobInformation() {
+      final BasicJobInformationDto jobInformation = jobUserService
+          .findJobMessage(targetUserId, targetUserId);
+      Assertions.assertTrue(jobInformation instanceof JobInformationDto);
+    }
+
+    @Test
+    void whenIsAdmin_thenReturnJobInformation() {
+      final UserRole adminRole = new UserRole();
+      adminRole.setName(Role.ADMIN.name());
+      currentUser.setUserRole(adminRole);
+      final BasicJobInformationDto jobInformation = jobUserService
+          .findJobMessage(targetUserId, userId);
+      Assertions.assertTrue(jobInformation instanceof JobInformationDto);
+    }
+
+    @Test
+    void whenIsUserManager_thenReturnJobInformation() {
+      jobUser.getUser().setManagerUser(currentUser);
+      final BasicJobInformationDto jobInformation = jobUserService
+          .findJobMessage(targetUserId, userId);
+      Assertions.assertTrue(jobInformation instanceof JobInformationDto);
+    }
+
+    @Test
+    void whenIsEmployee_thenReturnBasicJobInformation() {
+      final User randomManagerUser = new User();
+      jobUser.getUser().setManagerUser(currentUser);
+      randomManagerUser.setId(RandomStringUtils.randomAlphabetic(16));
+      final BasicJobInformationDto jobInformation = jobUserService
+          .findJobMessage(targetUserId, userId);
+      Assertions.assertNotNull(jobInformation);
+    }
+  }
 }

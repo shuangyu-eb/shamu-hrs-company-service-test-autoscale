@@ -1,5 +1,6 @@
 package shamu.company.user.service;
 
+import java.util.List;
 import org.springframework.stereotype.Service;
 import shamu.company.user.entity.User.Role;
 import shamu.company.user.entity.UserRole;
@@ -12,10 +13,6 @@ public class UserRoleService {
 
   public UserRoleService(final UserRolesRepository userRolesRepository) {
     this.userRolesRepository = userRolesRepository;
-  }
-
-  public UserRole getSuperAdmin() {
-    return userRolesRepository.findByName(Role.SUPER_ADMIN.getValue());
   }
 
   public UserRole getAdmin() {
@@ -32,5 +29,9 @@ public class UserRoleService {
 
   public UserRole getInactive() {
     return userRolesRepository.findByName(Role.INACTIVATE.getValue());
+  }
+
+  public List<UserRole> findAll() {
+    return userRolesRepository.findAll();
   }
 }

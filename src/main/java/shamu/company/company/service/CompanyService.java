@@ -174,4 +174,8 @@ public class CompanyService {
     List<CompanySize> companySizes = companySizeService.findAll();
     return ReflectionUtil.convertTo(companySizes, CommonDictionaryDto.class);
   }
+
+  public Company save(final Company company) {
+    return companyRepository.save(company);
+  }
 }

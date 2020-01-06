@@ -53,14 +53,9 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
       final EmployeeListSearchCondition employeeListSearchCondition, final String companyId,
       final Pageable pageable, final Role role) {
 
-    String countAllEmployees = "";
+    String countAllEmployees = "select count(1) from users u where u.company_id = unhex(?1) ";
     if (!employeeListSearchCondition.getIncludeDeactivated()) {
-      countAllEmployees =
-          "select count(1) from users u where u.company_id = unhex(?1) "
-              + ACTIVE_USER_QUERY;
-    } else {
-      countAllEmployees =
-          "select count(1) from users u where u.company_id = unhex(?1)";
+      countAllEmployees += ACTIVE_USER_QUERY;
     }
     final BigInteger employeeCount =
         (BigInteger)
@@ -87,12 +82,11 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
             + "and (concat(up.first_name, ' ', up.last_name) like concat('%', ?2, '%') "
             + "or concat(up.preferred_name, ' ', up.last_name) like concat('%', ?2, '%') "
             + "or d.name like concat('%', ?2, '%') or j.title like concat('%', ?2, '%')) ";
-    final String additionalSql = ACTIVE_USER_QUERY;
 
     String resultSql = appendFilterCondition(originalSql, pageable);
 
     if (!employeeListSearchCondition.getIncludeDeactivated()) {
-      resultSql = appendFilterCondition(originalSql + additionalSql, pageable);
+      resultSql = appendFilterCondition(originalSql + ACTIVE_USER_QUERY, pageable);
     }
 
     final List<?> jobUserList =
@@ -287,14 +281,9 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
   public Page<JobUserListItem> getAllByName(
           final EmployeeListSearchCondition employeeListSearchCondition,
       final String companyId, final Pageable pageable) {
-    String countAllEmployees = "";
+    String countAllEmployees = "select count(1) from users u where u.company_id = unhex(?1) ";
     if (!employeeListSearchCondition.getIncludeDeactivated()) {
-      countAllEmployees =
-              "select count(1) from users u where u.company_id = unhex(?1) "
-                      + ACTIVE_USER_QUERY;
-    } else {
-      countAllEmployees =
-              "select count(1) from users u where u.company_id = unhex(?1)";
+      countAllEmployees += ACTIVE_USER_QUERY;
     }
     final BigInteger employeeCount =
             (BigInteger)
@@ -321,12 +310,10 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
           + "and (concat(up.first_name, ' ', up.last_name) like concat('%', ?2, '%') "
           + "or concat(up.preferred_name, ' ', up.last_name) like concat('%', ?2, '%'))";
 
-    final String additionalSql = ACTIVE_USER_QUERY;
-
     String resultSql = appendFilterCondition(originalSql, pageable);
 
     if (!employeeListSearchCondition.getIncludeDeactivated()) {
-      resultSql = appendFilterCondition(originalSql + additionalSql, pageable);
+      resultSql = appendFilterCondition(originalSql + ACTIVE_USER_QUERY, pageable);
     }
 
     final List<?> jobUserList =
@@ -358,7 +345,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
                     .append(","));
 
     final int commaIndex = resultSql.lastIndexOf(",");
-    resultSql = resultSql.replace(commaIndex, resultSql.length(), " ");
+    resultSql.replace(commaIndex, resultSql.length(), " ");
     resultSql
         .append("limit ")
         .append(pageable.getPageNumber() * pageable.getPageSize())

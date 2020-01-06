@@ -4,7 +4,6 @@ import com.auth0.client.auth.AuthAPI;
 import com.auth0.client.mgmt.ManagementAPI;
 import com.auth0.client.mgmt.filter.PageFilter;
 import com.auth0.client.mgmt.filter.UserFilter;
-import com.auth0.exception.APIException;
 import com.auth0.exception.Auth0Exception;
 import com.auth0.json.auth.TokenHolder;
 import com.auth0.json.mgmt.Permission;
@@ -24,7 +23,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
@@ -36,6 +34,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import shamu.company.common.exception.AbstractException;
 import shamu.company.common.exception.GeneralAuth0Exception;
+import shamu.company.common.exception.GeneralException;
 import shamu.company.common.exception.TooManyRequestException;
 
 @Component
@@ -46,7 +45,6 @@ public class Auth0Helper {
   private static final String AUTH_API = "authApi";
   private final Auth0Config auth0Config;
   private final Auth0Manager auth0Manager;
-  private static final String MFA_REQUIRED = "mfa_required";
   private final OkHttpClient httpClient = new Builder().build();
   private static final String MFA_ENDPOINT = "http://auth0.com/oauth/grant-type/mfa-otp";
   private static final String MFA_CONTENT_TYPE = "application/x-www-form-urlencoded";
@@ -79,25 +77,15 @@ public class Auth0Helper {
     }
   }
 
-  @SuppressWarnings("unchecked")
-  public TokenHolder login(final String email, final String password, final Function mfaCallback) {
+  public TokenHolder login(final String email, final String password) {
     try {
       final AuthRequest request = getAuthApi().login(email, password)
           .setAudience(auth0Config.getAudience());
       return request.execute();
-    } catch (final APIException apiException) {
-      if (MFA_REQUIRED.equals(apiException.getError())) {
-        if (mfaCallback != null) {
-          final String mfaToken = (String) apiException.getValue("mfa_token");
-          mfaCallback.apply(mfaToken);
-        }
-        return null;
-      }
-      throw handleAuth0Exception(apiException, AUTH_API);
     } catch (final Auth0Exception exception) {
       throw handleAuth0Exception(exception, AUTH_API);
     } catch (final Exception e) {
-      throw e;
+      throw new GeneralException(e.getMessage());
     }
   }
 
@@ -127,7 +115,7 @@ public class Auth0Helper {
 
   public boolean isPasswordValid(final String email, final String password) {
     try {
-      login(email, password, null);
+      login(email, password);
     } catch (final GeneralAuth0Exception exception) {
       return false;
     }
@@ -283,7 +271,7 @@ public class Auth0Helper {
     auth0User.setEmailVerified(false);
 
     final Map<String, Object> appMetaData = new HashMap<>();
-    final String userId = UUID.randomUUID().toString().replaceAll("-", "");
+    final String userId = UUID.randomUUID().toString().replace("-", "");
     appMetaData.put("id", userId);
     appMetaData.put("idVerified", true);
     appMetaData.put("role", roleName);
@@ -316,7 +304,7 @@ public class Auth0Helper {
       final RolesPage rolePages = userRoleRequest.execute();
       final List<Role> roles = rolePages.getItems();
 
-      if (roles.isEmpty() || roles.size() > 1) {
+      if (roles.size() != 1) {
         log.error("User has wrong role size with email: " + user.getEmail());
       }
       final Role targetRole = roles.stream()

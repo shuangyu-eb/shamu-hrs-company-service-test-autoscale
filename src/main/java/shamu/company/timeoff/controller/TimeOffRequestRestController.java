@@ -216,7 +216,7 @@ public class TimeOffRequestRestController extends BaseRestController {
   @GetMapping("time-off-requests/has-privilege/users/{id}")
   @PreAuthorize("hasPermission(#id,'USER','VIEW_TEAM_TIME_OFF_REQUEST')")
   public boolean hasUserPermission(@PathVariable final String id) {
-    final User currentUser = userService.findByUserId(findUserId());
+    final User currentUser = userService.findActiveUserById(findUserId());
     final Role userRole = currentUser.getRole();
     final User targetUser = userService.findById(id);
     if (findAuthUser().getId().equals(targetUser.getId())) {

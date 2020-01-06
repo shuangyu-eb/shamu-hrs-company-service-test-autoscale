@@ -1,5 +1,6 @@
 package shamu.company.user.service;
 
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,5 +24,9 @@ public class CompensationFrequencyService {
     return compensationFrequencyRepository.findById(id).orElseThrow(() ->
         new ResourceNotFoundException(
             String.format("Compensation frequency type with id %s not found!", id)));
+  }
+
+  public List<CompensationFrequency> findAll() {
+    return compensationFrequencyRepository.findAll();
   }
 }

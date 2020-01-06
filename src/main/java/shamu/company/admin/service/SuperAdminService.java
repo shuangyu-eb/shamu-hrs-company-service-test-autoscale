@@ -47,7 +47,7 @@ public class SuperAdminService {
   }
 
   public MockUserDto mockUser(final String userId, final String token) {
-    final User user = userService.findByUserId(userId);
+    final User user = userService.findActiveUserById(userId);
     final AuthUser authUser = userMapper.convertToAuthUser(user);
     final MockUserDto mockUserDto = userMapper.convertToMockUserDto(user);
     final List<String> permissions = auth0Helper

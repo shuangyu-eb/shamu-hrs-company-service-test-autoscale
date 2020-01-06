@@ -16,6 +16,7 @@ import org.thymeleaf.context.Context;
 import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.common.exception.ForbiddenException;
+import shamu.company.email.EmailService;
 import shamu.company.employee.dto.EmailResendDto;
 import shamu.company.employee.dto.EmployeeDto;
 import shamu.company.employee.dto.EmployeeListSearchCondition;
@@ -33,10 +34,13 @@ public class EmployeeRestController extends BaseRestController {
 
   private final UserService userService;
 
+  private final EmailService emailService;
+
   public EmployeeRestController(final EmployeeService employeeService,
-      final UserService userService) {
+      final UserService userService, final EmailService emailService) {
     this.employeeService = employeeService;
     this.userService = userService;
+    this.emailService = emailService;
   }
 
   @GetMapping("employees")
@@ -63,9 +67,9 @@ public class EmployeeRestController extends BaseRestController {
   public String findWelcomeEmail(
       @RequestBody(required = false) final String welcomeEmailPersonalMessage) {
 
-    final Context context = userService
-        .findWelcomeEmailPreviewContext(findAuthUser().getId(), welcomeEmailPersonalMessage);
-    return userService.getWelcomeEmail(context);
+    final Context context = emailService.findWelcomeEmailPreviewContext(
+        userService.findById(findUserId()), welcomeEmailPersonalMessage);
+    return emailService.getWelcomeEmail(context);
   }
 
   @PostMapping("employees/welcome-email/resend")

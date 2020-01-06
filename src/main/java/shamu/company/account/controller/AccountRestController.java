@@ -43,7 +43,7 @@ public class AccountRestController {
 
   @PatchMapping("account/unlock")
   public HttpEntity unlock(@RequestBody @Valid final UserLoginDto userLoginDto) {
-    auth0Helper.login(userLoginDto.getEmailWork(), userLoginDto.getPassword(), null);
+    auth0Helper.login(userLoginDto.getEmailWork(), userLoginDto.getPassword());
     return new ResponseEntity(HttpStatus.OK);
   }
 
@@ -53,7 +53,7 @@ public class AccountRestController {
   }
 
   @PostMapping("account/{email}/verification-email")
-  public HttpEntity resendVerificationEmail(@RequestBody final String email) {
+  public HttpEntity resendVerificationEmail(@PathVariable final String email) {
     userService.resendVerificationEmail(email);
     return new ResponseEntity(HttpStatus.NO_CONTENT);
   }

@@ -9,21 +9,28 @@ import shamu.company.user.repository.UserContactInformationRepository;
 @Service
 public class UserContactInformationService {
 
-  private final UserContactInformationRepository repository;
+  private final UserContactInformationRepository userContactInformationRepository;
 
   @Autowired
-  public UserContactInformationService(final UserContactInformationRepository repository) {
-    this.repository = repository;
+  public UserContactInformationService(
+          final UserContactInformationRepository userContactInformationRepository) {
+    this.userContactInformationRepository = userContactInformationRepository;
   }
 
   public UserContactInformation update(final UserContactInformation userContactInformation) {
-    return repository.save(userContactInformation);
+    return userContactInformationRepository.save(userContactInformation);
   }
 
   public UserContactInformation findUserContactInformationById(final String id) {
-    return repository
-        .findById(id)
-        .orElseThrow(
-            () -> new ResourceNotFoundException("User contact information does not exist"));
+    return userContactInformationRepository.findById(id).orElseThrow(
+        () -> new ResourceNotFoundException("User contact information does not exist"));
+  }
+
+  public void delete(final UserContactInformation userContactInformation) {
+    userContactInformationRepository.delete(userContactInformation);
+  }
+
+  public UserContactInformation save(final UserContactInformation userContactInformation) {
+    return userContactInformationRepository.save(userContactInformation);
   }
 }

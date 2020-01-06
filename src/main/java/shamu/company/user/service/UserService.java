@@ -9,7 +9,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,15 +30,14 @@ import shamu.company.authorization.PermissionUtils;
 import shamu.company.common.exception.ForbiddenException;
 import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.common.exception.response.ErrorType;
-import shamu.company.common.repository.DepartmentRepository;
+import shamu.company.common.service.DepartmentService;
 import shamu.company.company.entity.Company;
 import shamu.company.company.entity.CompanySize;
 import shamu.company.company.entity.Department;
-import shamu.company.company.repository.CompanyRepository;
-import shamu.company.company.repository.CompanySizeRepository;
+import shamu.company.company.service.CompanyService;
+import shamu.company.company.service.CompanySizeService;
 import shamu.company.email.Email;
 import shamu.company.email.EmailService;
-import shamu.company.employee.dto.BasicJobInformationDto;
 import shamu.company.employee.dto.EmployeeListSearchCondition;
 import shamu.company.employee.dto.OrgChartDto;
 import shamu.company.helpers.auth0.Auth0Helper;
@@ -52,9 +50,7 @@ import shamu.company.job.dto.JobUserDto;
 import shamu.company.job.entity.Job;
 import shamu.company.job.entity.JobUser;
 import shamu.company.job.entity.JobUserListItem;
-import shamu.company.job.entity.mapper.JobUserMapper;
-import shamu.company.job.repository.JobRepository;
-import shamu.company.job.repository.JobUserRepository;
+import shamu.company.job.service.JobService;
 import shamu.company.job.service.JobUserService;
 import shamu.company.redis.AuthUserCacheManager;
 import shamu.company.scheduler.DynamicScheduler;
@@ -75,7 +71,6 @@ import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
 import shamu.company.user.entity.UserAccessLevelEvent;
 import shamu.company.user.entity.UserAddress;
-import shamu.company.user.entity.UserCompensation;
 import shamu.company.user.entity.UserContactInformation;
 import shamu.company.user.entity.UserPersonalInformation;
 import shamu.company.user.entity.UserRole;
@@ -85,12 +80,7 @@ import shamu.company.user.entity.mapper.UserAddressMapper;
 import shamu.company.user.entity.mapper.UserContactInformationMapper;
 import shamu.company.user.entity.mapper.UserMapper;
 import shamu.company.user.entity.mapper.UserPersonalInformationMapper;
-import shamu.company.user.repository.UserAccessLevelEventRepository;
-import shamu.company.user.repository.UserCompensationRepository;
-import shamu.company.user.repository.UserContactInformationRepository;
-import shamu.company.user.repository.UserPersonalInformationRepository;
 import shamu.company.user.repository.UserRepository;
-import shamu.company.user.repository.UserStatusRepository;
 import shamu.company.utils.DateUtil;
 import shamu.company.utils.UuidUtil;
 
@@ -99,41 +89,34 @@ import shamu.company.utils.UuidUtil;
 public class UserService {
 
   private static final String ERROR_MESSAGE = "User does not exist!";
-  private final ITemplateEngine templateEngine;
   private final UserRepository userRepository;
-  private final JobUserRepository jobUserRepository;
 
-  private final UserStatusRepository userStatusRepository;
-  private final UserEmergencyContactService userEmergencyContactService;
-  private final UserAddressService userAddressService;
-  private final UserContactInformationMapper userContactInformationMapper;
-  private final UserAddressMapper userAddressMapper;
-
-
-  private final UserPersonalInformationMapper userPersonalInformationMapper;
-  private final CompanySizeRepository companySizeRepository;
-  private final PaidHolidayService paidHolidayService;
-  private final CompanyRepository companyRepository;
-  private final DepartmentRepository departmentRepository;
-  private final JobRepository jobRepository;
-
-  private final EmailService emailService;
-  private final UserCompensationRepository userCompensationRepository;
+  private final ITemplateEngine templateEngine;
   private final Auth0Helper auth0Helper;
   private final AwsHelper awsHelper;
-  private final UserMapper userMapper;
   private final AuthUserCacheManager authUserCacheManager;
-  private final UserAccessLevelEventRepository userAccessLevelEventRepository;
-  private final UserContactInformationRepository userContactInformationRepository;
-  private final UserPersonalInformationRepository userPersonalInformationRepository;
   private final DynamicScheduler dynamicScheduler;
-
-  private final UserRoleService userRoleService;
-  private final JobUserService jobUserService;
-  private final JobUserMapper jobUserMapper;
-
   private final PermissionUtils permissionUtils;
 
+  private final UserEmergencyContactService userEmergencyContactService;
+  private final UserAddressService userAddressService;
+  private final PaidHolidayService paidHolidayService;
+  private final EmailService emailService;
+  private final UserRoleService userRoleService;
+  private final JobUserService jobUserService;
+  private final UserStatusService userStatusService;
+  private final CompanySizeService companySizeService;
+  private final CompanyService companyService;
+  private final DepartmentService departmentService;
+  private final JobService jobService;
+  private final UserAccessLevelEventService userAccessLevelEventService;
+  private final UserContactInformationService userContactInformationService;
+  private final UserPersonalInformationService userPersonalInformationService;
+
+  private final UserContactInformationMapper userContactInformationMapper;
+  private final UserAddressMapper userAddressMapper;
+  private final UserPersonalInformationMapper userPersonalInformationMapper;
+  private final UserMapper userMapper;
 
   @Value("${application.systemEmailAddress}")
   private String systemEmailAddress;
@@ -141,68 +124,57 @@ public class UserService {
   private String frontEndAddress;
 
   @Autowired
-  public UserService(final ITemplateEngine templateEngine, final UserRepository userRepository,
-      final JobUserRepository jobUserRepository, final UserStatusRepository userStatusRepository,
-      final EmailService emailService, final UserCompensationRepository userCompensationRepository,
+  public UserService(final ITemplateEngine templateEngine,
+      final UserRepository userRepository, final EmailService emailService,
       final UserPersonalInformationMapper userPersonalInformationMapper,
       final UserEmergencyContactService userEmergencyContactService,
       final UserAddressService userAddressService,
-      final CompanySizeRepository companySizeRepository,
-      @Lazy final PaidHolidayService paidHolidayService, final CompanyRepository companyRepository,
+      @Lazy final PaidHolidayService paidHolidayService,
       final UserContactInformationMapper userContactInformationMapper,
-      final UserAddressMapper userAddressMapper,
-      final Auth0Helper auth0Helper,
-      final UserAccessLevelEventRepository userAccessLevelEventRepository,
-      final DepartmentRepository departmentRepository,
-      final JobRepository jobRepository,
-      final UserMapper userMapper,
-      final AuthUserCacheManager authUserCacheManager,
-      final UserContactInformationRepository userContactInformationRepository,
-      final UserPersonalInformationRepository userPersonalInformationRepository,
-      final DynamicScheduler dynamicScheduler,
-      final AwsHelper awsHelper,
-      final UserRoleService userRoleService,
-      @Lazy final PermissionUtils permissionUtils,
+      final UserAddressMapper userAddressMapper, final Auth0Helper auth0Helper,
+      final UserMapper userMapper, final AuthUserCacheManager authUserCacheManager,
+      final DynamicScheduler dynamicScheduler, final AwsHelper awsHelper,
+      final UserRoleService userRoleService, @Lazy final PermissionUtils permissionUtils,
       @Lazy final JobUserService jobUserService,
-      final JobUserMapper jobUserMapper) {
+      final UserStatusService userStatusService, final CompanySizeService companySizeService,
+      final CompanyService companyService, final DepartmentService departmentService,
+      final JobService jobService, final UserAccessLevelEventService userAccessLevelEventService,
+      final UserContactInformationService userContactInformationService,
+      final UserPersonalInformationService userPersonalInformationService) {
     this.templateEngine = templateEngine;
     this.userRepository = userRepository;
-    this.jobUserRepository = jobUserRepository;
-    this.userStatusRepository = userStatusRepository;
     this.emailService = emailService;
-    this.userCompensationRepository = userCompensationRepository;
     this.userEmergencyContactService = userEmergencyContactService;
     this.userAddressService = userAddressService;
     this.userPersonalInformationMapper = userPersonalInformationMapper;
     this.userContactInformationMapper = userContactInformationMapper;
     this.userAddressMapper = userAddressMapper;
-    this.companySizeRepository = companySizeRepository;
     this.paidHolidayService = paidHolidayService;
-    this.companyRepository = companyRepository;
     this.auth0Helper = auth0Helper;
-    this.userAccessLevelEventRepository = userAccessLevelEventRepository;
-    this.departmentRepository = departmentRepository;
-    this.jobRepository = jobRepository;
     this.userMapper = userMapper;
     this.authUserCacheManager = authUserCacheManager;
-    this.userContactInformationRepository = userContactInformationRepository;
-    this.userPersonalInformationRepository = userPersonalInformationRepository;
     this.dynamicScheduler = dynamicScheduler;
     this.awsHelper = awsHelper;
     this.userRoleService = userRoleService;
     this.permissionUtils = permissionUtils;
     this.jobUserService = jobUserService;
-    this.jobUserMapper = jobUserMapper;
+    this.userStatusService = userStatusService;
+    this.companySizeService = companySizeService;
+    this.companyService = companyService;
+    this.departmentService = departmentService;
+    this.jobService = jobService;
+    this.userAccessLevelEventService = userAccessLevelEventService;
+    this.userContactInformationService = userContactInformationService;
+    this.userPersonalInformationService = userPersonalInformationService;
   }
 
   public User findById(final String id) {
-    return userRepository
-        .findById(id)
-        .orElseThrow(() -> new ResourceNotFoundException(ERROR_MESSAGE));
+    return userRepository.findById(id).orElseThrow(
+        () -> new ResourceNotFoundException(ERROR_MESSAGE));
   }
 
-  public User findByUserId(final String userId) {
-    return userRepository.findByUserId(userId);
+  public User findActiveUserById(final String userId) {
+    return userRepository.findActiveUserById(userId);
   }
 
   public List<User> findByManagerUser(final User managerUser) {
@@ -212,8 +184,7 @@ public class UserService {
   public void cacheUser(final String token, final String userId) {
     final User user = findById(userId);
     final AuthUser authUser = userMapper.convertToAuthUser(user);
-    final List<String> permissions = auth0Helper
-        .getPermissionBy(user.getId());
+    final List<String> permissions = auth0Helper.getPermissionBy(user.getId());
     authUser.setPermissions(permissions);
     authUserCacheManager.cacheAuthUser(token, authUser);
   }
@@ -230,66 +201,19 @@ public class UserService {
     return userRepository.findAllByManagerUserId(id);
   }
 
-  public String getWelcomeEmail(final Context context) {
-    return templateEngine.process("employee_invitation_email.html", context);
-  }
-
-  public Context getWelcomeEmailContext(
-          final String welcomeMessage,
-          final String resetPasswordToken) {
-    return getWelcomeEmailContext(welcomeMessage, resetPasswordToken, "");
-  }
-
-  public Context getWelcomeEmailContext(
-          String welcomeMessage,
-          final String resetPasswordToken,
-          final String toEmail) {
-    final Context context = new Context();
-    context.setVariable("frontEndAddress", frontEndAddress);
-    final String emailAddress = getEncodedEmailAddress(toEmail);
-    String targetLink = frontEndAddress + "account/password/" + resetPasswordToken;
-    if (!"".equals(emailAddress)) {
-      targetLink += "/" + emailAddress;
-    }
-    context.setVariable("createPasswordAddress", targetLink);
-    welcomeMessage = getFilteredWelcomeMessage(welcomeMessage);
-    context.setVariable("welcomeMessage", welcomeMessage);
-    return context;
-  }
-
-  private String getEncodedEmailAddress(final String emailAddress) {
-    if (Strings.isBlank(emailAddress) || !Pattern.matches("^[a-zA-Z0-9@.+]*$", emailAddress)) {
-      return "";
-    }
-    return emailAddress
-            .replace("@", "-at-")
-            .replaceAll("\\.", "-dot-");
-  }
-
-  private String getFilteredWelcomeMessage(String welcomeMessage) {
-    if (Strings.isBlank(welcomeMessage)) {
-      welcomeMessage = "";
-    }
-    return welcomeMessage
-        .replaceAll("href\\s*=\\s*(['\"])\\s*(?!http[s]?).+?\\1", "#")
-        .replaceAll("<script(.*)?>.*</script>", "");
-  }
-
   public JobUserDto findEmployeeInfoByEmployeeId(final String id) {
-
     final User employee = findById(id);
-    final JobUser jobUser = jobUserRepository.findJobUserByUser(employee);
+    final JobUser jobUser = jobUserService.findJobUserByUser(employee);
     return new JobUserDto(employee, jobUser);
   }
 
   public Page<JobUserListItem> findAllEmployees(
       final String userId, final EmployeeListSearchCondition employeeListSearchCondition) {
-
     if (!permissionUtils.hasAuthority(Name.VIEW_DISABLED_USER.name())) {
       employeeListSearchCondition.setIncludeDeactivated(false);
     }
 
-    final User currentUser = findByUserId(userId);
+    final User currentUser = findActiveUserById(userId);
     final String companyId = currentUser.getCompany().getId();
 
     final Pageable paramPageable = getPageable(employeeListSearchCondition);
@@ -311,19 +235,13 @@ public class UserService {
   public Page<JobUserListItem> getAllEmployeesByCompany(
       final EmployeeListSearchCondition employeeListSearchCondition, final String companyId,
       final Pageable pageable, final Role role) {
-    return userRepository.getAllByCondition(
-        employeeListSearchCondition, companyId, pageable, role);
+    return userRepository.getAllByCondition(employeeListSearchCondition, companyId, pageable, role);
   }
 
   public Page<JobUserListItem> findAllEmployeesByName(
       final EmployeeListSearchCondition employeeListSearchCondition, final String companyId) {
     final Pageable pageable = getPageable(employeeListSearchCondition);
-    return userRepository.getAllByName(
-        employeeListSearchCondition, companyId, pageable);
-  }
-
-  public User getOne(final String userId) {
-    return userRepository.getOne(userId);
+    return userRepository.getAllByName(employeeListSearchCondition, companyId, pageable);
   }
 
   public User save(final User user) {
@@ -334,25 +252,14 @@ public class UserService {
     final List<User> policyEmployees = userRepository.findAllByCompanyId(companyId);
 
     return policyEmployees.stream()
-        .map(
-            user -> {
-              JobUser employeeWithJob = jobUserRepository.findJobUserByUser(user);
-              return new JobUserDto(user, employeeWithJob);
-            })
-        .collect(Collectors.toList());
+        .map(user -> {
+          JobUser employeeWithJob = jobUserService.findJobUserByUser(user);
+          return new JobUserDto(user, employeeWithJob);
+        }).collect(Collectors.toList());
   }
 
   public List<User> findAllUsersByCompany(final String companyId) {
     return userRepository.findAllByCompanyId(companyId);
-  }
-
-  public String getHeadPortrait(final String userId) {
-    final User user = findById(userId);
-    return user.getImageUrl();
-  }
-
-  public UserCompensation saveUserCompensation(final UserCompensation userCompensation) {
-    return userCompensationRepository.save(userCompensation);
   }
 
   public List<OrgChartDto> getOrgChart(final String userId, final String companyId) {
@@ -440,7 +347,7 @@ public class UserService {
     auth0Helper.updatePassword(authUser, createPasswordDto.getNewPassword());
     auth0Helper.updateVerified(authUser, true);
 
-    final UserStatus userStatus = userStatusRepository.findByName(Status.ACTIVE.name());
+    final UserStatus userStatus = userStatusService.findByName(Status.ACTIVE.name());
     user.setUserStatus(userStatus);
     user.setResetPasswordToken(null);
     userRepository.save(user);
@@ -458,7 +365,7 @@ public class UserService {
   public User updateUserRole(final String email, final UserRoleUpdateDto userRoleUpdateDto,
       final User user) {
 
-    auth0Helper.login(email, userRoleUpdateDto.getPassWord(), null);
+    auth0Helper.login(email, userRoleUpdateDto.getPassWord());
 
     final UserRole targetRole;
     if (userRoleUpdateDto.getUserRole() == Role.ADMIN) {
@@ -477,11 +384,11 @@ public class UserService {
   private void deactivateUser(final UserStatusUpdateDto userStatusUpdateDto,
       final User user) {
     if (userStatusUpdateDto.getUserStatus().name().equals(Status.ACTIVE.name())) {
-      userAccessLevelEventRepository.save(
+      userAccessLevelEventService.save(
           new UserAccessLevelEvent(user, user.getUserRole().getName()));
 
       user.setUserRole(userRoleService.getInactive());
-      user.setUserStatus(userStatusRepository.findByName(
+      user.setUserStatus(userStatusService.findByName(
           Status.DISABLED.name()
       ));
       adjustUserManagerRelationshipBeforeDeleteOrDeactivate(user);
@@ -494,7 +401,7 @@ public class UserService {
       final UserStatusUpdateDto userStatusUpdateDto,
       final User user) {
 
-    auth0Helper.login(email, userStatusUpdateDto.getPassWord(), null);
+    auth0Helper.login(email, userStatusUpdateDto.getPassWord());
 
     final Date deactivationDate = userStatusUpdateDto.getDeactivationDate();
 
@@ -512,11 +419,7 @@ public class UserService {
         .getDeactivationReason().getId()));
     userRepository.save(user);
 
-    return userRepository.findActiveAndDeactivatedUserByUserId(user.getId());
-  }
-
-  public User findActiveAndDeactivatedUserByUserId(final String id) {
-    return userRepository.findActiveAndDeactivatedUserByUserId(id);
+    return findById(user.getId());
   }
 
   public void deleteUser(final User employee) {
@@ -527,9 +430,9 @@ public class UserService {
 
     userRepository.delete(employee);
 
-    userContactInformationRepository.delete(employee.getUserContactInformation());
+    userContactInformationService.delete(employee.getUserContactInformation());
 
-    userPersonalInformationRepository.delete(employee.getUserPersonalInformation());
+    userPersonalInformationService.delete(employee.getUserPersonalInformation());
   }
 
   private void adjustUserManagerRelationshipBeforeDeleteOrDeactivate(final User user) {
@@ -562,7 +465,7 @@ public class UserService {
           + "already signed up successfully in previous attempts.");
     }
 
-    if (companyRepository.existsByName(signUpDto.getCompanyName())) {
+    if (companyService.existsByName(signUpDto.getCompanyName())) {
       throw new ForbiddenException("Company name already exists!", ErrorType.COMPANY_NAME_CONFLICT);
     }
 
@@ -581,27 +484,25 @@ public class UserService {
         .phoneWork(signUpDto.getPhone())
         .build();
 
-    final CompanySize companySize = companySizeRepository
-        .findById(signUpDto.getCompanySizeId())
-        .orElseThrow(() -> new ResourceNotFoundException("CompanySize was not found."));
+    final CompanySize companySize = companySizeService.findById(signUpDto.getCompanySizeId());
 
     Company company = Company.builder()
         .name(signUpDto.getCompanyName())
         .companySize(companySize)
         .build();
-    company = companyRepository.save(company);
+    company = companyService.save(company);
 
     Department department = new Department();
     department.setName(signUpDto.getDepartment());
     department.setCompany(company);
-    department = departmentRepository.save(department);
+    department = departmentService.save(department);
 
     Job job = new Job();
     job.setTitle(signUpDto.getJobTitle());
     job.setDepartment(department);
-    job = jobRepository.save(job);
+    job = jobService.save(job);
 
-    final UserStatus status = userStatusRepository.findByName(Status.ACTIVE.name());
+    final UserStatus status = userStatusService.findByName(Status.ACTIVE.name());
 
     User user = User.builder()
         .userStatus(status)
@@ -620,7 +521,7 @@ public class UserService {
     jobUser.setUser(user);
     jobUser.setJob(job);
     jobUser.setCompany(company);
-    jobUserRepository.save(jobUser);
+    jobUserService.save(jobUser);
 
     paidHolidayService.initDefaultPaidHolidays(user.getCompany());
   }
@@ -699,11 +600,11 @@ public class UserService {
     if (!auth0Helper.existsByEmail(newEmail)) {
 
       user.setUserStatus(
-          userStatusRepository.findByName(String.valueOf(Status.CHANGING_EMAIL_VERIFICATION)));
+              userStatusService.findByName(String.valueOf(Status.CHANGING_EMAIL_VERIFICATION)));
 
       user.setChangeWorkEmail(newEmail);
 
-      handleEmail(user);
+      emailService.handleEmail(user);
 
       userRepository.save(user);
     } else {
@@ -712,31 +613,18 @@ public class UserService {
   }
 
   public void sendVerifyChangeWorkEmail(final User user) {
-    final String newEmailToken = handleEmail(user);
+    final String newEmailToken = emailService.handleEmail(user);
     user.setChangeWorkEmailToken(newEmailToken);
     userRepository.save(user);
-  }
-
-  private String handleEmail(final User user) {
-    final String newEmailToken = UUID.randomUUID().toString();
-    user.setChangeWorkEmailToken(newEmailToken);
-
-    final String emailContent = getVerifiedEmail(newEmailToken);
-
-    final Timestamp sendDate = Timestamp.valueOf(LocalDateTime.now());
-
-    final Email verifyChangeWorkEmail = new Email(systemEmailAddress,
-        user.getChangeWorkEmail(), "Verify New Work Email", emailContent, sendDate);
-
-    emailService.saveAndScheduleEmail(verifyChangeWorkEmail);
-    return newEmailToken;
   }
 
   public boolean changeWorkEmailTokenExist(final String token) {
 
     final User currentUser = userRepository.findByChangeWorkEmailToken(token);
 
-    if (userRepository.existsByChangeWorkEmailToken(token)) {
+    if (!userRepository.existsByChangeWorkEmailToken(token)) {
+      return false;
+    } else {
       final com.auth0.json.mgmt.users.User user = auth0Helper
           .getUserByUserIdFromAuth0(currentUser.getId());
 
@@ -745,22 +633,16 @@ public class UserService {
       currentUser.setVerifyChangeWorkEmailAt(Timestamp.valueOf(LocalDateTime.now()));
       currentUser.getUserContactInformation().setEmailWork(currentUser.getChangeWorkEmail());
       currentUser.setChangeWorkEmailToken(null);
-      currentUser.setUserStatus(userStatusRepository.findByName(
-          String.valueOf(Status.ACTIVE)));
+      currentUser.setUserStatus(userStatusService.findByName(String.valueOf(Status.ACTIVE)));
 
-      userContactInformationRepository.save(currentUser.getUserContactInformation());
-
+      userContactInformationService.save(currentUser.getUserContactInformation());
       userRepository.save(currentUser);
-
       return true;
     }
-
-    return false;
-
   }
 
   public CurrentUserDto getCurrentUserInfo(final String userId) {
-    final User user = findByUserId(userId);
+    final User user = findActiveUserById(userId);
     return getCurrentUserDto(user);
   }
 
@@ -802,7 +684,7 @@ public class UserService {
     }
 
     final String passwordRestToken = UUID.randomUUID().toString();
-    final String emailContent = getResetPasswordEmail(passwordRestToken);
+    final String emailContent = emailService.getResetPasswordEmail(passwordRestToken);
     final Timestamp sendDate = Timestamp.valueOf(LocalDateTime.now());
     final Email verifyEmail = new Email(systemEmailAddress, email, "Password Reset!",
         emailContent, sendDate);
@@ -836,22 +718,6 @@ public class UserService {
     userRepository.save(user);
   }
 
-  private String getResetPasswordEmail(final String passwordRestToken) {
-    final Context context = new Context();
-    context.setVariable("frontEndAddress", frontEndAddress);
-    context.setVariable(
-        "passwordResetAddress", String.format("account/reset-password/%s", passwordRestToken));
-    return templateEngine.process("password_reset_email.html", context);
-  }
-
-  private String getVerifiedEmail(final String changePasswordToken) {
-    final Context context = new Context();
-    context.setVariable("frontEndAddress", frontEndAddress);
-    context.setVariable(
-        "changePasswordToken", String.format("account/change-work-email/%s", changePasswordToken));
-    return templateEngine.process("verify_change_work_email.html", context);
-  }
-
   public String handleUploadFile(final String id, final MultipartFile file) {
     final String path = awsHelper.uploadFile(file, Type.IMAGE);
 
@@ -869,20 +735,6 @@ public class UserService {
     save(user);
 
     return path;
-  }
-
-  public Boolean isOldPwdCorrect(final String password, final String email) {
-    return auth0Helper.isPasswordValid(email, password);
-  }
-
-  public Context findWelcomeEmailPreviewContext(final String id,
-      final String welcomeEmailPersonalMessage) {
-    final User currentUser = findById(id);
-    final Context context = getWelcomeEmailContext(welcomeEmailPersonalMessage,
-        null);
-    context.setVariable("createPasswordAddress", "#");
-    context.setVariable("companyName", currentUser.getCompany().getName());
-    return context;
   }
 
   public List<User> findByCompanyId(final String companyId) {
@@ -904,31 +756,6 @@ public class UserService {
 
   public List<User> findAllByCompanyId(final String companyId) {
     return userRepository.findAllByCompanyId(companyId);
-  }
-
-  public BasicJobInformationDto findJobMessage(final String targetUserId,
-                                              final String authUserId) {
-    final JobUser target = jobUserService.getJobUserByUserId(targetUserId);
-
-    if (target == null) {
-      final User targetUser = findById(targetUserId);
-      return userMapper.convertToBasicJobInformationDto(targetUser);
-    }
-
-    // The user's full job message can only be accessed by admin, the manager and himself.
-    final User currentUser = findById(authUserId);
-    final Role userRole = currentUser.getRole();
-    if (authUserId.equals(targetUserId) || userRole == Role.ADMIN) {
-      return jobUserMapper.convertToJobInformationDto(target);
-    }
-
-    if (userRole == Role.MANAGER && target.getUser().getManagerUser() != null
-            && authUserId.equals(target.getUser().getManagerUser().getId())) {
-      return jobUserMapper.convertToJobInformationDto(target);
-    }
-
-    return jobUserMapper
-            .convertToBasicJobInformationDto(target);
   }
 
   public void resendVerificationEmail(final String email) {

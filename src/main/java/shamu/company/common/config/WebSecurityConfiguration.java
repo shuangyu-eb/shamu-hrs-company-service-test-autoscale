@@ -59,7 +59,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
             "/company/account/password",
             "/company/account/password/**",
             "/company/user/password/reset/**",
-            "/company/user/sign-up",
+            "/company/users",
             "/company/account/change-work-email/*",
             "/company/company-sizes",
             "/company/account/*/verification-email"

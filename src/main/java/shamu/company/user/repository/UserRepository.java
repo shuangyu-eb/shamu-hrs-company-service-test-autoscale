@@ -20,13 +20,7 @@ public interface UserRepository extends JpaRepository<User, String>, UserCustomR
            + " where u.id = unhex(?1) "
            + ACTIVE_USER_QUERY,
           nativeQuery = true)
-  User findByUserId(String userId);
-
-  @Query(value =
-      "select * from users u"
-        + " where u.id = unhex(?1) ",
-      nativeQuery = true)
-  User findActiveAndDeactivatedUserByUserId(String userId);
+  User findActiveUserById(String userId);
 
   @Query(
       value =

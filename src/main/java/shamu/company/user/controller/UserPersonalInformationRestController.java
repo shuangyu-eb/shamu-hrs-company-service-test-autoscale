@@ -1,7 +1,5 @@
 package shamu.company.user.controller;
 
-import java.sql.Date;
-import java.text.SimpleDateFormat;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -38,8 +36,6 @@ public class UserPersonalInformationRestController extends BaseRestController {
   private final Auth0Helper auth0Helper;
 
   private final EncryptorUtil encryptorUtil;
-
-  SimpleDateFormat sdf = new SimpleDateFormat("MM-dd");
 
   @Autowired
   public UserPersonalInformationRestController(
@@ -83,30 +79,7 @@ public class UserPersonalInformationRestController extends BaseRestController {
   public BasicUserPersonalInformationDto getUserPersonalInformation(
       @PathVariable final String id) {
     final User targetUser = userService.findById(id);
-    final UserPersonalInformation userPersonalInformation = targetUser.getUserPersonalInformation();
-    final String imageUrl = targetUser.getImageUrl();
-
-    final User currentUser = userService.findByUserId(findUserId());
-    final Role userRole = currentUser.getRole();
-    if (findAuthUser().getId().equals(id) || userRole == Role.ADMIN) {
-      return userPersonalInformationMapper
-          .convertToUserPersonalInformationDto(userPersonalInformation, imageUrl);
-    }
-
-    if (userRole == Role.MANAGER && targetUser.getManagerUser() != null
-        && findAuthUser().getId().equals(targetUser.getManagerUser().getId())) {
-      return userPersonalInformationMapper.convertToMyEmployeePersonalInformationDto(
-          userPersonalInformation);
-
-    }
-
-    final Date birthDate = userPersonalInformation.getBirthDate();
-    final String birthDateWithoutYear = birthDate != null ? sdf.format(birthDate) : "";
-    final BasicUserPersonalInformationDto basicUserPersonalInformationDto =
-        userPersonalInformationMapper
-            .convertToBasicUserPersonalInformationDto(userPersonalInformation);
-    basicUserPersonalInformationDto.setBirthDate(birthDateWithoutYear);
-    return basicUserPersonalInformationDto;
+    return userPersonalInformationService.findUserPersonalInformation(targetUser, findAuthUser());
   }
 
   @GetMapping("users/{id}/user-role-status")
@@ -115,8 +88,7 @@ public class UserPersonalInformationRestController extends BaseRestController {
     final User targetUser = userService.findById(id);
     final UserRoleAndStatusInfoDto resultInformation = userMapper
         .convertToUserRoleAndStatusInfoDto(targetUser);
-    final Role userRole = auth0Helper
-        .getUserRole(targetUser.getId());
+    final Role userRole = auth0Helper.getUserRole(targetUser.getId());
     resultInformation.setUserRole(userRole.getValue());
     return resultInformation;
   }

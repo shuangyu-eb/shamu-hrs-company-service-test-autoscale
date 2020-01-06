@@ -54,6 +54,6 @@ public class CompanyUserService {
   }
 
   public User findUserByUserId(final String userId) {
-    return userService.findActiveAndDeactivatedUserByUserId(userId);
+    return userService.findById(userId);
   }
 }

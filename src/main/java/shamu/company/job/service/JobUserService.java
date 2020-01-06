@@ -19,6 +19,7 @@ import shamu.company.company.entity.Office;
 import shamu.company.company.entity.OfficeAddress;
 import shamu.company.company.entity.mapper.OfficeAddressMapper;
 import shamu.company.company.entity.mapper.OfficeMapper;
+import shamu.company.employee.dto.BasicJobInformationDto;
 import shamu.company.employee.dto.SelectFieldSizeDto;
 import shamu.company.employee.entity.EmploymentType;
 import shamu.company.employee.service.EmploymentTypeService;
@@ -39,6 +40,7 @@ import shamu.company.user.entity.User.Role;
 import shamu.company.user.entity.UserCompensation;
 import shamu.company.user.entity.UserRole;
 import shamu.company.user.entity.mapper.UserCompensationMapper;
+import shamu.company.user.entity.mapper.UserMapper;
 import shamu.company.user.service.UserRoleService;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.DateUtil;
@@ -73,7 +75,7 @@ public class JobUserService {
 
   private final JobService jobService;
 
-
+  private final UserMapper userMapper;
 
   public JobUserService(final JobUserRepository jobUserRepository,
       final UserService userService,
@@ -87,7 +89,8 @@ public class JobUserService {
       final OfficeAddressService officeAddressService,
       final OfficeAddressMapper officeAddressMapper,
       final OfficeMapper officeMapper,
-      final JobService jobService) {
+      final JobService jobService,
+      final UserMapper userMapper) {
     this.jobUserRepository = jobUserRepository;
     this.userService = userService;
     this.userCompensationMapper = userCompensationMapper;
@@ -101,6 +104,7 @@ public class JobUserService {
     this.officeAddressMapper = officeAddressMapper;
     this.officeMapper = officeMapper;
     this.jobService = jobService;
+    this.userMapper = userMapper;
   }
 
   public JobUser save(final JobUser jobUser) {
@@ -114,7 +118,7 @@ public class JobUserService {
   public void updateJobInfo(
           final String id, final JobUpdateDto jobUpdateDto, final String companyId) {
     final User user = userService.findById(id);
-    JobUser jobUser = jobUserRepository.findJobUserByUser(user);
+    JobUser jobUser = findJobUserByUser(user);
     final List<User> directReports;
     // handle jobUser info
     if (null == jobUser) {
@@ -183,7 +187,7 @@ public class JobUserService {
           .getContent();
       final AuthUser authUser = new AuthUser();
       authUser.setId(userId);
-      timeOffRequests.stream().forEach(t -> {
+      timeOffRequests.forEach(t -> {
         final TimeOffRequestUpdateDto timeOffRequestUpdateDto = new TimeOffRequestUpdateDto();
         timeOffRequestUpdateDto.setStatus(TimeOffApprovalStatus.APPROVED);
         timeOffRequestService.updateTimeOffRequestStatus(
@@ -323,5 +327,34 @@ public class JobUserService {
       selectFieldSizeDto.setSize(size);
       return selectFieldSizeDto;
     }).collect(Collectors.toList());
+  }
+
+  public JobUser findJobUserByUser(final User user) {
+    return jobUserRepository.findJobUserByUser(user);
+  }
+
+  public BasicJobInformationDto findJobMessage(final String targetUserId,
+                                               final String authUserId) {
+    final JobUser target = getJobUserByUserId(targetUserId);
+
+    if (target == null) {
+      final User targetUser = userService.findById(targetUserId);
+      return userMapper.convertToBasicJobInformationDto(targetUser);
+    }
+
+    // The user's full job message can only be accessed by admin, the manager and himself.
+    final User currentUser = userService.findById(authUserId);
+    final Role userRole = currentUser.getRole();
+    if (authUserId.equals(targetUserId) || userRole == Role.ADMIN) {
+      return jobUserMapper.convertToJobInformationDto(target);
+    }
+
+    if (userRole == Role.MANAGER && target.getUser().getManagerUser() != null
+        && authUserId.equals(target.getUser().getManagerUser().getId())) {
+      return jobUserMapper.convertToJobInformationDto(target);
+    }
+
+    return jobUserMapper
+        .convertToBasicJobInformationDto(target);
   }
 }

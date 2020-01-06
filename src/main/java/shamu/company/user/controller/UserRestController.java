@@ -1,6 +1,5 @@
 package shamu.company.user.controller;
 
-import java.io.IOException;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -18,15 +17,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
-import shamu.company.benefit.entity.RetirementType;
 import shamu.company.common.BaseRestController;
-import shamu.company.common.CommonDictionaryDto;
 import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.common.exception.ForbiddenException;
 import shamu.company.common.validation.constraints.FileValidate;
-import shamu.company.employee.dto.BasicJobInformationDto;
 import shamu.company.employee.dto.EmailResendDto;
-import shamu.company.job.entity.CompensationFrequency;
 import shamu.company.user.dto.AccountInfoDto;
 import shamu.company.user.dto.ChangePasswordDto;
 import shamu.company.user.dto.CurrentUserDto;
@@ -37,27 +32,10 @@ import shamu.company.user.dto.UserRoleAndStatusInfoDto;
 import shamu.company.user.dto.UserRoleUpdateDto;
 import shamu.company.user.dto.UserSignUpDto;
 import shamu.company.user.dto.UserStatusUpdateDto;
-import shamu.company.user.entity.CompensationOvertimeStatus;
-import shamu.company.user.entity.DeactivationReasons;
-import shamu.company.user.entity.Ethnicity;
-import shamu.company.user.entity.Gender;
-import shamu.company.user.entity.MaritalStatus;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
-import shamu.company.user.entity.UserRole;
-import shamu.company.user.entity.UserStatus;
 import shamu.company.user.entity.mapper.UserMapper;
-import shamu.company.user.repository.CompensationFrequencyRepository;
-import shamu.company.user.repository.CompensationOvertimeStatusRepository;
-import shamu.company.user.repository.DeactivationReasonRepository;
-import shamu.company.user.repository.EthnicityRepository;
-import shamu.company.user.repository.GenderRepository;
-import shamu.company.user.repository.MaritalStatusRepository;
-import shamu.company.user.repository.RetirementTypeRepository;
-import shamu.company.user.repository.UserRolesRepository;
-import shamu.company.user.repository.UserStatusRepository;
 import shamu.company.user.service.UserService;
-import shamu.company.utils.ReflectionUtil;
 
 @RestApiController
 @Validated
@@ -67,75 +45,25 @@ public class UserRestController extends BaseRestController {
 
   private final UserMapper userMapper;
 
-  private final CompensationFrequencyRepository frequencyRepository;
-
-  private final CompensationOvertimeStatusRepository compensationOvertimeStatusRepository;
-
-  private final DeactivationReasonRepository deactivationReasonRepository;
-
-  private final EthnicityRepository ethnicityRepository;
-
-  private final GenderRepository genderRepository;
-
-  private final MaritalStatusRepository maritalStatusRepository;
-
-  private final RetirementTypeRepository retirementTypeRepository;
-
-  private final UserRolesRepository userRolesRepository;
-
-  private final UserStatusRepository userStatusRepository;
-
   public UserRestController(final UserService userService,
-      final UserMapper userMapper,
-      final CompensationFrequencyRepository frequencyRepository,
-      final CompensationOvertimeStatusRepository compensationOvertimeStatusRepository,
-      final DeactivationReasonRepository deactivationReasonRepository,
-      final EthnicityRepository ethnicityRepository,
-      final GenderRepository genderRepository,
-      final MaritalStatusRepository maritalStatusRepository,
-      final RetirementTypeRepository retirementTypeRepository,
-      final UserRolesRepository userRolesRepository,
-      final UserStatusRepository userStatusRepository) {
+      final UserMapper userMapper) {
     this.userService = userService;
     this.userMapper = userMapper;
-    this.frequencyRepository = frequencyRepository;
-    this.compensationOvertimeStatusRepository = compensationOvertimeStatusRepository;
-    this.deactivationReasonRepository = deactivationReasonRepository;
-    this.ethnicityRepository = ethnicityRepository;
-    this.genderRepository = genderRepository;
-    this.maritalStatusRepository = maritalStatusRepository;
-    this.retirementTypeRepository = retirementTypeRepository;
-    this.userRolesRepository = userRolesRepository;
-    this.userStatusRepository = userStatusRepository;
   }
 
-  @PostMapping(value = "user/sign-up")
+  @PostMapping(value = "users")
   public HttpEntity signUp(@RequestBody final UserSignUpDto signUpDto) {
     userService.signUp(signUpDto);
     return new ResponseEntity(HttpStatus.OK);
   }
 
-  @GetMapping(value = "user/check/email/{email}")
+  @GetMapping(value = "users/email-check/{email}")
   public Boolean checkEmail(@PathVariable final String email) {
     return userService.existsByEmailWork(email);
   }
 
-  @GetMapping(value = "users/{id}/head-portrait")
-  @PreAuthorize("hasPermission(#id,'USER','VIEW_USER_PERSONAL')")
-  public String getHeadPortrait(@PathVariable final String id) {
-    final User currentUser = userService.findByUserId(findUserId());
-    final Role userRole = currentUser.getRole();
-    if (findAuthUser().getId().equals(id)
-        || userRole == Role.ADMIN) {
-      return userService.getHeadPortrait(id);
-    }
-
-    return null;
-  }
-
   @PostMapping("users/{id}/head-portrait")
-  @PreAuthorize(
-      "hasPermission(#id,'USER', 'EDIT_USER')"
+  @PreAuthorize("hasPermission(#id,'USER', 'EDIT_USER')"
           + " or hasPermission(#id,'USER', 'EDIT_SELF')")
   public String handleFileUpload(
       @PathVariable final String id,
@@ -143,25 +71,26 @@ public class UserRestController extends BaseRestController {
       //TODO: Need an appropriate file size.
       @FileValidate(maxSize = 2 * 1024 * 1024, fileType = {"JPEG", "PNG", "GIF"})
       final MultipartFile file
-  ) throws IOException {
+  ) {
     return userService.handleUploadFile(id, file);
   }
 
-  @PostMapping(value = "user/password/reset/email")
-  public HttpEntity sendResetPasswordEmail(@RequestBody final String email) {
+  @PostMapping(value = "users/password-reset/{email}")
+  public HttpEntity sendResetPasswordEmail(@PathVariable final String email) {
     userService.sendResetPasswordEmail(email);
     return new ResponseEntity(HttpStatus.OK);
   }
 
-  @PatchMapping("user/password/reset/token")
+  @PatchMapping("users/password-reset")
   public boolean resetPassword(@RequestBody @Valid final UpdatePasswordDto updatePasswordDto) {
     userService.resetPassword(updatePasswordDto);
     return true;
   }
 
-  @PatchMapping("user/password/update")
-  public void updatePassword(@RequestBody @Valid final ChangePasswordDto changePasswordDto) {
+  @PatchMapping("users/password")
+  public HttpEntity updatePassword(@RequestBody @Valid final ChangePasswordDto changePasswordDto) {
     userService.updatePassword(changePasswordDto, findUserId());
+    return new ResponseEntity(HttpStatus.OK);
   }
 
   @PreAuthorize("hasPermission(#id,'USER', 'EDIT_SELF')")
@@ -182,8 +111,7 @@ public class UserRestController extends BaseRestController {
       @RequestBody final UserRoleUpdateDto userRoleUpdateDto) {
     User user = userService.findById(id);
     user = userService.updateUserRole(findAuthUser().getEmail(), userRoleUpdateDto, user);
-    return userMapper
-        .convertToUserRoleAndStatusInfoDto(user);
+    return userMapper.convertToUserRoleAndStatusInfoDto(user);
   }
 
   @PatchMapping("users/{id}/deactivate")
@@ -195,14 +123,15 @@ public class UserRestController extends BaseRestController {
     return userMapper.convertToUserRoleAndStatusInfoDto(user);
   }
 
-  @DeleteMapping("users/{id}/delete")
+  @DeleteMapping("users/{id}")
   @PreAuthorize("hasPermission(#id, 'USER', 'EDIT_USER')")
-  public void deleteUser(@PathVariable final String id) {
+  public HttpEntity deleteUser(@PathVariable final String id) {
     final User employee = userService.findById(id);
     userService.deleteUser(employee);
+    return new ResponseEntity(HttpStatus.OK);
   }
 
-  @GetMapping("users/all")
+  @GetMapping("users")
   public List<UserDto> getAllUsers() {
     final List<User> users = userService.findAllUsersByCompany(findCompanyId());
     return userMapper.convertToUserDtos(users);
@@ -218,113 +147,42 @@ public class UserRestController extends BaseRestController {
       return userDto;
     }
 
-    final User user = userService.findByUserId(findAuthentication().getUserId());
+    final User user = userService.findActiveUserById(findAuthentication().getUserId());
     final Role role = user.getRole();
     if (role != Role.SUPER_ADMIN) {
       throw new ForbiddenException("You are not super admin!");
     }
 
-    final String useId = mockId;
-    userService.cacheUser(findToken(), useId);
-    return userService.getMockUserInfo(useId);
+    userService.cacheUser(findToken(), mockId);
+    return userService.getMockUserInfo(mockId);
   }
 
-  @GetMapping("/user/check-password/{password}")
+  @GetMapping("/users/check-password/{password}")
   @PreAuthorize("hasAuthority('EDIT_SELF')")
   public void checkPassword(@PathVariable final String password) {
     userService.checkPassword(findAuthUser().getEmail(), password);
   }
 
-  @PatchMapping("/user/send-verify-email")
+  @PatchMapping("/users/send-verify-email")
   @PreAuthorize(
       "hasPermission(#emailResendDto.userId,'USER', 'EDIT_USER')"
           + " or hasPermission(#emailResendDto.userId,'USER', 'EDIT_SELF')")
-  public void sendChangeWorkEmail(@RequestBody @Valid final EmailResendDto emailResendDto) {
+  public HttpEntity sendChangeWorkEmail(@RequestBody @Valid final EmailResendDto emailResendDto) {
     userService.sendChangeWorkEmail(emailResendDto.getUserId(),emailResendDto.getEmail());
-
+    return new ResponseEntity(HttpStatus.OK);
   }
 
-  @GetMapping("/user/{id}/change-work-email")
-  @PreAuthorize("hasPermission(#id, 'USER', 'VIEW_CHANGING_WORK_EMAIL')")
-  public String getChangeWorkEmail(@PathVariable @Valid final String id) {
-    final User user = userService.findById(id);
-    return user.getChangeWorkEmail();
-  }
-
-  @GetMapping("/user/change-work-email")
+  @GetMapping("/users/change-work-email")
   @PreAuthorize("hasAuthority('EDIT_SELF')")
   public String getChangeWorkEmail() {
     final User user = userService.findById(findAuthUser().getId());
     return user.getChangeWorkEmail();
   }
 
-  @GetMapping("/user/send-verify-work-email")
+  @GetMapping("/users/send-verify-work-email")
   @PreAuthorize("hasAuthority('EDIT_SELF')")
   public void sendVerifyChangeWorkEmail() {
     final User user = userService.findById(findAuthUser().getId());
     userService.sendVerifyChangeWorkEmail(user);
-  }
-
-  @GetMapping("compensation-frequencies")
-  public List<CommonDictionaryDto> getCompensationFrequencies() {
-    final List<CompensationFrequency> frequencies = frequencyRepository.findAll();
-    return ReflectionUtil.convertTo(frequencies, CommonDictionaryDto.class);
-  }
-
-  @GetMapping("compensation-overtime-statuses")
-  public List<CommonDictionaryDto> getCompensationStatuses() {
-    final List<CompensationOvertimeStatus> overtimeStatuses =
-        compensationOvertimeStatusRepository.findAll();
-    return ReflectionUtil.convertTo(overtimeStatuses, CommonDictionaryDto.class);
-  }
-
-  @GetMapping("deactivation-reasons")
-  public List<CommonDictionaryDto> getDeactivationReasons() {
-    final List<DeactivationReasons> deactivationReasons = deactivationReasonRepository
-        .findAll();
-    return ReflectionUtil.convertTo(deactivationReasons, CommonDictionaryDto.class);
-  }
-
-  @GetMapping("ethnicities")
-  public List<CommonDictionaryDto> getEthnicities() {
-    final List<Ethnicity> ethnicities = ethnicityRepository.findAll();
-    return ReflectionUtil.convertTo(ethnicities, CommonDictionaryDto.class);
-  }
-
-  @GetMapping("genders")
-  public List<CommonDictionaryDto> getGenders() {
-    final List<Gender> genders = genderRepository.findAll();
-    return ReflectionUtil.convertTo(genders, CommonDictionaryDto.class);
-  }
-
-  @GetMapping("marital-statuses")
-  public List<CommonDictionaryDto> getMaritalStatuses() {
-    final List<MaritalStatus> maritalStatuses = maritalStatusRepository.findAll();
-    return ReflectionUtil.convertTo(maritalStatuses, CommonDictionaryDto.class);
-  }
-
-  @GetMapping("retirement-types")
-  public List<CommonDictionaryDto> getRetirementTypes() {
-    final List<RetirementType> retirementTypes = retirementTypeRepository.findAll();
-    return ReflectionUtil.convertTo(retirementTypes, CommonDictionaryDto.class);
-  }
-
-
-  @GetMapping("user-roles")
-  public List<CommonDictionaryDto> getAllUserRoles() {
-    final List<UserRole> userRoles = userRolesRepository.findAll();
-    return ReflectionUtil.convertTo(userRoles, CommonDictionaryDto.class);
-  }
-
-  @GetMapping("user-statuses")
-  public List<CommonDictionaryDto> getAllUserStatuses() {
-    final List<UserStatus> userStatuses = userStatusRepository.findAll();
-    return ReflectionUtil.convertTo(userStatuses, CommonDictionaryDto.class);
-  }
-
-  @GetMapping("users/{id}/job")
-  @PreAuthorize("hasPermission(#id,'USER','VIEW_USER_JOB')")
-  public BasicJobInformationDto findJobMessage(@PathVariable final String id) {
-    return userService.findJobMessage(id, findAuthUser().getId());
   }
 }

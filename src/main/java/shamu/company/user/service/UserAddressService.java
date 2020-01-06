@@ -36,8 +36,7 @@ public class UserAddressService {
   }
 
   public UserAddress findUserAddressById(final String id) {
-    return userAddressRepository
-        .findById(id)
+    return userAddressRepository.findById(id)
         .orElseThrow(() -> new ResourceNotFoundException("User address does not exist"));
   }
 

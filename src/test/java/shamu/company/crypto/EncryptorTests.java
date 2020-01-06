@@ -84,7 +84,7 @@ class EncryptorTests {
     Mockito.when(auth0Helper.getUserSecret(testUser.getId())).thenReturn(userSecret);
     Mockito.when(secretHashRepository.getCompanySecretByCompanyId(testUser.getCompany().getId()))
         .thenReturn(companySecret);
-    Mockito.when(userService.findByUserId(testUser.getId())).thenReturn(testUser);
+    Mockito.when(userService.findActiveUserById(testUser.getId())).thenReturn(testUser);
     Mockito.when(userService
         .findUserByUserPersonalInformationId(testUser.getUserPersonalInformation().getId()))
         .thenReturn(testUser);
@@ -128,7 +128,7 @@ class EncryptorTests {
       final String result = encryptor
           .decrypt(testUser.getId(), User.class, testUser.getUserPersonalInformation().getSsn());
 
-      Mockito.verify(userService, Mockito.times(1)).findByUserId(testUser.getId());
+      Mockito.verify(userService, Mockito.times(1)).findActiveUserById(testUser.getId());
       Assertions.assertEquals(ssn, result);
     }
 
@@ -146,13 +146,13 @@ class EncryptorTests {
     @Test
     void whenThrowException_thenReturnOriginalValue() {
       Mockito.when(userService
-          .findByUserId(testUser.getId()))
+          .findActiveUserById(testUser.getId()))
           .thenThrow(new RuntimeException());
 
       final String result = encryptor
           .decrypt(testUser.getId(), User.class, testUser.getUserPersonalInformation().getSsn());
 
-      Mockito.verify(userService, Mockito.times(1)).findByUserId(testUser.getId());
+      Mockito.verify(userService, Mockito.times(1)).findActiveUserById(testUser.getId());
       Mockito.verify(userService, Mockito.never())
           .findUserByUserPersonalInformationId(testUser.getUserPersonalInformation().getId());
       Assertions.assertEquals(testUser.getUserPersonalInformation().getSsn(), result);

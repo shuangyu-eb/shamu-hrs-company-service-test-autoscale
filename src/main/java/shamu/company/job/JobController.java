@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
+import shamu.company.employee.dto.BasicJobInformationDto;
 import shamu.company.employee.dto.SelectFieldSizeDto;
 import shamu.company.job.dto.JobSelectOptionUpdateDto;
 import shamu.company.job.dto.JobUpdateDto;
@@ -27,6 +28,12 @@ public class JobController extends BaseRestController {
   public JobController(
           final JobUserService jobUserService) {
     this.jobUserService = jobUserService;
+  }
+
+  @GetMapping("users/{id}/job")
+  @PreAuthorize("hasPermission(#id,'USER','VIEW_USER_JOB')")
+  public BasicJobInformationDto findJobMessage(@PathVariable final String id) {
+    return jobUserService.findJobMessage(id, findAuthUser().getId());
   }
 
   @PatchMapping("users/{id}/jobs")

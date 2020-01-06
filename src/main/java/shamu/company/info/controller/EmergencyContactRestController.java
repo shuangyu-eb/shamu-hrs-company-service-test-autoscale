@@ -97,7 +97,7 @@ public class EmergencyContactRestController extends BaseRestController {
 
   private List<BasicUserEmergencyContactDto> convertToUserEmergencyContactDtoByPermission(
           String userId, List<UserEmergencyContact> userEmergencyContacts) {
-    final User currentUser = userService.findByUserId(findUserId());
+    final User currentUser = userService.findActiveUserById(findUserId());
     if (userId.equals(findAuthUser().getId()) || Role.ADMIN.equals(currentUser.getRole())) {
       return userEmergencyContacts.stream()
               .map(userEmergencyContactMapper::convertToUserEmergencyContactDto)
