@@ -389,6 +389,13 @@ public class BenefitPlanService {
     selectedBenefitPlanInfo.stream()
         .forEach(
             s -> {
+              if (s.getBenefitPlanType().equals(BenefitPlanType.PlanType.OTHER.getValue())) {
+                final BenefitPlan benefitPlan =
+                    benefitPlanRepository.findBenefitPlanById(s.getPlanId());
+                enrollBenefitPlanUser(userId, benefitPlan, s);
+                return;
+              }
+
               if (s.getPlanId() == null) {
                 // find all this type of benefitPlan of user's company and set enrolled as false
                 // and clear all the data that related to this benefit plan
@@ -432,6 +439,30 @@ public class BenefitPlanService {
             });
   }
 
+  private void enrollBenefitPlanUser(
+      final String userId,
+      final BenefitPlan benefitPlan,
+      final SelectedEnrollmentInfoDto selectedEnrollmentInfoDto) {
+    final BenefitPlanUser originBenefitPlanUser =
+        benefitPlanUserRepository.findByUserIdAndBenefitPlanId(userId, benefitPlan.getId()).get();
+    originBenefitPlanUser.setEnrolled(true);
+    if (selectedEnrollmentInfoDto.getCoverageOptionId() == null) {
+      originBenefitPlanUser.setBenefitPlanCoverage(null);
+    } else {
+      originBenefitPlanUser.setBenefitPlanCoverage(
+          benefitPlanCoverageRepository
+              .findById(selectedEnrollmentInfoDto.getCoverageOptionId())
+              .get());
+    }
+
+    if (selectedEnrollmentInfoDto.getSelectedDependents() != null
+        && selectedEnrollmentInfoDto.getSelectedDependents().size() > 0) {
+      updateSelectedDependentsByBenefitPlanUser(
+          selectedEnrollmentInfoDto.getSelectedDependents(), originBenefitPlanUser.getId());
+    }
+    benefitPlanUserRepository.save(originBenefitPlanUser);
+  }
+
   // update benefit enrollment info based on this benefitPlanDto
   private void updateBenefitPlansEnrollmentInfoByPlanType(
       final SelectedEnrollmentInfoDto selectedEnrollmentInfoDto,
@@ -449,27 +480,8 @@ public class BenefitPlanService {
               if (benefitPlan.getId().equals(selectedEnrollmentInfoDto.getPlanId())) {
                 // find which benefitPlan under this type is selected and
                 // update the information
-                final BenefitPlanUser originBenefitPlanUser =
-                    benefitPlanUserRepository
-                        .findByUserIdAndBenefitPlanId(userId, benefitPlan.getId())
-                        .get();
-                originBenefitPlanUser.setEnrolled(true);
-                if (selectedEnrollmentInfoDto.getCoverageOptionId() == null) {
-                  originBenefitPlanUser.setBenefitPlanCoverage(null);
-                } else {
-                  originBenefitPlanUser.setBenefitPlanCoverage(
-                      benefitPlanCoverageRepository
-                          .findById(selectedEnrollmentInfoDto.getCoverageOptionId())
-                          .get());
-                }
 
-                if (selectedEnrollmentInfoDto.getSelectedDependents() != null
-                    && selectedEnrollmentInfoDto.getSelectedDependents().size() > 0) {
-                  updateSelectedDependentsByBenefitPlanUser(
-                      selectedEnrollmentInfoDto.getSelectedDependents(),
-                      originBenefitPlanUser.getId());
-                }
-                benefitPlanUserRepository.save(originBenefitPlanUser);
+                enrollBenefitPlanUser(userId, benefitPlan, selectedEnrollmentInfoDto);
                 // update related information under one type finished
               } else {
 
