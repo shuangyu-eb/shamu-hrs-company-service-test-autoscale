@@ -853,3 +853,22 @@ databaseChangeLog:
           primaryKey: id
           tableName: benefit_life_event_types
 
+- changeSet:
+    id: 1578462794915-1
+    author: bin-eb
+    changes:
+      - sql:
+          sql: INSERT INTO company_benefits_setting(id, company_id, created_at, updated_at) SELECT unhex(replace(uuid(), '-', '')), id, created_at, updated_at FROM companies;
+
+- changeSet:
+    id: 1578462794915-2
+    author: bin-eb
+    preConditions:
+      onFail: WARN
+    changes:
+      - addForeignKeyConstraint:
+          baseColumnNames: company_id
+          baseTableName: company_benefits_setting
+          constraintName: fk_company_benefits_setting_companies
+          referencedColumnNames: id
+          referencedTableName: companies

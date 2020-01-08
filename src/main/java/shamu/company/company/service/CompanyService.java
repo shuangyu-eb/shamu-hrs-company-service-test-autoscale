@@ -11,13 +11,17 @@ import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.common.service.DepartmentService;
 import shamu.company.common.service.OfficeService;
 import shamu.company.common.service.StateProvinceService;
+import shamu.company.company.dto.CompanyBenefitsSettingDto;
 import shamu.company.company.dto.OfficeSizeDto;
 import shamu.company.company.entity.Company;
+import shamu.company.company.entity.CompanyBenefitsSetting;
 import shamu.company.company.entity.CompanySize;
 import shamu.company.company.entity.Department;
 import shamu.company.company.entity.Office;
 import shamu.company.company.entity.OfficeAddress;
+import shamu.company.company.entity.mapper.CompanyBenefitsSettingMapper;
 import shamu.company.company.entity.mapper.OfficeAddressMapper;
+import shamu.company.company.repository.CompanyBenefitsSettingRepository;
 import shamu.company.company.repository.CompanyRepository;
 import shamu.company.employee.dto.SelectFieldSizeDto;
 import shamu.company.employee.entity.EmploymentType;
@@ -45,6 +49,10 @@ public class CompanyService {
 
   private final StateProvinceService stateProvinceService;
 
+  private final CompanyBenefitsSettingMapper companyBenefitsSettingMapper;
+
+  private final CompanyBenefitsSettingService companyBenefitsSettingService;
+
   @Autowired
   public CompanyService(final CompanyRepository companyRepository,
       final DepartmentService departmentService,
@@ -53,7 +61,9 @@ public class CompanyService {
       final OfficeService officeService,
       final OfficeAddressMapper officeAddressMapper,
       final CompanySizeService companySizeService,
-      final StateProvinceService stateProvinceService) {
+      final StateProvinceService stateProvinceService,
+      final CompanyBenefitsSettingMapper companyBenefitsSettingMapper,
+      final CompanyBenefitsSettingService companyBenefitsSettingService) {
     this.companyRepository = companyRepository;
     this.departmentService = departmentService;
     this.employmentTypeService = employmentTypeService;
@@ -62,6 +72,8 @@ public class CompanyService {
     this.officeAddressMapper = officeAddressMapper;
     this.companySizeService = companySizeService;
     this.stateProvinceService = stateProvinceService;
+    this.companyBenefitsSettingMapper = companyBenefitsSettingMapper;
+    this.companyBenefitsSettingService = companyBenefitsSettingService;
   }
 
 
@@ -177,5 +189,28 @@ public class CompanyService {
 
   public Company save(final Company company) {
     return companyRepository.save(company);
+  }
+
+  public CompanyBenefitsSettingDto findCompanyBenefitsSetting(final String companyId) {
+    CompanyBenefitsSetting benefitsSetting = companyBenefitsSettingService
+        .findByCompanyId(companyId);
+    return companyBenefitsSettingMapper.convertCompanyBenefitsSettingDto(benefitsSetting);
+  }
+
+  public void updateBenefitSettingAutomaticRollover(
+      final String companyId, final Boolean isTurnOn) {
+    CompanyBenefitsSetting benefitsSetting = companyBenefitsSettingService
+        .findByCompanyId(companyId);
+    benefitsSetting.setIsAutomaticRollover(isTurnOn);
+    companyBenefitsSettingService.save(benefitsSetting);
+  }
+
+  public void updateEnrollmentPeriod(
+      final String companyId, final CompanyBenefitsSettingDto companyBenefitsSettingDto) {
+    CompanyBenefitsSetting benefitsSetting = companyBenefitsSettingService
+        .findByCompanyId(companyId);
+    benefitsSetting.setStartDate(companyBenefitsSettingDto.getStartDate());
+    benefitsSetting.setEndDate(companyBenefitsSettingDto.getEndDate());
+    companyBenefitsSettingService.save(benefitsSetting);
   }
 }
