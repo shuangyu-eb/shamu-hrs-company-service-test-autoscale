@@ -70,28 +70,28 @@ Note: These configs of secret is used to store secrets of companies, but Auth0 c
     **Note:**
     You can also use the java IDE(e.g. IntelliJ IDEA) to set up it locally.
 
-4. Visit [http://localhost:8500](http://localhost:8500), then you'll find the company service in **Services**.  
+4. Visit [http://localhost:8500](http://localhost:8500), then you'll find the company service in **Services**.
 
 5. This micro service runs on port 8081. You can also check port 8081 to verify it's running.
 
 ### Using docker to serve the application
 
 1. Download docker by going to [Docker CE Installation](https://docs.docker.com/engine/installation/), choose the right wizard for you depending on your os system.
-    
+
     The project requires `docker-compose` command to run, make sure you have it before you go to next step.
 
 2. Go to your project root, run the following command to build images for the project.
-    
+
     ```bash
     $ docker-compose build
     ```
-    
+
     Run the following command to start the project.
-    
+
     ```bash
     $ docker-compose up
     ```
-    
-3. Visit [http://localhost:8500](http://localhost:8500), then you'll find the company service in **Services**.  
+
+3. Visit [http://localhost:8500](http://localhost:8500), then you'll find the company service in **Services**.
 
 4. This micro service runs on port 8081. You can also check port 8081 to verify it's running.
