@@ -191,8 +191,8 @@ class UserServiceTests {
     final Company company = new Company();
     company.setId("1");
 
-    Mockito.when(userRepository.findActiveUserById(Mockito.anyString()))
-            .thenReturn(currentUser);
+    Mockito.when(userRepository.findById(Mockito.anyString()))
+            .thenReturn(java.util.Optional.of(currentUser));
     Mockito.when(userRepository.findByManagerUser(Mockito.any()))
         .thenReturn(Collections.emptyList());
 

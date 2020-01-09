@@ -642,7 +642,7 @@ public class UserService {
   }
 
   public CurrentUserDto getCurrentUserInfo(final String userId) {
-    final User user = findActiveUserById(userId);
+    final User user = findById(userId);
     return getCurrentUserDto(user);
   }
 
