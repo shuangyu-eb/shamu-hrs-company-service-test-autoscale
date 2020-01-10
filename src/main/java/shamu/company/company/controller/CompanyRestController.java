@@ -10,10 +10,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+
 import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.company.dto.CompanyBenefitsSettingDto;
@@ -161,14 +162,14 @@ public class CompanyRestController extends BaseRestController {
     return companyService.findCompanyBenefitsSetting(findCompanyId());
   }
 
-  @RequestMapping("benefits-setting/automatic-rollover")
+  @PatchMapping("benefits-setting/automatic-rollover")
   @PreAuthorize("hasAuthority('MANAGE_BENEFIT')")
   public HttpEntity updateBenefitSettingAutomaticRollover(@RequestBody Boolean isTurnOn) {
     companyService.updateBenefitSettingAutomaticRollover(findCompanyId(), isTurnOn);
     return new ResponseEntity(HttpStatus.OK);
   }
 
-  @RequestMapping("benefits-setting/enrollment-period")
+  @PatchMapping("benefits-setting/enrollment-period")
   @PreAuthorize("hasAuthority('MANAGE_BENEFIT')")
   public HttpEntity updateEnrollmentPeriod(
       @RequestBody CompanyBenefitsSettingDto companyBenefitsSettingDto) {

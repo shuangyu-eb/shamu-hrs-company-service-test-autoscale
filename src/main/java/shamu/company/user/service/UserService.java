@@ -32,8 +32,10 @@ import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.common.exception.response.ErrorType;
 import shamu.company.common.service.DepartmentService;
 import shamu.company.company.entity.Company;
+import shamu.company.company.entity.CompanyBenefitsSetting;
 import shamu.company.company.entity.CompanySize;
 import shamu.company.company.entity.Department;
+import shamu.company.company.service.CompanyBenefitsSettingService;
 import shamu.company.company.service.CompanyService;
 import shamu.company.company.service.CompanySizeService;
 import shamu.company.email.Email;
@@ -117,6 +119,7 @@ public class UserService {
   private final UserAddressMapper userAddressMapper;
   private final UserPersonalInformationMapper userPersonalInformationMapper;
   private final UserMapper userMapper;
+  private final CompanyBenefitsSettingService companyBenefitsSettingService;
 
   @Value("${application.systemEmailAddress}")
   private String systemEmailAddress;
@@ -140,7 +143,8 @@ public class UserService {
       final CompanyService companyService, final DepartmentService departmentService,
       final JobService jobService, final UserAccessLevelEventService userAccessLevelEventService,
       final UserContactInformationService userContactInformationService,
-      final UserPersonalInformationService userPersonalInformationService) {
+      final UserPersonalInformationService userPersonalInformationService,
+      final CompanyBenefitsSettingService companyBenefitsSettingService) {
     this.templateEngine = templateEngine;
     this.userRepository = userRepository;
     this.emailService = emailService;
@@ -166,6 +170,7 @@ public class UserService {
     this.userAccessLevelEventService = userAccessLevelEventService;
     this.userContactInformationService = userContactInformationService;
     this.userPersonalInformationService = userPersonalInformationService;
+    this.companyBenefitsSettingService = companyBenefitsSettingService;
   }
 
   public User findById(final String id) {
@@ -492,6 +497,8 @@ public class UserService {
         .build();
     company = companyService.save(company);
 
+    saveCompanyBenefitsSetting(company);
+
     Department department = new Department();
     department.setName(signUpDto.getDepartment());
     department.setCompany(company);
@@ -524,6 +531,13 @@ public class UserService {
     jobUserService.save(jobUser);
 
     paidHolidayService.initDefaultPaidHolidays(user.getCompany());
+  }
+
+  private void saveCompanyBenefitsSetting(final Company company) {
+    CompanyBenefitsSetting benefitsSetting = new CompanyBenefitsSetting();
+    benefitsSetting.setCompany(company);
+    benefitsSetting.setIsAutomaticRollover(true);
+    companyBenefitsSettingService.save(benefitsSetting);
   }
 
   private String findUserEmailOnAuth0(final String userId) {

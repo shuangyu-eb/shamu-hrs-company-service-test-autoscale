@@ -21,6 +21,7 @@ import shamu.company.company.entity.CompanySize;
 import shamu.company.company.entity.mapper.OfficeAddressMapper;
 import shamu.company.company.entity.mapper.OfficeAddressMapperImpl;
 import shamu.company.company.entity.mapper.StateProvinceMapper;
+import shamu.company.company.service.CompanyBenefitsSettingService;
 import shamu.company.company.service.CompanyService;
 import shamu.company.company.service.CompanySizeService;
 import shamu.company.email.EmailService;
@@ -109,6 +110,8 @@ class UserServiceTests {
   private UserRoleService userRoleService;
   @Mock
   private PermissionUtils permissionUtils;
+  @Mock
+  private CompanyBenefitsSettingService companyBenefitsSettingService;
 
   private final StateProvinceMapper stateProvinceMapper = Mappers
           .getMapper(StateProvinceMapper.class);
@@ -126,7 +129,7 @@ class UserServiceTests {
         permissionUtils, jobUserService, userStatusService,
         companySizeService, companyService, departmentService, jobService,
         userAccessLevelEventService, userContactInformationService,
-        userPersonalInformationService
+        userPersonalInformationService, companyBenefitsSettingService
         );
   }
 

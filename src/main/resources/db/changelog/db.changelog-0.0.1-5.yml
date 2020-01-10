@@ -872,3 +872,63 @@ databaseChangeLog:
           constraintName: fk_company_benefits_setting_companies
           referencedColumnNames: id
           referencedTableName: companies
+
+- changeSet:
+    id: 1578622789013-1
+    author: bin-eb
+    changes:
+      - sql:
+          sql: TRUNCATE TABLE company_benefits_setting;
+
+- changeSet:
+    id: 1578622789013-2
+    author: bin-eb
+    changes:
+      - sql:
+          sql: INSERT INTO company_benefits_setting(id, company_id, created_at, updated_at) SELECT unhex(replace(uuid(), '-', '')), id, created_at, updated_at FROM companies;
+
+- changeSet:
+    id: 1578627246177-1
+    author: bin-eb
+    changes:
+      - createTable:
+          columns:
+            - column:
+                name: id
+                type: binary(16)
+                constraints:
+                  primaryKey: true
+            - column:
+                name: user_id
+                type: binary(16)
+            - column:
+                name: hidden_banner
+                type: bool
+                defaultValue: false
+            - column:
+                name: created_at
+                type: datetime
+            - column:
+                name: updated_at
+                type: datetime
+          tableName: user_benefits_setting
+
+- changeSet:
+    id: 1578627246177-2
+    author: bin-eb
+    preConditions:
+      onFail: WARN
+    changes:
+      - addForeignKeyConstraint:
+          baseColumnNames: user_id
+          baseTableName: user_benefits_setting
+          constraintName: fk_user_benefits_setting_users
+          referencedColumnNames: id
+          referencedTableName: users
+
+- changeSet:
+    id: 1578627246177-3
+    author: bin-eb
+    changes:
+      - sql:
+          sql: INSERT INTO user_benefits_setting(id, user_id, created_at, updated_at) SELECT unhex(replace(uuid(), '-', '')), id, created_at, updated_at FROM users;
