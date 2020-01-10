@@ -344,7 +344,8 @@ public class UserPermissionUtils extends BasePermissionUtils {
 
       final String managerUserId = userService.getManagerUserIdById(targetUser.getId());
       final boolean isManager =
-          !StringUtils.isEmpty(managerUserId) && managerUserId.equals(getAuthUser().getId());
+          !StringUtils.isEmpty(managerUserId)
+           && managerUserId.toUpperCase().equals(getAuthUser().getId().toUpperCase());
       return isManager && hasPermission(authorities, permission);
     }
 
