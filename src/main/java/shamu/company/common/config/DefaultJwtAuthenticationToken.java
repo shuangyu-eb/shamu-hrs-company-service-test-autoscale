@@ -8,19 +8,23 @@ import shamu.company.server.dto.AuthUser;
 
 public class DefaultJwtAuthenticationToken extends JwtAuthenticationToken {
 
+  private static final long serialVersionUID = -4083333063347300287L;
   private final String userId;
 
   private final AuthUser authUser;
 
-  public DefaultJwtAuthenticationToken(final Jwt jwt, final String userId,
-      final Collection<? extends GrantedAuthority> authorities, final AuthUser authUser) {
+  public DefaultJwtAuthenticationToken(
+      final Jwt jwt,
+      final String userId,
+      final Collection<? extends GrantedAuthority> authorities,
+      final AuthUser authUser) {
     super(jwt, authorities);
-    this.userId = userId;
+    this.userId = userId.toUpperCase();
     this.authUser = authUser;
   }
 
   public String getUserId() {
-    return this.userId;
+    return userId;
   }
 
   public AuthUser getAuthUser() {
