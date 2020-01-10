@@ -581,4 +581,28 @@ public class BenefitPlanService {
         });
     save(benefitPlan);
   }
+
+  public void confirmBenefitPlanEnrollment(
+      final String userId,
+      final List<SelectedEnrollmentInfoDto> selectedBenefitPlanInfo,
+      final String companyId) {
+    updateUserBenefitPlanEnrollmentInfo(userId, selectedBenefitPlanInfo, companyId);
+    selectedBenefitPlanInfo.stream()
+        .forEach(
+            s -> {
+              final BenefitPlanUser confirmedBenefitPlanUser =
+                  benefitPlanUserRepository
+                      .findByUserIdAndBenefitPlanId(userId, s.getPlanId())
+                      .orElseThrow(
+                          () -> new ResourceNotFoundException("Cannot find benefit plan user"));
+              confirmedBenefitPlanUser.setConfirmed(true);
+              benefitPlanUserRepository.save(confirmedBenefitPlanUser);
+            });
+  }
+
+  public boolean isConfirmed(final String userId) {
+    final List<BenefitPlanUser> benefitPlanUsers =
+        benefitPlanUserRepository.findByUserIdAndConfirmedIsTrue(userId);
+    return benefitPlanUsers.size() > 0;
+  }
 }

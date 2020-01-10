@@ -1,934 +1,934 @@
 databaseChangeLog:
-- changeSet:
-    id: 1575535861-1
-    author: alex-eb
-    preConditions:
-      onFail: WARN
-    changes:
-      - addColumn:
-          columns:
-            - column:
-                name: ref_id
-                type: INT
-          tableName: benefit_plan_dependent_relationships
+  - changeSet:
+      id: 1575535861-1
+      author: alex-eb
+      preConditions:
+        onFail: WARN
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: ref_id
+                  type: INT
+            tableName: benefit_plan_dependent_relationships
 
-- changeSet:
-    id: 1575535861-2
-    author: alex-eb
-    preConditions:
-      onFail: WARN
-    changes:
-      - addColumn:
-          columns:
-            - column:
-                name: ref_id
-                type: INT
-          tableName: benefit_plan_types
+  - changeSet:
+      id: 1575535861-2
+      author: alex-eb
+      preConditions:
+        onFail: WARN
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: ref_id
+                  type: INT
+            tableName: benefit_plan_types
 
-- changeSet:
-    id: 1575535861-3
-    author: alex-eb
-    preConditions:
-      onFail: WARN
-    changes:
-      - addColumn:
-          columns:
-            - column:
-                name: ref_id
-                type: INT
-          tableName: company_sizes
+  - changeSet:
+      id: 1575535861-3
+      author: alex-eb
+      preConditions:
+        onFail: WARN
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: ref_id
+                  type: INT
+            tableName: company_sizes
 
-- changeSet:
-    id: 1575535861-4
-    author: alex-eb
-    preConditions:
-      onFail: WARN
-    changes:
-      - addColumn:
-          columns:
-            - column:
-                name: ref_id
-                type: INT
-          tableName: compensation_frequency
+  - changeSet:
+      id: 1575535861-4
+      author: alex-eb
+      preConditions:
+        onFail: WARN
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: ref_id
+                  type: INT
+            tableName: compensation_frequency
 
-- changeSet:
-    id: 1575535861-5
-    author: alex-eb
-    preConditions:
-      onFail: WARN
-    changes:
-      - addColumn:
-          columns:
-            - column:
-                name: ref_id
-                type: INT
-          tableName: countries
+  - changeSet:
+      id: 1575535861-5
+      author: alex-eb
+      preConditions:
+        onFail: WARN
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: ref_id
+                  type: INT
+            tableName: countries
 
-- changeSet:
-    id: 1575535861-6
-    author: alex-eb
-    preConditions:
-      onFail: WARN
-    changes:
-      - addColumn:
-          columns:
-            - column:
-                name: ref_id
-                type: INT
-          tableName: ethnicities
+  - changeSet:
+      id: 1575535861-6
+      author: alex-eb
+      preConditions:
+        onFail: WARN
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: ref_id
+                  type: INT
+            tableName: ethnicities
 
-- changeSet:
-    id: 1575535861-7
-    author: alex-eb
-    preConditions:
-      onFail: WARN
-    changes:
-      - addColumn:
-          columns:
-            - column:
-                name: ref_id
-                type: INT
-          tableName: genders
+  - changeSet:
+      id: 1575535861-7
+      author: alex-eb
+      preConditions:
+        onFail: WARN
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: ref_id
+                  type: INT
+            tableName: genders
 
-- changeSet:
-    id: 1575535861-8
-    author: alex-eb
-    preConditions:
-      onFail: WARN
-    changes:
-      - addColumn:
-          columns:
-            - column:
-                name: ref_id
-                type: INT
-          tableName: marital_status
+  - changeSet:
+      id: 1575535861-8
+      author: alex-eb
+      preConditions:
+        onFail: WARN
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: ref_id
+                  type: INT
+            tableName: marital_status
 
-- changeSet:
-    id: 1575535861-9
-    author: alex-eb
-    preConditions:
-      onFail: WARN
-    changes:
-      - addColumn:
-          columns:
-            - column:
-                name: ref_id
-                type: INT
-          tableName: time_off_request_approval_statuses
+  - changeSet:
+      id: 1575535861-9
+      author: alex-eb
+      preConditions:
+        onFail: WARN
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: ref_id
+                  type: INT
+            tableName: time_off_request_approval_statuses
 
-- changeSet:
-    id: 1575535861-10
-    author: alex-eb
-    preConditions:
-      onFail: WARN
-    changes:
-      - addColumn:
-          columns:
-            - column:
-                name: ref_id
-                type: INT
-          tableName: retirement_types
+  - changeSet:
+      id: 1575535861-10
+      author: alex-eb
+      preConditions:
+        onFail: WARN
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: ref_id
+                  type: INT
+            tableName: retirement_types
 
-- changeSet:
-    id: 1575535861-11
-    author: alex-eb
-    preConditions:
-      onFail: WARN
-    changes:
-      - addColumn:
-          columns:
-            - column:
-                name: ref_id
-                type: INT
-          tableName: time_off_accrual_frequencies
+  - changeSet:
+      id: 1575535861-11
+      author: alex-eb
+      preConditions:
+        onFail: WARN
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: ref_id
+                  type: INT
+            tableName: time_off_accrual_frequencies
 
-- changeSet:
-    id: 1575535861-12
-    author: alex-eb
-    preConditions:
-      onFail: WARN
-    changes:
-      - addColumn:
-          columns:
-            - column:
-                name: ref_id
-                type: INT
-          tableName: user_roles
+  - changeSet:
+      id: 1575535861-12
+      author: alex-eb
+      preConditions:
+        onFail: WARN
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: ref_id
+                  type: INT
+            tableName: user_roles
 
-- changeSet:
-    id: 1575535861-13
-    author: alex-eb
-    preConditions:
-      onFail: WARN
-    changes:
-      - addColumn:
-          columns:
-            - column:
-                name: ref_id
-                type: INT
-          tableName: deactivation_reasons
+  - changeSet:
+      id: 1575535861-13
+      author: alex-eb
+      preConditions:
+        onFail: WARN
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: ref_id
+                  type: INT
+            tableName: deactivation_reasons
 
-- changeSet:
-    id: 1575535861-14
-    author: alex-eb
-    preConditions:
-      onFail: WARN
-    changes:
-      - addColumn:
-          columns:
-            - column:
-                name: ref_id
-                type: INT
-          tableName: user_statuses
+  - changeSet:
+      id: 1575535861-14
+      author: alex-eb
+      preConditions:
+        onFail: WARN
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: ref_id
+                  type: INT
+            tableName: user_statuses
 
-- changeSet:
-    id: 1575535861-15
-    author: alex-eb
-    runOnChange: true
-    changes:
-      - loadUpdateData:
-          columns:
-            - column:
-                name: name
-                type: STRING
-          file: db/changelog/data/benefit-plan-dependent-relationships.csv
-          primaryKey: id
-          tableName: benefit_plan_dependent_relationships
+  - changeSet:
+      id: 1575535861-15
+      author: alex-eb
+      runOnChange: true
+      changes:
+        - loadUpdateData:
+            columns:
+              - column:
+                  name: name
+                  type: STRING
+            file: db/changelog/data/benefit-plan-dependent-relationships.csv
+            primaryKey: id
+            tableName: benefit_plan_dependent_relationships
 
-- changeSet:
-    id: 1575535861-16
-    author: alex-eb
-    runOnChange: true
-    changes:
-      - loadUpdateData:
-          columns:
-            - column:
-                name: name
-                type: STRING
-          file: db/changelog/data/benefit-plan-types.csv
-          primaryKey: id
-          tableName: benefit_plan_types
+  - changeSet:
+      id: 1575535861-16
+      author: alex-eb
+      runOnChange: true
+      changes:
+        - loadUpdateData:
+            columns:
+              - column:
+                  name: name
+                  type: STRING
+            file: db/changelog/data/benefit-plan-types.csv
+            primaryKey: id
+            tableName: benefit_plan_types
 
-- changeSet:
-    id: 1575535861-17
-    author: alex-eb
-    runOnChange: true
-    changes:
-      - loadUpdateData:
-          columns:
-            - column:
-                name: name
-                type: STRING
-          file: db/changelog/data/company-sizes.csv
-          primaryKey: id
-          tableName: company_sizes
+  - changeSet:
+      id: 1575535861-17
+      author: alex-eb
+      runOnChange: true
+      changes:
+        - loadUpdateData:
+            columns:
+              - column:
+                  name: name
+                  type: STRING
+            file: db/changelog/data/company-sizes.csv
+            primaryKey: id
+            tableName: company_sizes
 
-- changeSet:
-    id: 1575535861-18
-    author: alex-eb
-    runOnChange: true
-    changes:
-      - loadUpdateData:
-          columns:
-            - column:
-                name: name
-                type: STRING
-          file: db/changelog/data/compensation-frequency.csv
-          primaryKey: id
-          tableName: compensation_frequency
+  - changeSet:
+      id: 1575535861-18
+      author: alex-eb
+      runOnChange: true
+      changes:
+        - loadUpdateData:
+            columns:
+              - column:
+                  name: name
+                  type: STRING
+            file: db/changelog/data/compensation-frequency.csv
+            primaryKey: id
+            tableName: compensation_frequency
 
-- changeSet:
-    id: 1575535861-19
-    author: alex-eb
-    runOnChange: true
-    changes:
-      - loadUpdateData:
-          columns:
-            - column:
-                name: name
-                type: STRING
-            - column:
-                name: ref_id
-                type: NUMERIC
-          file: db/changelog/data/countries.csv
-          primaryKey: id
-          tableName: countries
+  - changeSet:
+      id: 1575535861-19
+      author: alex-eb
+      runOnChange: true
+      changes:
+        - loadUpdateData:
+            columns:
+              - column:
+                  name: name
+                  type: STRING
+              - column:
+                  name: ref_id
+                  type: NUMERIC
+            file: db/changelog/data/countries.csv
+            primaryKey: id
+            tableName: countries
 
-- changeSet:
-    id: 1575535861-20
-    author: alex-eb
-    runOnChange: true
-    changes:
-      - loadUpdateData:
-          columns:
-            - column:
-                name: name
-                type: STRING
-          file: db/changelog/data/ethnicities.csv
-          primaryKey: id
-          tableName: ethnicities
+  - changeSet:
+      id: 1575535861-20
+      author: alex-eb
+      runOnChange: true
+      changes:
+        - loadUpdateData:
+            columns:
+              - column:
+                  name: name
+                  type: STRING
+            file: db/changelog/data/ethnicities.csv
+            primaryKey: id
+            tableName: ethnicities
 
-- changeSet:
-    id: 1575535861-21
-    author: alex-eb
-    runOnChange: true
-    changes:
-      - loadUpdateData:
-          columns:
-            - column:
-                name: name
-                type: STRING
-          file: db/changelog/data/genders.csv
-          primaryKey: id
-          tableName: genders
+  - changeSet:
+      id: 1575535861-21
+      author: alex-eb
+      runOnChange: true
+      changes:
+        - loadUpdateData:
+            columns:
+              - column:
+                  name: name
+                  type: STRING
+            file: db/changelog/data/genders.csv
+            primaryKey: id
+            tableName: genders
 
-- changeSet:
-    id: 1575535861-22
-    author: alex-eb
-    runOnChange: true
-    changes:
-      - loadUpdateData:
-          columns:
-            - column:
-                name: name
-                type: STRING
-          file: db/changelog/data/marital-status.csv
-          primaryKey: id
-          tableName: marital_status
+  - changeSet:
+      id: 1575535861-22
+      author: alex-eb
+      runOnChange: true
+      changes:
+        - loadUpdateData:
+            columns:
+              - column:
+                  name: name
+                  type: STRING
+            file: db/changelog/data/marital-status.csv
+            primaryKey: id
+            tableName: marital_status
 
-- changeSet:
-    id: 1575535861-23
-    author: alex-eb
-    runOnChange: true
-    changes:
-      - loadUpdateData:
-          columns:
-            - column:
-                name: name
-                type: STRING
-          file: db/changelog/data/request-approval-statuses.csv
-          primaryKey: id
-          tableName: time_off_request_approval_statuses
+  - changeSet:
+      id: 1575535861-23
+      author: alex-eb
+      runOnChange: true
+      changes:
+        - loadUpdateData:
+            columns:
+              - column:
+                  name: name
+                  type: STRING
+            file: db/changelog/data/request-approval-statuses.csv
+            primaryKey: id
+            tableName: time_off_request_approval_statuses
 
-- changeSet:
-    id: 1575535861-24
-    author: alex-eb
-    runOnChange: true
-    changes:
-      - loadUpdateData:
-          columns:
-            - column:
-                name: name
-                type: STRING
-          file: db/changelog/data/retirement-types.csv
-          primaryKey: id
-          tableName: retirement_types
+  - changeSet:
+      id: 1575535861-24
+      author: alex-eb
+      runOnChange: true
+      changes:
+        - loadUpdateData:
+            columns:
+              - column:
+                  name: name
+                  type: STRING
+            file: db/changelog/data/retirement-types.csv
+            primaryKey: id
+            tableName: retirement_types
 
-- changeSet:
-    id: 1575535861-25
-    author: alex-eb
-    runOnChange: true
-    changes:
-      - loadUpdateData:
-          columns:
-            - column:
-                name: name
-                type: STRING
-          file: db/changelog/data/time-off-accrual-frequencies.csv
-          primaryKey: id
-          tableName: time_off_accrual_frequencies
+  - changeSet:
+      id: 1575535861-25
+      author: alex-eb
+      runOnChange: true
+      changes:
+        - loadUpdateData:
+            columns:
+              - column:
+                  name: name
+                  type: STRING
+            file: db/changelog/data/time-off-accrual-frequencies.csv
+            primaryKey: id
+            tableName: time_off_accrual_frequencies
 
-- changeSet:
-    id: 1575535861-26
-    author: alex-eb
-    runOnChange: true
-    changes:
-      - loadUpdateData:
-          columns:
-            - column:
-                name: name
-                type: STRING
-          file: db/changelog/data/user-roles.csv
-          primaryKey: id
-          tableName: user_roles
+  - changeSet:
+      id: 1575535861-26
+      author: alex-eb
+      runOnChange: true
+      changes:
+        - loadUpdateData:
+            columns:
+              - column:
+                  name: name
+                  type: STRING
+            file: db/changelog/data/user-roles.csv
+            primaryKey: id
+            tableName: user_roles
 
-- changeSet:
-    id: 1575535861-27
-    author: alex-eb
-    runOnChange: true
-    changes:
-      - loadUpdateData:
-          columns:
-            - column:
-                name: name
-                type: STRING
-          file: db/changelog/data/user-status-deactivation-reasons.csv
-          primaryKey: id
-          tableName: deactivation_reasons
+  - changeSet:
+      id: 1575535861-27
+      author: alex-eb
+      runOnChange: true
+      changes:
+        - loadUpdateData:
+            columns:
+              - column:
+                  name: name
+                  type: STRING
+            file: db/changelog/data/user-status-deactivation-reasons.csv
+            primaryKey: id
+            tableName: deactivation_reasons
 
-- changeSet:
-    id: 1575535861-28
-    author: alex-eb
-    runOnChange: true
-    changes:
-      - loadUpdateData:
-          columns:
-            - column:
-                name: name
-                type: STRING
-          file: db/changelog/data/user-statuses.csv
-          primaryKey: id
-          tableName: user_statuses
+  - changeSet:
+      id: 1575535861-28
+      author: alex-eb
+      runOnChange: true
+      changes:
+        - loadUpdateData:
+            columns:
+              - column:
+                  name: name
+                  type: STRING
+            file: db/changelog/data/user-statuses.csv
+            primaryKey: id
+            tableName: user_statuses
 
-- changeSet:
-    id: 1575595837-1
-    author: alex-eb
-    runOnChange: true
-    changes:
-      - addUniqueConstraint:
-          columnNames: ref_id
-          constraintName: uq_marital_status_ref_id
-          tableName: marital_status
+  - changeSet:
+      id: 1575595837-1
+      author: alex-eb
+      runOnChange: true
+      changes:
+        - addUniqueConstraint:
+            columnNames: ref_id
+            constraintName: uq_marital_status_ref_id
+            tableName: marital_status
 
-- changeSet:
-    id: 1575595837-2
-    author: alex-eb
-    runOnChange: true
-    changes:
-      - addUniqueConstraint:
-          columnNames: ref_id
-          constraintName: uq_company_sizes_ref_id
-          tableName: company_sizes
+  - changeSet:
+      id: 1575595837-2
+      author: alex-eb
+      runOnChange: true
+      changes:
+        - addUniqueConstraint:
+            columnNames: ref_id
+            constraintName: uq_company_sizes_ref_id
+            tableName: company_sizes
 
-- changeSet:
-    id: 1575595837-3
-    author: alex-eb
-    runOnChange: true
-    changes:
-      - addUniqueConstraint:
-          columnNames: ref_id
-          constraintName: uq_user_statuses_ref_id
-          tableName: user_statuses
+  - changeSet:
+      id: 1575595837-3
+      author: alex-eb
+      runOnChange: true
+      changes:
+        - addUniqueConstraint:
+            columnNames: ref_id
+            constraintName: uq_user_statuses_ref_id
+            tableName: user_statuses
 
-- changeSet:
-    id: 1575595837-4
-    author: alex-eb
-    runOnChange: true
-    changes:
-      - addUniqueConstraint:
-          columnNames: ref_id
-          constraintName: uq_genders_ref_id
-          tableName: genders
+  - changeSet:
+      id: 1575595837-4
+      author: alex-eb
+      runOnChange: true
+      changes:
+        - addUniqueConstraint:
+            columnNames: ref_id
+            constraintName: uq_genders_ref_id
+            tableName: genders
 
-- changeSet:
-    id: 1575595837-5
-    author: alex-eb
-    runOnChange: true
-    changes:
-      - addUniqueConstraint:
-          columnNames: ref_id
-          constraintName: uq_ethnicities_ref_id
-          tableName: ethnicities
+  - changeSet:
+      id: 1575595837-5
+      author: alex-eb
+      runOnChange: true
+      changes:
+        - addUniqueConstraint:
+            columnNames: ref_id
+            constraintName: uq_ethnicities_ref_id
+            tableName: ethnicities
 
-- changeSet:
-    id: 1575595837-6
-    author: alex-eb
-    runOnChange: true
-    changes:
-      - addUniqueConstraint:
-          columnNames: ref_id
-          constraintName: uq_benefit_plan_types_ref_id
-          tableName: benefit_plan_types
+  - changeSet:
+      id: 1575595837-6
+      author: alex-eb
+      runOnChange: true
+      changes:
+        - addUniqueConstraint:
+            columnNames: ref_id
+            constraintName: uq_benefit_plan_types_ref_id
+            tableName: benefit_plan_types
 
-- changeSet:
-    id: 1575595837-7
-    author: alex-eb
-    runOnChange: true
-    changes:
-      - addUniqueConstraint:
-          columnNames: ref_id
-          constraintName: uq_retirement_types_ref_id
-          tableName: retirement_types
+  - changeSet:
+      id: 1575595837-7
+      author: alex-eb
+      runOnChange: true
+      changes:
+        - addUniqueConstraint:
+            columnNames: ref_id
+            constraintName: uq_retirement_types_ref_id
+            tableName: retirement_types
 
-- changeSet:
-    id: 1575595837-8
-    author: alex-eb
-    runOnChange: true
-    changes:
-      - addUniqueConstraint:
-          columnNames: ref_id
-          constraintName: uq_benefit_plan_dependent_relationships_ref_id
-          tableName: benefit_plan_dependent_relationships
+  - changeSet:
+      id: 1575595837-8
+      author: alex-eb
+      runOnChange: true
+      changes:
+        - addUniqueConstraint:
+            columnNames: ref_id
+            constraintName: uq_benefit_plan_dependent_relationships_ref_id
+            tableName: benefit_plan_dependent_relationships
 
-- changeSet:
-    id: 1575595837-9
-    author: alex-eb
-    runOnChange: true
-    changes:
-      - addUniqueConstraint:
-          columnNames: ref_id
-          constraintName: uq_time_off_accrual_frequencies_ref_id
-          tableName: time_off_accrual_frequencies
+  - changeSet:
+      id: 1575595837-9
+      author: alex-eb
+      runOnChange: true
+      changes:
+        - addUniqueConstraint:
+            columnNames: ref_id
+            constraintName: uq_time_off_accrual_frequencies_ref_id
+            tableName: time_off_accrual_frequencies
 
-- changeSet:
-    id: 1575595837-10
-    author: alex-eb
-    runOnChange: true
-    changes:
-      - addUniqueConstraint:
-          columnNames: ref_id
-          constraintName: uq_countries_ref_id
-          tableName: countries
+  - changeSet:
+      id: 1575595837-10
+      author: alex-eb
+      runOnChange: true
+      changes:
+        - addUniqueConstraint:
+            columnNames: ref_id
+            constraintName: uq_countries_ref_id
+            tableName: countries
 
-- changeSet:
-    id: 1575595837-11
-    author: alex-eb
-    runOnChange: true
-    changes:
-      - addUniqueConstraint:
-          columnNames: ref_id
-          constraintName: uq_compensation_frequency_ref_id
-          tableName: compensation_frequency
+  - changeSet:
+      id: 1575595837-11
+      author: alex-eb
+      runOnChange: true
+      changes:
+        - addUniqueConstraint:
+            columnNames: ref_id
+            constraintName: uq_compensation_frequency_ref_id
+            tableName: compensation_frequency
 
-- changeSet:
-    id: 1575595837-12
-    author: alex-eb
-    runOnChange: true
-    changes:
-      - addUniqueConstraint:
-          columnNames: ref_id
-          constraintName: uq_time_off_request_approval_statuses_ref_id
-          tableName: time_off_request_approval_statuses
+  - changeSet:
+      id: 1575595837-12
+      author: alex-eb
+      runOnChange: true
+      changes:
+        - addUniqueConstraint:
+            columnNames: ref_id
+            constraintName: uq_time_off_request_approval_statuses_ref_id
+            tableName: time_off_request_approval_statuses
 
-- changeSet:
-    id: 1575595837-13
-    author: alex-eb
-    runOnChange: true
-    changes:
-      - addUniqueConstraint:
-          columnNames: ref_id
-          constraintName: uq_deactivation_reasons_ref_id
-          tableName: deactivation_reasons
+  - changeSet:
+      id: 1575595837-13
+      author: alex-eb
+      runOnChange: true
+      changes:
+        - addUniqueConstraint:
+            columnNames: ref_id
+            constraintName: uq_deactivation_reasons_ref_id
+            tableName: deactivation_reasons
 
-- changeSet:
-    id: 1575595837-14
-    author: alex-eb
-    runOnChange: true
-    changes:
-      - addUniqueConstraint:
-          columnNames: ref_id
-          constraintName: uq_user_roles_ref_id
-          tableName: user_roles
+  - changeSet:
+      id: 1575595837-14
+      author: alex-eb
+      runOnChange: true
+      changes:
+        - addUniqueConstraint:
+            columnNames: ref_id
+            constraintName: uq_user_roles_ref_id
+            tableName: user_roles
 
-- changeSet:
+  - changeSet:
       id: 1572414787135-1
       author: haibo-eb
       changes:
-          - dropColumn:
-                columnName: document_url
-                tableName: benefit_plans
+        - dropColumn:
+            columnName: document_url
+            tableName: benefit_plans
 
-- changeSet:
+  - changeSet:
       id: 1572414787135-2
       author: haibo-eb
       changes:
-          - dropColumn:
-                columnName: document_name
-                tableName: benefit_plans
+        - dropColumn:
+            columnName: document_name
+            tableName: benefit_plans
 
-- changeSet:
+  - changeSet:
       id: 1572414787135-3
       author: haibo-eb
       changes:
-          - createTable:
-                columns:
-                    - column:
-                          name: id
-                          type: binary(16)
-                          constraints:
-                              primaryKey: true
-                    - column:
-                          name: title
-                          type: varchar(255)
-                    - column:
-                          name: url
-                          type: varchar(255)
-                    - column:
-                          name: benefit_plan_id
-                          type: binary(16)
-                    - column:
-                          name: created_at
-                          type: DATETIME
-                    - column:
-                          name: updated_at
-                          type: DATETIME
-                tableName: benefit_plan_documents
+        - createTable:
+            columns:
+              - column:
+                  name: id
+                  type: binary(16)
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: title
+                  type: varchar(255)
+              - column:
+                  name: url
+                  type: varchar(255)
+              - column:
+                  name: benefit_plan_id
+                  type: binary(16)
+              - column:
+                  name: created_at
+                  type: DATETIME
+              - column:
+                  name: updated_at
+                  type: DATETIME
+            tableName: benefit_plan_documents
 
-- changeSet:
+  - changeSet:
       id: 1572414787135-4
       author: haibo-eb
       changes:
-          - addForeignKeyConstraint:
-                baseColumnNames: benefit_plan_id
-                baseTableName: benefit_plan_documents
-                constraintName: fk_benefit_plan_documents_benefit_plans
-                referencedColumnNames: id
-                referencedTableName: benefit_plans
+        - addForeignKeyConstraint:
+            baseColumnNames: benefit_plan_id
+            baseTableName: benefit_plan_documents
+            constraintName: fk_benefit_plan_documents_benefit_plans
+            referencedColumnNames: id
+            referencedTableName: benefit_plans
 
-- changeSet:
-    id: 1577669578961-1
-    author: michael-eb
-    changes:
-      - dropForeignKeyConstraint:
-          baseTableName: benefit_plan_documents
-          constraintName: fk_benefit_plan_documents_benefit_plans
+  - changeSet:
+      id: 1577669578961-1
+      author: michael-eb
+      changes:
+        - dropForeignKeyConstraint:
+            baseTableName: benefit_plan_documents
+            constraintName: fk_benefit_plan_documents_benefit_plans
 
-- changeSet:
-    id: 1577669578961-2
-    author: michael-eb
-    preConditions:
-      onFail: WARN
-    changes:
-      - addForeignKeyConstraint:
-          baseColumnNames: benefit_plan_id
-          baseTableName: benefit_plan_documents
-          constraintName: fk_benefit_plan_documents_benefit_plans
-          onDelete: CASCADE
-          onUpdate: CASCADE
-          referencedColumnNames: id
-          referencedTableName: benefit_plans
+  - changeSet:
+      id: 1577669578961-2
+      author: michael-eb
+      preConditions:
+        onFail: WARN
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: benefit_plan_id
+            baseTableName: benefit_plan_documents
+            constraintName: fk_benefit_plan_documents_benefit_plans
+            onDelete: CASCADE
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: benefit_plans
 
-- changeSet:
-    id: 1577669578961-3
-    author: michael-eb
-    preConditions:
-      onFail: WARN
-    changes:
-      - addColumn:
-          columns:
-            - column:
-                name: pdf_name
-                type: varchar(255)
-          tableName: benefit_plan_documents
+  - changeSet:
+      id: 1577669578961-3
+      author: michael-eb
+      preConditions:
+        onFail: WARN
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: pdf_name
+                  type: varchar(255)
+            tableName: benefit_plan_documents
 
-- changeSet:
-    id: 1577669578961-4
-    author: michael-eb
-    changes:
-      - dropColumn:
-          columnName: pdf_name
-          tableName: benefit_plan_documents
+  - changeSet:
+      id: 1577669578961-4
+      author: michael-eb
+      changes:
+        - dropColumn:
+            columnName: pdf_name
+            tableName: benefit_plan_documents
 
-- changeSet:
-    id: 1577669578961-5
-    author: michael-eb
-    preConditions:
-      onFail: WARN
-    changes:
-      - addColumn:
-          columns:
-            - column:
-                name: file_name
-                type: varchar(255)
-          tableName: benefit_plan_documents
+  - changeSet:
+      id: 1577669578961-5
+      author: michael-eb
+      preConditions:
+        onFail: WARN
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: file_name
+                  type: varchar(255)
+            tableName: benefit_plan_documents
 
-- changeSet:
-    id: 1578297937-1
-    author: lei-eb
-    changes:
-      - createTable:
-          columns:
-            - column:
-                name: id
-                type: binary(16)
-                constraints:
-                  primaryKey: true
-            - column:
-                name: company_id
-                type: binary(16)
-            - column:
-                name: automatic_rollover
-                type: bool
-                defaultValue: true
-            - column:
-                name: period_start_date
-                type: datetime
-            - column:
-                name: period_end_date
-                type: datetime
-            - column:
-                name: created_at
-                type: datetime
-            - column:
-                name: updated_at
-                type: datetime
-          tableName: company_benefits_setting
-
-
-- changeSet:
-    id: 1578297937-2
-    author: lei-eb
-    changes:
-      - createTable:
-          columns:
-            - column:
-                name: id
-                type: binary(16)
-                constraints:
-                  primaryKey: true
-            - column:
-                name: request_user_id
-                type: binary(16)
-            - column:
-                name: approver_user_id
-                type: binary(16)
-            - column:
-                name: life_event_type
-                type: binary(16)
-            - column:
-                name: life_event_date
-                type: datetime
-            - column:
-                name: prve_enrollment_id
-                type: binary(16)
-            - column:
-                name: next_enrollment_id
-                type: binary(16)
-            - column:
-                name: effective_date
-                type: datetime
-            - column:
-                name: request_status
-                type: binary(16)
-            - column:
-                name: created_at
-                type: datetime
-            - column:
-                name: updated_at
-                type: datetime
-          tableName: benefits_requests
-
-- changeSet:
-    id: 1578297937-3
-    author: lei-eb
-    changes:
-      - createTable:
-          columns:
-            - column:
-                name: id
-                type: binary(16)
-                constraints:
-                  primaryKey: true
-            - column:
-                name: benefit_plan_request_id
-                type: binary(16)
-            - column:
-                name: user_id
-                type: binary(16)
-            - column:
-                name: comment
-                type: text
-            - column:
-                name: created_at
-                type: datetime
-            - column:
-                name: updated_at
-                type: datetime
-          tableName: benefits_request_comments
-
-- changeSet:
-    id: 1578297937-4
-    author: lei-eb
-    changes:
-      - createTable:
-          columns:
-            - column:
-                name: id
-                type: binary(16)
-                constraints:
-                  primaryKey: true
-            - column:
-                name: title
-                type: varchar(255)
-            - column:
-                name: request_id
-                type: binary(16)
-            - column:
-                name: url
-                type: varchar(255)
-            - column:
-                name: created_at
-                type: datetime
-            - column:
-                name: updated_at
-                type: datetime
-          tableName: benefits_request_documents
-
-- changeSet:
-    id: 1578297937-5
-    author: lei-eb
-    changes:
-      - createTable:
-          columns:
-            - column:
-                name: id
-                type: binary(16)
-            - column:
-                name: name
-                type: varchar(100)
-            - column:
-                name: ref_id
-                type: INT
-            - column:
-                name: created_at
-                type: datetime
-            - column:
-                name: updated_at
-                type: datetime
-          tableName: benefit_request_status
-
-- changeSet:
-    id: 1578297937-6
-    author: lei-eb
-    changes:
-      - createTable:
-          columns:
-            - column:
-                name: id
-                type: binary(16)
-            - column:
-                name: name
-                type: varchar(100)
-            - column:
-                name: ref_id
-                type: INT
-            - column:
-                name: created_at
-                type: datetime
-            - column:
-                name: updated_at
-                type: datetime
-          tableName: benefit_life_event_types
-
-- changeSet:
-    id: 1578297937-7
-    author: lei-eb
-    changes:
-      - sql:
-          sql: create trigger ins_benefit_request_status before insert on benefit_request_status for each row set new.id = unhex(replace(uuid(), '-', ''));
-
-- changeSet:
-    id: 1578297937-8
-    author: lei-eb
-    changes:
-      - sql:
-          sql: create trigger ins_benefit_life_event_types before insert on benefit_life_event_types for each row set new.id = unhex(replace(uuid(), '-', ''));
+  - changeSet:
+      id: 1578297937-1
+      author: lei-eb
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  name: id
+                  type: binary(16)
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: company_id
+                  type: binary(16)
+              - column:
+                  name: automatic_rollover
+                  type: bool
+                  defaultValue: true
+              - column:
+                  name: period_start_date
+                  type: datetime
+              - column:
+                  name: period_end_date
+                  type: datetime
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: company_benefits_setting
 
 
-- changeSet:
-    id: 1578297937-9
-    author: lei-eb
-    runOnChange: true
-    changes:
-      - loadUpdateData:
-          columns:
-            - column:
-                name: name
-                type: STRING
-          file: db/changelog/data/request-approval-statuses.csv
-          primaryKey: id
-          tableName: benefit_request_status
+  - changeSet:
+      id: 1578297937-2
+      author: lei-eb
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  name: id
+                  type: binary(16)
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: request_user_id
+                  type: binary(16)
+              - column:
+                  name: approver_user_id
+                  type: binary(16)
+              - column:
+                  name: life_event_type
+                  type: binary(16)
+              - column:
+                  name: life_event_date
+                  type: datetime
+              - column:
+                  name: prve_enrollment_id
+                  type: binary(16)
+              - column:
+                  name: next_enrollment_id
+                  type: binary(16)
+              - column:
+                  name: effective_date
+                  type: datetime
+              - column:
+                  name: request_status
+                  type: binary(16)
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: benefits_requests
 
-- changeSet:
-    id: 1578297937-10
-    author: lei-eb
-    runOnChange: true
-    changes:
-      - loadUpdateData:
-          columns:
-            - column:
-                name: name
-                type: STRING
-          file: db/changelog/data/life-event-types.csv
-          primaryKey: id
-          tableName: benefit_life_event_types
+  - changeSet:
+      id: 1578297937-3
+      author: lei-eb
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  name: id
+                  type: binary(16)
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: benefit_plan_request_id
+                  type: binary(16)
+              - column:
+                  name: user_id
+                  type: binary(16)
+              - column:
+                  name: comment
+                  type: text
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: benefits_request_comments
 
-- changeSet:
-    id: 1578462794915-1
-    author: bin-eb
-    changes:
-      - sql:
-          sql: INSERT INTO company_benefits_setting(id, company_id, created_at, updated_at) SELECT unhex(replace(uuid(), '-', '')), id, created_at, updated_at FROM companies;
+  - changeSet:
+      id: 1578297937-4
+      author: lei-eb
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  name: id
+                  type: binary(16)
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: title
+                  type: varchar(255)
+              - column:
+                  name: request_id
+                  type: binary(16)
+              - column:
+                  name: url
+                  type: varchar(255)
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: benefits_request_documents
 
-- changeSet:
-    id: 1578462794915-2
-    author: bin-eb
-    preConditions:
-      onFail: WARN
-    changes:
-      - addForeignKeyConstraint:
-          baseColumnNames: company_id
-          baseTableName: company_benefits_setting
-          constraintName: fk_company_benefits_setting_companies
-          referencedColumnNames: id
-          referencedTableName: companies
+  - changeSet:
+      id: 1578297937-5
+      author: lei-eb
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  name: id
+                  type: binary(16)
+              - column:
+                  name: name
+                  type: varchar(100)
+              - column:
+                  name: ref_id
+                  type: INT
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: benefit_request_status
 
-- changeSet:
-    id: 1578622789013-1
-    author: bin-eb
-    changes:
-      - sql:
-          sql: TRUNCATE TABLE company_benefits_setting;
+  - changeSet:
+      id: 1578297937-6
+      author: lei-eb
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  name: id
+                  type: binary(16)
+              - column:
+                  name: name
+                  type: varchar(100)
+              - column:
+                  name: ref_id
+                  type: INT
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: benefit_life_event_types
 
-- changeSet:
-    id: 1578622789013-2
-    author: bin-eb
-    changes:
-      - sql:
-          sql: INSERT INTO company_benefits_setting(id, company_id, created_at, updated_at) SELECT unhex(replace(uuid(), '-', '')), id, created_at, updated_at FROM companies;
+  - changeSet:
+      id: 1578297937-7
+      author: lei-eb
+      changes:
+        - sql:
+            sql: create trigger ins_benefit_request_status before insert on benefit_request_status for each row set new.id = unhex(replace(uuid(), '-', ''));
 
-- changeSet:
-    id: 1578627246177-1
-    author: bin-eb
-    changes:
-      - createTable:
-          columns:
-            - column:
-                name: id
-                type: binary(16)
-                constraints:
-                  primaryKey: true
-            - column:
-                name: user_id
-                type: binary(16)
-            - column:
-                name: hidden_banner
-                type: bool
-                defaultValue: false
-            - column:
-                name: created_at
-                type: datetime
-            - column:
-                name: updated_at
-                type: datetime
-          tableName: user_benefits_setting
+  - changeSet:
+      id: 1578297937-8
+      author: lei-eb
+      changes:
+        - sql:
+            sql: create trigger ins_benefit_life_event_types before insert on benefit_life_event_types for each row set new.id = unhex(replace(uuid(), '-', ''));
 
-- changeSet:
-    id: 1578627246177-2
-    author: bin-eb
-    preConditions:
-      onFail: WARN
-    changes:
-      - addForeignKeyConstraint:
-          baseColumnNames: user_id
-          baseTableName: user_benefits_setting
-          constraintName: fk_user_benefits_setting_users
-          referencedColumnNames: id
-          referencedTableName: users
 
-- changeSet:
-    id: 1578627246177-3
-    author: bin-eb
-    changes:
-      - sql:
-          sql: INSERT INTO user_benefits_setting(id, user_id, created_at, updated_at) SELECT unhex(replace(uuid(), '-', '')), id, created_at, updated_at FROM users;
+  - changeSet:
+      id: 1578297937-9
+      author: lei-eb
+      runOnChange: true
+      changes:
+        - loadUpdateData:
+            columns:
+              - column:
+                  name: name
+                  type: STRING
+            file: db/changelog/data/request-approval-statuses.csv
+            primaryKey: id
+            tableName: benefit_request_status
+
+  - changeSet:
+      id: 1578297937-10
+      author: lei-eb
+      runOnChange: true
+      changes:
+        - loadUpdateData:
+            columns:
+              - column:
+                  name: name
+                  type: STRING
+            file: db/changelog/data/life-event-types.csv
+            primaryKey: id
+            tableName: benefit_life_event_types
+
+  - changeSet:
+      id: 1578462794915-1
+      author: bin-eb
+      changes:
+        - sql:
+            sql: INSERT INTO company_benefits_setting(id, company_id, created_at, updated_at) SELECT unhex(replace(uuid(), '-', '')), id, created_at, updated_at FROM companies;
+
+  - changeSet:
+      id: 1578462794915-2
+      author: bin-eb
+      preConditions:
+        onFail: WARN
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: company_id
+            baseTableName: company_benefits_setting
+            constraintName: fk_company_benefits_setting_companies
+            referencedColumnNames: id
+            referencedTableName: companies
+
+  - changeSet:
+      id: 1578622789013-1
+      author: bin-eb
+      changes:
+        - sql:
+            sql: TRUNCATE TABLE company_benefits_setting;
+
+  - changeSet:
+      id: 1578622789013-2
+      author: bin-eb
+      changes:
+        - sql:
+            sql: INSERT INTO company_benefits_setting(id, company_id, created_at, updated_at) SELECT unhex(replace(uuid(), '-', '')), id, created_at, updated_at FROM companies;
+
+  - changeSet:
+      id: 1578627246177-1
+      author: bin-eb
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  name: id
+                  type: binary(16)
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: user_id
+                  type: binary(16)
+              - column:
+                  name: hidden_banner
+                  type: bool
+                  defaultValue: false
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: user_benefits_setting
+
+  - changeSet:
+      id: 1578627246177-2
+      author: bin-eb
+      preConditions:
+        onFail: WARN
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: user_id
+            baseTableName: user_benefits_setting
+            constraintName: fk_user_benefits_setting_users
+            referencedColumnNames: id
+            referencedTableName: users
+
+  - changeSet:
+      id: 1578627246177-3
+      author: bin-eb
+      changes:
+        - sql:
+            sql: INSERT INTO user_benefits_setting(id, user_id, created_at, updated_at) SELECT unhex(replace(uuid(), '-', '')), id, created_at, updated_at FROM users;

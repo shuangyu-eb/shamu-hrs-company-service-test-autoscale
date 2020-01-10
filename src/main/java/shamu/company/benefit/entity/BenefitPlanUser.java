@@ -22,11 +22,10 @@ import shamu.company.user.entity.User;
 @AllArgsConstructor
 public class BenefitPlanUser extends BaseEntity {
 
-  @ManyToOne
-  private User user;
+  private static final long serialVersionUID = -8832052174026081439L;
+  @ManyToOne private User user;
 
-  @ManyToOne
-  private BenefitPlan benefitPlan;
+  @ManyToOne private BenefitPlan benefitPlan;
 
   @ManyToOne
   @JoinColumn(name = "coverage_id")
@@ -41,4 +40,5 @@ public class BenefitPlanUser extends BaseEntity {
       inverseJoinColumns = @JoinColumn(name = "user_dependents_id"))
   private Set<BenefitPlanDependent> benefitPlanDependents;
 
+  private Boolean confirmed;
 }

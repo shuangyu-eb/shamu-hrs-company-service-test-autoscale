@@ -1,6 +1,7 @@
 package shamu.company.benefit.controller;
 
 import java.util.List;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -38,7 +39,6 @@ import shamu.company.employee.dto.SelectFieldInformationDto;
 @Validated
 public class BenefitPlanRestController extends BaseRestController {
 
-
   private final BenefitPlanService benefitPlanService;
 
   private final BenefitPlanTypeService benefitPlanTypeService;
@@ -46,7 +46,6 @@ public class BenefitPlanRestController extends BaseRestController {
   private final BenefitPlanMapper benefitPlanMapper;
 
   private final BenefitPlanTypeMapper benefitPlanTypeMapper;
-
 
   public BenefitPlanRestController(
       final BenefitPlanService benefitPlanService,
@@ -74,18 +73,21 @@ public class BenefitPlanRestController extends BaseRestController {
 
   @PatchMapping("benefit-plans/{id}")
   @PreAuthorize("hasPermission(#id,'BENEFIT_PLAN', 'MANAGE_BENEFIT_PLAN')")
-  public BenefitPlanDto updateBenefitPlan(@RequestBody final NewBenefitPlanWrapperDto data,
-      @PathVariable final String id) {
+  public BenefitPlanDto updateBenefitPlan(
+      @RequestBody final NewBenefitPlanWrapperDto data, @PathVariable final String id) {
     return benefitPlanService.updateBenefitPlan(data, id, findCompanyId());
   }
 
   @PostMapping("benefit-plan/{id}/document")
   @PreAuthorize("hasPermission(#id,'BENEFIT_PLAN', 'MANAGE_BENEFIT_PLAN')")
-  public ResponseEntity uploadBenefitPlanDocument(@PathVariable final String id,
+  public ResponseEntity uploadBenefitPlanDocument(
+      @PathVariable final String id,
       @RequestParam("file")
-      //TODO: Need an appropriate file size.
-      @FileValidate(maxSize = 10 * 1024 * 1024, fileType = {"PDF"})
-      final List<MultipartFile> files,
+          // TODO: Need an appropriate file size.
+          @FileValidate(
+              maxSize = 10 * 1024 * 1024,
+              fileType = {"PDF"})
+          final List<MultipartFile> files,
       @RequestParam("title") final List<String> fileTitles) {
     benefitPlanService.saveBenefitPlanDocuments(id, files, fileTitles);
     return new ResponseEntity(HttpStatus.OK);
@@ -97,29 +99,27 @@ public class BenefitPlanRestController extends BaseRestController {
   }
 
   @GetMapping("benefit-plan-types/{planTypeId}/plan-preview")
-  public List<BenefitPlanPreviewDto> getBenefitPlanPreview(
-      @PathVariable final String planTypeId) {
+  public List<BenefitPlanPreviewDto> getBenefitPlanPreview(@PathVariable final String planTypeId) {
     return benefitPlanService.getBenefitPlanPreview(findCompanyId(), planTypeId);
   }
 
   @PatchMapping("benefit-plan/{benefitPlanId}/users")
   @PreAuthorize("hasPermission(#benefitPlanId,'BENEFIT_PLAN', 'MANAGE_BENEFIT_PLAN')")
-  public void updateBenefitPlanUsers(@PathVariable final String benefitPlanId,
+  public void updateBenefitPlanUsers(
+      @PathVariable final String benefitPlanId,
       @RequestBody final List<BenefitPlanUserCreateDto> benefitPlanUsers) {
     benefitPlanService.updateBenefitPlanUsers(benefitPlanId, benefitPlanUsers);
   }
 
   @GetMapping("my-benefit/{userId}/benefit-summary")
   @PreAuthorize("hasPermission(#userId,'USER','VIEW_SELF_BENEFITS')")
-  public BenefitSummaryDto getEnrolledBenefitNumber(
-      @PathVariable final String userId) {
+  public BenefitSummaryDto getEnrolledBenefitNumber(@PathVariable final String userId) {
     return benefitPlanService.getBenefitSummary(userId);
   }
 
   @GetMapping("users/{userId}/benefit-plans")
   @PreAuthorize("hasPermission(#userId,'USER','VIEW_SELF_BENEFITS')")
-  public List<UserBenefitPlanDto> getUserBenefitPlans(
-      @PathVariable final String userId) {
+  public List<UserBenefitPlanDto> getUserBenefitPlans(@PathVariable final String userId) {
     return benefitPlanService.getUserBenefitPlans(userId);
   }
 
@@ -132,8 +132,7 @@ public class BenefitPlanRestController extends BaseRestController {
 
   @GetMapping("users/{userId}/benefit-info")
   @PreAuthorize("hasPermission(#userId,'USER','VIEW_SELF_BENEFITS')")
-  public List<UserBenefitPlanDto> getUserAvailableBenefitPlans(
-      @PathVariable final String userId) {
+  public List<UserBenefitPlanDto> getUserAvailableBenefitPlans(@PathVariable final String userId) {
     return benefitPlanService.getUserAvailableBenefitPlans(userId);
   }
 
@@ -145,8 +144,7 @@ public class BenefitPlanRestController extends BaseRestController {
 
   @GetMapping("benefit-plans/{id}")
   @PreAuthorize("hasPermission(#id,'BENEFIT_PLAN', 'MANAGE_BENEFIT_PLAN')")
-  public BenefitPlanUpdateDto getBenefitPlan(
-      @PathVariable final String id) {
+  public BenefitPlanUpdateDto getBenefitPlan(@PathVariable final String id) {
     return benefitPlanService.getBenefitPlanByPlanId(id);
   }
 
@@ -155,7 +153,22 @@ public class BenefitPlanRestController extends BaseRestController {
   public void updateSelectedBenefitEnrollmentInfo(
       @RequestBody final List<SelectedEnrollmentInfoDto> selectedInfos) {
     final String userId = findAuthUser().getId();
-    benefitPlanService.updateUserBenefitPlanEnrollmentInfo(userId,
-        selectedInfos, findCompanyId());
+    benefitPlanService.updateUserBenefitPlanEnrollmentInfo(userId, selectedInfos, findCompanyId());
+  }
+
+  @PatchMapping("users/benefit-confirmation")
+  @PreAuthorize("hasAuthority('EDIT_SELF')")
+  public HttpEntity confirmBenefitEnrollmentInfo(
+      @RequestBody final List<SelectedEnrollmentInfoDto> selectedInfos) {
+    final String userId = findAuthUser().getId();
+    benefitPlanService.confirmBenefitPlanEnrollment(userId, selectedInfos, findCompanyId());
+    return new ResponseEntity(HttpStatus.OK);
+  }
+
+  @GetMapping("users/benefit-plans/has-confirmation")
+  @PreAuthorize("hasAuthority('VIEW_SELF_BENEFITS')")
+  public boolean hasConfirmation() {
+    final String userId = findAuthUser().getId();
+    return benefitPlanService.isConfirmed(userId);
   }
 }
