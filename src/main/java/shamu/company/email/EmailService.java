@@ -136,7 +136,7 @@ public class EmailService {
     return context;
   }
 
-  private String getEncodedEmailAddress(final String emailAddress) {
+  public String getEncodedEmailAddress(final String emailAddress) {
     if (Strings.isBlank(emailAddress) || !Pattern.matches("^[a-zA-Z0-9@.+]*$", emailAddress)) {
       return "";
     }

@@ -253,6 +253,12 @@ public class EmployeeService {
 
     final Email emailInfo = findWelcomeEmail(originalEmail, user.getCompany().getName());
     emailInfo.setSendDate(Timestamp.from(Instant.now()));
+    if (emailInfo.getContent() != null && originalEmail != email) {
+      final String originalEmailAddress = emailService.getEncodedEmailAddress(originalEmail);
+      final String emailAddress = emailService.getEncodedEmailAddress(email);
+      String newContent = emailInfo.getContent().replace(originalEmailAddress, emailAddress);
+      emailInfo.setContent(newContent);
+    }
     emailInfo.setTo(email);
     emailService.saveAndScheduleEmail(emailInfo);
   }
