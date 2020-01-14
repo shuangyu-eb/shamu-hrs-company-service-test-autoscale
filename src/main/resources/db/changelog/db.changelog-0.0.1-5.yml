@@ -854,43 +854,58 @@ databaseChangeLog:
             tableName: benefit_life_event_types
 
   - changeSet:
-      id: 1578462794915-1
-      author: bin-eb
-      changes:
-        - sql:
-            sql: INSERT INTO company_benefits_setting(id, company_id, created_at, updated_at) SELECT unhex(replace(uuid(), '-', '')), id, created_at, updated_at FROM companies;
-
-  - changeSet:
-      id: 1578462794915-2
+      id: 1578910827388-1
       author: bin-eb
       preConditions:
-        onFail: WARN
+        onFail: MARK_RAN
+        tableExists:
+          tableName: company_benefits_setting
       changes:
-        - addForeignKeyConstraint:
-            baseColumnNames: company_id
-            baseTableName: company_benefits_setting
-            constraintName: fk_company_benefits_setting_companies
-            referencedColumnNames: id
-            referencedTableName: companies
+        - dropTable:
+            tableName: company_benefits_setting
 
   - changeSet:
-      id: 1578622789013-1
+      id: 1578910827388-2
       author: bin-eb
+      preConditions:
+        onFail: MARK_RAN
+        tableExists:
+          tableName: user_benefits_setting
       changes:
-        - sql:
-            sql: TRUNCATE TABLE company_benefits_setting;
+        - dropTable:
+            tableName: user_benefits_setting
 
   - changeSet:
-      id: 1578622789013-2
+      id: 1578910827388-3
       author: bin-eb
       changes:
-        - sql:
-            sql: INSERT INTO company_benefits_setting(id, company_id, created_at, updated_at) SELECT unhex(replace(uuid(), '-', '')), id, created_at, updated_at FROM companies;
-
-  - changeSet:
-      id: 1578627246177-1
-      author: bin-eb
-      changes:
+        - createTable:
+            columns:
+              - column:
+                  name: id
+                  type: binary(16)
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: company_id
+                  type: binary(16)
+              - column:
+                  name: automatic_rollover
+                  type: bool
+                  defaultValue: true
+              - column:
+                  name: period_start_date
+                  type: datetime
+              - column:
+                  name: period_end_date
+                  type: datetime
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: company_benefits_setting
         - createTable:
             columns:
               - column:
@@ -914,24 +929,36 @@ databaseChangeLog:
             tableName: user_benefits_setting
 
   - changeSet:
-      id: 1578627246177-2
+      id: 1578910827388-4
       author: bin-eb
       preConditions:
         onFail: WARN
       changes:
         - addForeignKeyConstraint:
+            baseColumnNames: company_id
+            baseTableName: company_benefits_setting
+            constraintName: fk_company_benefits_setting_companies
+            onDelete: CASCADE
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: companies
+        - addForeignKeyConstraint:
             baseColumnNames: user_id
             baseTableName: user_benefits_setting
             constraintName: fk_user_benefits_setting_users
+            onDelete: CASCADE
+            onUpdate: CASCADE
             referencedColumnNames: id
             referencedTableName: users
 
   - changeSet:
-      id: 1578627246177-3
+      id: 1578910827388-5
       author: bin-eb
       changes:
         - sql:
-            sql: INSERT INTO user_benefits_setting(id, user_id, created_at, updated_at) SELECT unhex(replace(uuid(), '-', '')), id, created_at, updated_at FROM users;
+            sql: INSERT INTO company_benefits_setting(id, company_id, created_at, updated_at) SELECT unhex(md5(uuid())), id, created_at, updated_at FROM companies;
+        - sql:
+            sql: INSERT INTO user_benefits_setting(id, user_id, created_at, updated_at) SELECT unhex(md5(uuid())), id, created_at, updated_at FROM users;
 
   - changeSet:
       id: 1578904300143-1
