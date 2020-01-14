@@ -20,6 +20,7 @@ public interface BenefitPlanCoverageMapper {
 
   @Mapping(target = "name", source = "benefitPlanCoverageDto.coverageName")
   @Mapping(target = "id", source = "benefitPlanCoverageDto.id")
+  @Mapping(target = "benefitPlanId", source = "benefitPlan.id")
   @Mapping(target = "createdAt", ignore = true)
   @Mapping(target = "updatedAt", ignore = true)
   BenefitPlanCoverage updateFromBenefitPlanCoverageAndBenefitPlan(
