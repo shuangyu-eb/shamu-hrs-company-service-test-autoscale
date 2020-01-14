@@ -91,7 +91,7 @@ public class Encryptor {
   }
 
   private String getUserHash(final User user) {
-    return auth0Helper.getUserSecret(user.getId());
+    return auth0Helper.getUserSecret(user);
   }
 
   private String getCompanyHash(final User user) {

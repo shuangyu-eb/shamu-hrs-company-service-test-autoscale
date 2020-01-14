@@ -24,22 +24,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
 import okhttp3.OkHttpClient.Builder;
 import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
 import shamu.company.common.exception.AbstractException;
 import shamu.company.common.exception.GeneralAuth0Exception;
 import shamu.company.common.exception.GeneralException;
+import shamu.company.common.exception.NonUniqueAuth0ResourceException;
+import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.common.exception.TooManyRequestException;
+import shamu.company.sentry.SentryLogger;
 
 @Component
-@Slf4j
 public class Auth0Helper {
+
+  private static final SentryLogger log = new SentryLogger(Auth0Helper.class);
 
   private static final String MANAGEMENT_API = "managementApi";
   private static final String AUTH_API = "authApi";
@@ -122,7 +124,8 @@ public class Auth0Helper {
     return true;
   }
 
-  public User findByEmail(final String email) {
+  public User findByEmail(final String emailRaw) {
+    final String email = emailRaw.toLowerCase();
     final ManagementAPI manager = auth0Manager.getManagementApi();
     final Request<List<User>> userRequest = manager.users()
         .listByEmail(email, null);
@@ -133,11 +136,12 @@ public class Auth0Helper {
       throw handleAuth0Exception(e, MANAGEMENT_API);
     }
 
-    if (users.size() > 1) {
-      throw new GeneralAuth0Exception(
-          "Multiple account with same email address exist.");
+    if (users.isEmpty()) {
+      log.info("Unable to find a user with email " + email + ".");
+      return null;
     }
-    return !users.isEmpty() ? users.get(0) : null;
+
+    return users.get(0);
   }
 
   public Boolean existsByEmail(final String email) {
@@ -145,9 +149,6 @@ public class Auth0Helper {
   }
 
   public User getUserByUserIdFromAuth0(final String userId) {
-    if (StringUtils.isEmpty(userId)) {
-      return null;
-    }
     final ManagementAPI manager = auth0Manager.getManagementApi();
     UserFilter userFilter = new UserFilter();
     userFilter = userFilter
@@ -163,20 +164,42 @@ public class Auth0Helper {
     }
 
     final List<User> users = usersPage.getItems();
+
     if (users.size() > 1) {
-      throw new GeneralAuth0Exception(
-          "Multiple account with same email address exist.");
+      throw new NonUniqueAuth0ResourceException(
+          "Multiple Auth0 users with the same id exist.");
     }
 
-    return CollectionUtils.isEmpty(users) ? null : users.get(0);
+    if (users.isEmpty()) {
+      log.info("No Auth0 user with id " + userId + ".");
+      return null;
+    }
+
+    return users.get(0);
   }
 
-  public List<String> getPermissionBy(final String userId) {
-    final User user = getUserByUserIdFromAuth0(userId);
+  public User getAuth0UserByIdWithByEmailFailover(final String userId, final String email) {
+    final User emptyUser = new User();
+    try {
+      User user = getUserByUserIdFromAuth0(userId);
+      if (user == null) {
+        log.info("Unable to find a user with id " + userId + ". Attempting with email.");
+        user = findByEmail(email);
+      }
+      return user == null ? emptyUser : user;
+    } catch (final NonUniqueAuth0ResourceException e) {
+      log.error("User id " + userId + " matches more than 1 Auth0 user.", e);
+      return emptyUser;
+    }
+  }
+
+  public List<String> getPermissionBy(final shamu.company.user.entity.User user) {
+    final String userWorkEmail = user.getUserContactInformation().getEmailWork();
+    final User auth0User = getAuth0UserByIdWithByEmailFailover(user.getId(), userWorkEmail);
 
     final ManagementAPI manager = auth0Manager.getManagementApi();
     final Request<PermissionsPage> permissionsPageRequest = manager.users()
-        .listPermissions(user.getId(), new PageFilter().withPage(0, 100));
+        .listPermissions(auth0User.getId(), new PageFilter().withPage(0, 100));
 
     final PermissionsPage permissionsPage;
     try {
@@ -185,7 +208,8 @@ public class Auth0Helper {
           .stream().map(Permission::getName)
           .collect(Collectors.toList());
     } catch (final Auth0Exception e) {
-      throw new GeneralAuth0Exception("Get permission error with auth0UserId: " + user.getId(), e);
+      throw new GeneralAuth0Exception(
+        "Get permission error with auth0UserId: " + auth0User.getId(), e);
     }
   }
 
@@ -203,9 +227,10 @@ public class Auth0Helper {
     }
   }
 
-  public void updateEmail(final String userId, final String newEmail) {
+  public void updateEmail(final shamu.company.user.entity.User user, final String newEmail) {
     final ManagementAPI manager = auth0Manager.getManagementApi();
-    final com.auth0.json.mgmt.users.User authUser = getUserByUserIdFromAuth0(userId);
+    final String userWorkEmail = user.getUserContactInformation().getEmailWork();
+    final User authUser = getAuth0UserByIdWithByEmailFailover(user.getId(), userWorkEmail);
     try {
       final User emailUpdateUser = new User();
       emailUpdateUser.setEmail(newEmail);
@@ -291,21 +316,23 @@ public class Auth0Helper {
     }
   }
 
-  public shamu.company.user.entity.User.Role getUserRole(final String userId) {
+  public shamu.company.user.entity.User.Role getUserRole(
+      final shamu.company.user.entity.User user) {
     try {
-      final User user = getUserByUserIdFromAuth0(userId);
-      if (user == null) {
+      final String userWorkEmail = user.getUserContactInformation().getEmailWork();
+      final User auth0User = getAuth0UserByIdWithByEmailFailover(user.getId(), userWorkEmail);
+      if (auth0User == null) {
         throw new GeneralAuth0Exception(
-            String.format("Cannot get Auth0 user with user id %s", userId));
+            String.format("Cannot get Auth0 user with user id %s", user.getId()));
       }
 
       final ManagementAPI manager = auth0Manager.getManagementApi();
-      final Request<RolesPage> userRoleRequest = manager.users().listRoles(user.getId(), null);
+      final Request<RolesPage> userRoleRequest = manager.users().listRoles(auth0User.getId(), null);
       final RolesPage rolePages = userRoleRequest.execute();
       final List<Role> roles = rolePages.getItems();
 
       if (roles.size() != 1) {
-        log.error("User has wrong role size with email: " + user.getEmail());
+        log.error("User has wrong role size with email: " + auth0User.getEmail());
       }
       final Role targetRole = roles.stream()
           .min(Comparator
@@ -319,9 +346,10 @@ public class Auth0Helper {
     }
   }
 
-  public void updateRoleWithUserId(final String userId, final String targetRoleName) {
-    final User user = getUserByUserIdFromAuth0(userId);
-    updateAuthRole(user.getId(), targetRoleName);
+  public void updateRole(final shamu.company.user.entity.User user, final String targetRoleName) {
+    final String userWorkEmail = user.getUserContactInformation().getEmailWork();
+    final User auth0User = getAuth0UserByIdWithByEmailFailover(user.getId(), userWorkEmail);
+    updateAuthRole(auth0User.getId(), targetRoleName);
   }
 
   public void updateAuthRole(final String auth0UserId, final String updatedRole) {
@@ -362,9 +390,10 @@ public class Auth0Helper {
 
   }
 
-  public String getUserSecret(final String userId) {
-    final User user = getUserByUserIdFromAuth0(userId);
-    final Map<String, Object> appMetaData = user.getAppMetadata();
+  public String getUserSecret(final shamu.company.user.entity.User user) {
+    final String userWorkEmail = user.getUserContactInformation().getEmailWork();
+    final User auth0User = getAuth0UserByIdWithByEmailFailover(user.getId(), userWorkEmail);
+    final Map<String, Object> appMetaData = auth0User.getAppMetadata();
     return (String) appMetaData.get("userSecret");
   }
 

@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import shamu.company.common.exception.GeneralAuth0Exception;
+import shamu.company.common.exception.NonUniqueAuth0ResourceException;
 import shamu.company.helpers.auth0.Auth0Config;
 import shamu.company.helpers.auth0.Auth0Helper;
 import shamu.company.helpers.auth0.Auth0Manager;
@@ -28,12 +28,9 @@ class Auth0HelperTests {
 
   private final Auth0Config auth0Config = new Auth0Config();
   private Auth0Helper auth0Helper;
-  @Mock
-  private Auth0Manager auth0Manager;
-  @Mock
-  private ManagementAPI managementAPI;
-  @Mock
-  private UsersEntity usersEntity;
+  @Mock private Auth0Manager auth0Manager;
+  @Mock private ManagementAPI managementAPI;
+  @Mock private UsersEntity usersEntity;
 
   @BeforeEach
   void init() {
@@ -51,8 +48,8 @@ class Auth0HelperTests {
     final Request mockedRequest = Mockito.mock(Request.class);
     Mockito.when(usersEntity.update(Mockito.any(), Mockito.any(User.class)))
         .thenReturn(mockedRequest);
-    Assertions.assertDoesNotThrow(() -> auth0Helper.updatePassword(new User(),
-        RandomStringUtils.randomAlphabetic(10)));
+    Assertions.assertDoesNotThrow(
+        () -> auth0Helper.updatePassword(new User(), RandomStringUtils.randomAlphabetic(10)));
   }
 
   @Test
@@ -87,14 +84,12 @@ class Auth0HelperTests {
   @Nested
   class GetUserByUserIdFromAuth0 {
 
-
     Request mockedUserRequest;
 
     @BeforeEach
     void setUp() {
       mockedUserRequest = Mockito.mock(Request.class);
-      Mockito.when(usersEntity.list(Mockito.any()))
-          .thenReturn(mockedUserRequest);
+      Mockito.when(usersEntity.list(Mockito.any())).thenReturn(mockedUserRequest);
     }
 
     @Test
@@ -107,9 +102,11 @@ class Auth0HelperTests {
       Mockito.when(mockUsersPage.getItems()).thenReturn(fakeUsersResult);
 
       Mockito.when(mockedUserRequest.execute()).thenReturn(mockUsersPage);
-      Assertions.assertThrows(GeneralAuth0Exception.class, () -> {
-        auth0Helper.getUserByUserIdFromAuth0(RandomStringUtils.randomAlphabetic(10));
-      });
+      Assertions.assertThrows(
+          NonUniqueAuth0ResourceException.class,
+          () -> {
+            auth0Helper.getUserByUserIdFromAuth0(RandomStringUtils.randomAlphabetic(10));
+          });
     }
 
     @Test
@@ -120,9 +117,10 @@ class Auth0HelperTests {
 
       Mockito.when(mockUsersPage.getItems()).thenReturn(fakeUsersResult);
       Mockito.when(mockedUserRequest.execute()).thenReturn(mockUsersPage);
-      Assertions.assertDoesNotThrow(() -> {
-        auth0Helper.getUserByUserIdFromAuth0(RandomStringUtils.randomAlphabetic(10));
-      });
+      Assertions.assertDoesNotThrow(
+          () -> {
+            auth0Helper.getUserByUserIdFromAuth0(RandomStringUtils.randomAlphabetic(10));
+          });
     }
   }
 }

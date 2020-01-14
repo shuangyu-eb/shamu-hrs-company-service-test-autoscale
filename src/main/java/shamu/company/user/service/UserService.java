@@ -56,6 +56,7 @@ import shamu.company.job.service.JobService;
 import shamu.company.job.service.JobUserService;
 import shamu.company.redis.AuthUserCacheManager;
 import shamu.company.scheduler.DynamicScheduler;
+import shamu.company.sentry.SentryLogger;
 import shamu.company.server.dto.AuthUser;
 import shamu.company.timeoff.service.PaidHolidayService;
 import shamu.company.user.dto.AccountInfoDto;
@@ -89,6 +90,8 @@ import shamu.company.utils.UuidUtil;
 @Service
 @Transactional
 public class UserService {
+
+  private static final SentryLogger log = new SentryLogger(UserService.class);
 
   private static final String ERROR_MESSAGE = "User does not exist!";
   private final UserRepository userRepository;
@@ -189,7 +192,7 @@ public class UserService {
   public void cacheUser(final String token, final String userId) {
     final User user = findById(userId);
     final AuthUser authUser = userMapper.convertToAuthUser(user);
-    final List<String> permissions = auth0Helper.getPermissionBy(user.getId());
+    final List<String> permissions = auth0Helper.getPermissionBy(user);
     authUser.setPermissions(permissions);
     authUserCacheManager.cacheAuthUser(token, authUser);
   }
@@ -333,18 +336,20 @@ public class UserService {
   }
 
   public void createPassword(final CreatePasswordDto createPasswordDto) {
-    final User user = userRepository.findByEmailWork(createPasswordDto.getEmailWork());
+    final String userWorkEmail = createPasswordDto.getEmailWork();
+    final User user = userRepository.findByEmailWork(userWorkEmail);
 
     if (user == null
         || !createPasswordDto.getResetPasswordToken().equals(user.getResetPasswordToken())) {
       throw new ResourceNotFoundException(String
-          .format("The user with email %s does not exist.", createPasswordDto.getEmailWork()));
+          .format("The user with email %s does not exist.", userWorkEmail));
     }
 
-    final com.auth0.json.mgmt.users.User authUser =
-        auth0Helper.getUserByUserIdFromAuth0(user.getId());
+    final com.auth0.json.mgmt.users.User authUser;
 
-    if (authUser == null) {
+    try {
+      authUser = auth0Helper.getAuth0UserByIdWithByEmailFailover(user.getId(), userWorkEmail);
+    } catch (final ResourceNotFoundException e) {
       throw new ForbiddenException(String.format("Cannot find user with email %s",
           createPasswordDto.getEmailWork()));
     }
@@ -431,7 +436,10 @@ public class UserService {
 
     adjustUserManagerRelationshipBeforeDeleteOrDeactivate(employee);
 
-    auth0Helper.deleteUser(auth0Helper.getUserByUserIdFromAuth0(employee.getId()).getId());
+    final String employeeWorkEmail = employee.getUserContactInformation().getEmailWork();
+
+    auth0Helper.deleteUser(auth0Helper.getAuth0UserByIdWithByEmailFailover(
+        employee.getId(), employeeWorkEmail).getId());
 
     userRepository.delete(employee);
 

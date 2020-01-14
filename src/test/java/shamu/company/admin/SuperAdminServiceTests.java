@@ -55,7 +55,7 @@ class SuperAdminServiceTests {
     Mockito.when(userService.findActiveUserById(userId)).thenReturn(user);
 
     final List<String> permissions = new ArrayList<>();
-    Mockito.when(auth0Helper.getPermissionBy(userId)).thenReturn(permissions);
+    Mockito.when(auth0Helper.getPermissionBy(user)).thenReturn(permissions);
 
     final MockUserDto mockUserDto = new MockUserDto();
     mockUserDto.setId(userId);

@@ -244,7 +244,7 @@ public class EmployeeService {
         throw new ForbiddenException("This email already exists!");
       }
 
-      auth0Helper.updateEmail(user.getId(), emailResendDto.getEmail());
+      auth0Helper.updateEmail(user, emailResendDto.getEmail());
       applicationEventPublisher
           .publishEvent(new UserEmailUpdatedEvent(user.getId(), originalEmail));
       user.getUserContactInformation().setEmailWork(email);
@@ -630,6 +630,7 @@ public class EmployeeService {
   @TransactionalEventListener(phase = TransactionPhase.AFTER_ROLLBACK)
   @SuppressWarnings("unused")
   public void restoreUserRole(final UserEmailUpdatedEvent userEmailUpdatedEvent) {
-    auth0Helper.updateEmail(userEmailUpdatedEvent.getUserId(), userEmailUpdatedEvent.getEmail());
+    final User user = userService.findById(userEmailUpdatedEvent.getUserId());
+    auth0Helper.updateEmail(user, userEmailUpdatedEvent.getEmail());
   }
 }

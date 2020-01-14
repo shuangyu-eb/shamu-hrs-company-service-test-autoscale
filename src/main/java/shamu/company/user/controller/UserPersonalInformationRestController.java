@@ -88,7 +88,7 @@ public class UserPersonalInformationRestController extends BaseRestController {
     final User targetUser = userService.findById(id);
     final UserRoleAndStatusInfoDto resultInformation = userMapper
         .convertToUserRoleAndStatusInfoDto(targetUser);
-    final Role userRole = auth0Helper.getUserRole(targetUser.getId());
+    final Role userRole = auth0Helper.getUserRole(targetUser);
     resultInformation.setUserRole(userRole.getValue());
     return resultInformation;
   }

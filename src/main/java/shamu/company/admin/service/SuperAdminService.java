@@ -51,7 +51,7 @@ public class SuperAdminService {
     final AuthUser authUser = userMapper.convertToAuthUser(user);
     final MockUserDto mockUserDto = userMapper.convertToMockUserDto(user);
     final List<String> permissions = auth0Helper
-        .getPermissionBy(user.getId());
+        .getPermissionBy(user);
     authUser.setPermissions(permissions);
     authUserCacheManager.cacheAuthUser(token, authUser);
     mockUserDto.setPermissions(permissions);

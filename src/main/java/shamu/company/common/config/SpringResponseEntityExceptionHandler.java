@@ -15,6 +15,7 @@ import shamu.company.common.exception.EmailException;
 import shamu.company.common.exception.FileValidateException;
 import shamu.company.common.exception.ForbiddenException;
 import shamu.company.common.exception.GeneralAuth0Exception;
+import shamu.company.common.exception.NonUniqueAuth0ResourceException;
 import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.common.exception.TooManyRequestException;
 import shamu.company.common.exception.UnAuthenticatedException;
@@ -86,6 +87,12 @@ public class SpringResponseEntityExceptionHandler {
   @ExceptionHandler(GeneralAuth0Exception.class)
   public ErrorMessage handleAuth0Exception(final GeneralAuth0Exception exception) {
     return new ErrorMessage(ErrorType.AUTH0_EXCEPTION, exception.getMessage());
+  }
+
+  @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+  @ExceptionHandler(NonUniqueAuth0ResourceException.class)
+  public ErrorMessage handleAuth0Exception(final NonUniqueAuth0ResourceException exception) {
+    return new ErrorMessage(ErrorType.NON_UNIQUE_AUTH0_RESOURCE, exception.getMessage());
   }
 
   @ResponseStatus(HttpStatus.TOO_MANY_REQUESTS)

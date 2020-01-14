@@ -251,7 +251,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
     final User existingUser = entityManager.find(User.class, user.getId());
 
     if (existingUser != null && existingUser.getRole() != user.getRole()) {
-      auth0Helper.updateRoleWithUserId(existingUser.getId(), user.getUserRole().getName());
+      auth0Helper.updateRole(existingUser, user.getUserRole().getName());
       applicationEventPublisher.publishEvent(new UserRoleUpdatedEvent(existingUser.getId(),
           existingUser.getUserRole()));
     }

@@ -133,7 +133,7 @@ public class TimeOffRequestService {
         .map(TimeOffApprovalStatus::name).collect(Collectors.toList());
 
     final User.Role userRole = auth0Helper
-        .getUserRole(user.getId());
+        .getUserRole(user);
 
     final List<TimeOffRequest> result;
     final List<TimeOffRequest> selfPendingRequests = timeOffRequestRepository

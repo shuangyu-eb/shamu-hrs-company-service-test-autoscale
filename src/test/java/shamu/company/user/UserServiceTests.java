@@ -26,11 +26,11 @@ import shamu.company.company.service.CompanyService;
 import shamu.company.company.service.CompanySizeService;
 import shamu.company.email.EmailService;
 import shamu.company.helpers.auth0.Auth0Helper;
+import shamu.company.helpers.s3.AwsHelper;
 import shamu.company.info.service.UserEmergencyContactService;
 import shamu.company.job.service.JobService;
 import shamu.company.job.service.JobUserService;
 import shamu.company.redis.AuthUserCacheManager;
-import shamu.company.helpers.s3.AwsHelper;
 import shamu.company.scheduler.DynamicScheduler;
 import shamu.company.timeoff.service.PaidHolidayService;
 import shamu.company.user.dto.CreatePasswordDto;
@@ -61,76 +61,69 @@ class UserServiceTests {
 
   private static UserService userService;
 
-  @Mock
-  private ITemplateEngine templateEngine;
-  @Mock
-  private UserRepository userRepository;
-  @Mock
-  private JobUserService jobUserService;
-  @Mock
-  private UserStatusService userStatusService;
-  @Mock
-  private EmailService emailService;
-  @Mock
-  private UserPersonalInformationMapper userPersonalInformationMapper;
-  @Mock
-  private UserEmergencyContactService userEmergencyContactService;
-  @Mock
-  private UserAddressService userAddressService;
-  @Mock
-  private CompanySizeService companySizeService;
-  @Mock
-  private PaidHolidayService paidHolidayService;
-  @Mock
-  private CompanyService companyService;
-  @Mock
-  private UserContactInformationMapper userContactInformationMapper;
-  @Mock
-  private UserAddressMapper userAddressMapper;
-  @Mock
-  private Auth0Helper auth0Helper;
-  @Mock
-  private UserAccessLevelEventService userAccessLevelEventService;
-  @Mock
-  private DepartmentService departmentService;
-  @Mock
-  private JobService jobService;
+  @Mock private ITemplateEngine templateEngine;
+  @Mock private UserRepository userRepository;
+  @Mock private JobUserService jobUserService;
+  @Mock private UserStatusService userStatusService;
+  @Mock private EmailService emailService;
+  @Mock private UserPersonalInformationMapper userPersonalInformationMapper;
+  @Mock private UserEmergencyContactService userEmergencyContactService;
+  @Mock private UserAddressService userAddressService;
+  @Mock private CompanySizeService companySizeService;
+  @Mock private PaidHolidayService paidHolidayService;
+  @Mock private CompanyService companyService;
+  @Mock private UserContactInformationMapper userContactInformationMapper;
+  @Mock private UserAddressMapper userAddressMapper;
+  @Mock private Auth0Helper auth0Helper;
+  @Mock private UserAccessLevelEventService userAccessLevelEventService;
+  @Mock private DepartmentService departmentService;
+  @Mock private JobService jobService;
   private final UserMapper userMapper = Mappers.getMapper(UserMapper.class);
-  @Mock
-  private UserContactInformationService userContactInformationService;
-  @Mock
-  private UserPersonalInformationService userPersonalInformationService;
-  @Mock
-  private AuthUserCacheManager authUserCacheManager;
-  @Mock
-  private DynamicScheduler dynamicScheduler;
-  @Mock
-  private AwsHelper awsHelper;
-  @Mock
-  private UserRoleService userRoleService;
-  @Mock
-  private PermissionUtils permissionUtils;
-  @Mock
-  private CompanyBenefitsSettingService companyBenefitsSettingService;
+  @Mock private UserContactInformationService userContactInformationService;
+  @Mock private UserPersonalInformationService userPersonalInformationService;
+  @Mock private AuthUserCacheManager authUserCacheManager;
+  @Mock private DynamicScheduler dynamicScheduler;
+  @Mock private AwsHelper awsHelper;
+  @Mock private UserRoleService userRoleService;
+  @Mock private PermissionUtils permissionUtils;
+  @Mock private CompanyBenefitsSettingService companyBenefitsSettingService;
 
-  private final StateProvinceMapper stateProvinceMapper = Mappers
-          .getMapper(StateProvinceMapper.class);
-  private final OfficeAddressMapper officeAddressMapper = new OfficeAddressMapperImpl(
-          stateProvinceMapper);
+  private final StateProvinceMapper stateProvinceMapper =
+      Mappers.getMapper(StateProvinceMapper.class);
+  private final OfficeAddressMapper officeAddressMapper =
+      new OfficeAddressMapperImpl(stateProvinceMapper);
 
   @BeforeEach
   void init() {
     MockitoAnnotations.initMocks(this);
-    userService = new UserService(templateEngine,
-        userRepository, emailService, userPersonalInformationMapper,
-        userEmergencyContactService, userAddressService, paidHolidayService,
-        userContactInformationMapper, userAddressMapper, auth0Helper, userMapper,
-        authUserCacheManager, dynamicScheduler, awsHelper, userRoleService,
-        permissionUtils, jobUserService, userStatusService,
-        companySizeService, companyService, departmentService, jobService,
-        userAccessLevelEventService, userContactInformationService,
-        userPersonalInformationService, companyBenefitsSettingService
-        );
+    userService =
+        new UserService(
+            templateEngine,
+            userRepository,
+            emailService,
+            userPersonalInformationMapper,
+            userEmergencyContactService,
+            userAddressService,
+            paidHolidayService,
+            userContactInformationMapper,
+            userAddressMapper,
+            auth0Helper,
+            userMapper,
+            authUserCacheManager,
+            dynamicScheduler,
+            awsHelper,
+            userRoleService,
+            permissionUtils,
+            jobUserService,
+            userStatusService,
+            companySizeService,
+            companyService,
+            departmentService,
+            jobService,
+            userAccessLevelEventService,
+            userContactInformationService,
+            userPersonalInformationService,
+            companyBenefitsSettingService);
   }
 
   @Nested
@@ -142,14 +135,15 @@ class UserServiceTests {
     @BeforeEach
     void init() {
       userId = UUID.randomUUID().toString().replaceAll("-", "");
-      userSignUpDto = UserSignUpDto.builder()
-          .userId(userId)
-          .companyName(RandomStringUtils.randomAlphabetic(4))
-          .companySizeId(UUID.randomUUID().toString())
-          .firstName(RandomStringUtils.randomAlphabetic(3))
-          .lastName(RandomStringUtils.randomAlphabetic(3))
-          .phone(RandomStringUtils.randomAlphabetic(11))
-          .build();
+      userSignUpDto =
+          UserSignUpDto.builder()
+              .userId(userId)
+              .companyName(RandomStringUtils.randomAlphabetic(4))
+              .companySizeId(UUID.randomUUID().toString())
+              .firstName(RandomStringUtils.randomAlphabetic(3))
+              .lastName(RandomStringUtils.randomAlphabetic(3))
+              .phone(RandomStringUtils.randomAlphabetic(11))
+              .build();
     }
 
     @Test
@@ -159,8 +153,7 @@ class UserServiceTests {
 
     @Test
     void whenCanFindEmail_thenShouldSuccess() {
-      Mockito.when(companySizeService.findById(Mockito.anyString()))
-              .thenReturn(new CompanySize());
+      Mockito.when(companySizeService.findById(Mockito.anyString())).thenReturn(new CompanySize());
       final com.auth0.json.mgmt.users.User auth0User = new com.auth0.json.mgmt.users.User();
       auth0User.setEmail("example@mail.com");
       Mockito.when(auth0Helper.getUserByUserIdFromAuth0(userId)).thenReturn(auth0User);
@@ -195,12 +188,11 @@ class UserServiceTests {
     company.setId("1");
 
     Mockito.when(userRepository.findById(Mockito.anyString()))
-            .thenReturn(java.util.Optional.of(currentUser));
+        .thenReturn(java.util.Optional.of(currentUser));
     Mockito.when(userRepository.findByManagerUser(Mockito.any()))
         .thenReturn(Collections.emptyList());
 
-    final CurrentUserDto userInfo = userService
-        .getCurrentUserInfo(currentUser.getId());
+    final CurrentUserDto userInfo = userService.getCurrentUserInfo(currentUser.getId());
     Assertions.assertEquals(userInfo.getId(), currentUser.getId());
   }
 
@@ -219,8 +211,7 @@ class UserServiceTests {
 
     Mockito.when(userRepository.findByResetPasswordToken(updatePasswordDto.getResetPasswordToken()))
         .thenReturn(databaseUser);
-    Mockito.when(auth0Helper.getUserByUserIdFromAuth0(Mockito.any()))
-        .thenReturn(authUser);
+    Mockito.when(auth0Helper.getUserByUserIdFromAuth0(Mockito.any())).thenReturn(authUser);
 
     Assertions.assertDoesNotThrow(() -> userService.resetPassword(updatePasswordDto));
   }
@@ -277,9 +268,8 @@ class UserServiceTests {
 
     @Test
     void whenIsNotManagerAndAdmin_thenShouldReturnFalse() {
-      Mockito.when(userRepository.getManagerUserIdById(Mockito.anyString()))
-          .thenReturn(null);
-      Mockito.when(auth0Helper.getUserRole(Mockito.anyString())).thenReturn(Role.EMPLOYEE);
+      Mockito.when(userRepository.getManagerUserIdById(Mockito.anyString())).thenReturn(null);
+      Mockito.when(auth0Helper.getUserRole(currentUser)).thenReturn(Role.EMPLOYEE);
       final boolean hasAccess = userService.hasUserAccess(currentUser, targetUserId);
       Assertions.assertFalse(hasAccess);
     }
@@ -296,9 +286,10 @@ class UserServiceTests {
     void setUp() {
       createPasswordDto = new CreatePasswordDto();
       createPasswordDto.setEmailWork("example@indeed.com");
-      final String password = RandomStringUtils.randomAlphabetic(4).toUpperCase()
-          + RandomStringUtils.randomAlphabetic(4).toLowerCase()
-          + RandomStringUtils.randomNumeric(4);
+      final String password =
+          RandomStringUtils.randomAlphabetic(4).toUpperCase()
+              + RandomStringUtils.randomAlphabetic(4).toLowerCase()
+              + RandomStringUtils.randomNumeric(4);
       final String resetPasswordToken = UUID.randomUUID().toString().replaceAll("-", "");
       createPasswordDto.setNewPassword(password);
       createPasswordDto.setResetPasswordToken(resetPasswordToken);
@@ -310,18 +301,18 @@ class UserServiceTests {
       final User targetUser = new User();
       targetUser.setResetPasswordToken(RandomStringUtils.randomAlphabetic(10));
       Mockito.when(userRepository.findByEmailWork(Mockito.anyString())).thenReturn(targetUser);
-      Assertions.assertThrows(ResourceNotFoundException.class,
-              () -> userService.createPassword(createPasswordDto));
+      Assertions.assertThrows(
+          ResourceNotFoundException.class, () -> userService.createPassword(createPasswordDto));
     }
 
     @Test
-    void whenNoSuchUserInAuth0_thenShouldThrow() {
+    void whenNoSuchUserInAuth0_thenShouldNotThrow() {
       final User targetUser = new User();
       targetUser.setResetPasswordToken(createPasswordDto.getResetPasswordToken());
       Mockito.when(userRepository.findByEmailWork(Mockito.anyString())).thenReturn(targetUser);
-      Mockito.when(auth0Helper.getUserByUserIdFromAuth0(Mockito.any())).thenReturn(null);
-      Assertions.assertThrows(ForbiddenException.class,
-              () -> userService.createPassword(createPasswordDto));
+      Mockito.when(auth0Helper.getUserByUserIdFromAuth0(Mockito.any()))
+          .thenReturn(new com.auth0.json.mgmt.users.User());
+      Assertions.assertDoesNotThrow(() -> userService.createPassword(createPasswordDto));
     }
 
     @Test
@@ -329,8 +320,8 @@ class UserServiceTests {
       final User targetUser = new User();
       targetUser.setResetPasswordToken(createPasswordDto.getResetPasswordToken());
       Mockito.when(userRepository.findByEmailWork(Mockito.anyString())).thenReturn(null);
-      Assertions.assertThrows(ResourceNotFoundException.class,
-              () -> userService.createPassword(createPasswordDto));
+      Assertions.assertThrows(
+          ResourceNotFoundException.class, () -> userService.createPassword(createPasswordDto));
     }
 
     @Test
@@ -339,8 +330,8 @@ class UserServiceTests {
       final User targetUser = new User();
       targetUser.setResetPasswordToken(RandomStringUtils.randomAlphabetic(10));
       Mockito.when(userRepository.findByEmailWork(Mockito.any())).thenReturn(targetUser);
-      Assertions.assertThrows(ResourceNotFoundException.class,
-              () -> userService.createPassword(createPasswordDto));
+      Assertions.assertThrows(
+          ResourceNotFoundException.class, () -> userService.createPassword(createPasswordDto));
     }
 
     @Test
@@ -364,8 +355,8 @@ class UserServiceTests {
     void whenUserIsNull_thenShouldThrow() {
       Mockito.when(userRepository.findByEmailWork(Mockito.anyString())).thenReturn(new User());
       Mockito.when(auth0Helper.getUserByUserIdFromAuth0(Mockito.any())).thenReturn(null);
-      Assertions.assertThrows(ForbiddenException.class,
-              () -> userService.sendResetPasswordEmail("example@indeed.com"));
+      Assertions.assertThrows(
+          ForbiddenException.class, () -> userService.sendResetPasswordEmail("example@indeed.com"));
     }
 
     @Test

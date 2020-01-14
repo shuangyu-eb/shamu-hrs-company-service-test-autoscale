@@ -115,7 +115,7 @@ public class TimeOffRequestServiceTests {
       userRole.setName(String.valueOf(Role.MANAGER));
       userRole.setId("1");
       user.setUserRole(userRole);
-      Mockito.when(auth0Helper.getUserRole(Mockito.anyString()))
+      Mockito.when(auth0Helper.getUserRole(user))
           .thenReturn(Role.MANAGER);
       timeOffRequestService.getRequestsByUserAndStatus(user,statuses);
       Mockito.verify(timeOffRequestRepository, Mockito.times(1))
@@ -128,7 +128,7 @@ public class TimeOffRequestServiceTests {
       userRole.setName(String.valueOf(Role.MANAGER));
       userRole.setId("1");
       user.setUserRole(userRole);
-      Mockito.when(auth0Helper.getUserRole(Mockito.anyString()))
+      Mockito.when(auth0Helper.getUserRole(user))
           .thenReturn(Role.MANAGER);
       timeOffRequestService.getRequestsByUserAndStatus(user,statuses);
       Mockito.verify(timeOffRequestRepository, Mockito.times(1))

@@ -81,7 +81,7 @@ class EncryptorTests {
   }
 
   private void initMockBehavior() {
-    Mockito.when(auth0Helper.getUserSecret(testUser.getId())).thenReturn(userSecret);
+    Mockito.when(auth0Helper.getUserSecret(testUser)).thenReturn(userSecret);
     Mockito.when(secretHashRepository.getCompanySecretByCompanyId(testUser.getCompany().getId()))
         .thenReturn(companySecret);
     Mockito.when(userService.findActiveUserById(testUser.getId())).thenReturn(testUser);
