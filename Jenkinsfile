@@ -40,7 +40,7 @@ pipeline {
                         '      Create artifact         ' +
                         '\n---------------------------------'
                 script { RELEASE = sh(returnStdout: true, script: ''' echo ${ref} | sed 's/^.*\\///' ''') }
-                sh 'sudo bin/build -e ${params.DEV_ENV} -e ${params.QA_ENV} -r ${RELEASE}'
+                sh "sudo bin/build -e ${params.DEV_ENV} -e ${params.QA_ENV} -r ${RELEASE}"
             }
         }
         stage('deploy master to dev environment') {
