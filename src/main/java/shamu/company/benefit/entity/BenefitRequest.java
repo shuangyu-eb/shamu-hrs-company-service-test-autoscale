@@ -2,6 +2,7 @@ package shamu.company.benefit.entity;
 
 import java.sql.Timestamp;
 import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import lombok.Data;
@@ -18,15 +19,15 @@ public class BenefitRequest extends BaseEntity {
 
   @OneToOne private User appoverUser;
 
-  private BenefitLifeEventType benefitLifeEventType;
+  @ManyToOne private BenefitLifeEventType lifeEventType;
 
   private Timestamp lifeEventDate;
 
-  private BenefitPlanUser prveEnrollment;
+  @OneToOne private BenefitPlanUser prevEnrollment;
 
-  private BenefitPlanUser nextEnrollment;
+  @OneToOne private BenefitPlanUser nextEnrollment;
 
   private Timestamp effectiveDate;
 
-  private BenefitRequestApprovalStatus benefitRequestApprovalStatus;
+  @ManyToOne private BenefitRequestApprovalStatus requestStatus;
 }

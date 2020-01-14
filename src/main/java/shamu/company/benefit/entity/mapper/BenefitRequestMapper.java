@@ -14,7 +14,7 @@ public interface BenefitRequestMapper {
       List<BenefitRequest> benefitRequests);
 
   @Mapping(target = "name", source = "requestUser.userPersonalInformation.name")
-  @Mapping(target = "status", source = "benefitRequestApprovalStatus.name")
-  @Mapping(target = "lifeEventType", source = "benefitLifeEventType.name")
+  @Mapping(target = "status", source = "requestStatus.name")
+  @Mapping(target = "lifeEventType", source = "lifeEventType.name")
   BenefitRequestInfoDto convertToBenefitRequestInfoDto(BenefitRequest benefitRequest);
 }

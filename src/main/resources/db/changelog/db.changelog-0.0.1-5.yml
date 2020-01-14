@@ -967,3 +967,158 @@ databaseChangeLog:
         - dropColumn:
             columnName: file_name
             tableName: benefit_plan_documents
+
+  - changeSet:
+      id: 1578886212680-1
+      author: haibo-eb
+      preconditions:
+        onFail: MARK_RAN
+        columnExist:
+          tableName: benefits_requests
+          columnName: prve_enrollment_id
+      changes:
+        - renameColumn:
+            columnDataType: binary(16)
+            newColumnName: prev_enrollment_id
+            oldColumnName: prve_enrollment_id
+            tableName: benefits_requests
+
+  - changeSet:
+      id: 1578886212680-2
+      author: haibo-eb
+      preconditions:
+        onFail: MARK_RAN
+        columnExist:
+          tableName: benefits_requests
+          columnName: request_status
+      changes:
+        - renameColumn:
+            columnDataType: binary(16)
+            newColumnName: request_status_id
+            oldColumnName: request_status
+            tableName: benefits_requests
+
+  - changeSet:
+      id: 1578886212680-3
+      author: haibo-eb
+      preconditions:
+        onFail: MARK_RAN
+        columnExist:
+          tableName: benefits_requests
+          columnName: life_event_type
+      changes:
+        - renameColumn:
+            columnDataType: binary(16)
+            newColumnName: life_event_type_id
+            oldColumnName: life_event_type
+            tableName: benefits_requests
+
+  - changeSet:
+      id: 1578886212680-4
+      author: haibo-eb
+      preConditions:
+        onFail: WARN
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: prev_enrollment_id
+            baseTableName: benefits_requests
+            constraintName: fk_benefits_requests_prev_enrollment_benefit_plans_users
+            onDelete: CASCADE
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: benefit_plans_users
+
+  - changeSet:
+      id: 1578886212680-5
+      author: haibo-eb
+      preConditions:
+        onFail: WARN
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: next_enrollment_id
+            baseTableName: benefits_requests
+            constraintName: fk_benefits_requests_next_enrollment_benefit_plans_users
+            onDelete: CASCADE
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: benefit_plans_users
+
+  - changeSet:
+      id: 1578886212680-6
+      author: haibo-eb
+      preConditions:
+        onFail: WARN
+      changes:
+        - addPrimaryKey:
+            tableName: benefit_request_status
+            columnNames: id
+
+  - changeSet:
+      id: 1578886212680-7
+      author: haibo-eb
+      preConditions:
+        onFail: WARN
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: request_status_id
+            baseTableName: benefits_requests
+            constraintName: fk_benefits_requests_benfit_request_status
+            onDelete: RESTRICT
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: benefit_request_status
+
+  - changeSet:
+      id: 1578886212680-8
+      author: haibo-eb
+      preConditions:
+        onFail: WARN
+      changes:
+        - addPrimaryKey:
+            tableName: benefit_life_event_types
+            columnNames: id
+
+  - changeSet:
+      id: 1578886212680-9
+      author: haibo-eb
+      preConditions:
+        onFail: WARN
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: life_event_type_id
+            baseTableName: benefits_requests
+            constraintName: fk_benefits_requests_life_event_types
+            onDelete: CASCADE
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: benefit_life_event_types
+
+  - changeSet:
+      id: 1578886212680-10
+      author: haibo-eb
+      preConditions:
+        onFail: WARN
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: request_user_id
+            baseTableName: benefits_requests
+            constraintName: fk_benefits_requests_request_user_users
+            onDelete: CASCADE
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: users
+
+  - changeSet:
+      id: 1578886212680-11
+      author: haibo-eb
+      preConditions:
+        onFail: WARN
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: approver_user_id
+            baseTableName: benefits_requests
+            constraintName: fk_benefits_requests_approver_user_users
+            onDelete: CASCADE
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: users
