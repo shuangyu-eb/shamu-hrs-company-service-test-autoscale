@@ -351,18 +351,12 @@ public class TimeOffRequestService {
     }
   }
 
-  public void saveTimeOffRequest(TimeOffRequest timeOffRequest,
-      TimeOffRequestCreateDto requestCreateDto, TimeOffApprovalStatus status, User approver) {
+  public void saveTimeOffRequest(final TimeOffRequest timeOffRequest,
+      final TimeOffRequestCreateDto requestCreateDto,
+      final TimeOffApprovalStatus status, final User approver) {
     timeOffRequest.setApproverUser(approver);
-
     timeOffRequest.setApprovedDate(Timestamp.from(Instant.now()));
-
-    final TimeOffPolicy policy = timeOffPolicyService
-        .getTimeOffPolicyById(requestCreateDto.getPolicyId());
-    timeOffRequest.setTimeOffPolicy(policy);
-
     saveTimeOffRequest(timeOffRequest,requestCreateDto,status);
-
   }
 
   public void saveTimeOffRequest(
@@ -379,13 +373,13 @@ public class TimeOffRequestService {
     final TimeOffPolicyUser timeOffPolicyUser = timeOffPolicyUserService
         .findByUserAndTimeOffPolicy(timeOffRequest.getRequesterUser(), policy);
 
-    final Integer approvalBalance = this.calApprovalBalance(timeOffPolicyUser);
+    final Integer approvalBalance = calApprovalBalance(timeOffPolicyUser);
 
     timeOffRequest.setBalance(approvalBalance);
 
     final TimeOffRequest timeOffRequestReturned = timeOffRequestRepository.save(timeOffRequest);
 
-    this.saveTimeOffRequestDates(requestCreateDto, timeOffRequest);
+    saveTimeOffRequestDates(requestCreateDto, timeOffRequest);
 
     if (status != APPROVED) {
       timeOffRequestEmailService.sendEmail(timeOffRequestReturned);
@@ -402,8 +396,8 @@ public class TimeOffRequestService {
         timeOffPolicyUser.getUser().getId(),
         timeOffPolicyUser.getTimeOffPolicy().getId(), APPROVED,
         Timestamp.valueOf(currentTime));
-    final Integer approvalBalance = (null == balance ? null : (balance - approvedHours));
-    return approvalBalance;
+
+    return null == balance ? null : (balance - approvedHours);
   }
 
 
@@ -431,8 +425,7 @@ public class TimeOffRequestService {
       final PageRequest pageRequest, final String[] statuses, final AuthUser authUser) {
     final Timestamp startDayTimestamp = DateUtil.getFirstDayOfCurrentYear();
 
-    final Page<TimeOffRequest> timeOffRequests = this
-        .getByApproverAndStatusFilteredByStartDay(
+    final Page<TimeOffRequest> timeOffRequests = getByApproverAndStatusFilteredByStartDay(
             authUser.getId(), statuses, startDayTimestamp, pageRequest);
 
     return (PageImpl<TimeOffRequestDto>) timeOffRequests

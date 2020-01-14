@@ -22,8 +22,6 @@ public class TimeOffRequestCreateDto {
 
   private String policyId;
 
-  private String policyUser;
-
   private Integer hours;
 
   public TimeOffRequest getTimeOffRequest(final User requester) {
