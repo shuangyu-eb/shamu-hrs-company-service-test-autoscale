@@ -43,6 +43,6 @@ public class MethodPermissionEvaluator implements PermissionEvaluator {
       return permissionUtils.hasPermission(auth,targets, type, permissionName);
     }
 
-    return false;
+    return  permissionUtils.hasPermission(auth,target, type, permissionName);
   }
 }

@@ -17,4 +17,5 @@ public enum Type {
   JOB_TITLE,
   EMPLOYMENT_TYPE,
   OFFICE_LOCATION,
+  USER_JOB,
 }

@@ -37,7 +37,9 @@ public class JobController extends BaseRestController {
   }
 
   @PatchMapping("users/{id}/jobs")
-  @PreAuthorize("hasPermission(#id,'USER', 'EDIT_USER')")
+  @PreAuthorize(
+      "hasPermission(#id,'USER', 'EDIT_USER')"
+          + "and hasPermission(#jobUpdateDto, 'USER_JOB', 'EDIT_USER')")
   public HttpEntity updateJobInfo(@PathVariable final String id,
       @RequestBody final JobUpdateDto jobUpdateDto) {
     jobUserService.updateJobInfo(id, jobUpdateDto, findCompanyId());

@@ -24,6 +24,7 @@ import shamu.company.company.entity.Department;
 import shamu.company.company.entity.Office;
 import shamu.company.company.service.CompanyService;
 import shamu.company.employee.entity.EmploymentType;
+import shamu.company.job.dto.JobUpdateDto;
 import shamu.company.job.entity.Job;
 import shamu.company.timeoff.entity.CompanyPaidHoliday;
 import shamu.company.timeoff.entity.PaidHoliday;
@@ -126,6 +127,7 @@ public class UserPermissionUtils extends BasePermissionUtils {
     }
   }
 
+  @SuppressWarnings("unchecked")
   private boolean hasPermission(final Authentication authentication,
       final Permission.Name permission) {
 
@@ -141,6 +143,7 @@ public class UserPermissionUtils extends BasePermissionUtils {
         .anyMatch(authority -> authority.getAuthority().equals(permission.name()));
   }
 
+  @SuppressWarnings("unchecked")
   boolean hasPermission(final Authentication auth, final List targets, final Type type,
       final Permission.Name permission) {
     if (targets.isEmpty()) {
@@ -171,6 +174,21 @@ public class UserPermissionUtils extends BasePermissionUtils {
       }
     }
     return false;
+  }
+
+  boolean hasPermissionOfObjectTarget(final Authentication auth, final Object target,
+      final Type type, final Permission.Name permission) {
+    if (type.equals(Type.USER_JOB)) {
+      final JobUpdateDto jobUpdateDto = (JobUpdateDto) target;
+      final String managerId = jobUpdateDto.getManagerId();
+
+      if (!StringUtils.isEmpty(managerId)) {
+        final User manager = userService.findById(managerId);
+        companyEqual(manager.getCompany());
+      }
+      return true;
+    }
+    return hasPermission(auth, permission);
   }
 
   private void companyEqual(final Company company) {
@@ -317,6 +335,7 @@ public class UserPermissionUtils extends BasePermissionUtils {
         .equals(paidHoliday.getCreator().getId());
   }
 
+  @SuppressWarnings("unchecked")
   private boolean hasPermissionOfUser(final Authentication auth, final User targetUser,
       final Permission.Name permission) {
     final PermissionType permissionType = permission.getPermissionType();
@@ -360,6 +379,7 @@ public class UserPermissionUtils extends BasePermissionUtils {
     return email != null && email.equals(getAuthUser().getEmail());
   }
 
+  @SuppressWarnings("unchecked")
   boolean hasAuthority(final String permission) {
 
     final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

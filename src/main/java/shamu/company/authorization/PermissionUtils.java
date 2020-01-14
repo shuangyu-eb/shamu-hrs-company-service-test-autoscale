@@ -25,6 +25,11 @@ public class PermissionUtils {
     return userPermissionUtils.hasPermission(auth, target, type, permission);
   }
 
+  boolean hasPermission(final Authentication auth, final Object target, final Type type,
+      final Permission.Name permission) {
+    return userPermissionUtils.hasPermissionOfObjectTarget(auth, target, type, permission);
+  }
+
   public boolean isCurrentUserId(final String id) {
     return userPermissionUtils.isCurrentUserId(id);
   }
