@@ -39,7 +39,7 @@ pipeline {
                 echo '---------------------------------\n' +
                         '      Create artifact         ' +
                         '\n---------------------------------'
-                script { RELEASE = sh(returnStdout: true, script: "echo ${ref} | sed 's/^.*\///'") }
+                script { RELEASE = sh(returnStdout: true, script: ''' echo ${ref} | sed 's/^.*\\///' ''') }
                 sh 'sudo bin/build -e ${params.DEV_ENV} -e ${params.QA_ENV} -r ${RELEASE}'
             }
         }
