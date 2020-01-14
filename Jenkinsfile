@@ -45,7 +45,7 @@ pipeline {
         }
         stage('deploy master to dev environment') {
             when {
-                expression { RELEASE = 'master' }
+                expression { RELEASE.trim() == 'master' }
             }
             steps {
                 sh "git checkout origin/master && sudo bin/deploy ${params.DEV_ENV} ${RELEASE}"
