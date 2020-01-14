@@ -2,7 +2,6 @@ package shamu.company.company.service;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import shamu.company.common.CommonDictionaryDto;
@@ -101,11 +100,11 @@ public class CompanyService {
     return jobService.findById(id);
   }
 
-  public EmploymentType findEmploymentTypeById(String id) {
+  public EmploymentType findEmploymentTypeById(final String id) {
     return employmentTypeService.findById(id);
   }
 
-  public Office findOfficeById(String id) {
+  public Office findOfficeById(final String id) {
     return officeService.findById(id);
   }
 
@@ -182,7 +181,7 @@ public class CompanyService {
   }
 
   public List<CommonDictionaryDto> getCompanySizes() {
-    List<CompanySize> companySizes = companySizeService.findAll();
+    final List<CompanySize> companySizes = companySizeService.findAll();
     return ReflectionUtil.convertTo(companySizes, CommonDictionaryDto.class);
   }
 

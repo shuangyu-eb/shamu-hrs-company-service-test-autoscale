@@ -1,13 +1,20 @@
 package shamu.company.employee.dto;
 
 import java.util.List;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import shamu.company.info.dto.UserEmergencyContactDto;
 import shamu.company.user.dto.UserAddressDto;
 import shamu.company.user.dto.UserContactInformationDto;
 import shamu.company.user.dto.UserPersonalInformationDto;
 
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class EmployeeDto {
 
   private String emailWork;

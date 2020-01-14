@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
@@ -14,8 +15,8 @@ import org.springframework.data.redis.serializer.GenericToStringSerializer;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
-
 @Configuration
+@ConditionalOnProperty("spring.redis")
 public class RedisConfiguration {
   @Value("${spring.redis.host}")
   private String redisHostname;
@@ -25,13 +26,13 @@ public class RedisConfiguration {
 
   @Bean
   protected JedisConnectionFactory jedisConnectionFactory() {
-    RedisStandaloneConfiguration configuration =
+    final RedisStandaloneConfiguration configuration =
         new RedisStandaloneConfiguration(redisHostname, redisPort);
 
-    JedisClientConfiguration jedisClientConfiguration =
+    final JedisClientConfiguration jedisClientConfiguration =
         JedisClientConfiguration.builder().usePooling().build();
 
-    JedisConnectionFactory factory =
+    final JedisConnectionFactory factory =
         new JedisConnectionFactory(configuration, jedisClientConfiguration);
 
     factory.afterPropertiesSet();
@@ -40,9 +41,9 @@ public class RedisConfiguration {
 
   @Bean
   public RedisTemplate<Object, Object> redisTemplate() {
-    Jackson2JsonRedisSerializer jackson2JsonRedisSerializer =
+    final Jackson2JsonRedisSerializer jackson2JsonRedisSerializer =
         new Jackson2JsonRedisSerializer(Object.class);
-    ObjectMapper objectMapper = new ObjectMapper();
+    final ObjectMapper objectMapper = new ObjectMapper();
     objectMapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
     objectMapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
 

@@ -1,0 +1,27 @@
+spring:
+  datasource:
+    jdbcUrl: jdbc:mariadb://localhost:3309/hrs-test
+    username: shamuhrs
+    password:
+    driverClassName: org.mariadb.jdbc.Driver
+  cloud:
+    consul:
+      discovery:
+        enabled: false
+
+application:
+  systemEmailAddress: no-reply@simplyhired-test.com
+  frontEndAddress: http://localhost:3000/
+  helpUrl: http://localhost:3000/
+
+crypto:
+  hash: system-hash
+cloud:
+  aws:
+    region:
+      auto: false
+      static: us-east-1
+
+auth0:
+  # No such domain, just for test
+  domain: simplyhired-test.auth0.com

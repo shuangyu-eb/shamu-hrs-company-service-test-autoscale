@@ -3,6 +3,7 @@ package shamu.company.common.config;
 import javax.sql.DataSource;
 import liquibase.integration.spring.SpringLiquibase;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.liquibase.LiquibaseProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
@@ -42,11 +43,13 @@ public class DataSourceConfiguration {
   @Bean(name = "secretDataSource")
   @Qualifier("secretDataSource")
   @ConfigurationProperties(prefix = "spring.secret.datasource")
+  @ConditionalOnProperty(name = "spring.secret")
   public DataSource secretDataSource() {
     return DataSourceBuilder.create().build();
   }
 
   @Bean(name = "secretJdbcTemplate")
+  @ConditionalOnProperty(name = "spring.secret")
   public JdbcTemplate secretJdbcTemplate(
       @Qualifier("secretDataSource") final DataSource dataSource) {
     return new JdbcTemplate(dataSource);
@@ -54,11 +57,13 @@ public class DataSourceConfiguration {
 
   @Bean
   @ConfigurationProperties(prefix = "spring.secret.liquibase")
+  @ConditionalOnProperty(name = "spring.secret")
   public LiquibaseProperties secretLiquibaseProperties() {
     return new LiquibaseProperties();
   }
 
   @Bean
+  @ConditionalOnProperty(name = "spring.secret")
   public SpringLiquibase secretLiquibase() {
     return getSpringLiquibase(secretDataSource(), secretLiquibaseProperties());
   }
