@@ -64,7 +64,6 @@ import shamu.company.user.entity.MaritalStatus;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
 import shamu.company.user.entity.UserAddress;
-import shamu.company.user.entity.UserBenefitsSetting;
 import shamu.company.user.entity.UserCompensation;
 import shamu.company.user.entity.UserContactInformation;
 import shamu.company.user.entity.UserPersonalInformation;
@@ -78,7 +77,6 @@ import shamu.company.user.service.CompensationFrequencyService;
 import shamu.company.user.service.GenderService;
 import shamu.company.user.service.MaritalStatusService;
 import shamu.company.user.service.UserAddressService;
-import shamu.company.user.service.UserBenefitsSettingService;
 import shamu.company.user.service.UserCompensationService;
 import shamu.company.user.service.UserContactInformationService;
 import shamu.company.user.service.UserPersonalInformationService;
@@ -123,7 +121,6 @@ public class EmployeeService {
   private final UserRoleService userRoleService;
 
   private final EncryptorUtil encryptorUtil;
-  private final UserBenefitsSettingService userBenefitsSettingService;
 
   @Value("${application.systemEmailAddress}")
   private String systemEmailAddress;
@@ -156,8 +153,7 @@ public class EmployeeService {
       final JobUserMapper jobUserMapper,
       @Lazy final JobUserService jobUserService,
       final UserRoleService userRoleService,
-      final EncryptorUtil encryptorUtil,
-      final UserBenefitsSettingService userBenefitsSettingService) {
+      final EncryptorUtil encryptorUtil) {
     this.userAddressService = userAddressService;
     this.employmentTypeService = employmentTypeService;
     this.userService = userService;
@@ -185,7 +181,6 @@ public class EmployeeService {
     this.jobUserService = jobUserService;
     this.userRoleService = userRoleService;
     this.encryptorUtil = encryptorUtil;
-    this.userBenefitsSettingService = userBenefitsSettingService;
   }
 
   public List<User> findByCompanyId(final String companyId) {
@@ -202,7 +197,7 @@ public class EmployeeService {
     final User employee = saveEmployeeBasicInformation(currentUser, employeeDto);
 
     saveEmergencyContacts(employee, employeeDto.getUserEmergencyContactDto());
-    saveEmployeeBenefitsSetting(employee);
+    userService.saveUserBenefitsSetting(employee);
 
     final NewEmployeeJobInformationDto jobInformation = employeeDto.getJobInformation();
 
@@ -214,13 +209,6 @@ public class EmployeeService {
 
     saveEmployeeAddress(employee, employeeDto);
     saveEmailTasks(employeeDto.getWelcomeEmail(), employee, currentUser);
-  }
-
-  private void saveEmployeeBenefitsSetting(final User user) {
-    final UserBenefitsSetting userBenefitsSetting = new UserBenefitsSetting();
-    userBenefitsSetting.setUser(user);
-    userBenefitsSetting.setHiddenBanner(false);
-    userBenefitsSettingService.save(userBenefitsSetting);
   }
 
   public void updateEmployee(final EmployeeDto employeeDto, final User employee) {

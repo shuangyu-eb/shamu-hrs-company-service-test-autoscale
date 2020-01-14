@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -51,6 +52,7 @@ import shamu.company.user.entity.mapper.UserPersonalInformationMapper;
 import shamu.company.user.repository.UserRepository;
 import shamu.company.user.service.UserAccessLevelEventService;
 import shamu.company.user.service.UserAddressService;
+import shamu.company.user.service.UserBenefitsSettingService;
 import shamu.company.user.service.UserContactInformationService;
 import shamu.company.user.service.UserPersonalInformationService;
 import shamu.company.user.service.UserRoleService;
@@ -59,7 +61,7 @@ import shamu.company.user.service.UserStatusService;
 
 class UserServiceTests {
 
-  private static UserService userService;
+  @InjectMocks private UserService userService;
 
   @Mock private ITemplateEngine templateEngine;
   @Mock private UserRepository userRepository;
@@ -87,43 +89,12 @@ class UserServiceTests {
   @Mock private UserRoleService userRoleService;
   @Mock private PermissionUtils permissionUtils;
   @Mock private CompanyBenefitsSettingService companyBenefitsSettingService;
+  @Mock private UserBenefitsSettingService userBenefitsSettingService;
 
-  private final StateProvinceMapper stateProvinceMapper =
-      Mappers.getMapper(StateProvinceMapper.class);
-  private final OfficeAddressMapper officeAddressMapper =
-      new OfficeAddressMapperImpl(stateProvinceMapper);
 
   @BeforeEach
   void init() {
     MockitoAnnotations.initMocks(this);
-    userService =
-        new UserService(
-            templateEngine,
-            userRepository,
-            emailService,
-            userPersonalInformationMapper,
-            userEmergencyContactService,
-            userAddressService,
-            paidHolidayService,
-            userContactInformationMapper,
-            userAddressMapper,
-            auth0Helper,
-            userMapper,
-            authUserCacheManager,
-            dynamicScheduler,
-            awsHelper,
-            userRoleService,
-            permissionUtils,
-            jobUserService,
-            userStatusService,
-            companySizeService,
-            companyService,
-            departmentService,
-            jobService,
-            userAccessLevelEventService,
-            userContactInformationService,
-            userPersonalInformationService,
-            companyBenefitsSettingService);
   }
 
   @Nested

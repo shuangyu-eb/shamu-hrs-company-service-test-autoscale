@@ -15,7 +15,6 @@ import org.mockito.MockitoAnnotations;
 import org.powermock.reflect.Whitebox;
 import org.springframework.context.ApplicationEventPublisher;
 
-import shamu.company.user.service.UserBenefitsSettingService;
 import shamu.company.common.exception.ForbiddenException;
 import shamu.company.common.service.CountryService;
 import shamu.company.common.service.OfficeService;
@@ -132,9 +131,6 @@ class EmployeeServiceTests {
 
   private EmployeeService employeeService;
 
-  @Mock
-  private UserBenefitsSettingService userBenefitsSettingService;
-
   @BeforeEach
   void init() {
     MockitoAnnotations.initMocks(this);
@@ -146,8 +142,7 @@ class EmployeeServiceTests {
         userContactInformationService, userPersonalInformationMapper, userAddressMapper,
         userContactInformationMapper, userEmergencyContactMapper, auth0Helper,
         applicationEventPublisher,
-        jobUserMapper, jobUserService, userRoleService, encryptorUtil,
-      userBenefitsSettingService);
+        jobUserMapper, jobUserService, userRoleService, encryptorUtil);
   }
 
   @Nested
