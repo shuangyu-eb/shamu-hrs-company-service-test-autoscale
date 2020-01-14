@@ -217,7 +217,7 @@ public class EmployeeService {
   }
 
   private void saveEmployeeBenefitsSetting(final User user) {
-    UserBenefitsSetting userBenefitsSetting = new UserBenefitsSetting();
+    final UserBenefitsSetting userBenefitsSetting = new UserBenefitsSetting();
     userBenefitsSetting.setUser(user);
     userBenefitsSetting.setHiddenBanner(false);
     userBenefitsSettingService.save(userBenefitsSetting);
@@ -253,10 +253,10 @@ public class EmployeeService {
 
     final Email emailInfo = findWelcomeEmail(originalEmail, user.getCompany().getName());
     emailInfo.setSendDate(Timestamp.from(Instant.now()));
-    if (emailInfo.getContent() != null && originalEmail != email) {
+    if (StringUtils.isNotEmpty(emailInfo.getContent()) && !originalEmail.equals(email)) {
       final String originalEmailAddress = emailService.getEncodedEmailAddress(originalEmail);
       final String emailAddress = emailService.getEncodedEmailAddress(email);
-      String newContent = emailInfo.getContent().replace(originalEmailAddress, emailAddress);
+      final String newContent = emailInfo.getContent().replace(originalEmailAddress, emailAddress);
       emailInfo.setContent(newContent);
     }
     emailInfo.setTo(email);
@@ -558,7 +558,7 @@ public class EmployeeService {
     final String roleName = employee.getUserRole().getName();
 
     Timestamp sendDate = null;
-    Email email;
+    final Email email;
     if (userStatus == Status.PENDING_VERIFICATION
         && ((email = findWelcomeEmail(emailAddress, employee.getCompany().getName())) != null)) {
       sendDate = email.getSendDate();
