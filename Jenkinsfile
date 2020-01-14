@@ -12,6 +12,7 @@ pipeline {
     agent any
     environment {
         sonarqubeScannerHome = tool name: 'Shamu Hrs Company Service Sonarqube Scanner'
+        RELEASE = ''
     }
     stages {
         stage('unit tests') {
@@ -33,9 +34,21 @@ pipeline {
                 }
             }
         }
-        stage('deploy to dev environment') {
+        stage('create artifact') {
             steps {
-                sh "git checkout origin/master && sudo bin/deploy ${params.ENV}"
+                echo '---------------------------------\n' +
+                        '      Create artifact         ' +
+                        '\n---------------------------------'
+                script { RELEASE = sh(returnStdout: true, script: "echo ${ref} | sed 's/^.*\///'") }
+                sh 'sudo bin/build -e ${params.DEV_ENV} -e ${params.QA_ENV} -r ${RELEASE}'
+            }
+        }
+        stage('deploy master to dev environment') {
+            when {
+                expression { RELEASE = 'master' }
+            }
+            steps {
+                sh "git checkout origin/master && sudo bin/deploy ${params.DEV_ENV} ${RELEASE}"
             }
         }
     }

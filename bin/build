@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+
+ENVS=()
+RELEASE=''
+REPOSITORY_TAG=''
+REPOSITORY_NAME=''
+REGION=''
+
+# get command line args
+while getopts "e:r:" opt; do
+  case $opt in
+    e)
+      ENVS+=("$OPTARG")
+      ;;
+    r)
+      RELEASE="$OPTARG"
+      ;;
+    *)
+    echo "Invalid option -$OPTARG"
+    exit 1
+    ;;
+ esac
+done
+
+# ecs uses 'latest' tag by default defined in task definition
+if [ "${RELEASE}" == "master" ]
+then
+  REPOSITORY_TAG='latest'
+else
+  REPOSITORY_TAG=${RELEASE}
+fi
+
+mvn clean package -Dmaven.test.skip=true -e
+
+docker build -t company-service:${REPOSITORY_TAG} .
+
+# upload build artifact to different environments' ecrs
+for env in "${ENVS[@]}"
+do
+  REPOSITORY_NAME=`sed -n 's/REPOSITORY_NAME=\(.*\)/\1/p' config/"${env}"`
+  REGION=`sed -n 's/REGION=\(.*\)/\1/p' config/"${env}"`
+  REPOSITORY_URI=`aws ecr describe-repositories --repository-names ${REPOSITORY_NAME} --region ${REGION} | jq .repositories[].repositoryUri | tr -d '"'`
+  docker tag company-service:${REPOSITORY_TAG} ${REPOSITORY_URI}:${REPOSITORY_TAG}
+  docker push ${REPOSITORY_URI}:${REPOSITORY_TAG}
+  docker image rm ${REPOSITORY_URI}:${REPOSITORY_TAG}
+done
+
+docker image rm company-service:${REPOSITORY_TAG}
