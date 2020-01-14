@@ -61,8 +61,6 @@ public class BenefitPlanService {
 
   private final BenefitPlanCoverageRepository benefitPlanCoverageRepository;
 
-  private final BenefitPlanDocumentRepository benefitPlanDocumentRepository;
-
   private final RetirementPlanTypeRepository retirementPlanTypeRepository;
 
   private final BenefitPlanTypeRepository benefitPlanTypeRepository;
@@ -99,7 +97,6 @@ public class BenefitPlanService {
       final UserRepository userRepository,
       final UserDependentsRepository userDependentsRepository,
       final BenefitPlanDependentRepository benefitPlanDependentRepository,
-      final BenefitPlanDocumentRepository benefitPlanDocumentRepository,
       final AwsHelper awsHelper) {
     this.benefitPlanRepository = benefitPlanRepository;
     this.benefitPlanUserRepository = benefitPlanUserRepository;
@@ -114,7 +111,6 @@ public class BenefitPlanService {
     this.userRepository = userRepository;
     this.userDependentsRepository = userDependentsRepository;
     this.benefitPlanDependentRepository = benefitPlanDependentRepository;
-    this.benefitPlanDocumentRepository = benefitPlanDocumentRepository;
     this.awsHelper = awsHelper;
   }
 
@@ -556,7 +552,7 @@ public class BenefitPlanService {
   }
 
   public void saveBenefitPlanDocuments(
-      final String benefitPlanId, final List<MultipartFile> files, final List<String> fileTitles) {
+      final String benefitPlanId, final List<MultipartFile> files) {
     final BenefitPlan benefitPlan = findBenefitPlanById(benefitPlanId);
     files.forEach(
         file -> {
@@ -568,15 +564,8 @@ public class BenefitPlanService {
           final String title =
               StringUtils.isNotBlank(file.getOriginalFilename()) ? file.getOriginalFilename() : "";
           final String fileName = title.substring(0, title.lastIndexOf('.'));
-          final String[] fileTitle = {""};
-          fileTitles.forEach(
-              name -> {
-                if (fileName.equals(name.split(":")[0])) {
-                  fileTitle[0] = name.split(":")[1];
-                }
-              });
           final BenefitPlanDocument document =
-              new BenefitPlanDocument(fileName, path, fileTitle[0]);
+              new BenefitPlanDocument(fileName, path);
           benefitPlan.addBenefitPlanDocument(document);
         });
     save(benefitPlan);

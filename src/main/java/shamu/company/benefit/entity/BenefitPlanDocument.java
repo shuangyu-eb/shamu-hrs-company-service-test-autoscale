@@ -25,11 +25,8 @@ public class BenefitPlanDocument extends BaseEntity {
   @Type(type = "shamu.company.common.PrimaryKeyTypeDescriptor")
   private String benefitPlanId;
 
-  private String fileName;
-
-  public BenefitPlanDocument(final String title, final String url, final String fileName) {
+  public BenefitPlanDocument(final String title, final String url) {
     this.title = title;
     this.url = url;
-    this.fileName = fileName;
   }
 }

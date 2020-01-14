@@ -83,13 +83,11 @@ public class BenefitPlanRestController extends BaseRestController {
   public ResponseEntity uploadBenefitPlanDocument(
       @PathVariable final String id,
       @RequestParam("file")
-          // TODO: Need an appropriate file size.
           @FileValidate(
               maxSize = 10 * 1024 * 1024,
               fileType = {"PDF"})
-          final List<MultipartFile> files,
-      @RequestParam("title") final List<String> fileTitles) {
-    benefitPlanService.saveBenefitPlanDocuments(id, files, fileTitles);
+          final List<MultipartFile> files) {
+    benefitPlanService.saveBenefitPlanDocuments(id, files);
     return new ResponseEntity(HttpStatus.OK);
   }
 

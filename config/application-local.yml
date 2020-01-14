@@ -39,7 +39,7 @@ cloud:
       auto: false
 
 aws:
-  bucketName: shamu-hrs-qa-company
+  bucketName: simplyhired-hrs-eastbay-dev-company
   folder: media-local
 
 

@@ -932,3 +932,11 @@ databaseChangeLog:
       changes:
         - sql:
             sql: INSERT INTO user_benefits_setting(id, user_id, created_at, updated_at) SELECT unhex(replace(uuid(), '-', '')), id, created_at, updated_at FROM users;
+
+  - changeSet:
+      id: 1578904300143-1
+      author: michael-eb
+      changes:
+        - dropColumn:
+            columnName: file_name
+            tableName: benefit_plan_documents
