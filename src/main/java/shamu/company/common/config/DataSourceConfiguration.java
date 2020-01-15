@@ -43,13 +43,17 @@ public class DataSourceConfiguration {
   @Bean(name = "secretDataSource")
   @Qualifier("secretDataSource")
   @ConfigurationProperties(prefix = "spring.secret.datasource")
-  @ConditionalOnProperty(name = "spring.secret")
+  @ConditionalOnProperty(
+      prefix = "spring.secret.datasource",
+      name = {"jdbc-url", "username", "password"})
   public DataSource secretDataSource() {
     return DataSourceBuilder.create().build();
   }
 
   @Bean(name = "secretJdbcTemplate")
-  @ConditionalOnProperty(name = "spring.secret")
+  @ConditionalOnProperty(
+      prefix = "spring.secret.datasource",
+      name = {"jdbc-url", "username", "password"})
   public JdbcTemplate secretJdbcTemplate(
       @Qualifier("secretDataSource") final DataSource dataSource) {
     return new JdbcTemplate(dataSource);
@@ -57,19 +61,19 @@ public class DataSourceConfiguration {
 
   @Bean
   @ConfigurationProperties(prefix = "spring.secret.liquibase")
-  @ConditionalOnProperty(name = "spring.secret")
+  @ConditionalOnProperty(name = "spring.secret.liquibase.change-log")
   public LiquibaseProperties secretLiquibaseProperties() {
     return new LiquibaseProperties();
   }
 
   @Bean
-  @ConditionalOnProperty(name = "spring.secret")
+  @ConditionalOnProperty(name = "spring.secret.liquibase.change-log")
   public SpringLiquibase secretLiquibase() {
     return getSpringLiquibase(secretDataSource(), secretLiquibaseProperties());
   }
 
-  private SpringLiquibase getSpringLiquibase(final DataSource dataSource,
-      final LiquibaseProperties properties) {
+  private SpringLiquibase getSpringLiquibase(
+      final DataSource dataSource, final LiquibaseProperties properties) {
     final SpringLiquibase liquibase = new SpringLiquibase();
     liquibase.setDataSource(dataSource);
     liquibase.setChangeLog(properties.getChangeLog());
