@@ -5,8 +5,8 @@ import java.util.List;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import shamu.company.benefit.dto.BenefitPlanDependentUserDto;
 import shamu.company.benefit.dto.BenefitSummaryDto;
-import shamu.company.benefit.entity.BenefitPlanDependent;
 import shamu.company.common.mapper.Config;
 
 
@@ -16,5 +16,5 @@ public interface MyBenefitsMapper {
   @Mapping(target = "dependentUsers", source = "dependentUsers")
   BenefitSummaryDto convertToBenefitSummaryDto(
       Long benefitNumber, BigDecimal benefitCost, Long dependentNumber,
-      List<BenefitPlanDependent> dependentUsers);
+      List<BenefitPlanDependentUserDto> dependentUsers);
 }

@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import shamu.company.benefit.dto.BenefitPlanCoverageDto;
 import shamu.company.benefit.dto.BenefitPlanCreateDto;
+import shamu.company.benefit.dto.BenefitPlanDependentUserDto;
 import shamu.company.benefit.dto.BenefitPlanDto;
 import shamu.company.benefit.dto.BenefitPlanPreviewDto;
 import shamu.company.benefit.dto.BenefitPlanTypeDto;
@@ -357,12 +358,31 @@ public class BenefitPlanService {
   }
 
   public BenefitSummaryDto getBenefitSummary(final String userId) {
-    final Long benefitNumber = benefitPlanUserRepository.countByUserIdAndEnrolled(userId, true);
-    final BigDecimal benefitCost = benefitPlanCoverageRepository.getBenefitCostByUserId(userId);
-    final Long dependentNumber = userDependentsRepository.countByEmployeeId(userId);
-    final List<BenefitPlanDependent> dependentUsers = userDependentsRepository.findByUserId(userId);
+    final List<BenefitPlanUser> benefitPlanUsers =
+        benefitPlanUserRepository.findByUserIdAndEnrolledIsTrue(userId);
+    final Long benefitNumber = (long) benefitPlanUsers.size();
+    BigDecimal benefitCost = BigDecimal.valueOf(0);
+    final List<BenefitPlanDependentUserDto> dependentUsers = new ArrayList<>();
+    final List<String> dependentUserIds = new ArrayList<>();
+    for (final BenefitPlanUser benefitPlanUser : benefitPlanUsers) {
+      benefitCost = benefitCost.add(benefitPlanUser.getBenefitPlanCoverage().getEmployeeCost());
+      final Set<BenefitPlanDependent> benefitPlanDependents = benefitPlanUser
+          .getBenefitPlanDependents();
+      for (final BenefitPlanDependent benefitPlanDependent : benefitPlanDependents) {
+        if  (!dependentUserIds.contains(benefitPlanDependent.getId())) {
+          final BenefitPlanDependentUserDto benefitPlanDependentUserDto =
+              BenefitPlanDependentUserDto.builder()
+              .id(benefitPlanDependent.getId())
+              .firstName(benefitPlanDependent.getFirstName())
+              .lastName(benefitPlanDependent.getLastName())
+              .build();
+          dependentUsers.add(benefitPlanDependentUserDto);
+          dependentUserIds.add(benefitPlanDependent.getId());
+        }
+      }
+    }
     return myBenefitsMapper.convertToBenefitSummaryDto(
-        benefitNumber, benefitCost, dependentNumber, dependentUsers);
+      benefitNumber, benefitCost, (long)dependentUsers.size(), dependentUsers);
   }
 
   public List<UserBenefitPlanDto> getUserBenefitPlans(final String userId) {
