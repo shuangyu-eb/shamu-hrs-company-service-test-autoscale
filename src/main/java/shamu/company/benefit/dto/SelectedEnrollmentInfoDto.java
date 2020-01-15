@@ -10,6 +10,8 @@ public class SelectedEnrollmentInfoDto {
 
   private String planId;
 
+  private String otherTypePlanTitle;
+
   private String coverageOptionId;
 
   private String benefitPlanType;

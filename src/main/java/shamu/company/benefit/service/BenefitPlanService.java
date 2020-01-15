@@ -390,6 +390,17 @@ public class BenefitPlanService {
         .forEach(
             s -> {
               if (s.getBenefitPlanType().equals(BenefitPlanType.PlanType.OTHER.getValue())) {
+                if (s.getPlanId() == null) {
+                  final BenefitPlan benefitPlan =
+                      benefitPlanRepository.findBenefitPlanByName(s.getOtherTypePlanTitle());
+                  final BenefitPlanUser originBenefitPlanUser =
+                      benefitPlanUserRepository
+                          .findByUserIdAndBenefitPlanId(userId, benefitPlan.getId())
+                          .get();
+                  originBenefitPlanUser.setEnrolled(false);
+                  benefitPlanUserRepository.save(originBenefitPlanUser);
+                  return;
+                }
                 final BenefitPlan benefitPlan =
                     benefitPlanRepository.findBenefitPlanById(s.getPlanId());
                 enrollBenefitPlanUser(userId, benefitPlan, s);
@@ -568,8 +579,7 @@ public class BenefitPlanService {
           final String title =
               StringUtils.isNotBlank(file.getOriginalFilename()) ? file.getOriginalFilename() : "";
           final String fileName = title.substring(0, title.lastIndexOf('.'));
-          final BenefitPlanDocument document =
-              new BenefitPlanDocument(fileName, path);
+          final BenefitPlanDocument document = new BenefitPlanDocument(fileName, path);
           benefitPlan.addBenefitPlanDocument(document);
         });
     save(benefitPlan);
