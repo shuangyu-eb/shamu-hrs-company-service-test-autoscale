@@ -18,7 +18,9 @@ import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
+import shamu.company.common.config.DefaultJwtAuthenticationToken;
 import shamu.company.utils.DateUtil;
 
 public class JwtUtil {
@@ -27,6 +29,7 @@ public class JwtUtil {
   private static PrivateKey PRIVATE_KEY;
   // fictitious domain, no such domain
   private static final String issuer = "https://simplyhired-test.auth0.com/";
+  private static final String customNamespace = "https://interviewed.com/";
 
   public static Jwt getJwt() {
     final String token = JWT.create().withIssuer(issuer)
@@ -58,9 +61,14 @@ public class JwtUtil {
     final LocalDateTime issuedAt = DateUtil.getLocalUtcTime();
     final LocalDateTime expiredAt = issuedAt.plusDays(3);
     final Algorithm algorithm = Algorithm.RSA256((RSAPublicKey) publicKey, (RSAPrivateKey) privateKey);
+
+    final DefaultJwtAuthenticationToken authenticationToken =
+        (DefaultJwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
+    final String userId = authenticationToken.getUserId();
     return JWT.create().withIssuer(issuer)
         .withIssuedAt(new Date(issuedAt.toEpochSecond(ZoneOffset.UTC) * 1000))
         .withExpiresAt(new Date(expiredAt.toEpochSecond(ZoneOffset.UTC) * 1000))
+        .withClaim(customNamespace + "id", userId)
         .sign(algorithm);
   }
 

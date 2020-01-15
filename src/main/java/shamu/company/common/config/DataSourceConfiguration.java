@@ -3,6 +3,7 @@ package shamu.company.common.config;
 import javax.sql.DataSource;
 import liquibase.integration.spring.SpringLiquibase;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.liquibase.LiquibaseProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -61,13 +62,13 @@ public class DataSourceConfiguration {
 
   @Bean
   @ConfigurationProperties(prefix = "spring.secret.liquibase")
-  @ConditionalOnProperty(name = "spring.secret.liquibase.change-log")
+  @ConditionalOnBean(name = "secretDataSource")
   public LiquibaseProperties secretLiquibaseProperties() {
     return new LiquibaseProperties();
   }
 
   @Bean
-  @ConditionalOnProperty(name = "spring.secret.liquibase.change-log")
+  @ConditionalOnBean(name = "secretDataSource")
   public SpringLiquibase secretLiquibase() {
     return getSpringLiquibase(secretDataSource(), secretLiquibaseProperties());
   }
