@@ -39,13 +39,18 @@ pipeline {
                 echo '---------------------------------\n' +
                         '      Create artifact         ' +
                         '\n---------------------------------'
-                script { RELEASE = sh(returnStdout: true, script: ''' echo ${ref} | sed 's/^.*\\///' ''') }
+                script {
+                    RELEASE = sh(returnStdout: true, script: ''' echo ${ref} | sed 's/^.*\\///' ''').trim()
+                    if (RELEASE=="") {
+                        RELEASE='master'
+                    }
+                }
                 sh "sudo bin/build -e ${params.DEV_ENV} -e ${params.QA_ENV} -r ${RELEASE}"
             }
         }
         stage('deploy master to dev environment') {
             when {
-                expression { RELEASE.trim() == 'master' }
+                expression { RELEASE == 'master' }
             }
             steps {
                 sh "git checkout origin/master && sudo bin/deploy ${params.DEV_ENV} ${RELEASE}"

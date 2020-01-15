@@ -13,32 +13,32 @@ if [ "${RELEASE}" == "master" ]
 then
   REPOSITORY_TAG='latest'
 else
-  REPOSITORY_TAG=${RELEASE}
+  REPOSITORY_TAG="${RELEASE}"
 fi
 
-REPOSITORY_URI=`aws ecr describe-repositories --repository-names ${REPOSITORY_NAME} --region ${REGION} | jq .repositories[].repositoryUri | tr -d '"'`
+REPOSITORY_URI=`aws ecr describe-repositories --repository-names "${REPOSITORY_NAME}" --region "${REGION}" | jq .repositories[].repositoryUri | tr -d '"'`
 
-IMAGE=${REPOSITORY_URI}:${REPOSITORY_TAG}
+IMAGE="${REPOSITORY_URI}":"${REPOSITORY_TAG}"
 
-ECS_SERVICES=`aws ecs list-services --cluster ${CLUSTER} --region ${REGION} | jq .serviceArns`
+ECS_SERVICES=`aws ecs list-services --cluster "${CLUSTER}" --region "${REGION}" | jq .serviceArns`
 
-TASK_DEFINITION=`aws ecs describe-task-definition --task-definition ${SERVICE_NAME} --region ${REGION}`
+TASK_DEFINITION=`aws ecs describe-task-definition --task-definition "${SERVICE_NAME}" --region "${REGION}"`
 
-CURRENT_RELEASE=$(echo $TASK_DEFINITION | jq .taskDefinition.containerDefinitions[0].image -r | sed 's/^.*://')
+CURRENT_RELEASE=$(echo "${TASK_DEFINITION}" | jq .taskDefinition.containerDefinitions[0].image -r | sed 's/^.*://')
 
 
 if [ "${CURRENT_RELEASE}" == "${REPOSITORY_TAG}" ]
 then
-    REVISION=$(echo $TASK_DEFINITION | jq '.taskDefinition.revision')
+    REVISION=$(echo "${TASK_DEFINITION}" | jq '.taskDefinition.revision')
 else
-    NEW_TASK_DEFINITION=`echo ${TASK_DEFINITION} | jq --arg IMAGE ${IMAGE} '.taskDefinition | .containerDefinitions[0].image = $IMAGE | del(.taskDefinitionArn) | del(.revision) | del(.status) | del(.requiresAttributes) | del(.compatibilities)'`
-    NEW_TASK_INFO=`aws ecs register-task-definition --region ${REGION} --cli-input-json ${NEW_TASK_DEFINITION}`
-    REVISION=$(echo $NEW_TASK_INFO | jq '.taskDefinition.revision')
+    NEW_TASK_DEFINITION=`echo "${TASK_DEFINITION}" | jq --arg IMAGE ${IMAGE} '.taskDefinition | .containerDefinitions[0].image = $IMAGE | del(.taskDefinitionArn) | del(.revision) | del(.status) | del(.requiresAttributes) | del(.compatibilities)'`
+    NEW_TASK_INFO=`aws ecs register-task-definition --region "${REGION}" --cli-input-json "${NEW_TASK_DEFINITION}"`
+    REVISION=$(echo "${NEW_TASK_INFO}" | jq '.taskDefinition.revision')
 fi
 
 
 if [ "[]" == "${ECS_SERVICES}" ];then
   echo "skip update company service"
 else
-  aws ecs update-service --cluster ${CLUSTER} --service ${SERVICE_NAME} --task-definition ${SERVICE_NAME}:${REVISION} --desired-count 1 --force-new-deployment --region ${REGION}
+  aws ecs update-service --cluster "${CLUSTER}" --service "${SERVICE_NAME}" --task-definition "${SERVICE_NAME}":"${REVISION}" --desired-count 1 --force-new-deployment --region "${REGION}"
 fi

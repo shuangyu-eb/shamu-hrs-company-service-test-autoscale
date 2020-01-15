@@ -32,17 +32,18 @@ fi
 
 mvn clean package -Dmaven.test.skip=true -e
 
-docker build -t company-service:${REPOSITORY_TAG} .
+docker build -t company-service:"${REPOSITORY_TAG}" .
 
 # upload build artifact to different environments' ecrs
 for env in "${ENVS[@]}"
 do
   REPOSITORY_NAME=`sed -n 's/REPOSITORY_NAME=\(.*\)/\1/p' config/"${env}"`
   REGION=`sed -n 's/REGION=\(.*\)/\1/p' config/"${env}"`
-  REPOSITORY_URI=`aws ecr describe-repositories --repository-names ${REPOSITORY_NAME} --region ${REGION} | jq .repositories[].repositoryUri | tr -d '"'`
-  docker tag company-service:${REPOSITORY_TAG} ${REPOSITORY_URI}:${REPOSITORY_TAG}
-  docker push ${REPOSITORY_URI}:${REPOSITORY_TAG}
-  docker image rm ${REPOSITORY_URI}:${REPOSITORY_TAG}
+  REPOSITORY_URI=`aws ecr describe-repositories --repository-names "${REPOSITORY_NAME}" --region "${REGION}" | jq .repositories[].repositoryUri | tr -d '"'`
+  $(aws ecr get-login --no-include-email --region "${REGION}")
+  docker tag company-service:"${REPOSITORY_TAG}" "${REPOSITORY_URI}":"${REPOSITORY_TAG}"
+  docker push "${REPOSITORY_URI}":"${REPOSITORY_TAG}"
+  docker image rm "${REPOSITORY_URI}":"${REPOSITORY_TAG}"
 done
 
-docker image rm company-service:${REPOSITORY_TAG}
+docker image rm company-service:"${REPOSITORY_TAG}"
