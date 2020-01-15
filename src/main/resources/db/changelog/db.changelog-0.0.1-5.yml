@@ -1122,3 +1122,15 @@ databaseChangeLog:
             onUpdate: CASCADE
             referencedColumnNames: id
             referencedTableName: users
+
+  - changeSet:
+      id: 1579061946733-1
+      author: bin-eb
+      changes:
+        - sql:
+            sql: set global event_scheduler = on;
+        - sql:
+            sql: DROP EVENT IF EXISTS set_user_benefit_setting_defaultvalue;
+        - sql:
+            sql: create event set_user_benefit_setting_defaultvalue on schedule every 1 year starts timestamp('2020-01-01','00:00:00') ON COMPLETION PRESERVE ENABLE do update user_benefits_setting s set s.hidden_banner = false;
+

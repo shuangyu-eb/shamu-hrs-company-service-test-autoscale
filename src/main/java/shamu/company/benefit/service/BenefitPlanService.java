@@ -39,7 +39,6 @@ import shamu.company.benefit.entity.mapper.MyBenefitsMapper;
 import shamu.company.benefit.entity.mapper.RetirementPlanTypeMapper;
 import shamu.company.benefit.repository.BenefitPlanCoverageRepository;
 import shamu.company.benefit.repository.BenefitPlanDependentRepository;
-import shamu.company.benefit.repository.BenefitPlanDocumentRepository;
 import shamu.company.benefit.repository.BenefitPlanRepository;
 import shamu.company.benefit.repository.BenefitPlanTypeRepository;
 import shamu.company.benefit.repository.BenefitPlanUserRepository;
@@ -51,6 +50,7 @@ import shamu.company.company.entity.Company;
 import shamu.company.helpers.s3.AccessType;
 import shamu.company.helpers.s3.AwsHelper;
 import shamu.company.user.repository.UserRepository;
+import shamu.company.user.service.UserBenefitsSettingService;
 
 @Service
 public class BenefitPlanService {
@@ -83,6 +83,8 @@ public class BenefitPlanService {
 
   private final AwsHelper awsHelper;
 
+  private final UserBenefitsSettingService userBenefitsSettingService;
+
   public BenefitPlanService(
       final BenefitPlanRepository benefitPlanRepository,
       final BenefitPlanUserRepository benefitPlanUserRepository,
@@ -97,7 +99,8 @@ public class BenefitPlanService {
       final UserRepository userRepository,
       final UserDependentsRepository userDependentsRepository,
       final BenefitPlanDependentRepository benefitPlanDependentRepository,
-      final AwsHelper awsHelper) {
+      final AwsHelper awsHelper,
+      final UserBenefitsSettingService userBenefitsSettingService) {
     this.benefitPlanRepository = benefitPlanRepository;
     this.benefitPlanUserRepository = benefitPlanUserRepository;
     this.benefitPlanCoverageRepository = benefitPlanCoverageRepository;
@@ -112,6 +115,7 @@ public class BenefitPlanService {
     this.userDependentsRepository = userDependentsRepository;
     this.benefitPlanDependentRepository = benefitPlanDependentRepository;
     this.awsHelper = awsHelper;
+    this.userBenefitsSettingService = userBenefitsSettingService;
   }
 
   public BenefitPlanDto createBenefitPlan(
@@ -587,6 +591,7 @@ public class BenefitPlanService {
               confirmedBenefitPlanUser.setConfirmed(true);
               benefitPlanUserRepository.save(confirmedBenefitPlanUser);
             });
+    userBenefitsSettingService.updateUserBenefitsHiddenBanner(userId);
   }
 
   public boolean isConfirmed(final String userId) {
