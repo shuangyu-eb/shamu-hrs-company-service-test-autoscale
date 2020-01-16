@@ -33,12 +33,12 @@ public class BenefitPlanUser extends BaseEntity {
 
   private Boolean enrolled;
 
+  private Boolean confirmed;
+
   @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
   @JoinTable(
       name = "benefit_plan_dependents",
       joinColumns = @JoinColumn(name = "benefit_plans_users_id"),
       inverseJoinColumns = @JoinColumn(name = "user_dependents_id"))
   private Set<BenefitPlanDependent> benefitPlanDependents;
-
-  private Boolean confirmed;
 }

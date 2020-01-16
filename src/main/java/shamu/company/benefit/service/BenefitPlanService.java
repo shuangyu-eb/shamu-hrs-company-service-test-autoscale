@@ -308,9 +308,9 @@ public class BenefitPlanService {
     benefitPlans.forEach(
         benefitPlan -> {
           final Number eligibleNumber =
-              benefitPlanUserRepository.getEligibleEmployeeNumber(companyId, benefitPlan.getId());
+              benefitPlanUserRepository.getEligibleEmployeeNumber(benefitPlan.getId());
           final Number enrolledNumber =
-              benefitPlanUserRepository.countByBenefitPlanIdAndEnrolled(benefitPlan.getId(), true);
+              benefitPlanUserRepository.countByBenefitPlanIdAndConfirmedIsTrue(benefitPlan.getId());
           benefitPlanPreviewDtos.add(
               new BenefitPlanPreviewDto(
                   benefitPlan.getId(), benefitPlan.getName(), eligibleNumber, enrolledNumber));
