@@ -78,7 +78,5 @@ public class WebControllerBaseTests {
     SecurityContextHolder.getContext().setAuthentication(defaultJwtAuthenticationToken);
 
     given(authUserCacheManager.getCachedUser(Mockito.any())).willReturn(getAuthUser());
-    Mockito.doReturn(getAuthUser()).when(authUserCacheManager).getCachedUser(Mockito.any());
-
   }
 }
