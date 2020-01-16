@@ -17,9 +17,10 @@ import shamu.company.common.entity.BaseEntity;
 @NoArgsConstructor
 public class UserBenefitsSetting extends BaseEntity {
 
+  private static final long serialVersionUID = 4809408386010041398L;
   @OneToOne
   private User user;
 
-  @Column(name = "hidden_banner")
-  private Boolean hiddenBanner;
+  @Column(name = "effect_year")
+  private String effectYear;
 }

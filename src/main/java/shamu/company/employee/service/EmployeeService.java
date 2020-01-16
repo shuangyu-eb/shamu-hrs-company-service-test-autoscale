@@ -197,7 +197,6 @@ public class EmployeeService {
     final User employee = saveEmployeeBasicInformation(currentUser, employeeDto);
 
     saveEmergencyContacts(employee, employeeDto.getUserEmergencyContactDto());
-    userService.saveUserBenefitsSetting(employee);
 
     final NewEmployeeJobInformationDto jobInformation = employeeDto.getJobInformation();
 

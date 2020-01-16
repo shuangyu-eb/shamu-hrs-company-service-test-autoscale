@@ -2,6 +2,7 @@ package shamu.company.benefit.service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -621,7 +622,8 @@ public class BenefitPlanService {
               confirmedBenefitPlanUser.setConfirmed(true);
               benefitPlanUserRepository.save(confirmedBenefitPlanUser);
             });
-    userBenefitsSettingService.updateUserBenefitsHiddenBanner(userId);
+    userBenefitsSettingService.saveUserBenefitsSettingEffectYear(
+        userId, String.valueOf(Calendar.getInstance().get(Calendar.YEAR)));
   }
 
   public boolean isConfirmed(final String userId) {

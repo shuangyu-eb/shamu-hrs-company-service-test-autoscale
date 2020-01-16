@@ -15,35 +15,39 @@ class UserBenefitsSettingServiceTest {
   @Mock
   private UserBenefitsSettingRepository userBenefitsSettingRepository;
 
+  @Mock
+  private UserService userService;
+
   private UserBenefitsSettingService userBenefitsSettingService;
 
   @BeforeEach
   void setUp() {
     MockitoAnnotations.initMocks(this);
-    userBenefitsSettingService = new UserBenefitsSettingService(userBenefitsSettingRepository);
+    userBenefitsSettingService = new UserBenefitsSettingService(
+      userBenefitsSettingRepository, userService);
   }
 
   @Test
   void findUserBenefitsHiddenBanner() {
-    UserBenefitsSetting userBenefitsSetting = new UserBenefitsSetting();
+    final UserBenefitsSetting userBenefitsSetting = new UserBenefitsSetting();
     userBenefitsSetting.setId("1");
     Mockito.when(userBenefitsSettingRepository.findByUserId(Mockito.any())).thenReturn(userBenefitsSetting);
     Assertions.assertDoesNotThrow(() ->
-      userBenefitsSettingService.findUserBenefitsHiddenBanner("1"));
+      userBenefitsSettingService.findUserBenefitsEffectYear("1", "1"));
   }
 
   @Test
   void updateUserBenefitsHiddenBanner() {
-    UserBenefitsSetting userBenefitsSetting = new UserBenefitsSetting();
+    final UserBenefitsSetting userBenefitsSetting = new UserBenefitsSetting();
     userBenefitsSetting.setId("1");
     Mockito.when(userBenefitsSettingRepository.findByUserId(Mockito.any())).thenReturn(userBenefitsSetting);
     Assertions.assertDoesNotThrow(() ->
-      userBenefitsSettingService.findUserBenefitsHiddenBanner("1"));
+      userBenefitsSettingService.findUserBenefitsEffectYear("1", "1"));
   }
 
   @Test
   void save() {
-    UserBenefitsSetting userBenefitsSetting = new UserBenefitsSetting();
+    final UserBenefitsSetting userBenefitsSetting = new UserBenefitsSetting();
     userBenefitsSetting.setId("1");
     Mockito.when(userBenefitsSettingRepository.save(userBenefitsSetting)).thenReturn(userBenefitsSetting);
     Assertions.assertDoesNotThrow(() ->

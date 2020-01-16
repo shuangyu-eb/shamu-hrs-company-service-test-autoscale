@@ -74,7 +74,6 @@ import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
 import shamu.company.user.entity.UserAccessLevelEvent;
 import shamu.company.user.entity.UserAddress;
-import shamu.company.user.entity.UserBenefitsSetting;
 import shamu.company.user.entity.UserContactInformation;
 import shamu.company.user.entity.UserPersonalInformation;
 import shamu.company.user.entity.UserRole;
@@ -124,7 +123,6 @@ public class UserService {
   private final UserPersonalInformationMapper userPersonalInformationMapper;
   private final UserMapper userMapper;
   private final CompanyBenefitsSettingService companyBenefitsSettingService;
-  private final UserBenefitsSettingService userBenefitsSettingService;
 
   @Value("${application.systemEmailAddress}")
   private String systemEmailAddress;
@@ -149,8 +147,7 @@ public class UserService {
       final JobService jobService, final UserAccessLevelEventService userAccessLevelEventService,
       final UserContactInformationService userContactInformationService,
       final UserPersonalInformationService userPersonalInformationService,
-      final CompanyBenefitsSettingService companyBenefitsSettingService,
-      final UserBenefitsSettingService userBenefitsSettingService) {
+      final CompanyBenefitsSettingService companyBenefitsSettingService) {
     this.templateEngine = templateEngine;
     this.userRepository = userRepository;
     this.emailService = emailService;
@@ -177,7 +174,6 @@ public class UserService {
     this.userContactInformationService = userContactInformationService;
     this.userPersonalInformationService = userPersonalInformationService;
     this.companyBenefitsSettingService = companyBenefitsSettingService;
-    this.userBenefitsSettingService = userBenefitsSettingService;
   }
 
   public User findById(final String id) {
@@ -536,8 +532,6 @@ public class UserService {
 
     user = userRepository.save(user);
 
-    saveUserBenefitsSetting(user);
-
     final JobUser jobUser = new JobUser();
     jobUser.setUser(user);
     jobUser.setJob(job);
@@ -545,13 +539,6 @@ public class UserService {
     jobUserService.save(jobUser);
 
     paidHolidayService.initDefaultPaidHolidays(user.getCompany());
-  }
-
-  public void saveUserBenefitsSetting(final User user) {
-    final UserBenefitsSetting userBenefitsSetting = new UserBenefitsSetting();
-    userBenefitsSetting.setUser(user);
-    userBenefitsSetting.setHiddenBanner(false);
-    userBenefitsSettingService.save(userBenefitsSetting);
   }
 
   private void saveCompanyBenefitsSetting(final Company company) {
