@@ -2,6 +2,7 @@ package shamu.company.job.entity.mapper;
 
 import java.sql.Timestamp;
 import java.util.List;
+
 import org.mapstruct.InheritConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

@@ -1,6 +1,7 @@
 package shamu.company.benefit.controller;
 
 import java.util.List;
+
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 import shamu.company.benefit.dto.BenefitPlanDetailDto;
 import shamu.company.benefit.dto.BenefitPlanDto;
 import shamu.company.benefit.dto.BenefitPlanPreviewDto;
+import shamu.company.benefit.dto.BenefitPlanRelatedUserListDto;
 import shamu.company.benefit.dto.BenefitPlanTypeDto;
 import shamu.company.benefit.dto.BenefitPlanUpdateDto;
 import shamu.company.benefit.dto.BenefitPlanUserCreateDto;
@@ -168,5 +170,21 @@ public class BenefitPlanRestController extends BaseRestController {
   public boolean hasConfirmation() {
     final String userId = findAuthUser().getId();
     return benefitPlanService.isConfirmed(userId);
+  }
+
+  @PatchMapping("benefit-plan/employees/{benefitPlanId}")
+  @PreAuthorize("hasPermission(#benefitPlanId, 'BENEFIT_PLAN', 'MANAGE_BENEFIT_PLAN')")
+  public BenefitPlanRelatedUserListDto updateTimeOffPolicyEmployeesInfo(
+      @PathVariable final String benefitPlanId,
+      @RequestBody final List<BenefitPlanUserCreateDto> unSelectedEmployees) {
+    return benefitPlanService.updateBenefitPlanEmployees(unSelectedEmployees,
+        benefitPlanId, findCompanyId());
+  }
+
+  @GetMapping("benefit-plan/{benefitPlanId}/users")
+  @PreAuthorize("hasPermission(#benefitPlanId, 'BENEFIT_PLAN', 'MANAGE_BENEFIT_PLAN')")
+  public BenefitPlanRelatedUserListDto getEmployeesByBenefitPlanId(
+      @PathVariable String benefitPlanId) {
+    return benefitPlanService.findRelatedUsersByBenefitPlan(benefitPlanId, findCompanyId());
   }
 }

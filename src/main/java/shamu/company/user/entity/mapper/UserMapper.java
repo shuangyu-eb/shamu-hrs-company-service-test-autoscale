@@ -54,6 +54,12 @@ public interface UserMapper {
   @Mapping(target = "companyId", source = "company.id")
   MockUserDto convertToMockUserDto(User user);
 
+  @Mapping(target = "id", source = "user.id")
+  @Mapping(target = "firstName", source = "user.userPersonalInformation.firstName")
+  @Mapping(target = "lastName", source = "user.userPersonalInformation.lastName")
+  @Mapping(target = "imageUrl", source = "user.imageUrl")
+  BenefitPlanUserDto covertToBenefitPlanUserDto(User user);
+
   default Role convertFromUserRole(final UserRole userRole) {
     return Role.valueOf(userRole.getName());
   }

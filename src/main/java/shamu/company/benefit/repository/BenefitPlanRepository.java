@@ -10,6 +10,8 @@ public interface BenefitPlanRepository extends BaseRepository<BenefitPlan, Strin
 
   List<BenefitPlan> findBenefitPlanByCompanyId(String companyId);
 
+  List<BenefitPlan> findBenefitPlanByIdAndCompanyId(String benefitPlanId, String companyId);
+
   List<BenefitPlan> findByBenefitPlanTypeIdAndCompanyId(String benefitPlanTypeId, String companyId);
 
   @Query(

@@ -17,6 +17,8 @@ public interface BenefitPlanUserRepository extends BaseRepository<BenefitPlanUse
 
   List<BenefitPlanUser> findAllByBenefitPlan(BenefitPlan benefitPlan);
 
+  List<BenefitPlanUser> findAllByBenefitPlanId(String benefitPlanId);
+
   @Query(value = "select count(distinct(user_id)) from benefit_plans_users "
       + "where benefit_plan_id = unhex(?1) ", nativeQuery = true)
   Long getEligibleEmployeeNumber(String benefitPlanId);

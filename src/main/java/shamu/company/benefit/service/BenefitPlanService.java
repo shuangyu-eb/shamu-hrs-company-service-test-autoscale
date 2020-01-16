@@ -5,18 +5,25 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 import shamu.company.benefit.dto.BenefitPlanCoverageDto;
 import shamu.company.benefit.dto.BenefitPlanCreateDto;
 import shamu.company.benefit.dto.BenefitPlanDependentUserDto;
 import shamu.company.benefit.dto.BenefitPlanDto;
 import shamu.company.benefit.dto.BenefitPlanPreviewDto;
+import shamu.company.benefit.dto.BenefitPlanRelatedUserListDto;
 import shamu.company.benefit.dto.BenefitPlanTypeDto;
 import shamu.company.benefit.dto.BenefitPlanUpdateDto;
 import shamu.company.benefit.dto.BenefitPlanUserCreateDto;
@@ -51,6 +58,8 @@ import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.company.entity.Company;
 import shamu.company.helpers.s3.AccessType;
 import shamu.company.helpers.s3.AwsHelper;
+import shamu.company.user.entity.User;
+import shamu.company.user.entity.mapper.UserMapper;
 import shamu.company.user.repository.UserRepository;
 import shamu.company.user.service.UserBenefitsSettingService;
 
@@ -77,6 +86,8 @@ public class BenefitPlanService {
 
   private final MyBenefitsMapper myBenefitsMapper;
 
+  private final UserMapper userMapper;
+
   private final UserRepository userRepository;
 
   private final UserDependentsRepository userDependentsRepository;
@@ -98,6 +109,7 @@ public class BenefitPlanService {
       final BenefitPlanUserMapper benefitPlanUserMapper,
       final BenefitPlanMapper benefitPlanMapper,
       final MyBenefitsMapper myBenefitsMapper,
+      final UserMapper userMapper,
       final UserRepository userRepository,
       final UserDependentsRepository userDependentsRepository,
       final BenefitPlanDependentRepository benefitPlanDependentRepository,
@@ -113,6 +125,7 @@ public class BenefitPlanService {
     this.retirementPlanTypeMapper = retirementPlanTypeMapper;
     this.benefitPlanMapper = benefitPlanMapper;
     this.myBenefitsMapper = myBenefitsMapper;
+    this.userMapper = userMapper;
     this.userRepository = userRepository;
     this.userDependentsRepository = userDependentsRepository;
     this.benefitPlanDependentRepository = benefitPlanDependentRepository;
@@ -630,5 +643,56 @@ public class BenefitPlanService {
     final List<BenefitPlanUser> benefitPlanUsers =
         benefitPlanUserRepository.findByUserIdAndConfirmedIsTrue(userId);
     return benefitPlanUsers.size() > 0;
+  }
+
+  public BenefitPlanRelatedUserListDto updateBenefitPlanEmployees(
+      final List<BenefitPlanUserCreateDto> employees,
+      final String benefitPlanId, final String companyId) {
+    final List<String> updateUsers = employees.stream().map(employee -> employee.getId())
+        .collect(Collectors.toList());
+    final List<BenefitPlanUser> existPlans = benefitPlanUserRepository
+        .findAllByBenefitPlanId(benefitPlanId);
+    final List<String> existUsers = existPlans.stream().map(benefitPlanUser ->
+        benefitPlanUser.getUser().getId())
+        .collect(Collectors.toList());
+    final List<BenefitPlanUser> saveUsers = employees.stream().filter(employee ->
+        !existUsers.contains(employee.getId()))
+        .map(s -> benefitPlanUserMapper
+            .createFromBenefitPlanUserCreateDtoAndBenefitPlanId(s, benefitPlanId))
+        .collect(Collectors.toList());
+    if (!CollectionUtils.isEmpty(saveUsers)) {
+      benefitPlanUserRepository.saveAll(saveUsers);
+    }
+    final List<String> deletePlanUsers = existPlans.stream().filter(existPlan -> !updateUsers
+        .contains(existPlan.getUser().getId()))
+        .map(s -> s.getId()).collect(Collectors.toList());
+    if (!CollectionUtils.isEmpty(deletePlanUsers)) {
+      benefitPlanUserRepository.deleteInBatch(deletePlanUsers);
+    }
+    return findRelatedUsersByBenefitPlan(benefitPlanId, companyId);
+  }
+
+  public BenefitPlanRelatedUserListDto findRelatedUsersByBenefitPlan(final String benefitPlanId,
+      final String companyId) {
+    final List<String> selectedUserIds = new ArrayList<>();
+    final List<User> allUsers = userRepository.findAllByCompanyId(companyId);
+    final List<BenefitPlanUser> benefitPlanUserList = benefitPlanUserRepository
+        .findAllByBenefitPlanId(benefitPlanId);
+    final List<BenefitPlanUserDto> selectedUsers = benefitPlanUserList.stream()
+        .filter(distinctByKey(b -> b.getUser().getId()))
+        .map(benefitPlanUser -> {
+          selectedUserIds.add(benefitPlanUser.getUser().getId());
+          return benefitPlanUserMapper.convertToBenefitPlanUserDto(benefitPlanUser);
+        }).collect(Collectors.toList());
+    final List<BenefitPlanUserDto> unselectedUsers = allUsers.stream().filter(user ->
+        !selectedUserIds.contains(user.getId()))
+        .map(userMapper::covertToBenefitPlanUserDto).collect(Collectors.toList());
+    return new BenefitPlanRelatedUserListDto(unselectedUsers,selectedUsers);
+  }
+
+
+  static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
+    Map<Object,Boolean> seen = new ConcurrentHashMap<>();
+    return t -> seen.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
   }
 }
