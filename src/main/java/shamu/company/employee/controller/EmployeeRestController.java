@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -18,6 +19,7 @@ import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.common.exception.ForbiddenException;
 import shamu.company.email.EmailService;
 import shamu.company.employee.dto.EmailResendDto;
+import shamu.company.employee.dto.EmployeeDetailDto;
 import shamu.company.employee.dto.EmployeeDto;
 import shamu.company.employee.dto.EmployeeListSearchCondition;
 import shamu.company.employee.dto.OrgChartDto;
@@ -105,5 +107,12 @@ public class EmployeeRestController extends BaseRestController {
   public List<OrgChartDto> findOrgChart(
       @RequestParam(value = "userId", required = false) final String userId) {
     return userService.getOrgChart(userId, findCompanyId());
+  }
+
+  @GetMapping("/employees/{id}/info")
+  @PreAuthorize("hasPermission(#id,'USER','VIEW_USER_PERSONAL')")
+  public EmployeeDetailDto getEmployeeInfoByUserId(
+      @PathVariable final String id) {
+    return employeeService.getEmployeeInfoByUserId(id);
   }
 }

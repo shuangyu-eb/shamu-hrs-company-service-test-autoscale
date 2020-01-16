@@ -69,6 +69,7 @@ public class JwtUtil {
         .withIssuedAt(new Date(issuedAt.toEpochSecond(ZoneOffset.UTC) * 1000))
         .withExpiresAt(new Date(expiredAt.toEpochSecond(ZoneOffset.UTC) * 1000))
         .withClaim(customNamespace + "id", userId)
+        .withClaim("scope", "openid profile email")
         .sign(algorithm);
   }
 
