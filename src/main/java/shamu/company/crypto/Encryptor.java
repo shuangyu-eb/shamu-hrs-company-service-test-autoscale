@@ -25,8 +25,10 @@ public class Encryptor {
   private final SecretHashRepository secretHashRepository;
 
   @Autowired
-  Encryptor(final @Value("${crypto.hash}") String indeedHash,
-      final UserService userService, final Auth0Helper auth0Helper,
+  Encryptor(
+      final @Value("${crypto.hash}") String indeedHash,
+      final UserService userService,
+      final Auth0Helper auth0Helper,
       final SecretHashRepository secretHashRepository) {
     this.indeedHash = indeedHash;
     this.userService = userService;
@@ -52,8 +54,7 @@ public class Encryptor {
   }
 
   private String decrypt(final User user, final String value) {
-    return new String(
-        getEncryptor(user).decrypt(Base64.getDecoder().decode(value)), charset);
+    return new String(getEncryptor(user).decrypt(Base64.getDecoder().decode(value)), charset);
   }
 
   String decrypt(final String id, final Class entityClass, final String value) {
@@ -64,7 +65,7 @@ public class Encryptor {
         final User user = userService.findUserByUserPersonalInformationId(id);
         return decrypt(user, value);
       } else if (entityClass == BenefitPlanDependent.class) {
-        return decrypt(id,value);
+        return decrypt(id, value);
       }
     } catch (final Exception e) {
       // for the unencoded value
@@ -97,5 +98,4 @@ public class Encryptor {
   private String getCompanyHash(final User user) {
     return secretHashRepository.getCompanySecretByCompanyId(user.getCompany().getId());
   }
-
 }

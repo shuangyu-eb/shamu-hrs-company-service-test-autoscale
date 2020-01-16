@@ -29,12 +29,12 @@ import okhttp3.OkHttpClient.Builder;
 import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Component;
 import shamu.company.common.exception.AbstractException;
 import shamu.company.common.exception.GeneralAuth0Exception;
 import shamu.company.common.exception.GeneralException;
 import shamu.company.common.exception.NonUniqueAuth0ResourceException;
-import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.common.exception.TooManyRequestException;
 import shamu.company.sentry.SentryLogger;
 
@@ -52,8 +52,7 @@ public class Auth0Helper {
   private static final String MFA_CONTENT_TYPE = "application/x-www-form-urlencoded";
 
   @Autowired
-  public Auth0Helper(final Auth0Manager auth0Manager,
-      final Auth0Config auth0Config) {
+  public Auth0Helper(final Auth0Manager auth0Manager, final Auth0Config auth0Config) {
     this.auth0Config = auth0Config;
     this.auth0Manager = auth0Manager;
   }
@@ -62,18 +61,17 @@ public class Auth0Helper {
     return auth0Config.getAuthApi();
   }
 
-  private AbstractException handleAuth0Exception(final Auth0Exception e,
-      final String api) {
+  private AbstractException handleAuth0Exception(final Auth0Exception e, final String api) {
     if ((e.getMessage().contains(String.valueOf(HttpStatus.TOO_MANY_REQUESTS.value()))
-        || e.getMessage().contains(HttpStatus.TOO_MANY_REQUESTS.getReasonPhrase()))
+            || e.getMessage().contains(HttpStatus.TOO_MANY_REQUESTS.getReasonPhrase()))
         && AUTH_API.equals(api)) {
-      return new TooManyRequestException("Too many requests. "
-          + "System limits for request are 100 requests per second.", e);
+      return new TooManyRequestException(
+          "Too many requests. " + "System limits for request are 100 requests per second.", e);
     } else if ((e.getMessage().contains(String.valueOf(HttpStatus.TOO_MANY_REQUESTS.value()))
-        || e.getMessage().contains(HttpStatus.TOO_MANY_REQUESTS.getReasonPhrase()))
+            || e.getMessage().contains(HttpStatus.TOO_MANY_REQUESTS.getReasonPhrase()))
         && api.equals(MANAGEMENT_API)) {
-      return new TooManyRequestException("Too many requests. "
-          + "System limits for request are 15 requests per second.", e);
+      return new TooManyRequestException(
+          "Too many requests. " + "System limits for request are 15 requests per second.", e);
     } else {
       return new GeneralAuth0Exception(e.getMessage(), e);
     }
@@ -81,8 +79,8 @@ public class Auth0Helper {
 
   public TokenHolder login(final String email, final String password) {
     try {
-      final AuthRequest request = getAuthApi().login(email, password)
-          .setAudience(auth0Config.getAudience());
+      final AuthRequest request =
+          getAuthApi().login(email, password).setAudience(auth0Config.getAudience());
       return request.execute();
     } catch (final Auth0Exception exception) {
       throw handleAuth0Exception(exception, AUTH_API);
@@ -94,11 +92,12 @@ public class Auth0Helper {
   @SuppressWarnings("unchecked")
   public TokenHolder validateMfa(final String mfaToken, final String otp) {
 
-    final CustomRequest<TokenHolder> customRequest = new CustomRequest(httpClient,
-        String.format("https://%s/oauth/token", auth0Config.getDomain()),
-        "POST",
-        new TypeReference<TokenHolder>() {
-        });
+    final CustomRequest<TokenHolder> customRequest =
+        new CustomRequest(
+            httpClient,
+            String.format("https://%s/oauth/token", auth0Config.getDomain()),
+            "POST",
+            new TypeReference<TokenHolder>() {});
     customRequest.addHeader("content-type", MFA_CONTENT_TYPE);
 
     customRequest
@@ -127,8 +126,7 @@ public class Auth0Helper {
   public User findByEmail(final String emailRaw) {
     final String email = emailRaw.toLowerCase();
     final ManagementAPI manager = auth0Manager.getManagementApi();
-    final Request<List<User>> userRequest = manager.users()
-        .listByEmail(email, null);
+    final Request<List<User>> userRequest = manager.users().listByEmail(email, null);
     final List<User> users;
     try {
       users = userRequest.execute();
@@ -151,9 +149,10 @@ public class Auth0Helper {
   public User getUserByUserIdFromAuth0(final String userId) {
     final ManagementAPI manager = auth0Manager.getManagementApi();
     UserFilter userFilter = new UserFilter();
-    userFilter = userFilter
-        .withSearchEngine("v3")
-        .withQuery(String.format("app_metadata.id:\"%s\"", userId.toLowerCase()));
+    userFilter =
+        userFilter
+            .withSearchEngine("v3")
+            .withQuery(String.format("app_metadata.id:\"%s\"", userId.toLowerCase()));
     final Request<UsersPage> userRequest = manager.users().list(userFilter);
 
     final UsersPage usersPage;
@@ -166,8 +165,7 @@ public class Auth0Helper {
     final List<User> users = usersPage.getItems();
 
     if (users.size() > 1) {
-      throw new NonUniqueAuth0ResourceException(
-          "Multiple Auth0 users with the same id exist.");
+      throw new NonUniqueAuth0ResourceException("Multiple Auth0 users with the same id exist.");
     }
 
     if (users.isEmpty()) {
@@ -198,29 +196,28 @@ public class Auth0Helper {
     final User auth0User = getAuth0UserByIdWithByEmailFailover(user.getId(), userWorkEmail);
 
     final ManagementAPI manager = auth0Manager.getManagementApi();
-    final Request<PermissionsPage> permissionsPageRequest = manager.users()
-        .listPermissions(auth0User.getId(), new PageFilter().withPage(0, 100));
+    final Request<PermissionsPage> permissionsPageRequest =
+        manager.users().listPermissions(auth0User.getId(), new PageFilter().withPage(0, 100));
 
     final PermissionsPage permissionsPage;
     try {
       permissionsPage = permissionsPageRequest.execute();
-      return permissionsPage.getItems()
-          .stream().map(Permission::getName)
+      return permissionsPage.getItems().stream()
+          .map(Permission::getName)
           .collect(Collectors.toList());
     } catch (final Auth0Exception e) {
       throw new GeneralAuth0Exception(
-        "Get permission error with auth0UserId: " + auth0User.getId(), e);
+          "Get permission error with auth0UserId: " + auth0User.getId(), e);
     }
   }
 
   public void updatePassword(final User user, final String newPassword) {
     final ManagementAPI manager = auth0Manager.getManagementApi();
     try {
-      final User passwordUpdateUser =
-          new User();
+      final User passwordUpdateUser = new User();
       passwordUpdateUser.setPassword(newPassword);
-      final Request<User> passwordUpdateRequest = manager.users()
-          .update(user.getId(), passwordUpdateUser);
+      final Request<User> passwordUpdateRequest =
+          manager.users().update(user.getId(), passwordUpdateUser);
       passwordUpdateRequest.execute();
     } catch (final Auth0Exception e) {
       throw handleAuth0Exception(e, MANAGEMENT_API);
@@ -234,8 +231,8 @@ public class Auth0Helper {
     try {
       final User emailUpdateUser = new User();
       emailUpdateUser.setEmail(newEmail);
-      final Request<User> emailUpdateRequest = manager.users()
-          .update(authUser.getId(), emailUpdateUser);
+      final Request<User> emailUpdateRequest =
+          manager.users().update(authUser.getId(), emailUpdateUser);
       emailUpdateRequest.execute();
     } catch (final Auth0Exception e) {
       throw handleAuth0Exception(e, MANAGEMENT_API);
@@ -246,18 +243,15 @@ public class Auth0Helper {
     final ManagementAPI manager = auth0Manager.getManagementApi();
 
     try {
-      final User emailUpdateUser =
-          new User();
+      final User emailUpdateUser = new User();
       emailUpdateUser.setEmail(newWorkEmail);
       emailUpdateUser.setEmailVerified(true);
-      final Request<User> passwordUpdateRequest = manager.users()
-          .update(user.getId(), emailUpdateUser);
+      final Request<User> passwordUpdateRequest =
+          manager.users().update(user.getId(), emailUpdateUser);
       passwordUpdateRequest.execute();
     } catch (final Auth0Exception e) {
       throw new GeneralAuth0Exception(e.getMessage(), e);
     }
-
-
   }
 
   public void updateVerified(final User user, final boolean verified) {
@@ -265,8 +259,7 @@ public class Auth0Helper {
     try {
       final User verifiedUpdate = new User();
       verifiedUpdate.setEmailVerified(verified);
-      final Request<User> verifiedRequest = manager.users()
-          .update(user.getId(), verifiedUpdate);
+      final Request<User> verifiedRequest = manager.users().update(user.getId(), verifiedUpdate);
       verifiedRequest.execute();
     } catch (final Auth0Exception e) {
       throw handleAuth0Exception(e, MANAGEMENT_API);
@@ -286,9 +279,10 @@ public class Auth0Helper {
     auth0User.setEmail(email);
 
     if (StringUtils.isBlank(password)) {
-      password = RandomStringUtils.randomAlphabetic(4).toUpperCase()
-          + RandomStringUtils.randomAlphabetic(4).toLowerCase()
-          + RandomStringUtils.randomNumeric(4);
+      password =
+          RandomStringUtils.randomAlphabetic(4).toUpperCase()
+              + RandomStringUtils.randomAlphabetic(4).toLowerCase()
+              + RandomStringUtils.randomNumeric(4);
     }
 
     auth0User.setPassword(password);
@@ -297,17 +291,17 @@ public class Auth0Helper {
 
     final Map<String, Object> appMetaData = new HashMap<>();
     final String userId = UUID.randomUUID().toString().replace("-", "");
+    final String userSecret = generateUserSecret(userId);
     appMetaData.put("id", userId);
     appMetaData.put("idVerified", true);
     appMetaData.put("role", roleName);
+    appMetaData.put("userSecret", userSecret);
     auth0User.setAppMetadata(appMetaData);
-
 
     auth0User.setEmailVerified(true);
 
     final ManagementAPI manager = auth0Manager.getManagementApi();
-    final Request<User> request = manager.users()
-        .create(auth0User);
+    final Request<User> request = manager.users().create(auth0User);
 
     try {
       return request.execute();
@@ -334,11 +328,12 @@ public class Auth0Helper {
       if (roles.size() != 1) {
         log.error("User has wrong role size with email: " + auth0User.getEmail());
       }
-      final Role targetRole = roles.stream()
-          .min(Comparator
-              .comparingInt(
-                  a -> shamu.company.user.entity.User.Role.valueOf(a.getName()).ordinal()))
-          .orElseThrow(() -> new Auth0Exception("Role is empty"));
+      final Role targetRole =
+          roles.stream()
+              .min(
+                  Comparator.comparingInt(
+                      a -> shamu.company.user.entity.User.Role.valueOf(a.getName()).ordinal()))
+              .orElseThrow(() -> new Auth0Exception("Role is empty"));
 
       return shamu.company.user.entity.User.Role.valueOf(targetRole.getName());
     } catch (final Auth0Exception e) {
@@ -357,16 +352,16 @@ public class Auth0Helper {
     try {
       final Request<RolesPage> rolesPageRequest = manager.roles().list(null);
       final RolesPage rolesPage = rolesPageRequest.execute();
-      final List<String> updatedRoleId = rolesPage.getItems().stream()
-          .filter(role -> role.getName().equals(updatedRole))
-          .map(Role::getId)
-          .collect(Collectors.toList());
+      final List<String> updatedRoleId =
+          rolesPage.getItems().stream()
+              .filter(role -> role.getName().equals(updatedRole))
+              .map(Role::getId)
+              .collect(Collectors.toList());
 
       final Request userRolesRequest = manager.users().listRoles(auth0UserId, null);
       final RolesPage userRolesPage = (RolesPage) userRolesRequest.execute();
-      final List<String> userRolesIds = userRolesPage.getItems().stream()
-          .map(Role::getId)
-          .collect(Collectors.toList());
+      final List<String> userRolesIds =
+          userRolesPage.getItems().stream().map(Role::getId).collect(Collectors.toList());
 
       final Request removeRolesRequest = manager.users().removeRoles(auth0UserId, userRolesIds);
       removeRolesRequest.execute();
@@ -387,7 +382,6 @@ public class Auth0Helper {
     } catch (final Auth0Exception e) {
       throw handleAuth0Exception(e, MANAGEMENT_API);
     }
-
   }
 
   public String getUserSecret(final shamu.company.user.entity.User user) {
@@ -399,12 +393,17 @@ public class Auth0Helper {
 
   public void sendVerificationEmail(final String authUserId) {
     final ManagementAPI managementApi = auth0Manager.getManagementApi();
-    final Request<Job> sendVerificationEmail = managementApi.jobs()
-        .sendVerificationEmail(authUserId, auth0Config.getClientId());
+    final Request<Job> sendVerificationEmail =
+        managementApi.jobs().sendVerificationEmail(authUserId, auth0Config.getClientId());
     try {
       sendVerificationEmail.execute();
     } catch (final Auth0Exception e) {
       throw new GeneralAuth0Exception(e.getMessage(), e);
     }
+  }
+
+  private String generateUserSecret(final String userId) {
+    final String userSalt = BCrypt.gensalt();
+    return BCrypt.hashpw(userId, userSalt);
   }
 }

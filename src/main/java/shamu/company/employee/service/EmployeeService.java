@@ -86,7 +86,6 @@ import shamu.company.user.service.UserStatusService;
 import shamu.company.utils.DateUtil;
 import shamu.company.utils.FileValidateUtil;
 import shamu.company.utils.FileValidateUtil.FileType;
-import shamu.company.utils.UuidUtil;
 
 @Service
 @Transactional
@@ -187,10 +186,8 @@ public class EmployeeService {
     return userService.findByCompanyId(companyId);
   }
 
-  public List<User> findDirectReportsByManagerUserId(
-      final String companyId, final String userId) {
-    return userService.findDirectReportsByManagerUserId(
-        companyId, userId);
+  public List<User> findDirectReportsByManagerUserId(final String companyId, final String userId) {
+    return userService.findDirectReportsByManagerUserId(companyId, userId);
   }
 
   public void addEmployee(final EmployeeDto employeeDto, final User currentUser) {
@@ -232,8 +229,8 @@ public class EmployeeService {
       }
 
       auth0Helper.updateEmail(user, emailResendDto.getEmail());
-      applicationEventPublisher
-          .publishEvent(new UserEmailUpdatedEvent(user.getId(), originalEmail));
+      applicationEventPublisher.publishEvent(
+          new UserEmailUpdatedEvent(user.getId(), originalEmail));
       user.getUserContactInformation().setEmailWork(email);
       userService.save(user);
     }
@@ -265,8 +262,8 @@ public class EmployeeService {
       file = File.createTempFile(UUID.randomUUID().toString(), ".png");
       final byte[] photo = Base64.getDecoder().decode(imageString);
       FileCopyUtils.copy(photo, file);
-      FileValidateUtil
-          .validate(file, 2 * FileValidateUtil.MB, FileType.JPEG, FileType.PNG, FileType.GIF);
+      FileValidateUtil.validate(
+          file, 2 * FileValidateUtil.MB, FileType.JPEG, FileType.PNG, FileType.GIF);
       return awsHelper.uploadFile(file.getCanonicalPath(), Type.IMAGE);
     } catch (final IOException e) {
       throw new AwsException("Error while uploading employee photo!", e);
@@ -275,22 +272,19 @@ public class EmployeeService {
 
   private User saveEmployeeBasicInformation(final User currentUser, final EmployeeDto employeeDto) {
     final User employee = new User();
-    employee.setSalt(UuidUtil.getUuidString());
     final String base64EncodedPhoto = employeeDto.getPersonalPhoto();
     final String photoPath = saveEmployeePhoto(base64EncodedPhoto);
     employee.setImageUrl(photoPath);
 
     employee.setCompany(currentUser.getCompany());
 
-    final UserStatus userStatus = userStatusService
-        .findByName(Status.PENDING_VERIFICATION.name());
+    final UserStatus userStatus = userStatusService.findByName(Status.PENDING_VERIFICATION.name());
     employee.setUserStatus(userStatus);
 
     employee.setResetPasswordToken(UUID.randomUUID().toString());
 
     final com.auth0.json.mgmt.users.User user =
-        auth0Helper.addUser(employeeDto.getEmailWork(),
-            null, Role.EMPLOYEE.getValue());
+        auth0Helper.addUser(employeeDto.getEmailWork(), null, Role.EMPLOYEE.getValue());
     applicationEventPublisher.publishEvent(new Auth0UserCreatedEvent(user));
 
     final String userId = auth0Helper.getUserId(user);
@@ -300,16 +294,26 @@ public class EmployeeService {
     return userService.save(employee);
   }
 
-  private void saveInvitedEmployeeAdditionalInformation(final User employee,
-      final EmployeeDto employeeDto) {
+  private void saveInvitedEmployeeAdditionalInformation(
+      final User employee, final EmployeeDto employeeDto) {
     final UserPersonalInformation userPersonalInformation =
-        userPersonalInformationMapper
-            .createFromUserPersonalInformationDto(employeeDto.getUserPersonalInformationDto());
+        userPersonalInformationMapper.createFromUserPersonalInformationDto(
+            employeeDto.getUserPersonalInformationDto());
+
+    UserContactInformation userContactInformation =
+        userContactInformationMapper.createFromUserContactInformationDto(
+            employeeDto.getUserContactInformationDto());
+
+    if (userContactInformation == null) {
+      userContactInformation = new UserContactInformation();
+    }
+
+    userContactInformation.setEmailWork(employeeDto.getEmailWork());
+    employee.setUserContactInformation(userContactInformation);
 
     if (userPersonalInformation != null) {
       Gender gender = userPersonalInformation.getGender();
-      if (userPersonalInformation.getGender() != null
-          && !StringUtils.isEmpty(gender.getId())) {
+      if (userPersonalInformation.getGender() != null && !StringUtils.isEmpty(gender.getId())) {
         gender = genderService.findById(gender.getId());
         userPersonalInformation.setGender(gender);
       }
@@ -320,21 +324,10 @@ public class EmployeeService {
         userPersonalInformation.setMaritalStatus(martialStatus);
       }
 
-      encryptorUtil
-          .encryptSsn(employee, userPersonalInformation.getSsn(), userPersonalInformation);
+      encryptorUtil.encryptSsn(employee, userPersonalInformation.getSsn(), userPersonalInformation);
 
       employee.setUserPersonalInformation(userPersonalInformation);
     }
-
-    UserContactInformation userContactInformation = userContactInformationMapper
-        .createFromUserContactInformationDto(employeeDto.getUserContactInformationDto());
-
-    if (userContactInformation == null) {
-      userContactInformation = new UserContactInformation();
-    }
-
-    userContactInformation.setEmailWork(employeeDto.getEmailWork());
-    employee.setUserContactInformation(userContactInformation);
   }
 
   private User updateEmployeeBasicInformation(final User employee, final EmployeeDto employeeDto) {
@@ -349,11 +342,8 @@ public class EmployeeService {
     final UserPersonalInformationDto userPersonalInformationDto =
         employeeDto.getUserPersonalInformationDto();
 
-    userPersonalInformationMapper
-        .updateFromUserPersonalInformationDto(userPersonalInformation, userPersonalInformationDto);
-
-    encryptorUtil
-        .encryptSsn(employee.getId(), userPersonalInformationDto.getSsn(), userPersonalInformation);
+    userPersonalInformationMapper.updateFromUserPersonalInformationDtoWithoutSsn(
+        userPersonalInformation, userPersonalInformationDto);
 
     final UserPersonalInformation savedUserPersonalInformation =
         userPersonalInformationService.update(userPersonalInformation);
@@ -363,8 +353,8 @@ public class EmployeeService {
     final UserContactInformationDto userContactInformationDto =
         employeeDto.getUserContactInformationDto();
     final UserContactInformation newUserContactInformation =
-        userContactInformationMapper
-            .updateFromUserContactInformationDto(userContactInformation, userContactInformationDto);
+        userContactInformationMapper.updateFromUserContactInformationDto(
+            userContactInformation, userContactInformationDto);
     if (userContactInformation != null) {
       newUserContactInformation.setId(userContactInformation.getId());
     }
@@ -384,8 +374,8 @@ public class EmployeeService {
 
     emergencyContactDtos.forEach(
         emergencyContactDto -> {
-          final UserEmergencyContact emergencyContact = userEmergencyContactMapper
-              .createFromUserEmergencyContactDto(emergencyContactDto);
+          final UserEmergencyContact emergencyContact =
+              userEmergencyContactMapper.createFromUserEmergencyContactDto(emergencyContactDto);
 
           final StateProvince state = emergencyContact.getState();
           if (null != state && !StringUtils.isEmpty(state.getId())) {
@@ -421,8 +411,7 @@ public class EmployeeService {
       return;
     }
 
-    final User managerUser =
-        userService.findById(managerUserId);
+    final User managerUser = userService.findById(managerUserId);
     if (StringUtils.equals(managerUser.getUserRole().getName(), Role.EMPLOYEE.getValue())) {
       managerUser.setUserRole(userRoleService.getManager());
     }
@@ -431,8 +420,8 @@ public class EmployeeService {
     userService.save(managerUser);
   }
 
-  private void saveEmployeeCompensation(final User user,
-      final NewEmployeeJobInformationDto jobInformation) {
+  private void saveEmployeeCompensation(
+      final User user, final NewEmployeeJobInformationDto jobInformation) {
 
     if (jobInformation.getCompensation() == null
         || jobInformation.getCompensationFrequencyId() == null) {
@@ -447,13 +436,14 @@ public class EmployeeService {
         compensationFrequencyService.findById(compensationFrequencyId);
     userCompensation.setCompensationFrequency(compensationFrequency);
     userCompensation.setUserId(user.getId());
-    final UserCompensation userCompensationReturned = userCompensationService
-        .save(userCompensation);
+    final UserCompensation userCompensationReturned =
+        userCompensationService.save(userCompensation);
     user.setUserCompensation(userCompensationReturned);
   }
 
   private void saveEmployeeJob(
-      final User employee, final User currentUser,
+      final User employee,
+      final User currentUser,
       final NewEmployeeJobInformationDto jobInformation) {
 
     final Job job = jobService.findById(jobInformation.getJobId());
@@ -522,8 +512,8 @@ public class EmployeeService {
     userAddressService.save(userAddress);
   }
 
-  private void saveEmailTasks(final WelcomeEmailDto welcomeEmailDto, final User employee,
-      final User currentUser) {
+  private void saveEmailTasks(
+      final WelcomeEmailDto welcomeEmailDto, final User employee, final User currentUser) {
     final String toEmail = welcomeEmailDto.getSendTo();
     String content = welcomeEmailDto.getPersonalInformation();
 
@@ -558,17 +548,23 @@ public class EmployeeService {
     }
     final JobUserDto jobUserDto = userService.findEmployeeInfoByEmployeeId(id);
 
-    final List<JobUserDto> reports = userService.findDirectReportsByManagerId(id).stream()
-        .map(user -> userService.findEmployeeInfoByEmployeeId(user.getId()))
-        .collect(Collectors.toList());
+    final List<JobUserDto> reports =
+        userService.findDirectReportsByManagerId(id).stream()
+            .map(user -> userService.findEmployeeInfoByEmployeeId(user.getId()))
+            .collect(Collectors.toList());
 
-    return jobUserMapper.convertToEmployeeRelatedInformationDto(emailAddress,
-        userStatus.name(), sendDate, jobUserDto,
-        managerJobUserDto, reports, roleName);
+    return jobUserMapper.convertToEmployeeRelatedInformationDto(
+        emailAddress,
+        userStatus.name(),
+        sendDate,
+        jobUserDto,
+        managerJobUserDto,
+        reports,
+        roleName);
   }
 
-  public BasicUserPersonalInformationDto findPersonalMessage(final String targetUserId,
-      final String authUserId) {
+  public BasicUserPersonalInformationDto findPersonalMessage(
+      final String targetUserId, final String authUserId) {
     final User targetUser = userService.findById(targetUserId);
     final UserPersonalInformation personalInformation = targetUser.getUserPersonalInformation();
 
@@ -577,20 +573,20 @@ public class EmployeeService {
     final Role userRole = currentUser.getRole();
 
     if (authUserId.equals(targetUserId) || userRole == Role.ADMIN) {
-      return userPersonalInformationMapper
-          .convertToEmployeePersonalInformationDto(personalInformation);
+      return userPersonalInformationMapper.convertToEmployeePersonalInformationDto(
+          personalInformation);
     }
     if (targetUser.getManagerUser().getId().equals(authUserId)) {
-      return userPersonalInformationMapper
-          .convertToUserPersonalInformationForManagerDto(personalInformation);
+      return userPersonalInformationMapper.convertToUserPersonalInformationForManagerDto(
+          personalInformation);
     }
 
-    return userPersonalInformationMapper
-        .convertToBasicUserPersonalInformationDto(personalInformation);
+    return userPersonalInformationMapper.convertToBasicUserPersonalInformationDto(
+        personalInformation);
   }
 
-  public BasicUserContactInformationDto findContactMessage(final String targetUserId,
-      final String authUserId) {
+  public BasicUserContactInformationDto findContactMessage(
+      final String targetUserId, final String authUserId) {
     final User targetUser = userService.findById(targetUserId);
     final UserContactInformation contactInformation = targetUser.getUserContactInformation();
 
@@ -600,8 +596,8 @@ public class EmployeeService {
     if (authUserId.equals(targetUserId)
         || targetUser.getManagerUser().getId().equals(authUserId)
         || userRole == Role.ADMIN) {
-      return userContactInformationMapper
-          .convertToEmployeeContactInformationDto(contactInformation);
+      return userContactInformationMapper.convertToEmployeeContactInformationDto(
+          contactInformation);
     }
 
     return userContactInformationMapper.convertToBasicUserContactInformationDto(contactInformation);

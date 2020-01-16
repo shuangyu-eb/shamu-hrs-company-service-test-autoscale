@@ -14,7 +14,6 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.powermock.reflect.Whitebox;
 import org.springframework.context.ApplicationEventPublisher;
-
 import shamu.company.common.exception.ForbiddenException;
 import shamu.company.common.service.CountryService;
 import shamu.company.common.service.OfficeService;
@@ -36,13 +35,13 @@ import shamu.company.employee.dto.UserPersonalInformationForManagerDto;
 import shamu.company.employee.service.EmployeeService;
 import shamu.company.employee.service.EmploymentTypeService;
 import shamu.company.helpers.auth0.Auth0Helper;
+import shamu.company.helpers.s3.AwsHelper;
 import shamu.company.info.entity.mapper.UserEmergencyContactMapper;
 import shamu.company.info.service.UserEmergencyContactService;
 import shamu.company.job.entity.mapper.JobUserMapper;
 import shamu.company.job.entity.mapper.JobUserMapperImpl;
 import shamu.company.job.service.JobService;
 import shamu.company.job.service.JobUserService;
-import shamu.company.helpers.s3.AwsHelper;
 import shamu.company.user.dto.BasicUserContactInformationDto;
 import shamu.company.user.dto.BasicUserPersonalInformationDto;
 import shamu.company.user.dto.UserContactInformationDto;
@@ -74,75 +73,80 @@ import shamu.company.utils.FileValidateUtil.FileType;
 
 class EmployeeServiceTests {
 
-  @Mock
-  private JobUserService jobUserService;
-  @Mock
-  private UserAddressService userAddressService;
-  @Mock
-  private EmploymentTypeService employmentTypeService;
-  @Mock
-  private UserCompensationService userCompensationService;
-  @Mock
-  private JobService jobService;
-  @Mock
-  private GenderService genderService;
-  @Mock
-  private MaritalStatusService maritalStatusService;
+  @Mock private JobUserService jobUserService;
+  @Mock private UserAddressService userAddressService;
+  @Mock private EmploymentTypeService employmentTypeService;
+  @Mock private UserCompensationService userCompensationService;
+  @Mock private JobService jobService;
+  @Mock private GenderService genderService;
+  @Mock private MaritalStatusService maritalStatusService;
   @Mock private AwsHelper awsHelper;
-  @Mock
-  private CompensationFrequencyService compensationFrequencyService;
-  @Mock
-  private StateProvinceService stateProvinceService;
-  @Mock
-  private CountryService countryService;
-  @Mock
-  private UserEmergencyContactService userEmergencyContactService;
+  @Mock private CompensationFrequencyService compensationFrequencyService;
+  @Mock private StateProvinceService stateProvinceService;
+  @Mock private CountryService countryService;
+  @Mock private UserEmergencyContactService userEmergencyContactService;
   @Mock private UserService userService;
-  @Mock
-  private UserStatusService userStatusService;
+  @Mock private UserStatusService userStatusService;
   @Mock private EmailService emailService;
-  @Mock
-  private OfficeService officeService;
+  @Mock private OfficeService officeService;
   @Mock private UserPersonalInformationService userPersonalInformationService;
   @Mock private UserContactInformationService userContactInformationService;
-  private final UserPersonalInformationMapper userPersonalInformationMapper = Mappers
-      .getMapper(UserPersonalInformationMapper.class);
+  private final UserPersonalInformationMapper userPersonalInformationMapper =
+      Mappers.getMapper(UserPersonalInformationMapper.class);
   private final UserAddressMapper userAddressMapper = Mappers.getMapper(UserAddressMapper.class);
-  private final UserContactInformationMapper userContactInformationMapper = Mappers
-      .getMapper(UserContactInformationMapper.class);
-  private final UserEmergencyContactMapper userEmergencyContactMapper = Mappers
-      .getMapper(UserEmergencyContactMapper.class);
-  @Mock
-  private Auth0Helper auth0Helper;
+  private final UserContactInformationMapper userContactInformationMapper =
+      Mappers.getMapper(UserContactInformationMapper.class);
+  private final UserEmergencyContactMapper userEmergencyContactMapper =
+      Mappers.getMapper(UserEmergencyContactMapper.class);
+  @Mock private Auth0Helper auth0Helper;
   @Mock private ApplicationEventPublisher applicationEventPublisher;
 
-  private final StateProvinceMapper stateProvinceMapper = Mappers
-      .getMapper(StateProvinceMapper.class);
-  private final OfficeAddressMapper officeAddressMapper = new OfficeAddressMapperImpl(
-      stateProvinceMapper);
+  private final StateProvinceMapper stateProvinceMapper =
+      Mappers.getMapper(StateProvinceMapper.class);
+  private final OfficeAddressMapper officeAddressMapper =
+      new OfficeAddressMapperImpl(stateProvinceMapper);
   private final OfficeMapper officeMapper = new OfficeMapperImpl(officeAddressMapper);
-  private final UserCompensationMapper userCompensationMapper = Mappers
-      .getMapper(UserCompensationMapper.class);
+  private final UserCompensationMapper userCompensationMapper =
+      Mappers.getMapper(UserCompensationMapper.class);
   private final JobUserMapper jobUserMapper =
       new JobUserMapperImpl(officeMapper, userCompensationMapper);
   @Mock private UserRoleService userRoleService;
-  @Mock
-  private EncryptorUtil encryptorUtil;
+  @Mock private EncryptorUtil encryptorUtil;
 
   private EmployeeService employeeService;
 
   @BeforeEach
   void init() {
     MockitoAnnotations.initMocks(this);
-    employeeService = new EmployeeService(userAddressService, employmentTypeService,
-        officeService, userService, stateProvinceService, countryService, userCompensationService,
-        userEmergencyContactService, jobService, userStatusService, awsHelper, genderService,
-        maritalStatusService, emailService, compensationFrequencyService,
-        userPersonalInformationService,
-        userContactInformationService, userPersonalInformationMapper, userAddressMapper,
-        userContactInformationMapper, userEmergencyContactMapper, auth0Helper,
-        applicationEventPublisher,
-        jobUserMapper, jobUserService, userRoleService, encryptorUtil);
+    employeeService =
+        new EmployeeService(
+            userAddressService,
+            employmentTypeService,
+            officeService,
+            userService,
+            stateProvinceService,
+            countryService,
+            userCompensationService,
+            userEmergencyContactService,
+            jobService,
+            userStatusService,
+            awsHelper,
+            genderService,
+            maritalStatusService,
+            emailService,
+            compensationFrequencyService,
+            userPersonalInformationService,
+            userContactInformationService,
+            userPersonalInformationMapper,
+            userAddressMapper,
+            userContactInformationMapper,
+            userEmergencyContactMapper,
+            auth0Helper,
+            applicationEventPublisher,
+            jobUserMapper,
+            jobUserService,
+            userRoleService,
+            encryptorUtil);
   }
 
   @Nested
@@ -183,7 +187,8 @@ class EmployeeServiceTests {
       imageString = "x," + imageString;
       employeeDto.setPersonalPhoto(imageString);
 
-      final UserPersonalInformationDto userPersonalInformationDto = new UserPersonalInformationDto();
+      final UserPersonalInformationDto userPersonalInformationDto =
+          new UserPersonalInformationDto();
       userPersonalInformationDto.setGenderId("1");
       userPersonalInformationDto.setMaritalStatusId("1");
       employeeDto.setUserPersonalInformationDto(userPersonalInformationDto);
@@ -191,8 +196,8 @@ class EmployeeServiceTests {
       final UserContactInformationDto userContactInformationDto = new UserContactInformationDto();
       employeeDto.setUserContactInformationDto(userContactInformationDto);
 
-      Whitebox.invokeMethod(employeeService, "saveEmployeeBasicInformation",
-          currentUser, employeeDto);
+      Whitebox.invokeMethod(
+          employeeService, "saveEmployeeBasicInformation", currentUser, employeeDto);
       Mockito.verify(userService, Mockito.times(1)).save(Mockito.any());
     }
   }
@@ -225,8 +230,8 @@ class EmployeeServiceTests {
       final UserStatus userStatus = new UserStatus(Status.ACTIVE.name());
       user.setUserStatus(userStatus);
 
-      Assertions.assertThrows(ForbiddenException.class,
-          () -> employeeService.resendEmail(emailResendDto));
+      Assertions.assertThrows(
+          ForbiddenException.class, () -> employeeService.resendEmail(emailResendDto));
     }
 
     @Test
@@ -234,8 +239,8 @@ class EmployeeServiceTests {
       final String newEmail = "email@example.com";
       emailResendDto.setEmail(newEmail);
       Mockito.when(userService.findByEmailWork(Mockito.anyString())).thenReturn(new User());
-      Assertions.assertThrows(ForbiddenException.class,
-          () -> employeeService.resendEmail(emailResendDto));
+      Assertions.assertThrows(
+          ForbiddenException.class, () -> employeeService.resendEmail(emailResendDto));
     }
 
     @Test
@@ -248,13 +253,13 @@ class EmployeeServiceTests {
       company.setName(RandomStringUtils.randomAlphabetic(4));
       user.setCompany(company);
 
-      Mockito.when(emailService
-          .findFirstByToAndSubjectOrderBySendDateDesc(Mockito.anyString(), Mockito.anyString()))
+      Mockito.when(
+              emailService.findFirstByToAndSubjectOrderBySendDateDesc(
+                  Mockito.anyString(), Mockito.anyString()))
           .thenReturn(new Email());
       employeeService.resendEmail(emailResendDto);
       Mockito.verify(userService, Mockito.times(1)).save(Mockito.any());
-      Mockito.verify(emailService, Mockito.times(1))
-          .saveAndScheduleEmail(Mockito.any());
+      Mockito.verify(emailService, Mockito.times(1)).saveAndScheduleEmail(Mockito.any());
     }
   }
 
@@ -293,8 +298,8 @@ class EmployeeServiceTests {
 
     @Test
     void whenIsCurrentUser_thenReturnEmployeePersonalInformation() {
-      final BasicUserPersonalInformationDto personalInformation = employeeService
-          .findPersonalMessage(userId, userId);
+      final BasicUserPersonalInformationDto personalInformation =
+          employeeService.findPersonalMessage(userId, userId);
       Assertions.assertTrue(personalInformation instanceof EmployeePersonalInformationDto);
     }
 
@@ -303,16 +308,16 @@ class EmployeeServiceTests {
       final UserRole admin = new UserRole();
       admin.setName(Role.ADMIN.name());
       currentUser.setUserRole(admin);
-      final BasicUserPersonalInformationDto personalInformation = employeeService
-          .findPersonalMessage(targetUserId, userId);
+      final BasicUserPersonalInformationDto personalInformation =
+          employeeService.findPersonalMessage(targetUserId, userId);
       Assertions.assertTrue(personalInformation instanceof EmployeePersonalInformationDto);
     }
 
     @Test
     void whenIsUserManager_thenReturnPersonalInformationDtoForManager() {
       targetUser.setManagerUser(currentUser);
-      final BasicUserPersonalInformationDto personalInformation = employeeService
-          .findPersonalMessage(targetUserId, userId);
+      final BasicUserPersonalInformationDto personalInformation =
+          employeeService.findPersonalMessage(targetUserId, userId);
       Assertions.assertTrue(personalInformation instanceof UserPersonalInformationForManagerDto);
     }
 
@@ -322,16 +327,14 @@ class EmployeeServiceTests {
       managerUser.setId(RandomStringUtils.randomAlphabetic(16));
       targetUser.setManagerUser(managerUser);
 
-      final BasicUserPersonalInformationDto personalInformation = employeeService
-          .findPersonalMessage(targetUserId, userId);
+      final BasicUserPersonalInformationDto personalInformation =
+          employeeService.findPersonalMessage(targetUserId, userId);
       Assertions.assertNotNull(personalInformation);
     }
-
   }
 
   @Nested
   class FindContactMessage {
-
 
     private String targetUserId;
 
@@ -362,16 +365,16 @@ class EmployeeServiceTests {
 
     @Test
     void whenIsCurrentUser_thenReturnEmployeeContactInformationInstance() {
-      final BasicUserContactInformationDto contactInformation = employeeService
-          .findContactMessage(targetUserId, targetUserId);
+      final BasicUserContactInformationDto contactInformation =
+          employeeService.findContactMessage(targetUserId, targetUserId);
       Assertions.assertTrue(contactInformation instanceof EmployeeContactInformationDto);
     }
 
     @Test
     void whenIsManager_thenReturnEmployeeContactInformationInstance() {
       targetUser.setManagerUser(currentUser);
-      final BasicUserContactInformationDto contactInformation = employeeService
-          .findContactMessage(targetUserId, userId);
+      final BasicUserContactInformationDto contactInformation =
+          employeeService.findContactMessage(targetUserId, userId);
       Assertions.assertTrue(contactInformation instanceof EmployeeContactInformationDto);
     }
 
@@ -384,8 +387,8 @@ class EmployeeServiceTests {
       final User managerUser = new User();
       managerUser.setId(RandomStringUtils.randomAlphabetic(16));
       targetUser.setManagerUser(managerUser);
-      final BasicUserContactInformationDto contactInformation = employeeService
-          .findContactMessage(targetUserId, userId);
+      final BasicUserContactInformationDto contactInformation =
+          employeeService.findContactMessage(targetUserId, userId);
       Assertions.assertTrue(contactInformation instanceof EmployeeContactInformationDto);
     }
 
@@ -394,8 +397,8 @@ class EmployeeServiceTests {
       final User managerUser = new User();
       managerUser.setId(RandomStringUtils.randomAlphabetic(16));
       targetUser.setManagerUser(managerUser);
-      final BasicUserContactInformationDto contactInformation = employeeService
-          .findContactMessage(targetUserId, userId);
+      final BasicUserContactInformationDto contactInformation =
+          employeeService.findContactMessage(targetUserId, userId);
       Assertions.assertNotNull(contactInformation);
     }
   }

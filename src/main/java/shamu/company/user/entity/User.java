@@ -40,27 +40,20 @@ public class User {
 
   private Timestamp latestLogin;
 
-  @ManyToOne
-  private UserStatus userStatus;
+  @ManyToOne private UserStatus userStatus;
 
-  @ManyToOne
-  private UserRole userRole;
+  @ManyToOne private UserRole userRole;
 
   private String imageUrl;
 
-  @ManyToOne
-  private Company company;
+  @ManyToOne private Company company;
 
-  @OneToOne
-  private DeactivationReasons deactivationReason;
+  @OneToOne private DeactivationReasons deactivationReason;
 
   @JsonFormat(pattern = "MM/dd/yyyy")
   private Date deactivatedAt;
 
-  @ManyToOne
-  @JsonIgnore
-  @ToString.Exclude
-  private User managerUser;
+  @ManyToOne @JsonIgnore @ToString.Exclude private User managerUser;
 
   @OneToOne(cascade = CascadeType.ALL)
   private UserPersonalInformation userPersonalInformation;
@@ -94,8 +87,7 @@ public class User {
   @Column(name = "created_at", updatable = false)
   private Timestamp createdAt;
 
-  @UpdateTimestamp
-  private Timestamp updatedAt;
+  @UpdateTimestamp private Timestamp updatedAt;
 
   private String salt;
 

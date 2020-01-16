@@ -33,6 +33,12 @@ public interface UserPersonalInformationMapper {
       @MappingTarget UserPersonalInformation userPersonalInformation,
       UserPersonalInformationDto userPersonalInformationDto);
 
+  @InheritConfiguration(name = "updateFromUserPersonalInformationDto")
+  @Mapping(target = "ssn", ignore = true)
+  void updateFromUserPersonalInformationDtoWithoutSsn(
+      @MappingTarget UserPersonalInformation userPersonalInformation,
+      UserPersonalInformationDto userPersonalInformationDto);
+
   @Mapping(target = "gender", source = "genderId")
   @Mapping(target = "ethnicity", source = "ethnicityId")
   @Mapping(target = "maritalStatus", source = "maritalStatusId")
@@ -47,7 +53,6 @@ public interface UserPersonalInformationMapper {
   @Mapping(target = "maritalStatusName", source = "maritalStatus.name")
   UserPersonalInformationDto convertToUserPersonalInformationDto(
       UserPersonalInformation userPersonalInformation);
-
 
   @Mapping(target = "genderId", source = "userPersonalInformation.gender.id")
   @Mapping(target = "genderName", source = "userPersonalInformation.gender.name")
@@ -71,13 +76,12 @@ public interface UserPersonalInformationMapper {
   @Mapping(target = "maritalStatusId", source = "maritalStatus.id")
   @Mapping(target = "maritalStatusName", source = "maritalStatus.name")
   MyEmployeePersonalInformationDto convertToMyEmployeePersonalInformationDto(
-          UserPersonalInformation userPersonalInformation);
+      UserPersonalInformation userPersonalInformation);
 
   @Mapping(target = "maritalStatusId", source = "maritalStatus.id")
   @Mapping(target = "maritalStatusName", source = "maritalStatus.name")
-  UserPersonalInformationForManagerDto
-      convertToUserPersonalInformationForManagerDto(
-          UserPersonalInformation userPersonalInformation);
+  UserPersonalInformationForManagerDto convertToUserPersonalInformationForManagerDto(
+      UserPersonalInformation userPersonalInformation);
 
   @Mapping(target = "maritalStatusId", source = "maritalStatus.id")
   @Mapping(target = "maritalStatusName", source = "maritalStatus.name")
@@ -93,12 +97,12 @@ public interface UserPersonalInformationMapper {
   }
 
   default MaritalStatus convertFromMaritalStatusId(final String maritalStatusId) {
-    return StringUtils.isEmpty(maritalStatusId)  ? null : new MaritalStatus(maritalStatusId);
+    return StringUtils.isEmpty(maritalStatusId) ? null : new MaritalStatus(maritalStatusId);
   }
 
   default Date convertFromString(final String birthDate) throws ParseException {
     if (StringUtils.isNotBlank(birthDate)) {
-      DateFormat format = new SimpleDateFormat("MM/dd/yyyy");
+      final DateFormat format = new SimpleDateFormat("MM/dd/yyyy");
       return new Date(format.parse(birthDate).getTime());
     }
     return null;
