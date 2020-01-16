@@ -31,10 +31,15 @@ public class UserBenefitsSettingService {
 
   public void saveUserBenefitsSettingEffectYear(final String userId, final String effectYear) {
     final User user = userService.findById(userId);
-    final UserBenefitsSetting userBenefitsSetting = new UserBenefitsSetting();
-    userBenefitsSetting.setUser(user);
-    userBenefitsSetting.setEffectYear(effectYear);
-    save(userBenefitsSetting);
+    final UserBenefitsSetting currentYearUserBenefitsSetting = userBenefitsSettingRepository
+        .findByUserAndEffectYear(user, effectYear);
+    if (currentYearUserBenefitsSetting == null
+        || !currentYearUserBenefitsSetting.getEffectYear().equals(effectYear)) {
+      final UserBenefitsSetting userBenefitsSetting = new UserBenefitsSetting();
+      userBenefitsSetting.setUser(user);
+      userBenefitsSetting.setEffectYear(effectYear);
+      save(userBenefitsSetting);
+    }
     final Integer lastYear = Integer.parseInt(effectYear) - 1;
     final UserBenefitsSetting lastYearUserBenefitsSetting = userBenefitsSettingRepository
         .findByUserAndEffectYear(user, String.valueOf(lastYear));
