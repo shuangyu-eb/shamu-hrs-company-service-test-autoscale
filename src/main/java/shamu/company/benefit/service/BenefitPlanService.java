@@ -500,8 +500,7 @@ public class BenefitPlanService {
               .get());
     }
 
-    if (selectedEnrollmentInfoDto.getSelectedDependents() != null
-        && selectedEnrollmentInfoDto.getSelectedDependents().size() > 0) {
+    if (selectedEnrollmentInfoDto.getSelectedDependents() != null) {
       updateSelectedDependentsByBenefitPlanUser(
           selectedEnrollmentInfoDto.getSelectedDependents(), originBenefitPlanUser.getId());
     }
