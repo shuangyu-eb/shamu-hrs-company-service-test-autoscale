@@ -126,25 +126,35 @@ public class UserService {
 
   @Value("${application.systemEmailAddress}")
   private String systemEmailAddress;
+
   @Value("${application.frontEndAddress}")
   private String frontEndAddress;
 
   @Autowired
-  public UserService(final ITemplateEngine templateEngine,
-      final UserRepository userRepository, final EmailService emailService,
+  public UserService(
+      final ITemplateEngine templateEngine,
+      final UserRepository userRepository,
+      final EmailService emailService,
       final UserPersonalInformationMapper userPersonalInformationMapper,
       final UserEmergencyContactService userEmergencyContactService,
       final UserAddressService userAddressService,
       @Lazy final PaidHolidayService paidHolidayService,
       final UserContactInformationMapper userContactInformationMapper,
-      final UserAddressMapper userAddressMapper, final Auth0Helper auth0Helper,
-      final UserMapper userMapper, final AuthUserCacheManager authUserCacheManager,
-      final DynamicScheduler dynamicScheduler, final AwsHelper awsHelper,
-      final UserRoleService userRoleService, @Lazy final PermissionUtils permissionUtils,
+      final UserAddressMapper userAddressMapper,
+      final Auth0Helper auth0Helper,
+      final UserMapper userMapper,
+      final AuthUserCacheManager authUserCacheManager,
+      final DynamicScheduler dynamicScheduler,
+      final AwsHelper awsHelper,
+      final UserRoleService userRoleService,
+      @Lazy final PermissionUtils permissionUtils,
       @Lazy final JobUserService jobUserService,
-      final UserStatusService userStatusService, final CompanySizeService companySizeService,
-      final CompanyService companyService, final DepartmentService departmentService,
-      final JobService jobService, final UserAccessLevelEventService userAccessLevelEventService,
+      final UserStatusService userStatusService,
+      final CompanySizeService companySizeService,
+      final CompanyService companyService,
+      final DepartmentService departmentService,
+      final JobService jobService,
+      final UserAccessLevelEventService userAccessLevelEventService,
       final UserContactInformationService userContactInformationService,
       final UserPersonalInformationService userPersonalInformationService,
       final CompanyBenefitsSettingService companyBenefitsSettingService) {
@@ -177,8 +187,9 @@ public class UserService {
   }
 
   public User findById(final String id) {
-    return userRepository.findById(id).orElseThrow(
-        () -> new ResourceNotFoundException(ERROR_MESSAGE));
+    return userRepository
+        .findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException(ERROR_MESSAGE));
   }
 
   public User findActiveUserById(final String userId) {
@@ -225,8 +236,8 @@ public class UserService {
     final String companyId = currentUser.getCompany().getId();
 
     final Pageable paramPageable = getPageable(employeeListSearchCondition);
-    return getAllEmployeesByCompany(employeeListSearchCondition,
-        companyId, paramPageable, currentUser.getRole());
+    return getAllEmployeesByCompany(
+        employeeListSearchCondition, companyId, paramPageable, currentUser.getRole());
   }
 
   private Pageable getPageable(final EmployeeListSearchCondition employeeListSearchCondition) {
@@ -241,8 +252,10 @@ public class UserService {
   }
 
   public Page<JobUserListItem> getAllEmployeesByCompany(
-      final EmployeeListSearchCondition employeeListSearchCondition, final String companyId,
-      final Pageable pageable, final Role role) {
+      final EmployeeListSearchCondition employeeListSearchCondition,
+      final String companyId,
+      final Pageable pageable,
+      final Role role) {
     return userRepository.getAllByCondition(employeeListSearchCondition, companyId, pageable, role);
   }
 
@@ -260,10 +273,12 @@ public class UserService {
     final List<User> policyEmployees = userRepository.findAllByCompanyId(companyId);
 
     return policyEmployees.stream()
-        .map(user -> {
-          JobUser employeeWithJob = jobUserService.findJobUserByUser(user);
-          return new JobUserDto(user, employeeWithJob);
-        }).collect(Collectors.toList());
+        .map(
+            user -> {
+              JobUser employeeWithJob = jobUserService.findJobUserByUser(user);
+              return new JobUserDto(user, employeeWithJob);
+            })
+        .collect(Collectors.toList());
   }
 
   public List<User> findAllUsersByCompany(final String companyId) {
@@ -278,8 +293,7 @@ public class UserService {
       orgChartManagerItemList.add(manager);
     } else {
       // retrieve company admin from database
-      orgChartManagerItemList = userRepository
-          .findOrgChartItemByManagerId(null, companyId);
+      orgChartManagerItemList = userRepository.findOrgChartItemByManagerId(null, companyId);
     }
     if (!orgChartManagerItemList.isEmpty()) {
       for (final OrgChartDto manager : orgChartManagerItemList) {
@@ -287,13 +301,14 @@ public class UserService {
           throw new ForbiddenException("User with id " + userId + " not found!");
         }
 
-        final List<OrgChartDto> orgChartUserItemList = userRepository
-            .findOrgChartItemByManagerId(manager.getId(), companyId);
-        orgChartUserItemList.forEach((orgUser -> {
-          final Integer directReportsCount = userRepository
-              .findDirectReportsCount(orgUser.getId(), companyId);
-          orgUser.setDirectReportsCount(directReportsCount);
-        }));
+        final List<OrgChartDto> orgChartUserItemList =
+            userRepository.findOrgChartItemByManagerId(manager.getId(), companyId);
+        orgChartUserItemList.forEach(
+            (orgUser -> {
+              final Integer directReportsCount =
+                  userRepository.findDirectReportsCount(orgUser.getId(), companyId);
+              orgUser.setDirectReportsCount(directReportsCount);
+            }));
         manager.setDirectReports(orgChartUserItemList);
         manager.setDirectReportsCount(orgChartUserItemList.size());
         orgChartDtoList.add(manager);
@@ -307,8 +322,7 @@ public class UserService {
 
     final UserPersonalInformation userPersonalInformation = user.getUserPersonalInformation();
     final UserPersonalInformationDto userPersonalInformationDto =
-        userPersonalInformationMapper
-            .convertToUserPersonalInformationDtoWithoutSsn(userPersonalInformation);
+        userPersonalInformationMapper.convertToUserPersonalInformationDto(userPersonalInformation);
 
     final String headPortrait = user.getImageUrl();
 
@@ -318,17 +332,20 @@ public class UserService {
     final UserContactInformationDto userContactInformationDto =
         userContactInformationMapper.convertToUserContactInformationDto(userContactInformation);
 
-    final List<UserEmergencyContact> userEmergencyContacts = userEmergencyContactService
-        .findUserEmergencyContacts(id);
+    final List<UserEmergencyContact> userEmergencyContacts =
+        userEmergencyContactService.findUserEmergencyContacts(id);
 
     final List<UserEmergencyContactDto> userEmergencyContactDtos =
         userEmergencyContacts.stream()
-            .map(UserEmergencyContactDto::new).collect(Collectors.toList());
+            .map(UserEmergencyContactDto::new)
+            .collect(Collectors.toList());
 
     return new AccountInfoDto(
-        userPersonalInformationDto, headPortrait,
+        userPersonalInformationDto,
+        headPortrait,
         userAddressMapper.convertToUserAddressDto(userAddress),
-        userContactInformationDto, userEmergencyContactDtos);
+        userContactInformationDto,
+        userEmergencyContactDtos);
   }
 
   public Boolean createPasswordTokenExist(final String token) {
@@ -341,8 +358,8 @@ public class UserService {
 
     if (user == null
         || !createPasswordDto.getResetPasswordToken().equals(user.getResetPasswordToken())) {
-      throw new ResourceNotFoundException(String
-          .format("The user with email %s does not exist.", userWorkEmail));
+      throw new ResourceNotFoundException(
+          String.format("The user with email %s does not exist.", userWorkEmail));
     }
 
     final com.auth0.json.mgmt.users.User authUser;
@@ -350,8 +367,8 @@ public class UserService {
     try {
       authUser = auth0Helper.getAuth0UserByIdWithByEmailFailover(user.getId(), userWorkEmail);
     } catch (final ResourceNotFoundException e) {
-      throw new ForbiddenException(String.format("Cannot find user with email %s",
-          createPasswordDto.getEmailWork()));
+      throw new ForbiddenException(
+          String.format("Cannot find user with email %s", createPasswordDto.getEmailWork()));
     }
 
     auth0Helper.updatePassword(authUser, createPasswordDto.getNewPassword());
@@ -364,16 +381,14 @@ public class UserService {
   }
 
   public Page<JobUserListItem> getMyTeam(
-      final EmployeeListSearchCondition employeeListSearchCondition,
-      final String id) {
+      final EmployeeListSearchCondition employeeListSearchCondition, final String id) {
     final Pageable paramPageable = getPageable(employeeListSearchCondition);
     final User user = findById(id);
-    return userRepository
-        .getMyTeamByManager(employeeListSearchCondition, user, paramPageable);
+    return userRepository.getMyTeamByManager(employeeListSearchCondition, user, paramPageable);
   }
 
-  public User updateUserRole(final String email, final UserRoleUpdateDto userRoleUpdateDto,
-      final User user) {
+  public User updateUserRole(
+      final String email, final UserRoleUpdateDto userRoleUpdateDto, final User user) {
 
     auth0Helper.login(email, userRoleUpdateDto.getPassWord());
 
@@ -391,25 +406,20 @@ public class UserService {
     return userRepository.save(user);
   }
 
-  private void deactivateUser(final UserStatusUpdateDto userStatusUpdateDto,
-      final User user) {
+  private void deactivateUser(final UserStatusUpdateDto userStatusUpdateDto, final User user) {
     if (userStatusUpdateDto.getUserStatus().name().equals(Status.ACTIVE.name())) {
       userAccessLevelEventService.save(
           new UserAccessLevelEvent(user, user.getUserRole().getName()));
 
       user.setUserRole(userRoleService.getInactive());
-      user.setUserStatus(userStatusService.findByName(
-          Status.DISABLED.name()
-      ));
+      user.setUserStatus(userStatusService.findByName(Status.DISABLED.name()));
       adjustUserManagerRelationshipBeforeDeleteOrDeactivate(user);
       userRepository.save(user);
     }
   }
 
-
-  public User deactivateUser(final String email,
-      final UserStatusUpdateDto userStatusUpdateDto,
-      final User user) {
+  public User deactivateUser(
+      final String email, final UserStatusUpdateDto userStatusUpdateDto, final User user) {
 
     auth0Helper.login(email, userStatusUpdateDto.getPassWord());
 
@@ -425,8 +435,8 @@ public class UserService {
     }
 
     user.setDeactivatedAt(userStatusUpdateDto.getDeactivationDate());
-    user.setDeactivationReason(new DeactivationReasons(userStatusUpdateDto
-        .getDeactivationReason().getId()));
+    user.setDeactivationReason(
+        new DeactivationReasons(userStatusUpdateDto.getDeactivationReason().getId()));
     userRepository.save(user);
 
     return findById(user.getId());
@@ -438,8 +448,10 @@ public class UserService {
 
     final String employeeWorkEmail = employee.getUserContactInformation().getEmailWork();
 
-    auth0Helper.deleteUser(auth0Helper.getAuth0UserByIdWithByEmailFailover(
-        employee.getId(), employeeWorkEmail).getId());
+    auth0Helper.deleteUser(
+        auth0Helper
+            .getAuth0UserByIdWithByEmailFailover(employee.getId(), employeeWorkEmail)
+            .getId());
 
     userRepository.delete(employee);
 
@@ -452,8 +464,7 @@ public class UserService {
     final List<User> teamEmployees = userRepository.findAllByManagerUserId(user.getId());
     if (!CollectionUtils.isEmpty(teamEmployees)) {
       if (user.getManagerUser() != null) {
-        teamEmployees.forEach(
-            employee -> employee.setManagerUser(user.getManagerUser()));
+        teamEmployees.forEach(employee -> employee.setManagerUser(user.getManagerUser()));
       } else {
         teamEmployees.forEach(
             employee -> {
@@ -465,8 +476,8 @@ public class UserService {
     }
   }
 
-  private Runnable deactivateUserTask(final UserStatusUpdateDto userStatusUpdateDto,
-      final User user) {
+  private Runnable deactivateUserTask(
+      final UserStatusUpdateDto userStatusUpdateDto, final User user) {
     return () -> deactivateUser(userStatusUpdateDto, user);
   }
 
@@ -474,8 +485,8 @@ public class UserService {
     final Optional<User> existingUser = userRepository.findById(signUpDto.getUserId());
 
     if (existingUser.isPresent()) {
-      throw new DataIntegrityViolationException("User "
-          + "already signed up successfully in previous attempts.");
+      throw new DataIntegrityViolationException(
+          "User " + "already signed up successfully in previous attempts.");
     }
 
     if (companyService.existsByName(signUpDto.getCompanyName())) {
@@ -486,23 +497,23 @@ public class UserService {
   }
 
   public void addSignUpInformation(final UserSignUpDto signUpDto) {
-    final UserPersonalInformation userPersonalInformation = UserPersonalInformation.builder()
-        .firstName(signUpDto.getFirstName())
-        .lastName(signUpDto.getLastName())
-        .build();
+    final UserPersonalInformation userPersonalInformation =
+        UserPersonalInformation.builder()
+            .firstName(signUpDto.getFirstName())
+            .lastName(signUpDto.getLastName())
+            .build();
 
     final String emailAddress = findUserEmailOnAuth0(signUpDto.getUserId());
-    final UserContactInformation userContactInformation = UserContactInformation.builder()
-        .emailWork(emailAddress)
-        .phoneWork(signUpDto.getPhone())
-        .build();
+    final UserContactInformation userContactInformation =
+        UserContactInformation.builder()
+            .emailWork(emailAddress)
+            .phoneWork(signUpDto.getPhone())
+            .build();
 
     final CompanySize companySize = companySizeService.findById(signUpDto.getCompanySizeId());
 
-    Company company = Company.builder()
-        .name(signUpDto.getCompanyName())
-        .companySize(companySize)
-        .build();
+    Company company =
+        Company.builder().name(signUpDto.getCompanyName()).companySize(companySize).build();
     company = companyService.save(company);
 
     saveCompanyBenefitsSetting(company);
@@ -519,15 +530,16 @@ public class UserService {
 
     final UserStatus status = userStatusService.findByName(Status.ACTIVE.name());
 
-    User user = User.builder()
-        .userStatus(status)
-        .userPersonalInformation(userPersonalInformation)
-        .userContactInformation(userContactInformation)
-        .company(company)
-        .verifiedAt(Timestamp.valueOf(DateUtil.getLocalUtcTime()))
-        .userRole(userRoleService.getAdmin())
-        .salt(UuidUtil.getUuidString())
-        .build();
+    User user =
+        User.builder()
+            .userStatus(status)
+            .userPersonalInformation(userPersonalInformation)
+            .userContactInformation(userContactInformation)
+            .company(company)
+            .verifiedAt(Timestamp.valueOf(DateUtil.getLocalUtcTime()))
+            .userRole(userRoleService.getAdmin())
+            .salt(UuidUtil.getUuidString())
+            .build();
     user.setId(signUpDto.getUserId());
 
     user = userRepository.save(user);
@@ -549,8 +561,7 @@ public class UserService {
   }
 
   private String findUserEmailOnAuth0(final String userId) {
-    final com.auth0.json.mgmt.users.User auth0User = auth0Helper
-        .getUserByUserIdFromAuth0(userId);
+    final com.auth0.json.mgmt.users.User auth0User = auth0Helper.getUserByUserIdFromAuth0(userId);
     if (auth0User == null) {
       throw new ForbiddenException("User not registered!");
     }
@@ -559,8 +570,8 @@ public class UserService {
   }
 
   public boolean hasUserAccess(final User currentUser, final String targetUserId) {
-    final User targetUser = userRepository.findByIdAndCompanyId(targetUserId,
-        currentUser.getCompany().getId());
+    final User targetUser =
+        userRepository.findByIdAndCompanyId(targetUserId, currentUser.getCompany().getId());
     if (targetUser == null) {
       throw new ForbiddenException("Cannot find user!");
     }
@@ -569,8 +580,8 @@ public class UserService {
     final Boolean isAdmin = Role.ADMIN == userRole;
     final User manager = targetUser.getManagerUser();
 
-    final Boolean isManager = Role.MANAGER == userRole
-        && manager != null && manager.getId().equals(currentUser.getId());
+    final Boolean isManager =
+        Role.MANAGER == userRole && manager != null && manager.getId().equals(currentUser.getId());
 
     return isAdmin || isManager;
   }
@@ -584,8 +595,7 @@ public class UserService {
   }
 
   public void updatePassword(final ChangePasswordDto changePasswordDto, final String userId) {
-    final com.auth0.json.mgmt.users.User user = auth0Helper
-        .getUserByUserIdFromAuth0(userId);
+    final com.auth0.json.mgmt.users.User user = auth0Helper.getUserByUserIdFromAuth0(userId);
 
     final String emailAddress = user.getEmail();
     checkPassword(emailAddress, changePasswordDto.getPassword());
@@ -598,11 +608,9 @@ public class UserService {
     context.setVariable("frontEndAddress", frontEndAddress);
     final String emailContent = templateEngine.process("password_change_email.html", context);
     final Timestamp sendDate = Timestamp.valueOf(LocalDateTime.now());
-    final Email notificationEmail = new Email(systemEmailAddress,
-        emailAddress, "Password Changed!",
-        emailContent, sendDate);
+    final Email notificationEmail =
+        new Email(systemEmailAddress, emailAddress, "Password Changed!", emailContent, sendDate);
     emailService.saveAndScheduleEmail(notificationEmail);
-
   }
 
   public void checkPassword(final String email, final String password) {
@@ -622,7 +630,7 @@ public class UserService {
     if (!auth0Helper.existsByEmail(newEmail)) {
 
       user.setUserStatus(
-              userStatusService.findByName(String.valueOf(Status.CHANGING_EMAIL_VERIFICATION)));
+          userStatusService.findByName(String.valueOf(Status.CHANGING_EMAIL_VERIFICATION)));
 
       user.setChangeWorkEmail(newEmail);
 
@@ -647,8 +655,8 @@ public class UserService {
     if (!userRepository.existsByChangeWorkEmailToken(token)) {
       return false;
     } else {
-      final com.auth0.json.mgmt.users.User user = auth0Helper
-          .getUserByUserIdFromAuth0(currentUser.getId());
+      final com.auth0.json.mgmt.users.User user =
+          auth0Helper.getUserByUserIdFromAuth0(currentUser.getId());
 
       auth0Helper.updateUserEmail(user, currentUser.getChangeWorkEmail());
 
@@ -670,13 +678,10 @@ public class UserService {
 
   private CurrentUserDto getCurrentUserDto(final User user) {
     final List<User> teamMembers = findByManagerUser(user);
-    final List<String> teamMemberIds = teamMembers.stream().map(User::getId)
-        .collect(Collectors.toList());
+    final List<String> teamMemberIds =
+        teamMembers.stream().map(User::getId).collect(Collectors.toList());
     if (user.getVerifiedAt() == null) {
-      return CurrentUserDto.builder()
-          .id(user.getId())
-          .verified(false)
-          .build();
+      return CurrentUserDto.builder().id(user.getId()).verified(false).build();
     }
 
     return CurrentUserDto.builder()
@@ -699,8 +704,8 @@ public class UserService {
       throw new ForbiddenException("User account does not exist!");
     }
 
-    final com.auth0.json.mgmt.users.User user = auth0Helper
-        .getUserByUserIdFromAuth0(targetUser.getId());
+    final com.auth0.json.mgmt.users.User user =
+        auth0Helper.getUserByUserIdFromAuth0(targetUser.getId());
     if (user == null) {
       throw new ForbiddenException("User account does not exist!");
     }
@@ -708,22 +713,22 @@ public class UserService {
     final String passwordRestToken = UUID.randomUUID().toString();
     final String emailContent = emailService.getResetPasswordEmail(passwordRestToken);
     final Timestamp sendDate = Timestamp.valueOf(LocalDateTime.now());
-    final Email verifyEmail = new Email(systemEmailAddress, email, "Password Reset!",
-        emailContent, sendDate);
+    final Email verifyEmail =
+        new Email(systemEmailAddress, email, "Password Reset!", emailContent, sendDate);
     emailService.saveAndScheduleEmail(verifyEmail);
     targetUser.setResetPasswordToken(passwordRestToken);
     userRepository.save(targetUser);
   }
 
   public void resetPassword(final UpdatePasswordDto updatePasswordDto) {
-    final User user = userRepository
-        .findByResetPasswordToken(updatePasswordDto.getResetPasswordToken());
+    final User user =
+        userRepository.findByResetPasswordToken(updatePasswordDto.getResetPasswordToken());
     if (user == null) {
       throw new ForbiddenException("Reset password Forbidden");
     }
 
-    final com.auth0.json.mgmt.users.User auth0User = auth0Helper
-        .getUserByUserIdFromAuth0(user.getId());
+    final com.auth0.json.mgmt.users.User auth0User =
+        auth0Helper.getUserByUserIdFromAuth0(user.getId());
 
     if (auth0User == null) {
       throw new ForbiddenException("Email account does not exist.");
@@ -763,8 +768,7 @@ public class UserService {
     return userRepository.findByCompanyId(companyId);
   }
 
-  public List<User> findDirectReportsByManagerUserId(
-          final String companyId, final String userId) {
+  public List<User> findDirectReportsByManagerUserId(final String companyId, final String userId) {
     return userRepository.findDirectReportsByManagerUserId(companyId, userId);
   }
 

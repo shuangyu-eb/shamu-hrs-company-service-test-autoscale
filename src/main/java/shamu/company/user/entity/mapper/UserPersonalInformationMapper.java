@@ -5,7 +5,6 @@ import java.sql.Date;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import org.mapstruct.InheritConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -33,12 +32,6 @@ public interface UserPersonalInformationMapper {
       @MappingTarget UserPersonalInformation userPersonalInformation,
       UserPersonalInformationDto userPersonalInformationDto);
 
-  @InheritConfiguration(name = "updateFromUserPersonalInformationDto")
-  @Mapping(target = "ssn", ignore = true)
-  void updateFromUserPersonalInformationDtoWithoutSsn(
-      @MappingTarget UserPersonalInformation userPersonalInformation,
-      UserPersonalInformationDto userPersonalInformationDto);
-
   @Mapping(target = "gender", source = "genderId")
   @Mapping(target = "ethnicity", source = "ethnicityId")
   @Mapping(target = "maritalStatus", source = "maritalStatusId")
@@ -63,11 +56,6 @@ public interface UserPersonalInformationMapper {
   @Mapping(target = "imageUrl", source = "imgUrl")
   UserPersonalInformationDto convertToUserPersonalInformationDto(
       UserPersonalInformation userPersonalInformation, String imgUrl);
-
-  @InheritConfiguration(name = "convertToUserPersonalInformationDto")
-  @Mapping(target = "ssn", ignore = true)
-  UserPersonalInformationDto convertToUserPersonalInformationDtoWithoutSsn(
-      UserPersonalInformation userPersonalInformation);
 
   @Mapping(target = "genderId", source = "gender.id")
   @Mapping(target = "genderName", source = "gender.name")

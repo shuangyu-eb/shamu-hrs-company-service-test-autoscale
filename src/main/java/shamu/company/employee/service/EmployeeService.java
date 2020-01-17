@@ -342,7 +342,7 @@ public class EmployeeService {
     final UserPersonalInformationDto userPersonalInformationDto =
         employeeDto.getUserPersonalInformationDto();
 
-    userPersonalInformationMapper.updateFromUserPersonalInformationDtoWithoutSsn(
+    userPersonalInformationMapper.updateFromUserPersonalInformationDto(
         userPersonalInformation, userPersonalInformationDto);
 
     final UserPersonalInformation savedUserPersonalInformation =
