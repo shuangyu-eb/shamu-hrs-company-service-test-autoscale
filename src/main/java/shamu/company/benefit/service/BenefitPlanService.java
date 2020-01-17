@@ -379,19 +379,22 @@ public class BenefitPlanService {
     final List<BenefitPlanDependentUserDto> dependentUsers = new ArrayList<>();
     final List<String> dependentUserIds = new ArrayList<>();
     for (final BenefitPlanUser benefitPlanUser : benefitPlanUsers) {
-      benefitCost = benefitCost.add(benefitPlanUser.getBenefitPlanCoverage().getEmployeeCost());
-      final Set<BenefitPlanDependent> benefitPlanDependents = benefitPlanUser
-          .getBenefitPlanDependents();
-      for (final BenefitPlanDependent benefitPlanDependent : benefitPlanDependents) {
-        if  (!dependentUserIds.contains(benefitPlanDependent.getId())) {
-          final BenefitPlanDependentUserDto benefitPlanDependentUserDto =
-              BenefitPlanDependentUserDto.builder()
-              .id(benefitPlanDependent.getId())
-              .firstName(benefitPlanDependent.getFirstName())
-              .lastName(benefitPlanDependent.getLastName())
-              .build();
-          dependentUsers.add(benefitPlanDependentUserDto);
-          dependentUserIds.add(benefitPlanDependent.getId());
+      if (!benefitPlanUser.getBenefitPlan().getBenefitPlanType().getName()
+          .equals(BenefitPlanType.PlanType.RETIREMENT.getValue())) {
+        benefitCost = benefitCost.add(benefitPlanUser.getBenefitPlanCoverage().getEmployeeCost());
+        final Set<BenefitPlanDependent> benefitPlanDependents = benefitPlanUser
+            .getBenefitPlanDependents();
+        for (final BenefitPlanDependent benefitPlanDependent : benefitPlanDependents) {
+          if  (!dependentUserIds.contains(benefitPlanDependent.getId())) {
+            final BenefitPlanDependentUserDto benefitPlanDependentUserDto =
+                 BenefitPlanDependentUserDto.builder()
+                .id(benefitPlanDependent.getId())
+                .firstName(benefitPlanDependent.getFirstName())
+                .lastName(benefitPlanDependent.getLastName())
+                .build();
+            dependentUsers.add(benefitPlanDependentUserDto);
+            dependentUserIds.add(benefitPlanDependent.getId());
+          }
         }
       }
     }
