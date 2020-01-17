@@ -1,5 +1,6 @@
 package shamu.company.benefit.dto;
 
+import java.sql.Timestamp;
 import java.util.List;
 import lombok.Data;
 import shamu.company.benefit.entity.BenefitPlanCoverage;
@@ -28,4 +29,8 @@ public class  UserBenefitPlanDto {
   private List<BenefitPlanUserDto> dependents;
 
   private List<BenefitPlanCoverage> coverageOptions;
+
+  private Timestamp benefitPlanStartDate;
+
+  private Timestamp benefitPlanEndDate;
 }

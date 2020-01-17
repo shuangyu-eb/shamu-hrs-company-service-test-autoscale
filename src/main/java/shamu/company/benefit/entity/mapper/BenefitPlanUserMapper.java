@@ -23,6 +23,8 @@ public interface BenefitPlanUserMapper {
 
   @Mapping(target = "title", source = "benefitPlan.name")
   @Mapping(target = "benefitPlanId", source = "benefitPlan.id")
+  @Mapping(target = "benefitPlanStartDate", source = "benefitPlan.startDate")
+  @Mapping(target = "benefitPlanEndDate", source = "benefitPlan.endDate")
   @Mapping(target = "type", source = "benefitPlan.benefitPlanType.name")
   @Mapping(target = "coverageType", source = "benefitPlanCoverage.name")
   @Mapping(target = "coverageId", source = "benefitPlanCoverage.id")
