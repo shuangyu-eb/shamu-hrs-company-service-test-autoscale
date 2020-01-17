@@ -33,11 +33,9 @@ import shamu.company.common.exception.response.ErrorType;
 import shamu.company.common.service.DepartmentService;
 import shamu.company.company.entity.Company;
 import shamu.company.company.entity.CompanyBenefitsSetting;
-import shamu.company.company.entity.CompanySize;
 import shamu.company.company.entity.Department;
 import shamu.company.company.service.CompanyBenefitsSettingService;
 import shamu.company.company.service.CompanyService;
-import shamu.company.company.service.CompanySizeService;
 import shamu.company.email.Email;
 import shamu.company.email.EmailService;
 import shamu.company.employee.dto.EmployeeListSearchCondition;
@@ -110,7 +108,6 @@ public class UserService {
   private final UserRoleService userRoleService;
   private final JobUserService jobUserService;
   private final UserStatusService userStatusService;
-  private final CompanySizeService companySizeService;
   private final CompanyService companyService;
   private final DepartmentService departmentService;
   private final JobService jobService;
@@ -150,7 +147,6 @@ public class UserService {
       @Lazy final PermissionUtils permissionUtils,
       @Lazy final JobUserService jobUserService,
       final UserStatusService userStatusService,
-      final CompanySizeService companySizeService,
       final CompanyService companyService,
       final DepartmentService departmentService,
       final JobService jobService,
@@ -176,7 +172,6 @@ public class UserService {
     this.permissionUtils = permissionUtils;
     this.jobUserService = jobUserService;
     this.userStatusService = userStatusService;
-    this.companySizeService = companySizeService;
     this.companyService = companyService;
     this.departmentService = departmentService;
     this.jobService = jobService;
@@ -510,10 +505,8 @@ public class UserService {
             .phoneWork(signUpDto.getPhone())
             .build();
 
-    final CompanySize companySize = companySizeService.findById(signUpDto.getCompanySizeId());
-
     Company company =
-        Company.builder().name(signUpDto.getCompanyName()).companySize(companySize).build();
+        Company.builder().name(signUpDto.getCompanyName()).build();
     company = companyService.save(company);
 
     saveCompanyBenefitsSetting(company);

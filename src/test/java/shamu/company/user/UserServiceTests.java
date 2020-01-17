@@ -18,13 +18,8 @@ import shamu.company.common.exception.ForbiddenException;
 import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.common.service.DepartmentService;
 import shamu.company.company.entity.Company;
-import shamu.company.company.entity.CompanySize;
-import shamu.company.company.entity.mapper.OfficeAddressMapper;
-import shamu.company.company.entity.mapper.OfficeAddressMapperImpl;
-import shamu.company.company.entity.mapper.StateProvinceMapper;
 import shamu.company.company.service.CompanyBenefitsSettingService;
 import shamu.company.company.service.CompanyService;
-import shamu.company.company.service.CompanySizeService;
 import shamu.company.email.EmailService;
 import shamu.company.helpers.auth0.Auth0Helper;
 import shamu.company.helpers.s3.AwsHelper;
@@ -71,7 +66,6 @@ class UserServiceTests {
   @Mock private UserPersonalInformationMapper userPersonalInformationMapper;
   @Mock private UserEmergencyContactService userEmergencyContactService;
   @Mock private UserAddressService userAddressService;
-  @Mock private CompanySizeService companySizeService;
   @Mock private PaidHolidayService paidHolidayService;
   @Mock private CompanyService companyService;
   @Mock private UserContactInformationMapper userContactInformationMapper;
@@ -110,7 +104,6 @@ class UserServiceTests {
           UserSignUpDto.builder()
               .userId(userId)
               .companyName(RandomStringUtils.randomAlphabetic(4))
-              .companySizeId(UUID.randomUUID().toString())
               .firstName(RandomStringUtils.randomAlphabetic(3))
               .lastName(RandomStringUtils.randomAlphabetic(3))
               .phone(RandomStringUtils.randomAlphabetic(11))
@@ -124,13 +117,11 @@ class UserServiceTests {
 
     @Test
     void whenCanFindEmail_thenShouldSuccess() {
-      Mockito.when(companySizeService.findById(Mockito.anyString())).thenReturn(new CompanySize());
       final com.auth0.json.mgmt.users.User auth0User = new com.auth0.json.mgmt.users.User();
       auth0User.setEmail("example@mail.com");
       Mockito.when(auth0Helper.getUserByUserIdFromAuth0(userId)).thenReturn(auth0User);
       final Company company = new Company();
       company.setName("company");
-      company.setCompanySize(new CompanySize(userSignUpDto.getCompanySizeId()));
       Mockito.when(companyService.save(Mockito.any())).thenReturn(company);
       Mockito.when(userStatusService.findByName(Mockito.any()))
           .thenReturn(new UserStatus(Status.ACTIVE.name()));

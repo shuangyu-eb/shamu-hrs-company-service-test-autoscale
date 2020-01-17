@@ -43,8 +43,6 @@ public class CompanyService {
 
   private final OfficeAddressMapper officeAddressMapper;
 
-  private final CompanySizeService companySizeService;
-
   private final StateProvinceService stateProvinceService;
 
   private final CompanyBenefitsSettingMapper companyBenefitsSettingMapper;
@@ -58,7 +56,6 @@ public class CompanyService {
       final JobService jobService,
       final OfficeService officeService,
       final OfficeAddressMapper officeAddressMapper,
-      final CompanySizeService companySizeService,
       final StateProvinceService stateProvinceService,
       final CompanyBenefitsSettingMapper companyBenefitsSettingMapper,
       final CompanyBenefitsSettingService companyBenefitsSettingService) {
@@ -68,7 +65,6 @@ public class CompanyService {
     this.jobService = jobService;
     this.officeService = officeService;
     this.officeAddressMapper = officeAddressMapper;
-    this.companySizeService = companySizeService;
     this.stateProvinceService = stateProvinceService;
     this.companyBenefitsSettingMapper = companyBenefitsSettingMapper;
     this.companyBenefitsSettingService = companyBenefitsSettingService;
@@ -180,24 +176,19 @@ public class CompanyService {
         .orElseThrow(() -> new ResourceNotFoundException("No such Company"));
   }
 
-  public List<CommonDictionaryDto> getCompanySizes() {
-    final List<CompanySize> companySizes = companySizeService.findAll();
-    return ReflectionUtil.convertTo(companySizes, CommonDictionaryDto.class);
-  }
-
   public Company save(final Company company) {
     return companyRepository.save(company);
   }
 
   public CompanyBenefitsSettingDto findCompanyBenefitsSetting(final String companyId) {
-    CompanyBenefitsSetting benefitsSetting = companyBenefitsSettingService
+    final CompanyBenefitsSetting benefitsSetting = companyBenefitsSettingService
         .findByCompanyId(companyId);
     return companyBenefitsSettingMapper.convertCompanyBenefitsSettingDto(benefitsSetting);
   }
 
   public void updateBenefitSettingAutomaticRollover(
       final String companyId, final Boolean isTurnOn) {
-    CompanyBenefitsSetting benefitsSetting = companyBenefitsSettingService
+    final CompanyBenefitsSetting benefitsSetting = companyBenefitsSettingService
         .findByCompanyId(companyId);
     benefitsSetting.setIsAutomaticRollover(isTurnOn);
     companyBenefitsSettingService.save(benefitsSetting);
@@ -205,7 +196,7 @@ public class CompanyService {
 
   public void updateEnrollmentPeriod(
       final String companyId, final CompanyBenefitsSettingDto companyBenefitsSettingDto) {
-    CompanyBenefitsSetting benefitsSetting = companyBenefitsSettingService
+    final CompanyBenefitsSetting benefitsSetting = companyBenefitsSettingService
         .findByCompanyId(companyId);
     benefitsSetting.setStartDate(companyBenefitsSettingDto.getStartDate());
     benefitsSetting.setEndDate(companyBenefitsSettingDto.getEndDate());

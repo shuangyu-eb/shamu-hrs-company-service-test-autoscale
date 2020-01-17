@@ -1173,3 +1173,15 @@ databaseChangeLog:
             onUpdate: CASCADE
             referencedColumnNames: id
             referencedTableName: users
+
+  - changeSet:
+      id: 1579248329866-1
+      author: bin-eb
+      preConditions:
+        onFail: WARN
+      changes:
+        - dropAllForeignKeyConstraints:
+            baseTableName: companies
+        - dropColumn:
+            columnName: company_size_id
+            tableName: companies

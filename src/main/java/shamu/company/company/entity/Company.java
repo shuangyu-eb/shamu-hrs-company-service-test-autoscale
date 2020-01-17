@@ -21,6 +21,7 @@ import shamu.company.common.entity.Country;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Company extends BaseEntity {
 
+  private static final long serialVersionUID = -6081798810093033833L;
   @Length(max = 255)
   private String name;
 
@@ -28,9 +29,6 @@ public class Company extends BaseEntity {
 
   @Column(name = "EIN")
   private String ein;
-
-  @ManyToOne
-  private CompanySize companySize;
 
   @ManyToOne
   private Country country;
