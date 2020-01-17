@@ -26,6 +26,7 @@ public class  UserBenefitPlanDto {
 
   private Boolean enrolled = null;
 
+
   private List<BenefitPlanUserDto> dependents;
 
   private List<BenefitPlanCoverage> coverageOptions;

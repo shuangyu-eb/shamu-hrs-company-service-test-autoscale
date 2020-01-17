@@ -1,6 +1,8 @@
 package shamu.company.benefit.dto;
 
+import java.util.List;
 import lombok.Data;
+import shamu.company.benefit.entity.BenefitPlanDocument;
 
 @Data
 public class BenefitPlanDetailDto {
@@ -11,9 +13,7 @@ public class BenefitPlanDetailDto {
 
   private String description;
 
-  private String documentName;
-
-  private String documentUrl;
-
   private String website;
+
+  private List<BenefitPlanDocument> documents;
 }

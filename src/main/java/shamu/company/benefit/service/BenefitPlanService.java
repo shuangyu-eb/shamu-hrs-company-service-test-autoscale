@@ -680,12 +680,14 @@ public class BenefitPlanService {
     final List<User> allUsers = userRepository.findAllByCompanyId(companyId);
     final List<BenefitPlanUser> benefitPlanUserList = benefitPlanUserRepository
         .findAllByBenefitPlanId(benefitPlanId);
+
     final List<BenefitPlanUserDto> selectedUsers = benefitPlanUserList.stream()
         .filter(distinctByKey(b -> b.getUser().getId()))
         .map(benefitPlanUser -> {
           selectedUserIds.add(benefitPlanUser.getUser().getId());
           return benefitPlanUserMapper.convertToBenefitPlanUserDto(benefitPlanUser);
         }).collect(Collectors.toList());
+
     final List<BenefitPlanUserDto> unselectedUsers = allUsers.stream().filter(user ->
         !selectedUserIds.contains(user.getId()))
         .map(userMapper::covertToBenefitPlanUserDto).collect(Collectors.toList());

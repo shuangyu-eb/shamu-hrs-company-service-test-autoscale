@@ -38,6 +38,7 @@ public interface BenefitPlanMapper {
   void updateFromBenefitPlanCreateDto(@MappingTarget BenefitPlan benefitPlan,
       BenefitPlanCreateDto benefitPlanCreateDto);
 
+  @Mapping(target = "documents", source = "benefitPlanDocuments")
   BenefitPlanDetailDto concertTo(BenefitPlan benefitPlan);
 
   default BenefitPlanType convertFromBenefitPlanTypeId(final String benefitPlanTypeId) {
