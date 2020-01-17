@@ -345,6 +345,9 @@ public class EmployeeService {
     userPersonalInformationMapper.updateFromUserPersonalInformationDto(
         userPersonalInformation, userPersonalInformationDto);
 
+    encryptorUtil.encryptSsn(
+        employee.getId(), userPersonalInformationDto.getSsn(), userPersonalInformation);
+
     final UserPersonalInformation savedUserPersonalInformation =
         userPersonalInformationService.update(userPersonalInformation);
     employee.setUserPersonalInformation(savedUserPersonalInformation);
