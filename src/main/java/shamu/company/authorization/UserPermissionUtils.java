@@ -15,7 +15,6 @@ import shamu.company.benefit.entity.BenefitPlan;
 import shamu.company.benefit.entity.BenefitPlanDependent;
 import shamu.company.benefit.service.BenefitPlanDependentService;
 import shamu.company.benefit.service.BenefitPlanService;
-import shamu.company.common.BaseAuthorityDto;
 import shamu.company.common.config.DefaultJwtAuthenticationToken;
 import shamu.company.common.entity.BaseEntity;
 import shamu.company.common.exception.ForbiddenException;
@@ -26,6 +25,9 @@ import shamu.company.company.service.CompanyService;
 import shamu.company.employee.entity.EmploymentType;
 import shamu.company.job.dto.JobUpdateDto;
 import shamu.company.job.entity.Job;
+import shamu.company.timeoff.dto.PaidHolidayDto;
+import shamu.company.timeoff.dto.PaidHolidayEmployeeDto;
+import shamu.company.timeoff.dto.TimeOffPolicyUserFrontendDto;
 import shamu.company.timeoff.entity.CompanyPaidHoliday;
 import shamu.company.timeoff.entity.PaidHoliday;
 import shamu.company.timeoff.entity.TimeOffPolicy;
@@ -121,6 +123,7 @@ public class UserPermissionUtils extends BasePermissionUtils {
       case COMPANY_PAID_HOLIDAY:
         return hasPermissionOfCompanyPaidHoliday(auth, targetId, permission, entities);
       case USER:
+      case TIME_OFF_USER:
       default:
         final User targetUser = userService.findById(targetId);
         return hasPermissionOfUser(auth, targetUser, permission);
@@ -146,34 +149,50 @@ public class UserPermissionUtils extends BasePermissionUtils {
   @SuppressWarnings("unchecked")
   boolean hasPermission(final Authentication auth, final List targets, final Type type,
       final Permission.Name permission) {
+    boolean hasPermission;
     if (targets.isEmpty()) {
       return hasPermission(auth, permission);
     }
-
-    if (!(targets.get(0) instanceof BaseAuthorityDto)) {
-      return false;
-    }
-
-    final List<BaseAuthorityDto> baseAuthorityDtos = (List<BaseAuthorityDto>) targets;
-    boolean hasPermission = false;
-    for (final BaseAuthorityDto dto : baseAuthorityDtos) {
-      final String id = dto.getId();
-      BaseEntity[] entities = new BaseEntity[0];
-      if (type == Type.COMPANY_PAID_HOLIDAY) {
-        entities = companyPaidHolidayService.findAllByCompanyId(getCompanyId()).stream()
-            .map(companyPaidHoliday -> (BaseEntity) companyPaidHoliday)
-            .toArray(BaseEntity[]::new);
-        hasPermission = hasPermission(auth, id, type, permission, entities);
-      }
-      if (type == Type.USER) {
-        hasPermission = hasPermission(auth, id, type, permission, entities);
-      }
-
-      if (hasPermission) {
+    switch (type) {
+      case COMPANY_PAID_HOLIDAY:
+        final List<PaidHolidayDto> paidHolidayDtos = (List<PaidHolidayDto>) targets;
+        for (final PaidHolidayDto paidHolidayDto : paidHolidayDtos) {
+          final String id = paidHolidayDto.getId();
+          final BaseEntity[] entities = companyPaidHolidayService.findAllByCompanyId(getCompanyId())
+              .stream()
+              .map(companyPaidHoliday -> (BaseEntity) companyPaidHoliday)
+              .toArray(BaseEntity[]::new);
+          hasPermission = hasPermission(auth, id, type, permission, entities);
+          if (!hasPermission) {
+            return false;
+          }
+        }
         return true;
-      }
+      case PAID_HOLIDAY_USER:
+        final List<PaidHolidayEmployeeDto> paidHolidayEmployeeDtos =
+            (List<PaidHolidayEmployeeDto>) targets;
+        for (final PaidHolidayEmployeeDto paidHolidayEmployeeDto : paidHolidayEmployeeDtos) {
+          final String userId = paidHolidayEmployeeDto.getId();
+          hasPermission = hasPermission(auth, userId, type, permission);
+          if (!hasPermission) {
+            return false;
+          }
+        }
+        return true;
+      case TIME_OFF_USER:
+        final List<TimeOffPolicyUserFrontendDto> timeOffPolicyUserDtos =
+            (List<TimeOffPolicyUserFrontendDto>) targets;
+        for (final TimeOffPolicyUserFrontendDto timeOffPolicyUserDto: timeOffPolicyUserDtos) {
+          final String userId = timeOffPolicyUserDto.getUserId();
+          hasPermission = hasPermission(auth, userId, type, permission);
+          if (!hasPermission) {
+            return false;
+          }
+        }
+        return true;
+      default:
+        return false;
     }
-    return false;
   }
 
   boolean hasPermissionOfObjectTarget(final Authentication auth, final Object target,
@@ -364,7 +383,7 @@ public class UserPermissionUtils extends BasePermissionUtils {
       final String managerUserId = userService.getManagerUserIdById(targetUser.getId());
       final boolean isManager =
           !StringUtils.isEmpty(managerUserId)
-           && managerUserId.toUpperCase().equals(getAuthUser().getId().toUpperCase());
+           && managerUserId.equalsIgnoreCase(getAuthUser().getId());
       return isManager && hasPermission(authorities, permission);
     }
 

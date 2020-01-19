@@ -10,13 +10,13 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import shamu.company.common.BaseAuthorityDto;
 import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.company.entity.Company;
 import shamu.company.helpers.FederalHolidayHelper;
 import shamu.company.job.dto.JobUserDto;
 import shamu.company.server.dto.AuthUser;
 import shamu.company.timeoff.dto.PaidHolidayDto;
+import shamu.company.timeoff.dto.PaidHolidayEmployeeDto;
 import shamu.company.timeoff.dto.PaidHolidayRelatedUserListDto;
 import shamu.company.timeoff.entity.CompanyPaidHoliday;
 import shamu.company.timeoff.entity.PaidHoliday;
@@ -90,14 +90,16 @@ public class PaidHolidayService {
 
   private List<PaidHolidayDto> getPaidHolidayFromCompany(
           final AuthUser user, final List<CompanyPaidHoliday> companyPaidHolidays) {
-    return companyPaidHolidays.stream()
-            .map(paidHoliday -> companyPaidHolidayMapper.convertToPaidHolidayDto(paidHoliday, user))
-            .peek(paidHolidayDto -> {
-              if (paidHolidayDto.getFederal()) {
-                paidHolidayDto.setDate(federalHolidayHelper.timestampOf(paidHolidayDto.getName()));
-              }
-            })
-            .collect(Collectors.toList());
+    final List<PaidHolidayDto> list = new ArrayList<>();
+    for (final CompanyPaidHoliday paidHoliday : companyPaidHolidays) {
+      final PaidHolidayDto paidHolidayDto =
+          companyPaidHolidayMapper.convertToPaidHolidayDto(paidHoliday, user);
+      if (paidHolidayDto.getFederal()) {
+        paidHolidayDto.setDate(federalHolidayHelper.timestampOf(paidHolidayDto.getName()));
+      }
+      list.add(paidHolidayDto);
+    }
+    return list;
   }
 
   private PaidHolidayDto getNewPaidHolidayDto(final PaidHolidayDto paidHolidayDto, final int year) {
@@ -144,13 +146,13 @@ public class PaidHolidayService {
     return paidHolidayDtos.stream().filter(paidHolidayDto -> {
       if (paidHolidayDto.getFederal()) {
         paidHolidayDto.setDate(
-            federalHolidayHelper.timestampOf(paidHolidayDto.getName(), Integer.valueOf(year)));
+            federalHolidayHelper.timestampOf(paidHolidayDto.getName(), Integer.parseInt(year)));
         return true;
       }
       Timestamp date = paidHolidayDto.getDate();
       LocalDate localDate = date.toLocalDateTime().toLocalDate();
       int holidayYear = localDate.getYear();
-      return Integer.valueOf(year) == holidayYear;
+      return Integer.parseInt(year) == holidayYear;
     }).collect(Collectors.toList());
   }
 
@@ -214,10 +216,10 @@ public class PaidHolidayService {
     return new PaidHolidayRelatedUserListDto(selectedEmployees, unSelectedEmployees);
   }
 
-  public void updatePaidHolidayEmployees(final List<BaseAuthorityDto> newPaidEmployees,
+  public void updatePaidHolidayEmployees(final List<PaidHolidayEmployeeDto> newPaidEmployees,
       final String companyId) {
     final List<String> paidEmployeeIdsNow = newPaidEmployees.stream().map(
-        BaseAuthorityDto::getId)
+        PaidHolidayEmployeeDto::getId)
         .collect(Collectors.toList());
     final List<PaidHolidayUser> employeesStateBefore = paidHolidayUserRepository
         .findAllByCompanyId(companyId);

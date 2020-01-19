@@ -24,7 +24,6 @@ import shamu.company.timeoff.dto.TimeOffPolicyRelatedUserListDto;
 import shamu.company.timeoff.dto.TimeOffPolicyUserDto;
 import shamu.company.timeoff.dto.TimeOffPolicyUserFrontendDto;
 import shamu.company.timeoff.dto.TimeOffPolicyWrapperDto;
-import shamu.company.timeoff.entity.mapper.TimeOffPolicyUserMapper;
 import shamu.company.timeoff.service.TimeOffDetailService;
 import shamu.company.timeoff.service.TimeOffPolicyService;
 import shamu.company.user.entity.User;
@@ -39,22 +38,19 @@ public class TimeOffPolicyRestController extends BaseRestController {
 
   private final TimeOffDetailService timeOffDetailService;
 
-  private final TimeOffPolicyUserMapper timeOffPolicyUserMapper;
-
-
   @Autowired
   public TimeOffPolicyRestController(
       final TimeOffPolicyService timeOffPolicyService,
       final UserService userService,
-      final TimeOffDetailService timeOffDetailService,
-      final TimeOffPolicyUserMapper timeOffPolicyUserMapper) {
+      final TimeOffDetailService timeOffDetailService) {
     this.timeOffPolicyService = timeOffPolicyService;
     this.userService = userService;
     this.timeOffDetailService = timeOffDetailService;
-    this.timeOffPolicyUserMapper = timeOffPolicyUserMapper;
   }
 
   @PostMapping("time-off-policies")
+  @PreAuthorize("hasPermission(#timeOffPolicyWrapperDto.userStartBalances,"
+      + "'TIME_OFF_USER', 'MANAGE_TIME_OFF_POLICY')")
   public ResponseEntity createTimeOffPolicy(
       @Valid @RequestBody final TimeOffPolicyWrapperDto timeOffPolicyWrapperDto) {
     timeOffPolicyService
@@ -63,7 +59,9 @@ public class TimeOffPolicyRestController extends BaseRestController {
   }
 
   @PatchMapping("time-off-policies/{id}")
-  @PreAuthorize("hasPermission(#id, 'TIME_OFF_POLICY', 'MANAGE_TIME_OFF_POLICY')")
+  @PreAuthorize(
+      "hasPermission(#infoWrapper.userStartBalances, 'TIME_OFF_USER', 'MANAGE_TIME_OFF_POLICY')"
+          + " and hasPermission(#id, 'TIME_OFF_POLICY', 'MANAGE_TIME_OFF_POLICY')")
   public void updateTimeOffPolicy(@Valid @PathVariable final String id,
       @Valid @RequestBody final TimeOffPolicyWrapperDto infoWrapper) {
 
@@ -71,7 +69,9 @@ public class TimeOffPolicyRestController extends BaseRestController {
   }
 
   @PatchMapping("time-off-policies/employees/{policyId}")
-  @PreAuthorize("hasPermission(#policyId, 'TIME_OFF_POLICY', 'MANAGE_TIME_OFF_POLICY')")
+  @PreAuthorize("hasPermission(#timeOffPolicyWrapperDto.userStartBalances,"
+      + "'TIME_OFF_USER', 'MANAGE_TIME_OFF_POLICY')"
+      + " and hasPermission(#policyId, 'TIME_OFF_POLICY', 'MANAGE_TIME_OFF_POLICY')")
   public ResponseEntity updateTimeOffPolicyEmployeesInfo(@PathVariable final String policyId,
       @RequestBody final TimeOffPolicyWrapperDto timeOffPolicyWrapperDto) {
     final List<TimeOffPolicyUserFrontendDto> timeOffPolicyUserFrontendDtos = timeOffPolicyWrapperDto

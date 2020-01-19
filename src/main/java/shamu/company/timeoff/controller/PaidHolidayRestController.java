@@ -13,10 +13,10 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import shamu.company.common.BaseAuthorityDto;
 import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.timeoff.dto.PaidHolidayDto;
+import shamu.company.timeoff.dto.PaidHolidayEmployeeDto;
 import shamu.company.timeoff.dto.PaidHolidayRelatedUserListDto;
 import shamu.company.timeoff.service.PaidHolidayService;
 
@@ -37,7 +37,7 @@ public class PaidHolidayRestController extends BaseRestController {
 
   @GetMapping(value = "paid-holidays/user/{targetUserId}")
   public List<PaidHolidayDto> getUserAllPaidHolidays(
-          @PathVariable String targetUserId) {
+          @PathVariable final String targetUserId) {
     return paidHolidayService.getUserPaidHolidays(findAuthUser(), targetUserId);
   }
 
@@ -55,9 +55,9 @@ public class PaidHolidayRestController extends BaseRestController {
   }
 
   @PatchMapping(value = "paid-holidays/employees")
-  @PreAuthorize("hasPermission(#updatePaidHolidayEmployees, 'USER', 'EDIT_USER')")
+  @PreAuthorize("hasPermission(#updatePaidHolidayEmployees, 'PAID_HOLIDAY_USER', 'EDIT_USER')")
   public HttpEntity updatePaidHolidayEmployees(
-      @RequestBody final List<BaseAuthorityDto> updatePaidHolidayEmployees) {
+      @RequestBody final List<PaidHolidayEmployeeDto> updatePaidHolidayEmployees) {
     paidHolidayService.updatePaidHolidayEmployees(updatePaidHolidayEmployees, findCompanyId());
     return new ResponseEntity<>(HttpStatus.OK);
 
