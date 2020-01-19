@@ -4,6 +4,7 @@ import com.auth0.client.auth.AuthAPI;
 import com.auth0.client.mgmt.ManagementAPI;
 import com.auth0.client.mgmt.filter.PageFilter;
 import com.auth0.client.mgmt.filter.UserFilter;
+import com.auth0.exception.APIException;
 import com.auth0.exception.Auth0Exception;
 import com.auth0.json.auth.TokenHolder;
 import com.auth0.json.mgmt.Permission;
@@ -17,7 +18,6 @@ import com.auth0.net.AuthRequest;
 import com.auth0.net.CustomRequest;
 import com.auth0.net.Request;
 import com.fasterxml.jackson.core.type.TypeReference;
-import io.micrometer.core.instrument.util.StringUtils;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 import okhttp3.OkHttpClient;
 import okhttp3.OkHttpClient.Builder;
 import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCrypt;
@@ -50,6 +51,8 @@ public class Auth0Helper {
   private final OkHttpClient httpClient = new Builder().build();
   private static final String MFA_ENDPOINT = "http://auth0.com/oauth/grant-type/mfa-otp";
   private static final String MFA_CONTENT_TYPE = "application/x-www-form-urlencoded";
+  private static final String MFA_REQUIRED = "mfa_required";
+  private static final String INVALID_GRANT = "invalid_grant";
 
   @Autowired
   public Auth0Helper(final Auth0Manager auth0Manager, final Auth0Config auth0Config) {
@@ -72,16 +75,24 @@ public class Auth0Helper {
         && api.equals(MANAGEMENT_API)) {
       return new TooManyRequestException(
           "Too many requests. " + "System limits for request are 15 requests per second.", e);
-    } else {
-      return new GeneralAuth0Exception(e.getMessage(), e);
+    } else if (e.getClass().isAssignableFrom(APIException.class)
+        && StringUtils.equalsIgnoreCase(((APIException) e).getError(), INVALID_GRANT)) {
+      return new GeneralAuth0Exception(((APIException) e).getDescription(), e);
     }
+    return new GeneralAuth0Exception(e.getMessage(), e);
   }
 
-  public TokenHolder login(final String email, final String password) {
+  public void login(final String email, final String password) {
     try {
       final AuthRequest request =
           getAuthApi().login(email, password).setAudience(auth0Config.getAudience());
-      return request.execute();
+      request.execute();
+    } catch (final APIException apiException) {
+      if (MFA_REQUIRED.equals(apiException.getError())) {
+        log.info(String.format("MFA required when validating password of account %s.", email));
+        return;
+      }
+      throw handleAuth0Exception(apiException, AUTH_API);
     } catch (final Auth0Exception exception) {
       throw handleAuth0Exception(exception, AUTH_API);
     } catch (final Exception e) {
