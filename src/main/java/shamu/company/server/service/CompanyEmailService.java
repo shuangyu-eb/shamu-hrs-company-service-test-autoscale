@@ -113,9 +113,9 @@ public class CompanyEmailService {
         template = "document_request_acknowledge.html";
         subject = "Acknowledgement Request";
       } else if (VIEW.equals(type)) {
-        final String senderFirstName = sender.getUserPersonalInformation().getFirstName();
+        final String senderName = sender.getUserPersonalInformation().getName();
         template = "document_request_no_action.html";
-        subject = senderFirstName + " Sent You a Document";
+        subject = senderName + " Sent You a Document";
       }
       final Email email = new Email(
               applicationConfig.getSystemEmailAddress(),
