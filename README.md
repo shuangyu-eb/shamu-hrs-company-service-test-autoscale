@@ -66,9 +66,6 @@ Note: These configs of secret is used to store secrets of companies, but Auth0 c
    $ ./mvnw spring-boot:run -Dspring-boot.run.profiles=local
    ```
 
-    **Note:**
-    You can also use the java IDE(e.g. IntelliJ IDEA) to set up it locally.
-
 3. Visit [http://localhost:8500](http://localhost:8500), then you'll find the company service in **Services**.
 
 4. This micro service runs on port 8081. You can also check port 8081 to verify it's running.
