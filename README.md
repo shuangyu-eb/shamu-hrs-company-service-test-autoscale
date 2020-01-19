@@ -59,20 +59,19 @@ Note: These configs of secret is used to store secrets of companies, but Auth0 c
 
 
 1. Install Java openjdk 8 depending on the system. If you install it on mac, you can take a look at [this](https://apple.stackexchange.com/questions/334384/how-can-i-install-java-openjdk-8-on-high-sierra).
-2. Install maven, here's the [documentation](https://maven.apache.org/install.html)
 
-3. Go to your project root, run the following command to build images for the project.
+2. Go to your project root, run the following command to build images for the project.
 
    ```bash
-   $ mvn spring-boot:run -Dspring-boot.run.profiles=local
+   $ ./mvnw spring-boot:run -Dspring-boot.run.profiles=local
    ```
 
     **Note:**
     You can also use the java IDE(e.g. IntelliJ IDEA) to set up it locally.
 
-4. Visit [http://localhost:8500](http://localhost:8500), then you'll find the company service in **Services**.
+3. Visit [http://localhost:8500](http://localhost:8500), then you'll find the company service in **Services**.
 
-5. This micro service runs on port 8081. You can also check port 8081 to verify it's running.
+4. This micro service runs on port 8081. You can also check port 8081 to verify it's running.
 
 ### Using docker to serve the application
 
