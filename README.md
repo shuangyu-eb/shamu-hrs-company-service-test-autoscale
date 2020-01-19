@@ -58,7 +58,7 @@ Note: These configs of secret is used to store secrets of companies, but Auth0 c
 ### Using maven to serve the application
 
 
-1. Install Java jdk-8(open jdk or oracle jdk) depending on the system. If you install openjdk on mac, you can take a look at [this](https://apple.stackexchange.com/questions/334384/how-can-i-install-java-openjdk-8-on-high-sierra).
+1. Install Java openjdk 8 depending on the system. If you install it on mac, you can take a look at [this](https://apple.stackexchange.com/questions/334384/how-can-i-install-java-openjdk-8-on-high-sierra).
 2. Install maven, here's the [documentation](https://maven.apache.org/install.html)
 
 3. Go to your project root, run the following command to build images for the project.
