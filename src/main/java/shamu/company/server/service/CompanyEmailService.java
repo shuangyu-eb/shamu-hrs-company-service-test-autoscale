@@ -24,6 +24,7 @@ import shamu.company.helpers.s3.AwsHelper;
 import shamu.company.server.dto.DocumentRequestEmailDto;
 import shamu.company.server.dto.DocumentRequestEmailDto.DocumentRequestType;
 import shamu.company.user.entity.User;
+import shamu.company.user.entity.UserPersonalInformation;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.DateUtil;
 
@@ -113,9 +114,12 @@ public class CompanyEmailService {
         template = "document_request_acknowledge.html";
         subject = "Acknowledgement Request";
       } else if (VIEW.equals(type)) {
-        final String senderName = sender.getUserPersonalInformation().getName();
+        final UserPersonalInformation personalInformation = sender.getUserPersonalInformation();
+        final String firstName = personalInformation.getFirstName();
+        final String preferredName = personalInformation.getPreferredName();
         template = "document_request_no_action.html";
-        subject = senderName + " Sent You a Document";
+        subject = (StringUtils.isEmpty(preferredName) ? firstName : preferredName)
+                  + " Sent You a Document";
       }
       final Email email = new Email(
               applicationConfig.getSystemEmailAddress(),
