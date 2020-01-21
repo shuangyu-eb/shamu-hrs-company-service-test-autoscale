@@ -22,4 +22,8 @@ public class TimeOffPolicyRelatedUserDto {
   private String lastName;
 
   private Integer balance;
+
+  private String department;
+
+  private String employmentType;
 }

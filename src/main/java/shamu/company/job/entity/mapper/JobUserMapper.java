@@ -68,6 +68,8 @@ public interface JobUserMapper {
       JobUserDto jobManagerDto, List<JobUserDto> directReporters, String roleName);
 
   @Mapping(target = "jobTitle", source = "jobUser.job.title")
+  @Mapping(target = "employmentType", source = "jobUser.employmentType.name")
+  @Mapping(target = "department", source = "jobUser.job.department.name")
   @Mapping(target = "firstName", source = "user.userPersonalInformation.firstName")
   @Mapping(target = "preferredName", source = "user.userPersonalInformation.preferredName")
   @Mapping(target = "lastName", source = "user.userPersonalInformation.lastName")
@@ -76,6 +78,8 @@ public interface JobUserMapper {
   TimeOffPolicyRelatedUserDto convertToTimeOffPolicyRelatedUserDto(User user, JobUser jobUser);
 
   @Mapping(target = "jobTitle", source = "jobUser.job.title")
+  @Mapping(target = "employmentType", source = "jobUser.employmentType.name")
+  @Mapping(target = "department", source = "jobUser.job.department.name")
   @Mapping(target = "firstName", source = "policyUser.user.userPersonalInformation.firstName")
   @Mapping(target = "preferredName",
            source = "policyUser.user.userPersonalInformation.preferredName")
