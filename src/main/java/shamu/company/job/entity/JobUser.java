@@ -1,6 +1,7 @@
 package shamu.company.job.entity;
 
 import java.sql.Timestamp;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
@@ -41,7 +42,7 @@ public class JobUser extends BaseEntity {
   @ManyToOne
   private Company company;
 
-  @OneToOne
+  @OneToOne(cascade = CascadeType.ALL)
   private UserCompensation userCompensation;
 
 }
