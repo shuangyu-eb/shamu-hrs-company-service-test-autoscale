@@ -43,7 +43,7 @@ public interface JobUserMapper {
   BasicJobInformationDto convertToBasicJobInformationDto(JobUser jobUser);
 
   @InheritConfiguration
-  @Mapping(target = "compensation", source = "user.userCompensation")
+  @Mapping(target = "compensation", source = "userCompensation")
   JobInformationDto convertToJobInformationDto(JobUser jobUser);
 
   @Mapping(target = "userStatus", source = "userStatus")

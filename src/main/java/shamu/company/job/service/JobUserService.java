@@ -118,21 +118,12 @@ public class JobUserService {
   public void updateJobInfo(
           final String id, final JobUpdateDto jobUpdateDto, final String companyId) {
     final User user = userService.findById(id);
-    JobUser jobUser = findJobUserByUser(user);
-    final List<User> directReports;
-    // handle jobUser info
-    if (null == jobUser) {
-      jobUser = new JobUser();
-      jobUser.setUser(user);
-    }
-    jobUserMapper.updateFromJobUpdateDto(jobUser, jobUpdateDto);
-    jobUserRepository.save(jobUser);
     // handle manager info
-    directReports = userService
-            .findDirectReportsByManagerUserId(companyId, user.getId());
+    final List<User> directReports =
+        userService.findDirectReportsByManagerUserId(companyId, user.getId());
     final String managerId = jobUpdateDto.getManagerId();
     if (StringUtils.isNotEmpty(managerId) && (user.getManagerUser() == null
-            || !user.getManagerUser().getId().equals(managerId))) {
+        || !user.getManagerUser().getId().equals(managerId))) {
       final User manager = userService.findById(managerId);
       if (Role.EMPLOYEE == manager.getRole()) {
         manager.setUserRole(userRoleService.getManager());
@@ -145,23 +136,32 @@ public class JobUserService {
       if (user.getRole() != Role.ADMIN) {
         directReports.removeIf(employee -> employee.getId().equals(managerId));
         final UserRole targetUserRole = directReports.isEmpty()
-                ? userRoleService.getEmployee() : userRoleService.getManager();
+            ? userRoleService.getEmployee() : userRoleService.getManager();
         user.setUserRole(targetUserRole);
       }
       handlePendingRequests(managerId);
     }
+    userService.save(user);
+
+    JobUser jobUser = findJobUserByUser(user);
+    // handle jobUser info
+    if (null == jobUser) {
+      jobUser = new JobUser();
+      jobUser.setUser(user);
+    }
+    jobUserMapper.updateFromJobUpdateDto(jobUser, jobUpdateDto);
     //handle Compensation info
     if (jobUpdateDto.getCompensationWage() != null
-            && jobUpdateDto.getCompensationFrequencyId() != null) {
-      UserCompensation userCompensation = user.getUserCompensation();
+        && jobUpdateDto.getCompensationFrequencyId() != null) {
+      UserCompensation userCompensation = jobUser.getUserCompensation();
       if (userCompensation == null) {
         userCompensation = new UserCompensation();
       }
       userCompensationMapper.updateFromJobUpdateDto(userCompensation, jobUpdateDto);
       userCompensation.setUserId(user.getId());
-      user.setUserCompensation(userCompensation);
+      jobUser.setUserCompensation(userCompensation);
     }
-    userService.save(user);
+    jobUserRepository.save(jobUser);
   }
 
   private boolean isSubordinate(final String userId, String managerId) {
@@ -198,8 +198,8 @@ public class JobUserService {
 
   public void updateJobSelectOption(
           final JobSelectOptionUpdateDto jobSelectOptionUpdateDto) {
-    String id = jobSelectOptionUpdateDto.getId();
-    String name = jobSelectOptionUpdateDto.getNewName();
+    final String id = jobSelectOptionUpdateDto.getId();
+    final String name = jobSelectOptionUpdateDto.getNewName();
 
     switch (jobSelectOptionUpdateDto.getUpdateField()) {
       case DEPARTMENT:
@@ -313,7 +313,7 @@ public class JobUserService {
     officeAddressService.delete(office.getOfficeAddress());
   }
 
-  public Integer getCountByJobId(String jobId) {
+  public Integer getCountByJobId(final String jobId) {
     return jobUserRepository.getCountByJobId(jobId);
   }
 

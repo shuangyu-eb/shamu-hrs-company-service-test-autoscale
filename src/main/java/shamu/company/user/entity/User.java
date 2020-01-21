@@ -62,9 +62,6 @@ public class User {
   @NotNull
   private UserContactInformation userContactInformation;
 
-  @OneToOne(cascade = CascadeType.ALL)
-  private UserCompensation userCompensation;
-
   private String invitationEmailToken;
 
   private Timestamp invitedAt;

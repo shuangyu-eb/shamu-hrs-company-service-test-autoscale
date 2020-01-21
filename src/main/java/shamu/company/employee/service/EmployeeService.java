@@ -199,7 +199,6 @@ public class EmployeeService {
 
     if (jobInformation != null) {
       saveManagerUser(employee, jobInformation);
-      saveEmployeeCompensation(employee, jobInformation);
       saveEmployeeJob(employee, currentUser, jobInformation);
     }
 
@@ -423,35 +422,28 @@ public class EmployeeService {
     userService.save(managerUser);
   }
 
-  private void saveEmployeeCompensation(
-      final User user, final NewEmployeeJobInformationDto jobInformation) {
-
-    if (jobInformation.getCompensation() == null
-        || jobInformation.getCompensationFrequencyId() == null) {
-      return;
-    }
-
-    final UserCompensation userCompensation = new UserCompensation();
-    userCompensation.setWage(jobInformation.getCompensation());
-
-    final String compensationFrequencyId = jobInformation.getCompensationFrequencyId();
-    final CompensationFrequency compensationFrequency =
-        compensationFrequencyService.findById(compensationFrequencyId);
-    userCompensation.setCompensationFrequency(compensationFrequency);
-    userCompensation.setUserId(user.getId());
-    final UserCompensation userCompensationReturned =
-        userCompensationService.save(userCompensation);
-    user.setUserCompensation(userCompensationReturned);
-  }
-
   private void saveEmployeeJob(
       final User employee,
       final User currentUser,
       final NewEmployeeJobInformationDto jobInformation) {
 
-    final Job job = jobService.findById(jobInformation.getJobId());
+    UserCompensation userCompensation = new UserCompensation();
+    if (jobInformation.getCompensation() != null
+        && jobInformation.getCompensationFrequencyId() != null) {
+      userCompensation.setWage(jobInformation.getCompensation());
+      final String compensationFrequencyId = jobInformation.getCompensationFrequencyId();
+      final CompensationFrequency compensationFrequency =
+          compensationFrequencyService.findById(compensationFrequencyId);
+      userCompensation.setCompensationFrequency(compensationFrequency);
+      userCompensation.setUserId(employee.getId());
+      userCompensation = userCompensationService.save(userCompensation);
+    }
 
     final JobUser jobUser = new JobUser();
+    if (StringUtils.isNotEmpty(userCompensation.getId())) {
+      jobUser.setUserCompensation(userCompensation);
+    }
+    final Job job = jobService.findById(jobInformation.getJobId());
     jobUser.setJob(job);
     jobUser.setCompany(currentUser.getCompany());
     jobUser.setUser(employee);

@@ -1185,3 +1185,57 @@ databaseChangeLog:
         - dropColumn:
             columnName: company_size_id
             tableName: companies
+
+  - changeSet:
+      id: 1579513358582-1
+      author: alex-eb
+      preConditions:
+        onFail: WARN
+      changes:
+        - dropForeignKeyConstraint:
+            baseTableName: users
+            constraintName: fk_user_user_compensation
+        - dropColumn:
+            columnName: user_compensation_id
+            tableName: users
+        - addColumn:
+            columns:
+              - column:
+                  name: user_compensation_id
+                  type: BINARY(16)
+                  constraints:
+                    references: user_compensations(id)
+                    foreignKeyName: fk_job_user_compensation_id
+            tableName: jobs_users
+
+  - changeSet:
+      id: 1579513358582-2
+      author: alex-eb
+      preConditions:
+        onFail: WARN
+        changes:
+          - sql:
+              sql: update jobs_users ju set ju.user_compensation_id = (select id from user_compensations where user_id = ju.user_id);
+
+  - changeSet:
+      id: 1579513358582-3
+      author: alex-eb
+      preConditions:
+        onFail: WARN
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: user_personal_information_id
+            baseTableName: users
+            constraintName: fk_user_user_personal_information
+            onDelete: CASCADE
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: user_personal_information
+        - addForeignKeyConstraint:
+            baseColumnNames: user_contact_information_id
+            baseTableName: users
+            constraintName: fk_user_user_contact_information
+            onDelete: CASCADE
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: user_contact_information

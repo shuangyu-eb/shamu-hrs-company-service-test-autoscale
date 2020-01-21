@@ -113,7 +113,6 @@ public class UserService {
   private final JobService jobService;
   private final UserAccessLevelEventService userAccessLevelEventService;
   private final UserContactInformationService userContactInformationService;
-  private final UserPersonalInformationService userPersonalInformationService;
 
   private final UserContactInformationMapper userContactInformationMapper;
   private final UserAddressMapper userAddressMapper;
@@ -152,7 +151,6 @@ public class UserService {
       final JobService jobService,
       final UserAccessLevelEventService userAccessLevelEventService,
       final UserContactInformationService userContactInformationService,
-      final UserPersonalInformationService userPersonalInformationService,
       final CompanyBenefitsSettingService companyBenefitsSettingService) {
     this.templateEngine = templateEngine;
     this.userRepository = userRepository;
@@ -177,7 +175,6 @@ public class UserService {
     this.jobService = jobService;
     this.userAccessLevelEventService = userAccessLevelEventService;
     this.userContactInformationService = userContactInformationService;
-    this.userPersonalInformationService = userPersonalInformationService;
     this.companyBenefitsSettingService = companyBenefitsSettingService;
   }
 
@@ -442,17 +439,11 @@ public class UserService {
     adjustUserManagerRelationshipBeforeDeleteOrDeactivate(employee);
 
     final String employeeWorkEmail = employee.getUserContactInformation().getEmailWork();
-
+    userRepository.delete(employee);
     auth0Helper.deleteUser(
         auth0Helper
             .getAuth0UserByIdWithByEmailFailover(employee.getId(), employeeWorkEmail)
             .getId());
-
-    userRepository.delete(employee);
-
-    userContactInformationService.delete(employee.getUserContactInformation());
-
-    userPersonalInformationService.delete(employee.getUserPersonalInformation());
   }
 
   private void adjustUserManagerRelationshipBeforeDeleteOrDeactivate(final User user) {
