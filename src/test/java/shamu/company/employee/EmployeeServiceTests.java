@@ -1,6 +1,8 @@
 package shamu.company.employee;
 
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
 import java.util.UUID;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang.RandomStringUtils;
@@ -9,11 +11,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.powermock.reflect.Whitebox;
 import org.springframework.context.ApplicationEventPublisher;
+import org.thymeleaf.context.Context;
+import shamu.company.common.entity.StateProvince;
 import shamu.company.common.exception.ForbiddenException;
 import shamu.company.common.service.CountryService;
 import shamu.company.common.service.OfficeService;
@@ -31,25 +36,31 @@ import shamu.company.employee.dto.EmailResendDto;
 import shamu.company.employee.dto.EmployeeContactInformationDto;
 import shamu.company.employee.dto.EmployeeDto;
 import shamu.company.employee.dto.EmployeePersonalInformationDto;
+import shamu.company.employee.dto.NewEmployeeJobInformationDto;
 import shamu.company.employee.dto.UserPersonalInformationForManagerDto;
+import shamu.company.employee.dto.WelcomeEmailDto;
 import shamu.company.employee.service.EmployeeService;
 import shamu.company.employee.service.EmploymentTypeService;
 import shamu.company.helpers.auth0.Auth0Helper;
 import shamu.company.helpers.s3.AwsHelper;
+import shamu.company.info.dto.UserEmergencyContactDto;
 import shamu.company.info.entity.mapper.UserEmergencyContactMapper;
 import shamu.company.info.service.UserEmergencyContactService;
+import shamu.company.job.entity.JobUser;
 import shamu.company.job.entity.mapper.JobUserMapper;
 import shamu.company.job.entity.mapper.JobUserMapperImpl;
 import shamu.company.job.service.JobService;
 import shamu.company.job.service.JobUserService;
 import shamu.company.user.dto.BasicUserContactInformationDto;
 import shamu.company.user.dto.BasicUserPersonalInformationDto;
+import shamu.company.user.dto.UserAddressDto;
 import shamu.company.user.dto.UserContactInformationDto;
 import shamu.company.user.dto.UserPersonalInformationDto;
 import shamu.company.user.entity.Gender;
 import shamu.company.user.entity.MaritalStatus;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
+import shamu.company.user.entity.UserAddress;
 import shamu.company.user.entity.UserContactInformation;
 import shamu.company.user.entity.UserPersonalInformation;
 import shamu.company.user.entity.UserRole;
@@ -402,4 +413,370 @@ class EmployeeServiceTests {
       Assertions.assertNotNull(contactInformation);
     }
   }
+
+  @Nested
+  class addEmployee {
+    List<UserEmergencyContactDto> userEmergencyContactDto;
+    NewEmployeeJobInformationDto jobInformation;
+    WelcomeEmailDto welcomeEmail;
+    User currentUser;
+    EmployeeDto employeeDto;
+    Company company;
+    Context emailContext;
+
+    @BeforeEach
+    void init(){
+      userEmergencyContactDto = new ArrayList<>();
+      jobInformation = new NewEmployeeJobInformationDto();
+      welcomeEmail = new WelcomeEmailDto();
+      emailContext = new Context();
+      welcomeEmail.setPersonalInformation("a");
+      welcomeEmail.setSendTo("a");
+      currentUser = new User();
+      employeeDto = new EmployeeDto();
+      employeeDto.setUserEmergencyContactDto(userEmergencyContactDto);
+      company = new Company();
+      company.setName("a");
+      employeeDto.setUserAddress(new UserAddressDto());
+      employeeDto.setWelcomeEmail(welcomeEmail);
+      currentUser.setCompany(company);
+      currentUser.setResetPasswordToken("a");
+      Mockito.when(userService.save(Mockito.any())).thenReturn(currentUser);
+      Mockito.when(emailService.getWelcomeEmailContext(Mockito.any(), Mockito.anyString(), Mockito.anyString())).thenReturn(emailContext);
+    }
+
+    @Test
+    void whenJobInformationIsNotNull_thenShouldSuccess(){
+      employeeDto.setJobInformation(jobInformation);
+      employeeService.addEmployee(employeeDto, currentUser);
+      Mockito.verify(jobUserService, Mockito.times(1)).save(Mockito.any());
+    }
+
+    @Test
+    void whenJobInformationIsNull_thenShouldSuccess(){
+      employeeService.addEmployee(employeeDto, currentUser);
+      Mockito.verify(jobUserService, Mockito.times(0)).save(Mockito.any());
+    }
+  }
+
+  @Nested
+  class saveInvitedEmployeeAdditionalInformation {
+    User employee;
+    EmployeeDto employeeDto;
+    UserPersonalInformationDto userPersonalInformationDto;
+    UserContactInformationDto userContactInformationDto;
+    UserContactInformation userContactInformation;
+
+    @BeforeEach
+    void init() {
+      employee = new User();
+      employeeDto = new EmployeeDto();
+      userPersonalInformationDto = new UserPersonalInformationDto();
+      userPersonalInformationDto.setSsn("a");
+      userContactInformationDto = new UserContactInformationDto();
+      employeeDto.setEmailWork("a");
+      userContactInformation = new UserContactInformation();
+      userContactInformation.setEmailWork(employeeDto.getEmailWork());
+    }
+
+    @Test
+    void whenUserPersonalInformationIsNotNullAndGenderAndGenderIdIsNotNull_thenShouldSuccess() throws Exception {
+      userPersonalInformationDto.setGenderId("a");
+      employeeDto.setUserPersonalInformationDto(userPersonalInformationDto);
+      Whitebox.invokeMethod(employeeService,"saveInvitedEmployeeAdditionalInformation",employee,employeeDto);
+      Mockito.verify(genderService,Mockito.times(1)).findById(Mockito.anyString());
+    }
+
+    @Test
+    void whenUserPersonalInformationIsNotNullAndGenderAndGenderIdIsNull_thenShouldSuccess() throws Exception {
+      employeeDto.setUserPersonalInformationDto(userPersonalInformationDto);
+      Whitebox.invokeMethod(employeeService,"saveInvitedEmployeeAdditionalInformation",employee,employeeDto);
+      Mockito.verify(genderService,Mockito.times(0)).findById(Mockito.anyString());
+      Mockito.verify(encryptorUtil,Mockito.times(1)).encryptSsn((User)Mockito.any(),Mockito.anyString(),Mockito.any());
+    }
+
+    @Test
+    void whenUserPersonalInformationIsNotNullAndMartialStatusAndMartialStatusIdIsNotNull_thenShouldSuccess() throws Exception {
+      userPersonalInformationDto.setMaritalStatusId("a");
+      employeeDto.setUserPersonalInformationDto(userPersonalInformationDto);
+      Whitebox.invokeMethod(employeeService,"saveInvitedEmployeeAdditionalInformation",employee,employeeDto);
+      Mockito.verify(maritalStatusService,Mockito.times(1)).findById(Mockito.anyString());
+    }
+
+    @Test
+    void whenUserPersonalInformationIsNotNullAndMartialStatusAndMartialStatusIdIsNull_thenShouldSuccess() throws Exception {
+      employeeDto.setUserPersonalInformationDto(userPersonalInformationDto);
+      Whitebox.invokeMethod(employeeService,"saveInvitedEmployeeAdditionalInformation",employee,employeeDto);
+      Mockito.verify(maritalStatusService,Mockito.times(0)).findById(Mockito.anyString());
+      Mockito.verify(encryptorUtil,Mockito.times(1)).encryptSsn((User)Mockito.any(),Mockito.anyString(),Mockito.any());
+    }
+  }
+
+  @Nested
+  class saveEmergencyContacts{
+    User employee;
+    UserEmergencyContactDto emergencyContactDto;
+    List<UserEmergencyContactDto> emergencyContactDtos;
+
+    @BeforeEach
+    void init() {
+      employee = new User();
+      emergencyContactDto = new UserEmergencyContactDto();
+      emergencyContactDtos = new ArrayList<>();
+    }
+
+    @Test
+    void whenEmergencyContactDtosIsEmpty_thenShouldSuccess() throws Exception {
+      Whitebox.invokeMethod(employeeService,"saveEmergencyContacts",employee,emergencyContactDtos);
+      Mockito.verify(userEmergencyContactService,Mockito.times(0)).save(Mockito.any());
+    }
+
+    @Test
+    void whenEmergencyContactDtosIsNotEmpty_thenShouldSuccess() throws Exception {
+      emergencyContactDtos.add(emergencyContactDto);
+      Whitebox.invokeMethod(employeeService,"saveEmergencyContacts",employee,emergencyContactDtos);
+      Mockito.verify(userEmergencyContactService,Mockito.times(1)).save(Mockito.any());
+    }
+
+    @Test
+    void whenEmergencyContactDtosIsNotEmptyAndStateIsNull_thenShouldSuccess() throws Exception {
+      emergencyContactDtos.add(emergencyContactDto);
+      Whitebox.invokeMethod(employeeService,"saveEmergencyContacts",employee,emergencyContactDtos);
+      Mockito.verify(stateProvinceService,Mockito.times(0)).findById(Mockito.anyString());
+      Mockito.verify(userEmergencyContactService,Mockito.times(1)).save(Mockito.any());
+    }
+
+    @Test
+    void whenEmergencyContactDtosIsNotEmptyAndStateIsNotNull_thenShouldSuccess() throws Exception {
+      emergencyContactDto.setStateId("a");
+      emergencyContactDtos.add(emergencyContactDto);
+      Whitebox.invokeMethod(employeeService,"saveEmergencyContacts",employee,emergencyContactDtos);
+      Mockito.verify(stateProvinceService,Mockito.times(1)).findById(Mockito.anyString());
+    }
+  }
+
+  @Nested
+  class updateEmergencyContacts{
+    User employee;
+    UserEmergencyContactDto userEmergencyContactDto;
+    List<UserEmergencyContactDto> emergencyContactDtos;
+    List<String> contactIds;
+
+    @BeforeEach
+    void init() {
+      employee = new User();
+      employee.setId("a");
+      userEmergencyContactDto = new UserEmergencyContactDto();
+      emergencyContactDtos = new ArrayList<>();
+      contactIds = new ArrayList<>();
+    }
+
+    @Test
+    void whenUserEmergencyContactDtoIsEmpty_thenShouldSuccess() throws Exception {
+      Whitebox.invokeMethod(employeeService,"updateEmergencyContacts",employee,emergencyContactDtos);
+      Mockito.verify(userEmergencyContactService,Mockito.times(0)).findAllIdByUserId(Mockito.anyString());
+    }
+
+    @Test
+    void whenUserEmergencyContactDtoIsNotEmptyAndUserEmergencyContactIdsIsNotEmpty_thenShouldSuccess() throws Exception {
+      contactIds.add("a");
+      emergencyContactDtos.add(userEmergencyContactDto);
+      Mockito.when(userEmergencyContactService.findAllIdByUserId(Mockito.anyString())).thenReturn(contactIds);
+      Whitebox.invokeMethod(employeeService,"updateEmergencyContacts",employee,emergencyContactDtos);
+      Mockito.verify(userEmergencyContactService,Mockito.times(1)).deleteInBatch(Mockito.anyList());
+    }
+
+    @Test
+    void whenUserEmergencyContactDtoIsEmptyAndUserEmergencyContactIdsNotEmpty_thenShouldSuccess() throws Exception {
+      emergencyContactDtos.add(userEmergencyContactDto);
+      Mockito.when(userEmergencyContactService.findAllIdByUserId(Mockito.anyString())).thenReturn(contactIds);
+      Whitebox.invokeMethod(employeeService,"updateEmergencyContacts",employee,emergencyContactDtos);
+      Mockito.verify(userEmergencyContactService,Mockito.times(0)).deleteInBatch(Mockito.anyList());
+    }
+  }
+
+  @Nested
+  class saveManagerUser{
+    User user;
+    NewEmployeeJobInformationDto jobInformation;
+    User managerUser;
+    UserRole userRole;
+
+    @BeforeEach
+    void init() {
+      user = new User();
+      userRole = new UserRole();
+      jobInformation = new NewEmployeeJobInformationDto();
+      managerUser = new User();
+    }
+
+    @Test
+    void whenManagerUserIdIsEmpty_thenShouldSuccess() throws Exception {
+      user.setId("a");
+      Whitebox.invokeMethod(employeeService,"saveManagerUser",user,jobInformation);
+      Mockito.verify(userService,Mockito.times(0)).findById(Mockito.anyString());
+    }
+
+    @Test
+    void whenManagerUserIdIsNotEmptyAndManagerUserIdNotEqualUserIdAndRoleIsEmployee_thenShouldSuccess() throws Exception {
+      jobInformation.setReportsTo("b");
+      user.setId("a");
+      userRole.setName("EMPLOYEE");
+      managerUser.setUserRole(userRole);
+      managerUser.setId("b");
+      Mockito.when(userService.findById(Mockito.anyString())).thenReturn(managerUser);
+      Whitebox.invokeMethod(employeeService,"saveManagerUser",user,jobInformation);
+      Mockito.verify(userService,Mockito.times(1)).save(Mockito.any());
+      Mockito.verify(userRoleService,Mockito.times(1)).getManager();
+    }
+
+    @Test
+    void whenManagerUserIdIsNotEmptyAndManagerUserIdNotEqualUserIdAndRoleIsNotEmployee_thenShouldSuccess() throws Exception {
+      jobInformation.setReportsTo("b");
+      user.setId("a");
+      managerUser.setUserRole(userRole);
+      managerUser.setId("b");
+      Mockito.when(userService.findById(Mockito.anyString())).thenReturn(managerUser);
+      Whitebox.invokeMethod(employeeService,"saveManagerUser",user,jobInformation);
+      Mockito.verify(userService,Mockito.times(1)).save(Mockito.any());
+      Mockito.verify(userRoleService,Mockito.times(0)).getManager();
+    }
+  }
+
+  @Nested
+  class saveEmployeeJob{
+    User employee;
+    User currentUser;
+    NewEmployeeJobInformationDto jobInformation;
+
+    @BeforeEach
+    void init() {
+      employee = new User();
+      currentUser = new User();
+      jobInformation = new NewEmployeeJobInformationDto();
+    }
+
+    @Test
+    void whenEmploymentTypeIdIsNotEmpty_thenShouldSuccess() throws Exception {
+      jobInformation.setEmploymentTypeId("a");
+      Whitebox.invokeMethod(employeeService,"saveEmployeeJob",employee,currentUser,jobInformation);
+      Mockito.verify(employmentTypeService,Mockito.times(1)).findById(Mockito.anyString());
+      Mockito.verify(jobUserService,Mockito.times(1)).save(Mockito.any());
+    }
+
+    @Test
+    void whenOfficeIdIsNotNull_thenShouldSuccess() throws Exception {
+      jobInformation.setOfficeId("a");
+      Whitebox.invokeMethod(employeeService,"saveEmployeeJob",employee,currentUser,jobInformation);
+      Mockito.verify(officeService,Mockito.times(1)).findById(Mockito.anyString());
+      Mockito.verify(jobUserService,Mockito.times(1)).save(Mockito.any());
+    }
+  }
+
+  @Nested
+  class saveEmployeeAddress{
+    User employee;
+    EmployeeDto employeeDto;
+    StateProvince stateProvince;
+    UserAddressDto userAddressDto;
+
+    @BeforeEach
+    void init() {
+      employeeDto = new EmployeeDto();
+      employee = new User();
+      stateProvince = new StateProvince();
+      userAddressDto = new UserAddressDto();
+    }
+
+    @Test
+    void whenStateProvinceIsNotNull_thenShouldSuccess() throws Exception {
+      userAddressDto.setStateId("a");
+      employeeDto.setUserAddress(userAddressDto);
+      Whitebox.invokeMethod(employeeService,"saveEmployeeAddress",employee,employeeDto);
+      Mockito.verify(stateProvinceService,Mockito.times(1)).findById(Mockito.anyString());
+      Mockito.verify(userAddressService,Mockito.times(1)).save((UserAddress)Mockito.any());
+    }
+
+    @Test
+    void whenCountryIsNotNull_thenShouldSuccess() throws Exception {
+      userAddressDto.setCountryId("a");
+      employeeDto.setUserAddress(userAddressDto);
+      Whitebox.invokeMethod(employeeService,"saveEmployeeAddress",employee,employeeDto);
+      Mockito.verify(countryService,Mockito.times(1)).findById(Mockito.anyString());
+      Mockito.verify(userAddressService,Mockito.times(1)).save((UserAddress)Mockito.any());
+    }
+  }
+
+  @Nested
+  class updateEmployeeAddress{
+    User employee;
+    EmployeeDto employeeDto;
+    UserAddressDto userAddressDto;
+
+    @BeforeEach
+    void init() {
+      employee = new User();
+      employeeDto = new EmployeeDto();
+      userAddressDto = new UserAddressDto();
+    }
+
+    @Test
+    void whenStateProvinceIdIsNotEmpty_thenShouldSuccess() throws Exception {
+      userAddressDto.setStateId("a");
+      employeeDto.setUserAddress(userAddressDto);
+      Whitebox.invokeMethod(employeeService,"updateEmployeeAddress",employee,employeeDto);
+      Mockito.verify(stateProvinceService,Mockito.times(1)).findById(Mockito.anyString());
+      Mockito.verify(userAddressService,Mockito.times(1)).save((UserAddress)Mockito.any());
+    }
+
+    @Test
+    void whenStateCountryIdIsNotEmpty_thenShouldSuccess() throws Exception {
+      userAddressDto.setCountryId("a");
+      employeeDto.setUserAddress(userAddressDto);
+      Whitebox.invokeMethod(employeeService,"updateEmployeeAddress",employee,employeeDto);
+      Mockito.verify(stateProvinceService,Mockito.times(0)).findById(Mockito.anyString());
+      Mockito.verify(userAddressService,Mockito.times(1)).save((UserAddress)Mockito.any());
+    }
+  }
+
+  @Nested
+  class getEmployeeInfoByUserId{
+    String userId = "a";
+    User employee;
+    UserContactInformation userContactInformation;
+    UserStatus userStatus;
+    UserRole userRole;
+    User managerUser;
+
+    @BeforeEach
+    void init() {
+      employee = new User();
+      userContactInformation = new UserContactInformation();
+      userContactInformation.setEmailWork("a");
+      userStatus = new UserStatus();
+      userStatus.setName("ACTIVE");
+      userRole = new UserRole();
+      managerUser = new User();
+      managerUser.setId("a");
+      employee.setUserStatus(userStatus);
+      employee.setUserRole(userRole);
+      employee.setUserContactInformation(userContactInformation);
+    }
+
+    @Test
+    void whenManagerUserIsNotNull_thenShouldSuccess() {
+      employee.setManagerUser(managerUser);
+      Mockito.when(userService.findById(userId)).thenReturn(employee);
+      employeeService.getEmployeeInfoByUserId(userId);
+      Mockito.verify(userService,Mockito.times(2)).findEmployeeInfoByEmployeeId(Mockito.anyString());
+    }
+
+    @Test
+    void whenManagerUserIsNull_thenShouldSuccess() {
+      Mockito.when(userService.findById(userId)).thenReturn(employee);
+      employeeService.getEmployeeInfoByUserId(userId);
+      Mockito.verify(userService,Mockito.times(1)).findEmployeeInfoByEmployeeId(Mockito.anyString());
+    }
+  }
+
 }
