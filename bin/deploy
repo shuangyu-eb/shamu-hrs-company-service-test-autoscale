@@ -1,44 +1,56 @@
 #!/usr/bin/env bash
 
 REPOSITORY_NAME=`sed -n 's/REPOSITORY_NAME=\(.*\)/\1/p' config/"$1"`
+REPOSITORY_TAG=`sed -n 's/REPOSITORY_TAG=\(.*\)/\1/p' config/"$1"`
 CLUSTER=`sed -n 's/CLUSTER=\(.*\)/\1/p' config/"$1"`
 SERVICE_NAME=`sed -n 's/SERVICE_NAME=\(.*\)/\1/p' config/"$1"`
 REGION=`sed -n 's/REGION=\(.*\)/\1/p' config/"$1"`
 
-RELEASE="$2"
-REPOSITORY_TAG=''
-REVISION=''
+while [ -n "$2" ]
+do
+  case "$2" in
+    -repository-name)
+        REPOSITORY_TAG=$3
+        shift
+        ;;
+    -repository-tag)
+        REPOSITORY_TAG=$3
+        shift
+        ;;
+    -cluster)
+        CLUSTER=$3
+        shift
+        ;;
+    -service-name)
+        SERVICE_NAME=$3
+        shift
+        ;;
+    *)
+        echo "$2 is not an option"
+        exit 0
+        ;;
+  esac
+  shift
+done
 
-if [ "${RELEASE}" == "master" ]
-then
-  REPOSITORY_TAG='latest'
-else
-  REPOSITORY_TAG="${RELEASE}"
-fi
 
-REPOSITORY_URI=`aws ecr describe-repositories --repository-names "${REPOSITORY_NAME}" --region "${REGION}" | jq .repositories[].repositoryUri | tr -d '"'`
+DOCKER_LOGIN=`aws ecr get-login --no-include-email --region ${REGION}`
+${DOCKER_LOGIN}
 
-IMAGE="${REPOSITORY_URI}":"${REPOSITORY_TAG}"
+mvn clean package -Dmaven.test.skip=true -e
 
-ECS_SERVICES=`aws ecs list-services --cluster "${CLUSTER}" --region "${REGION}" | jq .serviceArns`
+docker build -t ${REPOSITORY_NAME} .
 
-TASK_DEFINITION=`aws ecs describe-task-definition --task-definition "${SERVICE_NAME}" --region "${REGION}"`
+REPOSITORY_URI=`aws ecr describe-repositories --repository-names ${REPOSITORY_NAME} --region ${REGION} | jq .repositories[].repositoryUri | tr -d '"'`
 
-CURRENT_RELEASE=$(echo "${TASK_DEFINITION}" | jq .taskDefinition.containerDefinitions[0].image -r | sed 's/^.*://')
+docker tag ${REPOSITORY_NAME}:${REPOSITORY_TAG} ${REPOSITORY_URI}:${REPOSITORY_TAG}
 
+docker push ${REPOSITORY_URI}:${REPOSITORY_TAG}
 
-if [ "${CURRENT_RELEASE}" == "${REPOSITORY_TAG}" ]
-then
-    REVISION=$(echo "${TASK_DEFINITION}" | jq '.taskDefinition.revision')
-else
-    NEW_TASK_DEFINITION=`echo "${TASK_DEFINITION}" | jq --arg IMAGE ${IMAGE} '.taskDefinition | .containerDefinitions[0].image = $IMAGE | del(.taskDefinitionArn) | del(.revision) | del(.status) | del(.requiresAttributes) | del(.compatibilities)'`
-    NEW_TASK_INFO=`aws ecs register-task-definition --region "${REGION}" --cli-input-json "${NEW_TASK_DEFINITION}"`
-    REVISION=$(echo "${NEW_TASK_INFO}" | jq '.taskDefinition.revision')
-fi
-
+ECS_SERVICES=`aws ecs list-services --cluster ${CLUSTER} --region ${REGION} | jq .serviceArns`
 
 if [ "[]" == "${ECS_SERVICES}" ];then
   echo "skip update company service"
 else
-  aws ecs update-service --cluster "${CLUSTER}" --service "${SERVICE_NAME}" --task-definition "${SERVICE_NAME}":"${REVISION}" --desired-count 1 --force-new-deployment --region "${REGION}"
+  aws ecs update-service --cluster ${CLUSTER} --service ${SERVICE_NAME} --task-definition ${SERVICE_NAME} --desired-count 1 --force-new-deployment --region ${REGION}
 fi
