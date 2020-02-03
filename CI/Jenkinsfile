@@ -45,7 +45,7 @@ pipeline {
                         RELEASE='master'
                     }
                 }
-                sh "sudo bin/build -e ${params.DEV_ENV} -e ${params.QA_ENV} -r ${RELEASE}"
+                sh "sudo CI/build -e ${params.DEV_ENV} -e ${params.QA_ENV} -r ${RELEASE}"
             }
         }
         stage('deploy master to dev environment') {
@@ -53,7 +53,7 @@ pipeline {
                 expression { RELEASE == 'master' }
             }
             steps {
-                sh "git checkout origin/master && sudo bin/deploy ${params.DEV_ENV} ${RELEASE}"
+                sh "git checkout origin/master && sudo CI/deploy ${params.DEV_ENV} ${RELEASE}"
             }
         }
     }
