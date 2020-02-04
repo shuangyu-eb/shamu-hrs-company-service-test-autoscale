@@ -1239,3 +1239,12 @@ databaseChangeLog:
             onUpdate: CASCADE
             referencedColumnNames: id
             referencedTableName: user_contact_information
+
+  - changeSet:
+      id: 1580785255196-1
+      author: qian-eb
+      preConditions:
+        onFail: WARN
+      changes:
+        - sql:
+            sql: delete from paid_holidays where name='Washington\'s Birthday';
