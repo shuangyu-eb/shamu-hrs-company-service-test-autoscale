@@ -1,7 +1,9 @@
 package shamu.company.info.entity.mapper;
 
+import org.mapstruct.InheritConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import org.springframework.util.StringUtils;
 import shamu.company.common.entity.Country;
 import shamu.company.common.entity.StateProvince;
@@ -31,6 +33,11 @@ public interface UserEmergencyContactMapper {
   @Mapping(target = "user", source = "userId")
   @Mapping(target = "id", source = "id")
   UserEmergencyContact createFromUserEmergencyContactDto(
+      UserEmergencyContactDto userEmergencyContactDto);
+
+  @InheritConfiguration(name = "createFromUserEmergencyContactDto")
+  void updateFromUserEmergencyContactDto(
+      @MappingTarget UserEmergencyContact emergencyContact,
       UserEmergencyContactDto userEmergencyContactDto);
 
   default StateProvince convertFromStateProvinceId(final String stateProvinceId) {

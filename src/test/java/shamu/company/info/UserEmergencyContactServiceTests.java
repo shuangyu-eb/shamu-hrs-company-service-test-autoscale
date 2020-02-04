@@ -10,15 +10,14 @@ import org.mockito.MockitoAnnotations;
 import shamu.company.info.entity.UserEmergencyContact;
 import shamu.company.info.repository.UserEmergencyContactRepository;
 import shamu.company.info.service.UserEmergencyContactService;
+import shamu.company.user.entity.User;
 import shamu.company.utils.UuidUtil;
 
 public class UserEmergencyContactServiceTests {
 
-  @Mock
-  private UserEmergencyContactRepository userEmergencyContactRepository;
+  @Mock private UserEmergencyContactRepository userEmergencyContactRepository;
 
-  @InjectMocks
-  private UserEmergencyContactService userEmergencyContactService;
+  @InjectMocks private UserEmergencyContactService userEmergencyContactService;
 
   @BeforeEach
   void init() {
@@ -36,7 +35,7 @@ public class UserEmergencyContactServiceTests {
       userEmergencyContact.setIsPrimary(true);
       userEmergencyContactService.createUserEmergencyContact(userId, userEmergencyContact);
       Mockito.verify(userEmergencyContactRepository, Mockito.times(1))
-             .releasePrimaryContact(userId);
+          .releasePrimaryContact(userId);
     }
 
     @Test
@@ -44,7 +43,7 @@ public class UserEmergencyContactServiceTests {
       userEmergencyContact.setIsPrimary(false);
       userEmergencyContactService.createUserEmergencyContact(userId, userEmergencyContact);
       Mockito.verify(userEmergencyContactRepository, Mockito.times(0))
-             .releasePrimaryContact(userId);
+          .releasePrimaryContact(userId);
     }
   }
 
@@ -53,26 +52,29 @@ public class UserEmergencyContactServiceTests {
 
     final String id = UuidUtil.getUuidString();
     final String userId = UuidUtil.getUuidString();
+    final User user = new User(userId);
     final UserEmergencyContact userEmergencyContact = new UserEmergencyContact();
 
     @Test
     void whenIsPrimary_thenShouldCallFunctionReset() {
       userEmergencyContact.setIsPrimary(true);
-      Mockito.when(userEmergencyContactRepository.findById(id))
-             .thenReturn(java.util.Optional.of(userEmergencyContact));
-      userEmergencyContactService.deleteEmergencyContact(userId, id);
-      Mockito.verify(userEmergencyContactRepository, Mockito.times(1))
-             .resetPrimaryContact(userId);
+      userEmergencyContact.setUser(user);
+
+      Mockito.when(userEmergencyContactRepository.findById(Mockito.anyString()))
+          .thenReturn(java.util.Optional.of(userEmergencyContact));
+      userEmergencyContactService.deleteEmergencyContact(userId);
+      Mockito.verify(userEmergencyContactRepository, Mockito.times(1)).resetPrimaryContact(userId);
     }
 
     @Test
     void whenIsNotPrimary_thenShouldNotCallFunctionReset() {
       userEmergencyContact.setIsPrimary(false);
-      Mockito.when(userEmergencyContactRepository.findById(id))
-              .thenReturn(java.util.Optional.of(userEmergencyContact));
-      userEmergencyContactService.deleteEmergencyContact(userId, id);
-      Mockito.verify(userEmergencyContactRepository, Mockito.times(0))
-              .resetPrimaryContact(userId);
+      userEmergencyContact.setUser(user);
+
+      Mockito.when(userEmergencyContactRepository.findById(Mockito.anyString()))
+          .thenReturn(java.util.Optional.of(userEmergencyContact));
+      userEmergencyContactService.deleteEmergencyContact(userId);
+      Mockito.verify(userEmergencyContactRepository, Mockito.times(0)).resetPrimaryContact(userId);
     }
   }
 }
