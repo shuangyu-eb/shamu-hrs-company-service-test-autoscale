@@ -16,27 +16,26 @@ import shamu.company.benefit.entity.BenefitPlanUser;
 import shamu.company.benefit.entity.RetirementPlanType;
 import shamu.company.common.mapper.Config;
 
-
-@Mapper(config = Config.class, uses = {
-    BenefitPlanCoverageMapper.class,
-    BenefitPlanUserMapper.class,
-    RetirementPlanTypeMapper.class,
-    BenefitPlanDocumentMapper.class
-})
+@Mapper(
+    config = Config.class,
+    uses = {
+      BenefitPlanCoverageMapper.class,
+      BenefitPlanUserMapper.class,
+      RetirementPlanTypeMapper.class,
+      BenefitPlanDocumentMapper.class
+    })
 public interface BenefitPlanMapper {
 
   BenefitPlanDto convertToBenefitPlanDto(BenefitPlan benefitPlan);
 
   @Mapping(target = "name", source = "planName")
   @Mapping(target = "benefitPlanType", source = "benefitPlanTypeId")
-  @Mapping(target = "website", source = "planWebSite")
   BenefitPlan createFromBenefitPlanCreateDto(BenefitPlanCreateDto benefitPlanCreateDto);
 
   @Mapping(target = "name", source = "planName")
   @Mapping(target = "benefitPlanType", source = "benefitPlanTypeId")
-  @Mapping(target = "website", source = "planWebSite")
-  void updateFromBenefitPlanCreateDto(@MappingTarget BenefitPlan benefitPlan,
-      BenefitPlanCreateDto benefitPlanCreateDto);
+  void updateFromBenefitPlanCreateDto(
+      @MappingTarget BenefitPlan benefitPlan, BenefitPlanCreateDto benefitPlanCreateDto);
 
   @Mapping(target = "documents", source = "benefitPlanDocuments")
   BenefitPlanDetailDto concertTo(BenefitPlan benefitPlan);
@@ -49,8 +48,8 @@ public interface BenefitPlanMapper {
   @Mapping(target = "benefitPlanUsers", source = "benefitPlanUsers")
   @Mapping(target = "benefitPlan", source = "benefitPlan")
   BenefitPlanUpdateDto convertToOldBenefitPlanDto(
-          BenefitPlan benefitPlan,
-          List<BenefitPlanCoverage> benefitPlanCoverages,
-          List<BenefitPlanUser> benefitPlanUsers,
-          RetirementPlanType retirementPlanType);
+      BenefitPlan benefitPlan,
+      List<BenefitPlanCoverage> benefitPlanCoverages,
+      List<BenefitPlanUser> benefitPlanUsers,
+      RetirementPlanType retirementPlanType);
 }

@@ -16,7 +16,7 @@ public class BenefitPlanCreateDto {
 
   private String planId;
 
-  private String planWebSite;
+  private String website;
 
   private String retirementTypeId;
 
