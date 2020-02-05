@@ -252,7 +252,16 @@ public class UserPermissionUtils extends BasePermissionUtils {
       }
 
       final String officeId = jobInformationDto.getOfficeId();
-      return hasPermissionOfOfficeLocation(auth, officeId, permission);
+      if (!hasPermissionOfOfficeLocation(auth, officeId, permission)) {
+        return false;
+      }
+
+      final String employmentTypeId = jobInformationDto.getEmploymentTypeId();
+      if (!StringUtils.isEmpty(employmentTypeId)) {
+        return hasPermissionOfEmploymentType(auth, employmentTypeId, permission);
+      }
+
+      return true;
     }
 
     return hasPermission(auth, permission);
