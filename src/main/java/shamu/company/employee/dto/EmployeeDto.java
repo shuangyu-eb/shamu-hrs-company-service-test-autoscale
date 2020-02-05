@@ -1,5 +1,6 @@
 package shamu.company.employee.dto;
 
+import java.io.Serializable;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -15,7 +16,7 @@ import shamu.company.user.dto.UserPersonalInformationDto;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class EmployeeDto {
+public class EmployeeDto implements Serializable {
 
   private String emailWork;
 

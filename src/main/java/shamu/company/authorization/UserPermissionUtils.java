@@ -23,11 +23,14 @@ import shamu.company.company.entity.Company;
 import shamu.company.company.entity.Department;
 import shamu.company.company.entity.Office;
 import shamu.company.company.service.CompanyService;
+import shamu.company.employee.dto.EmployeeDto;
+import shamu.company.employee.dto.NewEmployeeJobInformationDto;
 import shamu.company.employee.entity.EmploymentType;
 import shamu.company.info.entity.UserEmergencyContact;
 import shamu.company.info.service.UserEmergencyContactService;
 import shamu.company.job.dto.JobUpdateDto;
 import shamu.company.job.entity.Job;
+import shamu.company.job.service.JobService;
 import shamu.company.timeoff.dto.PaidHolidayDto;
 import shamu.company.timeoff.dto.PaidHolidayEmployeeDto;
 import shamu.company.timeoff.dto.TimeOffPolicyUserFrontendDto;
@@ -69,6 +72,8 @@ public class UserPermissionUtils extends BasePermissionUtils {
 
   private final UserEmergencyContactService userEmergencyContactService;
 
+  private final JobService jobService;
+
   @Autowired
   public UserPermissionUtils(
       final UserService userService,
@@ -81,7 +86,8 @@ public class UserPermissionUtils extends BasePermissionUtils {
       final TimeOffPolicyService timeOffPolicyService,
       final PaidHolidayService paidHolidayService,
       final CompanyPaidHolidayService companyPaidHolidayService,
-      @Lazy final UserEmergencyContactService userEmergencyContactService) {
+      @Lazy final UserEmergencyContactService userEmergencyContactService,
+      @Lazy final JobService jobService) {
     this.userService = userService;
     this.companyService = companyService;
     this.timeOffRequestService = timeOffRequestService;
@@ -93,6 +99,7 @@ public class UserPermissionUtils extends BasePermissionUtils {
     this.paidHolidayService = paidHolidayService;
     this.companyPaidHolidayService = companyPaidHolidayService;
     this.userEmergencyContactService = userEmergencyContactService;
+    this.jobService = jobService;
   }
 
   boolean hasPermission(
@@ -217,7 +224,7 @@ public class UserPermissionUtils extends BasePermissionUtils {
       final Object target,
       final Type type,
       final Permission.Name permission) {
-    if (type.equals(Type.USER_JOB)) {
+    if (Type.USER_JOB.equals(type)) {
       final JobUpdateDto jobUpdateDto = (JobUpdateDto) target;
       final String managerId = jobUpdateDto.getManagerId();
 
@@ -227,6 +234,27 @@ public class UserPermissionUtils extends BasePermissionUtils {
       }
       return true;
     }
+
+    if (Type.USER_CREATION.equals(type)) {
+      final EmployeeDto employeeDto = (EmployeeDto) target;
+      final NewEmployeeJobInformationDto jobInformationDto = employeeDto.getJobInformation();
+      final String managerId = jobInformationDto.getReportsTo();
+      final User manager = userService.findById(managerId);
+
+      if (!hasPermissionOfUser(auth, manager, permission)) {
+        return false;
+      }
+
+      final String jobId = jobInformationDto.getJobId();
+      final Job job = jobService.findById(jobId);
+      if (!hasPermissionOfDepartment(auth, job.getDepartment(), permission)) {
+        return false;
+      }
+
+      final String officeId = jobInformationDto.getOfficeId();
+      return hasPermissionOfOfficeLocation(auth, officeId, permission);
+    }
+
     return hasPermission(auth, permission);
   }
 
@@ -247,8 +275,14 @@ public class UserPermissionUtils extends BasePermissionUtils {
   private boolean hasPermissionOfDepartment(
       final Authentication auth, final String id, final Permission.Name permission) {
     final Department department = companyService.findDepartmentsById(id);
-    companyEqual(department.getCompany());
+    return hasPermissionOfDepartment(auth, department, permission);
+  }
 
+  private boolean hasPermissionOfDepartment(
+          final Authentication auth,
+          final Department department,
+          final Permission.Name permission) {
+    companyEqual(department.getCompany());
     return hasPermission(auth, permission);
   }
 

@@ -7,6 +7,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -83,8 +84,8 @@ public class EmployeeRestController extends BaseRestController {
   }
 
   @PostMapping("employees")
-  @PreAuthorize("hasAuthority('CREATE_USER')")
-  public HttpEntity addEmployee(@RequestBody final EmployeeDto employee) {
+  @PreAuthorize("hasPermission(#employee, 'USER', 'CREATE_USER')")
+  public HttpEntity addEmployee(@RequestBody @Validated final EmployeeDto employee) {
     final User currentUser = userService.findById(findAuthUser().getId());
     employeeService.addEmployee(employee, currentUser);
     return new ResponseEntity(HttpStatus.OK);
