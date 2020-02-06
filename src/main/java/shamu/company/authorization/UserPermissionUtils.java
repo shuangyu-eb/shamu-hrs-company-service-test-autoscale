@@ -427,6 +427,10 @@ public class UserPermissionUtils extends BasePermissionUtils {
     final User targetUser = userEmergencyContact.getUser();
     companyEqual(targetUser.getCompany());
 
+    if (permission.getPermissionType() == PermissionType.SELF_PERMISSION) {
+      return getUserId().equals(targetUser.getId());
+    }
+
     return hasPermission(auth, permission);
   }
 
