@@ -86,8 +86,8 @@ public class UserPermissionUtils extends BasePermissionUtils {
       final TimeOffPolicyService timeOffPolicyService,
       final PaidHolidayService paidHolidayService,
       final CompanyPaidHolidayService companyPaidHolidayService,
-      @Lazy final UserEmergencyContactService userEmergencyContactService,
-      @Lazy final JobService jobService) {
+      final UserEmergencyContactService userEmergencyContactService,
+      final JobService jobService) {
     this.userService = userService;
     this.companyService = companyService;
     this.timeOffRequestService = timeOffRequestService;

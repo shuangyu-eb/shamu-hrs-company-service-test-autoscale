@@ -84,7 +84,7 @@ public class EmployeeRestController extends BaseRestController {
   }
 
   @PostMapping("employees")
-  @PreAuthorize("hasPermission(#employee, 'USER', 'CREATE_USER')")
+  @PreAuthorize("hasPermission(#employee, 'USER_CREATION', 'CREATE_USER')")
   public HttpEntity addEmployee(@RequestBody @Validated final EmployeeDto employee) {
     final User currentUser = userService.findById(findAuthUser().getId());
     employeeService.addEmployee(employee, currentUser);

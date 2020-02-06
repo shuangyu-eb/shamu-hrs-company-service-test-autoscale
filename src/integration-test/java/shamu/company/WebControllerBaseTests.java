@@ -16,6 +16,8 @@ import shamu.company.benefit.service.BenefitPlanService;
 import shamu.company.common.config.DefaultAuthenticationEntryPoint;
 import shamu.company.common.config.DefaultJwtAuthenticationToken;
 import shamu.company.company.service.CompanyService;
+import shamu.company.info.service.UserEmergencyContactService;
+import shamu.company.job.service.JobService;
 import shamu.company.redis.AuthUserCacheManager;
 import shamu.company.server.dto.AuthUser;
 import shamu.company.tests.utils.JwtUtil;
@@ -54,6 +56,10 @@ public class WebControllerBaseTests {
   protected PaidHolidayService paidHolidayService;
   @MockBean
   protected CompanyPaidHolidayService companyPaidHolidayService;
+  @MockBean
+  protected JobService jobService;
+  @MockBean
+  protected UserEmergencyContactService userEmergencyContactService;
 
   protected AuthUser getAuthUser() {
     final DefaultJwtAuthenticationToken authenticationToken =

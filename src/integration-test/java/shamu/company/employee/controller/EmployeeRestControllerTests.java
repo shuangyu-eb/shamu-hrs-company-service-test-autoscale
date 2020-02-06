@@ -26,10 +26,15 @@ import shamu.company.WebControllerBaseTests;
 import shamu.company.authorization.Permission.Name;
 import shamu.company.common.exception.ForbiddenException;
 import shamu.company.company.entity.Company;
+import shamu.company.company.entity.Department;
+import shamu.company.company.entity.Office;
 import shamu.company.email.EmailService;
 import shamu.company.employee.dto.EmailResendDto;
 import shamu.company.employee.dto.EmployeeDto;
+import shamu.company.employee.dto.NewEmployeeJobInformationDto;
+import shamu.company.employee.entity.EmploymentType;
 import shamu.company.employee.service.EmployeeService;
+import shamu.company.job.entity.Job;
 import shamu.company.job.entity.JobUserListItem;
 import shamu.company.tests.utils.JwtUtil;
 import shamu.company.user.entity.User;
@@ -140,13 +145,47 @@ class EmployeeRestControllerTests extends WebControllerBaseTests {
 
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+    EmployeeDto employeeDto = setUpForAddEmployee();
+
     final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
         .post("/company/employees")
         .contentType(MediaType.APPLICATION_JSON)
         .headers(httpHeaders)
-        .content(JsonUtil.formatToString(new EmployeeDto()))).andReturn();
+        .content(JsonUtil.formatToString(employeeDto))).andReturn();
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+  }
+
+  private EmployeeDto setUpForAddEmployee() {
+    final EmployeeDto employeeDto = new EmployeeDto();
+    final NewEmployeeJobInformationDto newEmployeeJobInformationDto =
+            new NewEmployeeJobInformationDto();
+    newEmployeeJobInformationDto.setReportsTo(getAuthUser().getId());
+    newEmployeeJobInformationDto.setEmploymentTypeId(UuidUtil.getUuidString());
+    newEmployeeJobInformationDto.setOfficeId(UuidUtil.getUuidString());
+    newEmployeeJobInformationDto.setJobId(UuidUtil.getUuidString());
+    employeeDto.setJobInformation(newEmployeeJobInformationDto);
+
+    User currentUser = new User(getAuthUser().getId());
+    Company company = new Company(getAuthUser().getCompanyId());
+    currentUser.setCompany(company);
+    Mockito.when(userService.findById(Mockito.anyString())).thenReturn(currentUser);
+
+    Job job = new Job();
+    Department department = new Department();
+    department.setCompany(company);
+    job.setDepartment(department);
+    Mockito.when(jobService.findById(Mockito.anyString())).thenReturn(job);
+
+    Office office = new Office();
+    office.setCompany(company);
+    Mockito.when(companyService.findOfficeById(Mockito.anyString())).thenReturn(office);
+
+    EmploymentType employmentType = new EmploymentType();
+    employmentType.setCompany(company);
+    Mockito.when(companyService.findEmploymentTypeById(Mockito.anyString())).thenReturn(employmentType);
+
+    return employeeDto;
   }
 
   @Nested
