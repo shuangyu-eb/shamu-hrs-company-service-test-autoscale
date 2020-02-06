@@ -1248,3 +1248,81 @@ databaseChangeLog:
       changes:
         - sql:
             sql: delete from paid_holidays where name='Washington\'s Birthday';
+
+  - changeSet:
+      id: 1579400160-1
+      author: lei-eb
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  name: id
+                  type: binary(16)
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: name
+                  type: varchar(100)
+              - column:
+                  name: benefit_plan_id
+                  type: binary(16)
+              - column:
+                  name: ref_id
+                  type: INT
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: benefit_coverages
+
+  - changeSet:
+      id: 1579400160-2
+      author: lei-eb
+      changes:
+        - sql:
+            sql: create trigger ins_benefit_coverages before insert on benefit_coverages for each row set new.id = unhex(md5(uuid()));
+
+
+  - changeSet:
+      id: 1579400160-3
+      author: lei-eb
+      runOnChange: true
+      changes:
+        - loadUpdateData:
+            columns:
+              - column:
+                  name: name
+                  type: STRING
+            file: db/changelog/data/benefit_coverages.csv
+            primaryKey: id
+            tableName: benefit_coverages
+
+  - changeSet:
+      id: 1579400160-4
+      author: lei-eb
+      preConditions:
+        onFail: WARN
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: benefit_coverage_id
+                  type: binary(16)
+            tableName: benefit_plan_coverages
+
+  - changeSet:
+      id: 1579400160-5
+      author: lei-eb
+      changes:
+        - sql:
+            sql: drop trigger ins_benefit_coverages
+
+  - changeSet:
+      id: 1579400160-6
+      author: lei-eb
+      changes:
+        - dropColumn:
+            columnName: name
+            tableName: benefit_plan_coverages

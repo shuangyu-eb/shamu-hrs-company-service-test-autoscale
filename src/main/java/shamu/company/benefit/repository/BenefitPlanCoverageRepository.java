@@ -2,6 +2,8 @@ package shamu.company.benefit.repository;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.Query;
 import shamu.company.benefit.entity.BenefitPlanCoverage;
 import shamu.company.common.repository.BaseRepository;
@@ -20,4 +22,6 @@ public interface BenefitPlanCoverageRepository extends BaseRepository<BenefitPla
   BigDecimal getBenefitCostByUserId(String userId);
 
   List<BenefitPlanCoverage> findAllByBenefitPlanId(String planId);
+
+  Optional<BenefitPlanCoverage> findById(String id);
 }

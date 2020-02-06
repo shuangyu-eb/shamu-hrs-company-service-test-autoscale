@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
+import shamu.company.benefit.dto.BenefitPlanCoveragesDto;
 import shamu.company.benefit.dto.BenefitPlanDetailDto;
 import shamu.company.benefit.dto.BenefitPlanDto;
 import shamu.company.benefit.dto.BenefitPlanPreviewDto;
@@ -186,5 +187,11 @@ public class BenefitPlanRestController extends BaseRestController {
   public BenefitPlanRelatedUserListDto getEmployeesByBenefitPlanId(
       @PathVariable String benefitPlanId) {
     return benefitPlanService.findRelatedUsersByBenefitPlan(benefitPlanId, findCompanyId());
+  }
+
+  @GetMapping("benefit-plan/coverages")
+  @PreAuthorize("hasAuthority('MANAGE_BENEFIT_PLAN')")
+  public BenefitPlanCoveragesDto getCoveragesByBenefitPlanId() {
+    return benefitPlanService.findCoveragesByBenefitPlanId();
   }
 }

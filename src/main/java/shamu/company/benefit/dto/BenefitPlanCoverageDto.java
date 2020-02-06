@@ -12,4 +12,6 @@ public class BenefitPlanCoverageDto {
   private Integer employeeCost;
 
   private Integer employerCost;
+
+  private String coverageId;
 }

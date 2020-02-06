@@ -18,7 +18,9 @@ import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
+import shamu.company.benefit.dto.BenefitCoveragesDto;
 import shamu.company.benefit.dto.BenefitPlanCoverageDto;
+import shamu.company.benefit.dto.BenefitPlanCoveragesDto;
 import shamu.company.benefit.dto.BenefitPlanCreateDto;
 import shamu.company.benefit.dto.BenefitPlanDependentUserDto;
 import shamu.company.benefit.dto.BenefitPlanDto;
@@ -32,6 +34,7 @@ import shamu.company.benefit.dto.BenefitSummaryDto;
 import shamu.company.benefit.dto.NewBenefitPlanWrapperDto;
 import shamu.company.benefit.dto.SelectedEnrollmentInfoDto;
 import shamu.company.benefit.dto.UserBenefitPlanDto;
+import shamu.company.benefit.entity.BenefitCoverages;
 import shamu.company.benefit.entity.BenefitDependentRecord;
 import shamu.company.benefit.entity.BenefitPlan;
 import shamu.company.benefit.entity.BenefitPlanCoverage;
@@ -41,11 +44,13 @@ import shamu.company.benefit.entity.BenefitPlanType;
 import shamu.company.benefit.entity.BenefitPlanUser;
 import shamu.company.benefit.entity.RetirementPlanType;
 import shamu.company.benefit.entity.RetirementType;
+import shamu.company.benefit.entity.mapper.BenefitCoveragesMapper;
 import shamu.company.benefit.entity.mapper.BenefitPlanCoverageMapper;
 import shamu.company.benefit.entity.mapper.BenefitPlanMapper;
 import shamu.company.benefit.entity.mapper.BenefitPlanUserMapper;
 import shamu.company.benefit.entity.mapper.MyBenefitsMapper;
 import shamu.company.benefit.entity.mapper.RetirementPlanTypeMapper;
+import shamu.company.benefit.repository.BenefitCoveragesRepository;
 import shamu.company.benefit.repository.BenefitPlanCoverageRepository;
 import shamu.company.benefit.repository.BenefitPlanDependentRepository;
 import shamu.company.benefit.repository.BenefitPlanRepository;
@@ -76,6 +81,8 @@ public class BenefitPlanService {
 
   private final BenefitPlanTypeRepository benefitPlanTypeRepository;
 
+  private final BenefitCoveragesRepository benefitCoveragesRepository;
+
   private final BenefitPlanCoverageMapper benefitPlanCoverageMapper;
 
   private final BenefitPlanUserMapper benefitPlanUserMapper;
@@ -87,6 +94,8 @@ public class BenefitPlanService {
   private final MyBenefitsMapper myBenefitsMapper;
 
   private final UserMapper userMapper;
+
+  private final BenefitCoveragesMapper benefitCoveragesMapper;
 
   private final UserRepository userRepository;
 
@@ -104,12 +113,14 @@ public class BenefitPlanService {
       final BenefitPlanCoverageRepository benefitPlanCoverageRepository,
       final RetirementPlanTypeRepository retirementPlanTypeRepository,
       final BenefitPlanTypeRepository benefitPlanTypeRepository,
+      final BenefitCoveragesRepository benefitCoveragesRepository,
       final BenefitPlanCoverageMapper benefitPlanCoverageMapper,
       final RetirementPlanTypeMapper retirementPlanTypeMapper,
       final BenefitPlanUserMapper benefitPlanUserMapper,
       final BenefitPlanMapper benefitPlanMapper,
       final MyBenefitsMapper myBenefitsMapper,
       final UserMapper userMapper,
+      final BenefitCoveragesMapper benefitCoveragesMapper,
       final UserRepository userRepository,
       final UserDependentsRepository userDependentsRepository,
       final BenefitPlanDependentRepository benefitPlanDependentRepository,
@@ -120,12 +131,14 @@ public class BenefitPlanService {
     this.benefitPlanCoverageRepository = benefitPlanCoverageRepository;
     this.retirementPlanTypeRepository = retirementPlanTypeRepository;
     this.benefitPlanTypeRepository = benefitPlanTypeRepository;
+    this.benefitCoveragesRepository = benefitCoveragesRepository;
     this.benefitPlanCoverageMapper = benefitPlanCoverageMapper;
     this.benefitPlanUserMapper = benefitPlanUserMapper;
     this.retirementPlanTypeMapper = retirementPlanTypeMapper;
     this.benefitPlanMapper = benefitPlanMapper;
     this.myBenefitsMapper = myBenefitsMapper;
     this.userMapper = userMapper;
+    this.benefitCoveragesMapper = benefitCoveragesMapper;
     this.userRepository = userRepository;
     this.userDependentsRepository = userDependentsRepository;
     this.benefitPlanDependentRepository = benefitPlanDependentRepository;
@@ -162,12 +175,21 @@ public class BenefitPlanService {
     }
 
     if (!benefitPlanCoverageDtoList.isEmpty()) {
+      benefitPlanCoverageDtoList.stream().forEach(benefitPlanCoverageDto -> {
+        if (StringUtils.isEmpty(benefitPlanCoverageDto.getId())) {
+          final BenefitCoverages benefitCoverages = benefitCoveragesRepository
+              .save(benefitCoveragesMapper.createFromBenefitPlanCoverageDtoAndPlan(
+                  benefitPlanCoverageDto, createdBenefitPlan));
+          benefitPlanCoverageDto.setId(benefitCoverages.getId());
+        }
+      });
+
       benefitPlanCoverageRepository.saveAll(
           benefitPlanCoverageDtoList.stream()
               .map(
-                  benefitPlanCoverageDto ->
+                  benefitCoverageDto ->
                       benefitPlanCoverageMapper.createFromBenefitPlanCoverageAndBenefitPlan(
-                          benefitPlanCoverageDto, createdBenefitPlan))
+                          benefitCoverageDto, createdBenefitPlan))
               .collect(Collectors.toList()));
     }
 
@@ -196,7 +218,7 @@ public class BenefitPlanService {
 
     updateRetirementPlanType(benefitPlanCreateDto, planId, updatedBenefitPlan);
 
-    updateBenefitPlanCoverage(benefitPlanCoverageDtoList, planId, updatedBenefitPlan);
+    updateBenefitPlanCoverage(benefitPlanCoverageDtoList, planId);
 
     updateBenefitPlanUser(data, companyId, planId);
 
@@ -240,33 +262,66 @@ public class BenefitPlanService {
 
   private void updateBenefitPlanCoverage(
       final List<BenefitPlanCoverageDto> benefitPlanCoverageDtoList,
-      final String planId,
-      final BenefitPlan updatedBenefitPlan) {
+      final String planId) {
+
+    final List<String> resultBenefitPlanIds = new ArrayList<>();
+    final List<String> resultBenefitCoverageIds = new ArrayList<>();
 
     final List<BenefitPlanCoverage> benefitPlanCoverages =
         benefitPlanCoverageRepository.findAllByBenefitPlanId(planId);
+    final List<String> existBenefitPlanCoverageIds = benefitPlanCoverages.stream()
+        .map(BenefitPlanCoverage::getId).collect(Collectors.toList());
 
-    if (!benefitPlanCoverageDtoList.isEmpty()) {
-      final List<String> benefitPlanCoverageIds = new ArrayList<>();
+    final List<BenefitCoverages> benefitCoverages =
+        benefitCoveragesRepository.findAllByBenefitPlanId(planId);
 
-      benefitPlanCoverageDtoList.forEach(
-          benefitPlanCoverageDto -> {
-            benefitPlanCoverageIds.add(benefitPlanCoverageDto.getId());
-            final BenefitPlanCoverage benefitPlanCoverage =
-                benefitPlanCoverageMapper.updateFromBenefitPlanCoverageAndBenefitPlan(
-                    benefitPlanCoverageDto, updatedBenefitPlan);
+    benefitPlanCoverageDtoList.stream().forEach(s -> {
+      if (StringUtils.isEmpty(s.getId())) {
+        BenefitCoverages addNewBenefitCoverage =
+            benefitCoveragesMapper.createFromBenefitPlanCoverageDto(s);
+        addNewBenefitCoverage.setBenefitPlanId(planId);
+        BenefitCoverages newBenefitCoverage =
+            benefitCoveragesRepository.save(addNewBenefitCoverage);
+        BenefitPlanCoverage benefitPlanCoverage = benefitPlanCoverageMapper
+            .createFromBenefitPlanCoverageDtoAndCoverage(s,newBenefitCoverage);
+        benefitPlanCoverage.setBenefitPlanId(planId);
+        BenefitPlanCoverage newBenefitPlanCoverage =
             benefitPlanCoverageRepository.save(benefitPlanCoverage);
-          });
+        resultBenefitPlanIds.add(newBenefitPlanCoverage.getId());
+        resultBenefitCoverageIds.add(newBenefitCoverage.getId());
+      }
 
-      benefitPlanCoverages.forEach(
-          benefitPlanCoverage -> {
-            if (!benefitPlanCoverageIds.contains(benefitPlanCoverage.getId())) {
-              benefitPlanCoverageRepository.delete(benefitPlanCoverage);
-            }
-          });
-      return;
-    }
-    benefitPlanCoverageRepository.delete(benefitPlanCoverages);
+      if (StringUtils.isNotEmpty(s.getId()) && existBenefitPlanCoverageIds.contains(s.getId())) {
+        BenefitPlanCoverage currentBenefitPlanCoverage = benefitPlanCoverageRepository
+            .findById(s.getId()).get();
+        BenefitPlanCoverage benefitPlanCoverage = benefitPlanCoverageMapper
+            .createFromBenefitPlanCoverageDtoAndPlanCoverage(s, currentBenefitPlanCoverage);
+        benefitPlanCoverage.setBenefitPlanId(planId);
+        benefitPlanCoverageRepository.save(benefitPlanCoverage);
+        resultBenefitPlanIds.add(currentBenefitPlanCoverage.getId());
+        resultBenefitCoverageIds.add(currentBenefitPlanCoverage.getBenefitCoverageId());
+      }
+
+      if (StringUtils.isNotEmpty(s.getId()) && !existBenefitPlanCoverageIds.contains(s.getId())) {
+        BenefitPlanCoverage benefitPlanCoverage = benefitPlanCoverageMapper
+            .createFromBenefitPlanCoverageDto(s);
+        benefitPlanCoverage.setBenefitPlanId(planId);
+        BenefitPlanCoverage basicBenefitPlanCoverage =
+            benefitPlanCoverageRepository.save(benefitPlanCoverage);
+        resultBenefitPlanIds.add(basicBenefitPlanCoverage.getId());
+      }
+    });
+
+    benefitPlanCoverages.stream().forEach(s -> {
+      if (!resultBenefitPlanIds.contains(s.getId())) {
+        benefitPlanCoverageRepository.delete(s);
+      }
+    });
+    benefitCoverages.stream().forEach(s -> {
+      if (!resultBenefitCoverageIds.contains(s.getId())) {
+        benefitCoveragesRepository.delete(s);
+      }
+    });
   }
 
   private void updateBenefitPlanUser(
@@ -598,8 +653,14 @@ public class BenefitPlanService {
         benefitPlanUserRepository.findAllByBenefitPlan(new BenefitPlan(planId));
     final RetirementPlanType retirementPlanType =
         retirementPlanTypeRepository.findByBenefitPlan(new BenefitPlan(planId));
-    return benefitPlanMapper.convertToOldBenefitPlanDto(
+    final BenefitPlanUpdateDto benefitPlanUpdateDto = benefitPlanMapper.convertToOldBenefitPlanDto(
         benefitPlan, benefitPlanCoverage, benefitPlanUsers, retirementPlanType);
+    benefitPlanUpdateDto.getBenefitPlanCoverages().stream().forEach(benefitPlanCoverageDto -> {
+      benefitPlanCoverageDto.setCoverageName(
+          benefitCoveragesRepository.findById(benefitPlanCoverageDto.getCoverageId())
+              .get().getName());
+    });
+    return benefitPlanUpdateDto;
   }
 
   public void saveBenefitPlanDocuments(
@@ -692,6 +753,15 @@ public class BenefitPlanService {
         !selectedUserIds.contains(user.getId()))
         .map(userMapper::covertToBenefitPlanUserDto).collect(Collectors.toList());
     return new BenefitPlanRelatedUserListDto(unselectedUsers,selectedUsers);
+  }
+
+  public BenefitPlanCoveragesDto findCoveragesByBenefitPlanId() {
+    List<BenefitCoverages> coverages = benefitCoveragesRepository.findAllByBenefitPlanIdIsNull();
+    List<BenefitCoveragesDto> benefitCoveragesDtos = coverages.stream()
+        .map(coverage -> benefitCoveragesMapper
+        .convertToBenefitCoveragesDto(coverage))
+        .collect(Collectors.toList());
+    return new BenefitPlanCoveragesDto(benefitCoveragesDtos);
   }
 
 
