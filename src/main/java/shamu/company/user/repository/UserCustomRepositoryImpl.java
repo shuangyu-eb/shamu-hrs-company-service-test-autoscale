@@ -54,8 +54,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
   public Page<JobUserListItem> getAllByCondition(
       final EmployeeListSearchCondition employeeListSearchCondition,
       final String companyId,
-      final Pageable pageable,
-      final Role role) {
+      final Pageable pageable) {
 
     final String conditionSql =
         "from users u "
@@ -325,12 +324,11 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
   private String appendFilterCondition(final String originalSql, final Pageable pageable) {
     final StringBuilder resultSql = new StringBuilder(originalSql);
     resultSql.append("order by ");
-    final StringBuilder finalSql = resultSql;
     pageable
         .getSort()
         .forEach(
             order ->
-                finalSql
+                resultSql
                     .append(order.getProperty())
                     .append(" ")
                     .append(order.getDirection())

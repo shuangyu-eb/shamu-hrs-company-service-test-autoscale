@@ -33,18 +33,17 @@ public class UserBenefitsSettingService {
     final User user = userService.findById(userId);
     final UserBenefitsSetting currentYearUserBenefitsSetting = userBenefitsSettingRepository
         .findByUserAndEffectYear(user, effectYear);
-    if (currentYearUserBenefitsSetting == null
-        || !currentYearUserBenefitsSetting.getEffectYear().equals(effectYear)) {
+    if (currentYearUserBenefitsSetting == null) {
       final UserBenefitsSetting userBenefitsSetting = new UserBenefitsSetting();
       userBenefitsSetting.setUser(user);
       userBenefitsSetting.setEffectYear(effectYear);
       save(userBenefitsSetting);
-    }
-    final Integer lastYear = Integer.parseInt(effectYear) - 1;
-    final UserBenefitsSetting lastYearUserBenefitsSetting = userBenefitsSettingRepository
-        .findByUserAndEffectYear(user, String.valueOf(lastYear));
-    if (lastYearUserBenefitsSetting != null) {
-      userBenefitsSettingRepository.delete(lastYearUserBenefitsSetting);
+      final Integer lastYear = Integer.parseInt(effectYear) - 1;
+      final UserBenefitsSetting lastYearUserBenefitsSetting = userBenefitsSettingRepository
+          .findByUserAndEffectYear(user, String.valueOf(lastYear));
+      if (lastYearUserBenefitsSetting != null) {
+        userBenefitsSettingRepository.delete(lastYearUserBenefitsSetting);
+      }
     }
   }
 

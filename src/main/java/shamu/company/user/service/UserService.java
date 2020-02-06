@@ -228,8 +228,7 @@ public class UserService {
     final String companyId = currentUser.getCompany().getId();
 
     final Pageable paramPageable = getPageable(employeeListSearchCondition);
-    return getAllEmployeesByCompany(
-        employeeListSearchCondition, companyId, paramPageable, currentUser.getRole());
+    return getAllEmployeesByCompany(employeeListSearchCondition, companyId, paramPageable);
   }
 
   private Pageable getPageable(final EmployeeListSearchCondition employeeListSearchCondition) {
@@ -243,12 +242,10 @@ public class UserService {
         sortValue);
   }
 
-  public Page<JobUserListItem> getAllEmployeesByCompany(
+  private Page<JobUserListItem> getAllEmployeesByCompany(
       final EmployeeListSearchCondition employeeListSearchCondition,
-      final String companyId,
-      final Pageable pageable,
-      final Role role) {
-    return userRepository.getAllByCondition(employeeListSearchCondition, companyId, pageable, role);
+      final String companyId, final Pageable pageable) {
+    return userRepository.getAllByCondition(employeeListSearchCondition, companyId, pageable);
   }
 
   public Page<JobUserListItem> findAllEmployeesByName(
