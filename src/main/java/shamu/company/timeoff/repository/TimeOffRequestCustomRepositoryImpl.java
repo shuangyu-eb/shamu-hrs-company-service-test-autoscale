@@ -26,7 +26,7 @@ public class TimeOffRequestCustomRepositoryImpl implements TimeOffRequestCustomR
   public List<String> getFilteredReviewedTimeOffRequestsIds(
       String userId, Long startTime, Long endTime) {
     String query =
-        "SELECT hex(id) FROM time_off_requests request "
+        "SELECT hex(request.id) FROM time_off_requests request "
             + "left join time_off_request_approval_statuses rs "
             + "on request.time_off_request_approval_status_id = rs.id "
             + "WHERE "
