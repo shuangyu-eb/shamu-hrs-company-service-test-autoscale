@@ -12,7 +12,6 @@ pipeline {
     agent any
     environment {
         sonarqubeScannerHome = tool name: 'Shamu Hrs Company Service Sonarqube Scanner'
-        RELEASE = ''
     }
     stages {
         stage('unit tests') {
@@ -21,7 +20,7 @@ pipeline {
                         '            Unit test            ' +
                         '\n---------------------------------'
 
-                sh "sudo mvn clean test -Dspring.profiles.active=test > junit_output.txt"
+                sh "mvn clean test -Dspring.profiles.active=test > junit_output.txt"
             }
         }
         stage('sonarqube analysis') {
@@ -41,11 +40,13 @@ pipeline {
                         '\n---------------------------------'
                 script {
                     RELEASE = sh(returnStdout: true, script: ''' echo ${ref} | sed 's/^.*\\///' ''').trim()
-                    if (RELEASE=="") {
-                        RELEASE='master'
+                    REF = RELEASE
+                    if (RELEASE == "") {
+                        RELEASE = 'master'
+                        REF = 'origin/master'
                     }
                 }
-                sh "sudo CI/build -e ${params.DEV_ENV} -e ${params.QA_ENV} -r ${RELEASE}"
+                sh "git checkout ${REF} && CI/build -e ${params.DEV_ENV} -e ${params.QA_ENV} -r ${RELEASE}"
             }
         }
         stage('deploy master to dev environment') {
@@ -53,7 +54,7 @@ pipeline {
                 expression { RELEASE == 'master' }
             }
             steps {
-                sh "git checkout origin/master && sudo CI/deploy ${params.DEV_ENV} ${RELEASE}"
+                sh "git checkout origin/master && CI/deploy ${params.DEV_ENV} ${RELEASE}"
             }
         }
     }
