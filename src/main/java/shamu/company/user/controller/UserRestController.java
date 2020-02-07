@@ -21,7 +21,7 @@ import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.common.exception.ForbiddenException;
 import shamu.company.common.validation.constraints.FileValidate;
-import shamu.company.employee.dto.EmailResendDto;
+import shamu.company.employee.dto.EmailUpdateDto;
 import shamu.company.user.dto.AccountInfoDto;
 import shamu.company.user.dto.ChangePasswordDto;
 import shamu.company.user.dto.CurrentUserDto;
@@ -163,12 +163,10 @@ public class UserRestController extends BaseRestController {
     userService.checkPassword(findAuthUser().getEmail(), password);
   }
 
-  @PatchMapping("/users/send-verify-email")
-  @PreAuthorize(
-      "hasPermission(#emailResendDto.userId,'USER', 'EDIT_USER')"
-          + " or hasPermission(#emailResendDto.userId,'USER', 'EDIT_SELF')")
-  public HttpEntity sendChangeWorkEmail(@RequestBody @Valid final EmailResendDto emailResendDto) {
-    userService.sendChangeWorkEmail(emailResendDto.getUserId(),emailResendDto.getEmail());
+  @PatchMapping("/users/work-email")
+  @PreAuthorize("hasAuthority('EDIT_SELF')")
+  public HttpEntity updateWorkEmail(@RequestBody @Valid final EmailUpdateDto emailUpdateDto) {
+    userService.updateWorkEmail(findUserId(), emailUpdateDto);
     return new ResponseEntity(HttpStatus.OK);
   }
 

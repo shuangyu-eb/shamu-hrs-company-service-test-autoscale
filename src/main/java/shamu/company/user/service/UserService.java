@@ -38,6 +38,7 @@ import shamu.company.company.service.CompanyBenefitsSettingService;
 import shamu.company.company.service.CompanyService;
 import shamu.company.email.Email;
 import shamu.company.email.EmailService;
+import shamu.company.employee.dto.EmailUpdateDto;
 import shamu.company.employee.dto.EmployeeListSearchCondition;
 import shamu.company.employee.dto.OrgChartDto;
 import shamu.company.helpers.auth0.Auth0Helper;
@@ -605,26 +606,22 @@ public class UserService {
     }
   }
 
-  public void sendChangeWorkEmail(final String userId, final String newEmail) {
-
+  public void updateWorkEmail(final String userId, final EmailUpdateDto emailUpdateDto) {
     final User user = findById(userId);
+    checkPassword(user.getUserContactInformation().getEmailWork(), emailUpdateDto.getPassword());
 
-    if (user.getUserContactInformation().getEmailWork().equals(newEmail)) {
+    if (user.getUserContactInformation().getEmailWork().equals(emailUpdateDto.getEmail())) {
       throw new ForbiddenException(" your new work email should be different");
     }
-
-    if (!auth0Helper.existsByEmail(newEmail)) {
-
+    if (!auth0Helper.existsByEmail(emailUpdateDto.getEmail())) {
       user.setUserStatus(
           userStatusService.findByName(String.valueOf(Status.CHANGING_EMAIL_VERIFICATION)));
-
-      user.setChangeWorkEmail(newEmail);
-
+      user.setChangeWorkEmail(emailUpdateDto.getEmail());
       emailService.handleEmail(user);
-
       userRepository.save(user);
     } else {
-      throw new ForbiddenException(String.format(" %s already be used by other", newEmail));
+      throw new ForbiddenException(String.format(" %s has already been used by another user",
+        emailUpdateDto.getEmail()));
     }
   }
 

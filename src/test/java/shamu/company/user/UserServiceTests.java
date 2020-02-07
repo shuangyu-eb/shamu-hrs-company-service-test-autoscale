@@ -25,6 +25,7 @@ import shamu.company.company.entity.Company;
 import shamu.company.company.service.CompanyBenefitsSettingService;
 import shamu.company.company.service.CompanyService;
 import shamu.company.email.EmailService;
+import shamu.company.employee.dto.EmailUpdateDto;
 import shamu.company.employee.dto.EmployeeListSearchCondition;
 import shamu.company.employee.dto.OrgChartDto;
 import shamu.company.employee.dto.SelectFieldInformationDto;
@@ -65,6 +66,7 @@ import shamu.company.user.service.UserPersonalInformationService;
 import shamu.company.user.service.UserRoleService;
 import shamu.company.user.service.UserService;
 import shamu.company.user.service.UserStatusService;
+import shamu.company.utils.UuidUtil;
 
 class UserServiceTests {
 
@@ -298,36 +300,53 @@ class UserServiceTests {
   @Nested
   class UpdateWorkEmail {
     private String userId;
-    private String newEmail;
+    private EmailUpdateDto emailUpdateDto;
 
     @BeforeEach
     void init() {
       final User user = new User();
       final UserContactInformation contactInformation = new UserContactInformation();
-      contactInformation.setEmailWork("email");
+      contactInformation.setEmailWork("example@example.com");
       user.setUserContactInformation(contactInformation);
+
+      userId = UuidUtil.getUuidString();
+      user.setId(userId);
       Mockito.when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+      emailUpdateDto = new EmailUpdateDto();
+      emailUpdateDto.setEmail("example1@example.com");
+      emailUpdateDto.setPassword(RandomStringUtils.randomAlphanumeric(16));
+
+      Mockito.when(auth0Helper.isPasswordValid(Mockito.anyString(), Mockito.anyString()))
+        .thenReturn(true);
+    }
+
+    @Test
+    void whenPasswordIsNotValid_thenShouldThrow() {
+      Mockito.when(auth0Helper.isPasswordValid(Mockito.anyString(), Mockito.anyString()))
+        .thenReturn(false);
+      Assertions.assertThrows(ForbiddenException.class,
+        () -> userService.updateWorkEmail(userId, emailUpdateDto));
     }
 
     @Test
     void whenEmailIsSame_thenShouldThrow() {
-      newEmail = "email";
+      emailUpdateDto.setEmail("example@example.com");
       Assertions.assertThrows(ForbiddenException.class,
-          () -> userService.sendChangeWorkEmail(userId, newEmail));
+          () -> userService.updateWorkEmail(userId, emailUpdateDto));
     }
 
     @Test
     void whenNewEmailIsUsed_thenShouldThrow() {
-      Mockito.when(auth0Helper.existsByEmail(newEmail)).thenReturn(true);
+      Mockito.when(auth0Helper.existsByEmail(emailUpdateDto.getEmail())).thenReturn(true);
       Assertions.assertThrows(ForbiddenException.class,
-          () -> userService.sendChangeWorkEmail(userId, newEmail));
+          () -> userService.updateWorkEmail(userId, emailUpdateDto));
     }
 
     @Test
     void whenOk_thenShouldSendEmail() {
-      newEmail = "newEmail";
-      Mockito.when(auth0Helper.existsByEmail(newEmail)).thenReturn(false);
-      userService.sendChangeWorkEmail(userId, newEmail);
+      Mockito.when(auth0Helper.existsByEmail(emailUpdateDto.getEmail())).thenReturn(false);
+      userService.updateWorkEmail(userId, emailUpdateDto);
 
       Mockito.verify(emailService, Mockito.times(1)).handleEmail(Mockito.any());
       Mockito.verify(userRepository, Mockito.times(1)).save(Mockito.any());
