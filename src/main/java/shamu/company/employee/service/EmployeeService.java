@@ -290,7 +290,7 @@ public class EmployeeService {
     employee.setId(userId);
     employee.setUserRole(userRoleService.getEmployee());
     saveInvitedEmployeeAdditionalInformation(employee, employeeDto);
-    return userService.save(employee);
+    return userService.createNewEmployee(employee);
   }
 
   private void saveInvitedEmployeeAdditionalInformation(

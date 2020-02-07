@@ -258,6 +258,11 @@ public class UserService {
     return userRepository.save(user);
   }
 
+  public User createNewEmployee(final User user) {
+    user.setSalt();
+    return save(user);
+  }
+
   public List<JobUserDto> findAllJobUsers(final String companyId) {
     final List<User> policyEmployees = userRepository.findAllByCompanyId(companyId);
 

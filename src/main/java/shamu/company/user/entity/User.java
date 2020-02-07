@@ -118,7 +118,7 @@ public class User {
     return Role.valueOf(userRole.getName());
   }
 
-  private void setSalt() {
+  public void setSalt() {
     if (salt == null) {
       salt = UuidUtil.getUuidString();
     }

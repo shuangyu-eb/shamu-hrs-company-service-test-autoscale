@@ -209,7 +209,7 @@ class EmployeeServiceTests {
 
       Whitebox.invokeMethod(
           employeeService, "saveEmployeeBasicInformation", currentUser, employeeDto);
-      Mockito.verify(userService, Mockito.times(1)).save(Mockito.any());
+      Mockito.verify(userService, Mockito.times(1)).createNewEmployee(Mockito.any());
     }
   }
 
@@ -466,6 +466,7 @@ class EmployeeServiceTests {
       currentUser.setCompany(company);
       currentUser.setResetPasswordToken("a");
       Mockito.when(userService.save(Mockito.any())).thenReturn(currentUser);
+      Mockito.when(userService.createNewEmployee(Mockito.any())).thenReturn(currentUser);
       Mockito.when(
               emailService.getWelcomeEmailContext(
                   Mockito.any(), Mockito.anyString(), Mockito.anyString()))
