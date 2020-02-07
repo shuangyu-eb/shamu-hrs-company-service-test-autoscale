@@ -247,12 +247,14 @@ public class UserPermissionUtils extends BasePermissionUtils {
 
       final String jobId = jobInformationDto.getJobId();
       final Job job = jobService.findById(jobId);
-      if (!hasPermissionOfDepartment(auth, job.getDepartment(), permission)) {
+      if (!StringUtils.isEmpty(jobId)
+            && !hasPermissionOfDepartment(auth, job.getDepartment(), permission)) {
         return false;
       }
 
       final String officeId = jobInformationDto.getOfficeId();
-      if (!hasPermissionOfOfficeLocation(auth, officeId, permission)) {
+      if (!StringUtils.isEmpty(officeId)
+            && !hasPermissionOfOfficeLocation(auth, officeId, permission)) {
         return false;
       }
 
