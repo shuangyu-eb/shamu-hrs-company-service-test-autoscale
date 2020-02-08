@@ -99,6 +99,7 @@ public class UserRestController extends BaseRestController {
     return userService.getPreSetAccountInfoByUserId(id);
   }
 
+  @PreAuthorize("hasPermission(#id,'USER', 'EDIT_SELF')")
   @GetMapping("users/{id}/avatar")
   public UserAvatarDto getUserAvatar(@PathVariable final String id) {
     final User user = userService.findById(id);

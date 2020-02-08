@@ -14,7 +14,11 @@ import shamu.company.utils.AnnotationUtil;
 
 public class CryptoSsnSerializer extends JsonSerializer<String> {
 
-  private final Encryptor encryptor;
+  private Encryptor encryptor;
+
+  public CryptoSsnSerializer() {
+    super();
+  }
 
   @Autowired
   public CryptoSsnSerializer(final Encryptor encryptor) {
@@ -23,10 +27,10 @@ public class CryptoSsnSerializer extends JsonSerializer<String> {
 
   @Override
   public void serialize(
-          String value, JsonGenerator jsonGenerator, SerializerProvider serializers)
+      final String value, final JsonGenerator jsonGenerator, final SerializerProvider serializers)
           throws IOException {
-    Object currentObject = jsonGenerator.getOutputContext().getCurrentValue();
-    String fieldName = jsonGenerator.getOutputContext().getCurrentName();
+    final Object currentObject = jsonGenerator.getOutputContext().getCurrentValue();
+    final String fieldName = jsonGenerator.getOutputContext().getCurrentName();
     if (Strings.isNotBlank(value)) {
       final Crypto crypto = AnnotationUtil
                 .getFieldAnnotation(currentObject, fieldName, Crypto.class)
