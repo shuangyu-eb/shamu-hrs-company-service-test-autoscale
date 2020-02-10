@@ -1,5 +1,10 @@
 package shamu.company.benefit;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -14,26 +19,22 @@ import shamu.company.benefit.entity.BenefitPlanDependent;
 import shamu.company.benefit.entity.BenefitPlanType;
 import shamu.company.benefit.entity.BenefitPlanUser;
 import shamu.company.benefit.entity.mapper.MyBenefitsMapper;
+import shamu.company.benefit.repository.BenefitPlanCoverageRepository;
+import shamu.company.benefit.repository.BenefitPlanRepository;
 import shamu.company.benefit.repository.BenefitPlanUserRepository;
 import shamu.company.benefit.service.BenefitPlanService;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-
 class BenefitPlanServiceTests {
 
-  @InjectMocks
-  private BenefitPlanService benefitPlanService;
+  @InjectMocks private BenefitPlanService benefitPlanService;
 
-  @Mock
-  private BenefitPlanUserRepository benefitPlanUserRepository;
+  @Mock private BenefitPlanUserRepository benefitPlanUserRepository;
 
-  @Mock
-  private MyBenefitsMapper myBenefitsMapper;
+  @Mock private MyBenefitsMapper myBenefitsMapper;
+
+  @Mock private BenefitPlanRepository benefitPlanRepository;
+
+  @Mock private BenefitPlanCoverageRepository benefitPlanCoverageRepository;
 
   @BeforeEach
   void init() {
@@ -78,10 +79,12 @@ class BenefitPlanServiceTests {
       benefitPlan.setBenefitPlanType(benefitPlanType);
       benefitPlanUser.setBenefitPlan(benefitPlan);
       benefitPlanUsers.add(benefitPlanUser);
-      Mockito.when(benefitPlanUserRepository.findByUserIdAndEnrolledIsTrue(userId)).thenReturn(benefitPlanUsers);
+      Mockito.when(benefitPlanUserRepository.findByUserIdAndEnrolledIsTrue(userId))
+          .thenReturn(benefitPlanUsers);
       benefitPlanService.getBenefitSummary(userId);
-      Mockito.verify(myBenefitsMapper,Mockito.times(1)).convertToBenefitSummaryDto(
-        benefitNumber, benefitCost, dependentUsersNum, dependentUsers);
+      Mockito.verify(myBenefitsMapper, Mockito.times(1))
+          .convertToBenefitSummaryDto(
+              benefitNumber, benefitCost, dependentUsersNum, dependentUsers);
     }
 
     @Test
@@ -99,12 +102,51 @@ class BenefitPlanServiceTests {
       benefitPlanUsers.add(benefitPlanUser);
       benefitPlanDependentUserDto.setId("a");
       dependentUsers.add(benefitPlanDependentUserDto);
-      Mockito.when(benefitPlanUserRepository.findByUserIdAndEnrolledIsTrue(userId)).thenReturn(benefitPlanUsers);
+      Mockito.when(benefitPlanUserRepository.findByUserIdAndEnrolledIsTrue(userId))
+          .thenReturn(benefitPlanUsers);
       benefitPlanService.getBenefitSummary(userId);
-      Mockito.verify(myBenefitsMapper,Mockito.times(1)).convertToBenefitSummaryDto(
-        benefitNumber, benefitCost, dependentUsersNum, dependentUsers);
+      Mockito.verify(myBenefitsMapper, Mockito.times(1))
+          .convertToBenefitSummaryDto(
+              benefitNumber, benefitCost, dependentUsersNum, dependentUsers);
     }
   }
 
+  @Nested
+  class getBenefitPlanReport {
+    String typeName = "Medical";
+    String companyId = "a";
+    List<String> planIds;
 
+    @BeforeEach
+    void init() {
+      planIds = new ArrayList<>();
+    }
+
+    @Test
+    void whenBenefitPlanIdsIsEmpty_thenShouldSuccess() {
+      Mockito.when(benefitPlanRepository.getBenefitPlanIds(typeName, companyId))
+          .thenReturn(planIds);
+      benefitPlanService.getBenefitPlanReport(typeName, companyId);
+      Mockito.verify(benefitPlanUserRepository, Mockito.times(0))
+          .getEmployeesEnrolledNumber(Mockito.anyList());
+      Mockito.verify(benefitPlanCoverageRepository, Mockito.times(0))
+          .getCompanyCost(Mockito.anyList());
+      Mockito.verify(benefitPlanCoverageRepository, Mockito.times(0))
+          .getEmployeeCost(Mockito.anyList());
+    }
+
+    @Test
+    void whenBenefitPlanIdsIsNotEmpty_thenShouldSuccess() {
+      planIds.add("a");
+      Mockito.when(benefitPlanRepository.getBenefitPlanIds(typeName, companyId))
+          .thenReturn(planIds);
+      benefitPlanService.getBenefitPlanReport(typeName, companyId);
+      Mockito.verify(benefitPlanUserRepository, Mockito.times(1))
+          .getEmployeesEnrolledNumber(Mockito.anyList());
+      Mockito.verify(benefitPlanCoverageRepository, Mockito.times(1))
+          .getCompanyCost(Mockito.anyList());
+      Mockito.verify(benefitPlanCoverageRepository, Mockito.times(1))
+          .getEmployeeCost(Mockito.anyList());
+    }
+  }
 }

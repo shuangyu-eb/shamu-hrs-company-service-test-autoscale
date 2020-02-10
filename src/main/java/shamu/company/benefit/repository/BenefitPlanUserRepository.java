@@ -19,8 +19,11 @@ public interface BenefitPlanUserRepository extends BaseRepository<BenefitPlanUse
 
   List<BenefitPlanUser> findAllByBenefitPlanId(String benefitPlanId);
 
-  @Query(value = "select count(distinct(user_id)) from benefit_plans_users "
-      + "where benefit_plan_id = unhex(?1) ", nativeQuery = true)
+  @Query(
+      value =
+          "select count(distinct(user_id)) from benefit_plans_users "
+              + "where benefit_plan_id = unhex(?1) ",
+      nativeQuery = true)
   Long getEligibleEmployeeNumber(String benefitPlanId);
 
   Long countByBenefitPlanIdAndConfirmedIsTrue(String benefitPlanId);
@@ -28,4 +31,11 @@ public interface BenefitPlanUserRepository extends BaseRepository<BenefitPlanUse
   Long countByUserIdAndEnrolled(String userId, Boolean enrolled);
 
   Optional<BenefitPlanUser> findByUserIdAndBenefitPlanId(String userId, String benefitPlanId);
+
+  @Query(
+      value =
+          "select count(distinct(user_id)) from benefit_plans_users "
+              + "where hex(benefit_plan_id) in ?1 and confirmed is not null",
+      nativeQuery = true)
+  Long getEmployeesEnrolledNumber(List<String> benefitPlanIds);
 }

@@ -28,4 +28,13 @@ public interface BenefitPlanRepository extends BaseRepository<BenefitPlan, Strin
   BenefitPlan findBenefitPlanById(String planId);
 
   BenefitPlan findBenefitPlanByName(String planName);
+
+  @Query(
+      value =
+          "select hex(bp.id) from benefit_plan_types bpt "
+              + "left join benefit_plans bp "
+              + "on bpt.id = bp.benefit_plan_type_id "
+              + "where bpt.name = ?1 and bp.company_id = unhex(?2)",
+      nativeQuery = true)
+  List<String> getBenefitPlanIds(String name, String companyId);
 }

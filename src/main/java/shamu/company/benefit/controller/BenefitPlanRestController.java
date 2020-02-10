@@ -1,7 +1,6 @@
 package shamu.company.benefit.controller;
 
 import java.util.List;
-
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +19,7 @@ import shamu.company.benefit.dto.BenefitPlanDetailDto;
 import shamu.company.benefit.dto.BenefitPlanDto;
 import shamu.company.benefit.dto.BenefitPlanPreviewDto;
 import shamu.company.benefit.dto.BenefitPlanRelatedUserListDto;
+import shamu.company.benefit.dto.BenefitPlanReportSummaryDto;
 import shamu.company.benefit.dto.BenefitPlanTypeDto;
 import shamu.company.benefit.dto.BenefitPlanUpdateDto;
 import shamu.company.benefit.dto.BenefitPlanUserCreateDto;
@@ -178,14 +178,14 @@ public class BenefitPlanRestController extends BaseRestController {
   public BenefitPlanRelatedUserListDto updateTimeOffPolicyEmployeesInfo(
       @PathVariable final String benefitPlanId,
       @RequestBody final List<BenefitPlanUserCreateDto> unSelectedEmployees) {
-    return benefitPlanService.updateBenefitPlanEmployees(unSelectedEmployees,
-        benefitPlanId, findCompanyId());
+    return benefitPlanService.updateBenefitPlanEmployees(
+        unSelectedEmployees, benefitPlanId, findCompanyId());
   }
 
   @GetMapping("benefit-plan/{benefitPlanId}/users")
   @PreAuthorize("hasPermission(#benefitPlanId, 'BENEFIT_PLAN', 'MANAGE_BENEFIT_PLAN')")
   public BenefitPlanRelatedUserListDto getEmployeesByBenefitPlanId(
-      @PathVariable String benefitPlanId) {
+      @PathVariable final String benefitPlanId) {
     return benefitPlanService.findRelatedUsersByBenefitPlan(benefitPlanId, findCompanyId());
   }
 
@@ -193,5 +193,12 @@ public class BenefitPlanRestController extends BaseRestController {
   @PreAuthorize("hasAuthority('MANAGE_BENEFIT_PLAN')")
   public BenefitPlanCoveragesDto getCoveragesByBenefitPlanId() {
     return benefitPlanService.findCoveragesByBenefitPlanId();
+  }
+
+  @GetMapping("benefit-plan/{planTypeName}/reports")
+  @PreAuthorize("hasAuthority('MANAGE_BENEFIT_PLAN')")
+  public List<BenefitPlanReportSummaryDto> getBenefitPlanReport(
+      @PathVariable final String planTypeName) {
+    return benefitPlanService.getBenefitPlanReport(planTypeName, findCompanyId());
   }
 }
