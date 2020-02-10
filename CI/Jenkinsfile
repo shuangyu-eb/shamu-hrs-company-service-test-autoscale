@@ -40,13 +40,14 @@ pipeline {
                         '\n---------------------------------'
                 script {
                     RELEASE = sh(returnStdout: true, script: ''' echo ${ref} | sed 's/^.*\\///' ''').trim()
-                    REF = sh(returnStdout: true, script: "echo ${ref}").trim()
-                    if (RELEASE == "") {
+                    if (RELEASE == "" || RELEASE == "master") {
                         RELEASE = 'master'
-                        REF = 'origin/master'
+                        sh(returnStdout: false, script: "git checkout origin/master")
+                    } else {
+                        sh(returnStdout: false, script: "git checkout ${RELEASE}")
                     }
                 }
-                sh "git checkout ${REF} && CI/build -e ${params.DEV_ENV} -e ${params.QA_ENV} -r ${RELEASE}"
+                sh "CI/build -e ${params.DEV_ENV} -e ${params.QA_ENV} -r ${RELEASE}"
             }
         }
         stage('deploy master to dev environment') {
