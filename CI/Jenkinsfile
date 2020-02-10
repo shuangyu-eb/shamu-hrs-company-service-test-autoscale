@@ -40,7 +40,7 @@ pipeline {
                         '\n---------------------------------'
                 script {
                     RELEASE = sh(returnStdout: true, script: ''' echo ${ref} | sed 's/^.*\\///' ''').trim()
-                    REF = RELEASE
+                    REF = sh(returnStdout: true, script: "echo ${ref}").trim()
                     if (RELEASE == "") {
                         RELEASE = 'master'
                         REF = 'origin/master'
