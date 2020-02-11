@@ -13,11 +13,12 @@ public interface BenefitPlanCoverageMapper {
 
   @Mapping(target = "id", ignore = true)
   @Mapping(target = "benefitPlanId", source = "benefitPlan.id")
-  @Mapping(target = "benefitCoverageId", source = "benefitPlanCoverageDto.id")
+  @Mapping(target = "benefitCoverage", source = "newBenefitCoverage")
   @Mapping(target = "createdAt", ignore = true)
   @Mapping(target = "updatedAt", ignore = true)
   BenefitPlanCoverage createFromBenefitPlanCoverageAndBenefitPlan(
-      BenefitPlanCoverageDto benefitPlanCoverageDto, BenefitPlan benefitPlan);
+      BenefitPlanCoverageDto benefitPlanCoverageDto, BenefitPlan benefitPlan,
+      BenefitCoverages newBenefitCoverage);
 
   @Mapping(target = "id", source = "benefitPlanCoverageDto.id")
   @Mapping(target = "benefitPlanId", source = "benefitPlan.id")
@@ -26,11 +27,11 @@ public interface BenefitPlanCoverageMapper {
   BenefitPlanCoverage updateFromBenefitPlanCoverageAndBenefitPlan(
           BenefitPlanCoverageDto benefitPlanCoverageDto, BenefitPlan benefitPlan);
 
-  @Mapping(target = "coverageId", source = "benefitPlanCoverage.benefitCoverageId")
+  @Mapping(target = "coverageId", source = "benefitPlanCoverage.benefitCoverage.id")
   BenefitPlanCoverageDto convertToBenefitPlanCoverageDto(BenefitPlanCoverage benefitPlanCoverage);
 
   @Mapping(target = "id", ignore = true)
-  @Mapping(target = "benefitCoverageId", source = "benefitCoverages.id")
+  @Mapping(target = "benefitCoverage", source = "benefitCoverages")
   @Mapping(target = "employeeCost", source = "benefitPlanCoverageDto.employeeCost")
   @Mapping(target = "employerCost", source = "benefitPlanCoverageDto.employerCost")
   @Mapping(target = "createdAt", ignore = true)
@@ -39,7 +40,7 @@ public interface BenefitPlanCoverageMapper {
           BenefitPlanCoverageDto benefitPlanCoverageDto, BenefitCoverages benefitCoverages);
 
   @Mapping(target = "id", source = "benefitPlanCoverageDto.id")
-  @Mapping(target = "benefitCoverageId", source = "benefitPlanCoverage.benefitCoverageId")
+  @Mapping(target = "benefitCoverage", source = "benefitPlanCoverage.benefitCoverage")
   @Mapping(target = "employeeCost", source = "benefitPlanCoverageDto.employeeCost")
   @Mapping(target = "employerCost", source = "benefitPlanCoverageDto.employerCost")
   @Mapping(target = "createdAt", ignore = true)
@@ -47,11 +48,11 @@ public interface BenefitPlanCoverageMapper {
           BenefitPlanCoverageDto benefitPlanCoverageDto, BenefitPlanCoverage benefitPlanCoverage);
 
   @Mapping(target = "id", ignore = true)
-  @Mapping(target = "benefitCoverageId", source = "benefitPlanCoverageDto.id")
+  @Mapping(target = "benefitCoverage", source = "benefitCoverage")
   @Mapping(target = "employeeCost", source = "benefitPlanCoverageDto.employeeCost")
   @Mapping(target = "employerCost", source = "benefitPlanCoverageDto.employerCost")
   @Mapping(target = "createdAt", ignore = true)
   @Mapping(target = "updatedAt", ignore = true)
   BenefitPlanCoverage createFromBenefitPlanCoverageDto(
-      BenefitPlanCoverageDto benefitPlanCoverageDto);
+      BenefitPlanCoverageDto benefitPlanCoverageDto, BenefitCoverages benefitCoverage);
 }

@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import lombok.AllArgsConstructor;
@@ -23,9 +24,8 @@ public class BenefitPlanCoverage extends BaseEntity {
   @Type(type = "shamu.company.common.PrimaryKeyTypeDescriptor")
   private String benefitPlanId;
 
-  @Column(name = "benefit_coverage_id")
-  @Type(type = "shamu.company.common.PrimaryKeyTypeDescriptor")
-  private String benefitCoverageId;
+  @OneToOne
+  private BenefitCoverages benefitCoverage;
 
   private BigDecimal employeeCost;
 

@@ -192,7 +192,8 @@ public class BenefitPlanService {
               .map(
                   benefitCoverageDto ->
                       benefitPlanCoverageMapper.createFromBenefitPlanCoverageAndBenefitPlan(
-                          benefitCoverageDto, createdBenefitPlan))
+                          benefitCoverageDto, createdBenefitPlan,
+                        benefitCoveragesRepository.findById(benefitCoverageDto.getId()).get()))
               .collect(Collectors.toList()));
     }
 
@@ -306,13 +307,17 @@ public class BenefitPlanService {
                 benefitPlanCoverage.setBenefitPlanId(planId);
                 benefitPlanCoverageRepository.save(benefitPlanCoverage);
                 resultBenefitPlanIds.add(currentBenefitPlanCoverage.getId());
-                resultBenefitCoverageIds.add(currentBenefitPlanCoverage.getBenefitCoverageId());
+                resultBenefitCoverageIds.add(
+                    currentBenefitPlanCoverage.getBenefitCoverage().getId());
               }
 
               if (StringUtils.isNotEmpty(s.getId())
                   && !existBenefitPlanCoverageIds.contains(s.getId())) {
+                BenefitCoverages newBenefitCoverages = benefitCoveragesRepository.findById(
+                    s.getId()).get();
                 final BenefitPlanCoverage benefitPlanCoverage =
-                    benefitPlanCoverageMapper.createFromBenefitPlanCoverageDto(s);
+                    benefitPlanCoverageMapper.createFromBenefitPlanCoverageDto(
+                      s,newBenefitCoverages);
                 benefitPlanCoverage.setBenefitPlanId(planId);
                 final BenefitPlanCoverage basicBenefitPlanCoverage =
                     benefitPlanCoverageRepository.save(benefitPlanCoverage);
