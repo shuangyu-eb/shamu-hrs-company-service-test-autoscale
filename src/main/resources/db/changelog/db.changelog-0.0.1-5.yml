@@ -1347,3 +1347,19 @@ databaseChangeLog:
             constraintName: fk_benefit_plan_coverages_benefit_coverages
             referencedColumnNames: id
             referencedTableName: benefit_coverages
+
+  - changeSet:
+      id: 1581384956-1
+      author: max-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - addColumn:
+          columns:
+          - column:
+              name: message_id
+              type: varchar(32)
+          - column:
+              name: status
+              type: varchar(16)
+          tableName: emails

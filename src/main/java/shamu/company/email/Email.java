@@ -2,6 +2,8 @@ package shamu.company.email;
 
 import java.sql.Timestamp;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -18,6 +20,7 @@ import shamu.company.user.entity.User;
 @AllArgsConstructor
 public class Email extends BaseEntity {
 
+  private static final long serialVersionUID = -4792540556729036780L;
   private String from;
 
   private String fromName;
@@ -30,31 +33,38 @@ public class Email extends BaseEntity {
 
   private String content;
 
-  @ManyToOne
-  private User user;
+  @ManyToOne private User user;
 
   private Timestamp sendDate;
 
-  @Nullable
-  private Timestamp sentAt;
+  @Nullable private Timestamp sentAt;
 
   private Integer retryCount;
 
+  private String messageId;
 
-  public Email(Email emailInfo) {
-    this.from = emailInfo.from;
-    this.fromName = emailInfo.fromName;
-    this.toName = emailInfo.toName;
-    this.subject = emailInfo.subject;
-    this.content = emailInfo.content;
-    this.user = emailInfo.user;
-    this.sentAt = emailInfo.sentAt;
-    this.retryCount = emailInfo.retryCount;
-    this.setCreatedAt(emailInfo.getCreatedAt());
+  @Enumerated(value = EnumType.STRING)
+  private EmailStatus status;
+
+  public Email(final Email emailInfo) {
+    from = emailInfo.from;
+    fromName = emailInfo.fromName;
+    toName = emailInfo.toName;
+    subject = emailInfo.subject;
+    content = emailInfo.content;
+    user = emailInfo.user;
+    sentAt = emailInfo.sentAt;
+    retryCount = emailInfo.retryCount;
+    setCreatedAt(emailInfo.getCreatedAt());
   }
 
-  public Email(String from, String to, String subject, String content, User user,
-      Timestamp sendDate) {
+  public Email(
+      final String from,
+      final String to,
+      final String subject,
+      final String content,
+      final User user,
+      final Timestamp sendDate) {
     this.from = from;
     this.to = to;
     this.subject = subject;
@@ -63,7 +73,12 @@ public class Email extends BaseEntity {
     this.sendDate = sendDate;
   }
 
-  public Email(String from, String to, String subject, String content, Timestamp sendDate) {
+  public Email(
+      final String from,
+      final String to,
+      final String subject,
+      final String content,
+      final Timestamp sendDate) {
     this.from = from;
     this.to = to;
     this.subject = subject;
@@ -71,7 +86,12 @@ public class Email extends BaseEntity {
     this.sendDate = sendDate;
   }
 
-  public Email(String from, String fromName, String to, String toName, String subject) {
+  public Email(
+      final String from,
+      final String fromName,
+      final String to,
+      final String toName,
+      final String subject) {
     this.from = from;
     this.fromName = fromName;
     this.to = to;

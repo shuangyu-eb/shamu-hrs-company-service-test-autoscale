@@ -14,4 +14,5 @@ public interface EmailRepository extends BaseRepository<Email, String> {
 
   Email findFirstByToAndSubjectOrderBySendDateDesc(String to, String subject);
 
+  Email findByMessageId(String messageId);
 }

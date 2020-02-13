@@ -19,6 +19,7 @@ import shamu.company.common.exception.EmailException;
 @Component
 public class EmailHelper {
 
+  private static final String EMAIL_UNIQUE_ID = "messageId";
   private final SendGrid sendGrid;
 
   @Autowired
@@ -54,8 +55,8 @@ public class EmailHelper {
     }
   }
 
-  private Mail build(final String from, final String to, final String subject,
-      final String content) {
+  private Mail build(
+      final String from, final String to, final String subject, final String content) {
     final Mail mail = new Mail();
 
     mail.setFrom(new Email(from));
@@ -83,6 +84,7 @@ public class EmailHelper {
     }
     mail.setFrom(from);
     final Personalization personalization = new Personalization();
+    personalization.addCustomArg(EMAIL_UNIQUE_ID, email.getMessageId());
     personalization.addTo(to);
 
     mail.setSubject(email.getSubject());

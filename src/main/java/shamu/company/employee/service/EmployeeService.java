@@ -33,6 +33,7 @@ import shamu.company.company.entity.Office;
 import shamu.company.crypto.EncryptorUtil;
 import shamu.company.email.Email;
 import shamu.company.email.EmailService;
+import shamu.company.email.EmailStatus;
 import shamu.company.employee.dto.EmailResendDto;
 import shamu.company.employee.dto.EmployeeDetailDto;
 import shamu.company.employee.dto.EmployeeDto;
@@ -528,11 +529,14 @@ public class EmployeeService {
     final String emailAddress = employee.getUserContactInformation().getEmailWork();
     final Status userStatus = employee.getUserStatus().getStatus();
     final String roleName = employee.getUserRole().getName();
+    boolean isInvitationValid = true;
 
     Timestamp sendDate = null;
     final Email email;
     if (userStatus == Status.PENDING_VERIFICATION
         && ((email = findWelcomeEmail(emailAddress, employee.getCompany().getName())) != null)) {
+      isInvitationValid =
+          email.getStatus() != EmailStatus.BOUNCE && email.getStatus() != EmailStatus.DROPPED;
       sendDate = email.getSendDate();
     }
 
@@ -555,7 +559,8 @@ public class EmployeeService {
         jobUserDto,
         managerJobUserDto,
         reports,
-        roleName);
+        roleName,
+        isInvitationValid);
   }
 
   public BasicUserPersonalInformationDto findPersonalMessage(

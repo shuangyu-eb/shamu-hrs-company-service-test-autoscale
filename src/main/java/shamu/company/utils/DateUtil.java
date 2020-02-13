@@ -53,6 +53,10 @@ public abstract class DateUtil {
     return fromLocalDate(now);
   }
 
+  public static Timestamp getCurrentTime() {
+    return Timestamp.valueOf(LocalDateTime.now());
+  }
+
   public static LocalDate getDayOfNextYear(final LocalDate date) {
     return LocalDate.of(date.getYear() + 1, date.getMonth(), 1);
   }
@@ -86,7 +90,7 @@ public abstract class DateUtil {
     return toLocalDateTime(date).toLocalDate();
   }
 
-  //Get current UTC time
+  // Get current UTC time
   public static LocalDateTime getLocalUtcTime() {
     return LocalDateTime.now(ZoneOffset.UTC);
   }

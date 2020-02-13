@@ -38,6 +38,8 @@ public class EmployeeDetailDto {
 
   private List<JobUserDto> directReporters;
 
+  private boolean isInvitationValid;
+
   public String getRoleName() {
     if (StringUtils.equals(Role.ADMIN.getValue(), roleName)
         || StringUtils.equals(Role.INACTIVATE.getValue(), roleName)) {

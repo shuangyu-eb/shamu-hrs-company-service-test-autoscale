@@ -2,7 +2,6 @@ package shamu.company.job.entity.mapper;
 
 import java.sql.Timestamp;
 import java.util.List;
-
 import org.mapstruct.InheritConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -29,8 +28,7 @@ import shamu.company.user.entity.mapper.UserCompensationMapper;
 
 @Mapper(
     config = Config.class,
-    uses = {SelectFieldInformationDto.class, OfficeMapper.class, UserCompensationMapper.class}
-)
+    uses = {SelectFieldInformationDto.class, OfficeMapper.class, UserCompensationMapper.class})
 public interface JobUserMapper {
 
   @Mapping(target = "jobUserId", source = "user.id")
@@ -63,9 +61,15 @@ public interface JobUserMapper {
   @Mapping(target = "manager.jobTitle", source = "jobManagerDto.jobTitle")
   @Mapping(target = "directReporters", source = "directReporters")
   @Mapping(target = "roleName", source = "roleName")
-  EmployeeDetailDto convertToEmployeeRelatedInformationDto(String email,
-      String userStatus, Timestamp emailSendDate, JobUserDto jobEmployeeDto,
-      JobUserDto jobManagerDto, List<JobUserDto> directReporters, String roleName);
+  EmployeeDetailDto convertToEmployeeRelatedInformationDto(
+      String email,
+      String userStatus,
+      Timestamp emailSendDate,
+      JobUserDto jobEmployeeDto,
+      JobUserDto jobManagerDto,
+      List<JobUserDto> directReporters,
+      String roleName,
+      boolean isInvitationValid);
 
   @Mapping(target = "jobTitle", source = "jobUser.job.title")
   @Mapping(target = "employmentType", source = "jobUser.employmentType.name")
@@ -81,14 +85,15 @@ public interface JobUserMapper {
   @Mapping(target = "employmentType", source = "jobUser.employmentType.name")
   @Mapping(target = "department", source = "jobUser.job.department.name")
   @Mapping(target = "firstName", source = "policyUser.user.userPersonalInformation.firstName")
-  @Mapping(target = "preferredName",
-           source = "policyUser.user.userPersonalInformation.preferredName")
+  @Mapping(
+      target = "preferredName",
+      source = "policyUser.user.userPersonalInformation.preferredName")
   @Mapping(target = "lastName", source = "policyUser.user.userPersonalInformation.lastName")
   @Mapping(target = "id", source = "policyUser.user.id")
   @Mapping(target = "imageUrl", source = "policyUser.user.imageUrl")
   @Mapping(target = "balance", source = "policyUser.initialBalance")
-  TimeOffPolicyRelatedUserDto convertToTimeOffPolicyRelatedUserDto(TimeOffPolicyUser policyUser,
-      JobUser jobUser);
+  TimeOffPolicyRelatedUserDto convertToTimeOffPolicyRelatedUserDto(
+      TimeOffPolicyUser policyUser, JobUser jobUser);
 
   @Mapping(target = "job", source = "jobId")
   @Mapping(target = "office", source = "officeId")
