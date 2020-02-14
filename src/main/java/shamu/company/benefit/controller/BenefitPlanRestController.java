@@ -19,10 +19,11 @@ import shamu.company.benefit.dto.BenefitPlanDetailDto;
 import shamu.company.benefit.dto.BenefitPlanDto;
 import shamu.company.benefit.dto.BenefitPlanPreviewDto;
 import shamu.company.benefit.dto.BenefitPlanRelatedUserListDto;
-import shamu.company.benefit.dto.BenefitPlanReportSummaryDto;
+import shamu.company.benefit.dto.BenefitPlanReportDto;
 import shamu.company.benefit.dto.BenefitPlanTypeDto;
 import shamu.company.benefit.dto.BenefitPlanUpdateDto;
 import shamu.company.benefit.dto.BenefitPlanUserCreateDto;
+import shamu.company.benefit.dto.BenefitReportParamDto;
 import shamu.company.benefit.dto.BenefitSummaryDto;
 import shamu.company.benefit.dto.NewBenefitPlanWrapperDto;
 import shamu.company.benefit.dto.SelectedEnrollmentInfoDto;
@@ -197,8 +198,11 @@ public class BenefitPlanRestController extends BaseRestController {
 
   @GetMapping("benefit-plan/{planTypeName}/reports")
   @PreAuthorize("hasAuthority('MANAGE_BENEFIT_PLAN')")
-  public List<BenefitPlanReportSummaryDto> getBenefitPlanReport(
-      @PathVariable final String planTypeName) {
-    return benefitPlanService.getBenefitPlanReport(planTypeName, findCompanyId());
+  public BenefitPlanReportDto getBenefitPlanReport(
+      @PathVariable final String planTypeName, final String planId, final String coverageId) {
+    final BenefitReportParamDto benefitReportParamDto =
+        BenefitReportParamDto.builder().planId(planId).coverageId(coverageId).build();
+    return benefitPlanService.getBenefitPlanReport(
+        planTypeName, benefitReportParamDto, findCompanyId());
   }
 }
