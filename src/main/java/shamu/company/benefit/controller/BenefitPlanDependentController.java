@@ -103,6 +103,14 @@ public class BenefitPlanDependentController {
     encryptorUtil.encryptSsn(userId, benefitDependentCreateDto.getSsn(), dependent);
   }
 
+  @GetMapping("user-dependent-contacts/{dependentId}/dependent")
+  @PreAuthorize("hasPermission(#dependentId,'BENEFIT_DEPENDENT', 'EDIT_USER')"
+      + " or hasPermission(#dependentId,'BENEFIT_DEPENDENT', 'EDIT_SELF')")
+  public BenefitDependentDto getDependentContact(@PathVariable final String dependentId) {
+    return benefitPlanDependentMapper.convertToBenefitDependentDto(
+      benefitPlanDependentService.findDependentById(dependentId));
+  }
+
   @DeleteMapping("user-dependent-contacts/{dependentId}/dependent")
   @PreAuthorize("hasPermission(#dependentId,'BENEFIT_DEPENDENT', 'EDIT_USER')"
       + " or hasPermission(#dependentId,'BENEFIT_DEPENDENT', 'EDIT_SELF')")
