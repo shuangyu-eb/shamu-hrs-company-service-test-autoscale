@@ -158,6 +158,13 @@ public class UserRestController extends BaseRestController {
     return userService.getMockUserInfo(mockId);
   }
 
+  @GetMapping("current/company-name")
+  public String getCompanyName(final HttpServletRequest request) {
+    final User user = userService.findActiveUserById(findUserId());
+    final String companyName = user.getCompany().getName();
+    return companyName;
+  }
+
   @GetMapping("/users/check-password/{password}")
   @PreAuthorize("hasAuthority('EDIT_SELF')")
   public void checkPassword(@PathVariable final String password) {
