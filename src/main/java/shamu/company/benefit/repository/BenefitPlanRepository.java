@@ -14,7 +14,8 @@ public interface BenefitPlanRepository extends BaseRepository<BenefitPlan, Strin
 
   List<BenefitPlan> findBenefitPlanByIdAndCompanyId(String benefitPlanId, String companyId);
 
-  List<BenefitPlan> findByBenefitPlanTypeIdAndCompanyId(String benefitPlanTypeId, String companyId);
+  List<BenefitPlan> findByBenefitPlanTypeIdAndCompanyIdOrderByNameAsc(
+      String benefitPlanTypeId, String companyId);
 
   @Query(
       "select new shamu.company.benefit.dto.BenefitPlanTypeDto("

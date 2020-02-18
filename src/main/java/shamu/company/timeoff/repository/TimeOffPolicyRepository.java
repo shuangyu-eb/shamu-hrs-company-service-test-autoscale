@@ -8,12 +8,15 @@ import shamu.company.timeoff.pojo.TimeOffPolicyListPojo;
 
 public interface TimeOffPolicyRepository extends BaseRepository<TimeOffPolicy, String> {
 
-  @Query(value = "select hex(p.id) as id, p.name, count(pu.id) as employee, "
-      + "p.is_limited as isLimited from time_off_policies p "
-      + "left join time_off_policies_users pu on "
-      + "p.id = pu.time_off_policy_id "
-      + "where p.company_id = unhex(?1) "
-      + "group by id, name, isLimited", nativeQuery = true)
+  @Query(
+      value =
+          "select hex(p.id) as id, p.name, count(pu.id) as employee, "
+              + "p.is_limited as isLimited from time_off_policies p "
+              + "left join time_off_policies_users pu on "
+              + "p.id = pu.time_off_policy_id "
+              + "where p.company_id = unhex(?1) "
+              + "group by id, name, isLimited order by name ASC",
+      nativeQuery = true)
   List<TimeOffPolicyListPojo> getAllPolicies(String company);
 
   @Query(

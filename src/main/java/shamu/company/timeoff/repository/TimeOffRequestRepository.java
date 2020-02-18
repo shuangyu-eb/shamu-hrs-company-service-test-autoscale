@@ -26,7 +26,7 @@ public interface TimeOffRequestRepository
               + "             group by trd.time_off_request_id "
               + "             having startDay <= ?3 "
               + "             and endDay >= ?3 "
-              + "             or startDay > ?3) trspan)",
+              + "             or startDay > ?3) trspan) order by created_at desc",
       nativeQuery = true)
   Page<TimeOffRequest> findByApproversAndTimeOffApprovalStatusFilteredByStartDay(
       String approverId, String[] statuses, Timestamp startDay, PageRequest pageRequest);

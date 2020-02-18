@@ -9,8 +9,8 @@ public interface UserDependentsRepository extends BaseRepository
     <BenefitPlanDependent, String> {
 
   @Query(
-      value = "SELECT * FROM user_dependents "
-          + "WHERE employee_id = unhex(?1)",
+      value =
+          "SELECT * FROM user_dependents " + "WHERE employee_id = unhex(?1) order by last_name ASC",
       nativeQuery = true)
   List<BenefitPlanDependent> findByUserId(String id);
 

@@ -13,7 +13,7 @@ public interface UserEmergencyContactRepository
   @Query(
       value =
           "SELECT * FROM user_emergency_contacts "
-              + "WHERE user_id = unhex(?1) ORDER BY is_primary DESC, id ASC",
+              + "WHERE user_id = unhex(?1) ORDER BY is_primary DESC, last_name ASC",
       nativeQuery = true)
   List<UserEmergencyContact> findByUserId(String userId);
 

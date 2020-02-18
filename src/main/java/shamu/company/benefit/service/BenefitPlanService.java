@@ -392,7 +392,8 @@ public class BenefitPlanService {
   public List<BenefitPlanPreviewDto> getBenefitPlanPreview(
       final String companyId, final String planTypeId) {
     final List<BenefitPlan> benefitPlans =
-        benefitPlanRepository.findByBenefitPlanTypeIdAndCompanyId(planTypeId, companyId);
+        benefitPlanRepository.findByBenefitPlanTypeIdAndCompanyIdOrderByNameAsc(
+            planTypeId, companyId);
 
     final List<BenefitPlanPreviewDto> benefitPlanPreviewDtos = new LinkedList<>();
 
@@ -545,7 +546,7 @@ public class BenefitPlanService {
   private void clearBenefitPlansEnrollmentInfoByPlanType(
       final BenefitPlanType benefitPlanType, final String companyId, final String userId) {
     final List<BenefitPlan> benefitPlans =
-        benefitPlanRepository.findByBenefitPlanTypeIdAndCompanyId(
+        benefitPlanRepository.findByBenefitPlanTypeIdAndCompanyIdOrderByNameAsc(
             benefitPlanType.getId(), companyId);
 
     benefitPlans.stream()
@@ -597,7 +598,7 @@ public class BenefitPlanService {
       final String companyId,
       final String userId) {
     benefitPlanRepository
-        .findByBenefitPlanTypeIdAndCompanyId(
+        .findByBenefitPlanTypeIdAndCompanyIdOrderByNameAsc(
             benefitPlanTypeRepository
                 .findByName(selectedEnrollmentInfoDto.getBenefitPlanType())
                 .getId(),
