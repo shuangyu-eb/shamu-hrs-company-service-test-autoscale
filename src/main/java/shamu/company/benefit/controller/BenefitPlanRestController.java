@@ -1,6 +1,7 @@
 package shamu.company.benefit.controller;
 
 import java.util.List;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +26,8 @@ import shamu.company.benefit.dto.BenefitPlanUpdateDto;
 import shamu.company.benefit.dto.BenefitPlanUserCreateDto;
 import shamu.company.benefit.dto.BenefitReportParamDto;
 import shamu.company.benefit.dto.BenefitSummaryDto;
+import shamu.company.benefit.dto.EnrollmentBreakdownDto;
+import shamu.company.benefit.dto.EnrollmentBreakdownSearchCondition;
 import shamu.company.benefit.dto.NewBenefitPlanWrapperDto;
 import shamu.company.benefit.dto.SelectedEnrollmentInfoDto;
 import shamu.company.benefit.dto.UserBenefitPlanDto;
@@ -203,7 +206,20 @@ public class BenefitPlanRestController extends BaseRestController {
       @PathVariable final String planTypeName, final String planId, final String coverageId) {
     final BenefitReportParamDto benefitReportParamDto =
         BenefitReportParamDto.builder().planId(planId).coverageId(coverageId).build();
-    return benefitPlanService.getBenefitPlanReport(
+    return benefitPlanService.findBenefitPlanReport(
         planTypeName, benefitReportParamDto, findCompanyId());
+  }
+
+  @GetMapping("benefit-plan/{planTypeName}/enrollment-breakdown")
+  @PreAuthorize("hasAuthority('MANAGE_BENEFIT_PLAN')")
+  public Page<EnrollmentBreakdownDto> getDocumentLists(
+      @PathVariable final String planTypeName,
+      final EnrollmentBreakdownSearchCondition enrollmentBreakdownSearchCondition,
+      final String planId,
+      final String coverageId) {
+    final BenefitReportParamDto benefitReportParamDto =
+        BenefitReportParamDto.builder().planId(planId).coverageId(coverageId).build();
+    return benefitPlanService.findEnrollmentBreakdown(
+        enrollmentBreakdownSearchCondition, planTypeName, benefitReportParamDto, findCompanyId());
   }
 }

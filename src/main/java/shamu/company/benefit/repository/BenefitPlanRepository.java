@@ -1,11 +1,15 @@
 package shamu.company.benefit.repository;
 
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import shamu.company.benefit.dto.BenefitPlanTypeDto;
 import shamu.company.benefit.dto.BenefitReportPlansDto;
 import shamu.company.benefit.dto.EnrollmentBreakdownDto;
+import shamu.company.benefit.entity.BenefitDependentUserNamePojo;
 import shamu.company.benefit.entity.BenefitPlan;
+import shamu.company.benefit.entity.EnrollmentBreakdownPojo;
 import shamu.company.common.repository.BaseRepository;
 
 public interface BenefitPlanRepository extends BaseRepository<BenefitPlan, String> {
@@ -53,6 +57,7 @@ public interface BenefitPlanRepository extends BaseRepository<BenefitPlan, Strin
   @Query(
       value =
           "select new shamu.company.benefit.dto.EnrollmentBreakdownDto(1L, "
+              + "bpu.user.imageUrl,"
               + "bpu.user.userPersonalInformation.firstName,"
               + "bpu.user.userPersonalInformation.lastName,"
               + "bpu.benefitPlan.name,bc.name,bpu.benefitPlanDependents.size, "
@@ -62,12 +67,13 @@ public interface BenefitPlanRepository extends BaseRepository<BenefitPlan, Strin
               + "on bpu.benefitPlanCoverage.id = bpc.id "
               + "left join BenefitCoverages bc "
               + "on bpc.benefitCoverage.id = bc.id "
-              + "where bpu.benefitPlan.id in ?1 and bpu.confirmed = true ")
+              + "where bpu.benefitPlan.id in ?1 and bpu.confirmed = true and bpu.enrolled = true")
   List<EnrollmentBreakdownDto> getEnrollmentBreakdown(List<String> benefitPlanIds);
 
   @Query(
       value =
           "select new shamu.company.benefit.dto.EnrollmentBreakdownDto(1L, "
+              + "bpu.user.imageUrl,"
               + "bpu.user.userPersonalInformation.firstName,"
               + "bpu.user.userPersonalInformation.lastName,"
               + "bpu.benefitPlan.name,bc.name,bpu.benefitPlanDependents.size, "
@@ -77,7 +83,107 @@ public interface BenefitPlanRepository extends BaseRepository<BenefitPlan, Strin
               + "on bpu.benefitPlanCoverage.id = bpc.id "
               + "left join BenefitCoverages bc "
               + "on bpc.benefitCoverage.id = bc.id "
-              + "where bpu.benefitPlan.id in ?1 and bpu.confirmed = true and bc.id = ?2 ")
+              + "where bpu.benefitPlan.id in ?1 and bpu.confirmed = true "
+              + "and bpu.enrolled = true and bc.id = ?2 ")
   List<EnrollmentBreakdownDto> getEnrollmentBreakdown(
       List<String> benefitPlanIds, String coverageId);
+
+  @Query(
+      value =
+          "select hex(bpu.id) as planUserId, 1 as number, u.image_url as imageUrl, "
+              + "concat(upi.first_name,' ',upi.last_name) as fullName, "
+              + "concat(upi.last_name,' ',upi.first_name) as orderName, "
+              + "coalesce(bp.name) as plan, coalesce(bc.name) as coverage, "
+              + "count(bpd.id) as dependents, coalesce(bpc.employee_cost) as companyCost, "
+              + "coalesce(bpc.employer_cost) as employeeCost "
+              + "from benefit_plans_users bpu "
+              + "left join benefit_plans bp "
+              + "on bpu.benefit_plan_id = bp.id "
+              + "left join benefit_plan_coverages bpc "
+              + "on bpu.coverage_id = bpc.id "
+              + "left join benefit_coverages bc "
+              + "on bpc.benefit_coverage_id = bc.id "
+              + "left join users u "
+              + "on bpu.user_id = u.id "
+              + "left join user_personal_information upi "
+              + "on upi.id = u.user_personal_information_id "
+              + "left join benefit_plan_dependents bpd "
+              + "on bpu.id = bpd.benefit_plans_users_id "
+              + "where hex(bpu.benefit_plan_id) in ?1 and bpu.confirmed is true "
+              + "and bpu.enrolled is true "
+              + "group by bpu.id",
+      countQuery =
+          "select count(1) from benefit_plans_users bpu "
+              + "where hex(bpu.benefit_plan_id) in ?1 and bpu.confirmed is true "
+              + "and bpu.enrolled is true",
+      nativeQuery = true)
+  Page<EnrollmentBreakdownPojo> getEnrollmentBreakdownByCondition(
+      List<String> ids, Pageable pageRequest);
+
+  @Query(
+      value =
+          "select hex(bpu.id) as planUserId, 1 as number, u.image_url as imageUrl, "
+              + "concat(upi.first_name,' ',upi.last_name) as fullName, "
+              + "concat(upi.last_name,' ',upi.first_name) as orderName, "
+              + "coalesce(bp.name) as plan, coalesce(bc.name) as coverage, "
+              + "count(bpd.id) as dependents, coalesce(bpc.employee_cost) as companyCost, "
+              + "coalesce(bpc.employer_cost) as employeeCost "
+              + "from benefit_plans_users bpu "
+              + "left join benefit_plans bp "
+              + "on bpu.benefit_plan_id = bp.id "
+              + "left join benefit_plan_coverages bpc "
+              + "on bpu.coverage_id = bpc.id "
+              + "left join benefit_coverages bc "
+              + "on bpc.benefit_coverage_id = bc.id "
+              + "left join users u "
+              + "on bpu.user_id = u.id "
+              + "left join user_personal_information upi "
+              + "on upi.id = u.user_personal_information_id "
+              + "left join benefit_plan_dependents bpd "
+              + "on bpu.id = bpd.benefit_plans_users_id "
+              + "where hex(bpu.benefit_plan_id) in ?1 "
+              + "and bpu.confirmed is true and bpu.enrolled is true and bc.id = unhex(?2) "
+              + "group by bpu.id",
+      countQuery =
+          "select count(1) from benefit_plans_users bpu "
+              + "left join benefit_coverages bc "
+              + "on bpu.benefit_plan_id = bc.benefit_plan_id "
+              + "where hex(bpu.benefit_plan_id) in ?1 "
+              + "and bpu.confirmed is true and bpu.enrolled is true and bc.id = unhex(?2)",
+      nativeQuery = true)
+  Page<EnrollmentBreakdownPojo> getEnrollmentBreakdownByConditionAndCoverageId(
+      List<String> ids, String coverageId, Pageable pageRequest);
+
+  @Query(
+      value =
+          "select hex(bpu.id) as planUserId, "
+              + "concat(ud.first_name,' ',ud.last_name) as dependentUserName "
+              + "from benefit_plans_users bpu "
+              + "left join benefit_plan_dependents bpd "
+              + "on bpu.id = bpd.benefit_plans_users_id "
+              + "left join user_dependents ud "
+              + "on ud.id = bpd.user_dependents_id "
+              + "where hex(bpu.benefit_plan_id) in ?1 and bpu.confirmed is true "
+              + "and bpu.enrolled is true",
+      nativeQuery = true)
+  List<BenefitDependentUserNamePojo> getDependentUserNameByPlanUserId(List<String> ids);
+
+  @Query(
+      value =
+          "select hex(bpu.id) as planUserId, "
+              + "concat(ud.first_name,' ',ud.last_name) as dependentUserName "
+              + "from benefit_plans_users bpu "
+              + "left join benefit_plan_coverages bpc "
+              + "on bpu.coverage_id = bpc.id "
+              + "left join benefit_coverages bc "
+              + "on bpc.benefit_coverage_id = bc.id "
+              + "left join benefit_plan_dependents bpd "
+              + "on bpu.id = bpd.benefit_plans_users_id "
+              + "left join user_dependents ud "
+              + "on ud.id = bpd.user_dependents_id "
+              + "where hex(bpu.benefit_plan_id) in ?1 "
+              + "and bpu.confirmed is true and bpu.enrolled is true and bc.id = unhex(?2)",
+      nativeQuery = true)
+  List<BenefitDependentUserNamePojo> getDependentUserNameByPlanUserId(
+      List<String> ids, String coverageId);
 }

@@ -1,6 +1,7 @@
 package shamu.company.benefit.dto;
 
 import java.math.BigDecimal;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,9 +10,15 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class EnrollmentBreakdownDto {
+  String planUserId;
+
   long number;
 
-  String preferredName;
+  String imageUrl;
+
+  String fullName;
+
+  String orderName;
 
   String plan;
 
@@ -23,8 +30,11 @@ public class EnrollmentBreakdownDto {
 
   BigDecimal employeeCost;
 
+  List<String> dependentUserName;
+
   public EnrollmentBreakdownDto(
       final long number,
+      final String imageUrl,
       final String firstName,
       final String lastName,
       final String plan,
@@ -33,7 +43,8 @@ public class EnrollmentBreakdownDto {
       final BigDecimal companyCost,
       final BigDecimal employeeCost) {
     setNumber(number);
-    setPreferredName(firstName.concat(" ").concat(lastName));
+    setImageUrl(imageUrl);
+    setFullName(firstName.concat(" ").concat(lastName));
     setPlan(plan);
     setCoverage(coverage);
     setDependents(dependents);
