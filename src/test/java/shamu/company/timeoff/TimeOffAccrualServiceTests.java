@@ -16,9 +16,11 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 import org.powermock.reflect.Whitebox;
 import shamu.company.timeoff.dto.TimeOffBreakdownItemDto;
+import shamu.company.timeoff.entity.AccrualScheduleMilestone;
 import shamu.company.timeoff.entity.TimeOffAccrualFrequency;
 import shamu.company.timeoff.entity.TimeOffAccrualFrequency.AccrualFrequencyType;
 import shamu.company.timeoff.entity.TimeOffPolicyAccrualSchedule;
+import shamu.company.timeoff.entity.TimeOffPolicyUser;
 import shamu.company.timeoff.pojo.TimeOffBalancePojo;
 import shamu.company.timeoff.service.TimeOffAccrualService;
 import shamu.company.utils.DateUtil;
@@ -408,5 +410,24 @@ class TimeOffAccrualServiceTests {
         resultTimeOffBreakdownItemList, adjustments, balancePojo);
 
     Assertions.assertEquals(2, resultTimeOffBreakdownItemList.size());
+  }
+
+  @Test
+  void trimTimeOffPolicyScheduleMilestones() {
+    final List<AccrualScheduleMilestone> accrualScheduleMilestoneList = new ArrayList<>();
+    final TimeOffPolicyUser policyUser = new TimeOffPolicyUser();
+    policyUser.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
+    final TimeOffPolicyAccrualSchedule accrualSchedule = new TimeOffPolicyAccrualSchedule();
+    final AccrualScheduleMilestone accrualScheduleMilestone = new AccrualScheduleMilestone();
+    accrualScheduleMilestone.setExpiredAt(Timestamp.valueOf(LocalDateTime.now()));
+    accrualScheduleMilestone.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
+
+    accrualScheduleMilestoneList.add(accrualScheduleMilestone);
+    final TimeOffAccrualFrequency timeOffAccrualFrequency = new TimeOffAccrualFrequency();
+    timeOffAccrualFrequency.setName("007");
+    accrualSchedule.setTimeOffAccrualFrequency(timeOffAccrualFrequency);
+
+    Assertions.assertDoesNotThrow(() ->
+        Whitebox.invokeMethod(TimeOffAccrualService.class, "trimTimeOffPolicyScheduleMilestones", accrualScheduleMilestoneList, policyUser, accrualSchedule));
   }
 }
