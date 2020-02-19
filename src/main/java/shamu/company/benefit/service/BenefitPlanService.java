@@ -375,12 +375,6 @@ public class BenefitPlanService {
         .orElseThrow(() -> new ResourceNotFoundException("Cannot find benefit plan"));
   }
 
-  public boolean existsByUserIdAnAndBenefitPlanId(final String userId, final String benefitPlanId) {
-    return benefitPlanUserRepository
-        .findByUserIdAndBenefitPlanId(userId, benefitPlanId)
-        .isPresent();
-  }
-
   public void save(final BenefitPlan benefitPlan) {
     benefitPlanRepository.save(benefitPlan);
   }
