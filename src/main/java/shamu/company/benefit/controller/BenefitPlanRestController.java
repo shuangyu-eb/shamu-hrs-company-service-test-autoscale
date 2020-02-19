@@ -107,10 +107,11 @@ public class BenefitPlanRestController extends BaseRestController {
 
   @PatchMapping("benefit-plan/{benefitPlanId}/users")
   @PreAuthorize("hasPermission(#benefitPlanId,'BENEFIT_PLAN', 'MANAGE_BENEFIT_PLAN')")
-  public void updateBenefitPlanUsers(
+  public ResponseEntity updateBenefitPlanUsers(
       @PathVariable final String benefitPlanId,
       @RequestBody final List<BenefitPlanUserCreateDto> benefitPlanUsers) {
     benefitPlanService.updateBenefitPlanUsers(benefitPlanId, benefitPlanUsers);
+    return new ResponseEntity(HttpStatus.OK);
   }
 
   @GetMapping("my-benefit/{userId}/benefit-summary")
