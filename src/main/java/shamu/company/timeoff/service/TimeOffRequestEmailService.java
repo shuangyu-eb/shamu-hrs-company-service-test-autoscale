@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.ITemplateEngine;
-import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 import shamu.company.common.ApplicationConfig;
 import shamu.company.email.Email;
@@ -43,7 +42,7 @@ public class TimeOffRequestEmailService {
   @Autowired
   public TimeOffRequestEmailService(final EmailService emailService,
       final AwsHelper awsHelper,
-      final TemplateEngine templateEngine, final ApplicationConfig applicationConfig,
+      final ITemplateEngine templateEngine, final ApplicationConfig applicationConfig,
       @Lazy final TimeOffRequestService timeOffRequestService) {
     this.emailService = emailService;
     this.awsHelper = awsHelper;

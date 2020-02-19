@@ -3,20 +3,29 @@ package shamu.company.timeoff;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.ITemplateEngine;
 import shamu.company.common.ApplicationConfig;
 import shamu.company.email.EmailService;
 import shamu.company.helpers.s3.AwsHelper;
+import shamu.company.timeoff.entity.TimeOffPolicy;
 import shamu.company.timeoff.entity.TimeOffRequest;
+import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus;
 import shamu.company.timeoff.entity.TimeOffRequestDate;
 import shamu.company.timeoff.service.TimeOffRequestEmailService;
 import shamu.company.timeoff.service.TimeOffRequestService;
+import shamu.company.user.entity.User;
+import shamu.company.user.entity.UserContactInformation;
+import shamu.company.user.entity.UserPersonalInformation;
 
 public class TimeOffRequestEmailServiceTests {
 
@@ -27,7 +36,7 @@ public class TimeOffRequestEmailServiceTests {
   private AwsHelper awsHelper;
 
   @Mock
-  private TemplateEngine templateEngine;
+  private ITemplateEngine templateEngine;
 
   @Mock
   private ApplicationConfig applicationConfig;
@@ -35,13 +44,12 @@ public class TimeOffRequestEmailServiceTests {
   @Mock
   private TimeOffRequestService timeOffRequestService;
 
+  @InjectMocks
   private TimeOffRequestEmailService timeOffRequestEmailService;
 
   @BeforeEach
   void setUp() {
     MockitoAnnotations.initMocks(this);
-    timeOffRequestEmailService = new TimeOffRequestEmailService(emailService, awsHelper,
-        templateEngine, applicationConfig, timeOffRequestService);
   }
 
   @Test
@@ -113,6 +121,98 @@ public class TimeOffRequestEmailServiceTests {
     final String result = timeOffRequestEmailService.getTimeOffRange(timeOffRequest);
     final String expectedTimeOffRange = "Dec 2 - 4, 20, 27, Aug 4 - 6, 19, 21, " + nextYear;
     Assertions.assertEquals(expectedTimeOffRange, result);
+  }
+
+  @Nested
+  class sendEmail {
+    TimeOffRequest timeOffRequest;
+    TimeOffRequestApprovalStatus timeOffRequestApprovalStatus;
+    User user;
+    User approver;
+    User manger;
+    TimeOffPolicy timeOffPolicy;
+    Set<TimeOffRequestDate> timeOffRequestDates;
+    TimeOffRequestDate timeOffRequestDate;
+    UserPersonalInformation userPersonalInformation;
+    UserContactInformation userContactInformation;
+
+    @BeforeEach
+    void init() {
+      timeOffRequest = new TimeOffRequest();
+      timeOffRequestApprovalStatus = new TimeOffRequestApprovalStatus();
+      user = new User();
+      approver = new User();
+      timeOffPolicy = new TimeOffPolicy();
+      timeOffRequestDates = new LinkedHashSet<>();
+      timeOffRequestDate = new TimeOffRequestDate();
+      userPersonalInformation = new UserPersonalInformation();
+      userContactInformation = new UserContactInformation();
+      manger = new User();
+
+      userPersonalInformation.setFirstName("007");
+      userPersonalInformation.setPreferredName("007");
+      userPersonalInformation.setLastName("007");
+
+      user.setId("1");
+      approver.setId("2");
+      user.setUserPersonalInformation(userPersonalInformation);
+      user.setUserContactInformation(userContactInformation);
+      approver.setUserPersonalInformation(userPersonalInformation);
+      approver.setUserContactInformation(userContactInformation);
+      manger.setId("3");
+      manger.setUserContactInformation(userContactInformation);
+      manger.setUserPersonalInformation(userPersonalInformation);
+      user.setManagerUser(manger);
+
+      timeOffRequestDate.setHours(10);
+      timeOffRequestDate.setDate(Timestamp.valueOf(LocalDateTime.now()));
+
+      timeOffPolicy.setIsLimited(true);
+
+      timeOffRequestDates.add(timeOffRequestDate);
+
+      timeOffRequest.setRequesterUser(user);
+      timeOffRequest.setApproverUser(approver);
+      timeOffRequest.setBalance(100);
+      timeOffRequest.setTimeOffRequestDates(timeOffRequestDates);
+      timeOffRequest.setTimeOffPolicy(timeOffPolicy);
+    }
+
+    @Test
+    void whenStatusIsDenied_thenShouldSuccess() {
+      timeOffRequestApprovalStatus.setName(TimeOffRequestApprovalStatus.TimeOffApprovalStatus.DENIED.name());
+      timeOffRequest.setTimeOffRequestApprovalStatus(timeOffRequestApprovalStatus);
+
+      Mockito.when(timeOffRequestService.findByRequestId(Mockito.any())).thenReturn(timeOffRequest);
+      Mockito.when(templateEngine.process(Mockito.eq("time_off_request_pending.html"), Mockito.any())).thenReturn("");
+
+      Assertions.assertDoesNotThrow(() ->
+          timeOffRequestEmailService.sendEmail(timeOffRequest));
+    }
+
+    @Test
+    void whenStatusIsApprove_thenShouldSuccess() {
+      timeOffRequestApprovalStatus.setName(TimeOffRequestApprovalStatus.TimeOffApprovalStatus.APPROVED.name());
+      timeOffRequest.setTimeOffRequestApprovalStatus(timeOffRequestApprovalStatus);
+
+      Mockito.when(timeOffRequestService.findByRequestId(Mockito.any())).thenReturn(timeOffRequest);
+      Mockito.when(templateEngine.process(Mockito.eq("time_off_request_approve.html"), Mockito.any())).thenReturn("");
+
+      Assertions.assertDoesNotThrow(() ->
+          timeOffRequestEmailService.sendEmail(timeOffRequest));
+    }
+
+    @Test
+    void whenStatusIsPending_thenShouldSuccess() {
+      timeOffRequestApprovalStatus.setName(TimeOffRequestApprovalStatus.TimeOffApprovalStatus.AWAITING_REVIEW.name());
+      timeOffRequest.setTimeOffRequestApprovalStatus(timeOffRequestApprovalStatus);
+
+      Mockito.when(timeOffRequestService.findByRequestId(Mockito.any())).thenReturn(timeOffRequest);
+      Mockito.when(templateEngine.process(Mockito.eq("time_off_request_pending.html"), Mockito.any())).thenReturn("");
+
+      Assertions.assertDoesNotThrow(() ->
+          timeOffRequestEmailService.sendEmail(timeOffRequest));
+    }
   }
 
 }
