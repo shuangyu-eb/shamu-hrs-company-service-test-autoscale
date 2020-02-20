@@ -15,5 +15,5 @@ public class BenefitPlanDetailDto {
 
   private String website;
 
-  private List<BenefitPlanDocument> documents;
+  private List<BenefitPlanDocumentDto> documents;
 }
