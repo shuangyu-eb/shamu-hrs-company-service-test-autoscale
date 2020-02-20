@@ -1,6 +1,7 @@
 package shamu.company.email;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import java.util.Optional;
 import lombok.Getter;
 import org.springframework.data.annotation.Transient;
 import org.thymeleaf.util.StringUtils;
@@ -27,12 +28,12 @@ public enum EmailStatus {
   }
 
   @JsonCreator
-  public static EmailStatus setValue(final String event) {
+  public static Optional<EmailStatus> setValue(final String event) {
     for (final EmailStatus emailStatus : EmailStatus.values()) {
       if (StringUtils.equalsIgnoreCase(emailStatus.name(), event)) {
-        return emailStatus;
+        return Optional.of(emailStatus);
       }
     }
-    return null;
+    return Optional.empty();
   }
 }

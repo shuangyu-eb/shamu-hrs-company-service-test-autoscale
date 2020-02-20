@@ -2,6 +2,7 @@ package shamu.company.employee.dto;
 
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -40,11 +41,11 @@ public class EmployeeDetailDto {
 
   private boolean isInvitationValid;
 
-  public String getRoleName() {
+  public Optional<String> getRoleName() {
     if (StringUtils.equals(Role.ADMIN.getValue(), roleName)
         || StringUtils.equals(Role.INACTIVATE.getValue(), roleName)) {
-      return roleName;
+      return Optional.of(roleName);
     }
-    return null;
+    return Optional.empty();
   }
 }

@@ -1,0 +1,8 @@
+@ParametersAreNonnullByDefault
+@FieldsAreNonnullByDefault
+@ReturnValuesAreNonnullByDefault
+package shamu.company.user.service;
+
+import javax.annotation.ParametersAreNonnullByDefault;
+import shamu.company.common.FieldsAreNonnullByDefault;
+import shamu.company.common.ReturnValuesAreNonnullByDefault;

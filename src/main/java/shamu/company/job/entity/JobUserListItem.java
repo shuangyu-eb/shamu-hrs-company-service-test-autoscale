@@ -1,5 +1,6 @@
 package shamu.company.job.entity;
 
+import java.util.Optional;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang.StringUtils;
@@ -25,9 +26,15 @@ public class JobUserListItem {
 
   private String roleName;
 
-  public JobUserListItem(final String id, final String imageUrl, final String firstName,
-      final String lastName, final String department, final String jobTitle,
-      final String roleName, final String preferredName) {
+  public JobUserListItem(
+      final String id,
+      final String imageUrl,
+      final String firstName,
+      final String lastName,
+      final String department,
+      final String jobTitle,
+      final String roleName,
+      final String preferredName) {
     this.id = id;
     this.imageUrl = imageUrl;
     this.firstName = firstName;
@@ -38,13 +45,13 @@ public class JobUserListItem {
     this.preferredName = preferredName;
   }
 
-  public String getRoleName() {
+  public Optional<String> getRoleName() {
 
     if (StringUtils.equals(Role.ADMIN.getValue(), roleName)
         || StringUtils.equals(Role.INACTIVATE.getValue(), roleName)) {
-      return roleName;
+      return Optional.of(roleName);
     }
 
-    return null;
+    return Optional.empty();
   }
 }
