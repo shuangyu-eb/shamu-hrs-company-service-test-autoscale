@@ -599,8 +599,8 @@ public class UserService {
     }
   }
 
-  public void updateWorkEmail(final String userId, final EmailUpdateDto emailUpdateDto) {
-    final User user = findById(userId);
+  public void updateWorkEmail(final EmailUpdateDto emailUpdateDto) {
+    final User user = findById(emailUpdateDto.getUserId());
     checkPassword(user.getUserContactInformation().getEmailWork(), emailUpdateDto.getPassword());
 
     if (user.getUserContactInformation().getEmailWork().equals(emailUpdateDto.getEmail())) {

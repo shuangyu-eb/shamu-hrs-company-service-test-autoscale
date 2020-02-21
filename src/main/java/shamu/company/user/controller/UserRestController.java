@@ -174,7 +174,7 @@ public class UserRestController extends BaseRestController {
   @PatchMapping("/users/work-email")
   @PreAuthorize("hasAuthority('EDIT_SELF')")
   public HttpEntity updateWorkEmail(@RequestBody @Valid final EmailUpdateDto emailUpdateDto) {
-    userService.updateWorkEmail(findUserId(), emailUpdateDto);
+    userService.updateWorkEmail(emailUpdateDto);
     return new ResponseEntity(HttpStatus.OK);
   }
 

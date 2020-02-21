@@ -15,7 +15,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import shamu.company.WebControllerBaseTests;
 import shamu.company.authorization.Permission;
 import shamu.company.company.entity.Company;
-import shamu.company.employee.dto.EmailResendDto;
+import shamu.company.employee.dto.EmailUpdateDto;
 import shamu.company.server.dto.AuthUser;
 import shamu.company.tests.utils.JwtUtil;
 import shamu.company.user.dto.ChangePasswordDto;
@@ -340,7 +340,7 @@ public class UserRestControllerTests extends WebControllerBaseTests {
 
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
-    final EmailResendDto emailResendDto = new EmailResendDto();
+    final EmailUpdateDto emailResendDto = new EmailUpdateDto();
     emailResendDto.setEmail("resendEmail@gmail.com");
 
     final MvcResult response = mockMvc.perform(MockMvcRequestBuilders

@@ -5,9 +5,9 @@ import lombok.Data;
 
 @Data
 public class EmailUpdateDto {
+  private String userId;
 
-  @Email
-  private String email;
+  @Email private String email;
 
   private String password;
 }

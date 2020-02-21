@@ -316,37 +316,38 @@ class UserServiceTests {
       emailUpdateDto = new EmailUpdateDto();
       emailUpdateDto.setEmail("example1@example.com");
       emailUpdateDto.setPassword(RandomStringUtils.randomAlphanumeric(16));
+      emailUpdateDto.setUserId(userId);
 
       Mockito.when(auth0Helper.isPasswordValid(Mockito.anyString(), Mockito.anyString()))
-        .thenReturn(true);
+          .thenReturn(true);
     }
 
     @Test
     void whenPasswordIsNotValid_thenShouldThrow() {
       Mockito.when(auth0Helper.isPasswordValid(Mockito.anyString(), Mockito.anyString()))
-        .thenReturn(false);
-      Assertions.assertThrows(ForbiddenException.class,
-        () -> userService.updateWorkEmail(userId, emailUpdateDto));
+          .thenReturn(false);
+      Assertions.assertThrows(
+          ForbiddenException.class, () -> userService.updateWorkEmail(emailUpdateDto));
     }
 
     @Test
     void whenEmailIsSame_thenShouldThrow() {
       emailUpdateDto.setEmail("example@example.com");
-      Assertions.assertThrows(ForbiddenException.class,
-          () -> userService.updateWorkEmail(userId, emailUpdateDto));
+      Assertions.assertThrows(
+          ForbiddenException.class, () -> userService.updateWorkEmail(emailUpdateDto));
     }
 
     @Test
     void whenNewEmailIsUsed_thenShouldThrow() {
       Mockito.when(auth0Helper.existsByEmail(emailUpdateDto.getEmail())).thenReturn(true);
-      Assertions.assertThrows(ForbiddenException.class,
-          () -> userService.updateWorkEmail(userId, emailUpdateDto));
+      Assertions.assertThrows(
+          ForbiddenException.class, () -> userService.updateWorkEmail(emailUpdateDto));
     }
 
     @Test
     void whenOk_thenShouldSendEmail() {
       Mockito.when(auth0Helper.existsByEmail(emailUpdateDto.getEmail())).thenReturn(false);
-      userService.updateWorkEmail(userId, emailUpdateDto);
+      userService.updateWorkEmail(emailUpdateDto);
 
       Mockito.verify(emailService, Mockito.times(1)).handleEmail(Mockito.any());
       Mockito.verify(userRepository, Mockito.times(1)).save(Mockito.any());
