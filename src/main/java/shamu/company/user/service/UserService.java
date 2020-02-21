@@ -452,15 +452,8 @@ public class UserService {
   private void adjustUserManagerRelationshipBeforeDeleteOrDeactivate(final User user) {
     final List<User> teamEmployees = userRepository.findAllByManagerUserId(user.getId());
     if (!CollectionUtils.isEmpty(teamEmployees)) {
-      if (user.getManagerUser() != null) {
-        teamEmployees.forEach(employee -> employee.setManagerUser(user.getManagerUser()));
-      } else {
-        teamEmployees.forEach(
-            employee -> {
-              employee.setManagerUser(null);
-              employee.setUserRole(userRoleService.getAdmin());
-            });
-      }
+      User targetManager = user.getManagerUser();
+      teamEmployees.forEach(employee -> employee.setManagerUser(targetManager));
       userRepository.saveAll(teamEmployees);
     }
   }
