@@ -24,7 +24,7 @@ import shamu.company.common.service.DepartmentService;
 import shamu.company.company.entity.Company;
 import shamu.company.company.service.CompanyBenefitsSettingService;
 import shamu.company.company.service.CompanyService;
-import shamu.company.email.EmailService;
+import shamu.company.email.service.EmailService;
 import shamu.company.employee.dto.EmailUpdateDto;
 import shamu.company.employee.dto.EmployeeListSearchCondition;
 import shamu.company.employee.dto.OrgChartDto;

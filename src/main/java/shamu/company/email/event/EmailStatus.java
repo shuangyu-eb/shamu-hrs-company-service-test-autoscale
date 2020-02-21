@@ -1,4 +1,4 @@
-package shamu.company.email;
+package shamu.company.email.event;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import java.util.Optional;

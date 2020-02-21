@@ -13,8 +13,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import shamu.company.WebControllerBaseTests;
-import shamu.company.email.EmailRestController;
-import shamu.company.email.EmailService;
+import shamu.company.email.service.EmailService;
 import shamu.company.utils.JsonUtil;
 
 @WebMvcTest(controllers = EmailRestController.class)

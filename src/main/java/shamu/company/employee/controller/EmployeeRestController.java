@@ -18,7 +18,7 @@ import org.thymeleaf.context.Context;
 import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.common.exception.ForbiddenException;
-import shamu.company.email.EmailService;
+import shamu.company.email.service.EmailService;
 import shamu.company.employee.dto.EmailResendDto;
 import shamu.company.employee.dto.EmployeeDetailDto;
 import shamu.company.employee.dto.EmployeeDto;

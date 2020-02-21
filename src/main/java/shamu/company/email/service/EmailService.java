@@ -1,4 +1,4 @@
-package shamu.company.email;
+package shamu.company.email.service;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 import java.util.regex.Pattern;
-import lombok.Data;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.slf4j.Logger;
@@ -20,6 +20,11 @@ import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.Context;
+import shamu.company.email.entity.Email;
+import shamu.company.email.event.EmailEvent;
+import shamu.company.email.event.EmailEventType;
+import shamu.company.email.event.EmailStatus;
+import shamu.company.email.repository.EmailRepository;
 import shamu.company.helpers.EmailHelper;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserPersonalInformation;
@@ -28,7 +33,6 @@ import shamu.company.utils.AvatarUtil;
 import shamu.company.utils.DateUtil;
 import shamu.company.utils.UuidUtil;
 
-@Data
 @Service
 public class EmailService {
 
@@ -203,7 +207,7 @@ public class EmailService {
     return newEmailToken;
   }
 
-  void updateEmailStatus(final List<EmailEvent> emailEvent) {
+  public void updateEmailStatus(final List<EmailEvent> emailEvent) {
     emailEvent.forEach(
         emailEventItem -> {
           if (StringUtils.isEmpty(emailEventItem.getMessageId())) {

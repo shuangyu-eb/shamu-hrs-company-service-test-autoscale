@@ -1,7 +1,7 @@
 @ParametersAreNonnullByDefault
 @FieldsAreNonnullByDefault
 @ReturnValuesAreNonnullByDefault
-package shamu.company.email;
+package shamu.company.email.controller;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import shamu.company.common.FieldsAreNonnullByDefault;

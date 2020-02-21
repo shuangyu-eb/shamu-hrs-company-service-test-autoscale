@@ -1,4 +1,4 @@
-package shamu.company.email;
+package shamu.company.email.event;
 
 import lombok.Data;
 

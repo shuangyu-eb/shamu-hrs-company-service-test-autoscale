@@ -15,7 +15,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.thymeleaf.ITemplateEngine;
 import shamu.company.common.ApplicationConfig;
-import shamu.company.email.EmailService;
+import shamu.company.email.service.EmailService;
 import shamu.company.helpers.s3.AwsHelper;
 import shamu.company.timeoff.entity.TimeOffPolicy;
 import shamu.company.timeoff.entity.TimeOffRequest;

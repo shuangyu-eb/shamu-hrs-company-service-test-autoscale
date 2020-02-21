@@ -27,7 +27,7 @@ public class EmailHelper {
     sendGrid = new SendGrid(sendGridKey);
   }
 
-  public void send(final shamu.company.email.Email email) {
+  public void send(final shamu.company.email.entity.Email email) {
     final Mail mail = build(email);
     send(mail);
   }
@@ -70,7 +70,7 @@ public class EmailHelper {
     return mail;
   }
 
-  private Mail build(final shamu.company.email.Email email) {
+  private Mail build(final shamu.company.email.entity.Email email) {
     final Mail mail = new Mail();
     final String fromName = email.getFromName();
     final String toName = email.getToName();

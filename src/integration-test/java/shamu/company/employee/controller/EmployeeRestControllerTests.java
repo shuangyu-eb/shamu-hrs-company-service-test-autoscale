@@ -28,7 +28,7 @@ import shamu.company.common.exception.ForbiddenException;
 import shamu.company.company.entity.Company;
 import shamu.company.company.entity.Department;
 import shamu.company.company.entity.Office;
-import shamu.company.email.EmailService;
+import shamu.company.email.service.EmailService;
 import shamu.company.employee.dto.EmailResendDto;
 import shamu.company.employee.dto.EmployeeDto;
 import shamu.company.employee.dto.NewEmployeeJobInformationDto;

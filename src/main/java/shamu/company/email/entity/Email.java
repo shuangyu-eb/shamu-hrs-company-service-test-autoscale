@@ -1,4 +1,4 @@
-package shamu.company.email;
+package shamu.company.email.entity;
 
 import java.sql.Timestamp;
 import javax.persistence.Entity;
@@ -11,6 +11,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.lang.Nullable;
 import shamu.company.common.entity.BaseEntity;
+import shamu.company.email.event.EmailStatus;
 import shamu.company.user.entity.User;
 
 @Data
