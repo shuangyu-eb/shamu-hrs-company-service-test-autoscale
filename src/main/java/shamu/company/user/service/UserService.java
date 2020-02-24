@@ -717,6 +717,15 @@ public class UserService {
 
     auth0Helper.updatePassword(auth0User, updatePasswordDto.getNewPassword());
 
+    final UserStatus pendingStatus = userStatusService.findByName(
+        Status.PENDING_VERIFICATION.name()
+    );
+
+    if (user.getUserStatus() == pendingStatus) {
+      final UserStatus userStatus = userStatusService.findByName(Status.ACTIVE.name());
+      user.setUserStatus(userStatus);
+    }
+
     user.setResetPasswordToken(null);
     userRepository.save(user);
   }

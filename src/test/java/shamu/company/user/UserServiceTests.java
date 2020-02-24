@@ -509,12 +509,15 @@ class UserServiceTests {
     final UserContactInformation userContactInformation = new UserContactInformation();
     userContactInformation.setEmailWork("example@indeed.com");
     databaseUser.setUserContactInformation(userContactInformation);
+    final UserStatus targetStatus = new UserStatus();
+    targetStatus.setName(Status.PENDING_VERIFICATION.name());
 
     final com.auth0.json.mgmt.users.User authUser = new com.auth0.json.mgmt.users.User();
 
     Mockito.when(userRepository.findByResetPasswordToken(updatePasswordDto.getResetPasswordToken()))
         .thenReturn(databaseUser);
     Mockito.when(auth0Helper.getUserByUserIdFromAuth0(Mockito.any())).thenReturn(authUser);
+    Mockito.when(userStatusService.findByName(Mockito.any())).thenReturn(targetStatus);
 
     Assertions.assertDoesNotThrow(() -> userService.resetPassword(updatePasswordDto));
   }
