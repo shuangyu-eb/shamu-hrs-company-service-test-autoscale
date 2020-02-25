@@ -5,15 +5,11 @@ import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.TimeOffA
 import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.TimeOffApprovalStatus.DENIED;
 
 import java.sql.Timestamp;
-import java.time.Instant;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
@@ -28,29 +24,20 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import shamu.company.common.BaseRestController;
-import shamu.company.common.CommonDictionaryDto;
 import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.timeoff.dto.MyTimeOffDto;
 import shamu.company.timeoff.dto.TimeOffRequestCreateDto;
 import shamu.company.timeoff.dto.TimeOffRequestDetailDto;
 import shamu.company.timeoff.dto.TimeOffRequestDto;
 import shamu.company.timeoff.dto.TimeOffRequestUpdateDto;
-import shamu.company.timeoff.dto.UnimplementedRequestDto;
 import shamu.company.timeoff.entity.TimeOffRequest;
-import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus;
 import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.TimeOffApprovalStatus;
-import shamu.company.timeoff.entity.TimeOffRequestDate;
-import shamu.company.timeoff.entity.mapper.TimeOffRequestMapper;
-import shamu.company.timeoff.repository.TimeOffRequestApprovalStatusRepository;
-import shamu.company.timeoff.service.TimeOffRequestDateService;
-import shamu.company.timeoff.service.TimeOffRequestEmailService;
 import shamu.company.timeoff.service.TimeOffRequestService;
 import shamu.company.timeoff.service.TimeOffRequestService.SortFields;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.DateUtil;
-import shamu.company.utils.ReflectionUtil;
 
 @RestApiController
 public class TimeOffRequestRestController extends BaseRestController {
@@ -214,16 +201,17 @@ public class TimeOffRequestRestController extends BaseRestController {
   }
 
   @GetMapping("time-off-requests/has-privilege/users/{id}")
-  @PreAuthorize("hasPermission(#id,'USER','VIEW_TEAM_TIME_OFF_REQUEST')")
   public boolean hasUserPermission(@PathVariable final String id) {
-    final User currentUser = userService.findActiveUserById(findUserId());
+    final User currentUser = userService.findById(findUserId());
     final Role userRole = currentUser.getRole();
     final User targetUser = userService.findById(id);
+    if (userRole == Role.INACTIVATE) {
+      return false;
+    }
     if (findAuthUser().getId().equals(targetUser.getId())) {
       return targetUser.getManagerUser() == null;
-    } else {
-      return userRole == User.Role.ADMIN || currentUser.equals(targetUser.getManagerUser());
     }
+    return userRole == User.Role.ADMIN || currentUser.equals(targetUser.getManagerUser());
   }
 
 }
