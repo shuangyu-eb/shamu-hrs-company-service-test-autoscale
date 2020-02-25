@@ -24,6 +24,7 @@ import shamu.company.common.service.DepartmentService;
 import shamu.company.company.entity.Company;
 import shamu.company.company.service.CompanyBenefitsSettingService;
 import shamu.company.company.service.CompanyService;
+import shamu.company.crypto.SecretHashRepository;
 import shamu.company.email.service.EmailService;
 import shamu.company.employee.dto.EmailUpdateDto;
 import shamu.company.employee.dto.EmployeeListSearchCondition;
@@ -74,6 +75,7 @@ class UserServiceTests {
 
   @Mock private ITemplateEngine templateEngine;
   @Mock private UserRepository userRepository;
+  @Mock private SecretHashRepository secretHashRepository;
   @Mock private JobUserService jobUserService;
   @Mock private UserStatusService userStatusService;
   @Mock private EmailService emailService;
@@ -467,7 +469,7 @@ class UserServiceTests {
       Mockito.when(userStatusService.findByName(Mockito.any()))
           .thenReturn(new UserStatus(Status.ACTIVE.name()));
       Mockito.when(userRepository.save(Mockito.any())).thenReturn(new User());
-
+      Mockito.doNothing().when(secretHashRepository).generateCompanySecretByCompanyId("companyId");
       userService.signUp(userSignUpDto);
       Mockito.verify(userRepository, Mockito.times(1)).save(Mockito.any());
     }

@@ -36,6 +36,7 @@ import shamu.company.company.entity.CompanyBenefitsSetting;
 import shamu.company.company.entity.Department;
 import shamu.company.company.service.CompanyBenefitsSettingService;
 import shamu.company.company.service.CompanyService;
+import shamu.company.crypto.SecretHashRepository;
 import shamu.company.email.entity.Email;
 import shamu.company.email.service.EmailService;
 import shamu.company.employee.dto.EmailUpdateDto;
@@ -94,6 +95,7 @@ public class UserService {
 
   private static final String ERROR_MESSAGE = "User does not exist!";
   private final UserRepository userRepository;
+  private final SecretHashRepository secretHashRepository;
 
   private final ITemplateEngine templateEngine;
   private final Auth0Helper auth0Helper;
@@ -131,6 +133,7 @@ public class UserService {
   public UserService(
       final ITemplateEngine templateEngine,
       final UserRepository userRepository,
+      final SecretHashRepository secretHashRepository,
       final EmailService emailService,
       final UserPersonalInformationMapper userPersonalInformationMapper,
       final UserEmergencyContactService userEmergencyContactService,
@@ -155,6 +158,7 @@ public class UserService {
       final CompanyBenefitsSettingService companyBenefitsSettingService) {
     this.templateEngine = templateEngine;
     this.userRepository = userRepository;
+    this.secretHashRepository = secretHashRepository;
     this.emailService = emailService;
     this.userEmergencyContactService = userEmergencyContactService;
     this.userAddressService = userAddressService;
@@ -495,6 +499,7 @@ public class UserService {
     Company company =
         Company.builder().name(signUpDto.getCompanyName()).build();
     company = companyService.save(company);
+    secretHashRepository.generateCompanySecretByCompanyId(company.getId());
 
     saveCompanyBenefitsSetting(company);
 
