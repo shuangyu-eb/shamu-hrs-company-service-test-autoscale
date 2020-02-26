@@ -42,7 +42,7 @@ public class StatesProvincesInitializer implements CommandLineRunner {
 
       final List<StateProvince> stateProvinces = countryItem.getCities().stream()
           .filter(cityName -> !cities.contains(cityName))
-          .map((cityName) -> StateProvince.builder()
+          .map(cityName -> StateProvince.builder()
               .country(country)
               .name(cityName)
               .build()).collect(Collectors.toList());
