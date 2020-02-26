@@ -8,12 +8,6 @@ import shamu.company.common.validation.constraints.YesterdayOrLater;
 
 public class YesterdayOrLaterValidator implements ConstraintValidator<YesterdayOrLater, Timestamp> {
 
-
-  @Override
-  public void initialize(final YesterdayOrLater constraintAnnotation) {
-
-  }
-
   @Override
   public boolean isValid(final Timestamp value, final ConstraintValidatorContext context) {
     if (value != null) {
