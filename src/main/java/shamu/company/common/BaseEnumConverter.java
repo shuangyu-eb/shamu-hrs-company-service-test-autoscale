@@ -4,9 +4,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import javax.persistence.AttributeConverter;
+import lombok.extern.slf4j.Slf4j;
 import shamu.company.common.exception.GeneralException;
 import shamu.company.common.exception.ResourceNotFoundException;
 
+@Slf4j
 public class BaseEnumConverter<X> implements AttributeConverter<X, String> {
 
   private Method valueOfMethod;
@@ -34,7 +36,7 @@ public class BaseEnumConverter<X> implements AttributeConverter<X, String> {
     try {
       return (String) valueMethod.invoke(attribute);
     } catch (IllegalAccessException | InvocationTargetException e) {
-      e.printStackTrace();
+      log.error("Caught an exception when invoking method getValue(): " + e.getMessage());
       throw new GeneralException(attribute.toString() + " invoke method getValue() failed");
     }
   }
