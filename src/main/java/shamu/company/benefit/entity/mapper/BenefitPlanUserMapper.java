@@ -1,6 +1,5 @@
 package shamu.company.benefit.entity.mapper;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.springframework.util.StringUtils;
