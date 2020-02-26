@@ -4,7 +4,7 @@ import shamu.company.common.exception.response.ErrorType;
 
 public abstract class AbstractException extends RuntimeException {
 
-  protected ErrorType type;
+  protected ErrorType type = ErrorType.GENERAL_EXCEPTION;
 
   public AbstractException() {
   }
@@ -33,10 +33,5 @@ public abstract class AbstractException extends RuntimeException {
 
   public String getType() {
     return type.name();
-  }
-
-  @Override
-  public String getMessage() {
-    return super.getMessage();
   }
 }
