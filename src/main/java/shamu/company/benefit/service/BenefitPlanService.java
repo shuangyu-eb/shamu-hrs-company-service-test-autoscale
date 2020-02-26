@@ -115,8 +115,6 @@ public class BenefitPlanService {
 
   private final UserRepository userRepository;
 
-  private final UserDependentsRepository userDependentsRepository;
-
   private final BenefitPlanDependentRepository benefitPlanDependentRepository;
 
   private final AwsHelper awsHelper;
@@ -138,7 +136,6 @@ public class BenefitPlanService {
       final UserMapper userMapper,
       final BenefitCoveragesMapper benefitCoveragesMapper,
       final UserRepository userRepository,
-      final UserDependentsRepository userDependentsRepository,
       final BenefitPlanDependentRepository benefitPlanDependentRepository,
       final AwsHelper awsHelper,
       final UserBenefitsSettingService userBenefitsSettingService) {
@@ -156,7 +153,6 @@ public class BenefitPlanService {
     this.userMapper = userMapper;
     this.benefitCoveragesMapper = benefitCoveragesMapper;
     this.userRepository = userRepository;
-    this.userDependentsRepository = userDependentsRepository;
     this.benefitPlanDependentRepository = benefitPlanDependentRepository;
     this.awsHelper = awsHelper;
     this.userBenefitsSettingService = userBenefitsSettingService;
