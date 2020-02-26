@@ -9,11 +9,6 @@ import shamu.company.common.validation.constraints.PhoneNumberValidate;
 public class PhoneNumberValidator implements ConstraintValidator<PhoneNumberValidate, String> {
 
   @Override
-  public void initialize(PhoneNumberValidate constraintAnnotation) {
-
-  }
-
-  @Override
   public boolean isValid(String phone, ConstraintValidatorContext constraintValidatorContext) {
 
     phone = phone.replaceAll("[^0-9]", "");
