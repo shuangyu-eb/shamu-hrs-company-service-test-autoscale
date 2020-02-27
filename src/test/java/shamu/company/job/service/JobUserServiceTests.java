@@ -97,7 +97,7 @@ class JobUserServiceTests {
 
         User user = new User();
 
-        List<User> directReports = new ArrayList<>();
+        List<User> subordinates = new ArrayList<>();
 
         JobUser jobUser = new JobUser();
 
@@ -123,8 +123,8 @@ class JobUserServiceTests {
             jobUser.setId("1");
             jobUser.setUser(user);
 
-            directReports.add(user);
-            directReports.add(manager);
+          subordinates.add(user);
+          subordinates.add(manager);
         }
 
         @Test
@@ -133,8 +133,8 @@ class JobUserServiceTests {
             Mockito.when(userService.findById(user.getId())).thenReturn(user);
             Mockito.when(jobUserRepository.findJobUserByUser(jobUser.getUser())).thenReturn(jobUser);
             Mockito.when(userService.findById(manager.getId())).thenReturn(manager);
-            Mockito.when(userService.findDirectReportsByManagerUserId(Mockito.any(), Mockito.any()))
-                    .thenReturn(directReports);
+            Mockito.when(userService.findSubordinatesByManagerUserId(Mockito.any(), Mockito.any()))
+                    .thenReturn(subordinates);
             Mockito.when(jobUserRepository.save(jobUser)).thenReturn(jobUser);
             Mockito.when(userService.save(manager)).thenReturn(manager);
             Mockito.when(userService.save(user)).thenReturn(user);
@@ -142,8 +142,8 @@ class JobUserServiceTests {
             Assertions.assertDoesNotThrow(() ->
                 jobUserService.updateJobInfo("1", jobUpdateDto, "1"));
             Assertions.assertEquals(manager.getUserRole(), user.getManagerUser().getUserRole());
-            Mockito.verify(userService, Mockito.times(1)).findDirectReportsByManagerUserId(Mockito.any(), Mockito.any());
-            Mockito.verify(userService, Mockito.times(1)).save(Mockito.any());
+            Mockito.verify(userService, Mockito.times( 0)).findSubordinatesByManagerUserId(Mockito.any(), Mockito.any());
+            Mockito.verify(userService, Mockito.times(0)).save(Mockito.any());
         }
 
         @Test
@@ -164,16 +164,16 @@ class JobUserServiceTests {
             newManagerRole.setName(User.Role.EMPLOYEE.name());
             newManager.setUserRole(newManagerRole);
 
-            List<User> directReportsEmployeesList = new ArrayList<>();
-            directReportsEmployeesList.add(user);
-            directReportsEmployeesList.add(oldManager);
+            List<User> subordinatesList = new ArrayList<>();
+            subordinatesList.add(user);
+            subordinatesList.add(oldManager);
 
             Mockito.when(userService.findById(user.getId())).thenReturn(user);
             Mockito.when(jobUserRepository.findJobUserByUser(jobUser.getUser())).thenReturn(jobUser);
             Mockito.when(userService.findById(oldManager.getId())).thenReturn(oldManager);
             Mockito.when(userService.findById(newManager.getId())).thenReturn(newManager);
-            Mockito.when(userService.findDirectReportsByManagerUserId(Mockito.any(), Mockito.any()))
-                    .thenReturn(directReportsEmployeesList);
+            Mockito.when(userService.findSubordinatesByManagerUserId(Mockito.any(), Mockito.any()))
+                    .thenReturn(subordinatesList);
             Mockito.when(jobUserRepository.save(jobUser)).thenReturn(jobUser);
             Mockito.when(userService.save(oldManager)).thenReturn(oldManager);
             Mockito.when(userService.save(user)).thenReturn(user);
@@ -181,7 +181,7 @@ class JobUserServiceTests {
             Assertions.assertDoesNotThrow(() ->
                 jobUserService.updateJobInfo("1", jobUpdateDto, "1"));
             Assertions.assertEquals(jobUpdateDto.getManagerId(), user.getManagerUser().getId());
-            Mockito.verify(userService, Mockito.times(1)).findDirectReportsByManagerUserId(Mockito.any(), Mockito.any());
+            Mockito.verify(userService, Mockito.times(1)).findSubordinatesByManagerUserId(Mockito.any(), Mockito.any());
             Mockito.verify(userService, Mockito.times(2)).save(Mockito.any());
         }
 
@@ -202,16 +202,16 @@ class JobUserServiceTests {
             newManager.setUserRole(newManagerRole);
             newManager.setManagerUser(user);
 
-            List<User> directReportsEmployeesList = new ArrayList<>();
-            directReportsEmployeesList.add(user);
-            directReportsEmployeesList.add(oldManager);
+            List<User> subordinatesList = new ArrayList<>();
+            subordinatesList.add(user);
+            subordinatesList.add(oldManager);
 
             Mockito.when(userService.findById(user.getId())).thenReturn(user);
             Mockito.when(jobUserRepository.findJobUserByUser(jobUser.getUser())).thenReturn(jobUser);
             Mockito.when(userService.findById(oldManager.getId())).thenReturn(oldManager);
             Mockito.when(userService.findById(newManager.getId())).thenReturn(newManager);
-            Mockito.when(userService.findDirectReportsByManagerUserId(Mockito.any(), Mockito.any()))
-                    .thenReturn(directReportsEmployeesList);
+            Mockito.when(userService.findSubordinatesByManagerUserId(Mockito.any(), Mockito.any()))
+                    .thenReturn(subordinatesList);
             Mockito.when(jobUserRepository.save(jobUser)).thenReturn(jobUser);
             Mockito.when(userService.save(oldManager)).thenReturn(oldManager);
             Mockito.when(userService.save(user)).thenReturn(user);
@@ -220,7 +220,7 @@ class JobUserServiceTests {
                 jobUserService.updateJobInfo("1", jobUpdateDto, "1"));
             Assertions.assertEquals(jobUpdateDto.getManagerId(), user.getManagerUser().getId());
             Assertions.assertEquals(oldManager.getId(), user.getManagerUser().getManagerUser().getId());
-            Mockito.verify(userService, Mockito.times(1)).findDirectReportsByManagerUserId(Mockito.any(), Mockito.any());
+            Mockito.verify(userService, Mockito.times(1)).findSubordinatesByManagerUserId(Mockito.any(), Mockito.any());
             Mockito.verify(userService, Mockito.times(2)).save(Mockito.any());
         }
 

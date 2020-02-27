@@ -90,7 +90,7 @@ public interface UserRepository extends JpaRepository<User, String>, UserCustomR
                   + ACTIVE_USER_QUERY,
           nativeQuery = true
   )
-  List<User> findDirectReportsByManagerUserId(
+  List<User> findSubordinatesByManagerUserId(
       String companyId, String userId);
 
   @Query(value = "select count(1) from users u "

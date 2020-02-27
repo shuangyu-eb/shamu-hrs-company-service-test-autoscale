@@ -758,8 +758,8 @@ public class UserService {
     return userRepository.findByCompanyId(companyId);
   }
 
-  public List<User> findDirectReportsByManagerUserId(final String companyId, final String userId) {
-    return userRepository.findDirectReportsByManagerUserId(companyId, userId);
+  public List<User> findSubordinatesByManagerUserId(final String companyId, final String userId) {
+    return userRepository.findSubordinatesByManagerUserId(companyId, userId);
   }
 
   public User findByEmailWork(final String email) {

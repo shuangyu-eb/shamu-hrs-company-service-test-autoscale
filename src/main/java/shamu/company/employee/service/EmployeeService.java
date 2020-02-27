@@ -187,8 +187,8 @@ public class EmployeeService {
     return userService.findByCompanyId(companyId);
   }
 
-  public List<User> findDirectReportsByManagerUserId(final String companyId, final String userId) {
-    return userService.findDirectReportsByManagerUserId(companyId, userId);
+  public List<User> findSubordinatesByManagerUserId(final String companyId, final String userId) {
+    return userService.findSubordinatesByManagerUserId(companyId, userId);
   }
 
   public void addEmployee(final EmployeeDto employeeDto, final User currentUser) {

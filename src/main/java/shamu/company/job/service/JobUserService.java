@@ -115,62 +115,94 @@ public class JobUserService {
     return jobUserRepository.findByUserId(userId);
   }
 
-  public void updateJobInfo(
-          final String id, final JobUpdateDto jobUpdateDto, final String companyId) {
-    final User user = userService.findById(id);
-    // handle manager info
-    final List<User> directReports =
-        userService.findDirectReportsByManagerUserId(companyId, user.getId());
-    final String managerId = jobUpdateDto.getManagerId();
-    if (StringUtils.isNotEmpty(managerId) && (user.getManagerUser() == null
-        || !user.getManagerUser().getId().equals(managerId))) {
-      final User manager = userService.findById(managerId);
-      if (Role.EMPLOYEE == manager.getRole()) {
-        manager.setUserRole(userRoleService.getManager());
-      }
-      if (isSubordinate(id, managerId)) {
-        manager.setManagerUser(user.getManagerUser());
-      }
-      user.setManagerUser(manager);
-      userService.save(manager);
-      if (user.getRole() != Role.ADMIN) {
-        directReports.removeIf(employee -> employee.getId().equals(managerId));
-        final UserRole targetUserRole = directReports.isEmpty()
-            ? userRoleService.getEmployee() : userRoleService.getManager();
-        user.setUserRole(targetUserRole);
-      }
-      handlePendingRequests(managerId);
+  private boolean userHasNoneOrDifferentManager(final User user, final String managerId) {
+    if (StringUtils.isEmpty(managerId)) {
+      return false;
     }
-    userService.save(user);
+    return user.getManagerUser() == null
+        || !user.getManagerUser().getId().equals(managerId);
+  }
 
-    JobUser jobUser = findJobUserByUser(user);
-    // handle jobUser info
-    if (null == jobUser) {
-      jobUser = new JobUser();
-      jobUser.setUser(user);
+  private void adjustManagerLocationInOrganizationRelationship(
+        final User user, final String managerId) {
+    final User manager = userService.findById(managerId);
+    if (Role.EMPLOYEE == manager.getRole()) {
+      manager.setUserRole(userRoleService.getManager());
     }
-    jobUserMapper.updateFromJobUpdateDto(jobUser, jobUpdateDto);
-    //handle Compensation info
-    if (jobUpdateDto.getCompensationWage() != null
-        && jobUpdateDto.getCompensationFrequencyId() != null) {
+    if (isSubordinate(managerId, user.getId())) {
+      manager.setManagerUser(user.getManagerUser());
+    }
+    userService.save(manager);
+    user.setManagerUser(manager);
+  }
+
+  private void adjustUserLocationInOrganizationRelationship(
+        final User user, final String companyId, final String managerId) {
+    final List<User> subordinates =
+        userService.findSubordinatesByManagerUserId(companyId, user.getId());
+    if (user.getRole() != Role.ADMIN) {
+      subordinates.removeIf(employee -> employee.getId().equals(managerId));
+      final UserRole targetUserRole = subordinates.isEmpty()
+          ? userRoleService.getEmployee() : userRoleService.getManager();
+      user.setUserRole(targetUserRole);
+    }
+  }
+
+  private void addOrUpdateUserManager(
+        final User user, final String companyId, final String managerId) {
+    if (userHasNoneOrDifferentManager(user, managerId)) {
+      adjustManagerLocationInOrganizationRelationship(user, managerId);
+      adjustUserLocationInOrganizationRelationship(user, companyId, managerId);
+      handlePendingRequests(managerId);
+      userService.save(user);
+    }
+  }
+
+  private boolean jobUserCompensationUpdated(final JobUpdateDto jobUpdateDto) {
+    return jobUpdateDto.getCompensationWage() != null
+        && jobUpdateDto.getCompensationFrequencyId() != null;
+  }
+
+  private void addOrUpdateJobUserCompensation(
+        final String userId, final JobUpdateDto jobUpdateDto, final JobUser jobUser) {
+    if (jobUserCompensationUpdated(jobUpdateDto)) {
       UserCompensation userCompensation = jobUser.getUserCompensation();
       if (userCompensation == null) {
         userCompensation = new UserCompensation();
       }
       userCompensationMapper.updateFromJobUpdateDto(userCompensation, jobUpdateDto);
-      userCompensation.setUserId(user.getId());
+      userCompensation.setUserId(userId);
       jobUser.setUserCompensation(userCompensation);
     }
+  }
+
+  private void addOrUpdateJobUser(final User user, final JobUpdateDto jobUpdateDto) {
+    JobUser jobUser = findJobUserByUser(user);
+    if (null == jobUser) {
+      jobUser = new JobUser();
+      jobUser.setUser(user);
+    }
+    jobUserMapper.updateFromJobUpdateDto(jobUser, jobUpdateDto);
+    addOrUpdateJobUserCompensation(user.getId(), jobUpdateDto, jobUser);
     jobUserRepository.save(jobUser);
   }
 
+  public void updateJobInfo(
+          final String id, final JobUpdateDto jobUpdateDto, final String companyId) {
+    final User user = userService.findById(id);
+    addOrUpdateUserManager(user, companyId, jobUpdateDto.getManagerId());
+    addOrUpdateJobUser(user, jobUpdateDto);
+  }
+
+  // The 'userId' represents employee A, 'managerId' represents employee B.
+  // This function is to figure out if A is B's subordinate.
   private boolean isSubordinate(final String userId, String managerId) {
-    User user = userService.findById(managerId);
-    while (user.getManagerUser() != null && !user.getManagerUser().getId().equals(userId)) {
+    User user = userService.findById(userId);
+    while (user.getManagerUser() != null && !user.getManagerUser().getId().equals(managerId)) {
       managerId = user.getManagerUser().getId();
-      user = userService.findById(managerId);
+      user = userService.findById(userId);
     }
-    return user.getManagerUser() != null && user.getManagerUser().getId().equals(userId);
+    return user.getManagerUser() != null && user.getManagerUser().getId().equals(managerId);
   }
 
   private void handlePendingRequests(final String userId) {
