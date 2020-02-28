@@ -692,7 +692,7 @@ public class UserService {
     }
 
     final String passwordRestToken = UUID.randomUUID().toString();
-    final String emailContent = emailService.getResetPasswordEmail(passwordRestToken);
+    final String emailContent = emailService.getResetPasswordEmail(passwordRestToken,email);
     final Timestamp sendDate = Timestamp.valueOf(LocalDateTime.now());
     final Email verifyEmail =
         new Email(systemEmailAddress, email, "Password Reset!", emailContent, sendDate);

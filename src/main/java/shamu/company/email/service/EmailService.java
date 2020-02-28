@@ -171,9 +171,10 @@ public class EmailService {
         .replaceAll("<script(.*)?>.*</script>", "");
   }
 
-  public String getResetPasswordEmail(final String passwordRestToken) {
+  public String getResetPasswordEmail(final String passwordRestToken, final String toEmail) {
     final Context context = new Context();
     context.setVariable("frontEndAddress", frontEndAddress);
+    context.setVariable("toEmailAddress", getEncodedEmailAddress(toEmail));
     context.setVariable(
         "passwordResetAddress", String.format("account/reset-password/%s", passwordRestToken));
     return templateEngine.process("password_reset_email.html", context);

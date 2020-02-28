@@ -220,13 +220,14 @@ class EmailServiceTests {
   @Nested
   class getResetPasswordEmail {
     String passwordRestToken;
+    String toEmail;
     @BeforeEach
     void init() {
       passwordRestToken = "token";
     }
     @Test
     void whenGetResetPasswordEmail_thenShouldSuccess() {
-      String result = emailService.getResetPasswordEmail(passwordRestToken);
+      String result = emailService.getResetPasswordEmail(passwordRestToken,toEmail);
       Assertions.assertEquals(null, result);
     }
   }
