@@ -14,7 +14,7 @@ public interface SuperAdminRepository extends JpaRepository<User, String> {
   @Query(value =
       "SELECT new shamu.company.admin.dto.SuperAdminUserDto(u) "
           + "FROM User u "
-          + "WHERE u.userStatus.name='ACTIVE' "
+          + "WHERE u.userStatus.name=?2 "
           + "AND ( "
           + "CONCAT(u.userPersonalInformation.firstName, ' ', u.userPersonalInformation.lastName) "
           + "LIKE CONCAT('%',?1,'%') "
@@ -27,6 +27,7 @@ public interface SuperAdminRepository extends JpaRepository<User, String> {
           + "AND (u.deactivatedAt is null "
           + "OR (u.deactivatedAt IS NOT NULL "
           + "AND u.deactivatedAt > current_timestamp ))")
-  Page<SuperAdminUserDto> getUsersByKeywordAndPageable(String keyword, Pageable pageable);
+  Page<SuperAdminUserDto> getUsersByKeywordAndPageable(
+      String keyword, String activeStatus, Pageable pageable);
 
 }

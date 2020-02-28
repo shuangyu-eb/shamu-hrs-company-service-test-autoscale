@@ -17,7 +17,7 @@ public interface BenefitPlanCoverageRepository extends BaseRepository<BenefitPla
               + "where id in ("
               + "select coverage_id from benefit_plans_users "
               + "where user_id = unhex(?1) "
-              + "and enrolled = 1)",
+              + "and enrolled is true)",
       nativeQuery = true)
   BigDecimal getBenefitCostByUserId(String userId);
 

@@ -33,13 +33,13 @@ public interface TimeOffRequestDateRepository extends BaseRepository<TimeOffRequ
       + "    time_off_request_approval_statuses t "
       + "        ON request.time_off_request_approval_status_id = t.id "
       + "WHERE "
-      + "    t.name = 'APPROVED' "
-      + "        AND request.requester_user_id = unhex(?1) "
+      + "    request.requester_user_id = unhex(?1) "
       + "        AND request.time_off_policy_id = unhex(?2) "
       + "        AND rd.date < ?3 "
+      + "        AND t.name = ?4 "
       + "GROUP BY request.id "
       + "ORDER BY createDate ASC",
       nativeQuery = true)
   List<TimeOffRequestDatePojo> getTakenApprovedRequestOffByUserIdAndPolicyId(
-      String userId, String policyId, LocalDateTime currentTime);
+      String userId, String policyId, LocalDateTime currentTime, String approvedStatus);
 }

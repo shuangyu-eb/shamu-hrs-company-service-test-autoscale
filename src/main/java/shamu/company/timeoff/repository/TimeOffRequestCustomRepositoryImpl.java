@@ -24,38 +24,38 @@ public class TimeOffRequestCustomRepositoryImpl implements TimeOffRequestCustomR
 
   @Override
   public List<String> getFilteredReviewedTimeOffRequestsIds(
-      String userId, Long startTime, Long endTime) {
+      final String userId, final Long startTime, final Long endTime) {
     String query =
         "SELECT hex(request.id) FROM time_off_requests request "
             + "left join time_off_request_approval_statuses rs "
             + "on request.time_off_request_approval_status_id = rs.id "
             + "WHERE "
-            + " (rs.name = '" + TimeOffApprovalStatus.APPROVED.name() + "'"
-            + "   or rs.name = '" + TimeOffApprovalStatus.DENIED.name() + "')"
-            + " AND requester_user_id = unhex("
-            + userId + ")";
-    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
+            + " (rs.name = ?1 or rs.name = ?2 ) "
+            + "AND requester_user_id = unhex(?3) ";
+    final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
     if (startTime != null) {
-      query +=
-          " AND DATE_FORMAT(approved_date, \'%Y%m%d\')  >= \'"
-              + simpleDateFormat.format(startTime)
-              + "\'";
+      query += "AND DATE_FORMAT(approved_date, \'%Y%m%d\')  >= ?4 ";
     }
-    Calendar calendar = Calendar.getInstance();
-    Date endDate = endTime == null ? new Date() : new Date(endTime);
+    final Calendar calendar = Calendar.getInstance();
+    final Date endDate = endTime == null ? new Date() : new Date(endTime);
     calendar.setTime(endDate);
-    query +=
-        " AND DATE_FORMAT(approved_date, \'%Y%m%d\') <= \'"
-            + simpleDateFormat.format(calendar.getTime())
-            + "\'";
+    query += "AND DATE_FORMAT(approved_date, \'%Y%m%d\') <= ?5 ";
 
-    return (List<String>) this.entityManager.createNativeQuery(query).getResultList();
+    final Query queryResult = entityManager.createNativeQuery(query);
+    queryResult.setParameter(1, TimeOffApprovalStatus.APPROVED.name());
+    queryResult.setParameter(2, TimeOffApprovalStatus.DENIED.name());
+    queryResult.setParameter(3, userId);
+    if (startTime != null) {
+      queryResult.setParameter(4, simpleDateFormat.format(startTime));
+    }
+    queryResult.setParameter(5, simpleDateFormat.format(calendar.getTime()));
+    return (List<String>) queryResult.getResultList();
   }
 
   @Override
   public List<TimeOffRequest> findByTimeOffPolicyUserAndStatus(
-          final String userId, final String policyId,
-          final TimeOffApprovalStatus status, Timestamp currentTime) {
+      final String userId, final String policyId,
+      final TimeOffApprovalStatus status, final Timestamp currentTime) {
     final StringBuilder queryTimeOffRequestDate =
             new StringBuilder(
                     "select tor.id as tid, tord.id as did, tord.hours, tord.date "
@@ -82,16 +82,15 @@ public class TimeOffRequestCustomRepositoryImpl implements TimeOffRequestCustomR
       queryTimeOffRequestDateResult.setParameter(4, currentTime);
     }
 
-    final StringBuilder queryTimeOffRequest =
-            new StringBuilder(
-                    "select tor.* from time_off_requests tor "
-                        + " left join time_off_request_approval_statuses rs "
-                        + " on tor.time_off_request_approval_status_id = rs.id "
-                        + "where tor.requester_user_id = unhex(?1) "
-                        + "and tor.time_off_policy_id = unhex(?2) "
-                        + "and rs.name = ?3 ");
+    final String queryTimeOffRequest =
+        "select tor.* from time_off_requests tor "
+            + " left join time_off_request_approval_statuses rs "
+            + " on tor.time_off_request_approval_status_id = rs.id "
+            + "where tor.requester_user_id = unhex(?1) "
+            + "and tor.time_off_policy_id = unhex(?2) "
+            + "and rs.name = ?3 ";
     final Query queryTimeOffRequestResult =
-            entityManager.createNativeQuery(queryTimeOffRequest.toString());
+            entityManager.createNativeQuery(queryTimeOffRequest);
 
     queryTimeOffRequestResult.setParameter(1, userId);
     queryTimeOffRequestResult.setParameter(2, policyId);
@@ -123,7 +122,7 @@ public class TimeOffRequestCustomRepositoryImpl implements TimeOffRequestCustomR
             );
             timeOffRequest.setId(UuidUtil.toHexString((byte[]) timeOffRequestItemArray[0]));
             timeOffRequest.setTimeOffRequestDates(timeOffRequestDateList);
-            if (timeOffRequestDateList.size() > 0) {
+            if (!timeOffRequestDateList.isEmpty()) {
               timeOffRequestList.add(timeOffRequest);
             }
           }

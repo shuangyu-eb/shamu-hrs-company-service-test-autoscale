@@ -90,7 +90,7 @@ class TimeOffDetailServiceTests {
       Mockito.when(timeOffPolicyUserRepository.findById(Mockito.any())).thenReturn(Optional.of(timeOffPolicyUserContainer));
 
       Assertions.assertDoesNotThrow(() ->
-          timeOffDetailService.getTimeOffBreakdown("1", 1l));
+          timeOffDetailService.getTimeOffBreakdown("1", 1L));
     }
 
     @Test
@@ -103,7 +103,7 @@ class TimeOffDetailServiceTests {
       Mockito.when(timeOffPolicyUserRepository.findById(Mockito.any())).thenReturn(Optional.of(timeOffPolicyUserContainer));
 
       Assertions.assertDoesNotThrow(() ->
-          timeOffDetailService.getTimeOffBreakdown("1", 1l));
+          timeOffDetailService.getTimeOffBreakdown("1", 1L));
     }
   }
 
@@ -162,7 +162,7 @@ class TimeOffDetailServiceTests {
     }
 
     @Test
-    void whenTimeOffPolicyScheduleListIsNotEmpty_thenShouldSuccess() throws Exception {
+    void whenTimeOffPolicyScheduleListIsNotEmpty_thenShouldSuccess() {
       final TimeOffPolicyAccrualSchedule timeOffPolicyAccrualSchedule = new TimeOffPolicyAccrualSchedule();
       final TimeOffPolicyAccrualSchedule timeOffPolicyAccrualSchedule2 = new TimeOffPolicyAccrualSchedule();
       final TimeOffAccrualFrequency timeOffAccrualFrequency = new TimeOffAccrualFrequency("1");
@@ -210,7 +210,7 @@ class TimeOffDetailServiceTests {
       timeOffPolicyUser.setTimeOffPolicy(new TimeOffPolicy("1"));
 
       Mockito.when(timeOffPolicyAccrualScheduleRepository.findAllWithExpiredTimeOffPolicy(Mockito.any())).thenReturn(timeOffPolicyScheduleList);
-      Mockito.when(timeOffRequestDateRepository.getTakenApprovedRequestOffByUserIdAndPolicyId(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(timeOffRequestDatePojos);
+      Mockito.when(timeOffRequestDateRepository.getTakenApprovedRequestOffByUserIdAndPolicyId(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyString())).thenReturn(timeOffRequestDatePojos);
 
       Assertions.assertDoesNotThrow(() -> {
         Whitebox.invokeMethod(timeOffDetailService,"getLimitedTimeOffBreakdown",timeOffPolicyUser, LocalDate.now());

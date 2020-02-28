@@ -12,6 +12,7 @@ import shamu.company.helpers.auth0.Auth0Helper;
 import shamu.company.redis.AuthUserCacheManager;
 import shamu.company.server.dto.AuthUser;
 import shamu.company.user.entity.User;
+import shamu.company.user.entity.UserStatus;
 import shamu.company.user.entity.mapper.UserMapper;
 import shamu.company.user.service.UserService;
 
@@ -43,7 +44,8 @@ public class SuperAdminService {
 
   public Page<SuperAdminUserDto> getUsersByKeywordAndPageable(final String keyword,
       final Pageable pageable) {
-    return superAdminRepository.getUsersByKeywordAndPageable(keyword, pageable);
+    return superAdminRepository.getUsersByKeywordAndPageable(
+        keyword, UserStatus.Status.ACTIVE.name(), pageable);
   }
 
   public MockUserDto mockUser(final String userId, final String token) {
