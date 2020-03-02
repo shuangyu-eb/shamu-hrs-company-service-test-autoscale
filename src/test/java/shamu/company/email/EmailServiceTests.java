@@ -1,5 +1,8 @@
 package shamu.company.email;
 
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -24,10 +27,6 @@ import shamu.company.user.entity.UserPersonalInformation;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.DateUtil;
 import shamu.company.utils.UuidUtil;
-
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
 
 class EmailServiceTests {
 
@@ -109,6 +108,16 @@ class EmailServiceTests {
     }
 
     @Test
+    void whenEmailStatusIsInvalid_thenShouldReturn() {
+      final EmailStatus emailStatus = EmailStatus.INVALID;
+      final EmailEvent emailEvent = new EmailEvent();
+      emailEvent.setEvent(emailStatus);
+      emailEvents.add(emailEvent);
+      emailService.updateEmailStatus(emailEvents);
+      Mockito.verify(emailRepository, Mockito.times(0)).save(Mockito.any());
+    }
+
+    @Test
     void whenCanNotFindTargetEmail_thenShouldReturn() {
       emailEvents.add(new EmailEvent());
       Mockito.when(emailRepository.findByMessageId(Mockito.anyString())).thenReturn(null);
@@ -151,9 +160,9 @@ class EmailServiceTests {
       final EmailEvent emailEvent = new EmailEvent();
       final User targetUser = new User();
       targetUser.setId("id");
-      UserContactInformation userContactInformation = new UserContactInformation();
+      final UserContactInformation userContactInformation = new UserContactInformation();
       userContactInformation.setEmailWork("128281928@gmail.com");
-      UserPersonalInformation userPersonalInformation = new UserPersonalInformation();
+      final UserPersonalInformation userPersonalInformation = new UserPersonalInformation();
       userPersonalInformation.setFirstName("firstName");
       userPersonalInformation.setLastName("lastName");
       targetUser.setUserPersonalInformation(userPersonalInformation);
@@ -165,18 +174,19 @@ class EmailServiceTests {
       targetEmail.setStatus(EmailStatus.PROCESSED);
       Mockito.when(userService.findByEmailWork(Mockito.any())).thenReturn(targetUser);
       emailService.updateEmailStatus(emailEvents);
-      Mockito.verify(userService, Mockito.times(1))
-          .findByEmailWork(Mockito.any());
+      Mockito.verify(userService, Mockito.times(1)).findByEmailWork(Mockito.any());
     }
   }
 
   @Nested
   class saveAndScheduleEmail {
     Email email;
+
     @BeforeEach
     void init() {
       email = new Email();
     }
+
     @Test
     void whenSaveAndScheduleEmail_thenShouldSuccess() {
       emailService.saveAndScheduleEmail(email);
@@ -187,10 +197,12 @@ class EmailServiceTests {
   @Nested
   class getWelcomeEmail {
     Context context;
+
     @BeforeEach
     void init() {
       context = new Context();
     }
+
     @Test
     void whenGetWelcomeEmail_thenShouldSuccess() {
       emailService.getWelcomeEmail(context);
@@ -201,6 +213,7 @@ class EmailServiceTests {
   class findWelcomeEmailPreviewContext {
     User currentUser;
     String welcomeEmailPersonalMessage;
+
     @BeforeEach
     void init() {
       currentUser = new User();
@@ -209,10 +222,11 @@ class EmailServiceTests {
       company.setName("companyName");
       currentUser.setCompany(company);
     }
+
     @Test
     void whenFindWelcomeEmailPreviewContext_thenShouldSuccess() {
-      Context context = emailService
-          .findWelcomeEmailPreviewContext(currentUser, welcomeEmailPersonalMessage);
+      final Context context =
+          emailService.findWelcomeEmailPreviewContext(currentUser, welcomeEmailPersonalMessage);
       Assertions.assertNotNull(context);
     }
   }
@@ -225,6 +239,7 @@ class EmailServiceTests {
     void init() {
       passwordRestToken = "token";
     }
+
     @Test
     void whenGetResetPasswordEmail_thenShouldSuccess() {
       String result = emailService.getResetPasswordEmail(passwordRestToken,toEmail);
@@ -235,13 +250,15 @@ class EmailServiceTests {
   @Nested
   class handleEmail {
     User user;
+
     @BeforeEach
     void init() {
       user = new User();
     }
+
     @Test
     void whenHandleEmail_thenShouldSuccess() {
-      String token = emailService.handleEmail(user);
+      final String token = emailService.handleEmail(user);
       Assertions.assertNotNull(token);
     }
   }
@@ -251,18 +268,20 @@ class EmailServiceTests {
     User user;
     Timestamp emailSentDate;
     String targetEmail;
+
     @BeforeEach
     void init() {
       user = new User();
       emailSentDate = new Timestamp(2132666636);
       targetEmail = "email";
     }
+
     @Test
     void whenSendDeliveryErrorEmail_thenShouldSuccess() throws Exception {
-      UserPersonalInformation targetPersonalInformation = new UserPersonalInformation();
+      final UserPersonalInformation targetPersonalInformation = new UserPersonalInformation();
       targetPersonalInformation.setFirstName("firstName");
       targetPersonalInformation.setLastName("lastName");
-      UserContactInformation userContactInformation = new UserContactInformation();
+      final UserContactInformation userContactInformation = new UserContactInformation();
       userContactInformation.setEmailWork("emailWork");
       user.setUserContactInformation(userContactInformation);
       user.setUserPersonalInformation(targetPersonalInformation);
@@ -274,10 +293,12 @@ class EmailServiceTests {
   @Nested
   class getEmailTask {
     Email email;
+
     @BeforeEach
     void init() {
       email = new Email();
     }
+
     @Test
     void whenGetEmailTask_thenShouldSuccess() {
       emailService.getEmailTask(email);
@@ -290,8 +311,7 @@ class EmailServiceTests {
     @Test
     void whenFindAllUnfinishedTasks_thenShouldSuccess() {
       emailService.findAllUnfinishedTasks();
-      Mockito.verify(emailRepository,Mockito.times(1))
-          .findAllUnfinishedTasks(Mockito.any());
+      Mockito.verify(emailRepository, Mockito.times(1)).findAllUnfinishedTasks(Mockito.any());
     }
   }
 
@@ -299,16 +319,18 @@ class EmailServiceTests {
   class findFirstByToAndSubjectOrderBySendDateDesc {
     String email;
     String s;
+
     @BeforeEach
     void init() {
       email = "email";
       s = "s";
     }
+
     @Test
     void whenFindFirstByToAndSubjectOrderBySendDateDesc_thenShouldSuccess() {
-      emailService.findFirstByToAndSubjectOrderBySendDateDesc(email,s);
+      emailService.findFirstByToAndSubjectOrderBySendDateDesc(email, s);
       Mockito.verify(emailRepository, Mockito.times(1))
-          .findFirstByToAndSubjectOrderBySendDateDesc(email,s);
+          .findFirstByToAndSubjectOrderBySendDateDesc(email, s);
     }
   }
 }

@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 import java.util.regex.Pattern;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.slf4j.Logger;
@@ -22,7 +21,6 @@ import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.Context;
 import shamu.company.email.entity.Email;
 import shamu.company.email.event.EmailEvent;
-import shamu.company.email.event.EmailEventType;
 import shamu.company.email.event.EmailStatus;
 import shamu.company.email.repository.EmailRepository;
 import shamu.company.helpers.EmailHelper;
@@ -53,7 +51,7 @@ public class EmailService {
   @Value("${application.frontEndAddress}")
   private String frontEndAddress;
 
-  private Logger logger = LoggerFactory.getLogger(EmailService.class);
+  private final Logger logger = LoggerFactory.getLogger(EmailService.class);
 
   @Autowired
   public EmailService(
@@ -211,12 +209,10 @@ public class EmailService {
   public void updateEmailStatus(final List<EmailEvent> emailEvent) {
     emailEvent.forEach(
         emailEventItem -> {
-          if (StringUtils.isEmpty(emailEventItem.getMessageId())) {
-            logger.warn("No message id in email to {}", emailEventItem.getEmail());
-            return;
-          }
-
-          if (emailEventItem.getEvent().getEventType() != EmailEventType.DELIVERY) {
+          if (StringUtils.isEmpty(emailEventItem.getMessageId())
+              || emailEventItem.getEvent() == EmailStatus.INVALID) {
+            logger.warn("Invalid email status update request.");
+            logger.warn("Message id attached with email: {}", emailEventItem.getEmail());
             return;
           }
 
