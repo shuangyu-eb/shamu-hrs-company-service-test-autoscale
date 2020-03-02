@@ -19,6 +19,7 @@ import shamu.company.common.config.DefaultJwtAuthenticationToken;
 import shamu.company.company.service.CompanyService;
 import shamu.company.info.service.UserEmergencyContactService;
 import shamu.company.job.service.JobService;
+import shamu.company.job.service.JobUserService;
 import shamu.company.redis.AuthUserCacheManager;
 import shamu.company.server.dto.AuthUser;
 import shamu.company.tests.utils.JwtUtil;
@@ -63,6 +64,8 @@ public class WebControllerBaseTests {
   protected UserEmergencyContactService userEmergencyContactService;
   @MockBean
   protected BenefitPlanTypeService benefitPlanTypeService;
+  @MockBean
+  protected JobUserService jobUserService;
 
   protected AuthUser getAuthUser() {
     final DefaultJwtAuthenticationToken authenticationToken =

@@ -27,7 +27,6 @@ import shamu.company.tests.utils.JwtUtil;
 import shamu.company.user.entity.User;
 import shamu.company.utils.JsonUtil;
 
-import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
