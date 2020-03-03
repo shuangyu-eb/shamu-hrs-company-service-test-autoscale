@@ -6,6 +6,7 @@ import java.sql.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import javax.persistence.EntityManager;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -100,7 +101,7 @@ class UserServiceTests {
   @Mock private PermissionUtils permissionUtils;
   @Mock private CompanyBenefitsSettingService companyBenefitsSettingService;
   @Mock private UserBenefitsSettingService userBenefitsSettingService;
-
+  @Mock private EntityManager entityManager;
 
   @BeforeEach
   void init() {

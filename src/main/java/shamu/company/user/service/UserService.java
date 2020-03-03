@@ -10,6 +10,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceException;
+
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,6 +31,7 @@ import org.thymeleaf.context.Context;
 import shamu.company.authorization.Permission.Name;
 import shamu.company.authorization.PermissionUtils;
 import shamu.company.common.exception.ForbiddenException;
+import shamu.company.common.exception.GeneralException;
 import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.common.exception.response.ErrorType;
 import shamu.company.common.service.DepartmentService;
@@ -103,6 +107,7 @@ public class UserService {
   private final AuthUserCacheManager authUserCacheManager;
   private final DynamicScheduler dynamicScheduler;
   private final PermissionUtils permissionUtils;
+  private final EntityManager entityManager;
 
   private final UserEmergencyContactService userEmergencyContactService;
   private final UserAddressService userAddressService;
@@ -155,7 +160,8 @@ public class UserService {
       final JobService jobService,
       final UserAccessLevelEventService userAccessLevelEventService,
       final UserContactInformationService userContactInformationService,
-      final CompanyBenefitsSettingService companyBenefitsSettingService) {
+      final CompanyBenefitsSettingService companyBenefitsSettingService,
+      final EntityManager entityManager) {
     this.templateEngine = templateEngine;
     this.userRepository = userRepository;
     this.secretHashRepository = secretHashRepository;
@@ -181,6 +187,7 @@ public class UserService {
     this.userAccessLevelEventService = userAccessLevelEventService;
     this.userContactInformationService = userContactInformationService;
     this.companyBenefitsSettingService = companyBenefitsSettingService;
+    this.entityManager = entityManager;
   }
 
   public User findById(final String id) {
@@ -442,11 +449,22 @@ public class UserService {
   }
 
   public void deleteUser(final User employee) {
-
-    adjustUserManagerRelationshipBeforeDeleteOrDeactivate(employee);
+    try {
+      adjustUserManagerRelationshipBeforeDeleteOrDeactivate(employee);
+      final User deletedUser = entityManager.find(User.class, employee.getId());
+      entityManager.remove(entityManager.merge(deletedUser));
+      entityManager.flush();
+    } catch (final PersistenceException e) {
+      log.error("User with id " + employee.getId() + " deletes failed", e);
+      throw new GeneralException("User deletes failed!");
+    } finally {
+      if (entityManager.isOpen()) {
+        entityManager.close();
+      }
+    }
 
     final String employeeWorkEmail = employee.getUserContactInformation().getEmailWork();
-    userRepository.delete(employee);
+
     auth0Helper.deleteUser(
         auth0Helper
             .getAuth0UserByIdWithByEmailFailover(employee.getId(), employeeWorkEmail)
@@ -456,7 +474,7 @@ public class UserService {
   private void adjustUserManagerRelationshipBeforeDeleteOrDeactivate(final User user) {
     final List<User> teamEmployees = userRepository.findAllByManagerUserId(user.getId());
     if (!CollectionUtils.isEmpty(teamEmployees)) {
-      User targetManager = user.getManagerUser();
+      final User targetManager = user.getManagerUser();
       teamEmployees.forEach(employee -> employee.setManagerUser(targetManager));
       userRepository.saveAll(teamEmployees);
     }
