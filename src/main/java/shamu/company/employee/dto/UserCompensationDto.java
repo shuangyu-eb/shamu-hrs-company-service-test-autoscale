@@ -8,7 +8,7 @@ import shamu.company.user.entity.UserCompensation;
 @Data
 public class UserCompensationDto {
 
-  private Integer wage;
+  private Double wage;
 
   private Timestamp startDate;
 

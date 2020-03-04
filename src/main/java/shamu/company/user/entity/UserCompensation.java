@@ -21,7 +21,7 @@ public class UserCompensation extends BaseEntity {
   private static final int max_Wage = 2147483647;
 
   @Max(max_Wage)
-  private Integer wage;
+  private Double wage;
 
   private Timestamp startDate;
 

@@ -19,7 +19,7 @@ public class NewEmployeeJobInformationDto {
   @NotBlank
   private String reportsTo;
 
-  private Integer compensation;
+  private Double compensation;
 
   private String compensationFrequencyId;
 

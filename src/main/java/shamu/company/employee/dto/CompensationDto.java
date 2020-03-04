@@ -7,7 +7,7 @@ public class CompensationDto {
 
   private String id;
 
-  private Integer wage;
+  private Double wage;
 
   private SelectFieldInformationDto compensationFrequency;
 }

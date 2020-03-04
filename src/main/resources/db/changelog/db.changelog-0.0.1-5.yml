@@ -1363,3 +1363,12 @@ databaseChangeLog:
               name: status
               type: varchar(16)
           tableName: emails
+
+  - changeSet:
+      id: 1583291201343-1
+      author: bin-eb
+      changes:
+        - modifyDataType:
+            columnName: wage
+            newDataType: DECIMAL(19,4)
+            tableName: user_compensations

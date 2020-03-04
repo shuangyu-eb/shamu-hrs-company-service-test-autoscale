@@ -12,7 +12,7 @@ public class JobUpdateDto implements Serializable {
 
   private String userCompensationId;
 
-  private Integer compensationWage;
+  private Double compensationWage;
 
   private String compensationFrequencyId;
 

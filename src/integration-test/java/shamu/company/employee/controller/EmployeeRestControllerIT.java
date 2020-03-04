@@ -121,7 +121,7 @@ class EmployeeRestControllerIT extends BaseIntegrationTest {
 
       final NewEmployeeJobInformationDto jobInformationDto = new NewEmployeeJobInformationDto();
       jobInformationDto.setReportsTo(manager.getId());
-      jobInformationDto.setCompensation(4);
+      jobInformationDto.setCompensation(4.0);
       jobInformationDto.setCompensationFrequencyId(compensationFrequency.getId());
       jobInformationDto.setJobId(job.getId());
       jobInformationDto.setEmploymentTypeId(employmentType.getId());

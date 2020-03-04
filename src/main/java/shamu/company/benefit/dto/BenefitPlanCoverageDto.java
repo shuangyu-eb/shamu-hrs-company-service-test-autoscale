@@ -1,5 +1,6 @@
 package shamu.company.benefit.dto;
 
+import java.math.BigDecimal;
 import lombok.Data;
 
 @Data
@@ -9,9 +10,9 @@ public class BenefitPlanCoverageDto {
 
   private String coverageName;
 
-  private Integer employeeCost;
+  private BigDecimal employeeCost;
 
-  private Integer employerCost;
+  private BigDecimal employerCost;
 
   private String coverageId;
 }

@@ -124,7 +124,7 @@ class JobUserServiceTests {
         void init() {
             jobUpdateDto.setJobId("1");
             jobUpdateDto.setCompensationFrequencyId("1");
-            jobUpdateDto.setCompensationWage(1000);
+            jobUpdateDto.setCompensationWage(1000.0);
             jobUpdateDto.setManagerId("2");
             jobUpdateDto.setStartDate(DateUtil.getToday());
 

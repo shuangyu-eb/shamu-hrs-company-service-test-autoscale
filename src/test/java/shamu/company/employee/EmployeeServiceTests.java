@@ -720,7 +720,7 @@ class EmployeeServiceTests {
     @Test
     void whenCompensationAndFrequencyIdIsNotNull_thenShouldSuccess() throws Exception {
       jobInformation.setEmploymentTypeId("a");
-      jobInformation.setCompensation(1);
+      jobInformation.setCompensation(1.8);
       jobInformation.setCompensationFrequencyId("a");
       Mockito.when(userCompensationService.save(Mockito.any())).thenReturn(userCompensation);
       Whitebox.invokeMethod(
