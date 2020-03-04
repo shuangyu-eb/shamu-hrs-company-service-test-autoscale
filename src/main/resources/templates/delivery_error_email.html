@@ -26,12 +26,11 @@
             <td style="text-align: center;">
               <div
                 style="width: 277px;height: 177px;border-radius: 5px;border: solid 1px #dfe2e9; margin-top: 30px;display: inline-block;">
-                <div
-                  th:style="|background: ${backgroundColor}| + '; width: 92px;height: 92px; margin-top: 24px; border-radius: 50%;border: 0;margin-left: auto;margin-right: auto;display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5em;text-align: center;display: inline-block;vertical-align: middle;line-height: 90px;'"
-                  th:text="${avatarText}">
-                </div>
+                <img
+                  th:src="@{${avatarUrl}}"
+                  style="width: 92px;height: 92px; margin-top: 24px; border-radius: 50%;border: 1px solid #dfe2e9;margin-left: auto;margin-right: auto;display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5em;text-align: center;display: inline-block;vertical-align: middle;line-height: 90px;"/>
                 <span
-                  style="font-size: 16px;font-weight: 500;line-height: 1.56;color:#2e3033; text-align: center; margin-top: 16px; display: block;"
+                  style="font-size: 16px;font-weight: 500;line-height: 1.56;color:#2e3033; text-align: center; margin-top: 16px; margin-bottom: 16px; display: block;"
                   th:text="${userName}"></span>
               </div>
             </td>
@@ -47,7 +46,7 @@
             </td>
           </tr>
           <tr>
-            <td>
+            <td style="text-align: center">
               <a
                 th:href="@{${userLink}}"
                 style="display: inline-block;text-decoration: none;width: 164px;height: 40px;border-radius: 20px;box-shadow: 2px 2px 4px 0 rgba(72, 142, 255, 0.12), 0 2px 4px 0 rgba(0, 0, 0, 0.12); background-color: #0074de;font-size: 14px;font-weight: 500;line-height: 40px;letter-spacing: 0.24px;text-align: center; color: white; margin-top: 20px;border: 0;outline: none;"

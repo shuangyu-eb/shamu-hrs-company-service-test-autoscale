@@ -27,7 +27,6 @@ import shamu.company.helpers.EmailHelper;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserPersonalInformation;
 import shamu.company.user.service.UserService;
-import shamu.company.utils.AvatarUtil;
 import shamu.company.utils.DateUtil;
 import shamu.company.utils.UuidUtil;
 
@@ -247,13 +246,11 @@ public class EmailService {
 
     final UserPersonalInformation targetPersonalInformation =
         targetUser.getUserPersonalInformation();
-    final String backgroundColor =
-        AvatarUtil.getAvatarBackground(targetPersonalInformation.getFirstName());
-    context.setVariable("backgroundColor", backgroundColor);
-    final String avatarText =
-        targetPersonalInformation.getFirstName().substring(0, 1)
-            + targetPersonalInformation.getLastName().substring(0, 1);
-    context.setVariable("avatarText", avatarText);
+    final String avatarUrl =
+        targetUser.getImageUrl() != null
+            ? targetUser.getImageUrl()
+            : frontEndAddress + "image/person.png";
+    context.setVariable("avatarUrl", avatarUrl);
     context.setVariable("userName", targetPersonalInformation.getName());
     context.setVariable("userEmail", targetUser.getUserContactInformation().getEmailWork());
 

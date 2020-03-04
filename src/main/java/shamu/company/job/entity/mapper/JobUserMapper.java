@@ -61,6 +61,7 @@ public interface JobUserMapper {
   @Mapping(target = "manager.jobTitle", source = "jobManagerDto.jobTitle")
   @Mapping(target = "directReporters", source = "directReporters")
   @Mapping(target = "roleName", source = "roleName")
+  @Mapping(target = "invitationValid", source = "isInvitationValid")
   EmployeeDetailDto convertToEmployeeRelatedInformationDto(
       String email,
       String userStatus,
