@@ -247,7 +247,7 @@ public class TimeOffPolicyServiceTests {
     final List<TimeOffRequest> timeOffRequestList = new ArrayList<>();
     Mockito.when(timeOffRequestRepository.findByRequesterUserInAndTimeOffApprovalStatus(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(timeOffRequestList);
     Assertions.assertDoesNotThrow(() ->
-        timeOffPolicyService.getTimeOffRequestHoursFromStatus(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()));
+        timeOffPolicyService.getTimeOffRequestHoursFromStatus(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()));
   }
 
   @Test
@@ -272,7 +272,7 @@ public class TimeOffPolicyServiceTests {
     Mockito.when(timeOffPolicyUserMapper.convertToTimeOffPolicyUserDto(Mockito.any())).thenReturn(new TimeOffPolicyUserDto());
 
     Assertions.assertDoesNotThrow(() ->
-        timeOffPolicyService.getTimeOffPolicyUser("1", 1l));
+        timeOffPolicyService.getTimeOffPolicyUser("1", 1L));
   }
 
   @Test
@@ -307,7 +307,7 @@ public class TimeOffPolicyServiceTests {
       timeOffPolicy = new TimeOffPolicy();
       timeOffPolicyAccrualSchedule= new TimeOffPolicyAccrualSchedule();
       timeOffPolicyAccrualSchedule.setId("1");
-      accrualScheduleMilestones = new LinkedList<AccrualScheduleMilestone>();
+      accrualScheduleMilestones = new LinkedList<>();
       Mockito.when(timeOffPolicyAccrualScheduleRepository.findByTimeOffPolicy(Mockito.any()))
           .thenReturn(timeOffPolicyAccrualSchedule);
       Mockito.when(timeOffPolicyRepository.findById(Mockito.anyString()))
@@ -577,7 +577,7 @@ public class TimeOffPolicyServiceTests {
   @Test
   void testEnrollTimeOffHours() {
     final TimeOffPolicyUser timeOffPolicyUser = new TimeOffPolicyUser();
-    List<TimeOffPolicyUser> timeOffPolicyUsers = new ArrayList<>();
+    final List<TimeOffPolicyUser> timeOffPolicyUsers = new ArrayList<>();
     final TimeOffPolicy timeOffPolicy = new TimeOffPolicy();
     timeOffPolicy.setName("007");
     final TimeOffBreakdownDto timeOffBreakdownDto = new TimeOffBreakdownDto();
@@ -603,7 +603,7 @@ public class TimeOffPolicyServiceTests {
 
   @Test
   void testCheckHasTimeOffPolicies() {
-    boolean bol = timeOffPolicyService.checkHasTimeOffPolicies("1");
+    final boolean bol = timeOffPolicyService.checkHasTimeOffPolicies("1");
     Assertions.assertFalse(bol);
   }
 

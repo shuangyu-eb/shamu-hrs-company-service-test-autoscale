@@ -329,7 +329,18 @@ public class TimeOffRequestService {
     final User requester = timeOffRequest.getRequesterUser();
     final TimeOffRequestDetailDto requestDetail = timeOffRequestMapper
         .convertToTimeOffRequestDetailDto(timeOffRequest);
+    final Timestamp endDay = timeOffRequest.getEndDay();
+    final TimeOffPolicyUser policyUser = timeOffPolicyUserService.findByUserAndTimeOffPolicy(
+        requester, timeOffRequest.getTimeOffPolicy());
+    final TimeOffBreakdownDto timeOffBreakdownDto = timeOffDetailService
+        .getTimeOffBreakdown(policyUser.getId(), endDay.getTime());
+    final Integer balance = timeOffBreakdownDto.getBalance();
 
+    final Integer pendingHours = timeOffPolicyService.getTimeOffRequestHoursFromStatus(
+        requester.getId(), policyUser.getTimeOffPolicy().getId(),
+        AWAITING_REVIEW, endDay, TimeOffRequestDate.Operator.LESS_THAN);
+    final Integer availableBalance = balance - pendingHours;
+    requestDetail.setBalance(availableBalance + timeOffRequest.getHours());
     final List<BasicTimeOffRequestDto> timeOffRequests =
         getOtherRequestsBy(timeOffRequest).stream()
             .map(timeOffRequestMapper::convertToBasicTimeOffRequestDto)
@@ -393,9 +404,9 @@ public class TimeOffRequestService {
         .getTimeOffBreakdown(timeOffPolicyUser.getId(), null);
     final Integer balance = timeOffBreakdownDto.getBalance();
     final Integer approvedHours = timeOffPolicyService.getTimeOffRequestHoursFromStatus(
-        timeOffPolicyUser.getUser().getId(),
-        timeOffPolicyUser.getTimeOffPolicy().getId(), APPROVED,
-        Timestamp.valueOf(currentTime));
+        timeOffPolicyUser.getUser().getId(), timeOffPolicyUser.getTimeOffPolicy().getId(),
+        APPROVED, Timestamp.valueOf(currentTime),
+        TimeOffRequestDate.Operator.MORE_THAN);
 
     return null == balance ? null : (balance - approvedHours);
   }

@@ -52,6 +52,7 @@ import shamu.company.timeoff.entity.TimeOffPolicyAccrualSchedule;
 import shamu.company.timeoff.entity.TimeOffPolicyUser;
 import shamu.company.timeoff.entity.TimeOffRequest;
 import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.TimeOffApprovalStatus;
+import shamu.company.timeoff.entity.TimeOffRequestDate;
 import shamu.company.timeoff.entity.mapper.AccrualScheduleMilestoneMapper;
 import shamu.company.timeoff.entity.mapper.TimeOffPolicyAccrualScheduleMapper;
 import shamu.company.timeoff.entity.mapper.TimeOffPolicyMapper;
@@ -187,7 +188,7 @@ public class TimeOffPolicyService {
 
   private void checkPolicyNameIsExists(final TimeOffPolicyFrontendDto timeOffPolicyFrontendDto,
       final String companyId,final Integer existNumber) {
-    Integer existSamePolicyName = timeOffPolicyRepository
+    final Integer existSamePolicyName = timeOffPolicyRepository
         .findByPolicyNameAndCompanyId(
             timeOffPolicyFrontendDto.getPolicyName(), companyId);
     if (existSamePolicyName > existNumber) {
@@ -217,10 +218,10 @@ public class TimeOffPolicyService {
       final Integer balance = timeOffBreakdownDto.getBalance();
 
       final Integer pendingHours = getTimeOffRequestHoursFromStatus(
-          user.getId(), policyUser.getTimeOffPolicy().getId(), AWAITING_REVIEW, null);
+          user.getId(), policyUser.getTimeOffPolicy().getId(), AWAITING_REVIEW, null, null);
       final Integer approvedHours = getTimeOffRequestHoursFromStatus(
           user.getId(), policyUser.getTimeOffPolicy().getId(), APPROVED,
-          Timestamp.valueOf(currentTime));
+          Timestamp.valueOf(currentTime), TimeOffRequestDate.Operator.MORE_THAN);
 
       final Integer approvalBalance = (null == balance ? null : (balance - approvedHours));
       final Integer availableBalance = (
@@ -247,10 +248,10 @@ public class TimeOffPolicyService {
   }
 
   public Integer getTimeOffRequestHoursFromStatus(
-      final String userId, final String policyId,
-      final TimeOffApprovalStatus status, final Timestamp currentTime) {
+      final String userId, final String policyId, final TimeOffApprovalStatus status,
+      final Timestamp currentTime, final TimeOffRequestDate.Operator operator) {
     final List<TimeOffRequest> timeOffRequestList = timeOffRequestRepository
-        .findByTimeOffPolicyUserAndStatus(userId, policyId, status, currentTime);
+        .findByTimeOffPolicyUserAndStatus(userId, policyId, status, currentTime, operator);
 
     return timeOffRequestList.stream().mapToInt(TimeOffRequest::getHours).sum();
   }
@@ -279,10 +280,10 @@ public class TimeOffPolicyService {
       final Integer balance = timeOffBreakdownDto.getBalance();
 
       final Integer pendingHours = getTimeOffRequestHoursFromStatus(
-          user.getId(), policyUser.getTimeOffPolicy().getId(), AWAITING_REVIEW, null);
+          user.getId(), policyUser.getTimeOffPolicy().getId(), AWAITING_REVIEW, null, null);
       final Integer approvedHours = getTimeOffRequestHoursFromStatus(
           user.getId(), policyUser.getTimeOffPolicy().getId(), APPROVED,
-          Timestamp.valueOf(endDateTime));
+          Timestamp.valueOf(endDateTime), TimeOffRequestDate.Operator.MORE_THAN);
       final Integer availableBalance = (
           null == balance ? null : (balance - pendingHours - approvedHours));
 
@@ -346,7 +347,7 @@ public class TimeOffPolicyService {
   public TimeOffPolicyRelatedUserListDto getAllEmployeesByTimeOffPolicyId(
       final String timeOffPolicyId, final String companyId) {
 
-    final TimeOffPolicy timeOffPolicy = this.getTimeOffPolicyById(timeOffPolicyId);
+    final TimeOffPolicy timeOffPolicy = getTimeOffPolicyById(timeOffPolicyId);
 
     final Boolean isLimited = timeOffPolicy.getIsLimited();
 

@@ -13,6 +13,7 @@ import shamu.company.common.entity.BaseEntity;
 @Table(name = "time_off_request_dates")
 public class TimeOffRequestDate extends BaseEntity {
 
+  private static final long serialVersionUID = -215460639062476659L;
   @Column(name = "time_off_request_id")
   @Type(type = "shamu.company.common.PrimaryKeyTypeDescriptor")
   private String timeOffRequestId;
@@ -28,4 +29,8 @@ public class TimeOffRequestDate extends BaseEntity {
   public TimeOffRequestDate() {
   }
 
+  public enum Operator {
+    MORE_THAN,
+    LESS_THAN
+  }
 }

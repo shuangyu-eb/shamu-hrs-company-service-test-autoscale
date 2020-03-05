@@ -54,8 +54,8 @@ public class TimeOffRequestCustomRepositoryImpl implements TimeOffRequestCustomR
 
   @Override
   public List<TimeOffRequest> findByTimeOffPolicyUserAndStatus(
-      final String userId, final String policyId,
-      final TimeOffApprovalStatus status, final Timestamp currentTime) {
+      final String userId, final String policyId, final TimeOffApprovalStatus status,
+      final Timestamp currentTime, final TimeOffRequestDate.Operator operator) {
     final StringBuilder queryTimeOffRequestDate =
             new StringBuilder(
                     "select tor.id as tid, tord.id as did, tord.hours, tord.date "
@@ -68,7 +68,9 @@ public class TimeOffRequestCustomRepositoryImpl implements TimeOffRequestCustomR
                             + "and tor.time_off_policy_id = unhex(?2) "
                             + "and rs.name = ?3 "
                             + "group by tord.id ");
-    if (null != currentTime) {
+    if (null != currentTime && operator.equals(TimeOffRequestDate.Operator.LESS_THAN)) {
+      queryTimeOffRequestDate.append(" having min(tord.date) <= ?4 ");
+    } else if (null != currentTime && operator.equals(TimeOffRequestDate.Operator.MORE_THAN)) {
       queryTimeOffRequestDate.append(" having min(tord.date) > ?4 ");
     }
 

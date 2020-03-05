@@ -154,8 +154,8 @@ public class TimeOffRequestServiceTests {
     @BeforeEach
     void setUp() {
       filteredByEndDay = false;
-      TimeOffRequest timeOffRequest = new TimeOffRequest();
-      List<TimeOffRequest> timeOffRequests = new LinkedList<>();
+      final TimeOffRequest timeOffRequest = new TimeOffRequest();
+      final List<TimeOffRequest> timeOffRequests = new LinkedList<>();
       timeOffRequests.add(timeOffRequest);
       timeOffRequest.setId("1");
       pageRequest = new PageImpl(timeOffRequests);
@@ -172,7 +172,7 @@ public class TimeOffRequestServiceTests {
     @Test
     void whenFilteredByEndDayIsFalse_thenFindByRequesterUserIdFilteredByStartAndEndDay()
         throws Exception {
-      PageRequest pageRequest = PageRequest.of(0,1);
+      final PageRequest pageRequest = PageRequest.of(0,1);
       Whitebox.invokeMethod(timeOffRequestService,"getTimeOffDtos",
           "1",null,null, filteredByEndDay,
           statuses, pageRequest);
@@ -184,7 +184,7 @@ public class TimeOffRequestServiceTests {
     void whenFilteredByEndDayIsTrue_thenFindByRequesterUserIdFilteredByStartAndEndDay()
         throws Exception {
       filteredByEndDay = true;
-      PageRequest pageRequest = PageRequest.of(0,1);
+      final PageRequest pageRequest = PageRequest.of(0,1);
       Whitebox.invokeMethod(timeOffRequestService,"getTimeOffDtos",
           "1",null,null, filteredByEndDay,
           statuses, pageRequest);
@@ -288,7 +288,7 @@ public class TimeOffRequestServiceTests {
       Mockito.when(timeOffRequestRepository.findByRequesterUserIdFilteredByStartAndEndDay(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(timeOffRequests);
       Mockito.when(timeOffRequestMapper.convertToTimeOffRequestDto(Mockito.any())).thenReturn(new TimeOffRequestDto());
 
-      Assertions.assertDoesNotThrow(() -> timeOffRequestService.findReviewedRequests("1", 10l, 10l, 1, 10));
+      Assertions.assertDoesNotThrow(() -> timeOffRequestService.findReviewedRequests("1", 10L, 10L, 1, 10));
     }
   }
 
@@ -405,17 +405,30 @@ public class TimeOffRequestServiceTests {
     final Set<TimeOffRequestDate> timeOffRequestDates = new HashSet<>();
     final TimeOffRequestDate timeOffRequestDate = new TimeOffRequestDate();
     final TimeOffRequestApprovalStatus timeOffRequestApprovalStatus = new TimeOffRequestApprovalStatus();
+    final TimeOffPolicy timeOffPolicy = new TimeOffPolicy();
+    final TimeOffPolicyUser timeOffPolicyUser = new TimeOffPolicyUser();
+    final TimeOffBreakdownDto timeOffBreakdownDto = new TimeOffBreakdownDto();
+
     timeOffRequestApprovalStatus.setName(TimeOffApprovalStatus.APPROVED.name());
 
     timeOffRequestDate.setDate(Timestamp.valueOf(LocalDateTime.now()));
+    timeOffRequestDate.setHours(8);
     timeOffRequestDates.add(timeOffRequestDate);
     timeOffRequest.setTimeOffRequestApprovalStatus(timeOffRequestApprovalStatus);
 
     timeOffRequest.setRequesterUser(new User(UuidUtil.getUuidString()));
     timeOffRequest.setTimeOffRequestDates(timeOffRequestDates);
+    timeOffRequest.setTimeOffPolicy(timeOffPolicy);
+    timeOffRequest.getHours();
+    timeOffPolicy.setId(UuidUtil.getUuidString());
+    timeOffPolicyUser.setId(UuidUtil.getUuidString());
+    timeOffPolicyUser.setTimeOffPolicy(timeOffPolicy);
+    timeOffBreakdownDto.setBalance(100);
 
     Mockito.when(timeOffRequestRepository.findById(Mockito.any())).thenReturn(Optional.of(timeOffRequest));
     Mockito.when(timeOffRequestMapper.convertToTimeOffRequestDetailDto(Mockito.any())).thenReturn(timeOffRequestDetailDto);
+    Mockito.when(timeOffPolicyUserService.findByUserAndTimeOffPolicy(Mockito.any(), Mockito.any())).thenReturn(timeOffPolicyUser);
+    Mockito.when(timeOffDetailService.getTimeOffBreakdown(Mockito.anyString(), Mockito.anyLong())).thenReturn(timeOffBreakdownDto);
 
     Assertions.assertDoesNotThrow(() -> timeOffRequestService.findTimeOffRequestDetail("1", authUser));
   }

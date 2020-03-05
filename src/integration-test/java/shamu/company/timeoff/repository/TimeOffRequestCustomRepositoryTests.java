@@ -27,7 +27,7 @@ class TimeOffRequestCustomRepositoryTests extends DataLayerBaseTests {
   @Test
   void testFindByTimeOffPolicyUserAndStatus() throws Exception {
     final List<TimeOffRequest> result = new ArrayList<>();
-    given(timeOffRequestCustomRepository.findByTimeOffPolicyUserAndStatus(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).willReturn(result);
+    given(timeOffRequestCustomRepository.findByTimeOffPolicyUserAndStatus(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).willReturn(result);
     assertThat(result.size()).isEqualTo(0);
   }
 
