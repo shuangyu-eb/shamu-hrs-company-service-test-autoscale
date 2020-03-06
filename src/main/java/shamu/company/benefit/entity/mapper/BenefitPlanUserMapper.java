@@ -7,6 +7,7 @@ import shamu.company.benefit.dto.BenefitPlanUserCreateDto;
 import shamu.company.benefit.dto.BenefitPlanUserDto;
 import shamu.company.benefit.dto.UserBenefitPlanDto;
 import shamu.company.benefit.entity.BenefitPlan;
+import shamu.company.benefit.entity.BenefitPlanCoverage;
 import shamu.company.benefit.entity.BenefitPlanUser;
 import shamu.company.common.mapper.Config;
 import shamu.company.user.entity.User;
@@ -16,9 +17,13 @@ public interface BenefitPlanUserMapper {
 
   @Mapping(target = "user", source = "benefitPlanUserCreateDto.id")
   @Mapping(target = "benefitPlan", source = "benefitPlanId")
+  @Mapping(target = "benefitPlanCoverage", source = "benefitPlanCoverage")
   @Mapping(target = "id", ignore = true)
+  @Mapping(target = "createdAt", ignore = true)
+  @Mapping(target = "updatedAt", ignore = true)
   BenefitPlanUser createFromBenefitPlanUserCreateDtoAndBenefitPlanId(
-      BenefitPlanUserCreateDto benefitPlanUserCreateDto, String benefitPlanId);
+      BenefitPlanUserCreateDto benefitPlanUserCreateDto, String benefitPlanId,
+      BenefitPlanCoverage benefitPlanCoverage, boolean enrolled, boolean confirmed);
 
   @Mapping(target = "title", source = "benefitPlan.name")
   @Mapping(target = "benefitPlanId", source = "benefitPlan.id")
@@ -45,5 +50,6 @@ public interface BenefitPlanUserMapper {
   @Mapping(target = "lastName", source = "user.userPersonalInformation.lastName")
   @Mapping(target = "id", source = "user.id")
   @Mapping(target = "imageUrl", source = "user.imageUrl")
+  @Mapping(target = "coverageId", source = "benefitPlanCoverage.id")
   BenefitPlanUserDto convertToBenefitPlanUserDto(BenefitPlanUser benefitPlanUser);
 }

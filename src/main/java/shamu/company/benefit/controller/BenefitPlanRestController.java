@@ -82,7 +82,7 @@ public class BenefitPlanRestController extends BaseRestController {
   @PreAuthorize("hasPermission(#id,'BENEFIT_PLAN', 'MANAGE_BENEFIT_PLAN')")
   public BenefitPlanDto updateBenefitPlan(
       @RequestBody final NewBenefitPlanWrapperDto data, @PathVariable final String id) {
-    return benefitPlanService.updateBenefitPlan(data, id, findCompanyId());
+    return benefitPlanService.updateBenefitPlan(data, id);
   }
 
   @PostMapping("benefit-plan/{id}/document")
@@ -113,7 +113,7 @@ public class BenefitPlanRestController extends BaseRestController {
   public ResponseEntity updateBenefitPlanUsers(
       @PathVariable final String benefitPlanId,
       @RequestBody final List<BenefitPlanUserCreateDto> benefitPlanUsers) {
-    benefitPlanService.updateBenefitPlanUsers(benefitPlanId, benefitPlanUsers);
+    benefitPlanService.updateBenefitPlanUsers(benefitPlanId, benefitPlanUsers,null);
     return new ResponseEntity(HttpStatus.OK);
   }
 

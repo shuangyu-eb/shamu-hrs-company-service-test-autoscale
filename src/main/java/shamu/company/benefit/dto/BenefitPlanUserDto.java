@@ -12,4 +12,6 @@ public class BenefitPlanUserDto {
   private String lastName;
 
   private String imageUrl;
+
+  private String coverageId;
 }

@@ -76,4 +76,7 @@ public interface BenefitPlanCoverageRepository extends BaseRepository<BenefitPla
               + "on bpc.benefitCoverage.id = bc.id "
               + "where bpc.benefitPlanId in ?1")
   List<BenefitReportCoveragesDto> getBenefitReportCoverages(List<String> benefitPlanIds);
+
+  BenefitPlanCoverage getByBenefitPlanIdAndBenefitCoverageId(
+      String benefitPlanId, String benefitCoverageId);
 }

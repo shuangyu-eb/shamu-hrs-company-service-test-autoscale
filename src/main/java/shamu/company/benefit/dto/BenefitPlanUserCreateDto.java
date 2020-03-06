@@ -10,4 +10,6 @@ import lombok.NoArgsConstructor;
 public class BenefitPlanUserCreateDto {
 
   private String id;
+
+  private String coverage;
 }

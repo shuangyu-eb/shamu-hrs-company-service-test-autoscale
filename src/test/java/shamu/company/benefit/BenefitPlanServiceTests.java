@@ -361,7 +361,7 @@ class BenefitPlanServiceTests {
 
   @Nested
   class createBenefitPlan {
-    String companyId = "a";
+    String companyId = "companyId";
     BenefitPlanCreateDto benefitPlan;
     List<BenefitPlanCoverageDto> coverages;
     List<BenefitPlanUserCreateDto> selectedEmployees;
@@ -377,20 +377,20 @@ class BenefitPlanServiceTests {
       data = new NewBenefitPlanWrapperDto();
       final BenefitPlanCoverageDto benefitPlanCoverageDto = new BenefitPlanCoverageDto();
       benefitPlanCoverageDto.setCoverageName("CoverageName");
-      benefitPlanCoverageDto.setId("");
+      benefitPlanCoverageDto.setId("coverageId");
       coverages.add(benefitPlanCoverageDto);
       benefitPlan.setRetirementTypeId("retirementTypeId");
+      BenefitPlanUserCreateDto benefitPlanUserCreateDto = new BenefitPlanUserCreateDto();
+      benefitPlanUserCreateDto.setCoverage("coverageId");
+      benefitPlanUserCreateDto.setId("userId");
+      selectedEmployees.add(benefitPlanUserCreateDto);
+      data.setSelectedEmployees(selectedEmployees);
       data.setBenefitPlan(benefitPlan);
-      data.setForAllEmployees(forAllEmployees);
       data.setCoverages(coverages);
     }
 
     @Test
     void whenBenefitPlan_thenShouldSuccess() {
-      final List<User> users = new ArrayList<>();
-      final User user = new User();
-      user.setId("userId");
-      users.add(user);
       final BenefitPlan benefitPlanSaved = new BenefitPlan();
       benefitPlanSaved.setId("benefitPlanId");
       final BenefitCoverages benefitCoverages = new BenefitCoverages();
@@ -404,10 +404,11 @@ class BenefitPlanServiceTests {
       Mockito.when(benefitCoveragesRepository.save(Mockito.any())).thenReturn(benefitCoverages);
       Mockito.when(benefitPlanMapper.createFromBenefitPlanCreateDto(benefitPlan))
           .thenReturn(benefitPlanSaved);
-      Mockito.when(userRepository.findAllByCompanyId(companyId)).thenReturn(users);
       Mockito.when(benefitPlanRepository.save(benefitPlanSaved)).thenReturn(benefitPlanSaved);
       Mockito.when(benefitCoveragesRepository.save(benefitCoverages)).thenReturn(benefitCoverages);
-      Mockito.when(benefitCoveragesRepository.findById(""))
+      Mockito.when(benefitPlanCoverageMapper.createFromBenefitPlanCoverageAndBenefitPlan(Mockito.any(),
+          Mockito.any(), Mockito.any())).thenReturn(benefitPlanCoverage);
+      Mockito.when(benefitCoveragesRepository.findById("coverageId"))
           .thenReturn(Optional.of(benefitCoverages));
       benefitPlanService.createBenefitPlan(data, companyId);
       Mockito.verify(benefitPlanMapper, Mockito.times(1)).convertToBenefitPlanDto(Mockito.any());
@@ -421,15 +422,23 @@ class BenefitPlanServiceTests {
     NewBenefitPlanWrapperDto newBenefitPlanWrapperDto;
     BenefitPlanCreateDto benefitPlan;
     List<BenefitPlanCoverageDto> coverages;
-
+    List<BenefitPlanUserCreateDto> selectedEmployees;
+    final BenefitPlanCoverageDto benefitPlanCoverageDto = new BenefitPlanCoverageDto();
+    final BenefitPlanCoverage benefitPlanCoverage = new BenefitPlanCoverage();
     @BeforeEach
     void init() {
       newBenefitPlanWrapperDto = new NewBenefitPlanWrapperDto();
       coverages = new ArrayList<>();
+      selectedEmployees = new ArrayList<>();
+      benefitPlanCoverage.setId("addCoverageId");
+      BenefitPlanUserCreateDto benefitPlanUserCreateDto = new BenefitPlanUserCreateDto();
+      benefitPlanUserCreateDto.setId("userId");
+      benefitPlanUserCreateDto.setCoverage("coverageId");
+      selectedEmployees.add(benefitPlanUserCreateDto);
+      newBenefitPlanWrapperDto.setSelectedEmployees(selectedEmployees);
       final BenefitPlanCoverageDto existBenefitPlanCoverageDto = new BenefitPlanCoverageDto();
-      final BenefitPlanCoverageDto benefitPlanCoverageDto = new BenefitPlanCoverageDto();
       existBenefitPlanCoverageDto.setId("coverageId");
-      benefitPlanCoverageDto.setId("");
+      benefitPlanCoverageDto.setId("addCoverageId");
       coverages.add(existBenefitPlanCoverageDto);
       coverages.add(benefitPlanCoverageDto);
       benefitPlan = new BenefitPlanCreateDto();
@@ -437,13 +446,14 @@ class BenefitPlanServiceTests {
       benefitPlan.setPlanId(benefitPlanId);
       newBenefitPlanWrapperDto.setBenefitPlan(benefitPlan);
       newBenefitPlanWrapperDto.setCoverages(coverages);
-      newBenefitPlanWrapperDto.setForAllEmployees(true);
     }
 
     @Test
     void whenUpdateBenefitPlan_thenShouldSuccess() {
       final BenefitPlan benefitPlan = new BenefitPlan();
       benefitPlan.setId(benefitPlanId);
+      final BenefitPlanCoverage newBenefitPlanCoverage = new BenefitPlanCoverage();
+      newBenefitPlanCoverage.setId("addCoverageId");
       final List<BenefitPlanCoverage> existBenefitPlanCoverages = new ArrayList<>();
       final BenefitPlanCoverage existBenefitPlanCoverage = new BenefitPlanCoverage();
       existBenefitPlanCoverage.setId("coverageId");
@@ -459,6 +469,7 @@ class BenefitPlanServiceTests {
       final BenefitPlanCoverage savedBenefitPlanCoverage = new BenefitPlanCoverage();
       savedBenefitPlanCoverage.setBenefitPlanId(benefitPlanId);
       savedBenefitPlanCoverage.setBenefitCoverage(savedBenefitCoverages);
+      savedBenefitPlanCoverage.setId("addCoverageId");
       final List<BenefitPlanUser> benefitPlanUserList = new ArrayList<>();
       final BenefitPlanUser benefitPlanUser = new BenefitPlanUser();
       benefitPlanUser.setId("benefitPlanUserId");
@@ -495,8 +506,8 @@ class BenefitPlanServiceTests {
               benefitPlanCoverageMapper.createFromBenefitPlanCoverageDtoAndCoverage(
                   Mockito.any(), Mockito.any()))
           .thenReturn(savedBenefitPlanCoverage);
-      Mockito.when(userRepository.findAllByCompanyId(companyId)).thenReturn(users);
-      benefitPlanService.updateBenefitPlan(newBenefitPlanWrapperDto, benefitPlanId, companyId);
+      Mockito.when(benefitPlanCoverageRepository.save(benefitPlanCoverage)).thenReturn(benefitPlanCoverage);
+      benefitPlanService.updateBenefitPlan(newBenefitPlanWrapperDto, benefitPlanId);
       Mockito.verify(benefitPlanMapper, Mockito.times(1)).convertToBenefitPlanDto(Mockito.any());
     }
   }
