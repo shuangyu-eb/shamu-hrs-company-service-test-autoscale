@@ -65,9 +65,11 @@ public interface TimeOffRequestRepository
               + "   ON tr.requester_user_id = u.id "
               + "LEFT JOIN time_off_request_approval_statuses tras "
               + "   ON tr.time_off_request_approval_status_id = tras.id "
+              + "LEFT JOIN user_roles ur "
+              + "   ON u.user_role_id = ur.id "
               + "WHERE (tr.requester_user_id = unhex(?1) "
               + "   OR u.manager_user_id = unhex(?1)) "
-              + "   and tras.name in ?2 "
+              + "   and tras.name in ?2 and ur.name != 'INACTIVATE' "
               + "group by tr.id ",
       nativeQuery = true)
   List<TimeOffRequest> employeeFindTeamRequests(
@@ -97,9 +99,11 @@ public interface TimeOffRequestRepository
               + "   ON tr.requester_user_id = u.id "
               + "LEFT JOIN time_off_request_approval_statuses tras "
               + "   ON tr.time_off_request_approval_status_id = tras.id "
+              + "LEFT JOIN user_roles ur "
+              + "   ON u.user_role_id = ur.id "
               + "WHERE (tr.requester_user_id IN (unhex(?1), unhex(?2)) "
               + "   OR u.manager_user_id IN (unhex(?1), unhex(?2))) "
-              + "   AND tras.name in ?3 "
+              + "   AND tras.name in ?3 and ur.name != 'INACTIVATE' "
               + "group by tr.id ",
       nativeQuery = true)
   List<TimeOffRequest> findManagerTeamRequests(
@@ -114,8 +118,10 @@ public interface TimeOffRequestRepository
               + "   ON tr.requester_user_id = u.id "
               + "LEFT JOIN time_off_request_approval_statuses tras "
               + "   ON tr.time_off_request_approval_status_id = tras.id "
+              + "LEFT JOIN user_roles ur "
+              + "   ON u.user_role_id = ur.id "
               + "WHERE (tr.requester_user_id = unhex(?1) OR u.manager_user_id = unhex(?1)) "
-              + "   and tras.name in ?2 "
+              + "   and tras.name in ?2 and ur.name != 'INACTIVATE' "
               + "group by tr.id ",
       nativeQuery = true)
   List<TimeOffRequest> findAdminTeamRequests(
