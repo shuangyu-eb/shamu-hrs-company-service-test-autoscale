@@ -42,6 +42,7 @@ import shamu.company.timeoff.dto.TimeOffPolicyListDto;
 import shamu.company.timeoff.dto.TimeOffPolicyRelatedInfoDto;
 import shamu.company.timeoff.dto.TimeOffPolicyRelatedUserDto;
 import shamu.company.timeoff.dto.TimeOffPolicyRelatedUserListDto;
+import shamu.company.timeoff.dto.TimeOffPolicyRelatedUserListOnMobileDto;
 import shamu.company.timeoff.dto.TimeOffPolicyUserDto;
 import shamu.company.timeoff.dto.TimeOffPolicyUserFrontendDto;
 import shamu.company.timeoff.dto.TimeOffPolicyWrapperDto;
@@ -111,7 +112,8 @@ public class TimeOffPolicyService {
       final TimeOffPolicyUserRepository timeOffPolicyUserRepository,
       final AccrualScheduleMilestoneRepository accrualScheduleMilestoneRepository,
       final TimeOffPolicyAccrualScheduleRepository timeOffPolicyAccrualScheduleRepository,
-      final JobUserRepository jobUserRepository, final TimeOffDetailService timeOffDetailService,
+      final JobUserRepository jobUserRepository,
+      final TimeOffDetailService timeOffDetailService,
       final UserRepository userRepository,
       final TimeOffRequestRepository timeOffRequestRepository,
       final TimeOffAdjustmentRepository timeOffAdjustmentRepository,
@@ -140,44 +142,49 @@ public class TimeOffPolicyService {
     this.userService = userService;
   }
 
-  public void createTimeOffPolicy(final TimeOffPolicyWrapperDto timeOffPolicyWrapperDto,
-      final String companyId) {
+  public void createTimeOffPolicy(
+      final TimeOffPolicyWrapperDto timeOffPolicyWrapperDto, final String companyId) {
 
-    final TimeOffPolicyFrontendDto timeOffPolicyFrontendDto = timeOffPolicyWrapperDto
-        .getTimeOffPolicy();
-    final TimeOffPolicyAccrualScheduleDto timeOffPolicyAccrualScheduleDto = timeOffPolicyWrapperDto
-        .getTimeOffPolicyAccrualSchedule();
+    final TimeOffPolicyFrontendDto timeOffPolicyFrontendDto =
+        timeOffPolicyWrapperDto.getTimeOffPolicy();
+    final TimeOffPolicyAccrualScheduleDto timeOffPolicyAccrualScheduleDto =
+        timeOffPolicyWrapperDto.getTimeOffPolicyAccrualSchedule();
     final List<AccrualScheduleMilestoneDto> accrualScheduleMilestoneDtoList =
         timeOffPolicyWrapperDto.getMilestones();
-    final List<TimeOffPolicyUserFrontendDto> timeOffPolicyUserFrontendDtos = timeOffPolicyWrapperDto
-        .getUserStartBalances();
+    final List<TimeOffPolicyUserFrontendDto> timeOffPolicyUserFrontendDtos =
+        timeOffPolicyWrapperDto.getUserStartBalances();
     final Company company = companyService.findById(companyId);
 
-    createTimeOffPolicy(timeOffPolicyFrontendDto, timeOffPolicyAccrualScheduleDto,
-        accrualScheduleMilestoneDtoList, timeOffPolicyUserFrontendDtos, company);
+    createTimeOffPolicy(
+        timeOffPolicyFrontendDto,
+        timeOffPolicyAccrualScheduleDto,
+        accrualScheduleMilestoneDtoList,
+        timeOffPolicyUserFrontendDtos,
+        company);
   }
 
-  private void createTimeOffPolicy(final TimeOffPolicyFrontendDto timeOffPolicyFrontendDto,
+  private void createTimeOffPolicy(
+      final TimeOffPolicyFrontendDto timeOffPolicyFrontendDto,
       final TimeOffPolicyAccrualScheduleDto timeOffPolicyAccrualScheduleDto,
       final List<AccrualScheduleMilestoneDto> accrualScheduleMilestoneDtoList,
       final List<TimeOffPolicyUserFrontendDto> timeOffPolicyUserFrontendDtos,
       final Company company) {
 
-    checkPolicyNameIsExists(timeOffPolicyFrontendDto,company.getId(), 0);
+    checkPolicyNameIsExists(timeOffPolicyFrontendDto, company.getId(), 0);
 
-    final TimeOffPolicy timeOffPolicy = timeOffPolicyRepository
-        .save(timeOffPolicyMapper
-            .createFromTimeOffPolicyFrontendDtoAndCompany(timeOffPolicyFrontendDto, company));
+    final TimeOffPolicy timeOffPolicy =
+        timeOffPolicyRepository.save(
+            timeOffPolicyMapper.createFromTimeOffPolicyFrontendDtoAndCompany(
+                timeOffPolicyFrontendDto, company));
     final String policyId = timeOffPolicy.getId();
-    final String timeOffAccrualFrequencyId = timeOffPolicyAccrualScheduleDto
-        .getTimeOffAccrualFrequencyId();
+    final String timeOffAccrualFrequencyId =
+        timeOffPolicyAccrualScheduleDto.getTimeOffAccrualFrequencyId();
 
     if (timeOffPolicyFrontendDto.getIsLimited()) {
       final TimeOffPolicyAccrualSchedule timeOffPolicyAccrualSchedule =
-          timeOffPolicyAccrualScheduleRepository
-              .save(timeOffPolicyAccrualScheduleMapper
-                  .createTimeOffPolicyAccrualSchedule(timeOffPolicyAccrualScheduleDto,
-                      timeOffPolicy, timeOffAccrualFrequencyId));
+          timeOffPolicyAccrualScheduleRepository.save(
+              timeOffPolicyAccrualScheduleMapper.createTimeOffPolicyAccrualSchedule(
+                  timeOffPolicyAccrualScheduleDto, timeOffPolicy, timeOffAccrualFrequencyId));
 
       final String scheduleId = timeOffPolicyAccrualSchedule.getId();
       createAccrualScheduleMilestones(accrualScheduleMilestoneDtoList, scheduleId);
@@ -186,10 +193,12 @@ public class TimeOffPolicyService {
     createTimeOffPolicyUsers(timeOffPolicyUserFrontendDtos, policyId);
   }
 
-  private void checkPolicyNameIsExists(final TimeOffPolicyFrontendDto timeOffPolicyFrontendDto,
-      final String companyId,final Integer existNumber) {
-    final Integer existSamePolicyName = timeOffPolicyRepository
-        .findByPolicyNameAndCompanyId(
+  private void checkPolicyNameIsExists(
+      final TimeOffPolicyFrontendDto timeOffPolicyFrontendDto,
+      final String companyId,
+      final Integer existNumber) {
+    final Integer existSamePolicyName =
+        timeOffPolicyRepository.findByPolicyNameAndCompanyId(
             timeOffPolicyFrontendDto.getPolicyName(), companyId);
     if (existSamePolicyName > existNumber) {
       throw new ForbiddenException(
@@ -198,13 +207,11 @@ public class TimeOffPolicyService {
     }
   }
 
-
-
   public TimeOffBalanceDto getTimeOffBalances(final String userId) {
     final User user = userService.findById(userId);
 
-    final List<TimeOffPolicyUser> policyUsers = timeOffPolicyUserRepository
-        .findTimeOffPolicyUsersByUser(user);
+    final List<TimeOffPolicyUser> policyUsers =
+        timeOffPolicyUserRepository.findTimeOffPolicyUsersByUser(user);
     final Iterator<TimeOffPolicyUser> policyUserIterator = policyUsers.iterator();
 
     boolean showTotalBalance = true;
@@ -213,28 +220,34 @@ public class TimeOffPolicyService {
     while (policyUserIterator.hasNext()) {
       final TimeOffPolicyUser policyUser = policyUserIterator.next();
       final String policyUserId = policyUser.getId();
-      final TimeOffBreakdownDto timeOffBreakdownDto = timeOffDetailService
-          .getTimeOffBreakdown(policyUserId, null);
+      final TimeOffBreakdownDto timeOffBreakdownDto =
+          timeOffDetailService.getTimeOffBreakdown(policyUserId, null);
       final Integer balance = timeOffBreakdownDto.getBalance();
 
-      final Integer pendingHours = getTimeOffRequestHoursFromStatus(
-          user.getId(), policyUser.getTimeOffPolicy().getId(), AWAITING_REVIEW, null, null);
-      final Integer approvedHours = getTimeOffRequestHoursFromStatus(
-          user.getId(), policyUser.getTimeOffPolicy().getId(), APPROVED,
-          Timestamp.valueOf(currentTime), TimeOffRequestDate.Operator.MORE_THAN);
+      final Integer pendingHours =
+          getTimeOffRequestHoursFromStatus(
+              user.getId(), policyUser.getTimeOffPolicy().getId(), AWAITING_REVIEW, null, null);
+      final Integer approvedHours =
+          getTimeOffRequestHoursFromStatus(
+              user.getId(),
+              policyUser.getTimeOffPolicy().getId(),
+              APPROVED,
+              Timestamp.valueOf(currentTime),
+              TimeOffRequestDate.Operator.MORE_THAN);
 
       final Integer approvalBalance = (null == balance ? null : (balance - approvedHours));
-      final Integer availableBalance = (
-          null == balance ? null : (balance - pendingHours - approvedHours));
+      final Integer availableBalance =
+          (null == balance ? null : (balance - pendingHours - approvedHours));
 
-      final TimeOffBalanceItemDto timeOffBalanceItemDto = TimeOffBalanceItemDto.builder()
-          .id(policyUserId)
-          .currentBalance(balance)
-          .approvalBalance(approvalBalance)
-          .availableBalance(availableBalance)
-          .name(policyUser.getTimeOffPolicy().getName())
-          .showBalance(timeOffBreakdownDto.isShowBalance())
-          .build();
+      final TimeOffBalanceItemDto timeOffBalanceItemDto =
+          TimeOffBalanceItemDto.builder()
+              .id(policyUserId)
+              .currentBalance(balance)
+              .approvalBalance(approvalBalance)
+              .availableBalance(availableBalance)
+              .name(policyUser.getTimeOffPolicy().getName())
+              .showBalance(timeOffBreakdownDto.isShowBalance())
+              .build();
 
       timeOffBalanceItemDtos.add(timeOffBalanceItemDto);
 
@@ -248,10 +261,14 @@ public class TimeOffPolicyService {
   }
 
   public Integer getTimeOffRequestHoursFromStatus(
-      final String userId, final String policyId, final TimeOffApprovalStatus status,
-      final Timestamp currentTime, final TimeOffRequestDate.Operator operator) {
-    final List<TimeOffRequest> timeOffRequestList = timeOffRequestRepository
-        .findByTimeOffPolicyUserAndStatus(userId, policyId, status, currentTime, operator);
+      final String userId,
+      final String policyId,
+      final TimeOffApprovalStatus status,
+      final Timestamp currentTime,
+      final TimeOffRequestDate.Operator operator) {
+    final List<TimeOffRequest> timeOffRequestList =
+        timeOffRequestRepository.findByTimeOffPolicyUserAndStatus(
+            userId, policyId, status, currentTime, operator);
 
     return timeOffRequestList.stream().mapToInt(TimeOffRequest::getHours).sum();
   }
@@ -267,28 +284,33 @@ public class TimeOffPolicyService {
       endDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(untilDate), ZoneId.of("UTC"));
     }
 
-    final List<TimeOffPolicyUser> policyUsers = timeOffPolicyUserRepository
-        .findTimeOffPolicyUsersByUser(user);
+    final List<TimeOffPolicyUser> policyUsers =
+        timeOffPolicyUserRepository.findTimeOffPolicyUsersByUser(user);
     final Iterator<TimeOffPolicyUser> policyUserIterator = policyUsers.iterator();
 
     final List<TimeOffPolicyUserDto> timeOffPolicyUserDtos = new ArrayList<>();
     while (policyUserIterator.hasNext()) {
       final TimeOffPolicyUser policyUser = policyUserIterator.next();
       final String policyUserId = policyUser.getId();
-      final TimeOffBreakdownDto timeOffBreakdownDto = timeOffDetailService
-          .getTimeOffBreakdown(policyUserId, untilDate);
+      final TimeOffBreakdownDto timeOffBreakdownDto =
+          timeOffDetailService.getTimeOffBreakdown(policyUserId, untilDate);
       final Integer balance = timeOffBreakdownDto.getBalance();
 
-      final Integer pendingHours = getTimeOffRequestHoursFromStatus(
-          user.getId(), policyUser.getTimeOffPolicy().getId(), AWAITING_REVIEW, null, null);
-      final Integer approvedHours = getTimeOffRequestHoursFromStatus(
-          user.getId(), policyUser.getTimeOffPolicy().getId(), APPROVED,
-          Timestamp.valueOf(endDateTime), TimeOffRequestDate.Operator.MORE_THAN);
-      final Integer availableBalance = (
-          null == balance ? null : (balance - pendingHours - approvedHours));
+      final Integer pendingHours =
+          getTimeOffRequestHoursFromStatus(
+              user.getId(), policyUser.getTimeOffPolicy().getId(), AWAITING_REVIEW, null, null);
+      final Integer approvedHours =
+          getTimeOffRequestHoursFromStatus(
+              user.getId(),
+              policyUser.getTimeOffPolicy().getId(),
+              APPROVED,
+              Timestamp.valueOf(endDateTime),
+              TimeOffRequestDate.Operator.MORE_THAN);
+      final Integer availableBalance =
+          (null == balance ? null : (balance - pendingHours - approvedHours));
 
-      final TimeOffPolicyUserDto timeOffPolicyUserDto = timeOffPolicyUserMapper
-          .convertToTimeOffPolicyUserDto(policyUser);
+      final TimeOffPolicyUserDto timeOffPolicyUserDto =
+          timeOffPolicyUserMapper.convertToTimeOffPolicyUserDto(policyUser);
       timeOffPolicyUserDto.setBalance(availableBalance);
       timeOffPolicyUserDtos.add(timeOffPolicyUserDto);
     }
@@ -304,23 +326,27 @@ public class TimeOffPolicyService {
       final List<TimeOffPolicyUserFrontendDto> timeOffPolicyUserFrontendDtos,
       final String policyId) {
     if (!timeOffPolicyUserFrontendDtos.isEmpty()) {
-      timeOffPolicyUserRepository
-          .saveAll(timeOffPolicyUserFrontendDtos.stream().map(timeOffPolicyUserFrontendDto ->
-              timeOffPolicyUserMapper.createFromTimeOffPolicyUserFrontendDtoAndTimeOffPolicyId(
-                  timeOffPolicyUserFrontendDto, policyId))
+      timeOffPolicyUserRepository.saveAll(
+          timeOffPolicyUserFrontendDtos.stream()
+              .map(
+                  timeOffPolicyUserFrontendDto ->
+                      timeOffPolicyUserMapper
+                          .createFromTimeOffPolicyUserFrontendDtoAndTimeOffPolicyId(
+                              timeOffPolicyUserFrontendDto, policyId))
               .collect(Collectors.toList()));
     }
   }
 
-  public Integer getTimeOffBalanceByUserAndPolicy(final User user,
-      final TimeOffPolicy timeOffPolicy) {
+  public Integer getTimeOffBalanceByUserAndPolicy(
+      final User user, final TimeOffPolicy timeOffPolicy) {
     return timeOffPolicyUserRepository
         .findTimeOffPolicyUserByUserAndTimeOffPolicy(user, timeOffPolicy)
         .getInitialBalance();
   }
 
   public TimeOffPolicy getTimeOffPolicyById(final String id) {
-    return timeOffPolicyRepository.findById(id)
+    return timeOffPolicyRepository
+        .findById(id)
         .orElseThrow(() -> new ResourceNotFoundException("Time off policy was not found."));
   }
 
@@ -328,20 +354,18 @@ public class TimeOffPolicyService {
     final TimeOffPolicy timeOffPolicy = timeOffPolicyRepository.findById(policyId).get();
 
     if (!timeOffPolicy.getIsLimited()) {
-      return new TimeOffPolicyRelatedInfoDto(
-          timeOffPolicy, null, null);
+      return new TimeOffPolicyRelatedInfoDto(timeOffPolicy, null, null);
     }
     final TimeOffPolicyAccrualSchedule timeOffPolicyAccrualSchedule =
         timeOffPolicyAccrualScheduleRepository.findByTimeOffPolicy(timeOffPolicy);
 
     final List<AccrualScheduleMilestone> accrualScheduleMilestones =
-        accrualScheduleMilestoneRepository
-            .findByTimeOffPolicyAccrualScheduleId(timeOffPolicyAccrualSchedule.getId());
+        accrualScheduleMilestoneRepository.findByTimeOffPolicyAccrualScheduleId(
+            timeOffPolicyAccrualSchedule.getId());
 
     return timeOffPolicyMapper
         .createFromTimeOffPolicyAndTimeOffPolicyAccrualScheduleAndAccrualScheduleMilestones(
-        timeOffPolicy,timeOffPolicyAccrualSchedule,accrualScheduleMilestones
-    );
+            timeOffPolicy, timeOffPolicyAccrualSchedule, accrualScheduleMilestones);
   }
 
   public TimeOffPolicyRelatedUserListDto getAllEmployeesByTimeOffPolicyId(
@@ -351,39 +375,79 @@ public class TimeOffPolicyService {
 
     final Boolean isLimited = timeOffPolicy.getIsLimited();
 
-    final List<TimeOffPolicyUser> timeOffPolicyUsers = timeOffPolicyUserRepository
-        .findAllByTimeOffPolicyId(timeOffPolicyId);
+    final List<TimeOffPolicyUser> timeOffPolicyUsers =
+        timeOffPolicyUserRepository.findAllByTimeOffPolicyId(timeOffPolicyId);
 
-    final List<User> selectableTimeOffPolicyUsers = userRepository
-        .findAllByCompanyId(companyId);
+    final List<User> selectableTimeOffPolicyUsers = userRepository.findAllByCompanyId(companyId);
 
     final ArrayList<String> selectedUsersIds = new ArrayList<>();
 
-    final List<TimeOffPolicyRelatedUserDto> selectedEmployees = timeOffPolicyUsers.stream().map(
-        (timeOffPolicyUser) -> {
-          JobUser employeeWithJobInfo = jobUserRepository
-              .findJobUserByUser(timeOffPolicyUser.getUser());
-          selectedUsersIds.add(timeOffPolicyUser.getUser().getId());
+    final List<TimeOffPolicyRelatedUserDto> selectedEmployees =
+        timeOffPolicyUsers.stream()
+            .map(
+                (timeOffPolicyUser) -> {
+                  JobUser employeeWithJobInfo =
+                      jobUserRepository.findJobUserByUser(timeOffPolicyUser.getUser());
+                  selectedUsersIds.add(timeOffPolicyUser.getUser().getId());
 
-          return jobUserMapper.convertToTimeOffPolicyRelatedUserDto(timeOffPolicyUser,
-              employeeWithJobInfo);
-        }
-    ).collect(Collectors.toList());
+                  return jobUserMapper.convertToTimeOffPolicyRelatedUserDto(
+                      timeOffPolicyUser, employeeWithJobInfo);
+                })
+            .collect(Collectors.toList());
 
-    final List<TimeOffPolicyRelatedUserDto> unselectedEmployees = selectableTimeOffPolicyUsers
-        .stream().filter(user -> !selectedUsersIds.contains(user.getId()))
-        .map(user -> {
-          JobUser employeeWithJobInfo = jobUserRepository.findJobUserByUser(user);
-          return jobUserMapper
-              .convertToTimeOffPolicyRelatedUserDto(user, employeeWithJobInfo);
-        }).collect(Collectors.toList());
+    final List<TimeOffPolicyRelatedUserDto> unselectedEmployees =
+        selectableTimeOffPolicyUsers.stream()
+            .filter(user -> !selectedUsersIds.contains(user.getId()))
+            .map(
+                user -> {
+                  JobUser employeeWithJobInfo = jobUserRepository.findJobUserByUser(user);
+                  return jobUserMapper.convertToTimeOffPolicyRelatedUserDto(
+                      user, employeeWithJobInfo);
+                })
+            .collect(Collectors.toList());
 
-    return new TimeOffPolicyRelatedUserListDto(
+    return new TimeOffPolicyRelatedUserListDto(isLimited, unselectedEmployees, selectedEmployees);
+  }
+
+  public TimeOffPolicyRelatedUserListOnMobileDto getAllEmployeesOnMobileByTimeOffPolicyId(
+      final String timeOffPolicyId, final String companyId) {
+
+    final TimeOffPolicy timeOffPolicy = getTimeOffPolicyById(timeOffPolicyId);
+
+    final Boolean isLimited = timeOffPolicy.getIsLimited();
+
+    final List<TimeOffPolicyUser> timeOffPolicyUsers =
+        timeOffPolicyUserRepository.findAllByTimeOffPolicyId(timeOffPolicyId);
+
+    final List<User> selectableTimeOffPolicyUsers = userRepository.findAllByCompanyId(companyId);
+
+    final List<TimeOffPolicyRelatedUserDto> selectedEmployees =
+        timeOffPolicyUsers.stream()
+            .map(
+                (timeOffPolicyUser) -> {
+                  JobUser employeeWithJobInfo =
+                      jobUserRepository.findJobUserByUser(timeOffPolicyUser.getUser());
+                  return jobUserMapper.convertToTimeOffPolicyRelatedUserDto(
+                      timeOffPolicyUser, employeeWithJobInfo);
+                })
+            .collect(Collectors.toList());
+
+    final List<TimeOffPolicyRelatedUserDto> unselectedEmployees =
+        selectableTimeOffPolicyUsers.stream()
+            .map(
+                user -> {
+                  JobUser employeeWithJobInfo = jobUserRepository.findJobUserByUser(user);
+                  return jobUserMapper.convertToTimeOffPolicyRelatedUserDto(
+                      user, employeeWithJobInfo);
+                })
+            .collect(Collectors.toList());
+
+    return new TimeOffPolicyRelatedUserListOnMobileDto(
         isLimited, unselectedEmployees, selectedEmployees);
   }
 
-  public void updateTimeOffPolicy(final String id,
-      final TimeOffPolicyWrapperDto infoWrapper, final String companyId) {
+  public void updateTimeOffPolicy(
+      final String id, final TimeOffPolicyWrapperDto infoWrapper, final String companyId) {
 
     final TimeOffPolicyFrontendDto timeOffPolicyFrontendDto = infoWrapper.getTimeOffPolicy();
     final TimeOffPolicy origin = getTimeOffPolicyById(id);
@@ -397,12 +461,11 @@ public class TimeOffPolicyService {
     if (BooleanUtils.isTrue(origin.getIsLimited())) {
       updateTimeOffPolicyMilestones(origin, infoWrapper.getMilestones());
 
-      updateTimeOffPolicySchedule(origin,
-          infoWrapper.getTimeOffPolicyAccrualSchedule());
+      updateTimeOffPolicySchedule(origin, infoWrapper.getTimeOffPolicyAccrualSchedule());
     }
 
-    final List<TimeOffPolicyUserFrontendDto> timeOffPolicyUserFrontendDtos = infoWrapper
-        .getUserStartBalances();
+    final List<TimeOffPolicyUserFrontendDto> timeOffPolicyUserFrontendDtos =
+        infoWrapper.getUserStartBalances();
     updateTimeOffPolicyUserInfo(timeOffPolicyUserFrontendDtos, id);
   }
 
@@ -416,8 +479,8 @@ public class TimeOffPolicyService {
   }
 
   public List<TimeOffPolicyListDto> getAllPolicies(final String companyId) {
-    final List<TimeOffPolicyListPojo> timeOffPolicies = timeOffPolicyRepository
-        .getAllPolicies(companyId);
+    final List<TimeOffPolicyListPojo> timeOffPolicies =
+        timeOffPolicyRepository.getAllPolicies(companyId);
     final Iterator<TimeOffPolicyListPojo> timeOffPolicyIterator = timeOffPolicies.iterator();
 
     final List<TimeOffPolicyListDto> timeOffPolicyListDtoList = new ArrayList<>();
@@ -438,27 +501,29 @@ public class TimeOffPolicyService {
     final TimeOffPolicyAccrualSchedule originTimeOffSchedule =
         getTimeOffPolicyAccrualScheduleByTimeOffPolicy(timeOffPolicy);
 
-    TimeOffPolicyAccrualSchedule newTimeOffSchedule = timeOffPolicyAccrualScheduleMapper
-        .createTimeOffPolicyAccrualSchedule(timeOffPolicyAccrualScheduleDto, timeOffPolicy,
+    TimeOffPolicyAccrualSchedule newTimeOffSchedule =
+        timeOffPolicyAccrualScheduleMapper.createTimeOffPolicyAccrualSchedule(
+            timeOffPolicyAccrualScheduleDto,
+            timeOffPolicy,
             originTimeOffSchedule.getTimeOffAccrualFrequency().getId());
 
     if (!isScheduleChanged(originTimeOffSchedule, newTimeOffSchedule)) {
       return originTimeOffSchedule;
     }
 
-
     originTimeOffSchedule.setExpiredAt(DateUtil.getToday());
     timeOffPolicyAccrualScheduleRepository.save(originTimeOffSchedule);
 
     newTimeOffSchedule = timeOffPolicyAccrualScheduleRepository.save(newTimeOffSchedule);
 
-    accrualScheduleMilestoneRepository
-        .updateMilestoneSchedule(originTimeOffSchedule.getId(), newTimeOffSchedule.getId());
+    accrualScheduleMilestoneRepository.updateMilestoneSchedule(
+        originTimeOffSchedule.getId(), newTimeOffSchedule.getId());
 
     return newTimeOffSchedule;
   }
 
-  private boolean isScheduleChanged(final TimeOffPolicyAccrualSchedule originalSchedule,
+  private boolean isScheduleChanged(
+      final TimeOffPolicyAccrualSchedule originalSchedule,
       final TimeOffPolicyAccrualSchedule newSchedule) {
     return originalSchedule.getDaysBeforeAccrualStarts() != newSchedule.getDaysBeforeAccrualStarts()
         || originalSchedule.getAccrualHours() != newSchedule.getAccrualHours()
@@ -481,16 +546,20 @@ public class TimeOffPolicyService {
     if (originTimeOffSchedule == null) {
       accrualScheduleMilestoneList = new ArrayList<>();
     } else {
-      accrualScheduleMilestoneList = accrualScheduleMilestoneRepository
-          .findByTimeOffPolicyAccrualScheduleId(originTimeOffSchedule.getId());
+      accrualScheduleMilestoneList =
+          accrualScheduleMilestoneRepository.findByTimeOffPolicyAccrualScheduleId(
+              originTimeOffSchedule.getId());
     }
 
     final String accrualScheduleId = originTimeOffSchedule.getId();
-    final List<AccrualScheduleMilestone> newAccrualMilestoneList = milestones.stream()
-        .map(accrualScheduleMilestoneDto -> accrualScheduleMilestoneMapper
-            .createFromAccrualScheduleMilestoneDtoAndTimeOffPolicyAccrualScheduleId(
-                accrualScheduleMilestoneDto, accrualScheduleId))
-        .collect(Collectors.toList());
+    final List<AccrualScheduleMilestone> newAccrualMilestoneList =
+        milestones.stream()
+            .map(
+                accrualScheduleMilestoneDto ->
+                    accrualScheduleMilestoneMapper
+                        .createFromAccrualScheduleMilestoneDtoAndTimeOffPolicyAccrualScheduleId(
+                            accrualScheduleMilestoneDto, accrualScheduleId))
+            .collect(Collectors.toList());
 
     sortMilestoneList(accrualScheduleMilestoneList);
     sortMilestoneList(newAccrualMilestoneList);
@@ -498,28 +567,27 @@ public class TimeOffPolicyService {
     final HashMap<Integer, List<AccrualScheduleMilestone>> hashMap =
         transformMilestoneListToMap(accrualScheduleMilestoneList, newAccrualMilestoneList);
 
-    return hashMap.entrySet()
-        .stream()
+    return hashMap.entrySet().stream()
         .map(Map.Entry::getValue)
         .map(this::expireAndSaveMilestones)
         .filter(Objects::nonNull)
         .collect(Collectors.toList());
   }
 
-  public void addTimeOffAdjustments(final User currentUser, final String policyUserId,
-      final Integer newBalance) {
+  public void addTimeOffAdjustments(
+      final User currentUser, final String policyUserId, final Integer newBalance) {
 
-    final TimeOffAdjustmentCheckDto checkResult = timeOffDetailService
-        .checkTimeOffAdjustments(policyUserId, newBalance);
+    final TimeOffAdjustmentCheckDto checkResult =
+        timeOffDetailService.checkTimeOffAdjustments(policyUserId, newBalance);
     if (checkResult.getExceed()) {
-      throw new ForbiddenException(String.format("Amount exceeds max balance of %s hours.",
-          checkResult.getMaxBalance()));
+      throw new ForbiddenException(
+          String.format("Amount exceeds max balance of %s hours.", checkResult.getMaxBalance()));
     }
 
-    final TimeOffPolicyUser timeOffPolicyUser = timeOffPolicyUserRepository.findById(policyUserId)
-        .get();
-    final TimeOffBreakdownDto timeOffBreakdownDto = timeOffDetailService
-        .getTimeOffBreakdown(policyUserId, null);
+    final TimeOffPolicyUser timeOffPolicyUser =
+        timeOffPolicyUserRepository.findById(policyUserId).get();
+    final TimeOffBreakdownDto timeOffBreakdownDto =
+        timeOffDetailService.getTimeOffBreakdown(policyUserId, null);
     final Integer currentBalance = timeOffBreakdownDto.getBalance();
     final Integer adjustment = newBalance - currentBalance;
     final TimeOffAdjustment timeOffAdjustment =
@@ -533,8 +601,8 @@ public class TimeOffPolicyService {
 
   private void sortMilestoneList(
       final List<AccrualScheduleMilestone> accrualScheduleMilestoneList) {
-    accrualScheduleMilestoneList
-        .sort(Comparator.comparingInt(AccrualScheduleMilestone::getAnniversaryYear));
+    accrualScheduleMilestoneList.sort(
+        Comparator.comparingInt(AccrualScheduleMilestone::getAnniversaryYear));
   }
 
   private HashMap<Integer, List<AccrualScheduleMilestone>> transformMilestoneListToMap(
@@ -542,19 +610,19 @@ public class TimeOffPolicyService {
       final List<AccrualScheduleMilestone> newMilestones) {
     final HashMap<Integer, List<AccrualScheduleMilestone>> milestoneMap = new HashMap<>();
     for (final AccrualScheduleMilestone accrualMilestone : originMilestones) {
-      final List<AccrualScheduleMilestone> milestoneList = new ArrayList<>(
-          Collections.singletonList(accrualMilestone));
+      final List<AccrualScheduleMilestone> milestoneList =
+          new ArrayList<>(Collections.singletonList(accrualMilestone));
       milestoneMap.put(accrualMilestone.getAnniversaryYear(), milestoneList);
     }
 
     for (final AccrualScheduleMilestone accrualScheduleMilestone : newMilestones) {
-      final List<AccrualScheduleMilestone> accrualScheduleMilestones = milestoneMap
-          .get(accrualScheduleMilestone.getAnniversaryYear());
+      final List<AccrualScheduleMilestone> accrualScheduleMilestones =
+          milestoneMap.get(accrualScheduleMilestone.getAnniversaryYear());
       if (accrualScheduleMilestones != null) {
         accrualScheduleMilestones.add(accrualScheduleMilestone);
       } else {
-        final List<AccrualScheduleMilestone> milestoneList = new ArrayList<>(
-            Collections.singletonList(accrualScheduleMilestone));
+        final List<AccrualScheduleMilestone> milestoneList =
+            new ArrayList<>(Collections.singletonList(accrualScheduleMilestone));
         milestoneMap.put(accrualScheduleMilestone.getAnniversaryYear(), milestoneList);
       }
     }
@@ -585,7 +653,8 @@ public class TimeOffPolicyService {
     return accrualScheduleMilestoneRepository.save(nowMilestone);
   }
 
-  private boolean isMilestoneChanged(final AccrualScheduleMilestone originalMilestone,
+  private boolean isMilestoneChanged(
+      final AccrualScheduleMilestone originalMilestone,
       final AccrualScheduleMilestone newMilestone) {
     return originalMilestone.getAccrualHours() != newMilestone.getAccrualHours()
         || originalMilestone.getCarryoverLimit() != newMilestone.getCarryoverLimit()
@@ -598,49 +667,55 @@ public class TimeOffPolicyService {
     if (!accrualScheduleMilestoneDtoList.isEmpty()) {
       accrualScheduleMilestoneRepository.saveAll(
           accrualScheduleMilestoneDtoList.stream()
-              .map(accrualScheduleMilestoneDto ->
-                  accrualScheduleMilestoneMapper
-                      .createFromAccrualScheduleMilestoneDtoAndTimeOffPolicyAccrualScheduleId(
-                          accrualScheduleMilestoneDto, scheduleId))
+              .map(
+                  accrualScheduleMilestoneDto ->
+                      accrualScheduleMilestoneMapper
+                          .createFromAccrualScheduleMilestoneDtoAndTimeOffPolicyAccrualScheduleId(
+                              accrualScheduleMilestoneDto, scheduleId))
               .collect(Collectors.toList()));
     }
   }
 
   public void updateTimeOffPolicyUserInfo(
       final List<TimeOffPolicyUserFrontendDto> userStatBalances, final String timeOffPolicyId) {
-    final List<String> newUserIds = userStatBalances.stream()
-        .map(TimeOffPolicyUserFrontendDto::getUserId)
-        .collect(Collectors.toList());
-    final List<TimeOffPolicyUser> oldUsersStartBalanceList = timeOffPolicyUserRepository
-        .findAllByTimeOffPolicyId(timeOffPolicyId);
-    final List<String> oldUserIds = oldUsersStartBalanceList.stream()
-        .map(user -> user.getUser().getId())
-        .collect(Collectors.toList());
-    oldUsersStartBalanceList
-        .forEach(
-            oldUsersStartBalance -> {
-              if (newUserIds.contains(oldUsersStartBalance.getUser().getId())) {
-                // update
-                final Optional<TimeOffPolicyUserFrontendDto> updateUserStartBalance =
-                    userStatBalances.stream().filter(u -> u.getUserId()
-                            .equals(oldUsersStartBalance.getUser().getId())).findFirst();
-                if (updateUserStartBalance.isPresent()) {
-                  final TimeOffPolicyUserFrontendDto newUserStartBalance = updateUserStartBalance
-                      .get();
-                  oldUsersStartBalance.setInitialBalance(newUserStartBalance.getBalance());
-                  timeOffPolicyUserRepository.save(oldUsersStartBalance);
-                }
-                return;
-              }
-              // delete
-              timeOffPolicyUserRepository.delete(oldUsersStartBalance);
-            });
+    final List<String> newUserIds =
+        userStatBalances.stream()
+            .map(TimeOffPolicyUserFrontendDto::getUserId)
+            .collect(Collectors.toList());
+    final List<TimeOffPolicyUser> oldUsersStartBalanceList =
+        timeOffPolicyUserRepository.findAllByTimeOffPolicyId(timeOffPolicyId);
+    final List<String> oldUserIds =
+        oldUsersStartBalanceList.stream()
+            .map(user -> user.getUser().getId())
+            .collect(Collectors.toList());
+    oldUsersStartBalanceList.forEach(
+        oldUsersStartBalance -> {
+          if (newUserIds.contains(oldUsersStartBalance.getUser().getId())) {
+            // update
+            final Optional<TimeOffPolicyUserFrontendDto> updateUserStartBalance =
+                userStatBalances.stream()
+                    .filter(u -> u.getUserId().equals(oldUsersStartBalance.getUser().getId()))
+                    .findFirst();
+            if (updateUserStartBalance.isPresent()) {
+              final TimeOffPolicyUserFrontendDto newUserStartBalance = updateUserStartBalance.get();
+              oldUsersStartBalance.setInitialBalance(newUserStartBalance.getBalance());
+              timeOffPolicyUserRepository.save(oldUsersStartBalance);
+            }
+            return;
+          }
+          // delete
+          timeOffPolicyUserRepository.delete(oldUsersStartBalance);
+        });
     // add new user
-    final List<TimeOffPolicyUser> timeOffPolicyUsers = userStatBalances.stream()
-        .filter(user -> !oldUserIds.contains(user.getUserId()))
-        .map(statBalance -> timeOffPolicyUserMapper
-            .createFromTimeOffPolicyUserFrontendDtoAndTimeOffPolicyId(statBalance, timeOffPolicyId))
-        .collect(Collectors.toList());
+    final List<TimeOffPolicyUser> timeOffPolicyUsers =
+        userStatBalances.stream()
+            .filter(user -> !oldUserIds.contains(user.getUserId()))
+            .map(
+                statBalance ->
+                    timeOffPolicyUserMapper
+                        .createFromTimeOffPolicyUserFrontendDtoAndTimeOffPolicyId(
+                            statBalance, timeOffPolicyId))
+            .collect(Collectors.toList());
     timeOffPolicyUserRepository.saveAll(timeOffPolicyUsers);
   }
 
@@ -652,38 +727,43 @@ public class TimeOffPolicyService {
     return timeOffPolicyUserRepository.findAllByTimeOffPolicyId(id);
   }
 
-  public void enrollTimeOffHours(final String policyId,
-      final String rollId, final String currentUserId) {
+  public void enrollTimeOffHours(
+      final String policyId, final String rollId, final String currentUserId) {
 
     final List<TimeOffPolicyUser> policyUsers = getAllPolicyUsersByPolicyId(policyId);
 
     final TimeOffPolicy enrollPolicy = getTimeOffPolicyById(rollId);
 
+    policyUsers.stream()
+        .forEach(
+            policyUser -> {
+              final TimeOffPolicyUser timeOffPolicyUser =
+                  timeOffPolicyUserRepository.findTimeOffPolicyUserByUserAndTimeOffPolicy(
+                      policyUser.getUser(), enrollPolicy);
 
-    policyUsers.stream().forEach(policyUser -> {
-      final TimeOffPolicyUser timeOffPolicyUser = timeOffPolicyUserRepository
-          .findTimeOffPolicyUserByUserAndTimeOffPolicy(policyUser.getUser(),enrollPolicy);
+              if (timeOffPolicyUser == null) {
+                final TimeOffPolicyUser newPolicyUserRecord =
+                    new TimeOffPolicyUser(policyUser.getUser(), enrollPolicy, 0);
+                timeOffPolicyUserRepository.save(newPolicyUserRecord);
+              }
 
-      if (timeOffPolicyUser == null) {
-        final TimeOffPolicyUser newPolicyUserRecord = new TimeOffPolicyUser(policyUser
-             .getUser(), enrollPolicy,0);
-        timeOffPolicyUserRepository.save(newPolicyUserRecord);
-      }
+              final TimeOffBreakdownDto timeOffBreakdown =
+                  timeOffDetailService.getTimeOffBreakdown(policyUser.getId(), null);
 
-      final TimeOffBreakdownDto timeOffBreakdown = timeOffDetailService
-          .getTimeOffBreakdown(policyUser.getId(), null);
-
-      final Integer remainingBalance = timeOffBreakdown.getBalance();
-      final TimeOffAdjustment timeOffAdjustment = TimeOffAdjustment.builder()
-          .timeOffPolicy(enrollPolicy)
-          .adjusterUserId(currentUserId)
-          .amount(remainingBalance)
-          .comment(String.format("Rolled from policy %s", policyUser.getTimeOffPolicy().getName()))
-          .company(policyUser.getUser().getCompany())
-          .user(policyUser.getUser())
-          .build();
-      timeOffAdjustmentRepository.save(timeOffAdjustment);
-    });
+              final Integer remainingBalance = timeOffBreakdown.getBalance();
+              final TimeOffAdjustment timeOffAdjustment =
+                  TimeOffAdjustment.builder()
+                      .timeOffPolicy(enrollPolicy)
+                      .adjusterUserId(currentUserId)
+                      .amount(remainingBalance)
+                      .comment(
+                          String.format(
+                              "Rolled from policy %s", policyUser.getTimeOffPolicy().getName()))
+                      .company(policyUser.getUser().getCompany())
+                      .user(policyUser.getUser())
+                      .build();
+              timeOffAdjustmentRepository.save(timeOffAdjustment);
+            });
   }
 
   public boolean checkHasTimeOffPolicies(final String id) {
