@@ -19,9 +19,15 @@
               <tr>
                 <td>
                   <img
+                      th:if="${requesterImageUrl}"
                       style="float:left; width: 45px; height: 45px; border: 1px solid gray; border-radius: 50%; overflow: hidden"
-                      th:src="${requesterImageUrl} ? ${pathPrefix+requesterImageUrl} : ${frontEndAddress}+'image/person.png'"
+                      th:src="@{${pathPrefix+requesterImageUrl}}"
                   >
+                  <div
+                      th:if="${requesterImageUrl} == null"
+                      th:style="|background: ${backgroundColor}| + '; float:left; width: 45px;height: 45px; border-radius: 50%; color: white; text-align: center;vertical-align: middle;line-height: 45px;'"
+                      th:text="${avatarText}">
+                  </div>
                 </td>
               </tr>
               </tbody>
@@ -81,9 +87,15 @@
               <tr>
                 <td>
                   <img
+                      th:if="${approverComment.imageUrl}"
                       style="float: right; width: 45px; height: 45px; border: 1px solid gray; border-radius: 50%; overflow: hidden"
-                      th:src="${approverComment.user.getImageUrl()} ? ${pathPrefix+approverComment.user.getImageUrl()} : ${frontEndAddress}+'image/person.png'"
+                      th:src="@{${pathPrefix+approverComment.imageUrl}}"
                   >
+                  <div
+                      th:if="${approverComment.imageUrl} == null"
+                      th:style="|background: ${approverComment.backgroundColor}| + ';float: right; width: 45px;height: 45px; border-radius: 50%; color: white; text-align: center;vertical-align: middle;line-height: 45px;'"
+                      th:text="${approverComment.avatarText}">
+                  </div>
                 </td>
               </tr>
               </tbody>
@@ -125,10 +137,16 @@
       <tr>
         <td>
           <img
+              th:if="${requesterImageUrl}"
               style="float:left; width: 45px; height: 45px; border: 1px solid gray; border-radius: 50%; overflow: hidden"
-              th:src="${requesterImageUrl} ? ${pathPrefix+requesterImageUrl} : ${frontEndAddress}+'image/person.png'"
-          >
-          &nbsp;&nbsp;
+              th:src="${pathPrefix+requesterImageUrl}"
+          />
+          &nbsp;
+          <div
+              th:if="${requesterImageUrl} == null"
+              th:style="|background: ${backgroundColor}| + ';width: 45px;height: 45px; border-radius: 50%; color: white; text-align: center;vertical-align: middle;line-height: 45px;'"
+              th:text="${avatarText}">
+          </div>&nbsp;
         </td>
 
         <td>

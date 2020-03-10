@@ -24,10 +24,15 @@
           <tbody>
           <tr>
             <td>
-              <div class="card-title" style="margin: auto; height: 45px; width: fit-content; margin-bottom: 20px;">
-                <img style="width: 47px; height: 47px; vertical-align: -18px; border: 1px solid #dfe2e9; border-radius: 50%; margin-right: 14px;" alt="avatar" th:src="${senderAvatar}"/>
-                <span th:text="${senderName}" style="color: #0075DF; width: fit-content"></span>
-                Requested Your Signature
+              <div class="card-title" style="margin: auto; width: fit-content; margin-bottom: 20px;height: 100%;line-height: 47px;">
+                <img th:if="${senderAvatar}" style="width: 47px; height: 47px; vertical-align: -18px; border: 1px solid #dfe2e9; border-radius: 50%;margin-right: 14px;" alt="avatar" th:src="${senderAvatar}"/>
+                <div
+                    th:if="${senderAvatar} == null"
+                    th:style="|background: ${backgroundColor}| + '; float:left; width: 47px;height: 47px; border-radius: 50%; color: white; text-align: center;vertical-align: middle;line-height: 47px;margin-right: 14px;'"
+                    th:text="${avatarText}">
+                </div>
+                <span th:text="${senderName}" style="color: #0075DF;"></span>
+                <span>Requested Your Signature</span>
               </div>
             </td>
           </tr>

@@ -75,7 +75,7 @@ public class Auth0Helper {
         && api.equals(MANAGEMENT_API)) {
       return new TooManyRequestException(
           "Too many requests. " + "System limits for request are 15 requests per second.", e);
-    } else if (e.getClass().isAssignableFrom(APIException.class)
+    } else if (e instanceof APIException
         && StringUtils.equalsIgnoreCase(((APIException) e).getError(), INVALID_GRANT)) {
       return new GeneralAuth0Exception(((APIException) e).getDescription(), e);
     }

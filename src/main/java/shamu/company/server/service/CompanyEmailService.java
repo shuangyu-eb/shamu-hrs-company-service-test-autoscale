@@ -26,6 +26,7 @@ import shamu.company.server.dto.DocumentRequestEmailDto.DocumentRequestType;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserPersonalInformation;
 import shamu.company.user.service.UserService;
+import shamu.company.utils.AvatarUtil;
 import shamu.company.utils.DateUtil;
 
 @Service
@@ -72,13 +73,25 @@ public class CompanyEmailService {
     variables.put("frontEndAddress", applicationConfig.getFrontEndAddress());
     variables.put("helpUrl", applicationConfig.getHelpUrl());
 
-    final String senderName = sender.getUserPersonalInformation().getName();
+    final UserPersonalInformation senderPersonalInformation = sender.getUserPersonalInformation();
+    final String senderName = senderPersonalInformation.getName();
     final String senderAvatar =
         sender.getImageUrl() != null ? awsHelper.findFullFileUrl(sender.getImageUrl())
-            : applicationConfig.getFrontEndAddress() + "image/person.png";
+            : null;
 
     variables.put("senderName", senderName);
-    variables.put("senderAvatar", senderAvatar);
+    if (StringUtils.isNotEmpty(senderAvatar)) {
+      variables.put("senderAvatar", senderAvatar);
+    }
+
+    final String backgroundColor =
+        AvatarUtil.getAvatarBackground(senderPersonalInformation.getFirstName());
+    variables.put("backgroundColor", backgroundColor);
+    final String avatarText = AvatarUtil.getAvatarShortName(
+        senderPersonalInformation.getFirstName(),
+        senderPersonalInformation.getLastName());
+    variables.put("avatarText", avatarText);
+
     variables.put("documentUrl", documentUrl);
     variables.put("documentTitle", documentTitle);
 

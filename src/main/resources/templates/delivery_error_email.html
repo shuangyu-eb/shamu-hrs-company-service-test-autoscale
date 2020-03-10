@@ -26,9 +26,15 @@
             <td style="text-align: center;">
               <div
                 style="width: 277px;height: 177px;border-radius: 5px;border: solid 1px #dfe2e9; margin-top: 30px;display: inline-block;">
+                <div
+                  th:if="${avatarUrl} == null"
+                  th:style="|background: ${backgroundColor}| + '; width: 92px;height: 92px; margin-top: 24px; border-radius: 50%;border: 0;margin-left: auto;margin-right: auto;display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5em;text-align: center;display: inline-block;vertical-align: middle;line-height: 90px;'"
+                  th:text="${avatarText}">
+                </div>
                 <img
-                  th:src="@{${avatarUrl}}"
-                  style="width: 92px;height: 92px; margin-top: 24px; border-radius: 50%;border: 1px solid #dfe2e9;margin-left: auto;margin-right: auto;display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5em;text-align: center;display: inline-block;vertical-align: middle;line-height: 90px;"/>
+                    th:if="${avatarUrl}"
+                    th:src="@{${avatarUrl}}"
+                    style="width: 92px;height: 92px; margin-top: 24px; border-radius: 50%;border: 1px solid #dfe2e9;margin-left: auto;margin-right: auto;display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5em;text-align: center;display: inline-block;vertical-align: middle;line-height: 90px;"/>
                 <span
                   style="font-size: 16px;font-weight: 500;line-height: 1.56;color:#2e3033; text-align: center; margin-top: 16px; margin-bottom: 16px; display: block;"
                   th:text="${userName}"></span>

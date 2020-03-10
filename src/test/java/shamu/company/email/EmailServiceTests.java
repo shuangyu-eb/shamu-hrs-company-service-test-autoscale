@@ -21,6 +21,7 @@ import shamu.company.email.event.EmailStatus;
 import shamu.company.email.repository.EmailRepository;
 import shamu.company.email.service.EmailService;
 import shamu.company.helpers.EmailHelper;
+import shamu.company.helpers.s3.AwsHelper;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserContactInformation;
 import shamu.company.user.entity.UserPersonalInformation;
@@ -46,6 +47,8 @@ class EmailServiceTests {
 
   private EmailService emailService;
 
+  @Mock private AwsHelper awsHelper;
+
   @BeforeEach
   void init() {
     MockitoAnnotations.initMocks(this);
@@ -57,7 +60,8 @@ class EmailServiceTests {
             emailHelper,
             emailRetryLimit,
             templateEngine,
-            userService);
+            userService,
+            awsHelper);
     email = new Email();
   }
 
@@ -235,6 +239,7 @@ class EmailServiceTests {
   class getResetPasswordEmail {
     String passwordRestToken;
     String toEmail;
+
     @BeforeEach
     void init() {
       passwordRestToken = "token";
@@ -242,7 +247,7 @@ class EmailServiceTests {
 
     @Test
     void whenGetResetPasswordEmail_thenShouldSuccess() {
-      String result = emailService.getResetPasswordEmail(passwordRestToken,toEmail);
+      final String result = emailService.getResetPasswordEmail(passwordRestToken, toEmail);
       Assertions.assertEquals(null, result);
     }
   }

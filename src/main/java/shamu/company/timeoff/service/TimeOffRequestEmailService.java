@@ -9,7 +9,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.Data;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -22,7 +24,10 @@ import shamu.company.helpers.s3.AwsHelper;
 import shamu.company.timeoff.entity.TimeOffRequest;
 import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.TimeOffApprovalStatus;
 import shamu.company.timeoff.entity.TimeOffRequestDate;
+import shamu.company.timeoff.pojo.TimeOffEmailCommentPojo;
 import shamu.company.user.entity.User;
+import shamu.company.user.entity.UserPersonalInformation;
+import shamu.company.utils.AvatarUtil;
 import shamu.company.utils.DateUtil;
 
 @Service
@@ -101,7 +106,25 @@ public class TimeOffRequestEmailService {
   private void setAproverMessage(final TimeOffRequest timeOffRequest,
       final Map<String, Object> variables,
       final User approver) {
-    variables.put("approverComments", timeOffRequest.getApproverComments());
+
+    final List<TimeOffEmailCommentPojo> commentPojos =
+        timeOffRequest.getApproverComments().stream().map((approveComment) -> {
+          final TimeOffEmailCommentPojo timeOffEmailCommentPojo = new TimeOffEmailCommentPojo();
+          timeOffEmailCommentPojo.setComment(approveComment.getComment());
+          final User approveUser = approveComment.getUser();
+          timeOffEmailCommentPojo.setImageUrl(approveUser.getImageUrl());
+          final String backgroundColor = AvatarUtil
+              .getAvatarBackground(approveUser.getUserPersonalInformation().getFirstName());
+          final String avatarText = AvatarUtil
+              .getAvatarShortName(approveUser.getUserPersonalInformation().getFirstName(),
+                  approveUser.getUserPersonalInformation().getLastName());
+          timeOffEmailCommentPojo.setBackgroundColor(backgroundColor);
+          timeOffEmailCommentPojo.setAvatarText(avatarText);
+          return timeOffEmailCommentPojo;
+        }).collect(Collectors.toList());
+
+    variables.put("approverComments", commentPojos);
+
     variables.put("approverId", approver.getId());
     variables.put("approverName", approver.getUserPersonalInformation().getName());
     variables.put("approverImageUrl", approver.getImageUrl());
@@ -111,9 +134,9 @@ public class TimeOffRequestEmailService {
       final Map<String, Object> variables,
       final String template, final User approver, final String subject) {
 
-    User requesterUser = timeOffRequest.getRequesterUser();
-    User managerUser = requesterUser.getManagerUser();
-    boolean approvedByManager = managerUser != null
+    final User requesterUser = timeOffRequest.getRequesterUser();
+    final User managerUser = requesterUser.getManagerUser();
+    final boolean approvedByManager = managerUser != null
         && managerUser.getId().equals(approver.getId());
 
     if (managerUser != null && !approvedByManager) {
@@ -206,7 +229,22 @@ public class TimeOffRequestEmailService {
     variables.put("type", timeOffRequest.getTimeOffPolicy().getName());
     variables.put("hours", timeOffRequest.getHours());
     variables.put("comment", timeOffRequest.getRequsterComment());
-    variables.put("requesterImageUrl", requester.getImageUrl());
+
+    if (StringUtils.isNotBlank(requester.getImageUrl())) {
+      variables.put("requesterImageUrl", requester.getImageUrl());
+    }
+
+    final UserPersonalInformation requesterPersonalInformation =
+        requester.getUserPersonalInformation();
+    final String backgroundColor = AvatarUtil
+        .getAvatarBackground(requesterPersonalInformation.getFirstName());
+    final String shortName = AvatarUtil
+        .getAvatarShortName(requesterPersonalInformation.getFirstName(),
+        requesterPersonalInformation.getLastName());
+
+    variables.put("backgroundColor", backgroundColor);
+    variables.put("avatarText", shortName);
+
     variables.put("requesterId", requester.getId());
     variables.put("requesterName", requester.getUserPersonalInformation().getName());
     variables.put("helpUrl", applicationConfig.getHelpUrl());

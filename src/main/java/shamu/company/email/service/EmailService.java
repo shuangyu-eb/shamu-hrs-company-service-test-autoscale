@@ -24,9 +24,11 @@ import shamu.company.email.event.EmailEvent;
 import shamu.company.email.event.EmailStatus;
 import shamu.company.email.repository.EmailRepository;
 import shamu.company.helpers.EmailHelper;
+import shamu.company.helpers.s3.AwsHelper;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserPersonalInformation;
 import shamu.company.user.service.UserService;
+import shamu.company.utils.AvatarUtil;
 import shamu.company.utils.DateUtil;
 import shamu.company.utils.UuidUtil;
 
@@ -50,6 +52,8 @@ public class EmailService {
   @Value("${application.frontEndAddress}")
   private String frontEndAddress;
 
+  private final AwsHelper awsHelper;
+
   private final Logger logger = LoggerFactory.getLogger(EmailService.class);
 
   @Autowired
@@ -59,13 +63,15 @@ public class EmailService {
       final EmailHelper emailHelper,
       @Value("${email.retryLimit}") final Integer emailRetryLimit,
       final ITemplateEngine templateEngine,
-      @Lazy final UserService userService) {
+      @Lazy final UserService userService,
+      final AwsHelper awsHelper) {
     this.emailRepository = emailRepository;
     this.taskScheduler = taskScheduler;
     this.emailHelper = emailHelper;
     this.emailRetryLimit = emailRetryLimit;
     this.templateEngine = templateEngine;
     this.userService = userService;
+    this.awsHelper = awsHelper;
   }
 
   public Email save(final Email email) {
@@ -246,11 +252,17 @@ public class EmailService {
 
     final UserPersonalInformation targetPersonalInformation =
         targetUser.getUserPersonalInformation();
-    final String avatarUrl =
-        targetUser.getImageUrl() != null
-            ? targetUser.getImageUrl()
-            : frontEndAddress + "image/person.png";
-    context.setVariable("avatarUrl", avatarUrl);
+
+    if (targetUser.getImageUrl() != null) {
+      context.setVariable("avatarUrl", awsHelper.findFullFileUrl(targetUser.getImageUrl()));
+    }
+    final String backgroundColor =
+        AvatarUtil.getAvatarBackground(targetPersonalInformation.getFirstName());
+    context.setVariable("backgroundColor", backgroundColor);
+    final String avatarText = AvatarUtil.getAvatarShortName(
+        targetPersonalInformation.getFirstName(),
+        targetPersonalInformation.getLastName());
+    context.setVariable("avatarText", avatarText);
     context.setVariable("userName", targetPersonalInformation.getName());
     context.setVariable("userEmail", targetUser.getUserContactInformation().getEmailWork());
 

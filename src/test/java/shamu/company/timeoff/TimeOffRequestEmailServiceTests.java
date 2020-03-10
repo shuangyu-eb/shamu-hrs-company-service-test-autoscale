@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mapstruct.ap.internal.util.Collections;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -20,12 +21,14 @@ import shamu.company.helpers.s3.AwsHelper;
 import shamu.company.timeoff.entity.TimeOffPolicy;
 import shamu.company.timeoff.entity.TimeOffRequest;
 import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus;
+import shamu.company.timeoff.entity.TimeOffRequestComment;
 import shamu.company.timeoff.entity.TimeOffRequestDate;
 import shamu.company.timeoff.service.TimeOffRequestEmailService;
 import shamu.company.timeoff.service.TimeOffRequestService;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserContactInformation;
 import shamu.company.user.entity.UserPersonalInformation;
+import shamu.company.utils.UuidUtil;
 
 public class TimeOffRequestEmailServiceTests {
 
@@ -176,6 +179,20 @@ public class TimeOffRequestEmailServiceTests {
       timeOffRequest.setBalance(100);
       timeOffRequest.setTimeOffRequestDates(timeOffRequestDates);
       timeOffRequest.setTimeOffPolicy(timeOffPolicy);
+
+      final TimeOffRequestComment requestComment = new TimeOffRequestComment();
+      requestComment.setComment("Request comment");
+      requestComment.setUser(user);
+
+      final TimeOffRequestComment approveComment = new TimeOffRequestComment();
+      approveComment.setComment("Approve comment!");
+      approveComment.setUser(new User());
+      approveComment.getUser().setId(UuidUtil.getUuidString());
+      final UserPersonalInformation approvePersonalInformation = new UserPersonalInformation();
+      approvePersonalInformation.setFirstName("Manager");
+      approvePersonalInformation.setLastName("Example");
+      approveComment.getUser().setUserPersonalInformation(approvePersonalInformation);
+      timeOffRequest.setComments(Collections.asSet(requestComment, approveComment));
     }
 
     @Test
