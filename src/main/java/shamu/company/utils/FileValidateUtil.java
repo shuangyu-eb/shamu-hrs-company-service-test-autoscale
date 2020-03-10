@@ -27,14 +27,16 @@ public abstract class FileValidateUtil {
       return null;
     }
 
-    Stream.of(src).forEach(chars -> {
-      final int v = chars & 0xFF;
-      final String hv = Integer.toHexString(v);
-      if (hv.length() < 2) {
-        stringBuilder.append(0);
-      }
-      stringBuilder.append(hv);
-    });
+    Stream.of(src)
+        .forEach(
+            chars -> {
+              final int v = chars & 0xFF;
+              final String hv = Integer.toHexString(v);
+              if (hv.length() < 2) {
+                stringBuilder.append(0);
+              }
+              stringBuilder.append(hv);
+            });
     return stringBuilder.toString();
   }
 
@@ -59,8 +61,8 @@ public abstract class FileValidateUtil {
     throw new FileValidateException("File type error.");
   }
 
-  public static void validate(final MultipartFile multipartFile, final Long maxSize,
-      final FileType... types) {
+  public static void validate(
+      final MultipartFile multipartFile, final Long maxSize, final FileType... types) {
     if (multipartFile == null || multipartFile.isEmpty()) {
       throw new FileValidateException("No file was found.");
     }
@@ -88,9 +90,12 @@ public abstract class FileValidateUtil {
     }
   }
 
-  private static void validate(final InputStream inputStream, final Long fileSize,
+  private static void validate(
+      final InputStream inputStream,
+      final Long fileSize,
       final Long maxSize,
-      final FileType... types) throws IOException {
+      final FileType... types)
+      throws IOException {
     final FileType fileType = getType(inputStream);
 
     if (Arrays.asList(types).indexOf(fileType) == -1) {
@@ -103,24 +108,16 @@ public abstract class FileValidateUtil {
   }
 
   public enum FileType {
-    /**
-     * JEPG.
-     */
+    /** JEPG. */
     JPEG("FFD8FF"),
 
-    /**
-     * PNG.
-     */
+    /** PNG. */
     PNG("89504E47"),
 
-    /**
-     * GIF.
-     */
+    /** GIF. */
     GIF("47494638"),
 
-    /**
-     * Adobe Acrobat.
-     */
+    /** Adobe Acrobat. */
     PDF("255044462D312E");
 
     private String value = "";
@@ -131,10 +128,6 @@ public abstract class FileValidateUtil {
 
     public String getValue() {
       return value;
-    }
-
-    public void setValue(final String value) {
-      this.value = value;
     }
   }
 }
