@@ -12,7 +12,6 @@ import shamu.company.crypto.Crypto;
 import shamu.company.crypto.CryptoSsnSerializer;
 import shamu.company.user.entity.Gender;
 import shamu.company.user.entity.User;
-import shamu.company.user.entity.UserPersonalInformation;
 
 @Data
 public class BenefitDependentCreateDto {
