@@ -10,9 +10,6 @@ void setBuildStatus(String message, String state) {
 
 pipeline {
     agent any
-    environment {
-        sonarqubeScannerHome = tool name: 'Shamu Hrs Company Service Sonarqube Scanner'
-    }
     stages {
         stage('unit tests') {
             steps {
@@ -21,16 +18,6 @@ pipeline {
                         '\n---------------------------------'
 
                 sh "mvn clean test -Dspring.profiles.active=test > junit_output.txt"
-            }
-        }
-        stage('sonarqube analysis') {
-            steps {
-                echo '---------------------------------\n' +
-                        '      SonarQube analysis         ' +
-                        '\n---------------------------------'
-                withSonarQubeEnv('ShamuHrsCompanyServiceSonarQube') {
-                    sh "${sonarqubeScannerHome}/bin/sonar-scanner"
-                }
             }
         }
         stage('create artifact') {
