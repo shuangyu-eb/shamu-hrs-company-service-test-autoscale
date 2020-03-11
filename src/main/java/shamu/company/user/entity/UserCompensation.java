@@ -18,9 +18,10 @@ import shamu.company.job.entity.CompensationFrequency;
 @Table(name = "user_compensations")
 @NoArgsConstructor
 public class UserCompensation extends BaseEntity {
-  private static final int max_Wage = 2147483647;
+  private static final long serialVersionUID = -7026686695745173051L;
+  private static final int MAX_WAGE = 2147483647;
 
-  @Max(max_Wage)
+  @Max(MAX_WAGE)
   private Double wage;
 
   private Timestamp startDate;
