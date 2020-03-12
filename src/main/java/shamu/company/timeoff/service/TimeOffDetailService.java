@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedList;
@@ -185,16 +184,16 @@ public class TimeOffDetailService {
   private void populateBreakdownItem(
       final LinkedList<TimeOffBreakdownItemDto> breakdownItemList,
       final TimeOffBreakdownItemDto timeOffBreakdownItemDto,
-      final LocalDateTime startDate, final LocalDateTime endDate) {
-    final DateTimeFormatter timeFormatter =
-        DateTimeFormatter.ofPattern(DateUtil.FULL_MONTH_DAY_YEAR);
-    final DateTimeFormatter currentYearFormatter =
-        DateTimeFormatter.ofPattern(DateUtil.FULL_MONTH_DAY);
-
-    final String startDateString = startDate.getYear() == LocalDate.now().getYear()
-        ? startDate.format(currentYearFormatter) : startDate.format(timeFormatter);
-    final String endDateString = endDate.getYear() == LocalDate.now().getYear()
-        ? endDate.format(currentYearFormatter) : endDate.format(timeFormatter);
+      final LocalDateTime startDate,
+      final LocalDateTime endDate) {
+    final String startDateString =
+        startDate.getYear() == LocalDate.now().getYear()
+            ? DateUtil.formatDateTo(startDate, "MMM d")
+            : DateUtil.formatDateTo(startDate, "MMM d, YYYY");
+    final String endDateString =
+        endDate.getYear() == LocalDate.now().getYear()
+            ? DateUtil.formatDateTo(endDate, "MMM d")
+            : DateUtil.formatDateTo(endDate, "MMM d, YYYY");
 
     String dateMessage = (startDateString + " - " + endDateString);
     if (startDateString.equals(endDateString)) {
