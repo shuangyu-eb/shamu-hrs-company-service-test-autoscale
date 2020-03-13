@@ -112,7 +112,7 @@ public class TimeOffRequestServiceTests {
       user.setManagerUser(null);
       timeOffRequestService.getRequestsByUserAndStatus(user,statuses);
       Mockito.verify(timeOffRequestRepository, Mockito.times(1))
-          .findAdminTeamRequests(Mockito.any(),Mockito.any());
+          .findAdminTeamRequestsByRoles(Mockito.any(),Mockito.any(), Mockito.anyList());
     }
 
     @Test
@@ -125,7 +125,7 @@ public class TimeOffRequestServiceTests {
           .thenReturn(Role.MANAGER);
       timeOffRequestService.getRequestsByUserAndStatus(user,statuses);
       Mockito.verify(timeOffRequestRepository, Mockito.times(1))
-          .findManagerTeamRequests(Mockito.any(),Mockito.any(),Mockito.any());
+          .findManagerTeamRequestsByRoles(Mockito.any(),Mockito.any(),Mockito.any(), Mockito.anyList());
     }
 
     @Test

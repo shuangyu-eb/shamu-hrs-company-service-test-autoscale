@@ -69,11 +69,11 @@ public interface TimeOffRequestRepository
               + "   ON u.user_role_id = ur.id "
               + "WHERE (tr.requester_user_id = unhex(?1) "
               + "   OR u.manager_user_id = unhex(?1)) "
-              + "   and tras.name in ?2 and ur.name != 'INACTIVATE' "
+              + "   and tras.name in ?2 and ur.name in ?3 "
               + "group by tr.id ",
       nativeQuery = true)
-  List<TimeOffRequest> employeeFindTeamRequests(
-      String managerId, List<String> timeOffRequestApprovalStatus);
+  List<TimeOffRequest> employeeFindTeamRequestsByRoles(
+      String managerId, List<String> timeOffRequestApprovalStatus, List<String> roles);
 
   @Query(
       value =
@@ -103,11 +103,14 @@ public interface TimeOffRequestRepository
               + "   ON u.user_role_id = ur.id "
               + "WHERE (tr.requester_user_id IN (unhex(?1), unhex(?2)) "
               + "   OR u.manager_user_id IN (unhex(?1), unhex(?2))) "
-              + "   AND tras.name in ?3 and ur.name != 'INACTIVATE' "
+              + "   AND tras.name in ?3 and ur.name in ?3) "
               + "group by tr.id ",
       nativeQuery = true)
-  List<TimeOffRequest> findManagerTeamRequests(
-      String userId, String managerId, List<String> timeOffRequestApprovalStatus);
+  List<TimeOffRequest> findManagerTeamRequestsByRoles(
+      String userId,
+      String managerId,
+      List<String> timeOffRequestApprovalStatus,
+      List<String> roles);
 
   @Query(
       value =
@@ -121,11 +124,11 @@ public interface TimeOffRequestRepository
               + "LEFT JOIN user_roles ur "
               + "   ON u.user_role_id = ur.id "
               + "WHERE (tr.requester_user_id = unhex(?1) OR u.manager_user_id = unhex(?1)) "
-              + "   and tras.name in ?2 and ur.name != 'INACTIVATE' "
+              + "   and tras.name in ?2 and ur.name in ?3 "
               + "group by tr.id ",
       nativeQuery = true)
-  List<TimeOffRequest> findAdminTeamRequests(
-      String userId, List<String> timeOffRequestApprovalStatus);
+  List<TimeOffRequest> findAdminTeamRequestsByRoles(
+      String userId, List<String> timeOffRequestApprovalStatus, List<String> roles);
 
   @Query(
       value =
