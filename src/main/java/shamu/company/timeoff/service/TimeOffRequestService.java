@@ -357,7 +357,7 @@ public class TimeOffRequestService {
             AWAITING_REVIEW,
             endDay,
             TimeOffRequestDate.Operator.LESS_THAN);
-    final Integer availableBalance = balance - pendingHours;
+    final Integer availableBalance = balance == null ? -pendingHours : balance - pendingHours;
     requestDetail.setBalance(availableBalance + timeOffRequest.getHours());
     final List<BasicTimeOffRequestDto> timeOffRequests =
         getOtherRequestsBy(timeOffRequest).stream()
