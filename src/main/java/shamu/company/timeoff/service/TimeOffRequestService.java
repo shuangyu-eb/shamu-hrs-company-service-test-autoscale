@@ -348,17 +348,19 @@ public class TimeOffRequestService {
             requester, timeOffRequest.getTimeOffPolicy());
     final TimeOffBreakdownDto timeOffBreakdownDto =
         timeOffDetailService.getTimeOffBreakdown(policyUser.getId(), endDay.getTime());
-    final Integer balance = timeOffBreakdownDto.getBalance();
+    if (policyUser.getTimeOffPolicy().getIsLimited()) {
+      final Integer balance = timeOffBreakdownDto.getBalance();
+      final Integer pendingHours =
+          timeOffPolicyService.getTimeOffRequestHoursFromStatus(
+              requester.getId(),
+              policyUser.getTimeOffPolicy().getId(),
+              AWAITING_REVIEW,
+              endDay,
+              TimeOffRequestDate.Operator.LESS_THAN);
+      final Integer availableBalance = balance - pendingHours;
+      requestDetail.setBalance(availableBalance + timeOffRequest.getHours());
+    }
 
-    final Integer pendingHours =
-        timeOffPolicyService.getTimeOffRequestHoursFromStatus(
-            requester.getId(),
-            policyUser.getTimeOffPolicy().getId(),
-            AWAITING_REVIEW,
-            endDay,
-            TimeOffRequestDate.Operator.LESS_THAN);
-    final Integer availableBalance = balance == null ? -pendingHours : balance - pendingHours;
-    requestDetail.setBalance(availableBalance + timeOffRequest.getHours());
     final List<BasicTimeOffRequestDto> timeOffRequests =
         getOtherRequestsBy(timeOffRequest).stream()
             .map(timeOffRequestMapper::convertToBasicTimeOffRequestDto)

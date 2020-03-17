@@ -397,40 +397,72 @@ public class TimeOffRequestServiceTests {
     Assertions.assertDoesNotThrow(() -> timeOffRequestService.deleteUnimplementedRequest("1"));
   }
 
-  @Test
-  void findTimeOffRequestDetail() {
-    final TimeOffRequest timeOffRequest = new TimeOffRequest();
-    final TimeOffRequestDetailDto timeOffRequestDetailDto = new TimeOffRequestDetailDto();
-    final AuthUser authUser = new AuthUser();
-    final Set<TimeOffRequestDate> timeOffRequestDates = new HashSet<>();
-    final TimeOffRequestDate timeOffRequestDate = new TimeOffRequestDate();
-    final TimeOffRequestApprovalStatus timeOffRequestApprovalStatus = new TimeOffRequestApprovalStatus();
-    final TimeOffPolicy timeOffPolicy = new TimeOffPolicy();
-    final TimeOffPolicyUser timeOffPolicyUser = new TimeOffPolicyUser();
-    final TimeOffBreakdownDto timeOffBreakdownDto = new TimeOffBreakdownDto();
+  @Nested
+  class findTimeOffRequestDetail {
+    TimeOffRequest timeOffRequest;
+    TimeOffRequestDetailDto timeOffRequestDetailDto;
+    AuthUser authUser;
+    Set<TimeOffRequestDate> timeOffRequestDates;
+    TimeOffRequestDate timeOffRequestDate;
+    TimeOffRequestApprovalStatus timeOffRequestApprovalStatus;
+    TimeOffPolicy timeOffPolicy;
+    TimeOffPolicyUser timeOffPolicyUser;
+    TimeOffBreakdownDto timeOffBreakdownDto;
 
-    timeOffRequestApprovalStatus.setName(TimeOffApprovalStatus.APPROVED.name());
+    @BeforeEach
+    void init() {
+      timeOffRequest = new TimeOffRequest();
+      timeOffRequestDetailDto = new TimeOffRequestDetailDto();
+      authUser = new AuthUser();
+      timeOffRequestDates = new HashSet<>();
+      timeOffRequestDate = new TimeOffRequestDate();
+      timeOffRequestApprovalStatus = new TimeOffRequestApprovalStatus();
+      timeOffPolicy = new TimeOffPolicy();
+      timeOffPolicyUser = new TimeOffPolicyUser();
+      timeOffBreakdownDto = new TimeOffBreakdownDto();
+      timeOffRequestApprovalStatus.setName(TimeOffApprovalStatus.APPROVED.name());
 
-    timeOffRequestDate.setDate(Timestamp.valueOf(LocalDateTime.now()));
-    timeOffRequestDate.setHours(8);
-    timeOffRequestDates.add(timeOffRequestDate);
-    timeOffRequest.setTimeOffRequestApprovalStatus(timeOffRequestApprovalStatus);
+      timeOffRequestDate.setDate(Timestamp.valueOf(LocalDateTime.now()));
+      timeOffRequestDate.setHours(8);
+      timeOffRequestDates.add(timeOffRequestDate);
+      timeOffRequest.setTimeOffRequestApprovalStatus(timeOffRequestApprovalStatus);
 
-    timeOffRequest.setRequesterUser(new User(UuidUtil.getUuidString()));
-    timeOffRequest.setTimeOffRequestDates(timeOffRequestDates);
-    timeOffRequest.setTimeOffPolicy(timeOffPolicy);
-    timeOffRequest.getHours();
-    timeOffPolicy.setId(UuidUtil.getUuidString());
-    timeOffPolicyUser.setId(UuidUtil.getUuidString());
-    timeOffPolicyUser.setTimeOffPolicy(timeOffPolicy);
-    timeOffBreakdownDto.setBalance(100);
+      timeOffRequest.setRequesterUser(new User(UuidUtil.getUuidString()));
+      timeOffRequest.setTimeOffRequestDates(timeOffRequestDates);
+      timeOffBreakdownDto.setBalance(100);
+      timeOffRequest.setTimeOffPolicy(timeOffPolicy);
+      timeOffPolicy.setId(UuidUtil.getUuidString());
+      timeOffPolicyUser.setId(UuidUtil.getUuidString());
+      timeOffPolicyUser.setTimeOffPolicy(timeOffPolicy);
+    }
 
-    Mockito.when(timeOffRequestRepository.findById(Mockito.any())).thenReturn(Optional.of(timeOffRequest));
-    Mockito.when(timeOffRequestMapper.convertToTimeOffRequestDetailDto(Mockito.any())).thenReturn(timeOffRequestDetailDto);
-    Mockito.when(timeOffPolicyUserService.findByUserAndTimeOffPolicy(Mockito.any(), Mockito.any())).thenReturn(timeOffPolicyUser);
-    Mockito.when(timeOffDetailService.getTimeOffBreakdown(Mockito.anyString(), Mockito.anyLong())).thenReturn(timeOffBreakdownDto);
+    @Test
+    void whenPolicyIsLimited_thenShouldHaveBalance() {
+      timeOffPolicy.setIsLimited(true);
+      Mockito.when(timeOffRequestRepository.findById(Mockito.any())).thenReturn(Optional.of(timeOffRequest));
+      Mockito.when(timeOffRequestMapper.convertToTimeOffRequestDetailDto(Mockito.any())).thenReturn(timeOffRequestDetailDto);
+      Mockito.when(timeOffPolicyUserService.findByUserAndTimeOffPolicy(Mockito.any(), Mockito.any())).thenReturn(timeOffPolicyUser);
+      Mockito.when(timeOffDetailService.getTimeOffBreakdown(Mockito.anyString(), Mockito.anyLong())).thenReturn(timeOffBreakdownDto);
 
-    Assertions.assertDoesNotThrow(() -> timeOffRequestService.findTimeOffRequestDetail("1", authUser));
+      timeOffRequestService.findTimeOffRequestDetail("1", authUser);
+      Mockito.verify(timeOffPolicyService, Mockito.times(1)).
+          getTimeOffRequestHoursFromStatus(Mockito.anyString(), Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any());
+
+    }
+
+    @Test
+    void whenPolicyIsUnlimited_thenShouldNotCalculateBalance() {
+      timeOffPolicy.setIsLimited(false);
+      Mockito.when(timeOffRequestRepository.findById(Mockito.any())).thenReturn(Optional.of(timeOffRequest));
+      Mockito.when(timeOffRequestMapper.convertToTimeOffRequestDetailDto(Mockito.any())).thenReturn(timeOffRequestDetailDto);
+      Mockito.when(timeOffPolicyUserService.findByUserAndTimeOffPolicy(Mockito.any(), Mockito.any())).thenReturn(timeOffPolicyUser);
+      Mockito.when(timeOffDetailService.getTimeOffBreakdown(Mockito.anyString(), Mockito.anyLong())).thenReturn(timeOffBreakdownDto);
+
+      timeOffRequestService.findTimeOffRequestDetail("1", authUser);
+      Mockito.verify(timeOffPolicyService, Mockito.times(0)).
+          getTimeOffRequestHoursFromStatus(Mockito.anyString(), Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any());
+    }
+
   }
 
   @Test
