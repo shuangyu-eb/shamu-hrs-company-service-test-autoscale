@@ -103,7 +103,7 @@ public interface TimeOffRequestRepository
               + "   ON u.user_role_id = ur.id "
               + "WHERE (tr.requester_user_id IN (unhex(?1), unhex(?2)) "
               + "   OR u.manager_user_id IN (unhex(?1), unhex(?2))) "
-              + "   AND tras.name in ?3 and ur.name in ?3) "
+              + "   AND tras.name in ?3 AND ur.name in ?4 "
               + "group by tr.id ",
       nativeQuery = true)
   List<TimeOffRequest> findManagerTeamRequestsByRoles(
