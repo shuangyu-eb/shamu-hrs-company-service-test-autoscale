@@ -127,10 +127,13 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
 
     final String roleName = user.getUserRole().getName();
     final boolean isEmployee = StringUtils.equals(Role.EMPLOYEE.getValue(), roleName);
-
-    String userCondition = "u.manager_user_id= unhex(?1) ";
-    if (isEmployee) {
-      userCondition = "(u.id=unhex(?1) or " + userCondition + " ) and u.id!=unhex(?4) ";
+    final boolean hasManager = user.getManagerUser() != null;
+    String userCondition = "u.manager_user_id= unhex(?4)";
+    if (hasManager) {
+      userCondition = userCondition + " or u.id= unhex(?1)";
+      if (isEmployee) {
+        userCondition = "u.id=unhex(?1) or (u.manager_user_id= unhex(?1) and u.id!=unhex(?4))";
+      }
     }
     final String queryColumns =
         "select u.id as id, u.image_url as imageUrl, up.first_name as firstName, "
@@ -154,7 +157,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
 
     final String countAllTeamMembers = "select count(u.id) as num " + queryCondition;
     final Query queryCount =
-        getQuery(employeeListSearchCondition, user, isEmployee, countAllTeamMembers);
+        getQuery(employeeListSearchCondition, user, hasManager, countAllTeamMembers);
 
     final Tuple employeeTuple = (Tuple) queryCount.getSingleResult();
     final BigInteger employeeCount = (BigInteger) employeeTuple.get("num");
@@ -166,7 +169,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
 
     final String resultSql = appendFilterCondition(queryColumns + queryCondition, pageable);
 
-    final Query query = getQuery(employeeListSearchCondition, user, isEmployee, resultSql);
+    final Query query = getQuery(employeeListSearchCondition, user, hasManager, resultSql);
     final List<?> jobUserList = query.getResultList();
 
     jobUserItemList =
@@ -180,17 +183,17 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
   private Query getQuery(
       final EmployeeListSearchCondition employeeListSearchCondition,
       final User user,
-      final boolean isEmployee,
+      final boolean hasManager,
       final String resultSql) {
-    final User manager = isEmployee ? user.getManagerUser() : user;
+    final User manager = hasManager ? user.getManagerUser() : user;
     final Query query =
         entityManager
             .createNativeQuery(resultSql, Tuple.class)
-            .setParameter(1, manager.getId())
+            .setParameter(4, user.getId())
             .setParameter(2, manager.getCompany().getId())
             .setParameter(3, employeeListSearchCondition.getKeyword());
-    if (isEmployee) {
-      query.setParameter(4, user.getId());
+    if (hasManager) {
+      query.setParameter(1, manager.getId());
     }
 
     return query;
@@ -276,8 +279,8 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
 
     if (existingUser != null && existingUser.getRole() != user.getRole()) {
       auth0Helper.updateRole(existingUser, user.getUserRole().getName());
-      applicationEventPublisher.publishEvent(new UserRoleUpdatedEvent(existingUser.getId(),
-          existingUser.getUserRole()));
+      applicationEventPublisher.publishEvent(
+          new UserRoleUpdatedEvent(existingUser.getId(), existingUser.getUserRole()));
     }
 
     final User returnUser;

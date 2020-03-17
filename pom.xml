@@ -433,6 +433,7 @@
             <exclude>**/exception/*</exclude>
             <exclude>**/annotations/*</exclude>
             <exclude>**/pojo/*</exclude>
+            <exclude>**/repository/*</exclude>
           </excludes>
         </configuration>
         <executions>
