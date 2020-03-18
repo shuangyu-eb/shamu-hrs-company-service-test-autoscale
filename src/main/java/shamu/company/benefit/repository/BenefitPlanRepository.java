@@ -1,14 +1,17 @@
 package shamu.company.benefit.repository;
 
+import java.sql.Timestamp;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
+import shamu.company.benefit.dto.BenefitPlanPreviewDto;
 import shamu.company.benefit.dto.BenefitPlanTypeDto;
 import shamu.company.benefit.dto.BenefitReportPlansDto;
 import shamu.company.benefit.dto.EnrollmentBreakdownDto;
 import shamu.company.benefit.entity.BenefitDependentUserNamePojo;
 import shamu.company.benefit.entity.BenefitPlan;
+import shamu.company.benefit.entity.BenefitPlanPreviewPojo;
 import shamu.company.benefit.entity.EnrollmentBreakdownPojo;
 import shamu.company.common.repository.BaseRepository;
 
@@ -186,4 +189,40 @@ public interface BenefitPlanRepository extends BaseRepository<BenefitPlan, Strin
       nativeQuery = true)
   List<BenefitDependentUserNamePojo> getDependentUserNameByPlanUserId(
       List<String> ids, String coverageId);
+
+  @Query(
+      value =
+          "select hex(id) as benefitPlanId, "
+              + "name as benefitPlanName, "
+              + "start_date as deductionsBegin, "
+              + "end_date as deductionsEnd, "
+              + "if(start_date > current_timestamp,'Starting soon','Active') as status "
+              + "from benefit_plans "
+              + "where benefit_plan_type_id = unhex(?1) "
+              + "and company_id = unhex(?2) "
+              + "and end_date > current_timestamp",
+      countQuery =
+          "select count(1) from benefit_plans where benefit_plan_type_id = unhex(?1) "
+              + "and company_id = unhex(?2) and end_date > current_timestamp",
+      nativeQuery = true)
+  Page<BenefitPlanPreviewPojo> getBenefitPlanListWithOutExpired(
+      String planTypeId, String companyId, Pageable pageRequest);
+
+  @Query(
+      value =
+          "select hex(id) as benefitPlanId, "
+              + "name as benefitPlanName, "
+              + "start_date as deductionsBegin, "
+              + "end_date as deductionsEnd, "
+              + "if(start_date > current_timestamp,'Starting soon',"
+              + "if(current_timestamp > end_date,'Expired','Active')) as status "
+              + "from benefit_plans "
+              + "where benefit_plan_type_id = unhex(?1) "
+              + "and company_id = unhex(?2)",
+      countQuery =
+          "select count(1) from benefit_plans where benefit_plan_type_id = unhex(?1) "
+              + "and company_id = unhex(?2)",
+      nativeQuery = true)
+  Page<BenefitPlanPreviewPojo> getBenefitPlanList(
+      String planTypeId, String companyId, Pageable pageRequest);
 }

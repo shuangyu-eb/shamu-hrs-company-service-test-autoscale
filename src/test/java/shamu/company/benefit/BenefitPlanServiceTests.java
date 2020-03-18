@@ -1,6 +1,7 @@
 package shamu.company.benefit;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -20,26 +21,8 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import shamu.company.benefit.dto.BenefitPlanCoverageDto;
-import shamu.company.benefit.dto.BenefitPlanCreateDto;
-import shamu.company.benefit.dto.BenefitPlanDependentUserDto;
-import shamu.company.benefit.dto.BenefitPlanReportDto;
-import shamu.company.benefit.dto.BenefitPlanUpdateDto;
-import shamu.company.benefit.dto.BenefitPlanUserCreateDto;
-import shamu.company.benefit.dto.BenefitReportCoveragesDto;
-import shamu.company.benefit.dto.BenefitReportParamDto;
-import shamu.company.benefit.dto.BenefitReportPlansDto;
-import shamu.company.benefit.dto.EnrollmentBreakdownDto;
-import shamu.company.benefit.dto.EnrollmentBreakdownSearchCondition;
-import shamu.company.benefit.dto.NewBenefitPlanWrapperDto;
-import shamu.company.benefit.dto.SelectedEnrollmentInfoDto;
-import shamu.company.benefit.entity.BenefitCoverages;
-import shamu.company.benefit.entity.BenefitPlan;
-import shamu.company.benefit.entity.BenefitPlanCoverage;
-import shamu.company.benefit.entity.BenefitPlanDependent;
-import shamu.company.benefit.entity.BenefitPlanType;
-import shamu.company.benefit.entity.BenefitPlanUser;
-import shamu.company.benefit.entity.EnrollmentBreakdownPojo;
+import shamu.company.benefit.dto.*;
+import shamu.company.benefit.entity.*;
 import shamu.company.benefit.entity.mapper.BenefitCoveragesMapper;
 import shamu.company.benefit.entity.mapper.BenefitPlanCoverageMapper;
 import shamu.company.benefit.entity.mapper.BenefitPlanMapper;
@@ -755,6 +738,99 @@ class BenefitPlanServiceTests {
           benefitPlanService.findBenefitPlanReport(typeName, benefitReportParamDto, companyId);
       final String plan = benefitPlanReportDto.getEnrollmentBreakdownDtos().get(0).getPlan();
       Assertions.assertEquals(plan, "plan");
+    }
+  }
+
+  @Nested
+  class getBenefitPlanList {
+    String benefitPlanTypeId;
+    String companyId;
+    boolean expired;
+    Pageable pageable;
+    BenefitPlanSearchCondition benefitPlanSearchCondition;
+    List<BenefitPlanPreviewPojo> benefitPlanPreviewPojos;
+    Page<BenefitPlanPreviewPojo> benefitPlanPreviewDtoPage;
+
+    @BeforeEach
+    void init() {
+      benefitPlanTypeId = "typeId";
+      companyId = "companyId";
+      expired = false;
+      benefitPlanSearchCondition = new BenefitPlanSearchCondition();
+      benefitPlanSearchCondition.setPage(0);
+      benefitPlanSearchCondition.setSize(20);
+      benefitPlanPreviewPojos = new ArrayList<>();
+      benefitPlanSearchCondition.setSortDirection(
+          EnrollmentBreakdownSearchCondition.SortDirection.ASC.name());
+      benefitPlanSearchCondition.setSortField(
+          EnrollmentBreakdownSearchCondition.SortField.NAME.name());
+      pageable =
+          PageRequest.of(
+              benefitPlanSearchCondition.getPage(),
+              benefitPlanSearchCondition.getSize(),
+              Sort.Direction.valueOf(
+                  benefitPlanSearchCondition.getSortDirection().toUpperCase()),
+              benefitPlanSearchCondition.getSortField().getSortValue());
+      BenefitPlanPreviewPojo benefitPlanPreviewPojo = new BenefitPlanPreviewPojo() {
+        @Override
+        public String getBenefitPlanId() {
+          return "typeId";
+        }
+
+        @Override
+        public String getBenefitPlanName() {
+          return "name";
+        }
+
+        @Override
+        public Timestamp getDeductionsBegin() {
+          return null;
+        }
+
+        @Override
+        public Timestamp getDeductionsEnd() {
+          return null;
+        }
+
+        @Override
+        public String getStatus() {
+          return null;
+        }
+
+        @Override
+        public Number getEligibleNumber() {
+          return null;
+        }
+
+        @Override
+        public Number getEnrolledNumber() {
+          return null;
+        }
+      };
+      benefitPlanPreviewPojos.add(benefitPlanPreviewPojo);
+    }
+
+    @Test
+    void whenExpiredIsFalseGetList_thenShouldSuccess() {
+      benefitPlanPreviewDtoPage = new PageImpl<>(benefitPlanPreviewPojos, pageable, 0);
+      Mockito.when(benefitPlanRepository.getBenefitPlanListWithOutExpired(benefitPlanTypeId,
+          companyId, pageable)).thenReturn(benefitPlanPreviewDtoPage);
+      benefitPlanService.findBenefitPlans(benefitPlanTypeId,
+          companyId, expired, benefitPlanSearchCondition);
+      Mockito.verify(benefitPlanRepository, Mockito.times(1))
+          .getBenefitPlanListWithOutExpired(benefitPlanTypeId, companyId, pageable);
+    }
+
+    @Test
+    void whenExpiredIsTrueGetList_thenShouldSuccess() {
+      expired = true;
+      benefitPlanPreviewDtoPage = new PageImpl<>(benefitPlanPreviewPojos, pageable, 0);
+      Mockito.when(benefitPlanRepository.getBenefitPlanList(benefitPlanTypeId,
+          companyId, pageable)).thenReturn(benefitPlanPreviewDtoPage);
+      benefitPlanService.findBenefitPlans(benefitPlanTypeId,
+          companyId, expired, benefitPlanSearchCondition);
+      Mockito.verify(benefitPlanRepository, Mockito.times(1))
+          .getBenefitPlanList(benefitPlanTypeId, companyId, pageable);
     }
   }
 }

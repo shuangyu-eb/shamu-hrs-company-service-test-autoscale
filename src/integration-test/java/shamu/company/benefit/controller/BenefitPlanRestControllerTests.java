@@ -341,4 +341,16 @@ public class BenefitPlanRestControllerTests extends WebControllerBaseTests {
         .headers(httpHeaders)).andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
+
+  @Test
+  void testGetBenefitPlans() throws Exception {
+    setPermission(Permission.Name.MANAGE_BENEFIT_PLAN.name());
+    final HttpHeaders httpHeaders = new HttpHeaders();
+    httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
+        .get("/company/benefit-plan/1/plans")
+        .contentType(MediaType.APPLICATION_JSON)
+        .headers(httpHeaders)).andReturn();
+    assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+  }
 }

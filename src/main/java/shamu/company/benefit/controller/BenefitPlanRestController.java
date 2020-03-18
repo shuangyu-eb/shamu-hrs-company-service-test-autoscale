@@ -21,6 +21,7 @@ import shamu.company.benefit.dto.BenefitPlanDto;
 import shamu.company.benefit.dto.BenefitPlanPreviewDto;
 import shamu.company.benefit.dto.BenefitPlanRelatedUserListDto;
 import shamu.company.benefit.dto.BenefitPlanReportDto;
+import shamu.company.benefit.dto.BenefitPlanSearchCondition;
 import shamu.company.benefit.dto.BenefitPlanTypeDto;
 import shamu.company.benefit.dto.BenefitPlanUpdateDto;
 import shamu.company.benefit.dto.BenefitPlanUserCreateDto;
@@ -221,5 +222,14 @@ public class BenefitPlanRestController extends BaseRestController {
         BenefitReportParamDto.builder().planId(planId).coverageId(coverageId).build();
     return benefitPlanService.findEnrollmentBreakdown(
         enrollmentBreakdownSearchCondition, planTypeName, benefitReportParamDto, findCompanyId());
+  }
+
+  @GetMapping("benefit-plan/{planTypeId}/plans")
+  @PreAuthorize("hasAuthority('MANAGE_BENEFIT_PLAN')")
+  public Page<BenefitPlanPreviewDto> getBenefitPlans(
+      @PathVariable final String planTypeId, final boolean expired,
+      final BenefitPlanSearchCondition benefitPlanSearchCondition) {
+    return benefitPlanService.findBenefitPlans(planTypeId, findCompanyId(), expired,
+        benefitPlanSearchCondition);
   }
 }

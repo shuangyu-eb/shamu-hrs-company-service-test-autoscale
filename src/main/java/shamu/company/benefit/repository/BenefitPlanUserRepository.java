@@ -30,6 +30,8 @@ public interface BenefitPlanUserRepository extends BaseRepository<BenefitPlanUse
 
   Long countByUserIdAndEnrolled(String userId, Boolean enrolled);
 
+  Long countByBenefitPlanIdAndEnrolledIsTrue(String benefitPlanId);
+
   Optional<BenefitPlanUser> findByUserIdAndBenefitPlanId(String userId, String benefitPlanId);
 
   @Query(

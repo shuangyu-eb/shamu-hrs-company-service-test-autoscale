@@ -35,6 +35,7 @@ import shamu.company.benefit.dto.BenefitPlanPreviewDto;
 import shamu.company.benefit.dto.BenefitPlanRelatedUserListDto;
 import shamu.company.benefit.dto.BenefitPlanReportDto;
 import shamu.company.benefit.dto.BenefitPlanReportSummaryDto;
+import shamu.company.benefit.dto.BenefitPlanSearchCondition;
 import shamu.company.benefit.dto.BenefitPlanTypeDto;
 import shamu.company.benefit.dto.BenefitPlanUpdateDto;
 import shamu.company.benefit.dto.BenefitPlanUserCreateDto;
@@ -55,6 +56,7 @@ import shamu.company.benefit.entity.BenefitPlan;
 import shamu.company.benefit.entity.BenefitPlanCoverage;
 import shamu.company.benefit.entity.BenefitPlanDependent;
 import shamu.company.benefit.entity.BenefitPlanDocument;
+import shamu.company.benefit.entity.BenefitPlanPreviewPojo;
 import shamu.company.benefit.entity.BenefitPlanType;
 import shamu.company.benefit.entity.BenefitPlanUser;
 import shamu.company.benefit.entity.EnrollmentBreakdownPojo;
@@ -73,7 +75,6 @@ import shamu.company.benefit.repository.BenefitPlanRepository;
 import shamu.company.benefit.repository.BenefitPlanTypeRepository;
 import shamu.company.benefit.repository.BenefitPlanUserRepository;
 import shamu.company.benefit.repository.RetirementPlanTypeRepository;
-import shamu.company.benefit.repository.UserDependentsRepository;
 import shamu.company.common.exception.AwsException;
 import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.company.entity.Company;
@@ -87,7 +88,7 @@ import shamu.company.user.service.UserBenefitsSettingService;
 @Service
 public class BenefitPlanService {
 
-  private final String benefitNewCoverage = "add";
+  private static final String benefitNewCoverage = "add";
 
   private final BenefitPlanRepository benefitPlanRepository;
 
@@ -428,7 +429,9 @@ public class BenefitPlanService {
               benefitPlanUserRepository.countByBenefitPlanIdAndConfirmedIsTrue(benefitPlan.getId());
           benefitPlanPreviewDtos.add(
               new BenefitPlanPreviewDto(
-                  benefitPlan.getId(), benefitPlan.getName(), eligibleNumber, enrolledNumber));
+                  benefitPlan.getId(), benefitPlan.getName(),
+                  benefitPlan.getStartDate(),  benefitPlan.getEndDate(), "",
+                  eligibleNumber, enrolledNumber));
         });
 
     return benefitPlanPreviewDtos;
@@ -1051,4 +1054,53 @@ public class BenefitPlanService {
     }
     return enrollmentBreakdownDtos;
   }
+
+  public Page<BenefitPlanPreviewDto> findBenefitPlans(
+      final String planTypeId, final String companyId, final boolean expired,
+      final BenefitPlanSearchCondition benefitPlanSearchCondition) {
+    final Pageable paramPageable = getBenefitPlanPageable(benefitPlanSearchCondition);
+    final Page<BenefitPlanPreviewPojo> benefitPlanPreviewDtoPage;
+    if (expired) {
+      benefitPlanPreviewDtoPage = benefitPlanRepository.getBenefitPlanList(
+          planTypeId, companyId, paramPageable);
+    } else {
+      benefitPlanPreviewDtoPage = benefitPlanRepository.getBenefitPlanListWithOutExpired(
+          planTypeId, companyId, paramPageable);
+    }
+    List<BenefitPlanPreviewDto> benefitPlanPreviewDtos =
+        findBenefitPlanContent(benefitPlanPreviewDtoPage.getContent());
+    return new PageImpl<>(
+        benefitPlanPreviewDtos,
+        benefitPlanPreviewDtoPage.getPageable(),
+        benefitPlanPreviewDtoPage.getTotalElements());
+  }
+
+  private List<BenefitPlanPreviewDto> findBenefitPlanContent(
+      final List<BenefitPlanPreviewPojo> benefitPlanPreviewPojos) {
+    final List<BenefitPlanPreviewDto> benefitPlanPreviewDtos = new ArrayList<>();
+    for (BenefitPlanPreviewPojo benefitPlanPreviewPojo : benefitPlanPreviewPojos) {
+      final BenefitPlanPreviewDto benefitPlanPreviewDto = new BenefitPlanPreviewDto();
+      BeanUtils.copyProperties(benefitPlanPreviewPojo, benefitPlanPreviewDto);
+      benefitPlanPreviewDto.setEnrolledNumber(
+          benefitPlanUserRepository.countByBenefitPlanIdAndEnrolledIsTrue(
+              benefitPlanPreviewPojo.getBenefitPlanId()));
+      benefitPlanPreviewDtos.add(benefitPlanPreviewDto);
+    }
+    return benefitPlanPreviewDtos;
+  }
+
+
+  private Pageable getBenefitPlanPageable(
+      final BenefitPlanSearchCondition benefitPlanSearchCondition) {
+    final String sortDirection =
+        benefitPlanSearchCondition.getSortDirection().toUpperCase();
+
+    final String sortValue = benefitPlanSearchCondition.getSortField().getSortValue();
+    return PageRequest.of(
+        benefitPlanSearchCondition.getPage(),
+        benefitPlanSearchCondition.getSize(),
+        Sort.Direction.valueOf(sortDirection),
+        sortValue);
+  }
+
 }
