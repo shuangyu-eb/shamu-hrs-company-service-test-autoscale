@@ -3,7 +3,6 @@ package shamu.company.benefit.service;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import shamu.company.benefit.dto.BenefitRequestInfoDto;
@@ -26,14 +25,13 @@ public class BenefitRequestService {
     this.benefitRequestMapper = benefitRequestMapper;
   }
 
-  public PageImpl<BenefitRequestInfoDto> findRequestsByStatusAndCompanyId(
+  public Page<BenefitRequestInfoDto> findRequestsByStatusAndCompanyId(
       final PageRequest pageRequest, final List<String> statuses, final String companyId) {
 
     final Page<BenefitRequest> benefitRequests =
         benefitRequestRepository.findAllByStatusAndCompanyId(statuses, companyId, pageRequest);
 
-    return (PageImpl<BenefitRequestInfoDto>)
-        benefitRequests.map(benefitRequestMapper::convertToBenefitRequestInfoDto);
+    return benefitRequests.map(benefitRequestMapper::convertToBenefitRequestInfoDto);
   }
 
   public Integer findRequestsCountByStatusAndCompanyId(

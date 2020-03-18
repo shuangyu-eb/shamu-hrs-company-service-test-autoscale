@@ -1,8 +1,8 @@
 package shamu.company.timeoff.service;
 
+import static java.util.Date.from;
 import static shamu.company.timeoff.service.TimeOffAccrualService.invalidByStartDateAndEndDate;
 
-import java.sql.Date;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -168,7 +168,7 @@ public class TimeOffDetailService {
     final List<TimeOffBreakdownItemDto> requestDateBreakdownList = getBreakdownListFromRequestOff(
         timeOffRequestDatePojos);
 
-    final java.util.Date date = Date.from(endDateTime.toInstant(ZoneOffset.UTC));
+    final java.util.Date date = from(endDateTime.toInstant(ZoneOffset.UTC));
     final List<TimeOffAdjustmentPojo> timeOffAdjustmentPojos = timeOffAdjustmentRepository
         .findAllByUserIdAndTimeOffPolicyId(user.getId(), timeOffPolicy.getId(), date);
     final List<TimeOffBreakdownItemDto> adjustmentBreakdownList = getBreakdownListFromAdjustment(
@@ -234,16 +234,15 @@ public class TimeOffDetailService {
 
     final List<TimeOffPolicyAccrualSchedule> trimmedScheduleList = new ArrayList<>();
     for (final TimeOffPolicyAccrualSchedule accrualSchedule : timeOffPolicyAccrualScheduleList) {
-
       final LocalDateTime userEnrollDateTime = DateUtil.toLocalDateTime(user.getCreatedAt());
       final String frequencyId = accrualSchedule.getTimeOffAccrualFrequency().getId();
-      if (accrualSchedule.getExpiredAt() == null) {
-        trimmedScheduleList.add(accrualSchedule);
-        continue;
-      }
 
-      if (invalidByStartDateAndEndDate(accrualSchedule.getCreatedAt(),
-          accrualSchedule.getExpiredAt(), userEnrollDateTime, frequencyId)) {
+      if (accrualSchedule.getExpiredAt() != null
+          && invalidByStartDateAndEndDate(
+              accrualSchedule.getCreatedAt(),
+              accrualSchedule.getExpiredAt(),
+              userEnrollDateTime,
+              frequencyId)) {
         continue;
       }
 

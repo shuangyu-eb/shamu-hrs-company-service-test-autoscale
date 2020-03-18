@@ -161,8 +161,7 @@ public class UserRestController extends BaseRestController {
   @GetMapping("current/company-name")
   public String getCompanyName(final HttpServletRequest request) {
     final User user = userService.findById(findUserId());
-    final String companyName = user.getCompany().getName();
-    return companyName;
+    return user.getCompany().getName();
   }
 
   @GetMapping("/users/check-password/{password}")

@@ -6,9 +6,7 @@ import java.sql.SQLException;
 import liquibase.change.custom.CustomTaskChange;
 import liquibase.database.Database;
 import liquibase.database.jvm.JdbcConnection;
-import liquibase.exception.CustomChangeException;
 import liquibase.exception.DatabaseException;
-import liquibase.exception.SetupException;
 import liquibase.exception.ValidationErrors;
 import liquibase.resource.ResourceAccessor;
 import lombok.Data;
@@ -24,38 +22,38 @@ public class StaticTableDeleteTaskChange implements CustomTaskChange {
   private String value;
 
   @Override
-  public void execute(Database database) throws CustomChangeException {
-    JdbcConnection databaseConnection = (JdbcConnection) database.getConnection();
+  public void execute(final Database database) {
+    final JdbcConnection databaseConnection = (JdbcConnection) database.getConnection();
     try {
-      PreparedStatement preparedStatement =
+      final PreparedStatement preparedStatement =
           databaseConnection.prepareStatement(
               "DELETE FROM company." + tableName + " WHERE ref_id = ? and name = ? ");
       preparedStatement.setString(1, refId);
       preparedStatement.setString(2, value);
       preparedStatement.execute();
       preparedStatement.close();
-    } catch (DatabaseException | SQLException e) {
+    } catch (final DatabaseException | SQLException e) {
       throw new GeneralException("Delete static table error: " + e.getMessage());
     }
   }
 
   @Override
   public String getConfirmationMessage() {
-    return "Static Table " + this.tableName + " updates!";
+    return "Static Table " + tableName + " updates!";
   }
 
   @Override
-  public void setUp() throws SetupException {
-
+  public void setUp() {
+    throw new UnsupportedOperationException();
   }
 
   @Override
-  public void setFileOpener(ResourceAccessor resourceAccessor) {
-
+  public void setFileOpener(final ResourceAccessor resourceAccessor) {
+    throw new UnsupportedOperationException();
   }
 
   @Override
-  public ValidationErrors validate(Database database) {
+  public ValidationErrors validate(final Database database) {
     return new ValidationErrors();
   }
 

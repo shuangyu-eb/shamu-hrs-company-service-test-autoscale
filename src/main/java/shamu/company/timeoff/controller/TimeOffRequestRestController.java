@@ -8,7 +8,7 @@ import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpEntity;
@@ -120,8 +120,8 @@ public class TimeOffRequestRestController extends BaseRestController {
 
   @GetMapping("time-off-pending-requests/approver")
   @PreAuthorize("hasAuthority('MANAGE_TIME_OFF_REQUEST')")
-  public PageImpl<TimeOffRequestDto> findPendingRequestsByApprover(final int page,
-      @RequestParam(defaultValue = "5", required = false) final int size) {
+  public Page<TimeOffRequestDto> findPendingRequestsByApprover(
+      final int page, @RequestParam(defaultValue = "5", required = false) final int size) {
     final String[] statuses = new String[]{AWAITING_REVIEW.name()};
     final PageRequest request = PageRequest.of(page, size,
         Sort.by(SortFields.CREATED_AT.getValue()).descending());
@@ -131,7 +131,7 @@ public class TimeOffRequestRestController extends BaseRestController {
 
   @GetMapping("time-off-reviewed-requests/approver")
   @PreAuthorize("hasAuthority('MANAGE_TIME_OFF_REQUEST')")
-  public PageImpl<TimeOffRequestDto> findReviewedRequestsByApprover(final int page,
+  public Page<TimeOffRequestDto> findReviewedRequestsByApprover(final int page,
       @RequestParam(defaultValue = "5", required = false) final int size) {
     final String[] statuses = new String[]{APPROVED.name(), DENIED.name()};
     final PageRequest request = PageRequest.of(page, size,

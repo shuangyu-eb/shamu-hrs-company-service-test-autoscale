@@ -214,9 +214,7 @@ public class TimeOffPolicyServiceTests {
       Mockito.when(timeOffPolicyRepository.findByPolicyNameAndCompanyId(timeOffPolicy.getPolicyName(),company.getId()))
           .thenReturn(1);
 
-      Assertions.assertThrows(ForbiddenException.class, () -> {
-        Whitebox.invokeMethod(timeOffPolicyService,"checkPolicyNameIsExists",timeOffPolicy,company.getId(),0);
-      });
+      Assertions.assertThrows(ForbiddenException.class, () -> Whitebox.invokeMethod(timeOffPolicyService,"checkPolicyNameIsExists",timeOffPolicy,company.getId(),0));
 
     }
   }
@@ -424,6 +422,9 @@ public class TimeOffPolicyServiceTests {
       final AccrualScheduleMilestone accrualScheduleMilestone = new AccrualScheduleMilestone();
       accrualScheduleMilestone.setId("1");
       accrualScheduleMilestone.setAnniversaryYear(2020);
+      accrualScheduleMilestone.setAccrualHours(120);
+      accrualScheduleMilestone.setCarryoverLimit(10);
+      accrualScheduleMilestone.setMaxBalance(100);
       accrualScheduleMilestones.add(accrualScheduleMilestone);
 
       accrualScheduleMilestoneDto = new AccrualScheduleMilestoneDto();
@@ -493,6 +494,8 @@ public class TimeOffPolicyServiceTests {
 
     accrualScheduleMilestone.setId("1");
     accrualScheduleMilestone.setMaxBalance(10);
+    accrualScheduleMilestone.setAccrualHours(100);
+    accrualScheduleMilestone.setCarryoverLimit(150);
     accrualScheduleMilestones.add(accrualScheduleMilestone);
 
     Mockito.when(timeOffPolicyAccrualScheduleRepository.findByTimeOffPolicy(Mockito.any())).thenReturn(timeOffPolicyAccrualSchedule);

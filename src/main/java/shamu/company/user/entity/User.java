@@ -59,7 +59,6 @@ public class User {
   private UserPersonalInformation userPersonalInformation;
 
   @OneToOne(cascade = CascadeType.ALL)
-  @NotNull
   private UserContactInformation userContactInformation;
 
   private String invitationEmailToken;

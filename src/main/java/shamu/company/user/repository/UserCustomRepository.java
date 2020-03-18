@@ -7,7 +7,6 @@ import shamu.company.employee.dto.EmployeeListSearchCondition;
 import shamu.company.employee.dto.OrgChartDto;
 import shamu.company.job.entity.JobUserListItem;
 import shamu.company.user.entity.User;
-import shamu.company.user.entity.User.Role;
 
 public interface UserCustomRepository {
 

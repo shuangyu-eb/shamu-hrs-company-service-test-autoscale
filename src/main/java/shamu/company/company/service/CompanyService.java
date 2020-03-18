@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import shamu.company.common.CommonDictionaryDto;
 import shamu.company.common.entity.StateProvince;
 import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.common.service.DepartmentService;
@@ -14,7 +13,6 @@ import shamu.company.company.dto.CompanyBenefitsSettingDto;
 import shamu.company.company.dto.OfficeSizeDto;
 import shamu.company.company.entity.Company;
 import shamu.company.company.entity.CompanyBenefitsSetting;
-import shamu.company.company.entity.CompanySize;
 import shamu.company.company.entity.Department;
 import shamu.company.company.entity.Office;
 import shamu.company.company.entity.OfficeAddress;
@@ -26,7 +24,6 @@ import shamu.company.employee.entity.EmploymentType;
 import shamu.company.employee.service.EmploymentTypeService;
 import shamu.company.job.entity.Job;
 import shamu.company.job.service.JobService;
-import shamu.company.utils.ReflectionUtil;
 
 @Service
 public class CompanyService {

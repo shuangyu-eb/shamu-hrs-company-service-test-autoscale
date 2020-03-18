@@ -47,19 +47,15 @@ public class CompanyRestController extends BaseRestController {
 
   private final UserService userService;
 
-  private final Auth0Helper auth0Helper;
-
   @Autowired
   public CompanyRestController(final CompanyService companyService,
       final EmployeeService employeeService,
       final OfficeMapper officeMapper,
-      final UserService userService,
-      final Auth0Helper auth0Helper) {
+      final UserService userService) {
     this.companyService = companyService;
     this.employeeService = employeeService;
     this.officeMapper = officeMapper;
     this.userService = userService;
-    this.auth0Helper = auth0Helper;
   }
 
 
@@ -159,7 +155,7 @@ public class CompanyRestController extends BaseRestController {
 
   @PatchMapping("benefits-setting/automatic-rollover")
   @PreAuthorize("hasAuthority('MANAGE_BENEFIT')")
-  public HttpEntity updateBenefitSettingAutomaticRollover(@RequestBody Boolean isTurnOn) {
+  public HttpEntity updateBenefitSettingAutomaticRollover(@RequestBody final Boolean isTurnOn) {
     companyService.updateBenefitSettingAutomaticRollover(findCompanyId(), isTurnOn);
     return new ResponseEntity(HttpStatus.OK);
   }
@@ -167,7 +163,7 @@ public class CompanyRestController extends BaseRestController {
   @PatchMapping("benefits-setting/enrollment-period")
   @PreAuthorize("hasAuthority('MANAGE_BENEFIT')")
   public HttpEntity updateEnrollmentPeriod(
-      @RequestBody CompanyBenefitsSettingDto companyBenefitsSettingDto) {
+      @RequestBody final CompanyBenefitsSettingDto companyBenefitsSettingDto) {
     companyService.updateEnrollmentPeriod(findCompanyId(), companyBenefitsSettingDto);
     return new ResponseEntity(HttpStatus.OK);
   }

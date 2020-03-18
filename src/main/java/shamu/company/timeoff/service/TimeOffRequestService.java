@@ -305,7 +305,6 @@ public class TimeOffRequestService {
     return timeOffRequestMapper.convertToTimeOffRequestDto(timeOffRequest);
   }
 
-  // TODO updateTimeOffRequest don't update balance
   private TimeOffRequest updateTimeOffRequest(
       final TimeOffRequest timeOffRequest, final TimeOffRequestComment timeOffRequestComment) {
 
@@ -459,7 +458,7 @@ public class TimeOffRequestService {
     return timeOffRequestDtos;
   }
 
-  public PageImpl<TimeOffRequestDto> findRequestsByApproverAndStatuses(
+  public Page<TimeOffRequestDto> findRequestsByApproverAndStatuses(
       final PageRequest pageRequest, final String[] statuses, final AuthUser authUser) {
     final Timestamp startDayTimestamp = DateUtil.getFirstDayOfCurrentYear();
 
@@ -467,8 +466,7 @@ public class TimeOffRequestService {
         getByApproverAndStatusFilteredByStartDay(
             authUser.getId(), statuses, startDayTimestamp, pageRequest);
 
-    return (PageImpl<TimeOffRequestDto>)
-        timeOffRequests.map(timeOffRequestMapper::convertToTimeOffRequestDto);
+    return timeOffRequests.map(timeOffRequestMapper::convertToTimeOffRequestDto);
   }
 
   public enum SortFields {

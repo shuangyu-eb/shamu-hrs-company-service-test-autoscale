@@ -108,7 +108,7 @@ public class TimeOffRequestEmailService {
       final User approver) {
 
     final List<TimeOffEmailCommentPojo> commentPojos =
-        timeOffRequest.getApproverComments().stream().map((approveComment) -> {
+        timeOffRequest.getApproverComments().stream().map(approveComment -> {
           final TimeOffEmailCommentPojo timeOffEmailCommentPojo = new TimeOffEmailCommentPojo();
           timeOffEmailCommentPojo.setComment(approveComment.getComment());
           final User approveUser = approveComment.getUser();
