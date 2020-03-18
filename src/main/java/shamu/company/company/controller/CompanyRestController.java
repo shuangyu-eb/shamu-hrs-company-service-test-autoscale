@@ -127,13 +127,8 @@ public class CompanyRestController extends BaseRestController {
           @PathVariable final String userId,
           @PathVariable final String departmentId) {
     final List<User> users;
-    final User user = userService.findById(userId);
-    if (user.getManagerUser() == null) {
-      users = employeeService.findSubordinatesByManagerUserId(
-              findCompanyId(), user.getId());
-    } else {
-      users = employeeService.findByCompanyId(findCompanyId());
-    }
+
+    users = employeeService.findByCompanyId(findCompanyId());
 
     final List<SelectFieldInformationDto> selectFieldInformationDtos =
             collectUserPersonInformations(users);

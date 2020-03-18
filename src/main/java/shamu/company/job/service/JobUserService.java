@@ -150,7 +150,10 @@ public class JobUserService {
 
   private void addOrUpdateUserManager(
         final User user, final String companyId, final String managerId) {
-    if (userHasNoneOrDifferentManager(user, managerId)) {
+    if (null == managerId) {
+      user.setManagerUser(null);
+      userService.save(user);
+    } else if (userHasNoneOrDifferentManager(user, managerId)) {
       adjustManagerLocationInOrganizationRelationship(user, managerId);
       adjustUserLocationInOrganizationRelationship(user, companyId, managerId);
       handlePendingRequests(managerId);

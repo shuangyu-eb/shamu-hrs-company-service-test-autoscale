@@ -32,4 +32,6 @@ public class OrgChartDto {
   private Integer directReportsCount;
 
   private List<OrgChartDto> directReports = new ArrayList<>();
+
+  private Boolean isCompany = false;
 }

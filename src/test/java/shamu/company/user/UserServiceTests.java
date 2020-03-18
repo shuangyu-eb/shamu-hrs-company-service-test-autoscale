@@ -23,6 +23,7 @@ import shamu.company.common.exception.ForbiddenException;
 import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.common.service.DepartmentService;
 import shamu.company.company.entity.Company;
+import shamu.company.company.repository.CompanyRepository;
 import shamu.company.company.service.CompanyBenefitsSettingService;
 import shamu.company.company.service.CompanyService;
 import shamu.company.crypto.SecretHashRepository;
@@ -102,6 +103,7 @@ class UserServiceTests {
   @Mock private CompanyBenefitsSettingService companyBenefitsSettingService;
   @Mock private UserBenefitsSettingService userBenefitsSettingService;
   @Mock private EntityManager entityManager;
+  @Mock private CompanyRepository companyRepository;
 
   @BeforeEach
   void init() {
@@ -136,8 +138,8 @@ class UserServiceTests {
 
     @BeforeEach
     void init() {
-      userId = UUID.randomUUID().toString().replaceAll("-", "");
-      companyId = UUID.randomUUID().toString().replaceAll("-", "");
+      userId = UuidUtil.getUuidString();
+      companyId = UuidUtil.getUuidString();
     }
 
     @Test
@@ -162,8 +164,14 @@ class UserServiceTests {
     @Test
     void whenUserIdIsNull_thenShouldCall() {
       userId = null;
+      final Company company = new Company(companyId);
+      final OrgChartDto orgChartDto = new OrgChartDto();
+      orgChartDto.setId(companyId);
+
+      Mockito.when(companyRepository.findCompanyById(Mockito.any())).thenReturn(company);
       Mockito.when(userRepository.findOrgChartItemByManagerId(null, companyId))
           .thenReturn(new ArrayList<>());
+      Mockito.when(userMapper.convertOrgChartDto(Mockito.any())).thenReturn(orgChartDto);
       userService.getOrgChart(userId, companyId);
       Mockito.verify(userRepository, Mockito.times(1))
           .findOrgChartItemByManagerId(null, companyId);

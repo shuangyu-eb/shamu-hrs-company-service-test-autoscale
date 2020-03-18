@@ -6,4 +6,6 @@ import shamu.company.company.entity.Company;
 public interface CompanyRepository extends BaseRepository<Company, String> {
 
   Boolean existsByName(String companyName);
+
+  Company findCompanyById(String companyId);
 }

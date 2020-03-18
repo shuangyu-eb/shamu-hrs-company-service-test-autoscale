@@ -6,7 +6,9 @@ import org.mapstruct.Mapping;
 import shamu.company.admin.dto.MockUserDto;
 import shamu.company.benefit.dto.BenefitPlanUserDto;
 import shamu.company.common.mapper.Config;
+import shamu.company.company.entity.Company;
 import shamu.company.employee.dto.BasicJobInformationDto;
+import shamu.company.employee.dto.OrgChartDto;
 import shamu.company.server.dto.AuthUser;
 import shamu.company.user.dto.UserAvatarDto;
 import shamu.company.user.dto.UserDto;
@@ -59,6 +61,11 @@ public interface UserMapper {
   @Mapping(target = "lastName", source = "user.userPersonalInformation.lastName")
   @Mapping(target = "imageUrl", source = "user.imageUrl")
   BenefitPlanUserDto covertToBenefitPlanUserDto(User user);
+
+  @Mapping(target = "id", source = "company.id")
+  @Mapping(target = "lastName", source = "company.name")
+  @Mapping(target = "imageUrl", source = "company.imageUrl")
+  OrgChartDto convertOrgChartDto(Company company);
 
   default Role convertFromUserRole(final UserRole userRole) {
     return Role.valueOf(userRole.getName());

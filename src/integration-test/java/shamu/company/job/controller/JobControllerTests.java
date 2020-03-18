@@ -23,6 +23,7 @@ import shamu.company.server.dto.AuthUser;
 import shamu.company.tests.utils.JwtUtil;
 import shamu.company.user.entity.User;
 import shamu.company.utils.JsonUtil;
+import shamu.company.utils.UuidUtil;
 
 import java.util.Collections;
 import java.util.List;

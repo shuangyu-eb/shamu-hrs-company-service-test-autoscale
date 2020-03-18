@@ -279,6 +279,21 @@ class JobUserServiceTests {
             Mockito.verify(userService, Mockito.times(2)).save(Mockito.any());
         }
 
+        @Test
+        void WhenManagerIdIsStringNull_thenUserManagerIsNullAndSuccess() {
+          jobUpdateDto.setManagerId(null);
+
+          Mockito.when(userService.findById(user.getId())).thenReturn(user);
+          Mockito.when(jobUserRepository.findJobUserByUser(jobUser.getUser())).thenReturn(jobUser);
+          Mockito.when(jobUserRepository.save(jobUser)).thenReturn(jobUser);
+
+          Assertions.assertDoesNotThrow(() ->
+              jobUserService.updateJobInfo("1", jobUpdateDto, "1"));
+          Mockito.verify(userService, Mockito.times( 0)).findSubordinatesByManagerUserId(Mockito.any(), Mockito.any());
+          Mockito.verify(userService, Mockito.times(1)).save(Mockito.any());
+
+        }
+
     }
 
     @Nested

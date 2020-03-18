@@ -38,6 +38,7 @@ import shamu.company.common.service.DepartmentService;
 import shamu.company.company.entity.Company;
 import shamu.company.company.entity.CompanyBenefitsSetting;
 import shamu.company.company.entity.Department;
+import shamu.company.company.repository.CompanyRepository;
 import shamu.company.company.service.CompanyBenefitsSettingService;
 import shamu.company.company.service.CompanyService;
 import shamu.company.crypto.SecretHashRepository;
@@ -127,6 +128,7 @@ public class UserService {
   private final UserPersonalInformationMapper userPersonalInformationMapper;
   private final UserMapper userMapper;
   private final CompanyBenefitsSettingService companyBenefitsSettingService;
+  private final CompanyRepository companyRepository;
 
   @Value("${application.systemEmailAddress}")
   private String systemEmailAddress;
@@ -161,7 +163,8 @@ public class UserService {
       final UserAccessLevelEventService userAccessLevelEventService,
       final UserContactInformationService userContactInformationService,
       final CompanyBenefitsSettingService companyBenefitsSettingService,
-      final EntityManager entityManager) {
+      final EntityManager entityManager,
+      final CompanyRepository companyRepository) {
     this.templateEngine = templateEngine;
     this.userRepository = userRepository;
     this.secretHashRepository = secretHashRepository;
@@ -188,6 +191,7 @@ public class UserService {
     this.userContactInformationService = userContactInformationService;
     this.companyBenefitsSettingService = companyBenefitsSettingService;
     this.entityManager = entityManager;
+    this.companyRepository = companyRepository;
   }
 
   public User findById(final String id) {
@@ -297,28 +301,40 @@ public class UserService {
     if (!StringUtils.isBlank(userId)) {
       final OrgChartDto manager = userRepository.findOrgChartItemByUserId(userId, companyId);
       orgChartManagerItemList.add(manager);
+      if (!orgChartManagerItemList.isEmpty()) {
+        for (final OrgChartDto managerItem : orgChartManagerItemList) {
+          if (managerItem == null) {
+            throw new ForbiddenException("User with id " + userId + " not found!");
+          }
+
+          final List<OrgChartDto> orgChartUserItemList =
+              userRepository.findOrgChartItemByManagerId(managerItem.getId(), companyId);
+          orgChartUserItemList.forEach(
+              (orgUser -> {
+                final Integer directReportsCount =
+                    userRepository.findDirectReportsCount(orgUser.getId(), companyId);
+                orgUser.setDirectReportsCount(directReportsCount);
+              }));
+          managerItem.setDirectReports(orgChartUserItemList);
+          managerItem.setDirectReportsCount(orgChartUserItemList.size());
+          orgChartDtoList.add(managerItem);
+        }
+      }
     } else {
       // retrieve company admin from database
       orgChartManagerItemList = userRepository.findOrgChartItemByManagerId(null, companyId);
-    }
-    if (!orgChartManagerItemList.isEmpty()) {
-      for (final OrgChartDto manager : orgChartManagerItemList) {
-        if (manager == null) {
-          throw new ForbiddenException("User with id " + userId + " not found!");
-        }
-
-        final List<OrgChartDto> orgChartUserItemList =
-            userRepository.findOrgChartItemByManagerId(manager.getId(), companyId);
-        orgChartUserItemList.forEach(
-            (orgUser -> {
-              final Integer directReportsCount =
-                  userRepository.findDirectReportsCount(orgUser.getId(), companyId);
-              orgUser.setDirectReportsCount(directReportsCount);
-            }));
-        manager.setDirectReports(orgChartUserItemList);
-        manager.setDirectReportsCount(orgChartUserItemList.size());
-        orgChartDtoList.add(manager);
-      }
+      final Company company = companyRepository.findCompanyById(companyId);
+      final OrgChartDto orgChartDto = userMapper.convertOrgChartDto(company);
+      orgChartDto.setIsCompany(true);
+      orgChartManagerItemList.forEach(
+          (orgUser -> {
+            final Integer directReportsCount =
+                userRepository.findDirectReportsCount(orgUser.getId(), companyId);
+            orgUser.setDirectReportsCount(directReportsCount);
+          }));
+      orgChartDto.setDirectReportsCount(orgChartManagerItemList.size());
+      orgChartDto.setDirectReports(orgChartManagerItemList);
+      orgChartDtoList.add(orgChartDto);
     }
     return orgChartDtoList;
   }
