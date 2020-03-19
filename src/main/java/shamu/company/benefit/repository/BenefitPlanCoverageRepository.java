@@ -4,7 +4,9 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.Query;
+import shamu.company.benefit.dto.BenefitCoveragesDto;
 import shamu.company.benefit.dto.BenefitReportCoveragesDto;
+import shamu.company.benefit.entity.BenefitCoverages;
 import shamu.company.benefit.entity.BenefitPlanCoverage;
 import shamu.company.common.repository.BaseRepository;
 
@@ -79,4 +81,13 @@ public interface BenefitPlanCoverageRepository extends BaseRepository<BenefitPla
 
   BenefitPlanCoverage getByBenefitPlanIdAndBenefitCoverageId(
       String benefitPlanId, String benefitCoverageId);
+
+  @Query(
+      value =
+          "select new shamu.company.benefit.dto.BenefitCoveragesDto(bpc.id, bc.name) "
+              + "from BenefitPlanCoverage bpc "
+              + "left join BenefitCoverages bc "
+              + "on bpc.benefitCoverage.id = bc.id "
+              + "where bpc.benefitPlanId = ?1")
+  List<BenefitCoveragesDto> getBenefitPlanCoveragesByPlanId(String benefitPlanId);
 }

@@ -771,29 +771,16 @@ class BenefitPlanServiceTests {
     void init() {
       employees = new ArrayList<>();
       benefitPlanId = "benefitId";
-      companyId = "companyId";
     }
 
     @Test
     void whenUpdateBenefitPlanEmployees_thenShouldSuccess() {
       final BenefitPlanUserCreateDto employee = new BenefitPlanUserCreateDto();
       employee.setId("employeeId");
+      employee.setCoverage("coverageId");
       employees.add(employee);
 
-      final List<BenefitPlanUser> existPlans = new ArrayList<>();
-      final BenefitPlanUser existPlan = new BenefitPlanUser();
-      final List<User> userList = new ArrayList<>();
-      final User user = new User();
-      user.setId("userId");
-      userList.add(user);
-      existPlan.setUser(user);
-      existPlans.add(existPlan);
-      Mockito.when(benefitPlanUserRepository.findAllByBenefitPlanId(benefitPlanId))
-          .thenReturn(existPlans);
-      Mockito.when(userRepository.findAllByCompanyId(companyId)).thenReturn(userList);
-      Mockito.when(benefitPlanUserRepository.findAllByBenefitPlanId(benefitPlanId))
-          .thenReturn(existPlans);
-      benefitPlanService.updateBenefitPlanEmployees(employees, benefitPlanId, companyId);
+      benefitPlanService.updateBenefitPlanEmployees(employees, benefitPlanId);
       Mockito.verify(userMapper, Mockito.times(0)).covertToBenefitPlanUserDto(Mockito.any());
     }
   }
@@ -1160,6 +1147,70 @@ class BenefitPlanServiceTests {
           companyId,
           userId);
       Mockito.verify(benefitPlanUserRepository, Mockito.times(1)).save(benefitPlanUser);
+    }
+  }
+
+  @Nested
+  class findAllEmployeesForBenefitPlan {
+    String benefitPlanId;
+    String companyId;
+    List<BenefitPlanUserDto> allUsers;
+    List<User> users;
+    List<BenefitPlanUser> benefitPlanUsers;
+    User user;
+    BenefitPlanUser benefitPlanUser;
+    BenefitPlanUserDto benefitPlanUserDto;
+    @BeforeEach
+    void init() {
+      benefitPlanUserDto = new BenefitPlanUserDto();
+      benefitPlanUserDto.setId("userId");
+      benefitPlanId = "benefitPlanId";
+      companyId = "companyId";
+      allUsers = new ArrayList<>();
+      users = new ArrayList<>();
+      user = new User();
+      user.setId("userId");
+      users.add(user);
+      BenefitPlanUserDto benefitPlanUserDto = new BenefitPlanUserDto();
+      benefitPlanUserDto.setId("userId");
+      allUsers.add(benefitPlanUserDto);
+      benefitPlanUsers = new ArrayList<>();
+      benefitPlanUser = new BenefitPlanUser();
+      benefitPlanUser.setId("benefitPlanUserId");
+      BenefitPlanCoverage benefitPlanCoverage = new BenefitPlanCoverage();
+      benefitPlanCoverage.setId("benefitPlanCoverageId");
+      benefitPlanUser.setBenefitPlanCoverage(benefitPlanCoverage);
+      benefitPlanUsers.add(benefitPlanUser);
+    }
+
+    @Test
+    void whenFindAllEmployees_thenShouldSuccess() {
+      Mockito.when(userRepository.findAllByCompanyId(companyId)).thenReturn(users);
+      Mockito.when(benefitPlanUserRepository.findAllByBenefitPlanId(benefitPlanId))
+          .thenReturn(benefitPlanUsers);
+      Mockito.when(userMapper.covertToBenefitPlanUserDto(user)).thenReturn(benefitPlanUserDto);
+      Mockito.when(benefitPlanUserMapper.convertToBenefitPlanUserDto(benefitPlanUser))
+          .thenReturn(benefitPlanUserDto);
+      benefitPlanService.findAllEmployeesForBenefitPlan(benefitPlanId, companyId);
+      Mockito.verify(benefitPlanUserRepository, Mockito.times(1))
+          .findAllByBenefitPlanId(benefitPlanId);
+    }
+  }
+
+  @Nested
+  class findAllCoveragesByBenefitPlan {
+    String benefitPlanId;
+
+    @BeforeEach
+    void init() {
+      benefitPlanId = "benefitPlanId";
+    }
+
+    @Test
+    void whenFindAllCoverages_thenShouldSuccess() {
+      benefitPlanService.findAllCoveragesByBenefitPlan(benefitPlanId);
+      Mockito.verify(benefitPlanCoverageRepository, Mockito.times(1))
+          .getBenefitPlanCoveragesByPlanId(benefitPlanId);
     }
   }
 }

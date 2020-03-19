@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
+import shamu.company.benefit.dto.BenefitCoveragesDto;
 import shamu.company.benefit.dto.BenefitPlanCoveragesDto;
 import shamu.company.benefit.dto.BenefitPlanDetailDto;
 import shamu.company.benefit.dto.BenefitPlanDto;
@@ -181,11 +182,11 @@ public class BenefitPlanRestController extends BaseRestController {
 
   @PatchMapping("benefit-plan/employees/{benefitPlanId}")
   @PreAuthorize("hasPermission(#benefitPlanId, 'BENEFIT_PLAN', 'MANAGE_BENEFIT_PLAN')")
-  public BenefitPlanRelatedUserListDto updateTimeOffPolicyEmployeesInfo(
+  public HttpEntity updateBenefitPlanEmployees(
       @PathVariable final String benefitPlanId,
-      @RequestBody final List<BenefitPlanUserCreateDto> unSelectedEmployees) {
-    return benefitPlanService.updateBenefitPlanEmployees(
-        unSelectedEmployees, benefitPlanId, findCompanyId());
+      @RequestBody final List<BenefitPlanUserCreateDto> enrollEmployees) {
+    benefitPlanService.updateBenefitPlanEmployees(enrollEmployees, benefitPlanId);
+    return new ResponseEntity(HttpStatus.OK);
   }
 
   @GetMapping("benefit-plan/{benefitPlanId}/users")
@@ -195,10 +196,24 @@ public class BenefitPlanRestController extends BaseRestController {
     return benefitPlanService.findRelatedUsersByBenefitPlan(benefitPlanId, findCompanyId());
   }
 
+  @GetMapping("benefit-plan/{benefitPlanId}/selectedUsers")
+  @PreAuthorize("hasPermission(#benefitPlanId, 'BENEFIT_PLAN', 'MANAGE_BENEFIT_PLAN')")
+  public BenefitPlanRelatedUserListDto getAllUsersByBenefitPlanId(
+      @PathVariable final String benefitPlanId) {
+    return benefitPlanService.findAllEmployeesForBenefitPlan(benefitPlanId, findCompanyId());
+  }
+
   @GetMapping("benefit-plan/coverages")
   @PreAuthorize("hasAuthority('MANAGE_BENEFIT_PLAN')")
   public BenefitPlanCoveragesDto getCoveragesByBenefitPlanId() {
     return benefitPlanService.findCoveragesByBenefitPlanId();
+  }
+
+  @GetMapping("benefit-plan/{benefitPlanId}/allCoverages")
+  @PreAuthorize("hasPermission(#benefitPlanId, 'BENEFIT_PLAN', 'MANAGE_BENEFIT_PLAN')")
+  public List<BenefitCoveragesDto> getAllCoveragesByBenefitPlanId(
+      @PathVariable final String benefitPlanId) {
+    return benefitPlanService.findAllCoveragesByBenefitPlan(benefitPlanId);
   }
 
   @GetMapping("benefit-plan/{planTypeName}/reports")

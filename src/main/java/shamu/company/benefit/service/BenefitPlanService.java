@@ -72,7 +72,6 @@ import shamu.company.benefit.repository.BenefitPlanRepository;
 import shamu.company.benefit.repository.BenefitPlanTypeRepository;
 import shamu.company.benefit.repository.BenefitPlanUserRepository;
 import shamu.company.benefit.repository.RetirementPlanTypeRepository;
-import shamu.company.common.entity.BaseEntity;
 import shamu.company.common.exception.AwsException;
 import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.company.entity.Company;
@@ -733,24 +732,41 @@ public class BenefitPlanService {
     return !benefitPlanUsers.isEmpty();
   }
 
-  public BenefitPlanRelatedUserListDto updateBenefitPlanEmployees(
+  public void updateBenefitPlanEmployees(
       final List<BenefitPlanUserCreateDto> employees,
-      final String benefitPlanId,
-      final String companyId) {
-    final List<String> updateUsers =
-        employees.stream().map(BenefitPlanUserCreateDto::getId).collect(Collectors.toList());
-    final List<BenefitPlanUser> existPlans =
-        benefitPlanUserRepository.findAllByBenefitPlanId(benefitPlanId);
+      final String benefitPlanId) {
+    final List<String> existIds =
+        benefitPlanUserRepository.findAllByBenefitPlanId(benefitPlanId).stream()
+            .map(BenefitPlanUser::getId).collect(Collectors.toList());
+    benefitPlanUserRepository.deleteInBatch(existIds);
+    benefitPlanUserRepository.saveAll(employees.stream().map(benefitPlanUserCreateDto -> {
+      BenefitPlanCoverage benefitPlanCoverage = new BenefitPlanCoverage();
+      benefitPlanCoverage.setId(benefitPlanUserCreateDto.getCoverage());
+      return benefitPlanUserMapper.createFromBenefitPlanUserCreateDtoAndBenefitPlanId(
+          benefitPlanUserCreateDto, benefitPlanId,
+          benefitPlanCoverage, true, true);
+    }).collect(Collectors.toList()));
+  }
 
-    final List<String> deletePlanUsers =
-        existPlans.stream()
-            .filter(existPlan -> !updateUsers.contains(existPlan.getUser().getId()))
-            .map(BaseEntity::getId)
-            .collect(Collectors.toList());
-    if (!CollectionUtils.isEmpty(deletePlanUsers)) {
-      benefitPlanUserRepository.deleteInBatch(deletePlanUsers);
-    }
-    return findRelatedUsersByBenefitPlan(benefitPlanId, companyId);
+  public BenefitPlanRelatedUserListDto findAllEmployeesForBenefitPlan(
+      final String benefitPlanId, final String companyId) {
+    final List<BenefitPlanUserDto> allUsers = userRepository.findAllByCompanyId(companyId).stream()
+        .map(userMapper::covertToBenefitPlanUserDto).collect(Collectors.toList());
+    final List<BenefitPlanUserDto> selectUsers
+        = benefitPlanUserRepository.findAllByBenefitPlanId(benefitPlanId).stream().map(
+        benefitPlanUserMapper::convertToBenefitPlanUserDto).collect(Collectors.toList());
+    selectUsers.forEach(s -> {
+      allUsers.forEach(user -> {
+        if (user.getId().equals(s.getId())) {
+          user.setCoverageId(s.getCoverageId());
+        }
+      });
+    });
+    return new BenefitPlanRelatedUserListDto(null, allUsers);
+  }
+
+  public List<BenefitCoveragesDto> findAllCoveragesByBenefitPlan(final String benefitPlanId) {
+    return benefitPlanCoverageRepository.getBenefitPlanCoveragesByPlanId(benefitPlanId);
   }
 
   public BenefitPlanRelatedUserListDto findRelatedUsersByBenefitPlan(

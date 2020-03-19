@@ -353,4 +353,38 @@ public class BenefitPlanRestControllerTests extends WebControllerBaseTests {
         .headers(httpHeaders)).andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
+
+  @Test
+  void testGetAllUsersByBenefitPlanId() throws Exception {
+    setPermission(Permission.Name.MANAGE_BENEFIT_PLAN.name());
+    final HttpHeaders httpHeaders = new HttpHeaders();
+    httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+    final AuthUser currentUser = getAuthUser();
+    final Company company = new Company(currentUser.getCompanyId());
+    BenefitPlan benefitPlan = new BenefitPlan();
+    benefitPlan.setCompany(company);
+    given(benefitPlanService.findBenefitPlanById("1")).willReturn(benefitPlan);
+    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
+        .get("/company/benefit-plan/1/selectedUsers")
+        .contentType(MediaType.APPLICATION_JSON)
+        .headers(httpHeaders)).andReturn();
+    assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+  }
+
+  @Test
+  void testGetAllCoveragesByBenefitPlanId() throws Exception {
+    setPermission(Permission.Name.MANAGE_BENEFIT_PLAN.name());
+    final HttpHeaders httpHeaders = new HttpHeaders();
+    httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+    final AuthUser currentUser = getAuthUser();
+    final Company company = new Company(currentUser.getCompanyId());
+    BenefitPlan benefitPlan = new BenefitPlan();
+    benefitPlan.setCompany(company);
+    given(benefitPlanService.findBenefitPlanById("1")).willReturn(benefitPlan);
+    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
+        .get("/company/benefit-plan/1/allCoverages")
+        .contentType(MediaType.APPLICATION_JSON)
+        .headers(httpHeaders)).andReturn();
+    assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+  }
 }

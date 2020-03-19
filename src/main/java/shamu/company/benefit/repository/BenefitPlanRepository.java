@@ -1,11 +1,9 @@
 package shamu.company.benefit.repository;
 
-import java.sql.Timestamp;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
-import shamu.company.benefit.dto.BenefitPlanPreviewDto;
 import shamu.company.benefit.dto.BenefitPlanTypeDto;
 import shamu.company.benefit.dto.BenefitReportPlansDto;
 import shamu.company.benefit.dto.EnrollmentBreakdownDto;
@@ -257,10 +255,10 @@ public interface BenefitPlanRepository extends BaseRepository<BenefitPlan, Strin
               + "from benefit_plans "
               + "where benefit_plan_type_id = unhex(?1) "
               + "and company_id = unhex(?2) "
-              + "and end_date > current_timestamp",
+              + "and end_date >= current_timestamp",
       countQuery =
           "select count(1) from benefit_plans where benefit_plan_type_id = unhex(?1) "
-              + "and company_id = unhex(?2) and end_date > current_timestamp",
+              + "and company_id = unhex(?2) and end_date >= current_timestamp",
       nativeQuery = true)
   Page<BenefitPlanPreviewPojo> getBenefitPlanListWithOutExpired(
       String planTypeId, String companyId, Pageable pageRequest);
