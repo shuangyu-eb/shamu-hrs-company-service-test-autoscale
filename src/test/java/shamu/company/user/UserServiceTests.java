@@ -172,6 +172,7 @@ class UserServiceTests {
       Mockito.when(userRepository.findOrgChartItemByManagerId(null, companyId))
           .thenReturn(new ArrayList<>());
       Mockito.when(userMapper.convertOrgChartDto(Mockito.any())).thenReturn(orgChartDto);
+      Mockito.when(userRepository.findExistingUserCountByCompanyId(Mockito.any())).thenReturn(100);
       userService.getOrgChart(userId, companyId);
       Mockito.verify(userRepository, Mockito.times(1))
           .findOrgChartItemByManagerId(null, companyId);

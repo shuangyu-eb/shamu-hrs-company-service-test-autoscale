@@ -324,6 +324,7 @@ public class UserService {
       // retrieve company admin from database
       orgChartManagerItemList = userRepository.findOrgChartItemByManagerId(null, companyId);
       final Company company = companyRepository.findCompanyById(companyId);
+      final Integer allEmployeesCount = userRepository.findExistingUserCountByCompanyId(companyId);
       final OrgChartDto orgChartDto = userMapper.convertOrgChartDto(company);
       orgChartDto.setIsCompany(true);
       orgChartManagerItemList.forEach(
@@ -332,7 +333,7 @@ public class UserService {
                 userRepository.findDirectReportsCount(orgUser.getId(), companyId);
             orgUser.setDirectReportsCount(directReportsCount);
           }));
-      orgChartDto.setDirectReportsCount(orgChartManagerItemList.size());
+      orgChartDto.setDirectReportsCount(allEmployeesCount);
       orgChartDto.setDirectReports(orgChartManagerItemList);
       orgChartDtoList.add(orgChartDto);
     }

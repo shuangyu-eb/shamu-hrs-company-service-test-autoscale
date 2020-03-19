@@ -63,7 +63,7 @@ public interface UserMapper {
   BenefitPlanUserDto covertToBenefitPlanUserDto(User user);
 
   @Mapping(target = "id", source = "company.id")
-  @Mapping(target = "lastName", source = "company.name")
+  @Mapping(target = "firstName", source = "company.name")
   @Mapping(target = "imageUrl", source = "company.imageUrl")
   OrgChartDto convertOrgChartDto(Company company);
 
