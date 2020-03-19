@@ -7,7 +7,6 @@ public class EnrollmentBreakdownSearchCondition {
   private static final String NAME = "orderName";
   private static final String PLAN = "plan";
   private static final String COVERAGE = "coverage";
-  private static final String DEPENDENTS = "dependents";
   private static final String COMPANYCOST = "companyCost";
   private static final String EMPLOYEECOST = "employeeCost";
 
@@ -35,7 +34,6 @@ public class EnrollmentBreakdownSearchCondition {
     NAME(EnrollmentBreakdownSearchCondition.NAME),
     PLAN(EnrollmentBreakdownSearchCondition.PLAN),
     COVERAGE(EnrollmentBreakdownSearchCondition.COVERAGE),
-    DEPENDENTS(EnrollmentBreakdownSearchCondition.DEPENDENTS),
     COMPANYCOST(EnrollmentBreakdownSearchCondition.COMPANYCOST),
     EMPLOYEECOST(EnrollmentBreakdownSearchCondition.EMPLOYEECOST);
 

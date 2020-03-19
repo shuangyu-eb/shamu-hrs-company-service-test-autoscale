@@ -60,10 +60,37 @@ public interface BenefitPlanRepository extends BaseRepository<BenefitPlan, Strin
   @Query(
       value =
           "select new shamu.company.benefit.dto.EnrollmentBreakdownDto(1L, "
+              + "user.imageUrl,"
+              + "user.userPersonalInformation.firstName,"
+              + "user.userPersonalInformation.lastName,"
+              + "bp.name,bc.name,"
+              + "bpc.employeeCost, bpc.employerCost) "
+              + "from User user "
+              + "left join BenefitPlanUser bpu "
+              + "on user.id = bpu.user.id "
+              + "left join BenefitPlan bp "
+              + "on bp.id = bpu.benefitPlan.id "
+              + "left join BenefitPlanCoverage bpc "
+              + "on bpu.benefitPlanCoverage.id = bpc.id "
+              + "left join BenefitCoverages bc "
+              + "on bpc.benefitCoverage.id = bc.id "
+              + "where (bpu.benefitPlan.id in ?1 "
+              + "and bpu.confirmed = true and bpu.enrolled = true) "
+              + "or bpu.benefitPlan is NULL "
+              + "and user.company.id = ?2 "
+              + "order by bp.name DESC, "
+              + "concat(user.userPersonalInformation.lastName,"
+              + "user.userPersonalInformation.firstName) ASC")
+  List<EnrollmentBreakdownDto> getEnrollmentBreakdownWhenPlanIdIsEmpty(List<String> benefitPlanIds,
+                                                                       String companyId);
+
+  @Query(
+      value =
+          "select new shamu.company.benefit.dto.EnrollmentBreakdownDto(1L, "
               + "bpu.user.imageUrl,"
               + "bpu.user.userPersonalInformation.firstName,"
               + "bpu.user.userPersonalInformation.lastName,"
-              + "bpu.benefitPlan.name,bc.name,bpu.benefitPlanDependents.size, "
+              + "bpu.benefitPlan.name,bc.name,"
               + "bpc.employeeCost, bpc.employerCost) "
               + "from BenefitPlanUser bpu "
               + "left join BenefitPlanCoverage bpc "
@@ -79,7 +106,7 @@ public interface BenefitPlanRepository extends BaseRepository<BenefitPlan, Strin
               + "bpu.user.imageUrl,"
               + "bpu.user.userPersonalInformation.firstName,"
               + "bpu.user.userPersonalInformation.lastName,"
-              + "bpu.benefitPlan.name,bc.name,bpu.benefitPlanDependents.size, "
+              + "bpu.benefitPlan.name,bc.name, "
               + "bpc.employeeCost, bpc.employerCost) "
               + "from BenefitPlanUser bpu "
               + "left join BenefitPlanCoverage bpc "
@@ -97,8 +124,44 @@ public interface BenefitPlanRepository extends BaseRepository<BenefitPlan, Strin
               + "concat(upi.first_name,' ',upi.last_name) as fullName, "
               + "concat(upi.last_name,' ',upi.first_name) as orderName, "
               + "coalesce(bp.name) as plan, coalesce(bc.name) as coverage, "
-              + "count(bpd.id) as dependents, coalesce(bpc.employee_cost) as companyCost, "
-              + "coalesce(bpc.employer_cost) as employeeCost "
+              + "coalesce(bpc.employer_cost) as companyCost, "
+              + "coalesce(bpc.employee_cost) as employeeCost "
+              + "from users u "
+              + "left join benefit_plans_users bpu "
+              + "on bpu.user_id = u.id "
+              + "left join benefit_plans bp "
+              + "on bpu.benefit_plan_id = bp.id "
+              + "left join benefit_plan_coverages bpc "
+              + "on bpu.coverage_id = bpc.id "
+              + "left join benefit_coverages bc "
+              + "on bpc.benefit_coverage_id = bc.id "
+              + "left join user_personal_information upi "
+              + "on upi.id = u.user_personal_information_id "
+              + "where (hex(bpu.benefit_plan_id) in ?1  "
+              + "and bpu.confirmed is true and bpu.enrolled is true) "
+              + "or bpu.benefit_plan_id is NULL "
+              + "and u.company_id = unhex(?2)",
+      countQuery =
+          "select count(1) "
+              + "from users u "
+              + "left join benefit_plans_users bpu "
+              + "on bpu.user_id = u.id "
+              + "where (hex(bpu.benefit_plan_id) in ?1  "
+              + "and bpu.confirmed is true and bpu.enrolled is true) "
+              + "or bpu.benefit_plan_id is NULL "
+              + "and u.company_id = unhex(?2)",
+      nativeQuery = true)
+  Page<EnrollmentBreakdownPojo> getEnrollmentBreakdownByConditionAndPlanIdIsEmpty(
+      List<String> ids, String companyId, Pageable pageRequest);
+
+  @Query(
+      value =
+          "select hex(bpu.id) as planUserId, 1 as number, u.image_url as imageUrl, "
+              + "concat(upi.first_name,' ',upi.last_name) as fullName, "
+              + "concat(upi.last_name,' ',upi.first_name) as orderName, "
+              + "coalesce(bp.name) as plan, coalesce(bc.name) as coverage, "
+              + "coalesce(bpc.employer_cost) as companyCost, "
+              + "coalesce(bpc.employee_cost) as employeeCost "
               + "from benefit_plans_users bpu "
               + "left join benefit_plans bp "
               + "on bpu.benefit_plan_id = bp.id "
@@ -110,11 +173,8 @@ public interface BenefitPlanRepository extends BaseRepository<BenefitPlan, Strin
               + "on bpu.user_id = u.id "
               + "left join user_personal_information upi "
               + "on upi.id = u.user_personal_information_id "
-              + "left join benefit_plan_dependents bpd "
-              + "on bpu.id = bpd.benefit_plans_users_id "
               + "where hex(bpu.benefit_plan_id) in ?1 and bpu.confirmed is true "
-              + "and bpu.enrolled is true "
-              + "group by bpu.id",
+              + "and bpu.enrolled is true ",
       countQuery =
           "select count(1) from benefit_plans_users bpu "
               + "where hex(bpu.benefit_plan_id) in ?1 and bpu.confirmed is true "
@@ -129,8 +189,8 @@ public interface BenefitPlanRepository extends BaseRepository<BenefitPlan, Strin
               + "concat(upi.first_name,' ',upi.last_name) as fullName, "
               + "concat(upi.last_name,' ',upi.first_name) as orderName, "
               + "coalesce(bp.name) as plan, coalesce(bc.name) as coverage, "
-              + "count(bpd.id) as dependents, coalesce(bpc.employee_cost) as companyCost, "
-              + "coalesce(bpc.employer_cost) as employeeCost "
+              + "coalesce(bpc.employer_cost) as companyCost, "
+              + "coalesce(bpc.employee_cost) as employeeCost "
               + "from benefit_plans_users bpu "
               + "left join benefit_plans bp "
               + "on bpu.benefit_plan_id = bp.id "
@@ -142,11 +202,8 @@ public interface BenefitPlanRepository extends BaseRepository<BenefitPlan, Strin
               + "on bpu.user_id = u.id "
               + "left join user_personal_information upi "
               + "on upi.id = u.user_personal_information_id "
-              + "left join benefit_plan_dependents bpd "
-              + "on bpu.id = bpd.benefit_plans_users_id "
               + "where hex(bpu.benefit_plan_id) in ?1 "
-              + "and bpu.confirmed is true and bpu.enrolled is true and bc.id = unhex(?2) "
-              + "group by bpu.id",
+              + "and bpu.confirmed is true and bpu.enrolled is true and bc.id = unhex(?2) ",
       countQuery =
           "select count(1) from benefit_plans_users bpu "
               + "left join benefit_coverages bc "

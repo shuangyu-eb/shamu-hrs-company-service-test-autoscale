@@ -24,7 +24,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 import shamu.company.benefit.dto.BenefitCoveragesDto;
-import shamu.company.benefit.dto.BenefitDependentUserNameDto;
 import shamu.company.benefit.dto.BenefitPlanCoverageDto;
 import shamu.company.benefit.dto.BenefitPlanCoveragesDto;
 import shamu.company.benefit.dto.BenefitPlanCreateDto;
@@ -50,7 +49,6 @@ import shamu.company.benefit.dto.SelectedEnrollmentInfoDto;
 import shamu.company.benefit.dto.UserBenefitPlanDto;
 import shamu.company.benefit.entity.BenefitCoverages;
 import shamu.company.benefit.entity.BenefitDependentRecord;
-import shamu.company.benefit.entity.BenefitDependentUserNamePojo;
 import shamu.company.benefit.entity.BenefitPlan;
 import shamu.company.benefit.entity.BenefitPlanCoverage;
 import shamu.company.benefit.entity.BenefitPlanDependent;
@@ -89,6 +87,8 @@ import shamu.company.user.service.UserBenefitsSettingService;
 public class BenefitPlanService {
 
   private static final String BENEFIT_NEW_COVERAGE = "add";
+
+  private static final String DEFAULT_ID = "default";
 
   private final BenefitPlanRepository benefitPlanRepository;
 
@@ -798,11 +798,21 @@ public class BenefitPlanService {
       final BenefitReportParamDto benefitReportParamDto,
       final String companyId) {
     final List<String> benefitPlanIds;
+    final List<EnrollmentBreakdownDto> enrollmentBreakdownDtos;
     if (benefitReportParamDto.getPlanId().isEmpty()
-        || benefitReportParamDto.getPlanId().equals("default")) {
+        || DEFAULT_ID.equals(benefitReportParamDto.getPlanId())) {
       benefitPlanIds = benefitPlanRepository.getBenefitPlanIds(typeName, companyId);
+      enrollmentBreakdownDtos =
+          benefitPlanRepository.getEnrollmentBreakdownWhenPlanIdIsEmpty(benefitPlanIds, companyId);
+      int i = 1;
+      for (final EnrollmentBreakdownDto enrollmentBreakdownDto : enrollmentBreakdownDtos) {
+        enrollmentBreakdownDto.setNumber(i);
+        i++;
+      }
     } else {
       benefitPlanIds = Collections.singletonList(benefitReportParamDto.getPlanId());
+      enrollmentBreakdownDtos =
+          findEnrollmentBreakdownToExport(benefitReportParamDto, benefitPlanIds);
     }
     final List<BenefitPlanReportSummaryDto> benefitPlanReportSummaryDtos =
         findBenefitPlanReportSummary(benefitReportParamDto, benefitPlanIds);
@@ -810,8 +820,6 @@ public class BenefitPlanService {
         findBenefitPlansByPlanTypeName(typeName, companyId);
     final List<BenefitReportCoveragesDto> benefitReportCoveragesDtos =
         findBenefitCoveragesByPlanIds(benefitPlanIds);
-    final List<EnrollmentBreakdownDto> enrollmentBreakdownDtos =
-        findEnrollmentBreakdownToExport(benefitReportParamDto, benefitPlanIds);
     return BenefitPlanReportDto.builder()
         .benefitPlanReportSummaryDtos(benefitPlanReportSummaryDtos)
         .benefitReportCoveragesDtos(benefitReportCoveragesDtos)
@@ -830,7 +838,7 @@ public class BenefitPlanService {
       final BigDecimal companyCostResult;
       final BigDecimal employeeCostResult;
       if (benefitReportParamDto.getCoverageId().isEmpty()
-          || benefitReportParamDto.getCoverageId().equals("default")) {
+          || DEFAULT_ID.equals(benefitReportParamDto.getCoverageId())) {
         companyCostResult = benefitPlanCoverageRepository.getCompanyCost(benefitPlanIds);
         employeeCostResult = benefitPlanCoverageRepository.getEmployeeCost(benefitPlanIds);
         employeesEnrolledNum =
@@ -853,7 +861,7 @@ public class BenefitPlanService {
     }
     final List<BenefitPlanReportSummaryDto> benefitPlanReportSummaryDtos = new ArrayList<>();
     final BenefitPlanReportSummaryDto plan =
-        BenefitPlanReportSummaryDto.builder().id("a").name("Plans").number(planNum).build();
+        BenefitPlanReportSummaryDto.builder().id("a").name("Active Plans").number(planNum).build();
     final BenefitPlanReportSummaryDto employeesEnrolled =
         BenefitPlanReportSummaryDto.builder()
             .id("b")
@@ -863,14 +871,14 @@ public class BenefitPlanService {
     final BenefitPlanReportSummaryDto companyTotalCost =
         BenefitPlanReportSummaryDto.builder()
             .id("c")
-            .name("Total Company Cost")
+            .name("Company Cost")
             .number(companyCost)
             .timeUnit("per month")
             .build();
     final BenefitPlanReportSummaryDto employeeTotalCost =
         BenefitPlanReportSummaryDto.builder()
             .id("d")
-            .name("Total Employee Cost")
+            .name("Employee Cost")
             .number(employeeCost)
             .timeUnit("per month")
             .build();
@@ -886,7 +894,7 @@ public class BenefitPlanService {
     final List<BenefitReportPlansDto> benefitReportPlansDtos =
         benefitPlanRepository.getBenefitPlans(typeName, companyId);
     final BenefitReportPlansDto benefitReportPlansDto =
-        BenefitReportPlansDto.builder().id("default").name("All Plans").build();
+        BenefitReportPlansDto.builder().id(DEFAULT_ID).name("All Active Plans").build();
     benefitReportPlansDtos.add(benefitReportPlansDto);
     return benefitReportPlansDtos;
   }
@@ -899,7 +907,7 @@ public class BenefitPlanService {
           benefitPlanCoverageRepository.getBenefitReportCoverages(benefitPlanIds);
     }
     final BenefitReportCoveragesDto benefitReportCoveragesDto =
-        BenefitReportCoveragesDto.builder().id("default").name("All Coverage Types").build();
+        BenefitReportCoveragesDto.builder().id(DEFAULT_ID).name("All Coverage Types").build();
     benefitReportCoveragesDtos.add(benefitReportCoveragesDto);
     return benefitReportCoveragesDtos;
   }
@@ -910,7 +918,7 @@ public class BenefitPlanService {
     if (benefitPlanIds.isEmpty()) {
       return enrollmentBreakdownDtos;
     } else if (benefitReportParamDto.getCoverageId().isEmpty()
-        || benefitReportParamDto.getCoverageId().equals("default")) {
+        || DEFAULT_ID.equals(benefitReportParamDto.getCoverageId())) {
       enrollmentBreakdownDtos = benefitPlanRepository.getEnrollmentBreakdown(benefitPlanIds);
     } else {
       enrollmentBreakdownDtos =
@@ -931,13 +939,23 @@ public class BenefitPlanService {
       final BenefitReportParamDto benefitReportParamDto,
       final String companyId) {
     final List<String> benefitPlanIds;
-    if (benefitReportParamDto.getPlanId().isEmpty()
-        || benefitReportParamDto.getPlanId().equals("default")) {
-      benefitPlanIds = benefitPlanRepository.getBenefitPlanIds(planTypeName, companyId);
-    } else {
-      benefitPlanIds = Collections.singletonList(benefitReportParamDto.getPlanId());
-    }
     final Pageable paramPageable = getPageable(enrollmentBreakdownSearchCondition);
+    if (benefitReportParamDto.getPlanId().isEmpty()
+        || DEFAULT_ID.equals(benefitReportParamDto.getPlanId())) {
+      benefitPlanIds = benefitPlanRepository.getBenefitPlanIds(planTypeName, companyId);
+      Page<EnrollmentBreakdownPojo> enrollmentBreakdownDtoPage =
+          benefitPlanRepository.getEnrollmentBreakdownByConditionAndPlanIdIsEmpty(benefitPlanIds,
+              companyId, paramPageable);
+      final List<EnrollmentBreakdownDto> enrollmentBreakdownDtos =
+          findEnrollmentBreakdownContent(
+              enrollmentBreakdownDtoPage.getContent());
+      return new PageImpl<>(
+          enrollmentBreakdownDtos,
+          enrollmentBreakdownDtoPage.getPageable(),
+          enrollmentBreakdownDtoPage.getTotalElements());
+    }
+
+    benefitPlanIds = Collections.singletonList(benefitReportParamDto.getPlanId());
     return findEnrollmentBreakdownByCondition(paramPageable, benefitReportParamDto, benefitPlanIds);
   }
 
@@ -947,6 +965,18 @@ public class BenefitPlanService {
         enrollmentBreakdownSearchCondition.getSortDirection().toUpperCase();
 
     final String sortValue = enrollmentBreakdownSearchCondition.getSortField().getSortValue();
+
+    if (!sortValue.equals(EnrollmentBreakdownSearchCondition.SortField.NAME.getSortValue())) {
+      Sort.Order order = new Sort.Order(Sort.Direction.valueOf(sortDirection), sortValue);
+      Sort.Order orderName = new Sort.Order(Sort.Direction.ASC,
+          EnrollmentBreakdownSearchCondition.SortField.NAME.getSortValue());
+
+      Sort sort = Sort.by(order, orderName);
+      return PageRequest.of(
+          enrollmentBreakdownSearchCondition.getPage(),
+          enrollmentBreakdownSearchCondition.getSize(),
+          sort);
+    }
     return PageRequest.of(
         enrollmentBreakdownSearchCondition.getPage(),
         enrollmentBreakdownSearchCondition.getSize(),
@@ -960,33 +990,24 @@ public class BenefitPlanService {
       final List<String> benefitPlanIds) {
     final Page<EnrollmentBreakdownPojo> enrollmentBreakdownDtoPage;
 
-    final List<BenefitDependentUserNamePojo> dependentUserNames;
-
     if (benefitPlanIds.isEmpty()) {
       return new PageImpl<>(
           Collections.emptyList(),
           PageRequest.of(0, paramPageable.getPageSize(), paramPageable.getSort()),
           0);
     } else if (benefitReportParamDto.getCoverageId().isEmpty()
-        || benefitReportParamDto.getCoverageId().equals("default")) {
+        || DEFAULT_ID.equals(benefitReportParamDto.getCoverageId())) {
       enrollmentBreakdownDtoPage =
           benefitPlanRepository.getEnrollmentBreakdownByCondition(benefitPlanIds, paramPageable);
-      dependentUserNames = benefitPlanRepository.getDependentUserNameByPlanUserId(benefitPlanIds);
     } else {
       enrollmentBreakdownDtoPage =
           benefitPlanRepository.getEnrollmentBreakdownByConditionAndCoverageId(
               benefitPlanIds, benefitReportParamDto.getCoverageId(), paramPageable);
-      dependentUserNames =
-          benefitPlanRepository.getDependentUserNameByPlanUserId(
-              benefitPlanIds, benefitReportParamDto.getCoverageId());
     }
-
-    final List<BenefitDependentUserNameDto> benefitDependentUserNameDtos =
-        findBenefitDependentUserName(dependentUserNames);
 
     final List<EnrollmentBreakdownDto> enrollmentBreakdownDtos =
         findEnrollmentBreakdownContent(
-            enrollmentBreakdownDtoPage.getContent(), benefitDependentUserNameDtos);
+            enrollmentBreakdownDtoPage.getContent());
 
     return new PageImpl<>(
         enrollmentBreakdownDtos,
@@ -994,36 +1015,13 @@ public class BenefitPlanService {
         enrollmentBreakdownDtoPage.getTotalElements());
   }
 
-  List<BenefitDependentUserNameDto> findBenefitDependentUserName(
-      final List<BenefitDependentUserNamePojo> dependentUserNames) {
-    final List<BenefitDependentUserNameDto> benefitDependentUserNameDtos = new ArrayList<>();
-    for (final BenefitDependentUserNamePojo benefitDependentUserNamePojo : dependentUserNames) {
-      final BenefitDependentUserNameDto benefitDependentUserNameDto =
-          new BenefitDependentUserNameDto();
-      BeanUtils.copyProperties(benefitDependentUserNamePojo, benefitDependentUserNameDto);
-      benefitDependentUserNameDtos.add(benefitDependentUserNameDto);
-    }
-    return benefitDependentUserNameDtos;
-  }
-
   List<EnrollmentBreakdownDto> findEnrollmentBreakdownContent(
-      final List<EnrollmentBreakdownPojo> enrollmentBreakdownDtoPage,
-      final List<BenefitDependentUserNameDto> benefitDependentUserNameDtos) {
+      final List<EnrollmentBreakdownPojo> enrollmentBreakdownDtoPage) {
     int i = 1;
     final List<EnrollmentBreakdownDto> enrollmentBreakdownDtos = new ArrayList<>();
     for (final EnrollmentBreakdownPojo enrollmentBreakdownPojo : enrollmentBreakdownDtoPage) {
       final EnrollmentBreakdownDto enrollmentBreakdownDto = new EnrollmentBreakdownDto();
       BeanUtils.copyProperties(enrollmentBreakdownPojo, enrollmentBreakdownDto);
-      final List<String> userNames = new ArrayList<>();
-      for (final BenefitDependentUserNameDto benefitDependentUserNameDto :
-          benefitDependentUserNameDtos) {
-        if (benefitDependentUserNameDto
-            .getPlanUserId()
-            .equals(enrollmentBreakdownDto.getPlanUserId())) {
-          userNames.add(benefitDependentUserNameDto.getDependentUserName());
-        }
-      }
-      enrollmentBreakdownDto.setDependentUserName(userNames);
       enrollmentBreakdownDto.setNumber(i);
       enrollmentBreakdownDtos.add(enrollmentBreakdownDto);
       i++;

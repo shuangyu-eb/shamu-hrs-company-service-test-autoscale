@@ -24,13 +24,9 @@ public class EnrollmentBreakdownDto {
 
   String coverage;
 
-  int dependents;
-
   BigDecimal companyCost;
 
   BigDecimal employeeCost;
-
-  List<String> dependentUserName;
 
   public EnrollmentBreakdownDto(
       final long number,
@@ -39,7 +35,6 @@ public class EnrollmentBreakdownDto {
       final String lastName,
       final String plan,
       final String coverage,
-      final int dependents,
       final BigDecimal companyCost,
       final BigDecimal employeeCost) {
     setNumber(number);
@@ -47,7 +42,6 @@ public class EnrollmentBreakdownDto {
     setFullName(firstName.concat(" ").concat(lastName));
     setPlan(plan);
     setCoverage(coverage);
-    setDependents(dependents);
     setCompanyCost(companyCost);
     setEmployeeCost(employeeCost);
   }

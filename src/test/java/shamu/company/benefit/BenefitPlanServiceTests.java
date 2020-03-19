@@ -3,6 +3,7 @@ package shamu.company.benefit;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -30,10 +31,13 @@ import shamu.company.benefit.entity.mapper.BenefitPlanUserMapper;
 import shamu.company.benefit.entity.mapper.MyBenefitsMapper;
 import shamu.company.benefit.repository.BenefitCoveragesRepository;
 import shamu.company.benefit.repository.BenefitPlanCoverageRepository;
+import shamu.company.benefit.repository.BenefitPlanDependentRepository;
 import shamu.company.benefit.repository.BenefitPlanRepository;
+import shamu.company.benefit.repository.BenefitPlanTypeRepository;
 import shamu.company.benefit.repository.BenefitPlanUserRepository;
 import shamu.company.benefit.repository.RetirementPlanTypeRepository;
 import shamu.company.benefit.service.BenefitPlanService;
+import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.helpers.s3.AwsHelper;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.mapper.UserMapper;
@@ -45,6 +49,10 @@ class BenefitPlanServiceTests {
   @InjectMocks private BenefitPlanService benefitPlanService;
 
   @Mock private UserBenefitsSettingService userBenefitsSettingService;
+
+  @Mock private BenefitPlanTypeRepository benefitPlanTypeRepository;
+
+  @Mock private BenefitPlanDependentRepository benefitPlanDependentRepository;
 
   @Mock private BenefitPlanUserRepository benefitPlanUserRepository;
 
@@ -208,6 +216,13 @@ class BenefitPlanServiceTests {
     }
 
     @Test
+    void whenBenefitPlanIdIsEmpty_thenShouldSuccess() {
+      benefitPlanService.findEnrollmentBreakdownToExport(benefitReportParamDto, planIds);
+      Mockito.verify(benefitPlanRepository, Mockito.times(0))
+          .getEnrollmentBreakdown(Mockito.anyList());
+    }
+
+    @Test
     void whenCoverageIsEmpty_thenShouldSuccess() {
       planIds.add("a");
       benefitReportParamDto.setCoverageId("");
@@ -252,7 +267,7 @@ class BenefitPlanServiceTests {
   }
 
   @Nested
-  class findEnrollmentBreakdownByCondition {
+  class findEnrollmentBreakdown {
     Pageable paramPageable;
     BenefitReportParamDto benefitReportParamDto;
     List<String> benefitPlanIds;
@@ -260,11 +275,65 @@ class BenefitPlanServiceTests {
     EnrollmentBreakdownDto enrollmentBreakdownDto;
     Page<EnrollmentBreakdownPojo> enrollmentBreakdownDtoPage;
     List<EnrollmentBreakdownPojo> enrollmentBreakdownPojos;
+    String planTypeName = "medical";
+    String companyId = "a";
+    EnrollmentBreakdownPojo enrollmentBreakdownPojo = new EnrollmentBreakdownPojo() {
+      @Override
+      public String getPlanUserId() {
+        return "a";
+      }
+
+      @Override
+      public long getNumber() {
+        return 0;
+      }
+
+      @Override
+      public String getImageUrl() {
+        return "a";
+      }
+
+      @Override
+      public String getFullName() {
+        return "a";
+      }
+
+      @Override
+      public String getOrderName() {
+        return "a";
+      }
+
+      @Override
+      public String getPlan() {
+        return "a";
+      }
+
+      @Override
+      public String getCoverage() {
+        return "a";
+      }
+
+      @Override
+      public BigDecimal getCompanyCost() {
+        return BigDecimal.valueOf(1);
+      }
+
+      @Override
+      public BigDecimal getEmployeeCost() {
+        return BigDecimal.valueOf(1);
+      }
+
+      @Override
+      public List<String> dependentUsername() {
+        return Collections.singletonList("a");
+      }
+    };
 
     @BeforeEach
     void init() {
       enrollmentBreakdownDto = new EnrollmentBreakdownDto();
       enrollmentBreakdownPojos = new ArrayList<>();
+      enrollmentBreakdownPojos.add(enrollmentBreakdownPojo);
       enrollmentBreakdownSearchCondition = new EnrollmentBreakdownSearchCondition();
       enrollmentBreakdownSearchCondition.setPage(0);
       enrollmentBreakdownSearchCondition.setSize(20);
@@ -284,39 +353,51 @@ class BenefitPlanServiceTests {
     }
 
     @Test
-    void whenBenefitPlanIdsIsEmpty_thenShouldSuccess() throws Exception {
-      Whitebox.invokeMethod(
-          benefitPlanService,
-          "findEnrollmentBreakdownByCondition",
-          paramPageable,
-          benefitReportParamDto,
-          benefitPlanIds);
-      Mockito.verify(benefitPlanRepository, Mockito.times(0))
-          .getEnrollmentBreakdownByCondition(benefitPlanIds, paramPageable);
+    void whenBenefitPlanIdIsEmpty_thenShouldSuccess() {
+      benefitReportParamDto.setPlanId("");
+      benefitPlanIds.add("a");
+      enrollmentBreakdownDtoPage = new PageImpl<>(enrollmentBreakdownPojos, paramPageable, 0);
+      Mockito.when(
+          benefitPlanRepository.getEnrollmentBreakdownByConditionAndPlanIdIsEmpty(
+              benefitPlanIds, companyId, paramPageable))
+          .thenReturn(enrollmentBreakdownDtoPage);
+      Mockito.when(benefitPlanRepository.getBenefitPlanIds(planTypeName, companyId)).thenReturn(benefitPlanIds);
+      benefitPlanService.findEnrollmentBreakdown(enrollmentBreakdownSearchCondition,
+          planTypeName, benefitReportParamDto, companyId);
+      Mockito.verify(benefitPlanRepository, Mockito.times(1))
+          .getEnrollmentBreakdownByConditionAndPlanIdIsEmpty(benefitPlanIds, companyId, paramPageable);
       Mockito.verify(benefitPlanRepository, Mockito.times(0))
           .getEnrollmentBreakdownByConditionAndCoverageId(
               benefitPlanIds, benefitReportParamDto.getCoverageId(), paramPageable);
     }
 
     @Test
-    void whenBenefitPlanIdsIsNotEmptyAndCoverageIdIsEmpty_thenShouldSuccess() throws Exception {
-      benefitPlanIds.add("a");
+    void whenBenefitPlanIdsIsEmpty_thenShouldSuccess() throws Exception {
       benefitReportParamDto.setCoverageId("");
-      enrollmentBreakdownDtoPage = new PageImpl<>(enrollmentBreakdownPojos, paramPageable, 0);
-      Mockito.when(
-              benefitPlanRepository.getEnrollmentBreakdownByCondition(
-                  benefitPlanIds, paramPageable))
-          .thenReturn(enrollmentBreakdownDtoPage);
       Whitebox.invokeMethod(
           benefitPlanService,
           "findEnrollmentBreakdownByCondition",
           paramPageable,
           benefitReportParamDto,
           benefitPlanIds);
+      Mockito.verify(benefitPlanRepository, Mockito.times(0))
+          .getEnrollmentBreakdownByCondition(benefitPlanIds, paramPageable);
+    }
+
+    @Test
+    void whenBenefitPlanIdsIsNotEmptyAndCoverageIdIsEmpty_thenShouldSuccess() throws Exception {
+      benefitPlanIds.add("a");
+      benefitReportParamDto.setCoverageId("");
+      benefitReportParamDto.setPlanId("a");
+      enrollmentBreakdownDtoPage = new PageImpl<>(enrollmentBreakdownPojos, paramPageable, 0);
+      Mockito.when(
+              benefitPlanRepository.getEnrollmentBreakdownByCondition(
+                  benefitPlanIds, paramPageable))
+          .thenReturn(enrollmentBreakdownDtoPage);
+      benefitPlanService.findEnrollmentBreakdown(enrollmentBreakdownSearchCondition,
+          planTypeName, benefitReportParamDto, companyId);
       Mockito.verify(benefitPlanRepository, Mockito.times(1))
           .getEnrollmentBreakdownByCondition(benefitPlanIds, paramPageable);
-      Mockito.verify(benefitPlanRepository, Mockito.times(1))
-          .getDependentUserNameByPlanUserId(benefitPlanIds);
     }
 
     @Test
@@ -337,9 +418,46 @@ class BenefitPlanServiceTests {
       Mockito.verify(benefitPlanRepository, Mockito.times(1))
           .getEnrollmentBreakdownByConditionAndCoverageId(
               benefitPlanIds, benefitReportParamDto.getCoverageId(), paramPageable);
-      Mockito.verify(benefitPlanRepository, Mockito.times(1))
-          .getDependentUserNameByPlanUserId(benefitPlanIds, benefitReportParamDto.getCoverageId());
     }
+  }
+
+  @Nested
+  class getPageable {
+    EnrollmentBreakdownSearchCondition enrollmentBreakdownSearchCondition;
+    Pageable paramPageable;
+
+    @BeforeEach
+    void init () {
+      enrollmentBreakdownSearchCondition = new EnrollmentBreakdownSearchCondition();
+      enrollmentBreakdownSearchCondition.setPage(0);
+      enrollmentBreakdownSearchCondition.setSize(20);
+      enrollmentBreakdownSearchCondition.setSortDirection(
+          EnrollmentBreakdownSearchCondition.SortDirection.ASC.name());
+      enrollmentBreakdownSearchCondition.setSortField(
+          EnrollmentBreakdownSearchCondition.SortField.COVERAGE.name());
+    }
+
+    @Test
+    void whenSortFieldIsNotName_thenShouldSuccess () throws Exception {
+      final String sortDirection =
+          enrollmentBreakdownSearchCondition.getSortDirection().toUpperCase();
+      final String sortValue = enrollmentBreakdownSearchCondition.getSortField().getSortValue();
+      Sort.Order order = new Sort.Order(Sort.Direction.valueOf(sortDirection), sortValue);
+      Sort.Order orderName = new Sort.Order(Sort.Direction.ASC,
+          EnrollmentBreakdownSearchCondition.SortField.NAME.getSortValue());
+      Sort sort = Sort.by(order, orderName);
+      paramPageable =
+          PageRequest.of(
+              enrollmentBreakdownSearchCondition.getPage(),
+              enrollmentBreakdownSearchCondition.getSize(),
+              sort);
+      Pageable pageable = Whitebox.invokeMethod(
+          benefitPlanService,
+          "getPageable",
+          enrollmentBreakdownSearchCondition);
+      Assertions.assertEquals(pageable, paramPageable);
+    }
+
   }
 
   @Nested
@@ -704,27 +822,51 @@ class BenefitPlanServiceTests {
   }
 
   @Nested
-  class getBenefitPlanReport {
+  class findBenefitPlanReport {
     String typeName;
     String companyId;
     BenefitReportParamDto benefitReportParamDto;
+    String originPlan = "plan";
 
     @BeforeEach
     void init() {
       typeName = "typeName";
       companyId = "companyId";
       benefitReportParamDto = new BenefitReportParamDto();
-      benefitReportParamDto.setPlanId("");
       benefitReportParamDto.setCoverageId("coverageId");
     }
 
     @Test
-    void whenGetBenefitPlanReport_thenShouldSuccess() {
+    void whenPlanIdIsEmpty_thenShouldSuccess () {
+      benefitReportParamDto.setPlanId("");
       final List<String> benefitPlanIds = new ArrayList<>();
       benefitPlanIds.add("benefitPlanId");
       final List<EnrollmentBreakdownDto> enrollmentBreakdownDtos = new ArrayList<>();
       final EnrollmentBreakdownDto enrollmentBreakdownDto = new EnrollmentBreakdownDto();
-      enrollmentBreakdownDto.setPlan("plan");
+      enrollmentBreakdownDto.setPlan(originPlan);
+      enrollmentBreakdownDtos.add(enrollmentBreakdownDto);
+      Mockito.when(benefitPlanRepository.getBenefitPlanIds(typeName, companyId))
+          .thenReturn(benefitPlanIds);
+      Mockito.when(benefitPlanRepository.getBenefitPlans(typeName, companyId))
+          .thenReturn(new ArrayList<BenefitReportPlansDto>());
+      Mockito.when(benefitPlanCoverageRepository.getBenefitReportCoverages(benefitPlanIds))
+          .thenReturn(new ArrayList<BenefitReportCoveragesDto>());
+      Mockito.when(benefitPlanRepository.getEnrollmentBreakdownWhenPlanIdIsEmpty(benefitPlanIds, companyId))
+          .thenReturn(enrollmentBreakdownDtos);
+      final BenefitPlanReportDto benefitPlanReportDto =
+          benefitPlanService.findBenefitPlanReport(typeName, benefitReportParamDto, companyId);
+      final String plan = benefitPlanReportDto.getEnrollmentBreakdownDtos().get(0).getPlan();
+      Assertions.assertEquals(plan, originPlan);
+    }
+
+    @Test
+    void whenPlanIdIsNotEmpty_thenShouldSuccess() {
+      benefitReportParamDto.setPlanId("benefitPlanId");
+      final List<String> benefitPlanIds = new ArrayList<>();
+      benefitPlanIds.add("benefitPlanId");
+      final List<EnrollmentBreakdownDto> enrollmentBreakdownDtos = new ArrayList<>();
+      final EnrollmentBreakdownDto enrollmentBreakdownDto = new EnrollmentBreakdownDto();
+      enrollmentBreakdownDto.setPlan(originPlan);
       enrollmentBreakdownDtos.add(enrollmentBreakdownDto);
       Mockito.when(benefitPlanRepository.getBenefitPlanIds(typeName, companyId))
           .thenReturn(benefitPlanIds);
@@ -737,7 +879,7 @@ class BenefitPlanServiceTests {
       final BenefitPlanReportDto benefitPlanReportDto =
           benefitPlanService.findBenefitPlanReport(typeName, benefitReportParamDto, companyId);
       final String plan = benefitPlanReportDto.getEnrollmentBreakdownDtos().get(0).getPlan();
-      Assertions.assertEquals(plan, "plan");
+      Assertions.assertEquals(plan, originPlan);
     }
   }
 
@@ -831,6 +973,193 @@ class BenefitPlanServiceTests {
           companyId, expired, benefitPlanSearchCondition);
       Mockito.verify(benefitPlanRepository, Mockito.times(1))
           .getBenefitPlanList(benefitPlanTypeId, companyId, pageable);
+    }
+  }
+
+  @Nested
+  class findBenefitPlanById {
+    String id = "a";
+    BenefitPlan benefitPlan;
+
+    @BeforeEach
+    void init() {
+      benefitPlan = new BenefitPlan();
+    }
+
+    @Test
+    void whenBenefitPlanFound_thenShouldThrow() {
+      Mockito.when(benefitPlanRepository.findById(id)).thenReturn(java.util.Optional.ofNullable(benefitPlan));
+      final BenefitPlan benefitPlan1 = benefitPlanService.findBenefitPlanById(id);
+      Assertions.assertNotNull(benefitPlan1);
+    }
+
+    @Test
+    void whenBenefitPlanNotFound_thenShouldThrow() {
+      Mockito.when(benefitPlanRepository.findById(id)).thenReturn(Optional.empty());
+      Assertions.assertThrows(
+          ResourceNotFoundException.class, () -> benefitPlanService.findBenefitPlanById(id));
+    }
+  }
+
+  @Nested
+  class clearBenefitPlansEnrollmentInfoByPlanType {
+    BenefitPlanType.PlanType medicalType = BenefitPlanType.PlanType.MEDICAL;
+    BenefitPlanType benefitPlanType;
+    String companyId = "a";
+    String userId = "a";
+    List<BenefitPlan> benefitPlans;
+    BenefitPlan benefitPlan;
+    BenefitPlanUser benefitPlanUser;
+    List<BenefitDependentRecord> benefitDependentRecords;
+
+    @BeforeEach
+    void init() {
+      benefitPlanType = new BenefitPlanType();
+      benefitPlanType.setName(medicalType.getValue());
+      benefitPlanType.setId("a");
+      benefitPlans = new ArrayList<>();
+      benefitPlan = new BenefitPlan();
+      benefitPlan.setId("a");
+      benefitPlans.add(benefitPlan);
+      benefitPlanUser = new BenefitPlanUser();
+      benefitPlanUser.setId("a");
+      benefitDependentRecords = new ArrayList<>();
+    }
+
+    @Test
+    void clearBenefitPlansEnrollmentInfoByPlanType_thenShouldSuccess() throws Exception {
+      Mockito.when(benefitPlanRepository.findByBenefitPlanTypeIdAndCompanyIdOrderByNameAsc(
+          benefitPlanType.getId(), companyId)).thenReturn(benefitPlans);
+      Mockito.when(benefitPlanUserRepository.findByUserIdAndBenefitPlanId(
+          userId, benefitPlan.getId())).thenReturn(Optional.ofNullable(benefitPlanUser));
+      Mockito.when(benefitPlanDependentRepository.findByBenefitPlansUsersId(
+          benefitPlanUser.getId())).thenReturn(benefitDependentRecords);
+      Whitebox.invokeMethod(
+          benefitPlanService,
+          "clearBenefitPlansEnrollmentInfoByPlanType",
+          benefitPlanType,
+          companyId,
+          userId);
+      Mockito.verify(benefitPlanUserRepository, Mockito.times(1))
+          .findByUserIdAndBenefitPlanId(userId, benefitPlan.getId());
+    }
+  }
+
+  @Nested
+  class findBenefitCoveragesById{
+    String id = "a";
+    BenefitCoverages benefitCoverages;
+
+    @BeforeEach
+    void init() {
+      benefitCoverages = new BenefitCoverages();
+    }
+
+    @Test
+    void whenBenefitPlanFound_thenShouldThrow() {
+      Mockito.when(benefitCoveragesRepository.findById(id)).thenReturn(java.util.Optional.ofNullable(benefitCoverages));
+      final BenefitCoverages benefitCoverages1 = benefitPlanService.getBenefitCoveragesById(id);
+      Assertions.assertNotNull(benefitCoverages1);
+    }
+
+    @Test
+    void whenBenefitPlanNotFound_thenShouldThrow() {
+      Mockito.when(benefitCoveragesRepository.findById(id)).thenReturn(Optional.empty());
+      Assertions.assertThrows(
+          ResourceNotFoundException.class, () -> benefitPlanService.getBenefitCoveragesById(id));
+    }
+  }
+
+  @Nested
+  class getBenefitPlanCoverageById{
+    String id = "a";
+    BenefitPlanCoverage  benefitPlanCoverage;
+
+    @BeforeEach
+    void init() {
+      benefitPlanCoverage = new BenefitPlanCoverage();
+    }
+
+    @Test
+    void whenBenefitPlanFound_thenShouldThrow() {
+      Mockito.when(benefitPlanCoverageRepository
+          .findById(id)).thenReturn(java.util.Optional.ofNullable(benefitPlanCoverage));
+      final BenefitPlanCoverage  benefitPlanCoverage1 = benefitPlanService.getBenefitPlanCoverageById(id);
+      Assertions.assertNotNull(benefitPlanCoverage1);
+    }
+
+    @Test
+    void whenBenefitPlanNotFound_thenShouldThrow() {
+      Mockito.when(benefitPlanCoverageRepository
+          .findById(id)).thenReturn(Optional.empty());
+      Assertions.assertThrows(
+          ResourceNotFoundException.class, () -> benefitPlanService.getBenefitPlanCoverageById(id));
+    }
+  }
+
+
+  @Nested
+  class updateBenefitPlansEnrollmentInfoByPlanType {
+    BenefitPlanType.PlanType medicalType = BenefitPlanType.PlanType.MEDICAL;
+    BenefitPlanType benefitPlanType;
+    SelectedEnrollmentInfoDto selectedEnrollmentInfoDto;
+    String companyId = "a";
+    String userId = "a";
+    String benefitPlanId = "a";
+    BenefitPlan benefitPlan;
+    List<BenefitPlan> benefitPlans;
+    BenefitPlanUser benefitPlanUser;
+
+    @BeforeEach
+    void init() {
+      benefitPlanUser = new BenefitPlanUser();
+      benefitPlanUser.setId("a");
+      benefitPlan = new BenefitPlan();
+      benefitPlan.setId("a");
+      benefitPlanType = new BenefitPlanType();
+      benefitPlanType.setId("a");
+      selectedEnrollmentInfoDto = new SelectedEnrollmentInfoDto();
+      selectedEnrollmentInfoDto.setBenefitPlanType("a");
+      benefitPlans = new ArrayList<>();
+      benefitPlans.add(benefitPlan);
+    }
+
+    @Test
+    void whenBenefitPlanIdIsNotEqualEnrollmentPlanId_thenShouldSuccess() throws Exception {
+      selectedEnrollmentInfoDto.setPlanId("a");
+      Mockito.when(benefitPlanUserRepository
+          .findByUserIdAndBenefitPlanId(userId, benefitPlanId)).thenReturn(Optional.ofNullable(benefitPlanUser));
+      Mockito.when(benefitPlanTypeRepository
+          .findByName("a")).thenReturn(benefitPlanType);
+      Mockito.when(benefitPlanRepository
+          .findByBenefitPlanTypeIdAndCompanyIdOrderByNameAsc("a", companyId)).thenReturn(benefitPlans);
+      Whitebox.invokeMethod(
+          benefitPlanService,
+          "updateBenefitPlansEnrollmentInfoByPlanType",
+          selectedEnrollmentInfoDto,
+          companyId,
+          userId);
+      Mockito.verify(benefitPlanUserRepository, Mockito.times(1)).findByUserIdAndBenefitPlanId(userId, benefitPlanId);
+    }
+
+    @Test
+    void whenBenefitPlanIdIsEqualEnrollmentPlanId_thenShouldSuccess() throws Exception {
+      selectedEnrollmentInfoDto.setPlanId("b");
+      Mockito.when(benefitPlanUserRepository
+          .findByUserIdAndBenefitPlanId(userId, benefitPlanId)).thenReturn(Optional.ofNullable(benefitPlanUser));
+      benefitPlanUser.setEnrolled(false);
+      benefitPlanUser.setBenefitPlanCoverage(null);
+      Mockito.when(benefitPlanTypeRepository
+          .findByName("a")).thenReturn(benefitPlanType);
+      Mockito.when(benefitPlanRepository
+          .findByBenefitPlanTypeIdAndCompanyIdOrderByNameAsc("a", companyId)).thenReturn(benefitPlans);
+      Whitebox.invokeMethod(
+          benefitPlanService,
+          "updateBenefitPlansEnrollmentInfoByPlanType",
+          selectedEnrollmentInfoDto,
+          companyId,
+          userId);
+      Mockito.verify(benefitPlanUserRepository, Mockito.times(1)).save(benefitPlanUser);
     }
   }
 }

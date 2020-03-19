@@ -18,8 +18,6 @@ public interface EnrollmentBreakdownPojo {
 
   String getCoverage();
 
-  int getDependents();
-
   BigDecimal getCompanyCost();
 
   BigDecimal getEmployeeCost();
