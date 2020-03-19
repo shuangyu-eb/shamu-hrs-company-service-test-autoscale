@@ -430,12 +430,15 @@ public class UserService {
   }
 
   private void deactivateUser(final UserStatusUpdateDto userStatusUpdateDto, final User user) {
-    if (userStatusUpdateDto.getUserStatus().name().equals(Status.ACTIVE.name())) {
+    if ((Status.ACTIVE.name()).equals(userStatusUpdateDto.getUserStatus().name())
+        || Status.CHANGING_EMAIL_VERIFICATION.name()
+        .equals(userStatusUpdateDto.getUserStatus().name())) {
       userAccessLevelEventService.save(
           new UserAccessLevelEvent(user, user.getUserRole().getName()));
 
       user.setUserRole(userRoleService.getInactive());
       user.setUserStatus(userStatusService.findByName(Status.DISABLED.name()));
+      user.setChangeWorkEmailToken(null);
       adjustUserManagerRelationshipBeforeDeleteOrDeactivate(user);
       userRepository.save(user);
     }
