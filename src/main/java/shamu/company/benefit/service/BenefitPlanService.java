@@ -77,6 +77,10 @@ import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.company.entity.Company;
 import shamu.company.helpers.s3.AccessType;
 import shamu.company.helpers.s3.AwsHelper;
+import shamu.company.job.dto.JobUserDto;
+import shamu.company.job.entity.JobUser;
+import shamu.company.job.entity.mapper.JobUserMapper;
+import shamu.company.job.service.JobUserService;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.mapper.UserMapper;
 import shamu.company.user.repository.UserRepository;
@@ -123,6 +127,10 @@ public class BenefitPlanService {
 
   private final UserBenefitsSettingService userBenefitsSettingService;
 
+  private final JobUserService jobUserService;
+
+  private final JobUserMapper jobUserMapper;
+
   public BenefitPlanService(
       final BenefitPlanRepository benefitPlanRepository,
       final BenefitPlanUserRepository benefitPlanUserRepository,
@@ -140,7 +148,9 @@ public class BenefitPlanService {
       final UserRepository userRepository,
       final BenefitPlanDependentRepository benefitPlanDependentRepository,
       final AwsHelper awsHelper,
-      final UserBenefitsSettingService userBenefitsSettingService) {
+      final UserBenefitsSettingService userBenefitsSettingService,
+      final JobUserService jobUserService,
+      final JobUserMapper jobUserMapper) {
     this.benefitPlanRepository = benefitPlanRepository;
     this.benefitPlanUserRepository = benefitPlanUserRepository;
     this.benefitPlanCoverageRepository = benefitPlanCoverageRepository;
@@ -158,6 +168,8 @@ public class BenefitPlanService {
     this.benefitPlanDependentRepository = benefitPlanDependentRepository;
     this.awsHelper = awsHelper;
     this.userBenefitsSettingService = userBenefitsSettingService;
+    this.jobUserService = jobUserService;
+    this.jobUserMapper = jobUserMapper;
   }
 
   public BenefitPlanDto createBenefitPlan(
@@ -750,8 +762,17 @@ public class BenefitPlanService {
 
   public BenefitPlanRelatedUserListDto findAllEmployeesForBenefitPlan(
       final String benefitPlanId, final String companyId) {
-    final List<BenefitPlanUserDto> allUsers = userRepository.findAllByCompanyId(companyId).stream()
-        .map(userMapper::covertToBenefitPlanUserDto).collect(Collectors.toList());
+    final List<User> policyEmployees = userRepository.findAllByCompanyId(companyId);
+
+    final List<JobUserDto> allJobUsers = policyEmployees.stream()
+        .map(
+            user -> {
+              JobUser employeeWithJob = jobUserService.findJobUserByUser(user);
+              return new JobUserDto(user, employeeWithJob);
+            })
+        .collect(Collectors.toList());
+    final List<BenefitPlanUserDto> allUsers = allJobUsers.stream()
+        .map(jobUserMapper::covertToBenefitPlanUserDto).collect(Collectors.toList());
     final List<BenefitPlanUserDto> selectUsers
         = benefitPlanUserRepository.findAllByBenefitPlanId(benefitPlanId).stream().map(
         benefitPlanUserMapper::convertToBenefitPlanUserDto).collect(Collectors.toList());

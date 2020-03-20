@@ -38,7 +38,13 @@ import shamu.company.benefit.repository.BenefitPlanUserRepository;
 import shamu.company.benefit.repository.RetirementPlanTypeRepository;
 import shamu.company.benefit.service.BenefitPlanService;
 import shamu.company.common.exception.ResourceNotFoundException;
+import shamu.company.company.entity.Department;
 import shamu.company.helpers.s3.AwsHelper;
+import shamu.company.job.dto.JobUserDto;
+import shamu.company.job.entity.Job;
+import shamu.company.job.entity.JobUser;
+import shamu.company.job.entity.mapper.JobUserMapper;
+import shamu.company.job.service.JobUserService;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.mapper.UserMapper;
 import shamu.company.user.repository.UserRepository;
@@ -49,6 +55,8 @@ class BenefitPlanServiceTests {
   @InjectMocks private BenefitPlanService benefitPlanService;
 
   @Mock private UserBenefitsSettingService userBenefitsSettingService;
+
+  @Mock private JobUserService jobUserService;
 
   @Mock private BenefitPlanTypeRepository benefitPlanTypeRepository;
 
@@ -79,6 +87,8 @@ class BenefitPlanServiceTests {
   @Mock private BenefitPlanUserMapper benefitPlanUserMapper;
 
   @Mock private UserMapper userMapper;
+
+  @Mock private JobUserMapper jobUserMapper;
 
   @BeforeEach
   void init() {
@@ -1140,6 +1150,9 @@ class BenefitPlanServiceTests {
     User user;
     BenefitPlanUser benefitPlanUser;
     BenefitPlanUserDto benefitPlanUserDto;
+    JobUser jobUser;
+    JobUserDto jobUserDto;
+    Job job;
     @BeforeEach
     void init() {
       benefitPlanUserDto = new BenefitPlanUserDto();
@@ -1161,15 +1174,27 @@ class BenefitPlanServiceTests {
       benefitPlanCoverage.setId("benefitPlanCoverageId");
       benefitPlanUser.setBenefitPlanCoverage(benefitPlanCoverage);
       benefitPlanUsers.add(benefitPlanUser);
+      jobUser = new JobUser();
+      jobUser.setUser(user);
+      jobUserDto = new JobUserDto();
+      jobUserDto.setId("userId");
+      jobUserDto.setJobTitle("jobTitle");
+      job = new Job();
+      job.setTitle("jobTitle");
+      job.setDepartment(new Department());
+      jobUser.setJob(job);
     }
 
     @Test
     void whenFindAllEmployees_thenShouldSuccess() {
+      Mockito.when(userMapper.covertToBenefitPlanUserDto(user)).thenReturn(benefitPlanUserDto);
+      Mockito.when(benefitPlanUserMapper.convertToBenefitPlanUserDto(benefitPlanUser))
+          .thenReturn(benefitPlanUserDto);
       Mockito.when(userRepository.findAllByCompanyId(companyId)).thenReturn(users);
       Mockito.when(benefitPlanUserRepository.findAllByBenefitPlanId(benefitPlanId))
           .thenReturn(benefitPlanUsers);
-      Mockito.when(userMapper.covertToBenefitPlanUserDto(user)).thenReturn(benefitPlanUserDto);
-      Mockito.when(benefitPlanUserMapper.convertToBenefitPlanUserDto(benefitPlanUser))
+      Mockito.when(jobUserService.findJobUserByUser(user)).thenReturn(jobUser);
+      Mockito.when(jobUserMapper.covertToBenefitPlanUserDto(jobUserDto))
           .thenReturn(benefitPlanUserDto);
       benefitPlanService.findAllEmployeesForBenefitPlan(benefitPlanId, companyId);
       Mockito.verify(benefitPlanUserRepository, Mockito.times(1))

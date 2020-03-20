@@ -7,6 +7,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.springframework.util.StringUtils;
+import shamu.company.benefit.dto.BenefitPlanUserDto;
 import shamu.company.common.mapper.Config;
 import shamu.company.company.entity.Office;
 import shamu.company.company.entity.mapper.OfficeMapper;
@@ -100,6 +101,8 @@ public interface JobUserMapper {
   @Mapping(target = "office", source = "officeId")
   @Mapping(target = "employmentType", source = "employmentTypeId")
   void updateFromJobUpdateDto(@MappingTarget JobUser jobUser, JobUpdateDto jobUpdateDto);
+
+  BenefitPlanUserDto covertToBenefitPlanUserDto(JobUserDto jobUserDto);
 
   default Job convertToJob(final String jobId) {
     if (!StringUtils.isEmpty(jobId)) {

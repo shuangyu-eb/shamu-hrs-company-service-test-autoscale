@@ -13,5 +13,11 @@ public class BenefitPlanUserDto {
 
   private String imageUrl;
 
+  private String department;
+
+  private String jobTitle;
+
+  private String employmentType;
+
   private String coverageId;
 }
