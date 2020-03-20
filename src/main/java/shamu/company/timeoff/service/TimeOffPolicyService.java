@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang.BooleanUtils;
@@ -526,12 +527,11 @@ public class TimeOffPolicyService {
   private boolean isScheduleChanged(
       final TimeOffPolicyAccrualSchedule originalSchedule,
       final TimeOffPolicyAccrualSchedule newSchedule) {
-    return !(originalSchedule
-            .getDaysBeforeAccrualStarts()
-            .equals(newSchedule.getDaysBeforeAccrualStarts())
-        && originalSchedule.getAccrualHours().equals(newSchedule.getAccrualHours())
-        && originalSchedule.getCarryoverLimit().equals(newSchedule.getCarryoverLimit())
-        && originalSchedule.getMaxBalance().equals(newSchedule.getMaxBalance()));
+    return !(Objects.equals(originalSchedule
+        .getDaysBeforeAccrualStarts(), newSchedule.getDaysBeforeAccrualStarts())
+        && Objects.equals(originalSchedule.getAccrualHours(), newSchedule.getAccrualHours())
+        && Objects.equals(originalSchedule.getCarryoverLimit(), newSchedule.getCarryoverLimit())
+        && Objects.equals(originalSchedule.getMaxBalance(), newSchedule.getMaxBalance()));
   }
 
   public List<AccrualScheduleMilestone> updateTimeOffPolicyMilestones(
@@ -659,9 +659,9 @@ public class TimeOffPolicyService {
   private boolean isMilestoneChanged(
       final AccrualScheduleMilestone originalMilestone,
       final AccrualScheduleMilestone newMilestone) {
-    return !(originalMilestone.getAccrualHours().equals(newMilestone.getAccrualHours())
-        && originalMilestone.getCarryoverLimit().equals(newMilestone.getCarryoverLimit())
-        && originalMilestone.getMaxBalance().equals(newMilestone.getMaxBalance()));
+    return !(Objects.equals(originalMilestone.getAccrualHours(), newMilestone.getAccrualHours())
+        && Objects.equals(originalMilestone.getCarryoverLimit(), newMilestone.getCarryoverLimit())
+        && Objects.equals(originalMilestone.getMaxBalance(), newMilestone.getMaxBalance()));
   }
 
   private void createAccrualScheduleMilestones(
