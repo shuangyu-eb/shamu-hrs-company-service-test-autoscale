@@ -65,17 +65,15 @@ public interface BenefitPlanRepository extends BaseRepository<BenefitPlan, Strin
               + "bpc.employeeCost, bpc.employerCost) "
               + "from User user "
               + "left join BenefitPlanUser bpu "
-              + "on user.id = bpu.user.id "
+              + "on user.id = bpu.user.id and bpu.benefitPlan.id in ?1 "
+              + "and bpu.confirmed = true and bpu.enrolled = true "
               + "left join BenefitPlan bp "
               + "on bp.id = bpu.benefitPlan.id "
               + "left join BenefitPlanCoverage bpc "
               + "on bpu.benefitPlanCoverage.id = bpc.id "
               + "left join BenefitCoverages bc "
               + "on bpc.benefitCoverage.id = bc.id "
-              + "where (bpu.benefitPlan.id in ?1 "
-              + "and bpu.confirmed = true and bpu.enrolled = true) "
-              + "or bpu.benefitPlan is NULL "
-              + "and user.company.id = ?2 "
+              + "where user.company.id = ?2 "
               + "order by bp.name DESC, "
               + "concat(user.userPersonalInformation.lastName,"
               + "user.userPersonalInformation.firstName) ASC")
@@ -126,7 +124,8 @@ public interface BenefitPlanRepository extends BaseRepository<BenefitPlan, Strin
               + "coalesce(bpc.employee_cost) as employeeCost "
               + "from users u "
               + "left join benefit_plans_users bpu "
-              + "on bpu.user_id = u.id "
+              + "on bpu.user_id = u.id and hex(bpu.benefit_plan_id) in ?1 "
+              + "and bpu.confirmed is true and bpu.enrolled is true "
               + "left join benefit_plans bp "
               + "on bpu.benefit_plan_id = bp.id "
               + "left join benefit_plan_coverages bpc "
@@ -135,19 +134,8 @@ public interface BenefitPlanRepository extends BaseRepository<BenefitPlan, Strin
               + "on bpc.benefit_coverage_id = bc.id "
               + "left join user_personal_information upi "
               + "on upi.id = u.user_personal_information_id "
-              + "where (hex(bpu.benefit_plan_id) in ?1  "
-              + "and bpu.confirmed is true and bpu.enrolled is true) "
-              + "or bpu.benefit_plan_id is NULL "
-              + "and u.company_id = unhex(?2)",
-      countQuery =
-          "select count(1) "
-              + "from users u "
-              + "left join benefit_plans_users bpu "
-              + "on bpu.user_id = u.id "
-              + "where (hex(bpu.benefit_plan_id) in ?1  "
-              + "and bpu.confirmed is true and bpu.enrolled is true) "
-              + "or bpu.benefit_plan_id is NULL "
-              + "and u.company_id = unhex(?2)",
+              + "where u.company_id = unhex(?2)",
+      countQuery = "select count(1) from users u where u.company_id = unhex(?2)",
       nativeQuery = true)
   Page<EnrollmentBreakdownPojo> getEnrollmentBreakdownByConditionAndPlanIdIsEmpty(
       List<String> ids, String companyId, Pageable pageRequest);

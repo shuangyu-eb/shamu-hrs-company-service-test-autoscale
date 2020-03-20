@@ -216,13 +216,6 @@ class BenefitPlanServiceTests {
     }
 
     @Test
-    void whenBenefitPlanIdIsEmpty_thenShouldSuccess() {
-      benefitPlanService.findEnrollmentBreakdownToExport(benefitReportParamDto, planIds);
-      Mockito.verify(benefitPlanRepository, Mockito.times(0))
-          .getEnrollmentBreakdown(Mockito.anyList());
-    }
-
-    @Test
     void whenCoverageIsEmpty_thenShouldSuccess() {
       planIds.add("a");
       benefitReportParamDto.setCoverageId("");
@@ -369,19 +362,6 @@ class BenefitPlanServiceTests {
       Mockito.verify(benefitPlanRepository, Mockito.times(0))
           .getEnrollmentBreakdownByConditionAndCoverageId(
               benefitPlanIds, benefitReportParamDto.getCoverageId(), paramPageable);
-    }
-
-    @Test
-    void whenBenefitPlanIdsIsEmpty_thenShouldSuccess() throws Exception {
-      benefitReportParamDto.setCoverageId("");
-      Whitebox.invokeMethod(
-          benefitPlanService,
-          "findEnrollmentBreakdownByCondition",
-          paramPageable,
-          benefitReportParamDto,
-          benefitPlanIds);
-      Mockito.verify(benefitPlanRepository, Mockito.times(0))
-          .getEnrollmentBreakdownByCondition(benefitPlanIds, paramPageable);
     }
 
     @Test

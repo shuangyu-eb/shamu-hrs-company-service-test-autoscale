@@ -930,10 +930,8 @@ public class BenefitPlanService {
 
   public List<EnrollmentBreakdownDto> findEnrollmentBreakdownToExport(
       final BenefitReportParamDto benefitReportParamDto, final List<String> benefitPlanIds) {
-    List<EnrollmentBreakdownDto> enrollmentBreakdownDtos = new ArrayList<>();
-    if (benefitPlanIds.isEmpty()) {
-      return enrollmentBreakdownDtos;
-    } else if (benefitReportParamDto.getCoverageId().isEmpty()
+    List<EnrollmentBreakdownDto> enrollmentBreakdownDtos;
+    if (benefitReportParamDto.getCoverageId().isEmpty()
         || DEFAULT_ID.equals(benefitReportParamDto.getCoverageId())) {
       enrollmentBreakdownDtos = benefitPlanRepository.getEnrollmentBreakdown(benefitPlanIds);
     } else {
@@ -1006,12 +1004,7 @@ public class BenefitPlanService {
       final List<String> benefitPlanIds) {
     final Page<EnrollmentBreakdownPojo> enrollmentBreakdownDtoPage;
 
-    if (benefitPlanIds.isEmpty()) {
-      return new PageImpl<>(
-          Collections.emptyList(),
-          PageRequest.of(0, paramPageable.getPageSize(), paramPageable.getSort()),
-          0);
-    } else if (benefitReportParamDto.getCoverageId().isEmpty()
+    if (benefitReportParamDto.getCoverageId().isEmpty()
         || DEFAULT_ID.equals(benefitReportParamDto.getCoverageId())) {
       enrollmentBreakdownDtoPage =
           benefitPlanRepository.getEnrollmentBreakdownByCondition(benefitPlanIds, paramPageable);
