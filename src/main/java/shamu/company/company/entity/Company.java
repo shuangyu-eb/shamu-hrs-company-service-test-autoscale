@@ -22,7 +22,7 @@ import shamu.company.common.entity.Country;
 public class Company extends BaseEntity {
 
   private static final long serialVersionUID = -6081798810093033833L;
-  @Length(max = 255)
+  @Length(max = 244)
   private String name;
 
   private String imageUrl;
