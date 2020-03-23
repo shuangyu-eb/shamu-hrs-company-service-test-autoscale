@@ -1218,4 +1218,32 @@ class BenefitPlanServiceTests {
           .getBenefitPlanCoveragesByPlanId(benefitPlanId);
     }
   }
+
+  @Nested
+  class deleteBenefitPlan {
+    String benefitPlanId;
+    List<BenefitCoverages> benefitCoveragesList;
+    BenefitCoverages benefitCoverages;
+    List<String> ids;
+
+    @BeforeEach
+    void init() {
+      benefitPlanId = "id";
+      benefitCoveragesList = new ArrayList<>();
+      benefitCoverages = new BenefitCoverages();
+      benefitCoverages.setId("benefitPlanId");
+      benefitCoveragesList.add(benefitCoverages);
+      ids = new ArrayList<>();
+      ids.add("benefitPlanId");
+    }
+
+    @Test
+    void whenDeleteBenefitPlan_thenShouldSuccess() {
+      Mockito.when(benefitCoveragesRepository.findAllByBenefitPlanId(benefitPlanId))
+          .thenReturn(benefitCoveragesList);
+      benefitPlanService.deleteBenefitPlanByPlanId(benefitPlanId);
+      Mockito.verify(benefitCoveragesRepository, Mockito.times(1))
+          .deleteInBatch(ids);
+    }
+  }
 }

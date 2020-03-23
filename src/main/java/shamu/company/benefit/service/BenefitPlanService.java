@@ -681,6 +681,12 @@ public class BenefitPlanService {
 
   public void deleteBenefitPlanByPlanId(final String benefitPlanId) {
     benefitPlanRepository.delete(benefitPlanId);
+    List<String> benefitCoverageIds =
+        benefitCoveragesRepository.findAllByBenefitPlanId(benefitPlanId)
+        .stream().map(BenefitCoverages::getId).collect(Collectors.toList());
+    if (!CollectionUtils.isEmpty(benefitCoverageIds)) {
+      benefitCoveragesRepository.deleteInBatch(benefitCoverageIds);
+    }
   }
 
   public BenefitPlanUpdateDto getBenefitPlanByPlanId(final String planId) {

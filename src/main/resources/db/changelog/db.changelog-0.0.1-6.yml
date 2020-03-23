@@ -1,0 +1,23 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1584695437711-1
+      author: lei-eb
+      changes:
+        - dropForeignKeyConstraint:
+            baseTableName: benefit_plans_users
+            constraintName: fk_benefit_plan_coverages_id
+
+  - changeSet:
+      id: 1584695437711-2
+      author: lei-eb
+      preConditions:
+        onFail: WARN
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: coverage_id
+            baseTableName: benefit_plans_users
+            constraintName: fk_benefit_plan_coverages_id
+            onDelete: CASCADE
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: benefit_plan_coverages
