@@ -120,13 +120,15 @@ public class BenefitPlanRestController extends BaseRestController {
   }
 
   @GetMapping("my-benefit/{userId}/benefit-summary")
-  @PreAuthorize("hasPermission(#userId,'USER','VIEW_SELF_BENEFITS')")
+  @PreAuthorize("hasPermission(#userId,'USER','VIEW_SELF_BENEFITS')"
+      + " or hasAuthority('MANAGE_BENEFIT_PLAN')")
   public BenefitSummaryDto getEnrolledBenefitNumber(@PathVariable final String userId) {
     return benefitPlanService.getBenefitSummary(userId);
   }
 
   @GetMapping("users/{userId}/benefit-plans")
-  @PreAuthorize("hasPermission(#userId,'USER','VIEW_SELF_BENEFITS')")
+  @PreAuthorize("hasPermission(#userId,'USER','VIEW_SELF_BENEFITS')"
+      + "or hasAuthority('MANAGE_BENEFIT_PLAN')")
   public List<UserBenefitPlanDto> getUserBenefitPlans(@PathVariable final String userId) {
     return benefitPlanService.getUserBenefitPlans(userId);
   }
@@ -178,6 +180,12 @@ public class BenefitPlanRestController extends BaseRestController {
   public boolean hasConfirmation() {
     final String userId = findAuthUser().getId();
     return benefitPlanService.isConfirmed(userId);
+  }
+
+  @GetMapping("users/benefit-plans/{employeeId}/has-confirmation")
+  @PreAuthorize("hasAuthority('MANAGE_BENEFIT_PLAN')")
+  public boolean hasConfirmation(@PathVariable String employeeId) {
+    return benefitPlanService.isConfirmed(employeeId);
   }
 
   @PatchMapping("benefit-plan/employees/{benefitPlanId}")

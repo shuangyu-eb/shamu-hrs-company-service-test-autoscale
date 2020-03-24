@@ -281,6 +281,18 @@ public class BenefitPlanRestControllerTests extends WebControllerBaseTests {
   }
 
   @Test
+  void testHasConfirmationWithEmployeeId() throws Exception {
+    setPermission(Permission.Name.MANAGE_BENEFIT_PLAN.name());
+    final HttpHeaders httpHeaders = new HttpHeaders();
+    httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
+        .get("/company/users/benefit-plans/1/has-confirmation")
+        .contentType(MediaType.APPLICATION_JSON)
+        .headers(httpHeaders)).andReturn();
+    assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+  }
+
+  @Test
   void testUpdateTimeOffPolicyEmployeesInfo() throws Exception {
     setPermission(Permission.Name.MANAGE_BENEFIT_PLAN.name());
     final HttpHeaders httpHeaders = new HttpHeaders();
