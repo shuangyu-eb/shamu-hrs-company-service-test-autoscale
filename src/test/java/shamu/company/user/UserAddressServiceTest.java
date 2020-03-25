@@ -1,5 +1,6 @@
 package shamu.company.user;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -9,14 +10,15 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import shamu.company.common.entity.Country;
 import shamu.company.common.entity.StateProvince;
+import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.common.service.CountryService;
 import shamu.company.common.service.StateProvinceService;
 import shamu.company.user.dto.UserAddressDto;
-import shamu.company.user.entity.UserAddress;
 import shamu.company.user.entity.mapper.UserAddressMapper;
 import shamu.company.user.repository.UserAddressRepository;
 import shamu.company.user.service.UserAddressService;
 
+import java.util.Optional;
 import java.util.UUID;
 
 public class UserAddressServiceTest {
@@ -70,5 +72,18 @@ public class UserAddressServiceTest {
       Mockito.verify(userAddressMapper, Mockito.times(1))
           .updateFromUserAddressDto(userAddress, userAddressDto);
     }
+  }
+
+  @Test
+  void whenNotFound_thenShouldThrow() {
+    Mockito.when(userAddressRepository.findById(Mockito.anyString())).thenReturn(Optional.empty());
+    Assertions.assertThrows(ResourceNotFoundException.class, () -> userAddressService.findUserAddressById("test"));
+  }
+
+  @Test
+  void whenSaveEntity_thenShouldCall() {
+    final shamu.company.user.entity.UserAddress userAddress = new shamu.company.user.entity.UserAddress();
+    userAddressService.save(userAddress);
+    Mockito.verify(userAddressRepository, Mockito.times(1)).save(Mockito.any());
   }
 }
