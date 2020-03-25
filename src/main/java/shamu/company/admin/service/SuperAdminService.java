@@ -7,6 +7,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import shamu.company.admin.dto.MockUserDto;
 import shamu.company.admin.dto.SuperAdminUserDto;
+import shamu.company.admin.dto.SystemAnnouncementDto;
+import shamu.company.admin.entity.SystemAnnouncement;
+import shamu.company.admin.entity.mapper.SystemAnnouncementsMapper;
 import shamu.company.admin.repository.SuperAdminRepository;
 import shamu.company.helpers.auth0.Auth0Helper;
 import shamu.company.redis.AuthUserCacheManager;
@@ -29,17 +32,25 @@ public class SuperAdminService {
 
   private final AuthUserCacheManager authUserCacheManager;
 
+  private final SystemAnnouncementsService systemAnnouncementsService;
+
+  private SystemAnnouncementsMapper systemAnnouncementsMapper;
+
   @Autowired
   public SuperAdminService(final UserService userService,
       final SuperAdminRepository superAdminRepository,
       final Auth0Helper auth0Helper,
       final UserMapper userMapper,
-      final AuthUserCacheManager authUserCacheManager) {
+      final AuthUserCacheManager authUserCacheManager,
+      final SystemAnnouncementsService systemAnnouncementsService,
+      final SystemAnnouncementsMapper systemAnnouncementsMapper) {
     this.userService = userService;
     this.superAdminRepository = superAdminRepository;
     this.auth0Helper = auth0Helper;
     this.userMapper = userMapper;
     this.authUserCacheManager = authUserCacheManager;
+    this.systemAnnouncementsService = systemAnnouncementsService;
+    this.systemAnnouncementsMapper = systemAnnouncementsMapper;
   }
 
   public Page<SuperAdminUserDto> getUsersByKeywordAndPageable(final String keyword,
@@ -58,5 +69,28 @@ public class SuperAdminService {
     authUserCacheManager.cacheAuthUser(token, authUser);
     mockUserDto.setPermissions(permissions);
     return mockUserDto;
+  }
+
+  public SystemAnnouncementDto getSystemActiveAnnouncement() {
+    return systemAnnouncementsMapper.convertSystemAnnouncementDto(
+        systemAnnouncementsService.getSystemActiveAnnouncement());
+  }
+
+  public void publishSystemAnnouncement(
+      final String userId, final SystemAnnouncementDto systemAnnouncementDto) {
+    //update previous announcement past
+    final SystemAnnouncement oldActiveAnnouncement =
+        systemAnnouncementsService.getSystemActiveAnnouncement();
+    if (null != oldActiveAnnouncement) {
+      oldActiveAnnouncement.setIsPastAnnouncement(true);
+      systemAnnouncementsService.save(oldActiveAnnouncement);
+    }
+    // public new system-active-announcement
+    final User user = userService.findById(userId);
+    final SystemAnnouncement systemAnnouncement = new SystemAnnouncement();
+    systemAnnouncement.setUser(user);
+    systemAnnouncement.setContent(systemAnnouncementDto.getContent());
+    systemAnnouncement.setIsPastAnnouncement(false);
+    systemAnnouncementsService.save(systemAnnouncement);
   }
 }

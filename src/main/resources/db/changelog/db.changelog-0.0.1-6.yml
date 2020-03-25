@@ -21,3 +21,30 @@ databaseChangeLog:
             onUpdate: CASCADE
             referencedColumnNames: id
             referencedTableName: benefit_plan_coverages
+
+  - changeSet:
+      id: 1585130225991-1
+      author: bin-eb
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  name: id
+                  type: binary(16)
+              - column:
+                  name: user_id
+                  type: binary(16)
+              - column:
+                  name: content
+                  type: text
+              - column:
+                  name: is_past_announcement
+                  type: bool
+                  defaultValue: true
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: system_announcements
