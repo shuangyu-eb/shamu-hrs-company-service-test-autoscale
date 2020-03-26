@@ -1,5 +1,9 @@
 package shamu.company.employee;
 
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.List;
+import java.util.UUID;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.jupiter.api.Assertions;
@@ -45,6 +49,7 @@ import shamu.company.job.entity.mapper.JobUserMapper;
 import shamu.company.job.entity.mapper.JobUserMapperImpl;
 import shamu.company.job.service.JobService;
 import shamu.company.job.service.JobUserService;
+import shamu.company.timeoff.service.TimeOffPolicyService;
 import shamu.company.user.dto.BasicUserContactInformationDto;
 import shamu.company.user.dto.BasicUserPersonalInformationDto;
 import shamu.company.user.dto.UserAddressDto;
@@ -77,11 +82,6 @@ import shamu.company.user.service.UserService;
 import shamu.company.user.service.UserStatusService;
 import shamu.company.utils.FileValidateUtil.FileType;
 
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
-import java.util.UUID;
-
 class EmployeeServiceTests {
 
   @Mock private JobUserService jobUserService;
@@ -111,6 +111,7 @@ class EmployeeServiceTests {
       Mappers.getMapper(UserEmergencyContactMapper.class);
   @Mock private Auth0Helper auth0Helper;
   @Mock private ApplicationEventPublisher applicationEventPublisher;
+  @Mock private TimeOffPolicyService timeOffPolicyService;
 
   private final StateProvinceMapper stateProvinceMapper =
       Mappers.getMapper(StateProvinceMapper.class);
@@ -131,6 +132,7 @@ class EmployeeServiceTests {
     MockitoAnnotations.initMocks(this);
     employeeService =
         new EmployeeService(
+            timeOffPolicyService,
             userAddressService,
             employmentTypeService,
             officeService,

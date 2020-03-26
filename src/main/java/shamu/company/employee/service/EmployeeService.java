@@ -55,6 +55,7 @@ import shamu.company.job.entity.JobUser;
 import shamu.company.job.entity.mapper.JobUserMapper;
 import shamu.company.job.service.JobService;
 import shamu.company.job.service.JobUserService;
+import shamu.company.timeoff.service.TimeOffPolicyService;
 import shamu.company.user.dto.BasicUserContactInformationDto;
 import shamu.company.user.dto.BasicUserPersonalInformationDto;
 import shamu.company.user.dto.UserAddressDto;
@@ -119,6 +120,7 @@ public class EmployeeService {
   private final Auth0Helper auth0Helper;
   private final ApplicationEventPublisher applicationEventPublisher;
   private final UserRoleService userRoleService;
+  private final TimeOffPolicyService timeOffPolicyService;
 
   private final EncryptorUtil encryptorUtil;
 
@@ -127,6 +129,7 @@ public class EmployeeService {
 
   @Autowired
   public EmployeeService(
+      final TimeOffPolicyService timeOffPolicyService,
       final UserAddressService userAddressService,
       final EmploymentTypeService employmentTypeService,
       final OfficeService officeService,
@@ -154,6 +157,7 @@ public class EmployeeService {
       @Lazy final JobUserService jobUserService,
       final UserRoleService userRoleService,
       final EncryptorUtil encryptorUtil) {
+    this.timeOffPolicyService = timeOffPolicyService;
     this.userAddressService = userAddressService;
     this.employmentTypeService = employmentTypeService;
     this.userService = userService;
@@ -205,6 +209,8 @@ public class EmployeeService {
 
     saveEmployeeAddress(employee, employeeDto);
     saveEmailTasks(employeeDto.getWelcomeEmail(), employee, currentUser);
+    timeOffPolicyService.addUserToAutoEnrolledPolicy(
+        employee.getId(), employee.getCompany().getId());
   }
 
   public void updateEmployee(final EmployeeDto employeeDto, final User employee) {

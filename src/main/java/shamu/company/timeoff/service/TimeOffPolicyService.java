@@ -170,7 +170,6 @@ public class TimeOffPolicyService {
       final Company company) {
 
     checkPolicyNameIsExists(timeOffPolicyFrontendDto, company.getId(), 0);
-
     final TimeOffPolicy timeOffPolicy =
         timeOffPolicyRepository.save(
             timeOffPolicyMapper.createFromTimeOffPolicyFrontendDtoAndCompany(
@@ -333,6 +332,23 @@ public class TimeOffPolicyService {
                           .createFromTimeOffPolicyUserFrontendDtoAndTimeOffPolicyId(
                               timeOffPolicyUserFrontendDto, policyId))
               .collect(Collectors.toList()));
+    }
+  }
+
+  public void addUserToAutoEnrolledPolicy(final String userId, final String companyId) {
+    final List<TimeOffPolicy> timeOffPolicyList =
+        timeOffPolicyRepository.findByCompanyIdAndIsAutoEnrollEnabledIsTrue(companyId);
+
+    final List<TimeOffPolicyUser> timeOffPolicyUserList =
+        timeOffPolicyList.stream()
+            .map(
+                timeOffPolicy ->
+                    timeOffPolicyUserMapper.createFromTimeOffPolicyAndUserId(
+                        timeOffPolicy, userId, timeOffPolicy.getIsLimited() ? 0 : null))
+            .collect(Collectors.toList());
+
+    if (!timeOffPolicyList.isEmpty()) {
+      timeOffPolicyUserRepository.saveAll(timeOffPolicyUserList);
     }
   }
 
@@ -527,8 +543,8 @@ public class TimeOffPolicyService {
   private boolean isScheduleChanged(
       final TimeOffPolicyAccrualSchedule originalSchedule,
       final TimeOffPolicyAccrualSchedule newSchedule) {
-    return !(Objects.equals(originalSchedule
-        .getDaysBeforeAccrualStarts(), newSchedule.getDaysBeforeAccrualStarts())
+    return !(Objects.equals(
+            originalSchedule.getDaysBeforeAccrualStarts(), newSchedule.getDaysBeforeAccrualStarts())
         && Objects.equals(originalSchedule.getAccrualHours(), newSchedule.getAccrualHours())
         && Objects.equals(originalSchedule.getCarryoverLimit(), newSchedule.getCarryoverLimit())
         && Objects.equals(originalSchedule.getMaxBalance(), newSchedule.getMaxBalance()));

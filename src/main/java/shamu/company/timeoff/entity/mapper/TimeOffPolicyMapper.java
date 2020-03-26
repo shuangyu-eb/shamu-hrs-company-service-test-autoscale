@@ -22,27 +22,32 @@ public interface TimeOffPolicyMapper {
   @Mapping(target = "createdAt", ignore = true)
   @Mapping(target = "updatedAt", ignore = true)
   @Mapping(target = "name", source = "timeOffPolicyFrontendDto.policyName")
+  @Mapping(target = "isAutoEnrollEnabled", source = "timeOffPolicyFrontendDto.isAutoEnrolled")
   TimeOffPolicy createFromTimeOffPolicyFrontendDtoAndCompany(
       TimeOffPolicyFrontendDto timeOffPolicyFrontendDto, Company company);
 
   @Mapping(target = "name", source = "policyName")
-  void updateFromTimeOffPolicyFrontendDto(@MappingTarget TimeOffPolicy timeOffPolicy,
+  void updateFromTimeOffPolicyFrontendDto(
+      @MappingTarget TimeOffPolicy timeOffPolicy,
       TimeOffPolicyFrontendDto timeOffPolicyFrontendDto);
 
   @Mapping(target = "id", source = "timeOffPolicy.id")
   @Mapping(target = "policyName", source = "timeOffPolicy.name")
   @Mapping(target = "isLimited", source = "timeOffPolicy.isLimited")
+  @Mapping(target = "isAutoEnrolled", source = "timeOffPolicy.isAutoEnrollEnabled")
   @Mapping(target = "startDate", source = "timeOffPolicyAccrualSchedule.daysBeforeAccrualStarts")
-  @Mapping(target = "timeOffAccrualFrequency",
+  @Mapping(
+      target = "timeOffAccrualFrequency",
       source = "timeOffPolicyAccrualSchedule.timeOffAccrualFrequency.id")
   @Mapping(target = "accrualHoursBaseRate", source = "timeOffPolicyAccrualSchedule.accrualHours")
-  @Mapping(target = "carryoverLimitBaseRate",
+  @Mapping(
+      target = "carryoverLimitBaseRate",
       source = "timeOffPolicyAccrualSchedule.carryoverLimit")
-  @Mapping(target = "maxBalanceBaseRate",
-      source = "timeOffPolicyAccrualSchedule.maxBalance")
+  @Mapping(target = "maxBalanceBaseRate", source = "timeOffPolicyAccrualSchedule.maxBalance")
   @Mapping(target = "accrualScheduleMilestone", source = "accrualScheduleMilestones")
   TimeOffPolicyRelatedInfoDto
       createFromTimeOffPolicyAndTimeOffPolicyAccrualScheduleAndAccrualScheduleMilestones(
-      TimeOffPolicy timeOffPolicy, TimeOffPolicyAccrualSchedule timeOffPolicyAccrualSchedule,
-      List<AccrualScheduleMilestone> accrualScheduleMilestones);
+          TimeOffPolicy timeOffPolicy,
+          TimeOffPolicyAccrualSchedule timeOffPolicyAccrualSchedule,
+          List<AccrualScheduleMilestone> accrualScheduleMilestones);
 }

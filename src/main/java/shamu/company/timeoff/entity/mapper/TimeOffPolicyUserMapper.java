@@ -23,6 +23,12 @@ public interface TimeOffPolicyUserMapper {
   TimeOffPolicyUser createFromTimeOffPolicyUserFrontendDtoAndTimeOffPolicyId(
       TimeOffPolicyUserFrontendDto timeOffPolicyUserFrontendDto, String timeOffPolicyId);
 
+  @Mapping(target = "timeOffPolicy", source = "timeOffPolicy")
+  @Mapping(target = "user", source = "userId")
+  @Mapping(target = "initialBalance", source = "balance")
+  TimeOffPolicyUser createFromTimeOffPolicyAndUserId(
+      TimeOffPolicy timeOffPolicy, String userId, Integer balance);
+
   default User convertFromUserId(final String userId) {
     return !StringUtils.isEmpty(userId) ? new User(userId) : null;
   }

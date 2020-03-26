@@ -48,3 +48,16 @@ databaseChangeLog:
                   name: updated_at
                   type: datetime
             tableName: system_announcements
+  - changeSet:
+      id: 1585031192962-1
+      author: qian-eb
+      preConditions:
+        onFail: WARN
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: is_auto_enroll_enabled
+                  type: bool
+                  defaultValue: false
+            tableName: time_off_policies

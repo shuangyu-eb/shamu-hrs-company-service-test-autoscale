@@ -682,4 +682,17 @@ public class TimeOffPolicyServiceTests {
       Whitebox.invokeMethod(timeOffPolicyService,"createAccrualScheduleMilestones", accrualScheduleMilestoneDtoList, "1");
     });
   }
+
+  @Test
+  void testAddUserToAutoEnrolledPolicy() {
+    final TimeOffPolicy timeOffPolicy = new TimeOffPolicy();
+    timeOffPolicy.setId("1");
+    timeOffPolicy.setIsLimited(true);
+    final List<TimeOffPolicy> timeOffPolicyList = new ArrayList<>();
+    timeOffPolicyList.add(timeOffPolicy);
+    Mockito.when(timeOffPolicyRepository.findByCompanyIdAndIsAutoEnrollEnabledIsTrue(Mockito.any()))
+      .thenReturn(timeOffPolicyList);
+
+    Assertions.assertDoesNotThrow(() -> timeOffPolicyService.addUserToAutoEnrolledPolicy("1", "1"));
+  }
 }

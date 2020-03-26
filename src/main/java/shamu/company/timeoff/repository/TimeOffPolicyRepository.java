@@ -20,10 +20,12 @@ public interface TimeOffPolicyRepository extends BaseRepository<TimeOffPolicy, S
   List<TimeOffPolicyListPojo> getAllPolicies(String company);
 
   @Query(
-          value = "SELECT count(1) FROM time_off_policies top"
-                  + " WHERE top.name = ?1 "
-                  + " and top.company_id = unhex(?2)",
-          nativeQuery = true)
+      value =
+          "SELECT count(1) FROM time_off_policies top"
+              + " WHERE top.name = ?1 "
+              + " and top.company_id = unhex(?2)",
+      nativeQuery = true)
   Integer findByPolicyNameAndCompanyId(String policyName, String companyId);
 
+  List<TimeOffPolicy> findByCompanyIdAndIsAutoEnrollEnabledIsTrue(String companyId);
 }

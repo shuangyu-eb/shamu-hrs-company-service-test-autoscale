@@ -32,6 +32,8 @@ public class TimeOffPolicyRelatedInfoDto {
 
   private List<AccrualScheduleMilestone> accrualScheduleMilestone;
 
+  private Boolean isAutoEnrolled;
+
   public TimeOffPolicyRelatedInfoDto(
       final TimeOffPolicy timeOffPolicy,
       final TimeOffPolicyAccrualSchedule timeOffPolicyAccrualSchedule,
@@ -39,10 +41,10 @@ public class TimeOffPolicyRelatedInfoDto {
     id = timeOffPolicy.getId();
     policyName = timeOffPolicy.getName();
     isLimited = timeOffPolicy.getIsLimited();
+    isAutoEnrolled = timeOffPolicy.getIsAutoEnrollEnabled();
     if (timeOffPolicyAccrualSchedule != null) {
       startDate = timeOffPolicyAccrualSchedule.getDaysBeforeAccrualStarts();
-      timeOffAccrualFrequency =
-          timeOffPolicyAccrualSchedule.getTimeOffAccrualFrequency().getId();
+      timeOffAccrualFrequency = timeOffPolicyAccrualSchedule.getTimeOffAccrualFrequency().getId();
       accrualHoursBaseRate = timeOffPolicyAccrualSchedule.getAccrualHours();
       carryoverLimitBaseRate = timeOffPolicyAccrualSchedule.getCarryoverLimit();
       maxBalanceBaseRate = timeOffPolicyAccrualSchedule.getMaxBalance();

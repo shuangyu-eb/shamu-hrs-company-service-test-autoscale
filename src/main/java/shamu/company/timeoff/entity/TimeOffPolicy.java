@@ -17,6 +17,7 @@ import shamu.company.company.entity.Company;
 @NoArgsConstructor
 public class TimeOffPolicy extends BaseEntity {
 
+  private static final long serialVersionUID = 220495443223813321L;
   @ManyToOne private Company company;
 
   @Length(max = 50)
@@ -24,7 +25,9 @@ public class TimeOffPolicy extends BaseEntity {
 
   private Boolean isLimited;
 
-  public TimeOffPolicy(String id) {
-    this.setId(id);
+  private Boolean isAutoEnrollEnabled;
+
+  public TimeOffPolicy(final String id) {
+    setId(id);
   }
 }
