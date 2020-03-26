@@ -2,8 +2,10 @@ package shamu.company.user.service;
 
 import io.micrometer.core.instrument.util.StringUtils;
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -30,6 +32,7 @@ import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.Context;
 import shamu.company.authorization.Permission.Name;
 import shamu.company.authorization.PermissionUtils;
+import shamu.company.common.exception.EmailException;
 import shamu.company.common.exception.ForbiddenException;
 import shamu.company.common.exception.GeneralException;
 import shamu.company.common.exception.ResourceNotFoundException;
@@ -373,6 +376,22 @@ public class UserService {
 
   public Boolean createPasswordTokenExist(final String token) {
     return userRepository.existsByResetPasswordToken(token);
+  }
+
+  public boolean createPasswordAndInvitationTokenExist(
+      final String passwordToken, final String invitationToken) {
+    final User user = userRepository.findByInvitationEmailToken(invitationToken);
+    if (user == null || user.getInvitedAt() == null) {
+      throw new ForbiddenException("User does not exist or not invited");
+    }
+    if (Timestamp.from(Instant.now()).after(
+        Timestamp.valueOf(user.getInvitedAt().toLocalDateTime().plus(72, ChronoUnit.HOURS)))) {
+      throw new EmailException("Email is expired");
+    }
+    if (!userRepository.existsByResetPasswordToken(passwordToken)) {
+      return false;
+    }
+    return true;
   }
 
   public void createPassword(final CreatePasswordDto createPasswordDto) {

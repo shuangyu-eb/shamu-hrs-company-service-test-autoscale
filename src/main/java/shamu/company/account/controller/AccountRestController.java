@@ -41,6 +41,13 @@ public class AccountRestController {
     return new ResponseEntity(HttpStatus.OK);
   }
 
+  @GetMapping("account/password/{passwordToken}/{invitationToken}")
+  public boolean createPasswordAndInvitationTokenExist(
+      @PathVariable("passwordToken") final String passwordToken,
+      @PathVariable("invitationToken") final String invitationToken) {
+    return userService.createPasswordAndInvitationTokenExist(passwordToken, invitationToken);
+  }
+
   @PatchMapping("account/unlock")
   public HttpEntity unlock(@RequestBody @Valid final UserLoginDto userLoginDto) {
     auth0Helper.login(userLoginDto.getEmailWork(), userLoginDto.getPassword());

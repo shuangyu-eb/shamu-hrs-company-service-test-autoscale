@@ -131,16 +131,18 @@ public class EmailService {
   }
 
   public Context getWelcomeEmailContext(
-      final String welcomeMessage, final String resetPasswordToken) {
-    return getWelcomeEmailContext(welcomeMessage, resetPasswordToken, "");
+      final String welcomeMessage, final String resetPasswordToken, final String invitationToken) {
+    return getWelcomeEmailContextToEmail(welcomeMessage, resetPasswordToken, invitationToken, "");
   }
 
-  public Context getWelcomeEmailContext(
-      String welcomeMessage, final String resetPasswordToken, final String toEmail) {
+  public Context getWelcomeEmailContextToEmail(
+      String welcomeMessage, final String resetPasswordToken,
+      final String invitationToken, final String toEmail) {
     final Context context = new Context();
     context.setVariable("frontEndAddress", frontEndAddress);
     final String emailAddress = getEncodedEmailAddress(toEmail);
-    String targetLink = frontEndAddress + "account/password/" + resetPasswordToken;
+    String targetLink = frontEndAddress + "account/password/"
+        + resetPasswordToken + "/" + invitationToken;
     if (!"".equals(emailAddress)) {
       targetLink += "/" + emailAddress;
     }
@@ -152,7 +154,7 @@ public class EmailService {
 
   public Context findWelcomeEmailPreviewContext(
       final User currentUser, final String welcomeEmailPersonalMessage) {
-    final Context context = getWelcomeEmailContext(welcomeEmailPersonalMessage, null);
+    final Context context = getWelcomeEmailContext(welcomeEmailPersonalMessage, null, null);
     context.setVariable("createPasswordAddress", "#");
     context.setVariable("companyName", currentUser.getCompany().getName());
     return context;

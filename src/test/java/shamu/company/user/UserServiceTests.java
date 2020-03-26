@@ -1,5 +1,9 @@
 package shamu.company.user;
 
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.sql.Date;
@@ -19,6 +23,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.web.multipart.MultipartFile;
 import org.thymeleaf.ITemplateEngine;
 import shamu.company.authorization.PermissionUtils;
+import shamu.company.common.exception.EmailException;
 import shamu.company.common.exception.ForbiddenException;
 import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.common.service.DepartmentService;
@@ -686,6 +691,62 @@ class UserServiceTests {
       Mockito.when(userRepository.findByEmailWork(Mockito.anyString())).thenReturn(databaseUser);
       Mockito.when(userRepository.findByEmailWork(Mockito.anyString())).thenReturn(new User());
       Assertions.assertDoesNotThrow(() -> userService.sendResetPasswordEmail("example@indeed.com"));
+    }
+  }
+
+  @Nested
+  class createPasswordAndInvitationTokenExist {
+    String passwordToken,invitationToken;
+    User currentUser;
+
+    @BeforeEach
+    void setUp() {
+      currentUser = new User();
+      passwordToken = "a";
+      invitationToken = "b";
+      currentUser.setInvitationEmailToken(passwordToken);
+      currentUser.setResetPasswordToken(invitationToken);
+      currentUser.setUserStatus(new UserStatus("ACTIVE"));
+      currentUser.setInvitedAt(Timestamp.from(Instant.now()));
+    }
+
+    @Test
+    void whenUserIsNull_thenShouldThrow() {
+      Mockito.when(userRepository.findByInvitationEmailToken(Mockito.any())).thenReturn(null);
+      Assertions.assertThrows(ForbiddenException.class,
+          () -> userService.createPasswordAndInvitationTokenExist(passwordToken, invitationToken));
+    }
+
+    @Test
+    void whenUserInvitedAtIsNull_thenShouldThrow() {
+      currentUser.setInvitedAt(null);
+      Mockito.when(userRepository.findByInvitationEmailToken(Mockito.any())).thenReturn(currentUser);
+      Assertions.assertThrows(ForbiddenException.class,
+          () -> userService.createPasswordAndInvitationTokenExist(passwordToken, invitationToken));
+    }
+
+    @Test
+    void whenInvitationTokenExistPasswordNotExist_thenShouldReturnFalse() {
+      Mockito.when(userRepository.findByInvitationEmailToken(Mockito.any())).thenReturn(currentUser);
+      Mockito.when(userRepository.existsByResetPasswordToken(Mockito.anyString())).thenReturn(false);
+      Assertions.assertFalse(userService.createPasswordAndInvitationTokenExist(passwordToken, invitationToken));
+    }
+
+    @Test
+    void whenUserExistInvitedExpired_thenShouldThrow() {
+      currentUser.setInvitedAt(Timestamp.valueOf(LocalDateTime.now().minus(100, ChronoUnit.HOURS)));
+      Mockito.when(userRepository.findByInvitationEmailToken(Mockito.any())).thenReturn(currentUser);
+      Mockito.when(userRepository.existsByResetPasswordToken(Mockito.anyString())).thenReturn(true);
+      Assertions.assertThrows(EmailException.class,
+          () -> userService.createPasswordAndInvitationTokenExist(passwordToken, invitationToken));
+    }
+
+    @Test
+    void whenUserExistInvitedNotExpired_thenShouldReturnTrue() {
+      currentUser.setInvitedAt(Timestamp.valueOf(LocalDateTime.now().minus(1, ChronoUnit.HOURS)));
+      Mockito.when(userRepository.findByInvitationEmailToken(Mockito.any())).thenReturn(currentUser);
+      Mockito.when(userRepository.existsByResetPasswordToken(Mockito.anyString())).thenReturn(true);
+      Assertions.assertTrue(userService.createPasswordAndInvitationTokenExist(passwordToken, invitationToken));
     }
   }
 }

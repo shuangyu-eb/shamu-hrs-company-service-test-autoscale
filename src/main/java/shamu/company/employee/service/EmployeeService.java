@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Base64;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -250,6 +251,14 @@ public class EmployeeService {
       emailInfo.setContent(newContent);
     }
     emailInfo.setTo(email);
+    if (StringUtils.isNotEmpty(user.getInvitationEmailToken())) {
+      final String invitationEmailToken = UUID.randomUUID().toString();
+      emailInfo.setContent(emailInfo.getContent().replace(
+          user.getInvitationEmailToken(), invitationEmailToken));
+      user.setInvitedAt(Timestamp.from(Instant.now()));
+      user.setInvitationEmailToken(invitationEmailToken);
+      userService.save(user);
+    }
     emailService.saveAndScheduleEmail(emailInfo);
   }
 
@@ -288,6 +297,10 @@ public class EmployeeService {
     employee.setUserStatus(userStatus);
 
     employee.setResetPasswordToken(UUID.randomUUID().toString());
+
+    employee.setInvitationEmailToken(UUID.randomUUID().toString());
+
+    employee.setInvitedAt(new Timestamp(new Date().getTime()));
 
     final com.auth0.json.mgmt.users.User user =
         auth0Helper.addUser(employeeDto.getEmailWork(), null, Role.EMPLOYEE.getValue());
@@ -520,7 +533,8 @@ public class EmployeeService {
     String content = welcomeEmailDto.getPersonalInformation();
 
     final Context emailContext =
-        emailService.getWelcomeEmailContext(content, employee.getResetPasswordToken(), toEmail);
+        emailService.getWelcomeEmailContextToEmail(content, employee.getResetPasswordToken(),
+            employee.getInvitationEmailToken(), toEmail);
     emailContext.setVariable("companyName", currentUser.getCompany().getName());
     content = emailService.getWelcomeEmail(emailContext);
     final Timestamp sendDate = welcomeEmailDto.getSendDate();

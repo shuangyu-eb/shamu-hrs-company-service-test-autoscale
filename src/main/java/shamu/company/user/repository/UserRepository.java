@@ -66,6 +66,8 @@ public interface UserRepository extends JpaRepository<User, String>, UserCustomR
 
   Boolean existsByResetPasswordToken(String token);
 
+  User findByInvitationEmailToken(String token);
+
   Boolean existsByChangeWorkEmailToken(String token);
 
   User findByResetPasswordToken(String token);

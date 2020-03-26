@@ -82,6 +82,13 @@ import shamu.company.user.service.UserService;
 import shamu.company.user.service.UserStatusService;
 import shamu.company.utils.FileValidateUtil.FileType;
 
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.List;
+import java.util.UUID;
+
 class EmployeeServiceTests {
 
   @Mock private JobUserService jobUserService;
@@ -467,11 +474,13 @@ class EmployeeServiceTests {
       employeeDto.setWelcomeEmail(welcomeEmail);
       currentUser.setCompany(company);
       currentUser.setResetPasswordToken("a");
+      currentUser.setInvitationEmailToken("b");
+      currentUser.setInvitedAt(Timestamp.from(Instant.now()));
       Mockito.when(userService.save(Mockito.any())).thenReturn(currentUser);
       Mockito.when(userService.createNewEmployee(Mockito.any())).thenReturn(currentUser);
       Mockito.when(
-              emailService.getWelcomeEmailContext(
-                  Mockito.any(), Mockito.anyString(), Mockito.anyString()))
+              emailService.getWelcomeEmailContextToEmail(
+                  Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
           .thenReturn(emailContext);
     }
 
