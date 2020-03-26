@@ -238,22 +238,24 @@ public class UserPermissionUtils extends BasePermissionUtils {
       final EmployeeDto employeeDto = (EmployeeDto) target;
       final NewEmployeeJobInformationDto jobInformationDto = employeeDto.getJobInformation();
       final String managerId = jobInformationDto.getReportsTo();
-      final User manager = userService.findById(managerId);
+      if (!StringUtils.isEmpty(managerId)) {
+        final User manager = userService.findById(managerId);
 
-      if (!hasPermissionOfUser(auth, manager, permission)) {
-        return false;
+        if (!hasPermissionOfUser(auth, manager, permission)) {
+          return false;
+        }
       }
 
       final String jobId = jobInformationDto.getJobId();
       final Job job = jobService.findById(jobId);
       if (!StringUtils.isEmpty(jobId)
-            && !hasPermissionOfDepartment(auth, job.getDepartment(), permission)) {
+          && !hasPermissionOfDepartment(auth, job.getDepartment(), permission)) {
         return false;
       }
 
       final String officeId = jobInformationDto.getOfficeId();
       if (!StringUtils.isEmpty(officeId)
-            && !hasPermissionOfOfficeLocation(auth, officeId, permission)) {
+          && !hasPermissionOfOfficeLocation(auth, officeId, permission)) {
         return false;
       }
 
@@ -289,9 +291,7 @@ public class UserPermissionUtils extends BasePermissionUtils {
   }
 
   private boolean hasPermissionOfDepartment(
-          final Authentication auth,
-          final Department department,
-          final Permission.Name permission) {
+      final Authentication auth, final Department department, final Permission.Name permission) {
     companyEqual(department.getCompany());
     return hasPermission(auth, permission);
   }

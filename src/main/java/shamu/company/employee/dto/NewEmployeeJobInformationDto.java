@@ -8,15 +8,12 @@ import lombok.Data;
 @Data
 public class NewEmployeeJobInformationDto {
 
-  @NotBlank
-  private String jobId;
+  @NotBlank private String jobId;
 
   private String employmentTypeId;
 
-  @NotNull
-  private Timestamp hireDate;
+  @NotNull private Timestamp hireDate;
 
-  @NotBlank
   private String reportsTo;
 
   private Double compensation;
