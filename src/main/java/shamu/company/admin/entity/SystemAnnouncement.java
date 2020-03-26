@@ -22,6 +22,6 @@ public class SystemAnnouncement extends BaseEntity {
 
   private String content;
 
-  @Column(name = "past_announcement")
+  @Column(name = "is_past_announcement")
   private Boolean isPastAnnouncement = true;
 }
