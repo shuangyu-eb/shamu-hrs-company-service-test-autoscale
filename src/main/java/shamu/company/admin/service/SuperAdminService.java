@@ -93,4 +93,16 @@ public class SuperAdminService {
     systemAnnouncement.setIsPastAnnouncement(false);
     systemAnnouncementsService.save(systemAnnouncement);
   }
+
+  public void updateSystemActiveAnnouncement(final String id) {
+    final SystemAnnouncement systemAnnouncement =
+        systemAnnouncementsService.findById(id);
+    systemAnnouncement.setIsPastAnnouncement(true);
+    systemAnnouncementsService.save(systemAnnouncement);
+  }
+
+  public Page<SystemAnnouncementDto> getSystemPastAnnouncements(
+      final Pageable pageable) {
+    return systemAnnouncementsService.getSystemPastAnnouncements(pageable);
+  }
 }

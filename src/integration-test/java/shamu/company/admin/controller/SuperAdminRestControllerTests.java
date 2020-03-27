@@ -60,4 +60,30 @@ class SuperAdminRestControllerTests extends WebControllerBaseTests {
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
+
+  @Test
+  void testUpdateSystemActiveAnnouncement() throws Exception {
+    setPermission(Permission.Name.SUPER_PERMISSION.name());
+    final HttpHeaders httpHeaders = new HttpHeaders();
+    httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+
+    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
+        .patch("/company/super-admin/system-active-announcement/1")
+        .headers(httpHeaders)).andReturn();
+
+    assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+  }
+
+  @Test
+  void testGetSystemPastAnnouncements() throws Exception {
+    setPermission(Permission.Name.SUPER_PERMISSION.name());
+    final HttpHeaders httpHeaders = new HttpHeaders();
+    httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+
+    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
+        .get("/company/super-admin/system-past-announcements/?page=1")
+        .headers(httpHeaders)).andReturn();
+
+    assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+  }
 }

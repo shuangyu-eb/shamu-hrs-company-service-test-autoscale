@@ -8,6 +8,7 @@ import org.mapstruct.factory.Mappers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.springframework.data.domain.Page;
 import shamu.company.admin.dto.MockUserDto;
 import shamu.company.admin.dto.SystemAnnouncementDto;
 import shamu.company.admin.entity.SystemAnnouncement;
@@ -89,5 +90,22 @@ class SuperAdminServiceTests {
     Mockito.when(systemAnnouncementsService.save(Mockito.any())).thenReturn(systemAnnouncement);
 
     Assertions.assertDoesNotThrow(() -> superAdminService.publishSystemAnnouncement("1", systemAnnouncementDto));
+  }
+
+  @Test
+  void testUpdateSystemActiveAnnouncement() {
+    final SystemAnnouncement systemAnnouncement = new SystemAnnouncement();
+
+    Mockito.when(systemAnnouncementsService.findById(Mockito.any())).thenReturn(systemAnnouncement);
+    Mockito.when(systemAnnouncementsService.save(Mockito.any())).thenReturn(systemAnnouncement);
+
+    Assertions.assertDoesNotThrow(() -> superAdminService.updateSystemActiveAnnouncement("1"));
+  }
+
+  @Test
+  void testGetSystemPastAnnouncements() {
+    Mockito.when(systemAnnouncementsService.getSystemPastAnnouncements(Mockito.any())).thenReturn(Page.empty());
+
+    Assertions.assertDoesNotThrow(() -> superAdminService.getSystemPastAnnouncements(Mockito.any()));
   }
 }
