@@ -30,11 +30,9 @@ import shamu.company.employee.dto.SelectFieldInformationDto;
 import shamu.company.employee.dto.SelectFieldSizeDto;
 import shamu.company.employee.entity.EmploymentType;
 import shamu.company.employee.service.EmployeeService;
-import shamu.company.helpers.auth0.Auth0Helper;
 import shamu.company.job.entity.Job;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserPersonalInformation;
-import shamu.company.user.service.UserService;
 
 @RestApiController
 public class CompanyRestController extends BaseRestController {
@@ -45,17 +43,13 @@ public class CompanyRestController extends BaseRestController {
 
   private final OfficeMapper officeMapper;
 
-  private final UserService userService;
-
   @Autowired
   public CompanyRestController(final CompanyService companyService,
       final EmployeeService employeeService,
-      final OfficeMapper officeMapper,
-      final UserService userService) {
+      final OfficeMapper officeMapper) {
     this.companyService = companyService;
     this.employeeService = employeeService;
     this.officeMapper = officeMapper;
-    this.userService = userService;
   }
 
 

@@ -21,6 +21,7 @@ public class RequestLoggingFilterConfig {
 
       @Override
       protected void beforeRequest(final HttpServletRequest request, final String message) {
+        //do nothing
       }
 
       @Override

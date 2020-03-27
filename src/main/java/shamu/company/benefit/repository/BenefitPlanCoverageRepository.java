@@ -6,7 +6,6 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.Query;
 import shamu.company.benefit.dto.BenefitCoveragesDto;
 import shamu.company.benefit.dto.BenefitReportCoveragesDto;
-import shamu.company.benefit.entity.BenefitCoverages;
 import shamu.company.benefit.entity.BenefitPlanCoverage;
 import shamu.company.common.repository.BaseRepository;
 
