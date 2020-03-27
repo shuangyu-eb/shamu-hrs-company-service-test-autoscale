@@ -26,23 +26,30 @@ pipeline {
                         '      Create artifact         ' +
                         '\n---------------------------------'
                 script {
+                    // ref: ref/release/0.1.x -> RELEASE: 0.1.x
                     RELEASE = sh(returnStdout: true, script: ''' echo ${ref} | sed 's/^.*\\///' ''').trim()
                     if (RELEASE == "" || RELEASE == "master") {
                         RELEASE = 'master'
                         sh(returnStdout: false, script: "git checkout origin/master")
+                        sh(returnStdout: false, script: "CI/build -e ${params.DEV_ENV} -r ${RELEASE}")
                     } else {
-                        sh(returnStdout: false, script: "git checkout ${RELEASE}")
+                        sh(returnStdout: false, script: "git checkout ${ref}")
+                        sh(returnStdout: false, script: "CI/build -e ${params.QA_ENV} -r ${RELEASE}")
                     }
                 }
-                sh "CI/build -e ${params.DEV_ENV} -e ${params.QA_ENV} -r ${RELEASE}"
             }
         }
-        stage('deploy master to dev environment') {
-            when {
-                expression { RELEASE == 'master' }
-            }
+        stage('deploy company service') {
             steps {
-                sh "git checkout origin/master && CI/deploy ${params.DEV_ENV} ${RELEASE}"
+                script {
+                    if (RELEASE == 'master') {
+                        // deploy company service to dev environment
+                        sh "git checkout origin/master && CI/deploy ${params.DEV_ENV} ${RELEASE}"
+                    } else {
+                        // deploy company service to qa environment
+                        sh "git checkout ${ref} && CI/deploy ${params.QA_ENV} ${RELEASE}"
+                    }
+                }
             }
         }
     }
