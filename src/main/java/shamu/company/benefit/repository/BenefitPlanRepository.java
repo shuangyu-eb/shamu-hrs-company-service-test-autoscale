@@ -243,10 +243,11 @@ public interface BenefitPlanRepository extends BaseRepository<BenefitPlan, Strin
               + "from benefit_plans "
               + "where benefit_plan_type_id = unhex(?1) "
               + "and company_id = unhex(?2) "
-              + "and end_date >= current_timestamp",
+              + "and date_add(end_date,INTERVAL '1' day) > current_timestamp",
       countQuery =
           "select count(1) from benefit_plans where benefit_plan_type_id = unhex(?1) "
-              + "and company_id = unhex(?2) and end_date >= current_timestamp",
+              + "and company_id = unhex(?2) "
+              + "and date_add(end_date,INTERVAL '1' day) > current_timestamp",
       nativeQuery = true)
   Page<BenefitPlanPreviewPojo> getBenefitPlanListWithOutExpired(
       String planTypeId, String companyId, Pageable pageRequest);
@@ -258,7 +259,8 @@ public interface BenefitPlanRepository extends BaseRepository<BenefitPlan, Strin
               + "start_date as deductionsBegin, "
               + "end_date as deductionsEnd, "
               + "if(start_date > current_timestamp,'Starting soon',"
-              + "if(current_timestamp > end_date,'Expired','Active')) as status "
+              + "if(current_timestamp >= "
+              + "date_add(end_date,INTERVAL '1' day),'Expired','Active')) as status "
               + "from benefit_plans "
               + "where benefit_plan_type_id = unhex(?1) "
               + "and company_id = unhex(?2)",
