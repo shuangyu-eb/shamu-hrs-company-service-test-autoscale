@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-
 import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.company.dto.CompanyBenefitsSettingDto;
@@ -44,7 +43,8 @@ public class CompanyRestController extends BaseRestController {
   private final OfficeMapper officeMapper;
 
   @Autowired
-  public CompanyRestController(final CompanyService companyService,
+  public CompanyRestController(
+      final CompanyService companyService,
       final EmployeeService employeeService,
       final OfficeMapper officeMapper) {
     this.companyService = companyService;
@@ -52,12 +52,10 @@ public class CompanyRestController extends BaseRestController {
     this.officeMapper = officeMapper;
   }
 
-
   @GetMapping("departments")
   public List<SelectFieldSizeDto> findDepartments() {
     return companyService.findDepartmentsByCompanyId(findCompanyId());
   }
-
 
   @PostMapping("departments")
   @PreAuthorize("hasAuthority('CREATE_DEPARTMENT')")
@@ -65,11 +63,10 @@ public class CompanyRestController extends BaseRestController {
     return companyService.saveDepartmentsByCompany(name, findCompanyId());
   }
 
-
   @PostMapping("departments/{id}/jobs")
   @PreAuthorize("hasPermission(#id,'DEPARTMENT','CREATE_JOB')")
-  public SelectFieldInformationDto saveJobsByDepartment(@PathVariable final String id,
-      @RequestBody final String name) {
+  public SelectFieldInformationDto saveJobsByDepartment(
+      @PathVariable final String id, @RequestBody final String name) {
     final Job job = companyService.saveJobsByDepartmentId(id, name);
     return new SelectFieldInformationDto(job.getId(), job.getTitle());
   }
@@ -79,14 +76,12 @@ public class CompanyRestController extends BaseRestController {
     return companyService.findEmploymentTypesByCompanyId(findCompanyId());
   }
 
-
   @PostMapping(value = "employment-types")
   @PreAuthorize("hasAuthority('CREATE_EMPLOYEE_TYPE')")
   public SelectFieldInformationDto createEmploymentType(@RequestBody final String name) {
     final EmploymentType employmentType = companyService.saveEmploymentType(name, findCompanyId());
     return new SelectFieldInformationDto(employmentType.getId(), employmentType.getName());
   }
-
 
   @GetMapping("offices")
   @PreAuthorize("hasAuthority('VIEW_USER_JOB')")
@@ -102,26 +97,25 @@ public class CompanyRestController extends BaseRestController {
     return officeMapper.convertToOfficeDto(companyService.saveOffice(office));
   }
 
-  @GetMapping("departments/{id}/users")
-  @PreAuthorize("hasPermission(#id,'DEPARTMENT','VIEW_USER_JOB')")
-  public List<SelectFieldInformationDto> findUsers(@PathVariable final String id) {
-    final List<User> users = employeeService
-        .findByCompanyId(findCompanyId());
+  @GetMapping("user-options")
+  @PreAuthorize("hasAuthority('VIEW_USER_JOB')")
+  public List<SelectFieldInformationDto> findUsers() {
+    final List<User> users = employeeService.findByCompanyId(findCompanyId());
     return collectUserPersonInformations(users);
   }
 
   @GetMapping("departments/manager-candidate/{userId}/{departmentId}/users")
-  @PreAuthorize("hasPermission(#departmentId,'DEPARTMENT','VIEW_JOB')"
+  @PreAuthorize(
+      "hasPermission(#departmentId,'DEPARTMENT','VIEW_JOB')"
           + "and hasPermission(#userId,'USER','VIEW_JOB')")
   public List<SelectFieldInformationDto> findUsersFromDepartment(
-          @PathVariable final String userId,
-          @PathVariable final String departmentId) {
+      @PathVariable final String userId, @PathVariable final String departmentId) {
     final List<User> users;
 
     users = employeeService.findByCompanyId(findCompanyId());
 
     final List<SelectFieldInformationDto> selectFieldInformationDtos =
-            collectUserPersonInformations(users);
+        collectUserPersonInformations(users);
 
     selectFieldInformationDtos.sort(Comparator.comparing(s -> s.getName().toLowerCase()));
 
@@ -129,15 +123,15 @@ public class CompanyRestController extends BaseRestController {
   }
 
   private List<SelectFieldInformationDto> collectUserPersonInformations(final List<User> users) {
-    return users.stream().map(
-        user -> {
-          UserPersonalInformation userInfo = user.getUserPersonalInformation();
-          if (userInfo != null) {
-            return new SelectFieldInformationDto(user.getId(),
-                userInfo.getName());
-          }
-          return null;
-        })
+    return users.stream()
+        .map(
+            user -> {
+              UserPersonalInformation userInfo = user.getUserPersonalInformation();
+              if (userInfo != null) {
+                return new SelectFieldInformationDto(user.getId(), userInfo.getName());
+              }
+              return null;
+            })
         .filter(Objects::nonNull)
         .collect(Collectors.toList());
   }
