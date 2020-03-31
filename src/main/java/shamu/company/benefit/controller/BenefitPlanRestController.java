@@ -236,7 +236,7 @@ public class BenefitPlanRestController extends BaseRestController {
 
   @GetMapping("benefit-plan/{planTypeName}/enrollment-breakdown")
   @PreAuthorize("hasAuthority('MANAGE_BENEFIT_PLAN')")
-  public Page<EnrollmentBreakdownDto> getDocumentLists(
+  public Page<EnrollmentBreakdownDto> getEnrollmentBreakdowns(
       @PathVariable final String planTypeName,
       final EnrollmentBreakdownSearchCondition enrollmentBreakdownSearchCondition,
       final String planId,

@@ -756,7 +756,9 @@ public class BenefitPlanService {
     final List<String> existIds =
         benefitPlanUserRepository.findAllByBenefitPlanId(benefitPlanId).stream()
             .map(BenefitPlanUser::getId).collect(Collectors.toList());
-    benefitPlanUserRepository.deleteInBatch(existIds);
+    if (!CollectionUtils.isEmpty(existIds)) {
+      benefitPlanUserRepository.deleteInBatch(existIds);
+    }
     benefitPlanUserRepository.saveAll(employees.stream().map(benefitPlanUserCreateDto -> {
       BenefitPlanCoverage benefitPlanCoverage = new BenefitPlanCoverage();
       benefitPlanCoverage.setId(benefitPlanUserCreateDto.getCoverage());
@@ -842,16 +844,18 @@ public class BenefitPlanService {
       final BenefitReportParamDto benefitReportParamDto,
       final String companyId) {
     final List<String> benefitPlanIds;
-    final List<EnrollmentBreakdownDto> enrollmentBreakdownDtos;
+    List<EnrollmentBreakdownDto> enrollmentBreakdownDtos = new ArrayList<>();
     if (benefitReportParamDto.getPlanId().isEmpty()
         || DEFAULT_ID.equals(benefitReportParamDto.getPlanId())) {
       benefitPlanIds = benefitPlanRepository.getBenefitPlanIds(typeName, companyId);
-      enrollmentBreakdownDtos =
-          benefitPlanRepository.getEnrollmentBreakdownWhenPlanIdIsEmpty(benefitPlanIds, companyId);
-      int i = 1;
-      for (final EnrollmentBreakdownDto enrollmentBreakdownDto : enrollmentBreakdownDtos) {
-        enrollmentBreakdownDto.setNumber(i);
-        i++;
+      if (!CollectionUtils.isEmpty(benefitPlanIds)) {
+        enrollmentBreakdownDtos = benefitPlanRepository
+            .getEnrollmentBreakdownWhenPlanIdIsEmpty(benefitPlanIds, companyId);
+        int i = 1;
+        for (final EnrollmentBreakdownDto enrollmentBreakdownDto : enrollmentBreakdownDtos) {
+          enrollmentBreakdownDto.setNumber(i);
+          i++;
+        }
       }
     } else {
       benefitPlanIds = Collections.singletonList(benefitReportParamDto.getPlanId());
@@ -985,16 +989,20 @@ public class BenefitPlanService {
     if (benefitReportParamDto.getPlanId().isEmpty()
         || DEFAULT_ID.equals(benefitReportParamDto.getPlanId())) {
       benefitPlanIds = benefitPlanRepository.getBenefitPlanIds(planTypeName, companyId);
-      final Page<EnrollmentBreakdownPojo> enrollmentBreakdownDtoPage =
-          benefitPlanRepository.getEnrollmentBreakdownByConditionAndPlanIdIsEmpty(benefitPlanIds,
-              companyId, paramPageable);
-      final List<EnrollmentBreakdownDto> enrollmentBreakdownDtos =
-          findEnrollmentBreakdownContent(
-              enrollmentBreakdownDtoPage.getContent());
-      return new PageImpl<>(
-          enrollmentBreakdownDtos,
-          enrollmentBreakdownDtoPage.getPageable(),
-          enrollmentBreakdownDtoPage.getTotalElements());
+      Page<EnrollmentBreakdownPojo> enrollmentBreakdownDtoPage;
+      List<EnrollmentBreakdownDto> enrollmentBreakdownDtos = new ArrayList<>();
+      if (!CollectionUtils.isEmpty(benefitPlanIds)) {
+        enrollmentBreakdownDtoPage =
+            benefitPlanRepository.getEnrollmentBreakdownByConditionAndPlanIdIsEmpty(benefitPlanIds,
+                companyId, paramPageable);
+        enrollmentBreakdownDtos = findEnrollmentBreakdownContent(
+            enrollmentBreakdownDtoPage.getContent());
+        return new PageImpl<>(
+            enrollmentBreakdownDtos,
+            enrollmentBreakdownDtoPage.getPageable(),
+            enrollmentBreakdownDtoPage.getTotalElements());
+      }
+      return new PageImpl<>(enrollmentBreakdownDtos, paramPageable, 0);
     }
 
     benefitPlanIds = Collections.singletonList(benefitReportParamDto.getPlanId());
