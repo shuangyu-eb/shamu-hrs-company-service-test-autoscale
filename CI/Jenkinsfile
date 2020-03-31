@@ -10,7 +10,20 @@ void setBuildStatus(String message, String state) {
 
 pipeline {
     agent { label '!master' }
+    environment {
+        WORKSPACE = "/home/ubuntu/workspace/shamu-company-master-auto-build"
+    }
     stages {
+        stage('pull shamu-hrs') {
+            steps {
+                sh 'mkdir -p shamu-hrs'
+                dir('shamu-hrs') {
+                    git branch: "master",
+                    credentialsId: "${credentialsId}",
+                    url: 'https://github.com/tardisone/shamu-hrs.git'
+                }
+            }
+        }
         stage('unit tests') {
             steps {
                 echo '---------------------------------\n' +
@@ -20,35 +33,19 @@ pipeline {
                 sh "mvn clean test -Dspring.profiles.active=test > junit_output.txt"
             }
         }
-        stage('create artifact') {
+        stage('create artifact for dev environment') {
             steps {
                 echo '---------------------------------\n' +
                         '      Create artifact         ' +
                         '\n---------------------------------'
-                script {
-                    // ref: ref/release/0.1.x -> RELEASE: 0.1.x
-                    RELEASE = sh(returnStdout: true, script: ''' echo ${ref} | sed 's/^.*\\///' ''').trim()
-                    if (RELEASE == "" || RELEASE == "master") {
-                        RELEASE = 'master'
-                        sh(returnStdout: false, script: "git checkout origin/master")
-                        sh(returnStdout: false, script: "CI/build -e ${params.DEV_ENV} -r ${RELEASE}")
-                    } else {
-                        sh(returnStdout: false, script: "git checkout ${ref}")
-                        sh(returnStdout: false, script: "CI/build -e ${params.QA_ENV} -r ${RELEASE}")
-                    }
-                }
+                sh "ansible-playbook shamu-hrs/auto-deploy/ansible/create-project-config-files.yml -e 'workspace=${WORKSPACE} stack_prefix=simplyhired-hrs-eastbay env=dev service_name=company'"
+                sh "CI/build -e simplyhired-hrs-eastbay-dev -r master"
             }
         }
         stage('deploy company service') {
             steps {
                 script {
-                    if (RELEASE == 'master') {
-                        // deploy company service to dev environment
-                        sh "git checkout origin/master && CI/deploy ${params.DEV_ENV} ${RELEASE}"
-                    } else {
-                        // deploy company service to qa environment
-                        sh "git checkout ${ref} && CI/deploy ${params.QA_ENV} ${RELEASE}"
-                    }
+                    sh "CI/deploy simplyhired-hrs-eastbay-dev master"
                 }
             }
         }
