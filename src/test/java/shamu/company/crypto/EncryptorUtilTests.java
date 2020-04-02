@@ -45,7 +45,7 @@ class EncryptorUtilTests {
   @Test
   void whenEncryptByUser_valueIsBlank_thenSetToNull() throws Exception {
     Whitebox.invokeMethod(encryptorUtil, "encrypt",
-        "", "", userPersonalInformation,
+        new User(), "", userPersonalInformation,
         personalInformationBiConsumer);
 
     Mockito.verify(encryptor, Mockito.never()).encrypt(Mockito.anyString(), Mockito.anyString());

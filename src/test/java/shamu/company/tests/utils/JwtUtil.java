@@ -86,7 +86,9 @@ public class JwtUtil {
     final Map<String, Claim> bodyClaims = decodedJwt.getClaims();
 
     final Map<String, Object> jwtBodyClaim = new HashMap<>();
-    bodyClaims.forEach(jwtBodyClaim::put);
+    bodyClaims.forEach(((s, claim) -> {
+      jwtBodyClaim.put(s, claim.asString());
+    }));
 
     final Date issuedAt = decodedJwt.getIssuedAt();
     final Instant issuedAtDate = DateUtil.toLocalDateTime(issuedAt).toInstant(ZoneOffset.UTC);

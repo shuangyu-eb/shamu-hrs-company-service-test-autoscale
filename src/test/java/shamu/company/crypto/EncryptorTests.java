@@ -14,6 +14,7 @@ import org.mockito.MockitoAnnotations;
 import org.powermock.reflect.Whitebox;
 import org.springframework.security.crypto.encrypt.BytesEncryptor;
 import org.springframework.security.crypto.encrypt.Encryptors;
+import shamu.company.benefit.entity.BenefitPlanDependent;
 import shamu.company.company.entity.Company;
 import shamu.company.helpers.auth0.Auth0Helper;
 import shamu.company.user.entity.User;
@@ -144,6 +145,17 @@ class EncryptorTests {
     }
 
     @Test
+    void whenClassIsBenefitPlanDependent_thenReturnRealResult() {
+      final String result = encryptor
+          .decrypt(testUser.getId(), BenefitPlanDependent.class,
+              testUser.getUserPersonalInformation().getSsn());
+
+      Mockito.verify(userService, Mockito.times(1))
+          .findActiveUserById(testUser.getId());
+      Assertions.assertEquals(ssn, result);
+    }
+
+    @Test
     void whenThrowException_thenReturnOriginalValue() {
       Mockito.when(userService
           .findActiveUserById(testUser.getId()))
@@ -157,6 +169,16 @@ class EncryptorTests {
           .findUserByUserPersonalInformationId(testUser.getUserPersonalInformation().getId());
       Assertions.assertEquals(testUser.getUserPersonalInformation().getSsn(), result);
     }
+  }
+
+  @Test
+  void getEncryptorByUserId() throws Exception {
+    String userId = "a";
+    Mockito.when(userService.findActiveUserById(userId)).thenReturn(testUser);
+    Whitebox.invokeMethod(encryptor, "getEncryptor", userId);
+    Mockito.verify(userService, Mockito.times(1)).findActiveUserById(userId);
+    Mockito.verify(secretHashRepository, Mockito.times(1))
+        .getCompanySecretByCompanyId(testUser.getCompany().getId());
   }
 
 }
