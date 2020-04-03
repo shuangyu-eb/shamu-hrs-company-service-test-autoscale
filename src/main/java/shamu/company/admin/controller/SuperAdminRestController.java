@@ -46,7 +46,6 @@ class SuperAdminRestController extends BaseRestController {
   }
 
   @GetMapping("/super-admin/system-active-announcement")
-  @PreAuthorize("hasAuthority('SUPER_PERMISSION')")
   public SystemAnnouncementDto getSystemActiveAnnouncement() {
     return superAdminService.getSystemActiveAnnouncement();
   }

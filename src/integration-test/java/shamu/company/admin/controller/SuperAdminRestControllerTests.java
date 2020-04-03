@@ -31,7 +31,6 @@ class SuperAdminRestControllerTests extends WebControllerBaseTests {
 
   @Test
   void testGetSystemActiveAnnouncement() throws Exception {
-    setPermission(Permission.Name.SUPER_PERMISSION.name());
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
 

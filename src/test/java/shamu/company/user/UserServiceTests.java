@@ -22,6 +22,8 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.web.multipart.MultipartFile;
 import org.thymeleaf.ITemplateEngine;
+import shamu.company.admin.entity.SystemAnnouncement;
+import shamu.company.admin.service.SystemAnnouncementsService;
 import shamu.company.authorization.PermissionUtils;
 import shamu.company.common.exception.EmailException;
 import shamu.company.common.exception.ForbiddenException;
@@ -54,26 +56,15 @@ import shamu.company.user.dto.UpdatePasswordDto;
 import shamu.company.user.dto.UserRoleUpdateDto;
 import shamu.company.user.dto.UserSignUpDto;
 import shamu.company.user.dto.UserStatusUpdateDto;
-import shamu.company.user.entity.User;
+import shamu.company.user.entity.*;
 import shamu.company.user.entity.User.Role;
-import shamu.company.user.entity.UserContactInformation;
-import shamu.company.user.entity.UserPersonalInformation;
-import shamu.company.user.entity.UserRole;
-import shamu.company.user.entity.UserStatus;
 import shamu.company.user.entity.UserStatus.Status;
 import shamu.company.user.entity.mapper.UserAddressMapper;
 import shamu.company.user.entity.mapper.UserContactInformationMapper;
 import shamu.company.user.entity.mapper.UserMapper;
 import shamu.company.user.entity.mapper.UserPersonalInformationMapper;
 import shamu.company.user.repository.UserRepository;
-import shamu.company.user.service.UserAccessLevelEventService;
-import shamu.company.user.service.UserAddressService;
-import shamu.company.user.service.UserBenefitsSettingService;
-import shamu.company.user.service.UserContactInformationService;
-import shamu.company.user.service.UserPersonalInformationService;
-import shamu.company.user.service.UserRoleService;
-import shamu.company.user.service.UserService;
-import shamu.company.user.service.UserStatusService;
+import shamu.company.user.service.*;
 import shamu.company.utils.UuidUtil;
 
 class UserServiceTests {
@@ -109,6 +100,8 @@ class UserServiceTests {
   @Mock private UserBenefitsSettingService userBenefitsSettingService;
   @Mock private EntityManager entityManager;
   @Mock private CompanyRepository companyRepository;
+  @Mock private SystemAnnouncementsService systemAnnouncementsService;
+  @Mock private DismissedAtService dismissedAtService;
 
   @BeforeEach
   void init() {
@@ -748,5 +741,41 @@ class UserServiceTests {
       Mockito.when(userRepository.existsByResetPasswordToken(Mockito.anyString())).thenReturn(true);
       Assertions.assertTrue(userService.createPasswordAndInvitationTokenExist(passwordToken, invitationToken));
     }
+  }
+
+  @Nested
+  class issCurrentActiveAnnouncementDismissed {
+
+    @Test
+    void whenDismissAdIsNotNull_then_shouldReturnTrue() {
+      final DismissedAt dismissedAt = new DismissedAt();
+
+      Mockito.when(dismissedAtService.findByUserIdAndSystemAnnouncementId(Mockito.any(), Mockito.any())).thenReturn(dismissedAt);
+
+      Assertions.assertDoesNotThrow(() -> userService.isCurrentActiveAnnouncementDismissed(UuidUtil.getUuidString(), "1"));
+      Assertions.assertTrue(userService.isCurrentActiveAnnouncementDismissed(UuidUtil.getUuidString(), "1"));
+    }
+
+    @Test
+    void whenDismissAdIsNull_then_shouldReturnFalse() {
+      Mockito.when(dismissedAtService.findByUserIdAndSystemAnnouncementId(Mockito.any(), Mockito.any())).thenReturn(null);
+
+      Assertions.assertDoesNotThrow(() -> userService.isCurrentActiveAnnouncementDismissed(UuidUtil.getUuidString(), "1"));
+      Assertions.assertFalse(userService.isCurrentActiveAnnouncementDismissed(UuidUtil.getUuidString(), "1"));
+    }
+  }
+
+  @Test
+  void testDismissCurrentActiveAnnouncement() {
+    final DismissedAt dismissed = new DismissedAt();
+    final User user = new User(UuidUtil.getUuidString());
+    final SystemAnnouncement systemAnnouncement = new SystemAnnouncement();
+
+    Mockito.when(dismissedAtService.findByUserIdAndSystemAnnouncementId(Mockito.any(), Mockito.any())).thenReturn(null);
+    Mockito.when(systemAnnouncementsService.findById(Mockito.any())).thenReturn(systemAnnouncement);
+    Mockito.when(dismissedAtService.save(Mockito.any())).thenReturn(dismissed);
+    Mockito.when(userRepository.findById(Mockito.any())).thenReturn(Optional.of(user));
+
+    Assertions.assertDoesNotThrow(() -> userService.dismissCurrentActiveAnnouncement(UuidUtil.getUuidString(), "1"));
   }
 }

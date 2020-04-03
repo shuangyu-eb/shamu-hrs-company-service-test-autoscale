@@ -61,3 +61,28 @@ databaseChangeLog:
                   type: bool
                   defaultValue: false
             tableName: time_off_policies
+
+  - changeSet:
+      id: 1585291440465-1
+      author: bin-eb
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  name: id
+                  type: binary(16)
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: user_id
+                  type: binary(16)
+              - column:
+                  name: system_announcement_id
+                  type: binary(16)
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: dismissed_at

@@ -383,4 +383,30 @@ public class UserRestControllerTests extends WebControllerBaseTests {
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
+
+  @Test
+  void testIsCurrentActiveAnnouncementDismissed() throws Exception {
+    final HttpHeaders httpHeaders = new HttpHeaders();
+    httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+
+    given(userService.isCurrentActiveAnnouncementDismissed(Mockito.any(), Mockito.any())).willReturn(false);
+
+    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
+        .get("/company/users/current-active-announcement/is-dismissed/1")
+        .headers(httpHeaders)).andReturn();
+
+    assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+  }
+
+  @Test
+  void testDismissCurrentActiveAnnouncement() throws Exception {
+    final HttpHeaders httpHeaders = new HttpHeaders();
+    httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+
+    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
+        .post("/company/users/dismiss-current-active-announcement/1")
+        .headers(httpHeaders)).andReturn();
+
+    assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+  }
 }

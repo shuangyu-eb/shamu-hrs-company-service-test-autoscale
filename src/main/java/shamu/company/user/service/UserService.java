@@ -30,6 +30,8 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.Context;
+import shamu.company.admin.entity.SystemAnnouncement;
+import shamu.company.admin.service.SystemAnnouncementsService;
 import shamu.company.authorization.Permission.Name;
 import shamu.company.authorization.PermissionUtils;
 import shamu.company.common.exception.EmailException;
@@ -78,6 +80,7 @@ import shamu.company.user.dto.UserRoleUpdateDto;
 import shamu.company.user.dto.UserSignUpDto;
 import shamu.company.user.dto.UserStatusUpdateDto;
 import shamu.company.user.entity.DeactivationReasons;
+import shamu.company.user.entity.DismissedAt;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
 import shamu.company.user.entity.UserAccessLevelEvent;
@@ -132,6 +135,8 @@ public class UserService {
   private final UserMapper userMapper;
   private final CompanyBenefitsSettingService companyBenefitsSettingService;
   private final CompanyRepository companyRepository;
+  private final SystemAnnouncementsService systemAnnouncementsService;
+  private final DismissedAtService dismissedAtService;
 
   @Value("${application.systemEmailAddress}")
   private String systemEmailAddress;
@@ -167,7 +172,9 @@ public class UserService {
       final UserContactInformationService userContactInformationService,
       final CompanyBenefitsSettingService companyBenefitsSettingService,
       final EntityManager entityManager,
-      final CompanyRepository companyRepository) {
+      final CompanyRepository companyRepository,
+      final SystemAnnouncementsService systemAnnouncementsService,
+      final DismissedAtService dismissedAtService) {
     this.templateEngine = templateEngine;
     this.userRepository = userRepository;
     this.secretHashRepository = secretHashRepository;
@@ -195,6 +202,8 @@ public class UserService {
     this.companyBenefitsSettingService = companyBenefitsSettingService;
     this.entityManager = entityManager;
     this.companyRepository = companyRepository;
+    this.systemAnnouncementsService = systemAnnouncementsService;
+    this.dismissedAtService = dismissedAtService;
   }
 
   public User findById(final String id) {
@@ -842,5 +851,25 @@ public class UserService {
     }
 
     auth0Helper.sendVerificationEmail(auth0User.getId());
+  }
+
+  public boolean isCurrentActiveAnnouncementDismissed(final String userId, final String id) {
+    final DismissedAt dismissedAt =
+        dismissedAtService.findByUserIdAndSystemAnnouncementId(userId, id);
+    return dismissedAt != null;
+  }
+
+  public void dismissCurrentActiveAnnouncement(final String userId, final String id) {
+    final DismissedAt dismissed =
+        dismissedAtService.findByUserIdAndSystemAnnouncementId(userId, id);
+    if (dismissed == null) {
+      final User user = findById(userId);
+      final SystemAnnouncement systemAnnouncement =
+          systemAnnouncementsService.findById(id);
+      final DismissedAt dismissedAt = new DismissedAt();
+      dismissedAt.setUser(user);
+      dismissedAt.setSystemAnnouncement(systemAnnouncement);
+      dismissedAtService.save(dismissedAt);
+    }
   }
 }

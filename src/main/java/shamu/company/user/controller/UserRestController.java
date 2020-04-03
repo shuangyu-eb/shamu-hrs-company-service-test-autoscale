@@ -190,4 +190,15 @@ public class UserRestController extends BaseRestController {
     final User user = userService.findById(findAuthUser().getId());
     userService.sendVerifyChangeWorkEmail(user);
   }
+
+  @GetMapping("/users/current-active-announcement/is-dismissed/{id}")
+  public Boolean isCurrentActiveAnnouncementDismissed(@PathVariable final String id) {
+    return userService.isCurrentActiveAnnouncementDismissed(findAuthUser().getId(), id);
+  }
+
+  @PostMapping("/users/dismiss-current-active-announcement/{id}")
+  public HttpEntity dismissCurrentActiveAnnouncement(@PathVariable final String id) {
+    userService.dismissCurrentActiveAnnouncement(findAuthUser().getId(), id);
+    return new HttpEntity(HttpStatus.OK);
+  }
 }
