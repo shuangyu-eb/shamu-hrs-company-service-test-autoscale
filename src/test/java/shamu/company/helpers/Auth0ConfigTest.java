@@ -1,8 +1,5 @@
 package shamu.company.helpers;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 import com.auth0.client.auth.AuthAPI;
 import java.io.UnsupportedEncodingException;
 import java.util.UUID;
@@ -11,6 +8,8 @@ import org.apache.commons.codec.binary.Hex;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import shamu.company.helpers.auth0.Auth0Config;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class Auth0ConfigTest {
 
@@ -29,8 +28,35 @@ class Auth0ConfigTest {
       auth0Config.setClientId("clientId");
       auth0Config.setClientSecret("clientSecret");
       auth0Config.setDomain("test.auth0.com");
+      auth0Config.setManagementIdentifier("verified");
+      auth0Config.setJwks("https://indeed.com/");
+      auth0Config.setDatabase("database");
+      auth0Config.setIssuer("issuer");
+      auth0Config.setAudience("audience");
+      auth0Config.setCustomNamespace("customNamespace");
       final AuthAPI authAPI = auth0Config.getAuthApi();
       assertNotNull(authAPI);
+      final String res = auth0Config.toString();
+      assertNotNull(res);
+      final boolean equal = auth0Config.equals(new Object());
+      assertFalse(equal);
+      assertNotEquals(auth0Config,new Auth0Config());
+    }
+
+    @Test
+    void testBuilder() {
+      String auth0Config = Auth0Config.builder()
+          .clientId("clientId")
+          .domain("domain")
+          .clientSecret("clientSecret")
+          .issuer("issuer")
+          .jwks("jws")
+          .audience("audience")
+          .managementIdentifier("managementIdentifier")
+          .customNamespace("customNamespace")
+          .database("database")
+          .build().toString();
+      assertNotNull(auth0Config);
     }
   }
 

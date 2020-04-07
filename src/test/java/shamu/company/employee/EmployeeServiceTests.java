@@ -84,10 +84,6 @@ import shamu.company.utils.FileValidateUtil.FileType;
 
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
-import java.util.UUID;
 
 class EmployeeServiceTests {
 

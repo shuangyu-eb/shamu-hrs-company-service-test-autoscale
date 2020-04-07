@@ -18,6 +18,8 @@ import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import shamu.company.common.config.DefaultJwtAuthenticationToken;
@@ -64,12 +66,13 @@ public class JwtUtil {
 
     final DefaultJwtAuthenticationToken authenticationToken =
         (DefaultJwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
-    final String userId = authenticationToken.getUserId();
+    final String userId = authenticationToken != null ? authenticationToken.getUserId() : "1";
     return JWT.create().withIssuer(issuer)
         .withIssuedAt(new Date(issuedAt.toEpochSecond(ZoneOffset.UTC) * 1000))
         .withExpiresAt(new Date(expiredAt.toEpochSecond(ZoneOffset.UTC) * 1000))
         .withClaim(customNamespace + "id", userId)
         .withClaim("scope", "openid profile email")
+        .withKeyId(RandomStringUtils.randomAlphabetic(10))
         .sign(algorithm);
   }
 
