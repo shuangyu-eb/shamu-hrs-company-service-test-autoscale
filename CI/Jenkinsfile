@@ -26,11 +26,21 @@ pipeline {
         }
         stage('unit tests') {
             steps {
-                echo '---------------------------------\n' +
-                        '            Unit test            ' +
-                        '\n---------------------------------'
-
-                sh "mvn clean test -Dspring.profiles.active=test > junit_output.txt"
+                withCredentials([string(credentialsId: 'sonarqube-token', variable: 'TOKEN')]) {
+                    echo '---------------------------------\n' +
+                            '            Unit test            ' +
+                            '\n---------------------------------'
+                    sh "mvn clean test sonar:sonar \
+                          -Dsonar.host.url=http://3.115.71.39 \
+                          -Dsonar.login=$TOKEN \
+                          -Dsonar.projectKey=shamu-hrs-company-service \
+                          -Dsonar.projectName=shamu-hrs-company-service \
+                          -Dsonar.sources=src/main/java \
+                          -Dsonar.java.binaries=target \
+                          -Dsonar.coverage.jacoco.xmlReportPaths=target/jacoco-output/coverage-report-unit-tests/jacoco.xml \
+                          -Dsonar.tests=target/test-classes \
+                          > junit_output.txt"
+                }
             }
         }
         stage('create artifact for dev environment') {
