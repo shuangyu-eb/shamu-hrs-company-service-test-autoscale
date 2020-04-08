@@ -26,9 +26,14 @@ import shamu.company.common.config.DefaultJwtAuthenticationToken;
 import shamu.company.company.entity.Company;
 import shamu.company.company.entity.Department;
 import shamu.company.company.service.CompanyService;
+import shamu.company.info.entity.UserEmergencyContact;
+import shamu.company.info.service.UserEmergencyContactService;
+import shamu.company.job.entity.Job;
 import shamu.company.redis.AuthUserCacheManager;
 import shamu.company.server.dto.AuthUser;
 import shamu.company.tests.utils.JwtUtil;
+import shamu.company.timeoff.entity.CompanyPaidHoliday;
+import shamu.company.timeoff.entity.PaidHoliday;
 import shamu.company.timeoff.entity.TimeOffPolicyUser;
 import shamu.company.timeoff.entity.TimeOffRequest;
 import shamu.company.timeoff.service.CompanyPaidHolidayService;
@@ -65,6 +70,8 @@ class UserPermissionUtilTests {
   private CompanyPaidHolidayService companyPaidHolidayService;
   @Mock
   private AuthUserCacheManager cacheManager;
+  @Mock
+  private UserEmergencyContactService userEmergencyContactService;
   @InjectMocks
   private UserPermissionUtils userPermissionUtils;
 
@@ -372,6 +379,161 @@ class UserPermissionUtilTests {
             Name.VIEW_USER_EMERGENCY_CONTACT);
         Assertions.assertTrue(hasPermission);
       }
+    }
+  }
+
+  @Nested
+  class HasPermissionOfJobTitle {
+
+    @Test
+    void whenHasJobTitlePermission_thenShouldReturnTrue() {
+
+      final Department department = new Department();
+      department.setId("1");
+      department.setCompany(company);
+      final Job job = new Job();
+      job.setDepartment(department);
+      Mockito.when(companyService.findJobsById(Mockito.anyString())).thenReturn(job);
+      Mockito.when(companyService.findDepartmentsById(Mockito.anyString())).thenReturn(department);
+      final Name permission = Name.CREATE_JOB;
+      final Type permissionType = Type.JOB_TITLE;
+      initAuthenticationWithPermission(Collections.singletonList(permission.name()));
+      final boolean hasPermission = userPermissionUtils.hasPermission(getAuthentication(),
+          RandomStringUtils.randomAlphabetic(16),
+          permissionType,
+          permission);
+      Assertions.assertTrue(hasPermission);
+    }
+
+    @Test
+    void whenNoJobTitlePermission_thenShouldReturnFalse() {
+
+      final Department department = new Department();
+      department.setId("1");
+      department.setCompany(company);
+      final Job job = new Job();
+      job.setDepartment(department);
+      Mockito.when(companyService.findJobsById(Mockito.anyString())).thenReturn(job);
+      Mockito.when(companyService.findDepartmentsById(Mockito.anyString())).thenReturn(department);
+      final Name permission = Name.CREATE_JOB;
+      final Type permissionType = Type.JOB_TITLE;
+      final boolean hasPermission = userPermissionUtils.hasPermission(getAuthentication(),
+          RandomStringUtils.randomAlphabetic(16),
+          permissionType,
+          permission);
+      Assertions.assertFalse(hasPermission);
+    }
+  }
+
+  @Nested
+  class HasPermissionOfUserEmergencyContact {
+
+    @Test
+    void whenHasUserEmergencyContactPermission_thenShouldReturnTrue() {
+
+      final UserEmergencyContact userEmergencyContact = new UserEmergencyContact();
+      final User targetUser = new User();
+      targetUser.setCompany(company);
+      userEmergencyContact.setUser(targetUser);
+      Mockito.when(userEmergencyContactService.findById(Mockito.anyString())).thenReturn(userEmergencyContact);
+
+      final Name permission = Name.VIEW_USER_EMERGENCY_CONTACT;
+      final Type permissionType = Type.USER_EMERGENCY_CONTACT;
+      initAuthenticationWithPermission(Collections.singletonList(permission.name()));
+      final boolean hasPermission = userPermissionUtils.hasPermission(getAuthentication(),
+          RandomStringUtils.randomAlphabetic(16),
+          permissionType,
+          permission);
+      Assertions.assertTrue(hasPermission);
+    }
+
+    @Test
+    void whenNoUserEmergencyContactPermission_thenShouldReturnFalse() {
+
+      final UserEmergencyContact userEmergencyContact = new UserEmergencyContact();
+      final User targetUser = new User();
+      targetUser.setCompany(company);
+      userEmergencyContact.setUser(targetUser);
+      Mockito.when(userEmergencyContactService.findById(Mockito.anyString())).thenReturn(userEmergencyContact);
+
+      final Name permission = Name.VIEW_USER_EMERGENCY_CONTACT;
+      final Type permissionType = Type.USER_EMERGENCY_CONTACT;
+      final boolean hasPermission = userPermissionUtils.hasPermission(getAuthentication(),
+          RandomStringUtils.randomAlphabetic(16),
+          permissionType,
+          permission);
+      Assertions.assertFalse(hasPermission);
+    }
+  }
+
+  @Nested
+  class HasPermissionOfCompanyPaidHoliday {
+
+    Name permission;
+    Type permissionType;
+    PaidHoliday paidHoliday;
+    CompanyPaidHoliday companyPaidHoliday;
+
+    @BeforeEach
+    void setUp() {
+      permission = Name.VIEW_USER_EMERGENCY_CONTACT;
+      permissionType = Type.COMPANY_PAID_HOLIDAY;
+    }
+    @Test
+    void whenCompanyHolidayIsNull_thenShouldReturnFalse() {
+      final boolean hasPermission = userPermissionUtils.hasPermission(getAuthentication(),
+          RandomStringUtils.randomAlphabetic(16),
+          permissionType,
+          permission);
+      Assertions.assertFalse(hasPermission);
+    }
+
+    @Test
+    void whenHasCompanyPaidHolidayPermissionAndEntityNull_thenShouldReturnTrue() {
+      paidHoliday = new PaidHoliday();
+      companyPaidHoliday = new CompanyPaidHoliday();
+      companyPaidHoliday.setPaidHoliday(paidHoliday);
+      Mockito.when(companyPaidHolidayService.findCompanyPaidHolidayByPaidHolidayIdAndCompanyId(
+          Mockito.anyString(),Mockito.anyString())).thenReturn(companyPaidHoliday);
+      initAuthenticationWithPermission(Collections.singletonList(permission.name()));
+      final boolean hasPermission = userPermissionUtils.hasPermission(getAuthentication(),
+          RandomStringUtils.randomAlphabetic(16),
+          permissionType,
+          permission);
+      Assertions.assertTrue(hasPermission);
+    }
+
+    @Test
+    void whenHasPermissionAndEntityNullPaidHolidayNotEmpty_thenShouldReturnFalse() {
+      final User creator = new User();
+      creator.setId("1");
+      paidHoliday = new PaidHoliday();
+      paidHoliday.setCompany(company);
+      paidHoliday.setCreator(creator);
+      companyPaidHoliday = new CompanyPaidHoliday();
+      companyPaidHoliday.setPaidHoliday(paidHoliday);
+      Mockito.when(companyPaidHolidayService.findCompanyPaidHolidayByPaidHolidayIdAndCompanyId(
+          Mockito.anyString(),Mockito.anyString())).thenReturn(companyPaidHoliday);
+      initAuthenticationWithPermission(Collections.singletonList(permission.name()));
+      final boolean hasPermission = userPermissionUtils.hasPermission(getAuthentication(),
+          RandomStringUtils.randomAlphabetic(16),
+          permissionType,
+          permission);
+      Assertions.assertFalse(hasPermission);
+    }
+
+    @Test
+    void whenNoCompanyPaidHolidayPermissionAndEntityNull_thenShouldReturnFalse() {
+      paidHoliday = new PaidHoliday();
+      companyPaidHoliday = new CompanyPaidHoliday();
+      companyPaidHoliday.setPaidHoliday(paidHoliday);
+      Mockito.when(companyPaidHolidayService.findCompanyPaidHolidayByPaidHolidayIdAndCompanyId(
+          Mockito.anyString(),Mockito.anyString())).thenReturn(companyPaidHoliday);
+      final boolean hasPermission = userPermissionUtils.hasPermission(getAuthentication(),
+          RandomStringUtils.randomAlphabetic(16),
+          permissionType,
+          permission);
+      Assertions.assertFalse(hasPermission);
     }
   }
 
