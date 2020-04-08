@@ -181,4 +181,33 @@ class EncryptorTests {
         .getCompanySecretByCompanyId(testUser.getCompany().getId());
   }
 
+  @Test
+  void encryptByUserId() {
+    String userId = "1";
+    String value = "1";
+    User user = new User();
+    Company company = new Company();
+    company.setId("1");
+    user.setCompany(company);
+    Mockito.when(userService.findActiveUserById(userId)).thenReturn(user);
+    Mockito.when(auth0Helper.getUserSecret(user)).thenReturn("1");
+    Mockito.when(secretHashRepository.getCompanySecretByCompanyId(user.getCompany().getId())).thenReturn("1");
+    encryptor.encrypt(userId, value);
+    Mockito.verify(userService, Mockito.times(1)).findActiveUserById(userId);
+  }
+
+  @Test
+  void encryptByUser() {
+    String value = "1";
+    User user = new User();
+    Company company = new Company();
+    company.setId("1");
+    user.setCompany(company);
+    Mockito.when(auth0Helper.getUserSecret(user)).thenReturn("1");
+    Mockito.when(secretHashRepository.getCompanySecretByCompanyId(user.getCompany().getId())).thenReturn("1");
+    encryptor.encrypt(user, value);
+    Mockito.verify(secretHashRepository, Mockito.times(1))
+        .getCompanySecretByCompanyId(user.getCompany().getId());
+  }
+
 }
