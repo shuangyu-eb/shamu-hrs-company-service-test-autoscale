@@ -130,7 +130,7 @@
 
 <tr
     th:fragment="requster"
-    style="height: 46px;color: #2e3033; line-height: 0.78; letter-spacing: 0.4px;font-size: 18px;">
+    th:style="'font-size:' + @{(${#strings.length(requesterName)} > 34 ? '14px' : '18px')} + '; line-height: ' + @{(${#strings.length(requesterName)} > 34 ? '1.36' : '0.78')} + ';height: 46px;color: #2e3033; letter-spacing: 0.4px;'">
   <td align="center" style="padding: 15px">
     <table>
       <tbody>
