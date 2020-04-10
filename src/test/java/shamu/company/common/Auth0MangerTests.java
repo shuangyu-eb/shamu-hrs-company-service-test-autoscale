@@ -1,6 +1,5 @@
 package shamu.company.common;
 
-
 import com.auth0.client.auth.AuthAPI;
 import com.auth0.client.mgmt.ManagementAPI;
 import com.auth0.exception.Auth0Exception;
@@ -44,7 +43,7 @@ class Auth0MangerTests {
     final String managementIdentifier = String.format("https://%s/api/v2/", domain);
     final String jwks = String.format("https://%s/.well-known/jwks.json", domain);
 
-    auth0Config = Auth0Config.builder()
+    final Auth0Config auth0Config = Auth0Config.builder()
         .clientId(clientId)
         .clientSecret(clientSecret)
         .domain(domain)

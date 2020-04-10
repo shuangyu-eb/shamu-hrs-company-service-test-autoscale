@@ -9,9 +9,12 @@ class AvatarUtilTests {
   @Test
   void testGetAvatarBackground() {
 
-    final String backgroundColor = AvatarUtil.getAvatarBackground("l");
+    String backgroundColor = AvatarUtil.getAvatarBackground("");
+    String backgroundColor1 = AvatarUtil.getAvatarBackground("l");
     Assertions.assertThat(Pattern.matches("rgb\\(\\d{1,3}\\s*, \\d{1,3}\\s*, \\d{1,3}\\s*\\)",
         backgroundColor)).isTrue();
+    Assertions.assertThat(Pattern.matches("rgb\\(\\d{1,3}\\s*, \\d{1,3}\\s*, \\d{1,3}\\s*\\)",
+      backgroundColor1)).isTrue();
   }
 
   @Test
