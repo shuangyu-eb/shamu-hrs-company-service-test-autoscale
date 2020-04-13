@@ -1246,4 +1246,18 @@ class BenefitPlanServiceTests {
           .deleteInBatch(ids);
     }
   }
+
+  @Nested
+  class findPlansWhenPlanIdIsNull {
+    final List<BenefitCoverages> coverages = new ArrayList<>();
+
+    @Test
+    void findPlansWhenPlanIdIsNull_thenShouldSuccess() {
+      Mockito.when(benefitCoveragesRepository.findAllByBenefitPlanIdIsNull())
+          .thenReturn(coverages);
+      benefitPlanService.findPlansWhenPlanIdIsNull();
+      Mockito.verify(benefitCoveragesRepository, Mockito.times(1))
+          .findAllByBenefitPlanIdIsNull();
+    }
+  }
 }

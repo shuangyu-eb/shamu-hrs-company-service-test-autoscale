@@ -1142,4 +1142,8 @@ public class BenefitPlanService {
         Sort.Direction.valueOf(sortDirection),
         sortValue);
   }
+
+  public List<BenefitCoverages> findPlansWhenPlanIdIsNull() {
+    return benefitCoveragesRepository.findAllByBenefitPlanIdIsNull();
+  }
 }

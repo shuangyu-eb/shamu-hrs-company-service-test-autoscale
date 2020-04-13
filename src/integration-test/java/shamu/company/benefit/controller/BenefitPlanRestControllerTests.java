@@ -13,10 +13,8 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import shamu.company.WebControllerBaseTests;
 import shamu.company.authorization.Permission;
-import shamu.company.benefit.dto.BenefitPlanUserCreateDto;
-import shamu.company.benefit.dto.BenefitSummaryDto;
-import shamu.company.benefit.dto.NewBenefitPlanWrapperDto;
-import shamu.company.benefit.dto.SelectedEnrollmentInfoDto;
+import shamu.company.benefit.dto.*;
+import shamu.company.benefit.entity.BenefitCoverages;
 import shamu.company.benefit.entity.BenefitPlan;
 import shamu.company.benefit.entity.BenefitPlanType;
 import shamu.company.benefit.entity.mapper.BenefitPlanMapper;
@@ -67,6 +65,21 @@ public class BenefitPlanRestControllerTests extends WebControllerBaseTests {
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
     final NewBenefitPlanWrapperDto data = new NewBenefitPlanWrapperDto();
+    final BenefitPlanCreateDto benefitPlanCreateDto = new BenefitPlanCreateDto();
+    data.setBenefitPlan(benefitPlanCreateDto);
+
+    final List<BenefitPlanCoverageDto> coverageDtos = new ArrayList<>();
+    data.setCoverages(coverageDtos);
+    final BenefitPlanCoverageDto benefitPlanCoverageDto = new BenefitPlanCoverageDto();
+    benefitPlanCoverageDto.setId("1");
+    coverageDtos.add(benefitPlanCoverageDto);
+    final List<BenefitCoverages> coverageEns = new ArrayList<>();
+    final BenefitCoverages benefitCoverages = new BenefitCoverages();
+    benefitCoverages.setId("1");
+    coverageEns.add(benefitCoverages);
+
+    given(benefitPlanService.findPlansWhenPlanIdIsNull()).willReturn(coverageEns);
+
     final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
         .post("/company/benefit-plan")
         .contentType(MediaType.APPLICATION_JSON)
@@ -96,6 +109,7 @@ public class BenefitPlanRestControllerTests extends WebControllerBaseTests {
 
   @Test
   void testGetBenefitPlanTypes() throws Exception {
+    setPermission(Permission.Name.MANAGE_BENEFIT_PLAN.name());
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
     final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
@@ -106,6 +120,7 @@ public class BenefitPlanRestControllerTests extends WebControllerBaseTests {
 
   @Test
   void testGetBenefitPlanPreview() throws Exception {
+    setPermission(Permission.Name.MANAGE_BENEFIT_PLAN.name());
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
     final MvcResult response = mockMvc.perform(MockMvcRequestBuilders

@@ -2,17 +2,23 @@ package shamu.company.authorization;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import shamu.company.authorization.Permission.Name;
 import shamu.company.authorization.Permission.PermissionType;
+import shamu.company.benefit.dto.BenefitPlanCoverageDto;
+import shamu.company.benefit.dto.BenefitPlanCreateDto;
+import shamu.company.benefit.entity.BenefitCoverages;
 import shamu.company.benefit.entity.BenefitPlan;
 import shamu.company.benefit.entity.BenefitPlanDependent;
+import shamu.company.benefit.repository.BenefitCoveragesRepository;
 import shamu.company.benefit.service.BenefitPlanDependentService;
 import shamu.company.benefit.service.BenefitPlanService;
 import shamu.company.common.config.DefaultJwtAuthenticationToken;
@@ -48,6 +54,8 @@ import shamu.company.user.service.UserService;
 
 @Component
 public class UserPermissionUtils extends BasePermissionUtils {
+
+  private static final String BENEFIT_NEW_COVERAGE = "add";
 
   private final UserService userService;
 
@@ -86,7 +94,8 @@ public class UserPermissionUtils extends BasePermissionUtils {
       final PaidHolidayService paidHolidayService,
       final CompanyPaidHolidayService companyPaidHolidayService,
       final UserEmergencyContactService userEmergencyContactService,
-      final JobService jobService) {
+      final JobService jobService,
+      final BenefitCoveragesRepository benefitCoveragesRepository) {
     this.userService = userService;
     this.companyService = companyService;
     this.timeOffRequestService = timeOffRequestService;
@@ -213,6 +222,25 @@ public class UserPermissionUtils extends BasePermissionUtils {
           }
         }
         return true;
+      case BENEFIT_COVERAGE_CREATION:
+        final List<BenefitPlanCoverageDto> benefitPlanCoverageDtos =
+            (List<BenefitPlanCoverageDto>) targets;
+        if (!CollectionUtils.isEmpty(benefitPlanCoverageDtos)) {
+          final List<BenefitPlanCoverageDto> coverageList =
+              benefitPlanCoverageDtos.stream()
+                  .filter(coverage -> !coverage.getId().startsWith(BENEFIT_NEW_COVERAGE))
+                  .collect(Collectors.toList());
+          final List<String> existIds =
+              benefitPlanService.findPlansWhenPlanIdIsNull().stream()
+                  .map(BenefitCoverages::getId).collect(Collectors.toList());
+          for (BenefitPlanCoverageDto benefitPlanCoverageDto: coverageList) {
+            if (!existIds.contains(benefitPlanCoverageDto.getId())) {
+              return false;
+            }
+          }
+          return true;
+        }
+        return false;
       default:
         return false;
     }
@@ -265,6 +293,11 @@ public class UserPermissionUtils extends BasePermissionUtils {
       }
 
       return true;
+    }
+
+    if (Type.BENEFIT_PLAN_CREATION.equals(type)) {
+      final BenefitPlanCreateDto plan = (BenefitPlanCreateDto) target;
+      return StringUtils.isEmpty(plan.getPlanId());
     }
 
     return hasPermission(auth, permission);

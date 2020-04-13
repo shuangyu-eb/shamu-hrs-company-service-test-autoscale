@@ -11,6 +11,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import shamu.company.authorization.MethodPermissionEvaluator;
 import shamu.company.authorization.PermissionUtils;
 import shamu.company.authorization.UserPermissionUtils;
+import shamu.company.benefit.repository.BenefitCoveragesRepository;
 import shamu.company.benefit.service.BenefitPlanDependentService;
 import shamu.company.benefit.service.BenefitPlanService;
 import shamu.company.benefit.service.BenefitPlanTypeService;
@@ -75,6 +76,8 @@ public class WebControllerBaseTests {
   protected JobUserService jobUserService;
   @MockBean
   protected UserEmergencyContactMapper userEmergencyContactMapper;
+  @MockBean
+  protected BenefitCoveragesRepository benefitCoveragesRepository;
 
   protected AuthUser getAuthUser() {
     final DefaultJwtAuthenticationToken authenticationToken =

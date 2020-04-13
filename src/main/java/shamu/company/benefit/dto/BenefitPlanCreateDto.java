@@ -1,12 +1,14 @@
 package shamu.company.benefit.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+
+import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.List;
 import lombok.Data;
 
 @Data
-public class BenefitPlanCreateDto {
+public class BenefitPlanCreateDto implements Serializable {
 
   private String planName;
 
