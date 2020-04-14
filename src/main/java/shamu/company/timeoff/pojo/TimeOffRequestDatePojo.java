@@ -4,11 +4,9 @@ import java.sql.Timestamp;
 
 public interface TimeOffRequestDatePojo {
 
+  String getId();
+
   Timestamp getCreateDate();
-
-  Timestamp getStartDate();
-
-  Timestamp getEndDate();
 
   Integer getHours();
 }

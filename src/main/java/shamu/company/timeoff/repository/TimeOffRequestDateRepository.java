@@ -1,5 +1,6 @@
 package shamu.company.timeoff.repository;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.data.jpa.repository.Modifying;
@@ -22,8 +23,7 @@ public interface TimeOffRequestDateRepository extends BaseRepository<TimeOffRequ
 
   @Query(value = "SELECT "
       + "request.created_at AS createDate,"
-      + "    MIN(rd.date) AS startDate,"
-      + "    MAX(rd.date) AS endDate,"
+      + "hex(request.id) AS id,"
       + "    SUM(rd.hours) AS hours "
       + "FROM "
       + "    time_off_request_dates rd "
@@ -42,4 +42,11 @@ public interface TimeOffRequestDateRepository extends BaseRepository<TimeOffRequ
       nativeQuery = true)
   List<TimeOffRequestDatePojo> getTakenApprovedRequestOffByUserIdAndPolicyId(
       String userId, String policyId, LocalDateTime currentTime, String approvedStatus);
+
+  @Query(value = "SELECT rd.date "
+      + "FROM time_off_request_dates rd "
+      + "WHERE rd.time_off_request_id = unhex(?1) "
+      + "ORDER BY rd.created_at ASC, rd.date ",
+      nativeQuery = true)
+  List<Timestamp> getTimeOffRequestDatesByTimeOffRequestId(String id);
 }

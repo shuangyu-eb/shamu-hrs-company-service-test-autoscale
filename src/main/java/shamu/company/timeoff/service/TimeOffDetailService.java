@@ -3,6 +3,7 @@ package shamu.company.timeoff.service;
 import static java.util.Date.from;
 import static shamu.company.timeoff.service.TimeOffAccrualService.invalidByStartDateAndEndDate;
 
+import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -183,27 +184,63 @@ public class TimeOffDetailService {
 
   private void populateBreakdownItem(
       final LinkedList<TimeOffBreakdownItemDto> breakdownItemList,
-      final TimeOffBreakdownItemDto timeOffBreakdownItemDto,
-      final LocalDateTime startDate,
-      final LocalDateTime endDate) {
-    final String startDateString =
-        startDate.getYear() == LocalDate.now().getYear()
-            ? DateUtil.formatDateTo(startDate, "MMM d")
-            : DateUtil.formatDateTo(startDate, "MMM d, YYYY");
-    final String endDateString =
-        endDate.getYear() == LocalDate.now().getYear()
-            ? DateUtil.formatDateTo(endDate, "MMM d")
-            : DateUtil.formatDateTo(endDate, "MMM d, YYYY");
+      final TimeOffBreakdownItemDto timeOffBreakdownItemDto, final String timeOffRequestId) {
+    final String dateMessage = getTimeOffRequestDatesRange(timeOffRequestId);
 
-    String dateMessage = (startDateString + " - " + endDateString);
-    if (startDateString.equals(endDateString)) {
-      dateMessage = (startDateString);
-    }
     timeOffBreakdownItemDto.setDateMessage(dateMessage);
     timeOffBreakdownItemDto.setDetail("Time Off Taken");
     timeOffBreakdownItemDto
         .setBreakdownType(TimeOffBreakdownItemDto.BreakDownType.TIME_OFF_REQUEST);
     breakdownItemList.push(timeOffBreakdownItemDto);
+  }
+
+  public String getTimeOffRequestDatesRange(final String timeOffRequestId) {
+    final List<Timestamp> dates = timeOffRequestDateRepository
+        .getTimeOffRequestDatesByTimeOffRequestId(timeOffRequestId);
+    final StringBuilder dateMessage = new StringBuilder();
+    LocalDate time = null;
+    Integer previousDateMonth = null;
+    Integer previousDateYear = null;
+    StringBuilder tempDateMessage = null;
+    for (final Timestamp date: dates) {
+      final LocalDate localDate = DateUtil.fromTimestamp(date);
+      final String dateFormat;
+      if (previousDateMonth != null && previousDateMonth == localDate.getMonthValue()) {
+        dateFormat = DateUtil.DAY;
+      } else {
+        dateFormat = DateUtil.SIMPLE_MONTH_DAY;
+      }
+      previousDateMonth = localDate.getMonthValue();
+      if (null != time) {
+        if (localDate.minusDays(1).equals(time)) {
+          tempDateMessage = new StringBuilder(" - "
+              .concat(DateUtil.formatDateTo(localDate, dateFormat)));
+          time = localDate;
+          continue;
+        }
+        if (tempDateMessage != null) {
+          if (previousDateYear != localDate.getYear()
+              && previousDateYear != LocalDate.now().getYear()) {
+            dateMessage.append(", ").append(previousDateYear);
+          }
+          dateMessage.append(tempDateMessage);
+          tempDateMessage = null;
+        }
+        dateMessage.append(", ");
+      }
+      time = localDate;
+      previousDateYear = localDate.getYear();
+      dateMessage.append(DateUtil.formatDateTo(localDate, dateFormat));
+    }
+    if (tempDateMessage != null) {
+      dateMessage.append(tempDateMessage);
+    }
+    if (DateUtil.fromTimestamp(dates.get(dates.size() - 1)).getYear()
+        != LocalDate.now().getYear()) {
+      dateMessage.append(", ")
+          .append(DateUtil.fromTimestamp(dates.get(dates.size() - 1)).getYear());
+    }
+    return dateMessage.toString();
   }
 
   private List<TimeOffBreakdownItemDto> getBreakdownListFromRequestOff(
@@ -216,9 +253,8 @@ public class TimeOffDetailService {
           .date(DateUtil.fromTimestamp(timeOffRequestDatePojo.getCreateDate()))
           .build();
 
-      populateBreakdownItem(breakdownItemList, timeOffBreakdownItemDto,
-          DateUtil.toLocalDateTime(timeOffRequestDatePojo.getStartDate()),
-          DateUtil.toLocalDateTime(timeOffRequestDatePojo.getEndDate()));
+      populateBreakdownItem(
+          breakdownItemList, timeOffBreakdownItemDto, timeOffRequestDatePojo.getId());
     }
     return breakdownItemList;
   }
