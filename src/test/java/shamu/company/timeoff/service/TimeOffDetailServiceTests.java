@@ -204,18 +204,11 @@ class TimeOffDetailServiceTests {
       timeOffPolicyUser.setTimeOffPolicy(new TimeOffPolicy("1"));
 
 
-      //Apr 9
-      dates.add(new Timestamp(1586361600000L));
-      //Apr 11 - 15
-      dates.add(new Timestamp(1586534400000L));
-      dates.add(new Timestamp(1586620800000L));
-      dates.add(new Timestamp(1586707200000L));
-      //Apr 19
-      dates.add(new Timestamp(1587225600000L));
-      //May 7
-      dates.add(new Timestamp(1588780800000L));
-      //May 1 2019
-      dates.add(new Timestamp(1556640000000L));
+      //Dec 30, 2018 - Jan 2, 2019
+      dates.add(new Timestamp(1546099200000L));
+      dates.add(new Timestamp(1546185600000L));
+      dates.add(new Timestamp(1546272000000L));
+      dates.add(new Timestamp(1546358400000L));
 
       Mockito.when(timeOffPolicyAccrualScheduleRepository.findAllWithExpiredTimeOffPolicy(Mockito.any())).thenReturn(timeOffPolicyScheduleList);
       Mockito.when(timeOffRequestDateRepository.getTakenApprovedRequestOffByUserIdAndPolicyId(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyString())).thenReturn(timeOffRequestDatePojos);

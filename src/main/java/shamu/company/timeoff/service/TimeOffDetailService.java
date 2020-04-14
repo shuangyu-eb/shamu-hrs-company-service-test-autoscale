@@ -204,7 +204,7 @@ public class TimeOffDetailService {
     StringBuilder tempDateMessage = null;
     for (final Timestamp date: dates) {
       final LocalDate localDate = DateUtil.fromTimestamp(date);
-      final String dateFormat;
+      String dateFormat;
       if (previousDateMonth != null && previousDateMonth == localDate.getMonthValue()) {
         dateFormat = DateUtil.DAY;
       } else {
@@ -213,6 +213,10 @@ public class TimeOffDetailService {
       previousDateMonth = localDate.getMonthValue();
       if (null != time) {
         if (localDate.minusDays(1).equals(time)) {
+          if (isConsecutiveDatesAndDifferentYear(dates)
+              && time.getMonthValue() == localDate.getMonthValue()) {
+            dateFormat = DateUtil.SIMPLE_MONTH_DAY;
+          }
           tempDateMessage = new StringBuilder(" - "
               .concat(DateUtil.formatDateTo(localDate, dateFormat)));
           time = localDate;
@@ -233,6 +237,9 @@ public class TimeOffDetailService {
       dateMessage.append(DateUtil.formatDateTo(localDate, dateFormat));
     }
     if (tempDateMessage != null) {
+      if (isConsecutiveDatesAndDifferentYear(dates)) {
+        dateMessage.append(", ").append(DateUtil.fromTimestamp(dates.get(0)).getYear());
+      }
       dateMessage.append(tempDateMessage);
     }
     if (DateUtil.fromTimestamp(dates.get(dates.size() - 1)).getYear()
@@ -241,6 +248,23 @@ public class TimeOffDetailService {
           .append(DateUtil.fromTimestamp(dates.get(dates.size() - 1)).getYear());
     }
     return dateMessage.toString();
+  }
+
+  private boolean isConsecutiveDatesAndDifferentYear(final List<Timestamp> dates) {
+    boolean isConsecutiveDates = true;
+    final int firstDateYear = DateUtil.fromTimestamp(dates.get(0)).getYear();
+    boolean isDifferentYear = false;
+    for (int i = 1; i < dates.size(); i++) {
+      if (!DateUtil.fromTimestamp(dates.get(i)).minusDays(1)
+          .equals(DateUtil.fromTimestamp(dates.get(i - 1)))) {
+        isConsecutiveDates = false;
+      }
+      if (DateUtil.fromTimestamp(dates.get(i)).getYear() != firstDateYear) {
+        isDifferentYear = true;
+        break;
+      }
+    }
+    return isConsecutiveDates && isDifferentYear;
   }
 
   private List<TimeOffBreakdownItemDto> getBreakdownListFromRequestOff(
