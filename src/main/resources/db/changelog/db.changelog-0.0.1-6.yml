@@ -86,3 +86,36 @@ databaseChangeLog:
                   name: updated_at
                   type: datetime
             tableName: dismissed_at
+
+  - changeSet:
+      id: 1586827241004-0
+      author: qian-eb
+      preConditions:
+        onFail: WARN
+      changes:
+        - sql:
+            sql: alter table emails change from_name from_name varchar(255) character set utf8mb4;
+  - changeSet:
+      id: 1586827241004-1
+      author: qian-eb
+      preConditions:
+        onFail: WARN
+      changes:
+        - sql:
+            sql: alter table emails change to_name to_name varchar(255) character set utf8mb4;
+  - changeSet:
+      id: 1586827241004-2
+      author: qian-eb
+      preConditions:
+        onFail: WARN
+      changes:
+        - sql:
+            sql: alter table emails change content content text character set utf8mb4;
+  - changeSet:
+      id: 1586827241004-3
+      author: qian-eb
+      preConditions:
+        onFail: WARN
+      changes:
+        - sql:
+            sql: alter table time_off_request_comments change comment comment text character set utf8mb4;
