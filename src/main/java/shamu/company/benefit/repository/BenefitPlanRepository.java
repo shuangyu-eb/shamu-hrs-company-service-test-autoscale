@@ -5,11 +5,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import shamu.company.benefit.dto.BenefitPlanTypeDto;
-import shamu.company.benefit.dto.BenefitReportPlansDto;
 import shamu.company.benefit.dto.EnrollmentBreakdownDto;
 import shamu.company.benefit.entity.BenefitDependentUserNamePojo;
 import shamu.company.benefit.entity.BenefitPlan;
 import shamu.company.benefit.entity.BenefitPlanPreviewPojo;
+import shamu.company.benefit.entity.BenefitReportPlansPojo;
 import shamu.company.benefit.entity.EnrollmentBreakdownPojo;
 import shamu.company.common.repository.BaseRepository;
 
@@ -35,6 +35,8 @@ public interface BenefitPlanRepository extends BaseRepository<BenefitPlan, Strin
 
   BenefitPlan findBenefitPlanById(String planId);
 
+  List<BenefitPlan> findAllByCompanyId(String companyId);
+
   BenefitPlan findBenefitPlanByName(String planName);
 
   @Query(
@@ -42,18 +44,45 @@ public interface BenefitPlanRepository extends BaseRepository<BenefitPlan, Strin
           "select hex(bp.id) from benefit_plan_types bpt "
               + "left join benefit_plans bp "
               + "on bpt.id = bp.benefit_plan_type_id "
-              + "where bpt.name = ?1 and bp.company_id = unhex(?2)",
+              + "where bpt.name = ?1 and bp.company_id = unhex(?2) "
+              + "and date_add(end_date,INTERVAL '1' day) > current_timestamp "
+              + "and start_date <= current_timestamp",
       nativeQuery = true)
-  List<String> getBenefitPlanIds(String name, String companyId);
+  List<String> getActiveBenefitPlanIds(String name, String companyId);
 
   @Query(
       value =
-          "select new shamu.company.benefit.dto.BenefitReportPlansDto(bp.id, bp.name) "
-              + "from BenefitPlanType bpt "
-              + "left join BenefitPlan bp "
-              + "on bpt.id = bp.benefitPlanType.id "
-              + "where bpt.name = ?1 and bp.company.id = ?2")
-  List<BenefitReportPlansDto> getBenefitPlans(String name, String companyId);
+          "select hex(bp.id) from benefit_plan_types bpt "
+              + "left join benefit_plans bp "
+              + "on bpt.id = bp.benefit_plan_type_id "
+              + "where bpt.name = ?1 and bp.company_id = unhex(?2) "
+              + "and date_add(end_date,INTERVAL '1' day) < current_timestamp",
+      nativeQuery = true)
+  List<String> getExpiredBenefitPlanIds(String name, String companyId);
+
+  @Query(
+      value =
+          "select hex(bp.id) from benefit_plan_types bpt "
+              + "left join benefit_plans bp "
+              + "on bpt.id = bp.benefit_plan_type_id "
+              + "where bpt.name = ?1 and bp.company_id = unhex(?2) "
+              + "and start_date > current_timestamp",
+      nativeQuery = true)
+  List<String> getStartingBenefitPlanIds(String name, String companyId);
+
+  @Query(
+      value =
+          "select hex(bp.id) as id, "
+              + "bp.name as name, "
+              + "if(bp.start_date > current_timestamp,'Starting soon',"
+              + "if(current_timestamp >= "
+              + "date_add(bp.end_date,INTERVAL '1' day),'Expired','Active')) as status "
+              + "from benefit_plan_types bpt "
+              + "left join benefit_plans bp "
+              + "on bpt.id = bp.benefit_plan_type_id "
+              + "where bpt.name = ?1 and bp.company_id = unhex(?2)",
+      nativeQuery = true)
+  List<BenefitReportPlansPojo> getBenefitPlans(String name, String companyId);
 
   @Query(
       value =
@@ -110,9 +139,9 @@ public interface BenefitPlanRepository extends BaseRepository<BenefitPlan, Strin
               + "left join BenefitCoverages bc "
               + "on bpc.benefitCoverage.id = bc.id "
               + "where bpu.benefitPlan.id in ?1 and bpu.confirmed = true "
-              + "and bpu.enrolled = true and bc.id = ?2 ")
+              + "and bpu.enrolled = true and bc.id in ?2 ")
   List<EnrollmentBreakdownDto> getEnrollmentBreakdown(
-      List<String> benefitPlanIds, String coverageId);
+      List<String> benefitPlanIds, List<String> coverageIds);
 
   @Query(
       value =
@@ -189,16 +218,16 @@ public interface BenefitPlanRepository extends BaseRepository<BenefitPlan, Strin
               + "left join user_personal_information upi "
               + "on upi.id = u.user_personal_information_id "
               + "where hex(bpu.benefit_plan_id) in ?1 "
-              + "and bpu.confirmed is true and bpu.enrolled is true and bc.id = unhex(?2) ",
+              + "and bpu.confirmed is true and bpu.enrolled is true and hex(bc.id) in ?2",
       countQuery =
           "select count(1) from benefit_plans_users bpu "
               + "left join benefit_coverages bc "
               + "on bpu.benefit_plan_id = bc.benefit_plan_id "
               + "where hex(bpu.benefit_plan_id) in ?1 "
-              + "and bpu.confirmed is true and bpu.enrolled is true and bc.id = unhex(?2)",
+              + "and bpu.confirmed is true and bpu.enrolled is true and hex(bc.id) in ?2",
       nativeQuery = true)
   Page<EnrollmentBreakdownPojo> getEnrollmentBreakdownByConditionAndCoverageId(
-      List<String> ids, String coverageId, Pageable pageRequest);
+      List<String> ids, List<String> coverageIds, Pageable pageRequest);
 
   @Query(
       value =

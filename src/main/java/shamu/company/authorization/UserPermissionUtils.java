@@ -14,7 +14,6 @@ import org.springframework.util.StringUtils;
 import shamu.company.authorization.Permission.Name;
 import shamu.company.authorization.Permission.PermissionType;
 import shamu.company.benefit.dto.BenefitPlanCoverageDto;
-import shamu.company.benefit.dto.BenefitPlanCreateDto;
 import shamu.company.benefit.entity.BenefitCoverages;
 import shamu.company.benefit.entity.BenefitPlan;
 import shamu.company.benefit.entity.BenefitPlanDependent;
@@ -293,11 +292,6 @@ public class UserPermissionUtils extends BasePermissionUtils {
       }
 
       return true;
-    }
-
-    if (Type.BENEFIT_PLAN_CREATION.equals(type)) {
-      final BenefitPlanCreateDto plan = (BenefitPlanCreateDto) target;
-      return StringUtils.isEmpty(plan.getPlanId());
     }
 
     return hasPermission(auth, permission);

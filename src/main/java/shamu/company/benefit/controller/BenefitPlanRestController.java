@@ -75,8 +75,8 @@ public class BenefitPlanRestController extends BaseRestController {
   }
 
   @PostMapping("benefit-plan")
-  @PreAuthorize("hasPermission(#data.benefitPlan,'BENEFIT_PLAN_CREATION', 'MANAGE_BENEFIT_PLAN')"
-      + "and hasPermission(#data.coverages, 'BENEFIT_COVERAGE_CREATION', 'MANAGE_BENEFIT_PLAN')")
+  @PreAuthorize("hasPermission("
+       + "#data.coverages, 'BENEFIT_COVERAGE_CREATION', 'MANAGE_BENEFIT_PLAN')")
   public BenefitPlanDto createBenefitPlan(@RequestBody final NewBenefitPlanWrapperDto data) {
     return benefitPlanService.createBenefitPlan(data, findCompanyId());
   }
@@ -257,5 +257,11 @@ public class BenefitPlanRestController extends BaseRestController {
       final BenefitPlanSearchCondition benefitPlanSearchCondition) {
     return benefitPlanService.findBenefitPlans(planTypeId, findCompanyId(), expired,
         benefitPlanSearchCondition);
+  }
+
+  @GetMapping("benefit-plan/all-plans")
+  @PreAuthorize("hasAuthority('MANAGE_BENEFIT_PLAN')")
+  public List<BenefitPlanDto> getAllPlans() {
+    return benefitPlanService.findAllPlans(findCompanyId());
   }
 }

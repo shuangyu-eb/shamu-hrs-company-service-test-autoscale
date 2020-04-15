@@ -13,4 +13,6 @@ public class BenefitReportPlansDto {
   private String id;
 
   private String name;
+
+  private String status;
 }
