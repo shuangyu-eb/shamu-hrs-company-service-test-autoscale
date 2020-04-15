@@ -3,6 +3,7 @@ package shamu.company.email.service;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -164,7 +165,8 @@ public class EmailService {
     if (Strings.isBlank(emailAddress) || !Pattern.matches("^[a-zA-Z0-9@.+]*$", emailAddress)) {
       return "";
     }
-    return emailAddress.replace("@", "-at-").replaceAll("\\.", "-dot-");
+    byte[] reverseEmails = StringUtils.reverse(emailAddress).getBytes();
+    return Base64.getEncoder().encodeToString(reverseEmails);
   }
 
   private String getFilteredWelcomeMessage(String welcomeMessage) {

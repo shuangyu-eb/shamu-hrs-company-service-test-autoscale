@@ -338,4 +338,23 @@ class EmailServiceTests {
           .findFirstByToAndSubjectOrderBySendDateDesc(email, s);
     }
   }
+
+  @Nested
+  class  getEncodedEmailAddress {
+    String email;
+
+    @Test
+    void whenGetEncodedEmailAddressWithWrongFormat_thenShouldGetBlank() {
+      email = "123$.com";
+      final String result = emailService.getEncodedEmailAddress(email);
+      Assertions.assertEquals("", result);
+    }
+
+    @Test
+    void whenGetEncodedEmailAddressWithRightFormat_thenShouldGetDecodedEmailAddress() {
+      email = "123@example.com";
+      final String result = emailService.getEncodedEmailAddress(email);
+      Assertions.assertNotEquals("", result);
+    }
+  }
 }
