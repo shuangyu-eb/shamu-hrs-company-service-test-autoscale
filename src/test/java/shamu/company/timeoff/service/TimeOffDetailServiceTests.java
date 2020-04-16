@@ -173,7 +173,7 @@ class TimeOffDetailServiceTests {
         }
 
         @Override
-        public Timestamp getCreateDate() {
+        public Timestamp getStartDate() {
           return Timestamp.valueOf(LocalDateTime.now());
         }
 

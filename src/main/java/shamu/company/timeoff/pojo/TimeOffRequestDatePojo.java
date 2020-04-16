@@ -6,7 +6,7 @@ public interface TimeOffRequestDatePojo {
 
   String getId();
 
-  Timestamp getCreateDate();
+  Timestamp getStartDate();
 
   Integer getHours();
 }

@@ -22,7 +22,7 @@ public interface TimeOffRequestDateRepository extends BaseRepository<TimeOffRequ
   void deleteByTimeOffRequestId(String requestId);
 
   @Query(value = "SELECT "
-      + "request.created_at AS createDate,"
+      + "MIN(rd.date) AS startDate,"
       + "hex(request.id) AS id,"
       + "    SUM(rd.hours) AS hours "
       + "FROM "
@@ -38,7 +38,7 @@ public interface TimeOffRequestDateRepository extends BaseRepository<TimeOffRequ
       + "        AND rd.date < ?3 "
       + "        AND t.name = ?4 "
       + "GROUP BY request.id "
-      + "ORDER BY createDate ASC",
+      + "ORDER BY MIN(rd.date) ASC",
       nativeQuery = true)
   List<TimeOffRequestDatePojo> getTakenApprovedRequestOffByUserIdAndPolicyId(
       String userId, String policyId, LocalDateTime currentTime, String approvedStatus);

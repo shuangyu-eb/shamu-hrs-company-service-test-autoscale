@@ -13,7 +13,6 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -177,13 +176,11 @@ public class TimeOffDetailService {
 
     final List<TimeOffBreakdownItemDto> adjustmentList = new ArrayList<>(requestDateBreakdownList);
     adjustmentList.addAll(adjustmentBreakdownList);
-
-    adjustmentList.sort(Comparator.comparing(TimeOffBreakdownItemDto::getDate));
     return adjustmentList;
   }
 
   private void populateBreakdownItem(
-      final LinkedList<TimeOffBreakdownItemDto> breakdownItemList,
+      final List<TimeOffBreakdownItemDto> breakdownItemList,
       final TimeOffBreakdownItemDto timeOffBreakdownItemDto, final String timeOffRequestId) {
     final String dateMessage = getTimeOffRequestDatesRange(timeOffRequestId);
 
@@ -191,7 +188,7 @@ public class TimeOffDetailService {
     timeOffBreakdownItemDto.setDetail("Time Off Taken");
     timeOffBreakdownItemDto
         .setBreakdownType(TimeOffBreakdownItemDto.BreakDownType.TIME_OFF_REQUEST);
-    breakdownItemList.push(timeOffBreakdownItemDto);
+    breakdownItemList.add(timeOffBreakdownItemDto);
   }
 
   public String getTimeOffRequestDatesRange(final String timeOffRequestId) {
@@ -270,11 +267,11 @@ public class TimeOffDetailService {
   private List<TimeOffBreakdownItemDto> getBreakdownListFromRequestOff(
       final List<TimeOffRequestDatePojo> timeOffRequestDatePojos) {
 
-    final LinkedList<TimeOffBreakdownItemDto> breakdownItemList = new LinkedList<>();
+    final List<TimeOffBreakdownItemDto> breakdownItemList = new ArrayList<>();
     for (final TimeOffRequestDatePojo timeOffRequestDatePojo : timeOffRequestDatePojos) {
       final TimeOffBreakdownItemDto timeOffBreakdownItemDto = TimeOffBreakdownItemDto.builder()
           .amount(-timeOffRequestDatePojo.getHours())
-          .date(DateUtil.fromTimestamp(timeOffRequestDatePojo.getCreateDate()))
+          .date(DateUtil.fromTimestamp(timeOffRequestDatePojo.getStartDate()))
           .build();
 
       populateBreakdownItem(

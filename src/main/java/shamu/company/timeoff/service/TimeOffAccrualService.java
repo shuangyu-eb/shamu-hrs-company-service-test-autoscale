@@ -5,6 +5,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -34,7 +35,7 @@ public abstract class TimeOffAccrualService {
 
   TimeOffBreakdownDto getTimeOffBreakdown(final TimeOffBreakdownYearDto startingBreakdown,
       final TimeOffBreakdownCalculatePojo calculatePojo) {
-    TimeOffBreakdownDto timeOffBreakdownDto = getTimeOffBreakdownInternal(startingBreakdown,
+    final TimeOffBreakdownDto timeOffBreakdownDto = getTimeOffBreakdownInternal(startingBreakdown,
         calculatePojo);
     postProcessOfTimeOffBreakdown(timeOffBreakdownDto, calculatePojo);
 
@@ -54,6 +55,7 @@ public abstract class TimeOffAccrualService {
         .stream()
         .filter((timeOffBreakdownItemDto -> !timeOffBreakdownItemDto.getDate()
             .isAfter(calculatePojo.getUntilDate())))
+        .sorted(Comparator.comparing(TimeOffBreakdownItemDto::getDate))
         .collect(Collectors.toList());
     timeOffBreakdownDto.setList(newTimeOffBreakdownItemList);
     timeOffBreakdownDto.resetBalance();
@@ -231,7 +233,7 @@ public abstract class TimeOffAccrualService {
 
     balancePojo.setBalance(balancePojo.getBalance() + accrualHours);
 
-    String accrualDetail = resultTimeOffBreakdownItemList.isEmpty()
+    final String accrualDetail = resultTimeOffBreakdownItemList.isEmpty()
         ? STARTING_BREAKDOWN_DETAIL
         : TIME_OFF_ACCRUED;
 
