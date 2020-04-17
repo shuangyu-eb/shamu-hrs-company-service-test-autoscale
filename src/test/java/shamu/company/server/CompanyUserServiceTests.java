@@ -10,12 +10,16 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import shamu.company.authorization.Permission;
 import shamu.company.authorization.PermissionUtils;
+import shamu.company.company.entity.Company;
 import shamu.company.company.service.CompanyService;
 import shamu.company.employee.dto.EmployeeListSearchCondition;
 import shamu.company.server.dto.AuthUser;
 import shamu.company.server.service.CompanyUserService;
 import shamu.company.user.entity.User;
 import shamu.company.user.service.UserService;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class CompanyUserServiceTests {
 
@@ -56,5 +60,27 @@ public class CompanyUserServiceTests {
       companyUserService.findAllEmployees(authUser, condition);
       Assertions.assertEquals(false, condition.getIncludeDeactivated());
     }
+  }
+
+  @Test
+  void testFindAllById() {
+    final List<String> ids = new ArrayList<>();
+    Assertions.assertDoesNotThrow(() -> companyUserService.findAllById(ids));
+  }
+
+  @Test
+  void testFindUserById() {
+    Assertions.assertDoesNotThrow(() -> companyUserService.findUserById("1"));
+  }
+
+  @Test
+  void testFindAllUsers() {
+    Mockito.when(companyService.findById(Mockito.anyString())).thenReturn(new Company());
+    Assertions.assertDoesNotThrow(() -> companyUserService.findAllUsers("1"));
+  }
+
+  @Test
+  void testfindUserByUserId() {
+    Assertions.assertDoesNotThrow(() -> companyUserService.findUserByUserId("1"));
   }
 }

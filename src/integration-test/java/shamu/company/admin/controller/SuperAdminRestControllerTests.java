@@ -85,4 +85,26 @@ class SuperAdminRestControllerTests extends WebControllerBaseTests {
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
+
+  @Test
+  void testGetUser() throws Exception {
+    setPermission(Permission.Name.SUPER_PERMISSION.name());
+    final HttpHeaders httpHeaders = new HttpHeaders();
+    httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
+        .get("/company/super-admin/users")
+        .headers(httpHeaders)).andReturn();
+    assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+  }
+
+  @Test
+  void testMockUser() throws Exception {
+    setPermission(Permission.Name.SUPER_PERMISSION.name());
+    final HttpHeaders httpHeaders = new HttpHeaders();
+    httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
+        .post("/company/super-admin/mock/users/1")
+        .headers(httpHeaders)).andReturn();
+    assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+  }
 }

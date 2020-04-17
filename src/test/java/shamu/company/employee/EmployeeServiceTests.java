@@ -38,6 +38,7 @@ import shamu.company.employee.dto.EmployeePersonalInformationDto;
 import shamu.company.employee.dto.NewEmployeeJobInformationDto;
 import shamu.company.employee.dto.UserPersonalInformationForManagerDto;
 import shamu.company.employee.dto.WelcomeEmailDto;
+import shamu.company.employee.event.Auth0UserCreatedEvent;
 import shamu.company.employee.service.EmployeeService;
 import shamu.company.employee.service.EmploymentTypeService;
 import shamu.company.helpers.auth0.Auth0Helper;
@@ -70,6 +71,7 @@ import shamu.company.user.entity.mapper.UserAddressMapper;
 import shamu.company.user.entity.mapper.UserCompensationMapper;
 import shamu.company.user.entity.mapper.UserContactInformationMapper;
 import shamu.company.user.entity.mapper.UserPersonalInformationMapper;
+import shamu.company.user.event.UserEmailUpdatedEvent;
 import shamu.company.user.service.CompensationFrequencyService;
 import shamu.company.user.service.GenderService;
 import shamu.company.user.service.MaritalStatusService;
@@ -862,5 +864,55 @@ class EmployeeServiceTests {
       Mockito.verify(userService, Mockito.times(1))
           .findEmployeeInfoByEmployeeId(Mockito.anyString());
     }
+  }
+
+  @Test
+  void testFindByCompanyId() {
+    Assertions.assertDoesNotThrow(() -> employeeService.findByCompanyId("1"));
+  }
+
+  @Test
+  void testFindSubordinatesByManagerUserId() {
+    Assertions.assertDoesNotThrow(() -> employeeService.findSubordinatesByManagerUserId("1","1"));
+  }
+
+  @Test
+  void testRemoveAuth0User() {
+    final Auth0UserCreatedEvent auth0UserCreatedEvent = Mockito.mock(Auth0UserCreatedEvent.class);
+    Mockito.when(auth0UserCreatedEvent.getUser()).thenReturn(new com.auth0.json.mgmt.users.User());
+    Assertions.assertDoesNotThrow(() -> employeeService.removeAuth0User(auth0UserCreatedEvent));
+  }
+
+  @Test
+  void testRestoreUserRole() {
+    final UserEmailUpdatedEvent emailUpdatedEvent = Mockito.mock(UserEmailUpdatedEvent.class);
+    Mockito.when(userService.findById(Mockito.anyString())).thenReturn(new User());
+    Assertions.assertDoesNotThrow(() -> employeeService.restoreUserRole(emailUpdatedEvent));
+  }
+
+  @Test
+  void testUpdateEmployeeBasicInformation() throws Exception {
+
+    final EmployeeDto employeeDto = new EmployeeDto();
+    final User employee = new User();
+    final UserContactInformation userContactInformation = new UserContactInformation();
+    final UserContactInformationDto userContactInformationDto = new UserContactInformationDto();
+    final UserPersonalInformation information = new UserPersonalInformation();
+    final UserPersonalInformationDto userPersonalInformationDto = new UserPersonalInformationDto();
+
+    userContactInformation.setId("1");
+    userPersonalInformationDto.setSsn("ssn");
+    employeeDto.setPersonalPhoto("");
+    employeeDto.setUserPersonalInformationDto(userPersonalInformationDto);
+    employeeDto.setUserContactInformationDto(userContactInformationDto);
+    employee.setImageUrl("image");
+    employee.setUserPersonalInformation(information);
+    employee.setId("id");
+    employee.setUserContactInformation(userContactInformation);
+
+    Whitebox.invokeMethod(
+        employeeService, "updateEmployeeBasicInformation", employee, employeeDto);
+    Mockito.verify(userService, Mockito.times(1))
+        .save(Mockito.any());
   }
 }

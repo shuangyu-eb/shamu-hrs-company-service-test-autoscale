@@ -50,4 +50,24 @@ class EmploymentTypeServiceTests {
           ResourceNotFoundException.class, () -> employmentTypeService.findById(id));
     }
   }
+
+  @Test
+  void testFindAllByCompanyId() {
+    Assertions.assertDoesNotThrow(() -> employmentTypeService.findAllByCompanyId("1"));
+  }
+
+  @Test
+  void testFindCountByType() {
+    Assertions.assertDoesNotThrow(() -> employmentTypeService.findCountByType("1"));
+  }
+
+  @Test
+  void testSave() {
+    Assertions.assertDoesNotThrow(() -> employmentTypeService.save(new EmploymentType()));
+  }
+
+  @Test
+  void testDelete() {
+    Assertions.assertDoesNotThrow(() -> employmentTypeService.delete("1"));
+  }
 }
