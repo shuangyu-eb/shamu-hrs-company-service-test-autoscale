@@ -45,8 +45,7 @@ public class UserRestController extends BaseRestController {
 
   private final UserMapper userMapper;
 
-  public UserRestController(final UserService userService,
-      final UserMapper userMapper) {
+  public UserRestController(final UserService userService, final UserMapper userMapper) {
     this.userService = userService;
     this.userMapper = userMapper;
   }
@@ -63,16 +62,25 @@ public class UserRestController extends BaseRestController {
   }
 
   @PostMapping("users/{id}/head-portrait")
-  @PreAuthorize("hasPermission(#id,'USER', 'EDIT_USER')"
-          + " or hasPermission(#id,'USER', 'EDIT_SELF')")
+  @PreAuthorize(
+      "hasPermission(#id,'USER', 'EDIT_USER')" + " or hasPermission(#id,'USER', 'EDIT_SELF')")
   public String handleFileUpload(
       @PathVariable final String id,
       @RequestParam("file")
-      //TODO: Need an appropriate file size.
-      @FileValidate(maxSize = 2 * 1024 * 1024, fileType = {"JPEG", "PNG", "GIF"})
-      final MultipartFile file
-  ) {
+          // TODO: Need an appropriate file size.
+          @FileValidate(
+              maxSize = 2 * 1024 * 1024,
+              fileType = {"JPEG", "PNG", "GIF"})
+          final MultipartFile file) {
     return userService.handleUploadFile(id, file);
+  }
+
+  @DeleteMapping("users/{id}/head-portrait")
+  @PreAuthorize(
+      "hasPermission(#id,'USER', 'EDIT_USER')" + " or hasPermission(#id,'USER', 'EDIT_SELF')")
+  public HttpEntity deleteHeadPortrait(@PathVariable final String id) {
+    userService.handleDeleteHeadPortrait(id);
+    return new ResponseEntity(HttpStatus.OK);
   }
 
   @PostMapping(value = "users/password-reset/{email}")
@@ -108,8 +116,8 @@ public class UserRestController extends BaseRestController {
 
   @PatchMapping("users/{id}/user-role")
   @PreAuthorize("hasPermission(#id, 'USER', 'VIEW_SETTING')")
-  public UserRoleAndStatusInfoDto updateUserRole(@PathVariable final String id,
-      @RequestBody final UserRoleUpdateDto userRoleUpdateDto) {
+  public UserRoleAndStatusInfoDto updateUserRole(
+      @PathVariable final String id, @RequestBody final UserRoleUpdateDto userRoleUpdateDto) {
     User user = userService.findById(id);
     user = userService.updateUserRole(findAuthUser().getEmail(), userRoleUpdateDto, user);
     return userMapper.convertToUserRoleAndStatusInfoDto(user);
@@ -117,8 +125,8 @@ public class UserRestController extends BaseRestController {
 
   @PatchMapping("users/{id}/deactivate")
   @PreAuthorize("hasPermission(#id, 'USER', 'DEACTIVATE_USER')")
-  public UserRoleAndStatusInfoDto deactivateUser(@PathVariable final String id,
-      @RequestBody final UserStatusUpdateDto userStatusUpdateDto) {
+  public UserRoleAndStatusInfoDto deactivateUser(
+      @PathVariable final String id, @RequestBody final UserStatusUpdateDto userStatusUpdateDto) {
     User user = userService.findById(id);
     user = userService.deactivateUser(findAuthUser().getEmail(), userStatusUpdateDto, user);
     return userMapper.convertToUserRoleAndStatusInfoDto(user);
@@ -142,8 +150,8 @@ public class UserRestController extends BaseRestController {
   public CurrentUserDto getUserInfo(final HttpServletRequest request) {
     final String mockId = request.getHeader("X-Mock-To");
     if (Strings.isBlank(mockId)) {
-      final CurrentUserDto userDto = userService
-          .getCurrentUserInfo(findAuthentication().getUserId());
+      final CurrentUserDto userDto =
+          userService.getCurrentUserInfo(findAuthentication().getUserId());
       userService.cacheUser(findToken(), userDto.getId());
       return userDto;
     }

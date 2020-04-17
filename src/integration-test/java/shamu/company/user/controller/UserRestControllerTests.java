@@ -62,9 +62,38 @@ public class UserRestControllerTests extends WebControllerBaseTests {
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
 
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .get("/company/users/email-check/test@gmail.com")
-        .headers(httpHeaders)).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.get("/company/users/email-check/test@gmail.com")
+                    .headers(httpHeaders))
+            .andReturn();
+
+    assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+  }
+
+  @Test
+  void testDeleteHeadPortrait() throws Exception {
+    setPermission(Permission.Name.EDIT_SELF.name());
+
+    final HttpHeaders httpHeaders = new HttpHeaders();
+    httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+
+    final AuthUser currentUser = getAuthUser();
+    final User targetUser = new User();
+    final Company company = new Company(currentUser.getCompanyId());
+    targetUser.setCompany(company);
+    targetUser.setId(currentUser.getId());
+
+    given(userService.findById(currentUser.getId())).willReturn(targetUser);
+
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.delete(
+                        "/company/users/" + currentUser.getId() + "/head-portrait")
+                    .headers(httpHeaders))
+            .andReturn();
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }

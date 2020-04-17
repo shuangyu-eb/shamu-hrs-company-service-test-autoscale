@@ -410,6 +410,15 @@ class UserServiceTests {
     }
   }
 
+  @Test
+  void testDeleteHeadPortrait() {
+    final String userId = "userId";
+    final User user = new User();
+    user.setImageUrl("url");
+    Mockito.when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+    Assertions.assertDoesNotThrow(() -> userService.handleDeleteHeadPortrait(userId));
+  }
+
   @Nested
   class ResendVerifyEmail {
     private String email;

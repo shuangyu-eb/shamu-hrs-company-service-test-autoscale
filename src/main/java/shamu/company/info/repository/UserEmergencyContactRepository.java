@@ -28,8 +28,7 @@ public interface UserEmergencyContactRepository
   @Transactional
   @Query(
       value =
-          "UPDATE user_emergency_contacts SET is_primary = FALSE"
-              + " WHERE user_id = unhex(?1)",
+          "UPDATE user_emergency_contacts SET is_primary = FALSE" + " WHERE user_id = unhex(?1)",
       nativeQuery = true)
   void releasePrimaryContact(String userId);
 

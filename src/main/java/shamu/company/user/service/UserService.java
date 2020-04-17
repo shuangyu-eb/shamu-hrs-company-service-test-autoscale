@@ -14,7 +14,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceException;
-
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -810,14 +809,21 @@ public class UserService {
 
     final User user = findById(id);
     final String originalPath = user.getImageUrl();
-    if (originalPath != null) {
-      awsHelper.deleteFile(originalPath);
-    }
+    awsHelper.deleteFile(originalPath);
 
     user.setImageUrl(path);
     save(user);
 
     return path;
+  }
+
+  public void handleDeleteHeadPortrait(final String id) {
+    final User user = findById(id);
+
+    awsHelper.deleteFile(user.getImageUrl());
+
+    user.setImageUrl(null);
+    save(user);
   }
 
   public List<User> findByCompanyId(final String companyId) {

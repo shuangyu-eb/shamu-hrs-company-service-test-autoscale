@@ -192,6 +192,9 @@ public class AwsHelper {
   }
 
   public void deleteFile(final String path) {
+    if (path == null) {
+      return;
+    }
     final AmazonS3 amazonS3 = findClient();
     try {
       log.info("delete file from Amazon S3");

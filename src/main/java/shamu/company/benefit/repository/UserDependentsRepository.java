@@ -5,8 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import shamu.company.benefit.entity.BenefitPlanDependent;
 import shamu.company.common.repository.BaseRepository;
 
-public interface UserDependentsRepository extends BaseRepository
-    <BenefitPlanDependent, String> {
+public interface UserDependentsRepository extends BaseRepository<BenefitPlanDependent, String> {
 
   @Query(
       value =
