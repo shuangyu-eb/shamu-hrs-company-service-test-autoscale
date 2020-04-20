@@ -3,16 +3,16 @@ package shamu.company.timeoff;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+
+import org.junit.jupiter.api.*;
 import org.mapstruct.ap.internal.util.Collections;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.powermock.reflect.Whitebox;
 import org.thymeleaf.ITemplateEngine;
 import shamu.company.common.ApplicationConfig;
 import shamu.company.email.service.EmailService;
@@ -84,9 +84,9 @@ public class TimeOffRequestEmailServiceTests {
       userContactInformation = new UserContactInformation();
       manger = new User();
 
-      userPersonalInformation.setFirstName("007");
+      userPersonalInformation.setFirstName("huang");
       userPersonalInformation.setPreferredName("007");
-      userPersonalInformation.setLastName("007");
+      userPersonalInformation.setLastName("kang");
 
       user.setId("1");
       approver.setId("2");
@@ -166,6 +166,14 @@ public class TimeOffRequestEmailServiceTests {
       Assertions.assertDoesNotThrow(() ->
           timeOffRequestEmailService.sendEmail(timeOffRequest));
     }
+
+    @AfterEach
+    void testDefaultAvatarName() throws Exception {
+      final Map<String, Object> variables = Whitebox.invokeMethod(timeOffRequestEmailService,"getVariablesOfTimeOffRequestEmail",timeOffRequest);
+      Assertions.assertEquals("HK",variables.get("avatarText"));
+    }
   }
+
+
 
 }

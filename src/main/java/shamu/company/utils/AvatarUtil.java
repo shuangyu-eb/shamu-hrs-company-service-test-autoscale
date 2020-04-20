@@ -91,6 +91,6 @@ public abstract class AvatarUtil {
       return "";
     }
 
-    return String.valueOf(firstName.charAt(0) + lastName.charAt(0));
+    return firstName.substring(0,1).toUpperCase() + lastName.substring(0,1).toUpperCase();
   }
 }
