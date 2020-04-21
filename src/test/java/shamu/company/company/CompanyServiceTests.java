@@ -8,6 +8,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import shamu.company.common.entity.StateProvince;
+import shamu.company.common.exception.ForbiddenException;
 import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.common.service.DepartmentService;
 import shamu.company.common.service.OfficeService;
@@ -191,5 +192,26 @@ public class CompanyServiceTests {
     companyBenefitsSettingDto.setEndDate(new Date(360000));
     Mockito.when(companyBenefitsSettingService.findByCompanyId(Mockito.anyString())).thenReturn(benefitsSetting);
     Assertions.assertDoesNotThrow(() -> companyService.updateEnrollmentPeriod("1",companyBenefitsSettingDto));
+  }
+
+
+  @Nested
+  class testUpdateCompanyName {
+
+    @Test
+    void whenUpdateCompanyName_thenShouldNotThrowException() {
+      final Company company = new Company();
+      Mockito.when(companyService.existsByName(Mockito.anyString())).thenReturn(false);
+      Mockito.when(companyRepository.findCompanyById(Mockito.anyString())).thenReturn(company);
+      Mockito.when(companyRepository.save(company)).thenReturn(company);
+      Assertions.assertDoesNotThrow(() -> companyService.updateCompanyName("example","companyId"));
+      Assertions.assertEquals("example2", companyService.updateCompanyName("example2","companyId"));
+    }
+
+    @Test
+    void whenUpdateCompanyName_thenShouldThrowException() {
+      Mockito.when(companyService.existsByName(Mockito.anyString())).thenReturn(true);
+      Assertions.assertThrows(ForbiddenException.class, () -> companyService.updateCompanyName("example","companyId"));
+    }
   }
 }
