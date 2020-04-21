@@ -15,7 +15,7 @@ public class SsnValidator implements ConstraintValidator<SsnValidate, String> {
       return true;
     }
 
-    String regex = "^(?!00)(?!666)(?!9[0-9][0-9])\\d{3}[- ]?(?!00)\\d{2}[- ]?(?!0000)\\d{4}$";
+    String regex = "^(?!00)(?!666)(?!9[0-9][0-9])\\d{3}[-](?!00)\\d{2}[-](?!0000)\\d{4}$";
     Pattern pattern = Pattern.compile(regex);
     Matcher matcher = pattern.matcher(ssn);
     return matcher.matches();
