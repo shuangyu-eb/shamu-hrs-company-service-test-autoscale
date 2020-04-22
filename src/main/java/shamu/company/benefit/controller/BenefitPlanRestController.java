@@ -95,7 +95,7 @@ public class BenefitPlanRestController extends BaseRestController {
       @RequestParam("file")
           @FileValidate(
               maxSize = 10 * 1024 * 1024,
-              fileType = {"PDF"})
+              fileFormat = {"PDF"})
           final List<MultipartFile> files) {
     benefitPlanService.saveBenefitPlanDocuments(id, files);
     return new ResponseEntity(HttpStatus.OK);
@@ -118,20 +118,22 @@ public class BenefitPlanRestController extends BaseRestController {
   public ResponseEntity updateBenefitPlanUsers(
       @PathVariable final String benefitPlanId,
       @RequestBody final List<BenefitPlanUserCreateDto> benefitPlanUsers) {
-    benefitPlanService.updateBenefitPlanUsers(benefitPlanId, benefitPlanUsers,null);
+    benefitPlanService.updateBenefitPlanUsers(benefitPlanId, benefitPlanUsers, null);
     return new ResponseEntity(HttpStatus.OK);
   }
 
   @GetMapping("my-benefit/{userId}/benefit-summary")
-  @PreAuthorize("hasPermission(#userId,'USER','VIEW_SELF_BENEFITS')"
-      + " or hasAuthority('MANAGE_BENEFIT_PLAN')")
+  @PreAuthorize(
+      "hasPermission(#userId,'USER','VIEW_SELF_BENEFITS')"
+          + " or hasAuthority('MANAGE_BENEFIT_PLAN')")
   public BenefitSummaryDto getEnrolledBenefitNumber(@PathVariable final String userId) {
     return benefitPlanService.getBenefitSummary(userId);
   }
 
   @GetMapping("users/{userId}/benefit-plans")
-  @PreAuthorize("hasPermission(#userId,'USER','VIEW_SELF_BENEFITS')"
-      + "or hasAuthority('MANAGE_BENEFIT_PLAN')")
+  @PreAuthorize(
+      "hasPermission(#userId,'USER','VIEW_SELF_BENEFITS')"
+          + "or hasAuthority('MANAGE_BENEFIT_PLAN')")
   public List<UserBenefitPlanDto> getUserBenefitPlans(@PathVariable final String userId) {
     return benefitPlanService.getUserBenefitPlans(userId);
   }
@@ -253,10 +255,11 @@ public class BenefitPlanRestController extends BaseRestController {
   @GetMapping("benefit-plan/{planTypeId}/plans")
   @PreAuthorize("hasAuthority('MANAGE_BENEFIT_PLAN')")
   public Page<BenefitPlanPreviewDto> getBenefitPlans(
-      @PathVariable final String planTypeId, final boolean expired,
+      @PathVariable final String planTypeId,
+      final boolean expired,
       final BenefitPlanSearchCondition benefitPlanSearchCondition) {
-    return benefitPlanService.findBenefitPlans(planTypeId, findCompanyId(), expired,
-        benefitPlanSearchCondition);
+    return benefitPlanService.findBenefitPlans(
+        planTypeId, findCompanyId(), expired, benefitPlanSearchCondition);
   }
 
   @GetMapping("benefit-plan/all-plans")

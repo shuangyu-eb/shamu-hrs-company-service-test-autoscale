@@ -87,8 +87,8 @@ import shamu.company.user.service.UserRoleService;
 import shamu.company.user.service.UserService;
 import shamu.company.user.service.UserStatusService;
 import shamu.company.utils.DateUtil;
-import shamu.company.utils.FileValidateUtil;
-import shamu.company.utils.FileValidateUtil.FileType;
+import shamu.company.utils.FileValidateUtils;
+import shamu.company.utils.FileValidateUtils.FileFormat;
 
 @Service
 @Transactional
@@ -253,8 +253,8 @@ public class EmployeeService {
     emailInfo.setTo(email);
     if (StringUtils.isNotEmpty(user.getInvitationEmailToken())) {
       final String invitationEmailToken = UUID.randomUUID().toString();
-      emailInfo.setContent(emailInfo.getContent().replace(
-          user.getInvitationEmailToken(), invitationEmailToken));
+      emailInfo.setContent(
+          emailInfo.getContent().replace(user.getInvitationEmailToken(), invitationEmailToken));
       user.setInvitedAt(Timestamp.from(Instant.now()));
       user.setInvitationEmailToken(invitationEmailToken);
       userService.save(user);
@@ -277,8 +277,8 @@ public class EmployeeService {
       file = File.createTempFile(UUID.randomUUID().toString(), ".png");
       final byte[] photo = Base64.getDecoder().decode(imageString);
       FileCopyUtils.copy(photo, file);
-      FileValidateUtil.validate(
-          file, 2 * FileValidateUtil.MB, FileType.JPEG, FileType.PNG, FileType.GIF);
+      FileValidateUtils.validate(
+          file, 2 * FileValidateUtils.MB, FileFormat.JPEG, FileFormat.PNG, FileFormat.GIF);
       return awsHelper.uploadFile(file.getCanonicalPath(), Type.IMAGE);
     } catch (final IOException e) {
       throw new AwsException("Error while uploading employee photo!", e);
@@ -533,8 +533,8 @@ public class EmployeeService {
     String content = welcomeEmailDto.getPersonalInformation();
 
     final Context emailContext =
-        emailService.getWelcomeEmailContextToEmail(content, employee.getResetPasswordToken(),
-            employee.getInvitationEmailToken(), toEmail);
+        emailService.getWelcomeEmailContextToEmail(
+            content, employee.getResetPasswordToken(), employee.getInvitationEmailToken(), toEmail);
     emailContext.setVariable("companyName", currentUser.getCompany().getName());
     content = emailService.getWelcomeEmail(emailContext);
     final Timestamp sendDate = welcomeEmailDto.getSendDate();

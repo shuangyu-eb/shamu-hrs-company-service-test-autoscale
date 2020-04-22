@@ -1,5 +1,7 @@
 package shamu.company.employee;
 
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -82,10 +84,7 @@ import shamu.company.user.service.UserPersonalInformationService;
 import shamu.company.user.service.UserRoleService;
 import shamu.company.user.service.UserService;
 import shamu.company.user.service.UserStatusService;
-import shamu.company.utils.FileValidateUtil.FileType;
-
-import java.sql.Timestamp;
-import java.time.Instant;
+import shamu.company.utils.FileValidateUtils.FileFormat;
 
 class EmployeeServiceTests {
 
@@ -198,7 +197,7 @@ class EmployeeServiceTests {
       final EmployeeDto employeeDto = new EmployeeDto();
       employeeDto.setEmailWork("example@indeed.com");
 
-      final String originalHexString = FileType.PNG.getValue();
+      final String originalHexString = FileFormat.PNG.getSignature();
       final byte[] imageBytes = Hex.decodeHex(originalHexString);
       String imageString = Base64.getEncoder().encodeToString(imageBytes);
 

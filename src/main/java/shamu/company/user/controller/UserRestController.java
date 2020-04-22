@@ -67,10 +67,9 @@ public class UserRestController extends BaseRestController {
   public String handleFileUpload(
       @PathVariable final String id,
       @RequestParam("file")
-          // TODO: Need an appropriate file size.
           @FileValidate(
               maxSize = 2 * 1024 * 1024,
-              fileType = {"JPEG", "PNG", "GIF"})
+              fileFormat = {"JPEG", "PNG", "GIF"})
           final MultipartFile file) {
     return userService.handleUploadFile(id, file);
   }

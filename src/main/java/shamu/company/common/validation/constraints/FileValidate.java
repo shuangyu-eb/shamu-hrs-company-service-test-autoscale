@@ -25,11 +25,11 @@ import shamu.company.common.validation.validator.FilesValidator;
 @Repeatable(List.class)
 public @interface FileValidate {
 
-  String message() default "File Type Error";
+  String message() default "File format error!";
 
   long maxSize();
 
-  String[] fileType();
+  String[] fileFormat();
 
   Class<?>[] groups() default {};
 

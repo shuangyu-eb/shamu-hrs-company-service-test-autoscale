@@ -6,20 +6,20 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import org.springframework.web.multipart.MultipartFile;
 import shamu.company.common.validation.constraints.FileValidate;
-import shamu.company.utils.FileValidateUtil;
-import shamu.company.utils.FileValidateUtil.FileType;
+import shamu.company.utils.FileValidateUtils;
+import shamu.company.utils.FileValidateUtils.FileFormat;
 
 public class FilesValidator implements ConstraintValidator<FileValidate, List<MultipartFile>> {
 
   private Long maxSize;
 
-  private FileType[] fileTypes;
+  private FileFormat[] fileFormats;
 
   @Override
   public void initialize(final FileValidate constraintAnnotation) {
-    fileTypes = Stream.of(constraintAnnotation.fileType())
-        .map(FileType::valueOf)
-        .toArray(FileType[]::new);
+    fileFormats = Stream.of(constraintAnnotation.fileFormat())
+        .map(FileFormat::valueOf)
+        .toArray(FileFormat[]::new);
     maxSize = constraintAnnotation.maxSize();
   }
 
@@ -28,7 +28,7 @@ public class FilesValidator implements ConstraintValidator<FileValidate, List<Mu
       final ConstraintValidatorContext context) {
     files.forEach(file -> {
       if (file != null && !file.isEmpty()) {
-        FileValidateUtil.validate(file, maxSize, fileTypes);
+        FileValidateUtils.validate(file, maxSize, fileFormats);
       }
     });
     return true;
