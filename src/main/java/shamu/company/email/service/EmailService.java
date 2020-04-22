@@ -35,6 +35,7 @@ import shamu.company.utils.UuidUtil;
 
 @Service
 public class EmailService {
+  private static final String FRONT_END_ADDRESS = "frontEndAddress";
 
   private final EmailRepository emailRepository;
 
@@ -137,13 +138,15 @@ public class EmailService {
   }
 
   public Context getWelcomeEmailContextToEmail(
-      String welcomeMessage, final String resetPasswordToken,
-      final String invitationToken, final String toEmail) {
+      String welcomeMessage,
+      final String resetPasswordToken,
+      final String invitationToken,
+      final String toEmail) {
     final Context context = new Context();
-    context.setVariable("frontEndAddress", frontEndAddress);
+    context.setVariable(FRONT_END_ADDRESS, frontEndAddress);
     final String emailAddress = getEncodedEmailAddress(toEmail);
-    String targetLink = frontEndAddress + "account/password/"
-        + resetPasswordToken + "/" + invitationToken;
+    String targetLink =
+        frontEndAddress + "account/password/" + resetPasswordToken + "/" + invitationToken;
     if (!"".equals(emailAddress)) {
       targetLink += "/" + emailAddress;
     }
@@ -180,7 +183,7 @@ public class EmailService {
 
   public String getResetPasswordEmail(final String passwordRestToken, final String toEmail) {
     final Context context = new Context();
-    context.setVariable("frontEndAddress", frontEndAddress);
+    context.setVariable(FRONT_END_ADDRESS, frontEndAddress);
     context.setVariable("toEmailAddress", getEncodedEmailAddress(toEmail));
     context.setVariable(
         "passwordResetAddress", String.format("account/reset-password/%s", passwordRestToken));
@@ -189,7 +192,7 @@ public class EmailService {
 
   private String getVerifiedEmail(final String changePasswordToken) {
     final Context context = new Context();
-    context.setVariable("frontEndAddress", frontEndAddress);
+    context.setVariable(FRONT_END_ADDRESS, frontEndAddress);
     context.setVariable(
         "changePasswordToken", String.format("account/change-work-email/%s", changePasswordToken));
     return templateEngine.process("verify_change_work_email.html", context);
@@ -252,7 +255,7 @@ public class EmailService {
   private void sendDeliveryErrorEmail(
       final User targetUser, final Timestamp emailSentDate, final String targetEmail) {
     final Context context = new Context();
-    context.setVariable("frontEndAddress", frontEndAddress);
+    context.setVariable(FRONT_END_ADDRESS, frontEndAddress);
 
     final UserPersonalInformation targetPersonalInformation =
         targetUser.getUserPersonalInformation();
@@ -263,9 +266,9 @@ public class EmailService {
     final String backgroundColor =
         AvatarUtil.getAvatarBackground(targetPersonalInformation.getFirstName());
     context.setVariable("backgroundColor", backgroundColor);
-    final String avatarText = AvatarUtil.getAvatarShortName(
-        targetPersonalInformation.getFirstName(),
-        targetPersonalInformation.getLastName());
+    final String avatarText =
+        AvatarUtil.getAvatarShortName(
+            targetPersonalInformation.getFirstName(), targetPersonalInformation.getLastName());
     context.setVariable("avatarText", avatarText);
     context.setVariable("userName", targetPersonalInformation.getName());
     context.setVariable("userEmail", targetUser.getUserContactInformation().getEmailWork());
