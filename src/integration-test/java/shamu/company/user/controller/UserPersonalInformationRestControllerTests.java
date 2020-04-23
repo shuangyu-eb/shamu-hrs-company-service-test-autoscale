@@ -18,7 +18,6 @@ import shamu.company.WebControllerBaseTests;
 import shamu.company.authorization.Permission;
 import shamu.company.company.entity.Company;
 import shamu.company.crypto.EncryptorUtil;
-import shamu.company.helpers.auth0.Auth0Helper;
 import shamu.company.server.dto.AuthUser;
 import shamu.company.tests.utils.JwtUtil;
 import shamu.company.user.dto.UserPersonalInformationDto;
@@ -37,8 +36,6 @@ public class UserPersonalInformationRestControllerTests extends WebControllerBas
   @MockBean private UserPersonalInformationMapper userPersonalInformationMapper;
 
   @MockBean private UserMapper userMapper;
-
-  @MockBean private Auth0Helper auth0Helper;
 
   @MockBean private EncryptorUtil encryptorUtil;
 

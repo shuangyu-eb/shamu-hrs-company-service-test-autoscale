@@ -71,6 +71,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
             "/company/company-sizes",
             "/company/account/*/verification-email",
             "/company/account/unlock",
+            "/company/account/email/*",
             "/company/emails/status")
         .permitAll()
         .anyRequest()

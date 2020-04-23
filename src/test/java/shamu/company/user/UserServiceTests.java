@@ -823,4 +823,12 @@ class UserServiceTests {
           userService.isCurrentActiveAnnouncementDismissed(UuidUtil.getUuidString(), "1"));
     }
   }
+
+  @Test
+  void testCheckUserVerifiedEmail() {
+    final com.auth0.json.mgmt.users.User auth0User = new com.auth0.json.mgmt.users.User();
+    auth0User.setEmailVerified(true);
+    Mockito.when(auth0Helper.findByEmail(Mockito.anyString())).thenReturn(auth0User);
+    Assertions.assertTrue(userService.checkUserVerifiedEmail("example@example.com"));
+  }
 }

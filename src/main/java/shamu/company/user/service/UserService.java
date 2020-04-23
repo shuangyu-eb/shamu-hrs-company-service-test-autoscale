@@ -878,4 +878,9 @@ public class UserService {
       dismissedAtService.save(dismissedAt);
     }
   }
+
+  public boolean checkUserVerifiedEmail(final String email) {
+    final com.auth0.json.mgmt.users.User auth0User = auth0Helper.findByEmail(email);
+    return auth0User != null && auth0User.isEmailVerified();
+  }
 }

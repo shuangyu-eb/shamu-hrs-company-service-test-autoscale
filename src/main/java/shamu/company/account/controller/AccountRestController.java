@@ -35,9 +35,10 @@ public class AccountRestController {
   }
 
   @PatchMapping("account/password")
-  public HttpEntity createPassword(@RequestBody @Valid final CreatePasswordDto createPasswordDto) {
+  public HttpEntity<String> createPassword(
+      @RequestBody @Valid final CreatePasswordDto createPasswordDto) {
     userService.createPassword(createPasswordDto);
-    return new ResponseEntity(HttpStatus.OK);
+    return new ResponseEntity<>(HttpStatus.OK);
   }
 
   @GetMapping("account/password/{passwordToken}/{invitationToken}")
@@ -48,9 +49,9 @@ public class AccountRestController {
   }
 
   @PatchMapping("account/unlock")
-  public HttpEntity unlock(@RequestBody @Valid final UserLoginDto userLoginDto) {
+  public HttpEntity<String> unlock(@RequestBody @Valid final UserLoginDto userLoginDto) {
     auth0Helper.login(userLoginDto.getEmailWork(), userLoginDto.getPassword());
-    return new ResponseEntity(HttpStatus.OK);
+    return new ResponseEntity<>(HttpStatus.OK);
   }
 
   @PatchMapping("account/change-work-email/{token}")
@@ -59,8 +60,16 @@ public class AccountRestController {
   }
 
   @PostMapping("account/{email}/verification-email")
-  public HttpEntity resendVerificationEmail(@PathVariable final String email) {
+  public HttpEntity<String> resendVerificationEmail(@PathVariable final String email) {
     userService.resendVerificationEmail(email);
-    return new ResponseEntity(HttpStatus.NO_CONTENT);
+    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+  }
+
+  @GetMapping("account/email/{email}")
+  public HttpEntity<String> findByEmailWork(@PathVariable final String email) {
+    if (userService.checkUserVerifiedEmail(email)) {
+      return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+    return new ResponseEntity<>(HttpStatus.OK);
   }
 }

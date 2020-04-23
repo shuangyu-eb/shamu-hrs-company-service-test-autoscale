@@ -18,6 +18,7 @@ import shamu.company.benefit.service.BenefitPlanTypeService;
 import shamu.company.common.config.DefaultAuthenticationEntryPoint;
 import shamu.company.common.config.DefaultJwtAuthenticationToken;
 import shamu.company.company.service.CompanyService;
+import shamu.company.helpers.auth0.Auth0Helper;
 import shamu.company.info.entity.mapper.UserEmergencyContactMapper;
 import shamu.company.info.service.UserEmergencyContactService;
 import shamu.company.job.service.JobService;
@@ -64,6 +65,7 @@ public class WebControllerBaseTests {
   @MockBean protected JobUserService jobUserService;
   @MockBean protected UserEmergencyContactMapper userEmergencyContactMapper;
   @MockBean protected BenefitCoveragesRepository benefitCoveragesRepository;
+  @MockBean protected Auth0Helper auth0Helper;
 
   protected AuthUser getAuthUser() {
     final DefaultJwtAuthenticationToken authenticationToken =
