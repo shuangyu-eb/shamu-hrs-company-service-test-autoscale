@@ -30,16 +30,19 @@ pipeline {
                     echo '---------------------------------\n' +
                             '            Unit test            ' +
                             '\n---------------------------------'
-                    sh "mvn clean test sonar:sonar \
+                    sh '''
+                        current_commit_id=`git rev-parse --short HEAD`
+                        mvn clean test sonar:sonar \
                           -Dsonar.host.url=http://3.115.71.39 \
                           -Dsonar.login=$TOKEN \
                           -Dsonar.projectKey=shamu-hrs-company-service \
                           -Dsonar.projectName=shamu-hrs-company-service \
+                          -Dsonar.projectVersion="$current_commit_id" \
                           -Dsonar.sources=src/main/java \
                           -Dsonar.java.binaries=target \
                           -Dsonar.coverage.jacoco.xmlReportPaths=target/jacoco-output/coverage-report-unit-tests/jacoco.xml \
-                          -Dsonar.tests=target/test-classes \
-                          > junit_output.txt"
+                          -Dsonar.tests=target/test-classes
+                       '''
                 }
             }
         }
