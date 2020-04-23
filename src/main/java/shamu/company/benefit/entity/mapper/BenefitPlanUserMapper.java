@@ -22,8 +22,11 @@ public interface BenefitPlanUserMapper {
   @Mapping(target = "createdAt", ignore = true)
   @Mapping(target = "updatedAt", ignore = true)
   BenefitPlanUser createFromBenefitPlanUserCreateDtoAndBenefitPlanId(
-      BenefitPlanUserCreateDto benefitPlanUserCreateDto, String benefitPlanId,
-      BenefitPlanCoverage benefitPlanCoverage, boolean enrolled, boolean confirmed);
+      BenefitPlanUserCreateDto benefitPlanUserCreateDto,
+      String benefitPlanId,
+      BenefitPlanCoverage benefitPlanCoverage,
+      boolean enrolled,
+      boolean confirmed);
 
   @Mapping(target = "title", source = "benefitPlan.name")
   @Mapping(target = "benefitPlanId", source = "benefitPlan.id")

@@ -62,22 +62,21 @@ public class UserPersonalInformationRestController extends BaseRestController {
       @Valid @RequestBody final UserPersonalInformationDto userPersonalInformationDto) {
     final User user = userService.findUserByUserPersonalInformationId(id);
     final UserPersonalInformation origin = user.getUserPersonalInformation();
-    userPersonalInformationMapper
-        .updateFromUserPersonalInformationDto(origin, userPersonalInformationDto);
+    userPersonalInformationMapper.updateFromUserPersonalInformationDto(
+        origin, userPersonalInformationDto);
     encryptorUtil.encryptSsn(user.getId(), userPersonalInformationDto.getSsn(), origin);
 
     final UserPersonalInformation userPersonalInformationUpdated =
         userPersonalInformationService.update(origin);
-    return userPersonalInformationMapper
-        .convertToUserPersonalInformationDto(userPersonalInformationUpdated);
+    return userPersonalInformationMapper.convertToUserPersonalInformationDto(
+        userPersonalInformationUpdated);
   }
 
   @GetMapping("users/{id}/user-personal-information")
   @PreAuthorize(
       "hasPermission(#id, 'USER', 'VIEW_USER_PERSONAL')"
           + "or hasPermission(#id, 'USER', 'VIEW_SELF')")
-  public BasicUserPersonalInformationDto getUserPersonalInformation(
-      @PathVariable final String id) {
+  public BasicUserPersonalInformationDto getUserPersonalInformation(@PathVariable final String id) {
     final User targetUser = userService.findById(id);
     return userPersonalInformationService.findUserPersonalInformation(targetUser, findAuthUser());
   }
@@ -86,8 +85,8 @@ public class UserPersonalInformationRestController extends BaseRestController {
   @PreAuthorize("hasPermission(#id, 'USER', 'VIEW_USER_ROLE_AND_STATUS')")
   public UserRoleAndStatusInfoDto getUserRoleAndStatus(@PathVariable final String id) {
     final User targetUser = userService.findById(id);
-    final UserRoleAndStatusInfoDto resultInformation = userMapper
-        .convertToUserRoleAndStatusInfoDto(targetUser);
+    final UserRoleAndStatusInfoDto resultInformation =
+        userMapper.convertToUserRoleAndStatusInfoDto(targetUser);
     final Role userRole = auth0Helper.getUserRole(targetUser);
     resultInformation.setUserRole(userRole.getValue());
     return resultInformation;

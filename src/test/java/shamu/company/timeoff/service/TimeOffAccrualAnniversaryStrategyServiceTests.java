@@ -1,5 +1,11 @@
 package shamu.company.timeoff.service;
 
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -19,20 +25,12 @@ import shamu.company.timeoff.entity.TimeOffPolicyUser;
 import shamu.company.timeoff.pojo.TimeOffBreakdownCalculatePojo;
 import shamu.company.timeoff.repository.AccrualScheduleMilestoneRepository;
 
-import java.sql.Timestamp;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
 class TimeOffAccrualAnniversaryStrategyServiceTests {
 
   @InjectMocks
   private static TimeOffAccrualAnniversaryStrategyService timeOffAccrualAnniversaryStrategyService;
 
-  @Mock
-  private AccrualScheduleMilestoneRepository accrualScheduleMilestoneRepository;
+  @Mock private AccrualScheduleMilestoneRepository accrualScheduleMilestoneRepository;
 
   @BeforeEach
   void setUp() {
@@ -42,9 +40,11 @@ class TimeOffAccrualAnniversaryStrategyServiceTests {
   @Test
   void getTimeOffBreakdownInternal() {
     final TimeOffBreakdownYearDto timeOffBreakdownYearDto = new TimeOffBreakdownYearDto();
-    final TimeOffBreakdownCalculatePojo timeOffBreakdownCalculatePojo = new TimeOffBreakdownCalculatePojo();
+    final TimeOffBreakdownCalculatePojo timeOffBreakdownCalculatePojo =
+        new TimeOffBreakdownCalculatePojo();
     final List<TimeOffPolicyAccrualSchedule> timeOffPolicyAccrualSchedules = new ArrayList<>();
-    final TimeOffPolicyAccrualSchedule timeOffPolicyAccrualSchedule = new TimeOffPolicyAccrualSchedule();
+    final TimeOffPolicyAccrualSchedule timeOffPolicyAccrualSchedule =
+        new TimeOffPolicyAccrualSchedule();
     final List<AccrualScheduleMilestone> accrualScheduleMilestoneList = new ArrayList<>();
     final AccrualScheduleMilestone accrualScheduleMilestone = new AccrualScheduleMilestone();
     final TimeOffPolicyUser timeOffPolicyUser = new TimeOffPolicyUser();
@@ -77,10 +77,14 @@ class TimeOffAccrualAnniversaryStrategyServiceTests {
     timeOffBreakdownYearDto.setDate(LocalDate.now());
     timeOffBreakdownYearDto.setAccrualHours(10);
 
-    Mockito.when(accrualScheduleMilestoneRepository.findByAccrualScheduleIdWithExpired(Mockito.any())).thenReturn(accrualScheduleMilestoneList);
+    Mockito.when(
+            accrualScheduleMilestoneRepository.findByAccrualScheduleIdWithExpired(Mockito.any()))
+        .thenReturn(accrualScheduleMilestoneList);
 
-    Assertions.assertDoesNotThrow(() ->
-        timeOffAccrualAnniversaryStrategyService.getTimeOffBreakdownInternal(timeOffBreakdownYearDto, timeOffBreakdownCalculatePojo));
+    Assertions.assertDoesNotThrow(
+        () ->
+            timeOffAccrualAnniversaryStrategyService.getTimeOffBreakdownInternal(
+                timeOffBreakdownYearDto, timeOffBreakdownCalculatePojo));
   }
 
   @Nested
@@ -88,14 +92,22 @@ class TimeOffAccrualAnniversaryStrategyServiceTests {
 
     @Test
     void whenCurrentYearMapIsNull_thenShouldSuccess() {
-      final HashMap<Integer, HashMap<Integer, TimeOffBreakdownAnniversaryDto>> accrualData = new HashMap<>();
+      final HashMap<Integer, HashMap<Integer, TimeOffBreakdownAnniversaryDto>> accrualData =
+          new HashMap<>();
       final List<LocalDate> validPeriods = new ArrayList<>();
 
       validPeriods.add(LocalDate.now());
       validPeriods.add(LocalDate.now());
 
-      Assertions.assertDoesNotThrow(() ->
-          Whitebox.invokeMethod(timeOffAccrualAnniversaryStrategyService,"addToResultAnniversaryMap", accrualData, validPeriods, new TimeOffBreakdownAnniversaryDto(), LocalDate.now()));
+      Assertions.assertDoesNotThrow(
+          () ->
+              Whitebox.invokeMethod(
+                  timeOffAccrualAnniversaryStrategyService,
+                  "addToResultAnniversaryMap",
+                  accrualData,
+                  validPeriods,
+                  new TimeOffBreakdownAnniversaryDto(),
+                  LocalDate.now()));
     }
   }
 }

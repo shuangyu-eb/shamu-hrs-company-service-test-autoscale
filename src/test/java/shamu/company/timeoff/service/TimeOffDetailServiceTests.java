@@ -1,5 +1,11 @@
 package shamu.company.timeoff.service;
 
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -9,7 +15,11 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.powermock.reflect.Whitebox;
 import shamu.company.common.exception.ResourceNotFoundException;
-import shamu.company.timeoff.entity.*;
+import shamu.company.timeoff.entity.TimeOffAccrualFrequency;
+import shamu.company.timeoff.entity.TimeOffPolicy;
+import shamu.company.timeoff.entity.TimeOffPolicyAccrualSchedule;
+import shamu.company.timeoff.entity.TimeOffPolicyUser;
+import shamu.company.timeoff.entity.TimeOffRequest;
 import shamu.company.timeoff.pojo.TimeOffRequestDatePojo;
 import shamu.company.timeoff.repository.AccrualScheduleMilestoneRepository;
 import shamu.company.timeoff.repository.TimeOffAdjustmentRepository;
@@ -19,46 +29,32 @@ import shamu.company.timeoff.repository.TimeOffRequestDateRepository;
 import shamu.company.user.entity.User;
 import shamu.company.utils.UuidUtil;
 
-import java.sql.Timestamp;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
-
 class TimeOffDetailServiceTests {
   private static TimeOffDetailService timeOffDetailService;
 
-  @Mock
-  private TimeOffPolicyUserRepository timeOffPolicyUserRepository;
+  @Mock private TimeOffPolicyUserRepository timeOffPolicyUserRepository;
 
-  @Mock
-  private TimeOffPolicyAccrualScheduleRepository timeOffPolicyAccrualScheduleRepository;
+  @Mock private TimeOffPolicyAccrualScheduleRepository timeOffPolicyAccrualScheduleRepository;
 
-  @Mock
-  private TimeOffRequestDateRepository timeOffRequestDateRepository;
+  @Mock private TimeOffRequestDateRepository timeOffRequestDateRepository;
 
-  @Mock
-  private TimeOffAdjustmentRepository timeOffAdjustmentRepository;
+  @Mock private TimeOffAdjustmentRepository timeOffAdjustmentRepository;
 
-  @Mock
-  private AccrualScheduleMilestoneRepository accrualScheduleMilestoneRepository;
+  @Mock private AccrualScheduleMilestoneRepository accrualScheduleMilestoneRepository;
 
-  @Mock
-  private TimeOffAccrualDelegator timeOffAccrualDelegator;
+  @Mock private TimeOffAccrualDelegator timeOffAccrualDelegator;
 
   @BeforeEach
   void init() {
     MockitoAnnotations.initMocks(this);
-    timeOffDetailService = new TimeOffDetailService(
-        timeOffPolicyUserRepository,
-        timeOffPolicyAccrualScheduleRepository,
-        timeOffRequestDateRepository,
-        timeOffAdjustmentRepository,
-        accrualScheduleMilestoneRepository,
-        timeOffAccrualDelegator
-    );
+    timeOffDetailService =
+        new TimeOffDetailService(
+            timeOffPolicyUserRepository,
+            timeOffPolicyAccrualScheduleRepository,
+            timeOffRequestDateRepository,
+            timeOffAdjustmentRepository,
+            accrualScheduleMilestoneRepository,
+            timeOffAccrualDelegator);
   }
 
   @Nested
@@ -72,36 +68,39 @@ class TimeOffDetailServiceTests {
 
     @Test
     void whenUntilDateIsNullAndTimeOffPolicyUserContainerIsNull_thenShouldSuccess() {
-      Mockito.when(timeOffPolicyUserRepository.findById(Mockito.any())).thenReturn(Optional.empty());
+      Mockito.when(timeOffPolicyUserRepository.findById(Mockito.any()))
+          .thenReturn(Optional.empty());
 
-      Assertions.assertDoesNotThrow(() ->
-          timeOffDetailService.getTimeOffBreakdown("1", Mockito.any()));
+      Assertions.assertDoesNotThrow(
+          () -> timeOffDetailService.getTimeOffBreakdown("1", Mockito.any()));
       Assertions.assertNull(timeOffDetailService.getTimeOffBreakdown("1", Mockito.any()));
     }
 
     @Test
-    void whenUntilDateIsNotNullAndTimeOffPolicyUserContainerIsNotNullAndLimited_thenShouldSuccess() {
+    void
+        whenUntilDateIsNotNullAndTimeOffPolicyUserContainerIsNotNullAndLimited_thenShouldSuccess() {
       final TimeOffPolicy timeOffPolicy = new TimeOffPolicy();
       timeOffPolicy.setIsLimited(true);
       timeOffPolicyUserContainer.setTimeOffPolicy(timeOffPolicy);
 
-      Mockito.when(timeOffPolicyUserRepository.findById(Mockito.any())).thenReturn(Optional.of(timeOffPolicyUserContainer));
+      Mockito.when(timeOffPolicyUserRepository.findById(Mockito.any()))
+          .thenReturn(Optional.of(timeOffPolicyUserContainer));
 
-      Assertions.assertDoesNotThrow(() ->
-          timeOffDetailService.getTimeOffBreakdown("1", 1L));
+      Assertions.assertDoesNotThrow(() -> timeOffDetailService.getTimeOffBreakdown("1", 1L));
     }
 
     @Test
-    void whenUntilDateIsNotNullAndTimeOffPolicyUserContainerIsNotNullAndUnLimited_thenShouldSuccess() {
+    void
+        whenUntilDateIsNotNullAndTimeOffPolicyUserContainerIsNotNullAndUnLimited_thenShouldSuccess() {
       final TimeOffPolicy timeOffPolicy = new TimeOffPolicy("1");
       timeOffPolicy.setIsLimited(false);
       timeOffPolicyUserContainer.setTimeOffPolicy(timeOffPolicy);
       timeOffPolicyUserContainer.setUser(new User("1"));
 
-      Mockito.when(timeOffPolicyUserRepository.findById(Mockito.any())).thenReturn(Optional.of(timeOffPolicyUserContainer));
+      Mockito.when(timeOffPolicyUserRepository.findById(Mockito.any()))
+          .thenReturn(Optional.of(timeOffPolicyUserContainer));
 
-      Assertions.assertDoesNotThrow(() ->
-          timeOffDetailService.getTimeOffBreakdown("1", 1L));
+      Assertions.assertDoesNotThrow(() -> timeOffDetailService.getTimeOffBreakdown("1", 1L));
     }
   }
 
@@ -116,9 +115,12 @@ class TimeOffDetailServiceTests {
 
     @Test
     void whenTimeOffPolicyUserIsEmpty_thenShouldThrows() {
-      Mockito.when(timeOffPolicyUserRepository.findById(Mockito.any())).thenReturn(Optional.empty());
+      Mockito.when(timeOffPolicyUserRepository.findById(Mockito.any()))
+          .thenReturn(Optional.empty());
 
-      Assertions.assertThrows(ResourceNotFoundException.class, () -> timeOffDetailService.checkTimeOffAdjustments("1", 100));
+      Assertions.assertThrows(
+          ResourceNotFoundException.class,
+          () -> timeOffDetailService.checkTimeOffAdjustments("1", 100));
     }
 
     @Test
@@ -133,8 +135,10 @@ class TimeOffDetailServiceTests {
       final TimeOffAccrualFrequency timeOffAccrualFrequency = new TimeOffAccrualFrequency("1");
       accrualSchedule.setTimeOffAccrualFrequency(timeOffAccrualFrequency);
 
-      Mockito.when(timeOffPolicyUserRepository.findById(Mockito.any())).thenReturn(Optional.of(timeOffPolicyUser));
-      Mockito.when(timeOffPolicyAccrualScheduleRepository.findByTimeOffPolicy(Mockito.any())).thenReturn(accrualSchedule);
+      Mockito.when(timeOffPolicyUserRepository.findById(Mockito.any()))
+          .thenReturn(Optional.of(timeOffPolicyUser));
+      Mockito.when(timeOffPolicyAccrualScheduleRepository.findByTimeOffPolicy(Mockito.any()))
+          .thenReturn(accrualSchedule);
 
       Assertions.assertDoesNotThrow(() -> timeOffDetailService.checkTimeOffAdjustments("1", 100));
     }
@@ -151,37 +155,52 @@ class TimeOffDetailServiceTests {
 
     @Test
     void whenTimeOffPolicyScheduleListIsEmpty_thenShouldReturnNull() throws Exception {
-      Mockito.when(timeOffPolicyAccrualScheduleRepository.findAllWithExpiredTimeOffPolicy(Mockito.any())).thenReturn(timeOffPolicyScheduleList);
+      Mockito.when(
+              timeOffPolicyAccrualScheduleRepository.findAllWithExpiredTimeOffPolicy(Mockito.any()))
+          .thenReturn(timeOffPolicyScheduleList);
 
-      Assertions.assertDoesNotThrow(() -> {
-        Whitebox.invokeMethod(timeOffDetailService,"getLimitedTimeOffBreakdown",new TimeOffPolicyUser(), LocalDate.now());
-      });
-      Assertions.assertNull(Whitebox.invokeMethod(timeOffDetailService,"getLimitedTimeOffBreakdown",new TimeOffPolicyUser(), LocalDate.now()));
+      Assertions.assertDoesNotThrow(
+          () -> {
+            Whitebox.invokeMethod(
+                timeOffDetailService,
+                "getLimitedTimeOffBreakdown",
+                new TimeOffPolicyUser(),
+                LocalDate.now());
+          });
+      Assertions.assertNull(
+          Whitebox.invokeMethod(
+              timeOffDetailService,
+              "getLimitedTimeOffBreakdown",
+              new TimeOffPolicyUser(),
+              LocalDate.now()));
     }
 
     @Test
     void whenTimeOffPolicyScheduleListIsNotEmpty_thenShouldSuccess() {
-      final TimeOffPolicyAccrualSchedule timeOffPolicyAccrualSchedule = new TimeOffPolicyAccrualSchedule();
-      final TimeOffPolicyAccrualSchedule timeOffPolicyAccrualSchedule2 = new TimeOffPolicyAccrualSchedule();
+      final TimeOffPolicyAccrualSchedule timeOffPolicyAccrualSchedule =
+          new TimeOffPolicyAccrualSchedule();
+      final TimeOffPolicyAccrualSchedule timeOffPolicyAccrualSchedule2 =
+          new TimeOffPolicyAccrualSchedule();
       final TimeOffAccrualFrequency timeOffAccrualFrequency = new TimeOffAccrualFrequency("1");
       final List<TimeOffRequestDatePojo> timeOffRequestDatePojos = new ArrayList<>();
       final List<Timestamp> dates = new ArrayList<>();
-      final TimeOffRequestDatePojo timeOffRequestDatePojo = new TimeOffRequestDatePojo() {
-        @Override
-        public String getId() {
-          return UuidUtil.getUuidString();
-        }
+      final TimeOffRequestDatePojo timeOffRequestDatePojo =
+          new TimeOffRequestDatePojo() {
+            @Override
+            public String getId() {
+              return UuidUtil.getUuidString();
+            }
 
-        @Override
-        public Timestamp getStartDate() {
-          return Timestamp.valueOf(LocalDateTime.now());
-        }
+            @Override
+            public Timestamp getStartDate() {
+              return Timestamp.valueOf(LocalDateTime.now());
+            }
 
-        @Override
-        public Integer getHours() {
-          return 10;
-        }
-      };
+            @Override
+            public Integer getHours() {
+              return 10;
+            }
+          };
       timeOffRequestDatePojos.add(timeOffRequestDatePojo);
 
       timeOffPolicyAccrualSchedule.setTimeOffAccrualFrequency(timeOffAccrualFrequency);
@@ -203,20 +222,31 @@ class TimeOffDetailServiceTests {
       timeOffPolicyUser.setUser(user);
       timeOffPolicyUser.setTimeOffPolicy(new TimeOffPolicy("1"));
 
-
-      //Dec 30, 2018 - Jan 2, 2019
+      // Dec 30, 2018 - Jan 2, 2019
       dates.add(new Timestamp(1546099200000L));
       dates.add(new Timestamp(1546185600000L));
       dates.add(new Timestamp(1546272000000L));
       dates.add(new Timestamp(1546358400000L));
 
-      Mockito.when(timeOffPolicyAccrualScheduleRepository.findAllWithExpiredTimeOffPolicy(Mockito.any())).thenReturn(timeOffPolicyScheduleList);
-      Mockito.when(timeOffRequestDateRepository.getTakenApprovedRequestOffByUserIdAndPolicyId(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyString())).thenReturn(timeOffRequestDatePojos);
-      Mockito.when(timeOffRequestDateRepository.getTimeOffRequestDatesByTimeOffRequestId(Mockito.any())).thenReturn(dates);
+      Mockito.when(
+              timeOffPolicyAccrualScheduleRepository.findAllWithExpiredTimeOffPolicy(Mockito.any()))
+          .thenReturn(timeOffPolicyScheduleList);
+      Mockito.when(
+              timeOffRequestDateRepository.getTakenApprovedRequestOffByUserIdAndPolicyId(
+                  Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyString()))
+          .thenReturn(timeOffRequestDatePojos);
+      Mockito.when(
+              timeOffRequestDateRepository.getTimeOffRequestDatesByTimeOffRequestId(Mockito.any()))
+          .thenReturn(dates);
 
-      Assertions.assertDoesNotThrow(() -> {
-        Whitebox.invokeMethod(timeOffDetailService,"getLimitedTimeOffBreakdown",timeOffPolicyUser, LocalDate.now());
-      });
+      Assertions.assertDoesNotThrow(
+          () -> {
+            Whitebox.invokeMethod(
+                timeOffDetailService,
+                "getLimitedTimeOffBreakdown",
+                timeOffPolicyUser,
+                LocalDate.now());
+          });
     }
 
     @Test
@@ -244,11 +274,18 @@ class TimeOffDetailServiceTests {
       dates.add(Timestamp.valueOf(nextYear + "-02-01 08:00:00"));
       dates.add(Timestamp.valueOf(nextYear + "-02-06 08:00:00"));
 
-      Mockito.when(timeOffRequestDateRepository.getTimeOffRequestDatesByTimeOffRequestId(Mockito.any())).thenReturn(dates);
-      final String result = timeOffDetailService.getTimeOffRequestDatesRange(timeOffRequest.getId());
-      final String expectedTimeOffRange = "Oct 10, Nov 30 - Dec 1, 31, " + lastYear + " - Jan 1,"
-          + " Mar 1, Apr 30 - May 1, Aug 8, 22, Sep 13, "
-          + "Dec 31 - Jan 1, 21, 31 - Feb 1, 6, " + nextYear;
+      Mockito.when(
+              timeOffRequestDateRepository.getTimeOffRequestDatesByTimeOffRequestId(Mockito.any()))
+          .thenReturn(dates);
+      final String result =
+          timeOffDetailService.getTimeOffRequestDatesRange(timeOffRequest.getId());
+      final String expectedTimeOffRange =
+          "Oct 10, Nov 30 - Dec 1, 31, "
+              + lastYear
+              + " - Jan 1,"
+              + " Mar 1, Apr 30 - May 1, Aug 8, 22, Sep 13, "
+              + "Dec 31 - Jan 1, 21, 31 - Feb 1, 6, "
+              + nextYear;
       Assertions.assertEquals(expectedTimeOffRange, result);
     }
 
@@ -264,8 +301,11 @@ class TimeOffDetailServiceTests {
       dates.add(Timestamp.valueOf(nextYear + "-07-10 08:00:00"));
       dates.add(Timestamp.valueOf(nextYear + "-08-07 08:00:00"));
 
-      Mockito.when(timeOffRequestDateRepository.getTimeOffRequestDatesByTimeOffRequestId(Mockito.any())).thenReturn(dates);
-      final String result = timeOffDetailService.getTimeOffRequestDatesRange(timeOffRequest.getId());
+      Mockito.when(
+              timeOffRequestDateRepository.getTimeOffRequestDatesByTimeOffRequestId(Mockito.any()))
+          .thenReturn(dates);
+      final String result =
+          timeOffDetailService.getTimeOffRequestDatesRange(timeOffRequest.getId());
       final String expectedTimeOffRange = "Nov 15, 22, Jul 8, 10, Aug 7, " + nextYear;
       Assertions.assertEquals(expectedTimeOffRange, result);
     }
@@ -287,8 +327,11 @@ class TimeOffDetailServiceTests {
       dates.add(Timestamp.valueOf(nextYear + "-08-19 08:00:00"));
       dates.add(Timestamp.valueOf(nextYear + "-08-21 08:00:00"));
 
-      Mockito.when(timeOffRequestDateRepository.getTimeOffRequestDatesByTimeOffRequestId(Mockito.any())).thenReturn(dates);
-      final String result = timeOffDetailService.getTimeOffRequestDatesRange(timeOffRequest.getId());
+      Mockito.when(
+              timeOffRequestDateRepository.getTimeOffRequestDatesByTimeOffRequestId(Mockito.any()))
+          .thenReturn(dates);
+      final String result =
+          timeOffDetailService.getTimeOffRequestDatesRange(timeOffRequest.getId());
       final String expectedTimeOffRange = "Dec 2 - 4, 20, 27, Aug 4 - 6, 19, 21, " + nextYear;
       Assertions.assertEquals(expectedTimeOffRange, result);
     }

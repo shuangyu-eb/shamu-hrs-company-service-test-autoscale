@@ -1,5 +1,6 @@
 package shamu.company.benefit;
 
+import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -12,8 +13,6 @@ import shamu.company.benefit.repository.BenefitPlanTypeRepository;
 import shamu.company.benefit.service.BenefitPlanTypeService;
 import shamu.company.common.exception.ResourceNotFoundException;
 
-import java.util.Optional;
-
 public class BenefitPlanTypeServiceTests {
 
   @Mock private BenefitPlanTypeRepository benefitPlanTypeRepository;
@@ -24,6 +23,11 @@ public class BenefitPlanTypeServiceTests {
   void init() {
     MockitoAnnotations.initMocks(this);
     benefitPlanTypeService = new BenefitPlanTypeService(benefitPlanTypeRepository);
+  }
+
+  @Test
+  void testFindAllBenefitPlanTypes() {
+    Assertions.assertDoesNotThrow(() -> benefitPlanTypeService.findAllBenefitPlanTypes());
   }
 
   @Nested
@@ -41,14 +45,7 @@ public class BenefitPlanTypeServiceTests {
       Mockito.when(benefitPlanTypeRepository.findById(Mockito.anyString())).thenReturn(optional);
       Assertions.assertThrows(
           ResourceNotFoundException.class,
-          () -> benefitPlanTypeService.findBenefitPlanTypeById("1")
-      );
+          () -> benefitPlanTypeService.findBenefitPlanTypeById("1"));
     }
-
-  }
-
-  @Test
-  void testFindAllBenefitPlanTypes() {
-    Assertions.assertDoesNotThrow(() -> benefitPlanTypeService.findAllBenefitPlanTypes());
   }
 }

@@ -1,8 +1,9 @@
 package shamu.company.helpers.s3;
 
-
 public enum Type {
-  TEMP("temp"), IMAGE("image"), DEFAULT("uploads");
+  TEMP("temp"),
+  IMAGE("image"),
+  DEFAULT("uploads");
 
   private final String folder;
 

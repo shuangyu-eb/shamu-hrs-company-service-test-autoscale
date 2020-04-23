@@ -9,7 +9,6 @@ import shamu.company.admin.entity.SystemAnnouncement;
 import shamu.company.admin.repository.SystemAnnouncementsRepository;
 import shamu.company.common.exception.ResourceNotFoundException;
 
-
 @Service
 public class SystemAnnouncementsService {
 
@@ -30,13 +29,15 @@ public class SystemAnnouncementsService {
   }
 
   public SystemAnnouncement findById(final String id) {
-    return systemAnnouncementsRepository.findById(id)
-        .orElseThrow(() -> new ResourceNotFoundException(
-            String.format("System Announcement with id %s not found!", id)));
+    return systemAnnouncementsRepository
+        .findById(id)
+        .orElseThrow(
+            () ->
+                new ResourceNotFoundException(
+                    String.format("System Announcement with id %s not found!", id)));
   }
 
-  public Page<SystemAnnouncementDto> getSystemPastAnnouncements(
-      final Pageable pageable) {
+  public Page<SystemAnnouncementDto> getSystemPastAnnouncements(final Pageable pageable) {
     return systemAnnouncementsRepository.getSystemPastAnnouncements(pageable);
   }
 }

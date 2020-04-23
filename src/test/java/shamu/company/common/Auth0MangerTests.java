@@ -7,6 +7,9 @@ import com.auth0.json.auth.TokenHolder;
 import com.auth0.jwk.UrlJwkProvider;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.net.AuthRequest;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,18 +22,16 @@ import shamu.company.common.exception.GeneralAuth0Exception;
 import shamu.company.helpers.auth0.Auth0Config;
 import shamu.company.helpers.auth0.Auth0Manager;
 import shamu.company.tests.utils.JwtUtil;
-import java.security.*;
-
 
 @PrepareForTest(value = {UrlJwkProvider.class, Algorithm.class})
 class Auth0MangerTests {
 
-  private Auth0Manager auth0Manager;
-  private Auth0Config auth0Config;
-  private static PublicKey PUBLIC_KEY;
-  private static PrivateKey PRIVATE_KEY;
   private static final String issuer = "https://simplyhired-test.auth0.com/";
   private static final String customNamespace = "https://interviewed.com/";
+  private static PublicKey PUBLIC_KEY;
+  private static PrivateKey PRIVATE_KEY;
+  private Auth0Manager auth0Manager;
+  private Auth0Config auth0Config;
   private AuthAPI mockAuthApi;
   private ManagementAPI managementAPI;
 
@@ -43,20 +44,20 @@ class Auth0MangerTests {
     final String managementIdentifier = String.format("https://%s/api/v2/", domain);
     final String jwks = String.format("https://%s/.well-known/jwks.json", domain);
 
-    final Auth0Config auth0Config = Auth0Config.builder()
-        .clientId(clientId)
-        .clientSecret(clientSecret)
-        .domain(domain)
-        .jwks(jwks)
-        .issuer(issuer)
-        .managementIdentifier(managementIdentifier)
-        .build();
+    final Auth0Config auth0Config =
+        Auth0Config.builder()
+            .clientId(clientId)
+            .clientSecret(clientSecret)
+            .domain(domain)
+            .jwks(jwks)
+            .issuer(issuer)
+            .managementIdentifier(managementIdentifier)
+            .build();
 
     auth0Manager = new Auth0Manager(auth0Config);
     mockAuthApi = Mockito.mock(AuthAPI.class);
     managementAPI = Mockito.mock(ManagementAPI.class);
     Whitebox.setInternalState(auth0Manager, "authApi", mockAuthApi);
-
   }
 
   @Test
@@ -97,10 +98,7 @@ class Auth0MangerTests {
     Mockito.when(mockTokenHolder.getAccessToken())
         .thenReturn(RandomStringUtils.randomAlphabetic(10));
 
-    Assertions.assertThrows(
-        GeneralAuth0Exception.class,
-        () -> auth0Manager.getManagementApi()
-    );
+    Assertions.assertThrows(GeneralAuth0Exception.class, () -> auth0Manager.getManagementApi());
   }
 
   @Nested
@@ -114,16 +112,13 @@ class Auth0MangerTests {
     }
 
     @Test
-    void whenTokenIsInvalid_thenShouldThrow(){
+    void whenTokenIsInvalid_thenShouldThrow() {
       final TokenHolder mockTokenHolder = Mockito.mock(TokenHolder.class);
       Whitebox.setInternalState(auth0Manager, "manager", managementAPI);
-      Whitebox.setInternalState(auth0Manager,"tokenHolder", mockTokenHolder);
+      Whitebox.setInternalState(auth0Manager, "tokenHolder", mockTokenHolder);
       Mockito.when(mockTokenHolder.getAccessToken()).thenReturn(token);
 
-      Assertions.assertThrows(
-          GeneralAuth0Exception.class,
-          () -> auth0Manager.getManagementApi()
-      );
+      Assertions.assertThrows(GeneralAuth0Exception.class, () -> auth0Manager.getManagementApi());
     }
   }
 }

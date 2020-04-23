@@ -4,12 +4,9 @@ import java.util.List;
 import javax.validation.Valid;
 import lombok.Data;
 
-
-
 @Data
 public class TimeOffPolicyWrapperDto {
-  @Valid
-  private TimeOffPolicyFrontendDto timeOffPolicy;
+  @Valid private TimeOffPolicyFrontendDto timeOffPolicy;
 
   private TimeOffPolicyAccrualScheduleDto timeOffPolicyAccrualSchedule;
 

@@ -15,7 +15,6 @@ public class ErrorMessage {
   private String message;
   private Map<String, List<String>> errors;
 
-
   public ErrorMessage(final ErrorType errorType, final String message) {
     this.type = errorType.name();
     this.message = message;
@@ -29,18 +28,21 @@ public class ErrorMessage {
   public ErrorMessage(final MethodArgumentNotValidException methodArgumentNotValidException) {
     this.type = ErrorType.JSON_PARSE_ERROR.name();
     this.errors = new HashMap<>();
-    methodArgumentNotValidException.getBindingResult().getFieldErrors()
-        .forEach(fieldError -> {
-          if (errors.containsKey(fieldError.getField())) {
-            final List<String> errorMsgList = errors.get(fieldError.getField());
-            errorMsgList.add(fieldError.getDefaultMessage());
-            errors.put(fieldError.getField(), errorMsgList);
-          } else {
-            final List<String> errorMsgList = new ArrayList<>();
-            errorMsgList.add(fieldError.getDefaultMessage());
-            errors.put(fieldError.getField(), errorMsgList);
-          }
-        });
+    methodArgumentNotValidException
+        .getBindingResult()
+        .getFieldErrors()
+        .forEach(
+            fieldError -> {
+              if (errors.containsKey(fieldError.getField())) {
+                final List<String> errorMsgList = errors.get(fieldError.getField());
+                errorMsgList.add(fieldError.getDefaultMessage());
+                errors.put(fieldError.getField(), errorMsgList);
+              } else {
+                final List<String> errorMsgList = new ArrayList<>();
+                errorMsgList.add(fieldError.getDefaultMessage());
+                errors.put(fieldError.getField(), errorMsgList);
+              }
+            });
   }
 
   public ErrorMessage(final AbstractException abstractException) {

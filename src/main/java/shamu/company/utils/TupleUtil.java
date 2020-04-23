@@ -11,19 +11,23 @@ public interface TupleUtil {
   static <T> T convertTo(final Tuple tuple, final Class<T> t) {
     try {
       final T result = t.getDeclaredConstructor().newInstance();
-      tuple.getElements().forEach(property -> {
-        final Field fieldResult = ReflectionUtils.findField(t, property.getAlias());
-        if (fieldResult != null) {
-          ReflectionUtils.makeAccessible(fieldResult);
-          Object resultValue = tuple.get(property.getAlias());
+      tuple
+          .getElements()
+          .forEach(
+              property -> {
+                final Field fieldResult = ReflectionUtils.findField(t, property.getAlias());
+                if (fieldResult != null) {
+                  ReflectionUtils.makeAccessible(fieldResult);
+                  Object resultValue = tuple.get(property.getAlias());
 
-          if (resultValue != null && resultValue.getClass().isAssignableFrom(byte[].class)) {
-            resultValue = UuidUtil.toHexString((byte[]) resultValue);
-          }
+                  if (resultValue != null
+                      && resultValue.getClass().isAssignableFrom(byte[].class)) {
+                    resultValue = UuidUtil.toHexString((byte[]) resultValue);
+                  }
 
-          ReflectionUtils.setField(fieldResult, result, resultValue);
-        }
-      });
+                  ReflectionUtils.setField(fieldResult, result, resultValue);
+                }
+              });
       return result;
     } catch (final InstantiationException | IllegalAccessException | InvocationTargetException e) {
       throw new ForbiddenException(e.getMessage(), e);

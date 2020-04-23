@@ -40,8 +40,10 @@ public interface UuidUtil {
     final int stringLen = targetString.length();
     final byte[] data = new byte[stringLen / 2];
     for (int i = 0; i < stringLen; i += 2) {
-      data[i / 2] = (byte) ((Character.digit(targetString.charAt(i), 16) << 4)
-          + Character.digit(targetString.charAt(i + 1), 16));
+      data[i / 2] =
+          (byte)
+              ((Character.digit(targetString.charAt(i), 16) << 4)
+                  + Character.digit(targetString.charAt(i + 1), 16));
     }
     return data;
   }
@@ -57,13 +59,10 @@ public interface UuidUtil {
   }
 
   static String toHexString(final byte[] id) {
-    return fromBytes(id).toString()
-        .toUpperCase()
-        .replaceAll("-", "");
+    return fromBytes(id).toString().toUpperCase().replaceAll("-", "");
   }
 
   static String getUuidString() {
-    return UUID.randomUUID().toString()
-        .replace("-", "");
+    return UUID.randomUUID().toString().replace("-", "");
   }
 }

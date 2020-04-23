@@ -19,7 +19,6 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
     return handlerMapping;
   }
 
-
   @Override
   public void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
     configurer.favorPathExtension(false);

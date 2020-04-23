@@ -48,8 +48,7 @@ public class TimeOffRequestRestController extends BaseRestController {
 
   @Autowired
   public TimeOffRequestRestController(
-      final TimeOffRequestService timeOffRequestService,
-      final UserService userService) {
+      final TimeOffRequestService timeOffRequestService, final UserService userService) {
     this.timeOffRequestService = timeOffRequestService;
     this.userService = userService;
   }
@@ -63,8 +62,7 @@ public class TimeOffRequestRestController extends BaseRestController {
     final TimeOffRequest timeOffRequest = requestCreateDto.getTimeOffRequest(user);
     timeOffRequest.setApproverUser(user.getManagerUser());
 
-    timeOffRequestService.saveTimeOffRequest(
-            timeOffRequest, requestCreateDto, AWAITING_REVIEW);
+    timeOffRequestService.saveTimeOffRequest(timeOffRequest, requestCreateDto, AWAITING_REVIEW);
 
     return new ResponseEntity<>(HttpStatus.OK);
   }
@@ -81,7 +79,6 @@ public class TimeOffRequestRestController extends BaseRestController {
     timeOffRequestService.saveTimeOffRequest(timeOffRequest, requestCreateDto, APPROVED, approver);
 
     return new ResponseEntity<>(HttpStatus.OK);
-
   }
 
   @GetMapping("time-off_requests/approver/status/pending/count")
@@ -94,8 +91,7 @@ public class TimeOffRequestRestController extends BaseRestController {
   @GetMapping("users/{id}/time-off-requests")
   @PreAuthorize("hasPermission(#id,'USER','VIEW_TEAM_TIME_OFF_REQUEST')")
   public List<TimeOffRequestDto> findTimeOffRequests(
-      @PathVariable final String id,
-      @RequestParam final TimeOffApprovalStatus[] status) {
+      @PathVariable final String id, @RequestParam final TimeOffApprovalStatus[] status) {
     return timeOffRequestService.findTimeOffRequests(id, status);
   }
 
@@ -105,16 +101,13 @@ public class TimeOffRequestRestController extends BaseRestController {
           + "or hasPermission(#id,'TIME_OFF_REQUEST','MANAGE_TIME_OFF_REQUEST')")
   public TimeOffRequestDetailDto findTimeOffRequest(@PathVariable final String id) {
 
-    return timeOffRequestService
-        .findTimeOffRequestDetail(id, findAuthUser());
+    return timeOffRequestService.findTimeOffRequestDetail(id, findAuthUser());
   }
-
 
   @PatchMapping("time-off-requests/{id}")
   @PreAuthorize("hasPermission(#id,'TIME_OFF_REQUEST','MANAGE_TIME_OFF_REQUEST')")
   public TimeOffRequestDto updateTimeOffRequestStatus(
-      @PathVariable final String id,
-      @RequestBody final TimeOffRequestUpdateDto updateDto) {
+      @PathVariable final String id, @RequestBody final TimeOffRequestUpdateDto updateDto) {
     return timeOffRequestService.updateTimeOffRequestStatus(id, updateDto, findAuthUser());
   }
 
@@ -122,22 +115,22 @@ public class TimeOffRequestRestController extends BaseRestController {
   @PreAuthorize("hasAuthority('MANAGE_TIME_OFF_REQUEST')")
   public Page<TimeOffRequestDto> findPendingRequestsByApprover(
       final int page, @RequestParam(defaultValue = "5", required = false) final int size) {
-    final String[] statuses = new String[]{AWAITING_REVIEW.name()};
-    final PageRequest request = PageRequest.of(page, size,
-        Sort.by(SortFields.CREATED_AT.getValue()).descending());
-    return timeOffRequestService
-        .findRequestsByApproverAndStatuses(request, statuses,findAuthUser());
+    final String[] statuses = new String[] {AWAITING_REVIEW.name()};
+    final PageRequest request =
+        PageRequest.of(page, size, Sort.by(SortFields.CREATED_AT.getValue()).descending());
+    return timeOffRequestService.findRequestsByApproverAndStatuses(
+        request, statuses, findAuthUser());
   }
 
   @GetMapping("time-off-reviewed-requests/approver")
   @PreAuthorize("hasAuthority('MANAGE_TIME_OFF_REQUEST')")
-  public Page<TimeOffRequestDto> findReviewedRequestsByApprover(final int page,
-      @RequestParam(defaultValue = "5", required = false) final int size) {
-    final String[] statuses = new String[]{APPROVED.name(), DENIED.name()};
-    final PageRequest request = PageRequest.of(page, size,
-        Sort.by(SortFields.APPROVED_DATE.getValue()).descending());
-    return timeOffRequestService
-        .findRequestsByApproverAndStatuses(request, statuses,findAuthUser());
+  public Page<TimeOffRequestDto> findReviewedRequestsByApprover(
+      final int page, @RequestParam(defaultValue = "5", required = false) final int size) {
+    final String[] statuses = new String[] {APPROVED.name(), DENIED.name()};
+    final PageRequest request =
+        PageRequest.of(page, size, Sort.by(SortFields.APPROVED_DATE.getValue()).descending());
+    return timeOffRequestService.findRequestsByApproverAndStatuses(
+        request, statuses, findAuthUser());
   }
 
   @GetMapping(value = "time-off-pending-requests/requester/{id}")
@@ -145,14 +138,15 @@ public class TimeOffRequestRestController extends BaseRestController {
       "hasPermission(#id,'USER','MANAGE_SELF_TIME_OFF_REQUEST') "
           + "or hasPermission(#id,'USER','MANAGE_TIME_OFF_REQUEST')")
   public MyTimeOffDto findPendingRequests(
-      @PathVariable(name = "id") final String id, final int page,
+      @PathVariable(name = "id") final String id,
+      final int page,
       @RequestParam(defaultValue = "5", required = false) final int size) {
 
-    final PageRequest request = PageRequest.of(
-        page, size, Sort.by(SortFields.CREATED_AT.getValue()).descending());
+    final PageRequest request =
+        PageRequest.of(page, size, Sort.by(SortFields.CREATED_AT.getValue()).descending());
     final MyTimeOffDto myTimeOffDto;
     final Timestamp startDayTimestamp = DateUtil.getFirstDayOfCurrentYear();
-    final String[] timeOffRequestStatuses = new String[]{AWAITING_REVIEW.name()};
+    final String[] timeOffRequestStatuses = new String[] {AWAITING_REVIEW.name()};
 
     myTimeOffDto =
         timeOffRequestService.getMyTimeOffRequestsByRequesterUserIdFilteredByStartDay(
@@ -178,25 +172,24 @@ public class TimeOffRequestRestController extends BaseRestController {
   @PreAuthorize(
       "hasPermission(#id,'USER','MANAGE_SELF_TIME_OFF_REQUEST') "
           + "or hasPermission(#id,'USER','MANAGE_TIME_OFF_REQUEST')")
-  public TimeOffRequestDto findMyTimeOffRequests(
-      @PathVariable(name = "id") final String id) {
+  public TimeOffRequestDto findMyTimeOffRequests(@PathVariable(name = "id") final String id) {
 
     final TimeOffRequestDto timeOffRequestDto;
     final Timestamp startDayTimestamp = new Timestamp(new Date().getTime());
-    timeOffRequestDto = timeOffRequestService
-        .findRecentRequestByRequesterAndStatus(
+    timeOffRequestDto =
+        timeOffRequestService.findRecentRequestByRequesterAndStatus(
             id, startDayTimestamp, APPROVED.name());
     return timeOffRequestDto;
   }
 
   @DeleteMapping("time-off-requests/{requestId}/unimplemented-requests/{userId}")
-  @PreAuthorize("(hasPermission(#requestId,'TIME_OFF_REQUEST','MANAGE_TIME_OFF_REQUEST') "
-      + "and hasPermission(#userId,'USER','EDIT_USER'))"
-      + "or (hasPermission(#requestId,'TIME_OFF_REQUEST','MANAGE_SELF_TIME_OFF_REQUEST')"
-      + "and hasPermission(#userId, 'USER', 'EDIT_SELF'))")
+  @PreAuthorize(
+      "(hasPermission(#requestId,'TIME_OFF_REQUEST','MANAGE_TIME_OFF_REQUEST') "
+          + "and hasPermission(#userId,'USER','EDIT_USER'))"
+          + "or (hasPermission(#requestId,'TIME_OFF_REQUEST','MANAGE_SELF_TIME_OFF_REQUEST')"
+          + "and hasPermission(#userId, 'USER', 'EDIT_SELF'))")
   public void deleteUnimplementedRequest(
-      @PathVariable final String requestId,
-      @PathVariable final String userId) {
+      @PathVariable final String requestId, @PathVariable final String userId) {
     timeOffRequestService.deleteUnimplementedRequest(requestId);
   }
 
@@ -213,5 +206,4 @@ public class TimeOffRequestRestController extends BaseRestController {
     }
     return userRole == User.Role.ADMIN || currentUser.equals(targetUser.getManagerUser());
   }
-
 }

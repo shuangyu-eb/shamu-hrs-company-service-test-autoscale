@@ -18,10 +18,7 @@ public class BaseEntity implements Serializable {
 
   @Id
   @GeneratedValue(generator = "UUID")
-  @GenericGenerator(
-      name = "UUID",
-      strategy = "shamu.company.common.DefaultUuidGenerator"
-  )
+  @GenericGenerator(name = "UUID", strategy = "shamu.company.common.DefaultUuidGenerator")
   @Type(type = "shamu.company.common.PrimaryKeyTypeDescriptor")
   private String id;
 
@@ -29,6 +26,5 @@ public class BaseEntity implements Serializable {
   @Column(name = "created_at", updatable = false)
   private Timestamp createdAt;
 
-  @UpdateTimestamp
-  private Timestamp updatedAt;
+  @UpdateTimestamp private Timestamp updatedAt;
 }

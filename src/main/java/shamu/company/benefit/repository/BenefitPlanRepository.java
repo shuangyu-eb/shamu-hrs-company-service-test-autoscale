@@ -106,8 +106,8 @@ public interface BenefitPlanRepository extends BaseRepository<BenefitPlan, Strin
               + "order by bp.name DESC, "
               + "concat(user.userPersonalInformation.lastName,"
               + "user.userPersonalInformation.firstName) ASC")
-  List<EnrollmentBreakdownDto> getEnrollmentBreakdownWhenPlanIdIsEmpty(List<String> benefitPlanIds,
-                                                                       String companyId);
+  List<EnrollmentBreakdownDto> getEnrollmentBreakdownWhenPlanIdIsEmpty(
+      List<String> benefitPlanIds, String companyId);
 
   @Query(
       value =

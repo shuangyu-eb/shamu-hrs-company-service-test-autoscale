@@ -7,8 +7,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class FederalHolidayHelperTests {
-  final private FederalHolidayHelper federalHolidayHelper = new FederalHolidayHelper();
-  private final static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+  private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+  private final FederalHolidayHelper federalHolidayHelper = new FederalHolidayHelper();
 
   @BeforeEach
   public void init() {
@@ -21,7 +21,9 @@ class FederalHolidayHelperTests {
   }
 
   private void testRecentThreeYearsFederalHolidays(
-      final String federalHoliday, final String dayIn2019, final String dayIn2020,
+      final String federalHoliday,
+      final String dayIn2019,
+      final String dayIn2020,
       final String dayIn2021) {
     final String federalHoliday2019 = getFederalHoliday(federalHoliday, 2019);
     final String federalHoliday2020 = getFederalHoliday(federalHoliday, 2020);
@@ -33,26 +35,24 @@ class FederalHolidayHelperTests {
 
   @Test
   void NewYearsDay() {
-    testRecentThreeYearsFederalHolidays(
-      "New Year's Day", "2019-01-01", "2020-01-01", "2021-01-01");
+    testRecentThreeYearsFederalHolidays("New Year's Day", "2019-01-01", "2020-01-01", "2021-01-01");
   }
 
   @Test
   void MartinLutherKingJrDay() {
     testRecentThreeYearsFederalHolidays(
-      "Martin Luther King Jr. Day", "2019-01-21", "2020-01-20", "2021-01-18");
+        "Martin Luther King Jr. Day", "2019-01-21", "2020-01-20", "2021-01-18");
   }
 
   @Test
   void WashingtonsBirthday() {
     testRecentThreeYearsFederalHolidays(
-      "Washington's Birthday", "2019-02-18", "2020-02-17", "2021-02-15");
+        "Washington's Birthday", "2019-02-18", "2020-02-17", "2021-02-15");
   }
 
   @Test
   void MemorialDay() {
-    testRecentThreeYearsFederalHolidays(
-        "Memorial Day", "2019-05-27", "2020-05-25", "2021-05-31");
+    testRecentThreeYearsFederalHolidays("Memorial Day", "2019-05-27", "2020-05-25", "2021-05-31");
   }
 
   @Test
@@ -63,20 +63,17 @@ class FederalHolidayHelperTests {
 
   @Test
   void LaborDay() {
-    testRecentThreeYearsFederalHolidays(
-        "Labor Day", "2019-09-02", "2020-09-07", "2021-09-06");
+    testRecentThreeYearsFederalHolidays("Labor Day", "2019-09-02", "2020-09-07", "2021-09-06");
   }
 
   @Test
   void ColumbusDay() {
-    testRecentThreeYearsFederalHolidays(
-        "Columbus Day", "2019-10-14", "2020-10-12", "2021-10-11");
+    testRecentThreeYearsFederalHolidays("Columbus Day", "2019-10-14", "2020-10-12", "2021-10-11");
   }
 
   @Test
   void VeteransDay() {
-    testRecentThreeYearsFederalHolidays(
-        "Veterans Day", "2019-11-11", "2020-11-11", "2021-11-11");
+    testRecentThreeYearsFederalHolidays("Veterans Day", "2019-11-11", "2020-11-11", "2021-11-11");
   }
 
   @Test
@@ -87,8 +84,7 @@ class FederalHolidayHelperTests {
 
   @Test
   void ChristmasDay() {
-    testRecentThreeYearsFederalHolidays(
-        "Christmas Day", "2019-12-25", "2020-12-25", "2021-12-25");
+    testRecentThreeYearsFederalHolidays("Christmas Day", "2019-12-25", "2020-12-25", "2021-12-25");
   }
 
   @Test

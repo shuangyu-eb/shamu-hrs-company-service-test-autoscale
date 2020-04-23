@@ -35,5 +35,4 @@ public class OfficeAddress extends BaseEntity {
 
   @Length(max = 30)
   private String postalCode;
-
 }

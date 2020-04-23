@@ -21,11 +21,9 @@ import shamu.company.user.entity.User;
 public class BenefitPlanDependent extends BaseEntity {
 
   private static final long serialVersionUID = -4190925451913461606L;
-  @ManyToOne
-  private User employee;
+  @ManyToOne private User employee;
 
-  @ManyToOne
-  private DependentRelationship dependentRelationship;
+  @ManyToOne private DependentRelationship dependentRelationship;
 
   @Length(max = 100)
   private String firstName;
@@ -67,11 +65,7 @@ public class BenefitPlanDependent extends BaseEntity {
 
   private String ssn;
 
-  @ManyToOne
-  private Gender gender;
+  @ManyToOne private Gender gender;
 
-  @ManyToOne
-  private StateProvince state;
-
-
+  @ManyToOne private StateProvince state;
 }

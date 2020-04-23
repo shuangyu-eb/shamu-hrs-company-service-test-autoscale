@@ -24,8 +24,8 @@ public interface UserAddressMapper {
   @Mapping(target = "stateProvince", source = "stateId")
   @Mapping(target = "country", source = "countryId")
   @Mapping(target = "user", source = "userId")
-  void updateFromUserAddressDto(@MappingTarget UserAddress userAddress,
-      UserAddressDto userAddressDto);
+  void updateFromUserAddressDto(
+      @MappingTarget UserAddress userAddress, UserAddressDto userAddressDto);
 
   @Mapping(target = "stateProvince", source = "stateId")
   @Mapping(target = "country", source = "countryId")
@@ -33,7 +33,7 @@ public interface UserAddressMapper {
   UserAddress createFromUserAddressDto(UserAddressDto userAddressDto);
 
   default StateProvince convertFromStateProvinceId(final String id) {
-    return StringUtils.isEmpty(id)  ? null : new StateProvince(id);
+    return StringUtils.isEmpty(id) ? null : new StateProvince(id);
   }
 
   default Country convertFromCountryId(final String id) {
@@ -44,4 +44,3 @@ public interface UserAddressMapper {
     return StringUtils.isEmpty(userId) ? null : new User(userId);
   }
 }
-

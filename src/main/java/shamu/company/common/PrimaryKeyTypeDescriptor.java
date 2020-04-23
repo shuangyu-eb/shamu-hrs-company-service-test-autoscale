@@ -15,9 +15,7 @@ public class PrimaryKeyTypeDescriptor implements UserType {
 
   @Override
   public int[] sqlTypes() {
-    return new int[]{
-        BinaryType.INSTANCE.sqlType()
-    };
+    return new int[] {BinaryType.INSTANCE.sqlType()};
   }
 
   @Override
@@ -36,8 +34,11 @@ public class PrimaryKeyTypeDescriptor implements UserType {
   }
 
   @Override
-  public Object nullSafeGet(ResultSet resultSet, String[] strings,
-      SharedSessionContractImplementor sharedSessionContractImplementor, Object o)
+  public Object nullSafeGet(
+      ResultSet resultSet,
+      String[] strings,
+      SharedSessionContractImplementor sharedSessionContractImplementor,
+      Object o)
       throws SQLException {
     if (strings.length == 0) {
       return null;
@@ -52,8 +53,12 @@ public class PrimaryKeyTypeDescriptor implements UserType {
   }
 
   @Override
-  public void nullSafeSet(PreparedStatement preparedStatement, Object o, int i,
-      SharedSessionContractImplementor sharedSessionContractImplementor) throws SQLException {
+  public void nullSafeSet(
+      PreparedStatement preparedStatement,
+      Object o,
+      int i,
+      SharedSessionContractImplementor sharedSessionContractImplementor)
+      throws SQLException {
     byte[] bytes = o == null ? null : UuidUtil.toBytes((String) o);
     BinaryType.INSTANCE.set(preparedStatement, bytes, i, sharedSessionContractImplementor);
   }

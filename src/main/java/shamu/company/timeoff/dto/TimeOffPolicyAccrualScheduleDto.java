@@ -8,8 +8,7 @@ public class TimeOffPolicyAccrualScheduleDto {
 
   private String id;
 
-  @NotNull
-  private Integer accrualHours;
+  @NotNull private Integer accrualHours;
 
   private Integer maxBalance;
 

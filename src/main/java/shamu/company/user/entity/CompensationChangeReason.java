@@ -14,8 +14,7 @@ import shamu.company.company.entity.Company;
 @NoArgsConstructor
 public class CompensationChangeReason extends BaseEntity {
 
-  @ManyToOne
-  private Company company;
+  @ManyToOne private Company company;
 
   private String name;
 }

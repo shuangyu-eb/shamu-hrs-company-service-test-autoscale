@@ -11,15 +11,6 @@ import shamu.company.common.exception.ValidationFailedException;
 
 class ValidationUtilTests {
 
-  @Data
-  @AllArgsConstructor
-  class SomeDto {
-
-    @Email String email;
-
-    SomeDto() {}
-  }
-
   @Test
   void testValidateSingleObject() {
     final SomeDto someDto = new SomeDto("qweasd");
@@ -56,5 +47,14 @@ class ValidationUtilTests {
   void testValidateEmptyObjects() {
     final List dtos = null;
     Assertions.assertDoesNotThrow(() -> ValidationUtil.validate(dtos));
+  }
+
+  @Data
+  @AllArgsConstructor
+  class SomeDto {
+
+    @Email String email;
+
+    SomeDto() {}
   }
 }

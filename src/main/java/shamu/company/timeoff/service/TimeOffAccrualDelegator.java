@@ -20,27 +20,34 @@ public class TimeOffAccrualDelegator {
   private final TimeOffAccrualFrequencyRepository frequencyRepository;
 
   @Autowired
-  public TimeOffAccrualDelegator(final List<TimeOffAccrualService> accrualServices,
+  public TimeOffAccrualDelegator(
+      final List<TimeOffAccrualService> accrualServices,
       final TimeOffAccrualFrequencyRepository frequencyRepository) {
     this.accrualServices = accrualServices;
     this.frequencyRepository = frequencyRepository;
   }
 
-  public TimeOffBreakdownDto getTimeOffBreakdown(String frequencyTypeId,
-      TimeOffBreakdownCalculatePojo calculatePojo) {
-    TimeOffAccrualFrequency timeOffFrequency = frequencyRepository.findById(frequencyTypeId)
-        .orElseThrow(()
-            -> new ResourceNotFoundException(
-            String.format("Time off frequency with id %s not found.", frequencyTypeId)));
+  public TimeOffBreakdownDto getTimeOffBreakdown(
+      String frequencyTypeId, TimeOffBreakdownCalculatePojo calculatePojo) {
+    TimeOffAccrualFrequency timeOffFrequency =
+        frequencyRepository
+            .findById(frequencyTypeId)
+            .orElseThrow(
+                () ->
+                    new ResourceNotFoundException(
+                        String.format(
+                            "Time off frequency with id %s not found.", frequencyTypeId)));
 
-    final TimeOffBreakdownYearDto startingBreakdown = TimeOffBreakdownItemDto
-        .fromTimeOffPolicyUser(calculatePojo);
+    final TimeOffBreakdownYearDto startingBreakdown =
+        TimeOffBreakdownItemDto.fromTimeOffPolicyUser(calculatePojo);
 
-    TimeOffAccrualService accrualService = accrualServices
-        .stream()
-        .filter(timeOffAccrualService -> timeOffAccrualService.support(timeOffFrequency.getName()))
-        .findFirst()
-        .orElseThrow(() -> new ForbiddenException("Can not find appropriate accrual strategy."));
+    TimeOffAccrualService accrualService =
+        accrualServices.stream()
+            .filter(
+                timeOffAccrualService -> timeOffAccrualService.support(timeOffFrequency.getName()))
+            .findFirst()
+            .orElseThrow(
+                () -> new ForbiddenException("Can not find appropriate accrual strategy."));
 
     return accrualService.getTimeOffBreakdown(startingBreakdown, calculatePojo);
   }

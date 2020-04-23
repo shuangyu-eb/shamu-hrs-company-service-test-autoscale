@@ -1,5 +1,7 @@
 package shamu.company.common.service;
 
+import java.util.ArrayList;
+import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -11,9 +13,6 @@ import shamu.company.common.entity.StateProvince;
 import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.common.repository.StateProvinceRepository;
 
-import java.util.ArrayList;
-import java.util.Optional;
-
 public class StateProvinceServiceTests {
 
   @Mock private StateProvinceRepository stateProvinceRepository;
@@ -24,6 +23,13 @@ public class StateProvinceServiceTests {
   void init() {
     MockitoAnnotations.initMocks(this);
     stateProvinceService = new StateProvinceService(stateProvinceRepository);
+  }
+
+  @Test
+  void testFindAllByCountry() {
+    Mockito.when(stateProvinceRepository.findAllByCountry(Mockito.any()))
+        .thenReturn(new ArrayList<>());
+    Assertions.assertDoesNotThrow(() -> stateProvinceService.findAllByCountry("1"));
   }
 
   @Nested
@@ -42,11 +48,5 @@ public class StateProvinceServiceTests {
       Assertions.assertThrows(
           ResourceNotFoundException.class, () -> stateProvinceService.findById("1"));
     }
-  }
-
-  @Test
-  void testFindAllByCountry() {
-    Mockito.when(stateProvinceRepository.findAllByCountry(Mockito.any())).thenReturn(new ArrayList<>());
-    Assertions.assertDoesNotThrow(() -> stateProvinceService.findAllByCountry("1"));
   }
 }

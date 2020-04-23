@@ -1,5 +1,9 @@
 package shamu.company.timeoff.service;
 
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,12 +21,6 @@ import shamu.company.timeoff.entity.TimeOffPolicyUser;
 import shamu.company.timeoff.pojo.TimeOffBreakdownCalculatePojo;
 import shamu.company.timeoff.repository.AccrualScheduleMilestoneRepository;
 import shamu.company.user.entity.User;
-
-import java.sql.Timestamp;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 public class TimeOffAccrualMonthStrategyServiceTests {
 
@@ -48,15 +46,19 @@ public class TimeOffAccrualMonthStrategyServiceTests {
     timeOffBreakdownYearDto = new TimeOffBreakdownYearDto();
     timeOffBreakdownCalculatePojo = new TimeOffBreakdownCalculatePojo();
     timeOffBreakdownMonthDto = new TimeOffBreakdownMonthDto();
-    timeOffAccrualMonthStrategyService = new TimeOffAccrualMonthStrategyService(accrualScheduleMilestoneRepository);
+    timeOffAccrualMonthStrategyService =
+        new TimeOffAccrualMonthStrategyService(accrualScheduleMilestoneRepository);
   }
 
   @Test
   void testGetTimeOffBreakdownInternal() {
     timeOffBreakdownMonthDto.setYearData(timeOffBreakdownYearDto);
     final TimeOffAccrualMonthStrategyService spy = Mockito.spy(timeOffAccrualMonthStrategyService);
-    Mockito.doReturn(timeOffBreakdownDto).when(spy).getTimeOffBreakdown(timeOffBreakdownMonthDto,timeOffBreakdownCalculatePojo);
-    Assertions.assertNotNull(spy.getTimeOffBreakdownInternal(timeOffBreakdownYearDto,timeOffBreakdownCalculatePojo));
+    Mockito.doReturn(timeOffBreakdownDto)
+        .when(spy)
+        .getTimeOffBreakdown(timeOffBreakdownMonthDto, timeOffBreakdownCalculatePojo);
+    Assertions.assertNotNull(
+        spy.getTimeOffBreakdownInternal(timeOffBreakdownYearDto, timeOffBreakdownCalculatePojo));
   }
 
   @Test
@@ -71,12 +73,13 @@ public class TimeOffAccrualMonthStrategyServiceTests {
 
     final List<TimeOffBreakdownItemDto> balanceAdjustment = new ArrayList<>();
     final TimeOffBreakdownItemDto itemDto = new TimeOffBreakdownItemDto();
-    itemDto.setDate(LocalDate.of(1970,1,1));
+    itemDto.setDate(LocalDate.of(1970, 1, 1));
     itemDto.setAmount(1);
     balanceAdjustment.add(itemDto);
 
     final List<AccrualScheduleMilestone> accrualScheduleMilestoneList = new ArrayList<>();
-    final TimeOffPolicyAccrualSchedule timeOffPolicyAccrualSchedule = new TimeOffPolicyAccrualSchedule();
+    final TimeOffPolicyAccrualSchedule timeOffPolicyAccrualSchedule =
+        new TimeOffPolicyAccrualSchedule();
     final TimeOffAccrualFrequency timeOffAccrualFrequency = new TimeOffAccrualFrequency();
     final AccrualScheduleMilestone accrualScheduleMilestone = new AccrualScheduleMilestone();
 
@@ -97,11 +100,16 @@ public class TimeOffAccrualMonthStrategyServiceTests {
     accrualScheduleMilestone.setAnniversaryYear(1);
     accrualScheduleMilestoneList.add(accrualScheduleMilestone);
 
-    Mockito.when(accrualScheduleMilestoneRepository
-        .findByAccrualScheduleIdWithExpired(Mockito.anyString())).thenReturn(accrualScheduleMilestoneList);
+    Mockito.when(
+            accrualScheduleMilestoneRepository.findByAccrualScheduleIdWithExpired(
+                Mockito.anyString()))
+        .thenReturn(accrualScheduleMilestoneList);
     timeOffBreakdownMonthDto.setDate(today);
     timeOffBreakdownMonthDto.setAccrualHours(1);
     timeOffBreakdownCalculatePojo.setBalanceAdjustment(balanceAdjustment);
-    Assertions.assertDoesNotThrow(() -> timeOffAccrualMonthStrategyService.getTimeOffBreakdown(timeOffBreakdownMonthDto,timeOffBreakdownCalculatePojo));
+    Assertions.assertDoesNotThrow(
+        () ->
+            timeOffAccrualMonthStrategyService.getTimeOffBreakdown(
+                timeOffBreakdownMonthDto, timeOffBreakdownCalculatePojo));
   }
 }

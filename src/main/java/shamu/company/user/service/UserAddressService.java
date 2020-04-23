@@ -36,7 +36,8 @@ public class UserAddressService {
   }
 
   public UserAddress findUserAddressById(final String id) {
-    return userAddressRepository.findById(id)
+    return userAddressRepository
+        .findById(id)
         .orElseThrow(() -> new ResourceNotFoundException("User address does not exist"));
   }
 
@@ -52,8 +53,8 @@ public class UserAddressService {
     final String userId = userAddressDto.getUserId();
     final UserAddress userAddress = findUserAddressByUserId(userId);
     if (userAddress == null) {
-      final UserAddress initUserAddress = userAddressMapper
-          .createFromUserAddressDto(userAddressDto);
+      final UserAddress initUserAddress =
+          userAddressMapper.createFromUserAddressDto(userAddressDto);
       userAddressRepository.save(initUserAddress);
       return userAddressRepository.findUserAddressByUserId(userId);
     }

@@ -8,7 +8,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import shamu.company.common.entity.BaseEntity;
 
-
 @Entity
 @Table(name = "user_access_level_events")
 @Data
@@ -16,8 +15,7 @@ import shamu.company.common.entity.BaseEntity;
 @AllArgsConstructor
 public class UserAccessLevelEvent extends BaseEntity {
 
-  @ManyToOne
-  private User user;
+  @ManyToOne private User user;
 
   private String originalRole;
 }

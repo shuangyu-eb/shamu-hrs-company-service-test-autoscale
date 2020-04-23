@@ -5,8 +5,11 @@ import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.mapstruct.ap.internal.util.Collections;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -32,26 +35,19 @@ import shamu.company.utils.UuidUtil;
 
 public class TimeOffRequestEmailServiceTests {
 
-  @Mock
-  private EmailService emailService;
+  @Mock private EmailService emailService;
 
-  @Mock
-  private AwsHelper awsHelper;
+  @Mock private AwsHelper awsHelper;
 
-  @Mock
-  private ITemplateEngine templateEngine;
+  @Mock private ITemplateEngine templateEngine;
 
-  @Mock
-  private ApplicationConfig applicationConfig;
+  @Mock private ApplicationConfig applicationConfig;
 
-  @Mock
-  private TimeOffRequestService timeOffRequestService;
+  @Mock private TimeOffRequestService timeOffRequestService;
 
-  @InjectMocks
-  private TimeOffRequestEmailService timeOffRequestEmailService;
+  @InjectMocks private TimeOffRequestEmailService timeOffRequestEmailService;
 
-  @Mock
-  private TimeOffDetailService timeOffDetailService;
+  @Mock private TimeOffDetailService timeOffDetailService;
 
   @BeforeEach
   void setUp() {
@@ -130,50 +126,58 @@ public class TimeOffRequestEmailServiceTests {
 
     @Test
     void whenStatusIsDenied_thenShouldSuccess() {
-      timeOffRequestApprovalStatus.setName(TimeOffRequestApprovalStatus.TimeOffApprovalStatus.DENIED.name());
+      timeOffRequestApprovalStatus.setName(
+          TimeOffRequestApprovalStatus.TimeOffApprovalStatus.DENIED.name());
       timeOffRequest.setTimeOffRequestApprovalStatus(timeOffRequestApprovalStatus);
 
       Mockito.when(timeOffRequestService.findByRequestId(Mockito.any())).thenReturn(timeOffRequest);
-      Mockito.when(templateEngine.process(Mockito.eq("time_off_request_pending.html"), Mockito.any())).thenReturn("");
-      Mockito.when(timeOffDetailService.getTimeOffRequestDatesRange(Mockito.any())).thenReturn("123");
+      Mockito.when(
+              templateEngine.process(Mockito.eq("time_off_request_pending.html"), Mockito.any()))
+          .thenReturn("");
+      Mockito.when(timeOffDetailService.getTimeOffRequestDatesRange(Mockito.any()))
+          .thenReturn("123");
 
-      Assertions.assertDoesNotThrow(() ->
-          timeOffRequestEmailService.sendEmail(timeOffRequest));
+      Assertions.assertDoesNotThrow(() -> timeOffRequestEmailService.sendEmail(timeOffRequest));
     }
 
     @Test
     void whenStatusIsApprove_thenShouldSuccess() {
-      timeOffRequestApprovalStatus.setName(TimeOffRequestApprovalStatus.TimeOffApprovalStatus.APPROVED.name());
+      timeOffRequestApprovalStatus.setName(
+          TimeOffRequestApprovalStatus.TimeOffApprovalStatus.APPROVED.name());
       timeOffRequest.setTimeOffRequestApprovalStatus(timeOffRequestApprovalStatus);
 
       Mockito.when(timeOffRequestService.findByRequestId(Mockito.any())).thenReturn(timeOffRequest);
-      Mockito.when(templateEngine.process(Mockito.eq("time_off_request_approve.html"), Mockito.any())).thenReturn("");
-      Mockito.when(timeOffDetailService.getTimeOffRequestDatesRange(Mockito.any())).thenReturn("123");
+      Mockito.when(
+              templateEngine.process(Mockito.eq("time_off_request_approve.html"), Mockito.any()))
+          .thenReturn("");
+      Mockito.when(timeOffDetailService.getTimeOffRequestDatesRange(Mockito.any()))
+          .thenReturn("123");
 
-      Assertions.assertDoesNotThrow(() ->
-          timeOffRequestEmailService.sendEmail(timeOffRequest));
+      Assertions.assertDoesNotThrow(() -> timeOffRequestEmailService.sendEmail(timeOffRequest));
     }
 
     @Test
     void whenStatusIsPending_thenShouldSuccess() {
-      timeOffRequestApprovalStatus.setName(TimeOffRequestApprovalStatus.TimeOffApprovalStatus.AWAITING_REVIEW.name());
+      timeOffRequestApprovalStatus.setName(
+          TimeOffRequestApprovalStatus.TimeOffApprovalStatus.AWAITING_REVIEW.name());
       timeOffRequest.setTimeOffRequestApprovalStatus(timeOffRequestApprovalStatus);
 
       Mockito.when(timeOffRequestService.findByRequestId(Mockito.any())).thenReturn(timeOffRequest);
-      Mockito.when(templateEngine.process(Mockito.eq("time_off_request_pending.html"), Mockito.any())).thenReturn("");
-      Mockito.when(timeOffDetailService.getTimeOffRequestDatesRange(Mockito.any())).thenReturn("123");
+      Mockito.when(
+              templateEngine.process(Mockito.eq("time_off_request_pending.html"), Mockito.any()))
+          .thenReturn("");
+      Mockito.when(timeOffDetailService.getTimeOffRequestDatesRange(Mockito.any()))
+          .thenReturn("123");
 
-      Assertions.assertDoesNotThrow(() ->
-          timeOffRequestEmailService.sendEmail(timeOffRequest));
+      Assertions.assertDoesNotThrow(() -> timeOffRequestEmailService.sendEmail(timeOffRequest));
     }
 
     @AfterEach
     void testDefaultAvatarName() throws Exception {
-      final Map<String, Object> variables = Whitebox.invokeMethod(timeOffRequestEmailService,"getVariablesOfTimeOffRequestEmail",timeOffRequest);
-      Assertions.assertEquals("HK",variables.get("avatarText"));
+      final Map<String, Object> variables =
+          Whitebox.invokeMethod(
+              timeOffRequestEmailService, "getVariablesOfTimeOffRequestEmail", timeOffRequest);
+      Assertions.assertEquals("HK", variables.get("avatarText"));
     }
   }
-
-
-
 }

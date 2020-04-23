@@ -48,7 +48,8 @@ public class CompanyService {
   private final CompanyBenefitsSettingService companyBenefitsSettingService;
 
   @Autowired
-  public CompanyService(final CompanyRepository companyRepository,
+  public CompanyService(
+      final CompanyRepository companyRepository,
       final DepartmentService departmentService,
       final EmploymentTypeService employmentTypeService,
       final JobService jobService,
@@ -68,7 +69,6 @@ public class CompanyService {
     this.companyBenefitsSettingService = companyBenefitsSettingService;
   }
 
-
   public Boolean existsByName(final String companyName) {
     return companyRepository.existsByName(companyName);
   }
@@ -76,14 +76,17 @@ public class CompanyService {
   public List<SelectFieldSizeDto> findDepartmentsByCompanyId(final String companyId) {
     final List<Department> departments = departmentService.findAllByCompanyId(companyId);
 
-    return departments.stream().map(department -> {
-      final SelectFieldSizeDto selectFieldSizeDto = new SelectFieldSizeDto();
-      final Integer size = departmentService.findCountByDepartment(department.getId());
-      selectFieldSizeDto.setId(department.getId());
-      selectFieldSizeDto.setName(department.getName());
-      selectFieldSizeDto.setSize(size);
-      return selectFieldSizeDto;
-    }).collect(Collectors.toList());
+    return departments.stream()
+        .map(
+            department -> {
+              final SelectFieldSizeDto selectFieldSizeDto = new SelectFieldSizeDto();
+              final Integer size = departmentService.findCountByDepartment(department.getId());
+              selectFieldSizeDto.setId(department.getId());
+              selectFieldSizeDto.setName(department.getName());
+              selectFieldSizeDto.setSize(size);
+              return selectFieldSizeDto;
+            })
+        .collect(Collectors.toList());
   }
 
   public Department findDepartmentsById(final String id) {
@@ -122,24 +125,27 @@ public class CompanyService {
 
   public List<OfficeSizeDto> findOfficesByCompany(final String companyId) {
     final List<Office> offices = officeService.findByCompanyId(companyId);
-    return offices.stream().map(office -> {
-      final OfficeSizeDto officeSizeDto = new OfficeSizeDto();
-      final Integer size = officeService.findCountByOffice(office.getId());
-      officeSizeDto.setId(office.getId());
-      officeSizeDto.setName(office.getName());
-      officeSizeDto.setOfficeAddress(
-              officeAddressMapper.convertToOfficeAddressDto(office.getOfficeAddress()));
-      officeSizeDto.setSize(size);
-      return officeSizeDto;
-    }).collect(Collectors.toList());
+    return offices.stream()
+        .map(
+            office -> {
+              final OfficeSizeDto officeSizeDto = new OfficeSizeDto();
+              final Integer size = officeService.findCountByOffice(office.getId());
+              officeSizeDto.setId(office.getId());
+              officeSizeDto.setName(office.getName());
+              officeSizeDto.setOfficeAddress(
+                  officeAddressMapper.convertToOfficeAddressDto(office.getOfficeAddress()));
+              officeSizeDto.setSize(size);
+              return officeSizeDto;
+            })
+        .collect(Collectors.toList());
   }
 
   public Office saveOffice(final Office office) {
     final OfficeAddress officeAddress = office.getOfficeAddress();
     final StateProvince stateProvince = officeAddress.getStateProvince();
     if (stateProvince != null && stateProvince.getId() != null) {
-      final StateProvince stateProvinceReturned = stateProvinceService
-              .findById(stateProvince.getId());
+      final StateProvince stateProvinceReturned =
+          stateProvinceService.findById(stateProvince.getId());
       officeAddress.setStateProvince(stateProvinceReturned);
     }
 
@@ -150,18 +156,21 @@ public class CompanyService {
 
   public List<SelectFieldSizeDto> findEmploymentTypesByCompanyId(final String companyId) {
     final List<EmploymentType> types = employmentTypeService.findAllByCompanyId(companyId);
-    return types.stream().map(type -> {
-      final SelectFieldSizeDto selectFieldSizeDto = new SelectFieldSizeDto();
-      final Integer size = employmentTypeService.findCountByType(type.getId());
-      selectFieldSizeDto.setId(type.getId());
-      selectFieldSizeDto.setName(type.getName());
-      selectFieldSizeDto.setSize(size);
-      return selectFieldSizeDto;
-    }).collect(Collectors.toList());
+    return types.stream()
+        .map(
+            type -> {
+              final SelectFieldSizeDto selectFieldSizeDto = new SelectFieldSizeDto();
+              final Integer size = employmentTypeService.findCountByType(type.getId());
+              selectFieldSizeDto.setId(type.getId());
+              selectFieldSizeDto.setName(type.getName());
+              selectFieldSizeDto.setSize(size);
+              return selectFieldSizeDto;
+            })
+        .collect(Collectors.toList());
   }
 
-  public EmploymentType saveEmploymentType(final String employmentTypeName,
-      final String companyId) {
+  public EmploymentType saveEmploymentType(
+      final String employmentTypeName, final String companyId) {
     final EmploymentType employmentType = EmploymentType.builder().name(employmentTypeName).build();
     employmentType.setCompany(new Company(companyId));
 
@@ -179,23 +188,23 @@ public class CompanyService {
   }
 
   public CompanyBenefitsSettingDto findCompanyBenefitsSetting(final String companyId) {
-    final CompanyBenefitsSetting benefitsSetting = companyBenefitsSettingService
-        .findByCompanyId(companyId);
+    final CompanyBenefitsSetting benefitsSetting =
+        companyBenefitsSettingService.findByCompanyId(companyId);
     return companyBenefitsSettingMapper.convertCompanyBenefitsSettingDto(benefitsSetting);
   }
 
   public void updateBenefitSettingAutomaticRollover(
       final String companyId, final Boolean isTurnOn) {
-    final CompanyBenefitsSetting benefitsSetting = companyBenefitsSettingService
-        .findByCompanyId(companyId);
+    final CompanyBenefitsSetting benefitsSetting =
+        companyBenefitsSettingService.findByCompanyId(companyId);
     benefitsSetting.setIsAutomaticRollover(isTurnOn);
     companyBenefitsSettingService.save(benefitsSetting);
   }
 
   public void updateEnrollmentPeriod(
       final String companyId, final CompanyBenefitsSettingDto companyBenefitsSettingDto) {
-    final CompanyBenefitsSetting benefitsSetting = companyBenefitsSettingService
-        .findByCompanyId(companyId);
+    final CompanyBenefitsSetting benefitsSetting =
+        companyBenefitsSettingService.findByCompanyId(companyId);
     benefitsSetting.setStartDate(companyBenefitsSettingDto.getStartDate());
     benefitsSetting.setEndDate(companyBenefitsSettingDto.getEndDate());
     companyBenefitsSettingService.save(benefitsSetting);

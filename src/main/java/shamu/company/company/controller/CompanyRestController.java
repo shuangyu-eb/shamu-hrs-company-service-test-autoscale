@@ -158,8 +158,7 @@ public class CompanyRestController extends BaseRestController {
 
   @PatchMapping("global-setting/company-name")
   @PreAuthorize("hasAuthority('UPDATE_COMPANY_NAME')")
-  public String updateCompanyName(
-      @RequestBody final String companyName) {
+  public String updateCompanyName(@RequestBody final String companyName) {
     final String companyId = findCompanyId();
     return companyService.updateCompanyName(companyName, companyId);
   }

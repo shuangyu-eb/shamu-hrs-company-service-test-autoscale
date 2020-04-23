@@ -8,6 +8,5 @@ public class EmailResendDto {
 
   private String userId;
 
-  @Email
-  private String email;
+  @Email private String email;
 }

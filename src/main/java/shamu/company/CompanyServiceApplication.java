@@ -18,5 +18,4 @@ public class CompanyServiceApplication {
   void started() {
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
   }
-
 }

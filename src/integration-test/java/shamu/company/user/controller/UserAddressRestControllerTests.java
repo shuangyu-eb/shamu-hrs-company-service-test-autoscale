@@ -1,5 +1,8 @@
 package shamu.company.user.controller;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
+
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,17 +25,12 @@ import shamu.company.user.entity.UserAddress;
 import shamu.company.user.entity.mapper.UserAddressMapper;
 import shamu.company.utils.JsonUtil;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.BDDMockito.given;
-
 @WebMvcTest(controllers = UserAddressRestController.class)
 class UserAddressRestControllerTests extends WebControllerBaseTests {
 
-  @MockBean
-  private UserAddressMapper userAddressMapper;
+  @MockBean private UserAddressMapper userAddressMapper;
 
-  @Autowired
-  private MockMvc mockMvc;
+  @Autowired private MockMvc mockMvc;
 
   @Test
   void testSaveUserAddress() throws Exception {
@@ -41,11 +39,15 @@ class UserAddressRestControllerTests extends WebControllerBaseTests {
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
     final UserAddressDto userAddressDto = new UserAddressDto();
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .patch("/company/users/" + getAuthUser().getId() + "/user-address")
-        .contentType(MediaType.APPLICATION_JSON)
-        .headers(httpHeaders)
-        .content(JsonUtil.formatToString(userAddressDto))).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.patch(
+                        "/company/users/" + getAuthUser().getId() + "/user-address")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .headers(httpHeaders)
+                    .content(JsonUtil.formatToString(userAddressDto)))
+            .andReturn();
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
@@ -64,12 +66,17 @@ class UserAddressRestControllerTests extends WebControllerBaseTests {
     targetUser.setId(currentUser.getId());
 
     given(userService.findById(currentUser.getId())).willReturn(targetUser);
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .get("/company/users/" + currentUser.getId() + "/user-address")
-        .headers(httpHeaders)).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.get(
+                        "/company/users/" + currentUser.getId() + "/user-address")
+                    .headers(httpHeaders))
+            .andReturn();
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
-    assertThat(response.getResponse().getContentAsString()).isEqualTo(JsonUtil.formatToString(new UserAddressDto()));
+    assertThat(response.getResponse().getContentAsString())
+        .isEqualTo(JsonUtil.formatToString(new UserAddressDto()));
   }
 
   @Test
@@ -86,11 +93,16 @@ class UserAddressRestControllerTests extends WebControllerBaseTests {
     targetUser.setId(currentUser.getId());
 
     given(userService.findById(currentUser.getId())).willReturn(targetUser);
-    given(userAddressService.findUserAddressByUserId(currentUser.getId())).willReturn(new UserAddress());
+    given(userAddressService.findUserAddressByUserId(currentUser.getId()))
+        .willReturn(new UserAddress());
 
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .get("/company/users/" + currentUser.getId() + "/user-address")
-        .headers(httpHeaders)).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.get(
+                        "/company/users/" + currentUser.getId() + "/user-address")
+                    .headers(httpHeaders))
+            .andReturn();
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
     Mockito.verify(userAddressMapper, Mockito.times(1)).convertToUserAddressDto(Mockito.any());

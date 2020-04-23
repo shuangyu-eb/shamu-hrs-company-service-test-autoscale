@@ -17,7 +17,8 @@ public interface BenefitPlanCoverageMapper {
   @Mapping(target = "createdAt", ignore = true)
   @Mapping(target = "updatedAt", ignore = true)
   BenefitPlanCoverage createFromBenefitPlanCoverageAndBenefitPlan(
-      BenefitPlanCoverageDto benefitPlanCoverageDto, BenefitPlan benefitPlan,
+      BenefitPlanCoverageDto benefitPlanCoverageDto,
+      BenefitPlan benefitPlan,
       BenefitCoverages newBenefitCoverage);
 
   @Mapping(target = "id", source = "benefitPlanCoverageDto.id")
@@ -25,7 +26,7 @@ public interface BenefitPlanCoverageMapper {
   @Mapping(target = "createdAt", ignore = true)
   @Mapping(target = "updatedAt", ignore = true)
   BenefitPlanCoverage updateFromBenefitPlanCoverageAndBenefitPlan(
-          BenefitPlanCoverageDto benefitPlanCoverageDto, BenefitPlan benefitPlan);
+      BenefitPlanCoverageDto benefitPlanCoverageDto, BenefitPlan benefitPlan);
 
   @Mapping(target = "coverageId", source = "benefitPlanCoverage.benefitCoverage.id")
   BenefitPlanCoverageDto convertToBenefitPlanCoverageDto(BenefitPlanCoverage benefitPlanCoverage);
@@ -37,7 +38,7 @@ public interface BenefitPlanCoverageMapper {
   @Mapping(target = "createdAt", ignore = true)
   @Mapping(target = "updatedAt", ignore = true)
   BenefitPlanCoverage createFromBenefitPlanCoverageDtoAndCoverage(
-          BenefitPlanCoverageDto benefitPlanCoverageDto, BenefitCoverages benefitCoverages);
+      BenefitPlanCoverageDto benefitPlanCoverageDto, BenefitCoverages benefitCoverages);
 
   @Mapping(target = "id", source = "benefitPlanCoverageDto.id")
   @Mapping(target = "benefitCoverage", source = "benefitPlanCoverage.benefitCoverage")
@@ -45,7 +46,7 @@ public interface BenefitPlanCoverageMapper {
   @Mapping(target = "employerCost", source = "benefitPlanCoverageDto.employerCost")
   @Mapping(target = "createdAt", ignore = true)
   BenefitPlanCoverage createFromBenefitPlanCoverageDtoAndPlanCoverage(
-          BenefitPlanCoverageDto benefitPlanCoverageDto, BenefitPlanCoverage benefitPlanCoverage);
+      BenefitPlanCoverageDto benefitPlanCoverageDto, BenefitPlanCoverage benefitPlanCoverage);
 
   @Mapping(target = "id", ignore = true)
   @Mapping(target = "benefitCoverage", source = "benefitCoverage")

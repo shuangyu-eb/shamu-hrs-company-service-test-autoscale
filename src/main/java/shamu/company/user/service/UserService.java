@@ -271,7 +271,8 @@ public class UserService {
 
   private Page<JobUserListItem> getAllEmployeesByCompany(
       final EmployeeListSearchCondition employeeListSearchCondition,
-      final String companyId, final Pageable pageable) {
+      final String companyId,
+      final Pageable pageable) {
     return userRepository.getAllByCondition(employeeListSearchCondition, companyId, pageable);
   }
 
@@ -392,8 +393,9 @@ public class UserService {
     if (user == null || user.getInvitedAt() == null) {
       throw new ForbiddenException("User does not exist or not invited");
     }
-    if (Timestamp.from(Instant.now()).after(
-        Timestamp.valueOf(user.getInvitedAt().toLocalDateTime().plus(72, ChronoUnit.HOURS)))) {
+    if (Timestamp.from(Instant.now())
+        .after(
+            Timestamp.valueOf(user.getInvitedAt().toLocalDateTime().plus(72, ChronoUnit.HOURS)))) {
       throw new EmailException("Email is expired");
     }
     if (!userRepository.existsByResetPasswordToken(passwordToken)) {
@@ -458,8 +460,9 @@ public class UserService {
 
   private void deactivateUser(final UserStatusUpdateDto userStatusUpdateDto, final User user) {
     if ((Status.ACTIVE.name()).equals(userStatusUpdateDto.getUserStatus().name())
-        || Status.CHANGING_EMAIL_VERIFICATION.name()
-        .equals(userStatusUpdateDto.getUserStatus().name())) {
+        || Status.CHANGING_EMAIL_VERIFICATION
+            .name()
+            .equals(userStatusUpdateDto.getUserStatus().name())) {
       userAccessLevelEventService.save(
           new UserAccessLevelEvent(user, user.getUserRole().getName()));
 
@@ -561,8 +564,7 @@ public class UserService {
             .phoneWork(signUpDto.getPhone())
             .build();
 
-    Company company =
-        Company.builder().name(signUpDto.getCompanyName()).build();
+    Company company = Company.builder().name(signUpDto.getCompanyName()).build();
     company = companyService.save(company);
     secretHashRepository.generateCompanySecretByCompanyId(company.getId());
 
@@ -683,8 +685,8 @@ public class UserService {
       emailService.handleEmail(user);
       userRepository.save(user);
     } else {
-      throw new ForbiddenException(String.format(" %s has already been used by another user",
-        emailUpdateDto.getEmail()));
+      throw new ForbiddenException(
+          String.format(" %s has already been used by another user", emailUpdateDto.getEmail()));
     }
   }
 
@@ -757,7 +759,7 @@ public class UserService {
     }
 
     final String passwordRestToken = UUID.randomUUID().toString();
-    final String emailContent = emailService.getResetPasswordEmail(passwordRestToken,email);
+    final String emailContent = emailService.getResetPasswordEmail(passwordRestToken, email);
     final Timestamp sendDate = Timestamp.valueOf(LocalDateTime.now());
     final Email verifyEmail =
         new Email(systemEmailAddress, email, "Password Reset!", emailContent, sendDate);
@@ -787,9 +789,8 @@ public class UserService {
 
     auth0Helper.updatePassword(auth0User, updatePasswordDto.getNewPassword());
 
-    final UserStatus pendingStatus = userStatusService.findByName(
-        Status.PENDING_VERIFICATION.name()
-    );
+    final UserStatus pendingStatus =
+        userStatusService.findByName(Status.PENDING_VERIFICATION.name());
 
     if (user.getUserStatus() == pendingStatus) {
       final UserStatus userStatus = userStatusService.findByName(Status.ACTIVE.name());
@@ -870,8 +871,7 @@ public class UserService {
         dismissedAtService.findByUserIdAndSystemAnnouncementId(userId, id);
     if (dismissed == null) {
       final User user = findById(userId);
-      final SystemAnnouncement systemAnnouncement =
-          systemAnnouncementsService.findById(id);
+      final SystemAnnouncement systemAnnouncement = systemAnnouncementsService.findById(id);
       final DismissedAt dismissedAt = new DismissedAt();
       dismissedAt.setUser(user);
       dismissedAt.setSystemAnnouncement(systemAnnouncement);

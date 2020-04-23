@@ -14,5 +14,4 @@ public class BenefitCoveragesDto {
   private String id;
 
   private String coverageName;
-
 }

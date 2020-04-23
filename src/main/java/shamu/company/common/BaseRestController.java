@@ -12,11 +12,9 @@ import shamu.company.user.service.UserService;
 
 public class BaseRestController {
 
-  @Autowired
-  private AuthUserCacheManager authUserCacheManager;
+  @Autowired private AuthUserCacheManager authUserCacheManager;
 
-  @Autowired
-  private UserService userService;
+  @Autowired private UserService userService;
 
   protected DefaultJwtAuthenticationToken findAuthentication() {
     final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -25,7 +23,6 @@ public class BaseRestController {
 
   protected String findToken() {
     return findAuthentication().getToken().getTokenValue();
-
   }
 
   public AuthUser findAuthUser() {
@@ -50,8 +47,9 @@ public class BaseRestController {
     final User targetUser = userService.findById(targetUserId);
     final User manager = targetUser.getManagerUser();
     final User.Role currentUserRole = currentUser.getRole();
-    return currentUser.getId().equals(targetUserId) || currentUserRole == User.Role.ADMIN
-            || currentUserRole == User.Role.SUPER_ADMIN
-            || (manager != null && currentUser.getId().equals(manager.getId()));
+    return currentUser.getId().equals(targetUserId)
+        || currentUserRole == User.Role.ADMIN
+        || currentUserRole == User.Role.SUPER_ADMIN
+        || (manager != null && currentUser.getId().equals(manager.getId()));
   }
 }

@@ -8,6 +8,14 @@ import shamu.company.common.validation.constraints.PhoneNumberValidate;
 
 public class PhoneNumberValidator implements ConstraintValidator<PhoneNumberValidate, String> {
 
+  private static boolean isValidNumber(final PhoneNumber phone) {
+    if (phone == null) {
+      return true;
+    }
+    final PhoneNumberUtil phoneNumberUtil = PhoneNumberUtil.getInstance();
+    return phoneNumberUtil.isValidNumber(phone);
+  }
+
   @Override
   public boolean isValid(String phone, ConstraintValidatorContext constraintValidatorContext) {
 
@@ -23,13 +31,5 @@ public class PhoneNumberValidator implements ConstraintValidator<PhoneNumberVali
     }
 
     return isValidNumber(phoneNumber);
-  }
-
-  private static boolean isValidNumber(final PhoneNumber phone) {
-    if (phone == null) {
-      return true;
-    }
-    final PhoneNumberUtil phoneNumberUtil = PhoneNumberUtil.getInstance();
-    return phoneNumberUtil.isValidNumber(phone);
   }
 }

@@ -18,8 +18,7 @@ import shamu.company.common.entity.StateProvince;
 @NoArgsConstructor
 public class UserAddress extends BaseEntity {
 
-  @OneToOne
-  private User user;
+  @OneToOne private User user;
 
   @Column(name = "street_1")
   @Length(max = 255)
@@ -32,11 +31,9 @@ public class UserAddress extends BaseEntity {
   @Length(max = 100)
   private String city;
 
-  @ManyToOne
-  private StateProvince stateProvince;
+  @ManyToOne private StateProvince stateProvince;
 
-  @ManyToOne
-  private Country country;
+  @ManyToOne private Country country;
 
   @Length(max = 30)
   private String postalCode;

@@ -45,26 +45,19 @@ import shamu.company.utils.UuidUtil;
 
 class EmployeeRestControllerIT extends BaseIntegrationTest {
 
-  @Autowired
-  private MockMvc mvc;
+  @Autowired private MockMvc mvc;
 
-  @Autowired
-  private UserService userService;
+  @Autowired private UserService userService;
 
-  @Autowired
-  private JobService jobService;
+  @Autowired private JobService jobService;
 
-  @Autowired
-  private EmploymentTypeService employmentTypeService;
+  @Autowired private EmploymentTypeService employmentTypeService;
 
-  @Autowired
-  private OfficeService officeService;
+  @Autowired private OfficeService officeService;
 
-  @Autowired
-  private UserRoleService userRoleService;
+  @Autowired private UserRoleService userRoleService;
 
-  @Autowired
-  private CompensationFrequencyService compensationFrequencyService;
+  @Autowired private CompensationFrequencyService compensationFrequencyService;
 
   @Nested
   class AddEmployee {
@@ -133,23 +126,28 @@ class EmployeeRestControllerIT extends BaseIntegrationTest {
       emergencyContactDto.setFirstName("Emergency");
       emergencyContactDto.setLastName("Jo");
       emergencyContactDto.setRelationship("XXX");
-      final List<UserEmergencyContactDto> emergencyContactDtos = Collections.singletonList(emergencyContactDto);
+      final List<UserEmergencyContactDto> emergencyContactDtos =
+          Collections.singletonList(emergencyContactDto);
 
-      final EmployeeDto employeeDto = EmployeeDto.builder()
-          .emailWork("aemailaddress@example.com")
-          .userAddress(userAddressDto)
-          .welcomeEmail(welcomeEmailDto)
-          .jobInformation(jobInformationDto)
-          .userEmergencyContactDto(emergencyContactDtos)
-          .build();
+      final EmployeeDto employeeDto =
+          EmployeeDto.builder()
+              .emailWork("aemailaddress@example.com")
+              .userAddress(userAddressDto)
+              .welcomeEmail(welcomeEmailDto)
+              .jobInformation(jobInformationDto)
+              .userEmergencyContactDto(emergencyContactDtos)
+              .build();
 
       final HttpHeaders httpHeaders = new HttpHeaders();
       httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
 
-      final MvcResult result = mvc.perform(post("/company/employees")
-          .contentType(MediaType.APPLICATION_JSON)
-          .headers(httpHeaders)
-          .content(JsonUtil.formatToString(employeeDto))).andReturn();
+      final MvcResult result =
+          mvc.perform(
+                  post("/company/employees")
+                      .contentType(MediaType.APPLICATION_JSON)
+                      .headers(httpHeaders)
+                      .content(JsonUtil.formatToString(employeeDto)))
+              .andReturn();
 
       assertThat(result.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
     }

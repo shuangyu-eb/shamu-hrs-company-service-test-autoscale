@@ -1,5 +1,8 @@
 package shamu.company.info;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -17,10 +20,6 @@ import shamu.company.info.service.UserEmergencyContactService;
 import shamu.company.user.entity.User;
 import shamu.company.utils.UuidUtil;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
 public class UserEmergencyContactServiceTests {
 
   @Mock private UserEmergencyContactRepository userEmergencyContactRepository;
@@ -32,7 +31,31 @@ public class UserEmergencyContactServiceTests {
   @BeforeEach
   void init() {
     MockitoAnnotations.initMocks(this);
-    userEmergencyContactService = new UserEmergencyContactService(userEmergencyContactRepository,userEmergencyContactMapper);
+    userEmergencyContactService =
+        new UserEmergencyContactService(userEmergencyContactRepository, userEmergencyContactMapper);
+  }
+
+  @Test
+  void testSave() {
+    final UserEmergencyContact userEmergencyContact = new UserEmergencyContact();
+    Assertions.assertDoesNotThrow(() -> userEmergencyContactService.save(userEmergencyContact));
+  }
+
+  @Test
+  void testFindUserEmergencyContacts() {
+    Assertions.assertDoesNotThrow(() -> userEmergencyContactService.findUserEmergencyContacts("1"));
+  }
+
+  @Test
+  void testFindAllIdByUserId() {
+    Assertions.assertDoesNotThrow(() -> userEmergencyContactService.findAllIdByUserId("1"));
+  }
+
+  @Test
+  void testDeleteInBatch() {
+    final List<String> list = new ArrayList<>();
+    list.add("1");
+    Assertions.assertDoesNotThrow(() -> userEmergencyContactService.deleteInBatch(list));
   }
 
   @Nested
@@ -89,22 +112,12 @@ public class UserEmergencyContactServiceTests {
     }
   }
 
-  @Test
-  void testSave() {
-    final UserEmergencyContact userEmergencyContact = new UserEmergencyContact();
-    Assertions.assertDoesNotThrow(() -> userEmergencyContactService.save(userEmergencyContact));
-  }
-
-  @Test
-  void testFindUserEmergencyContacts() {
-    Assertions.assertDoesNotThrow(() -> userEmergencyContactService.findUserEmergencyContacts("1"));
-  }
-
   @Nested
   class testUpdateEmergencyContact {
     UserEmergencyContactDto userEmergencyContactDto;
     StateProvince stateProvince;
     UserEmergencyContact userEmergencyContact;
+
     @BeforeEach
     void init() {
       stateProvince = new StateProvince();
@@ -115,46 +128,36 @@ public class UserEmergencyContactServiceTests {
     }
 
     @Test
-    void whenIsPrimaryTrue_thenShouldRelease () {
+    void whenIsPrimaryTrue_thenShouldRelease() {
       final User user = new User();
       user.setId("1");
       userEmergencyContact.setIsPrimary(true);
       userEmergencyContact.setUser(user);
       final Optional<UserEmergencyContact> optional = Optional.of(userEmergencyContact);
-      Mockito.when(userEmergencyContactRepository.findById(Mockito.anyString())).thenReturn(optional);
+      Mockito.when(userEmergencyContactRepository.findById(Mockito.anyString()))
+          .thenReturn(optional);
       userEmergencyContactService.updateEmergencyContact(userEmergencyContactDto);
-      Mockito.verify(userEmergencyContactRepository,Mockito.times(1)).releasePrimaryContact("1");
+      Mockito.verify(userEmergencyContactRepository, Mockito.times(1)).releasePrimaryContact("1");
     }
 
     @Test
-    void whenIsPrimaryFalse_thenShouldNotRelease () {
+    void whenIsPrimaryFalse_thenShouldNotRelease() {
       userEmergencyContact.setIsPrimary(false);
       final Optional<UserEmergencyContact> optional = Optional.of(userEmergencyContact);
-      Mockito.when(userEmergencyContactRepository.findById(Mockito.anyString())).thenReturn(optional);
+      Mockito.when(userEmergencyContactRepository.findById(Mockito.anyString()))
+          .thenReturn(optional);
       userEmergencyContactService.updateEmergencyContact(userEmergencyContactDto);
-      Mockito.verify(userEmergencyContactRepository,Mockito.times(0)).releasePrimaryContact("1");
-
+      Mockito.verify(userEmergencyContactRepository, Mockito.times(0)).releasePrimaryContact("1");
     }
+
     @Test
     void whenContactNotFound_thenShouldThrow() {
       final Optional<UserEmergencyContact> optional = Optional.empty();
-      Mockito.when(userEmergencyContactRepository.findById(Mockito.anyString())).thenReturn(optional);
+      Mockito.when(userEmergencyContactRepository.findById(Mockito.anyString()))
+          .thenReturn(optional);
       Assertions.assertThrows(
           ResourceNotFoundException.class,
-          () -> userEmergencyContactService.updateEmergencyContact(userEmergencyContactDto)
-      );
+          () -> userEmergencyContactService.updateEmergencyContact(userEmergencyContactDto));
     }
-  }
-
-  @Test
-  void testFindAllIdByUserId() {
-    Assertions.assertDoesNotThrow(() -> userEmergencyContactService.findAllIdByUserId("1"));
-  }
-
-  @Test
-  void testDeleteInBatch() {
-    final List<String> list = new ArrayList<>();
-    list.add("1");
-    Assertions.assertDoesNotThrow(() -> userEmergencyContactService.deleteInBatch(list));
   }
 }

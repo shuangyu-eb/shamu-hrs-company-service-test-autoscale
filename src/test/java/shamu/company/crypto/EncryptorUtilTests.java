@@ -16,18 +16,12 @@ import shamu.company.user.entity.UserPersonalInformation;
 
 class EncryptorUtilTests {
 
-  @Mock
-  private Encryptor encryptor;
-
-  @InjectMocks
-  private EncryptorUtil encryptorUtil;
-
+  private static final BiConsumer<UserPersonalInformation, String> personalInformationBiConsumer =
+      UserPersonalInformation::setSsn;
   private final String encryptedSsn = "qweasd";
-
+  @Mock private Encryptor encryptor;
+  @InjectMocks private EncryptorUtil encryptorUtil;
   private UserPersonalInformation userPersonalInformation;
-
-  private static final BiConsumer<UserPersonalInformation, String>
-      personalInformationBiConsumer = UserPersonalInformation::setSsn;
 
   @BeforeEach
   void init() {
@@ -44,8 +38,12 @@ class EncryptorUtilTests {
 
   @Test
   void whenEncryptByUser_valueIsBlank_thenSetToNull() throws Exception {
-    Whitebox.invokeMethod(encryptorUtil, "encrypt",
-        new User(), "", userPersonalInformation,
+    Whitebox.invokeMethod(
+        encryptorUtil,
+        "encrypt",
+        new User(),
+        "",
+        userPersonalInformation,
         personalInformationBiConsumer);
 
     Mockito.verify(encryptor, Mockito.never()).encrypt(Mockito.anyString(), Mockito.anyString());
@@ -54,24 +52,26 @@ class EncryptorUtilTests {
 
   @Test
   void whenEncryptByUser_valueNotNull_thenSetToNull() throws Exception {
-    Whitebox.invokeMethod(encryptorUtil, "encrypt",
-        new User(), "qwe", userPersonalInformation,
+    Whitebox.invokeMethod(
+        encryptorUtil,
+        "encrypt",
+        new User(),
+        "qwe",
+        userPersonalInformation,
         personalInformationBiConsumer);
 
-    Mockito.verify(encryptor, Mockito.times(1)).encrypt(Mockito.any(User.class), Mockito.anyString());
+    Mockito.verify(encryptor, Mockito.times(1))
+        .encrypt(Mockito.any(User.class), Mockito.anyString());
     Assertions.assertEquals(encryptedSsn, userPersonalInformation.getSsn());
   }
 
   @Nested
   class testEncryptSsn {
 
-    private String userId;
-
-    private User user;
-
-    private BenefitPlanDependent benefitPlanDependent;
-
     private final String toBeEncryptedValue = "qwe";
+    private String userId;
+    private User user;
+    private BenefitPlanDependent benefitPlanDependent;
 
     @BeforeEach
     void init() {
@@ -100,5 +100,4 @@ class EncryptorUtilTests {
       Assertions.assertEquals(encryptedSsn, benefitPlanDependent.getSsn());
     }
   }
-
 }

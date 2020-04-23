@@ -26,7 +26,6 @@ public class UserEmergencyContactDto extends BasicUserEmergencyContactDto {
 
   private String countryName;
 
-
   public UserEmergencyContactDto(final UserEmergencyContact userEmergencyContact) {
     super(userEmergencyContact);
     street1 = userEmergencyContact.getStreet1();
@@ -37,9 +36,13 @@ public class UserEmergencyContactDto extends BasicUserEmergencyContactDto {
     stateName =
         userEmergencyContact.getState() == null ? null : userEmergencyContact.getState().getName();
     postalCode = userEmergencyContact.getPostalCode();
-    country = userEmergencyContact.getCountry() == null ? null
-        : userEmergencyContact.getCountry().getId();
-    countryName = userEmergencyContact.getCountry() == null ? null
+    country =
+        userEmergencyContact.getCountry() == null
+            ? null
+            : userEmergencyContact.getCountry().getId();
+    countryName =
+        userEmergencyContact.getCountry() == null
+            ? null
             : userEmergencyContact.getCountry().getName();
   }
 }

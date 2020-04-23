@@ -75,8 +75,8 @@ public class BenefitPlanRestController extends BaseRestController {
   }
 
   @PostMapping("benefit-plan")
-  @PreAuthorize("hasPermission("
-       + "#data.coverages, 'BENEFIT_COVERAGE_CREATION', 'MANAGE_BENEFIT_PLAN')")
+  @PreAuthorize(
+      "hasPermission(" + "#data.coverages, 'BENEFIT_COVERAGE_CREATION', 'MANAGE_BENEFIT_PLAN')")
   public BenefitPlanDto createBenefitPlan(@RequestBody final NewBenefitPlanWrapperDto data) {
     return benefitPlanService.createBenefitPlan(data, findCompanyId());
   }

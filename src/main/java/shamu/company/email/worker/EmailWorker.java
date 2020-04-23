@@ -20,7 +20,6 @@ public class EmailWorker implements InitializingBean {
   @Override
   public void afterPropertiesSet() {
     List<Email> emailTaskList = emailService.findAllUnfinishedTasks();
-    emailTaskList.forEach(
-        emailService::scheduleEmail);
+    emailTaskList.forEach(emailService::scheduleEmail);
   }
 }

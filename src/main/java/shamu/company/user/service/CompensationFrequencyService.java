@@ -21,9 +21,12 @@ public class CompensationFrequencyService {
   }
 
   public CompensationFrequency findById(final String id) {
-    return compensationFrequencyRepository.findById(id).orElseThrow(() ->
-        new ResourceNotFoundException(
-            String.format("Compensation frequency type with id %s not found!", id)));
+    return compensationFrequencyRepository
+        .findById(id)
+        .orElseThrow(
+            () ->
+                new ResourceNotFoundException(
+                    String.format("Compensation frequency type with id %s not found!", id)));
   }
 
   public List<CompensationFrequency> findAll() {

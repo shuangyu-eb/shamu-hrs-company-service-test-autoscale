@@ -16,6 +16,5 @@ public class Job extends BaseEntity {
   @Length(max = 100)
   private String title;
 
-  @ManyToOne
-  private Department department;
+  @ManyToOne private Department department;
 }

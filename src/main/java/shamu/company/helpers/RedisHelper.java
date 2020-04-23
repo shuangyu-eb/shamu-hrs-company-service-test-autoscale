@@ -26,7 +26,7 @@ public class RedisHelper {
   }
 
   public Object getMapAsSingleEntry(final String redisKey, final Object key) {
-    return  hashOperation.get(redisKey,key);
+    return hashOperation.get(redisKey, key);
   }
 
   public Map<Object, Object> getMapAsAll(final String redisKey) {

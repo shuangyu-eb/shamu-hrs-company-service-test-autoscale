@@ -45,7 +45,6 @@ public interface UserMapper {
   @Mapping(target = "lastName", source = "userPersonalInformation.lastName")
   BenefitPlanUserDto convertToBenefitPlanUserDto(User user);
 
-
   @Mapping(target = "email", source = "userContactInformation.emailWork")
   @Mapping(target = "companyId", source = "company.id")
   @Mapping(target = "role", source = "userRole")

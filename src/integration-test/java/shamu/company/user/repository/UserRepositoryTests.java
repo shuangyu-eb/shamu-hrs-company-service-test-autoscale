@@ -13,8 +13,7 @@ import shamu.company.utils.UuidUtil;
 
 class UserRepositoryTests extends DataLayerBaseTests {
 
-  @Autowired
-  private UserRepository userRepository;
+  @Autowired private UserRepository userRepository;
 
   @Test
   void testSave() {

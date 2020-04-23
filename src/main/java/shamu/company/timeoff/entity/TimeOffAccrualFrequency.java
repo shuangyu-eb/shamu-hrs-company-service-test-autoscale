@@ -14,8 +14,7 @@ import shamu.company.common.entity.BaseEntity;
 public class TimeOffAccrualFrequency extends BaseEntity {
 
   private String name;
-  @Transient
-  private AccrualFrequencyType accrualFrequencyType;
+  @Transient private AccrualFrequencyType accrualFrequencyType;
 
   public TimeOffAccrualFrequency(String id) {
     this.setId(id);

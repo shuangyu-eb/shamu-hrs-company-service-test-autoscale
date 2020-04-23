@@ -15,13 +15,11 @@ public class PaidHolidayDto {
 
   private String nameShow;
 
-  @YesterdayOrLater
-  private Timestamp date;
+  @YesterdayOrLater private Timestamp date;
 
   private Boolean isSelected;
 
   private Boolean federal;
 
   private Boolean editable;
-
 }

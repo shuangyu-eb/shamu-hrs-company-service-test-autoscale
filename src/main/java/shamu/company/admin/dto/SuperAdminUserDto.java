@@ -23,8 +23,7 @@ public class SuperAdminUserDto {
 
   private String email;
 
-  @ToString.Exclude
-  private String auth0UserId;
+  @ToString.Exclude private String auth0UserId;
 
   public SuperAdminUserDto(final User user) {
     userId = user.getId();

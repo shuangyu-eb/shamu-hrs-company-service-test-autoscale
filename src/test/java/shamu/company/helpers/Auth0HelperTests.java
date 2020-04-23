@@ -26,7 +26,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.powermock.reflect.Whitebox;
 import shamu.company.common.exception.GeneralAuth0Exception;
 import shamu.company.common.exception.GeneralException;
 import shamu.company.common.exception.NonUniqueAuth0ResourceException;
@@ -51,7 +50,6 @@ class Auth0HelperTests {
   @Mock private JobsEntity jobsEntity;
   @Mock private Request mockedRequest;
 
-
   @BeforeEach
   void init() {
     MockitoAnnotations.initMocks(this);
@@ -72,6 +70,132 @@ class Auth0HelperTests {
     auth0Helper = new Auth0Helper(auth0Manager, auth0Config);
   }
 
+  @Test
+  void whenAPINotLoad_thenShouldThrow() {
+    Assertions.assertThrows(
+        GeneralException.class,
+        () -> auth0Helper.login("1", RandomStringUtils.randomAlphabetic(10)));
+  }
+
+  @Test
+  void testIsPasswordValid() {
+    final AuthAPI authAPI = Mockito.mock(AuthAPI.class);
+    final AuthRequest mockedRequest = Mockito.mock(AuthRequest.class);
+    final AuthRequest audienceRequest = Mockito.mock(AuthRequest.class);
+    Mockito.when(auth0Config.getAuthApi()).thenReturn(authAPI);
+    Mockito.when(authAPI.login(Mockito.anyString(), Mockito.anyString())).thenReturn(mockedRequest);
+    Mockito.when(mockedRequest.setAudience(auth0Config.getAudience())).thenReturn(audienceRequest);
+    Assertions.assertDoesNotThrow(
+        () -> auth0Helper.isPasswordValid("1", RandomStringUtils.randomAlphabetic(10)));
+  }
+
+  @Test
+  void whenUpdatePassword_thenShouldSuccess() {
+    final Request mockedRequest = Mockito.mock(Request.class);
+    Mockito.when(usersEntity.update(Mockito.any(), Mockito.any(User.class)))
+        .thenReturn(mockedRequest);
+    Assertions.assertDoesNotThrow(
+        () -> auth0Helper.updatePassword(new User(), RandomStringUtils.randomAlphabetic(10)));
+  }
+
+  @Test
+  void whenUpdatePasswordFail_thenShouldThrow() throws Auth0Exception {
+    final Request mockedRequest = Mockito.mock(Request.class);
+    Mockito.when(usersEntity.update(Mockito.any(), Mockito.any(User.class)))
+        .thenReturn(mockedRequest);
+    Mockito.when(mockedRequest.execute()).thenThrow(auth0Exception);
+    Assertions.assertThrows(
+        GeneralAuth0Exception.class,
+        () -> auth0Helper.updatePassword(new User(), RandomStringUtils.randomAlphabetic(10)));
+  }
+
+  @Test
+  void testExistsByEmail() throws Auth0Exception {
+    final Request mockedRequest = Mockito.mock(Request.class);
+    Mockito.when(usersEntity.listByEmail(Mockito.anyString(), Mockito.any()))
+        .thenReturn(mockedRequest);
+    final List<User> fakeUsersResult = new ArrayList<>(1);
+    fakeUsersResult.add(new User());
+    Mockito.when(mockedRequest.execute()).thenReturn(fakeUsersResult);
+    Assertions.assertTrue(auth0Helper.existsByEmail("1"));
+  }
+
+  @Test
+  void testAddUser() throws Auth0Exception {
+    final Request mockedRequest = Mockito.mock(Request.class);
+    Mockito.when(usersEntity.create(Mockito.any())).thenReturn(mockedRequest);
+    auth0Helper.addUser("example@indeed.com", null, Role.EMPLOYEE.getValue());
+    Mockito.verify(mockedRequest, Mockito.times(1)).execute();
+  }
+
+  @Test
+  void testValidateMfa() {
+    Assertions.assertThrows(GeneralAuth0Exception.class, () -> auth0Helper.validateMfa("1", "1"));
+  }
+
+  @Test
+  void testUpdateAuthRole() throws Auth0Exception {
+    final Request userRolesRequest = Mockito.mock(Request.class);
+    final Request rolesPageRequest = Mockito.mock(Request.class);
+    final Request removeRolesRequest = Mockito.mock(Request.class);
+    final Request updateUserRoleRequest = Mockito.mock(Request.class);
+    final RolesPage rolesPage = Mockito.mock(RolesPage.class);
+    final RolesPage userRolesPage = Mockito.mock(RolesPage.class);
+    Mockito.when(rolesEntity.list(Mockito.any())).thenReturn(userRolesRequest);
+    Mockito.when(userRolesRequest.execute()).thenReturn(rolesPage);
+    Mockito.when(usersEntity.listRoles(Mockito.anyString(), Mockito.any()))
+        .thenReturn(rolesPageRequest);
+    Mockito.when(rolesPageRequest.execute()).thenReturn(userRolesPage);
+    Mockito.when(usersEntity.removeRoles(Mockito.anyString(), Mockito.anyList()))
+        .thenReturn(removeRolesRequest);
+    Mockito.when(usersEntity.addRoles(Mockito.anyString(), Mockito.anyList()))
+        .thenReturn(updateUserRoleRequest);
+    auth0Helper.updateAuthRole(auth0User.getId(), Role.EMPLOYEE.getValue());
+    Mockito.verify(removeRolesRequest, Mockito.times(1)).execute();
+    Mockito.verify(updateUserRoleRequest, Mockito.times(1)).execute();
+  }
+
+  @Test
+  void testDeleteUser() throws Auth0Exception {
+    final Request deleteRequest = Mockito.mock(Request.class);
+    Mockito.when(usersEntity.delete(Mockito.anyString())).thenReturn(deleteRequest);
+    auth0Helper.deleteUser(auth0User.getId());
+    Mockito.verify(deleteRequest, Mockito.times(1)).execute();
+  }
+
+  @Test
+  void testGetUserSecret() throws Auth0Exception {
+    final Request permissionRequest = Mockito.mock(Request.class);
+    final PermissionsPage permissionsPage = Mockito.mock(PermissionsPage.class);
+    final UsersPage mockUsersPage = Mockito.mock(UsersPage.class);
+    final List<User> fakeUsersResult = new ArrayList<>(1);
+    final Map<String, Object> map = new HashMap<String, Object>();
+    map.put("userSecret", "1");
+    auth0User.setAppMetadata(map);
+    fakeUsersResult.add(auth0User);
+    Mockito.when(mockUsersPage.getItems()).thenReturn(fakeUsersResult);
+    Mockito.when(mockedRequest.execute()).thenReturn(mockUsersPage);
+    Mockito.when(usersEntity.listPermissions(Mockito.anyString(), Mockito.any()))
+        .thenReturn(permissionRequest);
+    Mockito.when(permissionRequest.execute()).thenReturn(permissionsPage);
+    Assertions.assertDoesNotThrow(
+        () -> {
+          auth0Helper.getUserSecret(companyUser);
+        });
+  }
+
+  @Test
+  void testSendVerificationEmail() {
+    final Request sendEmailRequest = Mockito.mock(Request.class);
+
+    Mockito.when(jobsEntity.sendVerificationEmail(auth0User.getId(), auth0Config.getClientId()))
+        .thenReturn(sendEmailRequest);
+    Assertions.assertDoesNotThrow(
+        () -> {
+          auth0Helper.sendVerificationEmail(auth0User.getId());
+        });
+  }
+
   @Nested
   class Login {
     AuthRequest mockedRequestAudience;
@@ -83,8 +207,8 @@ class Auth0HelperTests {
       AuthRequest mockedRequest = Mockito.mock(AuthRequest.class);
       mockedRequestAudience = Mockito.mock(AuthRequest.class);
       map = new HashMap<>();
-      map.put("error","invalid_grant");
-      map.put("error_description","description");
+      map.put("error", "invalid_grant");
+      map.put("error_description", "description");
       Mockito.when(auth0Config.getAuthApi()).thenReturn(authAPI);
       Mockito.when(authAPI.login(Mockito.anyString(), Mockito.anyString()))
           .thenReturn(mockedRequest);
@@ -121,45 +245,6 @@ class Auth0HelperTests {
           GeneralAuth0Exception.class,
           () -> auth0Helper.login("1", RandomStringUtils.randomAlphabetic(10)));
     }
-
-}
-  @Test
-  void whenAPINotLoad_thenShouldThrow() {
-    Assertions.assertThrows(
-        GeneralException.class,
-        () -> auth0Helper.login("1", RandomStringUtils.randomAlphabetic(10)));
-  }
-
-  @Test
-  void testIsPasswordValid() {
-    final AuthAPI authAPI = Mockito.mock(AuthAPI.class);
-    final AuthRequest mockedRequest = Mockito.mock(AuthRequest.class);
-    final AuthRequest audienceRequest = Mockito.mock(AuthRequest.class);
-    Mockito.when(auth0Config.getAuthApi()).thenReturn(authAPI);
-    Mockito.when(authAPI.login(Mockito.anyString(),Mockito.anyString())).thenReturn(mockedRequest);
-    Mockito.when(mockedRequest.setAudience(auth0Config.getAudience())).thenReturn(audienceRequest);
-    Assertions.assertDoesNotThrow(
-        () -> auth0Helper.isPasswordValid("1", RandomStringUtils.randomAlphabetic(10)));
-  }
-
-  @Test
-  void whenUpdatePassword_thenShouldSuccess() {
-    final Request mockedRequest = Mockito.mock(Request.class);
-    Mockito.when(usersEntity.update(Mockito.any(), Mockito.any(User.class)))
-        .thenReturn(mockedRequest);
-    Assertions.assertDoesNotThrow(
-        () -> auth0Helper.updatePassword(new User(), RandomStringUtils.randomAlphabetic(10)));
-  }
-
-  @Test
-  void whenUpdatePasswordFail_thenShouldThrow() throws Auth0Exception {
-    final Request mockedRequest = Mockito.mock(Request.class);
-    Mockito.when(usersEntity.update(Mockito.any(), Mockito.any(User.class)))
-        .thenReturn(mockedRequest);
-    Mockito.when(mockedRequest.execute()).thenThrow(auth0Exception);
-    Assertions.assertThrows(
-        GeneralAuth0Exception.class,
-        () -> auth0Helper.updatePassword(new User(), RandomStringUtils.randomAlphabetic(10)));
   }
 
   @Nested
@@ -170,7 +255,8 @@ class Auth0HelperTests {
     @BeforeEach
     void initial() {
       mockedRequest = Mockito.mock(Request.class);
-      Mockito.when(usersEntity.listByEmail(Mockito.anyString(), Mockito.any())).thenReturn(mockedRequest);
+      Mockito.when(usersEntity.listByEmail(Mockito.anyString(), Mockito.any()))
+          .thenReturn(mockedRequest);
     }
 
     @Test
@@ -193,20 +279,8 @@ class Auth0HelperTests {
       final List<User> fakeUsersResult = new ArrayList<>(1);
       fakeUsersResult.add(new User());
       Mockito.when(mockedRequest.execute()).thenThrow(auth0Exception);
-      Assertions.assertThrows(
-          GeneralAuth0Exception.class,
-          () -> auth0Helper.findByEmail("1"));
+      Assertions.assertThrows(GeneralAuth0Exception.class, () -> auth0Helper.findByEmail("1"));
     }
-  }
-
-  @Test
-  void testExistsByEmail() throws Auth0Exception {
-    final Request mockedRequest = Mockito.mock(Request.class);
-    Mockito.when(usersEntity.listByEmail(Mockito.anyString(), Mockito.any())).thenReturn(mockedRequest);
-    final List<User> fakeUsersResult = new ArrayList<>(1);
-    fakeUsersResult.add(new User());
-    Mockito.when(mockedRequest.execute()).thenReturn(fakeUsersResult);
-    Assertions.assertTrue(auth0Helper.existsByEmail("1"));
   }
 
   @Nested
@@ -230,15 +304,6 @@ class Auth0HelperTests {
       Assertions.assertEquals(userId, resultUserId);
     }
   }
-
-  @Test
-  void testAddUser() throws Auth0Exception {
-    final Request mockedRequest = Mockito.mock(Request.class);
-    Mockito.when(usersEntity.create(Mockito.any())).thenReturn(mockedRequest);
-    auth0Helper.addUser("example@indeed.com", null, Role.EMPLOYEE.getValue());
-    Mockito.verify(mockedRequest, Mockito.times(1)).execute();
-  }
-
 
   @Nested
   class GetUserByUserIdFromAuth0 {
@@ -273,7 +338,8 @@ class Auth0HelperTests {
       fakeUsersResult = new ArrayList<>(0);
       Mockito.when(mockUsersPage.getItems()).thenReturn(fakeUsersResult);
       Mockito.when(mockedUserRequest.execute()).thenReturn(mockUsersPage);
-      Assertions.assertNull(auth0Helper.getUserByUserIdFromAuth0(RandomStringUtils.randomAlphabetic(10)));
+      Assertions.assertNull(
+          auth0Helper.getUserByUserIdFromAuth0(RandomStringUtils.randomAlphabetic(10)));
     }
 
     @Test
@@ -295,8 +361,9 @@ class Auth0HelperTests {
       Mockito.when(mockedUserRequest.execute()).thenThrow(auth0Exception);
       Assertions.assertThrows(
           GeneralAuth0Exception.class,
-          () -> {auth0Helper.getUserByUserIdFromAuth0(RandomStringUtils.randomAlphabetic(10));}
-      );
+          () -> {
+            auth0Helper.getUserByUserIdFromAuth0(RandomStringUtils.randomAlphabetic(10));
+          });
     }
   }
 
@@ -305,6 +372,7 @@ class Auth0HelperTests {
     Request mockedRequest;
     UsersPage mockUsersPage;
     List<User> fakeUsersResult;
+
     @BeforeEach
     void initial() throws Auth0Exception {
       mockedRequest = Mockito.mock(Request.class);
@@ -319,12 +387,13 @@ class Auth0HelperTests {
       Mockito.when(mockUsersPage.getItems()).thenReturn(fakeUsersResult);
       final Request emailRequest = Mockito.mock(Request.class);
       final List<User> users = new ArrayList<>(0);
-      Mockito.when(usersEntity.listByEmail(Mockito.anyString(), Mockito.any())).thenReturn(emailRequest);
+      Mockito.when(usersEntity.listByEmail(Mockito.anyString(), Mockito.any()))
+          .thenReturn(emailRequest);
       Mockito.when(emailRequest.execute()).thenReturn(users);
       Assertions.assertDoesNotThrow(
           () -> {
-            auth0Helper.getAuth0UserByIdWithByEmailFailover(companyUser.getId(),
-                companyUser.getUserContactInformation().getEmailWork());
+            auth0Helper.getAuth0UserByIdWithByEmailFailover(
+                companyUser.getId(), companyUser.getUserContactInformation().getEmailWork());
           });
     }
 
@@ -336,8 +405,8 @@ class Auth0HelperTests {
       Mockito.when(mockUsersPage.getItems()).thenReturn(fakeUsersResult);
       Assertions.assertDoesNotThrow(
           () -> {
-            auth0Helper.getAuth0UserByIdWithByEmailFailover(companyUser.getId(),
-                companyUser.getUserContactInformation().getEmailWork());
+            auth0Helper.getAuth0UserByIdWithByEmailFailover(
+                companyUser.getId(), companyUser.getUserContactInformation().getEmailWork());
           });
     }
 
@@ -348,7 +417,8 @@ class Auth0HelperTests {
       fakeUsersResult = new ArrayList<>(1);
       fakeUsersResult.add(auth0User);
       Mockito.when(mockUsersPage.getItems()).thenReturn(fakeUsersResult);
-      Mockito.when(usersEntity.listPermissions(Mockito.anyString(),Mockito.any())).thenReturn(permissionRequest);
+      Mockito.when(usersEntity.listPermissions(Mockito.anyString(), Mockito.any()))
+          .thenReturn(permissionRequest);
       Mockito.when(permissionRequest.execute()).thenReturn(permissionsPage);
       Assertions.assertDoesNotThrow(
           () -> {
@@ -362,7 +432,8 @@ class Auth0HelperTests {
       fakeUsersResult = new ArrayList<>(1);
       fakeUsersResult.add(auth0User);
       Mockito.when(mockUsersPage.getItems()).thenReturn(fakeUsersResult);
-      Mockito.when(usersEntity.listPermissions(Mockito.anyString(),Mockito.any())).thenReturn(permissionRequest);
+      Mockito.when(usersEntity.listPermissions(Mockito.anyString(), Mockito.any()))
+          .thenReturn(permissionRequest);
       Mockito.when(permissionRequest.execute()).thenThrow(auth0Exception);
       Assertions.assertThrows(
           GeneralAuth0Exception.class,
@@ -377,6 +448,7 @@ class Auth0HelperTests {
 
     Request request;
     PermissionsPage permissionsPage;
+
     @BeforeEach
     void init() throws Auth0Exception {
       request = Mockito.mock(Request.class);
@@ -388,7 +460,7 @@ class Auth0HelperTests {
       Mockito.when(usersEntity.list(Mockito.any())).thenReturn(mockedRequest);
       Mockito.when(mockUsersPage.getItems()).thenReturn(fakeUsersResult);
       Mockito.when(mockedRequest.execute()).thenReturn(mockUsersPage);
-      Mockito.when(usersEntity.update(Mockito.anyString(),Mockito.any())).thenReturn(request);
+      Mockito.when(usersEntity.update(Mockito.anyString(), Mockito.any())).thenReturn(request);
     }
 
     @Test
@@ -396,52 +468,52 @@ class Auth0HelperTests {
       Mockito.when(request.execute()).thenReturn(permissionsPage);
       Assertions.assertDoesNotThrow(
           () -> {
-            auth0Helper.updateEmail(companyUser,"newexample@indeed.com");
+            auth0Helper.updateEmail(companyUser, "newexample@indeed.com");
           });
     }
+
     @Test
     void whenUpdateEmailFail_thenShouldThrow() throws Auth0Exception {
       Mockito.when(request.execute()).thenThrow(auth0Exception);
       Assertions.assertThrows(
           GeneralAuth0Exception.class,
           () -> {
-            auth0Helper.updateEmail(companyUser,"newexample@indeed.com");
+            auth0Helper.updateEmail(companyUser, "newexample@indeed.com");
           });
     }
+
     @Test
     void whenUpdateUserEmail_thenShouldSuccess() {
-      Mockito.when(usersEntity.update(Mockito.anyString(),Mockito.any())).thenReturn(request);
+      Mockito.when(usersEntity.update(Mockito.anyString(), Mockito.any())).thenReturn(request);
       Assertions.assertDoesNotThrow(
           () -> {
-            auth0Helper.updateUserEmail(auth0User,"newexample@indeed.com");
+            auth0Helper.updateUserEmail(auth0User, "newexample@indeed.com");
           });
     }
 
     @Test
     void whenUpdateUserEmailFail_thenShouldThrow() throws Auth0Exception {
-      Mockito.when(usersEntity.update(Mockito.anyString(),Mockito.any())).thenReturn(request);
+      Mockito.when(usersEntity.update(Mockito.anyString(), Mockito.any())).thenReturn(request);
       Mockito.when(request.execute()).thenThrow(auth0Exception);
       Assertions.assertThrows(
           GeneralAuth0Exception.class,
           () -> {
-            auth0Helper.updateUserEmail(auth0User,"newexample@indeed.com");
+            auth0Helper.updateUserEmail(auth0User, "newexample@indeed.com");
           });
     }
+
     @Test
     void whenUpdateVerified_thenShouldSuccess() {
-      Mockito.when(usersEntity.update(Mockito.any(), Mockito.any(User.class)))
-          .thenReturn(request);
+      Mockito.when(usersEntity.update(Mockito.any(), Mockito.any(User.class))).thenReturn(request);
       Assertions.assertDoesNotThrow(() -> auth0Helper.updateVerified(new User(), true));
     }
 
     @Test
     void whenUpdateVerifiedFail_thenShouldThrow() throws Auth0Exception {
-      Mockito.when(usersEntity.update(Mockito.any(), Mockito.any(User.class)))
-          .thenReturn(request);
+      Mockito.when(usersEntity.update(Mockito.any(), Mockito.any(User.class))).thenReturn(request);
       Mockito.when(request.execute()).thenThrow(auth0Exception);
       Assertions.assertThrows(
-          GeneralAuth0Exception.class,
-          () -> auth0Helper.updateVerified(new User(), true));
+          GeneralAuth0Exception.class, () -> auth0Helper.updateVerified(new User(), true));
     }
   }
 
@@ -467,16 +539,18 @@ class Auth0HelperTests {
       Mockito.when(usersEntity.list(Mockito.any())).thenReturn(mockedRequest);
       Mockito.when(mockUsersPage.getItems()).thenReturn(fakeUsersResult);
       Mockito.when(mockedRequest.execute()).thenReturn(mockUsersPage);
-      Mockito.when(usersEntity.update(Mockito.anyString(),Mockito.any())).thenReturn(request);
+      Mockito.when(usersEntity.update(Mockito.anyString(), Mockito.any())).thenReturn(request);
       Mockito.when(request.execute()).thenReturn(permissionsPage);
-      Mockito.when(usersEntity.listRoles(Mockito.anyString(),Mockito.any())).thenReturn(userRoleRequest);
+      Mockito.when(usersEntity.listRoles(Mockito.anyString(), Mockito.any()))
+          .thenReturn(userRoleRequest);
       Mockito.when(userRoleRequest.execute()).thenReturn(rolesPage);
     }
 
     @Test
     void whenRolesIsEmpty_thenShouldThrow() {
       roles = new ArrayList<>(0);
-      Assertions.assertThrows(GeneralAuth0Exception.class,() -> auth0Helper.getUserRole(companyUser));
+      Assertions.assertThrows(
+          GeneralAuth0Exception.class, () -> auth0Helper.getUserRole(companyUser));
     }
 
     @Test
@@ -503,77 +577,16 @@ class Auth0HelperTests {
       final RolesPage userRolesPage = Mockito.mock(RolesPage.class);
       Mockito.when(rolesEntity.list(Mockito.any())).thenReturn(userRolesRequest);
       Mockito.when(userRolesRequest.execute()).thenReturn(rolesPage);
-      Mockito.when(usersEntity.listRoles(Mockito.anyString(), Mockito.any())).thenReturn(rolesPageRequest);
+      Mockito.when(usersEntity.listRoles(Mockito.anyString(), Mockito.any()))
+          .thenReturn(rolesPageRequest);
       Mockito.when(rolesPageRequest.execute()).thenReturn(userRolesPage);
-      Mockito.when(usersEntity.removeRoles(Mockito.anyString(), Mockito.anyList())).thenReturn(removeRolesRequest);
-      Mockito.when(usersEntity.addRoles(Mockito.anyString(), Mockito.anyList())).thenReturn(updateUserRoleRequest);
-      auth0Helper.updateRole(companyUser,Role.EMPLOYEE.getValue());
+      Mockito.when(usersEntity.removeRoles(Mockito.anyString(), Mockito.anyList()))
+          .thenReturn(removeRolesRequest);
+      Mockito.when(usersEntity.addRoles(Mockito.anyString(), Mockito.anyList()))
+          .thenReturn(updateUserRoleRequest);
+      auth0Helper.updateRole(companyUser, Role.EMPLOYEE.getValue());
       Mockito.verify(removeRolesRequest, Mockito.times(1)).execute();
       Mockito.verify(updateUserRoleRequest, Mockito.times(1)).execute();
     }
-  }
-
-  @Test
-  void testValidateMfa() {
-    Assertions.assertThrows(GeneralAuth0Exception.class,() -> auth0Helper.validateMfa("1","1"));
-  }
-
-
-  @Test
-  void testUpdateAuthRole() throws Auth0Exception {
-    final Request userRolesRequest = Mockito.mock(Request.class);
-    final Request rolesPageRequest = Mockito.mock(Request.class);
-    final Request removeRolesRequest = Mockito.mock(Request.class);
-    final Request updateUserRoleRequest = Mockito.mock(Request.class);
-    final RolesPage rolesPage = Mockito.mock(RolesPage.class);
-    final RolesPage userRolesPage = Mockito.mock(RolesPage.class);
-    Mockito.when(rolesEntity.list(Mockito.any())).thenReturn(userRolesRequest);
-    Mockito.when(userRolesRequest.execute()).thenReturn(rolesPage);
-    Mockito.when(usersEntity.listRoles(Mockito.anyString(), Mockito.any())).thenReturn(rolesPageRequest);
-    Mockito.when(rolesPageRequest.execute()).thenReturn(userRolesPage);
-    Mockito.when(usersEntity.removeRoles(Mockito.anyString(), Mockito.anyList())).thenReturn(removeRolesRequest);
-    Mockito.when(usersEntity.addRoles(Mockito.anyString(), Mockito.anyList())).thenReturn(updateUserRoleRequest);
-    auth0Helper.updateAuthRole(auth0User.getId(),Role.EMPLOYEE.getValue());
-    Mockito.verify(removeRolesRequest, Mockito.times(1)).execute();
-    Mockito.verify(updateUserRoleRequest, Mockito.times(1)).execute();
-  }
-
-  @Test
-  void testDeleteUser() throws Auth0Exception {
-    final Request deleteRequest = Mockito.mock(Request.class);
-    Mockito.when(usersEntity.delete(Mockito.anyString())).thenReturn(deleteRequest);
-    auth0Helper.deleteUser(auth0User.getId());
-    Mockito.verify(deleteRequest, Mockito.times(1)).execute();
-  }
-
-  @Test
-  void testGetUserSecret() throws Auth0Exception {
-    final Request permissionRequest = Mockito.mock(Request.class);
-    final PermissionsPage permissionsPage = Mockito.mock(PermissionsPage.class);
-    final UsersPage mockUsersPage = Mockito.mock(UsersPage.class);
-    final List<User> fakeUsersResult = new ArrayList<>(1);
-    final Map<String, Object> map = new HashMap<String,Object>();
-    map.put("userSecret","1");
-    auth0User.setAppMetadata(map);
-    fakeUsersResult.add(auth0User);
-    Mockito.when(mockUsersPage.getItems()).thenReturn(fakeUsersResult);
-    Mockito.when(mockedRequest.execute()).thenReturn(mockUsersPage);
-    Mockito.when(usersEntity.listPermissions(Mockito.anyString(),Mockito.any())).thenReturn(permissionRequest);
-    Mockito.when(permissionRequest.execute()).thenReturn(permissionsPage);
-    Assertions.assertDoesNotThrow(
-        () -> {
-          auth0Helper.getUserSecret(companyUser);
-        });
-  }
-
-  @Test
-  void testSendVerificationEmail() {
-    final Request sendEmailRequest = Mockito.mock(Request.class);
-
-    Mockito.when(jobsEntity.sendVerificationEmail(auth0User.getId(), auth0Config.getClientId())).thenReturn(sendEmailRequest);
-    Assertions.assertDoesNotThrow(
-        () -> {
-          auth0Helper.sendVerificationEmail(auth0User.getId());
-        });
   }
 }

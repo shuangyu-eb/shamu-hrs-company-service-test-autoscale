@@ -1,5 +1,7 @@
 package shamu.company.common.service;
 
+import java.util.ArrayList;
+import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -10,9 +12,6 @@ import org.mockito.MockitoAnnotations;
 import shamu.company.common.entity.Country;
 import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.common.repository.CountryRepository;
-
-import java.util.ArrayList;
-import java.util.Optional;
 
 public class CountryServiceTests {
 
@@ -26,6 +25,12 @@ public class CountryServiceTests {
     countryService = new CountryService(countryRepository);
   }
 
+  @Test
+  void testFindCountries() {
+    Mockito.when(countryRepository.findAll()).thenReturn(new ArrayList<>());
+    Assertions.assertDoesNotThrow(() -> countryService.findCountries());
+  }
+
   @Nested
   class testFindById {
 
@@ -33,27 +38,14 @@ public class CountryServiceTests {
     void whenIdExists_thenShouldSuccess() {
       final Optional<Country> country = Optional.of(new Country());
       Mockito.when(countryRepository.findById(Mockito.anyString())).thenReturn(country);
-      Assertions.assertDoesNotThrow(
-          () -> countryService.findById("1")
-      );
+      Assertions.assertDoesNotThrow(() -> countryService.findById("1"));
     }
 
     @Test
     void whenIdNotExists_thenShouldThrowException() {
       final Optional<Country> country = Optional.empty();
       Mockito.when(countryRepository.findById(Mockito.anyString())).thenReturn(country);
-      Assertions.assertThrows(
-          ResourceNotFoundException.class,
-          () -> countryService.findById("1")
-      );
+      Assertions.assertThrows(ResourceNotFoundException.class, () -> countryService.findById("1"));
     }
-  }
-
-  @Test
-  void testFindCountries() {
-    Mockito.when(countryRepository.findAll()).thenReturn(new ArrayList<>());
-    Assertions.assertDoesNotThrow(
-        () -> countryService.findCountries()
-    );
   }
 }

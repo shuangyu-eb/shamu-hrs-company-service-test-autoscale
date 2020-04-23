@@ -10,11 +10,9 @@ import shamu.company.user.repository.UserStatusRepository;
 import shamu.company.user.service.UserStatusService;
 
 public class UserStatusServiceTest {
-  @Mock
-  private UserStatusRepository userStatusRepository;
+  @Mock private UserStatusRepository userStatusRepository;
 
-  @InjectMocks
-  private UserStatusService userStatusService;
+  @InjectMocks private UserStatusService userStatusService;
 
   @BeforeEach
   void init() {

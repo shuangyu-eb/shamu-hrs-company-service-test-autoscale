@@ -14,7 +14,6 @@ public class ForbiddenException extends AbstractException {
     super(message, ErrorType.FORBIDDEN, throwable);
   }
 
-
   public ForbiddenException(final String message, final ErrorType errorType) {
     super(message, errorType);
   }

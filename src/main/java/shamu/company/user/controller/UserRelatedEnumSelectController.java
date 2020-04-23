@@ -47,13 +47,15 @@ public class UserRelatedEnumSelectController extends BaseRestController {
   private final UserStatusService userStatusService;
 
   public UserRelatedEnumSelectController(
-          final CompensationFrequencyService compensationFrequencyService,
-          final CompensationOvertimeStatusService compensationOvertimeStatusService,
-          final DeactivationReasonService deactivationReasonService,
-          final EthnicityService ethnicityService, GenderService genderService,
-          final MaritalStatusService maritalStatusService,
-          final RetirementTypeService retirementTypeService,
-          final UserRoleService userRoleService, UserStatusService userStatusService) {
+      final CompensationFrequencyService compensationFrequencyService,
+      final CompensationOvertimeStatusService compensationOvertimeStatusService,
+      final DeactivationReasonService deactivationReasonService,
+      final EthnicityService ethnicityService,
+      GenderService genderService,
+      final MaritalStatusService maritalStatusService,
+      final RetirementTypeService retirementTypeService,
+      final UserRoleService userRoleService,
+      UserStatusService userStatusService) {
     this.compensationFrequencyService = compensationFrequencyService;
     this.compensationOvertimeStatusService = compensationOvertimeStatusService;
     this.deactivationReasonService = deactivationReasonService;
@@ -74,14 +76,13 @@ public class UserRelatedEnumSelectController extends BaseRestController {
   @GetMapping("compensation-overtime-statuses")
   public List<CommonDictionaryDto> getCompensationStatuses() {
     final List<CompensationOvertimeStatus> overtimeStatuses =
-            compensationOvertimeStatusService.findAll();
+        compensationOvertimeStatusService.findAll();
     return ReflectionUtil.convertTo(overtimeStatuses, CommonDictionaryDto.class);
   }
 
   @GetMapping("deactivation-reasons")
   public List<CommonDictionaryDto> getDeactivationReasons() {
-    final List<DeactivationReasons> deactivationReasons =
-            deactivationReasonService.findAll();
+    final List<DeactivationReasons> deactivationReasons = deactivationReasonService.findAll();
     return ReflectionUtil.convertTo(deactivationReasons, CommonDictionaryDto.class);
   }
 
@@ -108,7 +109,6 @@ public class UserRelatedEnumSelectController extends BaseRestController {
     final List<RetirementType> retirementTypes = retirementTypeService.findAll();
     return ReflectionUtil.convertTo(retirementTypes, CommonDictionaryDto.class);
   }
-
 
   @GetMapping("user-roles")
   public List<CommonDictionaryDto> getAllUserRoles() {

@@ -18,84 +18,83 @@ public class SentryLogger {
   }
 
   public void debug(final String message) {
-    final EventBuilder eventBuilder = new EventBuilder()
-        .withMessage(message)
-        .withLevel(Event.Level.DEBUG)
-        .withLogger(className);
+    final EventBuilder eventBuilder =
+        new EventBuilder().withMessage(message).withLevel(Event.Level.DEBUG).withLogger(className);
 
     log.debug(message);
     Sentry.capture(eventBuilder);
   }
 
   public void debug(final String message, final Exception e) {
-    final EventBuilder eventBuilder = new EventBuilder()
-        .withMessage(message)
-        .withLevel(Event.Level.DEBUG)
-        .withLogger(className)
-        .withSentryInterface(new ExceptionInterface(e));
+    final EventBuilder eventBuilder =
+        new EventBuilder()
+            .withMessage(message)
+            .withLevel(Event.Level.DEBUG)
+            .withLogger(className)
+            .withSentryInterface(new ExceptionInterface(e));
 
     log.debug(message, e);
     Sentry.capture(eventBuilder);
   }
 
   public void info(final String message) {
-    final EventBuilder eventBuilder = new EventBuilder()
-        .withMessage(message)
-        .withLevel(Event.Level.INFO)
-        .withLogger(className);
+    final EventBuilder eventBuilder =
+        new EventBuilder().withMessage(message).withLevel(Event.Level.INFO).withLogger(className);
 
     log.info(message);
     Sentry.capture(eventBuilder);
   }
 
   public void info(final String message, final Exception e) {
-    final EventBuilder eventBuilder = new EventBuilder()
-        .withMessage(message)
-        .withLevel(Event.Level.INFO)
-        .withLogger(className)
-        .withSentryInterface(new ExceptionInterface(e));
+    final EventBuilder eventBuilder =
+        new EventBuilder()
+            .withMessage(message)
+            .withLevel(Event.Level.INFO)
+            .withLogger(className)
+            .withSentryInterface(new ExceptionInterface(e));
 
     log.info(message, e);
     Sentry.capture(eventBuilder);
   }
 
   public void warn(final String message) {
-    final EventBuilder eventBuilder = new EventBuilder()
-        .withMessage(message)
-        .withLevel(Event.Level.WARNING)
-        .withLogger(className);
+    final EventBuilder eventBuilder =
+        new EventBuilder()
+            .withMessage(message)
+            .withLevel(Event.Level.WARNING)
+            .withLogger(className);
 
     log.warn(message);
     Sentry.capture(eventBuilder);
   }
 
   public void warn(final String message, final Exception e) {
-    final EventBuilder eventBuilder = new EventBuilder()
-        .withMessage(message)
-        .withLevel(Event.Level.WARNING)
-        .withLogger(className)
-        .withSentryInterface(new ExceptionInterface(e));
+    final EventBuilder eventBuilder =
+        new EventBuilder()
+            .withMessage(message)
+            .withLevel(Event.Level.WARNING)
+            .withLogger(className)
+            .withSentryInterface(new ExceptionInterface(e));
 
     log.warn(message, e);
     Sentry.capture(eventBuilder);
   }
 
   public void error(final String message) {
-    final EventBuilder eventBuilder = new EventBuilder()
-        .withMessage(message)
-        .withLevel(Event.Level.ERROR)
-        .withLogger(className);
+    final EventBuilder eventBuilder =
+        new EventBuilder().withMessage(message).withLevel(Event.Level.ERROR).withLogger(className);
 
     log.error(message);
     Sentry.capture(eventBuilder);
   }
 
   public void error(final String message, final Exception e) {
-    final EventBuilder eventBuilder = new EventBuilder()
-        .withMessage(message)
-        .withLevel(Event.Level.ERROR)
-        .withLogger(className)
-        .withSentryInterface(new ExceptionInterface(e));
+    final EventBuilder eventBuilder =
+        new EventBuilder()
+            .withMessage(message)
+            .withLevel(Event.Level.ERROR)
+            .withLogger(className)
+            .withSentryInterface(new ExceptionInterface(e));
 
     log.error(message, e);
     Sentry.capture(eventBuilder);

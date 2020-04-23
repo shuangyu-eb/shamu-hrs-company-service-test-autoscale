@@ -42,7 +42,8 @@ public class BenefitPlanDependentController {
   private final BenefitPlanDependentRelationshipRepository relationshipRepository;
 
   @Autowired
-  public BenefitPlanDependentController(final UserService userService,
+  public BenefitPlanDependentController(
+      final UserService userService,
       final BenefitPlanDependentService benefitPlanDependentService,
       final BenefitPlanDependentMapper benefitPlanDependentMapper,
       final EncryptorUtil encryptorUtil,
@@ -55,65 +56,70 @@ public class BenefitPlanDependentController {
   }
 
   @PostMapping("employee/{userId}/user-dependent-contacts")
-  @PreAuthorize("hasPermission(#userId,'USER', 'EDIT_USER')"
-      + " or hasPermission(#userId,'USER', 'EDIT_SELF')")
-  public HttpEntity createBenefitDependents(@PathVariable final String userId,
+  @PreAuthorize(
+      "hasPermission(#userId,'USER', 'EDIT_USER')"
+          + " or hasPermission(#userId,'USER', 'EDIT_SELF')")
+  public HttpEntity createBenefitDependents(
+      @PathVariable final String userId,
       @RequestBody final BenefitDependentCreateDto benefitDependentCreateDto) {
     final User user = userService.findById(userId);
     benefitDependentCreateDto.setEmployee(user);
-    final BenefitPlanDependent dependentContact = benefitPlanDependentMapper
-        .createFromBenefitDependentCreateDto(benefitDependentCreateDto);
+    final BenefitPlanDependent dependentContact =
+        benefitPlanDependentMapper.createFromBenefitDependentCreateDto(benefitDependentCreateDto);
     encryptSsn(userId, benefitDependentCreateDto, dependentContact);
     benefitPlanDependentService.createBenefitPlanDependent(dependentContact);
     return new ResponseEntity<>(HttpStatus.OK);
   }
 
-
   @GetMapping("users/{userId}/user-dependent-contacts")
-  @PreAuthorize("hasPermission(#userId,'USER', 'EDIT_USER')"
-      + " or hasPermission(#userId,'USER', 'EDIT_SELF')")
-  public List<BenefitDependentDto> getDependentContacts(
-      @PathVariable final String userId) {
-    final List<BenefitPlanDependent> userDependentContacts = benefitPlanDependentService
-        .getDependentListsByEmployeeId(userId);
+  @PreAuthorize(
+      "hasPermission(#userId,'USER', 'EDIT_USER')"
+          + " or hasPermission(#userId,'USER', 'EDIT_SELF')")
+  public List<BenefitDependentDto> getDependentContacts(@PathVariable final String userId) {
+    final List<BenefitPlanDependent> userDependentContacts =
+        benefitPlanDependentService.getDependentListsByEmployeeId(userId);
 
     return userDependentContacts.stream()
         .map(benefitPlanDependentMapper::convertToBenefitDependentDto)
         .collect(Collectors.toList());
   }
 
-
   @PatchMapping("users/{userId}/user-dependent-contacts")
-  @PreAuthorize("hasPermission(#userId,'USER', 'EDIT_USER')"
-      + " or hasPermission(#userId,'USER', 'EDIT_SELF')")
-  public HttpEntity updateDependentContact(@PathVariable final String userId,
+  @PreAuthorize(
+      "hasPermission(#userId,'USER', 'EDIT_USER')"
+          + " or hasPermission(#userId,'USER', 'EDIT_SELF')")
+  public HttpEntity updateDependentContact(
+      @PathVariable final String userId,
       @RequestBody final BenefitDependentCreateDto benefitDependentCreateDto) {
-    final BenefitPlanDependent dependent = benefitPlanDependentService
-        .findDependentById(benefitDependentCreateDto.getId());
-    benefitPlanDependentMapper.updateFromBenefitDependentCreateDto(dependent,
-        benefitDependentCreateDto);
+    final BenefitPlanDependent dependent =
+        benefitPlanDependentService.findDependentById(benefitDependentCreateDto.getId());
+    benefitPlanDependentMapper.updateFromBenefitDependentCreateDto(
+        dependent, benefitDependentCreateDto);
     encryptSsn(userId, benefitDependentCreateDto, dependent);
     benefitPlanDependentService.updateDependentContact(dependent);
     return new ResponseEntity<>(HttpStatus.OK);
   }
 
-  private void encryptSsn(final String userId,
+  private void encryptSsn(
+      final String userId,
       final BenefitDependentCreateDto benefitDependentCreateDto,
       final BenefitPlanDependent dependent) {
     encryptorUtil.encryptSsn(userId, benefitDependentCreateDto.getSsn(), dependent);
   }
 
   @GetMapping("user-dependent-contacts/{dependentId}/dependent")
-  @PreAuthorize("hasPermission(#dependentId,'BENEFIT_DEPENDENT', 'EDIT_USER')"
-      + " or hasPermission(#dependentId,'BENEFIT_DEPENDENT', 'EDIT_SELF')")
+  @PreAuthorize(
+      "hasPermission(#dependentId,'BENEFIT_DEPENDENT', 'EDIT_USER')"
+          + " or hasPermission(#dependentId,'BENEFIT_DEPENDENT', 'EDIT_SELF')")
   public BenefitDependentDto getDependentContact(@PathVariable final String dependentId) {
     return benefitPlanDependentMapper.convertToBenefitDependentDto(
-      benefitPlanDependentService.findDependentById(dependentId));
+        benefitPlanDependentService.findDependentById(dependentId));
   }
 
   @DeleteMapping("user-dependent-contacts/{dependentId}/dependent")
-  @PreAuthorize("hasPermission(#dependentId,'BENEFIT_DEPENDENT', 'EDIT_USER')"
-      + " or hasPermission(#dependentId,'BENEFIT_DEPENDENT', 'EDIT_SELF')")
+  @PreAuthorize(
+      "hasPermission(#dependentId,'BENEFIT_DEPENDENT', 'EDIT_USER')"
+          + " or hasPermission(#dependentId,'BENEFIT_DEPENDENT', 'EDIT_SELF')")
   public HttpEntity deleteEmergencyContacts(@PathVariable final String dependentId) {
     benefitPlanDependentService.deleteDependentContact(dependentId);
     return new ResponseEntity<>(HttpStatus.OK);
@@ -127,10 +133,9 @@ public class BenefitPlanDependentController {
 
   @GetMapping("users/{userId}/benefit-plan-dependents")
   @PreAuthorize("hasPermission(#userId,'USER', 'EDIT_SELF')")
-  public List<BenefitPlanUserDto> getUserDependentContacts(
-      @PathVariable final String userId) {
-    final List<BenefitPlanDependent> userDependentContacts = benefitPlanDependentService
-        .getDependentListsByEmployeeId(userId);
+  public List<BenefitPlanUserDto> getUserDependentContacts(@PathVariable final String userId) {
+    final List<BenefitPlanDependent> userDependentContacts =
+        benefitPlanDependentService.getDependentListsByEmployeeId(userId);
 
     return userDependentContacts.stream()
         .map(benefitPlanDependentMapper::convertToBenefitPlanUserDto)

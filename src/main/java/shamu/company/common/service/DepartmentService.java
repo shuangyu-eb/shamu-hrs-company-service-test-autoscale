@@ -8,7 +8,6 @@ import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.common.repository.DepartmentRepository;
 import shamu.company.company.entity.Department;
 
-
 @Service
 @Transactional
 public class DepartmentService {
@@ -29,7 +28,8 @@ public class DepartmentService {
   }
 
   public Department findById(String id) {
-    return departmentRepository.findById(id)
+    return departmentRepository
+        .findById(id)
         .orElseThrow(() -> new ResourceNotFoundException("No Department with id: " + id));
   }
 

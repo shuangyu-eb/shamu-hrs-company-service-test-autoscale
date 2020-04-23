@@ -10,8 +10,7 @@ public class AccrualScheduleMilestoneDto {
 
   private String timeOffPolicyAccrualScheduleId;
 
-  @NotNull
-  private Integer accrualHours;
+  @NotNull private Integer accrualHours;
 
   private Integer accrualInterval;
 

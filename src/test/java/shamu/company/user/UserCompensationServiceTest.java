@@ -11,11 +11,9 @@ import shamu.company.user.repository.UserCompensationRepository;
 import shamu.company.user.service.UserCompensationService;
 
 public class UserCompensationServiceTest {
-  @Mock
-  private UserCompensationRepository userCompensationRepository;
+  @Mock private UserCompensationRepository userCompensationRepository;
 
-  @InjectMocks
-  private UserCompensationService userCompensationService;
+  @InjectMocks private UserCompensationService userCompensationService;
 
   @BeforeEach
   void init() {

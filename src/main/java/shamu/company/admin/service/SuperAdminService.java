@@ -37,7 +37,8 @@ public class SuperAdminService {
   private SystemAnnouncementsMapper systemAnnouncementsMapper;
 
   @Autowired
-  public SuperAdminService(final UserService userService,
+  public SuperAdminService(
+      final UserService userService,
       final SuperAdminRepository superAdminRepository,
       final Auth0Helper auth0Helper,
       final UserMapper userMapper,
@@ -53,8 +54,8 @@ public class SuperAdminService {
     this.systemAnnouncementsMapper = systemAnnouncementsMapper;
   }
 
-  public Page<SuperAdminUserDto> getUsersByKeywordAndPageable(final String keyword,
-      final Pageable pageable) {
+  public Page<SuperAdminUserDto> getUsersByKeywordAndPageable(
+      final String keyword, final Pageable pageable) {
     return superAdminRepository.getUsersByKeywordAndPageable(
         keyword, UserStatus.Status.ACTIVE.name(), pageable);
   }
@@ -63,8 +64,7 @@ public class SuperAdminService {
     final User user = userService.findActiveUserById(userId);
     final AuthUser authUser = userMapper.convertToAuthUser(user);
     final MockUserDto mockUserDto = userMapper.convertToMockUserDto(user);
-    final List<String> permissions = auth0Helper
-        .getPermissionBy(user);
+    final List<String> permissions = auth0Helper.getPermissionBy(user);
     authUser.setPermissions(permissions);
     authUserCacheManager.cacheAuthUser(token, authUser);
     mockUserDto.setPermissions(permissions);
@@ -78,7 +78,7 @@ public class SuperAdminService {
 
   public void publishSystemAnnouncement(
       final String userId, final SystemAnnouncementDto systemAnnouncementDto) {
-    //update previous announcement past
+    // update previous announcement past
     final SystemAnnouncement oldActiveAnnouncement =
         systemAnnouncementsService.getSystemActiveAnnouncement();
     if (null != oldActiveAnnouncement) {
@@ -95,14 +95,12 @@ public class SuperAdminService {
   }
 
   public void updateSystemActiveAnnouncement(final String id) {
-    final SystemAnnouncement systemAnnouncement =
-        systemAnnouncementsService.findById(id);
+    final SystemAnnouncement systemAnnouncement = systemAnnouncementsService.findById(id);
     systemAnnouncement.setIsPastAnnouncement(true);
     systemAnnouncementsService.save(systemAnnouncement);
   }
 
-  public Page<SystemAnnouncementDto> getSystemPastAnnouncements(
-      final Pageable pageable) {
+  public Page<SystemAnnouncementDto> getSystemPastAnnouncements(final Pageable pageable) {
     return systemAnnouncementsService.getSystemPastAnnouncements(pageable);
   }
 }

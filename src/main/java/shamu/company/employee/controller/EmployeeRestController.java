@@ -39,8 +39,10 @@ public class EmployeeRestController extends BaseRestController {
 
   private final EmailService emailService;
 
-  public EmployeeRestController(final EmployeeService employeeService,
-      final UserService userService, final EmailService emailService) {
+  public EmployeeRestController(
+      final EmployeeService employeeService,
+      final UserService userService,
+      final EmailService emailService) {
     this.employeeService = employeeService;
     this.userService = userService;
     this.emailService = emailService;
@@ -70,8 +72,9 @@ public class EmployeeRestController extends BaseRestController {
   public String findWelcomeEmail(
       @RequestBody(required = false) final String welcomeEmailPersonalMessage) {
 
-    final Context context = emailService.findWelcomeEmailPreviewContext(
-        userService.findById(findUserId()), welcomeEmailPersonalMessage);
+    final Context context =
+        emailService.findWelcomeEmailPreviewContext(
+            userService.findById(findUserId()), welcomeEmailPersonalMessage);
     return emailService.getWelcomeEmail(context);
   }
 
@@ -96,8 +99,8 @@ public class EmployeeRestController extends BaseRestController {
   public HttpEntity saveEmployeeSetUpInformation(@RequestBody final EmployeeDto employeeDto) {
     final User employee = userService.findById(findAuthUser().getId());
     if (employee.getVerifiedAt() != null) {
-      throw new ForbiddenException(String.format("User with email %s already verified!",
-          employeeDto.getEmailWork()));
+      throw new ForbiddenException(
+          String.format("User with email %s already verified!", employeeDto.getEmailWork()));
     }
 
     employeeService.updateEmployee(employeeDto, employee);
@@ -112,8 +115,7 @@ public class EmployeeRestController extends BaseRestController {
 
   @GetMapping("/employees/{id}/info")
   @PreAuthorize("hasPermission(#id,'USER','VIEW_USER_PERSONAL')")
-  public EmployeeDetailDto getEmployeeInfoByUserId(
-      @PathVariable final String id) {
+  public EmployeeDetailDto getEmployeeInfoByUserId(@PathVariable final String id) {
     return employeeService.getEmployeeInfoByUserId(id);
   }
 }

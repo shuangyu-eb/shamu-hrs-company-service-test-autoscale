@@ -9,8 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
 import shamu.company.common.entity.BaseEntity;
 
 @NoRepositoryBean
-public interface BaseRepository<T extends BaseEntity, I extends String> extends
-    JpaRepository<T, I> {
+public interface BaseRepository<T extends BaseEntity, I extends String>
+    extends JpaRepository<T, I> {
 
   @Query(value = "delete from #{#entityName} where id = ?1 ")
   @Transactional

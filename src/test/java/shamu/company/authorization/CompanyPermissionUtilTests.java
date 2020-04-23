@@ -24,13 +24,10 @@ import shamu.company.user.service.UserService;
 
 class CompanyPermissionUtilTests {
 
-  @Mock
-  private UserService userService;
-  @Mock
-  private AuthUserCacheManager authUserCacheManager;
+  @Mock private UserService userService;
+  @Mock private AuthUserCacheManager authUserCacheManager;
 
-  @InjectMocks
-  private CompanyPermissionUtils companyPermissionUtils;
+  @InjectMocks private CompanyPermissionUtils companyPermissionUtils;
 
   @BeforeEach
   void init() {
@@ -38,8 +35,9 @@ class CompanyPermissionUtilTests {
 
     Whitebox.setInternalState(companyPermissionUtils, "authUserCacheManager", authUserCacheManager);
     final Jwt jwt = JwtUtil.getJwt();
-    final Authentication authentication = new DefaultJwtAuthenticationToken(jwt,
-        RandomStringUtils.randomAlphabetic(16), Collections.emptyList(), new AuthUser());
+    final Authentication authentication =
+        new DefaultJwtAuthenticationToken(
+            jwt, RandomStringUtils.randomAlphabetic(16), Collections.emptyList(), new AuthUser());
     SecurityContextHolder.getContext().setAuthentication(authentication);
   }
 
@@ -57,17 +55,17 @@ class CompanyPermissionUtilTests {
 
     @Test
     void whenIsNotUserType_thenShouldReturnFalse() {
-      final boolean isMember = companyPermissionUtils
-          .isMember(RandomStringUtils.randomAlphabetic(2),
-              RandomStringUtils.randomAlphabetic(2));
+      final boolean isMember =
+          companyPermissionUtils.isMember(
+              RandomStringUtils.randomAlphabetic(2), RandomStringUtils.randomAlphabetic(2));
       Assertions.assertFalse(isMember);
     }
 
     @Test
     void whenCanNotFindUser_thenShouldReturnFalse() {
       Mockito.when(userService.findById(Mockito.anyString())).thenReturn(null);
-      final boolean isMember = companyPermissionUtils
-          .isMember(null, RandomStringUtils.randomAlphabetic(16));
+      final boolean isMember =
+          companyPermissionUtils.isMember(null, RandomStringUtils.randomAlphabetic(16));
       Assertions.assertFalse(isMember);
     }
 
@@ -86,16 +84,16 @@ class CompanyPermissionUtilTests {
       @Test
       void whenIsInSameCompany_thenShouldReturnTrue() {
         user.getCompany().setId(authUser.getCompanyId());
-        final boolean isMember = companyPermissionUtils
-            .isMember(RandomStringUtils.randomAlphabetic(16));
+        final boolean isMember =
+            companyPermissionUtils.isMember(RandomStringUtils.randomAlphabetic(16));
         Assertions.assertTrue(isMember);
       }
 
       @Test
       void whenIsNotInSameCompany_thenShouldReturnFalse() {
         user.getCompany().setId(RandomStringUtils.randomAlphabetic(16));
-        final boolean isMember = companyPermissionUtils
-            .isMember(RandomStringUtils.randomAlphabetic(16));
+        final boolean isMember =
+            companyPermissionUtils.isMember(RandomStringUtils.randomAlphabetic(16));
         Assertions.assertFalse(isMember);
       }
     }

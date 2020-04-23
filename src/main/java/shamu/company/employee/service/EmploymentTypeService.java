@@ -20,9 +20,12 @@ public class EmploymentTypeService {
   }
 
   public EmploymentType findById(final String id) {
-    return employmentTypeRepository.findById(id)
-        .orElseThrow(() -> new ResourceNotFoundException(
-            String.format("Employment type with id %s not found!", id)));
+    return employmentTypeRepository
+        .findById(id)
+        .orElseThrow(
+            () ->
+                new ResourceNotFoundException(
+                    String.format("Employment type with id %s not found!", id)));
   }
 
   public List<EmploymentType> findAllByCompanyId(String companyId) {

@@ -1,5 +1,6 @@
 package shamu.company.user;
 
+import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,14 +12,10 @@ import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.user.repository.GenderRepository;
 import shamu.company.user.service.GenderService;
 
-import java.util.Optional;
-
 public class GenderServiceTest {
-  @Mock
-  private GenderRepository genderRepository;
+  @Mock private GenderRepository genderRepository;
 
-  @InjectMocks
-  private GenderService genderService;
+  @InjectMocks private GenderService genderService;
 
   @BeforeEach
   void init() {

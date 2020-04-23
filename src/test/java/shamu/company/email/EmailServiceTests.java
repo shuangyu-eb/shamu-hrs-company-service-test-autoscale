@@ -340,7 +340,7 @@ class EmailServiceTests {
   }
 
   @Nested
-  class  getEncodedEmailAddress {
+  class getEncodedEmailAddress {
     String email;
 
     @Test

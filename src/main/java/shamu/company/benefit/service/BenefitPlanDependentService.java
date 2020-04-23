@@ -13,11 +13,9 @@ public class BenefitPlanDependentService {
   private final UserDependentsRepository userDependentsRepository;
 
   @Autowired
-  public BenefitPlanDependentService(
-      final UserDependentsRepository userDependentsRepository) {
+  public BenefitPlanDependentService(final UserDependentsRepository userDependentsRepository) {
     this.userDependentsRepository = userDependentsRepository;
   }
-
 
   public void createBenefitPlanDependent(final BenefitPlanDependent benefitPlanDependent) {
     userDependentsRepository.save(benefitPlanDependent);
@@ -37,8 +35,8 @@ public class BenefitPlanDependentService {
 
   public BenefitPlanDependent findDependentById(final String dependentId) {
 
-    final Optional<BenefitPlanDependent> benefitPlanDependent
-        = userDependentsRepository.findById(dependentId);
+    final Optional<BenefitPlanDependent> benefitPlanDependent =
+        userDependentsRepository.findById(dependentId);
     return benefitPlanDependent.orElse(null);
   }
 }

@@ -10,11 +10,9 @@ import shamu.company.user.repository.EthnicityRepository;
 import shamu.company.user.service.EthnicityService;
 
 public class EthnicityServiceTest {
-  @Mock
-  private EthnicityRepository ethnicityRepository;
+  @Mock private EthnicityRepository ethnicityRepository;
 
-  @InjectMocks
-  private EthnicityService ethnicityService;
+  @InjectMocks private EthnicityService ethnicityService;
 
   @BeforeEach
   void init() {

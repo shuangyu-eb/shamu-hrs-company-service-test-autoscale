@@ -60,22 +60,24 @@ public class UserPersonalInformationService {
     final User.Role userRole = authUser.getRole();
     final SimpleDateFormat sdf = new SimpleDateFormat("MM-dd");
     if (authUser.getId().equals(targetUser.getId())
-            || userRole == User.Role.ADMIN || userRole == User.Role.SUPER_ADMIN) {
-      return userPersonalInformationMapper
-              .convertToUserPersonalInformationDto(userPersonalInformation, imageUrl);
+        || userRole == User.Role.ADMIN
+        || userRole == User.Role.SUPER_ADMIN) {
+      return userPersonalInformationMapper.convertToUserPersonalInformationDto(
+          userPersonalInformation, imageUrl);
     }
 
-    if (userRole == User.Role.MANAGER && targetUser.getManagerUser() != null
-            && authUser.getId().equals(targetUser.getManagerUser().getId())) {
+    if (userRole == User.Role.MANAGER
+        && targetUser.getManagerUser() != null
+        && authUser.getId().equals(targetUser.getManagerUser().getId())) {
       return userPersonalInformationMapper.convertToMyEmployeePersonalInformationDto(
-              userPersonalInformation);
+          userPersonalInformation);
     }
 
     final Date birthDate = userPersonalInformation.getBirthDate();
     final String birthDateWithoutYear = birthDate != null ? sdf.format(birthDate) : "";
     final BasicUserPersonalInformationDto basicUserPersonalInformationDto =
-            userPersonalInformationMapper
-                    .convertToBasicUserPersonalInformationDto(userPersonalInformation);
+        userPersonalInformationMapper.convertToBasicUserPersonalInformationDto(
+            userPersonalInformation);
     basicUserPersonalInformationDto.setBirthDate(birthDateWithoutYear);
     return basicUserPersonalInformationDto;
   }

@@ -1,5 +1,10 @@
 package shamu.company.benefit.controller;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
+
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,26 +30,16 @@ import shamu.company.tests.utils.JwtUtil;
 import shamu.company.user.entity.User;
 import shamu.company.utils.JsonUtil;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.BDDMockito.given;
-
 @WebMvcTest(controllers = BenefitPlanDependentController.class)
 class BenefitPlanDependentControllerTests extends WebControllerBaseTests {
 
-  @MockBean
-  BenefitPlanDependentMapper benefitPlanDependentMapper;
+  @MockBean BenefitPlanDependentMapper benefitPlanDependentMapper;
 
-  @MockBean
-  BenefitPlanDependentRelationshipRepository relationshipRepository;
+  @MockBean BenefitPlanDependentRelationshipRepository relationshipRepository;
 
-  @MockBean
-  EncryptorUtil encryptorUtil;
+  @MockBean EncryptorUtil encryptorUtil;
 
-  @Autowired
-  private MockMvc mockMvc;
+  @Autowired private MockMvc mockMvc;
 
   @Test
   void testCreateBenefitDependents() throws Exception {
@@ -58,11 +53,15 @@ class BenefitPlanDependentControllerTests extends WebControllerBaseTests {
     targetUser.setId(currentUser.getId());
     final BenefitDependentCreateDto benefitDependentCreateDto = new BenefitDependentCreateDto();
     given(userService.findById(currentUser.getId())).willReturn(targetUser);
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .post("/company/employee/" + getAuthUser().getId() + "/user-dependent-contacts")
-        .contentType(MediaType.APPLICATION_JSON)
-        .headers(httpHeaders)
-        .content(JsonUtil.formatToString(benefitDependentCreateDto))).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.post(
+                        "/company/employee/" + getAuthUser().getId() + "/user-dependent-contacts")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .headers(httpHeaders)
+                    .content(JsonUtil.formatToString(benefitDependentCreateDto)))
+            .andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
 
@@ -77,12 +76,16 @@ class BenefitPlanDependentControllerTests extends WebControllerBaseTests {
     targetUser.setCompany(company);
     targetUser.setId(currentUser.getId());
     given(userService.findById(currentUser.getId())).willReturn(targetUser);
-    List<BenefitPlanDependent> benefitPlanDependents = new ArrayList<>();
+    final List<BenefitPlanDependent> benefitPlanDependents = new ArrayList<>();
     given(benefitPlanDependentService.getDependentListsByEmployeeId(getAuthUser().getId()))
         .willReturn(benefitPlanDependents);
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .get("/company/users/" + getAuthUser().getId() + "/user-dependent-contacts")
-        .headers(httpHeaders)).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.get(
+                        "/company/users/" + getAuthUser().getId() + "/user-dependent-contacts")
+                    .headers(httpHeaders))
+            .andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
     Mockito.verify(benefitPlanDependentMapper, Mockito.times(0))
         .convertToBenefitDependentDto(Mockito.any());
@@ -99,16 +102,20 @@ class BenefitPlanDependentControllerTests extends WebControllerBaseTests {
     targetUser.setCompany(company);
     targetUser.setId(currentUser.getId());
     given(userService.findById(currentUser.getId())).willReturn(targetUser);
-    BenefitDependentCreateDto benefitDependentCreateDto = new BenefitDependentCreateDto();
+    final BenefitDependentCreateDto benefitDependentCreateDto = new BenefitDependentCreateDto();
     benefitDependentCreateDto.setId("id");
     final BenefitPlanDependent dependent = new BenefitPlanDependent();
     given(benefitPlanDependentService.findDependentById(benefitDependentCreateDto.getId()))
         .willReturn(dependent);
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .patch("/company/users/" + getAuthUser().getId() + "/user-dependent-contacts")
-        .contentType(MediaType.APPLICATION_JSON)
-        .headers(httpHeaders)
-        .content(JsonUtil.formatToString(benefitDependentCreateDto))).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.patch(
+                        "/company/users/" + getAuthUser().getId() + "/user-dependent-contacts")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .headers(httpHeaders)
+                    .content(JsonUtil.formatToString(benefitDependentCreateDto)))
+            .andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
 
@@ -122,13 +129,16 @@ class BenefitPlanDependentControllerTests extends WebControllerBaseTests {
     final Company company = new Company(currentUser.getCompanyId());
     targetUser.setCompany(company);
     targetUser.setId(currentUser.getId());
-    BenefitPlanDependent benefitPlanDependent = new BenefitPlanDependent();
+    final BenefitPlanDependent benefitPlanDependent = new BenefitPlanDependent();
     benefitPlanDependent.setEmployee(targetUser);
     given(benefitPlanDependentService.findDependentById("1")).willReturn(benefitPlanDependent);
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .delete("/company/user-dependent-contacts/1/dependent")
-        .contentType(MediaType.APPLICATION_JSON)
-        .headers(httpHeaders)).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.delete("/company/user-dependent-contacts/1/dependent")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .headers(httpHeaders))
+            .andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
 
@@ -136,11 +146,13 @@ class BenefitPlanDependentControllerTests extends WebControllerBaseTests {
   void testGetAllDependentRelationships() throws Exception {
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
-    List<DependentRelationship> results = new ArrayList<>();
+    final List<DependentRelationship> results = new ArrayList<>();
     given(relationshipRepository.findAll()).willReturn(results);
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .get("/company/dependent-relationships")
-        .headers(httpHeaders)).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.get("/company/dependent-relationships").headers(httpHeaders))
+            .andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
 
@@ -155,9 +167,13 @@ class BenefitPlanDependentControllerTests extends WebControllerBaseTests {
     targetUser.setCompany(company);
     targetUser.setId(currentUser.getId());
     given(userService.findById(currentUser.getId())).willReturn(targetUser);
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .get("/company/users/" + getAuthUser().getId() + "/benefit-plan-dependents")
-        .headers(httpHeaders)).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.get(
+                        "/company/users/" + getAuthUser().getId() + "/benefit-plan-dependents")
+                    .headers(httpHeaders))
+            .andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
 }

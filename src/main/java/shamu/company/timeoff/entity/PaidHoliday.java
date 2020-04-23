@@ -19,14 +19,11 @@ import shamu.company.user.entity.User;
 @AllArgsConstructor
 public class PaidHoliday extends BaseEntity {
 
-  @ManyToOne
-  private Country country;
+  @ManyToOne private Country country;
 
-  @ManyToOne
-  private Company company;
+  @ManyToOne private Company company;
 
-  @ManyToOne
-  private User creator;
+  @ManyToOne private User creator;
 
   private String name;
 

@@ -8,16 +8,13 @@ import shamu.company.helpers.RedisHelper;
 import shamu.company.server.dto.AuthUser;
 import shamu.company.utils.JsonUtil;
 
-
 @Configuration
 public class AuthUserCacheManager {
 
   private static final TimeUnit EXPIRATION_UNIT = TimeUnit.SECONDS;
-
+  private final RedisHelper redisHelper;
   @Value("${spring.redis.expiration}")
   private Long expiration;
-
-  private final RedisHelper redisHelper;
 
   @Autowired
   public AuthUserCacheManager(final RedisHelper redisHelper) {
@@ -27,7 +24,6 @@ public class AuthUserCacheManager {
   public void cacheAuthUser(final String key, final AuthUser authUser) {
     final String authUserJson = JsonUtil.formatToString(authUser);
     redisHelper.putValueWithExpireTime(key, authUserJson, expiration, EXPIRATION_UNIT);
-
   }
 
   public AuthUser getCachedUser(final String key) {

@@ -9,6 +9,4 @@ import java.lang.annotation.Target;
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface PreSinged {
-
-}
+public @interface PreSinged {}

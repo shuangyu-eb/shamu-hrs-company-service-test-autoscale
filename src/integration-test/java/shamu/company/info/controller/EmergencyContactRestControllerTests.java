@@ -1,5 +1,9 @@
 package shamu.company.info.controller;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
+
+import java.util.ArrayList;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,15 +24,9 @@ import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserRole;
 import shamu.company.utils.JsonUtil;
 
-import java.util.ArrayList;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.BDDMockito.given;
-
 @WebMvcTest(controllers = EmergencyContactRestController.class)
 public class EmergencyContactRestControllerTests extends WebControllerBaseTests {
-  @Autowired
-  private MockMvc mockMvc;
+  @Autowired private MockMvc mockMvc;
 
   @Test
   void testGetEmergencyContacts() throws Exception {
@@ -43,9 +41,12 @@ public class EmergencyContactRestControllerTests extends WebControllerBaseTests 
     given(userService.findById("1")).willReturn(user);
     given(userEmergencyContactService.findUserEmergencyContacts("1")).willReturn(new ArrayList<>());
     given(userService.findActiveUserById(Mockito.anyString())).willReturn(user);
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .get("/company/users/1/user-emergency-contacts")
-        .headers(httpHeaders)).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.get("/company/users/1/user-emergency-contacts")
+                    .headers(httpHeaders))
+            .andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
 
@@ -60,11 +61,14 @@ public class EmergencyContactRestControllerTests extends WebControllerBaseTests 
     given(userService.findById("1")).willReturn(user);
     given(userEmergencyContactMapper.createFromUserEmergencyContactDto(userEmergencyContactDto))
         .willReturn(new UserEmergencyContact());
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .post("/company/users/1/user-emergency-contacts")
-        .headers(httpHeaders)
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(JsonUtil.formatToString(userEmergencyContactDto))).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.post("/company/users/1/user-emergency-contacts")
+                    .headers(httpHeaders)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(JsonUtil.formatToString(userEmergencyContactDto)))
+            .andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
 
@@ -77,12 +81,16 @@ public class EmergencyContactRestControllerTests extends WebControllerBaseTests 
     user.setCompany(new Company(getAuthUser().getCompanyId()));
     userEmergencyContact.setUser(user);
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
-    given(userEmergencyContactService.findById(Mockito.anyString())).willReturn(userEmergencyContact);
+    given(userEmergencyContactService.findById(Mockito.anyString()))
+        .willReturn(userEmergencyContact);
     given(userService.findById("1")).willReturn(user);
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .delete("/company/user-emergency-contacts/1")
-        .contentType(MediaType.APPLICATION_JSON)
-        .headers(httpHeaders)).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.delete("/company/user-emergency-contacts/1")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .headers(httpHeaders))
+            .andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
 
@@ -96,13 +104,17 @@ public class EmergencyContactRestControllerTests extends WebControllerBaseTests 
     user.setCompany(new Company(getAuthUser().getCompanyId()));
     userEmergencyContact.setUser(user);
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
-    given(userEmergencyContactService.findById(Mockito.anyString())).willReturn(userEmergencyContact);
+    given(userEmergencyContactService.findById(Mockito.anyString()))
+        .willReturn(userEmergencyContact);
     given(userService.findById("1")).willReturn(user);
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .patch("/company/user-emergency-contacts")
-        .headers(httpHeaders)
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(JsonUtil.formatToString(userEmergencyContactDto))).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.patch("/company/user-emergency-contacts")
+                    .headers(httpHeaders)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(JsonUtil.formatToString(userEmergencyContactDto)))
+            .andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
 }

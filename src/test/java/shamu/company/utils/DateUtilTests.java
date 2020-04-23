@@ -1,9 +1,9 @@
 package shamu.company.utils;
 
-import java.time.LocalDateTime;
-import java.util.Date;
 import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Date;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -12,7 +12,8 @@ public class DateUtilTests {
   @Test
   void testFormatDateTo() {
     LocalDateTime localDateTime = LocalDateTime.now();
-    Assertions.assertDoesNotThrow(() -> DateUtil.formatDateTo(localDateTime, DateUtil.SIMPLE_MONTH_DAY_YEAR));
+    Assertions.assertDoesNotThrow(
+        () -> DateUtil.formatDateTo(localDateTime, DateUtil.SIMPLE_MONTH_DAY_YEAR));
   }
 
   @Test
@@ -37,7 +38,6 @@ public class DateUtilTests {
     LocalDate nowDate = LocalDate.now();
     Assertions.assertDoesNotThrow(() -> DateUtil.getFirstDayOfYear(nowDate));
   }
-
 
   @Test
   void testGetFirstDayOfCurrentYear() {

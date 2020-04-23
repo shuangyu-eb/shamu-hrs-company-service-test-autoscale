@@ -17,8 +17,7 @@ import shamu.company.user.entity.User;
 @NoArgsConstructor
 public class SystemAnnouncement extends BaseEntity {
 
-  @OneToOne
-  private User user;
+  @OneToOne private User user;
 
   private String content;
 

@@ -176,15 +176,20 @@ public class BenefitPlanService {
     this.jobUserMapper = jobUserMapper;
   }
 
+  static <T> Predicate<T> distinctByKey(final Function<? super T, ?> keyExtractor) {
+    final Map<Object, Boolean> seen = new ConcurrentHashMap<>();
+    return t -> seen.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
+  }
+
   public BenefitPlanDto createBenefitPlan(
       final NewBenefitPlanWrapperDto data, final String companyId) {
     final BenefitPlanCreateDto benefitPlanCreateDto = data.getBenefitPlan();
     final List<BenefitPlanCoverageDto> benefitPlanCoverageDtoList = data.getCoverages();
-    final List<BenefitPlanUserCreateDto> benefitPlanUserCreateDtoList
-        = data.getSelectedEmployees();
+    final List<BenefitPlanUserCreateDto> benefitPlanUserCreateDtoList = data.getSelectedEmployees();
 
-    final Map<String, List<BenefitPlanUserCreateDto>> benefitUsers = benefitPlanUserCreateDtoList
-        .stream().collect(Collectors.groupingBy(BenefitPlanUserCreateDto::getCoverage));
+    final Map<String, List<BenefitPlanUserCreateDto>> benefitUsers =
+        benefitPlanUserCreateDtoList.stream()
+            .collect(Collectors.groupingBy(BenefitPlanUserCreateDto::getCoverage));
 
     final BenefitPlan benefitPlan =
         benefitPlanMapper.createFromBenefitPlanCreateDto(benefitPlanCreateDto);
@@ -200,20 +205,19 @@ public class BenefitPlanService {
     }
 
     if (!benefitPlanCoverageDtoList.isEmpty()) {
-      benefitPlanCoverageDtoList
-          .forEach(
-              benefitPlanCoverageDto -> {
-                if (benefitPlanCoverageDto.getId().startsWith(BENEFIT_NEW_COVERAGE)) {
-                  final BenefitCoverages benefitCoverages =
-                      benefitCoveragesRepository.save(
-                          benefitCoveragesMapper.createFromBenefitPlanCoverageDtoAndPlan(
-                              benefitPlanCoverageDto, createdBenefitPlan));
-                  final String newBenefitId = benefitCoverages.getId();
-                  changeEmployeesCoverage(benefitUsers
-                      .get(benefitPlanCoverageDto.getId()), newBenefitId);
-                  benefitPlanCoverageDto.setId(benefitCoverages.getId());
-                }
-              });
+      benefitPlanCoverageDtoList.forEach(
+          benefitPlanCoverageDto -> {
+            if (benefitPlanCoverageDto.getId().startsWith(BENEFIT_NEW_COVERAGE)) {
+              final BenefitCoverages benefitCoverages =
+                  benefitCoveragesRepository.save(
+                      benefitCoveragesMapper.createFromBenefitPlanCoverageDtoAndPlan(
+                          benefitPlanCoverageDto, createdBenefitPlan));
+              final String newBenefitId = benefitCoverages.getId();
+              changeEmployeesCoverage(
+                  benefitUsers.get(benefitPlanCoverageDto.getId()), newBenefitId);
+              benefitPlanCoverageDto.setId(benefitCoverages.getId());
+            }
+          });
 
       benefitPlanCoverageRepository.saveAll(
           benefitPlanCoverageDtoList.stream()
@@ -231,10 +235,12 @@ public class BenefitPlanService {
             .map(
                 benefitPlanUserCreateDto ->
                     benefitPlanUserMapper.createFromBenefitPlanUserCreateDtoAndBenefitPlanId(
-                        benefitPlanUserCreateDto, createdBenefitPlan.getId(),
+                        benefitPlanUserCreateDto,
+                        createdBenefitPlan.getId(),
                         benefitPlanCoverageRepository.getByBenefitPlanIdAndBenefitCoverageId(
                             createdBenefitPlan.getId(), benefitPlanUserCreateDto.getCoverage()),
-                        true, true))
+                        true,
+                        true))
             .collect(Collectors.toList()));
 
     return benefitPlanMapper.convertToBenefitPlanDto(benefitPlan);
@@ -265,36 +271,41 @@ public class BenefitPlanService {
     List<BenefitPlanCoverage> benefitPlanCoverageList = new ArrayList<>();
 
     if (!CollectionUtils.isEmpty(benefitPlanCoverageDtoList)) {
-      benefitPlanCoverageList = updateBenefitPlanCoverage(
-          benefitPlanCoverageDtoList, planId, benefitPlanUserCreateDtoList);
+      benefitPlanCoverageList =
+          updateBenefitPlanCoverage(
+              benefitPlanCoverageDtoList, planId, benefitPlanUserCreateDtoList);
     }
 
     updateBenefitPlanUser(data, planId, benefitPlanCoverageList);
 
-    //is not retirement type
+    // is not retirement type
     if (!CollectionUtils.isEmpty(benefitPlanCoverageDtoList)) {
       final List<String> benefitPlanIds =
           benefitPlanCoverageList.stream()
               .map(BenefitPlanCoverage::getId)
               .collect(Collectors.toList());
-      final List<BenefitCoverages> coverages = benefitPlanCoverageList.stream()
-          .map(BenefitPlanCoverage::getBenefitCoverage).collect(Collectors.toList());
-      final List<String> coverageIds = coverages.stream().map(BenefitCoverages::getId)
-          .collect(Collectors.toList());
+      final List<BenefitCoverages> coverages =
+          benefitPlanCoverageList.stream()
+              .map(BenefitPlanCoverage::getBenefitCoverage)
+              .collect(Collectors.toList());
+      final List<String> coverageIds =
+          coverages.stream().map(BenefitCoverages::getId).collect(Collectors.toList());
       final List<BenefitCoverages> benefitCoverages =
           benefitCoveragesRepository.findAllByBenefitPlanId(planId);
       final List<BenefitPlanCoverage> benefitPlanCoverages =
           benefitPlanCoverageRepository.findAllByBenefitPlanId(planId);
-      benefitPlanCoverages.forEach(s -> {
-        if (!benefitPlanIds.contains(s.getId())) {
-          benefitPlanCoverageRepository.delete(s);
-        }
-      });
-      benefitCoverages.forEach(s -> {
-        if (!coverageIds.contains(s.getId())) {
-          benefitCoveragesRepository.delete(s);
-        }
-      });
+      benefitPlanCoverages.forEach(
+          s -> {
+            if (!benefitPlanIds.contains(s.getId())) {
+              benefitPlanCoverageRepository.delete(s);
+            }
+          });
+      benefitCoverages.forEach(
+          s -> {
+            if (!coverageIds.contains(s.getId())) {
+              benefitCoveragesRepository.delete(s);
+            }
+          });
     }
 
     return benefitPlanMapper.convertToBenefitPlanDto(benefitPlan);
@@ -336,12 +347,14 @@ public class BenefitPlanService {
   }
 
   private List<BenefitPlanCoverage> updateBenefitPlanCoverage(
-      final List<BenefitPlanCoverageDto> benefitPlanCoverageDtoList, final String planId,
+      final List<BenefitPlanCoverageDto> benefitPlanCoverageDtoList,
+      final String planId,
       final List<BenefitPlanUserCreateDto> benefitPlanUserCreateDtoList) {
 
     final List<BenefitPlanCoverage> result = new ArrayList<>();
-    final Map<String, List<BenefitPlanUserCreateDto>> benefitUsers = benefitPlanUserCreateDtoList
-        .stream().collect(Collectors.groupingBy(BenefitPlanUserCreateDto::getCoverage));
+    final Map<String, List<BenefitPlanUserCreateDto>> benefitUsers =
+        benefitPlanUserCreateDtoList.stream()
+            .collect(Collectors.groupingBy(BenefitPlanUserCreateDto::getCoverage));
 
     final List<BenefitPlanCoverage> benefitPlanCoverages =
         benefitPlanCoverageRepository.findAllByBenefitPlanId(planId);
@@ -396,7 +409,8 @@ public class BenefitPlanService {
   }
 
   private void updateBenefitPlanUser(
-      final NewBenefitPlanWrapperDto data, final String planId,
+      final NewBenefitPlanWrapperDto data,
+      final String planId,
       final List<BenefitPlanCoverage> benefitPlanCoverageList) {
 
     final List<BenefitPlanUser> benefitPlanUsers =
@@ -439,31 +453,35 @@ public class BenefitPlanService {
               benefitPlanUserRepository.countByBenefitPlanIdAndConfirmedIsTrue(benefitPlan.getId());
           benefitPlanPreviewDtos.add(
               new BenefitPlanPreviewDto(
-                  benefitPlan.getId(), benefitPlan.getName(),
-                  benefitPlan.getStartDate(),  benefitPlan.getEndDate(), "",
-                  eligibleNumber, enrolledNumber));
+                  benefitPlan.getId(),
+                  benefitPlan.getName(),
+                  benefitPlan.getStartDate(),
+                  benefitPlan.getEndDate(),
+                  "",
+                  eligibleNumber,
+                  enrolledNumber));
         });
 
     return benefitPlanPreviewDtos;
   }
 
   public void updateBenefitPlanUsers(
-      final String benefitPlanId, final List<BenefitPlanUserCreateDto> benefitPlanUsers,
+      final String benefitPlanId,
+      final List<BenefitPlanUserCreateDto> benefitPlanUsers,
       final List<BenefitPlanCoverage> benefitPlanCoverageList) {
 
     final Map<String, List<BenefitPlanCoverage>> coverageUserMap =
-        benefitPlanCoverageList.stream().collect(Collectors
-            .groupingBy(BenefitPlanCoverage::getId));
+        benefitPlanCoverageList.stream().collect(Collectors.groupingBy(BenefitPlanCoverage::getId));
 
-    //Retirement type
+    // Retirement type
     if (CollectionUtils.isEmpty(benefitPlanCoverageList)) {
       benefitPlanUserRepository.saveAll(
-          benefitPlanUsers.stream().map(saveBenefitPlanUserCreateDto ->
-              benefitPlanUserMapper.createFromBenefitPlanUserCreateDtoAndBenefitPlanId(
-                  saveBenefitPlanUserCreateDto, benefitPlanId,
-                  null, true, true))
-              .collect(Collectors.toList())
-      );
+          benefitPlanUsers.stream()
+              .map(
+                  saveBenefitPlanUserCreateDto ->
+                      benefitPlanUserMapper.createFromBenefitPlanUserCreateDtoAndBenefitPlanId(
+                          saveBenefitPlanUserCreateDto, benefitPlanId, null, true, true))
+              .collect(Collectors.toList()));
     } else {
       benefitPlanUsers.forEach(
           saveBenefitPlanUserCreateDto -> {
@@ -471,8 +489,7 @@ public class BenefitPlanService {
                 coverageUserMap.get(saveBenefitPlanUserCreateDto.getCoverage()).get(0);
             benefitPlanUserRepository.save(
                 benefitPlanUserMapper.createFromBenefitPlanUserCreateDtoAndBenefitPlanId(
-                    saveBenefitPlanUserCreateDto, benefitPlanId,
-                    benefitPlanCoverage, true, true));
+                    saveBenefitPlanUserCreateDto, benefitPlanId, benefitPlanCoverage, true, true));
           });
     }
   }
@@ -672,22 +689,22 @@ public class BenefitPlanService {
         });
 
     // map all the new records to find record which haven't been added
-    newDependentIds
-        .forEach(
-            newDependentId -> {
-              if (!oldDependentIds.contains(newDependentId)) {
-                final BenefitDependentRecord newBenefitDependentRecord =
-                    new BenefitDependentRecord(benefitPlanUserId, newDependentId);
-                benefitPlanDependentRepository.save(newBenefitDependentRecord);
-              }
-            });
+    newDependentIds.forEach(
+        newDependentId -> {
+          if (!oldDependentIds.contains(newDependentId)) {
+            final BenefitDependentRecord newBenefitDependentRecord =
+                new BenefitDependentRecord(benefitPlanUserId, newDependentId);
+            benefitPlanDependentRepository.save(newBenefitDependentRecord);
+          }
+        });
   }
 
   public void deleteBenefitPlanByPlanId(final String benefitPlanId) {
     benefitPlanRepository.delete(benefitPlanId);
     final List<String> benefitCoverageIds =
-        benefitCoveragesRepository.findAllByBenefitPlanId(benefitPlanId)
-        .stream().map(BenefitCoverages::getId).collect(Collectors.toList());
+        benefitCoveragesRepository.findAllByBenefitPlanId(benefitPlanId).stream()
+            .map(BenefitCoverages::getId)
+            .collect(Collectors.toList());
     if (!CollectionUtils.isEmpty(benefitCoverageIds)) {
       benefitCoveragesRepository.deleteInBatch(benefitCoverageIds);
     }
@@ -755,39 +772,46 @@ public class BenefitPlanService {
   }
 
   public void updateBenefitPlanEmployees(
-      final List<BenefitPlanUserCreateDto> employees,
-      final String benefitPlanId) {
+      final List<BenefitPlanUserCreateDto> employees, final String benefitPlanId) {
     final List<String> existIds =
         benefitPlanUserRepository.findAllByBenefitPlanId(benefitPlanId).stream()
-            .map(BenefitPlanUser::getId).collect(Collectors.toList());
+            .map(BenefitPlanUser::getId)
+            .collect(Collectors.toList());
     if (!CollectionUtils.isEmpty(existIds)) {
       benefitPlanUserRepository.deleteInBatch(existIds);
     }
-    benefitPlanUserRepository.saveAll(employees.stream().map(benefitPlanUserCreateDto -> {
-      BenefitPlanCoverage benefitPlanCoverage = new BenefitPlanCoverage();
-      benefitPlanCoverage.setId(benefitPlanUserCreateDto.getCoverage());
-      return benefitPlanUserMapper.createFromBenefitPlanUserCreateDtoAndBenefitPlanId(
-          benefitPlanUserCreateDto, benefitPlanId,
-          benefitPlanCoverage, true, true);
-    }).collect(Collectors.toList()));
+    benefitPlanUserRepository.saveAll(
+        employees.stream()
+            .map(
+                benefitPlanUserCreateDto -> {
+                  BenefitPlanCoverage benefitPlanCoverage = new BenefitPlanCoverage();
+                  benefitPlanCoverage.setId(benefitPlanUserCreateDto.getCoverage());
+                  return benefitPlanUserMapper.createFromBenefitPlanUserCreateDtoAndBenefitPlanId(
+                      benefitPlanUserCreateDto, benefitPlanId, benefitPlanCoverage, true, true);
+                })
+            .collect(Collectors.toList()));
   }
 
   public BenefitPlanRelatedUserListDto findAllEmployeesForBenefitPlan(
       final String benefitPlanId, final String companyId) {
     final List<User> policyEmployees = userRepository.findAllByCompanyId(companyId);
 
-    final List<JobUserDto> allJobUsers = policyEmployees.stream()
-        .map(
-            user -> {
-              JobUser employeeWithJob = jobUserService.findJobUserByUser(user);
-              return new JobUserDto(user, employeeWithJob);
-            })
-        .collect(Collectors.toList());
-    final List<BenefitPlanUserDto> allUsers = allJobUsers.stream()
-        .map(jobUserMapper::covertToBenefitPlanUserDto).collect(Collectors.toList());
-    final List<BenefitPlanUserDto> selectUsers
-        = benefitPlanUserRepository.findAllByBenefitPlanId(benefitPlanId).stream().map(
-        benefitPlanUserMapper::convertToBenefitPlanUserDto).collect(Collectors.toList());
+    final List<JobUserDto> allJobUsers =
+        policyEmployees.stream()
+            .map(
+                user -> {
+                  JobUser employeeWithJob = jobUserService.findJobUserByUser(user);
+                  return new JobUserDto(user, employeeWithJob);
+                })
+            .collect(Collectors.toList());
+    final List<BenefitPlanUserDto> allUsers =
+        allJobUsers.stream()
+            .map(jobUserMapper::covertToBenefitPlanUserDto)
+            .collect(Collectors.toList());
+    final List<BenefitPlanUserDto> selectUsers =
+        benefitPlanUserRepository.findAllByBenefitPlanId(benefitPlanId).stream()
+            .map(benefitPlanUserMapper::convertToBenefitPlanUserDto)
+            .collect(Collectors.toList());
     selectUsers.forEach(
         s ->
             allUsers.forEach(
@@ -838,11 +862,6 @@ public class BenefitPlanService {
     return new BenefitPlanCoveragesDto(benefitCoveragesDtos);
   }
 
-  static <T> Predicate<T> distinctByKey(final Function<? super T, ?> keyExtractor) {
-    final Map<Object, Boolean> seen = new ConcurrentHashMap<>();
-    return t -> seen.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
-  }
-
   public BenefitPlanReportDto findBenefitPlanReport(
       final String typeName,
       final BenefitReportParamDto benefitReportParamDto,
@@ -851,8 +870,8 @@ public class BenefitPlanService {
     List<String> benefitPlanIds = new ArrayList<>();
     List<EnrollmentBreakdownDto> enrollmentBreakdownDtos = new ArrayList<>();
 
-    final BenefitPlanTypeEnum typeEnum = BenefitPlanTypeEnum
-        .getEnumByDesc(benefitReportParamDto.getPlanId());
+    final BenefitPlanTypeEnum typeEnum =
+        BenefitPlanTypeEnum.getEnumByDesc(benefitReportParamDto.getPlanId());
     benefitPlanIds = getSearchBenefitPlanIds(typeEnum, benefitPlanIds, typeName, companyId);
 
     if (BenefitPlanTypeEnum.OTHER.equals(typeEnum)) {
@@ -892,27 +911,28 @@ public class BenefitPlanService {
 
     if (StringUtils.isNotEmpty(coverageId) && !DEFAULT_ID.equals(coverageId)) {
       String coverageName = benefitCoveragesRepository.findById(coverageId).get().getName();
-      List<String> coverageIds = benefitCoveragesRepository
-          .getCoverageIdsByNameAndPlan(coverageName, benefitPlanIds);
+      List<String> coverageIds =
+          benefitCoveragesRepository.getCoverageIdsByNameAndPlan(coverageName, benefitPlanIds);
       if (!CollectionUtils.isEmpty(coverageIds)) {
         enrollmentBreakdownDtos =
-            benefitPlanRepository.getEnrollmentBreakdown(
-                benefitPlanIds, coverageIds);
+            benefitPlanRepository.getEnrollmentBreakdown(benefitPlanIds, coverageIds);
       } else {
         enrollmentBreakdownDtos =
             benefitPlanRepository.getEnrollmentBreakdown(
                 benefitPlanIds, Collections.singletonList(coverageId));
       }
     } else {
-      enrollmentBreakdownDtos = benefitPlanRepository
-          .getEnrollmentBreakdownWhenPlanIdIsEmpty(benefitPlanIds, companyId);
+      enrollmentBreakdownDtos =
+          benefitPlanRepository.getEnrollmentBreakdownWhenPlanIdIsEmpty(benefitPlanIds, companyId);
     }
     return enrollmentBreakdownDtos;
   }
 
   private List<String> getSearchBenefitPlanIds(
-      final BenefitPlanTypeEnum typeEnum, List<String> benefitPlanIds,
-      final String typeName, final String companyId) {
+      final BenefitPlanTypeEnum typeEnum,
+      List<String> benefitPlanIds,
+      final String typeName,
+      final String companyId) {
     switch (typeEnum) {
       case ACTIVE:
         benefitPlanIds = benefitPlanRepository.getActiveBenefitPlanIds(typeName, companyId);
@@ -991,9 +1011,9 @@ public class BenefitPlanService {
     List<BenefitReportPlansDto> benefitReportPlansDtos = new ArrayList<>();
     final List<BenefitReportPlansPojo> benefitReportPlansPojos =
         benefitPlanRepository.getBenefitPlans(typeName, companyId);
-    for (BenefitReportPlansPojo benefitReportPlansPojo: benefitReportPlansPojos) {
+    for (BenefitReportPlansPojo benefitReportPlansPojo : benefitReportPlansPojos) {
       BenefitReportPlansDto benefitReportPlansDto = new BenefitReportPlansDto();
-      BeanUtils.copyProperties(benefitReportPlansPojo,benefitReportPlansDto);
+      BeanUtils.copyProperties(benefitReportPlansPojo, benefitReportPlansDto);
       benefitReportPlansDtos.add(benefitReportPlansDto);
     }
     return benefitReportPlansDtos;
@@ -1004,10 +1024,14 @@ public class BenefitPlanService {
     List<BenefitReportCoveragesDto> benefitReportCoveragesDtos = new ArrayList<>();
     if (!benefitPlanIds.isEmpty()) {
       benefitReportCoveragesDtos =
-          benefitPlanCoverageRepository.getBenefitReportCoverages(benefitPlanIds)
-              .stream().collect(Collectors.collectingAndThen(Collectors.toCollection(
-                  () -> new TreeSet<>(Comparator.comparing(
-                      BenefitReportCoveragesDto::getName))), ArrayList::new));
+          benefitPlanCoverageRepository.getBenefitReportCoverages(benefitPlanIds).stream()
+              .collect(
+                  Collectors.collectingAndThen(
+                      Collectors.toCollection(
+                          () ->
+                              new TreeSet<>(
+                                  Comparator.comparing(BenefitReportCoveragesDto::getName))),
+                      ArrayList::new));
     }
     final BenefitReportCoveragesDto benefitReportCoveragesDto =
         BenefitReportCoveragesDto.builder().id(DEFAULT_ID).name("All Coverage Types").build();
@@ -1049,24 +1073,26 @@ public class BenefitPlanService {
 
     if (typeEnum.equals(BenefitPlanTypeEnum.OTHER)) {
       benefitPlanIds = Collections.singletonList(benefitReportParamDto.getPlanId());
-      return findEnrollmentBreakdownByCondition(paramPageable,
-          benefitReportParamDto, benefitPlanIds);
+      return findEnrollmentBreakdownByCondition(
+          paramPageable, benefitReportParamDto, benefitPlanIds);
     }
-    return getEnrollmentBreakdownPageByCoverage(benefitPlanIds,
-        paramPageable, coverageId, companyId);
+    return getEnrollmentBreakdownPageByCoverage(
+        benefitPlanIds, paramPageable, coverageId, companyId);
   }
 
   private PageImpl getEnrollmentBreakdownPageByCoverage(
-      final List<String> benefitPlanIds, final Pageable paramPageable,
-      final String coverageId, final String companyId) {
+      final List<String> benefitPlanIds,
+      final Pageable paramPageable,
+      final String coverageId,
+      final String companyId) {
     Page<EnrollmentBreakdownPojo> enrollmentBreakdownDtoPage;
     List<EnrollmentBreakdownDto> enrollmentBreakdownDtos = new ArrayList<>();
 
     if (!CollectionUtils.isEmpty(benefitPlanIds)) {
       if (StringUtils.isNotEmpty(coverageId) && !DEFAULT_ID.equals(coverageId)) {
         String coverageName = benefitCoveragesRepository.findById(coverageId).get().getName();
-        List<String> coverageIds = benefitCoveragesRepository
-            .getCoverageIdsByNameAndPlan(coverageName, benefitPlanIds);
+        List<String> coverageIds =
+            benefitCoveragesRepository.getCoverageIdsByNameAndPlan(coverageName, benefitPlanIds);
         if (!CollectionUtils.isEmpty(coverageIds)) {
           enrollmentBreakdownDtoPage =
               benefitPlanRepository.getEnrollmentBreakdownByConditionAndCoverageId(
@@ -1078,11 +1104,11 @@ public class BenefitPlanService {
         }
       } else {
         enrollmentBreakdownDtoPage =
-            benefitPlanRepository.getEnrollmentBreakdownByConditionAndPlanIdIsEmpty(benefitPlanIds,
-                companyId, paramPageable);
+            benefitPlanRepository.getEnrollmentBreakdownByConditionAndPlanIdIsEmpty(
+                benefitPlanIds, companyId, paramPageable);
       }
-      enrollmentBreakdownDtos = findEnrollmentBreakdownContent(
-          enrollmentBreakdownDtoPage.getContent());
+      enrollmentBreakdownDtos =
+          findEnrollmentBreakdownContent(enrollmentBreakdownDtoPage.getContent());
       return new PageImpl<>(
           enrollmentBreakdownDtos,
           enrollmentBreakdownDtoPage.getPageable(),
@@ -1100,8 +1126,9 @@ public class BenefitPlanService {
 
     if (!sortValue.equals(EnrollmentBreakdownSearchCondition.SortField.NAME.getSortValue())) {
       final Sort.Order order = new Sort.Order(Sort.Direction.valueOf(sortDirection), sortValue);
-      final Sort.Order orderName = new Sort.Order(Sort.Direction.ASC,
-          EnrollmentBreakdownSearchCondition.SortField.NAME.getSortValue());
+      final Sort.Order orderName =
+          new Sort.Order(
+              Sort.Direction.ASC, EnrollmentBreakdownSearchCondition.SortField.NAME.getSortValue());
 
       final Sort sort = Sort.by(order, orderName);
       return PageRequest.of(
@@ -1130,12 +1157,12 @@ public class BenefitPlanService {
       enrollmentBreakdownDtoPage =
           benefitPlanRepository.getEnrollmentBreakdownByConditionAndCoverageId(
               benefitPlanIds,
-              Collections.singletonList(benefitReportParamDto.getCoverageId()), paramPageable);
+              Collections.singletonList(benefitReportParamDto.getCoverageId()),
+              paramPageable);
     }
 
     final List<EnrollmentBreakdownDto> enrollmentBreakdownDtos =
-        findEnrollmentBreakdownContent(
-            enrollmentBreakdownDtoPage.getContent());
+        findEnrollmentBreakdownContent(enrollmentBreakdownDtoPage.getContent());
 
     return new PageImpl<>(
         enrollmentBreakdownDtos,
@@ -1179,16 +1206,19 @@ public class BenefitPlanService {
   }
 
   public Page<BenefitPlanPreviewDto> findBenefitPlans(
-      final String planTypeId, final String companyId, final boolean expired,
+      final String planTypeId,
+      final String companyId,
+      final boolean expired,
       final BenefitPlanSearchCondition benefitPlanSearchCondition) {
     final Pageable paramPageable = getBenefitPlanPageable(benefitPlanSearchCondition);
     final Page<BenefitPlanPreviewPojo> benefitPlanPreviewDtoPage;
     if (expired) {
-      benefitPlanPreviewDtoPage = benefitPlanRepository.getBenefitPlanList(
-          planTypeId, companyId, paramPageable);
+      benefitPlanPreviewDtoPage =
+          benefitPlanRepository.getBenefitPlanList(planTypeId, companyId, paramPageable);
     } else {
-      benefitPlanPreviewDtoPage = benefitPlanRepository.getBenefitPlanListWithOutExpired(
-          planTypeId, companyId, paramPageable);
+      benefitPlanPreviewDtoPage =
+          benefitPlanRepository.getBenefitPlanListWithOutExpired(
+              planTypeId, companyId, paramPageable);
     }
     final List<BenefitPlanPreviewDto> benefitPlanPreviewDtos =
         findBenefitPlanContent(benefitPlanPreviewDtoPage.getContent());
@@ -1212,11 +1242,9 @@ public class BenefitPlanService {
     return benefitPlanPreviewDtos;
   }
 
-
   private Pageable getBenefitPlanPageable(
       final BenefitPlanSearchCondition benefitPlanSearchCondition) {
-    final String sortDirection =
-        benefitPlanSearchCondition.getSortDirection().toUpperCase();
+    final String sortDirection = benefitPlanSearchCondition.getSortDirection().toUpperCase();
 
     final String sortValue = benefitPlanSearchCondition.getSortField().getSortValue();
     return PageRequest.of(
@@ -1228,7 +1256,8 @@ public class BenefitPlanService {
 
   public List<BenefitPlanDto> findAllPlans(final String companyId) {
     List<BenefitPlan> benefitPlans = benefitPlanRepository.findAllByCompanyId(companyId);
-    return benefitPlans.stream().map(benefitPlanMapper::convertToBenefitPlanDto)
+    return benefitPlans.stream()
+        .map(benefitPlanMapper::convertToBenefitPlanDto)
         .collect(Collectors.toList());
   }
 

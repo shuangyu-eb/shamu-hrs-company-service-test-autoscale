@@ -13,6 +13,7 @@ public class Permission {
   @Basic(optional = false)
   @Enumerated(EnumType.STRING)
   private Name name;
+
   private String permissionTypeId;
 
   public enum Name {
@@ -56,7 +57,6 @@ public class Permission {
     VIEW_DISABLED_USER(PermissionType.ADMIN_PERMISSION),
     MANAGE_BENEFIT(PermissionType.ADMIN_PERMISSION),
     UPDATE_COMPANY_NAME(PermissionType.ADMIN_PERMISSION);
-
 
     private final PermissionType permissionType;
 

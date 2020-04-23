@@ -21,19 +21,18 @@ public class TimeOffPolicyUserService {
   }
 
   public TimeOffPolicyUser findById(final String id) {
-    return timeOffPolicyUserRepository.findById(id)
-        .orElseThrow(() ->
-            new ResourceNotFoundException("Can not find time off policy user with id " + id));
+    return timeOffPolicyUserRepository
+        .findById(id)
+        .orElseThrow(
+            () -> new ResourceNotFoundException("Can not find time off policy user with id " + id));
   }
 
   public boolean existsByUserId(String userId) {
     return timeOffPolicyUserRepository.existsByUserId(userId);
   }
 
-  public TimeOffPolicyUser findByUserAndTimeOffPolicy(User user,
-      TimeOffPolicy timeOffPolicy) {
-    return  timeOffPolicyUserRepository
-        .findTimeOffPolicyUserByUserAndTimeOffPolicy(user,timeOffPolicy);
-
+  public TimeOffPolicyUser findByUserAndTimeOffPolicy(User user, TimeOffPolicy timeOffPolicy) {
+    return timeOffPolicyUserRepository.findTimeOffPolicyUserByUserAndTimeOffPolicy(
+        user, timeOffPolicy);
   }
 }

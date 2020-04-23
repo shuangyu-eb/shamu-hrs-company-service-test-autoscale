@@ -23,7 +23,4 @@ public class BenefitEnrollmentDto {
   private Integer employerCost;
 
   private List<BenefitDependentDto> dependents;
-
-
-
 }

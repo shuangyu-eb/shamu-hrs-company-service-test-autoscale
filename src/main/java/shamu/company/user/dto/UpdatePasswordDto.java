@@ -10,12 +10,8 @@ public class UpdatePasswordDto {
   @NotNull
   @Pattern(
       regexp = "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$",
-      message = "Your password doesn't meet our requirements."
-  )
+      message = "Your password doesn't meet our requirements.")
   private String newPassword;
 
-  @NotNull
-  private String resetPasswordToken;
-
-
+  @NotNull private String resetPasswordToken;
 }

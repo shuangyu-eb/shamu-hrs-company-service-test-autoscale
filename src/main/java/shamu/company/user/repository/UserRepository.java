@@ -8,13 +8,13 @@ import shamu.company.user.entity.User;
 
 public interface UserRepository extends JpaRepository<User, String>, UserCustomRepository {
 
-  @Override
-  Optional<User> findById(String id);
-
   String ACTIVE_USER_QUERY =
       " and (u.deactivated_at is null "
           + "or (u.deactivated_at is not null "
           + "and u.deactivated_at > current_timestamp)) ";
+
+  @Override
+  Optional<User> findById(String id);
 
   @Query(
       value = "select * from users u" + " where u.id = unhex(?1) " + ACTIVE_USER_QUERY,

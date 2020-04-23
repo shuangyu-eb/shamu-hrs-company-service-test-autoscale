@@ -1,5 +1,9 @@
 package shamu.company.user.controller;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
+
+import java.io.FileInputStream;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,36 +33,32 @@ import shamu.company.user.entity.UserRole;
 import shamu.company.user.entity.mapper.UserMapper;
 import shamu.company.utils.JsonUtil;
 
-import java.io.FileInputStream;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.BDDMockito.given;
-
 @WebMvcTest(controllers = UserRestController.class)
 public class UserRestControllerTests extends WebControllerBaseTests {
 
-  @MockBean
-  private  UserMapper userMapper;
+  @MockBean private UserMapper userMapper;
 
-  @Autowired
-  private MockMvc mockMvc;
+  @Autowired private MockMvc mockMvc;
 
   @Test
-  void testSignUp() throws Exception{
+  void testSignUp() throws Exception {
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
 
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .post("/company/users/")
-        .contentType(MediaType.APPLICATION_JSON)
-        .headers(httpHeaders)
-        .content(JsonUtil.formatToString(new UserSignUpDto()))).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.post("/company/users/")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .headers(httpHeaders)
+                    .content(JsonUtil.formatToString(new UserSignUpDto())))
+            .andReturn();
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
 
   @Test
-  void testCheckEmail() throws Exception{
+  void testCheckEmail() throws Exception {
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
 
@@ -99,7 +99,7 @@ public class UserRestControllerTests extends WebControllerBaseTests {
   }
 
   @Test
-  void testFileUpload() throws Exception{
+  void testFileUpload() throws Exception {
     setPermission(Permission.Name.EDIT_SELF.name());
 
     final HttpHeaders httpHeaders = new HttpHeaders();
@@ -116,9 +116,14 @@ public class UserRestControllerTests extends WebControllerBaseTests {
     final FileInputStream fis = new FileInputStream("src/integration-test/resources/test.jpg");
     final MockMultipartFile file = new MockMultipartFile("file", fis);
 
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .multipart("/company/users/" + currentUser.getId() + "/head-portrait")
-        .file(file).headers(httpHeaders)).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.multipart(
+                        "/company/users/" + currentUser.getId() + "/head-portrait")
+                    .file(file)
+                    .headers(httpHeaders))
+            .andReturn();
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
@@ -128,9 +133,12 @@ public class UserRestControllerTests extends WebControllerBaseTests {
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
 
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .post("/company/users/password-reset/test@gmail.com")
-        .headers(httpHeaders)).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.post("/company/users/password-reset/test@gmail.com")
+                    .headers(httpHeaders))
+            .andReturn();
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
@@ -144,11 +152,14 @@ public class UserRestControllerTests extends WebControllerBaseTests {
     updatePasswordDto.setNewPassword("Eb123456");
     updatePasswordDto.setResetPasswordToken("token");
 
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .patch("/company/users/password-reset")
-        .contentType(MediaType.APPLICATION_JSON)
-        .headers(httpHeaders)
-        .content(JsonUtil.formatToString(updatePasswordDto))).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.patch("/company/users/password-reset")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .headers(httpHeaders)
+                    .content(JsonUtil.formatToString(updatePasswordDto)))
+            .andReturn();
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
@@ -161,11 +172,14 @@ public class UserRestControllerTests extends WebControllerBaseTests {
     final ChangePasswordDto changePasswordDto = new ChangePasswordDto();
     changePasswordDto.setNewPassword("Eb123456");
 
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .patch("/company/users/password")
-        .contentType(MediaType.APPLICATION_JSON)
-        .headers(httpHeaders)
-        .content(JsonUtil.formatToString(changePasswordDto))).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.patch("/company/users/password")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .headers(httpHeaders)
+                    .content(JsonUtil.formatToString(changePasswordDto)))
+            .andReturn();
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
@@ -184,9 +198,13 @@ public class UserRestControllerTests extends WebControllerBaseTests {
     targetUser.setId(currentUser.getId());
 
     given(userService.findById(currentUser.getId())).willReturn(targetUser);
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .get("/company/users/" + currentUser.getId() + "/account-info")
-        .headers(httpHeaders)).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.get(
+                        "/company/users/" + currentUser.getId() + "/account-info")
+                    .headers(httpHeaders))
+            .andReturn();
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
@@ -205,9 +223,12 @@ public class UserRestControllerTests extends WebControllerBaseTests {
     targetUser.setId(currentUser.getId());
 
     given(userService.findById(currentUser.getId())).willReturn(targetUser);
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .get("/company/users/" + currentUser.getId() + "/avatar")
-        .headers(httpHeaders)).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.get("/company/users/" + currentUser.getId() + "/avatar")
+                    .headers(httpHeaders))
+            .andReturn();
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
@@ -226,11 +247,14 @@ public class UserRestControllerTests extends WebControllerBaseTests {
     targetUser.setId(currentUser.getId());
 
     given(userService.findById(currentUser.getId())).willReturn(targetUser);
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .patch("/company/users/" + currentUser.getId() + "/user-role")
-        .contentType(MediaType.APPLICATION_JSON)
-        .headers(httpHeaders)
-        .content(JsonUtil.formatToString(new UserRoleUpdateDto()))).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.patch("/company/users/" + currentUser.getId() + "/user-role")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .headers(httpHeaders)
+                    .content(JsonUtil.formatToString(new UserRoleUpdateDto())))
+            .andReturn();
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
@@ -249,11 +273,15 @@ public class UserRestControllerTests extends WebControllerBaseTests {
     targetUser.setId(currentUser.getId());
 
     given(userService.findById(currentUser.getId())).willReturn(targetUser);
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .patch("/company/users/" + currentUser.getId() + "/deactivate")
-        .contentType(MediaType.APPLICATION_JSON)
-        .headers(httpHeaders)
-        .content(JsonUtil.formatToString(new UserStatusUpdateDto()))).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.patch(
+                        "/company/users/" + currentUser.getId() + "/deactivate")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .headers(httpHeaders)
+                    .content(JsonUtil.formatToString(new UserStatusUpdateDto())))
+            .andReturn();
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
@@ -272,9 +300,12 @@ public class UserRestControllerTests extends WebControllerBaseTests {
     targetUser.setId(currentUser.getId());
 
     given(userService.findById(currentUser.getId())).willReturn(targetUser);
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .delete("/company/users/" + currentUser.getId())
-        .headers(httpHeaders)).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.delete("/company/users/" + currentUser.getId())
+                    .headers(httpHeaders))
+            .andReturn();
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
@@ -284,9 +315,10 @@ public class UserRestControllerTests extends WebControllerBaseTests {
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
 
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .get("/company/users/")
-        .headers(httpHeaders)).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(MockMvcRequestBuilders.get("/company/users/").headers(httpHeaders))
+            .andReturn();
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
@@ -304,9 +336,10 @@ public class UserRestControllerTests extends WebControllerBaseTests {
 
     given(userService.findActiveUserById(Mockito.anyString())).willReturn(user);
 
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .get("/company/current/user-info")
-        .headers(httpHeaders)).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(MockMvcRequestBuilders.get("/company/current/user-info").headers(httpHeaders))
+            .andReturn();
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
     Mockito.verify(userService, Mockito.times(1)).getMockUserInfo(Mockito.anyString());
@@ -325,9 +358,10 @@ public class UserRestControllerTests extends WebControllerBaseTests {
 
     given(userService.findActiveUserById(Mockito.anyString())).willReturn(user);
 
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .get("/company/current/user-info")
-        .headers(httpHeaders)).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(MockMvcRequestBuilders.get("/company/current/user-info").headers(httpHeaders))
+            .andReturn();
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
   }
@@ -341,9 +375,10 @@ public class UserRestControllerTests extends WebControllerBaseTests {
     userDto.setId(getAuthUser().getId());
     given(userService.getCurrentUserInfo(Mockito.anyString())).willReturn(userDto);
 
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .get("/company/current/user-info")
-        .headers(httpHeaders)).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(MockMvcRequestBuilders.get("/company/current/user-info").headers(httpHeaders))
+            .andReturn();
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
     Mockito.verify(userService, Mockito.times(1)).getCurrentUserInfo(Mockito.anyString());
@@ -356,9 +391,12 @@ public class UserRestControllerTests extends WebControllerBaseTests {
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
 
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .get("/company/users/check-password/Eb123456")
-        .headers(httpHeaders)).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.get("/company/users/check-password/Eb123456")
+                    .headers(httpHeaders))
+            .andReturn();
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
@@ -372,11 +410,14 @@ public class UserRestControllerTests extends WebControllerBaseTests {
     final EmailUpdateDto emailResendDto = new EmailUpdateDto();
     emailResendDto.setEmail("resendEmail@gmail.com");
 
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .patch("/company/users/work-email")
-        .contentType(MediaType.APPLICATION_JSON)
-        .headers(httpHeaders)
-        .content(JsonUtil.formatToString(emailResendDto))).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.patch("/company/users/work-email")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .headers(httpHeaders)
+                    .content(JsonUtil.formatToString(emailResendDto)))
+            .andReturn();
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
@@ -392,9 +433,11 @@ public class UserRestControllerTests extends WebControllerBaseTests {
     user.setChangeWorkEmail("changedEmail@gmail.com");
 
     given(userService.findById(Mockito.anyString())).willReturn(user);
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .get("/company/users/change-work-email")
-        .headers(httpHeaders)).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.get("/company/users/change-work-email").headers(httpHeaders))
+            .andReturn();
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
@@ -406,9 +449,12 @@ public class UserRestControllerTests extends WebControllerBaseTests {
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
 
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .get("/company/users/send-verify-work-email")
-        .headers(httpHeaders)).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.get("/company/users/send-verify-work-email")
+                    .headers(httpHeaders))
+            .andReturn();
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
@@ -418,11 +464,16 @@ public class UserRestControllerTests extends WebControllerBaseTests {
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
 
-    given(userService.isCurrentActiveAnnouncementDismissed(Mockito.any(), Mockito.any())).willReturn(false);
+    given(userService.isCurrentActiveAnnouncementDismissed(Mockito.any(), Mockito.any()))
+        .willReturn(false);
 
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .get("/company/users/current-active-announcement/is-dismissed/1")
-        .headers(httpHeaders)).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.get(
+                        "/company/users/current-active-announcement/is-dismissed/1")
+                    .headers(httpHeaders))
+            .andReturn();
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
@@ -432,9 +483,12 @@ public class UserRestControllerTests extends WebControllerBaseTests {
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
 
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .post("/company/users/dismiss-current-active-announcement/1")
-        .headers(httpHeaders)).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.post("/company/users/dismiss-current-active-announcement/1")
+                    .headers(httpHeaders))
+            .andReturn();
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }

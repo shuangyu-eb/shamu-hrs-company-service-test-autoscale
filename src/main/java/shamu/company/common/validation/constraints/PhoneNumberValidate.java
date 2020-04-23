@@ -15,14 +15,14 @@ import javax.validation.Constraint;
 import javax.validation.Payload;
 import shamu.company.common.validation.validator.PhoneNumberValidator;
 
-@Target({ METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER, TYPE_USE })
+@Target({METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER, TYPE_USE})
 @Retention(RUNTIME)
 @Documented
-@Constraint(validatedBy = { PhoneNumberValidator.class })
+@Constraint(validatedBy = {PhoneNumberValidator.class})
 public @interface PhoneNumberValidate {
   String message() default "phone number must be correct format";
 
-  Class<?>[] groups() default { };
+  Class<?>[] groups() default {};
 
-  Class<? extends Payload>[] payload() default { };
+  Class<? extends Payload>[] payload() default {};
 }

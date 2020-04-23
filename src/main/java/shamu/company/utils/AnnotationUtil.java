@@ -7,9 +7,7 @@ import java.util.Optional;
 public interface AnnotationUtil {
 
   static boolean fieldHasAnnotation(
-      final Class clazz,
-      final String fieldName,
-      final Class annotationClazz) {
+      final Class clazz, final String fieldName, final Class annotationClazz) {
     Class c = clazz;
     while (c != Object.class) {
       try {
@@ -25,9 +23,7 @@ public interface AnnotationUtil {
   }
 
   static <T extends Annotation> Optional<T> getFieldAnnotation(
-      final Object object,
-      final String fieldName,
-      final Class<T> annotationClazz) {
+      final Object object, final String fieldName, final Class<T> annotationClazz) {
     Class c = object.getClass();
     while (c != Object.class) {
       try {
@@ -40,9 +36,7 @@ public interface AnnotationUtil {
     return Optional.empty();
   }
 
-  static Optional<Object> getFieldValue(
-      final Object object,
-      final String fieldName) {
+  static Optional<Object> getFieldValue(final Object object, final String fieldName) {
     Class c = object.getClass();
     while (c != Object.class) {
       try {

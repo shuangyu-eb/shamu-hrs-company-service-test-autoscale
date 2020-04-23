@@ -45,11 +45,12 @@ public class EmployeeListSearchCondition {
 
     public String[] getSortValue() {
       if (EmployeeListSearchCondition.LAST_NAME.equals(this.sortValue)) {
-        return new String[]{EmployeeListSearchCondition.LAST_NAME,
-            EmployeeListSearchCondition.FIRST_NAME};
+        return new String[] {
+          EmployeeListSearchCondition.LAST_NAME, EmployeeListSearchCondition.FIRST_NAME
+        };
       }
 
-      return new String[]{this.sortValue};
+      return new String[] {this.sortValue};
     }
   }
 

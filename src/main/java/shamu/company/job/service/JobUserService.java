@@ -3,7 +3,6 @@ package shamu.company.job.service;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import org.apache.commons.lang.StringUtils;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -77,7 +76,8 @@ public class JobUserService {
 
   private final UserMapper userMapper;
 
-  public JobUserService(final JobUserRepository jobUserRepository,
+  public JobUserService(
+      final JobUserRepository jobUserRepository,
       final UserService userService,
       final JobUserMapper jobUserMapper,
       final UserCompensationMapper userCompensationMapper,
@@ -119,12 +119,11 @@ public class JobUserService {
     if (StringUtils.isEmpty(managerId)) {
       return false;
     }
-    return user.getManagerUser() == null
-        || !user.getManagerUser().getId().equals(managerId);
+    return user.getManagerUser() == null || !user.getManagerUser().getId().equals(managerId);
   }
 
   private void adjustManagerLocationInOrganizationRelationship(
-        final User user, final String managerId) {
+      final User user, final String managerId) {
     final User manager = userService.findById(managerId);
     if (Role.EMPLOYEE == manager.getRole()) {
       manager.setUserRole(userRoleService.getManager());
@@ -137,19 +136,19 @@ public class JobUserService {
   }
 
   private void adjustUserLocationInOrganizationRelationship(
-        final User user, final String companyId, final String managerId) {
+      final User user, final String companyId, final String managerId) {
     final List<User> subordinates =
         userService.findSubordinatesByManagerUserId(companyId, user.getId());
     if (user.getRole() != Role.ADMIN) {
       subordinates.removeIf(employee -> employee.getId().equals(managerId));
-      final UserRole targetUserRole = subordinates.isEmpty()
-          ? userRoleService.getEmployee() : userRoleService.getManager();
+      final UserRole targetUserRole =
+          subordinates.isEmpty() ? userRoleService.getEmployee() : userRoleService.getManager();
       user.setUserRole(targetUserRole);
     }
   }
 
   private void addOrUpdateUserManager(
-        final User user, final String companyId, final String managerId) {
+      final User user, final String companyId, final String managerId) {
     if (null == managerId) {
       user.setManagerUser(null);
       userService.save(user);
@@ -167,7 +166,7 @@ public class JobUserService {
   }
 
   private void addOrUpdateJobUserCompensation(
-        final String userId, final JobUpdateDto jobUpdateDto, final JobUser jobUser) {
+      final String userId, final JobUpdateDto jobUpdateDto, final JobUser jobUser) {
     if (jobUserCompensationUpdated(jobUpdateDto)) {
       UserCompensation userCompensation = jobUser.getUserCompensation();
       if (userCompensation == null) {
@@ -191,7 +190,7 @@ public class JobUserService {
   }
 
   public void updateJobInfo(
-          final String id, final JobUpdateDto jobUpdateDto, final String companyId) {
+      final String id, final JobUpdateDto jobUpdateDto, final String companyId) {
     final User user = userService.findById(id);
     addOrUpdateUserManager(user, companyId, jobUpdateDto.getManagerId());
     addOrUpdateJobUser(user, jobUpdateDto);
@@ -210,29 +209,28 @@ public class JobUserService {
 
   private void handlePendingRequests(final String userId) {
     final Timestamp startDayTimestamp = DateUtil.getFirstDayOfCurrentYear();
-    final String[] timeOffRequestStatuses = new String[]{
-            TimeOffApprovalStatus.NO_ACTION.name(),
-        TimeOffApprovalStatus.VIEWED.name()};
+    final String[] timeOffRequestStatuses =
+        new String[] {TimeOffApprovalStatus.NO_ACTION.name(), TimeOffApprovalStatus.VIEWED.name()};
     final PageRequest request = PageRequest.of(0, 1000);
-    final MyTimeOffDto pendingRequests = timeOffRequestService
-            .getMyTimeOffRequestsByRequesterUserIdFilteredByStartDay(
+    final MyTimeOffDto pendingRequests =
+        timeOffRequestService.getMyTimeOffRequestsByRequesterUserIdFilteredByStartDay(
             userId, startDayTimestamp, timeOffRequestStatuses, request);
     if (null != pendingRequests && pendingRequests.getTimeOffRequests().hasContent()) {
-      final List<TimeOffRequestDto> timeOffRequests = pendingRequests.getTimeOffRequests()
-          .getContent();
+      final List<TimeOffRequestDto> timeOffRequests =
+          pendingRequests.getTimeOffRequests().getContent();
       final AuthUser authUser = new AuthUser();
       authUser.setId(userId);
-      timeOffRequests.forEach(t -> {
-        final TimeOffRequestUpdateDto timeOffRequestUpdateDto = new TimeOffRequestUpdateDto();
-        timeOffRequestUpdateDto.setStatus(TimeOffApprovalStatus.APPROVED);
-        timeOffRequestService.updateTimeOffRequestStatus(
+      timeOffRequests.forEach(
+          t -> {
+            final TimeOffRequestUpdateDto timeOffRequestUpdateDto = new TimeOffRequestUpdateDto();
+            timeOffRequestUpdateDto.setStatus(TimeOffApprovalStatus.APPROVED);
+            timeOffRequestService.updateTimeOffRequestStatus(
                 t.getId(), timeOffRequestUpdateDto, authUser);
-      });
+          });
     }
   }
 
-  public void updateJobSelectOption(
-          final JobSelectOptionUpdateDto jobSelectOptionUpdateDto) {
+  public void updateJobSelectOption(final JobSelectOptionUpdateDto jobSelectOptionUpdateDto) {
     final String id = jobSelectOptionUpdateDto.getId();
     final String name = jobSelectOptionUpdateDto.getNewName();
 
@@ -252,7 +250,6 @@ public class JobUserService {
       default:
         break;
     }
-
   }
 
   private void updateDepartmentName(final String id, final String name) {
@@ -277,8 +274,8 @@ public class JobUserService {
     final Office office = officeService.findById(id);
     office.setName(officeCreateDto.getOfficeName());
 
-    final OfficeAddress officeAddress = officeAddressMapper
-            .updateFromOfficeCreateDto(office.getOfficeAddress(), officeCreateDto);
+    final OfficeAddress officeAddress =
+        officeAddressMapper.updateFromOfficeCreateDto(office.getOfficeAddress(), officeCreateDto);
 
     final Office newOffice = officeMapper.convertToOffice(office, officeCreateDto, officeAddress);
     officeService.save(newOffice);
@@ -309,7 +306,7 @@ public class JobUserService {
     final Integer count = departmentService.findCountByDepartment(id);
     if (count > 0) {
       throw new ForbiddenException(
-              "The Department has people, please remove then to another Department");
+          "The Department has people, please remove then to another Department");
     }
     final List<Job> jobs = jobService.findAllByDepartmentId(id);
     if (!CollectionUtils.isEmpty(jobs)) {
@@ -322,8 +319,7 @@ public class JobUserService {
   private void deleteJobTitle(final String id) {
     final Integer count = getCountByJobId(id);
     if (count > 0) {
-      throw new ForbiddenException(
-              "The Job has people, please remove then to another Job");
+      throw new ForbiddenException("The Job has people, please remove then to another Job");
     }
     jobService.delete(id);
   }
@@ -332,7 +328,7 @@ public class JobUserService {
     final Integer count = employmentTypeService.findCountByType(id);
     if (count > 0) {
       throw new ForbiddenException(
-              "The EmployeeType has people, please remove then to another EmployeeType");
+          "The EmployeeType has people, please remove then to another EmployeeType");
     }
     employmentTypeService.delete(id);
   }
@@ -340,8 +336,7 @@ public class JobUserService {
   private void deleteOffice(final String id) {
     final Integer count = officeService.findCountByOffice(id);
     if (count > 0) {
-      throw new ForbiddenException(
-              "The Office has people, please remove then to another Office");
+      throw new ForbiddenException("The Office has people, please remove then to another Office");
     }
     final Office office = officeService.findById(id);
     officeService.delete(id);
@@ -354,22 +349,24 @@ public class JobUserService {
 
   public List<SelectFieldSizeDto> findJobsByDepartmentId(final String id) {
     final List<Job> jobs = jobService.findAllByDepartmentId(id);
-    return jobs.stream().map(job -> {
-      final SelectFieldSizeDto selectFieldSizeDto = new SelectFieldSizeDto();
-      final Integer size = getCountByJobId(job.getId());
-      selectFieldSizeDto.setId(job.getId());
-      selectFieldSizeDto.setName(job.getTitle());
-      selectFieldSizeDto.setSize(size);
-      return selectFieldSizeDto;
-    }).collect(Collectors.toList());
+    return jobs.stream()
+        .map(
+            job -> {
+              final SelectFieldSizeDto selectFieldSizeDto = new SelectFieldSizeDto();
+              final Integer size = getCountByJobId(job.getId());
+              selectFieldSizeDto.setId(job.getId());
+              selectFieldSizeDto.setName(job.getTitle());
+              selectFieldSizeDto.setSize(size);
+              return selectFieldSizeDto;
+            })
+        .collect(Collectors.toList());
   }
 
   public JobUser findJobUserByUser(final User user) {
     return jobUserRepository.findJobUserByUser(user);
   }
 
-  public BasicJobInformationDto findJobMessage(final String targetUserId,
-                                               final String authUserId) {
+  public BasicJobInformationDto findJobMessage(final String targetUserId, final String authUserId) {
     final JobUser target = getJobUserByUserId(targetUserId);
 
     if (target == null) {
@@ -384,12 +381,12 @@ public class JobUserService {
       return jobUserMapper.convertToJobInformationDto(target);
     }
 
-    if (userRole == Role.MANAGER && target.getUser().getManagerUser() != null
+    if (userRole == Role.MANAGER
+        && target.getUser().getManagerUser() != null
         && authUserId.equals(target.getUser().getManagerUser().getId())) {
       return jobUserMapper.convertToJobInformationDto(target);
     }
 
-    return jobUserMapper
-        .convertToBasicJobInformationDto(target);
+    return jobUserMapper.convertToBasicJobInformationDto(target);
   }
 }

@@ -14,10 +14,7 @@ import shamu.company.common.mapper.Config;
 import shamu.company.employee.dto.SelectFieldInformationDto;
 import shamu.company.user.entity.Gender;
 
-@Mapper(
-    config = Config.class,
-    uses = SelectFieldInformationDto.class
-)
+@Mapper(config = Config.class, uses = SelectFieldInformationDto.class)
 public interface BenefitPlanDependentMapper {
 
   @Mapping(target = "employeeId", source = "employee.id")
@@ -31,7 +28,8 @@ public interface BenefitPlanDependentMapper {
   BenefitPlanDependent createFromBenefitDependentCreateDto(
       BenefitDependentCreateDto benefitDependentCreateDto);
 
-  void updateFromBenefitDependentCreateDto(@MappingTarget BenefitPlanDependent benefitPlanDependent,
+  void updateFromBenefitDependentCreateDto(
+      @MappingTarget BenefitPlanDependent benefitPlanDependent,
       BenefitDependentCreateDto benefitDependentCreateDto);
 
   default Gender getGender(final Gender gender) {

@@ -14,7 +14,7 @@ public class TimeOffBreakdownDto {
   private boolean showBalance;
 
   private List<TimeOffBreakdownItemDto> list;
-  
+
   public void resetBalance() {
     if (!CollectionUtils.isEmpty(list)) {
       TimeOffBreakdownItemDto lastBreakdownItem = list.get(list.size() - 1);

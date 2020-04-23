@@ -58,8 +58,7 @@ public class TimeOffDetailService {
       final TimeOffRequestDateRepository timeOffRequestDateRepository,
       final TimeOffAdjustmentRepository timeOffAdjustmentRepository,
       final AccrualScheduleMilestoneRepository milestoneRepository,
-      final TimeOffAccrualDelegator accrualDelegator
-  ) {
+      final TimeOffAccrualDelegator accrualDelegator) {
     this.timeOffPolicyUserRepository = timeOffPolicyUserRepository;
     this.timeOffPolicyAccrualScheduleRepository = timeOffPolicyAccrualScheduleRepository;
     this.timeOffRequestDateRepository = timeOffRequestDateRepository;
@@ -68,18 +67,17 @@ public class TimeOffDetailService {
     this.accrualDelegator = accrualDelegator;
   }
 
-  public TimeOffBreakdownDto getTimeOffBreakdown(
-      final String policyUserId, final Long untilDate) {
+  public TimeOffBreakdownDto getTimeOffBreakdown(final String policyUserId, final Long untilDate) {
 
     LocalDate endDate = LocalDate.now();
 
     if (untilDate != null) {
-      endDate = ZonedDateTime.ofInstant(Instant.ofEpochMilli(untilDate),
-          ZoneOffset.UTC).toLocalDate();
+      endDate =
+          ZonedDateTime.ofInstant(Instant.ofEpochMilli(untilDate), ZoneOffset.UTC).toLocalDate();
     }
 
-    final Optional<TimeOffPolicyUser> timeOffPolicyUserContainer = timeOffPolicyUserRepository
-        .findById(policyUserId);
+    final Optional<TimeOffPolicyUser> timeOffPolicyUserContainer =
+        timeOffPolicyUserRepository.findById(policyUserId);
 
     if (!timeOffPolicyUserContainer.isPresent()) {
       return null;
@@ -96,46 +94,48 @@ public class TimeOffDetailService {
   }
 
   private TimeOffBreakdownDto getUnlimitedTimeOffBreakdown(
-      final TimeOffPolicyUser timeOffPolicyUser,
-      final LocalDate endDate) {
+      final TimeOffPolicyUser timeOffPolicyUser, final LocalDate endDate) {
 
     final User user = timeOffPolicyUser.getUser();
     final TimeOffPolicy timeOffPolicy = timeOffPolicyUser.getTimeOffPolicy();
     final List<TimeOffRequestDatePojo> timeOffRequestDatePojos =
         timeOffRequestDateRepository.getTakenApprovedRequestOffByUserIdAndPolicyId(
-            user.getId(), timeOffPolicy.getId(), DateUtil.getLocalUtcTime(),
+            user.getId(),
+            timeOffPolicy.getId(),
+            DateUtil.getLocalUtcTime(),
             TimeOffRequestApprovalStatus.TimeOffApprovalStatus.APPROVED.name());
-    final List<TimeOffBreakdownItemDto> requestDateBreakdownList = getBreakdownListFromRequestOff(
-        timeOffRequestDatePojos);
+    final List<TimeOffBreakdownItemDto> requestDateBreakdownList =
+        getBreakdownListFromRequestOff(timeOffRequestDatePojos);
 
     final TimeOffBreakdownDto timeOffBreakdownDto = new TimeOffBreakdownDto();
     timeOffBreakdownDto.setShowBalance(false);
 
     requestDateBreakdownList.sort(Comparator.comparing(TimeOffBreakdownItemDto::getDate));
 
-    final List<TimeOffBreakdownItemDto> breakdownItemDtos = requestDateBreakdownList.stream()
-        .filter(breakdown -> !breakdown.getDate().isAfter(endDate))
-        .collect(Collectors.toList());
+    final List<TimeOffBreakdownItemDto> breakdownItemDtos =
+        requestDateBreakdownList.stream()
+            .filter(breakdown -> !breakdown.getDate().isAfter(endDate))
+            .collect(Collectors.toList());
     timeOffBreakdownDto.setList(breakdownItemDtos);
     return timeOffBreakdownDto;
   }
 
-  private TimeOffBreakdownDto getLimitedTimeOffBreakdown(final TimeOffPolicyUser timeOffPolicyUser,
-      final LocalDate endDate) {
+  private TimeOffBreakdownDto getLimitedTimeOffBreakdown(
+      final TimeOffPolicyUser timeOffPolicyUser, final LocalDate endDate) {
     final List<TimeOffPolicyAccrualSchedule> timeOffPolicyScheduleList =
-        timeOffPolicyAccrualScheduleRepository
-            .findAllWithExpiredTimeOffPolicy(timeOffPolicyUser.getTimeOffPolicy());
+        timeOffPolicyAccrualScheduleRepository.findAllWithExpiredTimeOffPolicy(
+            timeOffPolicyUser.getTimeOffPolicy());
 
     if (CollectionUtils.isEmpty(timeOffPolicyScheduleList)) {
       return null;
     }
 
-    final TimeOffAccrualFrequency timeOffFrequency = timeOffPolicyScheduleList.get(0)
-        .getTimeOffAccrualFrequency();
+    final TimeOffAccrualFrequency timeOffFrequency =
+        timeOffPolicyScheduleList.get(0).getTimeOffAccrualFrequency();
     final String timeOffFrequencyId = timeOffFrequency.getId();
 
-    final List<TimeOffPolicyAccrualSchedule> trimmedScheduleList = trimTimeOffPolicyScheduleList(
-        timeOffPolicyScheduleList, timeOffPolicyUser.getUser());
+    final List<TimeOffPolicyAccrualSchedule> trimmedScheduleList =
+        trimTimeOffPolicyScheduleList(timeOffPolicyScheduleList, timeOffPolicyUser.getUser());
 
     // Sort schedule list
     trimmedScheduleList.sort(Comparator.comparing(TimeOffPolicyAccrualSchedule::getCreatedAt));
@@ -161,18 +161,21 @@ public class TimeOffDetailService {
 
     final LocalDateTime endDateTime = endDate.atTime(LocalTime.MAX);
     final List<TimeOffRequestDatePojo> timeOffRequestDatePojos =
-        timeOffRequestDateRepository
-            .getTakenApprovedRequestOffByUserIdAndPolicyId(user.getId(), timeOffPolicy.getId(),
-                endDateTime, TimeOffRequestApprovalStatus.TimeOffApprovalStatus.APPROVED.name());
+        timeOffRequestDateRepository.getTakenApprovedRequestOffByUserIdAndPolicyId(
+            user.getId(),
+            timeOffPolicy.getId(),
+            endDateTime,
+            TimeOffRequestApprovalStatus.TimeOffApprovalStatus.APPROVED.name());
 
-    final List<TimeOffBreakdownItemDto> requestDateBreakdownList = getBreakdownListFromRequestOff(
-        timeOffRequestDatePojos);
+    final List<TimeOffBreakdownItemDto> requestDateBreakdownList =
+        getBreakdownListFromRequestOff(timeOffRequestDatePojos);
 
     final java.util.Date date = from(endDateTime.toInstant(ZoneOffset.UTC));
-    final List<TimeOffAdjustmentPojo> timeOffAdjustmentPojos = timeOffAdjustmentRepository
-        .findAllByUserIdAndTimeOffPolicyId(user.getId(), timeOffPolicy.getId(), date);
-    final List<TimeOffBreakdownItemDto> adjustmentBreakdownList = getBreakdownListFromAdjustment(
-        timeOffAdjustmentPojos);
+    final List<TimeOffAdjustmentPojo> timeOffAdjustmentPojos =
+        timeOffAdjustmentRepository.findAllByUserIdAndTimeOffPolicyId(
+            user.getId(), timeOffPolicy.getId(), date);
+    final List<TimeOffBreakdownItemDto> adjustmentBreakdownList =
+        getBreakdownListFromAdjustment(timeOffAdjustmentPojos);
 
     final List<TimeOffBreakdownItemDto> adjustmentList = new ArrayList<>(requestDateBreakdownList);
     adjustmentList.addAll(adjustmentBreakdownList);
@@ -181,25 +184,26 @@ public class TimeOffDetailService {
 
   private void populateBreakdownItem(
       final List<TimeOffBreakdownItemDto> breakdownItemList,
-      final TimeOffBreakdownItemDto timeOffBreakdownItemDto, final String timeOffRequestId) {
+      final TimeOffBreakdownItemDto timeOffBreakdownItemDto,
+      final String timeOffRequestId) {
     final String dateMessage = getTimeOffRequestDatesRange(timeOffRequestId);
 
     timeOffBreakdownItemDto.setDateMessage(dateMessage);
     timeOffBreakdownItemDto.setDetail("Time Off Taken");
-    timeOffBreakdownItemDto
-        .setBreakdownType(TimeOffBreakdownItemDto.BreakDownType.TIME_OFF_REQUEST);
+    timeOffBreakdownItemDto.setBreakdownType(
+        TimeOffBreakdownItemDto.BreakDownType.TIME_OFF_REQUEST);
     breakdownItemList.add(timeOffBreakdownItemDto);
   }
 
   public String getTimeOffRequestDatesRange(final String timeOffRequestId) {
-    final List<Timestamp> dates = timeOffRequestDateRepository
-        .getTimeOffRequestDatesByTimeOffRequestId(timeOffRequestId);
+    final List<Timestamp> dates =
+        timeOffRequestDateRepository.getTimeOffRequestDatesByTimeOffRequestId(timeOffRequestId);
     final StringBuilder dateMessage = new StringBuilder();
     LocalDate time = null;
     Integer previousDateMonth = null;
     Integer previousDateYear = null;
     StringBuilder tempDateMessage = null;
-    for (final Timestamp date: dates) {
+    for (final Timestamp date : dates) {
       final LocalDate localDate = DateUtil.fromTimestamp(date);
       String dateFormat;
       if (previousDateMonth != null && previousDateMonth == localDate.getMonthValue()) {
@@ -214,8 +218,8 @@ public class TimeOffDetailService {
               && time.getMonthValue() == localDate.getMonthValue()) {
             dateFormat = DateUtil.SIMPLE_MONTH_DAY;
           }
-          tempDateMessage = new StringBuilder(" - "
-              .concat(DateUtil.formatDateTo(localDate, dateFormat)));
+          tempDateMessage =
+              new StringBuilder(" - ".concat(DateUtil.formatDateTo(localDate, dateFormat)));
           time = localDate;
           continue;
         }
@@ -241,7 +245,8 @@ public class TimeOffDetailService {
     }
     if (DateUtil.fromTimestamp(dates.get(dates.size() - 1)).getYear()
         != LocalDate.now().getYear()) {
-      dateMessage.append(", ")
+      dateMessage
+          .append(", ")
           .append(DateUtil.fromTimestamp(dates.get(dates.size() - 1)).getYear());
     }
     return dateMessage.toString();
@@ -252,7 +257,8 @@ public class TimeOffDetailService {
     final int firstDateYear = DateUtil.fromTimestamp(dates.get(0)).getYear();
     boolean isDifferentYear = false;
     for (int i = 1; i < dates.size(); i++) {
-      if (!DateUtil.fromTimestamp(dates.get(i)).minusDays(1)
+      if (!DateUtil.fromTimestamp(dates.get(i))
+          .minusDays(1)
           .equals(DateUtil.fromTimestamp(dates.get(i - 1)))) {
         isConsecutiveDates = false;
       }
@@ -269,10 +275,11 @@ public class TimeOffDetailService {
 
     final List<TimeOffBreakdownItemDto> breakdownItemList = new ArrayList<>();
     for (final TimeOffRequestDatePojo timeOffRequestDatePojo : timeOffRequestDatePojos) {
-      final TimeOffBreakdownItemDto timeOffBreakdownItemDto = TimeOffBreakdownItemDto.builder()
-          .amount(-timeOffRequestDatePojo.getHours())
-          .date(DateUtil.fromTimestamp(timeOffRequestDatePojo.getStartDate()))
-          .build();
+      final TimeOffBreakdownItemDto timeOffBreakdownItemDto =
+          TimeOffBreakdownItemDto.builder()
+              .amount(-timeOffRequestDatePojo.getHours())
+              .date(DateUtil.fromTimestamp(timeOffRequestDatePojo.getStartDate()))
+              .build();
 
       populateBreakdownItem(
           breakdownItemList, timeOffBreakdownItemDto, timeOffRequestDatePojo.getId());
@@ -282,7 +289,8 @@ public class TimeOffDetailService {
 
   private List<TimeOffBreakdownItemDto> getBreakdownListFromAdjustment(
       final List<TimeOffAdjustmentPojo> timeOffAdjustmentPojos) {
-    return timeOffAdjustmentPojos.stream().map(TimeOffBreakdownItemDto::fromTimeOffAdjustment)
+    return timeOffAdjustmentPojos.stream()
+        .map(TimeOffBreakdownItemDto::fromTimeOffAdjustment)
         .collect(Collectors.toList());
   }
 
@@ -315,41 +323,48 @@ public class TimeOffDetailService {
     final Integer maxBalance = getMaxBalance(policyUserId);
     final boolean exceed = maxBalance != null && newBalance > maxBalance;
 
-    return TimeOffAdjustmentCheckDto.builder()
-        .maxBalance(maxBalance)
-        .exceed(exceed)
-        .build();
+    return TimeOffAdjustmentCheckDto.builder().maxBalance(maxBalance).exceed(exceed).build();
   }
 
-  //TODO simplify
+  // TODO simplify
   private Integer getMaxBalance(final String policyUserId) {
-    final TimeOffPolicyUser timeOffPolicyUser = timeOffPolicyUserRepository.findById(policyUserId)
-        .orElseThrow(() -> new ResourceNotFoundException("Time off policy user with id "
-            + policyUserId
-            + " not found!")
-        );
-    final TimeOffPolicyAccrualSchedule accrualSchedule = timeOffPolicyAccrualScheduleRepository
-            .findByTimeOffPolicy(timeOffPolicyUser.getTimeOffPolicy());
+    final TimeOffPolicyUser timeOffPolicyUser =
+        timeOffPolicyUserRepository
+            .findById(policyUserId)
+            .orElseThrow(
+                () ->
+                    new ResourceNotFoundException(
+                        "Time off policy user with id " + policyUserId + " not found!"));
+    final TimeOffPolicyAccrualSchedule accrualSchedule =
+        timeOffPolicyAccrualScheduleRepository.findByTimeOffPolicy(
+            timeOffPolicyUser.getTimeOffPolicy());
 
     final LocalDate hireDate = DateUtil.fromTimestamp(timeOffPolicyUser.getUser().getCreatedAt());
     final LocalDate userJoinDate = DateUtil.fromTimestamp(timeOffPolicyUser.getCreatedAt());
-    final LocalDate startDate = TimeOffAccrualService
-        .getScheduleStartBaseTime(hireDate, userJoinDate, accrualSchedule);
+    final LocalDate startDate =
+        TimeOffAccrualService.getScheduleStartBaseTime(hireDate, userJoinDate, accrualSchedule);
 
     final LocalDate now = DateUtil.getLocalUtcTime().toLocalDate();
-    final long maxYears = Duration.between(
-        startDate.atStartOfDay(), now.atStartOfDay()).toDays() / 365L;
-    List<AccrualScheduleMilestone> milestones = milestoneRepository
-        .findByAccrualScheduleIdAndEndYear(accrualSchedule.getId(), (int) maxYears);
-    milestones = TimeOffAccrualService.trimTimeOffPolicyScheduleMilestones(milestones,
-        timeOffPolicyUser, accrualSchedule);
+    final long maxYears =
+        Duration.between(startDate.atStartOfDay(), now.atStartOfDay()).toDays() / 365L;
+    List<AccrualScheduleMilestone> milestones =
+        milestoneRepository.findByAccrualScheduleIdAndEndYear(
+            accrualSchedule.getId(), (int) maxYears);
+    milestones =
+        TimeOffAccrualService.trimTimeOffPolicyScheduleMilestones(
+            milestones, timeOffPolicyUser, accrualSchedule);
 
-    milestones.sort(Comparator.comparing(AccrualScheduleMilestone::getAnniversaryYear,
-        Comparator.reverseOrder()));
-    final Optional<AccrualScheduleMilestone> targetMilestone = milestones.stream()
-        .filter((accrualScheduleMilestone ->
-            !startDate.plusYears(accrualScheduleMilestone.getAnniversaryYear()).isAfter(now)))
-        .findFirst();
+    milestones.sort(
+        Comparator.comparing(
+            AccrualScheduleMilestone::getAnniversaryYear, Comparator.reverseOrder()));
+    final Optional<AccrualScheduleMilestone> targetMilestone =
+        milestones.stream()
+            .filter(
+                (accrualScheduleMilestone ->
+                    !startDate
+                        .plusYears(accrualScheduleMilestone.getAnniversaryYear())
+                        .isAfter(now)))
+            .findFirst();
 
     return targetMilestone.isPresent()
         ? targetMilestone.get().getMaxBalance()

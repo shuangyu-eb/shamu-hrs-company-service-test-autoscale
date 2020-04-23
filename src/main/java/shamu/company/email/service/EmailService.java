@@ -47,16 +47,12 @@ public class EmailService {
 
   private final ITemplateEngine templateEngine;
   private final UserService userService;
-
+  private final AwsHelper awsHelper;
+  private final Logger logger = LoggerFactory.getLogger(EmailService.class);
   @Value("${application.systemEmailAddress}")
   private String systemEmailAddress;
-
   @Value("${application.frontEndAddress}")
   private String frontEndAddress;
-
-  private final AwsHelper awsHelper;
-
-  private final Logger logger = LoggerFactory.getLogger(EmailService.class);
 
   @Autowired
   public EmailService(

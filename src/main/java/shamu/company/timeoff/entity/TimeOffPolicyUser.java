@@ -16,11 +16,9 @@ import shamu.company.user.entity.User;
 @AllArgsConstructor
 public class TimeOffPolicyUser extends BaseEntity {
 
-  @ManyToOne
-  private User user;
+  @ManyToOne private User user;
 
-  @ManyToOne
-  private TimeOffPolicy timeOffPolicy;
+  @ManyToOne private TimeOffPolicy timeOffPolicy;
 
   private Integer initialBalance;
 }

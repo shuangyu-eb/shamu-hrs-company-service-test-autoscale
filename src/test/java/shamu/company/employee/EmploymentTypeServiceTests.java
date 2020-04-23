@@ -1,5 +1,6 @@
 package shamu.company.employee;
 
+import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -13,8 +14,6 @@ import shamu.company.common.repository.EmploymentTypeRepository;
 import shamu.company.employee.entity.EmploymentType;
 import shamu.company.employee.service.EmploymentTypeService;
 
-import java.util.Optional;
-
 class EmploymentTypeServiceTests {
   @InjectMocks EmploymentTypeService employmentTypeService;
 
@@ -23,6 +22,26 @@ class EmploymentTypeServiceTests {
   @BeforeEach
   void init() {
     MockitoAnnotations.initMocks(this);
+  }
+
+  @Test
+  void testFindAllByCompanyId() {
+    Assertions.assertDoesNotThrow(() -> employmentTypeService.findAllByCompanyId("1"));
+  }
+
+  @Test
+  void testFindCountByType() {
+    Assertions.assertDoesNotThrow(() -> employmentTypeService.findCountByType("1"));
+  }
+
+  @Test
+  void testSave() {
+    Assertions.assertDoesNotThrow(() -> employmentTypeService.save(new EmploymentType()));
+  }
+
+  @Test
+  void testDelete() {
+    Assertions.assertDoesNotThrow(() -> employmentTypeService.delete("1"));
   }
 
   @Nested
@@ -49,25 +68,5 @@ class EmploymentTypeServiceTests {
       Assertions.assertThrows(
           ResourceNotFoundException.class, () -> employmentTypeService.findById(id));
     }
-  }
-
-  @Test
-  void testFindAllByCompanyId() {
-    Assertions.assertDoesNotThrow(() -> employmentTypeService.findAllByCompanyId("1"));
-  }
-
-  @Test
-  void testFindCountByType() {
-    Assertions.assertDoesNotThrow(() -> employmentTypeService.findCountByType("1"));
-  }
-
-  @Test
-  void testSave() {
-    Assertions.assertDoesNotThrow(() -> employmentTypeService.save(new EmploymentType()));
-  }
-
-  @Test
-  void testDelete() {
-    Assertions.assertDoesNotThrow(() -> employmentTypeService.delete("1"));
   }
 }

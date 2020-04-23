@@ -43,14 +43,15 @@ public class TimeOffAccrualAnniversaryStrategyService extends TimeOffAccrualServ
     return getTimeOffBreakdown(timeOffBreakdownAnniversaryDto, calculatePojo);
   }
 
-  TimeOffBreakdownDto getTimeOffBreakdown(final TimeOffBreakdownAnniversaryDto startingBreakdown,
+  TimeOffBreakdownDto getTimeOffBreakdown(
+      final TimeOffBreakdownAnniversaryDto startingBreakdown,
       final TimeOffBreakdownCalculatePojo calculatePojo) {
 
     List<TimeOffBreakdownAnniversaryDto> timeOffBreakdownAnniversaryDtoList =
         getAccrualDataByAnniversaryYear(calculatePojo);
 
-    timeOffBreakdownAnniversaryDtoList = addMissingAnniversaryYearDto(
-        timeOffBreakdownAnniversaryDtoList);
+    timeOffBreakdownAnniversaryDtoList =
+        addMissingAnniversaryYearDto(timeOffBreakdownAnniversaryDtoList);
 
     timeOffBreakdownAnniversaryDtoList.forEach(
         timeOffBreakdownAnniversaryDto ->
@@ -62,77 +63,89 @@ public class TimeOffAccrualAnniversaryStrategyService extends TimeOffAccrualServ
 
     timeOffBreakdownAnniversaryDtoList.add(0, startingBreakdown);
 
-    return getFinalAnniversaryBreakdown(timeOffBreakdownAnniversaryDtoList,
-        calculatePojo.getBalanceAdjustment());
+    return getFinalAnniversaryBreakdown(
+        timeOffBreakdownAnniversaryDtoList, calculatePojo.getBalanceAdjustment());
   }
-
 
   private List<TimeOffBreakdownAnniversaryDto> getAccrualDataByAnniversaryYear(
       final TimeOffBreakdownCalculatePojo calculatePojo) {
-    final LocalDate userJoinDate = DateUtil
-        .fromTimestamp(calculatePojo.getPolicyUser().getCreatedAt());
+    final LocalDate userJoinDate =
+        DateUtil.fromTimestamp(calculatePojo.getPolicyUser().getCreatedAt());
 
-    final HashMap<Integer, HashMap<Integer, TimeOffBreakdownAnniversaryDto>> accrualData
-        = new HashMap<>();
+    final HashMap<Integer, HashMap<Integer, TimeOffBreakdownAnniversaryDto>> accrualData =
+        new HashMap<>();
 
-    calculatePojo.getTrimmedScheduleList().forEach(accrualSchedule -> {
+    calculatePojo
+        .getTrimmedScheduleList()
+        .forEach(
+            accrualSchedule -> {
+              final List<LocalDate> validStartAndEndDate =
+                  getValidScheduleOrMilestonePeriod(
+                      userJoinDate, accrualSchedule.getCreatedAt(), accrualSchedule.getExpiredAt());
 
-      final List<LocalDate> validStartAndEndDate =
-          getValidScheduleOrMilestonePeriod(userJoinDate,
-              accrualSchedule.getCreatedAt(), accrualSchedule.getExpiredAt());
+              final List<LocalDate> dateList =
+                  getValidAnniversaryPeriod(
+                      userJoinDate,
+                      validStartAndEndDate.get(0),
+                      validStartAndEndDate.get(1),
+                      calculatePojo.getUntilDate());
 
-      final List<LocalDate> dateList =
-          getValidAnniversaryPeriod(userJoinDate,
-              validStartAndEndDate.get(0),
-              validStartAndEndDate.get(1),
-              calculatePojo.getUntilDate()
-          );
+              addToResultAnniversaryMap(accrualData, dateList, accrualSchedule, userJoinDate);
 
-      addToResultAnniversaryMap(accrualData, dateList, accrualSchedule, userJoinDate);
+              List<AccrualScheduleMilestone> accrualScheduleMilestoneList =
+                  accrualScheduleMilestoneRepository.findByAccrualScheduleIdWithExpired(
+                      accrualSchedule.getId());
+              accrualScheduleMilestoneList =
+                  trimTimeOffPolicyScheduleMilestones(
+                      accrualScheduleMilestoneList, calculatePojo.getPolicyUser(), accrualSchedule);
 
-      List<AccrualScheduleMilestone> accrualScheduleMilestoneList =
-          accrualScheduleMilestoneRepository
-              .findByAccrualScheduleIdWithExpired(accrualSchedule.getId());
-      accrualScheduleMilestoneList =
-          trimTimeOffPolicyScheduleMilestones(accrualScheduleMilestoneList,
-              calculatePojo.getPolicyUser(), accrualSchedule);
+              // sort milestones
+              accrualScheduleMilestoneList.sort(
+                  Comparator.comparing(AccrualScheduleMilestone::getAnniversaryYear));
 
-      // sort milestones
-      accrualScheduleMilestoneList.sort(Comparator
-          .comparing(AccrualScheduleMilestone::getAnniversaryYear));
+              accrualScheduleMilestoneList.forEach(
+                  accrualScheduleMilestone -> {
+                    final LocalDate milestoneStartTime =
+                        userJoinDate.plusYears(accrualScheduleMilestone.getAnniversaryYear());
+                    final List<LocalDate> validMilestoneStartAndEndDate =
+                        getValidScheduleOrMilestonePeriod(
+                            milestoneStartTime,
+                            accrualScheduleMilestone.getCreatedAt(),
+                            accrualScheduleMilestone.getExpiredAt());
 
-      accrualScheduleMilestoneList.forEach(accrualScheduleMilestone -> {
-        final LocalDate milestoneStartTime = userJoinDate
-            .plusYears(accrualScheduleMilestone.getAnniversaryYear());
-        final List<LocalDate> validMilestoneStartAndEndDate =
-            getValidScheduleOrMilestonePeriod(milestoneStartTime,
-                accrualScheduleMilestone.getCreatedAt(), accrualScheduleMilestone.getExpiredAt());
+                    final List<LocalDate> validMilestoneYears =
+                        getValidAnniversaryPeriod(
+                            userJoinDate,
+                            validMilestoneStartAndEndDate.get(0),
+                            validMilestoneStartAndEndDate.get(1),
+                            calculatePojo.getUntilDate());
 
-        final List<LocalDate> validMilestoneYears = getValidAnniversaryPeriod(
-            userJoinDate,
-            validMilestoneStartAndEndDate.get(0),
-            validMilestoneStartAndEndDate.get(1),
-            calculatePojo.getUntilDate()
-        );
-
-        addToResultAnniversaryMap(accrualData, validMilestoneYears, accrualScheduleMilestone,
-            milestoneStartTime);
-      });
-    });
+                    addToResultAnniversaryMap(
+                        accrualData,
+                        validMilestoneYears,
+                        accrualScheduleMilestone,
+                        milestoneStartTime);
+                  });
+            });
 
     final List<TimeOffBreakdownAnniversaryDto> resultAnniversaryList = new ArrayList<>();
-    accrualData.values().forEach(timeOffAnniversaryMonthMap ->
-        resultAnniversaryList.addAll(timeOffAnniversaryMonthMap.values()));
+    accrualData
+        .values()
+        .forEach(
+            timeOffAnniversaryMonthMap ->
+                resultAnniversaryList.addAll(timeOffAnniversaryMonthMap.values()));
 
     return resultAnniversaryList;
   }
 
-  private List<LocalDate> getValidAnniversaryPeriod(final LocalDate userJoinPolicyDate,
-      final LocalDate startDate, final LocalDate endDate, final LocalDate selectedDate) {
+  private List<LocalDate> getValidAnniversaryPeriod(
+      final LocalDate userJoinPolicyDate,
+      final LocalDate startDate,
+      final LocalDate endDate,
+      final LocalDate selectedDate) {
 
     LocalDate currentDate = userJoinPolicyDate;
-    final LocalDate expireDate = endDate == null ? selectedDate
-        : endDate;
+    final LocalDate expireDate = endDate == null ? selectedDate : endDate;
 
     final List<LocalDate> startDateList = new ArrayList<>();
 
@@ -147,7 +160,8 @@ public class TimeOffAccrualAnniversaryStrategyService extends TimeOffAccrualServ
 
   private <T> void addToResultAnniversaryMap(
       final HashMap<Integer, HashMap<Integer, TimeOffBreakdownAnniversaryDto>> accrualData,
-      final List<LocalDate> validPeriods, final T t,
+      final List<LocalDate> validPeriods,
+      final T t,
       final LocalDate anniversaryStartDate) {
 
     for (final LocalDate date : validPeriods) {
@@ -155,15 +169,15 @@ public class TimeOffAccrualAnniversaryStrategyService extends TimeOffAccrualServ
           transferToTimeOffAnniversaryYearDto(t);
       timeOffBreakdownAnniversaryDto.setDate(date);
 
-      final boolean isParent = !anniversaryStartDate.isAfter(date)
-          && anniversaryStartDate.plusYears(1).isAfter(date);
+      final boolean isParent =
+          !anniversaryStartDate.isAfter(date) && anniversaryStartDate.plusYears(1).isAfter(date);
       timeOffBreakdownAnniversaryDto.setHasParent(!isParent);
 
       final Integer currentYear = date.getYear();
       final Integer currentMonth = date.getMonthValue();
 
-      final Map<Integer, TimeOffBreakdownAnniversaryDto> currentYearMap = accrualData
-          .get(currentYear);
+      final Map<Integer, TimeOffBreakdownAnniversaryDto> currentYearMap =
+          accrualData.get(currentYear);
       if (currentYearMap != null) {
         currentYearMap.put(currentMonth, timeOffBreakdownAnniversaryDto);
       } else {
@@ -175,8 +189,8 @@ public class TimeOffAccrualAnniversaryStrategyService extends TimeOffAccrualServ
   }
 
   private <T> TimeOffBreakdownAnniversaryDto transferToTimeOffAnniversaryYearDto(final T t) {
-    final TimeOffBreakdownAnniversaryDto timeOffBreakdownAnniversaryDto
-        = new TimeOffBreakdownAnniversaryDto();
+    final TimeOffBreakdownAnniversaryDto timeOffBreakdownAnniversaryDto =
+        new TimeOffBreakdownAnniversaryDto();
     BeanUtils.copyProperties(t, timeOffBreakdownAnniversaryDto);
     return timeOffBreakdownAnniversaryDto;
   }
@@ -187,17 +201,17 @@ public class TimeOffAccrualAnniversaryStrategyService extends TimeOffAccrualServ
 
     LocalDate previousDate = null;
 
-    for (final TimeOffBreakdownAnniversaryDto timeOffBreakdownAnniversaryDto
-        : timeOffBreakdownAnniversaryDtoList) {
+    for (final TimeOffBreakdownAnniversaryDto timeOffBreakdownAnniversaryDto :
+        timeOffBreakdownAnniversaryDtoList) {
 
       final LocalDate currentDate = timeOffBreakdownAnniversaryDto.getDate();
 
-      while (previousDate != null && (previousDate = previousDate.plusYears(1))
-          .isBefore(currentDate)) {
+      while (previousDate != null
+          && (previousDate = previousDate.plusYears(1)).isBefore(currentDate)) {
 
         final TimeOffBreakdownAnniversaryDto previousBreakdown = newBreakdownList.peekLast();
-        final TimeOffBreakdownAnniversaryDto newTimeOffBreakdown
-            = new TimeOffBreakdownAnniversaryDto();
+        final TimeOffBreakdownAnniversaryDto newTimeOffBreakdown =
+            new TimeOffBreakdownAnniversaryDto();
         BeanUtils.copyProperties(previousBreakdown, newTimeOffBreakdown);
         newTimeOffBreakdown.setDate(previousDate);
         newTimeOffBreakdown.setHasParent(true);
@@ -225,8 +239,8 @@ public class TimeOffAccrualAnniversaryStrategyService extends TimeOffAccrualServ
       final LocalDate accrualTime = timeOffBreakdownYearDto.getDate();
 
       // carryover limit
-      populateBreakdownListFromCarryoverLimit(resultTimeOffBreakdownItemList,
-          accrualTime, balancePojo);
+      populateBreakdownListFromCarryoverLimit(
+          resultTimeOffBreakdownItemList, accrualTime, balancePojo);
 
       if (resultTimeOffBreakdownItemList.isEmpty() || !timeOffBreakdownYearDto.isHasParent()) {
         balancePojo.setMaxBalance(timeOffBreakdownYearDto.getMaxBalance());
@@ -234,19 +248,23 @@ public class TimeOffAccrualAnniversaryStrategyService extends TimeOffAccrualServ
       }
 
       // max balance
-      populateBreakdownListFromMaxBalance(resultTimeOffBreakdownItemList,
-          accrualTime, balancePojo);
+      populateBreakdownListFromMaxBalance(resultTimeOffBreakdownItemList, accrualTime, balancePojo);
 
-      populateBreakdownListFromAccrualSchedule(resultTimeOffBreakdownItemList,
-          accrualTime, timeOffBreakdownYearDto.getAccrualHours(), balancePojo);
+      populateBreakdownListFromAccrualSchedule(
+          resultTimeOffBreakdownItemList,
+          accrualTime,
+          timeOffBreakdownYearDto.getAccrualHours(),
+          balancePojo);
 
       // Adjustment
-      populateBreakdownAdjustmentBefore(resultTimeOffBreakdownItemList,
-          accrualTime.plusYears(1), balanceAdjustmentList, balancePojo);
+      populateBreakdownAdjustmentBefore(
+          resultTimeOffBreakdownItemList,
+          accrualTime.plusYears(1),
+          balanceAdjustmentList,
+          balancePojo);
     }
 
-    populateRemainingAdjustment(resultTimeOffBreakdownItemList, balanceAdjustmentList,
-        balancePojo);
+    populateRemainingAdjustment(resultTimeOffBreakdownItemList, balanceAdjustmentList, balancePojo);
 
     final TimeOffBreakdownDto timeOffBreakdownDto = new TimeOffBreakdownDto();
     timeOffBreakdownDto.setBalance(balancePojo.getBalance());
@@ -254,10 +272,8 @@ public class TimeOffAccrualAnniversaryStrategyService extends TimeOffAccrualServ
     return timeOffBreakdownDto;
   }
 
-
   @Override
   boolean support(final String frequencyType) {
     return AccrualFrequencyType.FREQUENCY_TYPE_TWO.equalsTo(frequencyType);
   }
-
 }

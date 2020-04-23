@@ -54,20 +54,23 @@ public class TimeOffRequestCustomRepositoryImpl implements TimeOffRequestCustomR
 
   @Override
   public List<TimeOffRequest> findByTimeOffPolicyUserAndStatus(
-      final String userId, final String policyId, final TimeOffApprovalStatus status,
-      final Timestamp currentTime, final TimeOffRequestDate.Operator operator) {
+      final String userId,
+      final String policyId,
+      final TimeOffApprovalStatus status,
+      final Timestamp currentTime,
+      final TimeOffRequestDate.Operator operator) {
     final StringBuilder queryTimeOffRequestDate =
-            new StringBuilder(
-                    "select tor.id as tid, tord.id as did, tord.hours, tord.date "
-                            + "from time_off_requests tor "
-                            + "join time_off_request_dates tord "
-                            + " on tor.id = tord.time_off_request_id "
-                            + "join time_off_request_approval_statuses rs "
-                            + " on tor.time_off_request_approval_status_id = rs.id "
-                            + "where tor.requester_user_id = unhex(?1) "
-                            + "and tor.time_off_policy_id = unhex(?2) "
-                            + "and rs.name = ?3 "
-                            + "group by tord.id ");
+        new StringBuilder(
+            "select tor.id as tid, tord.id as did, tord.hours, tord.date "
+                + "from time_off_requests tor "
+                + "join time_off_request_dates tord "
+                + " on tor.id = tord.time_off_request_id "
+                + "join time_off_request_approval_statuses rs "
+                + " on tor.time_off_request_approval_status_id = rs.id "
+                + "where tor.requester_user_id = unhex(?1) "
+                + "and tor.time_off_policy_id = unhex(?2) "
+                + "and rs.name = ?3 "
+                + "group by tord.id ");
     if (null != currentTime && operator.equals(TimeOffRequestDate.Operator.LESS_THAN)) {
       queryTimeOffRequestDate.append(" having min(tord.date) <= ?4 ");
     } else if (null != currentTime && operator.equals(TimeOffRequestDate.Operator.MORE_THAN)) {
@@ -75,7 +78,7 @@ public class TimeOffRequestCustomRepositoryImpl implements TimeOffRequestCustomR
     }
 
     final Query queryTimeOffRequestDateResult =
-            entityManager.createNativeQuery(queryTimeOffRequestDate.toString());
+        entityManager.createNativeQuery(queryTimeOffRequestDate.toString());
     queryTimeOffRequestDateResult.setParameter(1, userId);
     queryTimeOffRequestDateResult.setParameter(2, policyId);
     queryTimeOffRequestDateResult.setParameter(3, status.name());
@@ -91,8 +94,7 @@ public class TimeOffRequestCustomRepositoryImpl implements TimeOffRequestCustomR
             + "where tor.requester_user_id = unhex(?1) "
             + "and tor.time_off_policy_id = unhex(?2) "
             + "and rs.name = ?3 ";
-    final Query queryTimeOffRequestResult =
-            entityManager.createNativeQuery(queryTimeOffRequest);
+    final Query queryTimeOffRequestResult = entityManager.createNativeQuery(queryTimeOffRequest);
 
     queryTimeOffRequestResult.setParameter(1, userId);
     queryTimeOffRequestResult.setParameter(2, policyId);
@@ -110,26 +112,23 @@ public class TimeOffRequestCustomRepositoryImpl implements TimeOffRequestCustomR
             timeOffItemList.forEach(
                 timeOffItem -> {
                   if (timeOffItem instanceof Object[]
-                          && UuidUtil.toHexString((byte[]) timeOffRequestItemArray[0])
+                      && UuidUtil.toHexString((byte[]) timeOffRequestItemArray[0])
                           .equals(UuidUtil.toHexString((byte[]) ((Object[]) timeOffItem)[0]))) {
                     final Object[] timeOffItemArray = (Object[]) timeOffItem;
                     final TimeOffRequestDate timeOffRequestDate = new TimeOffRequestDate();
-                    timeOffRequestDate.setId(
-                            UuidUtil.toHexString((byte[]) timeOffItemArray[1]));
+                    timeOffRequestDate.setId(UuidUtil.toHexString((byte[]) timeOffItemArray[1]));
                     timeOffRequestDate.setHours(((Integer) timeOffItemArray[2]));
                     timeOffRequestDate.setDate((Timestamp) timeOffItemArray[3]);
                     timeOffRequestDateList.add(timeOffRequestDate);
                   }
-                }
-            );
+                });
             timeOffRequest.setId(UuidUtil.toHexString((byte[]) timeOffRequestItemArray[0]));
             timeOffRequest.setTimeOffRequestDates(timeOffRequestDateList);
             if (!timeOffRequestDateList.isEmpty()) {
               timeOffRequestList.add(timeOffRequest);
             }
           }
-        }
-    );
+        });
 
     return timeOffRequestList;
   }

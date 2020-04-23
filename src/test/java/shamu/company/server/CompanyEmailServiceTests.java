@@ -28,23 +28,17 @@ import shamu.company.user.service.UserService;
 
 public class CompanyEmailServiceTests {
 
-  @Mock
-  private UserService userService;
+  @Mock private UserService userService;
 
-  @Mock
-  private EmailService emailService;
+  @Mock private EmailService emailService;
 
-  @Mock
-  private ITemplateEngine templateEngine;
+  @Mock private ITemplateEngine templateEngine;
 
-  @Mock
-  private AwsHelper awsHelper;
+  @Mock private AwsHelper awsHelper;
 
-  @Mock
-  private ApplicationConfig applicationConfig;
+  @Mock private ApplicationConfig applicationConfig;
 
-  @InjectMocks
-  private CompanyEmailService companyEmailService;
+  @InjectMocks private CompanyEmailService companyEmailService;
 
   @BeforeEach
   void init() {
@@ -52,7 +46,7 @@ public class CompanyEmailServiceTests {
   }
 
   @Nested
-  class FindVariables{
+  class FindVariables {
     final DocumentRequestEmailDto documentRequestEmailDto = new DocumentRequestEmailDto();
     final User sender = new User();
     final String s3ImageUrl = "s3 image url";
@@ -71,7 +65,9 @@ public class CompanyEmailServiceTests {
       documentRequestEmailDto.setType(DocumentRequestEmailDto.DocumentRequestType.VIEW);
       sender.setImageUrl(Mockito.anyString());
       Mockito.when(awsHelper.findFullFileUrl(sender.getImageUrl())).thenReturn(s3ImageUrl);
-      final Map<String, Object> variables = Whitebox.invokeMethod(companyEmailService, "findVariables", documentRequestEmailDto, sender);
+      final Map<String, Object> variables =
+          Whitebox.invokeMethod(
+              companyEmailService, "findVariables", documentRequestEmailDto, sender);
       Assertions.assertEquals(s3ImageUrl, variables.get("senderAvatar"));
     }
 
@@ -79,29 +75,36 @@ public class CompanyEmailServiceTests {
     void whenSendHasNoAvatar_thenReturnDefaultImageUrl() throws Exception {
       documentRequestEmailDto.setType(DocumentRequestEmailDto.DocumentRequestType.VIEW);
       Mockito.when(applicationConfig.getFrontEndAddress()).thenReturn(frontEndAddress);
-      final Map<String, Object> variables = Whitebox.invokeMethod(companyEmailService, "findVariables", documentRequestEmailDto, sender);
+      final Map<String, Object> variables =
+          Whitebox.invokeMethod(
+              companyEmailService, "findVariables", documentRequestEmailDto, sender);
       org.assertj.core.api.Assertions.assertThat(variables).isNotEmpty();
-      org.assertj.core.api.Assertions.assertThat(variables.get("documentTitle")).isEqualTo(documentRequestEmailDto.getDocumentTitle());
+      org.assertj.core.api.Assertions.assertThat(variables.get("documentTitle"))
+          .isEqualTo(documentRequestEmailDto.getDocumentTitle());
     }
 
     @Test
     void whenRequestTypeIsNotView_thenShouldIncludeDueDate() throws Exception {
       documentRequestEmailDto.setType(DocumentRequestEmailDto.DocumentRequestType.ACKNOWLEDGE);
       documentRequestEmailDto.setExpiredAt(Timestamp.valueOf(LocalDateTime.now()));
-      final Map<String, Object> variables = Whitebox.invokeMethod(companyEmailService, "findVariables", documentRequestEmailDto, sender);
+      final Map<String, Object> variables =
+          Whitebox.invokeMethod(
+              companyEmailService, "findVariables", documentRequestEmailDto, sender);
       Assertions.assertNotNull(variables.get("dueDate"));
     }
 
     @Test
     void whenRequestTypeIsView_thenShouldNotIncludeDueDate() throws Exception {
       documentRequestEmailDto.setType(DocumentRequestEmailDto.DocumentRequestType.VIEW);
-      final Map<String, Object> variables = Whitebox.invokeMethod(companyEmailService, "findVariables", documentRequestEmailDto, sender);
+      final Map<String, Object> variables =
+          Whitebox.invokeMethod(
+              companyEmailService, "findVariables", documentRequestEmailDto, sender);
       Assertions.assertNull(variables.get("dueDate"));
     }
   }
 
   @Nested
-  class CreateTemplate{
+  class CreateTemplate {
     final DocumentRequestEmailDto documentRequestEmailDto = new DocumentRequestEmailDto();
     final Map<String, Object> variables = new HashMap<>();
     final User sender = new User();
@@ -132,7 +135,8 @@ public class CompanyEmailServiceTests {
     void whenMessageIsNotEmpty_thenVariablesShouldIncludeMessage() throws Exception {
       documentRequestEmailDto.setRecipientUserIds(new ArrayList<>());
       documentRequestEmailDto.setMessage("message");
-      Whitebox.invokeMethod(companyEmailService, "createTemplate", documentRequestEmailDto, variables, sender);
+      Whitebox.invokeMethod(
+          companyEmailService, "createTemplate", documentRequestEmailDto, variables, sender);
       Assertions.assertNotNull(variables.get("message"));
     }
 
@@ -140,7 +144,8 @@ public class CompanyEmailServiceTests {
     void whenMessageIsEmptyString_thenVariablesShouldNotIncludeMessage() throws Exception {
       documentRequestEmailDto.setRecipientUserIds(new ArrayList<>());
       documentRequestEmailDto.setMessage("");
-      Whitebox.invokeMethod(companyEmailService, "createTemplate", documentRequestEmailDto, variables, sender);
+      Whitebox.invokeMethod(
+          companyEmailService, "createTemplate", documentRequestEmailDto, variables, sender);
       Assertions.assertNull(variables.get("message"));
     }
 
@@ -148,32 +153,46 @@ public class CompanyEmailServiceTests {
     void whenMessageIsNull_thenVariablesShouldNotIncludeMessage() throws Exception {
       documentRequestEmailDto.setRecipientUserIds(new ArrayList<>());
       documentRequestEmailDto.setMessage(null);
-      Whitebox.invokeMethod(companyEmailService, "createTemplate", documentRequestEmailDto, variables, sender);
+      Whitebox.invokeMethod(
+          companyEmailService, "createTemplate", documentRequestEmailDto, variables, sender);
       Assertions.assertNull(variables.get("message"));
     }
 
     @Test
     void whenRequestTypeIsSign_thenShouldTemplateIsSignature() throws Exception {
       documentRequestEmailDto.setType(DocumentRequestEmailDto.DocumentRequestType.SIGN);
-      Mockito.when(templateEngine.process(Mockito.eq("document_request_signature.html"), Mockito.any())).thenReturn("");
-      Whitebox.invokeMethod(companyEmailService, "createTemplate", documentRequestEmailDto, variables, sender);
-      Mockito.verify(templateEngine, Mockito.times(1)).process(Mockito.eq("document_request_signature.html"), Mockito.any());
+      Mockito.when(
+              templateEngine.process(Mockito.eq("document_request_signature.html"), Mockito.any()))
+          .thenReturn("");
+      Whitebox.invokeMethod(
+          companyEmailService, "createTemplate", documentRequestEmailDto, variables, sender);
+      Mockito.verify(templateEngine, Mockito.times(1))
+          .process(Mockito.eq("document_request_signature.html"), Mockito.any());
     }
 
     @Test
     void whenRequestTypeIsAcknowledge_thenShouldTemplateIsAcknowledge() throws Exception {
       documentRequestEmailDto.setType(DocumentRequestEmailDto.DocumentRequestType.ACKNOWLEDGE);
-      Mockito.when(templateEngine.process(Mockito.eq("document_request_acknowledge.html"), Mockito.any())).thenReturn("");
-      Whitebox.invokeMethod(companyEmailService, "createTemplate", documentRequestEmailDto, variables, sender);
-      Mockito.verify(templateEngine, Mockito.times(1)).process(Mockito.eq("document_request_acknowledge.html"), Mockito.any());
+      Mockito.when(
+              templateEngine.process(
+                  Mockito.eq("document_request_acknowledge.html"), Mockito.any()))
+          .thenReturn("");
+      Whitebox.invokeMethod(
+          companyEmailService, "createTemplate", documentRequestEmailDto, variables, sender);
+      Mockito.verify(templateEngine, Mockito.times(1))
+          .process(Mockito.eq("document_request_acknowledge.html"), Mockito.any());
     }
 
     @Test
     void whenRequestTypeIsView_thenShouldTemplateIsView() throws Exception {
       documentRequestEmailDto.setType(DocumentRequestEmailDto.DocumentRequestType.VIEW);
-      Mockito.when(templateEngine.process(Mockito.eq("document_request_no_action.html"), Mockito.any())).thenReturn("");
-      Whitebox.invokeMethod(companyEmailService, "createTemplate", documentRequestEmailDto, variables, sender);
-      Mockito.verify(templateEngine, Mockito.times(1)).process(Mockito.eq("document_request_no_action.html"), Mockito.any());
+      Mockito.when(
+              templateEngine.process(Mockito.eq("document_request_no_action.html"), Mockito.any()))
+          .thenReturn("");
+      Whitebox.invokeMethod(
+          companyEmailService, "createTemplate", documentRequestEmailDto, variables, sender);
+      Mockito.verify(templateEngine, Mockito.times(1))
+          .process(Mockito.eq("document_request_no_action.html"), Mockito.any());
     }
   }
 }

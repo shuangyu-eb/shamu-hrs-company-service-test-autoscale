@@ -17,8 +17,7 @@ import shamu.company.common.entity.BaseEntity;
 @Table(name = "time_off_policy_accrual_schedules")
 public class TimeOffPolicyAccrualSchedule extends BaseEntity {
 
-  @OneToOne
-  private TimeOffPolicy timeOffPolicy;
+  @OneToOne private TimeOffPolicy timeOffPolicy;
 
   private Integer accrualHours;
 
@@ -30,11 +29,13 @@ public class TimeOffPolicyAccrualSchedule extends BaseEntity {
 
   private Timestamp expiredAt;
 
-  @ManyToOne
-  private TimeOffAccrualFrequency timeOffAccrualFrequency;
+  @ManyToOne private TimeOffAccrualFrequency timeOffAccrualFrequency;
 
-  public TimeOffPolicyAccrualSchedule(final TimeOffPolicy timeOffPolicy, final Integer accrualHours,
-      final Integer maxBalance, final Integer daysBeforeAccrualStarts,
+  public TimeOffPolicyAccrualSchedule(
+      final TimeOffPolicy timeOffPolicy,
+      final Integer accrualHours,
+      final Integer maxBalance,
+      final Integer daysBeforeAccrualStarts,
       final Integer carryoverLimit,
       final TimeOffAccrualFrequency timeOffAccrualFrequency) {
     this.timeOffPolicy = timeOffPolicy;
@@ -43,6 +44,5 @@ public class TimeOffPolicyAccrualSchedule extends BaseEntity {
     this.daysBeforeAccrualStarts = daysBeforeAccrualStarts;
     this.carryoverLimit = carryoverLimit;
     this.timeOffAccrualFrequency = timeOffAccrualFrequency;
-
   }
 }

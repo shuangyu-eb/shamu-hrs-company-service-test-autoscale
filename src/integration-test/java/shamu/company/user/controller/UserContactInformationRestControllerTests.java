@@ -1,5 +1,8 @@
 package shamu.company.user.controller;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -21,20 +24,14 @@ import shamu.company.user.entity.mapper.UserContactInformationMapper;
 import shamu.company.user.service.UserContactInformationService;
 import shamu.company.utils.JsonUtil;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.BDDMockito.given;
-
 @WebMvcTest(controllers = UserContactInformationRestController.class)
 public class UserContactInformationRestControllerTests extends WebControllerBaseTests {
 
-  @MockBean
-  private UserContactInformationService contactInformationService;
+  @MockBean private UserContactInformationService contactInformationService;
 
-  @MockBean
-  private UserContactInformationMapper userContactInformationMapper;
+  @MockBean private UserContactInformationMapper userContactInformationMapper;
 
-  @Autowired
-  private MockMvc mockMvc;
+  @Autowired private MockMvc mockMvc;
 
   @Test
   void testGetUserContactInformation() throws Exception {
@@ -50,9 +47,13 @@ public class UserContactInformationRestControllerTests extends WebControllerBase
     targetUser.setId(currentUser.getId());
     given(userService.findById(currentUser.getId())).willReturn(targetUser);
 
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .get("/company/users/" + getAuthUser().getId() + "/user-contact-information")
-        .headers(httpHeaders)).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.get(
+                        "/company/users/" + getAuthUser().getId() + "/user-contact-information")
+                    .headers(httpHeaders))
+            .andReturn();
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
@@ -69,18 +70,23 @@ public class UserContactInformationRestControllerTests extends WebControllerBase
     final Company company = new Company(currentUser.getCompanyId());
     targetUser.setCompany(company);
     targetUser.setId(currentUser.getId());
-    given(userService.findUserByUserContactInformationId(currentUser.getId())).willReturn(targetUser);
+    given(userService.findUserByUserContactInformationId(currentUser.getId()))
+        .willReturn(targetUser);
 
     final UserContactInformationDto userContactInformationDto = new UserContactInformationDto();
     userContactInformationDto.setEmailWork("testEmail@gmail.com");
     userContactInformationDto.setPhoneWork("18002738255");
     userContactInformationDto.setPhoneHome("18002738255");
 
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .patch("/company/user-contact-information/" + getAuthUser().getId())
-        .contentType(MediaType.APPLICATION_JSON)
-        .headers(httpHeaders)
-        .content(JsonUtil.formatToString(userContactInformationDto))).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.patch(
+                        "/company/user-contact-information/" + getAuthUser().getId())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .headers(httpHeaders)
+                    .content(JsonUtil.formatToString(userContactInformationDto)))
+            .andReturn();
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }

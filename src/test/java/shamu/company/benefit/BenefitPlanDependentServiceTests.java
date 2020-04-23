@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import shamu.company.benefit.entity.BenefitPlanDependent;
 import shamu.company.benefit.repository.UserDependentsRepository;
@@ -12,11 +11,9 @@ import shamu.company.benefit.service.BenefitPlanDependentService;
 
 public class BenefitPlanDependentServiceTests {
 
-  @Mock UserDependentsRepository userDependentsRepository;
-
-  private BenefitPlanDependentService benefitPlanDependentService;
-
   private final BenefitPlanDependent benefitPlanDependent = new BenefitPlanDependent();
+  @Mock UserDependentsRepository userDependentsRepository;
+  private BenefitPlanDependentService benefitPlanDependentService;
 
   @BeforeEach
   void init() {
@@ -26,17 +23,20 @@ public class BenefitPlanDependentServiceTests {
 
   @Test
   void testCreateBenefitPlanDependent() {
-    Assertions.assertDoesNotThrow(() -> benefitPlanDependentService.createBenefitPlanDependent(benefitPlanDependent));
+    Assertions.assertDoesNotThrow(
+        () -> benefitPlanDependentService.createBenefitPlanDependent(benefitPlanDependent));
   }
 
   @Test
   void testGetDependentListsByEmployeeId() {
-    Assertions.assertDoesNotThrow(() -> benefitPlanDependentService.getDependentListsByEmployeeId("1"));
+    Assertions.assertDoesNotThrow(
+        () -> benefitPlanDependentService.getDependentListsByEmployeeId("1"));
   }
 
   @Test
   void testUpdateDependentContact() {
-    Assertions.assertDoesNotThrow(() -> benefitPlanDependentService.updateDependentContact(benefitPlanDependent));
+    Assertions.assertDoesNotThrow(
+        () -> benefitPlanDependentService.updateDependentContact(benefitPlanDependent));
   }
 
   @Test

@@ -33,8 +33,8 @@ public class DefaultExceptionFilter extends GenericFilterBean {
       response.setContentType(ContentType.APPLICATION_JSON.toString());
       response.setStatus(HttpStatus.BAD_REQUEST.value());
 
-      final ErrorMessage errorMessage = new ErrorMessage(abstractException.getType(),
-          abstractException.getMessage());
+      final ErrorMessage errorMessage =
+          new ErrorMessage(abstractException.getType(), abstractException.getMessage());
       res.getWriter().write(JsonUtil.formatToString(errorMessage));
     }
   }

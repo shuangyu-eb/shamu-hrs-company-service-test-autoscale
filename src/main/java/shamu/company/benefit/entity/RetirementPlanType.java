@@ -14,9 +14,7 @@ import shamu.company.common.entity.BaseEntity;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RetirementPlanType extends BaseEntity {
-  @OneToOne
-  private BenefitPlan benefitPlan;
+  @OneToOne private BenefitPlan benefitPlan;
 
-  @OneToOne
-  private RetirementType retirementType;
+  @OneToOne private RetirementType retirementType;
 }

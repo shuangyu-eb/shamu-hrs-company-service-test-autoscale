@@ -35,8 +35,8 @@ class SuperAdminRestController extends BaseRestController {
   @GetMapping("/super-admin/users")
   @PreAuthorize("hasAuthority('SUPER_PERMISSION')")
   public Page<SuperAdminUserDto> getUsers(final PageRequestDto pageRequestDto) {
-    return superAdminService
-        .getUsersByKeywordAndPageable(pageRequestDto.getKeyword(), pageRequestDto.getPageable());
+    return superAdminService.getUsersByKeywordAndPageable(
+        pageRequestDto.getKeyword(), pageRequestDto.getPageable());
   }
 
   @PostMapping("/super-admin/mock/users/{id}")

@@ -1,4 +1,8 @@
 package shamu.company.account.controller;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -16,24 +20,19 @@ import shamu.company.user.dto.CreatePasswordDto;
 import shamu.company.user.dto.UserLoginDto;
 import shamu.company.utils.JsonUtil;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doNothing;
-
 @WebMvcTest(controllers = AccountRestController.class)
 public class AccountRestControllerTests extends WebControllerBaseTests {
-  @Autowired
-  private MockMvc mockMvc;
+  @Autowired private MockMvc mockMvc;
 
-  @MockBean
-  private Auth0Helper auth0Helper;
+  @MockBean private Auth0Helper auth0Helper;
 
   @Test
   void testCreatePasswordTokenExist() throws Exception {
     final HttpHeaders httpHeaders = new HttpHeaders();
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .get("/company/account/password/1")
-        .headers(httpHeaders)).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(MockMvcRequestBuilders.get("/company/account/password/1").headers(httpHeaders))
+            .andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
 
@@ -44,21 +43,26 @@ public class AccountRestControllerTests extends WebControllerBaseTests {
     createPasswordDto.setEmailWork("example@example.com");
     createPasswordDto.setNewPassword("856723Xy");
     createPasswordDto.setResetPasswordToken("1");
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .patch("/company/account/password")
-        .contentType(MediaType.APPLICATION_JSON)
-        .headers(httpHeaders)
-        .content(JsonUtil.formatToString(createPasswordDto))).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.patch("/company/account/password")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .headers(httpHeaders)
+                    .content(JsonUtil.formatToString(createPasswordDto)))
+            .andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
 
   @Test
   void testCreatePasswordAndInvitationTokenExist() throws Exception {
     final HttpHeaders httpHeaders = new HttpHeaders();
-    given(userService.createPasswordAndInvitationTokenExist("1","2")).willReturn(true);
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .get("/company/account/password/1/2")
-        .headers(httpHeaders)).andReturn();
+    given(userService.createPasswordAndInvitationTokenExist("1", "2")).willReturn(true);
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.get("/company/account/password/1/2").headers(httpHeaders))
+            .andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
 
@@ -68,11 +72,14 @@ public class AccountRestControllerTests extends WebControllerBaseTests {
     final UserLoginDto userLoginDto = new UserLoginDto();
     userLoginDto.setEmailWork("example@example.com");
     userLoginDto.setPassword("1");
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .patch("/company/account/unlock")
-        .contentType(MediaType.APPLICATION_JSON)
-        .headers(httpHeaders)
-        .content(JsonUtil.formatToString(userLoginDto))).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.patch("/company/account/unlock")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .headers(httpHeaders)
+                    .content(JsonUtil.formatToString(userLoginDto)))
+            .andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
 
@@ -81,18 +88,24 @@ public class AccountRestControllerTests extends WebControllerBaseTests {
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
     given(userService.changeWorkEmailTokenExist("1")).willReturn(true);
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .patch("/company/account/change-work-email/1")
-        .headers(httpHeaders)).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.patch("/company/account/change-work-email/1")
+                    .headers(httpHeaders))
+            .andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
 
   @Test
   void testResendVerificationEmail() throws Exception {
     final HttpHeaders httpHeaders = new HttpHeaders();
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .post("/company/account/1/verification-email")
-        .headers(httpHeaders)).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.post("/company/account/1/verification-email")
+                    .headers(httpHeaders))
+            .andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.NO_CONTENT.value());
   }
 }

@@ -1,5 +1,10 @@
 package shamu.company.timeoff.service;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -25,49 +30,29 @@ import shamu.company.timeoff.repository.PaidHolidayUserRepository;
 import shamu.company.user.entity.User;
 import shamu.company.user.service.UserService;
 
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
 class PaidHolidayServiceTests {
 
-  @Mock
-  private PaidHolidayRepository paidHolidayRepository;
-
-  @Mock
-  private CompanyPaidHolidayRepository companyPaidHolidayRepository;
-
-  @Mock
-  private UserService userService;
-
-  @Mock
-  private PaidHolidayUserRepository paidHolidayUserRepository;
-
-  @Mock
-  private CompanyPaidHolidayMapper companyPaidHolidayMapper;
-
-  @Mock
-  private PaidHolidayMapper paidHolidayMapper;
-
-  @Mock
-  private FederalHolidayHelper federalHolidayHelper;
-
   private static PaidHolidayService paidHolidayService;
+  @Mock private PaidHolidayRepository paidHolidayRepository;
+  @Mock private CompanyPaidHolidayRepository companyPaidHolidayRepository;
+  @Mock private UserService userService;
+  @Mock private PaidHolidayUserRepository paidHolidayUserRepository;
+  @Mock private CompanyPaidHolidayMapper companyPaidHolidayMapper;
+  @Mock private PaidHolidayMapper paidHolidayMapper;
+  @Mock private FederalHolidayHelper federalHolidayHelper;
 
   @BeforeEach
   void setUp() {
     MockitoAnnotations.initMocks(this);
-    paidHolidayService = new PaidHolidayService(
-        paidHolidayRepository,
-        companyPaidHolidayRepository,
-        userService,
-        paidHolidayUserRepository,
-        companyPaidHolidayMapper,
-        paidHolidayMapper,
-        federalHolidayHelper
-    );
+    paidHolidayService =
+        new PaidHolidayService(
+            paidHolidayRepository,
+            companyPaidHolidayRepository,
+            userService,
+            paidHolidayUserRepository,
+            companyPaidHolidayMapper,
+            paidHolidayMapper,
+            federalHolidayHelper);
   }
 
   @Test
@@ -79,11 +64,11 @@ class PaidHolidayServiceTests {
     final List<CompanyPaidHoliday> companyPaidHolidayList = new ArrayList<>();
 
     Mockito.when(paidHolidayRepository.findDefaultPaidHolidays()).thenReturn(paidHolidayList);
-    Mockito.when(companyPaidHolidayRepository.saveAll(Mockito.any())).thenReturn(companyPaidHolidayList);
+    Mockito.when(companyPaidHolidayRepository.saveAll(Mockito.any()))
+        .thenReturn(companyPaidHolidayList);
 
-    Assertions.assertDoesNotThrow(() ->
-        paidHolidayService.initDefaultPaidHolidays(new Company("1")));
-
+    Assertions.assertDoesNotThrow(
+        () -> paidHolidayService.initDefaultPaidHolidays(new Company("1")));
   }
 
   @Test
@@ -97,11 +82,12 @@ class PaidHolidayServiceTests {
     paidHolidayDto.setName("007");
     paidHolidayDto.setFederal(true);
 
-    Mockito.when(companyPaidHolidayRepository.findAllByCompanyId(Mockito.any())).thenReturn(companyPaidHolidays);
-    Mockito.when(companyPaidHolidayMapper.convertToPaidHolidayDto(Mockito.any(), Mockito.any())).thenReturn(paidHolidayDto);
+    Mockito.when(companyPaidHolidayRepository.findAllByCompanyId(Mockito.any()))
+        .thenReturn(companyPaidHolidays);
+    Mockito.when(companyPaidHolidayMapper.convertToPaidHolidayDto(Mockito.any(), Mockito.any()))
+        .thenReturn(paidHolidayDto);
 
-    Assertions.assertDoesNotThrow(() ->
-        paidHolidayService.getPaidHolidays(authUser));
+    Assertions.assertDoesNotThrow(() -> paidHolidayService.getPaidHolidays(authUser));
   }
 
   @Test
@@ -115,11 +101,13 @@ class PaidHolidayServiceTests {
     paidHolidayDto.setName("007");
     paidHolidayDto.setFederal(true);
 
-    Mockito.when(companyPaidHolidayRepository.findAllByCompanyIdAndUserId(Mockito.any(), Mockito.any())).thenReturn(companyPaidHolidays);
-    Mockito.when(companyPaidHolidayMapper.convertToPaidHolidayDto(Mockito.any(), Mockito.any())).thenReturn(paidHolidayDto);
+    Mockito.when(
+            companyPaidHolidayRepository.findAllByCompanyIdAndUserId(Mockito.any(), Mockito.any()))
+        .thenReturn(companyPaidHolidays);
+    Mockito.when(companyPaidHolidayMapper.convertToPaidHolidayDto(Mockito.any(), Mockito.any()))
+        .thenReturn(paidHolidayDto);
 
-    Assertions.assertDoesNotThrow(() ->
-        paidHolidayService.getUserPaidHolidays(authUser, "1"));
+    Assertions.assertDoesNotThrow(() -> paidHolidayService.getUserPaidHolidays(authUser, "1"));
   }
 
   @Test
@@ -134,12 +122,15 @@ class PaidHolidayServiceTests {
     paidHolidayDto.setFederal(true);
     paidHolidayDto.setDate(Timestamp.valueOf(LocalDateTime.now()));
 
-    Mockito.when(companyPaidHolidayRepository.findAllByCompanyIdAndUserId(Mockito.any(), Mockito.any())).thenReturn(companyPaidHolidays);
-    Mockito.when(companyPaidHolidayRepository.findAllByCompanyId(Mockito.any())).thenReturn(companyPaidHolidays);
-    Mockito.when(companyPaidHolidayMapper.convertToPaidHolidayDto(Mockito.any(), Mockito.any())).thenReturn(paidHolidayDto);
+    Mockito.when(
+            companyPaidHolidayRepository.findAllByCompanyIdAndUserId(Mockito.any(), Mockito.any()))
+        .thenReturn(companyPaidHolidays);
+    Mockito.when(companyPaidHolidayRepository.findAllByCompanyId(Mockito.any()))
+        .thenReturn(companyPaidHolidays);
+    Mockito.when(companyPaidHolidayMapper.convertToPaidHolidayDto(Mockito.any(), Mockito.any()))
+        .thenReturn(paidHolidayDto);
 
-    Assertions.assertDoesNotThrow(() ->
-        paidHolidayService.getPaidHolidaysByYear(authUser, "2020"));
+    Assertions.assertDoesNotThrow(() -> paidHolidayService.getPaidHolidaysByYear(authUser, "2020"));
   }
 
   @Test
@@ -150,8 +141,7 @@ class PaidHolidayServiceTests {
     paidHolidayDto.setIsSelected(true);
     paidHolidayDtos.add(paidHolidayDto);
 
-    Assertions.assertDoesNotThrow(() ->
-        paidHolidayService.updateHolidaySelects(paidHolidayDtos));
+    Assertions.assertDoesNotThrow(() -> paidHolidayService.updateHolidaySelects(paidHolidayDtos));
   }
 
   @Test
@@ -163,13 +153,17 @@ class PaidHolidayServiceTests {
     final CompanyPaidHoliday companyPaidHoliday = new CompanyPaidHoliday();
 
     Mockito.when(userService.findById(Mockito.any())).thenReturn(user);
-    Mockito.when(paidHolidayMapper.createFromPaidHolidayDtoAndCreator(Mockito.any(), Mockito.any())).thenReturn(paidHoliday);
+    Mockito.when(paidHolidayMapper.createFromPaidHolidayDtoAndCreator(Mockito.any(), Mockito.any()))
+        .thenReturn(paidHoliday);
     Mockito.when(paidHolidayRepository.save(Mockito.any())).thenReturn(paidHoliday);
-    Mockito.when(companyPaidHolidayMapper.createFromPaidHolidayDtoAndPaidHoliday(Mockito.any(), Mockito.any())).thenReturn(companyPaidHoliday);
+    Mockito.when(
+            companyPaidHolidayMapper.createFromPaidHolidayDtoAndPaidHoliday(
+                Mockito.any(), Mockito.any()))
+        .thenReturn(companyPaidHoliday);
     Mockito.when(companyPaidHolidayRepository.save(Mockito.any())).thenReturn(companyPaidHoliday);
 
-    Assertions.assertDoesNotThrow(() ->
-        paidHolidayService.createPaidHoliday(paidHolidayDto, authUser));
+    Assertions.assertDoesNotThrow(
+        () -> paidHolidayService.createPaidHoliday(paidHolidayDto, authUser));
   }
 
   @Test
@@ -179,14 +173,12 @@ class PaidHolidayServiceTests {
     paidHolidayDto.setName("007");
     paidHolidayDto.setDate(Timestamp.valueOf(LocalDateTime.now()));
 
-    Assertions.assertDoesNotThrow(() ->
-        paidHolidayService.updatePaidHoliday(paidHolidayDto));
+    Assertions.assertDoesNotThrow(() -> paidHolidayService.updatePaidHoliday(paidHolidayDto));
   }
 
   @Test
   void deletePaidHoliday() {
-    Assertions.assertDoesNotThrow(() ->
-        paidHolidayService.deletePaidHoliday("1"));
+    Assertions.assertDoesNotThrow(() -> paidHolidayService.deletePaidHoliday("1"));
   }
 
   @Test
@@ -206,12 +198,13 @@ class PaidHolidayServiceTests {
     paidHolidayUser.setUserId("1");
 
     Mockito.when(userService.findAllJobUsers(Mockito.any())).thenReturn(jobUserDtos);
-    Mockito.when(paidHolidayUserRepository.findAllUserIdByCompanyId(Mockito.any())).thenReturn(filterIds);
+    Mockito.when(paidHolidayUserRepository.findAllUserIdByCompanyId(Mockito.any()))
+        .thenReturn(filterIds);
     Mockito.when(paidHolidayUserRepository.save(Mockito.any())).thenReturn(paidHolidayUser);
-    Mockito.when(paidHolidayUserRepository.findAllByCompanyId(Mockito.any())).thenReturn(newFilterDataSet);
+    Mockito.when(paidHolidayUserRepository.findAllByCompanyId(Mockito.any()))
+        .thenReturn(newFilterDataSet);
 
-    Assertions.assertDoesNotThrow(() ->
-        paidHolidayService.getPaidHolidayEmployees("1"));
+    Assertions.assertDoesNotThrow(() -> paidHolidayService.getPaidHolidayEmployees("1"));
   }
 
   @Nested
@@ -237,13 +230,16 @@ class PaidHolidayServiceTests {
       paidHolidayUser.setUserId("1");
       employeesStateBefore.add(paidHolidayUser);
 
-      Mockito.when(paidHolidayUserRepository.findAllByCompanyId(Mockito.any())).thenReturn(employeesStateBefore);
-      Mockito.when(paidHolidayUserRepository.saveAll(Mockito.any())).thenReturn(employeesStateBefore);
-      Mockito.when(paidHolidayUserRepository.findByCompanyIdAndUserId(Mockito.any(), Mockito.any())).thenReturn(paidHolidayUser);
+      Mockito.when(paidHolidayUserRepository.findAllByCompanyId(Mockito.any()))
+          .thenReturn(employeesStateBefore);
+      Mockito.when(paidHolidayUserRepository.saveAll(Mockito.any()))
+          .thenReturn(employeesStateBefore);
+      Mockito.when(paidHolidayUserRepository.findByCompanyIdAndUserId(Mockito.any(), Mockito.any()))
+          .thenReturn(paidHolidayUser);
       Mockito.when(paidHolidayUserRepository.save(Mockito.any())).thenReturn(paidHolidayUser);
 
-      Assertions.assertDoesNotThrow(() ->
-          paidHolidayService.updatePaidHolidayEmployees(newPaidEmployees, "1"));
+      Assertions.assertDoesNotThrow(
+          () -> paidHolidayService.updatePaidHolidayEmployees(newPaidEmployees, "1"));
     }
 
     @Test
@@ -254,13 +250,16 @@ class PaidHolidayServiceTests {
       paidHolidayUser.setUserId("1");
       employeesStateBefore.add(paidHolidayUser);
 
-      Mockito.when(paidHolidayUserRepository.findAllByCompanyId(Mockito.any())).thenReturn(employeesStateBefore);
-      Mockito.when(paidHolidayUserRepository.saveAll(Mockito.any())).thenReturn(employeesStateBefore);
-      Mockito.when(paidHolidayUserRepository.findByCompanyIdAndUserId(Mockito.any(), Mockito.any())).thenReturn(paidHolidayUser);
+      Mockito.when(paidHolidayUserRepository.findAllByCompanyId(Mockito.any()))
+          .thenReturn(employeesStateBefore);
+      Mockito.when(paidHolidayUserRepository.saveAll(Mockito.any()))
+          .thenReturn(employeesStateBefore);
+      Mockito.when(paidHolidayUserRepository.findByCompanyIdAndUserId(Mockito.any(), Mockito.any()))
+          .thenReturn(paidHolidayUser);
       Mockito.when(paidHolidayUserRepository.save(Mockito.any())).thenReturn(paidHolidayUser);
 
-      Assertions.assertDoesNotThrow(() ->
-          paidHolidayService.updatePaidHolidayEmployees(newPaidEmployees, "1"));
+      Assertions.assertDoesNotThrow(
+          () -> paidHolidayService.updatePaidHolidayEmployees(newPaidEmployees, "1"));
     }
   }
 
@@ -271,14 +270,16 @@ class PaidHolidayServiceTests {
     void whenEmpty_thenShouldThrow() {
       Mockito.when(paidHolidayRepository.findById(Mockito.any())).thenReturn(Optional.empty());
 
-      Assertions.assertThrows(ResourceNotFoundException.class, () -> paidHolidayService.getPaidHoliday("1"));
+      Assertions.assertThrows(
+          ResourceNotFoundException.class, () -> paidHolidayService.getPaidHoliday("1"));
     }
 
     @Test
     void whenNotEmpty_thenShouldSuccess() {
       final PaidHoliday paidHoliday = new PaidHoliday();
 
-      Mockito.when(paidHolidayRepository.findById(Mockito.any())).thenReturn(Optional.of(paidHoliday));
+      Mockito.when(paidHolidayRepository.findById(Mockito.any()))
+          .thenReturn(Optional.of(paidHoliday));
 
       Assertions.assertDoesNotThrow(() -> paidHolidayService.getPaidHoliday("1"));
     }

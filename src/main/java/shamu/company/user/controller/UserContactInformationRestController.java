@@ -28,7 +28,8 @@ public class UserContactInformationRestController extends BaseRestController {
 
   @Autowired
   public UserContactInformationRestController(
-      final UserContactInformationService contactInformationService, final UserService userService,
+      final UserContactInformationService contactInformationService,
+      final UserService userService,
       final UserContactInformationMapper userContactInformationMapper) {
     this.contactInformationService = contactInformationService;
     this.userService = userService;
@@ -42,28 +43,27 @@ public class UserContactInformationRestController extends BaseRestController {
   public UserContactInformationDto update(
       @PathVariable final String id,
       @Valid @RequestBody final UserContactInformationDto userContactInformationDto) {
-    final UserContactInformation origin = contactInformationService
-        .findUserContactInformationById(id);
-    userContactInformationMapper
-        .updateFromUserContactInformationDto(origin, userContactInformationDto);
+    final UserContactInformation origin =
+        contactInformationService.findUserContactInformationById(id);
+    userContactInformationMapper.updateFromUserContactInformationDto(
+        origin, userContactInformationDto);
     final UserContactInformation userContactInformationUpdated =
         contactInformationService.update(origin);
-    return userContactInformationMapper
-        .convertToUserContactInformationDto(userContactInformationUpdated);
+    return userContactInformationMapper.convertToUserContactInformationDto(
+        userContactInformationUpdated);
   }
 
   @GetMapping("users/{id}/user-contact-information")
   @PreAuthorize(
       "hasPermission(#id, 'USER', 'VIEW_USER_CONTACT')"
           + "or hasPermission(#id, 'USER', 'VIEW_SELF')")
-  public BasicUserContactInformationDto getUserContactInformation(
-      @PathVariable final String id) {
+  public BasicUserContactInformationDto getUserContactInformation(@PathVariable final String id) {
     final User targetUser = userService.findById(id);
     final UserContactInformation userContactInformation = targetUser.getUserContactInformation();
 
     if (isCurrentUserSelfOrAdminOrManager(id)) {
-      return userContactInformationMapper
-          .convertToUserContactInformationDto(userContactInformation);
+      return userContactInformationMapper.convertToUserContactInformationDto(
+          userContactInformation);
     }
     return new BasicUserContactInformationDto(userContactInformation);
   }

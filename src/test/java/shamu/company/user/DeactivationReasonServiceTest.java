@@ -9,13 +9,10 @@ import org.mockito.MockitoAnnotations;
 import shamu.company.user.repository.DeactivationReasonRepository;
 import shamu.company.user.service.DeactivationReasonService;
 
-
 public class DeactivationReasonServiceTest {
-  @Mock
-  private DeactivationReasonRepository deactivationReasonRepository;
+  @Mock private DeactivationReasonRepository deactivationReasonRepository;
 
-  @InjectMocks
-  private DeactivationReasonService deactivationReasonService;
+  @InjectMocks private DeactivationReasonService deactivationReasonService;
 
   @BeforeEach
   void init() {

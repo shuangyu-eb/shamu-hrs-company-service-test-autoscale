@@ -38,5 +38,4 @@ public class Auth0Config {
   public AuthAPI getAuthApi() {
     return new AuthAPI(domain, clientId, clientSecret);
   }
-
 }

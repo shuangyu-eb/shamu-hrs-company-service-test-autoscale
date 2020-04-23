@@ -13,10 +13,6 @@ public enum BenefitPlanTypeEnum {
     this.desc = desc;
   }
 
-  public String getDesc() {
-    return desc;
-  }
-
   public static BenefitPlanTypeEnum getEnumByDesc(String desc) {
     for (BenefitPlanTypeEnum deviceType : BenefitPlanTypeEnum.values()) {
       if (desc.equals(deviceType.desc)) {
@@ -26,4 +22,7 @@ public enum BenefitPlanTypeEnum {
     return OTHER;
   }
 
+  public String getDesc() {
+    return desc;
+  }
 }

@@ -7,14 +7,6 @@ import shamu.company.user.entity.User;
 
 public class JsonUtilTests {
 
-  private class innerClass {
-    int i;
-
-    innerClass(final int i) {
-      this.i = i;
-    }
-  }
-
   @Test
   void testFormatToString() {
     final User user = new User();
@@ -29,5 +21,13 @@ public class JsonUtilTests {
     final String userString = JsonUtil.formatToString(user);
     Assertions.assertDoesNotThrow(() -> JsonUtil.deserialize(userString, User.class));
     Assertions.assertThrows(ForbiddenException.class, () -> JsonUtil.deserialize("1", User.class));
+  }
+
+  private class innerClass {
+    int i;
+
+    innerClass(final int i) {
+      this.i = i;
+    }
   }
 }

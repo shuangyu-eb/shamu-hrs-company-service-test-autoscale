@@ -14,5 +14,4 @@ public class PaidHolidayRelatedUserListDto {
   private List<JobUserDto> paidHolidaySelectedEmployees;
 
   private List<JobUserDto> paidHolidayUnselectedEmployees;
-
 }

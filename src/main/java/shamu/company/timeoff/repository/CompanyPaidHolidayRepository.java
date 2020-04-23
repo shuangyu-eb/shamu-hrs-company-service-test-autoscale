@@ -9,33 +9,31 @@ import shamu.company.timeoff.entity.CompanyPaidHoliday;
 
 public interface CompanyPaidHolidayRepository extends BaseRepository<CompanyPaidHoliday, String> {
 
-  @Query(value = "SELECT * "
-      + "FROM companies_paid_holidays "
-      + "WHERE company_id = unhex(?1) ",
+  @Query(
+      value = "SELECT * " + "FROM companies_paid_holidays " + "WHERE company_id = unhex(?1) ",
       nativeQuery = true)
   List<CompanyPaidHoliday> findAllByCompanyId(String companyId);
 
-  @Query(value = "select cph.* "
-          + "from companies_paid_holidays cph "
-          + "where cph.company_id = ( "
-          + "   select phu.company_id "
-          + "   from paid_holidays_users phu "
-          + "   where phu.company_id = unhex(?1) "
-          + "   and phu.user_id = unhex(?2) "
-          + "   and phu.is_selected = true ) ",
-          nativeQuery = true)
+  @Query(
+      value =
+          "select cph.* "
+              + "from companies_paid_holidays cph "
+              + "where cph.company_id = ( "
+              + "   select phu.company_id "
+              + "   from paid_holidays_users phu "
+              + "   where phu.company_id = unhex(?1) "
+              + "   and phu.user_id = unhex(?2) "
+              + "   and phu.is_selected = true ) ",
+      nativeQuery = true)
   List<CompanyPaidHoliday> findAllByCompanyIdAndUserId(String companyId, String userId);
 
-  CompanyPaidHoliday findCompanyPaidHolidayByPaidHolidayIdAndCompanyId(String paidHolidayId,
-      String companyId);
+  CompanyPaidHoliday findCompanyPaidHolidayByPaidHolidayIdAndCompanyId(
+      String paidHolidayId, String companyId);
 
   @Modifying
   @Transactional
   @Query(
-          value = "delete from "
-                  + "companies_paid_holidays "
-                  + "where "
-                  + "paid_holiday_id=unhex(?1) ",
-          nativeQuery = true)
+      value = "delete from " + "companies_paid_holidays " + "where " + "paid_holiday_id=unhex(?1) ",
+      nativeQuery = true)
   void deleteByPaidHolidayId(String id);
 }

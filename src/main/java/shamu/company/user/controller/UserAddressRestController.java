@@ -21,8 +21,8 @@ public class UserAddressRestController extends BaseRestController {
   private final UserAddressMapper userAddressMapper;
 
   @Autowired
-  public UserAddressRestController(final UserAddressService userAddressService,
-      final UserAddressMapper userAddressMapper) {
+  public UserAddressRestController(
+      final UserAddressService userAddressService, final UserAddressMapper userAddressMapper) {
     this.userAddressService = userAddressService;
     this.userAddressMapper = userAddressMapper;
   }

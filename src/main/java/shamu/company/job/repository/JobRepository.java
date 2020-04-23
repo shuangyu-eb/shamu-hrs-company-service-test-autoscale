@@ -7,7 +7,6 @@ import shamu.company.job.entity.Job;
 
 public interface JobRepository extends BaseRepository<Job, String> {
 
-  @Query(value = "SELECT * from jobs where department_id=unhex(?1)",
-      nativeQuery = true)
+  @Query(value = "SELECT * from jobs where department_id=unhex(?1)", nativeQuery = true)
   List<Job> findAllByDepartmentId(String id);
 }

@@ -10,7 +10,7 @@ import shamu.company.common.repository.CountryRepository;
 import shamu.company.utils.ReflectionUtil;
 
 @Service
-public class CountryService  {
+public class CountryService {
 
   CountryRepository countryRepository;
 
@@ -20,9 +20,8 @@ public class CountryService  {
 
   public Country findById(final String id) {
     final Optional<Country> optionalCountry = countryRepository.findById(id);
-    return optionalCountry
-        .orElseThrow(() -> new ResourceNotFoundException(
-            String.format("Country with id %s not found!", id)));
+    return optionalCountry.orElseThrow(
+        () -> new ResourceNotFoundException(String.format("Country with id %s not found!", id)));
   }
 
   public List<CommonDictionaryDto> findCountries() {

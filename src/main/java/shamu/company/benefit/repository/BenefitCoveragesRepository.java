@@ -1,11 +1,9 @@
 package shamu.company.benefit.repository;
 
 import java.util.List;
-
 import org.springframework.data.jpa.repository.Query;
 import shamu.company.benefit.entity.BenefitCoverages;
 import shamu.company.common.repository.BaseRepository;
-
 
 public interface BenefitCoveragesRepository extends BaseRepository<BenefitCoverages, String> {
 

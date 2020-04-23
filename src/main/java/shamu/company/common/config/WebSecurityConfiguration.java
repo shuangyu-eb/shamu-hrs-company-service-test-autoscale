@@ -46,13 +46,17 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
   @Override
   protected void configure(final HttpSecurity http) throws Exception {
-    http
-        .csrf().disable()
-        .cors().disable()
-        .httpBasic().disable()
-        .formLogin().disable()
+    http.csrf()
+        .disable()
+        .cors()
+        .disable()
+        .httpBasic()
+        .disable()
+        .formLogin()
+        .disable()
         .authorizeRequests()
-        .antMatchers("/actuator/**").permitAll()
+        .antMatchers("/actuator/**")
+        .permitAll()
         .antMatchers(
             "/company/user/verify",
             "/company/paid-holidays",
@@ -67,16 +71,17 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
             "/company/company-sizes",
             "/company/account/*/verification-email",
             "/company/account/unlock",
-            "/company/emails/status"
-        ).permitAll()
-        .anyRequest().authenticated()
+            "/company/emails/status")
+        .permitAll()
+        .anyRequest()
+        .authenticated()
         .and()
-        .exceptionHandling().authenticationEntryPoint(defaultAuthenticationEntryPoint)
+        .exceptionHandling()
+        .authenticationEntryPoint(defaultAuthenticationEntryPoint)
         .and()
         .oauth2ResourceServer()
         .jwt()
         .jwtAuthenticationConverter(new AuthenticationConverter(auth0Config.getCustomNamespace()));
-
   }
 
   @Bean
@@ -106,14 +111,12 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
       final List<String> authorities =
           authUser == null ? Collections.emptyList() : authUser.getPermissions();
 
-      final List<SimpleGrantedAuthority> grantedAuthorities = authorities.stream()
-          .map(SimpleGrantedAuthority::new)
-          .collect(Collectors.toList());
+      final List<SimpleGrantedAuthority> grantedAuthorities =
+          authorities.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
 
       final String id = jwt.getClaimAsString(String.format("%sid", customNamespace));
 
       return new DefaultJwtAuthenticationToken(jwt, id, grantedAuthorities, authUser);
     }
   }
-
 }

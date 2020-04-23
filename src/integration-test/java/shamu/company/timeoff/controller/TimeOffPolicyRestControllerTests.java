@@ -1,5 +1,10 @@
 package shamu.company.timeoff.controller;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
+
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,20 +29,12 @@ import shamu.company.timeoff.service.TimeOffDetailService;
 import shamu.company.user.entity.User;
 import shamu.company.utils.JsonUtil;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.BDDMockito.given;
-
 @WebMvcTest(controllers = TimeOffPolicyRestController.class)
 class TimeOffPolicyRestControllerTests extends WebControllerBaseTests {
 
-  @MockBean
-  private TimeOffDetailService timeOffDetailService;
+  @MockBean private TimeOffDetailService timeOffDetailService;
 
-  @Autowired
-  private MockMvc mockMvc;
+  @Autowired private MockMvc mockMvc;
 
   @Test
   void testCreateTimeOffPolicy() throws Exception {
@@ -46,11 +43,14 @@ class TimeOffPolicyRestControllerTests extends WebControllerBaseTests {
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
 
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .post("/company/time-off-policies")
-        .headers(httpHeaders)
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(JsonUtil.formatToString(new TimeOffPolicyWrapperDto()))).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.post("/company/time-off-policies")
+                    .headers(httpHeaders)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(JsonUtil.formatToString(new TimeOffPolicyWrapperDto())))
+            .andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
 
@@ -60,8 +60,8 @@ class TimeOffPolicyRestControllerTests extends WebControllerBaseTests {
 
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
-    List<TimeOffPolicyUserFrontendDto> userStartBalances = new ArrayList<>();
-    TimeOffPolicyUserFrontendDto timeOffPolicyUserFrontendDto = new TimeOffPolicyUserFrontendDto();
+    final List<TimeOffPolicyUserFrontendDto> userStartBalances = new ArrayList<>();
+    final TimeOffPolicyUserFrontendDto timeOffPolicyUserFrontendDto = new TimeOffPolicyUserFrontendDto();
     timeOffPolicyUserFrontendDto.setUserId("1");
     userStartBalances.add(timeOffPolicyUserFrontendDto);
     final TimeOffPolicyWrapperDto timeOffPolicyWrapperDto = new TimeOffPolicyWrapperDto();
@@ -74,11 +74,14 @@ class TimeOffPolicyRestControllerTests extends WebControllerBaseTests {
     timeOffPolicy.setCompany(new Company(getAuthUser().getCompanyId()));
     given(timeOffPolicyService.getTimeOffPolicyById(Mockito.any())).willReturn(timeOffPolicy);
 
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .patch("/company/time-off-policies/1")
-        .headers(httpHeaders)
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(JsonUtil.formatToString(timeOffPolicyWrapperDto))).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.patch("/company/time-off-policies/1")
+                    .headers(httpHeaders)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(JsonUtil.formatToString(timeOffPolicyWrapperDto)))
+            .andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
 
@@ -88,8 +91,8 @@ class TimeOffPolicyRestControllerTests extends WebControllerBaseTests {
 
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
-    List<TimeOffPolicyUserFrontendDto> userStartBalances = new ArrayList<>();
-    TimeOffPolicyUserFrontendDto timeOffPolicyUserFrontendDto = new TimeOffPolicyUserFrontendDto();
+    final List<TimeOffPolicyUserFrontendDto> userStartBalances = new ArrayList<>();
+    final TimeOffPolicyUserFrontendDto timeOffPolicyUserFrontendDto = new TimeOffPolicyUserFrontendDto();
     timeOffPolicyUserFrontendDto.setUserId("1");
     userStartBalances.add(timeOffPolicyUserFrontendDto);
     final TimeOffPolicyWrapperDto timeOffPolicyWrapperDto = new TimeOffPolicyWrapperDto();
@@ -102,11 +105,14 @@ class TimeOffPolicyRestControllerTests extends WebControllerBaseTests {
     timeOffPolicy.setCompany(new Company(getAuthUser().getCompanyId()));
     given(timeOffPolicyService.getTimeOffPolicyById(Mockito.any())).willReturn(timeOffPolicy);
 
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .patch("/company/time-off-policies/employees/1")
-        .headers(httpHeaders)
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(JsonUtil.formatToString(timeOffPolicyWrapperDto))).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.patch("/company/time-off-policies/employees/1")
+                    .headers(httpHeaders)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(JsonUtil.formatToString(timeOffPolicyWrapperDto)))
+            .andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
 
@@ -121,10 +127,14 @@ class TimeOffPolicyRestControllerTests extends WebControllerBaseTests {
 
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .get("/company/time-off-policies/users/" + getAuthUser().getId() +"/balance")
-        .contentType(MediaType.APPLICATION_JSON)
-        .headers(httpHeaders)).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.get(
+                        "/company/time-off-policies/users/" + getAuthUser().getId() + "/balance")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .headers(httpHeaders))
+            .andReturn();
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
@@ -140,10 +150,14 @@ class TimeOffPolicyRestControllerTests extends WebControllerBaseTests {
 
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .get("/company/time-off-policies-users/users/" + getAuthUser().getId())
-        .contentType(MediaType.APPLICATION_JSON)
-        .headers(httpHeaders)).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.get(
+                        "/company/time-off-policies-users/users/" + getAuthUser().getId())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .headers(httpHeaders))
+            .andReturn();
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
@@ -159,10 +173,13 @@ class TimeOffPolicyRestControllerTests extends WebControllerBaseTests {
     timeOffPolicy.setCompany(new Company(getAuthUser().getCompanyId()));
     given(timeOffPolicyService.getTimeOffPolicyById(Mockito.any())).willReturn(timeOffPolicy);
 
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .get("/company/time-off-policies/1")
-        .contentType(MediaType.APPLICATION_JSON)
-        .headers(httpHeaders)).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.get("/company/time-off-policies/1")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .headers(httpHeaders))
+            .andReturn();
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
@@ -178,10 +195,13 @@ class TimeOffPolicyRestControllerTests extends WebControllerBaseTests {
     timeOffPolicy.setCompany(new Company(getAuthUser().getCompanyId()));
     given(timeOffPolicyService.getTimeOffPolicyById(Mockito.any())).willReturn(timeOffPolicy);
 
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .get("/company/time-off-policies/1/users")
-        .contentType(MediaType.APPLICATION_JSON)
-        .headers(httpHeaders)).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.get("/company/time-off-policies/1/users")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .headers(httpHeaders))
+            .andReturn();
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
@@ -197,10 +217,13 @@ class TimeOffPolicyRestControllerTests extends WebControllerBaseTests {
     timeOffPolicy.setCompany(new Company(getAuthUser().getCompanyId()));
     given(timeOffPolicyService.getTimeOffPolicyById(Mockito.any())).willReturn(timeOffPolicy);
 
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .delete("/company/time-off-policies/1")
-        .contentType(MediaType.APPLICATION_JSON)
-        .headers(httpHeaders)).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.delete("/company/time-off-policies/1")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .headers(httpHeaders))
+            .andReturn();
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
@@ -216,10 +239,13 @@ class TimeOffPolicyRestControllerTests extends WebControllerBaseTests {
     timeOffPolicy.setCompany(new Company(getAuthUser().getCompanyId()));
     given(timeOffPolicyService.getTimeOffPolicyById(Mockito.any())).willReturn(timeOffPolicy);
 
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .delete("/company/time-off-policies/1/1")
-        .contentType(MediaType.APPLICATION_JSON)
-        .headers(httpHeaders)).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.delete("/company/time-off-policies/1/1")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .headers(httpHeaders))
+            .andReturn();
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
@@ -229,10 +255,13 @@ class TimeOffPolicyRestControllerTests extends WebControllerBaseTests {
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
 
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .get("/company/time-off-policies")
-        .headers(httpHeaders)
-        .contentType(MediaType.APPLICATION_JSON)).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.get("/company/time-off-policies")
+                    .headers(httpHeaders)
+                    .contentType(MediaType.APPLICATION_JSON))
+            .andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
 
@@ -249,12 +278,16 @@ class TimeOffPolicyRestControllerTests extends WebControllerBaseTests {
     user.setCompany(new Company(getAuthUser().getCompanyId()));
     timeOffPolicyUser.setUser(user);
     given(timeOffPolicyUserService.findById(Mockito.any())).willReturn(timeOffPolicyUser);
-    given(timeOffDetailService.getTimeOffBreakdown(Mockito.any(), Mockito.any())).willReturn(new TimeOffBreakdownDto());
+    given(timeOffDetailService.getTimeOffBreakdown(Mockito.any(), Mockito.any()))
+        .willReturn(new TimeOffBreakdownDto());
 
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .get("/company/time-off-balances/1/breakdown")
-        .headers(httpHeaders)
-        .contentType(MediaType.APPLICATION_JSON)).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.get("/company/time-off-balances/1/breakdown")
+                    .headers(httpHeaders)
+                    .contentType(MediaType.APPLICATION_JSON))
+            .andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
 
@@ -272,11 +305,14 @@ class TimeOffPolicyRestControllerTests extends WebControllerBaseTests {
     timeOffPolicyUser.setUser(user);
     given(timeOffPolicyUserService.findById(Mockito.any())).willReturn(timeOffPolicyUser);
 
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .post("/company/time-off-balances/1/adjustments")
-        .headers(httpHeaders)
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(JsonUtil.formatToString(12))).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.post("/company/time-off-balances/1/adjustments")
+                    .headers(httpHeaders)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(JsonUtil.formatToString(12)))
+            .andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
 
@@ -294,11 +330,14 @@ class TimeOffPolicyRestControllerTests extends WebControllerBaseTests {
     timeOffPolicyUser.setUser(user);
     given(timeOffPolicyUserService.findById(Mockito.any())).willReturn(timeOffPolicyUser);
 
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .post("/company/time-off-policies-users/1/adjustments/check")
-        .headers(httpHeaders)
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(JsonUtil.formatToString(12))).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.post("/company/time-off-policies-users/1/adjustments/check")
+                    .headers(httpHeaders)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(JsonUtil.formatToString(12)))
+            .andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
 
@@ -314,11 +353,14 @@ class TimeOffPolicyRestControllerTests extends WebControllerBaseTests {
     targetUser.setCompany(new Company(getAuthUser().getCompanyId()));
     given(userService.findById(getAuthUser().getId())).willReturn(targetUser);
 
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .get("/company/time-off-policies/users/"+getAuthUser().getId()+"/has-policy")
-        .headers(httpHeaders)
-        .contentType(MediaType.APPLICATION_JSON)).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.get(
+                        "/company/time-off-policies/users/" + getAuthUser().getId() + "/has-policy")
+                    .headers(httpHeaders)
+                    .contentType(MediaType.APPLICATION_JSON))
+            .andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
-
 }

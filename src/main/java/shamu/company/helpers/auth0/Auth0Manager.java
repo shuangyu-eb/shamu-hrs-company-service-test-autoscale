@@ -22,12 +22,9 @@ import shamu.company.common.exception.GeneralAuth0Exception;
 public class Auth0Manager {
 
   private final AuthAPI authApi;
-
-  private ManagementAPI manager;
-
-  private TokenHolder tokenHolder;
-
   private final Auth0Config auth0Config;
+  private ManagementAPI manager;
+  private TokenHolder tokenHolder;
 
   public Auth0Manager(final Auth0Config auth0Config) {
     authApi = auth0Config.getAuthApi();
@@ -41,13 +38,12 @@ public class Auth0Manager {
     try {
       jwk = provider.get(jwt.getKeyId());
       final Algorithm algorithm = Algorithm.RSA256((RSAPublicKey) jwk.getPublicKey(), null);
-      final JWTVerifier verifier = JWT.require(algorithm)
-          .withIssuer(auth0Config.getIssuer()).build();
+      final JWTVerifier verifier =
+          JWT.require(algorithm).withIssuer(auth0Config.getIssuer()).build();
       verifier.verify(token);
       return true;
     } catch (final JwkException e) {
-      throw new GeneralAuth0Exception(
-          "Invalid key info when validating.", e);
+      throw new GeneralAuth0Exception("Invalid key info when validating.", e);
     } catch (final TokenExpiredException e) {
       return false;
     }

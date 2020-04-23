@@ -8,7 +8,7 @@ import shamu.company.user.entity.MaritalStatus;
 import shamu.company.user.repository.MaritalStatusRepository;
 
 @Service
-public class  MaritalStatusService {
+public class MaritalStatusService {
 
   private final MaritalStatusRepository maritalStatusRepository;
 
@@ -18,7 +18,8 @@ public class  MaritalStatusService {
   }
 
   public MaritalStatus findById(final String id) {
-    return maritalStatusRepository.findById(id)
+    return maritalStatusRepository
+        .findById(id)
         .orElseThrow(() -> new ResourceNotFoundException("MaritalStatus does not exist"));
   }
 

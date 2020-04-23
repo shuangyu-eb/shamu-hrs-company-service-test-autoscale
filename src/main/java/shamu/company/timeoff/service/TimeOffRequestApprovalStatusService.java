@@ -11,8 +11,8 @@ public class TimeOffRequestApprovalStatusService {
   private final TimeOffRequestApprovalStatusRepository timeOffRequestApprovalStatusRepository;
 
   @Autowired
-  public TimeOffRequestApprovalStatusService(TimeOffRequestApprovalStatusRepository
-      timeOffRequestApprovalStatusRepository) {
+  public TimeOffRequestApprovalStatusService(
+      TimeOffRequestApprovalStatusRepository timeOffRequestApprovalStatusRepository) {
     this.timeOffRequestApprovalStatusRepository = timeOffRequestApprovalStatusRepository;
   }
 

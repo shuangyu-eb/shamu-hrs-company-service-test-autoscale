@@ -17,8 +17,10 @@ public class BaseEnumConverter<X> implements AttributeConverter<X, String> {
 
   @SuppressWarnings("unchecked")
   public BaseEnumConverter() {
-    Class<X> xclazz = (Class<X>) (((ParameterizedType) this.getClass().getGenericSuperclass())
-        .getActualTypeArguments())[0];
+    Class<X> xclazz =
+        (Class<X>)
+            (((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments())
+                [0];
     try {
       valueOfMethod = xclazz.getMethod("valueOf", String.class);
       valueMethod = xclazz.getMethod("getValue");

@@ -15,17 +15,26 @@ public class PermissionUtils {
     this.userPermissionUtils = userPermissionUtils;
   }
 
-  boolean hasPermission(final Authentication auth, final String targetId, final Type targetType,
+  boolean hasPermission(
+      final Authentication auth,
+      final String targetId,
+      final Type targetType,
       final Permission.Name permission) {
     return userPermissionUtils.hasPermission(auth, targetId, targetType, permission);
   }
 
-  boolean hasPermission(final Authentication auth, final List target, final Type type,
+  boolean hasPermission(
+      final Authentication auth,
+      final List target,
+      final Type type,
       final Permission.Name permission) {
     return userPermissionUtils.hasPermission(auth, target, type, permission);
   }
 
-  boolean hasPermission(final Authentication auth, final Object target, final Type type,
+  boolean hasPermission(
+      final Authentication auth,
+      final Object target,
+      final Type type,
       final Permission.Name permission) {
     return userPermissionUtils.hasPermissionOfObjectTarget(auth, target, type, permission);
   }

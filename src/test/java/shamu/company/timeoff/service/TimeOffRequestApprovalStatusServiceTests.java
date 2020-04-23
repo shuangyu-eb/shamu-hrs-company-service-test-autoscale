@@ -12,24 +12,27 @@ import shamu.company.timeoff.repository.TimeOffRequestApprovalStatusRepository;
 class TimeOffRequestApprovalStatusServiceTests {
   private static TimeOffRequestApprovalStatusService timeOffRequestApprovalStatusService;
 
-  @Mock
-  private TimeOffRequestApprovalStatusRepository timeOffRequestApprovalStatusRepository;
+  @Mock private TimeOffRequestApprovalStatusRepository timeOffRequestApprovalStatusRepository;
 
   @BeforeEach
   void setUp() {
     MockitoAnnotations.initMocks(this);
-    timeOffRequestApprovalStatusService = new TimeOffRequestApprovalStatusService(timeOffRequestApprovalStatusRepository);
+    timeOffRequestApprovalStatusService =
+        new TimeOffRequestApprovalStatusService(timeOffRequestApprovalStatusRepository);
   }
 
   @Test
   void findByName() {
-    final TimeOffRequestApprovalStatus timeOffRequestApprovalStatus = new TimeOffRequestApprovalStatus();
+    final TimeOffRequestApprovalStatus timeOffRequestApprovalStatus =
+        new TimeOffRequestApprovalStatus();
     timeOffRequestApprovalStatus.setName("007");
 
-    Mockito.when(timeOffRequestApprovalStatusRepository.findByName(Mockito.any())).thenReturn(timeOffRequestApprovalStatus);
+    Mockito.when(timeOffRequestApprovalStatusRepository.findByName(Mockito.any()))
+        .thenReturn(timeOffRequestApprovalStatus);
 
-    Assertions.assertEquals(timeOffRequestApprovalStatusService.findByName(Mockito.any()).getName(), timeOffRequestApprovalStatus.getName());
-    Assertions.assertDoesNotThrow(() ->
-        timeOffRequestApprovalStatusService.findByName("007"));
+    Assertions.assertEquals(
+        timeOffRequestApprovalStatusService.findByName(Mockito.any()).getName(),
+        timeOffRequestApprovalStatus.getName());
+    Assertions.assertDoesNotThrow(() -> timeOffRequestApprovalStatusService.findByName("007"));
   }
 }

@@ -17,10 +17,10 @@ public interface PaidHolidayMapper {
   @Mapping(target = "creator", source = "creator")
   @Mapping(
       target = "nameShow",
-      expression = "java(paidHolidayDto.getNameShow() != null "
-          + "? paidHolidayDto.getNameShow() "
-          + ": paidHolidayDto.getName())"
-  )
+      expression =
+          "java(paidHolidayDto.getNameShow() != null "
+              + "? paidHolidayDto.getNameShow() "
+              + ": paidHolidayDto.getName())")
   @Mapping(target = "federal", constant = "false")
   PaidHoliday createFromPaidHolidayDtoAndCreator(PaidHolidayDto paidHolidayDto, User creator);
 }

@@ -1,5 +1,6 @@
 package shamu.company.user;
 
+import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,14 +13,10 @@ import shamu.company.user.entity.UserContactInformation;
 import shamu.company.user.repository.UserContactInformationRepository;
 import shamu.company.user.service.UserContactInformationService;
 
-import java.util.Optional;
-
 public class UserContactInformationServiceTest {
-  @Mock
-  private UserContactInformationRepository userContactInformationRepository;
+  @Mock private UserContactInformationRepository userContactInformationRepository;
 
-  @InjectMocks
-  private UserContactInformationService userContactInformationService;
+  @InjectMocks private UserContactInformationService userContactInformationService;
 
   @BeforeEach
   void init() {
@@ -28,8 +25,11 @@ public class UserContactInformationServiceTest {
 
   @Test
   void whenNotFound_thenShouldThrow() {
-    Mockito.when(userContactInformationRepository.findById(Mockito.anyString())).thenReturn(Optional.empty());
-    Assertions.assertThrows(ResourceNotFoundException.class, () -> userContactInformationService.findUserContactInformationById("test"));
+    Mockito.when(userContactInformationRepository.findById(Mockito.anyString()))
+        .thenReturn(Optional.empty());
+    Assertions.assertThrows(
+        ResourceNotFoundException.class,
+        () -> userContactInformationService.findUserContactInformationById("test"));
   }
 
   @Test
@@ -50,6 +50,7 @@ public class UserContactInformationServiceTest {
   void whenDelete_thenShouldCall() {
     final UserContactInformation userContactInformation = new UserContactInformation();
     userContactInformationService.delete(userContactInformation);
-    Mockito.verify(userContactInformationRepository, Mockito.times(1)).delete(userContactInformation);
+    Mockito.verify(userContactInformationRepository, Mockito.times(1))
+        .delete(userContactInformation);
   }
 }

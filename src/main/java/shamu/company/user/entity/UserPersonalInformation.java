@@ -40,21 +40,17 @@ public class UserPersonalInformation extends BaseEntity {
 
   private String ssn;
 
-  @ManyToOne
-  private Gender gender;
+  @ManyToOne private Gender gender;
 
-  @ManyToOne
-  private MaritalStatus maritalStatus;
+  @ManyToOne private MaritalStatus maritalStatus;
 
-  @ManyToOne
-  private Ethnicity ethnicity;
+  @ManyToOne private Ethnicity ethnicity;
 
-  @ManyToOne
-  private CitizenshipStatus citizenshipStatus;
+  @ManyToOne private CitizenshipStatus citizenshipStatus;
 
   public String getName() {
     return StringUtils.isEmpty(preferredName)
-            ? firstName.concat(" ").concat(lastName)
-            : preferredName.concat(" ").concat(lastName);
+        ? firstName.concat(" ").concat(lastName)
+        : preferredName.concat(" ").concat(lastName);
   }
 }

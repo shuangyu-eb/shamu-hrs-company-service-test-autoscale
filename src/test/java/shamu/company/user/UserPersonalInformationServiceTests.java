@@ -1,5 +1,6 @@
 package shamu.company.user;
 
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -19,24 +20,17 @@ import shamu.company.user.service.GenderService;
 import shamu.company.user.service.MaritalStatusService;
 import shamu.company.user.service.UserPersonalInformationService;
 
-import java.util.UUID;
-
 public class UserPersonalInformationServiceTests {
 
-  @Mock
-  private UserPersonalInformationRepository userPersonalInformationRepository;
+  @Mock private UserPersonalInformationRepository userPersonalInformationRepository;
 
-  @Mock
-  private GenderService genderService;
+  @Mock private GenderService genderService;
 
-  @Mock
-  private MaritalStatusService maritalStatusService;
+  @Mock private MaritalStatusService maritalStatusService;
 
-  @Mock
-  private UserPersonalInformationMapper userPersonalInformationMapper;
+  @Mock private UserPersonalInformationMapper userPersonalInformationMapper;
 
-  @InjectMocks
-  private UserPersonalInformationService userPersonalInformationService;
+  @InjectMocks private UserPersonalInformationService userPersonalInformationService;
 
   @BeforeEach
   void init() {
@@ -47,7 +41,8 @@ public class UserPersonalInformationServiceTests {
   void updateTest() {
     final UserPersonalInformation userPersonalInformation = new UserPersonalInformation();
     userPersonalInformation.setGender(new Gender(UUID.randomUUID().toString().replaceAll("-", "")));
-    userPersonalInformation.setMaritalStatus(new MaritalStatus(UUID.randomUUID().toString().replaceAll("-", "")));
+    userPersonalInformation.setMaritalStatus(
+        new MaritalStatus(UUID.randomUUID().toString().replaceAll("-", "")));
 
     userPersonalInformationService.update(userPersonalInformation);
     Mockito.verify(genderService, Mockito.times(1)).findById(Mockito.anyString());
@@ -55,7 +50,7 @@ public class UserPersonalInformationServiceTests {
   }
 
   @Nested
-  class GetUserPersonalInformation{
+  class GetUserPersonalInformation {
     private final User targetUser = new User();
 
     private final AuthUser currentUser = new AuthUser();
@@ -110,7 +105,8 @@ public class UserPersonalInformationServiceTests {
     @Test
     void whenViewerIsEmployee_thenShouldShowBasic() {
       currentUser.setRole(User.Role.EMPLOYEE);
-      Mockito.when(userPersonalInformationMapper.convertToBasicUserPersonalInformationDto(Mockito.any()))
+      Mockito.when(
+              userPersonalInformationMapper.convertToBasicUserPersonalInformationDto(Mockito.any()))
           .thenReturn(new BasicUserPersonalInformationDto());
       userPersonalInformationService.findUserPersonalInformation(targetUser, currentUser);
       Mockito.verify(userPersonalInformationMapper, Mockito.times(1))

@@ -36,53 +36,39 @@ import shamu.company.user.service.UserAddressService;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.UuidUtil;
 
-@Import({DefaultAuthenticationEntryPoint.class, BaseRestControllerConfiguration.class, MethodPermissionEvaluator.class,
-    PermissionUtils.class, UserPermissionUtils.class})
+@Import({
+  DefaultAuthenticationEntryPoint.class,
+  BaseRestControllerConfiguration.class,
+  MethodPermissionEvaluator.class,
+  PermissionUtils.class,
+  UserPermissionUtils.class
+})
 public class WebControllerBaseTests {
 
-  @MockBean
-  protected AuthUserCacheManager authUserCacheManager;
-  @MockBean
-  protected UserService userService;
-  @MockBean
-  protected CompanyService companyService;
-  @MockBean
-  protected CompanyUserService companyUserService;
-  @MockBean
-  protected CompanyEmailService companyEmailService;
-  @MockBean
-  protected TimeOffRequestService timeOffRequestService;
-  @MockBean
-  protected UserAddressService userAddressService;
-  @MockBean
-  protected BenefitPlanService benefitPlanService;
-  @MockBean
-  protected BenefitPlanDependentService benefitPlanDependentService;
-  @MockBean
-  protected TimeOffPolicyUserService timeOffPolicyUserService;
-  @MockBean
-  protected TimeOffPolicyService timeOffPolicyService;
-  @MockBean
-  protected PaidHolidayService paidHolidayService;
-  @MockBean
-  protected CompanyPaidHolidayService companyPaidHolidayService;
-  @MockBean
-  protected JobService jobService;
-  @MockBean
-  protected UserEmergencyContactService userEmergencyContactService;
-  @MockBean
-  protected BenefitPlanTypeService benefitPlanTypeService;
-  @MockBean
-  protected JobUserService jobUserService;
-  @MockBean
-  protected UserEmergencyContactMapper userEmergencyContactMapper;
-  @MockBean
-  protected BenefitCoveragesRepository benefitCoveragesRepository;
+  @MockBean protected AuthUserCacheManager authUserCacheManager;
+  @MockBean protected UserService userService;
+  @MockBean protected CompanyService companyService;
+  @MockBean protected CompanyUserService companyUserService;
+  @MockBean protected CompanyEmailService companyEmailService;
+  @MockBean protected TimeOffRequestService timeOffRequestService;
+  @MockBean protected UserAddressService userAddressService;
+  @MockBean protected BenefitPlanService benefitPlanService;
+  @MockBean protected BenefitPlanDependentService benefitPlanDependentService;
+  @MockBean protected TimeOffPolicyUserService timeOffPolicyUserService;
+  @MockBean protected TimeOffPolicyService timeOffPolicyService;
+  @MockBean protected PaidHolidayService paidHolidayService;
+  @MockBean protected CompanyPaidHolidayService companyPaidHolidayService;
+  @MockBean protected JobService jobService;
+  @MockBean protected UserEmergencyContactService userEmergencyContactService;
+  @MockBean protected BenefitPlanTypeService benefitPlanTypeService;
+  @MockBean protected JobUserService jobUserService;
+  @MockBean protected UserEmergencyContactMapper userEmergencyContactMapper;
+  @MockBean protected BenefitCoveragesRepository benefitCoveragesRepository;
 
   protected AuthUser getAuthUser() {
     final DefaultJwtAuthenticationToken authenticationToken =
         (DefaultJwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
-     return authenticationToken.getAuthUser();
+    return authenticationToken.getAuthUser();
   }
 
   protected void setPermission(final String permission) {
@@ -98,7 +84,8 @@ public class WebControllerBaseTests {
     authUser.setUserId(authUser.getId());
     authUser.setPermissions(Collections.emptyList());
     final DefaultJwtAuthenticationToken defaultJwtAuthenticationToken =
-        new DefaultJwtAuthenticationToken(JwtUtil.getJwt(), authUser.getId(), Collections.emptyList(), authUser);
+        new DefaultJwtAuthenticationToken(
+            JwtUtil.getJwt(), authUser.getId(), Collections.emptyList(), authUser);
     SecurityContextHolder.getContext().setAuthentication(defaultJwtAuthenticationToken);
 
     given(authUserCacheManager.getCachedUser(Mockito.any())).willReturn(getAuthUser());

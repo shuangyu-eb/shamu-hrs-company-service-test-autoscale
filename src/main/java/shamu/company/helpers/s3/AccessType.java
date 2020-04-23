@@ -3,7 +3,6 @@ package shamu.company.helpers.s3;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 
 public enum AccessType {
-
   PUBLIC_READ(CannedAccessControlList.PublicRead),
 
   PRIVATE(CannedAccessControlList.Private);

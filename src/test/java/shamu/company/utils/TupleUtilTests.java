@@ -15,8 +15,9 @@ public class TupleUtilTests {
     jobUserListItem.setId("1");
     List<JobUserListItem> jobUserListItems = new ArrayList<>();
     jobUserListItems.add(jobUserListItem);
-    Assertions.assertDoesNotThrow(() ->
-      jobUserListItems.stream().
-        map(jobUser -> TupleUtil.convertTo((Tuple)jobUser, JobUserListItem.class)));
+    Assertions.assertDoesNotThrow(
+        () ->
+            jobUserListItems.stream()
+                .map(jobUser -> TupleUtil.convertTo((Tuple) jobUser, JobUserListItem.class)));
   }
 }

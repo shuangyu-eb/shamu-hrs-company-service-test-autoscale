@@ -1,5 +1,7 @@
 package shamu.company.common.database;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,9 +12,6 @@ import shamu.company.common.entity.Country;
 import shamu.company.common.repository.CountryRepository;
 import shamu.company.common.repository.StateProvinceRepository;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class StatesProvincesInitializerTests {
 
   @Mock private StateProvinceRepository stateProvinceRepository;
@@ -22,13 +21,13 @@ public class StatesProvincesInitializerTests {
   @BeforeEach
   void init() {
     MockitoAnnotations.initMocks(this);
-    statesProvincesInitializer = new StatesProvincesInitializer(stateProvinceRepository,countryRepository);
+    statesProvincesInitializer =
+        new StatesProvincesInitializer(stateProvinceRepository, countryRepository);
   }
 
   @Test
   void whenListNull_thenShouldSuccess() {
-    Assertions.assertDoesNotThrow(
-        () -> statesProvincesInitializer.run("1","2"));
+    Assertions.assertDoesNotThrow(() -> statesProvincesInitializer.run("1", "2"));
   }
 
   @Test
@@ -39,7 +38,6 @@ public class StatesProvincesInitializerTests {
     cities.add("2");
     Mockito.when(countryRepository.findByName(Mockito.anyString())).thenReturn(country);
     Mockito.when(stateProvinceRepository.findAllNameByCountry(country)).thenReturn(cities);
-    Assertions.assertDoesNotThrow(
-        () -> statesProvincesInitializer.run("1","2"));
+    Assertions.assertDoesNotThrow(() -> statesProvincesInitializer.run("1", "2"));
   }
 }

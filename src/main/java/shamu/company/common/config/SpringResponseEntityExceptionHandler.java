@@ -32,9 +32,14 @@ public class SpringResponseEntityExceptionHandler {
     return new ErrorMessage(ErrorType.RESOURCE_NOT_FOUND, exception.getMessage());
   }
 
+  @SuppressWarnings("checkstyle:Indentation")
   @ResponseStatus(HttpStatus.BAD_REQUEST)
-  @ExceptionHandler({ConversionFailedException.class, MethodArgumentTypeMismatchException.class,
-      MissingPathVariableException.class, MissingServletRequestParameterException.class})
+  @ExceptionHandler({
+    ConversionFailedException.class,
+    MethodArgumentTypeMismatchException.class,
+    MissingPathVariableException.class,
+    MissingServletRequestParameterException.class
+  })
   public ErrorMessage handleBadRequestException(final Exception exception) {
     return new ErrorMessage(ErrorType.BAD_REQUEST, exception.getMessage());
   }

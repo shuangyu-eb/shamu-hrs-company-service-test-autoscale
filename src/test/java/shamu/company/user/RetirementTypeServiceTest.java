@@ -10,11 +10,9 @@ import shamu.company.user.repository.RetirementTypeRepository;
 import shamu.company.user.service.RetirementTypeService;
 
 public class RetirementTypeServiceTest {
-  @Mock
-  private RetirementTypeRepository retirementTypeRepository;
+  @Mock private RetirementTypeRepository retirementTypeRepository;
 
-  @InjectMocks
-  private RetirementTypeService retirementTypeService;
+  @InjectMocks private RetirementTypeService retirementTypeService;
 
   @BeforeEach
   void init() {

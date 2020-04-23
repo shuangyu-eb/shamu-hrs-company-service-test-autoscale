@@ -22,7 +22,8 @@ public class StatesProvincesInitializer implements CommandLineRunner {
   private final CountryRepository countryRepository;
 
   @Autowired
-  public StatesProvincesInitializer(final StateProvinceRepository stateProvinceRepository,
+  public StatesProvincesInitializer(
+      final StateProvinceRepository stateProvinceRepository,
       final CountryRepository countryRepository) {
     this.stateProvinceRepository = stateProvinceRepository;
     this.countryRepository = countryRepository;
@@ -32,24 +33,28 @@ public class StatesProvincesInitializer implements CommandLineRunner {
   public void run(final String... args) {
 
     final Yaml yaml = new Yaml(new Constructor(CountryList.class));
-    final InputStream inputStream = getClass().getClassLoader()
-        .getResourceAsStream("db/application/states-provinces.yml");
+    final InputStream inputStream =
+        getClass().getClassLoader().getResourceAsStream("db/application/states-provinces.yml");
     final CountryList countryList = yaml.load(inputStream);
 
-    countryList.getCountries().forEach((countryItem -> {
-      final Country country = countryRepository.findByName(countryItem.getName());
-      final List<String> cities = stateProvinceRepository.findAllNameByCountry(country);
+    countryList
+        .getCountries()
+        .forEach(
+            (countryItem -> {
+              final Country country = countryRepository.findByName(countryItem.getName());
+              final List<String> cities = stateProvinceRepository.findAllNameByCountry(country);
 
-      final List<StateProvince> stateProvinces = countryItem.getCities().stream()
-          .filter(cityName -> !cities.contains(cityName))
-          .map(cityName -> StateProvince.builder()
-              .country(country)
-              .name(cityName)
-              .build()).collect(Collectors.toList());
+              final List<StateProvince> stateProvinces =
+                  countryItem.getCities().stream()
+                      .filter(cityName -> !cities.contains(cityName))
+                      .map(
+                          cityName ->
+                              StateProvince.builder().country(country).name(cityName).build())
+                      .collect(Collectors.toList());
 
-      if (!CollectionUtils.isEmpty(stateProvinces)) {
-        stateProvinceRepository.saveAll(stateProvinces);
-      }
-    }));
+              if (!CollectionUtils.isEmpty(stateProvinces)) {
+                stateProvinceRepository.saveAll(stateProvinces);
+              }
+            }));
   }
 }

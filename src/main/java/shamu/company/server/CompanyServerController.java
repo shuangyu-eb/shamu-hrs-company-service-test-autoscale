@@ -29,8 +29,8 @@ public class CompanyServerController extends BaseRestController {
   private final CompanyEmailService companyEmailService;
 
   @Autowired
-  public CompanyServerController(final CompanyUserService companyUserService,
-      final CompanyEmailService companyEmailService) {
+  public CompanyServerController(
+      final CompanyUserService companyUserService, final CompanyEmailService companyEmailService) {
     this.companyUserService = companyUserService;
     this.companyEmailService = companyEmailService;
   }
@@ -42,7 +42,10 @@ public class CompanyServerController extends BaseRestController {
 
   @GetMapping(value = "/users/id")
   public List<CompanyUser> findUsersById(@RequestParam final List<String> ids) {
-    return companyUserService.findAllById(ids).parallelStream().map(CompanyUser::new)
+    return companyUserService
+        .findAllById(ids)
+        .parallelStream()
+        .map(CompanyUser::new)
         .collect(Collectors.toList());
   }
 
@@ -54,7 +57,8 @@ public class CompanyServerController extends BaseRestController {
   @GetMapping(value = "/users")
   public List<CompanyUser> findAllUsers() {
     return companyUserService.findAllUsers(findCurrentUser().getCompanyId()).stream()
-        .map(CompanyUser::new).collect(Collectors.toList());
+        .map(CompanyUser::new)
+        .collect(Collectors.toList());
   }
 
   @PostMapping(value = "/emails")
@@ -65,7 +69,7 @@ public class CompanyServerController extends BaseRestController {
 
   @GetMapping("/employees")
   public Page<JobUserListItem> findAllEmployeesByName(
-          @RequestBody final EmployeeListSearchCondition employeeListSearchCondition) {
+      @RequestBody final EmployeeListSearchCondition employeeListSearchCondition) {
     return companyUserService.findAllEmployees(findAuthUser(), employeeListSearchCondition);
   }
 

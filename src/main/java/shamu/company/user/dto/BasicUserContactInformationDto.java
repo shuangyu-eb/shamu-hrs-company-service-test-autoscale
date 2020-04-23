@@ -13,11 +13,9 @@ public class BasicUserContactInformationDto {
 
   private String userStatus;
 
-  @PhoneNumberValidate
-  private String phoneWork;
+  @PhoneNumberValidate private String phoneWork;
 
-  @PhoneNumberValidate
-  private String phoneHome;
+  @PhoneNumberValidate private String phoneHome;
 
   private String emailWork;
 

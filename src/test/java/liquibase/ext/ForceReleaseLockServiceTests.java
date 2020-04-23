@@ -1,10 +1,7 @@
 package liquibase.ext;
 
-import liquibase.exception.DatabaseException;
-import liquibase.exception.LockException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 public class ForceReleaseLockServiceTests {
 
@@ -18,8 +15,6 @@ public class ForceReleaseLockServiceTests {
   @Test
   void testWaitForLock() {
     Assertions.assertThrows(
-        NullPointerException.class,
-        () -> forceReleaseLockService.waitForLock()
-    );
+        NullPointerException.class, () -> forceReleaseLockService.waitForLock());
   }
 }

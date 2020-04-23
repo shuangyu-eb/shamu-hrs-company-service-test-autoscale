@@ -1,5 +1,7 @@
 package shamu.company.email;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -9,20 +11,15 @@ import shamu.company.email.entity.Email;
 import shamu.company.email.service.EmailService;
 import shamu.company.email.worker.EmailWorker;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class EmailWorkerTests {
-  @Mock
-  EmailService emailService;
+  @Mock EmailService emailService;
 
   private EmailWorker emailWorker;
 
   @BeforeEach
   void init() {
     MockitoAnnotations.initMocks(this);
-     emailWorker =
-        new EmailWorker(emailService);
+    emailWorker = new EmailWorker(emailService);
   }
 
   @Test

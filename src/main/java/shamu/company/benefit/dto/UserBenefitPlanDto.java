@@ -6,7 +6,7 @@ import lombok.Data;
 import shamu.company.benefit.entity.BenefitPlanCoverage;
 
 @Data
-public class  UserBenefitPlanDto {
+public class UserBenefitPlanDto {
 
   private String id;
 
@@ -25,7 +25,6 @@ public class  UserBenefitPlanDto {
   private Integer employerCost;
 
   private Boolean enrolled = null;
-
 
   private List<BenefitPlanUserDto> dependents;
 

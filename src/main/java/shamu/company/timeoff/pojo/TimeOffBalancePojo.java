@@ -18,7 +18,6 @@ public class TimeOffBalancePojo {
   }
 
   public boolean reachMaxBalance() {
-    return this.maxBalance != null
-      && this.balance > this.maxBalance;
+    return this.maxBalance != null && this.balance > this.maxBalance;
   }
 }

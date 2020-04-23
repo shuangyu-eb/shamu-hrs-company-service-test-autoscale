@@ -21,7 +21,7 @@ class SecretHashRepositoryTest {
   @BeforeEach
   void init() {
     MockitoAnnotations.initMocks(this);
-    }
+  }
 
   @Nested
   class getCompanySecretByCompanyId {
@@ -50,7 +50,7 @@ class SecretHashRepositoryTest {
   }
 
   @Nested
-  class generateCompanySecretByCompanyId{
+  class generateCompanySecretByCompanyId {
     String companyId = "1";
 
     @Test
@@ -60,5 +60,4 @@ class SecretHashRepositoryTest {
           .update(Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
     }
   }
-
 }

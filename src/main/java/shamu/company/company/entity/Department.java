@@ -16,8 +16,7 @@ import shamu.company.common.entity.BaseEntity;
 @AllArgsConstructor
 public class Department extends BaseEntity {
 
-  @ManyToOne
-  private Company company;
+  @ManyToOne private Company company;
 
   @Length(max = 100)
   private String name;

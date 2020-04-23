@@ -17,20 +17,21 @@ public class RequestLoggingFilterConfig {
 
   @Bean
   public Filter loggingFilter() {
-    final AbstractRequestLoggingFilter filter = new AbstractRequestLoggingFilter() {
+    final AbstractRequestLoggingFilter filter =
+        new AbstractRequestLoggingFilter() {
 
-      @Override
-      protected void beforeRequest(final HttpServletRequest request, final String message) {
-        //do nothing
-      }
+          @Override
+          protected void beforeRequest(final HttpServletRequest request, final String message) {
+            // do nothing
+          }
 
-      @Override
-      protected void afterRequest(final HttpServletRequest request, final String message) {
-        if (!request.getRequestURI().contains("/health")) {
-          log.info("{} {}", request.getMethod(), request.getRequestURI());
-        }
-      }
-    };
+          @Override
+          protected void afterRequest(final HttpServletRequest request, final String message) {
+            if (!request.getRequestURI().contains("/health")) {
+              log.info("{} {}", request.getMethod(), request.getRequestURI());
+            }
+          }
+        };
 
     filter.setIncludeClientInfo(false);
     filter.setIncludePayload(false);

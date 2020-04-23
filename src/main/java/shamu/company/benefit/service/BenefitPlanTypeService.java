@@ -18,7 +18,8 @@ public class BenefitPlanTypeService {
   }
 
   public BenefitPlanType findBenefitPlanTypeById(final String id) {
-    return benefitPlanTypeRepository.findById(id)
+    return benefitPlanTypeRepository
+        .findById(id)
         .orElseThrow(() -> new ResourceNotFoundException("Benefit plan type was not found"));
   }
 

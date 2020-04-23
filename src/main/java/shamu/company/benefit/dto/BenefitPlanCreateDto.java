@@ -1,7 +1,6 @@
 package shamu.company.benefit.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.List;

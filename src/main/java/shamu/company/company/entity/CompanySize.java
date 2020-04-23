@@ -12,7 +12,6 @@ import shamu.company.common.entity.BaseEntity;
 @NoArgsConstructor
 public class CompanySize extends BaseEntity {
 
-
   private String name;
 
   public CompanySize(final String id) {

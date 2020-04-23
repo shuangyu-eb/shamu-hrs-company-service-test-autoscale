@@ -6,9 +6,7 @@ import lombok.Setter;
 
 public class Auth0UserCreatedEvent {
 
-  @Setter
-  @Getter
-  private User user;
+  @Setter @Getter private User user;
 
   public Auth0UserCreatedEvent(final User createdUser) {
     this.user = createdUser;

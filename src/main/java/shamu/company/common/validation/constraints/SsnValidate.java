@@ -15,14 +15,14 @@ import javax.validation.Constraint;
 import javax.validation.Payload;
 import shamu.company.common.validation.validator.SsnValidator;
 
-@Target({ METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER, TYPE_USE })
+@Target({METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER, TYPE_USE})
 @Retention(RUNTIME)
 @Documented
-@Constraint(validatedBy = { SsnValidator.class })
+@Constraint(validatedBy = {SsnValidator.class})
 public @interface SsnValidate {
   String message() default "Ssn number must be correct format";
 
-  Class<?>[] groups() default { };
+  Class<?>[] groups() default {};
 
-  Class<? extends Payload>[] payload() default { };
+  Class<? extends Payload>[] payload() default {};
 }

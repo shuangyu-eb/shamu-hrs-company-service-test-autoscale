@@ -18,8 +18,7 @@ import shamu.company.user.entity.User;
 @NoArgsConstructor
 public class UserEmergencyContact extends BaseEntity {
 
-  @ManyToOne
-  private User user;
+  @ManyToOne private User user;
 
   @Length(max = 100)
   private String firstName;
@@ -47,14 +46,12 @@ public class UserEmergencyContact extends BaseEntity {
   @Length(max = 100)
   private String city;
 
-  @ManyToOne
-  private StateProvince state;
+  @ManyToOne private StateProvince state;
 
   @Length(max = 30)
   private String postalCode;
 
-  @ManyToOne
-  private Country country;
+  @ManyToOne private Country country;
 
   private Boolean isPrimary = false;
 }

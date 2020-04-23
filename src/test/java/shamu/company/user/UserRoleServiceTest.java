@@ -12,15 +12,19 @@ import shamu.company.user.repository.UserRolesRepository;
 import shamu.company.user.service.UserRoleService;
 
 public class UserRoleServiceTest {
-  @Mock
-  private UserRolesRepository userRolesRepository;
+  @Mock private UserRolesRepository userRolesRepository;
 
-  @InjectMocks
-  private UserRoleService userRoleService;
+  @InjectMocks private UserRoleService userRoleService;
 
   @BeforeEach
   void init() {
     MockitoAnnotations.initMocks(this);
+  }
+
+  @Test
+  void whenFindAll_thenShouldCall() {
+    userRoleService.findAll();
+    Mockito.verify(userRolesRepository, Mockito.times(1)).findAll();
   }
 
   @Nested
@@ -34,25 +38,22 @@ public class UserRoleServiceTest {
     @Test
     void whenGetManager_thenShouldCall() {
       userRoleService.getManager();
-      Mockito.verify(userRolesRepository, Mockito.times(1)).findByName(User.Role.MANAGER.getValue());
+      Mockito.verify(userRolesRepository, Mockito.times(1))
+          .findByName(User.Role.MANAGER.getValue());
     }
 
     @Test
     void whenGetEmployee_thenShouldCall() {
       userRoleService.getEmployee();
-      Mockito.verify(userRolesRepository, Mockito.times(1)).findByName(User.Role.EMPLOYEE.getValue());
+      Mockito.verify(userRolesRepository, Mockito.times(1))
+          .findByName(User.Role.EMPLOYEE.getValue());
     }
 
     @Test
     void whenGetInactive_thenShouldCall() {
       userRoleService.getInactive();
-      Mockito.verify(userRolesRepository, Mockito.times(1)).findByName(User.Role.INACTIVATE.getValue());
+      Mockito.verify(userRolesRepository, Mockito.times(1))
+          .findByName(User.Role.INACTIVATE.getValue());
     }
-  }
-
-  @Test
-  void whenFindAll_thenShouldCall() {
-    userRoleService.findAll();
-    Mockito.verify(userRolesRepository, Mockito.times(1)).findAll();
   }
 }

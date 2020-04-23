@@ -13,6 +13,7 @@ public interface RetirementPlanTypeMapper {
   @Mapping(target = "retirementTypeId", source = "retirementPlanType.retirementType.id")
   RetirementPlanTypeDto convertToRetirementPlanTypeDto(RetirementPlanType retirementPlanType);
 
-  void updateFromNewRetirementPlanType(@MappingTarget RetirementPlanType retirementPlanType,
-                                       RetirementPlanType newRetirementPlanType);
+  void updateFromNewRetirementPlanType(
+      @MappingTarget RetirementPlanType retirementPlanType,
+      RetirementPlanType newRetirementPlanType);
 }

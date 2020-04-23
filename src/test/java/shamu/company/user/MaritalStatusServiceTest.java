@@ -1,5 +1,6 @@
 package shamu.company.user;
 
+import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,14 +12,10 @@ import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.user.repository.MaritalStatusRepository;
 import shamu.company.user.service.MaritalStatusService;
 
-import java.util.Optional;
-
 public class MaritalStatusServiceTest {
-  @Mock
-  private MaritalStatusRepository maritalStatusRepository;
+  @Mock private MaritalStatusRepository maritalStatusRepository;
 
-  @InjectMocks
-  private MaritalStatusService maritalStatusService;
+  @InjectMocks private MaritalStatusService maritalStatusService;
 
   @BeforeEach
   void init() {
@@ -27,8 +24,10 @@ public class MaritalStatusServiceTest {
 
   @Test
   void whenNotFound_thenShouldThrow() {
-    Mockito.when(maritalStatusRepository.findById(Mockito.anyString())).thenReturn(Optional.empty());
-    Assertions.assertThrows(ResourceNotFoundException.class, () -> maritalStatusService.findById("test"));
+    Mockito.when(maritalStatusRepository.findById(Mockito.anyString()))
+        .thenReturn(Optional.empty());
+    Assertions.assertThrows(
+        ResourceNotFoundException.class, () -> maritalStatusService.findById("test"));
   }
 
   @Test

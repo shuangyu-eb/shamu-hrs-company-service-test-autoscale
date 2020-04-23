@@ -1,5 +1,10 @@
 package shamu.company.timeoff.service;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -8,35 +13,25 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import shamu.company.common.exception.ForbiddenException;
 import shamu.company.common.exception.ResourceNotFoundException;
-import shamu.company.timeoff.dto.TimeOffBreakdownDto;
-import shamu.company.timeoff.dto.TimeOffBreakdownYearDto;
 import shamu.company.timeoff.entity.TimeOffAccrualFrequency;
 import shamu.company.timeoff.entity.TimeOffPolicyAccrualSchedule;
 import shamu.company.timeoff.entity.TimeOffPolicyUser;
 import shamu.company.timeoff.pojo.TimeOffBreakdownCalculatePojo;
 import shamu.company.timeoff.repository.TimeOffAccrualFrequencyRepository;
 
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
 class TimeOffAccrualDelegatorTests {
 
   private static TimeOffAccrualDelegator timeOffAccrualDelegator;
 
-  @Mock
-  private List<TimeOffAccrualService> accrualServices;
+  @Mock private List<TimeOffAccrualService> accrualServices;
 
-  @Mock
-  private TimeOffAccrualFrequencyRepository timeOffAccrualFrequencyRepository;
+  @Mock private TimeOffAccrualFrequencyRepository timeOffAccrualFrequencyRepository;
 
   @BeforeEach
   void init() {
     MockitoAnnotations.initMocks(this);
-    timeOffAccrualDelegator = new TimeOffAccrualDelegator(accrualServices,
-        timeOffAccrualFrequencyRepository);
+    timeOffAccrualDelegator =
+        new TimeOffAccrualDelegator(accrualServices, timeOffAccrualFrequencyRepository);
   }
 
   @Test
@@ -51,17 +46,23 @@ class TimeOffAccrualDelegatorTests {
     calculatePojo.setPolicyUser(timeOffPolicyUser);
     calculatePojo.setTrimmedScheduleList(trimmedScheduleList);
 
-    Mockito.when(timeOffAccrualFrequencyRepository.findById(Mockito.any())).thenReturn(Optional.of(timeOffFrequency));
+    Mockito.when(timeOffAccrualFrequencyRepository.findById(Mockito.any()))
+        .thenReturn(Optional.of(timeOffFrequency));
 
-    Assertions.assertThrows(ForbiddenException.class, () -> timeOffAccrualDelegator.getTimeOffBreakdown("1", calculatePojo));
+    Assertions.assertThrows(
+        ForbiddenException.class,
+        () -> timeOffAccrualDelegator.getTimeOffBreakdown("1", calculatePojo));
   }
 
   @Test
   void whenTimeOffFrequencyIsEmpty_thenShouldThrows() {
 
-    Mockito.when(timeOffAccrualFrequencyRepository.findById(Mockito.any())).thenReturn(Optional.empty());
+    Mockito.when(timeOffAccrualFrequencyRepository.findById(Mockito.any()))
+        .thenReturn(Optional.empty());
 
-    Assertions.assertThrows(ResourceNotFoundException.class, () -> timeOffAccrualDelegator.getTimeOffBreakdown("1", new TimeOffBreakdownCalculatePojo()));
+    Assertions.assertThrows(
+        ResourceNotFoundException.class,
+        () ->
+            timeOffAccrualDelegator.getTimeOffBreakdown("1", new TimeOffBreakdownCalculatePojo()));
   }
-
 }

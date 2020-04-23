@@ -14,11 +14,9 @@ import shamu.company.company.entity.Company;
 @NoArgsConstructor
 public class CompanyPaidHoliday extends BaseEntity {
 
-  @ManyToOne
-  private Company company;
+  @ManyToOne private Company company;
 
-  @ManyToOne
-  private PaidHoliday paidHoliday;
+  @ManyToOne private PaidHoliday paidHoliday;
 
   private Boolean isSelected;
 

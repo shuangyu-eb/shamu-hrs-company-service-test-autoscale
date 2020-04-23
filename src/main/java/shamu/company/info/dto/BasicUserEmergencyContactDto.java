@@ -26,7 +26,6 @@ public class BasicUserEmergencyContactDto {
 
   private Boolean isPrimary;
 
-
   public BasicUserEmergencyContactDto(UserEmergencyContact userEmergencyContact) {
     this.id = userEmergencyContact.getId();
     this.userId = userEmergencyContact.getUser().getId();

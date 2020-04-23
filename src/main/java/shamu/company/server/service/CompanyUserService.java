@@ -1,7 +1,6 @@
 package shamu.company.server.service;
 
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -25,8 +24,10 @@ public class CompanyUserService {
   private final PermissionUtils permissionUtils;
 
   @Autowired
-  public CompanyUserService(final CompanyService companyService,
-      final UserService userService, final PermissionUtils permissionUtils) {
+  public CompanyUserService(
+      final CompanyService companyService,
+      final UserService userService,
+      final PermissionUtils permissionUtils) {
     this.companyService = companyService;
     this.userService = userService;
     this.permissionUtils = permissionUtils;
@@ -46,7 +47,7 @@ public class CompanyUserService {
   }
 
   public Page<JobUserListItem> findAllEmployees(
-          AuthUser user, EmployeeListSearchCondition employeeListSearchCondition) {
+      AuthUser user, EmployeeListSearchCondition employeeListSearchCondition) {
     if (permissionUtils.hasAuthority(Permission.Name.VIEW_DISABLED_USER.name())) {
       employeeListSearchCondition.setIncludeDeactivated(true);
     }

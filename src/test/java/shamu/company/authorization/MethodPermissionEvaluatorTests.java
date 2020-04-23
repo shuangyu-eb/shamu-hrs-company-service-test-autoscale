@@ -13,11 +13,9 @@ import shamu.company.authorization.Permission.Name;
 
 class MethodPermissionEvaluatorTests {
 
-  @Mock
-  private PermissionUtils permissionUtils;
+  @Mock private PermissionUtils permissionUtils;
 
-  @InjectMocks
-  private MethodPermissionEvaluator methodPermissionEvaluator;
+  @InjectMocks private MethodPermissionEvaluator methodPermissionEvaluator;
 
   @BeforeEach
   void init() {
@@ -30,9 +28,8 @@ class MethodPermissionEvaluatorTests {
     @Test
     void testWhenTargetIsStringType() {
 
-      methodPermissionEvaluator.hasPermission(null,
-          RandomStringUtils.randomAlphabetic(16),
-          Type.USER.name(), Name.SUPER_PERMISSION);
+      methodPermissionEvaluator.hasPermission(
+          null, RandomStringUtils.randomAlphabetic(16), Type.USER.name(), Name.SUPER_PERMISSION);
       Mockito.verify(permissionUtils, Mockito.times(1))
           .hasPermission(Mockito.any(), Mockito.anyString(), Mockito.any(), Mockito.any());
     }
@@ -40,9 +37,8 @@ class MethodPermissionEvaluatorTests {
     @Test
     void testWhenTargetIsListType() {
 
-      methodPermissionEvaluator.hasPermission(null,
-          new ArrayList<>(),
-          Type.USER.name(), Name.SUPER_PERMISSION);
+      methodPermissionEvaluator.hasPermission(
+          null, new ArrayList<>(), Type.USER.name(), Name.SUPER_PERMISSION);
       Mockito.verify(permissionUtils, Mockito.times(1))
           .hasPermission(Mockito.any(), Mockito.anyList(), Mockito.any(), Mockito.any());
     }

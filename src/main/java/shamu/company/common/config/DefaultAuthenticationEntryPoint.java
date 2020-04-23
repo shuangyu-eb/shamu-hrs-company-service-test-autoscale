@@ -11,8 +11,10 @@ import org.springframework.stereotype.Component;
 public class DefaultAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
   @Override
-  public void commence(HttpServletRequest httpServletRequest,
-      HttpServletResponse httpServletResponse, AuthenticationException e) {
+  public void commence(
+      HttpServletRequest httpServletRequest,
+      HttpServletResponse httpServletResponse,
+      AuthenticationException e) {
     httpServletResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
   }
 }

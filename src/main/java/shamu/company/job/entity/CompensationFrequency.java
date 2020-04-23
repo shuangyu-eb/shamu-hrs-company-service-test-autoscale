@@ -11,5 +11,4 @@ import shamu.company.common.entity.BaseEntity;
 public class CompensationFrequency extends BaseEntity {
 
   private String name;
-
 }

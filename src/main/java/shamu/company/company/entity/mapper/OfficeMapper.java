@@ -10,10 +10,7 @@ import shamu.company.company.dto.OfficeDto;
 import shamu.company.company.entity.Office;
 import shamu.company.company.entity.OfficeAddress;
 
-@Mapper(
-    config = Config.class,
-    uses = OfficeAddressMapper.class
-)
+@Mapper(config = Config.class, uses = OfficeAddressMapper.class)
 public interface OfficeMapper {
 
   OfficeDto convertToOfficeDto(Office office);
@@ -25,7 +22,5 @@ public interface OfficeMapper {
   @Mapping(target = "createdAt", ignore = true)
   @Mapping(target = "updatedAt", expression = "java(shamu.company.utils.DateUtil.getToday())")
   Office convertToOffice(
-          @MappingTarget Office office,
-          OfficeCreateDto officeCreateDto,
-          OfficeAddress officeAddress);
+      @MappingTarget Office office, OfficeCreateDto officeCreateDto, OfficeAddress officeAddress);
 }

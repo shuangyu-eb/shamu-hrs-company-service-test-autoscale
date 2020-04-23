@@ -43,7 +43,8 @@ public class CompanyEmailService {
   private final ApplicationConfig applicationConfig;
 
   @Autowired
-  public CompanyEmailService(final UserService userService,
+  public CompanyEmailService(
+      final UserService userService,
       final EmailService emailService,
       final ITemplateEngine templateEngine,
       final AwsHelper awsHelper,
@@ -64,8 +65,8 @@ public class CompanyEmailService {
     createTemplate(documentRequestEmailDto, variables, sender);
   }
 
-  private Map<String, Object> findVariables(final DocumentRequestEmailDto documentRequestEmailDto,
-      final User sender) {
+  private Map<String, Object> findVariables(
+      final DocumentRequestEmailDto documentRequestEmailDto, final User sender) {
     final String documentUrl = documentRequestEmailDto.getDocumentEmailUrl();
     final String documentTitle = documentRequestEmailDto.getDocumentTitle();
     final Map<String, Object> variables = new HashMap<>();
@@ -76,8 +77,7 @@ public class CompanyEmailService {
     final UserPersonalInformation senderPersonalInformation = sender.getUserPersonalInformation();
     final String senderName = senderPersonalInformation.getName();
     final String senderAvatar =
-        sender.getImageUrl() != null ? awsHelper.findFullFileUrl(sender.getImageUrl())
-            : null;
+        sender.getImageUrl() != null ? awsHelper.findFullFileUrl(sender.getImageUrl()) : null;
 
     variables.put("senderName", senderName);
     if (StringUtils.isNotEmpty(senderAvatar)) {
@@ -87,28 +87,34 @@ public class CompanyEmailService {
     final String backgroundColor =
         AvatarUtil.getAvatarBackground(senderPersonalInformation.getFirstName());
     variables.put("backgroundColor", backgroundColor);
-    final String avatarText = AvatarUtil.getAvatarShortName(
-        senderPersonalInformation.getFirstName(),
-        senderPersonalInformation.getLastName());
+    final String avatarText =
+        AvatarUtil.getAvatarShortName(
+            senderPersonalInformation.getFirstName(), senderPersonalInformation.getLastName());
     variables.put("avatarText", avatarText);
 
     variables.put("documentUrl", documentUrl);
     variables.put("documentTitle", documentTitle);
 
     if (!VIEW.equals(documentRequestEmailDto.getType())
-            && null != documentRequestEmailDto.getExpiredAt()) {
+        && null != documentRequestEmailDto.getExpiredAt()) {
       // utc to cst
-      final ZonedDateTime zonedDateTime = ZonedDateTime
-              .of(documentRequestEmailDto.getExpiredAt().toLocalDateTime(), ZoneId.of("UTC"));
-      variables.put("dueDate", DateUtil.formatDateTo(zonedDateTime
-              .withZoneSameInstant(ZoneId.of("America/Managua")).toLocalDateTime(),"MMM dd"));
+      final ZonedDateTime zonedDateTime =
+          ZonedDateTime.of(
+              documentRequestEmailDto.getExpiredAt().toLocalDateTime(), ZoneId.of("UTC"));
+      variables.put(
+          "dueDate",
+          DateUtil.formatDateTo(
+              zonedDateTime.withZoneSameInstant(ZoneId.of("America/Managua")).toLocalDateTime(),
+              "MMM dd"));
     }
 
     return variables;
   }
 
-  private void createTemplate(final DocumentRequestEmailDto documentRequestEmailDto,
-      final Map<String, Object> variables, final User sender) {
+  private void createTemplate(
+      final DocumentRequestEmailDto documentRequestEmailDto,
+      final Map<String, Object> variables,
+      final User sender) {
     final String message = documentRequestEmailDto.getMessage();
     if (StringUtils.isNotEmpty(message)) {
       variables.put("message", "\"" + message + "\"");
@@ -116,38 +122,41 @@ public class CompanyEmailService {
 
     final DocumentRequestType type = documentRequestEmailDto.getType();
     final List<String> recipientUserIds = documentRequestEmailDto.getRecipientUserIds();
-    recipientUserIds.forEach(recipientUserId -> {
-      final User recipient = userService.findById(recipientUserId);
-      String template = "";
-      String subject = "";
-      if (SIGN.equals(type)) {
-        template = "document_request_signature.html";
-        subject = "Signature Request";
-      } else if (ACKNOWLEDGE.equals(type)) {
-        template = "document_request_acknowledge.html";
-        subject = "Acknowledgement Request";
-      } else if (VIEW.equals(type)) {
-        final UserPersonalInformation personalInformation = sender.getUserPersonalInformation();
-        final String firstName = personalInformation.getFirstName();
-        final String preferredName = personalInformation.getPreferredName();
-        template = "document_request_no_action.html";
-        subject = (StringUtils.isEmpty(preferredName) ? firstName : preferredName)
-                  + " Sent You a Document";
-      }
-      final Email email = new Email(
-              applicationConfig.getSystemEmailAddress(),
-              sender.getUserPersonalInformation().getName(),
-              recipient.getUserContactInformation().getEmailWork(),
-              recipient.getUserPersonalInformation().getName(),
-              subject);
-      sendEmail(variables, template, email);
-    });
+    recipientUserIds.forEach(
+        recipientUserId -> {
+          final User recipient = userService.findById(recipientUserId);
+          String template = "";
+          String subject = "";
+          if (SIGN.equals(type)) {
+            template = "document_request_signature.html";
+            subject = "Signature Request";
+          } else if (ACKNOWLEDGE.equals(type)) {
+            template = "document_request_acknowledge.html";
+            subject = "Acknowledgement Request";
+          } else if (VIEW.equals(type)) {
+            final UserPersonalInformation personalInformation = sender.getUserPersonalInformation();
+            final String firstName = personalInformation.getFirstName();
+            final String preferredName = personalInformation.getPreferredName();
+            template = "document_request_no_action.html";
+            subject =
+                (StringUtils.isEmpty(preferredName) ? firstName : preferredName)
+                    + " Sent You a Document";
+          }
+          final Email email =
+              new Email(
+                  applicationConfig.getSystemEmailAddress(),
+                  sender.getUserPersonalInformation().getName(),
+                  recipient.getUserContactInformation().getEmailWork(),
+                  recipient.getUserPersonalInformation().getName(),
+                  subject);
+          sendEmail(variables, template, email);
+        });
   }
 
-  private void sendEmail(final Map<String, Object> variables, final String template,
-      final Email email) {
-    final String emailContent = templateEngine
-        .process(template, new Context(Locale.ENGLISH, variables));
+  private void sendEmail(
+      final Map<String, Object> variables, final String template, final Email email) {
+    final String emailContent =
+        templateEngine.process(template, new Context(Locale.ENGLISH, variables));
     email.setSendDate(new Timestamp(new Date().getTime()));
     email.setContent(emailContent);
 

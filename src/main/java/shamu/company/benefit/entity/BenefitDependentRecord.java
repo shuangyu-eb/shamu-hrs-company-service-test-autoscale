@@ -26,5 +26,4 @@ public class BenefitDependentRecord extends BaseEntity {
     this.benefitPlansUsersId = benefitPlansUsersId;
     this.userDependentsId = userDependentsId;
   }
-
 }

@@ -11,8 +11,7 @@ import shamu.company.tests.utils.JwtUtil;
 @TestConfiguration
 public class BaseRestControllerConfiguration {
 
-  @Autowired
-  private PermissionUtils permissionUtils;
+  @Autowired private PermissionUtils permissionUtils;
 
   @Bean
   Auth0Config auth0Config() {

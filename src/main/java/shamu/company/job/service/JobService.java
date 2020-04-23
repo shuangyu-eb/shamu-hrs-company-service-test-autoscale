@@ -15,15 +15,15 @@ public class JobService {
   private final JobRepository jobRepository;
 
   @Autowired
-  public JobService(
-          final JobRepository jobRepository) {
+  public JobService(final JobRepository jobRepository) {
     this.jobRepository = jobRepository;
   }
 
   public Job findById(final String id) {
-    return jobRepository.findById(id)
-       .orElseThrow(() ->
-           new ResourceNotFoundException(String.format("Job with id %s not found!", id)));
+    return jobRepository
+        .findById(id)
+        .orElseThrow(
+            () -> new ResourceNotFoundException(String.format("Job with id %s not found!", id)));
   }
 
   public List<Job> findAllByDepartmentId(String id) {

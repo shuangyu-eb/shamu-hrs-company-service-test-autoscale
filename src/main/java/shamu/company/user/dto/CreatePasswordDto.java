@@ -8,6 +8,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CreatePasswordDto extends UpdatePasswordDto {
 
-  @NotNull
-  private String emailWork;
+  @NotNull private String emailWork;
 }

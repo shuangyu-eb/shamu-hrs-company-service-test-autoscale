@@ -15,9 +15,8 @@ public interface UserCompensationMapper {
   @Mapping(target = "id", source = "userCompensationId")
   @Mapping(target = "wage", source = "compensationWage")
   @Mapping(target = "compensationFrequency", source = "compensationFrequencyId")
-  void updateFromJobUpdateDto(@MappingTarget UserCompensation userCompensation,
-      JobUpdateDto jobUpdateDto);
-
+  void updateFromJobUpdateDto(
+      @MappingTarget UserCompensation userCompensation, JobUpdateDto jobUpdateDto);
 
   CompensationDto convertToCompensationDto(UserCompensation userCompensation);
 

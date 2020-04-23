@@ -18,8 +18,7 @@ import shamu.company.common.entity.BaseEntity;
 @NoArgsConstructor
 public class CompanyBenefitsSetting extends BaseEntity {
 
-  @OneToOne
-  private Company company;
+  @OneToOne private Company company;
 
   @Column(name = "automatic_rollover")
   private Boolean isAutomaticRollover;

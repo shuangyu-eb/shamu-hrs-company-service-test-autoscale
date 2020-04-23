@@ -88,6 +88,22 @@ import shamu.company.utils.FileValidateUtils.FileFormat;
 
 class EmployeeServiceTests {
 
+  private final UserPersonalInformationMapper userPersonalInformationMapper =
+      Mappers.getMapper(UserPersonalInformationMapper.class);
+  private final UserAddressMapper userAddressMapper = Mappers.getMapper(UserAddressMapper.class);
+  private final UserContactInformationMapper userContactInformationMapper =
+      Mappers.getMapper(UserContactInformationMapper.class);
+  private final UserEmergencyContactMapper userEmergencyContactMapper =
+      Mappers.getMapper(UserEmergencyContactMapper.class);
+  private final StateProvinceMapper stateProvinceMapper =
+      Mappers.getMapper(StateProvinceMapper.class);
+  private final OfficeAddressMapper officeAddressMapper =
+      new OfficeAddressMapperImpl(stateProvinceMapper);
+  private final OfficeMapper officeMapper = new OfficeMapperImpl(officeAddressMapper);
+  private final UserCompensationMapper userCompensationMapper =
+      Mappers.getMapper(UserCompensationMapper.class);
+  private final JobUserMapper jobUserMapper =
+      new JobUserMapperImpl(officeMapper, userCompensationMapper);
   @Mock private JobUserService jobUserService;
   @Mock private UserAddressService userAddressService;
   @Mock private EmploymentTypeService employmentTypeService;
@@ -106,26 +122,9 @@ class EmployeeServiceTests {
   @Mock private OfficeService officeService;
   @Mock private UserPersonalInformationService userPersonalInformationService;
   @Mock private UserContactInformationService userContactInformationService;
-  private final UserPersonalInformationMapper userPersonalInformationMapper =
-      Mappers.getMapper(UserPersonalInformationMapper.class);
-  private final UserAddressMapper userAddressMapper = Mappers.getMapper(UserAddressMapper.class);
-  private final UserContactInformationMapper userContactInformationMapper =
-      Mappers.getMapper(UserContactInformationMapper.class);
-  private final UserEmergencyContactMapper userEmergencyContactMapper =
-      Mappers.getMapper(UserEmergencyContactMapper.class);
   @Mock private Auth0Helper auth0Helper;
   @Mock private ApplicationEventPublisher applicationEventPublisher;
   @Mock private TimeOffPolicyService timeOffPolicyService;
-
-  private final StateProvinceMapper stateProvinceMapper =
-      Mappers.getMapper(StateProvinceMapper.class);
-  private final OfficeAddressMapper officeAddressMapper =
-      new OfficeAddressMapperImpl(stateProvinceMapper);
-  private final OfficeMapper officeMapper = new OfficeMapperImpl(officeAddressMapper);
-  private final UserCompensationMapper userCompensationMapper =
-      Mappers.getMapper(UserCompensationMapper.class);
-  private final JobUserMapper jobUserMapper =
-      new JobUserMapperImpl(officeMapper, userCompensationMapper);
   @Mock private UserRoleService userRoleService;
   @Mock private EncryptorUtil encryptorUtil;
 
@@ -164,6 +163,54 @@ class EmployeeServiceTests {
             jobUserService,
             userRoleService,
             encryptorUtil);
+  }
+
+  @Test
+  void testFindByCompanyId() {
+    Assertions.assertDoesNotThrow(() -> employeeService.findByCompanyId("1"));
+  }
+
+  @Test
+  void testFindSubordinatesByManagerUserId() {
+    Assertions.assertDoesNotThrow(() -> employeeService.findSubordinatesByManagerUserId("1", "1"));
+  }
+
+  @Test
+  void testRemoveAuth0User() {
+    final Auth0UserCreatedEvent auth0UserCreatedEvent = Mockito.mock(Auth0UserCreatedEvent.class);
+    Mockito.when(auth0UserCreatedEvent.getUser()).thenReturn(new com.auth0.json.mgmt.users.User());
+    Assertions.assertDoesNotThrow(() -> employeeService.removeAuth0User(auth0UserCreatedEvent));
+  }
+
+  @Test
+  void testRestoreUserRole() {
+    final UserEmailUpdatedEvent emailUpdatedEvent = Mockito.mock(UserEmailUpdatedEvent.class);
+    Mockito.when(userService.findById(Mockito.anyString())).thenReturn(new User());
+    Assertions.assertDoesNotThrow(() -> employeeService.restoreUserRole(emailUpdatedEvent));
+  }
+
+  @Test
+  void testUpdateEmployeeBasicInformation() throws Exception {
+
+    final EmployeeDto employeeDto = new EmployeeDto();
+    final User employee = new User();
+    final UserContactInformation userContactInformation = new UserContactInformation();
+    final UserContactInformationDto userContactInformationDto = new UserContactInformationDto();
+    final UserPersonalInformation information = new UserPersonalInformation();
+    final UserPersonalInformationDto userPersonalInformationDto = new UserPersonalInformationDto();
+
+    userContactInformation.setId("1");
+    userPersonalInformationDto.setSsn("ssn");
+    employeeDto.setPersonalPhoto("");
+    employeeDto.setUserPersonalInformationDto(userPersonalInformationDto);
+    employeeDto.setUserContactInformationDto(userContactInformationDto);
+    employee.setImageUrl("image");
+    employee.setUserPersonalInformation(information);
+    employee.setId("id");
+    employee.setUserContactInformation(userContactInformation);
+
+    Whitebox.invokeMethod(employeeService, "updateEmployeeBasicInformation", employee, employeeDto);
+    Mockito.verify(userService, Mockito.times(1)).save(Mockito.any());
   }
 
   @Nested
@@ -863,55 +910,5 @@ class EmployeeServiceTests {
       Mockito.verify(userService, Mockito.times(1))
           .findEmployeeInfoByEmployeeId(Mockito.anyString());
     }
-  }
-
-  @Test
-  void testFindByCompanyId() {
-    Assertions.assertDoesNotThrow(() -> employeeService.findByCompanyId("1"));
-  }
-
-  @Test
-  void testFindSubordinatesByManagerUserId() {
-    Assertions.assertDoesNotThrow(() -> employeeService.findSubordinatesByManagerUserId("1","1"));
-  }
-
-  @Test
-  void testRemoveAuth0User() {
-    final Auth0UserCreatedEvent auth0UserCreatedEvent = Mockito.mock(Auth0UserCreatedEvent.class);
-    Mockito.when(auth0UserCreatedEvent.getUser()).thenReturn(new com.auth0.json.mgmt.users.User());
-    Assertions.assertDoesNotThrow(() -> employeeService.removeAuth0User(auth0UserCreatedEvent));
-  }
-
-  @Test
-  void testRestoreUserRole() {
-    final UserEmailUpdatedEvent emailUpdatedEvent = Mockito.mock(UserEmailUpdatedEvent.class);
-    Mockito.when(userService.findById(Mockito.anyString())).thenReturn(new User());
-    Assertions.assertDoesNotThrow(() -> employeeService.restoreUserRole(emailUpdatedEvent));
-  }
-
-  @Test
-  void testUpdateEmployeeBasicInformation() throws Exception {
-
-    final EmployeeDto employeeDto = new EmployeeDto();
-    final User employee = new User();
-    final UserContactInformation userContactInformation = new UserContactInformation();
-    final UserContactInformationDto userContactInformationDto = new UserContactInformationDto();
-    final UserPersonalInformation information = new UserPersonalInformation();
-    final UserPersonalInformationDto userPersonalInformationDto = new UserPersonalInformationDto();
-
-    userContactInformation.setId("1");
-    userPersonalInformationDto.setSsn("ssn");
-    employeeDto.setPersonalPhoto("");
-    employeeDto.setUserPersonalInformationDto(userPersonalInformationDto);
-    employeeDto.setUserContactInformationDto(userContactInformationDto);
-    employee.setImageUrl("image");
-    employee.setUserPersonalInformation(information);
-    employee.setId("id");
-    employee.setUserContactInformation(userContactInformation);
-
-    Whitebox.invokeMethod(
-        employeeService, "updateEmployeeBasicInformation", employee, employeeDto);
-    Mockito.verify(userService, Mockito.times(1))
-        .save(Mockito.any());
   }
 }

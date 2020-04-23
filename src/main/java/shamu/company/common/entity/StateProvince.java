@@ -16,8 +16,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class StateProvince extends BaseEntity {
 
-  @ManyToOne
-  private Country country;
+  @ManyToOne private Country country;
 
   private String name;
 

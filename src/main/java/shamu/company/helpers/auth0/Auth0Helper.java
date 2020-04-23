@@ -46,13 +46,13 @@ public class Auth0Helper {
 
   private static final String MANAGEMENT_API = "managementApi";
   private static final String AUTH_API = "authApi";
-  private final Auth0Config auth0Config;
-  private final Auth0Manager auth0Manager;
-  private final OkHttpClient httpClient = new Builder().build();
   private static final String MFA_ENDPOINT = "http://auth0.com/oauth/grant-type/mfa-otp";
   private static final String MFA_CONTENT_TYPE = "application/x-www-form-urlencoded";
   private static final String MFA_REQUIRED = "mfa_required";
   private static final String INVALID_GRANT = "invalid_grant";
+  private final Auth0Config auth0Config;
+  private final Auth0Manager auth0Manager;
+  private final OkHttpClient httpClient = new Builder().build();
 
   @Autowired
   public Auth0Helper(final Auth0Manager auth0Manager, final Auth0Config auth0Config) {

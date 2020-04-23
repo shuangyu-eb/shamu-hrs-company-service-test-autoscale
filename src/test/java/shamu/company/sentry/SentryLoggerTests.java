@@ -23,7 +23,7 @@ public class SentryLoggerTests {
   void init() {
     logger = Mockito.mock(Logger.class);
     sentryLogger = new SentryLogger(EmailService.class);
-    Whitebox.setInternalState(sentryLogger,"log",logger);
+    Whitebox.setInternalState(sentryLogger, "log", logger);
   }
 
   @Test
@@ -33,7 +33,7 @@ public class SentryLoggerTests {
 
   @Test
   void testDebugException() {
-    Assertions.assertDoesNotThrow(() -> sentryLogger.debug("message",new Exception()));
+    Assertions.assertDoesNotThrow(() -> sentryLogger.debug("message", new Exception()));
   }
 
   @Test
@@ -55,7 +55,8 @@ public class SentryLoggerTests {
   void testSomeDto() {
     final CommonDictionaryDto commonDictionaryDto = new CommonDictionaryDto();
     final ApplicationConfig config = new ApplicationConfig();
-    final UserRoleUpdatedEvent userRoleUpdatedEvent = new UserRoleUpdatedEvent("userId",new UserRole());
+    final UserRoleUpdatedEvent userRoleUpdatedEvent =
+        new UserRoleUpdatedEvent("userId", new UserRole());
     final Auth0UserCreatedEvent auth0UserCreatedEvent = new Auth0UserCreatedEvent(new User());
     commonDictionaryDto.setId("1");
     commonDictionaryDto.setName("name");

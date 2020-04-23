@@ -32,8 +32,8 @@ class BaseRestControllerTests {
     authUser.setId(RandomStringUtils.randomAlphabetic(10));
 
     final String userId = "1";
-    final Authentication authentication = new DefaultJwtAuthenticationToken(jwt, userId,
-        Collections.emptyList(), authUser);
+    final Authentication authentication =
+        new DefaultJwtAuthenticationToken(jwt, userId, Collections.emptyList(), authUser);
     SecurityContextHolder.getContext().setAuthentication(authentication);
   }
 
@@ -46,8 +46,7 @@ class BaseRestControllerTests {
   @Test
   void testGetUser() {
     final BaseRestController baseRestController = PowerMockito.spy(new BaseRestController());
-    Whitebox.setInternalState(baseRestController,
-        "authUserCacheManager", mockedCacheManager);
+    Whitebox.setInternalState(baseRestController, "authUserCacheManager", mockedCacheManager);
 
     final AuthUser user = baseRestController.findAuthUser();
     Assertions.assertNotNull(user);
@@ -56,8 +55,7 @@ class BaseRestControllerTests {
   @Test
   void testGetCompanyId() {
     final BaseRestController baseRestController = PowerMockito.spy(new BaseRestController());
-    Whitebox.setInternalState(baseRestController,
-        "authUserCacheManager", mockedCacheManager);
+    Whitebox.setInternalState(baseRestController, "authUserCacheManager", mockedCacheManager);
     final String companyId = baseRestController.findCompanyId();
     Assertions.assertNotNull(companyId);
   }
@@ -65,8 +63,7 @@ class BaseRestControllerTests {
   @Test
   void testGetUserId() {
     final BaseRestController baseRestController = PowerMockito.spy(new BaseRestController());
-    Whitebox.setInternalState(baseRestController,
-        "authUserCacheManager", mockedCacheManager);
+    Whitebox.setInternalState(baseRestController, "authUserCacheManager", mockedCacheManager);
     final String userId = baseRestController.findUserId();
     Assertions.assertNotNull(userId);
   }

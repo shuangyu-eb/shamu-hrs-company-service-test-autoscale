@@ -19,15 +19,16 @@ import shamu.company.utils.UuidUtil;
 
 @Component
 public class UserInformationGenerator implements CommandLineRunner {
-  private String userId;
-  private String companyId;
-
   private final UserService userService;
   private final UserRoleService userRoleService;
   private final CompanyService companyService;
+  private String userId;
+  private String companyId;
 
   @Autowired
-  public UserInformationGenerator(final UserService userService, final UserRoleService userRoleService,
+  public UserInformationGenerator(
+      final UserService userService,
+      final UserRoleService userRoleService,
       final CompanyService companyService) {
     this.userService = userService;
     this.userRoleService = userRoleService;
@@ -70,7 +71,8 @@ public class UserInformationGenerator implements CommandLineRunner {
     authUser.setUserId(userId);
     authUser.setPermissions(Collections.emptyList());
     final DefaultJwtAuthenticationToken defaultJwtAuthenticationToken =
-        new DefaultJwtAuthenticationToken(JwtUtil.getJwt(), authUser.getId(), Collections.emptyList(), authUser);
+        new DefaultJwtAuthenticationToken(
+            JwtUtil.getJwt(), authUser.getId(), Collections.emptyList(), authUser);
     SecurityContextHolder.getContext().setAuthentication(defaultJwtAuthenticationToken);
   }
 }

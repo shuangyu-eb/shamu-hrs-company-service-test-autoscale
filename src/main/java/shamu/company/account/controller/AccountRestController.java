@@ -24,8 +24,7 @@ public class AccountRestController {
   private final Auth0Helper auth0Helper;
 
   @Autowired
-  public AccountRestController(final UserService userService,
-      final Auth0Helper auth0Helper) {
+  public AccountRestController(final UserService userService, final Auth0Helper auth0Helper) {
     this.userService = userService;
     this.auth0Helper = auth0Helper;
   }

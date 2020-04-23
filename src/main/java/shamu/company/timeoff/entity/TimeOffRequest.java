@@ -24,30 +24,30 @@ import shamu.company.user.entity.User;
 @Table(name = "time_off_requests")
 public class TimeOffRequest extends BaseEntity {
 
-  @ManyToOne
-  private User requesterUser;
+  @ManyToOne private User requesterUser;
 
-  @ManyToOne
-  private User approverUser;
+  @ManyToOne private User approverUser;
 
   private Timestamp approvedDate;
 
   private Integer balance;
 
-  @ManyToOne
-  private TimeOffPolicy timeOffPolicy;
+  @ManyToOne private TimeOffPolicy timeOffPolicy;
 
-  @ManyToOne
-  private TimeOffRequestApprovalStatus timeOffRequestApprovalStatus;
+  @ManyToOne private TimeOffRequestApprovalStatus timeOffRequestApprovalStatus;
 
   private Timestamp expiresAt;
 
-  @OneToMany(fetch = FetchType.EAGER, orphanRemoval = true,
+  @OneToMany(
+      fetch = FetchType.EAGER,
+      orphanRemoval = true,
       cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
   @JoinColumn(name = "time_off_request_id")
   private Set<TimeOffRequestComment> comments = new HashSet<>();
 
-  @OneToMany(fetch = FetchType.EAGER, orphanRemoval = true,
+  @OneToMany(
+      fetch = FetchType.EAGER,
+      orphanRemoval = true,
       cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
   @JoinColumn(name = "time_off_request_id")
   private Set<TimeOffRequestDate> timeOffRequestDates = new HashSet<>();

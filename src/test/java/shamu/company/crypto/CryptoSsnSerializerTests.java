@@ -22,42 +22,42 @@ import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserPersonalInformation;
 
 class CryptoSsnSerializerTests {
-  @InjectMocks CryptoSsnSerializer cryptoSsnSerializer;
-  @Mock
-  private Encryptor encryptor;
   final String value = "a";
+  @InjectMocks CryptoSsnSerializer cryptoSsnSerializer;
   ObjectMapper mapper;
   ByteArrayOutputStream bos;
   JsonGenerator jsonGenerator;
-
   SerializerProvider serializers;
+  @Mock private Encryptor encryptor;
 
   @BeforeEach
   void init() throws IOException {
     MockitoAnnotations.initMocks(this);
     bos = new ByteArrayOutputStream();
     mapper = new ObjectMapper();
-    serializers  = new SerializerProvider() {
-      @Override
-      public WritableObjectId findObjectId(Object o, ObjectIdGenerator<?> objectIdGenerator) {
-        return null;
-      }
+    serializers =
+        new SerializerProvider() {
+          @Override
+          public WritableObjectId findObjectId(Object o, ObjectIdGenerator<?> objectIdGenerator) {
+            return null;
+          }
 
-      @Override
-      public JsonSerializer<Object> serializerInstance(Annotated annotated, Object o) {
-        return null;
-      }
+          @Override
+          public JsonSerializer<Object> serializerInstance(Annotated annotated, Object o) {
+            return null;
+          }
 
-      @Override
-      public Object includeFilterInstance(BeanPropertyDefinition beanPropertyDefinition, Class<?> aClass) {
-        return null;
-      }
+          @Override
+          public Object includeFilterInstance(
+              BeanPropertyDefinition beanPropertyDefinition, Class<?> aClass) {
+            return null;
+          }
 
-      @Override
-      public boolean includeFilterSuppressNulls(Object o) {
-        return false;
-      }
-    };
+          @Override
+          public boolean includeFilterSuppressNulls(Object o) {
+            return false;
+          }
+        };
     jsonGenerator = mapper.getJsonFactory().createJsonGenerator(new PrintWriter(bos));
     jsonGenerator.setCurrentValue(UserPersonalInformation.class);
   }
@@ -68,8 +68,7 @@ class CryptoSsnSerializerTests {
     @Test
     void whenValueIsBlank_thenShouldSuccess() throws IOException {
       cryptoSsnSerializer.serialize("", jsonGenerator, serializers);
-      Mockito.verify(encryptor, Mockito.times(0))
-          .decrypt("", User.class, value);
+      Mockito.verify(encryptor, Mockito.times(0)).decrypt("", User.class, value);
     }
   }
 }

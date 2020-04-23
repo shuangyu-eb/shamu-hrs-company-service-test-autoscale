@@ -27,10 +27,18 @@ class DismissedAtServiceTests {
     final DismissedAt dismissedAt = new DismissedAt();
     dismissedAt.setId("1");
 
-    Mockito.when(dismissedAtRepository.findByUserIdAndSystemAnnouncementId(Mockito.any(), Mockito.any())).thenReturn(dismissedAt);
+    Mockito.when(
+            dismissedAtRepository.findByUserIdAndSystemAnnouncementId(Mockito.any(), Mockito.any()))
+        .thenReturn(dismissedAt);
 
-    Assertions.assertDoesNotThrow(() -> dismissedAtService.findByUserIdAndSystemAnnouncementId(UuidUtil.getUuidString(), "1"));
-    Assertions.assertEquals(dismissedAtService.findByUserIdAndSystemAnnouncementId(Mockito.any(), Mockito.any()).getId(), dismissedAt.getId());
+    Assertions.assertDoesNotThrow(
+        () ->
+            dismissedAtService.findByUserIdAndSystemAnnouncementId(UuidUtil.getUuidString(), "1"));
+    Assertions.assertEquals(
+        dismissedAtService
+            .findByUserIdAndSystemAnnouncementId(Mockito.any(), Mockito.any())
+            .getId(),
+        dismissedAt.getId());
   }
 
   @Test

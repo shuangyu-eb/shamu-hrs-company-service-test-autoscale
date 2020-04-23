@@ -17,20 +17,22 @@ public class FilesValidator implements ConstraintValidator<FileValidate, List<Mu
 
   @Override
   public void initialize(final FileValidate constraintAnnotation) {
-    fileFormats = Stream.of(constraintAnnotation.fileFormat())
-        .map(FileFormat::valueOf)
-        .toArray(FileFormat[]::new);
+    fileFormats =
+        Stream.of(constraintAnnotation.fileFormat())
+            .map(FileFormat::valueOf)
+            .toArray(FileFormat[]::new);
     maxSize = constraintAnnotation.maxSize();
   }
 
   @Override
-  public boolean isValid(final List<MultipartFile> files,
-      final ConstraintValidatorContext context) {
-    files.forEach(file -> {
-      if (file != null && !file.isEmpty()) {
-        FileValidateUtils.validate(file, maxSize, fileFormats);
-      }
-    });
+  public boolean isValid(
+      final List<MultipartFile> files, final ConstraintValidatorContext context) {
+    files.forEach(
+        file -> {
+          if (file != null && !file.isEmpty()) {
+            FileValidateUtils.validate(file, maxSize, fileFormats);
+          }
+        });
     return true;
   }
 }

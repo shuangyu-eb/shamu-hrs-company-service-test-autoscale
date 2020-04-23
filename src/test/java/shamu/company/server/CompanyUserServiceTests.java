@@ -1,5 +1,7 @@
 package shamu.company.server;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -15,51 +17,21 @@ import shamu.company.company.service.CompanyService;
 import shamu.company.employee.dto.EmployeeListSearchCondition;
 import shamu.company.server.dto.AuthUser;
 import shamu.company.server.service.CompanyUserService;
-import shamu.company.user.entity.User;
 import shamu.company.user.service.UserService;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class CompanyUserServiceTests {
 
-  @Mock
-  private CompanyService companyService;
+  @Mock private CompanyService companyService;
 
-  @Mock
-  private UserService userService;
+  @Mock private UserService userService;
 
-  @Mock
-  private PermissionUtils permissionUtils;
+  @Mock private PermissionUtils permissionUtils;
 
-  @InjectMocks
-  private CompanyUserService companyUserService;
+  @InjectMocks private CompanyUserService companyUserService;
 
   @BeforeEach
   void init() {
     MockitoAnnotations.initMocks(this);
-  }
-
-  @Nested
-  class FindAllEmployees{
-    final AuthUser authUser = new AuthUser();
-    final EmployeeListSearchCondition condition = new EmployeeListSearchCondition();
-
-    @Test
-    void whenIsAdmin_thenShouldIncludeDeactivated() {
-      Mockito.when(permissionUtils.hasAuthority(Permission.Name.VIEW_DISABLED_USER.name()))
-             .thenReturn(true);
-      companyUserService.findAllEmployees(authUser, condition);
-      Assertions.assertEquals(true, condition.getIncludeDeactivated());
-    }
-
-    @Test
-    void whenIsNotAdmin_thenShouldNotIncludeDeactivated() {
-      Mockito.when(permissionUtils.hasAuthority(Permission.Name.VIEW_DISABLED_USER.name()))
-             .thenReturn(false);
-      companyUserService.findAllEmployees(authUser, condition);
-      Assertions.assertEquals(false, condition.getIncludeDeactivated());
-    }
   }
 
   @Test
@@ -82,5 +54,27 @@ public class CompanyUserServiceTests {
   @Test
   void testfindUserByUserId() {
     Assertions.assertDoesNotThrow(() -> companyUserService.findUserByUserId("1"));
+  }
+
+  @Nested
+  class FindAllEmployees {
+    final AuthUser authUser = new AuthUser();
+    final EmployeeListSearchCondition condition = new EmployeeListSearchCondition();
+
+    @Test
+    void whenIsAdmin_thenShouldIncludeDeactivated() {
+      Mockito.when(permissionUtils.hasAuthority(Permission.Name.VIEW_DISABLED_USER.name()))
+          .thenReturn(true);
+      companyUserService.findAllEmployees(authUser, condition);
+      Assertions.assertEquals(true, condition.getIncludeDeactivated());
+    }
+
+    @Test
+    void whenIsNotAdmin_thenShouldNotIncludeDeactivated() {
+      Mockito.when(permissionUtils.hasAuthority(Permission.Name.VIEW_DISABLED_USER.name()))
+          .thenReturn(false);
+      companyUserService.findAllEmployees(authUser, condition);
+      Assertions.assertEquals(false, condition.getIncludeDeactivated());
+    }
   }
 }

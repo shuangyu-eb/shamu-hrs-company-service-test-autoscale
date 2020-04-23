@@ -19,28 +19,6 @@ public abstract class FileValidateUtils {
 
   public static final Long MB = 1024L * KB;
 
-  /**
-   * The signature map to each format is stored in the file header, which could be used to identify
-   * or verify the content of a file. See more here:
-   * https://en.wikipedia.org/wiki/List_of_file_signatures
-   */
-  public enum FileFormat {
-    JPEG("FFD8FF"),
-    PNG("89504E47"),
-    GIF("47494638"),
-    PDF("255044462D");
-
-    private String signature = "";
-
-    FileFormat(final String signature) {
-      this.signature = signature;
-    }
-
-    public String getSignature() {
-      return signature;
-    }
-  }
-
   public static void validate(final File file, final Long maxSize, final FileFormat... formats) {
     if (!file.isFile()) {
       throw new FileValidateException("File is invalid!");
@@ -137,5 +115,27 @@ public abstract class FileValidateUtils {
               stringBuilder.append(hexValue);
             });
     return stringBuilder.toString();
+  }
+
+  /**
+   * The signature map to each format is stored in the file header, which could be used to identify
+   * or verify the content of a file. See more here:
+   * https://en.wikipedia.org/wiki/List_of_file_signatures
+   */
+  public enum FileFormat {
+    JPEG("FFD8FF"),
+    PNG("89504E47"),
+    GIF("47494638"),
+    PDF("255044462D");
+
+    private String signature = "";
+
+    FileFormat(final String signature) {
+      this.signature = signature;
+    }
+
+    public String getSignature() {
+      return signature;
+    }
   }
 }

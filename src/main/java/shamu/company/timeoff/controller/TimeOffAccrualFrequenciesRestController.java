@@ -22,8 +22,7 @@ public class TimeOffAccrualFrequenciesRestController {
 
   @GetMapping("time-off-accrual-frequencies")
   public List<CommonDictionaryDto> getAllTimeOffFrequencies() {
-    List<TimeOffAccrualFrequency> frequencies = accrualFrequencyRepository
-        .findAll();
+    List<TimeOffAccrualFrequency> frequencies = accrualFrequencyRepository.findAll();
     return ReflectionUtil.convertTo(frequencies, CommonDictionaryDto.class);
   }
 }

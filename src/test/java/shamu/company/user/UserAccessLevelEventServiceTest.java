@@ -11,11 +11,9 @@ import shamu.company.user.repository.UserAccessLevelEventRepository;
 import shamu.company.user.service.UserAccessLevelEventService;
 
 public class UserAccessLevelEventServiceTest {
-  @Mock
-  private UserAccessLevelEventRepository userAccessLevelEventRepository;
+  @Mock private UserAccessLevelEventRepository userAccessLevelEventRepository;
 
-  @InjectMocks
-  private UserAccessLevelEventService userAccessLevelEventService;
+  @InjectMocks private UserAccessLevelEventService userAccessLevelEventService;
 
   @BeforeEach
   void init() {

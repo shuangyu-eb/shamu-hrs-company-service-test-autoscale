@@ -21,19 +21,18 @@ import shamu.company.tests.utils.JwtUtil;
 
 class BasePermissionUtilTests {
 
-  @Mock
-  private AuthUserCacheManager authUserCacheManager;
+  @Mock private AuthUserCacheManager authUserCacheManager;
 
-  @InjectMocks
-  private BasePermissionUtils basePermissionUtils;
+  @InjectMocks private BasePermissionUtils basePermissionUtils;
 
   @BeforeEach
   void init() {
     MockitoAnnotations.initMocks(this);
 
     final Jwt jwt = JwtUtil.getJwt();
-    final Authentication authentication = new DefaultJwtAuthenticationToken(jwt,
-        RandomStringUtils.randomAlphabetic(16), Collections.emptyList(), new AuthUser());
+    final Authentication authentication =
+        new DefaultJwtAuthenticationToken(
+            jwt, RandomStringUtils.randomAlphabetic(16), Collections.emptyList(), new AuthUser());
     SecurityContextHolder.getContext().setAuthentication(authentication);
   }
 
@@ -50,10 +49,12 @@ class BasePermissionUtilTests {
     @Test
     void whenIsAnonymous_thenShouldThrow() {
       Mockito.when(authUserCacheManager.getCachedUser(Mockito.anyString())).thenReturn(null);
-      Assertions.assertThrows(UnAuthenticatedException.class, () -> {
-        final AuthUser returnedAuthUser = basePermissionUtils.getAuthUser();
-        Assertions.assertEquals(authUser, returnedAuthUser);
-      });
+      Assertions.assertThrows(
+          UnAuthenticatedException.class,
+          () -> {
+            final AuthUser returnedAuthUser = basePermissionUtils.getAuthUser();
+            Assertions.assertEquals(authUser, returnedAuthUser);
+          });
     }
 
     @Test

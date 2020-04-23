@@ -4,6 +4,4 @@ import shamu.company.common.repository.BaseRepository;
 import shamu.company.user.entity.UserContactInformation;
 
 public interface UserContactInformationRepository
-    extends BaseRepository<UserContactInformation, String> {
-
-}
+    extends BaseRepository<UserContactInformation, String> {}

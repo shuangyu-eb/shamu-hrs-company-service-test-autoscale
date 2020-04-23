@@ -1,5 +1,7 @@
 package shamu.company.job.service;
 
+import java.util.Collections;
+import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -9,14 +11,10 @@ import org.mockito.MockitoAnnotations;
 import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.job.entity.Job;
 import shamu.company.job.repository.JobRepository;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 public class JobServiceTests {
 
-  @Mock
-  private JobRepository jobRepository;
+  @Mock private JobRepository jobRepository;
 
   private JobService jobService;
 
@@ -39,14 +37,16 @@ public class JobServiceTests {
   @Test()
   void whenJobNotFound_thenThrowResourceNotFoundException() {
     String id = "1";
-    Mockito.when(jobRepository.findById(id)).thenThrow(new ResourceNotFoundException(String.format("Job with id %s not found!", id)));
+    Mockito.when(jobRepository.findById(id))
+        .thenThrow(new ResourceNotFoundException(String.format("Job with id %s not found!", id)));
     Assertions.assertThrows(ResourceNotFoundException.class, () -> jobRepository.findById(id));
   }
 
   @Test
   void findAllByDepartmentId() {
     String id = "1";
-    Mockito.when(jobRepository.findAllByDepartmentId(id)).thenReturn(Collections.singletonList(new Job()));
+    Mockito.when(jobRepository.findAllByDepartmentId(id))
+        .thenReturn(Collections.singletonList(new Job()));
     Assertions.assertDoesNotThrow(() -> jobService.findAllByDepartmentId(id));
   }
 

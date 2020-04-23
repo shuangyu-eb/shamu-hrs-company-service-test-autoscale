@@ -23,27 +23,16 @@ import shamu.company.user.service.UserService;
 
 class EncryptorTests {
 
-  @Mock
-  private UserService userService;
-
-  @Mock
-  private Auth0Helper auth0Helper;
-
-  @Mock
-  private SecretHashRepository secretHashRepository;
-
-  private User testUser;
-
   private final String indeedHash = "123qwe";
-
   private final String userSecret = "456asd";
-
   private final String companySecret = "789zxc";
-
-  private final String userSalt = "3334363961363937306330613462653661386164316362663530626238333163";
-
+  private final String userSalt =
+      "3334363961363937306330613462653661386164316362663530626238333163";
   private final String ssn = "565467875";
-
+  @Mock private UserService userService;
+  @Mock private Auth0Helper auth0Helper;
+  @Mock private SecretHashRepository secretHashRepository;
+  private User testUser;
   private String encryptedSsn;
 
   private Encryptor encryptor;
@@ -86,16 +75,18 @@ class EncryptorTests {
     Mockito.when(secretHashRepository.getCompanySecretByCompanyId(testUser.getCompany().getId()))
         .thenReturn(companySecret);
     Mockito.when(userService.findActiveUserById(testUser.getId())).thenReturn(testUser);
-    Mockito.when(userService
-        .findUserByUserPersonalInformationId(testUser.getUserPersonalInformation().getId()))
+    Mockito.when(
+            userService.findUserByUserPersonalInformationId(
+                testUser.getUserPersonalInformation().getId()))
         .thenReturn(testUser);
   }
 
   private void initEncryptSsn() {
     final int hashCode = Objects.hash(indeedHash, companySecret, userSecret);
     final BytesEncryptor bytesEncryptor = Encryptors.stronger(String.valueOf(hashCode), userSalt);
-    encryptedSsn = Base64.getEncoder()
-        .encodeToString(bytesEncryptor.encrypt(ssn.getBytes(StandardCharsets.ISO_8859_1)));
+    encryptedSsn =
+        Base64.getEncoder()
+            .encodeToString(bytesEncryptor.encrypt(ssn.getBytes(StandardCharsets.ISO_8859_1)));
     testUser.getUserPersonalInformation().setSsn(encryptedSsn);
   }
 
@@ -104,71 +95,6 @@ class EncryptorTests {
     final int result = Whitebox.invokeMethod(encryptor, "getHashCode", testUser);
     final int expacted = -1330890148;
     Assertions.assertEquals(expacted, result);
-
-  }
-
-  @Nested
-  class testDecrypt {
-
-    @Test
-    void testDecryptByUser() throws Exception {
-      final String result = Whitebox.invokeMethod(encryptor, "decrypt", testUser,
-          testUser.getUserPersonalInformation().getSsn());
-      Assertions.assertEquals(ssn, result);
-    }
-
-    @Test
-    void testDecryptByUserId() throws Exception {
-      final String result = Whitebox.invokeMethod(encryptor, "decrypt", testUser.getId(),
-          testUser.getUserPersonalInformation().getSsn());
-      Assertions.assertEquals(ssn, result);
-    }
-
-    @Test
-    void whenClassIsUser_thenReturnRealResult() {
-      final String result = encryptor
-          .decrypt(testUser.getId(), User.class, testUser.getUserPersonalInformation().getSsn());
-
-      Mockito.verify(userService, Mockito.times(1)).findActiveUserById(testUser.getId());
-      Assertions.assertEquals(ssn, result);
-    }
-
-    @Test
-    void whenClassIsUserPersonInformation_thenReturnRealResult() {
-      final String result = encryptor
-          .decrypt(testUser.getUserPersonalInformation().getId(), UserPersonalInformation.class,
-              testUser.getUserPersonalInformation().getSsn());
-
-      Mockito.verify(userService, Mockito.times(1))
-          .findUserByUserPersonalInformationId(testUser.getUserPersonalInformation().getId());
-      Assertions.assertEquals(ssn, result);
-    }
-
-    @Test
-    void whenClassIsBenefitPlanDependent_thenReturnRealResult() {
-      final String result = encryptor
-          .decrypt(testUser.getId(), BenefitPlanDependent.class,
-              testUser.getUserPersonalInformation().getSsn());
-
-      Mockito.verify(userService, Mockito.times(1))
-          .findActiveUserById(testUser.getId());
-      Assertions.assertEquals(ssn, result);
-    }
-
-    @Test
-    void whenThrowException_thenReturnOriginalValue() {
-      Mockito.when(userService
-          .findActiveUserById(testUser.getId()))
-          .thenThrow(new RuntimeException());
-
-      final String result = encryptor
-          .decrypt(testUser.getId(), User.class, testUser.getUserPersonalInformation().getSsn());
-
-      Mockito.verify(userService, Mockito.times(1)).findActiveUserById(testUser.getId());
-      Mockito.verify(userService, Mockito.never())
-          .findUserByUserPersonalInformationId(testUser.getUserPersonalInformation().getId());
-      Assertions.assertEquals(testUser.getUserPersonalInformation().getSsn(), result);
-    }
   }
 
   @Test
@@ -191,7 +117,8 @@ class EncryptorTests {
     user.setCompany(company);
     Mockito.when(userService.findActiveUserById(userId)).thenReturn(user);
     Mockito.when(auth0Helper.getUserSecret(user)).thenReturn("1");
-    Mockito.when(secretHashRepository.getCompanySecretByCompanyId(user.getCompany().getId())).thenReturn("1");
+    Mockito.when(secretHashRepository.getCompanySecretByCompanyId(user.getCompany().getId()))
+        .thenReturn("1");
     encryptor.encrypt(userId, value);
     Mockito.verify(userService, Mockito.times(1)).findActiveUserById(userId);
   }
@@ -204,10 +131,83 @@ class EncryptorTests {
     company.setId("1");
     user.setCompany(company);
     Mockito.when(auth0Helper.getUserSecret(user)).thenReturn("1");
-    Mockito.when(secretHashRepository.getCompanySecretByCompanyId(user.getCompany().getId())).thenReturn("1");
+    Mockito.when(secretHashRepository.getCompanySecretByCompanyId(user.getCompany().getId()))
+        .thenReturn("1");
     encryptor.encrypt(user, value);
     Mockito.verify(secretHashRepository, Mockito.times(1))
         .getCompanySecretByCompanyId(user.getCompany().getId());
   }
 
+  @Nested
+  class testDecrypt {
+
+    @Test
+    void testDecryptByUser() throws Exception {
+      final String result =
+          Whitebox.invokeMethod(
+              encryptor, "decrypt", testUser, testUser.getUserPersonalInformation().getSsn());
+      Assertions.assertEquals(ssn, result);
+    }
+
+    @Test
+    void testDecryptByUserId() throws Exception {
+      final String result =
+          Whitebox.invokeMethod(
+              encryptor,
+              "decrypt",
+              testUser.getId(),
+              testUser.getUserPersonalInformation().getSsn());
+      Assertions.assertEquals(ssn, result);
+    }
+
+    @Test
+    void whenClassIsUser_thenReturnRealResult() {
+      final String result =
+          encryptor.decrypt(
+              testUser.getId(), User.class, testUser.getUserPersonalInformation().getSsn());
+
+      Mockito.verify(userService, Mockito.times(1)).findActiveUserById(testUser.getId());
+      Assertions.assertEquals(ssn, result);
+    }
+
+    @Test
+    void whenClassIsUserPersonInformation_thenReturnRealResult() {
+      final String result =
+          encryptor.decrypt(
+              testUser.getUserPersonalInformation().getId(),
+              UserPersonalInformation.class,
+              testUser.getUserPersonalInformation().getSsn());
+
+      Mockito.verify(userService, Mockito.times(1))
+          .findUserByUserPersonalInformationId(testUser.getUserPersonalInformation().getId());
+      Assertions.assertEquals(ssn, result);
+    }
+
+    @Test
+    void whenClassIsBenefitPlanDependent_thenReturnRealResult() {
+      final String result =
+          encryptor.decrypt(
+              testUser.getId(),
+              BenefitPlanDependent.class,
+              testUser.getUserPersonalInformation().getSsn());
+
+      Mockito.verify(userService, Mockito.times(1)).findActiveUserById(testUser.getId());
+      Assertions.assertEquals(ssn, result);
+    }
+
+    @Test
+    void whenThrowException_thenReturnOriginalValue() {
+      Mockito.when(userService.findActiveUserById(testUser.getId()))
+          .thenThrow(new RuntimeException());
+
+      final String result =
+          encryptor.decrypt(
+              testUser.getId(), User.class, testUser.getUserPersonalInformation().getSsn());
+
+      Mockito.verify(userService, Mockito.times(1)).findActiveUserById(testUser.getId());
+      Mockito.verify(userService, Mockito.never())
+          .findUserByUserPersonalInformationId(testUser.getUserPersonalInformation().getId());
+      Assertions.assertEquals(testUser.getUserPersonalInformation().getSsn(), result);
+    }
+  }
 }

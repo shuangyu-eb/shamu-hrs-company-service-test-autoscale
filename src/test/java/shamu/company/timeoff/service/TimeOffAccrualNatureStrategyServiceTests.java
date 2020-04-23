@@ -1,5 +1,10 @@
 package shamu.company.timeoff.service;
 
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,20 +22,12 @@ import shamu.company.timeoff.entity.TimeOffPolicyUser;
 import shamu.company.timeoff.pojo.TimeOffBreakdownCalculatePojo;
 import shamu.company.timeoff.repository.AccrualScheduleMilestoneRepository;
 
-import java.sql.Timestamp;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-
-
 class TimeOffAccrualNatureStrategyServiceTests {
 
   @InjectMocks
   private static TimeOffAccrualNatureStrategyService timeOffAccrualNatureStrategyService;
 
-  @Mock
-  private AccrualScheduleMilestoneRepository accrualScheduleMilestoneRepository;
+  @Mock private AccrualScheduleMilestoneRepository accrualScheduleMilestoneRepository;
 
   @BeforeEach
   void setUp() {
@@ -40,13 +37,15 @@ class TimeOffAccrualNatureStrategyServiceTests {
   @Test
   void getTimeOffBreakdownInternal() {
     final TimeOffBreakdownYearDto timeOffBreakdownYearDto = new TimeOffBreakdownYearDto();
-    final TimeOffBreakdownCalculatePojo timeOffBreakdownCalculatePojo = new TimeOffBreakdownCalculatePojo();
+    final TimeOffBreakdownCalculatePojo timeOffBreakdownCalculatePojo =
+        new TimeOffBreakdownCalculatePojo();
     final TimeOffPolicyUser timeOffPolicyUser = new TimeOffPolicyUser();
     timeOffPolicyUser.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
     timeOffBreakdownCalculatePojo.setPolicyUser(timeOffPolicyUser);
 
     final List<TimeOffPolicyAccrualSchedule> timeOffPolicyAccrualScheduleList = new ArrayList<>();
-    final TimeOffPolicyAccrualSchedule timeOffPolicyAccrualSchedule = new TimeOffPolicyAccrualSchedule();
+    final TimeOffPolicyAccrualSchedule timeOffPolicyAccrualSchedule =
+        new TimeOffPolicyAccrualSchedule();
     timeOffPolicyAccrualSchedule.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
     timeOffPolicyAccrualSchedule.setExpiredAt(Timestamp.valueOf(LocalDateTime.now()));
     timeOffBreakdownCalculatePojo.setTrimmedScheduleList(timeOffPolicyAccrualScheduleList);
@@ -57,15 +56,20 @@ class TimeOffAccrualNatureStrategyServiceTests {
     timeOffBreakdownYearDto.setAccrualHours(10);
     timeOffBreakdownYearDto.setDate(LocalDate.now());
 
-    Assertions.assertDoesNotThrow(() -> timeOffAccrualNatureStrategyService.getTimeOffBreakdownInternal(timeOffBreakdownYearDto, timeOffBreakdownCalculatePojo));
+    Assertions.assertDoesNotThrow(
+        () ->
+            timeOffAccrualNatureStrategyService.getTimeOffBreakdownInternal(
+                timeOffBreakdownYearDto, timeOffBreakdownCalculatePojo));
   }
 
   @Test
   void getAccrualDataByYear() {
-    final TimeOffBreakdownCalculatePojo timeOffBreakdownCalculatePojo = new TimeOffBreakdownCalculatePojo();
+    final TimeOffBreakdownCalculatePojo timeOffBreakdownCalculatePojo =
+        new TimeOffBreakdownCalculatePojo();
     final TimeOffPolicyUser timeOffPolicyUser = new TimeOffPolicyUser();
     final List<TimeOffPolicyAccrualSchedule> timeOffPolicyAccrualSchedules = new ArrayList<>();
-    final TimeOffPolicyAccrualSchedule timeOffPolicyAccrualSchedule = new TimeOffPolicyAccrualSchedule();
+    final TimeOffPolicyAccrualSchedule timeOffPolicyAccrualSchedule =
+        new TimeOffPolicyAccrualSchedule();
     final List<AccrualScheduleMilestone> accrualScheduleMilestones = new ArrayList<>();
     final AccrualScheduleMilestone accrualScheduleMilestone = new AccrualScheduleMilestone();
     final TimeOffAccrualFrequency timeOffAccrualFrequency = new TimeOffAccrualFrequency();
@@ -88,10 +92,16 @@ class TimeOffAccrualNatureStrategyServiceTests {
     timeOffBreakdownCalculatePojo.setTrimmedScheduleList(timeOffPolicyAccrualSchedules);
     timeOffBreakdownCalculatePojo.setUntilDate(LocalDate.now());
 
-    Mockito.when(accrualScheduleMilestoneRepository.findByAccrualScheduleIdWithExpired(Mockito.any())).thenReturn(accrualScheduleMilestones);
+    Mockito.when(
+            accrualScheduleMilestoneRepository.findByAccrualScheduleIdWithExpired(Mockito.any()))
+        .thenReturn(accrualScheduleMilestones);
 
-    Assertions.assertDoesNotThrow(() ->
-        Whitebox.invokeMethod(timeOffAccrualNatureStrategyService,"getAccrualDataByYear", timeOffBreakdownCalculatePojo));
+    Assertions.assertDoesNotThrow(
+        () ->
+            Whitebox.invokeMethod(
+                timeOffAccrualNatureStrategyService,
+                "getAccrualDataByYear",
+                timeOffBreakdownCalculatePojo));
   }
 
   @Test
@@ -101,7 +111,13 @@ class TimeOffAccrualNatureStrategyServiceTests {
     validYears.add(1);
     validYears.add(2);
 
-    Assertions.assertDoesNotThrow(() ->
-        Whitebox.invokeMethod(timeOffAccrualNatureStrategyService,"getAccrualBreakdownYearMap", validYears, new TimeOffBreakdownYearDto(), LocalDate.now()));
+    Assertions.assertDoesNotThrow(
+        () ->
+            Whitebox.invokeMethod(
+                timeOffAccrualNatureStrategyService,
+                "getAccrualBreakdownYearMap",
+                validYears,
+                new TimeOffBreakdownYearDto(),
+                LocalDate.now()));
   }
 }

@@ -13,7 +13,7 @@ public class UserContactInformationService {
 
   @Autowired
   public UserContactInformationService(
-          final UserContactInformationRepository userContactInformationRepository) {
+      final UserContactInformationRepository userContactInformationRepository) {
     this.userContactInformationRepository = userContactInformationRepository;
   }
 
@@ -22,8 +22,10 @@ public class UserContactInformationService {
   }
 
   public UserContactInformation findUserContactInformationById(final String id) {
-    return userContactInformationRepository.findById(id).orElseThrow(
-        () -> new ResourceNotFoundException("User contact information does not exist"));
+    return userContactInformationRepository
+        .findById(id)
+        .orElseThrow(
+            () -> new ResourceNotFoundException("User contact information does not exist"));
   }
 
   public void delete(final UserContactInformation userContactInformation) {

@@ -11,10 +11,10 @@ public class YesterdayOrLaterValidator implements ConstraintValidator<YesterdayO
   @Override
   public boolean isValid(final Timestamp value, final ConstraintValidatorContext context) {
     if (value != null) {
-      final LocalDateTime nativeTime = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0)
-          .withNano(0);
-      final LocalDateTime targetTime = value.toLocalDateTime().withHour(0).withMinute(0)
-          .withSecond(0).withNano(0);
+      final LocalDateTime nativeTime =
+          LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0);
+      final LocalDateTime targetTime =
+          value.toLocalDateTime().withHour(0).withMinute(0).withSecond(0).withNano(0);
 
       final Timestamp theTimestampOfYesterday = Timestamp.valueOf(nativeTime.minusDays(1));
       final Timestamp targetTimestamp = Timestamp.valueOf(targetTime);
@@ -23,5 +23,4 @@ public class YesterdayOrLaterValidator implements ConstraintValidator<YesterdayO
 
     return true;
   }
-
 }

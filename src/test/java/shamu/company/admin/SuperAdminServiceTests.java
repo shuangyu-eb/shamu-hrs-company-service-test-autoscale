@@ -1,6 +1,8 @@
 package shamu.company.admin;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,33 +29,30 @@ import shamu.company.utils.UuidUtil;
 
 class SuperAdminServiceTests {
 
-  @Mock
-  private UserService userService;
-
-  @Mock
-  private SuperAdminRepository superAdminRepository;
-
-  @Mock
-  private Auth0Helper auth0Helper;
-
   private final UserMapper userMapper = Mappers.getMapper(UserMapper.class);
+  @Mock private UserService userService;
+  @Mock private SuperAdminRepository superAdminRepository;
+  @Mock private Auth0Helper auth0Helper;
+  @Mock private AuthUserCacheManager authUserCacheManager;
 
-  @Mock
-  private AuthUserCacheManager authUserCacheManager;
+  @Mock private SystemAnnouncementsService systemAnnouncementsService;
 
-  @Mock
-  private SystemAnnouncementsService systemAnnouncementsService;
-
-  @Mock
-  private SystemAnnouncementsMapper systemAnnouncementsMapper;
+  @Mock private SystemAnnouncementsMapper systemAnnouncementsMapper;
 
   private SuperAdminService superAdminService;
 
   @BeforeEach
   void init() {
     MockitoAnnotations.initMocks(this);
-    superAdminService = new SuperAdminService(userService, superAdminRepository, auth0Helper, userMapper,
-        authUserCacheManager, systemAnnouncementsService, systemAnnouncementsMapper);
+    superAdminService =
+        new SuperAdminService(
+            userService,
+            superAdminRepository,
+            auth0Helper,
+            userMapper,
+            authUserCacheManager,
+            systemAnnouncementsService,
+            systemAnnouncementsMapper);
   }
 
   @Test
@@ -86,10 +85,12 @@ class SuperAdminServiceTests {
     systemAnnouncementDto.setContent("test public system announcement content.");
 
     Mockito.when(userService.findById(Mockito.any())).thenReturn(user);
-    Mockito.when(systemAnnouncementsService.getSystemActiveAnnouncement()).thenReturn(systemAnnouncement);
+    Mockito.when(systemAnnouncementsService.getSystemActiveAnnouncement())
+        .thenReturn(systemAnnouncement);
     Mockito.when(systemAnnouncementsService.save(Mockito.any())).thenReturn(systemAnnouncement);
 
-    Assertions.assertDoesNotThrow(() -> superAdminService.publishSystemAnnouncement("1", systemAnnouncementDto));
+    Assertions.assertDoesNotThrow(
+        () -> superAdminService.publishSystemAnnouncement("1", systemAnnouncementDto));
   }
 
   @Test
@@ -104,8 +105,10 @@ class SuperAdminServiceTests {
 
   @Test
   void testGetSystemPastAnnouncements() {
-    Mockito.when(systemAnnouncementsService.getSystemPastAnnouncements(Mockito.any())).thenReturn(Page.empty());
+    Mockito.when(systemAnnouncementsService.getSystemPastAnnouncements(Mockito.any()))
+        .thenReturn(Page.empty());
 
-    Assertions.assertDoesNotThrow(() -> superAdminService.getSystemPastAnnouncements(Mockito.any()));
+    Assertions.assertDoesNotThrow(
+        () -> superAdminService.getSystemPastAnnouncements(Mockito.any()));
   }
 }

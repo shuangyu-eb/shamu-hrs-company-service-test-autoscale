@@ -1,12 +1,12 @@
 package shamu.company.user;
 
+import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.sql.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -56,15 +56,28 @@ import shamu.company.user.dto.UpdatePasswordDto;
 import shamu.company.user.dto.UserRoleUpdateDto;
 import shamu.company.user.dto.UserSignUpDto;
 import shamu.company.user.dto.UserStatusUpdateDto;
-import shamu.company.user.entity.*;
+import shamu.company.user.entity.DismissedAt;
+import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
+import shamu.company.user.entity.UserContactInformation;
+import shamu.company.user.entity.UserPersonalInformation;
+import shamu.company.user.entity.UserRole;
+import shamu.company.user.entity.UserStatus;
 import shamu.company.user.entity.UserStatus.Status;
 import shamu.company.user.entity.mapper.UserAddressMapper;
 import shamu.company.user.entity.mapper.UserContactInformationMapper;
 import shamu.company.user.entity.mapper.UserMapper;
 import shamu.company.user.entity.mapper.UserPersonalInformationMapper;
 import shamu.company.user.repository.UserRepository;
-import shamu.company.user.service.*;
+import shamu.company.user.service.DismissedAtService;
+import shamu.company.user.service.UserAccessLevelEventService;
+import shamu.company.user.service.UserAddressService;
+import shamu.company.user.service.UserBenefitsSettingService;
+import shamu.company.user.service.UserContactInformationService;
+import shamu.company.user.service.UserPersonalInformationService;
+import shamu.company.user.service.UserRoleService;
+import shamu.company.user.service.UserService;
+import shamu.company.user.service.UserStatusService;
 import shamu.company.utils.UuidUtil;
 
 class UserServiceTests {
@@ -110,23 +123,108 @@ class UserServiceTests {
 
   @Test
   void testCacheUser() {
-      final String token = "token";
-      final String userId = UUID.randomUUID().toString().replaceAll("-", "");
-      final User cachedUser = new User();
-      Mockito.when(userRepository.findById(userId)).thenReturn(Optional.of(cachedUser));
-      Mockito.when(userMapper.convertToAuthUser(cachedUser)).thenReturn(new AuthUser());
-      Assertions.assertDoesNotThrow(() -> userService.cacheUser(token, userId));
+    final String token = "token";
+    final String userId = UUID.randomUUID().toString().replaceAll("-", "");
+    final User cachedUser = new User();
+    Mockito.when(userRepository.findById(userId)).thenReturn(Optional.of(cachedUser));
+    Mockito.when(userMapper.convertToAuthUser(cachedUser)).thenReturn(new AuthUser());
+    Assertions.assertDoesNotThrow(() -> userService.cacheUser(token, userId));
   }
 
   @Test
   void testFindAllEmployees() {
     final String userId = UUID.randomUUID().toString().replaceAll("-", "");
-    final EmployeeListSearchCondition employeeListSearchCondition = new EmployeeListSearchCondition();
+    final EmployeeListSearchCondition employeeListSearchCondition =
+        new EmployeeListSearchCondition();
     final User currentUser = new User();
     currentUser.setCompany(new Company(UUID.randomUUID().toString().replaceAll("-", "")));
     Mockito.when(permissionUtils.hasAuthority(Mockito.anyString())).thenReturn(false);
     Mockito.when(userRepository.findActiveUserById(userId)).thenReturn(currentUser);
-    Assertions.assertDoesNotThrow(() -> userService.findAllEmployees(userId, employeeListSearchCondition));
+    Assertions.assertDoesNotThrow(
+        () -> userService.findAllEmployees(userId, employeeListSearchCondition));
+  }
+
+  @Test
+  void testGetPreSetAccountInfoByUserId() {
+    final String userId = UUID.randomUUID().toString().replaceAll("-", "");
+    final User user = new User();
+    Mockito.when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+    Assertions.assertDoesNotThrow(() -> userService.getPreSetAccountInfoByUserId(userId));
+  }
+
+  @Test
+  void testDeleteHeadPortrait() {
+    final String userId = "userId";
+    final User user = new User();
+    user.setImageUrl("url");
+    Mockito.when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+    Assertions.assertDoesNotThrow(() -> userService.handleDeleteHeadPortrait(userId));
+  }
+
+  @Test
+  void testGetCurrentUserInfo() {
+    final User currentUser = new User();
+    currentUser.setId("1");
+    final String userId = UUID.randomUUID().toString().replaceAll("-", "");
+    currentUser.setId(userId);
+
+    final UserPersonalInformation userPersonalInformation = new UserPersonalInformation();
+    userPersonalInformation.setFirstName("Aa");
+    userPersonalInformation.setLastName("Bb");
+    currentUser.setUserPersonalInformation(userPersonalInformation);
+
+    currentUser.setImageUrl(RandomStringUtils.randomAlphabetic(11));
+
+    final Company company = new Company();
+    company.setId("1");
+
+    Mockito.when(userRepository.findById(Mockito.anyString()))
+        .thenReturn(java.util.Optional.of(currentUser));
+    Mockito.when(userRepository.findByManagerUser(Mockito.any()))
+        .thenReturn(Collections.emptyList());
+
+    final CurrentUserDto userInfo = userService.getCurrentUserInfo(currentUser.getId());
+    Assertions.assertEquals(userInfo.getId(), currentUser.getId());
+  }
+
+  @Test
+  void testResetPassword() {
+    final UpdatePasswordDto updatePasswordDto = new UpdatePasswordDto();
+    updatePasswordDto.setNewPassword(RandomStringUtils.randomAlphabetic(10));
+    updatePasswordDto.setResetPasswordToken(RandomStringUtils.randomAlphabetic(10));
+
+    final User databaseUser = new User();
+    final UserContactInformation userContactInformation = new UserContactInformation();
+    userContactInformation.setEmailWork("example@indeed.com");
+    databaseUser.setUserContactInformation(userContactInformation);
+    final UserStatus targetStatus = new UserStatus();
+    targetStatus.setName(Status.PENDING_VERIFICATION.name());
+
+    final com.auth0.json.mgmt.users.User authUser = new com.auth0.json.mgmt.users.User();
+
+    Mockito.when(userRepository.findByResetPasswordToken(updatePasswordDto.getResetPasswordToken()))
+        .thenReturn(databaseUser);
+    Mockito.when(auth0Helper.getUserByUserIdFromAuth0(Mockito.any())).thenReturn(authUser);
+    Mockito.when(userStatusService.findByName(Mockito.any())).thenReturn(targetStatus);
+
+    Assertions.assertDoesNotThrow(() -> userService.resetPassword(updatePasswordDto));
+  }
+
+  @Test
+  void testDismissCurrentActiveAnnouncement() {
+    final DismissedAt dismissed = new DismissedAt();
+    final User user = new User(UuidUtil.getUuidString());
+    final SystemAnnouncement systemAnnouncement = new SystemAnnouncement();
+
+    Mockito.when(
+            dismissedAtService.findByUserIdAndSystemAnnouncementId(Mockito.any(), Mockito.any()))
+        .thenReturn(null);
+    Mockito.when(systemAnnouncementsService.findById(Mockito.any())).thenReturn(systemAnnouncement);
+    Mockito.when(dismissedAtService.save(Mockito.any())).thenReturn(dismissed);
+    Mockito.when(userRepository.findById(Mockito.any())).thenReturn(Optional.of(user));
+
+    Assertions.assertDoesNotThrow(
+        () -> userService.dismissCurrentActiveAnnouncement(UuidUtil.getUuidString(), "1"));
   }
 
   @Nested
@@ -143,7 +241,8 @@ class UserServiceTests {
     @Test
     void whenManagerIsNull_thenShouldThrow() {
       Mockito.when(userRepository.findOrgChartItemByUserId(userId, companyId)).thenReturn(null);
-      Assertions.assertThrows(ForbiddenException.class, () -> userService.getOrgChart(userId, companyId));
+      Assertions.assertThrows(
+          ForbiddenException.class, () -> userService.getOrgChart(userId, companyId));
     }
 
     @Test
@@ -152,8 +251,7 @@ class UserServiceTests {
       final List<OrgChartDto> orgChartUserItemList = new ArrayList<>();
       manager.setId(UUID.randomUUID().toString().replaceAll("-", ""));
       orgChartUserItemList.add(manager);
-      Mockito.when(userRepository.findOrgChartItemByUserId(userId, companyId))
-          .thenReturn(manager);
+      Mockito.when(userRepository.findOrgChartItemByUserId(userId, companyId)).thenReturn(manager);
       Mockito.when(userRepository.findOrgChartItemByManagerId(manager.getId(), companyId))
           .thenReturn(orgChartUserItemList);
       Assertions.assertDoesNotThrow(() -> userService.getOrgChart(userId, companyId));
@@ -172,17 +270,8 @@ class UserServiceTests {
       Mockito.when(userMapper.convertOrgChartDto(Mockito.any())).thenReturn(orgChartDto);
       Mockito.when(userRepository.findExistingUserCountByCompanyId(Mockito.any())).thenReturn(100);
       userService.getOrgChart(userId, companyId);
-      Mockito.verify(userRepository, Mockito.times(1))
-          .findOrgChartItemByManagerId(null, companyId);
+      Mockito.verify(userRepository, Mockito.times(1)).findOrgChartItemByManagerId(null, companyId);
     }
-  }
-
-  @Test
-  void testGetPreSetAccountInfoByUserId() {
-    final String userId = UUID.randomUUID().toString().replaceAll("-", "");
-    final User user = new User();
-    Mockito.when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-    Assertions.assertDoesNotThrow(() -> userService.getPreSetAccountInfoByUserId(userId));
   }
 
   @Nested
@@ -236,9 +325,9 @@ class UserServiceTests {
 
     @BeforeEach
     void init() {
-      userStatusUpdateDto= new UserStatusUpdateDto();
+      userStatusUpdateDto = new UserStatusUpdateDto();
       userStatusUpdateDto.setUserStatus(Status.ACTIVE);
-      userStatusUpdateDto.setDeactivationReason(new SelectFieldInformationDto("id","name"));
+      userStatusUpdateDto.setDeactivationReason(new SelectFieldInformationDto("id", "name"));
       user = new User();
       final UserRole userRole = new UserRole();
       userId = UUID.randomUUID().toString().replaceAll("-", "");
@@ -273,6 +362,7 @@ class UserServiceTests {
     private ChangePasswordDto changePasswordDto;
     private String userId;
     private com.auth0.json.mgmt.users.User user;
+
     @BeforeEach
     void init() {
       user = new com.auth0.json.mgmt.users.User();
@@ -281,19 +371,20 @@ class UserServiceTests {
       changePasswordDto = new ChangePasswordDto();
       changePasswordDto.setPassword("password");
     }
+
     @Test
     void whenPasswordIsSame_thenShouldThrow() {
       changePasswordDto.setNewPassword("password");
-      Assertions.assertThrows(ForbiddenException.class,
-          () -> userService.updatePassword(changePasswordDto, userId));
+      Assertions.assertThrows(
+          ForbiddenException.class, () -> userService.updatePassword(changePasswordDto, userId));
     }
 
     @Test
     void whenPasswordIsError_thenShouldThrow() {
       Mockito.when(auth0Helper.isPasswordValid(user.getEmail(), changePasswordDto.getPassword()))
           .thenReturn(false);
-      Assertions.assertThrows(ForbiddenException.class,
-          () -> userService.updatePassword(changePasswordDto, userId));
+      Assertions.assertThrows(
+          ForbiddenException.class, () -> userService.updatePassword(changePasswordDto, userId));
     }
 
     @Test
@@ -390,8 +481,8 @@ class UserServiceTests {
 
   @Nested
   class UploadFile {
-    private String id;
     MultipartFile file;
+    private String id;
 
     @Test
     void whenPathIsNull_thenShouldReturnNull() {
@@ -410,33 +501,24 @@ class UserServiceTests {
     }
   }
 
-  @Test
-  void testDeleteHeadPortrait() {
-    final String userId = "userId";
-    final User user = new User();
-    user.setImageUrl("url");
-    Mockito.when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-    Assertions.assertDoesNotThrow(() -> userService.handleDeleteHeadPortrait(userId));
-  }
-
   @Nested
   class ResendVerifyEmail {
-    private String email;
     private final com.auth0.json.mgmt.users.User auth0User = new com.auth0.json.mgmt.users.User();
+    private String email;
 
     @Test
     void whenUserIsNull_thenShouldThrow() {
       Mockito.when(auth0Helper.findByEmail(email)).thenReturn(null);
-      Assertions.assertThrows(ForbiddenException.class,
-          () -> userService.resendVerificationEmail(email));
+      Assertions.assertThrows(
+          ForbiddenException.class, () -> userService.resendVerificationEmail(email));
     }
 
     @Test
     void whenUserIsVerified_thenShouldThrow() {
       auth0User.setEmailVerified(true);
       Mockito.when(auth0Helper.findByEmail(email)).thenReturn(auth0User);
-      Assertions.assertThrows(ForbiddenException.class,
-          () -> userService.resendVerificationEmail(email));
+      Assertions.assertThrows(
+          ForbiddenException.class, () -> userService.resendVerificationEmail(email));
     }
 
     @Test
@@ -446,8 +528,7 @@ class UserServiceTests {
       Mockito.when(auth0Helper.findByEmail(email)).thenReturn(auth0User);
       userService.resendVerificationEmail(email);
 
-      Mockito.verify(auth0Helper, Mockito.times(1))
-          .sendVerificationEmail(Mockito.anyString());
+      Mockito.verify(auth0Helper, Mockito.times(1)).sendVerificationEmail(Mockito.anyString());
     }
   }
 
@@ -490,55 +571,6 @@ class UserServiceTests {
       userService.signUp(userSignUpDto);
       Mockito.verify(userRepository, Mockito.times(1)).save(Mockito.any());
     }
-  }
-
-  @Test
-  void testGetCurrentUserInfo() {
-    final User currentUser = new User();
-    currentUser.setId("1");
-    final String userId = UUID.randomUUID().toString().replaceAll("-", "");
-    currentUser.setId(userId);
-
-    final UserPersonalInformation userPersonalInformation = new UserPersonalInformation();
-    userPersonalInformation.setFirstName("Aa");
-    userPersonalInformation.setLastName("Bb");
-    currentUser.setUserPersonalInformation(userPersonalInformation);
-
-    currentUser.setImageUrl(RandomStringUtils.randomAlphabetic(11));
-
-    final Company company = new Company();
-    company.setId("1");
-
-    Mockito.when(userRepository.findById(Mockito.anyString()))
-        .thenReturn(java.util.Optional.of(currentUser));
-    Mockito.when(userRepository.findByManagerUser(Mockito.any()))
-        .thenReturn(Collections.emptyList());
-
-    final CurrentUserDto userInfo = userService.getCurrentUserInfo(currentUser.getId());
-    Assertions.assertEquals(userInfo.getId(), currentUser.getId());
-  }
-
-  @Test
-  void testResetPassword() {
-    final UpdatePasswordDto updatePasswordDto = new UpdatePasswordDto();
-    updatePasswordDto.setNewPassword(RandomStringUtils.randomAlphabetic(10));
-    updatePasswordDto.setResetPasswordToken(RandomStringUtils.randomAlphabetic(10));
-
-    final User databaseUser = new User();
-    final UserContactInformation userContactInformation = new UserContactInformation();
-    userContactInformation.setEmailWork("example@indeed.com");
-    databaseUser.setUserContactInformation(userContactInformation);
-    final UserStatus targetStatus = new UserStatus();
-    targetStatus.setName(Status.PENDING_VERIFICATION.name());
-
-    final com.auth0.json.mgmt.users.User authUser = new com.auth0.json.mgmt.users.User();
-
-    Mockito.when(userRepository.findByResetPasswordToken(updatePasswordDto.getResetPasswordToken()))
-        .thenReturn(databaseUser);
-    Mockito.when(auth0Helper.getUserByUserIdFromAuth0(Mockito.any())).thenReturn(authUser);
-    Mockito.when(userStatusService.findByName(Mockito.any())).thenReturn(targetStatus);
-
-    Assertions.assertDoesNotThrow(() -> userService.resetPassword(updatePasswordDto));
   }
 
   @Nested
@@ -698,7 +730,7 @@ class UserServiceTests {
 
   @Nested
   class createPasswordAndInvitationTokenExist {
-    String passwordToken,invitationToken;
+    String passwordToken, invitationToken;
     User currentUser;
 
     @BeforeEach
@@ -715,40 +747,50 @@ class UserServiceTests {
     @Test
     void whenUserIsNull_thenShouldThrow() {
       Mockito.when(userRepository.findByInvitationEmailToken(Mockito.any())).thenReturn(null);
-      Assertions.assertThrows(ForbiddenException.class,
+      Assertions.assertThrows(
+          ForbiddenException.class,
           () -> userService.createPasswordAndInvitationTokenExist(passwordToken, invitationToken));
     }
 
     @Test
     void whenUserInvitedAtIsNull_thenShouldThrow() {
       currentUser.setInvitedAt(null);
-      Mockito.when(userRepository.findByInvitationEmailToken(Mockito.any())).thenReturn(currentUser);
-      Assertions.assertThrows(ForbiddenException.class,
+      Mockito.when(userRepository.findByInvitationEmailToken(Mockito.any()))
+          .thenReturn(currentUser);
+      Assertions.assertThrows(
+          ForbiddenException.class,
           () -> userService.createPasswordAndInvitationTokenExist(passwordToken, invitationToken));
     }
 
     @Test
     void whenInvitationTokenExistPasswordNotExist_thenShouldReturnFalse() {
-      Mockito.when(userRepository.findByInvitationEmailToken(Mockito.any())).thenReturn(currentUser);
-      Mockito.when(userRepository.existsByResetPasswordToken(Mockito.anyString())).thenReturn(false);
-      Assertions.assertFalse(userService.createPasswordAndInvitationTokenExist(passwordToken, invitationToken));
+      Mockito.when(userRepository.findByInvitationEmailToken(Mockito.any()))
+          .thenReturn(currentUser);
+      Mockito.when(userRepository.existsByResetPasswordToken(Mockito.anyString()))
+          .thenReturn(false);
+      Assertions.assertFalse(
+          userService.createPasswordAndInvitationTokenExist(passwordToken, invitationToken));
     }
 
     @Test
     void whenUserExistInvitedExpired_thenShouldThrow() {
       currentUser.setInvitedAt(Timestamp.valueOf(LocalDateTime.now().minus(100, ChronoUnit.HOURS)));
-      Mockito.when(userRepository.findByInvitationEmailToken(Mockito.any())).thenReturn(currentUser);
+      Mockito.when(userRepository.findByInvitationEmailToken(Mockito.any()))
+          .thenReturn(currentUser);
       Mockito.when(userRepository.existsByResetPasswordToken(Mockito.anyString())).thenReturn(true);
-      Assertions.assertThrows(EmailException.class,
+      Assertions.assertThrows(
+          EmailException.class,
           () -> userService.createPasswordAndInvitationTokenExist(passwordToken, invitationToken));
     }
 
     @Test
     void whenUserExistInvitedNotExpired_thenShouldReturnTrue() {
       currentUser.setInvitedAt(Timestamp.valueOf(LocalDateTime.now().minus(1, ChronoUnit.HOURS)));
-      Mockito.when(userRepository.findByInvitationEmailToken(Mockito.any())).thenReturn(currentUser);
+      Mockito.when(userRepository.findByInvitationEmailToken(Mockito.any()))
+          .thenReturn(currentUser);
       Mockito.when(userRepository.existsByResetPasswordToken(Mockito.anyString())).thenReturn(true);
-      Assertions.assertTrue(userService.createPasswordAndInvitationTokenExist(passwordToken, invitationToken));
+      Assertions.assertTrue(
+          userService.createPasswordAndInvitationTokenExist(passwordToken, invitationToken));
     }
   }
 
@@ -759,32 +801,26 @@ class UserServiceTests {
     void whenDismissAdIsNotNull_then_shouldReturnTrue() {
       final DismissedAt dismissedAt = new DismissedAt();
 
-      Mockito.when(dismissedAtService.findByUserIdAndSystemAnnouncementId(Mockito.any(), Mockito.any())).thenReturn(dismissedAt);
+      Mockito.when(
+              dismissedAtService.findByUserIdAndSystemAnnouncementId(Mockito.any(), Mockito.any()))
+          .thenReturn(dismissedAt);
 
-      Assertions.assertDoesNotThrow(() -> userService.isCurrentActiveAnnouncementDismissed(UuidUtil.getUuidString(), "1"));
-      Assertions.assertTrue(userService.isCurrentActiveAnnouncementDismissed(UuidUtil.getUuidString(), "1"));
+      Assertions.assertDoesNotThrow(
+          () -> userService.isCurrentActiveAnnouncementDismissed(UuidUtil.getUuidString(), "1"));
+      Assertions.assertTrue(
+          userService.isCurrentActiveAnnouncementDismissed(UuidUtil.getUuidString(), "1"));
     }
 
     @Test
     void whenDismissAdIsNull_then_shouldReturnFalse() {
-      Mockito.when(dismissedAtService.findByUserIdAndSystemAnnouncementId(Mockito.any(), Mockito.any())).thenReturn(null);
+      Mockito.when(
+              dismissedAtService.findByUserIdAndSystemAnnouncementId(Mockito.any(), Mockito.any()))
+          .thenReturn(null);
 
-      Assertions.assertDoesNotThrow(() -> userService.isCurrentActiveAnnouncementDismissed(UuidUtil.getUuidString(), "1"));
-      Assertions.assertFalse(userService.isCurrentActiveAnnouncementDismissed(UuidUtil.getUuidString(), "1"));
+      Assertions.assertDoesNotThrow(
+          () -> userService.isCurrentActiveAnnouncementDismissed(UuidUtil.getUuidString(), "1"));
+      Assertions.assertFalse(
+          userService.isCurrentActiveAnnouncementDismissed(UuidUtil.getUuidString(), "1"));
     }
-  }
-
-  @Test
-  void testDismissCurrentActiveAnnouncement() {
-    final DismissedAt dismissed = new DismissedAt();
-    final User user = new User(UuidUtil.getUuidString());
-    final SystemAnnouncement systemAnnouncement = new SystemAnnouncement();
-
-    Mockito.when(dismissedAtService.findByUserIdAndSystemAnnouncementId(Mockito.any(), Mockito.any())).thenReturn(null);
-    Mockito.when(systemAnnouncementsService.findById(Mockito.any())).thenReturn(systemAnnouncement);
-    Mockito.when(dismissedAtService.save(Mockito.any())).thenReturn(dismissed);
-    Mockito.when(userRepository.findById(Mockito.any())).thenReturn(Optional.of(user));
-
-    Assertions.assertDoesNotThrow(() -> userService.dismissCurrentActiveAnnouncement(UuidUtil.getUuidString(), "1"));
   }
 }

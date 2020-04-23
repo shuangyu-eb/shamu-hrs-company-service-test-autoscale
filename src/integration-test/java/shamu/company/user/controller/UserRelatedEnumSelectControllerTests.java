@@ -1,5 +1,7 @@
 package shamu.company.user.controller;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -21,49 +23,40 @@ import shamu.company.user.service.RetirementTypeService;
 import shamu.company.user.service.UserRoleService;
 import shamu.company.user.service.UserStatusService;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 @WebMvcTest(controllers = UserRelatedEnumSelectController.class)
 public class UserRelatedEnumSelectControllerTests extends WebControllerBaseTests {
 
-  @MockBean
-  private CompensationFrequencyService compensationFrequencyService;
+  @MockBean private CompensationFrequencyService compensationFrequencyService;
 
-  @MockBean
-  private CompensationOvertimeStatusService compensationOvertimeStatusService;
+  @MockBean private CompensationOvertimeStatusService compensationOvertimeStatusService;
 
-  @MockBean
-  private DeactivationReasonService deactivationReasonService;
+  @MockBean private DeactivationReasonService deactivationReasonService;
 
-  @MockBean
-  private EthnicityService ethnicityService;
+  @MockBean private EthnicityService ethnicityService;
 
-  @MockBean
-  private GenderService genderService;
+  @MockBean private GenderService genderService;
 
-  @MockBean
-  private MaritalStatusService maritalStatusService;
+  @MockBean private MaritalStatusService maritalStatusService;
 
-  @MockBean
-  private RetirementTypeService retirementTypeService;
+  @MockBean private RetirementTypeService retirementTypeService;
 
-  @MockBean
-  private UserRoleService userRoleService;
+  @MockBean private UserRoleService userRoleService;
 
-  @MockBean
-  private UserStatusService userStatusService;
+  @MockBean private UserStatusService userStatusService;
 
-  @Autowired
-  private MockMvc mockMvc;
+  @Autowired private MockMvc mockMvc;
 
   @Test
   void testGetCompensationFrequencies() throws Exception {
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
 
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .get("/company/compensation-frequencies")
-        .headers(httpHeaders)).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.get("/company/compensation-frequencies")
+                    .headers(httpHeaders))
+            .andReturn();
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
@@ -73,9 +66,12 @@ public class UserRelatedEnumSelectControllerTests extends WebControllerBaseTests
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
 
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .get("/company/compensation-overtime-statuses")
-        .headers(httpHeaders)).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.get("/company/compensation-overtime-statuses")
+                    .headers(httpHeaders))
+            .andReturn();
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
@@ -85,9 +81,11 @@ public class UserRelatedEnumSelectControllerTests extends WebControllerBaseTests
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
 
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .get("/company/deactivation-reasons")
-        .headers(httpHeaders)).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.get("/company/deactivation-reasons").headers(httpHeaders))
+            .andReturn();
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
@@ -97,9 +95,10 @@ public class UserRelatedEnumSelectControllerTests extends WebControllerBaseTests
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
 
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .get("/company/ethnicities")
-        .headers(httpHeaders)).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(MockMvcRequestBuilders.get("/company/ethnicities").headers(httpHeaders))
+            .andReturn();
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
@@ -109,9 +108,10 @@ public class UserRelatedEnumSelectControllerTests extends WebControllerBaseTests
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
 
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .get("/company/genders")
-        .headers(httpHeaders)).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(MockMvcRequestBuilders.get("/company/genders").headers(httpHeaders))
+            .andReturn();
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
@@ -121,9 +121,10 @@ public class UserRelatedEnumSelectControllerTests extends WebControllerBaseTests
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
 
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .get("/company/marital-statuses")
-        .headers(httpHeaders)).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(MockMvcRequestBuilders.get("/company/marital-statuses").headers(httpHeaders))
+            .andReturn();
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
@@ -133,9 +134,10 @@ public class UserRelatedEnumSelectControllerTests extends WebControllerBaseTests
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
 
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .get("/company/retirement-types")
-        .headers(httpHeaders)).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(MockMvcRequestBuilders.get("/company/retirement-types").headers(httpHeaders))
+            .andReturn();
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
@@ -145,9 +147,10 @@ public class UserRelatedEnumSelectControllerTests extends WebControllerBaseTests
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
 
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .get("/company/user-roles")
-        .headers(httpHeaders)).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(MockMvcRequestBuilders.get("/company/user-roles").headers(httpHeaders))
+            .andReturn();
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
@@ -157,9 +160,10 @@ public class UserRelatedEnumSelectControllerTests extends WebControllerBaseTests
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
 
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .get("/company/user-statuses")
-        .headers(httpHeaders)).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(MockMvcRequestBuilders.get("/company/user-statuses").headers(httpHeaders))
+            .andReturn();
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }

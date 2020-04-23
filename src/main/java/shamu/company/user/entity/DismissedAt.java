@@ -17,9 +17,7 @@ import shamu.company.common.entity.BaseEntity;
 public class DismissedAt extends BaseEntity {
 
   private static final long serialVersionUID = 4809408386010041398L;
-  @OneToOne
-  private User user;
+  @OneToOne private User user;
 
-  @OneToOne
-  private SystemAnnouncement systemAnnouncement;
+  @OneToOne private SystemAnnouncement systemAnnouncement;
 }

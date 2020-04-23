@@ -17,7 +17,8 @@ public class CompanyBenefitsSettingServiceTests {
   @BeforeEach
   void init() {
     MockitoAnnotations.initMocks(this);
-    companyBenefitsSettingService = new CompanyBenefitsSettingService(companyBenefitsSettingRepository);
+    companyBenefitsSettingService =
+        new CompanyBenefitsSettingService(companyBenefitsSettingRepository);
   }
 
   @Test

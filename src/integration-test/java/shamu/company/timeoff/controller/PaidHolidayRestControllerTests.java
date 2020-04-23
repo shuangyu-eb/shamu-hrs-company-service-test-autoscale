@@ -1,5 +1,10 @@
 package shamu.company.timeoff.controller;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
+
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,26 +27,20 @@ import shamu.company.timeoff.entity.PaidHoliday;
 import shamu.company.user.entity.User;
 import shamu.company.utils.JsonUtil;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.BDDMockito.given;
-
 @WebMvcTest(controllers = PaidHolidayRestController.class)
 class PaidHolidayRestControllerTests extends WebControllerBaseTests {
 
-  @Autowired
-  private MockMvc mockMvc;
+  @Autowired private MockMvc mockMvc;
 
   @Test
   void testGetAllPaidHolidays() throws Exception {
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
 
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .get("/company/paid-holidays")
-        .headers(httpHeaders)).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(MockMvcRequestBuilders.get("/company/paid-holidays").headers(httpHeaders))
+            .andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
 
@@ -50,9 +49,13 @@ class PaidHolidayRestControllerTests extends WebControllerBaseTests {
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
 
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .get("/company/paid-holidays/user/"+getAuthUser().getId()+"")
-        .headers(httpHeaders)).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.get(
+                        "/company/paid-holidays/user/" + getAuthUser().getId() + "")
+                    .headers(httpHeaders))
+            .andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
 
@@ -61,9 +64,11 @@ class PaidHolidayRestControllerTests extends WebControllerBaseTests {
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
 
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .get("/company/paid-holidays/employees")
-        .headers(httpHeaders)).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.get("/company/paid-holidays/employees").headers(httpHeaders))
+            .andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
 
@@ -72,14 +77,19 @@ class PaidHolidayRestControllerTests extends WebControllerBaseTests {
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
 
-    final PaidHolidayRelatedUserListDto paidHolidayRelatedUserListDto = new PaidHolidayRelatedUserListDto();
+    final PaidHolidayRelatedUserListDto paidHolidayRelatedUserListDto =
+        new PaidHolidayRelatedUserListDto();
     final List<JobUserDto> jobUserDtoList = new ArrayList<>();
     paidHolidayRelatedUserListDto.setPaidHolidaySelectedEmployees(jobUserDtoList);
-    given(paidHolidayService.getPaidHolidayEmployees(Mockito.any())).willReturn(paidHolidayRelatedUserListDto);
+    given(paidHolidayService.getPaidHolidayEmployees(Mockito.any()))
+        .willReturn(paidHolidayRelatedUserListDto);
 
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .get("/company/paid-holidays/employees/count")
-        .headers(httpHeaders)).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.get("/company/paid-holidays/employees/count")
+                    .headers(httpHeaders))
+            .andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
 
@@ -93,15 +103,20 @@ class PaidHolidayRestControllerTests extends WebControllerBaseTests {
     final List<PaidHolidayEmployeeDto> paidHolidayEmployeeDtos = new ArrayList<>();
     final List<JobUserDto> jobUserDtoList = new ArrayList();
     jobUserDtoList.add(new JobUserDto());
-    final PaidHolidayRelatedUserListDto paidHolidayRelatedUserListDto = new PaidHolidayRelatedUserListDto();
+    final PaidHolidayRelatedUserListDto paidHolidayRelatedUserListDto =
+        new PaidHolidayRelatedUserListDto();
     paidHolidayRelatedUserListDto.setPaidHolidaySelectedEmployees(jobUserDtoList);
-    given(paidHolidayService.getPaidHolidayEmployees(Mockito.any())).willReturn(paidHolidayRelatedUserListDto);
+    given(paidHolidayService.getPaidHolidayEmployees(Mockito.any()))
+        .willReturn(paidHolidayRelatedUserListDto);
 
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .get("/company/paid-holidays/employees")
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(JsonUtil.formatToString(paidHolidayEmployeeDtos))
-        .headers(httpHeaders)).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.get("/company/paid-holidays/employees")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(JsonUtil.formatToString(paidHolidayEmployeeDtos))
+                    .headers(httpHeaders))
+            .andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
 
@@ -110,9 +125,12 @@ class PaidHolidayRestControllerTests extends WebControllerBaseTests {
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
 
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .get("/company/paid-holidays/years/2020")
-        .headers(httpHeaders)).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.get("/company/paid-holidays/years/2020")
+                    .headers(httpHeaders))
+            .andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
 
@@ -124,11 +142,14 @@ class PaidHolidayRestControllerTests extends WebControllerBaseTests {
 
     final List<PaidHolidayDto> paidHolidayDtos = new ArrayList<>();
 
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .patch("/company/paid-holidays/select")
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(JsonUtil.formatToString(paidHolidayDtos))
-        .headers(httpHeaders)).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.patch("/company/paid-holidays/select")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(JsonUtil.formatToString(paidHolidayDtos))
+                    .headers(httpHeaders))
+            .andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
 
@@ -138,11 +159,14 @@ class PaidHolidayRestControllerTests extends WebControllerBaseTests {
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
 
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .post("/company/paid-holidays")
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(JsonUtil.formatToString(new PaidHolidayDto()))
-        .headers(httpHeaders)).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.post("/company/paid-holidays")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(JsonUtil.formatToString(new PaidHolidayDto()))
+                    .headers(httpHeaders))
+            .andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
 
@@ -152,11 +176,14 @@ class PaidHolidayRestControllerTests extends WebControllerBaseTests {
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
 
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .patch("/company/paid-holidays/1")
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(JsonUtil.formatToString(new PaidHolidayDto()))
-        .headers(httpHeaders)).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.patch("/company/paid-holidays/1")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(JsonUtil.formatToString(new PaidHolidayDto()))
+                    .headers(httpHeaders))
+            .andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
 
@@ -171,10 +198,10 @@ class PaidHolidayRestControllerTests extends WebControllerBaseTests {
     paidHoliday.setCreator(new User(getAuthUser().getId()));
     given(paidHolidayService.getPaidHoliday(Mockito.any())).willReturn(paidHoliday);
 
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .delete("/company/paid-holidays/1")
-        .headers(httpHeaders)).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(MockMvcRequestBuilders.delete("/company/paid-holidays/1").headers(httpHeaders))
+            .andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
-
 }

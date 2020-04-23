@@ -15,11 +15,10 @@ import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus;
 @Mapper(
     config = Config.class,
     uses = {
-        TimeOffRequestCommentMapper.class,
-        SelectFieldInformationDto.class,
-        TimeOffRequestDateMapper.class
-    }
-)
+      TimeOffRequestCommentMapper.class,
+      SelectFieldInformationDto.class,
+      TimeOffRequestDateMapper.class
+    })
 public interface TimeOffRequestMapper {
 
   @Mapping(target = "name", source = "requesterUser.userPersonalInformation.name")
@@ -27,8 +26,11 @@ public interface TimeOffRequestMapper {
   @Mapping(target = "userId", source = "requesterUser.id")
   BasicTimeOffRequestDto convertToBasicTimeOffRequestDto(TimeOffRequest timeOffRequest);
 
-  @Mapping(target = "status", expression = "java(shamu.company.utils"
-      + ".TimeOffRequestStatusStringUtil.getUpperCaseString(timeOffRequest))")
+  @Mapping(
+      target = "status",
+      expression =
+          "java(shamu.company.utils"
+              + ".TimeOffRequestStatusStringUtil.getUpperCaseString(timeOffRequest))")
   @Mapping(target = "comment", source = "requsterComment")
   @Mapping(target = "imageUrl", source = "requesterUser.imageUrl")
   @Mapping(target = "userId", source = "requesterUser.id")
@@ -47,7 +49,7 @@ public interface TimeOffRequestMapper {
   TimeOffRequest createFromTimeOffRequestUpdateDto(TimeOffRequestUpdateDto timeOffRequestUpdateDto);
 
   default TimeOffRequestApprovalStatus convertByTimeOffApprovalStatus(
-          TimeOffRequestApprovalStatus.TimeOffApprovalStatus status) {
+      TimeOffRequestApprovalStatus.TimeOffApprovalStatus status) {
     TimeOffRequestApprovalStatus timeOffRequestApprovalStatus = new TimeOffRequestApprovalStatus();
     timeOffRequestApprovalStatus.setName(status.name());
     return timeOffRequestApprovalStatus;

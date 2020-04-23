@@ -16,8 +16,7 @@ import shamu.company.common.entity.BaseEntity;
 @Table(name = "offices")
 public class Office extends BaseEntity {
 
-  @ManyToOne
-  private Company company;
+  @ManyToOne private Company company;
 
   private String officeId;
 
@@ -30,7 +29,8 @@ public class Office extends BaseEntity {
   @Length(max = 255)
   private String email;
 
-  @OneToOne(orphanRemoval = true,
+  @OneToOne(
+      orphanRemoval = true,
       cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
   private OfficeAddress officeAddress;
 

@@ -24,7 +24,5 @@ public class EmploymentType extends BaseEntity {
   @Length(max = 30)
   private String name;
 
-  @ManyToOne
-  @JsonIgnore
-  private Company company;
+  @ManyToOne @JsonIgnore private Company company;
 }

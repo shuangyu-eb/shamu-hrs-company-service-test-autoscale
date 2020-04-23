@@ -25,8 +25,7 @@ public class JobController extends BaseRestController {
   private final JobUserService jobUserService;
 
   @Autowired
-  public JobController(
-          final JobUserService jobUserService) {
+  public JobController(final JobUserService jobUserService) {
     this.jobUserService = jobUserService;
   }
 
@@ -40,35 +39,35 @@ public class JobController extends BaseRestController {
   @PreAuthorize(
       "hasPermission(#id,'USER', 'EDIT_USER')"
           + "and hasPermission(#jobUpdateDto, 'USER_JOB', 'EDIT_USER')")
-  public HttpEntity updateJobInfo(@PathVariable final String id,
-      @RequestBody final JobUpdateDto jobUpdateDto) {
+  public HttpEntity updateJobInfo(
+      @PathVariable final String id, @RequestBody final JobUpdateDto jobUpdateDto) {
     jobUserService.updateJobInfo(id, jobUpdateDto, findCompanyId());
     return new ResponseEntity(HttpStatus.OK);
   }
 
   @PatchMapping("jobs/select/option/update")
-  @PreAuthorize("hasPermission("
+  @PreAuthorize(
+      "hasPermission("
           + "#jobSelectOptionUpdateDto.id, #jobSelectOptionUpdateDto.updateField, 'EDIT_USER')")
   public HttpEntity updateJobSelectOption(
-          @RequestBody final JobSelectOptionUpdateDto jobSelectOptionUpdateDto) {
+      @RequestBody final JobSelectOptionUpdateDto jobSelectOptionUpdateDto) {
     jobUserService.updateJobSelectOption(jobSelectOptionUpdateDto);
     return new ResponseEntity(HttpStatus.OK);
   }
 
   @DeleteMapping("jobs/select/option/delete")
-  @PreAuthorize("hasPermission("
+  @PreAuthorize(
+      "hasPermission("
           + "#jobSelectOptionUpdateDto.id, #jobSelectOptionUpdateDto.updateField, 'EDIT_USER')")
   public HttpEntity deleteJobSelectOption(
-          @RequestBody final JobSelectOptionUpdateDto jobSelectOptionUpdateDto) {
+      @RequestBody final JobSelectOptionUpdateDto jobSelectOptionUpdateDto) {
     jobUserService.deleteJobSelectOption(jobSelectOptionUpdateDto);
     return new ResponseEntity(HttpStatus.OK);
   }
 
   @GetMapping("departments/{id}/jobs")
   @PreAuthorize("hasPermission(#id,'DEPARTMENT','VIEW_JOB')")
-  public List<SelectFieldSizeDto> findJobsByDepartment(
-          @PathVariable final String id) {
+  public List<SelectFieldSizeDto> findJobsByDepartment(@PathVariable final String id) {
     return jobUserService.findJobsByDepartmentId(id);
   }
-
 }

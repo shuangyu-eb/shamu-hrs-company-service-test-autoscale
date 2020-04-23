@@ -34,14 +34,11 @@ public class UserCompensation extends BaseEntity {
   @Type(type = "shamu.company.common.PrimaryKeyTypeDescriptor")
   private String userId;
 
-  @OneToOne
-  private CompensationType compensationType;
+  @OneToOne private CompensationType compensationType;
 
-  @OneToOne
-  private CompensationChangeReason compensationChangeReason;
+  @OneToOne private CompensationChangeReason compensationChangeReason;
 
-  @ManyToOne
-  private CompensationFrequency compensationFrequency;
+  @ManyToOne private CompensationFrequency compensationFrequency;
 
   private String comment;
 }

@@ -12,10 +12,10 @@ import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
 /**
- * This class is meant to generate the rendered email content, so that you can tune the style in browsers
+ * This class is meant to generate the rendered email content, so that you can tune the style in
+ * browsers
  */
 public class ThymeleafUtil {
-
 
   private static String getContent(final String emailTemplate, final Context context) {
     final TemplateEngine templateEngine = new TemplateEngine();
@@ -29,7 +29,8 @@ public class ThymeleafUtil {
     return templateEngine.process(emailTemplate, context);
   }
 
-  public static void generateEmail(final String templateName, final Context context) throws IOException {
+  public static void generateEmail(final String templateName, final Context context)
+      throws IOException {
     final String emailContent = getContent(templateName, context);
 
     final String directory = "target/emails/";

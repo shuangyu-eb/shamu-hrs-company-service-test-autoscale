@@ -27,24 +27,17 @@ public class TimeOffAdjustment {
 
   @Id
   @GeneratedValue(generator = "UUID")
-  @GenericGenerator(
-      name = "UUID",
-      strategy = "shamu.company.common.DefaultUuidGenerator"
-  )
+  @GenericGenerator(name = "UUID", strategy = "shamu.company.common.DefaultUuidGenerator")
   @Type(type = "shamu.company.common.PrimaryKeyTypeDescriptor")
   private String id;
 
-  @CreationTimestamp
-  private Timestamp createdAt;
+  @CreationTimestamp private Timestamp createdAt;
 
-  @ManyToOne
-  private Company company;
+  @ManyToOne private Company company;
 
-  @ManyToOne
-  private User user;
+  @ManyToOne private User user;
 
-  @ManyToOne
-  private TimeOffPolicy timeOffPolicy;
+  @ManyToOne private TimeOffPolicy timeOffPolicy;
 
   @Type(type = "shamu.company.common.PrimaryKeyTypeDescriptor")
   private String adjusterUserId;
@@ -53,8 +46,8 @@ public class TimeOffAdjustment {
 
   private String comment;
 
-  public TimeOffAdjustment(final TimeOffPolicyUser user, final TimeOffPolicy enrollPolicy,
-      final User currentUser) {
+  public TimeOffAdjustment(
+      final TimeOffPolicyUser user, final TimeOffPolicy enrollPolicy, final User currentUser) {
     this.company = user.getUser().getCompany();
     this.user = user.getUser();
     this.timeOffPolicy = enrollPolicy;

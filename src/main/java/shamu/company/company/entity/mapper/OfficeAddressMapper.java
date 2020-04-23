@@ -8,10 +8,7 @@ import shamu.company.company.dto.OfficeAddressDto;
 import shamu.company.company.dto.OfficeCreateDto;
 import shamu.company.company.entity.OfficeAddress;
 
-@Mapper(
-    config = Config.class,
-    uses = StateProvinceMapper.class
-)
+@Mapper(config = Config.class, uses = StateProvinceMapper.class)
 public interface OfficeAddressMapper {
 
   @Mapping(target = "zip", source = "postalCode")
@@ -20,5 +17,5 @@ public interface OfficeAddressMapper {
   @Mapping(target = "stateProvince", source = "stateId")
   @Mapping(target = "postalCode", source = "zip")
   OfficeAddress updateFromOfficeCreateDto(
-          @MappingTarget OfficeAddress officeAddress, OfficeCreateDto officeCreateDto);
+      @MappingTarget OfficeAddress officeAddress, OfficeCreateDto officeCreateDto);
 }

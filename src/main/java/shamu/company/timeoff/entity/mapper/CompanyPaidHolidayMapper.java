@@ -24,9 +24,8 @@ public interface CompanyPaidHolidayMapper {
   @Mapping(target = "createdAt", ignore = true)
   @Mapping(target = "updatedAt", ignore = true)
   @Mapping(target = "paidHoliday", source = "paidHoliday")
-  CompanyPaidHoliday createFromPaidHolidayDtoAndPaidHoliday(PaidHolidayDto paidHolidayDto,
-      PaidHoliday paidHoliday);
-
+  CompanyPaidHoliday createFromPaidHolidayDtoAndPaidHoliday(
+      PaidHolidayDto paidHolidayDto, PaidHoliday paidHoliday);
 
   default boolean getEditable(final CompanyPaidHoliday companyPaidHoliday, final AuthUser user) {
     final User creator = companyPaidHoliday.getPaidHoliday().getCreator();

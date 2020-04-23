@@ -15,24 +15,21 @@ import shamu.company.utils.DateUtil;
 @Builder
 public class TimeOffBreakdownItemDto {
 
-  private LocalDate date;
-
-  private String dateMessage;
-
-  private String detail;
-
-  private Integer amount;
-
-  private Integer balance;
-
-  @JsonIgnore
-  private BreakDownType breakdownType;
-
   private static final String STARTING_BREAKDOWN_DETAIL = "Starting Balance";
+  private LocalDate date;
+  private String dateMessage;
+  private String detail;
+  private Integer amount;
+  private Integer balance;
+  @JsonIgnore private BreakDownType breakdownType;
 
-  public TimeOffBreakdownItemDto(final LocalDate date, final String dateMessage,
-                                 final String detail, final Integer amount,
-                                 final Integer balance, final BreakDownType breakdownType) {
+  public TimeOffBreakdownItemDto(
+      final LocalDate date,
+      final String dateMessage,
+      final String detail,
+      final Integer amount,
+      final Integer balance,
+      final BreakDownType breakdownType) {
     this.date = date;
     this.dateMessage = dateMessage;
     this.detail = detail;
@@ -41,9 +38,12 @@ public class TimeOffBreakdownItemDto {
     this.breakdownType = breakdownType;
   }
 
-  public TimeOffBreakdownItemDto(final LocalDate date, final String dateMessage,
-                                 final String detail, final Integer amount,
-                                 final BreakDownType breakdownType) {
+  public TimeOffBreakdownItemDto(
+      final LocalDate date,
+      final String dateMessage,
+      final String detail,
+      final Integer amount,
+      final BreakDownType breakdownType) {
     this.date = date;
     this.dateMessage = dateMessage;
     this.detail = detail;
@@ -63,18 +63,20 @@ public class TimeOffBreakdownItemDto {
 
     TimeOffBreakdownYearDto timeOffBreakdownYearDto =
         TimeOffBreakdownYearDto.builder()
-        .accrualHours(startingBalance)
-        .date(DateUtil.fromTimestamp(timeOffPolicyUser.getUpdatedAt()))
-        .build();
+            .accrualHours(startingBalance)
+            .date(DateUtil.fromTimestamp(timeOffPolicyUser.getUpdatedAt()))
+            .build();
 
     calculatePojo.getTrimmedScheduleList().stream()
-        .filter(timeOffSchedule ->
-            DateUtil.fromTimestamp(timeOffSchedule.getCreatedAt()).getYear()
-                == timeOffBreakdownYearDto.getDate().getYear())
-        .forEach((accrualSchedule -> {
-          timeOffBreakdownYearDto.setMaxBalance(accrualSchedule.getMaxBalance());
-          timeOffBreakdownYearDto.setCarryoverLimit(accrualSchedule.getCarryoverLimit());
-        }));
+        .filter(
+            timeOffSchedule ->
+                DateUtil.fromTimestamp(timeOffSchedule.getCreatedAt()).getYear()
+                    == timeOffBreakdownYearDto.getDate().getYear())
+        .forEach(
+            (accrualSchedule -> {
+              timeOffBreakdownYearDto.setMaxBalance(accrualSchedule.getMaxBalance());
+              timeOffBreakdownYearDto.setCarryoverLimit(accrualSchedule.getCarryoverLimit());
+            }));
 
     return timeOffBreakdownYearDto;
   }
@@ -92,13 +94,13 @@ public class TimeOffBreakdownItemDto {
         dateMessage,
         timeOffAdjustmentPojo.getComment(),
         timeOffAdjustmentPojo.getAmount(),
-        BreakDownType.TIME_OFF_ADJUSTMENT
-    );
+        BreakDownType.TIME_OFF_ADJUSTMENT);
   }
 
   public static String dateFormatConvert(final LocalDate date) {
     return date.getYear() == LocalDate.now().getYear()
-            ? DateUtil.formatDateTo(date, "MMM d") : DateUtil.formatDateTo(date, "MMM d, YYYY");
+        ? DateUtil.formatDateTo(date, "MMM d")
+        : DateUtil.formatDateTo(date, "MMM d, YYYY");
   }
 
   public enum BreakDownType {

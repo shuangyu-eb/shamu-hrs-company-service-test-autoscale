@@ -17,5 +17,4 @@ public class DeactivationReasons extends BaseEntity {
   public DeactivationReasons(final String id) {
     setId(id);
   }
-
 }

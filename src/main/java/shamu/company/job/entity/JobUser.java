@@ -23,26 +23,20 @@ public class JobUser extends BaseEntity {
 
   private static final long serialVersionUID = -9208546727354894506L;
 
-  @OneToOne
-  private User user;
+  @OneToOne private User user;
 
-  @ManyToOne
-  private Job job;
+  @ManyToOne private Job job;
 
-  @ManyToOne
-  private EmploymentType employmentType;
+  @ManyToOne private EmploymentType employmentType;
 
   private Timestamp startDate;
 
   private Timestamp endDate;
 
-  @ManyToOne
-  private Office office;
+  @ManyToOne private Office office;
 
-  @ManyToOne
-  private Company company;
+  @ManyToOne private Company company;
 
   @OneToOne(cascade = CascadeType.ALL)
   private UserCompensation userCompensation;
-
 }

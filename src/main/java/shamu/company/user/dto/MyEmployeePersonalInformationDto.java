@@ -14,8 +14,7 @@ public class MyEmployeePersonalInformationDto extends BasicUserPersonalInformati
 
   private String ethnicityName;
 
-  @PreSinged
-  private String imageUrl;
+  @PreSinged private String imageUrl;
 
   private String maritalStatusId;
 

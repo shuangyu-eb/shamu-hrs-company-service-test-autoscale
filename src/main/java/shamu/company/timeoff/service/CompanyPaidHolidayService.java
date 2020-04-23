@@ -17,13 +17,11 @@ public class CompanyPaidHolidayService {
 
   public CompanyPaidHoliday findCompanyPaidHolidayByPaidHolidayIdAndCompanyId(
       final String paidHolidayId, final String companyId) {
-    return companyPaidHolidayRepository
-        .findCompanyPaidHolidayByPaidHolidayIdAndCompanyId(paidHolidayId, companyId);
+    return companyPaidHolidayRepository.findCompanyPaidHolidayByPaidHolidayIdAndCompanyId(
+        paidHolidayId, companyId);
   }
 
   public List<CompanyPaidHoliday> findAllByCompanyId(final String companyId) {
     return companyPaidHolidayRepository.findAllByCompanyId(companyId);
   }
-
-
 }

@@ -10,11 +10,9 @@ import shamu.company.user.repository.CompensationOvertimeStatusRepository;
 import shamu.company.user.service.CompensationOvertimeStatusService;
 
 public class CompensationOvertimeStatusServiceTest {
-  @Mock
-  private CompensationOvertimeStatusRepository compensationOvertimeStatusRepository;
+  @Mock private CompensationOvertimeStatusRepository compensationOvertimeStatusRepository;
 
-  @InjectMocks
-  private CompensationOvertimeStatusService compensationOvertimeStatusService;
+  @InjectMocks private CompensationOvertimeStatusService compensationOvertimeStatusService;
 
   @BeforeEach
   void init() {

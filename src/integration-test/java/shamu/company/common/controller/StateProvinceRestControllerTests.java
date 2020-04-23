@@ -1,5 +1,9 @@
 package shamu.company.common.controller;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
+
+import java.util.ArrayList;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,26 +18,22 @@ import shamu.company.WebControllerBaseTests;
 import shamu.company.common.service.StateProvinceService;
 import shamu.company.tests.utils.JwtUtil;
 
-import java.util.ArrayList;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.BDDMockito.given;
-
 @WebMvcTest(controllers = StateProvinceRestController.class)
 public class StateProvinceRestControllerTests extends WebControllerBaseTests {
-  @MockBean
-  private StateProvinceService stateProvinceService;
-  @Autowired
-  private MockMvc mockMvc;
+  @MockBean private StateProvinceService stateProvinceService;
+  @Autowired private MockMvc mockMvc;
 
   @Test
   void testFindAllStateProvincesByCountry() throws Exception {
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
     given(stateProvinceService.findAllByCountry(Mockito.anyString())).willReturn(new ArrayList<>());
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .get("/company/country/1/state-provinces")
-        .headers(httpHeaders)).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.get("/company/country/1/state-provinces")
+                    .headers(httpHeaders))
+            .andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
 }

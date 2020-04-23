@@ -11,6 +11,9 @@ public interface TimeOffRequestCustomRepository {
   List<String> getFilteredReviewedTimeOffRequestsIds(String userId, Long startTime, Long endTime);
 
   List<TimeOffRequest> findByTimeOffPolicyUserAndStatus(
-      final String userId, final String policyId, final TimeOffApprovalStatus status,
-      Timestamp currentTime, final TimeOffRequestDate.Operator operator);
+      final String userId,
+      final String policyId,
+      final TimeOffApprovalStatus status,
+      Timestamp currentTime,
+      final TimeOffRequestDate.Operator operator);
 }

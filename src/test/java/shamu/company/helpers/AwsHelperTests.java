@@ -1,6 +1,10 @@
 package shamu.company.helpers;
 
 import com.amazonaws.AmazonClientException;
+import java.io.File;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -14,26 +18,40 @@ import shamu.company.helpers.s3.AccessType;
 import shamu.company.helpers.s3.AwsHelper;
 import shamu.company.helpers.s3.Type;
 
-import java.io.File;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-
-
-
 public class AwsHelperTests {
 
-  private AwsHelper awsHelper = new AwsHelper("simplyhired-hrs-eastbay-dev-company","media-local");
+  private AwsHelper awsHelper = new AwsHelper("simplyhired-hrs-eastbay-dev-company", "media-local");
 
   @BeforeEach
   void initial() {
     MockitoAnnotations.initMocks(this);
   }
 
+  @Test
+  void testFindPreSignedUrl() {
+    Assertions.assertDoesNotThrow(() -> awsHelper.findPreSignedUrl("1"));
+  }
+
+  @Test
+  void testFindAwsPath() {
+    Assertions.assertNotNull(awsHelper.findAwsPath());
+  }
+
+  @Test
+  void testFindFullFileUrl() {
+    Assertions.assertNotNull(awsHelper.findFullFileUrl("default/file.jpg"));
+  }
+
+  @Test
+  void testLogAmazonClientException() throws Exception {
+    Whitebox.invokeMethod(awsHelper, "logAmazonClientException", new AmazonClientException("1"));
+  }
+
   @Nested
   class AmazonS3DeleteObject {
 
     List<String> listKey;
+
     @BeforeEach
     void init() {
       listKey = new ArrayList<>(2);
@@ -66,10 +84,7 @@ public class AwsHelperTests {
     @Test
     void whenFileIsEmpty_thenShouldThrow() {
       Mockito.when(multipartFile.isEmpty()).thenReturn(true);
-      Assertions.assertThrows(
-          AwsException.class,
-          () -> awsHelper.uploadFile(multipartFile)
-      );
+      Assertions.assertThrows(AwsException.class, () -> awsHelper.uploadFile(multipartFile));
     }
 
     @Test
@@ -79,16 +94,15 @@ public class AwsHelperTests {
 
     @Test
     void testUploadWithFileAndAccessType() {
-      Assertions.assertDoesNotThrow(() -> awsHelper.uploadFile(multipartFile, AccessType.valueOf("PRIVATE")));
+      Assertions.assertDoesNotThrow(
+          () -> awsHelper.uploadFile(multipartFile, AccessType.valueOf("PRIVATE")));
     }
 
     @Test
     void whenUploadWithFileAndTypeS3Error_thenShouldThrow() {
-      final AwsHelper falseAwsHelper = new AwsHelper("1","1");
+      final AwsHelper falseAwsHelper = new AwsHelper("1", "1");
       Assertions.assertThrows(
-          AwsException.class,
-          () -> falseAwsHelper.uploadFile(multipartFile, Type.IMAGE)
-      );
+          AwsException.class, () -> falseAwsHelper.uploadFile(multipartFile, Type.IMAGE));
     }
 
     @Test
@@ -103,9 +117,7 @@ public class AwsHelperTests {
     @Test
     void whenFileNotExist_thenShouldThrow() {
       Assertions.assertThrows(
-          AwsException.class,
-          () -> awsHelper.uploadFile("default/file.jpg", Type.IMAGE)
-      );
+          AwsException.class, () -> awsHelper.uploadFile("default/file.jpg", Type.IMAGE));
     }
   }
 
@@ -115,9 +127,7 @@ public class AwsHelperTests {
     @Test
     void whenS3BucketRight_thenShouldSuccess() {
       Assertions.assertThrows(
-          AwsException.class,
-          () -> awsHelper.moveFileFromTemp("default/file.jpg")
-      );
+          AwsException.class, () -> awsHelper.moveFileFromTemp("default/file.jpg"));
     }
   }
 
@@ -129,10 +139,7 @@ public class AwsHelperTests {
       File file = Mockito.mock(File.class);
       Path path = Mockito.mock(Path.class);
       Mockito.when(file.toPath()).thenReturn(path);
-      Assertions.assertThrows(
-          AwsException.class,
-          () -> awsHelper.deleteFile(new File("/"))
-      );
+      Assertions.assertThrows(AwsException.class, () -> awsHelper.deleteFile(new File("/")));
     }
 
     @Test
@@ -142,7 +149,6 @@ public class AwsHelperTests {
       Mockito.when(file.toPath()).thenReturn(path);
       Assertions.assertDoesNotThrow(() -> awsHelper.deleteFile(new File("1")));
     }
-
   }
 
   @Nested
@@ -150,10 +156,9 @@ public class AwsHelperTests {
 
     @Test
     void whenS3BucketWrong_thenShouldThrow() {
-      final AwsHelper falseAwsHelper = new AwsHelper("1","1");
+      final AwsHelper falseAwsHelper = new AwsHelper("1", "1");
       Assertions.assertThrows(
-          AwsException.class,
-          () -> falseAwsHelper.deleteFile("default/file.jpg"));
+          AwsException.class, () -> falseAwsHelper.deleteFile("default/file.jpg"));
     }
 
     @Test
@@ -161,27 +166,4 @@ public class AwsHelperTests {
       Assertions.assertDoesNotThrow(() -> awsHelper.deleteFile("default/file.jpg"));
     }
   }
-
-
-
-  @Test
-  void testFindPreSignedUrl() {
-    Assertions.assertDoesNotThrow(() -> awsHelper.findPreSignedUrl("1"));
-  }
-
-  @Test
-  void testFindAwsPath() {
-    Assertions.assertNotNull(awsHelper.findAwsPath());
-  }
-
-  @Test
-  void testFindFullFileUrl() {
-    Assertions.assertNotNull(awsHelper.findFullFileUrl("default/file.jpg"));
-  }
-
-  @Test
-  void testLogAmazonClientException() throws Exception {
-    Whitebox.invokeMethod(awsHelper, "logAmazonClientException", new AmazonClientException("1"));
-  }
-
 }

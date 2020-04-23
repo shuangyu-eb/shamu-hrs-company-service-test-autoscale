@@ -30,7 +30,6 @@ public class TimeOffRequestEmailService {
 
   private final EmailService emailService;
 
-
   private final AwsHelper awsHelper;
 
   private final ITemplateEngine templateEngine;
@@ -42,9 +41,11 @@ public class TimeOffRequestEmailService {
   private final TimeOffDetailService timeOffDetailService;
 
   @Autowired
-  public TimeOffRequestEmailService(final EmailService emailService,
+  public TimeOffRequestEmailService(
+      final EmailService emailService,
       final AwsHelper awsHelper,
-      final ITemplateEngine templateEngine, final ApplicationConfig applicationConfig,
+      final ITemplateEngine templateEngine,
+      final ApplicationConfig applicationConfig,
       @Lazy final TimeOffRequestService timeOffRequestService,
       final TimeOffDetailService timeOffDetailService) {
     this.emailService = emailService;
@@ -91,7 +92,10 @@ public class TimeOffRequestEmailService {
 
     final User requester = timeOffRequest.getRequesterUser();
 
-    processAndSendEmail(variables, template, new Email(
+    processAndSendEmail(
+        variables,
+        template,
+        new Email(
             applicationConfig.getSystemEmailAddress(),
             approver.getUserPersonalInformation().getName(),
             requester.getUserContactInformation().getEmailWork(),
@@ -99,28 +103,34 @@ public class TimeOffRequestEmailService {
             subject));
 
     sendToManagers(timeOffRequest, variables, template, approver, subject);
-
   }
 
-  private void setAproverMessage(final TimeOffRequest timeOffRequest,
+  private void setAproverMessage(
+      final TimeOffRequest timeOffRequest,
       final Map<String, Object> variables,
       final User approver) {
 
     final List<TimeOffEmailCommentPojo> commentPojos =
-        timeOffRequest.getApproverComments().stream().map(approveComment -> {
-          final TimeOffEmailCommentPojo timeOffEmailCommentPojo = new TimeOffEmailCommentPojo();
-          timeOffEmailCommentPojo.setComment(approveComment.getComment());
-          final User approveUser = approveComment.getUser();
-          timeOffEmailCommentPojo.setImageUrl(approveUser.getImageUrl());
-          final String backgroundColor = AvatarUtil
-              .getAvatarBackground(approveUser.getUserPersonalInformation().getFirstName());
-          final String avatarText = AvatarUtil
-              .getAvatarShortName(approveUser.getUserPersonalInformation().getFirstName(),
-                  approveUser.getUserPersonalInformation().getLastName());
-          timeOffEmailCommentPojo.setBackgroundColor(backgroundColor);
-          timeOffEmailCommentPojo.setAvatarText(avatarText);
-          return timeOffEmailCommentPojo;
-        }).collect(Collectors.toList());
+        timeOffRequest.getApproverComments().stream()
+            .map(
+                approveComment -> {
+                  final TimeOffEmailCommentPojo timeOffEmailCommentPojo =
+                      new TimeOffEmailCommentPojo();
+                  timeOffEmailCommentPojo.setComment(approveComment.getComment());
+                  final User approveUser = approveComment.getUser();
+                  timeOffEmailCommentPojo.setImageUrl(approveUser.getImageUrl());
+                  final String backgroundColor =
+                      AvatarUtil.getAvatarBackground(
+                          approveUser.getUserPersonalInformation().getFirstName());
+                  final String avatarText =
+                      AvatarUtil.getAvatarShortName(
+                          approveUser.getUserPersonalInformation().getFirstName(),
+                          approveUser.getUserPersonalInformation().getLastName());
+                  timeOffEmailCommentPojo.setBackgroundColor(backgroundColor);
+                  timeOffEmailCommentPojo.setAvatarText(avatarText);
+                  return timeOffEmailCommentPojo;
+                })
+            .collect(Collectors.toList());
 
     variables.put("approverComments", commentPojos);
 
@@ -129,19 +139,23 @@ public class TimeOffRequestEmailService {
     variables.put("approverImageUrl", approver.getImageUrl());
   }
 
-  private void sendToManagers(final TimeOffRequest timeOffRequest,
+  private void sendToManagers(
+      final TimeOffRequest timeOffRequest,
       final Map<String, Object> variables,
-      final String template, final User approver, final String subject) {
+      final String template,
+      final User approver,
+      final String subject) {
 
     final User requesterUser = timeOffRequest.getRequesterUser();
     final User managerUser = requesterUser.getManagerUser();
-    final boolean approvedByManager = managerUser != null
-        && managerUser.getId().equals(approver.getId());
+    final boolean approvedByManager =
+        managerUser != null && managerUser.getId().equals(approver.getId());
 
     if (managerUser != null && !approvedByManager) {
       final String subject2 = subject + " by " + approver.getUserPersonalInformation().getName();
       variables.put("toManager", true);
-      final Email managerEmail = new Email(
+      final Email managerEmail =
+          new Email(
               applicationConfig.getSystemEmailAddress(),
               approver.getUserPersonalInformation().getName(),
               managerUser.getUserContactInformation().getEmailWork(),
@@ -151,7 +165,6 @@ public class TimeOffRequestEmailService {
       processAndSendEmail(variables, template, managerEmail);
     }
   }
-
 
   public void sendDeniedEmail(final TimeOffRequest timeOffRequest) {
     final User requester = timeOffRequest.getRequesterUser();
@@ -163,12 +176,13 @@ public class TimeOffRequestEmailService {
     if (!requester.getId().equals(approver.getId())) {
       final String subject = "Time Off Denied";
       final String template = "time_off_request_deny.html";
-      final Email email = new Email(
-          applicationConfig.getSystemEmailAddress(),
-          approver.getUserPersonalInformation().getName(),
-          requester.getUserContactInformation().getEmailWork(),
-          requester.getUserPersonalInformation().getName(),
-          subject);
+      final Email email =
+          new Email(
+              applicationConfig.getSystemEmailAddress(),
+              approver.getUserPersonalInformation().getName(),
+              requester.getUserContactInformation().getEmailWork(),
+              requester.getUserPersonalInformation().getName(),
+              subject);
 
       setAproverMessage(timeOffRequest, variables, approver);
 
@@ -192,7 +206,8 @@ public class TimeOffRequestEmailService {
     variables.put("conflict", conflict);
 
     final User approver = timeOffRequest.getApproverUser();
-    final Email email = new Email(
+    final Email email =
+        new Email(
             applicationConfig.getSystemEmailAddress(),
             requester.getUserPersonalInformation().getName(),
             approver.getUserContactInformation().getEmailWork(),
@@ -202,11 +217,10 @@ public class TimeOffRequestEmailService {
     processAndSendEmail(variables, "time_off_request_pending.html", email);
   }
 
-
   private void processAndSendEmail(
       final Map<String, Object> variables, final String template, final Email email) {
-    final String emailContent = templateEngine
-        .process(template, new Context(Locale.ENGLISH, variables));
+    final String emailContent =
+        templateEngine.process(template, new Context(Locale.ENGLISH, variables));
     email.setSendDate(new Timestamp(new Date().getTime()));
     email.setContent(emailContent);
 
@@ -223,8 +237,8 @@ public class TimeOffRequestEmailService {
     variables.put("isLimited", timeOffRequest.getTimeOffPolicy().getIsLimited());
 
     variables.put("frontEndAddress", applicationConfig.getFrontEndAddress());
-    variables.put("timeRange", timeOffDetailService
-        .getTimeOffRequestDatesRange(timeOffRequest.getId()));
+    variables.put(
+        "timeRange", timeOffDetailService.getTimeOffRequestDatesRange(timeOffRequest.getId()));
     variables.put("status", timeOffRequest.getApprovalStatus().name());
     variables.put("type", timeOffRequest.getTimeOffPolicy().getName());
     variables.put("hours", timeOffRequest.getHours());
@@ -236,11 +250,12 @@ public class TimeOffRequestEmailService {
 
     final UserPersonalInformation requesterPersonalInformation =
         requester.getUserPersonalInformation();
-    final String backgroundColor = AvatarUtil
-        .getAvatarBackground(requesterPersonalInformation.getFirstName());
-    final String shortName = AvatarUtil
-        .getAvatarShortName(requesterPersonalInformation.getFirstName(),
-        requesterPersonalInformation.getLastName());
+    final String backgroundColor =
+        AvatarUtil.getAvatarBackground(requesterPersonalInformation.getFirstName());
+    final String shortName =
+        AvatarUtil.getAvatarShortName(
+            requesterPersonalInformation.getFirstName(),
+            requesterPersonalInformation.getLastName());
 
     variables.put("backgroundColor", backgroundColor);
     variables.put("avatarText", shortName);
@@ -253,13 +268,12 @@ public class TimeOffRequestEmailService {
     return variables;
   }
 
-
   private long getConflictOfTimeOffRequest(final TimeOffRequest timeOffRequest) {
     final LocalDate start = timeOffRequest.getStartDay().toLocalDateTime().toLocalDate();
     final LocalDate end = timeOffRequest.getEndDay().toLocalDateTime().toLocalDate();
 
-    final List<TimeOffRequest> timeOffRequests = timeOffRequestService
-        .getOtherRequestsBy(timeOffRequest);
+    final List<TimeOffRequest> timeOffRequests =
+        timeOffRequestService.getOtherRequestsBy(timeOffRequest);
 
     return timeOffRequests.stream()
         .filter(
@@ -268,5 +282,4 @@ public class TimeOffRequestEmailService {
                     && end.compareTo(tr.getStartDay().toLocalDateTime().toLocalDate()) >= 0))
         .count();
   }
-
 }

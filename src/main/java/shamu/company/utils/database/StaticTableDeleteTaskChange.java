@@ -2,7 +2,6 @@ package shamu.company.utils.database;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-
 import liquibase.change.custom.CustomTaskChange;
 import liquibase.database.Database;
 import liquibase.database.jvm.JdbcConnection;
@@ -56,5 +55,4 @@ public class StaticTableDeleteTaskChange implements CustomTaskChange {
   public ValidationErrors validate(final Database database) {
     return new ValidationErrors();
   }
-
 }

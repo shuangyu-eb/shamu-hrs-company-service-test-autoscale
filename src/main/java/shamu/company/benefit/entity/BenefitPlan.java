@@ -35,13 +35,11 @@ public class BenefitPlan extends BaseEntity {
 
   private Timestamp endDate;
 
-  @ManyToOne
-  private Company company;
+  @ManyToOne private Company company;
 
   private String website;
 
-  @OneToOne
-  private BenefitPlanType benefitPlanType;
+  @OneToOne private BenefitPlanType benefitPlanType;
 
   @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
   @JoinColumn(name = "benefit_plan_id")

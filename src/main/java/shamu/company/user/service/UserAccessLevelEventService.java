@@ -12,7 +12,7 @@ public class UserAccessLevelEventService {
 
   @Autowired
   public UserAccessLevelEventService(
-          final UserAccessLevelEventRepository userAccessLevelEventRepository) {
+      final UserAccessLevelEventRepository userAccessLevelEventRepository) {
     this.userAccessLevelEventRepository = userAccessLevelEventRepository;
   }
 

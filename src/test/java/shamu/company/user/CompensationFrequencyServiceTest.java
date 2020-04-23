@@ -1,5 +1,6 @@
 package shamu.company.user;
 
+import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,14 +12,10 @@ import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.user.repository.CompensationFrequencyRepository;
 import shamu.company.user.service.CompensationFrequencyService;
 
-import java.util.Optional;
-
 public class CompensationFrequencyServiceTest {
-  @Mock
-  private CompensationFrequencyRepository compensationFrequencyRepository;
+  @Mock private CompensationFrequencyRepository compensationFrequencyRepository;
 
-  @InjectMocks
-  private CompensationFrequencyService compensationFrequencyService;
+  @InjectMocks private CompensationFrequencyService compensationFrequencyService;
 
   @BeforeEach
   void init() {
@@ -27,8 +24,10 @@ public class CompensationFrequencyServiceTest {
 
   @Test
   void whenNotFound_thenShouldThrow() {
-    Mockito.when(compensationFrequencyRepository.findById(Mockito.anyString())).thenReturn(Optional.empty());
-    Assertions.assertThrows(ResourceNotFoundException.class, () -> compensationFrequencyService.findById("test"));
+    Mockito.when(compensationFrequencyRepository.findById(Mockito.anyString()))
+        .thenReturn(Optional.empty());
+    Assertions.assertThrows(
+        ResourceNotFoundException.class, () -> compensationFrequencyService.findById("test"));
   }
 
   @Test

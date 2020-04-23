@@ -18,17 +18,14 @@ class AnnotationUtilTests {
 
   @Target({FIELD})
   @Retention(RUNTIME)
-  @interface TestInterface {
-
-  }
+  @interface TestInterface {}
 
   @Data
   @AllArgsConstructor
   @NoArgsConstructor
   class SuperObject {
 
-    @TestInterface
-    String superHasAnnotationField;
+    @TestInterface String superHasAnnotationField;
 
     String superHasNoAnnotationField;
   }
@@ -38,8 +35,7 @@ class AnnotationUtilTests {
   @NoArgsConstructor
   class TestObject extends SuperObject {
 
-    @TestInterface
-    String hasAnnotationField;
+    @TestInterface String hasAnnotationField;
 
     String hasNoAnnotationField;
   }
@@ -49,29 +45,32 @@ class AnnotationUtilTests {
 
     @Test
     void whenFieldHasAnnotation_thenReturnTrue() {
-      final boolean result = AnnotationUtil
-          .fieldHasAnnotation(TestObject.class, "hasAnnotationField", TestInterface.class);
+      final boolean result =
+          AnnotationUtil.fieldHasAnnotation(
+              TestObject.class, "hasAnnotationField", TestInterface.class);
       Assertions.assertTrue(result);
     }
 
     @Test
     void whenFieldHasNoAnnotation_thenReturnFalse() {
-      final boolean result = AnnotationUtil
-          .fieldHasAnnotation(TestObject.class, "hasNoAnnotationField", TestInterface.class);
+      final boolean result =
+          AnnotationUtil.fieldHasAnnotation(
+              TestObject.class, "hasNoAnnotationField", TestInterface.class);
       Assertions.assertFalse(result);
     }
 
     @Test
     void whenFieldBelongToSuper_fieldHasAnnotation_thenReturnTrue() {
-      final boolean result = AnnotationUtil
-          .fieldHasAnnotation(TestObject.class, "superHasAnnotationField", TestInterface.class);
+      final boolean result =
+          AnnotationUtil.fieldHasAnnotation(
+              TestObject.class, "superHasAnnotationField", TestInterface.class);
       Assertions.assertTrue(result);
     }
 
     @Test
     void whenFieldNotExists_thenReturnFalse() {
-      final boolean result = AnnotationUtil
-          .fieldHasAnnotation(TestObject.class, "anything", TestInterface.class);
+      final boolean result =
+          AnnotationUtil.fieldHasAnnotation(TestObject.class, "anything", TestInterface.class);
       Assertions.assertFalse(result);
     }
   }
@@ -88,8 +87,8 @@ class AnnotationUtilTests {
 
     @Test
     void whenFieldHasAnnotation_thenReturnTrue() {
-      final Optional result = AnnotationUtil
-          .getFieldAnnotation(testObject, "hasAnnotationField", TestInterface.class);
+      final Optional result =
+          AnnotationUtil.getFieldAnnotation(testObject, "hasAnnotationField", TestInterface.class);
       final String annotationPath = TestInterface.class.toString().replace("interface ", "");
 
       Assertions.assertTrue(result.isPresent());
@@ -98,8 +97,9 @@ class AnnotationUtilTests {
 
     @Test
     void whenFieldBelongToSuper_fieldHasAnnotation_thenReturnTrue() {
-      final Optional result = AnnotationUtil
-          .getFieldAnnotation(testObject, "superHasAnnotationField", TestInterface.class);
+      final Optional result =
+          AnnotationUtil.getFieldAnnotation(
+              testObject, "superHasAnnotationField", TestInterface.class);
       final String annotationPath = TestInterface.class.toString().replace("interface ", "");
 
       Assertions.assertTrue(result.isPresent());
@@ -108,12 +108,11 @@ class AnnotationUtilTests {
 
     @Test
     void whenFieldNotExists_thenReturnFalse() {
-      final Optional result = AnnotationUtil
-          .getFieldAnnotation(testObject, "any", TestInterface.class);
+      final Optional result =
+          AnnotationUtil.getFieldAnnotation(testObject, "any", TestInterface.class);
 
       Assertions.assertFalse(result.isPresent());
     }
-
   }
 
   @Nested
@@ -152,8 +151,5 @@ class AnnotationUtilTests {
 
       Assertions.assertFalse(result.isPresent());
     }
-
   }
-
-
 }

@@ -22,6 +22,7 @@ import shamu.company.common.entity.Country;
 public class Company extends BaseEntity {
 
   private static final long serialVersionUID = -6081798810093033833L;
+
   @Length(max = 244)
   private String name;
 
@@ -30,8 +31,7 @@ public class Company extends BaseEntity {
   @Column(name = "EIN")
   private String ein;
 
-  @ManyToOne
-  private Country country;
+  @ManyToOne private Country country;
 
   public Company(final String id) {
     setId(id);

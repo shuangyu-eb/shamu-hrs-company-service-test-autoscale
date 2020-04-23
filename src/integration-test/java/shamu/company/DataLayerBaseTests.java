@@ -10,6 +10,5 @@ import shamu.company.helpers.auth0.Auth0Helper;
 @ActiveProfiles("unit")
 public class DataLayerBaseTests {
 
-  @MockBean
-  protected Auth0Helper auth0Helper;
+  @MockBean protected Auth0Helper auth0Helper;
 }

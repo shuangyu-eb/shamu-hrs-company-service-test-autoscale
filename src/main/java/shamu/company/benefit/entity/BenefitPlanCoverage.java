@@ -1,12 +1,10 @@
 package shamu.company.benefit.entity;
 
 import java.math.BigDecimal;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -24,8 +22,7 @@ public class BenefitPlanCoverage extends BaseEntity {
   @Type(type = "shamu.company.common.PrimaryKeyTypeDescriptor")
   private String benefitPlanId;
 
-  @OneToOne
-  private BenefitCoverages benefitCoverage;
+  @OneToOne private BenefitCoverages benefitCoverage;
 
   private BigDecimal employeeCost;
 

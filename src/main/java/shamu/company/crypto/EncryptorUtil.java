@@ -12,10 +12,10 @@ import shamu.company.user.entity.UserPersonalInformation;
 @Component
 public class EncryptorUtil {
 
-  private static final BiConsumer<UserPersonalInformation, String>
-      personalInformationBiConsumer = UserPersonalInformation::setSsn;
-  private static final BiConsumer<BenefitPlanDependent, String>
-      benefitPlanDependentBiConsumer = BenefitPlanDependent::setSsn;
+  private static final BiConsumer<UserPersonalInformation, String> personalInformationBiConsumer =
+      UserPersonalInformation::setSsn;
+  private static final BiConsumer<BenefitPlanDependent, String> benefitPlanDependentBiConsumer =
+      BenefitPlanDependent::setSsn;
   private final Encryptor encryptor;
 
   @Autowired
@@ -24,10 +24,7 @@ public class EncryptorUtil {
   }
 
   private <T extends BaseEntity> void encrypt(
-      final String userId,
-      final String value,
-      final T entity,
-      final BiConsumer<T, String> setter) {
+      final String userId, final String value, final T entity, final BiConsumer<T, String> setter) {
 
     if (Strings.isBlank(value)) {
       setter.accept(entity, null);
@@ -37,10 +34,7 @@ public class EncryptorUtil {
   }
 
   private <T extends BaseEntity> void encrypt(
-      final User user,
-      final String value,
-      final T entity,
-      final BiConsumer<T, String> setter) {
+      final User user, final String value, final T entity, final BiConsumer<T, String> setter) {
 
     if (Strings.isBlank(value)) {
       setter.accept(entity, null);
@@ -50,23 +44,17 @@ public class EncryptorUtil {
   }
 
   public void encryptSsn(
-      final String userId,
-      final String value,
-      final UserPersonalInformation entity) {
+      final String userId, final String value, final UserPersonalInformation entity) {
     encrypt(userId, value, entity, personalInformationBiConsumer);
   }
 
   public void encryptSsn(
-      final User user,
-      final String value,
-      final UserPersonalInformation entity) {
+      final User user, final String value, final UserPersonalInformation entity) {
     encrypt(user, value, entity, personalInformationBiConsumer);
   }
 
   public void encryptSsn(
-      final String userId,
-      final String value,
-      final BenefitPlanDependent entity) {
+      final String userId, final String value, final BenefitPlanDependent entity) {
     encrypt(userId, value, entity, benefitPlanDependentBiConsumer);
   }
 }

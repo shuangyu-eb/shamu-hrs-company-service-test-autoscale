@@ -20,7 +20,8 @@ public interface ReflectionUtil {
   }
 
   static <T> List<T> convertTo(final List<?> objects, final Class<T> className) {
-    return objects.stream().map(object -> convertTo(object, className))
+    return objects.stream()
+        .map(object -> convertTo(object, className))
         .collect(Collectors.toList());
   }
 }

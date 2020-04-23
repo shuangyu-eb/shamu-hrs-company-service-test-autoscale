@@ -22,6 +22,8 @@ public class DocumentRequestEmailDto {
   private Timestamp expiredAt;
 
   public enum DocumentRequestType {
-    SIGN, ACKNOWLEDGE, VIEW,
+    SIGN,
+    ACKNOWLEDGE,
+    VIEW,
   }
 }

@@ -44,14 +44,11 @@ import shamu.company.utils.UuidUtil;
 @WebMvcTest(controllers = EmployeeRestController.class)
 class EmployeeRestControllerTests extends WebControllerBaseTests {
 
-  @MockBean
-  private EmployeeService employeeService;
+  @MockBean private EmployeeService employeeService;
 
-  @MockBean
-  private EmailService emailService;
+  @MockBean private EmailService emailService;
 
-  @Autowired
-  private MockMvc mockMvc;
+  @Autowired private MockMvc mockMvc;
 
   @Test
   void testFindAllEmployees() throws Exception {
@@ -62,9 +59,10 @@ class EmployeeRestControllerTests extends WebControllerBaseTests {
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
 
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .get("/company/employees")
-        .headers(httpHeaders)).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(MockMvcRequestBuilders.get("/company/employees").headers(httpHeaders))
+            .andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
 
@@ -77,9 +75,10 @@ class EmployeeRestControllerTests extends WebControllerBaseTests {
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
 
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .get("/company/employees/my-team")
-        .headers(httpHeaders)).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(MockMvcRequestBuilders.get("/company/employees/my-team").headers(httpHeaders))
+            .andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
 
@@ -91,24 +90,30 @@ class EmployeeRestControllerTests extends WebControllerBaseTests {
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
 
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .get("/company/employees/jobs-users")
-        .headers(httpHeaders)).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.get("/company/employees/jobs-users").headers(httpHeaders))
+            .andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
 
   @Test
   void testFindWelcomeEmail() throws Exception {
 
-    given(emailService.getWelcomeEmail(Mockito.any())).willReturn(RandomStringUtils.randomAlphabetic(4));
+    given(emailService.getWelcomeEmail(Mockito.any()))
+        .willReturn(RandomStringUtils.randomAlphabetic(4));
     setPermission(Name.CREATE_USER.name());
 
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .post("/company/employees/welcome-email")
-        .headers(httpHeaders)
-        .content(RandomStringUtils.randomAlphabetic(4))).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.post("/company/employees/welcome-email")
+                    .headers(httpHeaders)
+                    .content(RandomStringUtils.randomAlphabetic(4)))
+            .andReturn();
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
     assertThat(response.getResponse().getContentAsString()).isNotEmpty();
@@ -130,11 +135,14 @@ class EmployeeRestControllerTests extends WebControllerBaseTests {
     targetUser.setCompany(new Company(getAuthUser().getCompanyId()));
     given(userService.findById(emailResendDto.getUserId())).willReturn(targetUser);
 
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .post("/company/employees/welcome-email/resend")
-        .content(JsonUtil.formatToString(emailResendDto))
-        .contentType(MediaType.APPLICATION_JSON)
-        .headers(httpHeaders)).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.post("/company/employees/welcome-email/resend")
+                    .content(JsonUtil.formatToString(emailResendDto))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .headers(httpHeaders))
+            .andReturn();
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
@@ -147,11 +155,14 @@ class EmployeeRestControllerTests extends WebControllerBaseTests {
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
     EmployeeDto employeeDto = setUpForAddEmployee();
 
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .post("/company/employees")
-        .contentType(MediaType.APPLICATION_JSON)
-        .headers(httpHeaders)
-        .content(JsonUtil.formatToString(employeeDto))).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.post("/company/employees")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .headers(httpHeaders)
+                    .content(JsonUtil.formatToString(employeeDto)))
+            .andReturn();
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
@@ -159,7 +170,7 @@ class EmployeeRestControllerTests extends WebControllerBaseTests {
   private EmployeeDto setUpForAddEmployee() {
     final EmployeeDto employeeDto = new EmployeeDto();
     final NewEmployeeJobInformationDto newEmployeeJobInformationDto =
-            new NewEmployeeJobInformationDto();
+        new NewEmployeeJobInformationDto();
     newEmployeeJobInformationDto.setReportsTo(getAuthUser().getId());
     newEmployeeJobInformationDto.setEmploymentTypeId(UuidUtil.getUuidString());
     newEmployeeJobInformationDto.setOfficeId(UuidUtil.getUuidString());
@@ -183,64 +194,23 @@ class EmployeeRestControllerTests extends WebControllerBaseTests {
 
     EmploymentType employmentType = new EmploymentType();
     employmentType.setCompany(company);
-    Mockito.when(companyService.findEmploymentTypeById(Mockito.anyString())).thenReturn(employmentType);
+    Mockito.when(companyService.findEmploymentTypeById(Mockito.anyString()))
+        .thenReturn(employmentType);
 
     return employeeDto;
-  }
-
-  @Nested
-  class SaveEmployeeSetUpInformation {
-
-    private User currentUser;
-    @BeforeEach
-    void setUp() {
-      currentUser = new User();
-      currentUser.setId(getAuthUser().getId());
-      given(userService.findById(getAuthUser().getId())).willReturn(currentUser);
-    }
-
-    @Test
-    void whenEmployeeIsAlreadyVerified_thenThrowForbidden() throws Exception {
-
-
-      currentUser.setVerifiedAt(new Timestamp(new Date().getTime()));
-      final HttpHeaders httpHeaders = new HttpHeaders();
-      httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
-      final EmployeeDto postBody = new EmployeeDto();
-      postBody.setEmailWork(getAuthUser().getEmail());
-      final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-          .patch("/company/employees/current")
-          .contentType(MediaType.APPLICATION_JSON)
-          .headers(httpHeaders)
-          .content(JsonUtil.formatToString(postBody))).andReturn();
-
-      assertThat(response.getResolvedException()).isInstanceOf(ForbiddenException.class);
-    }
-
-    @Test
-    void whenNotVerified_thenShouldSucceed() throws Exception {
-      final HttpHeaders httpHeaders = new HttpHeaders();
-      httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
-      final EmployeeDto postBody = new EmployeeDto();
-      postBody.setEmailWork(getAuthUser().getEmail());
-      final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-          .patch("/company/employees/current")
-          .contentType(MediaType.APPLICATION_JSON)
-          .headers(httpHeaders)
-          .content(JsonUtil.formatToString(postBody))).andReturn();
-
-      assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
-    }
   }
 
   @Test
   void testFindOrgChart() throws Exception {
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .get("/company/employees/org-chart")
-        .contentType(MediaType.APPLICATION_JSON)
-        .headers(httpHeaders)).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.get("/company/employees/org-chart")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .headers(httpHeaders))
+            .andReturn();
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
@@ -256,11 +226,65 @@ class EmployeeRestControllerTests extends WebControllerBaseTests {
 
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
-    final MvcResult response = mockMvc.perform(MockMvcRequestBuilders
-        .get("/company/employees/" + getAuthUser().getId() +"/info")
-        .contentType(MediaType.APPLICATION_JSON)
-        .headers(httpHeaders)).andReturn();
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.get("/company/employees/" + getAuthUser().getId() + "/info")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .headers(httpHeaders))
+            .andReturn();
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+  }
+
+  @Nested
+  class SaveEmployeeSetUpInformation {
+
+    private User currentUser;
+
+    @BeforeEach
+    void setUp() {
+      currentUser = new User();
+      currentUser.setId(getAuthUser().getId());
+      given(userService.findById(getAuthUser().getId())).willReturn(currentUser);
+    }
+
+    @Test
+    void whenEmployeeIsAlreadyVerified_thenThrowForbidden() throws Exception {
+
+      currentUser.setVerifiedAt(new Timestamp(new Date().getTime()));
+      final HttpHeaders httpHeaders = new HttpHeaders();
+      httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+      final EmployeeDto postBody = new EmployeeDto();
+      postBody.setEmailWork(getAuthUser().getEmail());
+      final MvcResult response =
+          mockMvc
+              .perform(
+                  MockMvcRequestBuilders.patch("/company/employees/current")
+                      .contentType(MediaType.APPLICATION_JSON)
+                      .headers(httpHeaders)
+                      .content(JsonUtil.formatToString(postBody)))
+              .andReturn();
+
+      assertThat(response.getResolvedException()).isInstanceOf(ForbiddenException.class);
+    }
+
+    @Test
+    void whenNotVerified_thenShouldSucceed() throws Exception {
+      final HttpHeaders httpHeaders = new HttpHeaders();
+      httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+      final EmployeeDto postBody = new EmployeeDto();
+      postBody.setEmailWork(getAuthUser().getEmail());
+      final MvcResult response =
+          mockMvc
+              .perform(
+                  MockMvcRequestBuilders.patch("/company/employees/current")
+                      .contentType(MediaType.APPLICATION_JSON)
+                      .headers(httpHeaders)
+                      .content(JsonUtil.formatToString(postBody)))
+              .andReturn();
+
+      assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+    }
   }
 }

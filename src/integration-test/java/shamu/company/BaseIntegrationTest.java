@@ -33,32 +33,17 @@ import shamu.company.tests.utils.JwtUtil;
 @Import(InnerConfiguration.class)
 public abstract class BaseIntegrationTest {
 
-  @MockBean
-  protected AwsHelper awsHelper;
+  @MockBean protected AwsHelper awsHelper;
 
-  @MockBean
-  protected RedisHelper redisHelper;
+  @MockBean protected RedisHelper redisHelper;
 
-  @MockBean
-  protected EmailHelper emailHelper;
+  @MockBean protected EmailHelper emailHelper;
 
-  @MockBean
-  protected Auth0Manager auth0Manager;
+  @MockBean protected Auth0Manager auth0Manager;
 
-  @MockBean
-  protected Auth0Helper auth0Helper;
+  @MockBean protected Auth0Helper auth0Helper;
 
-  @MockBean
-  protected AuthUserCacheManager authUserCacheManager;
-
-  @TestConfiguration
-  static class InnerConfiguration {
-
-    @Bean
-    JwtDecoder jwtDecoder() {
-      return JwtUtil::decode;
-    }
-  }
+  @MockBean protected AuthUserCacheManager authUserCacheManager;
 
   @BeforeEach
   void initAuthentication() {
@@ -78,5 +63,14 @@ public abstract class BaseIntegrationTest {
 
   protected void setPermission(final String permission) {
     getAuthUser().setPermissions(Collections.singletonList(permission));
+  }
+
+  @TestConfiguration
+  static class InnerConfiguration {
+
+    @Bean
+    JwtDecoder jwtDecoder() {
+      return JwtUtil::decode;
+    }
   }
 }
