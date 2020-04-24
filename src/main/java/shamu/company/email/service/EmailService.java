@@ -31,6 +31,7 @@ import shamu.company.user.entity.UserPersonalInformation;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.AvatarUtil;
 import shamu.company.utils.DateUtil;
+import shamu.company.utils.HtmlUtils;
 import shamu.company.utils.UuidUtil;
 
 @Service
@@ -172,9 +173,7 @@ public class EmailService {
     if (Strings.isBlank(welcomeMessage)) {
       welcomeMessage = "";
     }
-    return welcomeMessage
-        .replaceAll("href\\s*=\\s*(['\"])\\s*(?!http[s]?).+?\\1", "#")
-        .replaceAll("<script(.*)?>.*</script>", "");
+    return HtmlUtils.filterWelcomeMessage(welcomeMessage);
   }
 
   public String getResetPasswordEmail(final String passwordRestToken, final String toEmail) {
