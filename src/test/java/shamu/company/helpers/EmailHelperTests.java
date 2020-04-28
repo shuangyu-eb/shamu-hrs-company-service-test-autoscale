@@ -22,7 +22,7 @@ import shamu.company.user.entity.User;
 class EmailHelperTests {
 
   private final Email email = new Email();
-  private final EmailHelper emailHelper = new EmailHelper("1");;
+  private final EmailHelper emailHelper = new EmailHelper("1");
   @Mock private SendGrid sendGrid;
 
   @BeforeEach
@@ -42,14 +42,14 @@ class EmailHelperTests {
 
     @Test
     void whenEntityStatusFalse_thenShouldThrow() throws IOException {
-      Response response = Mockito.mock(Response.class);
+      final Response response = Mockito.mock(Response.class);
       Mockito.when(sendGrid.api(Mockito.any())).thenReturn(response);
       Assertions.assertThrows(EmailException.class, () -> emailHelper.send(email));
     }
 
     @Test
     void whenEntityStatusTrue_thenShouldSuccess() throws IOException {
-      Response response = new Response();
+      final Response response = new Response();
       response.setStatusCode(HttpStatus.OK.value());
       Mockito.when(sendGrid.api(Mockito.any())).thenReturn(response);
       Assertions.assertDoesNotThrow(() -> emailHelper.send(email));
@@ -57,7 +57,7 @@ class EmailHelperTests {
 
     @Test
     void whenParamStatusFalse_thenShouldThrow() throws IOException {
-      Response response = Mockito.mock(Response.class);
+      final Response response = Mockito.mock(Response.class);
       Mockito.when(sendGrid.api(Mockito.any())).thenReturn(response);
       Assertions.assertThrows(
           EmailException.class,
@@ -68,7 +68,7 @@ class EmailHelperTests {
 
     @Test
     void whenParamStatusTrue_thenShouldSuccess() throws IOException {
-      Response response = new Response();
+      final Response response = new Response();
       response.setStatusCode(HttpStatus.OK.value());
       Mockito.when(sendGrid.api(Mockito.any())).thenReturn(response);
       Assertions.assertDoesNotThrow(

@@ -19,6 +19,8 @@ public abstract class FileValidateUtils {
 
   public static final Long MB = 1024L * KB;
 
+  public static final String JPG = "JPG";
+
   public static void validate(final File file, final Long maxSize, final FileFormat... formats) {
     if (!file.isFile()) {
       throw new FileValidateException("File is invalid!");
@@ -26,7 +28,7 @@ public abstract class FileValidateUtils {
 
     try {
       validateWithInputStream(new FileInputStream(file), file.length(), maxSize, formats);
-    } catch (FileNotFoundException e) {
+    } catch (final FileNotFoundException e) {
       throw new FileValidateException("File not found!");
     }
   }
@@ -37,12 +39,31 @@ public abstract class FileValidateUtils {
       throw new FileValidateException("Multipart file not found!");
     }
 
+    final boolean isValidatedFileName =
+        validateWithFileName(multipartFile.getOriginalFilename(), formats);
+    if (!isValidatedFileName) {
+      throw new FileValidateException("File type error.");
+    }
+
     try (final InputStream inputStream = multipartFile.getInputStream()) {
       validateWithInputStream(inputStream, multipartFile.getSize(), maxSize, formats);
     } catch (final IOException e) {
       log.error(String.format("Caught an exception while validate file: %s", e.getMessage()));
       throw new FileValidateException("Failed to upload file!");
     }
+  }
+
+  private static boolean validateWithFileName(final String fileName, final FileFormat... formats) {
+    final String fileSuffix = fileName.substring(fileName.lastIndexOf('.') + 1).toUpperCase();
+
+    for (final FileFormat format : formats) {
+      if (format.name().equals(fileSuffix)) {
+        return true;
+      }
+    }
+
+    // The suffix of 'JPEG' file can be 'JPEG' or 'JPG'.
+    return JPG.equals(fileSuffix);
   }
 
   private static void validateWithInputStream(
@@ -62,7 +83,7 @@ public abstract class FileValidateUtils {
     }
   }
 
-  private static String getHumanReadableFileSize(Long size) {
+  private static String getHumanReadableFileSize(final Long size) {
     if (size < KB) {
       throw new FileValidateException("Unsupported file size!");
     } else if (size < MB) {
@@ -86,7 +107,7 @@ public abstract class FileValidateUtils {
           return format;
         }
       }
-    } catch (IOException e) {
+    } catch (final IOException e) {
       log.error(String.format("Caught an IO exception while validate file: %s", e.getMessage()));
     }
     throw new FileValidateException("File format not recognized!");

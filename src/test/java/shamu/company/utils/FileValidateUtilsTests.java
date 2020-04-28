@@ -69,12 +69,33 @@ public class FileValidateUtilsTests {
     }
 
     @Test
-    void whenMultipartFile() throws IOException {
-      MultipartFile file =
-          new MockMultipartFile("validImage.jpeg", new FileInputStream(validImage));
+    void whenMultipartFileSuffixIsJPEG() throws IOException {
+      final MultipartFile file =
+          new MockMultipartFile(
+              "validImage.jpeg", "validImage.jpeg", "", new FileInputStream(validImage));
       assertThatCode(
               () -> FileValidateUtils.validate(file, 2 * FileValidateUtils.MB, FileFormat.JPEG))
           .doesNotThrowAnyException();
+    }
+
+    @Test
+    void whenMultipartFileSuffixIsJPG() throws IOException {
+      final MultipartFile file =
+          new MockMultipartFile(
+              "validImage.jpeg", "validImage.jpg", "", new FileInputStream(validImage));
+      assertThatCode(
+              () -> FileValidateUtils.validate(file, 2 * FileValidateUtils.MB, FileFormat.JPEG))
+          .doesNotThrowAnyException();
+    }
+
+    @Test
+    void whenMultipartFileNameIsInvalid() throws IOException {
+      final MultipartFile file =
+          new MockMultipartFile(
+              "validImage.jpeg", "validImage.aaa", "", new FileInputStream(validImage));
+      assertThatThrownBy(
+              () -> FileValidateUtils.validate(file, 2 * FileValidateUtils.MB, FileFormat.JPEG))
+          .isInstanceOf(FileValidateException.class);
     }
   }
 }

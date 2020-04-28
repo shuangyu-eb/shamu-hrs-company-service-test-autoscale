@@ -114,7 +114,7 @@ public class UserRestControllerTests extends WebControllerBaseTests {
     given(userService.findById(currentUser.getId())).willReturn(targetUser);
 
     final FileInputStream fis = new FileInputStream("src/integration-test/resources/test.jpg");
-    final MockMultipartFile file = new MockMultipartFile("file", fis);
+    final MockMultipartFile file = new MockMultipartFile("file", "test.jpeg", "", fis);
 
     final MvcResult response =
         mockMvc
