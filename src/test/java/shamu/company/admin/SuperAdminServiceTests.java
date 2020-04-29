@@ -1,17 +1,24 @@
 package shamu.company.admin;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort.Direction;
 import shamu.company.admin.dto.MockUserDto;
+import shamu.company.admin.dto.PageRequestDto.Field;
 import shamu.company.admin.dto.SystemAnnouncementDto;
 import shamu.company.admin.entity.SystemAnnouncement;
 import shamu.company.admin.entity.mapper.SystemAnnouncementsMapper;
@@ -63,7 +70,7 @@ class SuperAdminServiceTests {
     userRole.setName(Role.ADMIN.getValue());
     user.setId(userId);
     user.setUserRole(userRole);
-    Mockito.when(userService.findActiveUserById(userId)).thenReturn(user);
+    Mockito.when(userService.findById(userId)).thenReturn(user);
 
     final List<String> permissions = new ArrayList<>();
     Mockito.when(auth0Helper.getPermissionBy(user)).thenReturn(permissions);
@@ -72,7 +79,7 @@ class SuperAdminServiceTests {
     mockUserDto.setId(userId);
     mockUserDto.setPermissions(permissions);
 
-    Assertions.assertEquals(mockUserDto, superAdminService.mockUser(userId, "123"));
+    assertThat(superAdminService.mockUser(userId, "123")).isEqualTo(mockUserDto);
   }
 
   @Test
@@ -100,7 +107,7 @@ class SuperAdminServiceTests {
     Mockito.when(systemAnnouncementsService.findById(Mockito.any())).thenReturn(systemAnnouncement);
     Mockito.when(systemAnnouncementsService.save(Mockito.any())).thenReturn(systemAnnouncement);
 
-    Assertions.assertDoesNotThrow(() -> superAdminService.updateSystemActiveAnnouncement("1"));
+    assertThatCode(() -> superAdminService.updateSystemActiveAnnouncement("1")).doesNotThrowAnyException();
   }
 
   @Test
@@ -108,7 +115,27 @@ class SuperAdminServiceTests {
     Mockito.when(systemAnnouncementsService.getSystemPastAnnouncements(Mockito.any()))
         .thenReturn(Page.empty());
 
-    Assertions.assertDoesNotThrow(
-        () -> superAdminService.getSystemPastAnnouncements(Mockito.any()));
+    assertThatCode(() -> superAdminService.getSystemPastAnnouncements(Mockito.any())).doesNotThrowAnyException();
+  }
+
+  @Nested
+  class getUsersByKeywordAndPageable {
+
+    @BeforeEach
+    void init() {}
+
+    @Test
+    void getUsersByKeywordAndPageable() {
+
+      Mockito.when(
+              superAdminRepository.getUsersByKeywordAndPageable(
+                  Mockito.any(), Mockito.any(), Mockito.any()))
+          .thenReturn(Page.empty());
+
+      assertThatCode(() ->
+          superAdminService.getUsersByKeywordAndPageable(
+              "", PageRequest.of(1, 10, Direction.ASC, Field.NAME.getValue())))
+              .doesNotThrowAnyException();
+    }
   }
 }

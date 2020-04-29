@@ -15,7 +15,7 @@ import shamu.company.helpers.auth0.Auth0Helper;
 import shamu.company.redis.AuthUserCacheManager;
 import shamu.company.server.dto.AuthUser;
 import shamu.company.user.entity.User;
-import shamu.company.user.entity.UserStatus;
+import shamu.company.user.entity.UserStatus.Status;
 import shamu.company.user.entity.mapper.UserMapper;
 import shamu.company.user.service.UserService;
 
@@ -56,12 +56,14 @@ public class SuperAdminService {
 
   public Page<SuperAdminUserDto> getUsersByKeywordAndPageable(
       final String keyword, final Pageable pageable) {
-    return superAdminRepository.getUsersByKeywordAndPageable(
-        keyword, UserStatus.Status.ACTIVE.name(), pageable);
+    final String[] userStatus = {
+      Status.ACTIVE.name(), Status.CHANGING_EMAIL_VERIFICATION.name(), Status.DISABLED.name()
+    };
+    return superAdminRepository.getUsersByKeywordAndPageable(keyword, userStatus, pageable);
   }
 
   public MockUserDto mockUser(final String userId, final String token) {
-    final User user = userService.findActiveUserById(userId);
+    final User user = userService.findById(userId);
     final AuthUser authUser = userMapper.convertToAuthUser(user);
     final MockUserDto mockUserDto = userMapper.convertToMockUserDto(user);
     final List<String> permissions = auth0Helper.getPermissionBy(user);
