@@ -1,5 +1,6 @@
 package shamu.company.utils;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.BeanUtils;
@@ -10,8 +11,11 @@ public interface ReflectionUtil {
   static <T> T convertTo(final Object object, final Class<T> className) {
     T newInstance = null;
     try {
-      newInstance = className.newInstance();
-    } catch (final InstantiationException | IllegalAccessException e) {
+      newInstance = className.getDeclaredConstructor().newInstance();
+    } catch (final InstantiationException
+        | IllegalAccessException
+        | NoSuchMethodException
+        | InvocationTargetException e) {
       throw new GeneralException("Can not construct a new instance of " + className);
     }
 
