@@ -55,16 +55,16 @@ public class TimeOffBreakdownItemDto {
   public static TimeOffBreakdownYearDto fromTimeOffPolicyUser(
       final TimeOffBreakdownCalculatePojo calculatePojo) {
 
-    TimeOffPolicyUser timeOffPolicyUser = calculatePojo.getPolicyUser();
-    Integer startingBalance = calculatePojo.getPolicyUser().getInitialBalance();
+    final TimeOffPolicyUser timeOffPolicyUser = calculatePojo.getPolicyUser();
+    Integer startingBalance = timeOffPolicyUser.getInitialBalance();
     if (startingBalance == null) {
       startingBalance = 0;
     }
 
-    TimeOffBreakdownYearDto timeOffBreakdownYearDto =
+    final TimeOffBreakdownYearDto timeOffBreakdownYearDto =
         TimeOffBreakdownYearDto.builder()
             .accrualHours(startingBalance)
-            .date(DateUtil.fromTimestamp(timeOffPolicyUser.getUpdatedAt()))
+            .date(DateUtil.fromTimestamp(timeOffPolicyUser.getCreatedAt()))
             .build();
 
     calculatePojo.getTrimmedScheduleList().stream()

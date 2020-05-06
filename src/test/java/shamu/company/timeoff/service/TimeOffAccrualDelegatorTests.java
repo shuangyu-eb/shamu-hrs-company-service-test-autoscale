@@ -42,7 +42,7 @@ class TimeOffAccrualDelegatorTests {
     final TimeOffPolicyUser timeOffPolicyUser = new TimeOffPolicyUser();
 
     timeOffPolicyUser.setInitialBalance(100);
-    timeOffPolicyUser.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
+    timeOffPolicyUser.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
     calculatePojo.setPolicyUser(timeOffPolicyUser);
     calculatePojo.setTrimmedScheduleList(trimmedScheduleList);
 

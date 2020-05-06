@@ -11,8 +11,11 @@ import java.util.List;
 import java.util.TreeMap;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import shamu.company.job.entity.JobUser;
+import shamu.company.job.service.JobUserService;
 import shamu.company.timeoff.dto.TimeOffBreakdownDto;
 import shamu.company.timeoff.dto.TimeOffBreakdownItemDto;
 import shamu.company.timeoff.dto.TimeOffBreakdownMonthDto;
@@ -30,10 +33,14 @@ public class TimeOffAccrualMonthStrategyService extends TimeOffAccrualService {
 
   private final AccrualScheduleMilestoneRepository accrualScheduleMilestoneRepository;
 
+  private final JobUserService jobUserService;
+
   @Autowired
   public TimeOffAccrualMonthStrategyService(
-      final AccrualScheduleMilestoneRepository accrualScheduleMilestoneRepository) {
+      final AccrualScheduleMilestoneRepository accrualScheduleMilestoneRepository,
+      @Lazy final JobUserService jobUserService) {
     this.accrualScheduleMilestoneRepository = accrualScheduleMilestoneRepository;
+    this.jobUserService = jobUserService;
   }
 
   @Override
@@ -62,7 +69,8 @@ public class TimeOffAccrualMonthStrategyService extends TimeOffAccrualService {
 
     timeOffBreakdownMonthDtoList.forEach(
         timeOffBreakdownMonthDto ->
-            timeOffBreakdownMonthDto.setDate(timeOffBreakdownMonthDto.getDate().plusMonths(1)));
+            timeOffBreakdownMonthDto.setDate(
+                timeOffBreakdownMonthDto.getDate().withDayOfMonth(1).plusMonths(1)));
 
     timeOffBreakdownMonthDtoList.add(0, startingBreakdown);
 
@@ -86,7 +94,7 @@ public class TimeOffAccrualMonthStrategyService extends TimeOffAccrualService {
 
           if (timeOffBreakdownMonthDto.getDate().getYear() != dividingDay.getYear()
               && timeOffBreakdownMonthDto.getDate().getMonthValue()
-                  == dividingDay.getMonthValue()) {
+              == dividingDay.getMonthValue()) {
             resetDividingMonth(currentMonthDto[0], previousMonthDto[0], dividingDay);
           }
         });
@@ -111,8 +119,10 @@ public class TimeOffAccrualMonthStrategyService extends TimeOffAccrualService {
   private List<TimeOffBreakdownMonthDto> getAccrualDataByMonth(
       final TimeOffBreakdownCalculatePojo calculatePojo) {
 
-    final LocalDate userHiredDate =
-        DateUtil.fromTimestamp(calculatePojo.getPolicyUser().getUser().getCreatedAt());
+    final JobUser targetUser =
+        jobUserService.getJobUserByUserId(calculatePojo.getPolicyUser().getUser().getId());
+    final LocalDate userHiredDate = DateUtil.fromTimestamp(targetUser.getStartDate());
+
     final LocalDateTime userJoinPolicyDate =
         DateUtil.toLocalDateTime(calculatePojo.getPolicyUser().getCreatedAt());
 
@@ -203,10 +213,9 @@ public class TimeOffAccrualMonthStrategyService extends TimeOffAccrualService {
   private List<LocalDate> getValidMonthPeriod(
       final LocalDate startDate, final LocalDate endDate, final LocalDate selectedDate) {
 
-    LocalDate currentMonthDate = startDate.withDayOfMonth(1);
+    LocalDate currentMonthDate = startDate;
 
-    LocalDate endDateTime = endDate == null ? selectedDate : endDate;
-    endDateTime = endDateTime.withDayOfMonth(1);
+    final LocalDate endDateTime = endDate == null ? selectedDate : endDate;
 
     final List<LocalDate> validPeriod = new ArrayList<>();
 
@@ -275,7 +284,7 @@ public class TimeOffAccrualMonthStrategyService extends TimeOffAccrualService {
       TimeOffBreakdownMonthDto previousMonthDto;
       while (previousDate != null
           && (previousDate = previousDate.plusMonths(1))
-              .isBefore(timeOffBreakdownMonthDto.getDate())) {
+          .isBefore(timeOffBreakdownMonthDto.getDate())) {
 
         final TimeOffBreakdownMonthDto newMonthBreakdown = new TimeOffBreakdownMonthDto();
         previousMonthDto = newTimeOffBreakdownList.peekLast();
@@ -303,7 +312,7 @@ public class TimeOffAccrualMonthStrategyService extends TimeOffAccrualService {
 
     for (final TimeOffBreakdownMonthDto timeOffBreakdownMonthDto : timeOffBreakdownMonthDtoList) {
 
-      final LocalDate firstDateOfTheMonth = timeOffBreakdownMonthDto.getDate().withDayOfMonth(1);
+      final LocalDate firstDateOfTheMonth = timeOffBreakdownMonthDto.getDate();
       // carryover
       populateBreakdownListFromCarryoverLimit(
           resultTimeOffBreakdownItemList, firstDateOfTheMonth, balancePojo);

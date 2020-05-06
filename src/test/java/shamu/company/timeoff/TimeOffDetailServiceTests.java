@@ -151,7 +151,7 @@ class TimeOffDetailServiceTests {
               endDate,
               LocalDate.now());
 
-      Assertions.assertEquals(2, monthPeriods.size());
+      Assertions.assertEquals(1, monthPeriods.size());
     }
   }
 

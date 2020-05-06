@@ -13,8 +13,11 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.powermock.reflect.Whitebox;
+import shamu.company.common.exception.ResourceNotFoundException;
+import shamu.company.timeoff.dto.TimeOffBreakdownDto;
 import shamu.company.timeoff.dto.TimeOffBreakdownItemDto;
 import shamu.company.timeoff.entity.AccrualScheduleMilestone;
 import shamu.company.timeoff.entity.TimeOffAccrualFrequency;
@@ -22,10 +25,16 @@ import shamu.company.timeoff.entity.TimeOffAccrualFrequency.AccrualFrequencyType
 import shamu.company.timeoff.entity.TimeOffPolicyAccrualSchedule;
 import shamu.company.timeoff.entity.TimeOffPolicyUser;
 import shamu.company.timeoff.pojo.TimeOffBalancePojo;
+import shamu.company.timeoff.pojo.TimeOffBreakdownCalculatePojo;
 import shamu.company.timeoff.service.TimeOffAccrualService;
 import shamu.company.utils.DateUtil;
 
+import static org.assertj.core.api.Assertions.*;
+
 class TimeOffAccrualServiceTests {
+
+  @Mock
+  private TimeOffAccrualService timeOffAccrualService;
 
   @BeforeEach
   void setUp() {
@@ -34,8 +43,8 @@ class TimeOffAccrualServiceTests {
 
   @Test
   void testPopulateBreakdownListFromAccrualSchedule() throws Exception {
-    List<TimeOffBreakdownItemDto> resultTimeOffBreakdownItemList = new ArrayList<>();
-    TimeOffBalancePojo timeOffBalancePojo = new TimeOffBalancePojo();
+    final List<TimeOffBreakdownItemDto> resultTimeOffBreakdownItemList = new ArrayList<>();
+    final TimeOffBalancePojo timeOffBalancePojo = new TimeOffBalancePojo();
     timeOffBalancePojo.setBalance(0);
 
     Whitebox.invokeMethod(
@@ -51,19 +60,19 @@ class TimeOffAccrualServiceTests {
 
   @Test
   void testPopulateRemainingAdjustment() throws Exception {
-    List<TimeOffBreakdownItemDto> resultTimeOffBreakdownItemList = new LinkedList<>();
-    LocalDate untilDate = LocalDate.now();
+    final List<TimeOffBreakdownItemDto> resultTimeOffBreakdownItemList = new LinkedList<>();
+    final LocalDate untilDate = LocalDate.now();
 
-    TimeOffBalancePojo balancePojo = new TimeOffBalancePojo();
+    final TimeOffBalancePojo balancePojo = new TimeOffBalancePojo();
     balancePojo.setBalance(0);
 
-    List<TimeOffBreakdownItemDto> adjustments = new ArrayList<>();
-    TimeOffBreakdownItemDto itemDto = new TimeOffBreakdownItemDto();
+    final List<TimeOffBreakdownItemDto> adjustments = new ArrayList<>();
+    final TimeOffBreakdownItemDto itemDto = new TimeOffBreakdownItemDto();
     itemDto.setDate(untilDate.plusDays(1));
     itemDto.setAmount(20);
     adjustments.add(itemDto);
 
-    TimeOffBreakdownItemDto itemDtoTwo = new TimeOffBreakdownItemDto();
+    final TimeOffBreakdownItemDto itemDtoTwo = new TimeOffBreakdownItemDto();
     itemDtoTwo.setDate(untilDate.plusDays(2));
     itemDtoTwo.setAmount(30);
     adjustments.add(itemDtoTwo);
@@ -271,9 +280,9 @@ class TimeOffAccrualServiceTests {
 
     @Test
     void whenNotInSameAnniversary_thenShouldFail() throws Exception {
-      LocalDateTime baseTime = LocalDateTime.now();
-      LocalDateTime firstTime = LocalDateTime.now().plusYears(1);
-      LocalDateTime secondTime = LocalDateTime.now().plusDays(363);
+      final LocalDateTime baseTime = LocalDateTime.now();
+      final LocalDateTime firstTime = LocalDateTime.now().plusYears(1);
+      final LocalDateTime secondTime = LocalDateTime.now().plusDays(363);
       final Boolean result =
           Whitebox.invokeMethod(
               TimeOffAccrualService.class,
@@ -286,9 +295,9 @@ class TimeOffAccrualServiceTests {
 
     @Test
     void whenInSameAnniversary_thenShouldSuccess() throws Exception {
-      LocalDateTime baseTime = LocalDateTime.now();
-      LocalDateTime firstTime = LocalDateTime.now().plusDays(364);
-      LocalDateTime secondTime = LocalDateTime.now().plusDays(363);
+      final LocalDateTime baseTime = LocalDateTime.now();
+      final LocalDateTime firstTime = LocalDateTime.now().plusDays(364);
+      final LocalDateTime secondTime = LocalDateTime.now().plusDays(363);
       final Boolean result =
           Whitebox.invokeMethod(
               TimeOffAccrualService.class,
@@ -305,12 +314,12 @@ class TimeOffAccrualServiceTests {
 
     @Test
     void whenHasDelay_thenReturnDelayedDate() throws Exception {
-      LocalDate hireDate = LocalDate.of(2019, 10, 20);
-      LocalDate userJoinPolicyDate = LocalDate.of(2019, 10, 21);
-      TimeOffPolicyAccrualSchedule accrualSchedule = new TimeOffPolicyAccrualSchedule();
+      final LocalDate hireDate = LocalDate.of(2019, 10, 20);
+      final LocalDate userJoinPolicyDate = LocalDate.of(2019, 10, 21);
+      final TimeOffPolicyAccrualSchedule accrualSchedule = new TimeOffPolicyAccrualSchedule();
       accrualSchedule.setDaysBeforeAccrualStarts(20);
-      TimeOffAccrualFrequency timeOffAccrualFrequency = new TimeOffAccrualFrequency();
-      timeOffAccrualFrequency.setId(AccrualFrequencyType.FREQUENCY_TYPE_THREE.getValue());
+      final TimeOffAccrualFrequency timeOffAccrualFrequency = new TimeOffAccrualFrequency();
+      timeOffAccrualFrequency.setName(AccrualFrequencyType.FREQUENCY_TYPE_THREE.getValue());
       accrualSchedule.setTimeOffAccrualFrequency(timeOffAccrualFrequency);
 
       final LocalDate result =
@@ -326,10 +335,10 @@ class TimeOffAccrualServiceTests {
 
     @Test
     void whenNoDelay_thenReturnUserJoinDate() throws Exception {
-      LocalDate hireDate = LocalDate.of(2019, 10, 20);
-      LocalDate userJoinPolicyDate = LocalDate.of(2019, 10, 21);
-      TimeOffPolicyAccrualSchedule accrualSchedule = new TimeOffPolicyAccrualSchedule();
-      TimeOffAccrualFrequency timeOffAccrualFrequency = new TimeOffAccrualFrequency();
+      final LocalDate hireDate = LocalDate.of(2019, 10, 20);
+      final LocalDate userJoinPolicyDate = LocalDate.of(2019, 10, 21);
+      final TimeOffPolicyAccrualSchedule accrualSchedule = new TimeOffPolicyAccrualSchedule();
+      final TimeOffAccrualFrequency timeOffAccrualFrequency = new TimeOffAccrualFrequency();
       timeOffAccrualFrequency.setId(AccrualFrequencyType.FREQUENCY_TYPE_ONE.getValue());
       accrualSchedule.setTimeOffAccrualFrequency(timeOffAccrualFrequency);
 
@@ -349,8 +358,8 @@ class TimeOffAccrualServiceTests {
 
     @Test
     void whenBaseTimeIsGreater_thenReturnBaseTime() throws Exception {
-      LocalDate baseTime = LocalDate.of(2019, 10, 20);
-      LocalDate createTime = LocalDate.of(2019, 10, 19);
+      final LocalDate baseTime = LocalDate.of(2019, 10, 20);
+      final LocalDate createTime = LocalDate.of(2019, 10, 19);
 
       final List<LocalDate> result =
           Whitebox.invokeMethod(
@@ -366,12 +375,12 @@ class TimeOffAccrualServiceTests {
 
     @Test
     void whenCreateTimeIsGreater_thenReturnCreateTime() throws Exception {
-      LocalDate baseTime = LocalDate.of(2019, 10, 20);
-      LocalDateTime baseDateTime = baseTime.atTime(LocalTime.MIN);
-      LocalDateTime createDateTime = baseDateTime.plusDays(1);
+      final LocalDate baseTime = LocalDate.of(2019, 10, 20);
+      final LocalDateTime baseDateTime = baseTime.atTime(LocalTime.MIN);
+      final LocalDateTime createDateTime = baseDateTime.plusDays(1);
 
-      ZonedDateTime zonedDateTime = ZonedDateTime.of(createDateTime, ZoneOffset.UTC);
-      Timestamp createTime = Timestamp.from(zonedDateTime.toInstant());
+      final ZonedDateTime zonedDateTime = ZonedDateTime.of(createDateTime, ZoneOffset.UTC);
+      final Timestamp createTime = Timestamp.from(zonedDateTime.toInstant());
 
       final List<LocalDate> result =
           Whitebox.invokeMethod(
@@ -391,8 +400,8 @@ class TimeOffAccrualServiceTests {
 
     @Test
     void whenNoMaxBalance_thenReturnEmpty() throws Exception {
-      List<TimeOffBreakdownItemDto> resultTimeOffBreakdownItemList = new ArrayList<>();
-      TimeOffBalancePojo timeOffBalancePojo = new TimeOffBalancePojo();
+      final List<TimeOffBreakdownItemDto> resultTimeOffBreakdownItemList = new ArrayList<>();
+      final TimeOffBalancePojo timeOffBalancePojo = new TimeOffBalancePojo();
       Whitebox.invokeMethod(
           TimeOffAccrualService.class,
           "populateBreakdownListFromMaxBalance",
@@ -405,8 +414,8 @@ class TimeOffAccrualServiceTests {
 
     @Test
     void whenReachMaxBalance_thenAddBreakdownItem() throws Exception {
-      List<TimeOffBreakdownItemDto> resultTimeOffBreakdownItemList = new ArrayList<>();
-      TimeOffBalancePojo timeOffBalancePojo = new TimeOffBalancePojo();
+      final List<TimeOffBreakdownItemDto> resultTimeOffBreakdownItemList = new ArrayList<>();
+      final TimeOffBalancePojo timeOffBalancePojo = new TimeOffBalancePojo();
       timeOffBalancePojo.setBalance(20);
       timeOffBalancePojo.setMaxBalance(19);
 
@@ -426,8 +435,8 @@ class TimeOffAccrualServiceTests {
 
     @Test
     void whenNoCarryoverLimit_thenReturnEmpty() throws Exception {
-      List<TimeOffBreakdownItemDto> resultTimeOffBreakdownItemList = new ArrayList<>();
-      TimeOffBalancePojo timeOffBalancePojo = new TimeOffBalancePojo();
+      final List<TimeOffBreakdownItemDto> resultTimeOffBreakdownItemList = new ArrayList<>();
+      final TimeOffBalancePojo timeOffBalancePojo = new TimeOffBalancePojo();
       Whitebox.invokeMethod(
           TimeOffAccrualService.class,
           "populateBreakdownListFromCarryoverLimit",
@@ -440,8 +449,8 @@ class TimeOffAccrualServiceTests {
 
     @Test
     void whenHasCarryoverLimit_thenAddBreakdownItem() throws Exception {
-      List<TimeOffBreakdownItemDto> resultTimeOffBreakdownItemList = new ArrayList<>();
-      TimeOffBalancePojo timeOffBalancePojo = new TimeOffBalancePojo();
+      final List<TimeOffBreakdownItemDto> resultTimeOffBreakdownItemList = new ArrayList<>();
+      final TimeOffBalancePojo timeOffBalancePojo = new TimeOffBalancePojo();
       timeOffBalancePojo.setBalance(20);
       timeOffBalancePojo.setCarryOverLimit(15);
 
@@ -461,14 +470,14 @@ class TimeOffAccrualServiceTests {
 
     @Test
     void whenHasAdjustment_thenShouldAddBreakdownItem() throws Exception {
-      List<TimeOffBreakdownItemDto> resultTimeOffBreakdownItemList = new LinkedList<>();
-      LocalDate untilDate = LocalDate.now();
+      final List<TimeOffBreakdownItemDto> resultTimeOffBreakdownItemList = new LinkedList<>();
+      final LocalDate untilDate = LocalDate.now();
 
-      TimeOffBalancePojo balancePojo = new TimeOffBalancePojo();
+      final TimeOffBalancePojo balancePojo = new TimeOffBalancePojo();
       balancePojo.setBalance(0);
 
-      List<TimeOffBreakdownItemDto> adjustments = new ArrayList<>();
-      TimeOffBreakdownItemDto itemDto = new TimeOffBreakdownItemDto();
+      final List<TimeOffBreakdownItemDto> adjustments = new ArrayList<>();
+      final TimeOffBreakdownItemDto itemDto = new TimeOffBreakdownItemDto();
       itemDto.setDate(untilDate.minusDays(1));
       itemDto.setAmount(20);
       adjustments.add(itemDto);
@@ -486,14 +495,14 @@ class TimeOffAccrualServiceTests {
 
     @Test
     void whenNoAdjustment_thenShouldReturnEmpty() throws Exception {
-      List<TimeOffBreakdownItemDto> resultTimeOffBreakdownItemList = new LinkedList<>();
-      LocalDate untilDate = LocalDate.now();
+      final List<TimeOffBreakdownItemDto> resultTimeOffBreakdownItemList = new LinkedList<>();
+      final LocalDate untilDate = LocalDate.now();
 
-      TimeOffBalancePojo balancePojo = new TimeOffBalancePojo();
+      final TimeOffBalancePojo balancePojo = new TimeOffBalancePojo();
       balancePojo.setBalance(0);
 
-      List<TimeOffBreakdownItemDto> adjustments = new ArrayList<>();
-      TimeOffBreakdownItemDto itemDto = new TimeOffBreakdownItemDto();
+      final List<TimeOffBreakdownItemDto> adjustments = new ArrayList<>();
+      final TimeOffBreakdownItemDto itemDto = new TimeOffBreakdownItemDto();
       itemDto.setDate(untilDate.plusDays(1));
       itemDto.setAmount(20);
       adjustments.add(itemDto);
@@ -507,6 +516,59 @@ class TimeOffAccrualServiceTests {
           balancePojo);
 
       Assertions.assertTrue(resultTimeOffBreakdownItemList.isEmpty());
+    }
+  }
+
+  @Nested
+  class PostProcessOfTimeOffBreakdown {
+
+    final TimeOffBreakdownDto startingBreakdown = new TimeOffBreakdownDto();
+    final TimeOffBreakdownCalculatePojo calculatePojo = new TimeOffBreakdownCalculatePojo();
+
+    @BeforeEach
+    void init() {
+      final List<TimeOffBreakdownItemDto> timeOffBreakdownItemList = new ArrayList<>();
+      TimeOffBreakdownItemDto itemDto;
+      itemDto = TimeOffBreakdownItemDto
+          .builder()
+          .date(LocalDate.of(2020, 5, 1))
+          .detail("Time Off Accrued")
+          .build();
+      timeOffBreakdownItemList.add(itemDto);
+      itemDto = TimeOffBreakdownItemDto
+          .builder()
+          .date(LocalDate.of(2020, 4, 1))
+          .detail("Starting Balance").build();
+      timeOffBreakdownItemList.add(itemDto);
+
+      startingBreakdown.setList(timeOffBreakdownItemList);
+      calculatePojo.setUntilDate(LocalDate.of(2020, 5, 5));
+    }
+
+    @Test
+    void whenNotFound_thenShouldThrow() {
+      startingBreakdown.getList().remove(1);
+
+      assertThatThrownBy(
+          () ->
+              Whitebox.invokeMethod(
+                  timeOffAccrualService,
+                  "postProcessOfTimeOffBreakdown",
+                  startingBreakdown,
+                  calculatePojo)
+      ).isInstanceOf(ResourceNotFoundException.class);
+    }
+
+    @Test
+    void whenDone_thenShouldSuccess() {
+      assertThatCode(
+          () ->
+              Whitebox.invokeMethod(
+                  timeOffAccrualService,
+                  "postProcessOfTimeOffBreakdown",
+                  startingBreakdown,
+                  calculatePojo)
+      ).doesNotThrowAnyException();
     }
   }
 }

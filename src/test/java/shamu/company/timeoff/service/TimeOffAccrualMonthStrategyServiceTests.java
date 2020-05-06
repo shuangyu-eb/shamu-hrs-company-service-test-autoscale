@@ -2,6 +2,7 @@ package shamu.company.timeoff.service;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Assertions;
@@ -10,6 +11,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import shamu.company.job.entity.JobUser;
+import shamu.company.job.service.JobUserService;
 import shamu.company.timeoff.dto.TimeOffBreakdownDto;
 import shamu.company.timeoff.dto.TimeOffBreakdownItemDto;
 import shamu.company.timeoff.dto.TimeOffBreakdownMonthDto;
@@ -24,7 +27,11 @@ import shamu.company.user.entity.User;
 
 public class TimeOffAccrualMonthStrategyServiceTests {
 
-  @Mock private AccrualScheduleMilestoneRepository accrualScheduleMilestoneRepository;
+  @Mock
+  private AccrualScheduleMilestoneRepository accrualScheduleMilestoneRepository;
+
+  @Mock
+  private JobUserService jobUserService;
 
   private TimeOffAccrualMonthStrategyService timeOffAccrualMonthStrategyService;
 
@@ -47,7 +54,7 @@ public class TimeOffAccrualMonthStrategyServiceTests {
     timeOffBreakdownCalculatePojo = new TimeOffBreakdownCalculatePojo();
     timeOffBreakdownMonthDto = new TimeOffBreakdownMonthDto();
     timeOffAccrualMonthStrategyService =
-        new TimeOffAccrualMonthStrategyService(accrualScheduleMilestoneRepository);
+        new TimeOffAccrualMonthStrategyService(accrualScheduleMilestoneRepository, jobUserService);
   }
 
   @Test
@@ -65,6 +72,8 @@ public class TimeOffAccrualMonthStrategyServiceTests {
   void testGetTimeOffBreakdown() {
     final LocalDate today = LocalDate.now();
     final Timestamp timestamp = new Timestamp(15);
+    final JobUser targetUser = new JobUser();
+    targetUser.setStartDate(Timestamp.valueOf(LocalDateTime.now()));
     timeOffBreakdownMonthDto.setYearData(timeOffBreakdownYearDto);
     user.setCreatedAt(timestamp);
     timeOffPolicyUser.setUser(user);
@@ -101,9 +110,11 @@ public class TimeOffAccrualMonthStrategyServiceTests {
     accrualScheduleMilestoneList.add(accrualScheduleMilestone);
 
     Mockito.when(
-            accrualScheduleMilestoneRepository.findByAccrualScheduleIdWithExpired(
-                Mockito.anyString()))
+        accrualScheduleMilestoneRepository.findByAccrualScheduleIdWithExpired(
+            Mockito.anyString()))
         .thenReturn(accrualScheduleMilestoneList);
+    Mockito.when(jobUserService.getJobUserByUserId(Mockito.any()))
+        .thenReturn(targetUser);
     timeOffBreakdownMonthDto.setDate(today);
     timeOffBreakdownMonthDto.setAccrualHours(1);
     timeOffBreakdownCalculatePojo.setBalanceAdjustment(balanceAdjustment);

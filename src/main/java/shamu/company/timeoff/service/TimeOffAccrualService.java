@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
+import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.timeoff.dto.TimeOffBreakdownDto;
 import shamu.company.timeoff.dto.TimeOffBreakdownItemDto;
 import shamu.company.timeoff.dto.TimeOffBreakdownItemDto.BreakDownType;
@@ -99,8 +100,8 @@ public abstract class TimeOffAccrualService {
       final TimeOffPolicyAccrualSchedule accrualSchedule) {
     LocalDate delayedHireDate = hireDate;
 
-    final String frequencyId = accrualSchedule.getTimeOffAccrualFrequency().getId();
-    if (AccrualFrequencyType.FREQUENCY_TYPE_THREE.equalsTo(frequencyId)) {
+    final String frequencyType = accrualSchedule.getTimeOffAccrualFrequency().getName();
+    if (AccrualFrequencyType.FREQUENCY_TYPE_THREE.equalsTo(frequencyType)) {
       final int startDayDelay =
           accrualSchedule.getDaysBeforeAccrualStarts() != null
               ? accrualSchedule.getDaysBeforeAccrualStarts()
@@ -308,13 +309,33 @@ public abstract class TimeOffAccrualService {
 
     final List<TimeOffBreakdownItemDto> timeOffBreakdownItemList = timeOffBreakdownDto.getList();
 
-    final List<TimeOffBreakdownItemDto> newTimeOffBreakdownItemList =
+    final TimeOffBreakdownItemDto startingBalanceOfTimeOff =
         timeOffBreakdownItemList.stream()
+            .filter(
+                timeOffBreakdownItemDto ->
+                    timeOffBreakdownItemDto.getDetail().equals(STARTING_BREAKDOWN_DETAIL))
+            .findFirst()
+            .orElseThrow(
+                () ->
+                    new ResourceNotFoundException(
+                        "Can't find the starting balance of time off policy"));
+
+    final List<TimeOffBreakdownItemDto> filteredTimeOffBreakdownItemList =
+        timeOffBreakdownItemList.stream()
+            .filter(
+                timeOffBreakdownItemDto ->
+                    !timeOffBreakdownItemDto.getDetail().equals(STARTING_BREAKDOWN_DETAIL))
+            .collect(Collectors.toList());
+
+    final List<TimeOffBreakdownItemDto> newTimeOffBreakdownItemList =
+        filteredTimeOffBreakdownItemList.stream()
             .filter(
                 (timeOffBreakdownItemDto ->
                     !timeOffBreakdownItemDto.getDate().isAfter(calculatePojo.getUntilDate())))
             .sorted(Comparator.comparing(TimeOffBreakdownItemDto::getDate))
             .collect(Collectors.toList());
+    newTimeOffBreakdownItemList.add(0, startingBalanceOfTimeOff);
+
     timeOffBreakdownDto.setList(newTimeOffBreakdownItemList);
     timeOffBreakdownDto.resetBalance();
     timeOffBreakdownDto.setShowBalance(true);

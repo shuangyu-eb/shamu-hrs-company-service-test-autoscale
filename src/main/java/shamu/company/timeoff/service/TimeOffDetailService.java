@@ -135,7 +135,7 @@ public class TimeOffDetailService {
     final String timeOffFrequencyId = timeOffFrequency.getId();
 
     final List<TimeOffPolicyAccrualSchedule> trimmedScheduleList =
-        trimTimeOffPolicyScheduleList(timeOffPolicyScheduleList, timeOffPolicyUser.getUser());
+        trimTimeOffPolicyScheduleList(timeOffPolicyScheduleList, timeOffPolicyUser);
 
     // Sort schedule list
     trimmedScheduleList.sort(Comparator.comparing(TimeOffPolicyAccrualSchedule::getCreatedAt));
@@ -295,19 +295,20 @@ public class TimeOffDetailService {
   }
 
   private List<TimeOffPolicyAccrualSchedule> trimTimeOffPolicyScheduleList(
-      final List<TimeOffPolicyAccrualSchedule> timeOffPolicyAccrualScheduleList, final User user) {
+      final List<TimeOffPolicyAccrualSchedule> timeOffPolicyAccrualScheduleList,
+      final TimeOffPolicyUser policyUser) {
 
     final List<TimeOffPolicyAccrualSchedule> trimmedScheduleList = new ArrayList<>();
     for (final TimeOffPolicyAccrualSchedule accrualSchedule : timeOffPolicyAccrualScheduleList) {
-      final LocalDateTime userEnrollDateTime = DateUtil.toLocalDateTime(user.getCreatedAt());
+      final LocalDateTime userEnrollDateTime = DateUtil.toLocalDateTime(policyUser.getCreatedAt());
       final String frequencyId = accrualSchedule.getTimeOffAccrualFrequency().getId();
 
       if (accrualSchedule.getExpiredAt() != null
           && invalidByStartDateAndEndDate(
-              accrualSchedule.getCreatedAt(),
-              accrualSchedule.getExpiredAt(),
-              userEnrollDateTime,
-              frequencyId)) {
+          accrualSchedule.getCreatedAt(),
+          accrualSchedule.getExpiredAt(),
+          userEnrollDateTime,
+          frequencyId)) {
         continue;
       }
 

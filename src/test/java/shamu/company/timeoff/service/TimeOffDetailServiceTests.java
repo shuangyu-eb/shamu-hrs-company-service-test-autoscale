@@ -218,7 +218,7 @@ class TimeOffDetailServiceTests {
 
       final TimeOffPolicyUser timeOffPolicyUser = new TimeOffPolicyUser();
       final User user = new User("1");
-      user.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
+      timeOffPolicyUser.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
       timeOffPolicyUser.setUser(user);
       timeOffPolicyUser.setTimeOffPolicy(new TimeOffPolicy("1"));
 
@@ -229,7 +229,7 @@ class TimeOffDetailServiceTests {
       dates.add(new Timestamp(1546358400000L));
 
       Mockito.when(
-              timeOffPolicyAccrualScheduleRepository.findAllWithExpiredTimeOffPolicy(Mockito.any()))
+          timeOffPolicyAccrualScheduleRepository.findAllWithExpiredTimeOffPolicy(Mockito.any()))
           .thenReturn(timeOffPolicyScheduleList);
       Mockito.when(
               timeOffRequestDateRepository.getTakenApprovedRequestOffByUserIdAndPolicyId(
