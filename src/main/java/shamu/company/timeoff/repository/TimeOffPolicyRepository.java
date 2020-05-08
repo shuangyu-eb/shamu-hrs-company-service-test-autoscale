@@ -22,7 +22,7 @@ public interface TimeOffPolicyRepository extends BaseRepository<TimeOffPolicy, S
   @Query(
       value =
           "SELECT count(1) FROM time_off_policies top"
-              + " WHERE top.name = ?1 "
+              + " WHERE binary top.name = ?1 "
               + " and top.company_id = unhex(?2)",
       nativeQuery = true)
   Integer findByPolicyNameAndCompanyId(String policyName, String companyId);
