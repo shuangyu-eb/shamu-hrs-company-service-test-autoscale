@@ -305,10 +305,10 @@ public class TimeOffDetailService {
 
       if (accrualSchedule.getExpiredAt() != null
           && invalidByStartDateAndEndDate(
-          accrualSchedule.getCreatedAt(),
-          accrualSchedule.getExpiredAt(),
-          userEnrollDateTime,
-          frequencyId)) {
+              accrualSchedule.getCreatedAt(),
+              accrualSchedule.getExpiredAt(),
+              userEnrollDateTime,
+              frequencyId)) {
         continue;
       }
 

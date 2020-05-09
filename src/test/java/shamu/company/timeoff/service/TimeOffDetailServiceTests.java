@@ -229,7 +229,7 @@ class TimeOffDetailServiceTests {
       dates.add(new Timestamp(1546358400000L));
 
       Mockito.when(
-          timeOffPolicyAccrualScheduleRepository.findAllWithExpiredTimeOffPolicy(Mockito.any()))
+              timeOffPolicyAccrualScheduleRepository.findAllWithExpiredTimeOffPolicy(Mockito.any()))
           .thenReturn(timeOffPolicyScheduleList);
       Mockito.when(
               timeOffRequestDateRepository.getTakenApprovedRequestOffByUserIdAndPolicyId(

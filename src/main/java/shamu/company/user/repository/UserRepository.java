@@ -24,16 +24,14 @@ public interface UserRepository extends JpaRepository<User, String>, UserCustomR
   @Query(
       value =
           "select * from users u"
-              + " where u.user_personal_information_id=unhex(?1) "
-              + ACTIVE_USER_QUERY,
+              + " where u.user_personal_information_id=unhex(?1) ",
       nativeQuery = true)
   User findByUserPersonalInformationId(String personalInformationId);
 
   @Query(
       value =
           "select * from users u where"
-              + " u.user_contact_information_id=unhex(?1) "
-              + ACTIVE_USER_QUERY,
+              + " u.user_contact_information_id=unhex(?1) ",
       nativeQuery = true)
   User findByUserContactInformationId(String contactInformationId);
 

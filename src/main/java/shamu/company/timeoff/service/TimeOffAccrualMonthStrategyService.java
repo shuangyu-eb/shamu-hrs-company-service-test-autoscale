@@ -94,7 +94,7 @@ public class TimeOffAccrualMonthStrategyService extends TimeOffAccrualService {
 
           if (timeOffBreakdownMonthDto.getDate().getYear() != dividingDay.getYear()
               && timeOffBreakdownMonthDto.getDate().getMonthValue()
-              == dividingDay.getMonthValue()) {
+                  == dividingDay.getMonthValue()) {
             resetDividingMonth(currentMonthDto[0], previousMonthDto[0], dividingDay);
           }
         });
@@ -284,7 +284,7 @@ public class TimeOffAccrualMonthStrategyService extends TimeOffAccrualService {
       TimeOffBreakdownMonthDto previousMonthDto;
       while (previousDate != null
           && (previousDate = previousDate.plusMonths(1))
-          .isBefore(timeOffBreakdownMonthDto.getDate())) {
+              .isBefore(timeOffBreakdownMonthDto.getDate())) {
 
         final TimeOffBreakdownMonthDto newMonthBreakdown = new TimeOffBreakdownMonthDto();
         previousMonthDto = newTimeOffBreakdownList.peekLast();
