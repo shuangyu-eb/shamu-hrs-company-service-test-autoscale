@@ -49,7 +49,9 @@ import shamu.company.benefit.entity.BenefitReportPlansPojo;
 import shamu.company.benefit.entity.EnrollmentBreakdownPojo;
 import shamu.company.benefit.entity.mapper.BenefitCoveragesMapper;
 import shamu.company.benefit.entity.mapper.BenefitPlanCoverageMapper;
+import shamu.company.benefit.entity.mapper.BenefitPlanDependentMapper;
 import shamu.company.benefit.entity.mapper.BenefitPlanMapper;
+import shamu.company.benefit.entity.mapper.BenefitPlanReportMapper;
 import shamu.company.benefit.entity.mapper.BenefitPlanUserMapper;
 import shamu.company.benefit.entity.mapper.MyBenefitsMapper;
 import shamu.company.benefit.repository.BenefitCoveragesRepository;
@@ -112,6 +114,10 @@ class BenefitPlanServiceTests {
   @Mock private UserMapper userMapper;
 
   @Mock private JobUserMapper jobUserMapper;
+
+  @Mock private BenefitPlanReportMapper benefitPlanReportMapper;
+
+  @Mock private BenefitPlanDependentMapper benefitPlanDependentMapper;
 
   @BeforeEach
   void init() {
@@ -184,7 +190,7 @@ class BenefitPlanServiceTests {
       benefitPlanService.getBenefitSummary(userId);
       Mockito.verify(myBenefitsMapper, Mockito.times(1))
           .convertToBenefitSummaryDto(
-              benefitNumber, benefitCost, dependentUsersNum, dependentUsers);
+              Mockito.anyLong(), Mockito.any(), Mockito.anyLong(), Mockito.anyList());
     }
   }
 

@@ -65,7 +65,9 @@ import shamu.company.benefit.entity.RetirementPlanType;
 import shamu.company.benefit.entity.RetirementType;
 import shamu.company.benefit.entity.mapper.BenefitCoveragesMapper;
 import shamu.company.benefit.entity.mapper.BenefitPlanCoverageMapper;
+import shamu.company.benefit.entity.mapper.BenefitPlanDependentMapper;
 import shamu.company.benefit.entity.mapper.BenefitPlanMapper;
+import shamu.company.benefit.entity.mapper.BenefitPlanReportMapper;
 import shamu.company.benefit.entity.mapper.BenefitPlanUserMapper;
 import shamu.company.benefit.entity.mapper.MyBenefitsMapper;
 import shamu.company.benefit.entity.mapper.RetirementPlanTypeMapper;
@@ -135,6 +137,10 @@ public class BenefitPlanService {
 
   private final JobUserMapper jobUserMapper;
 
+  private final BenefitPlanDependentMapper benefitPlanDependentMapper;
+
+  private final BenefitPlanReportMapper benefitPlanReportMapper;
+
   public BenefitPlanService(
       final BenefitPlanRepository benefitPlanRepository,
       final BenefitPlanUserRepository benefitPlanUserRepository,
@@ -154,7 +160,9 @@ public class BenefitPlanService {
       final AwsHelper awsHelper,
       final UserBenefitsSettingService userBenefitsSettingService,
       final JobUserService jobUserService,
-      final JobUserMapper jobUserMapper) {
+      final JobUserMapper jobUserMapper,
+      final BenefitPlanDependentMapper benefitPlanDependentMapper,
+      final BenefitPlanReportMapper benefitPlanReportMapper) {
     this.benefitPlanRepository = benefitPlanRepository;
     this.benefitPlanUserRepository = benefitPlanUserRepository;
     this.benefitPlanCoverageRepository = benefitPlanCoverageRepository;
@@ -174,6 +182,8 @@ public class BenefitPlanService {
     this.userBenefitsSettingService = userBenefitsSettingService;
     this.jobUserService = jobUserService;
     this.jobUserMapper = jobUserMapper;
+    this.benefitPlanDependentMapper = benefitPlanDependentMapper;
+    this.benefitPlanReportMapper = benefitPlanReportMapper;
   }
 
   static <T> Predicate<T> distinctByKey(final Function<? super T, ?> keyExtractor) {
@@ -513,11 +523,7 @@ public class BenefitPlanService {
         for (final BenefitPlanDependent benefitPlanDependent : benefitPlanDependents) {
           if (!dependentUserIds.contains(benefitPlanDependent.getId())) {
             final BenefitPlanDependentUserDto benefitPlanDependentUserDto =
-                BenefitPlanDependentUserDto.builder()
-                    .id(benefitPlanDependent.getId())
-                    .firstName(benefitPlanDependent.getFirstName())
-                    .lastName(benefitPlanDependent.getLastName())
-                    .build();
+                benefitPlanDependentMapper.convertToBenefitPlanDependentUser(benefitPlanDependent);
             dependentUsers.add(benefitPlanDependentUserDto);
             dependentUserIds.add(benefitPlanDependent.getId());
           }
@@ -981,25 +987,17 @@ public class BenefitPlanService {
     }
     final List<BenefitPlanReportSummaryDto> benefitPlanReportSummaryDtos = new ArrayList<>();
     final BenefitPlanReportSummaryDto employeesEnrolled =
-        BenefitPlanReportSummaryDto.builder()
-            .id("a")
-            .name("Employees Enrolled")
-            .number(employeesEnrolledNum)
-            .build();
+        benefitPlanReportMapper.covertToBenefitPlanReportSummaryDto(
+            "a", "Employees Enrolled", employeesEnrolledNum, "");
+
     final BenefitPlanReportSummaryDto companyTotalCost =
-        BenefitPlanReportSummaryDto.builder()
-            .id("b")
-            .name("Company Cost")
-            .number(companyCost)
-            .timeUnit("per month")
-            .build();
+        benefitPlanReportMapper.covertToBenefitPlanReportSummaryDto(
+            "b", "Company Cost", companyCost, "per month");
+
     final BenefitPlanReportSummaryDto employeeTotalCost =
-        BenefitPlanReportSummaryDto.builder()
-            .id("c")
-            .name("Employee Cost")
-            .number(employeeCost)
-            .timeUnit("per month")
-            .build();
+        benefitPlanReportMapper.covertToBenefitPlanReportSummaryDto(
+            "c", "Employee Cost", employeeCost, "per month");
+
     benefitPlanReportSummaryDtos.add(employeesEnrolled);
     benefitPlanReportSummaryDtos.add(companyTotalCost);
     benefitPlanReportSummaryDtos.add(employeeTotalCost);
@@ -1034,7 +1032,7 @@ public class BenefitPlanService {
                       ArrayList::new));
     }
     final BenefitReportCoveragesDto benefitReportCoveragesDto =
-        BenefitReportCoveragesDto.builder().id(DEFAULT_ID).name("All Coverage Types").build();
+        benefitPlanReportMapper.covertToBenefitReportCoveragesDto(DEFAULT_ID, "All Coverage Types");
     benefitReportCoveragesDtos.add(benefitReportCoveragesDto);
     return benefitReportCoveragesDtos;
   }

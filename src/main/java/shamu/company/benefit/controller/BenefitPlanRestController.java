@@ -36,6 +36,7 @@ import shamu.company.benefit.dto.UserBenefitPlanDto;
 import shamu.company.benefit.entity.BenefitPlan;
 import shamu.company.benefit.entity.BenefitPlanType;
 import shamu.company.benefit.entity.mapper.BenefitPlanMapper;
+import shamu.company.benefit.entity.mapper.BenefitPlanReportMapper;
 import shamu.company.benefit.entity.mapper.BenefitPlanTypeMapper;
 import shamu.company.benefit.service.BenefitPlanService;
 import shamu.company.benefit.service.BenefitPlanTypeService;
@@ -56,15 +57,19 @@ public class BenefitPlanRestController extends BaseRestController {
 
   private final BenefitPlanTypeMapper benefitPlanTypeMapper;
 
+  private final BenefitPlanReportMapper benefitPlanReportMapper;
+
   public BenefitPlanRestController(
       final BenefitPlanService benefitPlanService,
       final BenefitPlanMapper benefitPlanMapper,
       final BenefitPlanTypeService benefitPlanTypeService,
-      final BenefitPlanTypeMapper benefitPlanTypeMapper) {
+      final BenefitPlanTypeMapper benefitPlanTypeMapper,
+      final BenefitPlanReportMapper benefitPlanReportMapper) {
     this.benefitPlanService = benefitPlanService;
     this.benefitPlanMapper = benefitPlanMapper;
     this.benefitPlanTypeService = benefitPlanTypeService;
     this.benefitPlanTypeMapper = benefitPlanTypeMapper;
+    this.benefitPlanReportMapper = benefitPlanReportMapper;
   }
 
   @GetMapping("benefit-plan-types/default")
@@ -234,7 +239,7 @@ public class BenefitPlanRestController extends BaseRestController {
   public BenefitPlanReportDto getBenefitPlanReport(
       @PathVariable final String planTypeName, final String planId, final String coverageId) {
     final BenefitReportParamDto benefitReportParamDto =
-        BenefitReportParamDto.builder().planId(planId).coverageId(coverageId).build();
+        benefitPlanReportMapper.covertToBenefitReportParamDto(planId, coverageId);
     return benefitPlanService.findBenefitPlanReport(
         planTypeName, benefitReportParamDto, findCompanyId());
   }
@@ -247,7 +252,7 @@ public class BenefitPlanRestController extends BaseRestController {
       final String planId,
       final String coverageId) {
     final BenefitReportParamDto benefitReportParamDto =
-        BenefitReportParamDto.builder().planId(planId).coverageId(coverageId).build();
+        benefitPlanReportMapper.covertToBenefitReportParamDto(planId, coverageId);
     return benefitPlanService.findEnrollmentBreakdown(
         enrollmentBreakdownSearchCondition, planTypeName, benefitReportParamDto, findCompanyId());
   }

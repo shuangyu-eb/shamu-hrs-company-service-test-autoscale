@@ -4,6 +4,7 @@ import static org.mockito.BDDMockito.given;
 
 import java.util.Collections;
 import org.junit.jupiter.api.BeforeEach;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
@@ -11,6 +12,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import shamu.company.authorization.MethodPermissionEvaluator;
 import shamu.company.authorization.PermissionUtils;
 import shamu.company.authorization.UserPermissionUtils;
+import shamu.company.benefit.entity.mapper.BenefitPlanDependentMapper;
+import shamu.company.benefit.entity.mapper.BenefitPlanReportMapper;
 import shamu.company.benefit.repository.BenefitCoveragesRepository;
 import shamu.company.benefit.service.BenefitPlanDependentService;
 import shamu.company.benefit.service.BenefitPlanService;

@@ -27,7 +27,9 @@ import shamu.company.benefit.dto.SelectedEnrollmentInfoDto;
 import shamu.company.benefit.entity.BenefitCoverages;
 import shamu.company.benefit.entity.BenefitPlan;
 import shamu.company.benefit.entity.BenefitPlanType;
+import shamu.company.benefit.entity.mapper.BenefitPlanDependentMapper;
 import shamu.company.benefit.entity.mapper.BenefitPlanMapper;
+import shamu.company.benefit.entity.mapper.BenefitPlanReportMapper;
 import shamu.company.benefit.entity.mapper.BenefitPlanTypeMapper;
 import shamu.company.company.entity.Company;
 import shamu.company.server.dto.AuthUser;
@@ -41,6 +43,10 @@ public class BenefitPlanRestControllerTests extends WebControllerBaseTests {
   @MockBean BenefitPlanTypeMapper benefitPlanTypeMapper;
 
   @MockBean BenefitPlanMapper benefitPlanMapper;
+
+  @MockBean BenefitPlanReportMapper benefitPlanReportMapper;
+
+  @MockBean BenefitPlanDependentMapper benefitPlanDependentMapper;
 
   @Autowired private MockMvc mockMvc;
 
