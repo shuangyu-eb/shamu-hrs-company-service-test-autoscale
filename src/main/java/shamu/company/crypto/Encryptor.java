@@ -69,7 +69,6 @@ public class Encryptor {
       }
     } catch (final Exception e) {
       // for the unencoded value
-      // TODO please remove after some days
       return value;
     }
     return null;
