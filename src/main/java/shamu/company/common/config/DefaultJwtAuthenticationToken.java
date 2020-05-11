@@ -1,6 +1,7 @@
 package shamu.company.common.config;
 
 import java.util.Collection;
+import java.util.Objects;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
@@ -21,6 +22,26 @@ public class DefaultJwtAuthenticationToken extends JwtAuthenticationToken {
     super(jwt, authorities);
     this.userId = userId.toUpperCase();
     this.authUser = authUser;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof DefaultJwtAuthenticationToken)) {
+      return false;
+    }
+    if (!super.equals(o)) {
+      return false;
+    }
+    DefaultJwtAuthenticationToken that = (DefaultJwtAuthenticationToken) o;
+    return userId.equals(that.userId) && authUser.equals(that.authUser);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), userId, authUser);
   }
 
   public String getUserId() {

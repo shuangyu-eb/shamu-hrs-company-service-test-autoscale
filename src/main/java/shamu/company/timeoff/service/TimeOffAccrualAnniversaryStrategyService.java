@@ -233,18 +233,19 @@ public class TimeOffAccrualAnniversaryStrategyService extends TimeOffAccrualServ
 
     final LinkedList<TimeOffBreakdownItemDto> resultTimeOffBreakdownItemList = new LinkedList<>();
 
-    for (final TimeOffBreakdownAnniversaryDto timeOffBreakdownYearDto :
+    for (final TimeOffBreakdownAnniversaryDto timeOffBreakdownAnniversaryDto :
         timeOffBreakdownAnniversaryDtoList) {
 
-      final LocalDate accrualTime = timeOffBreakdownYearDto.getDate();
+      final LocalDate accrualTime = timeOffBreakdownAnniversaryDto.getDate();
 
       // carryover limit
       populateBreakdownListFromCarryoverLimit(
           resultTimeOffBreakdownItemList, accrualTime, balancePojo);
 
-      if (resultTimeOffBreakdownItemList.isEmpty() || !timeOffBreakdownYearDto.isHasParent()) {
-        balancePojo.setMaxBalance(timeOffBreakdownYearDto.getMaxBalance());
-        balancePojo.setCarryOverLimit(timeOffBreakdownYearDto.getCarryoverLimit());
+      if (resultTimeOffBreakdownItemList.isEmpty()
+          || !timeOffBreakdownAnniversaryDto.isHasParent()) {
+        balancePojo.setMaxBalance(timeOffBreakdownAnniversaryDto.getMaxBalance());
+        balancePojo.setCarryOverLimit(timeOffBreakdownAnniversaryDto.getCarryoverLimit());
       }
 
       // max balance
@@ -253,7 +254,7 @@ public class TimeOffAccrualAnniversaryStrategyService extends TimeOffAccrualServ
       populateBreakdownListFromAccrualSchedule(
           resultTimeOffBreakdownItemList,
           accrualTime,
-          timeOffBreakdownYearDto.getAccrualHours(),
+          timeOffBreakdownAnniversaryDto.getAccrualHours(),
           balancePojo);
 
       // Adjustment

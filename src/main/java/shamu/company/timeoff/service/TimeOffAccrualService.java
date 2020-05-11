@@ -141,21 +141,18 @@ public abstract class TimeOffAccrualService {
     final List<AccrualScheduleMilestone> trimmedAccrualMilestones = new ArrayList<>();
     for (final AccrualScheduleMilestone accrualScheduleMilestone : accrualScheduleMilestoneList) {
 
-      if (accrualScheduleMilestone.getExpiredAt() == null) {
-        trimmedAccrualMilestones.add(accrualScheduleMilestone);
-        continue;
-      }
+      if (accrualScheduleMilestone.getExpiredAt() != null) {
+        final LocalDateTime userJoinPolicyDateTime =
+            DateUtil.toLocalDateTime(policyUser.getCreatedAt());
 
-      final LocalDateTime userJoinPolicyDateTime =
-          DateUtil.toLocalDateTime(policyUser.getCreatedAt());
-
-      final String frequencyType = accrualSchedule.getTimeOffAccrualFrequency().getName();
-      if (invalidByStartDateAndEndDate(
-          accrualScheduleMilestone.getCreatedAt(),
-          accrualScheduleMilestone.getExpiredAt(),
-          userJoinPolicyDateTime,
-          frequencyType)) {
-        continue;
+        final String frequencyType = accrualSchedule.getTimeOffAccrualFrequency().getName();
+        if (invalidByStartDateAndEndDate(
+            accrualScheduleMilestone.getCreatedAt(),
+            accrualScheduleMilestone.getExpiredAt(),
+            userJoinPolicyDateTime,
+            frequencyType)) {
+          continue;
+        }
       }
 
       trimmedAccrualMilestones.add(accrualScheduleMilestone);
