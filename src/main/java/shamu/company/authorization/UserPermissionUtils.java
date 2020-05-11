@@ -9,7 +9,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import shamu.company.authorization.Permission.Name;
 import shamu.company.authorization.Permission.PermissionType;
@@ -36,8 +35,7 @@ import shamu.company.job.dto.JobUpdateDto;
 import shamu.company.job.entity.Job;
 import shamu.company.job.service.JobService;
 import shamu.company.timeoff.dto.PaidHolidayDto;
-import shamu.company.timeoff.dto.PaidHolidayEmployeeDto;
-import shamu.company.timeoff.dto.TimeOffPolicyUserFrontendDto;
+import shamu.company.timeoff.dto.UserIdDto;
 import shamu.company.timeoff.entity.CompanyPaidHoliday;
 import shamu.company.timeoff.entity.PaidHoliday;
 import shamu.company.timeoff.entity.TimeOffPolicy;
@@ -199,51 +197,44 @@ public class UserPermissionUtils extends BasePermissionUtils {
           }
         }
         return true;
-      case PAID_HOLIDAY_USER:
-        final List<PaidHolidayEmployeeDto> paidHolidayEmployeeDtos =
-            (List<PaidHolidayEmployeeDto>) targets;
-        for (final PaidHolidayEmployeeDto paidHolidayEmployeeDto : paidHolidayEmployeeDtos) {
-          final String userId = paidHolidayEmployeeDto.getId();
-          hasPermission = hasPermission(auth, userId, type, permission);
-          if (!hasPermission) {
+      case BENEFIT_COVERAGE_CREATION:
+        final List<BenefitPlanCoverageDto> benefitPlanCoverageDtos =
+            (List<BenefitPlanCoverageDto>) targets;
+        final List<BenefitPlanCoverageDto> coverageList =
+            benefitPlanCoverageDtos.stream()
+                .filter(coverage -> !coverage.getId().startsWith(BENEFIT_NEW_COVERAGE))
+                .collect(Collectors.toList());
+        final List<String> existIds =
+            benefitPlanService.findPlansWhenPlanIdIsNull().stream()
+                .map(BenefitCoverages::getId)
+                .collect(Collectors.toList());
+        for (final BenefitPlanCoverageDto benefitPlanCoverageDto : coverageList) {
+          if (!existIds.contains(benefitPlanCoverageDto.getId())) {
             return false;
           }
         }
         return true;
       case TIME_OFF_USER:
-        final List<TimeOffPolicyUserFrontendDto> timeOffPolicyUserDtos =
-            (List<TimeOffPolicyUserFrontendDto>) targets;
-        for (final TimeOffPolicyUserFrontendDto timeOffPolicyUserDto : timeOffPolicyUserDtos) {
-          final String userId = timeOffPolicyUserDto.getUserId();
-          hasPermission = hasPermission(auth, userId, type, permission);
-          if (!hasPermission) {
-            return false;
-          }
-        }
-        return true;
-      case BENEFIT_COVERAGE_CREATION:
-        final List<BenefitPlanCoverageDto> benefitPlanCoverageDtos =
-            (List<BenefitPlanCoverageDto>) targets;
-        if (!CollectionUtils.isEmpty(benefitPlanCoverageDtos)) {
-          final List<BenefitPlanCoverageDto> coverageList =
-              benefitPlanCoverageDtos.stream()
-                  .filter(coverage -> !coverage.getId().startsWith(BENEFIT_NEW_COVERAGE))
-                  .collect(Collectors.toList());
-          final List<String> existIds =
-              benefitPlanService.findPlansWhenPlanIdIsNull().stream()
-                  .map(BenefitCoverages::getId)
-                  .collect(Collectors.toList());
-          for (BenefitPlanCoverageDto benefitPlanCoverageDto : coverageList) {
-            if (!existIds.contains(benefitPlanCoverageDto.getId())) {
-              return false;
-            }
-          }
-          return true;
-        }
-        return false;
+      case PAID_HOLIDAY_USER:
+        return authByUserIds(auth, (List<UserIdDto>) targets, type, permission);
       default:
         return false;
     }
+  }
+
+  private boolean authByUserIds(
+      final Authentication authentication,
+      final List<UserIdDto> userIdDtos,
+      final Type type,
+      final Permission.Name permission) {
+    for (final UserIdDto userIdDto : userIdDtos) {
+      final String userId = userIdDto.getUserId();
+      if (!hasPermission(authentication, userId, type, permission)) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   boolean hasPermissionOfObjectTarget(
@@ -252,14 +243,7 @@ public class UserPermissionUtils extends BasePermissionUtils {
       final Type type,
       final Permission.Name permission) {
     if (Type.USER_JOB.equals(type)) {
-      final JobUpdateDto jobUpdateDto = (JobUpdateDto) target;
-      final String managerId = jobUpdateDto.getManagerId();
-
-      if (!StringUtils.isEmpty(managerId)) {
-        final User manager = userService.findById(managerId);
-        companyEqual(manager.getCompany());
-      }
-      return true;
+      return hasPermissionOfUserJob(target);
     }
 
     if (Type.USER_CREATION.equals(type)) {
@@ -302,6 +286,18 @@ public class UserPermissionUtils extends BasePermissionUtils {
     if (!getCompanyId().equals(company.getId())) {
       throw new ForbiddenException("The target resources is not in the company where you are.");
     }
+  }
+
+  private boolean hasPermissionOfUserJob(
+      final Object target) {
+    final JobUpdateDto jobUpdateDto = (JobUpdateDto) target;
+    final String managerId = jobUpdateDto.getManagerId();
+
+    if (!StringUtils.isEmpty(managerId)) {
+      final User manager = userService.findById(managerId);
+      companyEqual(manager.getCompany());
+    }
+    return true;
   }
 
   private boolean hasPermissionOfBenefitPlan(

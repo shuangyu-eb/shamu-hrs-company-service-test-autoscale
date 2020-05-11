@@ -398,10 +398,8 @@ public class UserService {
             Timestamp.valueOf(user.getInvitedAt().toLocalDateTime().plus(72, ChronoUnit.HOURS)))) {
       throw new EmailException("Email is expired");
     }
-    if (!userRepository.existsByResetPasswordToken(passwordToken)) {
-      return false;
-    }
-    return true;
+
+    return userRepository.existsByResetPasswordToken(passwordToken);
   }
 
   public void createPassword(final CreatePasswordDto createPasswordDto) {
