@@ -100,9 +100,9 @@ class EncryptorTests {
   @Test
   void getEncryptorByUserId() throws Exception {
     String userId = "a";
-    Mockito.when(userService.findActiveUserById(userId)).thenReturn(testUser);
+    Mockito.when(userService.findById(userId)).thenReturn(testUser);
     Whitebox.invokeMethod(encryptor, "getEncryptor", userId);
-    Mockito.verify(userService, Mockito.times(1)).findActiveUserById(userId);
+    Mockito.verify(userService, Mockito.times(1)).findById(userId);
     Mockito.verify(secretHashRepository, Mockito.times(1))
         .getCompanySecretByCompanyId(testUser.getCompany().getId());
   }
@@ -115,12 +115,12 @@ class EncryptorTests {
     Company company = new Company();
     company.setId("1");
     user.setCompany(company);
-    Mockito.when(userService.findActiveUserById(userId)).thenReturn(user);
+    Mockito.when(userService.findById(userId)).thenReturn(user);
     Mockito.when(auth0Helper.getUserSecret(user)).thenReturn("1");
     Mockito.when(secretHashRepository.getCompanySecretByCompanyId(user.getCompany().getId()))
         .thenReturn("1");
     encryptor.encrypt(userId, value);
-    Mockito.verify(userService, Mockito.times(1)).findActiveUserById(userId);
+    Mockito.verify(userService, Mockito.times(1)).findById(userId);
   }
 
   @Test

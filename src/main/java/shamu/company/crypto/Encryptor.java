@@ -79,7 +79,7 @@ public class Encryptor {
   }
 
   private BytesEncryptor getEncryptor(final String userId) {
-    final User user = userService.findActiveUserById(userId);
+    final User user = userService.findById(userId);
     return Encryptors.stronger(String.valueOf(getHashCode(user)), user.getSalt());
   }
 
