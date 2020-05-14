@@ -106,14 +106,14 @@ public class TimeOffRequestServiceTests {
     final TimeOffRequest timeOffRequest = new TimeOffRequest();
 
     Mockito.when(
-            timeOffRequestRepository.findByApproversAndTimeOffApprovalStatusFilteredByStartDay(
-                Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+            timeOffRequestRepository.findByApproversAndTimeOffApprovalStatus(
+                Mockito.any(), Mockito.any(), Mockito.any()))
         .thenReturn(Page.empty());
 
     Assertions.assertDoesNotThrow(
         () ->
-            timeOffRequestService.getByApproverAndStatusFilteredByStartDay(
-                Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()));
+            timeOffRequestService.getByApproverAndStatus(
+                Mockito.any(), Mockito.any(), Mockito.any()));
   }
 
   @Test

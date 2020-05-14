@@ -17,19 +17,10 @@ public interface TimeOffRequestRepository
               + "left join time_off_request_approval_statuses tras "
               + "   on tr.time_off_request_approval_status_id = tras.id "
               + "where tr.approver_user_id = unhex(?1) "
-              + " and tras.name in ?2"
-              + " and tr.id in "
-              + "   (select trspan.time_off_request_id from "
-              + "            (select min(trd.date) startDay, max(trd.date) endDay, "
-              + "               trd.time_off_request_id "
-              + "             from time_off_request_dates trd "
-              + "             group by trd.time_off_request_id "
-              + "             having startDay <= ?3 "
-              + "             and endDay >= ?3 "
-              + "             or startDay > ?3) trspan) order by tr.created_at desc",
+              + " and tras.name in ?2",
       nativeQuery = true)
-  Page<TimeOffRequest> findByApproversAndTimeOffApprovalStatusFilteredByStartDay(
-      String approverId, String[] statuses, Timestamp startDay, PageRequest pageRequest);
+  Page<TimeOffRequest> findByApproversAndTimeOffApprovalStatus(
+      String approverId, String[] statuses, PageRequest pageRequest);
 
   @Query(
       value =
@@ -137,12 +128,10 @@ public interface TimeOffRequestRepository
               + "on tr.time_off_request_approval_status_id = tras.id "
               + "where tr.id in "
               + "  (select trspan.time_off_request_id from "
-              + "    (select min(trd.date) startDay, max(trd.date) endDay, trd.time_off_request_id "
+              + "    (select max(trd.date) endDay, trd.time_off_request_id "
               + "       from time_off_request_dates trd "
               + "       group by trd.time_off_request_id "
-              + "       having startDay <= ?2 "
-              + "       and endDay >= ?2 "
-              + "        or startDay > ?2) trspan) "
+              + "       having endDay >= ?2) trspan) "
               + "and tr.requester_user_id = unhex(?1) "
               + "and tras.name in ?3 ",
       nativeQuery = true)
@@ -159,30 +148,12 @@ public interface TimeOffRequestRepository
               + "(select min(trd.date) startDay, max(trd.date) endDay, trd.time_off_request_id "
               + "from time_off_request_dates trd "
               + "group by trd.time_off_request_id "
-              + "having startDay <= ?2 "
-              + "and endDay >= ?2 "
-              + "or startDay > ?2 and startDay <= ?3) trspan) "
+              + "having endDay >= ?2 and startDay <= ?3) trspan) "
               + "and tr.requester_user_id = unhex(?1) "
               + "and tras.name in ?4",
       nativeQuery = true)
   Page<TimeOffRequest> findByRequesterUserIdFilteredByStartAndEndDay(
       String id, Timestamp startDay, Timestamp endDay, String[] statuses, PageRequest request);
-
-  @Query(
-      value =
-          "select * from time_off_requests tr "
-              + "where tr.id in "
-              + "  (select trspan.time_off_request_id from "
-              + "    (select min(trd.date) startDay, max(trd.date) endDay, trd.time_off_request_id "
-              + "       from time_off_request_dates trd "
-              + "       group by trd.time_off_request_id "
-              + "       having startDay <= ?2 "
-              + "       and endDay >= ?2 "
-              + "        or startDay > ?2) trspan) "
-              + "and tr.requester_user_id = unhex(?1) ",
-      nativeQuery = true)
-  List<TimeOffRequest> findByRequesterUserIdFilteredByStartDayWithoutPaging(
-      String id, Timestamp startDay);
 
   @Query(
       value =

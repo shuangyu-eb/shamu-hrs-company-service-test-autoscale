@@ -5,6 +5,8 @@ import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.TimeOffA
 import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.TimeOffApprovalStatus.DENIED;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +39,6 @@ import shamu.company.timeoff.service.TimeOffRequestService.SortFields;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
 import shamu.company.user.service.UserService;
-import shamu.company.utils.DateUtil;
 
 @RestApiController
 public class TimeOffRequestRestController extends BaseRestController {
@@ -145,7 +146,8 @@ public class TimeOffRequestRestController extends BaseRestController {
     final PageRequest request =
         PageRequest.of(page, size, Sort.by(SortFields.CREATED_AT.getValue()).descending());
     final MyTimeOffDto myTimeOffDto;
-    final Timestamp startDayTimestamp = DateUtil.getFirstDayOfCurrentYear();
+    final Timestamp startDayTimestamp =
+        new Timestamp(LocalDateTime.of(1970, 1, 1, 8, 0, 0).toEpochSecond(ZoneOffset.UTC));
     final String[] timeOffRequestStatuses = new String[] {AWAITING_REVIEW.name()};
 
     myTimeOffDto =

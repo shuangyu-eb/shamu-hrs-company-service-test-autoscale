@@ -7,6 +7,7 @@ import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.TimeOffA
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -95,13 +96,12 @@ public class TimeOffRequestService {
     return timeOffRequestRepository.findByRequestId(id);
   }
 
-  public Page<TimeOffRequest> getByApproverAndStatusFilteredByStartDay(
+  public Page<TimeOffRequest> getByApproverAndStatus(
       final String id,
       final String[] statuses,
-      final Timestamp startDay,
       final PageRequest pageRequest) {
-    return timeOffRequestRepository.findByApproversAndTimeOffApprovalStatusFilteredByStartDay(
-        id, statuses, startDay, pageRequest);
+    return timeOffRequestRepository.findByApproversAndTimeOffApprovalStatus(
+        id, statuses, pageRequest);
   }
 
   public Integer getPendingRequestsCount(final User approver) {
@@ -207,7 +207,9 @@ public class TimeOffRequestService {
     final String[] timeOffRequestStatuses = new String[] {APPROVED.name(), DENIED.name()};
 
     if (startDay == null) {
-      startDayTimestamp = DateUtil.getFirstDayOfCurrentYear();
+      // use the '1970-01-01 08:00:00' to set the minimum start time if null
+      startDayTimestamp =
+          new Timestamp(LocalDateTime.of(1970, 1, 1, 8, 0, 0).toEpochSecond(ZoneOffset.UTC));
     } else {
       startDayTimestamp = new Timestamp(startDay);
     }
@@ -460,11 +462,8 @@ public class TimeOffRequestService {
 
   public Page<TimeOffRequestDto> findRequestsByApproverAndStatuses(
       final PageRequest pageRequest, final String[] statuses, final AuthUser authUser) {
-    final Timestamp startDayTimestamp = DateUtil.getFirstDayOfCurrentYear();
-
     final Page<TimeOffRequest> timeOffRequests =
-        getByApproverAndStatusFilteredByStartDay(
-            authUser.getId(), statuses, startDayTimestamp, pageRequest);
+        getByApproverAndStatus(authUser.getId(), statuses, pageRequest);
 
     return timeOffRequests.map(timeOffRequestMapper::convertToTimeOffRequestDto);
   }
