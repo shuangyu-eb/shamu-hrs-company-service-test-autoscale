@@ -34,7 +34,7 @@ public class JobServiceTests {
     Mockito.verify(jobRepository, Mockito.times(1)).findById(Mockito.any());
   }
 
-  @Test()
+  @Test
   void whenJobNotFound_thenThrowResourceNotFoundException() {
     String id = "1";
     Mockito.when(jobRepository.findById(id))

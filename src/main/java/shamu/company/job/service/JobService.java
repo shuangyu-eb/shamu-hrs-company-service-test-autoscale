@@ -23,7 +23,7 @@ public class JobService {
     return jobRepository
         .findById(id)
         .orElseThrow(
-            () -> new ResourceNotFoundException(String.format("Job with id %s not found!", id)));
+            () -> new ResourceNotFoundException(String.format("Job with id %s not found.", id)));
   }
 
   public List<Job> findAllByDepartmentId(String id) {

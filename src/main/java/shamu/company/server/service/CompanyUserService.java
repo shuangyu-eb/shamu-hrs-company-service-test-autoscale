@@ -1,6 +1,7 @@
 package shamu.company.server.service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -11,6 +12,8 @@ import shamu.company.company.service.CompanyService;
 import shamu.company.employee.dto.EmployeeListSearchCondition;
 import shamu.company.job.entity.JobUserListItem;
 import shamu.company.server.dto.AuthUser;
+import shamu.company.server.dto.CompanyDto;
+import shamu.company.server.dto.CompanyDtoProjection;
 import shamu.company.user.entity.User;
 import shamu.company.user.service.UserService;
 
@@ -47,7 +50,7 @@ public class CompanyUserService {
   }
 
   public Page<JobUserListItem> findAllEmployees(
-      AuthUser user, EmployeeListSearchCondition employeeListSearchCondition) {
+      final AuthUser user, final EmployeeListSearchCondition employeeListSearchCondition) {
     if (permissionUtils.hasAuthority(Permission.Name.VIEW_DISABLED_USER.name())) {
       employeeListSearchCondition.setIncludeDeactivated(true);
     }
@@ -56,5 +59,16 @@ public class CompanyUserService {
 
   public User findUserByUserId(final String userId) {
     return userService.findById(userId);
+  }
+
+  public CompanyDtoProjection findCompanyDtoByUserId(final String id) {
+    return companyService.findCompanyDtoByUserId(id);
+  }
+
+  public List<CompanyDto> findCompaniesByIds(final List<String> ids) {
+    final List<Company> companies = companyService.findAllById(ids);
+    return companies.stream()
+        .map(company -> CompanyDto.builder().id(company.getId()).name(company.getName()).build())
+        .collect(Collectors.toList());
   }
 }

@@ -225,14 +225,14 @@ public class EmployeeService {
     final User user = userService.findById(emailResendDto.getUserId());
 
     if (user.getUserStatus().getStatus() != Status.PENDING_VERIFICATION) {
-      throw new ForbiddenException("User is not in Pending Verification!");
+      throw new ForbiddenException("User is not in Pending Verification.");
     }
 
     final String email = emailResendDto.getEmail();
     final String originalEmail = user.getUserContactInformation().getEmailWork();
     if (!originalEmail.equals(email)) {
       if (userService.findByEmailWork(email) != null) {
-        throw new ForbiddenException("This email already exists!");
+        throw new ForbiddenException("This email already exists.");
       }
 
       auth0Helper.updateEmail(user, emailResendDto.getEmail());
@@ -281,7 +281,7 @@ public class EmployeeService {
           file, 2 * FileValidateUtils.MB, FileFormat.JPEG, FileFormat.PNG, FileFormat.GIF);
       return awsHelper.uploadFile(file.getCanonicalPath(), Type.IMAGE);
     } catch (final IOException e) {
-      throw new AwsException("Error while uploading employee photo!", e);
+      throw new AwsException("Error while uploading employee photo.", e);
     }
   }
 

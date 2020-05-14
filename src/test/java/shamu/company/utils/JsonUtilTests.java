@@ -1,5 +1,8 @@
 package shamu.company.utils;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import java.util.Collections;
+import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import shamu.company.common.exception.ForbiddenException;
@@ -29,5 +32,15 @@ public class JsonUtilTests {
     innerClass(final int i) {
       this.i = i;
     }
+  }
+
+  @Test
+  void testDeserializeType() {
+    final List<String> randomList = Collections.singletonList("1");
+    final String jsonString = JsonUtil.formatToString(randomList);
+    final List<String> result =
+        JsonUtil.deserializeType(jsonString, new TypeReference<List<String>>() {
+        });
+    Assertions.assertEquals(randomList.get(0), result.get(0));
   }
 }

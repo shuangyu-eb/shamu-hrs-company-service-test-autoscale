@@ -33,6 +33,10 @@ import shamu.company.admin.entity.SystemAnnouncement;
 import shamu.company.admin.service.SystemAnnouncementsService;
 import shamu.company.authorization.Permission.Name;
 import shamu.company.authorization.PermissionUtils;
+import shamu.company.client.AddTenantDto;
+import shamu.company.client.DocumentClient;
+import shamu.company.client.PactsafeCompanyDto;
+import shamu.company.client.PactsafeUserDto;
 import shamu.company.common.exception.EmailException;
 import shamu.company.common.exception.ForbiddenException;
 import shamu.company.common.exception.GeneralException;
@@ -103,7 +107,7 @@ public class UserService {
 
   private static final SentryLogger log = new SentryLogger(UserService.class);
 
-  private static final String ERROR_MESSAGE = "User does not exist!";
+  private static final String ERROR_MESSAGE = "User does not exist.";
   private final UserRepository userRepository;
   private final SecretHashRepository secretHashRepository;
 
@@ -136,6 +140,8 @@ public class UserService {
   private final CompanyRepository companyRepository;
   private final SystemAnnouncementsService systemAnnouncementsService;
   private final DismissedAtService dismissedAtService;
+
+  private final DocumentClient documentClient;
 
   @Value("${application.systemEmailAddress}")
   private String systemEmailAddress;
@@ -173,7 +179,8 @@ public class UserService {
       final EntityManager entityManager,
       final CompanyRepository companyRepository,
       final SystemAnnouncementsService systemAnnouncementsService,
-      final DismissedAtService dismissedAtService) {
+      final DismissedAtService dismissedAtService,
+      final DocumentClient documentClient) {
     this.templateEngine = templateEngine;
     this.userRepository = userRepository;
     this.secretHashRepository = secretHashRepository;
@@ -203,6 +210,7 @@ public class UserService {
     this.companyRepository = companyRepository;
     this.systemAnnouncementsService = systemAnnouncementsService;
     this.dismissedAtService = dismissedAtService;
+    this.documentClient = documentClient;
   }
 
   public User findById(final String id) {
@@ -316,7 +324,7 @@ public class UserService {
       if (!orgChartManagerItemList.isEmpty()) {
         for (final OrgChartDto managerItem : orgChartManagerItemList) {
           if (managerItem == null) {
-            throw new ForbiddenException("User with id " + userId + " not found!");
+            throw new ForbiddenException("User with id " + userId + " not found.");
           }
 
           final List<OrgChartDto> orgChartUserItemList =
@@ -504,7 +512,7 @@ public class UserService {
       entityManager.flush();
     } catch (final PersistenceException e) {
       log.error("User with id " + employee.getId() + " deletes failed", e);
-      throw new GeneralException("User deletes failed!");
+      throw new GeneralException("User deletes failed.");
     } finally {
       if (entityManager.isOpen()) {
         entityManager.close();
@@ -542,7 +550,7 @@ public class UserService {
     }
 
     if (companyService.existsByName(signUpDto.getCompanyName())) {
-      throw new ForbiddenException("Company name already exists!", ErrorType.COMPANY_NAME_CONFLICT);
+      throw new ForbiddenException("Company name already exists.", ErrorType.COMPANY_NAME_CONFLICT);
     }
 
     addSignUpInformation(signUpDto);
@@ -601,6 +609,26 @@ public class UserService {
     jobUserService.save(jobUser);
 
     paidHolidayService.initDefaultPaidHolidays(user.getCompany());
+
+    addTenant(user);
+  }
+
+  public void addTenant(final User user) {
+    final Company company = user.getCompany();
+    final PactsafeCompanyDto companyDto =
+        PactsafeCompanyDto.builder().id(company.getId()).name(company.getName()).build();
+
+    final PactsafeUserDto pactsafeUserDto =
+        PactsafeUserDto.builder()
+            .email(user.getUserContactInformation().getEmailWork())
+            .firstName(user.getUserPersonalInformation().getFirstName())
+            .lastName(user.getUserPersonalInformation().getLastName())
+            .build();
+
+    final AddTenantDto tenantDto =
+        AddTenantDto.builder().user(pactsafeUserDto).company(companyDto).build();
+
+    documentClient.addTenant(tenantDto);
   }
 
   private void saveCompanyBenefitsSetting(final Company company) {
@@ -613,7 +641,7 @@ public class UserService {
   private String findUserEmailOnAuth0(final String userId) {
     final com.auth0.json.mgmt.users.User auth0User = auth0Helper.getUserByUserIdFromAuth0(userId);
     if (auth0User == null) {
-      throw new ForbiddenException("User not registered!");
+      throw new ForbiddenException("User not registered.");
     }
 
     return auth0User.getEmail();
@@ -623,7 +651,7 @@ public class UserService {
     final User targetUser =
         userRepository.findByIdAndCompanyId(targetUserId, currentUser.getCompany().getId());
     if (targetUser == null) {
-      throw new ForbiddenException("Cannot find user!");
+      throw new ForbiddenException("Cannot find user.");
     }
 
     final Role userRole = currentUser.getRole();
@@ -659,7 +687,7 @@ public class UserService {
     final String emailContent = templateEngine.process("password_change_email.html", context);
     final Timestamp sendDate = Timestamp.valueOf(LocalDateTime.now());
     final Email notificationEmail =
-        new Email(systemEmailAddress, emailAddress, "Password Changed!", emailContent, sendDate);
+        new Email(systemEmailAddress, emailAddress, "Password Changed.", emailContent, sendDate);
     emailService.saveAndScheduleEmail(notificationEmail);
   }
 
@@ -747,20 +775,20 @@ public class UserService {
   public void sendResetPasswordEmail(final String email) {
     final User targetUser = userRepository.findByEmailWork(email);
     if (targetUser == null) {
-      throw new ForbiddenException("User account does not exist!");
+      throw new ForbiddenException("User account does not exist.");
     }
 
     final com.auth0.json.mgmt.users.User user =
         auth0Helper.getUserByUserIdFromAuth0(targetUser.getId());
     if (user == null) {
-      throw new ForbiddenException("User account does not exist!");
+      throw new ForbiddenException("User account does not exist.");
     }
 
     final String passwordRestToken = UUID.randomUUID().toString();
     final String emailContent = emailService.getResetPasswordEmail(passwordRestToken, email);
     final Timestamp sendDate = Timestamp.valueOf(LocalDateTime.now());
     final Email verifyEmail =
-        new Email(systemEmailAddress, email, "Password Reset!", emailContent, sendDate);
+        new Email(systemEmailAddress, email, "Password Reset.", emailContent, sendDate);
     emailService.saveAndScheduleEmail(verifyEmail);
     targetUser.setResetPasswordToken(passwordRestToken);
     userRepository.save(targetUser);
@@ -848,11 +876,11 @@ public class UserService {
   public void resendVerificationEmail(final String email) {
     final com.auth0.json.mgmt.users.User auth0User = auth0Helper.findByEmail(email);
     if (auth0User == null) {
-      throw new ForbiddenException(String.format("User with email %s does not exist!", email));
+      throw new ForbiddenException(String.format("User with email %s does not exist.", email));
     }
 
     if (auth0User.isEmailVerified()) {
-      throw new ForbiddenException(String.format("User with email %s is already verified!", email));
+      throw new ForbiddenException(String.format("User with email %s is already verified.", email));
     }
 
     auth0Helper.sendVerificationEmail(auth0User.getId());

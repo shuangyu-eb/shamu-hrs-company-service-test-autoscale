@@ -25,7 +25,7 @@ public class EmploymentTypeService {
         .orElseThrow(
             () ->
                 new ResourceNotFoundException(
-                    String.format("Employment type with id %s not found!", id)));
+                    String.format("Employment type with id %s not found.", id)));
   }
 
   public List<EmploymentType> findAllByCompanyId(String companyId) {

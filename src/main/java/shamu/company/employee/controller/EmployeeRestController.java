@@ -100,7 +100,7 @@ public class EmployeeRestController extends BaseRestController {
     final User employee = userService.findById(findAuthUser().getId());
     if (employee.getVerifiedAt() != null) {
       throw new ForbiddenException(
-          String.format("User with email %s already verified!", employeeDto.getEmailWork()));
+          String.format("User with email %s already verified.", employeeDto.getEmailWork()));
     }
 
     employeeService.updateEmployee(employeeDto, employee);

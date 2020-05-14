@@ -3,7 +3,6 @@ package shamu.company.utils;
 import java.util.ArrayList;
 import java.util.List;
 import javax.validation.constraints.Email;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -50,11 +49,15 @@ class ValidationUtilTests {
   }
 
   @Data
-  @AllArgsConstructor
   class SomeDto {
 
     @Email String email;
 
-    SomeDto() {}
+    SomeDto() {
+    }
+
+    SomeDto(final String email) {
+      this.email = email;
+    }
   }
 }

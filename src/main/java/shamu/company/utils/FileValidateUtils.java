@@ -49,7 +49,7 @@ public abstract class FileValidateUtils {
       validateWithInputStream(inputStream, multipartFile.getSize(), maxSize, formats);
     } catch (final IOException e) {
       log.error(String.format("Caught an exception while validate file: %s", e.getMessage()));
-      throw new FileValidateException("Failed to upload file!");
+      throw new FileValidateException("Failed to upload file.");
     }
   }
 

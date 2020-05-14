@@ -25,6 +25,7 @@ import shamu.company.employee.entity.EmploymentType;
 import shamu.company.employee.service.EmploymentTypeService;
 import shamu.company.job.entity.Job;
 import shamu.company.job.service.JobService;
+import shamu.company.server.dto.CompanyDtoProjection;
 
 @Service
 public class CompanyService {
@@ -219,5 +220,13 @@ public class CompanyService {
       throw new ForbiddenException("New company name cannot be the same as the other company.");
     }
     return companyName;
+  }
+
+  public CompanyDtoProjection findCompanyDtoByUserId(final String id) {
+    return companyRepository.findCompanyDtoByUserId(id);
+  }
+
+  public List<Company> findAllById(final List<String> ids) {
+    return companyRepository.findAllById(ids);
   }
 }

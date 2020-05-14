@@ -48,7 +48,7 @@ public class EmailHelper {
       final boolean sendResult =
           statusCode == HttpStatus.OK.value() || statusCode == HttpStatus.ACCEPTED.value();
       if (!sendResult) {
-        throw new EmailException("Failed to send email!");
+        throw new EmailException("Failed to send email.");
       }
     } catch (final IOException e) {
       throw new EmailException(e.getMessage(), e);

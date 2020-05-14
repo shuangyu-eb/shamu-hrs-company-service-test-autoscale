@@ -26,7 +26,7 @@ public class StateProvinceService {
     return optionalStateProvince.orElseThrow(
         () ->
             new ResourceNotFoundException(
-                String.format("StateProvince with id %s not found!", id)));
+                String.format("StateProvince with id %s not found.", id)));
   }
 
   public List<CommonDictionaryDto> findAllByCountry(String id) {

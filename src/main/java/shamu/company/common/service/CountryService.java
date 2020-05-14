@@ -21,7 +21,7 @@ public class CountryService {
   public Country findById(final String id) {
     final Optional<Country> optionalCountry = countryRepository.findById(id);
     return optionalCountry.orElseThrow(
-        () -> new ResourceNotFoundException(String.format("Country with id %s not found!", id)));
+        () -> new ResourceNotFoundException(String.format("Country with id %s not found.", id)));
   }
 
   public List<CommonDictionaryDto> findCountries() {

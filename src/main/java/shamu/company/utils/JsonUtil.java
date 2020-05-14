@@ -1,6 +1,7 @@
 package shamu.company.utils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
@@ -28,6 +29,14 @@ public abstract class JsonUtil {
   public static <T> T deserialize(final String objectString, final Class<T> className) {
     try {
       return objectMapper.readValue(objectString, className);
+    } catch (final IOException e) {
+      throw new ForbiddenException("Error while parse json string.", e);
+    }
+  }
+
+  public static <T> T deserializeType(final String objectString, final TypeReference<T> type) {
+    try {
+      return objectMapper.readValue(objectString, type);
     } catch (final IOException e) {
       throw new ForbiddenException("Error while parse json string.", e);
     }

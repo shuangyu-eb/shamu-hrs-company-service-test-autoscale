@@ -1,7 +1,10 @@
 package shamu.company.company;
 
+import static org.assertj.core.api.Assertions.assertThatCode;
+
 import java.sql.Date;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
@@ -31,6 +34,7 @@ import shamu.company.company.service.CompanyService;
 import shamu.company.employee.entity.EmploymentType;
 import shamu.company.employee.service.EmploymentTypeService;
 import shamu.company.job.service.JobService;
+import shamu.company.server.dto.CompanyDtoProjection;
 
 public class CompanyServiceTests {
 
@@ -219,6 +223,36 @@ public class CompanyServiceTests {
       Mockito.when(companyService.existsByName(Mockito.anyString())).thenReturn(true);
       Assertions.assertThrows(
           ForbiddenException.class, () -> companyService.updateCompanyName("example", "companyId"));
+    }
+
+    @Test
+    void findCompanyDtoByUserId() {
+      CompanyDtoProjection companyDtoProjection = new CompanyDtoProjection() {
+        @Override
+        public String getId() {
+          return null;
+        }
+
+        @Override
+        public String getName() {
+          return null;
+        }
+      };
+      Mockito.when(companyRepository.findCompanyDtoByUserId(Mockito.anyString())).thenReturn(companyDtoProjection);
+      assertThatCode(
+              () ->
+                      companyService.findCompanyDtoByUserId("1"))
+              .doesNotThrowAnyException();
+    }
+
+    @Test
+    void findAllById() {
+      List<Company> companies = new ArrayList<>();
+      Mockito.when(companyRepository.findAllById(Mockito.anyList())).thenReturn(companies);
+      assertThatCode(
+              () ->
+                      companyService.findAllById(Collections.singletonList("1")))
+              .doesNotThrowAnyException();
     }
   }
 }

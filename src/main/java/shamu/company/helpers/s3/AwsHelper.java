@@ -38,7 +38,7 @@ public class AwsHelper {
 
   private static final String UPLOADS = "/uploads";
 
-  private static final String FAILED_TO_UPLOAD_FILE = "Failed to upload file!";
+  private static final String FAILED_TO_UPLOAD_FILE = "Failed to upload file.";
 
   private static final String ERROR_MESSAGE_FORMAT = "Error Message:    %s";
 
@@ -231,7 +231,7 @@ public class AwsHelper {
     } catch (final SdkClientException e) {
       // The call was transmitted successfully, but Amazon S3 couldn't process
       // it, so it returned an error response.
-      throw new AwsException("Failed to get url of file!", ErrorType.AWS_GET_URL_EXCEPTION, e);
+      throw new AwsException("Failed to get url of file.", ErrorType.AWS_GET_URL_EXCEPTION, e);
     }
   }
 

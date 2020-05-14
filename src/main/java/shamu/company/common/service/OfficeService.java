@@ -23,7 +23,7 @@ public class OfficeService {
     return officeRepository
         .findById(id)
         .orElseThrow(
-            () -> new ResourceNotFoundException(String.format("Office with id %s not found!", id)));
+            () -> new ResourceNotFoundException(String.format("Office with id %s not found.", id)));
   }
 
   public List<Office> findByCompanyId(String companyId) {

@@ -1,7 +1,9 @@
 package shamu.company.server;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import org.apache.commons.lang.RandomStringUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -16,18 +18,24 @@ import shamu.company.company.entity.Company;
 import shamu.company.company.service.CompanyService;
 import shamu.company.employee.dto.EmployeeListSearchCondition;
 import shamu.company.server.dto.AuthUser;
+import shamu.company.server.dto.CompanyDto;
+import shamu.company.server.dto.CompanyDtoProjection;
 import shamu.company.server.service.CompanyUserService;
 import shamu.company.user.service.UserService;
 
-public class CompanyUserServiceTests {
+class CompanyUserServiceTests {
 
-  @Mock private CompanyService companyService;
+  @Mock
+  private CompanyService companyService;
 
-  @Mock private UserService userService;
+  @Mock
+  private UserService userService;
 
-  @Mock private PermissionUtils permissionUtils;
+  @Mock
+  private PermissionUtils permissionUtils;
 
-  @InjectMocks private CompanyUserService companyUserService;
+  @InjectMocks
+  private CompanyUserService companyUserService;
 
   @BeforeEach
   void init() {
@@ -58,6 +66,7 @@ public class CompanyUserServiceTests {
 
   @Nested
   class FindAllEmployees {
+
     final AuthUser authUser = new AuthUser();
     final EmployeeListSearchCondition condition = new EmployeeListSearchCondition();
 
@@ -76,5 +85,42 @@ public class CompanyUserServiceTests {
       companyUserService.findAllEmployees(authUser, condition);
       Assertions.assertEquals(false, condition.getIncludeDeactivated());
     }
+  }
+
+  @Test
+  void testFindCompanyDtoByUserId() {
+    final String userId = RandomStringUtils.randomAlphabetic(16);
+    final CompanyDtoProjection companyDto =
+        new CompanyDtoProjection() {
+          @Override
+          public String getId() {
+            return userId;
+          }
+
+          @Override
+          public String getName() {
+            return null;
+          }
+        };
+    Mockito.when(companyService.findCompanyDtoByUserId(userId)).thenReturn(companyDto);
+
+    final CompanyDtoProjection result = companyUserService.findCompanyDtoByUserId(userId);
+    Assertions.assertEquals(companyDto.getId(), result.getId());
+  }
+
+  @Test
+  void testFindCompaniesByIds() {
+    final String companyId = RandomStringUtils.randomAlphabetic(16);
+    final List<String> parameterIds = Collections.singletonList(companyId);
+    final List<Company> companies = new ArrayList<>();
+    final Company company = new Company();
+    company.setId(companyId);
+    companies.add(company);
+
+    Mockito.when(companyService.findAllById(parameterIds)).thenReturn(companies);
+
+    final List<CompanyDto> result = companyUserService.findCompaniesByIds(parameterIds);
+    Assertions.assertFalse(result.isEmpty());
+    Assertions.assertEquals(companyId, result.get(0).getId());
   }
 }

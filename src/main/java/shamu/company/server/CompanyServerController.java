@@ -15,6 +15,8 @@ import shamu.company.common.BaseRestController;
 import shamu.company.employee.dto.EmployeeListSearchCondition;
 import shamu.company.job.entity.JobUserListItem;
 import shamu.company.server.dto.AuthUser;
+import shamu.company.server.dto.CompanyDto;
+import shamu.company.server.dto.CompanyDtoProjection;
 import shamu.company.server.dto.CompanyUser;
 import shamu.company.server.dto.DocumentRequestEmailDto;
 import shamu.company.server.service.CompanyEmailService;
@@ -76,5 +78,15 @@ public class CompanyServerController extends BaseRestController {
   @GetMapping(value = "/user/{id}")
   public AuthUser getUserById(@PathVariable final String id) {
     return new AuthUser(companyUserService.findUserByUserId(id));
+  }
+
+  @GetMapping(value = "/companies")
+  public List<CompanyDto> findCompaniesByIds(@RequestParam final List<String> ids) {
+    return companyUserService.findCompaniesByIds(ids);
+  }
+
+  @GetMapping(value = "users/{id}/company")
+  public CompanyDtoProjection findCompanyByUserId(@PathVariable final String id) {
+    return companyUserService.findCompanyDtoByUserId(id);
   }
 }
