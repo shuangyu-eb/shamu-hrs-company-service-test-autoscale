@@ -201,8 +201,8 @@ public class JobUserService {
   private boolean isSubordinate(final String userId, String managerId) {
     User user = userService.findById(userId);
     while (user.getManagerUser() != null && !user.getManagerUser().getId().equals(managerId)) {
-      managerId = user.getManagerUser().getId();
-      user = userService.findById(userId);
+      final String userManagerId = user.getManagerUser().getId();
+      user = userService.findById(userManagerId);
     }
     return user.getManagerUser() != null && user.getManagerUser().getId().equals(managerId);
   }
