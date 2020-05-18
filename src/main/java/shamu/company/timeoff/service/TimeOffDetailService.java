@@ -3,7 +3,6 @@ package shamu.company.timeoff.service;
 import static java.util.Date.from;
 import static shamu.company.timeoff.service.TimeOffAccrualService.invalidByStartDateAndEndDate;
 
-import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -40,6 +39,7 @@ import shamu.company.timeoff.repository.TimeOffPolicyUserRepository;
 import shamu.company.timeoff.repository.TimeOffRequestDateRepository;
 import shamu.company.user.entity.User;
 import shamu.company.utils.DateUtil;
+import shamu.company.utils.TimeOffRequestDatesAbstractUtil;
 
 @Service
 public class TimeOffDetailService {
@@ -186,7 +186,7 @@ public class TimeOffDetailService {
       final List<TimeOffBreakdownItemDto> breakdownItemList,
       final TimeOffBreakdownItemDto timeOffBreakdownItemDto,
       final String timeOffRequestId) {
-    final String dateMessage = getTimeOffRequestDatesRange(timeOffRequestId);
+    final String dateMessage = getTimeOffRequestDatesAbstract(timeOffRequestId);
 
     timeOffBreakdownItemDto.setDateMessage(dateMessage);
     timeOffBreakdownItemDto.setDetail("Time Off Taken");
@@ -195,79 +195,13 @@ public class TimeOffDetailService {
     breakdownItemList.add(timeOffBreakdownItemDto);
   }
 
-  public String getTimeOffRequestDatesRange(final String timeOffRequestId) {
-    final List<Timestamp> dates =
-        timeOffRequestDateRepository.getTimeOffRequestDatesByTimeOffRequestId(timeOffRequestId);
-    final StringBuilder dateMessage = new StringBuilder();
-    LocalDate time = null;
-    Integer previousDateMonth = null;
-    Integer previousDateYear = null;
-    StringBuilder tempDateMessage = null;
-    for (final Timestamp date : dates) {
-      final LocalDate localDate = DateUtil.fromTimestamp(date);
-      String dateFormat;
-      if (previousDateMonth != null && previousDateMonth == localDate.getMonthValue()) {
-        dateFormat = DateUtil.DAY;
-      } else {
-        dateFormat = DateUtil.SIMPLE_MONTH_DAY;
-      }
-      previousDateMonth = localDate.getMonthValue();
-      if (null != time) {
-        if (localDate.minusDays(1).equals(time)) {
-          if (isConsecutiveDatesAndDifferentYear(dates)
-              && time.getMonthValue() == localDate.getMonthValue()) {
-            dateFormat = DateUtil.SIMPLE_MONTH_DAY;
-          }
-          tempDateMessage =
-              new StringBuilder(" - ".concat(DateUtil.formatDateTo(localDate, dateFormat)));
-          time = localDate;
-          continue;
-        }
-        if (tempDateMessage != null) {
-          if (previousDateYear != localDate.getYear()
-              && previousDateYear != LocalDate.now().getYear()) {
-            dateMessage.append(", ").append(previousDateYear);
-          }
-          dateMessage.append(tempDateMessage);
-          tempDateMessage = null;
-        }
-        dateMessage.append(", ");
-      }
-      time = localDate;
-      previousDateYear = localDate.getYear();
-      dateMessage.append(DateUtil.formatDateTo(localDate, dateFormat));
-    }
-    if (tempDateMessage != null) {
-      if (isConsecutiveDatesAndDifferentYear(dates)) {
-        dateMessage.append(", ").append(DateUtil.fromTimestamp(dates.get(0)).getYear());
-      }
-      dateMessage.append(tempDateMessage);
-    }
-    if (DateUtil.fromTimestamp(dates.get(dates.size() - 1)).getYear()
-        != LocalDate.now().getYear()) {
-      dateMessage
-          .append(", ")
-          .append(DateUtil.fromTimestamp(dates.get(dates.size() - 1)).getYear());
-    }
-    return dateMessage.toString();
-  }
-
-  private boolean isConsecutiveDatesAndDifferentYear(final List<Timestamp> dates) {
-    boolean isConsecutiveDates = true;
-    final int firstDateYear = DateUtil.fromTimestamp(dates.get(0)).getYear();
-    boolean isDifferentYear = false;
-    for (int i = 1; i < dates.size(); i++) {
-      if (!DateUtil.fromTimestamp(dates.get(i))
-          .minusDays(1)
-          .equals(DateUtil.fromTimestamp(dates.get(i - 1)))) {
-        isConsecutiveDates = false;
-      }
-      if (DateUtil.fromTimestamp(dates.get(i)).getYear() != firstDateYear) {
-        isDifferentYear = true;
-        break;
-      }
-    }
-    return isConsecutiveDates && isDifferentYear;
+  public String getTimeOffRequestDatesAbstract(final String timeOffRequestId) {
+    final List<LocalDate> timeOffDates =
+        timeOffRequestDateRepository.getTimeOffRequestDatesByTimeOffRequestId(timeOffRequestId)
+            .stream()
+            .map(DateUtil::fromTimestamp)
+            .collect(Collectors.toList());
+    return TimeOffRequestDatesAbstractUtil.generateTimeOffRequestDatesAbstract(timeOffDates);
   }
 
   private List<TimeOffBreakdownItemDto> getBreakdownListFromRequestOff(

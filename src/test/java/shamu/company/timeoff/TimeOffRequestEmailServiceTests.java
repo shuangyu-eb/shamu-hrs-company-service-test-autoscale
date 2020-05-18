@@ -134,7 +134,7 @@ public class TimeOffRequestEmailServiceTests {
       Mockito.when(
               templateEngine.process(Mockito.eq("time_off_request_pending.html"), Mockito.any()))
           .thenReturn("");
-      Mockito.when(timeOffDetailService.getTimeOffRequestDatesRange(Mockito.any()))
+      Mockito.when(timeOffDetailService.getTimeOffRequestDatesAbstract(Mockito.any()))
           .thenReturn("123");
 
       Assertions.assertDoesNotThrow(() -> timeOffRequestEmailService.sendEmail(timeOffRequest));
@@ -150,7 +150,7 @@ public class TimeOffRequestEmailServiceTests {
       Mockito.when(
               templateEngine.process(Mockito.eq("time_off_request_approve.html"), Mockito.any()))
           .thenReturn("");
-      Mockito.when(timeOffDetailService.getTimeOffRequestDatesRange(Mockito.any()))
+      Mockito.when(timeOffDetailService.getTimeOffRequestDatesAbstract(Mockito.any()))
           .thenReturn("123");
 
       Assertions.assertDoesNotThrow(() -> timeOffRequestEmailService.sendEmail(timeOffRequest));
@@ -166,7 +166,7 @@ public class TimeOffRequestEmailServiceTests {
       Mockito.when(
               templateEngine.process(Mockito.eq("time_off_request_pending.html"), Mockito.any()))
           .thenReturn("");
-      Mockito.when(timeOffDetailService.getTimeOffRequestDatesRange(Mockito.any()))
+      Mockito.when(timeOffDetailService.getTimeOffRequestDatesAbstract(Mockito.any()))
           .thenReturn("123");
 
       Assertions.assertDoesNotThrow(() -> timeOffRequestEmailService.sendEmail(timeOffRequest));
