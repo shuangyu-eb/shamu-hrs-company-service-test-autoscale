@@ -9,7 +9,7 @@ void setBuildStatus(String message, String state) {
 }
 
 pipeline {
-    agent { label '!master' }
+    agent { label 'shamu-hrs' }
     environment {
         WORKSPACE = "/home/ubuntu/workspace/shamu-company-master-auto-build"
     }
