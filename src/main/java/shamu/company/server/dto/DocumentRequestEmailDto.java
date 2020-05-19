@@ -17,7 +17,7 @@ public class DocumentRequestEmailDto {
 
   private DocumentRequestType type;
 
-  private String documentEmailUrl;
+  private String documentRequestId;
 
   private Timestamp expiredAt;
 

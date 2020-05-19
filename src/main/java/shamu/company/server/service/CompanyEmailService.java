@@ -67,7 +67,7 @@ public class CompanyEmailService {
 
   private Map<String, Object> findVariables(
       final DocumentRequestEmailDto documentRequestEmailDto, final User sender) {
-    final String documentUrl = documentRequestEmailDto.getDocumentEmailUrl();
+    final String documentRequestId = documentRequestEmailDto.getDocumentRequestId();
     final String documentTitle = documentRequestEmailDto.getDocumentTitle();
     final Map<String, Object> variables = new HashMap<>();
 
@@ -92,7 +92,7 @@ public class CompanyEmailService {
             senderPersonalInformation.getFirstName(), senderPersonalInformation.getLastName());
     variables.put("avatarText", avatarText);
 
-    variables.put("documentUrl", documentUrl);
+    variables.put("documentRequestId", documentRequestId);
     variables.put("documentTitle", documentTitle);
 
     if (!VIEW.equals(documentRequestEmailDto.getType())
