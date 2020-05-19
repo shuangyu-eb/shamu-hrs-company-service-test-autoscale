@@ -11,7 +11,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import shamu.company.common.entity.StateProvince;
-import shamu.company.common.exception.ResourceNotFoundException;
+import shamu.company.common.exception.OldResourceNotFoundException;
 import shamu.company.info.dto.UserEmergencyContactDto;
 import shamu.company.info.entity.UserEmergencyContact;
 import shamu.company.info.entity.mapper.UserEmergencyContactMapper;
@@ -156,7 +156,7 @@ public class UserEmergencyContactServiceTests {
       Mockito.when(userEmergencyContactRepository.findById(Mockito.anyString()))
           .thenReturn(optional);
       Assertions.assertThrows(
-          ResourceNotFoundException.class,
+          OldResourceNotFoundException.class,
           () -> userEmergencyContactService.updateEmergencyContact(userEmergencyContactDto));
     }
   }

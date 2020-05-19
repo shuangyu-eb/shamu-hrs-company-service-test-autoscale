@@ -11,7 +11,7 @@ import org.mockito.MockitoAnnotations;
 import shamu.company.benefit.entity.BenefitPlanType;
 import shamu.company.benefit.repository.BenefitPlanTypeRepository;
 import shamu.company.benefit.service.BenefitPlanTypeService;
-import shamu.company.common.exception.ResourceNotFoundException;
+import shamu.company.common.exception.OldResourceNotFoundException;
 
 public class BenefitPlanTypeServiceTests {
 
@@ -44,7 +44,7 @@ public class BenefitPlanTypeServiceTests {
       final Optional<BenefitPlanType> optional = Optional.empty();
       Mockito.when(benefitPlanTypeRepository.findById(Mockito.anyString())).thenReturn(optional);
       Assertions.assertThrows(
-          ResourceNotFoundException.class,
+          OldResourceNotFoundException.class,
           () -> benefitPlanTypeService.findBenefitPlanTypeById("1"));
     }
   }

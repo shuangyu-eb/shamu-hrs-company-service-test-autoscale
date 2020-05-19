@@ -30,7 +30,7 @@ import shamu.company.authorization.PermissionUtils;
 import shamu.company.client.DocumentClient;
 import shamu.company.common.exception.EmailException;
 import shamu.company.common.exception.ForbiddenException;
-import shamu.company.common.exception.ResourceNotFoundException;
+import shamu.company.common.exception.OldResourceNotFoundException;
 import shamu.company.common.service.DepartmentService;
 import shamu.company.company.entity.Company;
 import shamu.company.company.repository.CompanyRepository;
@@ -85,73 +85,40 @@ import shamu.company.utils.UuidUtil;
 
 class UserServiceTests {
 
-  @InjectMocks
-  private UserService userService;
+  @InjectMocks private UserService userService;
 
-  @Mock
-  private ITemplateEngine templateEngine;
-  @Mock
-  private UserRepository userRepository;
-  @Mock
-  private SecretHashRepository secretHashRepository;
-  @Mock
-  private JobUserService jobUserService;
-  @Mock
-  private UserStatusService userStatusService;
-  @Mock
-  private EmailService emailService;
-  @Mock
-  private UserPersonalInformationMapper userPersonalInformationMapper;
-  @Mock
-  private UserEmergencyContactService userEmergencyContactService;
-  @Mock
-  private UserAddressService userAddressService;
-  @Mock
-  private PaidHolidayService paidHolidayService;
-  @Mock
-  private CompanyService companyService;
-  @Mock
-  private UserContactInformationMapper userContactInformationMapper;
-  @Mock
-  private UserAddressMapper userAddressMapper;
-  @Mock
-  private Auth0Helper auth0Helper;
-  @Mock
-  private UserAccessLevelEventService userAccessLevelEventService;
-  @Mock
-  private DepartmentService departmentService;
-  @Mock
-  private JobService jobService;
-  @Mock
-  private UserMapper userMapper;
-  @Mock
-  private UserContactInformationService userContactInformationService;
-  @Mock
-  private UserPersonalInformationService userPersonalInformationService;
-  @Mock
-  private AuthUserCacheManager authUserCacheManager;
-  @Mock
-  private DynamicScheduler dynamicScheduler;
-  @Mock
-  private AwsHelper awsHelper;
-  @Mock
-  private UserRoleService userRoleService;
-  @Mock
-  private PermissionUtils permissionUtils;
-  @Mock
-  private CompanyBenefitsSettingService companyBenefitsSettingService;
-  @Mock
-  private UserBenefitsSettingService userBenefitsSettingService;
-  @Mock
-  private EntityManager entityManager;
-  @Mock
-  private CompanyRepository companyRepository;
-  @Mock
-  private SystemAnnouncementsService systemAnnouncementsService;
-  @Mock
-  private DismissedAtService dismissedAtService;
-  @Mock
-  private DocumentClient documentClient;
+  @Mock private ITemplateEngine templateEngine;
+  @Mock private UserRepository userRepository;
+  @Mock private SecretHashRepository secretHashRepository;
+  @Mock private JobUserService jobUserService;
+  @Mock private UserStatusService userStatusService;
+  @Mock private EmailService emailService;
+  @Mock private UserPersonalInformationMapper userPersonalInformationMapper;
+  @Mock private UserEmergencyContactService userEmergencyContactService;
+  @Mock private UserAddressService userAddressService;
+  @Mock private PaidHolidayService paidHolidayService;
+  @Mock private CompanyService companyService;
+  @Mock private UserContactInformationMapper userContactInformationMapper;
+  @Mock private UserAddressMapper userAddressMapper;
+  @Mock private Auth0Helper auth0Helper;
+  @Mock private UserAccessLevelEventService userAccessLevelEventService;
+  @Mock private DepartmentService departmentService;
+  @Mock private JobService jobService;
+  @Mock private UserMapper userMapper;
+  @Mock private UserContactInformationService userContactInformationService;
+  @Mock private UserPersonalInformationService userPersonalInformationService;
+  @Mock private AuthUserCacheManager authUserCacheManager;
+  @Mock private DynamicScheduler dynamicScheduler;
+  @Mock private AwsHelper awsHelper;
+  @Mock private UserRoleService userRoleService;
+  @Mock private PermissionUtils permissionUtils;
+  @Mock private CompanyBenefitsSettingService companyBenefitsSettingService;
+  @Mock private UserBenefitsSettingService userBenefitsSettingService;
+  @Mock private EntityManager entityManager;
+  @Mock private CompanyRepository companyRepository;
+  @Mock private SystemAnnouncementsService systemAnnouncementsService;
+  @Mock private DismissedAtService dismissedAtService;
+  @Mock private DocumentClient documentClient;
 
   @BeforeEach
   void init() {
@@ -254,7 +221,7 @@ class UserServiceTests {
     final SystemAnnouncement systemAnnouncement = new SystemAnnouncement();
 
     Mockito.when(
-        dismissedAtService.findByUserIdAndSystemAnnouncementId(Mockito.any(), Mockito.any()))
+            dismissedAtService.findByUserIdAndSystemAnnouncementId(Mockito.any(), Mockito.any()))
         .thenReturn(null);
     Mockito.when(systemAnnouncementsService.findById(Mockito.any())).thenReturn(systemAnnouncement);
     Mockito.when(dismissedAtService.save(Mockito.any())).thenReturn(dismissed);
@@ -605,7 +572,7 @@ class UserServiceTests {
     void whenCompanyNameExists_thenShouldThrow() {
       Mockito.when(companyService.existsByName(Mockito.anyString())).thenReturn(true);
       assertThatThrownBy(() -> userService.signUp(userSignUpDto))
-              .isInstanceOf(ForbiddenException.class);
+          .isInstanceOf(ForbiddenException.class);
     }
 
     @Test
@@ -695,9 +662,9 @@ class UserServiceTests {
     @Test
     void whenTargetUserIsNull_thenShouldThrow() {
       Mockito.when(userRepository.findByIdAndCompanyId(Mockito.anyString(), Mockito.anyString()))
-              .thenReturn(null);
+          .thenReturn(null);
       assertThatThrownBy(() -> userService.hasUserAccess(currentUser, targetUserId))
-              .isInstanceOf(ForbiddenException.class);
+          .isInstanceOf(ForbiddenException.class);
     }
   }
 
@@ -728,7 +695,7 @@ class UserServiceTests {
       targetUser.setResetPasswordToken(RandomStringUtils.randomAlphabetic(10));
       Mockito.when(userRepository.findByEmailWork(Mockito.anyString())).thenReturn(targetUser);
       Assertions.assertThrows(
-          ResourceNotFoundException.class, () -> userService.createPassword(createPasswordDto));
+          OldResourceNotFoundException.class, () -> userService.createPassword(createPasswordDto));
     }
 
     @Test
@@ -747,7 +714,7 @@ class UserServiceTests {
       targetUser.setResetPasswordToken(createPasswordDto.getResetPasswordToken());
       Mockito.when(userRepository.findByEmailWork(Mockito.anyString())).thenReturn(null);
       Assertions.assertThrows(
-          ResourceNotFoundException.class, () -> userService.createPassword(createPasswordDto));
+          OldResourceNotFoundException.class, () -> userService.createPassword(createPasswordDto));
     }
 
     @Test
@@ -757,7 +724,7 @@ class UserServiceTests {
       targetUser.setResetPasswordToken(RandomStringUtils.randomAlphabetic(10));
       Mockito.when(userRepository.findByEmailWork(Mockito.any())).thenReturn(targetUser);
       Assertions.assertThrows(
-          ResourceNotFoundException.class, () -> userService.createPassword(createPasswordDto));
+          OldResourceNotFoundException.class, () -> userService.createPassword(createPasswordDto));
     }
 
     @Test
@@ -799,7 +766,8 @@ class UserServiceTests {
     @Test
     void whenTargetUserIsNull_thenShouldThrow() {
       Mockito.when(userRepository.findByEmailWork(Mockito.anyString())).thenReturn(null);
-      assertThatThrownBy(() -> userService.sendResetPasswordEmail("example@indeed.com")).isInstanceOf(ForbiddenException.class);
+      assertThatThrownBy(() -> userService.sendResetPasswordEmail("example@indeed.com"))
+          .isInstanceOf(ForbiddenException.class);
     }
   }
 
@@ -878,7 +846,7 @@ class UserServiceTests {
       final DismissedAt dismissedAt = new DismissedAt();
 
       Mockito.when(
-          dismissedAtService.findByUserIdAndSystemAnnouncementId(Mockito.any(), Mockito.any()))
+              dismissedAtService.findByUserIdAndSystemAnnouncementId(Mockito.any(), Mockito.any()))
           .thenReturn(dismissedAt);
 
       Assertions.assertDoesNotThrow(
@@ -890,7 +858,7 @@ class UserServiceTests {
     @Test
     void whenDismissAdIsNull_then_shouldReturnFalse() {
       Mockito.when(
-          dismissedAtService.findByUserIdAndSystemAnnouncementId(Mockito.any(), Mockito.any()))
+              dismissedAtService.findByUserIdAndSystemAnnouncementId(Mockito.any(), Mockito.any()))
           .thenReturn(null);
 
       Assertions.assertDoesNotThrow(

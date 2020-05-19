@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import shamu.company.common.exception.ResourceNotFoundException;
+import shamu.company.common.exception.OldResourceNotFoundException;
 import shamu.company.timeoff.entity.TimeOffPolicy;
 import shamu.company.timeoff.entity.TimeOffPolicyUser;
 import shamu.company.timeoff.repository.TimeOffPolicyUserRepository;
@@ -42,12 +42,12 @@ class TimeOffPolicyUserServiceTests {
     Mockito.when(timeOffPolicyUserRepository.findById(Mockito.any())).thenReturn(Optional.empty());
 
     Assertions.assertThrows(
-        ResourceNotFoundException.class, () -> timeOffPolicyUserService.findById("1"));
+        OldResourceNotFoundException.class, () -> timeOffPolicyUserService.findById("1"));
   }
 
   @Test
   void existsByUserId() {
-    boolean bol = timeOffPolicyUserService.existsByUserId("1");
+    final boolean bol = timeOffPolicyUserService.existsByUserId("1");
     Assertions.assertFalse(bol);
   }
 

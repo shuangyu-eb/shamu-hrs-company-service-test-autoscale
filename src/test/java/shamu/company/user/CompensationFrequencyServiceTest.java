@@ -8,7 +8,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import shamu.company.common.exception.ResourceNotFoundException;
+import shamu.company.common.exception.OldResourceNotFoundException;
 import shamu.company.user.repository.CompensationFrequencyRepository;
 import shamu.company.user.service.CompensationFrequencyService;
 
@@ -27,7 +27,7 @@ public class CompensationFrequencyServiceTest {
     Mockito.when(compensationFrequencyRepository.findById(Mockito.anyString()))
         .thenReturn(Optional.empty());
     Assertions.assertThrows(
-        ResourceNotFoundException.class, () -> compensationFrequencyService.findById("test"));
+        OldResourceNotFoundException.class, () -> compensationFrequencyService.findById("test"));
   }
 
   @Test

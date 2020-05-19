@@ -62,7 +62,7 @@ import shamu.company.benefit.repository.BenefitPlanTypeRepository;
 import shamu.company.benefit.repository.BenefitPlanUserRepository;
 import shamu.company.benefit.repository.RetirementPlanTypeRepository;
 import shamu.company.benefit.service.BenefitPlanService;
-import shamu.company.common.exception.ResourceNotFoundException;
+import shamu.company.common.exception.OldResourceNotFoundException;
 import shamu.company.company.entity.Department;
 import shamu.company.helpers.s3.AwsHelper;
 import shamu.company.job.dto.JobUserDto;
@@ -1168,7 +1168,7 @@ class BenefitPlanServiceTests {
     void whenBenefitPlanNotFound_thenShouldThrow() {
       Mockito.when(benefitPlanRepository.findById(id)).thenReturn(Optional.empty());
       Assertions.assertThrows(
-          ResourceNotFoundException.class, () -> benefitPlanService.findBenefitPlanById(id));
+          OldResourceNotFoundException.class, () -> benefitPlanService.findBenefitPlanById(id));
     }
   }
 
@@ -1242,7 +1242,7 @@ class BenefitPlanServiceTests {
     void whenBenefitPlanNotFound_thenShouldThrow() {
       Mockito.when(benefitCoveragesRepository.findById(id)).thenReturn(Optional.empty());
       Assertions.assertThrows(
-          ResourceNotFoundException.class, () -> benefitPlanService.getBenefitCoveragesById(id));
+          OldResourceNotFoundException.class, () -> benefitPlanService.getBenefitCoveragesById(id));
     }
   }
 
@@ -1269,7 +1269,7 @@ class BenefitPlanServiceTests {
     void whenBenefitPlanNotFound_thenShouldThrow() {
       Mockito.when(benefitPlanCoverageRepository.findById(id)).thenReturn(Optional.empty());
       Assertions.assertThrows(
-          ResourceNotFoundException.class, () -> benefitPlanService.getBenefitPlanCoverageById(id));
+          OldResourceNotFoundException.class, () -> benefitPlanService.getBenefitPlanCoverageById(id));
     }
   }
 

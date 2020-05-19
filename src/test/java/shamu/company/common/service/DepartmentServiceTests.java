@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import shamu.company.common.exception.ResourceNotFoundException;
+import shamu.company.common.exception.OldResourceNotFoundException;
 import shamu.company.common.repository.DepartmentRepository;
 import shamu.company.company.entity.Department;
 
@@ -63,7 +63,7 @@ public class DepartmentServiceTests {
       final Optional<Department> optional = Optional.empty();
       Mockito.when(departmentRepository.findById(Mockito.anyString())).thenReturn(optional);
       Assertions.assertThrows(
-          ResourceNotFoundException.class, () -> departmentService.findById("1"));
+          OldResourceNotFoundException.class, () -> departmentService.findById("1"));
     }
   }
 }

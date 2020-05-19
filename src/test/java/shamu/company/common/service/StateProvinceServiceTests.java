@@ -10,7 +10,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import shamu.company.common.entity.StateProvince;
-import shamu.company.common.exception.ResourceNotFoundException;
+import shamu.company.common.exception.OldResourceNotFoundException;
 import shamu.company.common.repository.StateProvinceRepository;
 
 public class StateProvinceServiceTests {
@@ -46,7 +46,7 @@ public class StateProvinceServiceTests {
       final Optional<StateProvince> optional = Optional.empty();
       Mockito.when(stateProvinceRepository.findById(Mockito.anyString())).thenReturn(optional);
       Assertions.assertThrows(
-          ResourceNotFoundException.class, () -> stateProvinceService.findById("1"));
+          OldResourceNotFoundException.class, () -> stateProvinceService.findById("1"));
     }
   }
 }

@@ -6,38 +6,38 @@ import java.lang.reflect.ParameterizedType;
 import javax.persistence.AttributeConverter;
 import lombok.extern.slf4j.Slf4j;
 import shamu.company.common.exception.GeneralException;
-import shamu.company.common.exception.ResourceNotFoundException;
+import shamu.company.common.exception.OldResourceNotFoundException;
 
 @Slf4j
 public class BaseEnumConverter<X> implements AttributeConverter<X, String> {
 
-  private Method valueOfMethod;
+  private final Method valueOfMethod;
 
-  private Method valueMethod;
+  private final Method valueMethod;
 
   @SuppressWarnings("unchecked")
   public BaseEnumConverter() {
-    Class<X> xclazz =
+    final Class<X> xclazz =
         (Class<X>)
-            (((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments())
+            (((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments())
                 [0];
     try {
       valueOfMethod = xclazz.getMethod("valueOf", String.class);
       valueMethod = xclazz.getMethod("getValue");
-    } catch (Exception e) {
+    } catch (final Exception e) {
       throw new GeneralException("can't get values method from " + xclazz);
     }
   }
 
   @Override
-  public String convertToDatabaseColumn(X attribute) {
+  public String convertToDatabaseColumn(final X attribute) {
     if (attribute == null) {
       return null;
     }
 
     try {
       return (String) valueMethod.invoke(attribute);
-    } catch (IllegalAccessException | InvocationTargetException e) {
+    } catch (final IllegalAccessException | InvocationTargetException e) {
       log.error("Caught an exception when invoking method getValue(): " + e.getMessage());
       throw new GeneralException(attribute.toString() + " invoke method getValue() failed");
     }
@@ -45,15 +45,15 @@ public class BaseEnumConverter<X> implements AttributeConverter<X, String> {
 
   @SuppressWarnings("unchecked")
   @Override
-  public X convertToEntityAttribute(String id) {
+  public X convertToEntityAttribute(final String id) {
     if (id == null) {
       return null;
     }
 
     try {
       return (X) valueOfMethod.invoke(null, id);
-    } catch (Exception e) {
-      throw new ResourceNotFoundException("can't convertToEntityAttribute" + e.getMessage());
+    } catch (final Exception e) {
+      throw new OldResourceNotFoundException("can't convertToEntityAttribute" + e.getMessage());
     }
   }
 }

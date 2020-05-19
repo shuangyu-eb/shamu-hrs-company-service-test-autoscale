@@ -15,7 +15,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.data.domain.Page;
 import shamu.company.admin.entity.SystemAnnouncement;
 import shamu.company.admin.repository.SystemAnnouncementsRepository;
-import shamu.company.common.exception.NotFoundException;
+import shamu.company.common.exception.ResourceNotFoundException;
 
 class SystemAnnouncementsServiceTests {
 
@@ -85,7 +85,7 @@ class SystemAnnouncementsServiceTests {
       Mockito.when(systemAnnouncementsRepository.findById(Mockito.any()))
           .thenReturn(Optional.empty());
 
-      assertThatExceptionOfType(NotFoundException.class)
+      assertThatExceptionOfType(ResourceNotFoundException.class)
           .isThrownBy(
               () -> {
                 systemAnnouncementsService.findById("1");

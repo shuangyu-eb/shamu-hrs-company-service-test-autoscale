@@ -79,7 +79,7 @@ import shamu.company.benefit.repository.BenefitPlanTypeRepository;
 import shamu.company.benefit.repository.BenefitPlanUserRepository;
 import shamu.company.benefit.repository.RetirementPlanTypeRepository;
 import shamu.company.common.exception.AwsException;
-import shamu.company.common.exception.ResourceNotFoundException;
+import shamu.company.common.exception.OldResourceNotFoundException;
 import shamu.company.company.entity.Company;
 import shamu.company.helpers.s3.AccessType;
 import shamu.company.helpers.s3.AwsHelper;
@@ -436,7 +436,7 @@ public class BenefitPlanService {
   public BenefitPlan findBenefitPlanById(final String id) {
     return benefitPlanRepository
         .findById(id)
-        .orElseThrow(() -> new ResourceNotFoundException("Cannot find benefit plan"));
+        .orElseThrow(() -> new OldResourceNotFoundException("Cannot find benefit plan"));
   }
 
   public void save(final BenefitPlan benefitPlan) {
@@ -688,7 +688,7 @@ public class BenefitPlanService {
                     .findByBenefitPlansUsersIdAndUserDependentsId(benefitPlanUserId, oldDependentId)
                     .orElseThrow(
                         () ->
-                            new ResourceNotFoundException(
+                            new OldResourceNotFoundException(
                                 "cannot find benefit dependent record with id"));
             benefitPlanDependentRepository.delete(oldBenefitDependentRecord);
           }
@@ -913,11 +913,11 @@ public class BenefitPlanService {
 
   private List<EnrollmentBreakdownDto> getEnrollmentBreakdownDtosByCoverage(
       final String coverageId, final List<String> benefitPlanIds, final String companyId) {
-    List<EnrollmentBreakdownDto> enrollmentBreakdownDtos;
+    final List<EnrollmentBreakdownDto> enrollmentBreakdownDtos;
 
     if (StringUtils.isNotEmpty(coverageId) && !DEFAULT_ID.equals(coverageId)) {
-      String coverageName = benefitCoveragesRepository.findById(coverageId).get().getName();
-      List<String> coverageIds =
+      final String coverageName = benefitCoveragesRepository.findById(coverageId).get().getName();
+      final List<String> coverageIds =
           benefitCoveragesRepository.getCoverageIdsByNameAndPlan(coverageName, benefitPlanIds);
       if (!CollectionUtils.isEmpty(coverageIds)) {
         enrollmentBreakdownDtos =
@@ -1006,11 +1006,11 @@ public class BenefitPlanService {
 
   public List<BenefitReportPlansDto> findBenefitPlansByPlanTypeName(
       final String typeName, final String companyId) {
-    List<BenefitReportPlansDto> benefitReportPlansDtos = new ArrayList<>();
+    final List<BenefitReportPlansDto> benefitReportPlansDtos = new ArrayList<>();
     final List<BenefitReportPlansPojo> benefitReportPlansPojos =
         benefitPlanRepository.getBenefitPlans(typeName, companyId);
-    for (BenefitReportPlansPojo benefitReportPlansPojo : benefitReportPlansPojos) {
-      BenefitReportPlansDto benefitReportPlansDto = new BenefitReportPlansDto();
+    for (final BenefitReportPlansPojo benefitReportPlansPojo : benefitReportPlansPojos) {
+      final BenefitReportPlansDto benefitReportPlansDto = new BenefitReportPlansDto();
       BeanUtils.copyProperties(benefitReportPlansPojo, benefitReportPlansDto);
       benefitReportPlansDtos.add(benefitReportPlansDto);
     }
@@ -1083,13 +1083,13 @@ public class BenefitPlanService {
       final Pageable paramPageable,
       final String coverageId,
       final String companyId) {
-    Page<EnrollmentBreakdownPojo> enrollmentBreakdownDtoPage;
+    final Page<EnrollmentBreakdownPojo> enrollmentBreakdownDtoPage;
     List<EnrollmentBreakdownDto> enrollmentBreakdownDtos = new ArrayList<>();
 
     if (!CollectionUtils.isEmpty(benefitPlanIds)) {
       if (StringUtils.isNotEmpty(coverageId) && !DEFAULT_ID.equals(coverageId)) {
-        String coverageName = benefitCoveragesRepository.findById(coverageId).get().getName();
-        List<String> coverageIds =
+        final String coverageName = benefitCoveragesRepository.findById(coverageId).get().getName();
+        final List<String> coverageIds =
             benefitCoveragesRepository.getCoverageIdsByNameAndPlan(coverageName, benefitPlanIds);
         if (!CollectionUtils.isEmpty(coverageIds)) {
           enrollmentBreakdownDtoPage =
@@ -1186,21 +1186,24 @@ public class BenefitPlanService {
     return benefitCoveragesRepository
         .findById(id)
         .orElseThrow(
-            () -> new ResourceNotFoundException("Cannot find benefit coverage with id" + id));
+            () -> new OldResourceNotFoundException("Cannot find benefit coverage with id" + id));
   }
 
   public BenefitPlanCoverage getBenefitPlanCoverageById(final String id) {
     return benefitPlanCoverageRepository
         .findById(id)
         .orElseThrow(
-            () -> new ResourceNotFoundException("Cannot find benefit plan coverage with id " + id));
+            () ->
+                new OldResourceNotFoundException(
+                    "Cannot find benefit plan coverage with id " + id));
   }
 
   public BenefitPlanUser getBenefitPlanUserByUserIdAndBenefitPlanId(
       final String userId, final String benefitPlanId) {
     return benefitPlanUserRepository
         .findByUserIdAndBenefitPlanId(userId, benefitPlanId)
-        .orElseThrow(() -> new ResourceNotFoundException("Cannot find benefit plan user with id"));
+        .orElseThrow(
+            () -> new OldResourceNotFoundException("Cannot find benefit plan user with id"));
   }
 
   public Page<BenefitPlanPreviewDto> findBenefitPlans(
@@ -1253,7 +1256,7 @@ public class BenefitPlanService {
   }
 
   public List<BenefitPlanDto> findAllPlans(final String companyId) {
-    List<BenefitPlan> benefitPlans = benefitPlanRepository.findAllByCompanyId(companyId);
+    final List<BenefitPlan> benefitPlans = benefitPlanRepository.findAllByCompanyId(companyId);
     return benefitPlans.stream()
         .map(benefitPlanMapper::convertToBenefitPlanDto)
         .collect(Collectors.toList());

@@ -25,7 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import shamu.company.common.exception.ForbiddenException;
 import shamu.company.common.exception.GeneralException;
-import shamu.company.common.exception.ResourceNotFoundException;
+import shamu.company.common.exception.OldResourceNotFoundException;
 import shamu.company.company.entity.Company;
 import shamu.company.company.service.CompanyService;
 import shamu.company.job.entity.JobUser;
@@ -363,14 +363,14 @@ public class TimeOffPolicyService {
   public TimeOffPolicy getTimeOffPolicyById(final String id) {
     return timeOffPolicyRepository
         .findById(id)
-        .orElseThrow(() -> new ResourceNotFoundException("Time off policy was not found."));
+        .orElseThrow(() -> new OldResourceNotFoundException("Time off policy was not found."));
   }
 
   public TimeOffPolicyRelatedInfoDto getTimeOffRelatedInfo(final String policyId) {
     final TimeOffPolicy timeOffPolicy =
         timeOffPolicyRepository
             .findById(policyId)
-            .orElseThrow(() -> new ResourceNotFoundException("Time off policy not found"));
+            .orElseThrow(() -> new OldResourceNotFoundException("Time off policy not found"));
 
     if (!timeOffPolicy.getIsLimited()) {
       return new TimeOffPolicyRelatedInfoDto(timeOffPolicy, null, null);
@@ -605,7 +605,7 @@ public class TimeOffPolicyService {
     final TimeOffPolicyUser timeOffPolicyUser =
         timeOffPolicyUserRepository
             .findById(policyUserId)
-            .orElseThrow(() -> new ResourceNotFoundException("Time off policy user not found"));
+            .orElseThrow(() -> new OldResourceNotFoundException("Time off policy user not found"));
     final TimeOffBreakdownDto timeOffBreakdownDto =
         timeOffDetailService.getTimeOffBreakdown(policyUserId, null);
     final Integer currentBalance = timeOffBreakdownDto.getBalance();

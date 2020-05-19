@@ -14,7 +14,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.powermock.reflect.Whitebox;
-import shamu.company.common.exception.ResourceNotFoundException;
+import shamu.company.common.exception.OldResourceNotFoundException;
 import shamu.company.timeoff.entity.TimeOffAccrualFrequency;
 import shamu.company.timeoff.entity.TimeOffPolicy;
 import shamu.company.timeoff.entity.TimeOffPolicyAccrualSchedule;
@@ -119,7 +119,7 @@ class TimeOffDetailServiceTests {
           .thenReturn(Optional.empty());
 
       Assertions.assertThrows(
-          ResourceNotFoundException.class,
+          OldResourceNotFoundException.class,
           () -> timeOffDetailService.checkTimeOffAdjustments("1", 100));
     }
 
@@ -284,7 +284,9 @@ class TimeOffDetailServiceTests {
               + lastYear
               + " - Jan 1,"
               + " Mar 1, Apr 30 - May 1, Aug 8, 22, Sep 13, "
-              + "Dec 31, " + currentYear + " - Jan 1, 21, 31 - Feb 1, 6, "
+              + "Dec 31, "
+              + currentYear
+              + " - Jan 1, 21, 31 - Feb 1, 6, "
               + nextYear;
       Assertions.assertEquals(expectedTimeOffRange, result);
     }
@@ -306,7 +308,8 @@ class TimeOffDetailServiceTests {
           .thenReturn(dates);
       final String result =
           timeOffDetailService.getTimeOffRequestDatesAbstract(timeOffRequest.getId());
-      final String expectedTimeOffRange = "Nov 15, 22, " + currentYear + ", Jul 8, 10, Aug 7, " + nextYear;
+      final String expectedTimeOffRange =
+          "Nov 15, 22, " + currentYear + ", Jul 8, 10, Aug 7, " + nextYear;
       Assertions.assertEquals(expectedTimeOffRange, result);
     }
 
@@ -332,7 +335,8 @@ class TimeOffDetailServiceTests {
           .thenReturn(dates);
       final String result =
           timeOffDetailService.getTimeOffRequestDatesAbstract(timeOffRequest.getId());
-      final String expectedTimeOffRange = "Dec 2 - 4, 20, 27, " + currentYear + ", Aug 4 - 6, 19, 21, " + nextYear;
+      final String expectedTimeOffRange =
+          "Dec 2 - 4, 20, 27, " + currentYear + ", Aug 4 - 6, 19, 21, " + nextYear;
       Assertions.assertEquals(expectedTimeOffRange, result);
     }
   }

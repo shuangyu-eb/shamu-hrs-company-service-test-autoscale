@@ -10,7 +10,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import shamu.company.common.entity.Country;
-import shamu.company.common.exception.ResourceNotFoundException;
+import shamu.company.common.exception.OldResourceNotFoundException;
 import shamu.company.common.repository.CountryRepository;
 
 public class CountryServiceTests {
@@ -45,7 +45,8 @@ public class CountryServiceTests {
     void whenIdNotExists_thenShouldThrowException() {
       final Optional<Country> country = Optional.empty();
       Mockito.when(countryRepository.findById(Mockito.anyString())).thenReturn(country);
-      Assertions.assertThrows(ResourceNotFoundException.class, () -> countryService.findById("1"));
+      Assertions.assertThrows(
+          OldResourceNotFoundException.class, () -> countryService.findById("1"));
     }
   }
 }

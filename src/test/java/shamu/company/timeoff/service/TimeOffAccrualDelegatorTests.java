@@ -12,7 +12,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import shamu.company.common.exception.ForbiddenException;
-import shamu.company.common.exception.ResourceNotFoundException;
+import shamu.company.common.exception.OldResourceNotFoundException;
 import shamu.company.timeoff.entity.TimeOffAccrualFrequency;
 import shamu.company.timeoff.entity.TimeOffPolicyAccrualSchedule;
 import shamu.company.timeoff.entity.TimeOffPolicyUser;
@@ -61,7 +61,7 @@ class TimeOffAccrualDelegatorTests {
         .thenReturn(Optional.empty());
 
     Assertions.assertThrows(
-        ResourceNotFoundException.class,
+        OldResourceNotFoundException.class,
         () ->
             timeOffAccrualDelegator.getTimeOffBreakdown("1", new TimeOffBreakdownCalculatePojo()));
   }

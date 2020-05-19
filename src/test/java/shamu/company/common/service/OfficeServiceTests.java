@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import shamu.company.common.exception.ResourceNotFoundException;
+import shamu.company.common.exception.OldResourceNotFoundException;
 import shamu.company.common.repository.OfficeRepository;
 import shamu.company.company.entity.Office;
 
@@ -37,7 +37,8 @@ public class OfficeServiceTests {
     void whenIdNotExists_thenShouldThrowException() {
       final Optional<Office> optional = Optional.empty();
       Mockito.when(officeRepository.findById(Mockito.anyString())).thenReturn(optional);
-      Assertions.assertThrows(ResourceNotFoundException.class, () -> officeService.findById("1"));
+      Assertions.assertThrows(
+          OldResourceNotFoundException.class, () -> officeService.findById("1"));
     }
 
     @Test

@@ -16,7 +16,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import shamu.company.common.entity.StateProvince;
 import shamu.company.common.exception.ForbiddenException;
-import shamu.company.common.exception.ResourceNotFoundException;
+import shamu.company.common.exception.OldResourceNotFoundException;
 import shamu.company.common.service.DepartmentService;
 import shamu.company.common.service.OfficeService;
 import shamu.company.common.service.StateProvinceService;
@@ -200,7 +200,8 @@ public class CompanyServiceTests {
     void whenIdNotExists_thenShoudlThrowException() {
       final Optional optional = Optional.empty();
       Mockito.when(companyRepository.findById(Mockito.anyString())).thenReturn(optional);
-      Assertions.assertThrows(ResourceNotFoundException.class, () -> companyService.findById("1"));
+      Assertions.assertThrows(
+          OldResourceNotFoundException.class, () -> companyService.findById("1"));
     }
   }
 
@@ -227,32 +228,29 @@ public class CompanyServiceTests {
 
     @Test
     void findCompanyDtoByUserId() {
-      CompanyDtoProjection companyDtoProjection = new CompanyDtoProjection() {
-        @Override
-        public String getId() {
-          return null;
-        }
+      final CompanyDtoProjection companyDtoProjection =
+          new CompanyDtoProjection() {
+            @Override
+            public String getId() {
+              return null;
+            }
 
-        @Override
-        public String getName() {
-          return null;
-        }
-      };
-      Mockito.when(companyRepository.findCompanyDtoByUserId(Mockito.anyString())).thenReturn(companyDtoProjection);
-      assertThatCode(
-              () ->
-                      companyService.findCompanyDtoByUserId("1"))
-              .doesNotThrowAnyException();
+            @Override
+            public String getName() {
+              return null;
+            }
+          };
+      Mockito.when(companyRepository.findCompanyDtoByUserId(Mockito.anyString()))
+          .thenReturn(companyDtoProjection);
+      assertThatCode(() -> companyService.findCompanyDtoByUserId("1")).doesNotThrowAnyException();
     }
 
     @Test
     void findAllById() {
-      List<Company> companies = new ArrayList<>();
+      final List<Company> companies = new ArrayList<>();
       Mockito.when(companyRepository.findAllById(Mockito.anyList())).thenReturn(companies);
-      assertThatCode(
-              () ->
-                      companyService.findAllById(Collections.singletonList("1")))
-              .doesNotThrowAnyException();
+      assertThatCode(() -> companyService.findAllById(Collections.singletonList("1")))
+          .doesNotThrowAnyException();
     }
   }
 }

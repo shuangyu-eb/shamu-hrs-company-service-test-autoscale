@@ -1,5 +1,8 @@
 package shamu.company.timeoff;
 
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -16,7 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.powermock.reflect.Whitebox;
-import shamu.company.common.exception.ResourceNotFoundException;
+import shamu.company.common.exception.OldResourceNotFoundException;
 import shamu.company.timeoff.dto.TimeOffBreakdownDto;
 import shamu.company.timeoff.dto.TimeOffBreakdownItemDto;
 import shamu.company.timeoff.entity.AccrualScheduleMilestone;
@@ -29,12 +32,9 @@ import shamu.company.timeoff.pojo.TimeOffBreakdownCalculatePojo;
 import shamu.company.timeoff.service.TimeOffAccrualService;
 import shamu.company.utils.DateUtil;
 
-import static org.assertj.core.api.Assertions.*;
-
 class TimeOffAccrualServiceTests {
 
-  @Mock
-  private TimeOffAccrualService timeOffAccrualService;
+  @Mock private TimeOffAccrualService timeOffAccrualService;
 
   @BeforeEach
   void setUp() {
@@ -529,16 +529,17 @@ class TimeOffAccrualServiceTests {
     void init() {
       final List<TimeOffBreakdownItemDto> timeOffBreakdownItemList = new ArrayList<>();
       TimeOffBreakdownItemDto itemDto;
-      itemDto = TimeOffBreakdownItemDto
-          .builder()
-          .date(LocalDate.of(2020, 5, 1))
-          .detail("Time Off Accrued")
-          .build();
+      itemDto =
+          TimeOffBreakdownItemDto.builder()
+              .date(LocalDate.of(2020, 5, 1))
+              .detail("Time Off Accrued")
+              .build();
       timeOffBreakdownItemList.add(itemDto);
-      itemDto = TimeOffBreakdownItemDto
-          .builder()
-          .date(LocalDate.of(2020, 4, 1))
-          .detail("Starting Balance").build();
+      itemDto =
+          TimeOffBreakdownItemDto.builder()
+              .date(LocalDate.of(2020, 4, 1))
+              .detail("Starting Balance")
+              .build();
       timeOffBreakdownItemList.add(itemDto);
 
       startingBreakdown.setList(timeOffBreakdownItemList);
@@ -550,25 +551,25 @@ class TimeOffAccrualServiceTests {
       startingBreakdown.getList().remove(1);
 
       assertThatThrownBy(
-          () ->
-              Whitebox.invokeMethod(
-                  timeOffAccrualService,
-                  "postProcessOfTimeOffBreakdown",
-                  startingBreakdown,
-                  calculatePojo)
-      ).isInstanceOf(ResourceNotFoundException.class);
+              () ->
+                  Whitebox.invokeMethod(
+                      timeOffAccrualService,
+                      "postProcessOfTimeOffBreakdown",
+                      startingBreakdown,
+                      calculatePojo))
+          .isInstanceOf(OldResourceNotFoundException.class);
     }
 
     @Test
     void whenDone_thenShouldSuccess() {
       assertThatCode(
-          () ->
-              Whitebox.invokeMethod(
-                  timeOffAccrualService,
-                  "postProcessOfTimeOffBreakdown",
-                  startingBreakdown,
-                  calculatePojo)
-      ).doesNotThrowAnyException();
+              () ->
+                  Whitebox.invokeMethod(
+                      timeOffAccrualService,
+                      "postProcessOfTimeOffBreakdown",
+                      startingBreakdown,
+                      calculatePojo))
+          .doesNotThrowAnyException();
     }
   }
 }

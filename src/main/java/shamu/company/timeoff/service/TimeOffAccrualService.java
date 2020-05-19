@@ -10,7 +10,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
-import shamu.company.common.exception.ResourceNotFoundException;
+import shamu.company.common.exception.OldResourceNotFoundException;
 import shamu.company.timeoff.dto.TimeOffBreakdownDto;
 import shamu.company.timeoff.dto.TimeOffBreakdownItemDto;
 import shamu.company.timeoff.dto.TimeOffBreakdownItemDto.BreakDownType;
@@ -314,7 +314,7 @@ public abstract class TimeOffAccrualService {
             .findFirst()
             .orElseThrow(
                 () ->
-                    new ResourceNotFoundException(
+                    new OldResourceNotFoundException(
                         "Can't find the starting balance of time off policy"));
 
     final List<TimeOffBreakdownItemDto> filteredTimeOffBreakdownItemList =

@@ -8,7 +8,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import shamu.company.common.exception.ResourceNotFoundException;
+import shamu.company.common.exception.OldResourceNotFoundException;
 import shamu.company.user.repository.GenderRepository;
 import shamu.company.user.service.GenderService;
 
@@ -25,7 +25,8 @@ public class GenderServiceTest {
   @Test
   void whenNotFound_thenShouldThrow() {
     Mockito.when(genderRepository.findById(Mockito.anyString())).thenReturn(Optional.empty());
-    Assertions.assertThrows(ResourceNotFoundException.class, () -> genderService.findById("test"));
+    Assertions.assertThrows(
+        OldResourceNotFoundException.class, () -> genderService.findById("test"));
   }
 
   @Test

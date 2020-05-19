@@ -20,7 +20,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import shamu.company.common.exception.ResourceNotFoundException;
+import shamu.company.common.exception.OldResourceNotFoundException;
 import shamu.company.helpers.auth0.Auth0Helper;
 import shamu.company.server.dto.AuthUser;
 import shamu.company.timeoff.dto.BasicTimeOffRequestDto;
@@ -97,9 +97,7 @@ public class TimeOffRequestService {
   }
 
   public Page<TimeOffRequest> getByApproverAndStatus(
-      final String id,
-      final String[] statuses,
-      final PageRequest pageRequest) {
+      final String id, final String[] statuses, final PageRequest pageRequest) {
     return timeOffRequestRepository.findByApproversAndTimeOffApprovalStatus(
         id, statuses, pageRequest);
   }
@@ -115,7 +113,8 @@ public class TimeOffRequestService {
         .findById(timeOffRequestId)
         .orElseThrow(
             () ->
-                new ResourceNotFoundException("No time off request with id: " + timeOffRequestId));
+                new OldResourceNotFoundException(
+                    "No time off request with id: " + timeOffRequestId));
   }
 
   public TimeOffRequest save(final TimeOffRequest timeOffRequest) {

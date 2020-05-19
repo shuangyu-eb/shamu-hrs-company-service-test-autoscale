@@ -40,7 +40,7 @@ import shamu.company.client.PactsafeUserDto;
 import shamu.company.common.exception.EmailException;
 import shamu.company.common.exception.ForbiddenException;
 import shamu.company.common.exception.GeneralException;
-import shamu.company.common.exception.ResourceNotFoundException;
+import shamu.company.common.exception.OldResourceNotFoundException;
 import shamu.company.common.exception.response.ErrorType;
 import shamu.company.common.service.DepartmentService;
 import shamu.company.company.entity.Company;
@@ -216,7 +216,7 @@ public class UserService {
   public User findById(final String id) {
     return userRepository
         .findById(id)
-        .orElseThrow(() -> new ResourceNotFoundException(ERROR_MESSAGE));
+        .orElseThrow(() -> new OldResourceNotFoundException(ERROR_MESSAGE));
   }
 
   public User findActiveUserById(final String userId) {
@@ -416,7 +416,7 @@ public class UserService {
 
     if (user == null
         || !createPasswordDto.getResetPasswordToken().equals(user.getResetPasswordToken())) {
-      throw new ResourceNotFoundException(
+      throw new OldResourceNotFoundException(
           String.format("The user with email %s does not exist.", userWorkEmail));
     }
 
@@ -424,7 +424,7 @@ public class UserService {
 
     try {
       authUser = auth0Helper.getAuth0UserByIdWithByEmailFailover(user.getId(), userWorkEmail);
-    } catch (final ResourceNotFoundException e) {
+    } catch (final OldResourceNotFoundException e) {
       throw new ForbiddenException(
           String.format("Cannot find user with email %s", createPasswordDto.getEmailWork()));
     }

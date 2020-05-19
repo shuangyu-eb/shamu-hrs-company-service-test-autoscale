@@ -8,7 +8,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import shamu.company.common.exception.ResourceNotFoundException;
+import shamu.company.common.exception.OldResourceNotFoundException;
 import shamu.company.user.entity.UserContactInformation;
 import shamu.company.user.repository.UserContactInformationRepository;
 import shamu.company.user.service.UserContactInformationService;
@@ -28,7 +28,7 @@ public class UserContactInformationServiceTest {
     Mockito.when(userContactInformationRepository.findById(Mockito.anyString()))
         .thenReturn(Optional.empty());
     Assertions.assertThrows(
-        ResourceNotFoundException.class,
+        OldResourceNotFoundException.class,
         () -> userContactInformationService.findUserContactInformationById("test"));
   }
 

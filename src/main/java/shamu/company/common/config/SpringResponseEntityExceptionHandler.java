@@ -16,7 +16,7 @@ import shamu.company.common.exception.FileValidateException;
 import shamu.company.common.exception.ForbiddenException;
 import shamu.company.common.exception.GeneralAuth0Exception;
 import shamu.company.common.exception.NonUniqueAuth0ResourceException;
-import shamu.company.common.exception.ResourceNotFoundException;
+import shamu.company.common.exception.OldResourceNotFoundException;
 import shamu.company.common.exception.TooManyRequestException;
 import shamu.company.common.exception.UnAuthenticatedException;
 import shamu.company.common.exception.ValidationFailedException;
@@ -27,7 +27,7 @@ import shamu.company.common.exception.response.ErrorType;
 public class SpringResponseEntityExceptionHandler {
 
   @ResponseStatus(HttpStatus.NOT_FOUND)
-  @ExceptionHandler(ResourceNotFoundException.class)
+  @ExceptionHandler(OldResourceNotFoundException.class)
   public ErrorMessage handleResourceNotFoundException(final Exception exception) {
     return new ErrorMessage(ErrorType.RESOURCE_NOT_FOUND, exception.getMessage());
   }

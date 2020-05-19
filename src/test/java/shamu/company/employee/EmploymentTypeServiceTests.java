@@ -9,7 +9,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import shamu.company.common.exception.ResourceNotFoundException;
+import shamu.company.common.exception.OldResourceNotFoundException;
 import shamu.company.common.repository.EmploymentTypeRepository;
 import shamu.company.employee.entity.EmploymentType;
 import shamu.company.employee.service.EmploymentTypeService;
@@ -66,7 +66,7 @@ class EmploymentTypeServiceTests {
     void whenEmploymentTypeIsNull_thenShouldThrow() {
       Mockito.when(employmentTypeRepository.findById(id)).thenReturn(Optional.empty());
       Assertions.assertThrows(
-          ResourceNotFoundException.class, () -> employmentTypeService.findById(id));
+          OldResourceNotFoundException.class, () -> employmentTypeService.findById(id));
     }
   }
 }

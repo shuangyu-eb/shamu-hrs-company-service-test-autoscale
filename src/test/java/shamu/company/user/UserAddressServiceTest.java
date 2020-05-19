@@ -12,7 +12,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import shamu.company.common.entity.Country;
 import shamu.company.common.entity.StateProvince;
-import shamu.company.common.exception.ResourceNotFoundException;
+import shamu.company.common.exception.OldResourceNotFoundException;
 import shamu.company.common.service.CountryService;
 import shamu.company.common.service.StateProvinceService;
 import shamu.company.user.dto.UserAddressDto;
@@ -40,7 +40,7 @@ public class UserAddressServiceTest {
   void whenNotFound_thenShouldThrow() {
     Mockito.when(userAddressRepository.findById(Mockito.anyString())).thenReturn(Optional.empty());
     Assertions.assertThrows(
-        ResourceNotFoundException.class, () -> userAddressService.findUserAddressById("test"));
+        OldResourceNotFoundException.class, () -> userAddressService.findUserAddressById("test"));
   }
 
   @Test

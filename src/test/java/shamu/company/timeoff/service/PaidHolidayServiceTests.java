@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import shamu.company.common.exception.ResourceNotFoundException;
+import shamu.company.common.exception.OldResourceNotFoundException;
 import shamu.company.company.entity.Company;
 import shamu.company.helpers.FederalHolidayHelper;
 import shamu.company.job.dto.JobUserDto;
@@ -271,7 +271,7 @@ class PaidHolidayServiceTests {
       Mockito.when(paidHolidayRepository.findById(Mockito.any())).thenReturn(Optional.empty());
 
       Assertions.assertThrows(
-          ResourceNotFoundException.class, () -> paidHolidayService.getPaidHoliday("1"));
+          OldResourceNotFoundException.class, () -> paidHolidayService.getPaidHoliday("1"));
     }
 
     @Test

@@ -23,7 +23,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import shamu.company.common.exception.ResourceNotFoundException;
+import shamu.company.common.exception.OldResourceNotFoundException;
 import shamu.company.helpers.auth0.Auth0Helper;
 import shamu.company.server.dto.AuthUser;
 import shamu.company.timeoff.dto.TimeOffBreakdownDto;
@@ -132,7 +132,7 @@ public class TimeOffRequestServiceTests {
     Mockito.when(timeOffRequestRepository.findById(Mockito.any())).thenReturn(Optional.empty());
 
     Assertions.assertThrows(
-        ResourceNotFoundException.class, () -> timeOffRequestService.getById(Mockito.any()));
+        OldResourceNotFoundException.class, () -> timeOffRequestService.getById(Mockito.any()));
   }
 
   @Test

@@ -4,7 +4,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import shamu.company.common.exception.ResourceNotFoundException;
+import shamu.company.common.exception.OldResourceNotFoundException;
 import shamu.company.job.entity.CompensationFrequency;
 import shamu.company.user.repository.CompensationFrequencyRepository;
 
@@ -25,7 +25,7 @@ public class CompensationFrequencyService {
         .findById(id)
         .orElseThrow(
             () ->
-                new ResourceNotFoundException(
+                new OldResourceNotFoundException(
                     String.format("Compensation frequency type with id %s not found!", id)));
   }
 
