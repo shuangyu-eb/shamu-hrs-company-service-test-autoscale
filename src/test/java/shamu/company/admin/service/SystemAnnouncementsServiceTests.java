@@ -1,7 +1,10 @@
 package shamu.company.admin.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
 import java.util.Optional;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -12,7 +15,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.data.domain.Page;
 import shamu.company.admin.entity.SystemAnnouncement;
 import shamu.company.admin.repository.SystemAnnouncementsRepository;
-import shamu.company.common.exception.ResourceNotFoundException;
+import shamu.company.common.exception.NotFoundException;
 
 class SystemAnnouncementsServiceTests {
 
@@ -33,10 +36,8 @@ class SystemAnnouncementsServiceTests {
     Mockito.when(systemAnnouncementsRepository.getSystemActiveAnnouncement())
         .thenReturn(systemAnnouncement);
 
-    Assertions.assertEquals(
-        systemAnnouncementsService.getSystemActiveAnnouncement().getId(),
-        systemAnnouncement.getId());
-    Assertions.assertDoesNotThrow(() -> systemAnnouncementsService.getSystemActiveAnnouncement());
+    assertThat(systemAnnouncementsService.getSystemActiveAnnouncement().getId())
+        .isEqualTo(systemAnnouncement.getId());
   }
 
   @Test
@@ -46,9 +47,8 @@ class SystemAnnouncementsServiceTests {
 
     Mockito.when(systemAnnouncementsRepository.save(Mockito.any())).thenReturn(systemAnnouncement);
 
-    Assertions.assertEquals(
-        systemAnnouncementsService.save(systemAnnouncement).getId(), systemAnnouncement.getId());
-    Assertions.assertDoesNotThrow(() -> systemAnnouncementsService.save(systemAnnouncement));
+    assertThat(systemAnnouncementsService.save(systemAnnouncement).getId())
+        .isEqualTo(systemAnnouncement.getId());
   }
 
   @Test
@@ -56,8 +56,10 @@ class SystemAnnouncementsServiceTests {
     Mockito.when(systemAnnouncementsRepository.getSystemPastAnnouncements(Mockito.any()))
         .thenReturn(Page.empty());
 
-    Assertions.assertDoesNotThrow(
-        () -> systemAnnouncementsService.getSystemPastAnnouncements(Mockito.any()));
+    assertThatCode(
+        () -> {
+          systemAnnouncementsService.getSystemPastAnnouncements(Mockito.any());
+        });
   }
 
   @Nested
@@ -71,9 +73,8 @@ class SystemAnnouncementsServiceTests {
       Mockito.when(systemAnnouncementsRepository.findById(Mockito.any()))
           .thenReturn(Optional.of(systemAnnouncement));
 
-      Assertions.assertEquals(
-          systemAnnouncementsService.findById("1").getId(), systemAnnouncement.getId());
-      Assertions.assertDoesNotThrow(() -> systemAnnouncementsService.findById("1"));
+      assertThat(systemAnnouncementsService.findById("1").getId())
+          .isEqualTo(systemAnnouncement.getId());
     }
 
     @Test
@@ -84,8 +85,11 @@ class SystemAnnouncementsServiceTests {
       Mockito.when(systemAnnouncementsRepository.findById(Mockito.any()))
           .thenReturn(Optional.empty());
 
-      Assertions.assertThrows(
-          ResourceNotFoundException.class, () -> systemAnnouncementsService.findById("1"));
+      assertThatExceptionOfType(NotFoundException.class)
+          .isThrownBy(
+              () -> {
+                systemAnnouncementsService.findById("1");
+              });
     }
   }
 }

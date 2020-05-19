@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import shamu.company.admin.dto.SystemAnnouncementDto;
 import shamu.company.admin.entity.SystemAnnouncement;
 import shamu.company.admin.repository.SystemAnnouncementsRepository;
-import shamu.company.common.exception.ResourceNotFoundException;
+import shamu.company.common.exception.NotFoundException;
 
 @Service
 public class SystemAnnouncementsService {
@@ -33,8 +33,10 @@ public class SystemAnnouncementsService {
         .findById(id)
         .orElseThrow(
             () ->
-                new ResourceNotFoundException(
-                    String.format("System Announcement with id %s not found!", id)));
+                new NotFoundException(
+                    String.format("System Announcement with id %s not found!", id),
+                    id,
+                    "system announcement"));
   }
 
   public Page<SystemAnnouncementDto> getSystemPastAnnouncements(final Pageable pageable) {
