@@ -89,7 +89,7 @@ public class PaidHolidayRestController extends BaseRestController {
   @PatchMapping(value = "paid-holidays/{id}")
   @PreAuthorize("hasPermission(#paidHolidayDto.id, 'PAID_HOLIDAY', 'EDIT_PAID_HOLIDAY')")
   public HttpEntity updatePaidHoliday(@RequestBody @Validated final PaidHolidayDto paidHolidayDto) {
-    paidHolidayService.updatePaidHoliday(paidHolidayDto);
+    paidHolidayService.updatePaidHoliday(paidHolidayDto, findAuthUser());
     return new ResponseEntity<>(HttpStatus.OK);
   }
 

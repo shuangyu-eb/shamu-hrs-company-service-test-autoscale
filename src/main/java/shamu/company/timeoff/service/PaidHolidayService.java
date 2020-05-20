@@ -2,14 +2,17 @@ package shamu.company.timeoff.service;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import shamu.company.common.exception.ForbiddenException;
 import shamu.company.common.exception.OldResourceNotFoundException;
 import shamu.company.company.entity.Company;
 import shamu.company.helpers.FederalHolidayHelper;
@@ -29,6 +32,7 @@ import shamu.company.timeoff.repository.PaidHolidayRepository;
 import shamu.company.timeoff.repository.PaidHolidayUserRepository;
 import shamu.company.user.entity.User;
 import shamu.company.user.service.UserService;
+import shamu.company.utils.DateUtil;
 
 @Service
 @Transactional
@@ -171,6 +175,10 @@ public class PaidHolidayService {
   public void createPaidHoliday(final PaidHolidayDto paidHolidayDto, final AuthUser user) {
     final User creator = userService.findById(user.getId());
 
+    if (isDateDuplicate(paidHolidayDto, user)) {
+      throw new ForbiddenException("PaidHoliday Date Existed");
+    }
+
     final PaidHoliday paidHoliday =
         paidHolidayMapper.createFromPaidHolidayDtoAndCreator(paidHolidayDto, creator);
     final PaidHoliday paidHolidayReturned = paidHolidayRepository.save(paidHoliday);
@@ -181,9 +189,28 @@ public class PaidHolidayService {
     companyPaidHolidayRepository.save(companyPaidHoliday);
   }
 
-  public void updatePaidHoliday(final PaidHolidayDto paidHolidayDto) {
+  public void updatePaidHoliday(final PaidHolidayDto paidHolidayDto, final AuthUser user) {
+    if (isDateDuplicate(paidHolidayDto, user)) {
+      throw new ForbiddenException("PaidHoliday Date Existed");
+    }
     paidHolidayRepository.updateDetail(
         paidHolidayDto.getId(), paidHolidayDto.getName(), paidHolidayDto.getDate());
+  }
+
+  private boolean isDateDuplicate(final PaidHolidayDto paidHolidayDto, final AuthUser user) {
+    final List<PaidHolidayDto> paidHolidayDtos = getCurrentYearPaidHolidays(user);
+    final String formatDate =
+        DateUtil.toLocalDateTime(paidHolidayDto.getDate())
+            .format(DateTimeFormatter.ofPattern(DateUtil.SIMPLE_MONTH_DAY_YEAR, Locale.ENGLISH));
+    return paidHolidayDtos.stream()
+        .anyMatch(
+            item ->
+                DateUtil.toLocalDateTime(item.getDate())
+                        .format(
+                            DateTimeFormatter.ofPattern(
+                                DateUtil.SIMPLE_MONTH_DAY_YEAR, Locale.ENGLISH))
+                        .equals(formatDate)
+                    && !item.getId().equals(paidHolidayDto.getId()));
   }
 
   public void deletePaidHoliday(final String id) {

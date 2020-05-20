@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import shamu.company.common.exception.ForbiddenException;
 import shamu.company.common.exception.OldResourceNotFoundException;
 import shamu.company.company.entity.Company;
 import shamu.company.helpers.FederalHolidayHelper;
@@ -151,7 +152,20 @@ class PaidHolidayServiceTests {
     final User user = new User();
     final PaidHoliday paidHoliday = new PaidHoliday();
     final CompanyPaidHoliday companyPaidHoliday = new CompanyPaidHoliday();
+    final List<CompanyPaidHoliday> companyPaidHolidays = new ArrayList<>();
 
+    paidHolidayDto.setId("1");
+    paidHolidayDto.setName("007");
+    paidHolidayDto.setFederal(true);
+    paidHolidayDto.setDate(Timestamp.valueOf(LocalDateTime.now()));
+    companyPaidHolidays.add(companyPaidHoliday);
+
+    Mockito.when(companyPaidHolidayRepository.findAllByCompanyId(Mockito.any()))
+        .thenReturn(companyPaidHolidays);
+    Mockito.when(companyPaidHolidayMapper.convertToPaidHolidayDto(Mockito.any(), Mockito.any()))
+        .thenReturn(paidHolidayDto);
+    Mockito.when(federalHolidayHelper.timestampOf(Mockito.anyString()))
+        .thenReturn(Timestamp.valueOf(LocalDateTime.now()));
     Mockito.when(userService.findById(Mockito.any())).thenReturn(user);
     Mockito.when(paidHolidayMapper.createFromPaidHolidayDtoAndCreator(Mockito.any(), Mockito.any()))
         .thenReturn(paidHoliday);
@@ -166,14 +180,59 @@ class PaidHolidayServiceTests {
         () -> paidHolidayService.createPaidHoliday(paidHolidayDto, authUser));
   }
 
+  @Nested
+  class updatePaidHoliday {
+    final AuthUser authUser = new AuthUser();
+    final PaidHolidayDto paidHolidayDto = new PaidHolidayDto();
+    final List<CompanyPaidHoliday> companyPaidHolidays = new ArrayList<>();
+    final CompanyPaidHoliday companyPaidHoliday = new CompanyPaidHoliday();
+
+    @BeforeEach
+    void init() {
+      paidHolidayDto.setId("1");
+      paidHolidayDto.setName("007");
+      paidHolidayDto.setFederal(true);
+      paidHolidayDto.setDate(Timestamp.valueOf(LocalDateTime.now()));
+      companyPaidHolidays.add(companyPaidHoliday);
+
+      Mockito.when(companyPaidHolidayRepository.findAllByCompanyId(Mockito.any()))
+          .thenReturn(companyPaidHolidays);
+      Mockito.when(companyPaidHolidayMapper.convertToPaidHolidayDto(Mockito.any(), Mockito.any()))
+          .thenReturn(paidHolidayDto);
+      Mockito.when(federalHolidayHelper.timestampOf(Mockito.anyString()))
+          .thenReturn(Timestamp.valueOf(LocalDateTime.now()));
+    }
+
+    @Test
+    void whenDateDuplicate_thenShouldThrowException() {
+      final PaidHolidayDto newPaidHolidayDto = new PaidHolidayDto();
+      newPaidHolidayDto.setId("2");
+      newPaidHolidayDto.setName("007");
+      newPaidHolidayDto.setFederal(true);
+      newPaidHolidayDto.setDate(Timestamp.valueOf(LocalDateTime.now()));
+
+      Assertions.assertThrows(
+          ForbiddenException.class,
+          () -> paidHolidayService.updatePaidHoliday(newPaidHolidayDto, authUser));
+    }
+
+    @Test
+    void whenDateNotDuplicate_thenShouldSuccess() {
+      Assertions.assertDoesNotThrow(
+          () -> paidHolidayService.updatePaidHoliday(paidHolidayDto, authUser));
+    }
+  }
+
   @Test
   void updatePaidHoliday() {
+    final AuthUser authUser = new AuthUser();
     final PaidHolidayDto paidHolidayDto = new PaidHolidayDto();
     paidHolidayDto.setId("1");
     paidHolidayDto.setName("007");
     paidHolidayDto.setDate(Timestamp.valueOf(LocalDateTime.now()));
 
-    Assertions.assertDoesNotThrow(() -> paidHolidayService.updatePaidHoliday(paidHolidayDto));
+    Assertions.assertDoesNotThrow(
+        () -> paidHolidayService.updatePaidHoliday(paidHolidayDto, authUser));
   }
 
   @Test
