@@ -4,20 +4,26 @@ import shamu.company.common.exception.response.ErrorType;
 
 public abstract class AbstractException extends RuntimeException {
 
-  protected ErrorType type = ErrorType.GENERAL_EXCEPTION;
+  private static final long serialVersionUID = 654998915182282943L;
+  protected final ErrorType type;
 
-  public AbstractException() {}
+  public AbstractException() {
+    type = ErrorType.GENERAL_EXCEPTION;
+  }
 
   public AbstractException(String message) {
     super(message);
+    type = ErrorType.GENERAL_EXCEPTION;
   }
 
   public AbstractException(Throwable throwable) {
     super(throwable);
+    type = ErrorType.GENERAL_EXCEPTION;
   }
 
   public AbstractException(String message, Throwable throwable) {
     super(message, throwable);
+    type = ErrorType.GENERAL_EXCEPTION;
   }
 
   public AbstractException(String message, ErrorType type) {
