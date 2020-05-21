@@ -107,7 +107,6 @@ public class UserService {
 
   private static final SentryLogger log = new SentryLogger(UserService.class);
 
-  private static final String ERROR_MESSAGE = "User does not exist.";
   private final UserRepository userRepository;
   private final SecretHashRepository secretHashRepository;
 
