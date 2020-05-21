@@ -4,6 +4,7 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -49,7 +50,18 @@ public class TimeOffRequestCustomRepositoryImpl implements TimeOffRequestCustomR
       queryResult.setParameter(4, simpleDateFormat.format(startTime));
     }
     queryResult.setParameter(5, simpleDateFormat.format(calendar.getTime()));
-    return (List<String>) queryResult.getResultList();
+    return castList(queryResult.getResultList(), String.class);
+  }
+
+  private static <T> List<T> castList(final Object obj, final Class<T> clazz) {
+    final List<T> result = new ArrayList<>();
+    if (obj instanceof List<?>) {
+      for (final Object o : (List<?>) obj) {
+        result.add(clazz.cast(o));
+      }
+      return result;
+    }
+    return Collections.emptyList();
   }
 
   @Override
