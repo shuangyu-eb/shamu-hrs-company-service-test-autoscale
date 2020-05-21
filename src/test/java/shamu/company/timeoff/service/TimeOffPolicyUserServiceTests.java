@@ -1,5 +1,7 @@
 package shamu.company.timeoff.service;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
 import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -7,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import shamu.company.common.exception.OldResourceNotFoundException;
+import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.timeoff.entity.TimeOffPolicy;
 import shamu.company.timeoff.entity.TimeOffPolicyUser;
 import shamu.company.timeoff.repository.TimeOffPolicyUserRepository;
@@ -41,8 +43,8 @@ class TimeOffPolicyUserServiceTests {
   void findById_whenEmpty_thenShouldThrow() {
     Mockito.when(timeOffPolicyUserRepository.findById(Mockito.any())).thenReturn(Optional.empty());
 
-    Assertions.assertThrows(
-        OldResourceNotFoundException.class, () -> timeOffPolicyUserService.findById("1"));
+    assertThatExceptionOfType(ResourceNotFoundException.class)
+        .isThrownBy(() -> timeOffPolicyUserService.findById("1"));
   }
 
   @Test

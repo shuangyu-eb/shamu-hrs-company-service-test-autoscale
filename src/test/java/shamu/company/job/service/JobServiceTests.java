@@ -1,14 +1,16 @@
 package shamu.company.job.service;
 
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
 import java.util.Collections;
 import java.util.List;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import shamu.company.common.exception.OldResourceNotFoundException;
+import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.job.entity.Job;
 import shamu.company.job.repository.JobRepository;
 
@@ -29,7 +31,7 @@ public class JobServiceTests {
     final String id = "1";
     final Job job = new Job();
     Mockito.when(jobRepository.findById(id)).thenReturn(java.util.Optional.of(job));
-    Assertions.assertDoesNotThrow(() -> jobService.findById(id));
+    assertThatCode(() -> jobService.findById(id)).doesNotThrowAnyException();
     Mockito.verify(jobRepository, Mockito.times(1)).findById(Mockito.any());
     Mockito.verify(jobRepository, Mockito.times(1)).findById(Mockito.any());
   }
@@ -39,8 +41,10 @@ public class JobServiceTests {
     final String id = "1";
     Mockito.when(jobRepository.findById(id))
         .thenThrow(
-            new OldResourceNotFoundException(String.format("Job with id %s not found!", id)));
-    Assertions.assertThrows(OldResourceNotFoundException.class, () -> jobRepository.findById(id));
+            new ResourceNotFoundException(
+                String.format("Job with id %s not found!", id), id, "job"));
+    assertThatExceptionOfType(ResourceNotFoundException.class)
+        .isThrownBy(() -> jobRepository.findById(id));
   }
 
   @Test
@@ -48,14 +52,14 @@ public class JobServiceTests {
     final String id = "1";
     Mockito.when(jobRepository.findAllByDepartmentId(id))
         .thenReturn(Collections.singletonList(new Job()));
-    Assertions.assertDoesNotThrow(() -> jobService.findAllByDepartmentId(id));
+    assertThatCode(() -> jobService.findAllByDepartmentId(id)).doesNotThrowAnyException();
   }
 
   @Test
   void save() {
     final Job job = new Job();
     Mockito.when(jobRepository.save(job)).thenReturn(job);
-    Assertions.assertDoesNotThrow(() -> jobService.save(job));
+    assertThatCode(() -> jobService.save(job)).doesNotThrowAnyException();
     Mockito.verify(jobRepository, Mockito.times(1)).save(Mockito.any());
   }
 

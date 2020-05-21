@@ -1,5 +1,8 @@
 package shamu.company.common.service;
 
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
 import java.util.ArrayList;
 import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
@@ -10,7 +13,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import shamu.company.common.entity.Country;
-import shamu.company.common.exception.OldResourceNotFoundException;
+import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.common.repository.CountryRepository;
 
 public class CountryServiceTests {
@@ -38,15 +41,15 @@ public class CountryServiceTests {
     void whenIdExists_thenShouldSuccess() {
       final Optional<Country> country = Optional.of(new Country());
       Mockito.when(countryRepository.findById(Mockito.anyString())).thenReturn(country);
-      Assertions.assertDoesNotThrow(() -> countryService.findById("1"));
+      assertThatCode(() -> countryService.findById("1")).doesNotThrowAnyException();
     }
 
     @Test
     void whenIdNotExists_thenShouldThrowException() {
       final Optional<Country> country = Optional.empty();
       Mockito.when(countryRepository.findById(Mockito.anyString())).thenReturn(country);
-      Assertions.assertThrows(
-          OldResourceNotFoundException.class, () -> countryService.findById("1"));
+      assertThatExceptionOfType(ResourceNotFoundException.class)
+          .isThrownBy(() -> countryService.findById("1"));
     }
   }
 }

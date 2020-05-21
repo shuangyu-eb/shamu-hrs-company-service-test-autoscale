@@ -1,8 +1,9 @@
 package shamu.company.common.database;
 
+import static org.assertj.core.api.Assertions.assertThatCode;
+
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -27,7 +28,7 @@ public class StatesProvincesInitializerTests {
 
   @Test
   void whenListNull_thenShouldSuccess() {
-    Assertions.assertDoesNotThrow(() -> statesProvincesInitializer.run("1", "2"));
+    assertThatCode(() -> statesProvincesInitializer.run("1", "2")).doesNotThrowAnyException();
   }
 
   @Test
@@ -38,6 +39,6 @@ public class StatesProvincesInitializerTests {
     cities.add("2");
     Mockito.when(countryRepository.findByName(Mockito.anyString())).thenReturn(country);
     Mockito.when(stateProvinceRepository.findAllNameByCountry(country)).thenReturn(cities);
-    Assertions.assertDoesNotThrow(() -> statesProvincesInitializer.run("1", "2"));
+    assertThatCode(() -> statesProvincesInitializer.run("1", "2")).doesNotThrowAnyException();
   }
 }

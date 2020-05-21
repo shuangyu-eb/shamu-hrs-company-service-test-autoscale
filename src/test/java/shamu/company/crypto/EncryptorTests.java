@@ -1,10 +1,11 @@
 package shamu.company.crypto;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Objects;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -93,13 +94,13 @@ class EncryptorTests {
   @Test
   void testGetHashCode() throws Exception {
     final int result = Whitebox.invokeMethod(encryptor, "getHashCode", testUser);
-    final int expacted = -1330890148;
-    Assertions.assertEquals(expacted, result);
+    final int expected = -1330890148;
+    assertThat(result).isEqualTo(expected);
   }
 
   @Test
   void getEncryptorByUserId() throws Exception {
-    String userId = "a";
+    final String userId = "a";
     Mockito.when(userService.findById(userId)).thenReturn(testUser);
     Whitebox.invokeMethod(encryptor, "getEncryptor", userId);
     Mockito.verify(userService, Mockito.times(1)).findById(userId);
@@ -109,10 +110,10 @@ class EncryptorTests {
 
   @Test
   void encryptByUserId() {
-    String userId = "1";
-    String value = "1";
-    User user = new User();
-    Company company = new Company();
+    final String userId = "1";
+    final String value = "1";
+    final User user = new User();
+    final Company company = new Company();
     company.setId("1");
     user.setCompany(company);
     Mockito.when(userService.findById(userId)).thenReturn(user);
@@ -125,9 +126,9 @@ class EncryptorTests {
 
   @Test
   void encryptByUser() {
-    String value = "1";
-    User user = new User();
-    Company company = new Company();
+    final String value = "1";
+    final User user = new User();
+    final Company company = new Company();
     company.setId("1");
     user.setCompany(company);
     Mockito.when(auth0Helper.getUserSecret(user)).thenReturn("1");
@@ -146,7 +147,7 @@ class EncryptorTests {
       final String result =
           Whitebox.invokeMethod(
               encryptor, "decrypt", testUser, testUser.getUserPersonalInformation().getSsn());
-      Assertions.assertEquals(ssn, result);
+      assertThat(result).isEqualTo(ssn);
     }
 
     @Test
@@ -157,7 +158,7 @@ class EncryptorTests {
               "decrypt",
               testUser.getId(),
               testUser.getUserPersonalInformation().getSsn());
-      Assertions.assertEquals(ssn, result);
+      assertThat(result).isEqualTo(ssn);
     }
 
     @Test
@@ -167,7 +168,7 @@ class EncryptorTests {
               testUser.getId(), User.class, testUser.getUserPersonalInformation().getSsn());
 
       Mockito.verify(userService, Mockito.times(1)).findActiveUserById(testUser.getId());
-      Assertions.assertEquals(ssn, result);
+      assertThat(result).isEqualTo(ssn);
     }
 
     @Test
@@ -180,7 +181,7 @@ class EncryptorTests {
 
       Mockito.verify(userService, Mockito.times(1))
           .findUserByUserPersonalInformationId(testUser.getUserPersonalInformation().getId());
-      Assertions.assertEquals(ssn, result);
+      assertThat(result).isEqualTo(ssn);
     }
 
     @Test
@@ -192,7 +193,7 @@ class EncryptorTests {
               testUser.getUserPersonalInformation().getSsn());
 
       Mockito.verify(userService, Mockito.times(1)).findActiveUserById(testUser.getId());
-      Assertions.assertEquals(ssn, result);
+      assertThat(result).isEqualTo(ssn);
     }
 
     @Test
@@ -207,7 +208,7 @@ class EncryptorTests {
       Mockito.verify(userService, Mockito.times(1)).findActiveUserById(testUser.getId());
       Mockito.verify(userService, Mockito.never())
           .findUserByUserPersonalInformationId(testUser.getUserPersonalInformation().getId());
-      Assertions.assertEquals(testUser.getUserPersonalInformation().getSsn(), result);
+      assertThat(result).isEqualTo(testUser.getUserPersonalInformation().getSsn());
     }
   }
 }

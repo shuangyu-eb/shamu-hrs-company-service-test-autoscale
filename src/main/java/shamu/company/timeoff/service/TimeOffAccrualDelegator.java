@@ -4,7 +4,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import shamu.company.common.exception.ForbiddenException;
-import shamu.company.common.exception.OldResourceNotFoundException;
+import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.timeoff.dto.TimeOffBreakdownDto;
 import shamu.company.timeoff.dto.TimeOffBreakdownItemDto;
 import shamu.company.timeoff.dto.TimeOffBreakdownYearDto;
@@ -34,9 +34,10 @@ public class TimeOffAccrualDelegator {
             .findById(frequencyTypeId)
             .orElseThrow(
                 () ->
-                    new OldResourceNotFoundException(
-                        String.format(
-                            "Time off frequency with id %s not found.", frequencyTypeId)));
+                    new ResourceNotFoundException(
+                        String.format("Time off frequency with id %s not found.", frequencyTypeId),
+                        frequencyTypeId,
+                        "time off frequency"));
 
     final TimeOffBreakdownYearDto startingBreakdown =
         TimeOffBreakdownItemDto.fromTimeOffPolicyUser(calculatePojo);

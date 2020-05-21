@@ -1,5 +1,8 @@
 package shamu.company.authorization;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+
 import java.util.Collections;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.jupiter.api.Assertions;
@@ -49,6 +52,12 @@ class BasePermissionUtilTests {
     @Test
     void whenIsAnonymous_thenShouldThrow() {
       Mockito.when(authUserCacheManager.getCachedUser(Mockito.anyString())).thenReturn(null);
+      assertThatExceptionOfType(UnAuthenticatedException.class)
+          .isThrownBy(
+              () -> {
+                final AuthUser returnedAuthUser = basePermissionUtils.getAuthUser();
+                Assertions.assertEquals(authUser, returnedAuthUser);
+              });
       Assertions.assertThrows(
           UnAuthenticatedException.class,
           () -> {
@@ -61,6 +70,7 @@ class BasePermissionUtilTests {
     void whenIsNotAnonymous_thenUserShouldMatch() {
       final AuthUser returnedAuthUser = basePermissionUtils.getAuthUser();
       Assertions.assertEquals(returnedAuthUser, authUser);
+      assertThat(returnedAuthUser).isEqualTo(authUser);
     }
   }
 
@@ -78,7 +88,7 @@ class BasePermissionUtilTests {
     @Test
     void testGetAuthUser() {
       final AuthUser returnedAuthUser = basePermissionUtils.getAuthUser();
-      Assertions.assertEquals(returnedAuthUser.getCompanyId(), authUser.getCompanyId());
+      assertThat(returnedAuthUser.getCompanyId()).isEqualTo(authUser.getCompanyId());
     }
   }
 
@@ -96,7 +106,7 @@ class BasePermissionUtilTests {
     @Test
     void testGetAuthUser() {
       final AuthUser returnedAuthUser = basePermissionUtils.getAuthUser();
-      Assertions.assertEquals(returnedAuthUser.getId(), authUser.getId());
+      assertThat(returnedAuthUser.getId()).isEqualTo(authUser.getId());
     }
   }
 }

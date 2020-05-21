@@ -1,5 +1,7 @@
 package shamu.company.timeoff.service;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -12,7 +14,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import shamu.company.common.exception.ForbiddenException;
-import shamu.company.common.exception.OldResourceNotFoundException;
+import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.timeoff.entity.TimeOffAccrualFrequency;
 import shamu.company.timeoff.entity.TimeOffPolicyAccrualSchedule;
 import shamu.company.timeoff.entity.TimeOffPolicyUser;
@@ -60,9 +62,10 @@ class TimeOffAccrualDelegatorTests {
     Mockito.when(timeOffAccrualFrequencyRepository.findById(Mockito.any()))
         .thenReturn(Optional.empty());
 
-    Assertions.assertThrows(
-        OldResourceNotFoundException.class,
-        () ->
-            timeOffAccrualDelegator.getTimeOffBreakdown("1", new TimeOffBreakdownCalculatePojo()));
+    assertThatExceptionOfType(ResourceNotFoundException.class)
+        .isThrownBy(
+            () ->
+                timeOffAccrualDelegator.getTimeOffBreakdown(
+                    "1", new TimeOffBreakdownCalculatePojo()));
   }
 }

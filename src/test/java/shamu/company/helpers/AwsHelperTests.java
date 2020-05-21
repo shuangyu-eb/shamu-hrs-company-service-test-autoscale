@@ -1,11 +1,14 @@
 package shamu.company.helpers;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
 import com.amazonaws.AmazonClientException;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -20,7 +23,8 @@ import shamu.company.helpers.s3.Type;
 
 public class AwsHelperTests {
 
-  private AwsHelper awsHelper = new AwsHelper("simplyhired-hrs-eastbay-dev-company", "media-local");
+  private final AwsHelper awsHelper =
+      new AwsHelper("simplyhired-hrs-eastbay-dev-company", "media-local");
 
   @BeforeEach
   void initial() {
@@ -29,17 +33,17 @@ public class AwsHelperTests {
 
   @Test
   void testFindPreSignedUrl() {
-    Assertions.assertDoesNotThrow(() -> awsHelper.findPreSignedUrl("1"));
+    assertThatCode(() -> awsHelper.findPreSignedUrl("1")).doesNotThrowAnyException();
   }
 
   @Test
   void testFindAwsPath() {
-    Assertions.assertNotNull(awsHelper.findAwsPath());
+    assertThat(awsHelper.findAwsPath()).isNotNull();
   }
 
   @Test
   void testFindFullFileUrl() {
-    Assertions.assertNotNull(awsHelper.findFullFileUrl("default/file.jpg"));
+    assertThat(awsHelper.findFullFileUrl("default/file.jpg")).isNotNull();
   }
 
   @Test
@@ -59,14 +63,14 @@ public class AwsHelperTests {
 
     @Test
     void whenKeyIsEmpty_thenDoNothing() {
-      Assertions.assertDoesNotThrow(() -> awsHelper.amazonS3DeleteObject(listKey));
+      assertThatCode(() -> awsHelper.amazonS3DeleteObject(listKey)).doesNotThrowAnyException();
     }
 
     @Test
     void whenKeyIsNotEmpty_thenShouldSuccess() {
       listKey.add("1");
       listKey.add("2");
-      Assertions.assertDoesNotThrow(() -> awsHelper.amazonS3DeleteObject(listKey));
+      assertThatCode(() -> awsHelper.amazonS3DeleteObject(listKey)).doesNotThrowAnyException();
     }
   }
 
@@ -84,30 +88,32 @@ public class AwsHelperTests {
     @Test
     void whenFileIsEmpty_thenShouldThrow() {
       Mockito.when(multipartFile.isEmpty()).thenReturn(true);
-      Assertions.assertThrows(AwsException.class, () -> awsHelper.uploadFile(multipartFile));
+      assertThatExceptionOfType(AwsException.class)
+          .isThrownBy(() -> awsHelper.uploadFile(multipartFile));
     }
 
     @Test
     void testUploadWithOnlyFile() {
-      Assertions.assertDoesNotThrow(() -> awsHelper.uploadFile(multipartFile));
+      assertThatCode(() -> awsHelper.uploadFile(multipartFile)).doesNotThrowAnyException();
     }
 
     @Test
     void testUploadWithFileAndAccessType() {
-      Assertions.assertDoesNotThrow(
-          () -> awsHelper.uploadFile(multipartFile, AccessType.valueOf("PRIVATE")));
+      assertThatCode(() -> awsHelper.uploadFile(multipartFile, AccessType.valueOf("PRIVATE")))
+          .doesNotThrowAnyException();
     }
 
     @Test
     void whenUploadWithFileAndTypeS3Error_thenShouldThrow() {
       final AwsHelper falseAwsHelper = new AwsHelper("1", "1");
-      Assertions.assertThrows(
-          AwsException.class, () -> falseAwsHelper.uploadFile(multipartFile, Type.IMAGE));
+      assertThatExceptionOfType(AwsException.class)
+          .isThrownBy(() -> falseAwsHelper.uploadFile(multipartFile, Type.IMAGE));
     }
 
     @Test
     void whenUploadWithFileAndTypeS3Right_thenShouldSuccess() {
-      Assertions.assertDoesNotThrow(() -> awsHelper.uploadFile(multipartFile, Type.IMAGE));
+      assertThatCode(() -> awsHelper.uploadFile(multipartFile, Type.IMAGE))
+          .doesNotThrowAnyException();
     }
   }
 
@@ -116,8 +122,8 @@ public class AwsHelperTests {
 
     @Test
     void whenFileNotExist_thenShouldThrow() {
-      Assertions.assertThrows(
-          AwsException.class, () -> awsHelper.uploadFile("default/file.jpg", Type.IMAGE));
+      assertThatExceptionOfType(AwsException.class)
+          .isThrownBy(() -> awsHelper.uploadFile("default/file.jpg", Type.IMAGE));
     }
   }
 
@@ -126,8 +132,8 @@ public class AwsHelperTests {
 
     @Test
     void whenS3BucketRight_thenShouldSuccess() {
-      Assertions.assertThrows(
-          AwsException.class, () -> awsHelper.moveFileFromTemp("default/file.jpg"));
+      assertThatExceptionOfType(AwsException.class)
+          .isThrownBy(() -> awsHelper.moveFileFromTemp("default/file.jpg"));
     }
   }
 
@@ -136,18 +142,19 @@ public class AwsHelperTests {
 
     @Test
     void whenFileError_thenShouldThrow() {
-      File file = Mockito.mock(File.class);
-      Path path = Mockito.mock(Path.class);
+      final File file = Mockito.mock(File.class);
+      final Path path = Mockito.mock(Path.class);
       Mockito.when(file.toPath()).thenReturn(path);
-      Assertions.assertThrows(AwsException.class, () -> awsHelper.deleteFile(new File("/")));
+      assertThatExceptionOfType(AwsException.class)
+          .isThrownBy(() -> awsHelper.deleteFile(new File("/")));
     }
 
     @Test
     void whenFileNoError_thenShouldSuccess() {
-      File file = Mockito.mock(File.class);
-      Path path = Mockito.mock(Path.class);
+      final File file = Mockito.mock(File.class);
+      final Path path = Mockito.mock(Path.class);
       Mockito.when(file.toPath()).thenReturn(path);
-      Assertions.assertDoesNotThrow(() -> awsHelper.deleteFile(new File("1")));
+      assertThatCode(() -> awsHelper.deleteFile(new File("1"))).doesNotThrowAnyException();
     }
   }
 
@@ -157,13 +164,13 @@ public class AwsHelperTests {
     @Test
     void whenS3BucketWrong_thenShouldThrow() {
       final AwsHelper falseAwsHelper = new AwsHelper("1", "1");
-      Assertions.assertThrows(
-          AwsException.class, () -> falseAwsHelper.deleteFile("default/file.jpg"));
+      assertThatExceptionOfType(AwsException.class)
+          .isThrownBy(() -> falseAwsHelper.deleteFile("default/file.jpg"));
     }
 
     @Test
     void whenS3BucketRight_thenShouldSuccess() {
-      Assertions.assertDoesNotThrow(() -> awsHelper.deleteFile("default/file.jpg"));
+      assertThatCode(() -> awsHelper.deleteFile("default/file.jpg")).doesNotThrowAnyException();
     }
   }
 }

@@ -4,7 +4,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import shamu.company.common.exception.OldResourceNotFoundException;
+import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.common.repository.EmploymentTypeRepository;
 import shamu.company.employee.entity.EmploymentType;
 
@@ -24,8 +24,10 @@ public class EmploymentTypeService {
         .findById(id)
         .orElseThrow(
             () ->
-                new OldResourceNotFoundException(
-                    String.format("Employment type with id %s not found.", id)));
+                new ResourceNotFoundException(
+                    String.format("Employment type with id %s not found.", id),
+                    id,
+                    "employment type"));
   }
 
   public List<EmploymentType> findAllByCompanyId(final String companyId) {

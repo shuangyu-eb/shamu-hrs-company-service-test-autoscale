@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import shamu.company.common.CommonDictionaryDto;
 import shamu.company.common.entity.Country;
 import shamu.company.common.entity.StateProvince;
-import shamu.company.common.exception.OldResourceNotFoundException;
+import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.common.repository.StateProvinceRepository;
 import shamu.company.utils.ReflectionUtil;
 
@@ -25,8 +25,8 @@ public class StateProvinceService {
     final Optional<StateProvince> optionalStateProvince = stateProvinceRepository.findById(id);
     return optionalStateProvince.orElseThrow(
         () ->
-            new OldResourceNotFoundException(
-                String.format("StateProvince with id %s not found.", id)));
+            new ResourceNotFoundException(
+                String.format("State province with id %s not found!", id), id, "state province"));
   }
 
   public List<CommonDictionaryDto> findAllByCountry(final String id) {

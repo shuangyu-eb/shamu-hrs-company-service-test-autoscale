@@ -4,7 +4,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import shamu.company.common.exception.OldResourceNotFoundException;
+import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.common.repository.DepartmentRepository;
 import shamu.company.company.entity.Department;
 
@@ -30,7 +30,10 @@ public class DepartmentService {
   public Department findById(final String id) {
     return departmentRepository
         .findById(id)
-        .orElseThrow(() -> new OldResourceNotFoundException("No Department with id: " + id));
+        .orElseThrow(
+            () ->
+                new ResourceNotFoundException(
+                    String.format("Department with id %s not found!", id), id, "department"));
   }
 
   public Department save(final Department department) {

@@ -1,9 +1,11 @@
 package shamu.company.common.validation;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+
 import java.util.ArrayList;
 import java.util.List;
 import javax.validation.ConstraintValidatorContext;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.web.multipart.MultipartFile;
@@ -18,7 +20,7 @@ public class FilesValidatorTests {
     final FileValidate fileValidate = Mockito.mock(FileValidate.class);
     final String[] arr = {"JPEG"};
     Mockito.when(fileValidate.fileFormat()).thenReturn(arr);
-    Assertions.assertDoesNotThrow(() -> filesValidator.initialize(fileValidate));
+    assertThatCode(() -> filesValidator.initialize(fileValidate)).doesNotThrowAnyException();
   }
 
   @Test
@@ -26,6 +28,6 @@ public class FilesValidatorTests {
     final ConstraintValidatorContext fileValidate = Mockito.mock(ConstraintValidatorContext.class);
     final List<MultipartFile> files = new ArrayList<>();
     files.add(null);
-    Assertions.assertTrue(() -> filesValidator.isValid(files, fileValidate));
+    assertThat(filesValidator.isValid(files, fileValidate)).isTrue();
   }
 }

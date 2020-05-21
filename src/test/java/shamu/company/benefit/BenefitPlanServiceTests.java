@@ -1,5 +1,8 @@
 package shamu.company.benefit;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -8,7 +11,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -62,7 +64,7 @@ import shamu.company.benefit.repository.BenefitPlanTypeRepository;
 import shamu.company.benefit.repository.BenefitPlanUserRepository;
 import shamu.company.benefit.repository.RetirementPlanTypeRepository;
 import shamu.company.benefit.service.BenefitPlanService;
-import shamu.company.common.exception.OldResourceNotFoundException;
+import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.company.entity.Department;
 import shamu.company.helpers.s3.AwsHelper;
 import shamu.company.job.dto.JobUserDto;
@@ -388,9 +390,9 @@ class BenefitPlanServiceTests {
 
     @Test
     void whenBenefitPlanIdIsEmpty_thenShouldSuccess() {
-      BenefitCoverages benefitCoverages = new BenefitCoverages();
+      final BenefitCoverages benefitCoverages = new BenefitCoverages();
       benefitCoverages.setName("name");
-      List<String> coverageIds = new ArrayList<>();
+      final List<String> coverageIds = new ArrayList<>();
       coverageIds.add("coverageId");
       benefitReportParamDto.setPlanId("active");
       enrollmentBreakdownSearchCondition.setCoverageId("coverageId");
@@ -529,20 +531,20 @@ class BenefitPlanServiceTests {
       final String sortDirection =
           enrollmentBreakdownSearchCondition.getSortDirection().toUpperCase();
       final String sortValue = enrollmentBreakdownSearchCondition.getSortField().getSortValue();
-      Sort.Order order = new Sort.Order(Sort.Direction.valueOf(sortDirection), sortValue);
-      Sort.Order orderName =
+      final Sort.Order order = new Sort.Order(Sort.Direction.valueOf(sortDirection), sortValue);
+      final Sort.Order orderName =
           new Sort.Order(
               Sort.Direction.ASC, EnrollmentBreakdownSearchCondition.SortField.NAME.getSortValue());
-      Sort sort = Sort.by(order, orderName);
+      final Sort sort = Sort.by(order, orderName);
       paramPageable =
           PageRequest.of(
               enrollmentBreakdownSearchCondition.getPage(),
               enrollmentBreakdownSearchCondition.getSize(),
               sort);
-      Pageable pageable =
+      final Pageable pageable =
           Whitebox.invokeMethod(
               benefitPlanService, "getPageable", enrollmentBreakdownSearchCondition);
-      Assertions.assertEquals(pageable, paramPageable);
+      assertThat(pageable).isEqualTo(paramPageable);
     }
   }
 
@@ -567,7 +569,7 @@ class BenefitPlanServiceTests {
       benefitPlanCoverageDto.setId("coverageId");
       coverages.add(benefitPlanCoverageDto);
       benefitPlan.setRetirementTypeId("retirementTypeId");
-      BenefitPlanUserCreateDto benefitPlanUserCreateDto = new BenefitPlanUserCreateDto();
+      final BenefitPlanUserCreateDto benefitPlanUserCreateDto = new BenefitPlanUserCreateDto();
       benefitPlanUserCreateDto.setCoverage("coverageId");
       benefitPlanUserCreateDto.setId("userId");
       selectedEmployees.add(benefitPlanUserCreateDto);
@@ -621,7 +623,7 @@ class BenefitPlanServiceTests {
       coverages = new ArrayList<>();
       selectedEmployees = new ArrayList<>();
       benefitPlanCoverage.setId("addCoverageId");
-      BenefitPlanUserCreateDto benefitPlanUserCreateDto = new BenefitPlanUserCreateDto();
+      final BenefitPlanUserCreateDto benefitPlanUserCreateDto = new BenefitPlanUserCreateDto();
       benefitPlanUserCreateDto.setId("userId");
       benefitPlanUserCreateDto.setCoverage("coverageId");
       selectedEmployees.add(benefitPlanUserCreateDto);
@@ -770,8 +772,7 @@ class BenefitPlanServiceTests {
     void whenConfirmed_thenShouldSuccess() {
       Mockito.when(benefitPlanUserRepository.findByUserIdAndConfirmedIsTrue(userId))
           .thenReturn(Mockito.anyList());
-      final Boolean result = benefitPlanService.isConfirmed(userId);
-      Assertions.assertFalse(result);
+      assertThat(benefitPlanService.isConfirmed(userId)).isFalse();
     }
   }
 
@@ -932,7 +933,7 @@ class BenefitPlanServiceTests {
       enrollmentBreakdownDto.setPlan(originPlan);
       enrollmentBreakdownDtos.add(enrollmentBreakdownDto);
 
-      BenefitReportPlansPojo benefitReportPlansPojo =
+      final BenefitReportPlansPojo benefitReportPlansPojo =
           new BenefitReportPlansPojo() {
             @Override
             public String getId() {
@@ -969,7 +970,7 @@ class BenefitPlanServiceTests {
       final BenefitPlanReportDto benefitPlanReportDto =
           benefitPlanService.findBenefitPlanReport(typeName, benefitReportParamDto, companyId);
       final String plan = benefitPlanReportDto.getEnrollmentBreakdownDtos().get(0).getPlan();
-      Assertions.assertEquals(plan, originPlan);
+      assertThat(plan).isEqualTo(originPlan);
     }
 
     @Test
@@ -996,7 +997,7 @@ class BenefitPlanServiceTests {
       final BenefitPlanReportDto benefitPlanReportDto =
           benefitPlanService.findBenefitPlanReport(typeName, benefitReportParamDto, companyId);
       final String plan = benefitPlanReportDto.getEnrollmentBreakdownDtos().get(0).getPlan();
-      Assertions.assertEquals(plan, originPlan);
+      assertThat(plan).isEqualTo(originPlan);
     }
 
     @Test
@@ -1023,7 +1024,7 @@ class BenefitPlanServiceTests {
       final BenefitPlanReportDto benefitPlanReportDto =
           benefitPlanService.findBenefitPlanReport(typeName, benefitReportParamDto, companyId);
       final String plan = benefitPlanReportDto.getEnrollmentBreakdownDtos().get(0).getPlan();
-      Assertions.assertEquals(plan, originPlan);
+      assertThat(plan).isEqualTo(originPlan);
     }
 
     @Test
@@ -1047,7 +1048,7 @@ class BenefitPlanServiceTests {
       final BenefitPlanReportDto benefitPlanReportDto =
           benefitPlanService.findBenefitPlanReport(typeName, benefitReportParamDto, companyId);
       final String plan = benefitPlanReportDto.getEnrollmentBreakdownDtos().get(0).getPlan();
-      Assertions.assertEquals(plan, originPlan);
+      assertThat(plan).isEqualTo(originPlan);
     }
   }
 
@@ -1080,7 +1081,7 @@ class BenefitPlanServiceTests {
               benefitPlanSearchCondition.getSize(),
               Sort.Direction.valueOf(benefitPlanSearchCondition.getSortDirection().toUpperCase()),
               benefitPlanSearchCondition.getSortField().getSortValue());
-      BenefitPlanPreviewPojo benefitPlanPreviewPojo =
+      final BenefitPlanPreviewPojo benefitPlanPreviewPojo =
           new BenefitPlanPreviewPojo() {
             @Override
             public String getBenefitPlanId() {
@@ -1161,14 +1162,14 @@ class BenefitPlanServiceTests {
       Mockito.when(benefitPlanRepository.findById(id))
           .thenReturn(java.util.Optional.ofNullable(benefitPlan));
       final BenefitPlan benefitPlan1 = benefitPlanService.findBenefitPlanById(id);
-      Assertions.assertNotNull(benefitPlan1);
+      assertThat(benefitPlan1).isNotNull();
     }
 
     @Test
     void whenBenefitPlanNotFound_thenShouldThrow() {
       Mockito.when(benefitPlanRepository.findById(id)).thenReturn(Optional.empty());
-      Assertions.assertThrows(
-          OldResourceNotFoundException.class, () -> benefitPlanService.findBenefitPlanById(id));
+      assertThatExceptionOfType(ResourceNotFoundException.class)
+          .isThrownBy(() -> benefitPlanService.findBenefitPlanById(id));
     }
   }
 
@@ -1235,14 +1236,14 @@ class BenefitPlanServiceTests {
       Mockito.when(benefitCoveragesRepository.findById(id))
           .thenReturn(java.util.Optional.ofNullable(benefitCoverages));
       final BenefitCoverages benefitCoverages1 = benefitPlanService.getBenefitCoveragesById(id);
-      Assertions.assertNotNull(benefitCoverages1);
+      assertThat(benefitCoverages1).isNotNull();
     }
 
     @Test
     void whenBenefitPlanNotFound_thenShouldThrow() {
       Mockito.when(benefitCoveragesRepository.findById(id)).thenReturn(Optional.empty());
-      Assertions.assertThrows(
-          OldResourceNotFoundException.class, () -> benefitPlanService.getBenefitCoveragesById(id));
+      assertThatExceptionOfType(ResourceNotFoundException.class)
+          .isThrownBy(() -> benefitPlanService.getBenefitCoveragesById(id));
     }
   }
 
@@ -1262,14 +1263,14 @@ class BenefitPlanServiceTests {
           .thenReturn(java.util.Optional.ofNullable(benefitPlanCoverage));
       final BenefitPlanCoverage benefitPlanCoverage1 =
           benefitPlanService.getBenefitPlanCoverageById(id);
-      Assertions.assertNotNull(benefitPlanCoverage1);
+      assertThat(benefitPlanCoverage1).isNotNull();
     }
 
     @Test
     void whenBenefitPlanNotFound_thenShouldThrow() {
       Mockito.when(benefitPlanCoverageRepository.findById(id)).thenReturn(Optional.empty());
-      Assertions.assertThrows(
-          OldResourceNotFoundException.class, () -> benefitPlanService.getBenefitPlanCoverageById(id));
+      assertThatExceptionOfType(ResourceNotFoundException.class)
+          .isThrownBy(() -> benefitPlanService.getBenefitPlanCoverageById(id));
     }
   }
 
@@ -1366,13 +1367,13 @@ class BenefitPlanServiceTests {
       user = new User();
       user.setId("userId");
       users.add(user);
-      BenefitPlanUserDto benefitPlanUserDto = new BenefitPlanUserDto();
+      final BenefitPlanUserDto benefitPlanUserDto = new BenefitPlanUserDto();
       benefitPlanUserDto.setId("userId");
       allUsers.add(benefitPlanUserDto);
       benefitPlanUsers = new ArrayList<>();
       benefitPlanUser = new BenefitPlanUser();
       benefitPlanUser.setId("benefitPlanUserId");
-      BenefitPlanCoverage benefitPlanCoverage = new BenefitPlanCoverage();
+      final BenefitPlanCoverage benefitPlanCoverage = new BenefitPlanCoverage();
       benefitPlanCoverage.setId("benefitPlanCoverageId");
       benefitPlanUser.setBenefitPlanCoverage(benefitPlanCoverage);
       benefitPlanUsers.add(benefitPlanUser);

@@ -2,7 +2,7 @@ package shamu.company.info.service;
 
 import java.util.List;
 import org.springframework.stereotype.Service;
-import shamu.company.common.exception.OldResourceNotFoundException;
+import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.info.dto.UserEmergencyContactDto;
 import shamu.company.info.entity.UserEmergencyContact;
 import shamu.company.info.entity.mapper.UserEmergencyContactMapper;
@@ -43,7 +43,11 @@ public class UserEmergencyContactService {
         userEmergencyContactRepository
             .findById(id)
             .orElseThrow(
-                () -> new OldResourceNotFoundException("UserEmergencyContact does not exist!"));
+                () ->
+                    new ResourceNotFoundException(
+                        String.format("Emergency contact with id %s not found!", id),
+                        id,
+                        "emergency contact"));
     final String userId = userEmergencyContact.getUser().getId();
     userEmergencyContactRepository.releasePrimaryContact(userId);
     userEmergencyContactRepository.delete(id);
@@ -78,6 +82,11 @@ public class UserEmergencyContactService {
   public UserEmergencyContact findById(final String id) {
     return userEmergencyContactRepository
         .findById(id)
-        .orElseThrow(() -> new OldResourceNotFoundException("Emergency contact was not found"));
+        .orElseThrow(
+            () ->
+                new ResourceNotFoundException(
+                    String.format("Emergency contact with id %s not found!", id),
+                    id,
+                    "emergency contact"));
   }
 }

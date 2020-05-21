@@ -1,7 +1,7 @@
 package shamu.company.timeoff;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.powermock.reflect.Whitebox;
-import shamu.company.common.exception.OldResourceNotFoundException;
+import shamu.company.common.exception.ForbiddenException;
 import shamu.company.timeoff.dto.TimeOffBreakdownDto;
 import shamu.company.timeoff.dto.TimeOffBreakdownItemDto;
 import shamu.company.timeoff.entity.AccrualScheduleMilestone;
@@ -549,15 +549,14 @@ class TimeOffAccrualServiceTests {
     @Test
     void whenNotFound_thenShouldThrow() {
       startingBreakdown.getList().remove(1);
-
-      assertThatThrownBy(
+      assertThatExceptionOfType(ForbiddenException.class)
+          .isThrownBy(
               () ->
                   Whitebox.invokeMethod(
                       timeOffAccrualService,
                       "postProcessOfTimeOffBreakdown",
                       startingBreakdown,
-                      calculatePojo))
-          .isInstanceOf(OldResourceNotFoundException.class);
+                      calculatePojo));
     }
 
     @Test

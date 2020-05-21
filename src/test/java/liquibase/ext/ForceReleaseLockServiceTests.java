@@ -1,6 +1,8 @@
 package liquibase.ext;
 
-import org.junit.jupiter.api.Assertions;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
 import org.junit.jupiter.api.Test;
 
 public class ForceReleaseLockServiceTests {
@@ -9,12 +11,12 @@ public class ForceReleaseLockServiceTests {
 
   @Test
   void testGetPriority() {
-    Assertions.assertNotNull(forceReleaseLockService.getPriority());
+    assertThat(forceReleaseLockService.getPriority()).isNotNull();
   }
 
   @Test
   void testWaitForLock() {
-    Assertions.assertThrows(
-        NullPointerException.class, () -> forceReleaseLockService.waitForLock());
+    assertThatExceptionOfType(NullPointerException.class)
+        .isThrownBy(() -> forceReleaseLockService.waitForLock());
   }
 }

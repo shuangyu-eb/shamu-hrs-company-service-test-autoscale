@@ -1,5 +1,8 @@
 package shamu.company.timeoff.service;
 
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -13,7 +16,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import shamu.company.common.exception.ForbiddenException;
-import shamu.company.common.exception.OldResourceNotFoundException;
+import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.company.entity.Company;
 import shamu.company.helpers.FederalHolidayHelper;
 import shamu.company.job.dto.JobUserDto;
@@ -328,9 +331,8 @@ class PaidHolidayServiceTests {
     @Test
     void whenEmpty_thenShouldThrow() {
       Mockito.when(paidHolidayRepository.findById(Mockito.any())).thenReturn(Optional.empty());
-
-      Assertions.assertThrows(
-          OldResourceNotFoundException.class, () -> paidHolidayService.getPaidHoliday("1"));
+      assertThatExceptionOfType(ResourceNotFoundException.class)
+          .isThrownBy(() -> paidHolidayService.getPaidHoliday("1"));
     }
 
     @Test
@@ -340,7 +342,7 @@ class PaidHolidayServiceTests {
       Mockito.when(paidHolidayRepository.findById(Mockito.any()))
           .thenReturn(Optional.of(paidHoliday));
 
-      Assertions.assertDoesNotThrow(() -> paidHolidayService.getPaidHoliday("1"));
+      assertThatCode(() -> paidHolidayService.getPaidHoliday("1")).doesNotThrowAnyException();
     }
   }
 }

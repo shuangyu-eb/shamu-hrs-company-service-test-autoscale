@@ -79,7 +79,7 @@ import shamu.company.benefit.repository.BenefitPlanTypeRepository;
 import shamu.company.benefit.repository.BenefitPlanUserRepository;
 import shamu.company.benefit.repository.RetirementPlanTypeRepository;
 import shamu.company.common.exception.AwsException;
-import shamu.company.common.exception.OldResourceNotFoundException;
+import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.company.entity.Company;
 import shamu.company.helpers.s3.AccessType;
 import shamu.company.helpers.s3.AwsHelper;
@@ -436,7 +436,10 @@ public class BenefitPlanService {
   public BenefitPlan findBenefitPlanById(final String id) {
     return benefitPlanRepository
         .findById(id)
-        .orElseThrow(() -> new OldResourceNotFoundException("Cannot find benefit plan"));
+        .orElseThrow(
+            () ->
+                new ResourceNotFoundException(
+                    String.format("Benefit plan with id %s not found!", id), id, "benefit plan"));
   }
 
   public void save(final BenefitPlan benefitPlan) {
@@ -688,8 +691,11 @@ public class BenefitPlanService {
                     .findByBenefitPlansUsersIdAndUserDependentsId(benefitPlanUserId, oldDependentId)
                     .orElseThrow(
                         () ->
-                            new OldResourceNotFoundException(
-                                "cannot find benefit dependent record with id"));
+                            new ResourceNotFoundException(
+                                String.format(
+                                    "Benefit dependent with id %s not found!", oldDependentId),
+                                oldDependentId,
+                                "benefit dependent"));
             benefitPlanDependentRepository.delete(oldBenefitDependentRecord);
           }
         });
@@ -1186,7 +1192,11 @@ public class BenefitPlanService {
     return benefitCoveragesRepository
         .findById(id)
         .orElseThrow(
-            () -> new OldResourceNotFoundException("Cannot find benefit coverage with id" + id));
+            () ->
+                new ResourceNotFoundException(
+                    String.format("Benefit coverage with id %s not found!", id),
+                    id,
+                    "benefit coverage"));
   }
 
   public BenefitPlanCoverage getBenefitPlanCoverageById(final String id) {
@@ -1194,8 +1204,10 @@ public class BenefitPlanService {
         .findById(id)
         .orElseThrow(
             () ->
-                new OldResourceNotFoundException(
-                    "Cannot find benefit plan coverage with id " + id));
+                new ResourceNotFoundException(
+                    String.format("Benefit plan coverage with id %s not found!", id),
+                    id,
+                    "benefit plan coverage"));
   }
 
   public BenefitPlanUser getBenefitPlanUserByUserIdAndBenefitPlanId(
@@ -1203,7 +1215,11 @@ public class BenefitPlanService {
     return benefitPlanUserRepository
         .findByUserIdAndBenefitPlanId(userId, benefitPlanId)
         .orElseThrow(
-            () -> new OldResourceNotFoundException("Cannot find benefit plan user with id"));
+            () ->
+                new ResourceNotFoundException(
+                    String.format("Benefit plan user with id %s not found!", userId),
+                    userId,
+                    "benefit plan user"));
   }
 
   public Page<BenefitPlanPreviewDto> findBenefitPlans(

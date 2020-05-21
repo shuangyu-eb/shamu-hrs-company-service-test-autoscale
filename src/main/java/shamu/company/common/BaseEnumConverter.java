@@ -6,7 +6,7 @@ import java.lang.reflect.ParameterizedType;
 import javax.persistence.AttributeConverter;
 import lombok.extern.slf4j.Slf4j;
 import shamu.company.common.exception.GeneralException;
-import shamu.company.common.exception.OldResourceNotFoundException;
+import shamu.company.common.exception.ResourceNotFoundException;
 
 @Slf4j
 public class BaseEnumConverter<X> implements AttributeConverter<X, String> {
@@ -19,8 +19,7 @@ public class BaseEnumConverter<X> implements AttributeConverter<X, String> {
   public BaseEnumConverter() {
     final Class<X> xclazz =
         (Class<X>)
-            (((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments())
-                [0];
+            (((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments())[0];
     try {
       valueOfMethod = xclazz.getMethod("valueOf", String.class);
       valueMethod = xclazz.getMethod("getValue");
@@ -53,7 +52,10 @@ public class BaseEnumConverter<X> implements AttributeConverter<X, String> {
     try {
       return (X) valueOfMethod.invoke(null, id);
     } catch (final Exception e) {
-      throw new OldResourceNotFoundException("can't convertToEntityAttribute" + e.getMessage());
+      throw new ResourceNotFoundException(
+          String.format("ConvertToEntityAttribute with id %s not found!", id),
+          id,
+          "convertToEntityAttribute");
     }
   }
 }

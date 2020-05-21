@@ -1,8 +1,9 @@
 package shamu.company.benefit;
 
+import static org.assertj.core.api.Assertions.assertThatCode;
+
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -39,13 +40,14 @@ public class BenefitRequestServiceTests {
             benefitRequestRepository.findAllByStatusAndCompanyId(
                 Mockito.anyList(), Mockito.anyString(), Mockito.any()))
         .thenReturn(benefitRequests);
-    Assertions.assertDoesNotThrow(
-        () -> benefitRequestService.findRequestsByStatusAndCompanyId(pageRequest, list, "1"));
+    assertThatCode(
+            () -> benefitRequestService.findRequestsByStatusAndCompanyId(pageRequest, list, "1"))
+        .doesNotThrowAnyException();
   }
 
   @Test
   void testFindRequestsCountByStatusAndCompanyId() {
-    Assertions.assertDoesNotThrow(
-        () -> benefitRequestService.findRequestsCountByStatusAndCompanyId("1", "1"));
+    assertThatCode(() -> benefitRequestService.findRequestsCountByStatusAndCompanyId("1", "1"))
+        .doesNotThrowAnyException();
   }
 }

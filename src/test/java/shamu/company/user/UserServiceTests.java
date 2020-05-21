@@ -1,5 +1,6 @@
 package shamu.company.user;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.sql.Date;
@@ -30,7 +31,7 @@ import shamu.company.authorization.PermissionUtils;
 import shamu.company.client.DocumentClient;
 import shamu.company.common.exception.EmailException;
 import shamu.company.common.exception.ForbiddenException;
-import shamu.company.common.exception.OldResourceNotFoundException;
+import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.common.service.DepartmentService;
 import shamu.company.company.entity.Company;
 import shamu.company.company.repository.CompanyRepository;
@@ -694,8 +695,8 @@ class UserServiceTests {
       final User targetUser = new User();
       targetUser.setResetPasswordToken(RandomStringUtils.randomAlphabetic(10));
       Mockito.when(userRepository.findByEmailWork(Mockito.anyString())).thenReturn(targetUser);
-      Assertions.assertThrows(
-          OldResourceNotFoundException.class, () -> userService.createPassword(createPasswordDto));
+      assertThatExceptionOfType(ResourceNotFoundException.class)
+          .isThrownBy(() -> userService.createPassword(createPasswordDto));
     }
 
     @Test
@@ -713,8 +714,8 @@ class UserServiceTests {
       final User targetUser = new User();
       targetUser.setResetPasswordToken(createPasswordDto.getResetPasswordToken());
       Mockito.when(userRepository.findByEmailWork(Mockito.anyString())).thenReturn(null);
-      Assertions.assertThrows(
-          OldResourceNotFoundException.class, () -> userService.createPassword(createPasswordDto));
+      assertThatExceptionOfType(ResourceNotFoundException.class)
+          .isThrownBy(() -> userService.createPassword(createPasswordDto));
     }
 
     @Test
@@ -723,8 +724,8 @@ class UserServiceTests {
       final User targetUser = new User();
       targetUser.setResetPasswordToken(RandomStringUtils.randomAlphabetic(10));
       Mockito.when(userRepository.findByEmailWork(Mockito.any())).thenReturn(targetUser);
-      Assertions.assertThrows(
-          OldResourceNotFoundException.class, () -> userService.createPassword(createPasswordDto));
+      assertThatExceptionOfType(ResourceNotFoundException.class)
+          .isThrownBy(() -> userService.createPassword(createPasswordDto));
     }
 
     @Test

@@ -1,13 +1,14 @@
 package shamu.company.company;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -16,7 +17,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import shamu.company.common.entity.StateProvince;
 import shamu.company.common.exception.ForbiddenException;
-import shamu.company.common.exception.OldResourceNotFoundException;
+import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.common.service.DepartmentService;
 import shamu.company.common.service.OfficeService;
 import shamu.company.common.service.StateProvinceService;
@@ -78,7 +79,7 @@ public class CompanyServiceTests {
   @Test
   void testExistsByName() {
     Mockito.when(companyRepository.existsByName(Mockito.anyString())).thenReturn(true);
-    Assertions.assertTrue(() -> companyService.existsByName("1"));
+    assertThat(companyService.existsByName("1")).isTrue();
   }
 
   @Test
@@ -87,38 +88,41 @@ public class CompanyServiceTests {
     list.add(department);
     Mockito.when(departmentService.findAllByCompanyId(Mockito.anyString())).thenReturn(list);
     Mockito.when(departmentService.findCountByDepartment(Mockito.anyString())).thenReturn(1);
-    Assertions.assertDoesNotThrow(() -> companyService.findDepartmentsByCompanyId("1"));
+    assertThatCode(() -> companyService.findDepartmentsByCompanyId("1")).doesNotThrowAnyException();
   }
 
   @Test
   void testfindDepartmentsById() {
     Mockito.when(departmentService.findById(Mockito.anyString())).thenReturn(department);
-    Assertions.assertDoesNotThrow(() -> companyService.findDepartmentsById("1"));
+    assertThatCode(() -> companyService.findDepartmentsById("1")).doesNotThrowAnyException();
   }
 
   @Test
   void testFindJobsById() {
-    Assertions.assertDoesNotThrow(() -> companyService.findJobsById("1"));
+
+    assertThatCode(() -> companyService.findJobsById("1")).doesNotThrowAnyException();
   }
 
   @Test
   void testFindEmploymentTypeById() {
-    Assertions.assertDoesNotThrow(() -> companyService.findEmploymentTypeById("1"));
+    assertThatCode(() -> companyService.findEmploymentTypeById("1")).doesNotThrowAnyException();
   }
 
   @Test
   void testFindOfficeById() {
-    Assertions.assertDoesNotThrow(() -> companyService.findOfficeById("1"));
+    assertThatCode(() -> companyService.findOfficeById("1")).doesNotThrowAnyException();
   }
 
   @Test
   void testSaveDepartmentsByCompany() {
-    Assertions.assertDoesNotThrow(() -> companyService.saveDepartmentsByCompany("name", "1"));
+    assertThatCode(() -> companyService.saveDepartmentsByCompany("name", "1"))
+        .doesNotThrowAnyException();
   }
 
   @Test
   void testSaveJobsByDepartmentId() {
-    Assertions.assertDoesNotThrow(() -> companyService.saveJobsByDepartmentId("1", "name"));
+    assertThatCode(() -> companyService.saveJobsByDepartmentId("1", "name"))
+        .doesNotThrowAnyException();
   }
 
   @Test
@@ -127,7 +131,7 @@ public class CompanyServiceTests {
     list.add(office);
     Mockito.when(officeService.findByCompanyId(Mockito.anyString())).thenReturn(list);
     Mockito.when(officeService.findCountByOffice(Mockito.anyString())).thenReturn(1);
-    Assertions.assertDoesNotThrow(() -> companyService.findOfficesByCompany("1"));
+    assertThatCode(() -> companyService.findOfficesByCompany("1")).doesNotThrowAnyException();
   }
 
   @Test
@@ -138,7 +142,7 @@ public class CompanyServiceTests {
     officeAddress.setStateProvince(stateProvince);
     office.setOfficeAddress(officeAddress);
     Mockito.when(stateProvinceService.findById(Mockito.anyString())).thenReturn(stateProvince);
-    Assertions.assertDoesNotThrow(() -> companyService.saveOffice(office));
+    assertThatCode(() -> companyService.saveOffice(office)).doesNotThrowAnyException();
   }
 
   @Test
@@ -147,32 +151,34 @@ public class CompanyServiceTests {
     types.add(type);
     Mockito.when(employmentTypeService.findAllByCompanyId(Mockito.anyString())).thenReturn(types);
     Mockito.when(employmentTypeService.findCountByType(Mockito.anyString())).thenReturn(1);
-    Assertions.assertDoesNotThrow(() -> companyService.findEmploymentTypesByCompanyId("1"));
+    assertThatCode(() -> companyService.findEmploymentTypesByCompanyId("1"))
+        .doesNotThrowAnyException();
   }
 
   @Test
   void testSaveEmploymentType() {
-    Assertions.assertDoesNotThrow(() -> companyService.saveEmploymentType("name", "1"));
+    assertThatCode(() -> companyService.saveEmploymentType("name", "1")).doesNotThrowAnyException();
   }
 
   @Test
   void testSave() {
-    Assertions.assertDoesNotThrow(() -> companyService.save(new Company()));
+
+    assertThatCode(() -> companyService.save(new Company())).doesNotThrowAnyException();
   }
 
   @Test
   void testFindCompanyBenefitsSetting() {
     Mockito.when(companyBenefitsSettingService.findByCompanyId(Mockito.anyString()))
         .thenReturn(benefitsSetting);
-    Assertions.assertDoesNotThrow(() -> companyService.findCompanyBenefitsSetting("1"));
+    assertThatCode(() -> companyService.findCompanyBenefitsSetting("1")).doesNotThrowAnyException();
   }
 
   @Test
   void testUpdateBenefitSettingAutomaticRollover() {
     Mockito.when(companyBenefitsSettingService.findByCompanyId(Mockito.anyString()))
         .thenReturn(benefitsSetting);
-    Assertions.assertDoesNotThrow(
-        () -> companyService.updateBenefitSettingAutomaticRollover("1", true));
+    assertThatCode(() -> companyService.updateBenefitSettingAutomaticRollover("1", true))
+        .doesNotThrowAnyException();
   }
 
   @Test
@@ -182,8 +188,8 @@ public class CompanyServiceTests {
     companyBenefitsSettingDto.setEndDate(new Date(360000));
     Mockito.when(companyBenefitsSettingService.findByCompanyId(Mockito.anyString()))
         .thenReturn(benefitsSetting);
-    Assertions.assertDoesNotThrow(
-        () -> companyService.updateEnrollmentPeriod("1", companyBenefitsSettingDto));
+    assertThatCode(() -> companyService.updateEnrollmentPeriod("1", companyBenefitsSettingDto))
+        .doesNotThrowAnyException();
   }
 
   @Nested
@@ -193,15 +199,15 @@ public class CompanyServiceTests {
     void whenIdExists_thenShouldNotThrowException() {
       final Optional<Company> optional = Optional.of(new Company());
       Mockito.when(companyRepository.findById(Mockito.anyString())).thenReturn(optional);
-      Assertions.assertDoesNotThrow(() -> companyService.findById("1"));
+      assertThatCode(() -> companyService.findById("1")).doesNotThrowAnyException();
     }
 
     @Test
     void whenIdNotExists_thenShoudlThrowException() {
       final Optional optional = Optional.empty();
       Mockito.when(companyRepository.findById(Mockito.anyString())).thenReturn(optional);
-      Assertions.assertThrows(
-          OldResourceNotFoundException.class, () -> companyService.findById("1"));
+      assertThatExceptionOfType(ResourceNotFoundException.class)
+          .isThrownBy(() -> companyService.findById("1"));
     }
   }
 
@@ -214,16 +220,16 @@ public class CompanyServiceTests {
       Mockito.when(companyService.existsByName(Mockito.anyString())).thenReturn(false);
       Mockito.when(companyRepository.findCompanyById(Mockito.anyString())).thenReturn(company);
       Mockito.when(companyRepository.save(company)).thenReturn(company);
-      Assertions.assertDoesNotThrow(() -> companyService.updateCompanyName("example", "companyId"));
-      Assertions.assertEquals(
-          "example2", companyService.updateCompanyName("example2", "companyId"));
+      assertThatCode(() -> companyService.updateCompanyName("example", "companyId"))
+          .doesNotThrowAnyException();
+      assertThat(companyService.updateCompanyName("example2", "companyId")).isEqualTo("example2");
     }
 
     @Test
     void whenUpdateCompanyName_thenShouldThrowException() {
       Mockito.when(companyService.existsByName(Mockito.anyString())).thenReturn(true);
-      Assertions.assertThrows(
-          ForbiddenException.class, () -> companyService.updateCompanyName("example", "companyId"));
+      assertThatExceptionOfType(ForbiddenException.class)
+          .isThrownBy(() -> companyService.updateCompanyName("example", "companyId"));
     }
 
     @Test

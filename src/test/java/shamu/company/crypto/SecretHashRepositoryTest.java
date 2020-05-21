@@ -1,6 +1,7 @@
 package shamu.company.crypto;
 
-import org.junit.jupiter.api.Assertions;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -43,9 +44,8 @@ class SecretHashRepositoryTest {
     void whenSecretHashIsEmpty_thenShouldThrow() {
       Mockito.when(secretJdbcTemplate.queryForObject(sql, String.class, companyId))
           .thenThrow(EmptyResultDataAccessException.class);
-      Assertions.assertThrows(
-          GeneralException.class,
-          () -> secretHashRepository.getCompanySecretByCompanyId(companyId));
+      assertThatExceptionOfType(GeneralException.class)
+          .isThrownBy(() -> secretHashRepository.getCompanySecretByCompanyId(companyId));
     }
   }
 

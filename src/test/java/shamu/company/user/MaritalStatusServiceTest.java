@@ -1,14 +1,15 @@
 package shamu.company.user;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
 import java.util.Optional;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import shamu.company.common.exception.OldResourceNotFoundException;
+import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.user.repository.MaritalStatusRepository;
 import shamu.company.user.service.MaritalStatusService;
 
@@ -26,8 +27,8 @@ public class MaritalStatusServiceTest {
   void whenNotFound_thenShouldThrow() {
     Mockito.when(maritalStatusRepository.findById(Mockito.anyString()))
         .thenReturn(Optional.empty());
-    Assertions.assertThrows(
-        OldResourceNotFoundException.class, () -> maritalStatusService.findById("test"));
+    assertThatExceptionOfType(ResourceNotFoundException.class)
+        .isThrownBy(() -> maritalStatusService.findById("test"));
   }
 
   @Test

@@ -1,8 +1,9 @@
 package shamu.company.helpers;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -28,9 +29,9 @@ class FederalHolidayHelperTests {
     final String federalHoliday2019 = getFederalHoliday(federalHoliday, 2019);
     final String federalHoliday2020 = getFederalHoliday(federalHoliday, 2020);
     final String federalHoliday2021 = getFederalHoliday(federalHoliday, 2021);
-    Assertions.assertEquals(dayIn2019, federalHoliday2019);
-    Assertions.assertEquals(dayIn2020, federalHoliday2020);
-    Assertions.assertEquals(dayIn2021, federalHoliday2021);
+    assertThat(federalHoliday2019).isEqualTo(dayIn2019);
+    assertThat(federalHoliday2020).isEqualTo(dayIn2020);
+    assertThat(federalHoliday2021).isEqualTo(dayIn2021);
   }
 
   @Test
@@ -90,7 +91,7 @@ class FederalHolidayHelperTests {
   @Test
   void invalidDay() {
     final String invalidFederalHoliday = "";
-    Assertions.assertNull(federalHolidayHelper.timestampOf(invalidFederalHoliday));
-    Assertions.assertNull(federalHolidayHelper.timestampOf(invalidFederalHoliday, 2022));
+    assertThat(federalHolidayHelper.timestampOf(invalidFederalHoliday)).isNull();
+    assertThat(federalHolidayHelper.timestampOf(invalidFederalHoliday, 2022)).isNull();
   }
 }

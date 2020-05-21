@@ -1,8 +1,10 @@
 package shamu.company.common.service;
 
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
 import java.util.ArrayList;
 import java.util.Optional;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -10,7 +12,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import shamu.company.common.entity.StateProvince;
-import shamu.company.common.exception.OldResourceNotFoundException;
+import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.common.repository.StateProvinceRepository;
 
 public class StateProvinceServiceTests {
@@ -29,7 +31,7 @@ public class StateProvinceServiceTests {
   void testFindAllByCountry() {
     Mockito.when(stateProvinceRepository.findAllByCountry(Mockito.any()))
         .thenReturn(new ArrayList<>());
-    Assertions.assertDoesNotThrow(() -> stateProvinceService.findAllByCountry("1"));
+    assertThatCode(() -> stateProvinceService.findAllByCountry("1")).doesNotThrowAnyException();
   }
 
   @Nested
@@ -38,15 +40,15 @@ public class StateProvinceServiceTests {
     void whenIdExists_thenShouldSuccess() {
       final Optional<StateProvince> optional = Optional.of(new StateProvince());
       Mockito.when(stateProvinceRepository.findById(Mockito.anyString())).thenReturn(optional);
-      Assertions.assertDoesNotThrow(() -> stateProvinceService.findById("1"));
+      assertThatCode(() -> stateProvinceService.findById("1")).doesNotThrowAnyException();
     }
 
     @Test
     void whenIdNotExists_thenShouldThrowException() {
       final Optional<StateProvince> optional = Optional.empty();
       Mockito.when(stateProvinceRepository.findById(Mockito.anyString())).thenReturn(optional);
-      Assertions.assertThrows(
-          OldResourceNotFoundException.class, () -> stateProvinceService.findById("1"));
+      assertThatExceptionOfType(ResourceNotFoundException.class)
+          .isThrownBy(() -> stateProvinceService.findById("1"));
     }
   }
 }

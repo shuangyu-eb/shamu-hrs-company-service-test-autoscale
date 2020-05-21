@@ -3,7 +3,7 @@ package shamu.company.timeoff.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import shamu.company.common.exception.OldResourceNotFoundException;
+import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.timeoff.entity.TimeOffPolicy;
 import shamu.company.timeoff.entity.TimeOffPolicyUser;
 import shamu.company.timeoff.repository.TimeOffPolicyUserRepository;
@@ -25,8 +25,10 @@ public class TimeOffPolicyUserService {
         .findById(id)
         .orElseThrow(
             () ->
-                new OldResourceNotFoundException(
-                    "Can not find time off policy user with id " + id));
+                new ResourceNotFoundException(
+                    String.format("Time off policy user with id %s not found!", id),
+                    id,
+                    "time off policy user"));
   }
 
   public boolean existsByUserId(final String userId) {

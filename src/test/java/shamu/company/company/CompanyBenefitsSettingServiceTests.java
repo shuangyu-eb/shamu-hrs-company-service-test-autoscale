@@ -1,6 +1,7 @@
 package shamu.company.company;
 
-import org.junit.jupiter.api.Assertions;
+import static org.assertj.core.api.Assertions.assertThatCode;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -23,12 +24,14 @@ public class CompanyBenefitsSettingServiceTests {
 
   @Test
   void testFindByCompanyId() {
-    Assertions.assertDoesNotThrow(() -> companyBenefitsSettingService.findByCompanyId("1"));
+    assertThatCode(() -> companyBenefitsSettingService.findByCompanyId("1"))
+        .doesNotThrowAnyException();
   }
 
   @Test
   void testSave() {
     final CompanyBenefitsSetting companyBenefitsSetting = new CompanyBenefitsSetting();
-    Assertions.assertDoesNotThrow(() -> companyBenefitsSettingService.save(companyBenefitsSetting));
+    assertThatCode(() -> companyBenefitsSettingService.save(companyBenefitsSetting))
+        .doesNotThrowAnyException();
   }
 }

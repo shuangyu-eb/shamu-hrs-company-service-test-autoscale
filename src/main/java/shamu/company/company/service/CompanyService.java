@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import shamu.company.common.entity.StateProvince;
 import shamu.company.common.exception.ForbiddenException;
-import shamu.company.common.exception.OldResourceNotFoundException;
+import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.common.service.DepartmentService;
 import shamu.company.common.service.OfficeService;
 import shamu.company.common.service.StateProvinceService;
@@ -181,7 +181,12 @@ public class CompanyService {
   public Company findById(final String companyId) {
     return companyRepository
         .findById(companyId)
-        .orElseThrow(() -> new OldResourceNotFoundException("No such Company"));
+        .orElseThrow(
+            () ->
+                new ResourceNotFoundException(
+                    String.format("Company with id %s not found!", companyId),
+                    companyId,
+                    "company"));
   }
 
   public Company save(final Company company) {

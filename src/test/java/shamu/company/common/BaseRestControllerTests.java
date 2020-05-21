@@ -1,8 +1,9 @@
 package shamu.company.common;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.Collections;
 import org.apache.commons.lang.RandomStringUtils;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -48,23 +49,22 @@ class BaseRestControllerTests {
     final BaseRestController baseRestController = PowerMockito.spy(new BaseRestController());
     Whitebox.setInternalState(baseRestController, "authUserCacheManager", mockedCacheManager);
 
-    final AuthUser user = baseRestController.findAuthUser();
-    Assertions.assertNotNull(user);
+    assertThat(baseRestController.findAuthUser()).isNotNull();
   }
 
   @Test
   void testGetCompanyId() {
     final BaseRestController baseRestController = PowerMockito.spy(new BaseRestController());
     Whitebox.setInternalState(baseRestController, "authUserCacheManager", mockedCacheManager);
-    final String companyId = baseRestController.findCompanyId();
-    Assertions.assertNotNull(companyId);
+
+    assertThat(baseRestController.findCompanyId()).isNotNull();
   }
 
   @Test
   void testGetUserId() {
     final BaseRestController baseRestController = PowerMockito.spy(new BaseRestController());
     Whitebox.setInternalState(baseRestController, "authUserCacheManager", mockedCacheManager);
-    final String userId = baseRestController.findUserId();
-    Assertions.assertNotNull(userId);
+
+    assertThat(baseRestController.findUserId()).isNotNull();
   }
 }

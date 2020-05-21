@@ -1,5 +1,8 @@
 package shamu.company.benefit;
 
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
 import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,7 +14,7 @@ import org.mockito.MockitoAnnotations;
 import shamu.company.benefit.entity.BenefitPlanType;
 import shamu.company.benefit.repository.BenefitPlanTypeRepository;
 import shamu.company.benefit.service.BenefitPlanTypeService;
-import shamu.company.common.exception.OldResourceNotFoundException;
+import shamu.company.common.exception.ResourceNotFoundException;
 
 public class BenefitPlanTypeServiceTests {
 
@@ -36,16 +39,16 @@ public class BenefitPlanTypeServiceTests {
     void whenIdExists_thenShouldSuccess() {
       final Optional<BenefitPlanType> optional = Optional.of(new BenefitPlanType());
       Mockito.when(benefitPlanTypeRepository.findById(Mockito.anyString())).thenReturn(optional);
-      Assertions.assertDoesNotThrow(() -> benefitPlanTypeService.findBenefitPlanTypeById("1"));
+      assertThatCode(() -> benefitPlanTypeService.findBenefitPlanTypeById("1"))
+          .doesNotThrowAnyException();
     }
 
     @Test
     void whenIdNotExists_thenShouldThrow() {
       final Optional<BenefitPlanType> optional = Optional.empty();
       Mockito.when(benefitPlanTypeRepository.findById(Mockito.anyString())).thenReturn(optional);
-      Assertions.assertThrows(
-          OldResourceNotFoundException.class,
-          () -> benefitPlanTypeService.findBenefitPlanTypeById("1"));
+      assertThatExceptionOfType(ResourceNotFoundException.class)
+          .isThrownBy(() -> benefitPlanTypeService.findBenefitPlanTypeById("1"));
     }
   }
 }

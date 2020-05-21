@@ -2,7 +2,7 @@ package shamu.company.common.exception;
 
 import shamu.company.common.exception.response.ErrorType;
 
-/** @deprecated this OldResourceNotFoundException should be replaced by ResourceNotFound */
+/** @deprecated this OldResourceNotFoundException should be replaced by ResourceNotFoundException */
 @Deprecated
 public class OldResourceNotFoundException extends AbstractException {
 

@@ -19,7 +19,7 @@ import org.apache.commons.lang.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import shamu.company.common.exception.OldResourceNotFoundException;
+import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.timeoff.dto.TimeOffAdjustmentCheckDto;
 import shamu.company.timeoff.dto.TimeOffBreakdownDto;
 import shamu.company.timeoff.dto.TimeOffBreakdownItemDto;
@@ -268,8 +268,10 @@ public class TimeOffDetailService {
             .findById(policyUserId)
             .orElseThrow(
                 () ->
-                    new OldResourceNotFoundException(
-                        "Time off policy user with id " + policyUserId + " not found!"));
+                    new ResourceNotFoundException(
+                        String.format("Time off policy user with id %s not found!", policyUserId),
+                        policyUserId,
+                        "time off policy user"));
     final TimeOffPolicyAccrualSchedule accrualSchedule =
         timeOffPolicyAccrualScheduleRepository.findByTimeOffPolicy(
             timeOffPolicyUser.getTimeOffPolicy());

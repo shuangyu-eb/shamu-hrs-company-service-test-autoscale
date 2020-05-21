@@ -1,5 +1,9 @@
 package shamu.company.employee;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -8,7 +12,6 @@ import java.util.List;
 import java.util.UUID;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang.RandomStringUtils;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -167,26 +170,29 @@ class EmployeeServiceTests {
 
   @Test
   void testFindByCompanyId() {
-    Assertions.assertDoesNotThrow(() -> employeeService.findByCompanyId("1"));
+    assertThatCode(() -> employeeService.findByCompanyId("1")).doesNotThrowAnyException();
   }
 
   @Test
   void testFindSubordinatesByManagerUserId() {
-    Assertions.assertDoesNotThrow(() -> employeeService.findSubordinatesByManagerUserId("1", "1"));
+    assertThatCode(() -> employeeService.findSubordinatesByManagerUserId("1", "1"))
+        .doesNotThrowAnyException();
   }
 
   @Test
   void testRemoveAuth0User() {
     final Auth0UserCreatedEvent auth0UserCreatedEvent = Mockito.mock(Auth0UserCreatedEvent.class);
     Mockito.when(auth0UserCreatedEvent.getUser()).thenReturn(new com.auth0.json.mgmt.users.User());
-    Assertions.assertDoesNotThrow(() -> employeeService.removeAuth0User(auth0UserCreatedEvent));
+    assertThatCode(() -> employeeService.removeAuth0User(auth0UserCreatedEvent))
+        .doesNotThrowAnyException();
   }
 
   @Test
   void testRestoreUserRole() {
     final UserEmailUpdatedEvent emailUpdatedEvent = Mockito.mock(UserEmailUpdatedEvent.class);
     Mockito.when(userService.findById(Mockito.anyString())).thenReturn(new User());
-    Assertions.assertDoesNotThrow(() -> employeeService.restoreUserRole(emailUpdatedEvent));
+    assertThatCode(() -> employeeService.restoreUserRole(emailUpdatedEvent))
+        .doesNotThrowAnyException();
   }
 
   @Test
@@ -296,9 +302,8 @@ class EmployeeServiceTests {
     void whenNotInPending_thenShouldThrow() {
       final UserStatus userStatus = new UserStatus(Status.ACTIVE.name());
       user.setUserStatus(userStatus);
-
-      Assertions.assertThrows(
-          ForbiddenException.class, () -> employeeService.resendEmail(emailResendDto));
+      assertThatExceptionOfType(ForbiddenException.class)
+          .isThrownBy(() -> employeeService.resendEmail(emailResendDto));
     }
 
     @Test
@@ -306,8 +311,8 @@ class EmployeeServiceTests {
       final String newEmail = "email@example.com";
       emailResendDto.setEmail(newEmail);
       Mockito.when(userService.findByEmailWork(Mockito.anyString())).thenReturn(new User());
-      Assertions.assertThrows(
-          ForbiddenException.class, () -> employeeService.resendEmail(emailResendDto));
+      assertThatExceptionOfType(ForbiddenException.class)
+          .isThrownBy(() -> employeeService.resendEmail(emailResendDto));
     }
 
     @Test
@@ -388,7 +393,7 @@ class EmployeeServiceTests {
     void whenIsCurrentUser_thenReturnEmployeePersonalInformation() {
       final BasicUserPersonalInformationDto personalInformation =
           employeeService.findPersonalMessage(userId, userId);
-      Assertions.assertTrue(personalInformation instanceof EmployeePersonalInformationDto);
+      assertThat(personalInformation).isExactlyInstanceOf(EmployeePersonalInformationDto.class);
     }
 
     @Test
@@ -398,7 +403,7 @@ class EmployeeServiceTests {
       currentUser.setUserRole(admin);
       final BasicUserPersonalInformationDto personalInformation =
           employeeService.findPersonalMessage(targetUserId, userId);
-      Assertions.assertTrue(personalInformation instanceof EmployeePersonalInformationDto);
+      assertThat(personalInformation).isExactlyInstanceOf(EmployeePersonalInformationDto.class);
     }
 
     @Test
@@ -406,7 +411,8 @@ class EmployeeServiceTests {
       targetUser.setManagerUser(currentUser);
       final BasicUserPersonalInformationDto personalInformation =
           employeeService.findPersonalMessage(targetUserId, userId);
-      Assertions.assertTrue(personalInformation instanceof UserPersonalInformationForManagerDto);
+      assertThat(personalInformation)
+          .isExactlyInstanceOf(UserPersonalInformationForManagerDto.class);
     }
 
     @Test
@@ -417,7 +423,7 @@ class EmployeeServiceTests {
 
       final BasicUserPersonalInformationDto personalInformation =
           employeeService.findPersonalMessage(targetUserId, userId);
-      Assertions.assertNotNull(personalInformation);
+      assertThat(personalInformation).isNotNull();
     }
   }
 
@@ -455,7 +461,7 @@ class EmployeeServiceTests {
     void whenIsCurrentUser_thenReturnEmployeeContactInformationInstance() {
       final BasicUserContactInformationDto contactInformation =
           employeeService.findContactMessage(targetUserId, targetUserId);
-      Assertions.assertTrue(contactInformation instanceof EmployeeContactInformationDto);
+      assertThat(contactInformation).isExactlyInstanceOf(EmployeeContactInformationDto.class);
     }
 
     @Test
@@ -463,7 +469,7 @@ class EmployeeServiceTests {
       targetUser.setManagerUser(currentUser);
       final BasicUserContactInformationDto contactInformation =
           employeeService.findContactMessage(targetUserId, userId);
-      Assertions.assertTrue(contactInformation instanceof EmployeeContactInformationDto);
+      assertThat(contactInformation).isExactlyInstanceOf(EmployeeContactInformationDto.class);
     }
 
     @Test
@@ -477,7 +483,7 @@ class EmployeeServiceTests {
       targetUser.setManagerUser(managerUser);
       final BasicUserContactInformationDto contactInformation =
           employeeService.findContactMessage(targetUserId, userId);
-      Assertions.assertTrue(contactInformation instanceof EmployeeContactInformationDto);
+      assertThat(contactInformation).isExactlyInstanceOf(EmployeeContactInformationDto.class);
     }
 
     @Test
@@ -487,7 +493,7 @@ class EmployeeServiceTests {
       targetUser.setManagerUser(managerUser);
       final BasicUserContactInformationDto contactInformation =
           employeeService.findContactMessage(targetUserId, userId);
-      Assertions.assertNotNull(contactInformation);
+      assertThat(contactInformation).isNotNull();
     }
   }
 

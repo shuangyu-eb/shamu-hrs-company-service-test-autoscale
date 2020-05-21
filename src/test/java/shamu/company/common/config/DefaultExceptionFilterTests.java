@@ -1,11 +1,12 @@
 package shamu.company.common.config;
 
+import static org.assertj.core.api.Assertions.assertThatCode;
+
 import java.io.IOException;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -24,7 +25,8 @@ public class DefaultExceptionFilterTests {
     Mockito.doThrow(new EmailException("error"))
         .when(filterChain)
         .doFilter(servletRequest, servletResponse);
-    Assertions.assertDoesNotThrow(
-        () -> defaultExceptionFilter.doFilter(servletRequest, servletResponse, filterChain));
+    assertThatCode(
+            () -> defaultExceptionFilter.doFilter(servletRequest, servletResponse, filterChain))
+        .doesNotThrowAnyException();
   }
 }

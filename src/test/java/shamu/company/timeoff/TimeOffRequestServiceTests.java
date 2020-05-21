@@ -1,5 +1,7 @@
 package shamu.company.timeoff;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
+
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -23,7 +25,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import shamu.company.common.exception.OldResourceNotFoundException;
+import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.helpers.auth0.Auth0Helper;
 import shamu.company.server.dto.AuthUser;
 import shamu.company.timeoff.dto.TimeOffBreakdownDto;
@@ -131,8 +133,8 @@ public class TimeOffRequestServiceTests {
   void whenNull_thenThrow() {
     Mockito.when(timeOffRequestRepository.findById(Mockito.any())).thenReturn(Optional.empty());
 
-    Assertions.assertThrows(
-        OldResourceNotFoundException.class, () -> timeOffRequestService.getById(Mockito.any()));
+    assertThatExceptionOfType(ResourceNotFoundException.class)
+        .isThrownBy(() -> timeOffRequestService.getById(Mockito.any()));
   }
 
   @Test

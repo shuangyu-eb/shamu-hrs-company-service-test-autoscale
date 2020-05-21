@@ -1,8 +1,9 @@
 package shamu.company.authorization;
 
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+
 import java.util.Collections;
 import org.apache.commons.lang.RandomStringUtils;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -55,18 +56,17 @@ class CompanyPermissionUtilTests {
 
     @Test
     void whenIsNotUserType_thenShouldReturnFalse() {
-      final boolean isMember =
-          companyPermissionUtils.isMember(
-              RandomStringUtils.randomAlphabetic(2), RandomStringUtils.randomAlphabetic(2));
-      Assertions.assertFalse(isMember);
+      assertThat(
+              companyPermissionUtils.isMember(
+                  RandomStringUtils.randomAlphabetic(2), RandomStringUtils.randomAlphabetic(2)))
+          .isFalse();
     }
 
     @Test
     void whenCanNotFindUser_thenShouldReturnFalse() {
       Mockito.when(userService.findById(Mockito.anyString())).thenReturn(null);
-      final boolean isMember =
-          companyPermissionUtils.isMember(null, RandomStringUtils.randomAlphabetic(16));
-      Assertions.assertFalse(isMember);
+      assertThat(companyPermissionUtils.isMember(null, RandomStringUtils.randomAlphabetic(16)))
+          .isFalse();
     }
 
     @Nested
@@ -84,17 +84,15 @@ class CompanyPermissionUtilTests {
       @Test
       void whenIsInSameCompany_thenShouldReturnTrue() {
         user.getCompany().setId(authUser.getCompanyId());
-        final boolean isMember =
-            companyPermissionUtils.isMember(RandomStringUtils.randomAlphabetic(16));
-        Assertions.assertTrue(isMember);
+        assertThat(companyPermissionUtils.isMember(RandomStringUtils.randomAlphabetic(16)))
+            .isTrue();
       }
 
       @Test
       void whenIsNotInSameCompany_thenShouldReturnFalse() {
         user.getCompany().setId(RandomStringUtils.randomAlphabetic(16));
-        final boolean isMember =
-            companyPermissionUtils.isMember(RandomStringUtils.randomAlphabetic(16));
-        Assertions.assertFalse(isMember);
+        assertThat(companyPermissionUtils.isMember(RandomStringUtils.randomAlphabetic(16)))
+            .isFalse();
       }
     }
   }

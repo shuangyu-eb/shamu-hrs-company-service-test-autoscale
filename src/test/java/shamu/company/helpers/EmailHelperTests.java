@@ -1,11 +1,13 @@
 package shamu.company.helpers;
 
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
 import com.sendgrid.Response;
 import com.sendgrid.SendGrid;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.Instant;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -44,7 +46,7 @@ class EmailHelperTests {
     void whenEntityStatusFalse_thenShouldThrow() throws IOException {
       final Response response = Mockito.mock(Response.class);
       Mockito.when(sendGrid.api(Mockito.any())).thenReturn(response);
-      Assertions.assertThrows(EmailException.class, () -> emailHelper.send(email));
+      assertThatExceptionOfType(EmailException.class).isThrownBy(() -> emailHelper.send(email));
     }
 
     @Test
@@ -52,18 +54,18 @@ class EmailHelperTests {
       final Response response = new Response();
       response.setStatusCode(HttpStatus.OK.value());
       Mockito.when(sendGrid.api(Mockito.any())).thenReturn(response);
-      Assertions.assertDoesNotThrow(() -> emailHelper.send(email));
+      assertThatCode(() -> emailHelper.send(email)).doesNotThrowAnyException();
     }
 
     @Test
     void whenParamStatusFalse_thenShouldThrow() throws IOException {
       final Response response = Mockito.mock(Response.class);
       Mockito.when(sendGrid.api(Mockito.any())).thenReturn(response);
-      Assertions.assertThrows(
-          EmailException.class,
-          () ->
-              emailHelper.send(
-                  email.getFrom(), email.getTo(), email.getSubject(), email.getContent()));
+      assertThatExceptionOfType(EmailException.class)
+          .isThrownBy(
+              () ->
+                  emailHelper.send(
+                      email.getFrom(), email.getTo(), email.getSubject(), email.getContent()));
     }
 
     @Test
@@ -71,10 +73,11 @@ class EmailHelperTests {
       final Response response = new Response();
       response.setStatusCode(HttpStatus.OK.value());
       Mockito.when(sendGrid.api(Mockito.any())).thenReturn(response);
-      Assertions.assertDoesNotThrow(
-          () ->
-              emailHelper.send(
-                  email.getFrom(), email.getTo(), email.getSubject(), email.getContent()));
+      assertThatCode(
+              () ->
+                  emailHelper.send(
+                      email.getFrom(), email.getTo(), email.getSubject(), email.getContent()))
+          .doesNotThrowAnyException();
     }
   }
 }

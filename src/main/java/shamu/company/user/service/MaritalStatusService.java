@@ -3,7 +3,7 @@ package shamu.company.user.service;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import shamu.company.common.exception.OldResourceNotFoundException;
+import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.user.entity.MaritalStatus;
 import shamu.company.user.repository.MaritalStatusRepository;
 
@@ -20,7 +20,12 @@ public class MaritalStatusService {
   public MaritalStatus findById(final String id) {
     return maritalStatusRepository
         .findById(id)
-        .orElseThrow(() -> new OldResourceNotFoundException("MaritalStatus does not exist"));
+        .orElseThrow(
+            () ->
+                new ResourceNotFoundException(
+                    String.format("MaritalStatus with id %s not found!", id),
+                    id,
+                    "marital status"));
   }
 
   public List<MaritalStatus> findAll() {

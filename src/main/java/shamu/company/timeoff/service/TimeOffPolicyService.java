@@ -25,7 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import shamu.company.common.exception.ForbiddenException;
 import shamu.company.common.exception.GeneralException;
-import shamu.company.common.exception.OldResourceNotFoundException;
+import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.company.entity.Company;
 import shamu.company.company.service.CompanyService;
 import shamu.company.job.entity.JobUser;
@@ -363,14 +363,24 @@ public class TimeOffPolicyService {
   public TimeOffPolicy getTimeOffPolicyById(final String id) {
     return timeOffPolicyRepository
         .findById(id)
-        .orElseThrow(() -> new OldResourceNotFoundException("Time off policy was not found."));
+        .orElseThrow(
+            () ->
+                new ResourceNotFoundException(
+                    String.format("Time off policy with id %s not found!", id),
+                    id,
+                    "time off policy"));
   }
 
   public TimeOffPolicyRelatedInfoDto getTimeOffRelatedInfo(final String policyId) {
     final TimeOffPolicy timeOffPolicy =
         timeOffPolicyRepository
             .findById(policyId)
-            .orElseThrow(() -> new OldResourceNotFoundException("Time off policy not found"));
+            .orElseThrow(
+                () ->
+                    new ResourceNotFoundException(
+                        String.format("Time off policy with id %s not found!", policyId),
+                        policyId,
+                        "time off policy"));
 
     if (!timeOffPolicy.getIsLimited()) {
       return new TimeOffPolicyRelatedInfoDto(timeOffPolicy, null, null);
@@ -605,7 +615,13 @@ public class TimeOffPolicyService {
     final TimeOffPolicyUser timeOffPolicyUser =
         timeOffPolicyUserRepository
             .findById(policyUserId)
-            .orElseThrow(() -> new OldResourceNotFoundException("Time off policy user not found"));
+            .orElseThrow(
+                () ->
+                    new ResourceNotFoundException(
+                        String.format("Time off policy user with id %s not found!", policyUserId),
+                        policyUserId,
+                        "time off policy user"));
+
     final TimeOffBreakdownDto timeOffBreakdownDto =
         timeOffDetailService.getTimeOffBreakdown(policyUserId, null);
     final Integer currentBalance = timeOffBreakdownDto.getBalance();

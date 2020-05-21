@@ -1,8 +1,9 @@
 package shamu.company.user;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
 import java.util.Optional;
 import java.util.UUID;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -12,7 +13,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import shamu.company.common.entity.Country;
 import shamu.company.common.entity.StateProvince;
-import shamu.company.common.exception.OldResourceNotFoundException;
+import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.common.service.CountryService;
 import shamu.company.common.service.StateProvinceService;
 import shamu.company.user.dto.UserAddressDto;
@@ -39,8 +40,8 @@ public class UserAddressServiceTest {
   @Test
   void whenNotFound_thenShouldThrow() {
     Mockito.when(userAddressRepository.findById(Mockito.anyString())).thenReturn(Optional.empty());
-    Assertions.assertThrows(
-        OldResourceNotFoundException.class, () -> userAddressService.findUserAddressById("test"));
+    assertThatExceptionOfType(ResourceNotFoundException.class)
+        .isThrownBy(() -> userAddressService.findUserAddressById("test"));
   }
 
   @Test

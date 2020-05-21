@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shamu.company.common.exception.ForbiddenException;
-import shamu.company.common.exception.OldResourceNotFoundException;
+import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.company.entity.Company;
 import shamu.company.helpers.FederalHolidayHelper;
 import shamu.company.job.dto.JobUserDto;
@@ -310,6 +310,9 @@ public class PaidHolidayService {
   public PaidHoliday getPaidHoliday(final String id) {
     return paidHolidayRepository
         .findById(id)
-        .orElseThrow(() -> new OldResourceNotFoundException("Paid holiday was not found"));
+        .orElseThrow(
+            () ->
+                new ResourceNotFoundException(
+                    "Paid holiday with id %s not found!", "id", "paid holiday"));
   }
 }

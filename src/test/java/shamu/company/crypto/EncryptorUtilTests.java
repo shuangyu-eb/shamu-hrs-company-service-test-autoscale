@@ -1,5 +1,7 @@
 package shamu.company.crypto;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.function.BiConsumer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -62,7 +64,7 @@ class EncryptorUtilTests {
 
     Mockito.verify(encryptor, Mockito.times(1))
         .encrypt(Mockito.any(User.class), Mockito.anyString());
-    Assertions.assertEquals(encryptedSsn, userPersonalInformation.getSsn());
+    assertThat(userPersonalInformation.getSsn()).isEqualTo(encryptedSsn);
   }
 
   @Nested
@@ -85,19 +87,19 @@ class EncryptorUtilTests {
     @Test
     void whenEncryptSsnByUser_thenSetToEncryptSsn() {
       encryptorUtil.encryptSsn(user, toBeEncryptedValue, userPersonalInformation);
-      Assertions.assertEquals(encryptedSsn, userPersonalInformation.getSsn());
+      assertThat(userPersonalInformation.getSsn()).isEqualTo(encryptedSsn);
     }
 
     @Test
     void whenEncryptSsnByUserId_thenSetToEncryptSsn() {
       encryptorUtil.encryptSsn(userId, toBeEncryptedValue, userPersonalInformation);
-      Assertions.assertEquals(encryptedSsn, userPersonalInformation.getSsn());
+      assertThat(userPersonalInformation.getSsn()).isEqualTo(encryptedSsn);
     }
 
     @Test
     void whenEncryptSsnByUserId_paramHasBenefitPlanDependent_thenSetToEncryptSsn() {
       encryptorUtil.encryptSsn(userId, toBeEncryptedValue, benefitPlanDependent);
-      Assertions.assertEquals(encryptedSsn, benefitPlanDependent.getSsn());
+      assertThat(benefitPlanDependent.getSsn()).isEqualTo(encryptedSsn);
     }
   }
 }

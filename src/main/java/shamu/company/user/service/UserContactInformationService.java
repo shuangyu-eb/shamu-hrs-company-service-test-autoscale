@@ -2,7 +2,7 @@ package shamu.company.user.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import shamu.company.common.exception.OldResourceNotFoundException;
+import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.user.entity.UserContactInformation;
 import shamu.company.user.repository.UserContactInformationRepository;
 
@@ -25,7 +25,11 @@ public class UserContactInformationService {
     return userContactInformationRepository
         .findById(id)
         .orElseThrow(
-            () -> new OldResourceNotFoundException("User contact information does not exist"));
+            () ->
+                new ResourceNotFoundException(
+                    String.format("User contact information with id %s not found!", id),
+                    id,
+                    "user contact information"));
   }
 
   public void delete(final UserContactInformation userContactInformation) {

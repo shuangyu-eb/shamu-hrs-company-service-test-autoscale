@@ -1,5 +1,8 @@
 package shamu.company.common;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
 import com.auth0.client.auth.AuthAPI;
 import com.auth0.client.mgmt.ManagementAPI;
 import com.auth0.exception.Auth0Exception;
@@ -11,7 +14,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import org.apache.commons.lang.RandomStringUtils;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -69,8 +71,7 @@ class Auth0MangerTests {
     Mockito.when(mockTokenHolder.getAccessToken())
         .thenReturn(RandomStringUtils.randomAlphabetic(10));
 
-    final ManagementAPI manager = auth0Manager.getManagementApi();
-    Assertions.assertNotNull(manager);
+    assertThat(auth0Manager.getManagementApi()).isNotNull();
   }
 
   @Test
@@ -83,8 +84,7 @@ class Auth0MangerTests {
     Mockito.when(mockTokenHolder.getAccessToken())
         .thenReturn(RandomStringUtils.randomAlphabetic(10));
 
-    final ManagementAPI returnManager = auth0Manager.getManagementApi();
-    Assertions.assertNotNull(returnManager);
+    assertThat(auth0Manager.getManagementApi()).isNotNull();
   }
 
   @Test
@@ -98,7 +98,8 @@ class Auth0MangerTests {
     Mockito.when(mockTokenHolder.getAccessToken())
         .thenReturn(RandomStringUtils.randomAlphabetic(10));
 
-    Assertions.assertThrows(GeneralAuth0Exception.class, () -> auth0Manager.getManagementApi());
+    assertThatExceptionOfType(GeneralAuth0Exception.class)
+        .isThrownBy(() -> auth0Manager.getManagementApi());
   }
 
   @Nested
@@ -118,7 +119,8 @@ class Auth0MangerTests {
       Whitebox.setInternalState(auth0Manager, "tokenHolder", mockTokenHolder);
       Mockito.when(mockTokenHolder.getAccessToken()).thenReturn(token);
 
-      Assertions.assertThrows(GeneralAuth0Exception.class, () -> auth0Manager.getManagementApi());
+      assertThatExceptionOfType(GeneralAuth0Exception.class)
+          .isThrownBy(() -> auth0Manager.getManagementApi());
     }
   }
 }

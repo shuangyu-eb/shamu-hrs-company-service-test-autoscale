@@ -1,9 +1,10 @@
 package shamu.company.email;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -231,7 +232,7 @@ class EmailServiceTests {
     void whenFindWelcomeEmailPreviewContext_thenShouldSuccess() {
       final Context context =
           emailService.findWelcomeEmailPreviewContext(currentUser, welcomeEmailPersonalMessage);
-      Assertions.assertNotNull(context);
+      assertThat(context).isNotNull();
     }
   }
 
@@ -248,7 +249,7 @@ class EmailServiceTests {
     @Test
     void whenGetResetPasswordEmail_thenShouldSuccess() {
       final String result = emailService.getResetPasswordEmail(passwordRestToken, toEmail);
-      Assertions.assertEquals(null, result);
+      assertThat(result).isNull();
     }
   }
 
@@ -264,7 +265,7 @@ class EmailServiceTests {
     @Test
     void whenHandleEmail_thenShouldSuccess() {
       final String token = emailService.handleEmail(user);
-      Assertions.assertNotNull(token);
+      assertThat(token).isNotNull();
     }
   }
 
@@ -347,14 +348,14 @@ class EmailServiceTests {
     void whenGetEncodedEmailAddressWithWrongFormat_thenShouldGetBlank() {
       email = "123$.com";
       final String result = emailService.getEncodedEmailAddress(email);
-      Assertions.assertEquals("", result);
+      assertThat(result).isEqualTo("");
     }
 
     @Test
     void whenGetEncodedEmailAddressWithRightFormat_thenShouldGetDecodedEmailAddress() {
       email = "123@example.com";
       final String result = emailService.getEncodedEmailAddress(email);
-      Assertions.assertNotEquals("", result);
+      assertThat(result).isNotEqualTo("");
     }
   }
 }

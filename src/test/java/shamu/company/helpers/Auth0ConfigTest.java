@@ -1,9 +1,7 @@
 package shamu.company.helpers;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import com.auth0.client.auth.AuthAPI;
 import java.io.UnsupportedEncodingException;
@@ -52,7 +50,8 @@ class Auth0ConfigTest {
     @Test
     void whenConfigParamsIsLack() {
       final Auth0Config auth0Config = new Auth0Config();
-      assertThrows(IllegalArgumentException.class, () -> auth0Config.getAuthApi());
+      assertThatExceptionOfType(IllegalArgumentException.class)
+          .isThrownBy(() -> auth0Config.getAuthApi());
     }
 
     @Test
@@ -68,17 +67,16 @@ class Auth0ConfigTest {
       auth0Config.setAudience("audience");
       auth0Config.setCustomNamespace("customNamespace");
       final AuthAPI authAPI = auth0Config.getAuthApi();
-      assertNotNull(authAPI);
+      assertThat(authAPI).isNotNull();
       final String res = auth0Config.toString();
-      assertNotNull(res);
-      final boolean equal = auth0Config.equals(new Object());
-      assertFalse(equal);
-      assertNotEquals(auth0Config, new Auth0Config());
+      assertThat(res).isNotNull();
+      assertThat(auth0Config.equals(new Object())).isFalse();
+      assertThat(new Auth0Config()).isNotEqualTo(auth0Config);
     }
 
     @Test
     void testBuilder() {
-      String auth0Config =
+      final String auth0Config =
           Auth0Config.builder()
               .clientId("clientId")
               .domain("domain")
@@ -91,7 +89,7 @@ class Auth0ConfigTest {
               .database("database")
               .build()
               .toString();
-      assertNotNull(auth0Config);
+      assertThat(auth0Config).isNotNull();
     }
   }
 }

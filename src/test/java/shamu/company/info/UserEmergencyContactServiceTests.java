@@ -1,5 +1,7 @@
 package shamu.company.info;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -11,7 +13,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import shamu.company.common.entity.StateProvince;
-import shamu.company.common.exception.OldResourceNotFoundException;
+import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.info.dto.UserEmergencyContactDto;
 import shamu.company.info.entity.UserEmergencyContact;
 import shamu.company.info.entity.mapper.UserEmergencyContactMapper;
@@ -155,9 +157,9 @@ public class UserEmergencyContactServiceTests {
       final Optional<UserEmergencyContact> optional = Optional.empty();
       Mockito.when(userEmergencyContactRepository.findById(Mockito.anyString()))
           .thenReturn(optional);
-      Assertions.assertThrows(
-          OldResourceNotFoundException.class,
-          () -> userEmergencyContactService.updateEmergencyContact(userEmergencyContactDto));
+      assertThatExceptionOfType(ResourceNotFoundException.class)
+          .isThrownBy(
+              () -> userEmergencyContactService.updateEmergencyContact(userEmergencyContactDto));
     }
   }
 }

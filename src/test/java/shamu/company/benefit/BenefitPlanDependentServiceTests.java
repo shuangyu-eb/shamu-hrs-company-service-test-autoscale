@@ -1,6 +1,7 @@
 package shamu.company.benefit;
 
-import org.junit.jupiter.api.Assertions;
+import static org.assertj.core.api.Assertions.assertThatCode;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -23,29 +24,32 @@ public class BenefitPlanDependentServiceTests {
 
   @Test
   void testCreateBenefitPlanDependent() {
-    Assertions.assertDoesNotThrow(
-        () -> benefitPlanDependentService.createBenefitPlanDependent(benefitPlanDependent));
+    assertThatCode(
+            () -> benefitPlanDependentService.createBenefitPlanDependent(benefitPlanDependent))
+        .doesNotThrowAnyException();
   }
 
   @Test
   void testGetDependentListsByEmployeeId() {
-    Assertions.assertDoesNotThrow(
-        () -> benefitPlanDependentService.getDependentListsByEmployeeId("1"));
+    assertThatCode(() -> benefitPlanDependentService.getDependentListsByEmployeeId("1"))
+        .doesNotThrowAnyException();
   }
 
   @Test
   void testUpdateDependentContact() {
-    Assertions.assertDoesNotThrow(
-        () -> benefitPlanDependentService.updateDependentContact(benefitPlanDependent));
+    assertThatCode(() -> benefitPlanDependentService.updateDependentContact(benefitPlanDependent))
+        .doesNotThrowAnyException();
   }
 
   @Test
   void testDeleteDependentContact() {
-    Assertions.assertDoesNotThrow(() -> benefitPlanDependentService.deleteDependentContact("1"));
+    assertThatCode(() -> benefitPlanDependentService.deleteDependentContact("1"))
+        .doesNotThrowAnyException();
   }
 
   @Test
   void testFindDependentById() {
-    Assertions.assertDoesNotThrow(() -> benefitPlanDependentService.findDependentById("1"));
+    assertThatCode(() -> benefitPlanDependentService.findDependentById("1"))
+        .doesNotThrowAnyException();
   }
 }

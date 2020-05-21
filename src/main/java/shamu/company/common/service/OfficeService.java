@@ -4,7 +4,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import shamu.company.common.exception.OldResourceNotFoundException;
+import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.common.repository.OfficeRepository;
 import shamu.company.company.entity.Office;
 
@@ -24,8 +24,8 @@ public class OfficeService {
         .findById(id)
         .orElseThrow(
             () ->
-                new OldResourceNotFoundException(
-                    String.format("Office with id %s not found.", id)));
+                new ResourceNotFoundException(
+                    String.format("Office with id %s not found!", id), id, "office"));
   }
 
   public List<Office> findByCompanyId(final String companyId) {

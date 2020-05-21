@@ -1,14 +1,16 @@
 package shamu.company.common.service;
 
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
 import java.util.Optional;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import shamu.company.common.exception.OldResourceNotFoundException;
+import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.common.repository.DepartmentRepository;
 import shamu.company.company.entity.Department;
 
@@ -55,15 +57,15 @@ public class DepartmentServiceTests {
     void whenIdExists_thenShouldSuccess() {
       final Optional<Department> optional = Optional.of(new Department());
       Mockito.when(departmentRepository.findById(Mockito.anyString())).thenReturn(optional);
-      Assertions.assertDoesNotThrow(() -> departmentService.findById("1"));
+      assertThatCode(() -> departmentService.findById("1")).doesNotThrowAnyException();
     }
 
     @Test
     void whenIdNotExists_thenShouldThrowException() {
       final Optional<Department> optional = Optional.empty();
       Mockito.when(departmentRepository.findById(Mockito.anyString())).thenReturn(optional);
-      Assertions.assertThrows(
-          OldResourceNotFoundException.class, () -> departmentService.findById("1"));
+      assertThatExceptionOfType(ResourceNotFoundException.class)
+          .isThrownBy(() -> departmentService.findById("1"));
     }
   }
 }

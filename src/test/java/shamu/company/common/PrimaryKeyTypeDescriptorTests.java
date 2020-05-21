@@ -1,10 +1,11 @@
 package shamu.company.common;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -16,32 +17,33 @@ public class PrimaryKeyTypeDescriptorTests {
 
   @Test
   void testEquals() {
-    Assertions.assertFalse(primaryKeyTypeDescriptor.equals("1", "2"));
+    assertThat(primaryKeyTypeDescriptor.equals("1", "2")).isFalse();
   }
 
   @Test
   void testAssemble() {
-    Assertions.assertNotNull(
-        primaryKeyTypeDescriptor.assemble(
-            new Serializable() {
-              private static final long serialVersionUID = -8043411493710940055L;
+    assertThat(
+            primaryKeyTypeDescriptor.assemble(
+                new Serializable() {
+                  private static final long serialVersionUID = -8043411493710940055L;
 
-              @Override
-              public boolean equals(final Object obj) {
-                return super.equals(obj);
-              }
-            },
-            "1"));
+                  @Override
+                  public boolean equals(final Object obj) {
+                    return super.equals(obj);
+                  }
+                },
+                "1"))
+        .isNotNull();
   }
 
   @Test
   void testDisassemble() {
-    Assertions.assertNotNull(primaryKeyTypeDescriptor.disassemble("1"));
+    assertThat(primaryKeyTypeDescriptor.disassemble("1")).isNotNull();
   }
 
   @Test
   void testReplace() {
-    Assertions.assertNotNull(primaryKeyTypeDescriptor.replace("1", "2", "3"));
+    assertThat(primaryKeyTypeDescriptor.replace("1", "2", "3")).isNotNull();
   }
 
   @Nested
@@ -59,18 +61,20 @@ public class PrimaryKeyTypeDescriptorTests {
     @Test
     void whenStringLengthZero_thenShouldReturnNull() throws SQLException {
       final String[] arr = {};
-      Assertions.assertNull(
-          primaryKeyTypeDescriptor.nullSafeGet(
-              resultSet, arr, sharedSessionContractImplementor, "1"));
+      assertThat(
+              primaryKeyTypeDescriptor.nullSafeGet(
+                  resultSet, arr, sharedSessionContractImplementor, "1"))
+          .isNull();
     }
 
     @Test
     void whenResultSetNull_thenShouldReturnNull() throws SQLException {
       final String[] arr = {"1"};
       Mockito.when(resultSet.getBytes(Mockito.anyString())).thenReturn(null);
-      Assertions.assertNull(
-          primaryKeyTypeDescriptor.nullSafeGet(
-              resultSet, arr, sharedSessionContractImplementor, "1"));
+      assertThat(
+              primaryKeyTypeDescriptor.nullSafeGet(
+                  resultSet, arr, sharedSessionContractImplementor, "1"))
+          .isNull();
     }
   }
 }

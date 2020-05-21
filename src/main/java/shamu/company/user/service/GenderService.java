@@ -3,7 +3,7 @@ package shamu.company.user.service;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import shamu.company.common.exception.OldResourceNotFoundException;
+import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.user.entity.Gender;
 import shamu.company.user.repository.GenderRepository;
 
@@ -20,7 +20,10 @@ public class GenderService {
   public Gender findById(final String id) {
     return genderRepository
         .findById(id)
-        .orElseThrow(() -> new OldResourceNotFoundException("Gender does not exist"));
+        .orElseThrow(
+            () ->
+                new ResourceNotFoundException(
+                    String.format("Gender with id %s not found!", id), id, "gender"));
   }
 
   public List<Gender> findAll() {

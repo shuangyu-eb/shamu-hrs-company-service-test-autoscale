@@ -4,7 +4,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import shamu.company.common.exception.OldResourceNotFoundException;
+import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.job.entity.Job;
 import shamu.company.job.repository.JobRepository;
 
@@ -23,7 +23,9 @@ public class JobService {
     return jobRepository
         .findById(id)
         .orElseThrow(
-            () -> new OldResourceNotFoundException(String.format("Job with id %s not found.", id)));
+            () ->
+                new ResourceNotFoundException(
+                    String.format("Job with id %s not found.", id), id, "job"));
   }
 
   public List<Job> findAllByDepartmentId(final String id) {

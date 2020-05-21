@@ -1,11 +1,12 @@
 package shamu.company.authorization;
 
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang.RandomStringUtils;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -114,13 +115,13 @@ class UserPermissionUtilTests {
       final Name permission = Name.CREATE_DEPARTMENT;
       final Type permissionType = Type.DEPARTMENT;
       initAuthenticationWithPermission(Collections.singletonList(permission.name()));
-      final boolean hasPermission =
-          userPermissionUtils.hasPermission(
-              getAuthentication(),
-              RandomStringUtils.randomAlphabetic(16),
-              permissionType,
-              permission);
-      Assertions.assertTrue(hasPermission);
+      assertThat(
+              userPermissionUtils.hasPermission(
+                  getAuthentication(),
+                  RandomStringUtils.randomAlphabetic(16),
+                  permissionType,
+                  permission))
+          .isTrue();
     }
 
     @Test
@@ -133,13 +134,13 @@ class UserPermissionUtilTests {
 
       final Name permission = Name.CREATE_DEPARTMENT;
       final Type permissionType = Type.DEPARTMENT;
-      final boolean hasPermission =
-          userPermissionUtils.hasPermission(
-              getAuthentication(),
-              RandomStringUtils.randomAlphabetic(16),
-              permissionType,
-              permission);
-      Assertions.assertFalse(hasPermission);
+      assertThat(
+              userPermissionUtils.hasPermission(
+                  getAuthentication(),
+                  RandomStringUtils.randomAlphabetic(16),
+                  permissionType,
+                  permission))
+          .isFalse();
     }
   }
 
@@ -166,10 +167,10 @@ class UserPermissionUtilTests {
       @Test
       void whenNoManager_thenShouldSuccess() {
         Mockito.when(userService.findById(Mockito.anyString())).thenReturn(new User());
-        final boolean hasPermission =
-            userPermissionUtils.hasPermission(
-                getAuthentication(), RandomStringUtils.randomAlphabetic(16), type, permission);
-        Assertions.assertTrue(hasPermission);
+        assertThat(
+                userPermissionUtils.hasPermission(
+                    getAuthentication(), RandomStringUtils.randomAlphabetic(16), type, permission))
+            .isTrue();
       }
 
       @Test
@@ -180,10 +181,10 @@ class UserPermissionUtilTests {
         targetUser.setManagerUser(managerUser);
 
         Mockito.when(userService.findById(Mockito.anyString())).thenReturn(targetUser);
-        final boolean hasPermission =
-            userPermissionUtils.hasPermission(
-                getAuthentication(), RandomStringUtils.randomAlphabetic(16), type, permission);
-        Assertions.assertTrue(hasPermission);
+        assertThat(
+                userPermissionUtils.hasPermission(
+                    getAuthentication(), RandomStringUtils.randomAlphabetic(16), type, permission))
+            .isTrue();
       }
 
       @Test
@@ -195,10 +196,10 @@ class UserPermissionUtilTests {
         authUser.setRole(Role.ADMIN);
 
         Mockito.when(userService.findById(Mockito.anyString())).thenReturn(targetUser);
-        final boolean hasPermission =
-            userPermissionUtils.hasPermission(
-                getAuthentication(), RandomStringUtils.randomAlphabetic(16), type, permission);
-        Assertions.assertTrue(hasPermission);
+        assertThat(
+                userPermissionUtils.hasPermission(
+                    getAuthentication(), RandomStringUtils.randomAlphabetic(16), type, permission))
+            .isTrue();
       }
     }
 
@@ -214,14 +215,13 @@ class UserPermissionUtilTests {
 
         Mockito.when(timeOffRequestService.getById(Mockito.anyString()))
             .thenReturn(mockedTimeOffRequest);
-
-        final boolean hasPermission =
-            userPermissionUtils.hasPermission(
-                getAuthentication(),
-                RandomStringUtils.randomAlphabetic(16),
-                type,
-                Name.MANAGE_SELF_TIME_OFF_REQUEST);
-        Assertions.assertTrue(hasPermission);
+        assertThat(
+                userPermissionUtils.hasPermission(
+                    getAuthentication(),
+                    RandomStringUtils.randomAlphabetic(16),
+                    type,
+                    Name.MANAGE_SELF_TIME_OFF_REQUEST))
+            .isTrue();
       }
     }
   }
@@ -237,13 +237,13 @@ class UserPermissionUtilTests {
       timeOffPolicyUser.setUser(targetUser);
       Mockito.when(timeOffPolicyUserService.findById(Mockito.anyString()))
           .thenReturn(timeOffPolicyUser);
-      final boolean hasPermission =
-          userPermissionUtils.hasPermission(
-              getAuthentication(),
-              RandomStringUtils.randomAlphabetic(16),
-              Type.TIME_OFF_POLICY_USER,
-              Name.MANAGE_SELF_TIME_OFF_REQUEST);
-      Assertions.assertTrue(hasPermission);
+      assertThat(
+              userPermissionUtils.hasPermission(
+                  getAuthentication(),
+                  RandomStringUtils.randomAlphabetic(16),
+                  Type.TIME_OFF_POLICY_USER,
+                  Name.MANAGE_SELF_TIME_OFF_REQUEST))
+          .isTrue();
     }
 
     @Test
@@ -254,13 +254,13 @@ class UserPermissionUtilTests {
       timeOffPolicyUser.setUser(targetUser);
       Mockito.when(timeOffPolicyUserService.findById(Mockito.anyString()))
           .thenReturn(timeOffPolicyUser);
-      final boolean hasPermission =
-          userPermissionUtils.hasPermission(
-              getAuthentication(),
-              RandomStringUtils.randomAlphabetic(16),
-              Type.TIME_OFF_POLICY_USER,
-              Name.MANAGE_SELF_TIME_OFF_REQUEST);
-      Assertions.assertFalse(hasPermission);
+      assertThat(
+              userPermissionUtils.hasPermission(
+                  getAuthentication(),
+                  RandomStringUtils.randomAlphabetic(16),
+                  Type.TIME_OFF_POLICY_USER,
+                  Name.MANAGE_SELF_TIME_OFF_REQUEST))
+          .isFalse();
     }
   }
 
@@ -289,24 +289,24 @@ class UserPermissionUtilTests {
         final User currentUser = new User();
         currentUser.setId(authUser.getId());
         Mockito.when(userService.findById(Mockito.anyString())).thenReturn(currentUser);
-        final boolean hasPermission =
-            userPermissionUtils.hasPermission(
-                getAuthentication(),
-                RandomStringUtils.randomAlphabetic(16),
-                Type.USER,
-                Name.EDIT_SELF);
-        Assertions.assertTrue(hasPermission);
+        assertThat(
+                userPermissionUtils.hasPermission(
+                    getAuthentication(),
+                    RandomStringUtils.randomAlphabetic(16),
+                    Type.USER,
+                    Name.EDIT_SELF))
+            .isTrue();
       }
 
       @Test
       void whenIsNotCurrentUser_thenReturnFalse() {
-        final boolean hasPermission =
-            userPermissionUtils.hasPermission(
-                getAuthentication(),
-                RandomStringUtils.randomAlphabetic(16),
-                Type.USER,
-                Name.EDIT_SELF);
-        Assertions.assertFalse(hasPermission);
+        assertThat(
+                userPermissionUtils.hasPermission(
+                    getAuthentication(),
+                    RandomStringUtils.randomAlphabetic(16),
+                    Type.USER,
+                    Name.EDIT_SELF))
+            .isFalse();
       }
     }
 
@@ -316,24 +316,24 @@ class UserPermissionUtilTests {
       @Test
       void whenHasPermission_thenShouldReturnTrue() {
         initAuthenticationWithPermission(Collections.singletonList(Name.CREATE_USER.name()));
-        final boolean hasPermission =
-            userPermissionUtils.hasPermission(
-                getAuthentication(),
-                RandomStringUtils.randomAlphabetic(16),
-                Type.USER,
-                Name.CREATE_USER);
-        Assertions.assertTrue(hasPermission);
+        assertThat(
+                userPermissionUtils.hasPermission(
+                    getAuthentication(),
+                    RandomStringUtils.randomAlphabetic(16),
+                    Type.USER,
+                    Name.CREATE_USER))
+            .isTrue();
       }
 
       @Test
       void whenNoPermission_thenShouldReturnFalse() {
-        final boolean hasPermission =
-            userPermissionUtils.hasPermission(
-                getAuthentication(),
-                RandomStringUtils.randomAlphabetic(16),
-                Type.USER,
-                Name.CREATE_USER);
-        Assertions.assertFalse(hasPermission);
+        assertThat(
+                userPermissionUtils.hasPermission(
+                    getAuthentication(),
+                    RandomStringUtils.randomAlphabetic(16),
+                    Type.USER,
+                    Name.CREATE_USER))
+            .isFalse();
       }
     }
 
@@ -343,24 +343,24 @@ class UserPermissionUtilTests {
       @Test
       void whenHasPermission_thenShouldReturnTrue() {
         initAuthenticationWithPermission(Collections.singletonList(Name.CREATE_DEPARTMENT.name()));
-        final boolean hasPermission =
-            userPermissionUtils.hasPermission(
-                getAuthentication(),
-                RandomStringUtils.randomAlphabetic(16),
-                Type.USER,
-                Name.CREATE_DEPARTMENT);
-        Assertions.assertTrue(hasPermission);
+        assertThat(
+                userPermissionUtils.hasPermission(
+                    getAuthentication(),
+                    RandomStringUtils.randomAlphabetic(16),
+                    Type.USER,
+                    Name.CREATE_DEPARTMENT))
+            .isTrue();
       }
 
       @Test
       void whenNoPermission_thenShouldReturnFalse() {
-        final boolean hasPermission =
-            userPermissionUtils.hasPermission(
-                getAuthentication(),
-                RandomStringUtils.randomAlphabetic(16),
-                Type.USER,
-                Name.CREATE_DEPARTMENT);
-        Assertions.assertFalse(hasPermission);
+        assertThat(
+                userPermissionUtils.hasPermission(
+                    getAuthentication(),
+                    RandomStringUtils.randomAlphabetic(16),
+                    Type.USER,
+                    Name.CREATE_DEPARTMENT))
+            .isFalse();
       }
     }
 
@@ -375,13 +375,13 @@ class UserPermissionUtilTests {
         initAuthenticationWithPermission(
             Arrays.asList(Name.MANAGE_TEAM_USER.name(), Name.VIEW_USER_EMERGENCY_CONTACT.name()));
 
-        final boolean hasPermission =
-            userPermissionUtils.hasPermission(
-                getAuthentication(),
-                RandomStringUtils.randomAlphabetic(16),
-                Type.USER,
-                Name.VIEW_USER_EMERGENCY_CONTACT);
-        Assertions.assertFalse(hasPermission);
+        assertThat(
+                userPermissionUtils.hasPermission(
+                    getAuthentication(),
+                    RandomStringUtils.randomAlphabetic(16),
+                    Type.USER,
+                    Name.VIEW_USER_EMERGENCY_CONTACT))
+            .isFalse();
       }
 
       @Test
@@ -392,13 +392,13 @@ class UserPermissionUtilTests {
         initAuthenticationWithPermission(
             Collections.singletonList(Name.VIEW_USER_EMERGENCY_CONTACT.name()));
 
-        final boolean hasPermission =
-            userPermissionUtils.hasPermission(
-                getAuthentication(),
-                RandomStringUtils.randomAlphabetic(16),
-                Type.USER,
-                Name.VIEW_USER_EMERGENCY_CONTACT);
-        Assertions.assertTrue(hasPermission);
+        assertThat(
+                userPermissionUtils.hasPermission(
+                    getAuthentication(),
+                    RandomStringUtils.randomAlphabetic(16),
+                    Type.USER,
+                    Name.VIEW_USER_EMERGENCY_CONTACT))
+            .isTrue();
       }
     }
   }
@@ -419,13 +419,13 @@ class UserPermissionUtilTests {
       final Name permission = Name.CREATE_JOB;
       final Type permissionType = Type.JOB_TITLE;
       initAuthenticationWithPermission(Collections.singletonList(permission.name()));
-      final boolean hasPermission =
-          userPermissionUtils.hasPermission(
-              getAuthentication(),
-              RandomStringUtils.randomAlphabetic(16),
-              permissionType,
-              permission);
-      Assertions.assertTrue(hasPermission);
+      assertThat(
+              userPermissionUtils.hasPermission(
+                  getAuthentication(),
+                  RandomStringUtils.randomAlphabetic(16),
+                  permissionType,
+                  permission))
+          .isTrue();
     }
 
     @Test
@@ -440,13 +440,13 @@ class UserPermissionUtilTests {
       Mockito.when(companyService.findDepartmentsById(Mockito.anyString())).thenReturn(department);
       final Name permission = Name.CREATE_JOB;
       final Type permissionType = Type.JOB_TITLE;
-      final boolean hasPermission =
-          userPermissionUtils.hasPermission(
-              getAuthentication(),
-              RandomStringUtils.randomAlphabetic(16),
-              permissionType,
-              permission);
-      Assertions.assertFalse(hasPermission);
+      assertThat(
+              userPermissionUtils.hasPermission(
+                  getAuthentication(),
+                  RandomStringUtils.randomAlphabetic(16),
+                  permissionType,
+                  permission))
+          .isFalse();
     }
   }
 
@@ -466,13 +466,13 @@ class UserPermissionUtilTests {
       final Name permission = Name.VIEW_USER_EMERGENCY_CONTACT;
       final Type permissionType = Type.USER_EMERGENCY_CONTACT;
       initAuthenticationWithPermission(Collections.singletonList(permission.name()));
-      final boolean hasPermission =
-          userPermissionUtils.hasPermission(
-              getAuthentication(),
-              RandomStringUtils.randomAlphabetic(16),
-              permissionType,
-              permission);
-      Assertions.assertTrue(hasPermission);
+      assertThat(
+              userPermissionUtils.hasPermission(
+                  getAuthentication(),
+                  RandomStringUtils.randomAlphabetic(16),
+                  permissionType,
+                  permission))
+          .isTrue();
     }
 
     @Test
@@ -487,13 +487,13 @@ class UserPermissionUtilTests {
 
       final Name permission = Name.VIEW_USER_EMERGENCY_CONTACT;
       final Type permissionType = Type.USER_EMERGENCY_CONTACT;
-      final boolean hasPermission =
-          userPermissionUtils.hasPermission(
-              getAuthentication(),
-              RandomStringUtils.randomAlphabetic(16),
-              permissionType,
-              permission);
-      Assertions.assertFalse(hasPermission);
+      assertThat(
+              userPermissionUtils.hasPermission(
+                  getAuthentication(),
+                  RandomStringUtils.randomAlphabetic(16),
+                  permissionType,
+                  permission))
+          .isFalse();
     }
   }
 
@@ -513,13 +513,14 @@ class UserPermissionUtilTests {
 
     @Test
     void whenCompanyHolidayIsNull_thenShouldReturnFalse() {
-      final boolean hasPermission =
-          userPermissionUtils.hasPermission(
-              getAuthentication(),
-              RandomStringUtils.randomAlphabetic(16),
-              permissionType,
-              permission);
-      Assertions.assertFalse(hasPermission);
+
+      assertThat(
+              userPermissionUtils.hasPermission(
+                  getAuthentication(),
+                  RandomStringUtils.randomAlphabetic(16),
+                  permissionType,
+                  permission))
+          .isFalse();
     }
 
     @Test
@@ -532,13 +533,13 @@ class UserPermissionUtilTests {
                   Mockito.anyString(), Mockito.anyString()))
           .thenReturn(companyPaidHoliday);
       initAuthenticationWithPermission(Collections.singletonList(permission.name()));
-      final boolean hasPermission =
-          userPermissionUtils.hasPermission(
-              getAuthentication(),
-              RandomStringUtils.randomAlphabetic(16),
-              permissionType,
-              permission);
-      Assertions.assertTrue(hasPermission);
+      assertThat(
+              userPermissionUtils.hasPermission(
+                  getAuthentication(),
+                  RandomStringUtils.randomAlphabetic(16),
+                  permissionType,
+                  permission))
+          .isTrue();
     }
 
     @Test
@@ -555,13 +556,13 @@ class UserPermissionUtilTests {
                   Mockito.anyString(), Mockito.anyString()))
           .thenReturn(companyPaidHoliday);
       initAuthenticationWithPermission(Collections.singletonList(permission.name()));
-      final boolean hasPermission =
-          userPermissionUtils.hasPermission(
-              getAuthentication(),
-              RandomStringUtils.randomAlphabetic(16),
-              permissionType,
-              permission);
-      Assertions.assertFalse(hasPermission);
+      assertThat(
+              userPermissionUtils.hasPermission(
+                  getAuthentication(),
+                  RandomStringUtils.randomAlphabetic(16),
+                  permissionType,
+                  permission))
+          .isFalse();
     }
 
     @Test
@@ -573,13 +574,13 @@ class UserPermissionUtilTests {
               companyPaidHolidayService.findCompanyPaidHolidayByPaidHolidayIdAndCompanyId(
                   Mockito.anyString(), Mockito.anyString()))
           .thenReturn(companyPaidHoliday);
-      final boolean hasPermission =
-          userPermissionUtils.hasPermission(
-              getAuthentication(),
-              RandomStringUtils.randomAlphabetic(16),
-              permissionType,
-              permission);
-      Assertions.assertFalse(hasPermission);
+      assertThat(
+              userPermissionUtils.hasPermission(
+                  getAuthentication(),
+                  RandomStringUtils.randomAlphabetic(16),
+                  permissionType,
+                  permission))
+          .isFalse();
     }
   }
 
@@ -588,15 +589,13 @@ class UserPermissionUtilTests {
 
     @Test
     void whenIsCurrentUserId_thenReturnTrue() {
-      final boolean isCurrentUser = userPermissionUtils.isCurrentUserId(authUser.getId());
-      Assertions.assertTrue(isCurrentUser);
+      assertThat(userPermissionUtils.isCurrentUserId(authUser.getId())).isTrue();
     }
 
     @Test
     void whenIsNotCurrentUserId_thenReturnFalse() {
-      final boolean isCurrentUser =
-          userPermissionUtils.isCurrentUserId(RandomStringUtils.randomAlphabetic(16));
-      Assertions.assertFalse(isCurrentUser);
+      assertThat(userPermissionUtils.isCurrentUserId(RandomStringUtils.randomAlphabetic(16)))
+          .isFalse();
     }
   }
 
@@ -605,14 +604,12 @@ class UserPermissionUtilTests {
 
     @Test
     void whenIsCurrentUserEmail_thenReturnTrue() {
-      final boolean isCurrentUser = userPermissionUtils.isCurrentUserEmail(authUser.getEmail());
-      Assertions.assertTrue(isCurrentUser);
+      assertThat(userPermissionUtils.isCurrentUserEmail(authUser.getEmail())).isTrue();
     }
 
     @Test
     void whenIsNotCurrentUserEmail_thenReturnFalse() {
-      final boolean isCurrentUser = userPermissionUtils.isCurrentUserEmail("exampleb@gmail.com");
-      Assertions.assertFalse(isCurrentUser);
+      assertThat(userPermissionUtils.isCurrentUserEmail("exampleb@gmail.com")).isFalse();
     }
   }
 
@@ -626,15 +623,13 @@ class UserPermissionUtilTests {
 
     @Test
     void whenHasAuthority_thenReturnTrue() {
-      final boolean hasAuthority = userPermissionUtils.hasAuthority(Name.CREATE_DEPARTMENT.name());
-      Assertions.assertTrue(hasAuthority);
+      assertThat(userPermissionUtils.hasAuthority(Name.CREATE_DEPARTMENT.name())).isTrue();
     }
 
     @Test
     void whenNoAuthority_thenReturnFalse() {
-      final boolean hasAuthority =
-          userPermissionUtils.hasAuthority(Name.VIEW_USER_EMERGENCY_CONTACT.name());
-      Assertions.assertFalse(hasAuthority);
+      assertThat(userPermissionUtils.hasAuthority(Name.VIEW_USER_EMERGENCY_CONTACT.name()))
+          .isFalse();
     }
   }
 }
