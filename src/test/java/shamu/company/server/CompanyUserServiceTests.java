@@ -1,5 +1,7 @@
 package shamu.company.server;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -20,22 +22,22 @@ import shamu.company.employee.dto.EmployeeListSearchCondition;
 import shamu.company.server.dto.AuthUser;
 import shamu.company.server.dto.CompanyDto;
 import shamu.company.server.dto.CompanyDtoProjection;
+import shamu.company.server.dto.CompanyUser;
 import shamu.company.server.service.CompanyUserService;
+import shamu.company.user.entity.User;
+import shamu.company.user.entity.UserContactInformation;
+import shamu.company.user.entity.UserPersonalInformation;
 import shamu.company.user.service.UserService;
 
 class CompanyUserServiceTests {
 
-  @Mock
-  private CompanyService companyService;
+  @Mock private CompanyService companyService;
 
-  @Mock
-  private UserService userService;
+  @Mock private UserService userService;
 
-  @Mock
-  private PermissionUtils permissionUtils;
+  @Mock private PermissionUtils permissionUtils;
 
-  @InjectMocks
-  private CompanyUserService companyUserService;
+  @InjectMocks private CompanyUserService companyUserService;
 
   @BeforeEach
   void init() {
@@ -90,18 +92,17 @@ class CompanyUserServiceTests {
   @Test
   void testFindCompanyDtoByUserId() {
     final String userId = RandomStringUtils.randomAlphabetic(16);
-    final CompanyDtoProjection companyDto =
-        new CompanyDtoProjection() {
-          @Override
-          public String getId() {
-            return userId;
-          }
+    final CompanyDtoProjection companyDto = new CompanyDtoProjection() {
+      @Override
+      public String getId() {
+        return userId;
+      }
 
-          @Override
-          public String getName() {
-            return null;
-          }
-        };
+      @Override
+      public String getName() {
+        return null;
+      }
+    };
     Mockito.when(companyService.findCompanyDtoByUserId(userId)).thenReturn(companyDto);
 
     final CompanyDtoProjection result = companyUserService.findCompanyDtoByUserId(userId);
@@ -122,5 +123,22 @@ class CompanyUserServiceTests {
     final List<CompanyDto> result = companyUserService.findCompaniesByIds(parameterIds);
     Assertions.assertFalse(result.isEmpty());
     Assertions.assertEquals(companyId, result.get(0).getId());
+  }
+
+  @Test
+  void testFindSuperUser() {
+    final String companyId = RandomStringUtils.randomAlphabetic(16);
+    final User user = new User();
+    user.setId(RandomStringUtils.randomAlphabetic(16));
+    user.setUserPersonalInformation(new UserPersonalInformation());
+    user.getUserPersonalInformation().setFirstName("first");
+    user.getUserPersonalInformation().setLastName("last");
+    user.setUserContactInformation(new UserContactInformation());
+    user.getUserContactInformation().setEmailWork("email@example.com");
+
+    Mockito.when(userService.findSuperUser(companyId)).thenReturn(user);
+
+    final CompanyUser resultUser = companyUserService.findSuperUser(companyId);
+    assertThat(resultUser.getId()).isEqualTo(user.getId());
   }
 }

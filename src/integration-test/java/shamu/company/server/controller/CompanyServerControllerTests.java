@@ -9,10 +9,6 @@ import java.util.Collections;
 import java.util.List;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.jupiter.api.Assertions;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.BDDMockito.given;
-
-import java.util.ArrayList;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +27,7 @@ import shamu.company.job.entity.JobUserListItem;
 import shamu.company.server.CompanyServerController;
 import shamu.company.server.dto.CompanyDto;
 import shamu.company.server.dto.CompanyDtoProjection;
+import shamu.company.server.dto.CompanyUser;
 import shamu.company.server.dto.DocumentRequestEmailDto;
 import shamu.company.tests.utils.JwtUtil;
 import shamu.company.user.entity.User;
@@ -41,17 +38,16 @@ import shamu.company.utils.JsonUtil;
 
 @WebMvcTest(controllers = CompanyServerController.class)
 public class CompanyServerControllerTests extends WebControllerBaseTests {
+
   @Autowired private MockMvc mockMvc;
 
   @Test
   void testFindCurrentUser() throws Exception {
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
-    final MvcResult response =
-        mockMvc
-            .perform(
-                MockMvcRequestBuilders.get("/server/company/users/current").headers(httpHeaders))
-            .andReturn();
+    final MvcResult response = mockMvc
+        .perform(MockMvcRequestBuilders.get("/server/company/users/current").headers(httpHeaders))
+        .andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
 
@@ -60,11 +56,9 @@ public class CompanyServerControllerTests extends WebControllerBaseTests {
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
     given(companyUserService.findAllById(Mockito.anyList())).willReturn(new ArrayList<>());
-    final MvcResult response =
-        mockMvc
-            .perform(
-                MockMvcRequestBuilders.get("/server/company/users/id?ids=[1]").headers(httpHeaders))
-            .andReturn();
+    final MvcResult response = mockMvc.perform(
+        MockMvcRequestBuilders.get("/server/company/users/id?ids=[1]").headers(httpHeaders))
+        .andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
 
@@ -83,11 +77,9 @@ public class CompanyServerControllerTests extends WebControllerBaseTests {
     user.setImageUrl("x");
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
     given(companyUserService.findUserById(Mockito.anyString())).willReturn(user);
-    final MvcResult response =
-        mockMvc
-            .perform(
-                MockMvcRequestBuilders.get("/server/company/user/id?id=1").headers(httpHeaders))
-            .andReturn();
+    final MvcResult response = mockMvc
+        .perform(MockMvcRequestBuilders.get("/server/company/user/id?id=1").headers(httpHeaders))
+        .andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
 
@@ -96,10 +88,9 @@ public class CompanyServerControllerTests extends WebControllerBaseTests {
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
     given(companyUserService.findAllUsers(Mockito.anyString())).willReturn(new ArrayList<>());
-    final MvcResult response =
-        mockMvc
-            .perform(MockMvcRequestBuilders.get("/server/company/users").headers(httpHeaders))
-            .andReturn();
+    final MvcResult response = mockMvc
+        .perform(MockMvcRequestBuilders.get("/server/company/users").headers(httpHeaders))
+        .andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
 
@@ -108,33 +99,24 @@ public class CompanyServerControllerTests extends WebControllerBaseTests {
     final HttpHeaders httpHeaders = new HttpHeaders();
     final DocumentRequestEmailDto documentRequestEmailDto = new DocumentRequestEmailDto();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
-    final MvcResult response =
-        mockMvc
-            .perform(
-                MockMvcRequestBuilders.post("/server/company/emails")
-                    .headers(httpHeaders)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(JsonUtil.formatToString(documentRequestEmailDto)))
-            .andReturn();
+    final MvcResult response = mockMvc.perform(
+        MockMvcRequestBuilders.post("/server/company/emails").headers(httpHeaders)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(JsonUtil.formatToString(documentRequestEmailDto))).andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
 
   @Test
   void testFindAllEmployeesByName() throws Exception {
     final HttpHeaders httpHeaders = new HttpHeaders();
-    final EmployeeListSearchCondition employeeListSearchCondition =
-        new EmployeeListSearchCondition();
+    final EmployeeListSearchCondition employeeListSearchCondition = new EmployeeListSearchCondition();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
     given(companyUserService.findAllEmployees(Mockito.any(), Mockito.any()))
         .willReturn(new PageImpl<JobUserListItem>(new ArrayList<>()));
-    final MvcResult response =
-        mockMvc
-            .perform(
-                MockMvcRequestBuilders.get("/server/company/employees")
-                    .headers(httpHeaders)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(JsonUtil.formatToString(employeeListSearchCondition)))
-            .andReturn();
+    final MvcResult response = mockMvc.perform(
+        MockMvcRequestBuilders.get("/server/company/employees").headers(httpHeaders)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(JsonUtil.formatToString(employeeListSearchCondition))).andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
 
@@ -155,17 +137,16 @@ public class CompanyServerControllerTests extends WebControllerBaseTests {
     user.setUserRole(role);
     user.setCompany(company);
     given(companyUserService.findUserByUserId(Mockito.anyString())).willReturn(user);
-    final MvcResult response =
-        mockMvc
-            .perform(MockMvcRequestBuilders.get("/server/company/user/1").headers(httpHeaders))
-            .andReturn();
+    final MvcResult response = mockMvc
+        .perform(MockMvcRequestBuilders.get("/server/company/user/1").headers(httpHeaders))
+        .andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
 
   @Test
   void testFindCompaniesByIds() throws Exception {
-    final CompanyDto mockCompany =
-        CompanyDto.builder().id(RandomStringUtils.randomAlphabetic(16)).build();
+    final CompanyDto mockCompany = CompanyDto.builder().id(RandomStringUtils.randomAlphabetic(16))
+        .build();
     final List<CompanyDto> companyDtos = Collections.singletonList(mockCompany);
     Mockito.when(companyUserService.findCompaniesByIds(Mockito.any())).thenReturn(companyDtos);
 
@@ -174,18 +155,15 @@ public class CompanyServerControllerTests extends WebControllerBaseTests {
 
     final List<String> ids = new ArrayList<>();
     ids.add(RandomStringUtils.randomAlphabetic(16));
-    final MvcResult response =
-        mockMvc
-            .perform(
-                MockMvcRequestBuilders.get("/server/company/companies")
-                    .headers(httpHeaders)
-                    .param("ids", JsonUtil.formatToString(ids))
-                    .contentType(MediaType.APPLICATION_JSON))
-            .andReturn();
+    final MvcResult response = mockMvc.perform(
+        MockMvcRequestBuilders.get("/server/company/companies").headers(httpHeaders)
+            .param("ids", JsonUtil.formatToString(ids)).contentType(MediaType.APPLICATION_JSON))
+        .andReturn();
 
     final String responseString = response.getResponse().getContentAsString();
-    final List<CompanyDto> resultCompanyDtos =
-        JsonUtil.deserializeType(responseString, new TypeReference<List<CompanyDto>>() {});
+    final List<CompanyDto> resultCompanyDtos = JsonUtil
+        .deserializeType(responseString, new TypeReference<List<CompanyDto>>() {
+        });
     Assertions.assertFalse(resultCompanyDtos.isEmpty());
     Assertions.assertEquals(resultCompanyDtos.get(0).getId(), mockCompany.getId());
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
@@ -195,34 +173,49 @@ public class CompanyServerControllerTests extends WebControllerBaseTests {
   void testFindCompanyByUserId() throws Exception {
     final String userId = RandomStringUtils.randomAlphabetic(16);
 
-    final CompanyDtoProjection companyDtoProjection =
-        new CompanyDtoProjection() {
-          @Override
-          public String getId() {
-            return userId;
-          }
+    final CompanyDtoProjection companyDtoProjection = new CompanyDtoProjection() {
+      @Override
+      public String getId() {
+        return userId;
+      }
 
-          @Override
-          public String getName() {
-            return null;
-          }
-        };
+      @Override
+      public String getName() {
+        return null;
+      }
+    };
 
     Mockito.when(companyUserService.findCompanyDtoByUserId(userId))
         .thenReturn(companyDtoProjection);
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
-    final MvcResult response =
-        mockMvc
-            .perform(
-                MockMvcRequestBuilders.get("/server/company/users/" + userId + "/company")
-                    .headers(httpHeaders))
-            .andReturn();
+    final MvcResult response = mockMvc.perform(
+        MockMvcRequestBuilders.get("/server/company/users/" + userId + "/company")
+            .headers(httpHeaders)).andReturn();
 
     final String responseString = response.getResponse().getContentAsString();
     final CompanyDto companyDto = JsonUtil.deserialize(responseString, CompanyDto.class);
     Assertions.assertNotNull(companyDto);
     Assertions.assertEquals(userId, companyDto.getId());
     Assertions.assertEquals(HttpStatus.OK.value(), response.getResponse().getStatus());
+  }
+
+  @Test
+  void testFindSuperUser() throws Exception {
+
+    final CompanyUser companyUser = new CompanyUser();
+    companyUser.setId(RandomStringUtils.randomAlphabetic(16));
+    Mockito.when(companyUserService.findSuperUser(Mockito.any())).thenReturn(companyUser);
+
+    final HttpHeaders httpHeaders = new HttpHeaders();
+    httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+
+    final MvcResult response = mockMvc
+        .perform(MockMvcRequestBuilders.get("/server/company/users/super").headers(httpHeaders))
+        .andReturn();
+
+    final CompanyUser user = JsonUtil
+        .deserialize(response.getResponse().getContentAsString(), CompanyUser.class);
+    assertThat(user.getId()).isEqualTo(companyUser.getId());
   }
 }

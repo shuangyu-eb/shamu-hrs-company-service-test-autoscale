@@ -14,6 +14,7 @@ import shamu.company.job.entity.JobUserListItem;
 import shamu.company.server.dto.AuthUser;
 import shamu.company.server.dto.CompanyDto;
 import shamu.company.server.dto.CompanyDtoProjection;
+import shamu.company.server.dto.CompanyUser;
 import shamu.company.user.entity.User;
 import shamu.company.user.service.UserService;
 
@@ -27,9 +28,7 @@ public class CompanyUserService {
   private final PermissionUtils permissionUtils;
 
   @Autowired
-  public CompanyUserService(
-      final CompanyService companyService,
-      final UserService userService,
+  public CompanyUserService(final CompanyService companyService, final UserService userService,
       final PermissionUtils permissionUtils) {
     this.companyService = companyService;
     this.userService = userService;
@@ -49,8 +48,8 @@ public class CompanyUserService {
     return userService.findAllByCompanyId(company.getId());
   }
 
-  public Page<JobUserListItem> findAllEmployees(
-      final AuthUser user, final EmployeeListSearchCondition employeeListSearchCondition) {
+  public Page<JobUserListItem> findAllEmployees(final AuthUser user,
+      final EmployeeListSearchCondition employeeListSearchCondition) {
     if (permissionUtils.hasAuthority(Permission.Name.VIEW_DISABLED_USER.name())) {
       employeeListSearchCondition.setIncludeDeactivated(true);
     }
@@ -70,5 +69,10 @@ public class CompanyUserService {
     return companies.stream()
         .map(company -> CompanyDto.builder().id(company.getId()).name(company.getName()).build())
         .collect(Collectors.toList());
+  }
+
+  public CompanyUser findSuperUser(final String companyId) {
+    final User user = userService.findSuperUser(companyId);
+    return new CompanyUser(user);
   }
 }

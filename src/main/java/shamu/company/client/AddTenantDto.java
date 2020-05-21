@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import shamu.company.server.dto.CompanyUser;
 
 @Getter
 @Setter
@@ -12,7 +13,7 @@ import lombok.Setter;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class AddTenantDto {
 
-  private PactsafeUserDto user;
+  private CompanyUser user;
 
   private PactsafeCompanyDto company;
 }
