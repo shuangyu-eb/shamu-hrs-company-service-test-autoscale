@@ -1,5 +1,6 @@
 package shamu.company.timeoff.dto;
 
+import java.sql.Timestamp;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -26,4 +27,6 @@ public class TimeOffPolicyRelatedUserDto {
   private String department;
 
   private String employmentType;
+
+  private Timestamp startDate;
 }

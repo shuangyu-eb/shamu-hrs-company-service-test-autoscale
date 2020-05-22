@@ -23,7 +23,6 @@ import shamu.company.timeoff.dto.TimeOffPolicyRelatedInfoDto;
 import shamu.company.timeoff.dto.TimeOffPolicyRelatedUserListDto;
 import shamu.company.timeoff.dto.TimeOffPolicyRelatedUserListOnMobileDto;
 import shamu.company.timeoff.dto.TimeOffPolicyUserDto;
-import shamu.company.timeoff.dto.TimeOffPolicyUserFrontendDto;
 import shamu.company.timeoff.dto.TimeOffPolicyWrapperDto;
 import shamu.company.timeoff.service.TimeOffDetailService;
 import shamu.company.timeoff.service.TimeOffPolicyService;
@@ -78,9 +77,7 @@ public class TimeOffPolicyRestController extends BaseRestController {
   public ResponseEntity updateTimeOffPolicyEmployeesInfo(
       @PathVariable final String policyId,
       @RequestBody final TimeOffPolicyWrapperDto timeOffPolicyWrapperDto) {
-    final List<TimeOffPolicyUserFrontendDto> timeOffPolicyUserFrontendDtos =
-        timeOffPolicyWrapperDto.getUserStartBalances();
-    timeOffPolicyService.updateTimeOffPolicyUserInfo(timeOffPolicyUserFrontendDtos, policyId);
+    timeOffPolicyService.updateTimeOffPolicyUserInfo(timeOffPolicyWrapperDto, policyId);
     return new ResponseEntity(HttpStatus.OK);
   }
 

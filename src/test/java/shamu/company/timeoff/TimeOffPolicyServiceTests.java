@@ -1,5 +1,6 @@
 package shamu.company.timeoff;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -357,17 +358,40 @@ public class TimeOffPolicyServiceTests {
     timeOffPolicyUser.setUser(new User("1"));
     oldUsersStartBalanceList.add(timeOffPolicyUser);
     final List<TimeOffPolicyUserFrontendDto> userStatBalances = new ArrayList<>();
-    final TimeOffPolicyUserFrontendDto timeOffPolicyUserFrontendDto =
-        new TimeOffPolicyUserFrontendDto();
-    timeOffPolicyUserFrontendDto.setUserId("1");
-    userStatBalances.add(timeOffPolicyUserFrontendDto);
+    final TimeOffPolicyWrapperDto timeOffPolicyWrapperDto = new TimeOffPolicyWrapperDto();
+    timeOffPolicyWrapperDto.setUserStartBalances(userStatBalances);
+    final TimeOffPolicy timeOffPolicy = new TimeOffPolicy();
+    timeOffPolicy.setIsLimited(false);
 
     Mockito.when(timeOffPolicyUserRepository.findAllByTimeOffPolicyId(Mockito.any()))
         .thenReturn(oldUsersStartBalanceList);
     Mockito.when(timeOffPolicyUserRepository.saveAll(Mockito.any()))
         .thenReturn(oldUsersStartBalanceList);
+    Mockito.when(timeOffPolicyRepository.findById(Mockito.any()))
+        .thenReturn(Optional.of(timeOffPolicy));
     Assertions.assertDoesNotThrow(
-        () -> timeOffPolicyService.updateTimeOffPolicyUserInfo(userStatBalances, "1"));
+        () -> timeOffPolicyService.updateTimeOffPolicyUserInfo(timeOffPolicyWrapperDto, "1"));
+  }
+
+  @Test
+  void whenPolicyIsLimitedAndEmployeeHasNoHireDate_shouldThrow() {
+    final TimeOffPolicyUser timeOffPolicyUser = new TimeOffPolicyUser();
+    timeOffPolicyUser.setUser(new User("1"));
+    final List<TimeOffPolicyUserFrontendDto> userStatBalances = new ArrayList<>();
+    final TimeOffPolicyUserFrontendDto timeOffPolicyUserFrontendDto =
+        new TimeOffPolicyUserFrontendDto();
+    timeOffPolicyUserFrontendDto.setUserId("1");
+    userStatBalances.add(timeOffPolicyUserFrontendDto);
+    final TimeOffPolicyWrapperDto timeOffPolicyWrapperDto = new TimeOffPolicyWrapperDto();
+    timeOffPolicyWrapperDto.setUserStartBalances(userStatBalances);
+    final TimeOffPolicy timeOffPolicy = new TimeOffPolicy();
+    timeOffPolicy.setIsLimited(true);
+
+    Mockito.when(timeOffPolicyRepository.findById(Mockito.any()))
+        .thenReturn(Optional.of(timeOffPolicy));
+    Assertions.assertThrows(
+        ForbiddenException.class,
+        () -> timeOffPolicyService.updateTimeOffPolicyUserInfo(timeOffPolicyWrapperDto, "1"));
   }
 
   @Test
@@ -624,11 +648,13 @@ public class TimeOffPolicyServiceTests {
 
       infoWrapper = new TimeOffPolicyWrapperDto();
       timeOffPolicyFrontendDto = new TimeOffPolicyFrontendDto();
+      timeOffPolicyFrontendDto.setIsLimited(true);
       infoWrapper.setTimeOffPolicy(timeOffPolicyFrontendDto);
 
       timeOffPolicyUserFrontendDtoList = new ArrayList<>();
       timeOffPolicyUserFrontendDto = new TimeOffPolicyUserFrontendDto();
       timeOffPolicyUserFrontendDto.setUserId("1");
+      timeOffPolicyUserFrontendDto.setStartDate(new Timestamp(46545465));
 
       infoWrapper.setUserStartBalances(timeOffPolicyUserFrontendDtoList);
       infoWrapper.setTimeOffPolicyAccrualSchedule(new TimeOffPolicyAccrualScheduleDto());
@@ -685,6 +711,7 @@ public class TimeOffPolicyServiceTests {
 
       accrualScheduleMilestoneDto = new AccrualScheduleMilestoneDto();
       accrualScheduleMilestoneDto.setName("007");
+
       accrualScheduleMilestoneDtoList.add(accrualScheduleMilestoneDto);
 
       Mockito.when(timeOffPolicyRepository.findById(Mockito.any()))

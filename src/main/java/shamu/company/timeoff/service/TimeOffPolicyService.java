@@ -493,9 +493,7 @@ public class TimeOffPolicyService {
       updateTimeOffPolicySchedule(origin, infoWrapper.getTimeOffPolicyAccrualSchedule());
     }
 
-    final List<TimeOffPolicyUserFrontendDto> timeOffPolicyUserFrontendDtos =
-        infoWrapper.getUserStartBalances();
-    updateTimeOffPolicyUserInfo(timeOffPolicyUserFrontendDtos, id);
+    updateTimeOffPolicyUserInfo(infoWrapper, id);
   }
 
   private void updateTimeOffPolicy(final TimeOffPolicy timeOffPolicy) {
@@ -713,9 +711,20 @@ public class TimeOffPolicyService {
   }
 
   public void updateTimeOffPolicyUserInfo(
-      final List<TimeOffPolicyUserFrontendDto> userStatBalances, final String timeOffPolicyId) {
+      final TimeOffPolicyWrapperDto timeOffPolicyWrapperDto, final String timeOffPolicyId) {
+    final List<TimeOffPolicyUserFrontendDto> userStartBalances =
+        timeOffPolicyWrapperDto.getUserStartBalances();
+    if (Boolean.TRUE.equals(getTimeOffPolicyById(timeOffPolicyId).getIsLimited())) {
+      userStartBalances.forEach(
+          userStatBalance -> {
+            if (userStatBalance.getStartDate() == null) {
+              throw new ForbiddenException(
+                  "Employees without hire date can't be added to this policy.");
+            }
+          });
+    }
     final List<String> newUserIds =
-        userStatBalances.stream()
+        userStartBalances.stream()
             .map(TimeOffPolicyUserFrontendDto::getUserId)
             .collect(Collectors.toList());
     final List<TimeOffPolicyUser> oldUsersStartBalanceList =
@@ -729,7 +738,7 @@ public class TimeOffPolicyService {
           if (newUserIds.contains(oldUsersStartBalance.getUser().getId())) {
             // update
             final Optional<TimeOffPolicyUserFrontendDto> updateUserStartBalance =
-                userStatBalances.stream()
+                userStartBalances.stream()
                     .filter(u -> u.getUserId().equals(oldUsersStartBalance.getUser().getId()))
                     .findFirst();
             if (updateUserStartBalance.isPresent()) {
@@ -744,7 +753,7 @@ public class TimeOffPolicyService {
         });
     // add new user
     final List<TimeOffPolicyUser> timeOffPolicyUsers =
-        userStatBalances.stream()
+        userStartBalances.stream()
             .filter(user -> !oldUserIds.contains(user.getUserId()))
             .map(
                 statBalance ->

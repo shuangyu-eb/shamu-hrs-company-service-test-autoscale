@@ -21,6 +21,7 @@ import shamu.company.authorization.Permission.Name;
 import shamu.company.company.entity.Company;
 import shamu.company.tests.utils.JwtUtil;
 import shamu.company.timeoff.dto.TimeOffBreakdownDto;
+import shamu.company.timeoff.dto.TimeOffPolicyFrontendDto;
 import shamu.company.timeoff.dto.TimeOffPolicyUserFrontendDto;
 import shamu.company.timeoff.dto.TimeOffPolicyWrapperDto;
 import shamu.company.timeoff.entity.TimeOffPolicy;
@@ -61,7 +62,8 @@ class TimeOffPolicyRestControllerTests extends WebControllerBaseTests {
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
     final List<TimeOffPolicyUserFrontendDto> userStartBalances = new ArrayList<>();
-    final TimeOffPolicyUserFrontendDto timeOffPolicyUserFrontendDto = new TimeOffPolicyUserFrontendDto();
+    final TimeOffPolicyUserFrontendDto timeOffPolicyUserFrontendDto =
+        new TimeOffPolicyUserFrontendDto();
     timeOffPolicyUserFrontendDto.setUserId("1");
     userStartBalances.add(timeOffPolicyUserFrontendDto);
     final TimeOffPolicyWrapperDto timeOffPolicyWrapperDto = new TimeOffPolicyWrapperDto();
@@ -92,11 +94,15 @@ class TimeOffPolicyRestControllerTests extends WebControllerBaseTests {
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
     final List<TimeOffPolicyUserFrontendDto> userStartBalances = new ArrayList<>();
-    final TimeOffPolicyUserFrontendDto timeOffPolicyUserFrontendDto = new TimeOffPolicyUserFrontendDto();
+    final TimeOffPolicyUserFrontendDto timeOffPolicyUserFrontendDto =
+        new TimeOffPolicyUserFrontendDto();
     timeOffPolicyUserFrontendDto.setUserId("1");
     userStartBalances.add(timeOffPolicyUserFrontendDto);
     final TimeOffPolicyWrapperDto timeOffPolicyWrapperDto = new TimeOffPolicyWrapperDto();
     timeOffPolicyWrapperDto.setUserStartBalances(userStartBalances);
+    final TimeOffPolicyFrontendDto timeOffPolicyFrontendDto = new TimeOffPolicyFrontendDto();
+    timeOffPolicyFrontendDto.setIsLimited(true);
+    timeOffPolicyWrapperDto.setTimeOffPolicy(timeOffPolicyFrontendDto);
 
     final User targetUser = new User();
     targetUser.setCompany(new Company(getAuthUser().getCompanyId()));

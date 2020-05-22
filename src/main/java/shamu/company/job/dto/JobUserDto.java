@@ -1,5 +1,6 @@
 package shamu.company.job.dto;
 
+import java.sql.Timestamp;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import shamu.company.job.entity.Job;
@@ -34,28 +35,31 @@ public class JobUserDto {
 
   private String employmentType;
 
+  private Timestamp startDate;
+
   public JobUserDto(final User user, final JobUser userWithJob) {
-    this.setId(user.getId());
+    setId(user.getId());
     if (user.getUserPersonalInformation() != null) {
-      this.setFirstName(user.getUserPersonalInformation().getFirstName());
-      this.setLastName(user.getUserPersonalInformation().getLastName());
-      this.setPreferredName(user.getUserPersonalInformation().getPreferredName());
+      setFirstName(user.getUserPersonalInformation().getFirstName());
+      setLastName(user.getUserPersonalInformation().getLastName());
+      setPreferredName(user.getUserPersonalInformation().getPreferredName());
     }
 
     if (user.getUserContactInformation() != null) {
-      this.setPhoneNumber(user.getUserContactInformation().getPhoneWork());
-      this.setEmail(user.getUserContactInformation().getEmailWork());
+      setPhoneNumber(user.getUserContactInformation().getPhoneWork());
+      setEmail(user.getUserContactInformation().getEmailWork());
     }
 
-    this.setImageUrl(user.getImageUrl());
+    setImageUrl(user.getImageUrl());
     if (userWithJob != null) {
       final Job job = userWithJob.getJob();
-      this.setJobTitle(job.getTitle());
-      this.setDepartment(job.getDepartment().getName());
-      this.employmentType =
+      setJobTitle(job.getTitle());
+      setDepartment(job.getDepartment().getName());
+      employmentType =
           userWithJob.getEmploymentType() == null
               ? null
               : userWithJob.getEmploymentType().getName();
+      setStartDate(userWithJob.getStartDate());
     }
   }
 }
