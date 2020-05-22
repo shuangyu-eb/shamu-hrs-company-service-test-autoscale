@@ -279,7 +279,7 @@ class TimeOffDetailServiceTests {
               timeOffRequestDateRepository.getTimeOffRequestDatesByTimeOffRequestId(Mockito.any()))
           .thenReturn(dates);
       final String result =
-          timeOffDetailService.getTimeOffRequestDatesAbstract(timeOffRequest.getId());
+          timeOffDetailService.getTimeOffRequestDatesPreview(timeOffRequest.getId());
       final String expectedTimeOffRange =
           "Oct 10, Nov 30 - Dec 1, 31, "
               + lastYear
@@ -308,7 +308,7 @@ class TimeOffDetailServiceTests {
               timeOffRequestDateRepository.getTimeOffRequestDatesByTimeOffRequestId(Mockito.any()))
           .thenReturn(dates);
       final String result =
-          timeOffDetailService.getTimeOffRequestDatesAbstract(timeOffRequest.getId());
+          timeOffDetailService.getTimeOffRequestDatesPreview(timeOffRequest.getId());
       final String expectedTimeOffRange =
           "Nov 15, 22, " + currentYear + ", Jul 8, 10, Aug 7, " + nextYear;
       Assertions.assertEquals(expectedTimeOffRange, result);
@@ -335,7 +335,7 @@ class TimeOffDetailServiceTests {
               timeOffRequestDateRepository.getTimeOffRequestDatesByTimeOffRequestId(Mockito.any()))
           .thenReturn(dates);
       final String result =
-          timeOffDetailService.getTimeOffRequestDatesAbstract(timeOffRequest.getId());
+          timeOffDetailService.getTimeOffRequestDatesPreview(timeOffRequest.getId());
       final String expectedTimeOffRange =
           "Dec 2 - 4, 20, 27, " + currentYear + ", Aug 4 - 6, 19, 21, " + nextYear;
       Assertions.assertEquals(expectedTimeOffRange, result);

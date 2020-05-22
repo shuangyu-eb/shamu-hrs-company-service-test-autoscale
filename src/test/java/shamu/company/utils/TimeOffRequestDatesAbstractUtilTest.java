@@ -22,7 +22,7 @@ class TimeOffRequestDatesAbstractUtilTest {
   }
 
   private String getAbstract(List<LocalDate> dates) {
-    return TimeOffRequestDatesAbstractUtil.generateTimeOffRequestDatesAbstract(dates);
+    return TimeOffRequestDatesPreviewUtils.generateTimeOffRequestDatesPreview(dates);
   }
 
   private void assertAbstract(List<LocalDate> dates, String expect) {

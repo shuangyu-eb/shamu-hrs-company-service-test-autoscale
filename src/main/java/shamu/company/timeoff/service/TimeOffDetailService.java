@@ -39,7 +39,7 @@ import shamu.company.timeoff.repository.TimeOffPolicyUserRepository;
 import shamu.company.timeoff.repository.TimeOffRequestDateRepository;
 import shamu.company.user.entity.User;
 import shamu.company.utils.DateUtil;
-import shamu.company.utils.TimeOffRequestDatesAbstractUtil;
+import shamu.company.utils.TimeOffRequestDatesPreviewUtils;
 
 @Service
 public class TimeOffDetailService {
@@ -186,7 +186,7 @@ public class TimeOffDetailService {
       final List<TimeOffBreakdownItemDto> breakdownItemList,
       final TimeOffBreakdownItemDto timeOffBreakdownItemDto,
       final String timeOffRequestId) {
-    final String dateMessage = getTimeOffRequestDatesAbstract(timeOffRequestId);
+    final String dateMessage = getTimeOffRequestDatesPreview(timeOffRequestId);
 
     timeOffBreakdownItemDto.setDateMessage(dateMessage);
     timeOffBreakdownItemDto.setDetail("Time Off Taken");
@@ -195,13 +195,13 @@ public class TimeOffDetailService {
     breakdownItemList.add(timeOffBreakdownItemDto);
   }
 
-  public String getTimeOffRequestDatesAbstract(final String timeOffRequestId) {
+  public String getTimeOffRequestDatesPreview(final String timeOffRequestId) {
     final List<LocalDate> timeOffDates =
         timeOffRequestDateRepository.getTimeOffRequestDatesByTimeOffRequestId(timeOffRequestId)
             .stream()
             .map(DateUtil::fromTimestamp)
             .collect(Collectors.toList());
-    return TimeOffRequestDatesAbstractUtil.generateTimeOffRequestDatesAbstract(timeOffDates);
+    return TimeOffRequestDatesPreviewUtils.generateTimeOffRequestDatesPreview(timeOffDates);
   }
 
   private List<TimeOffBreakdownItemDto> getBreakdownListFromRequestOff(

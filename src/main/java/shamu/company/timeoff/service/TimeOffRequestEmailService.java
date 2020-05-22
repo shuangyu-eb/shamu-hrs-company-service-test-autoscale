@@ -238,7 +238,7 @@ public class TimeOffRequestEmailService {
 
     variables.put("frontEndAddress", applicationConfig.getFrontEndAddress());
     variables.put(
-        "timeRange", timeOffDetailService.getTimeOffRequestDatesAbstract(timeOffRequest.getId()));
+        "timeRange", timeOffDetailService.getTimeOffRequestDatesPreview(timeOffRequest.getId()));
     variables.put("status", timeOffRequest.getApprovalStatus().name());
     variables.put("type", timeOffRequest.getTimeOffPolicy().getName());
     variables.put("hours", timeOffRequest.getHours());
