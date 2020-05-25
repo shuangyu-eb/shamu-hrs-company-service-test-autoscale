@@ -1,5 +1,6 @@
 package shamu.company.employee.dto;
 
+import java.math.BigInteger;
 import java.sql.Timestamp;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -16,7 +17,7 @@ public class NewEmployeeJobInformationDto {
 
   private String reportsTo;
 
-  private Double compensation;
+  private BigInteger compensation;
 
   private String compensationFrequencyId;
 

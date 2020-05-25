@@ -1,5 +1,6 @@
 package shamu.company.employee.dto;
 
+import java.math.BigInteger;
 import java.sql.Timestamp;
 import lombok.Data;
 import shamu.company.user.entity.CompensationType;
@@ -8,7 +9,7 @@ import shamu.company.user.entity.UserCompensation;
 @Data
 public class UserCompensationDto {
 
-  private Double wage;
+  private BigInteger wage;
 
   private Timestamp startDate;
 
@@ -19,7 +20,7 @@ public class UserCompensationDto {
   private String comment;
 
   public UserCompensationDto(UserCompensation userCompensation) {
-    this.wage = userCompensation.getWage();
+    this.wage = userCompensation.getWageCents();
     this.comment = userCompensation.getComment();
     this.compensationType = userCompensation.getCompensationType();
     this.overtimeStatus = userCompensation.getOvertimeStatus();

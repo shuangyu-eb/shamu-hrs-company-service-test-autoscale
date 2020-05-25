@@ -708,3 +708,10 @@ databaseChangeLog:
             file: db/changelog/data/static_timezones.csv
             primaryKey: id
             tableName: static_timezones
+
+  - changeSet:
+      id: 1590389087000-1
+      author: michael-eb
+      changes:
+        - sql:
+            sql: alter table user_compensations change column effective_date start_date datetime;

@@ -13,11 +13,12 @@ import shamu.company.user.entity.UserCompensation;
 public interface UserCompensationMapper {
 
   @Mapping(target = "id", source = "userCompensationId")
-  @Mapping(target = "wage", source = "compensationWage")
+  @Mapping(target = "wageCents", source = "compensationWage")
   @Mapping(target = "compensationFrequency", source = "compensationFrequencyId")
   void updateFromJobUpdateDto(
       @MappingTarget UserCompensation userCompensation, JobUpdateDto jobUpdateDto);
 
+  @Mapping(target = "wage", source = "wageCents")
   CompensationDto convertToCompensationDto(UserCompensation userCompensation);
 
   default CompensationFrequency convertToCompensationFrequency(final String id) {

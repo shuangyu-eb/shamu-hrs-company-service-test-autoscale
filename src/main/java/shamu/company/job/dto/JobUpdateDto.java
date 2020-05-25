@@ -1,6 +1,7 @@
 package shamu.company.job.dto;
 
 import java.io.Serializable;
+import java.math.BigInteger;
 import java.sql.Timestamp;
 import lombok.Data;
 
@@ -12,7 +13,7 @@ public class JobUpdateDto implements Serializable {
 
   private String userCompensationId;
 
-  private Double compensationWage;
+  private BigInteger compensationWage;
 
   private String compensationFrequencyId;
 

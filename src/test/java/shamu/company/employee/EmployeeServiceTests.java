@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
+import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -781,7 +782,7 @@ class EmployeeServiceTests {
     @Test
     void whenCompensationAndFrequencyIdIsNotNull_thenShouldSuccess() throws Exception {
       jobInformation.setEmploymentTypeId("a");
-      jobInformation.setCompensation(1.8);
+      jobInformation.setCompensation(BigInteger.valueOf(1));
       jobInformation.setCompensationFrequencyId("a");
       Mockito.when(userCompensationService.save(Mockito.any())).thenReturn(userCompensation);
       Whitebox.invokeMethod(

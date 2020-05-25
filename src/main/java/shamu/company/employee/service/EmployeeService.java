@@ -450,7 +450,7 @@ public class EmployeeService {
     UserCompensation userCompensation = new UserCompensation();
     if (jobInformation.getCompensation() != null
         && jobInformation.getCompensationFrequencyId() != null) {
-      userCompensation.setWage(jobInformation.getCompensation());
+      userCompensation.setWageCents(jobInformation.getCompensation());
       final String compensationFrequencyId = jobInformation.getCompensationFrequencyId();
       final CompensationFrequency compensationFrequency =
           compensationFrequencyService.findById(compensationFrequencyId);

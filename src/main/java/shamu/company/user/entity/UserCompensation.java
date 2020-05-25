@@ -1,5 +1,6 @@
 package shamu.company.user.entity;
 
+import java.math.BigInteger;
 import java.sql.Timestamp;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -10,6 +11,7 @@ import javax.validation.constraints.Max;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Type;
+import shamu.company.attendance.entity.Currencies;
 import shamu.company.common.entity.BaseEntity;
 import shamu.company.job.entity.CompensationFrequency;
 
@@ -22,7 +24,7 @@ public class UserCompensation extends BaseEntity {
   private static final int MAX_WAGE = 2147483647;
 
   @Max(MAX_WAGE)
-  private Double wage;
+  private BigInteger wageCents;
 
   private Timestamp startDate;
 
@@ -41,4 +43,6 @@ public class UserCompensation extends BaseEntity {
   @ManyToOne private CompensationFrequency compensationFrequency;
 
   private String comment;
+
+  @OneToOne private Currencies currency;
 }
