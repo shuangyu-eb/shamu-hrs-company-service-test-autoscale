@@ -649,6 +649,13 @@ databaseChangeLog:
   - changeSet:
       id: 1589963373000-24
       author: michael-eb
+      changes:
+        - sql:
+            sql: set sql_mode='';
+
+  - changeSet:
+      id: 1589963373000-25
+      author: michael-eb
       runOnChange: true
       changes:
         - loadUpdateData:
@@ -661,7 +668,7 @@ databaseChangeLog:
             tableName: static_company_pay_frequency_types
 
   - changeSet:
-      id: 1589963373000-25
+      id: 1589963373000-26
       author: michael-eb
       runOnChange: true
       changes:
@@ -675,7 +682,7 @@ databaseChangeLog:
             tableName: static_employees_ta_time_types
 
   - changeSet:
-      id: 1589963373000-26
+      id: 1589963373000-27
       author: michael-eb
       runOnChange: true
       changes:
@@ -689,7 +696,7 @@ databaseChangeLog:
             tableName: static_timesheet_status
 
   - changeSet:
-      id: 1589963373000-27
+      id: 1589963373000-28
       author: michael-eb
       runOnChange: true
       changes:
