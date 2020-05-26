@@ -14,8 +14,8 @@ import shamu.company.user.entity.UserAddress;
 @Mapper(config = Config.class)
 public interface UserAddressMapper {
 
-  @Mapping(target = "countryName", source = "country.name")
-  @Mapping(target = "countryId", source = "country.id")
+  @Mapping(target = "countryName", source = "stateProvince.country.name")
+  @Mapping(target = "countryId", source = "stateProvince.country.id")
   @Mapping(target = "stateId", source = "stateProvince.id")
   @Mapping(target = "stateName", source = "stateProvince.name")
   @Mapping(target = "userId", source = "user.id")

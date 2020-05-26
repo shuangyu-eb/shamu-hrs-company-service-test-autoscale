@@ -23,13 +23,13 @@ public interface UserEmergencyContactMapper {
   @Mapping(target = "userId", source = "user.id")
   @Mapping(target = "stateId", source = "state.id")
   @Mapping(target = "stateName", source = "state.name")
-  @Mapping(target = "country", source = "country.id")
+  @Mapping(target = "countryId", source = "country.id")
   @Mapping(target = "countryName", source = "country.name")
   UserEmergencyContactDto convertToUserEmergencyContactDto(
       UserEmergencyContact userEmergencyContact);
 
   @Mapping(target = "state", source = "stateId")
-  @Mapping(target = "country", source = "country")
+  @Mapping(target = "country", source = "countryId")
   @Mapping(target = "user", source = "userId")
   @Mapping(target = "id", source = "id")
   UserEmergencyContact createFromUserEmergencyContactDto(

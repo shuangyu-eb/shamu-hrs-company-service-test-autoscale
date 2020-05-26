@@ -422,7 +422,7 @@ class JobUserServiceTests {
       officeCreateDto.setStateId("1");
       officeCreateDto.setStreet1("s1");
       officeCreateDto.setStreet2("s2");
-      officeCreateDto.setZip("zip");
+      officeCreateDto.setPostalCode("postalCode");
       jobSelectOptionUpdateDto.setOfficeCreateDto(officeCreateDto);
 
       final OfficeAddress officeAddress =

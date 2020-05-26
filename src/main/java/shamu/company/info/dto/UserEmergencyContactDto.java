@@ -22,7 +22,7 @@ public class UserEmergencyContactDto extends BasicUserEmergencyContactDto {
 
   private String postalCode;
 
-  private String country;
+  private String countryId;
 
   private String countryName;
 
@@ -36,13 +36,15 @@ public class UserEmergencyContactDto extends BasicUserEmergencyContactDto {
     stateName =
         userEmergencyContact.getState() == null ? null : userEmergencyContact.getState().getName();
     postalCode = userEmergencyContact.getPostalCode();
-    country =
-        userEmergencyContact.getCountry() == null
+    countryId =
+        userEmergencyContact.getState() == null
+            || userEmergencyContact.getState().getCountry() == null
             ? null
-            : userEmergencyContact.getCountry().getId();
+            : userEmergencyContact.getState().getCountry().getId();
     countryName =
-        userEmergencyContact.getCountry() == null
+        userEmergencyContact.getState() == null
+            || userEmergencyContact.getState().getCountry() == null
             ? null
-            : userEmergencyContact.getCountry().getName();
+            : userEmergencyContact.getState().getCountry().getName();
   }
 }

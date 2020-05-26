@@ -21,7 +21,9 @@ public class OfficeCreateDto {
 
   private String stateId;
 
-  private String zip;
+  private String postalCode;
+
+  private String countryId;
 
   @JsonIgnore
   public Office getOffice() {
@@ -33,7 +35,7 @@ public class OfficeCreateDto {
     final OfficeAddress officeAddress = new OfficeAddress();
     BeanUtils.copyProperties(this, officeAddress);
     officeAddress.setStateProvince(stateProvince);
-    officeAddress.setPostalCode(zip);
+    officeAddress.setPostalCode(postalCode);
 
     final Office office = new Office();
     office.setName(officeName);

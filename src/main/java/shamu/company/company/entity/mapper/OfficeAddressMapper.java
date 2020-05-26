@@ -11,11 +11,13 @@ import shamu.company.company.entity.OfficeAddress;
 @Mapper(config = Config.class, uses = StateProvinceMapper.class)
 public interface OfficeAddressMapper {
 
-  @Mapping(target = "zip", source = "postalCode")
+  @Mapping(target = "stateId", source = "stateProvince.id")
+  @Mapping(target = "stateName", source = "stateProvince.name")
+  @Mapping(target = "countryId", source = "stateProvince.country.id")
+  @Mapping(target = "countryName", source = "stateProvince.country.name")
   OfficeAddressDto convertToOfficeAddressDto(OfficeAddress officeAddress);
 
   @Mapping(target = "stateProvince", source = "stateId")
-  @Mapping(target = "postalCode", source = "zip")
   OfficeAddress updateFromOfficeCreateDto(
       @MappingTarget OfficeAddress officeAddress, OfficeCreateDto officeCreateDto);
 }

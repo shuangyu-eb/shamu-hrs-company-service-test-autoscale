@@ -13,7 +13,11 @@ public class OfficeAddressDto {
 
   private String postalCode;
 
-  private StateProvinceDto stateProvince;
+  private String stateId;
 
-  private String zip;
+  private String stateName;
+
+  private String countryId;
+
+  private String countryName;
 }

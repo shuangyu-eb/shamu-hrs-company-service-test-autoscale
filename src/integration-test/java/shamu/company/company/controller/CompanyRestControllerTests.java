@@ -141,7 +141,7 @@ public class CompanyRestControllerTests extends WebControllerBaseTests {
     officeCreateDto.setCity("city");
     officeCreateDto.setOfficeName("officeName");
     officeCreateDto.setStreet1("street1");
-    officeCreateDto.setZip("zip");
+    officeCreateDto.setPostalCode("postalCode");
 
     setPermission(Permission.Name.CREATE_OFFICE.name());
     final HttpHeaders httpHeaders = new HttpHeaders();
