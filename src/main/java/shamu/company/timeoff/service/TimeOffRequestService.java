@@ -20,6 +20,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import shamu.company.common.exception.ForbiddenException;
 import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.helpers.auth0.Auth0Helper;
 import shamu.company.server.dto.AuthUser;
@@ -335,7 +336,22 @@ public class TimeOffRequestService {
 
   @Transactional
   public void deleteUnimplementedRequest(final String requestId) {
-    timeOffRequestRepository.delete(requestId);
+    final TimeOffRequest timeOffRequest = findByRequestId(requestId);
+    if (isRequestCanbeDeleted(timeOffRequest)) {
+      timeOffRequestRepository.delete(timeOffRequest);
+    } else {
+      throw new ForbiddenException("The request cannot be deleted.");
+    }
+  }
+
+  private boolean isRequestCanbeDeleted(final TimeOffRequest timeOffRequest) {
+    final String status = timeOffRequest.getTimeOffRequestApprovalStatus().getName();
+    final Timestamp startDate = timeOffRequest.getStartDay();
+    final Timestamp now = DateUtil.getToday();
+
+    return AWAITING_REVIEW.name().equals(status)
+        || DENIED.name().equals(status)
+        || (APPROVED.name().equals(status) && now.getTime() <= startDate.getTime());
   }
 
   public TimeOffRequestDetailDto findTimeOffRequestDetail(

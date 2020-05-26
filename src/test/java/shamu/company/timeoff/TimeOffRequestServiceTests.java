@@ -1,6 +1,8 @@
 package shamu.company.timeoff;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -25,6 +27,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import shamu.company.common.exception.ForbiddenException;
 import shamu.company.common.exception.ResourceNotFoundException;
 import shamu.company.helpers.auth0.Auth0Helper;
 import shamu.company.server.dto.AuthUser;
@@ -219,9 +222,107 @@ public class TimeOffRequestServiceTests {
         updateDto.getStatus().name());
   }
 
-  @Test
-  void deleteUnimplementedRequest() {
-    Assertions.assertDoesNotThrow(() -> timeOffRequestService.deleteUnimplementedRequest("1"));
+  @Nested
+  class DeleteUnimplementedRequest {
+    TimeOffRequest timeOffRequest;
+
+    @BeforeEach
+    void init() {
+      timeOffRequest = new TimeOffRequest();
+      Mockito.when(timeOffRequestService.findByRequestId(Mockito.anyString()))
+          .thenReturn(timeOffRequest);
+    }
+
+    @Test
+    void whenStatusIsApprove_DateIsExpired_thenShouldFailed() {
+      final TimeOffRequestApprovalStatus status = new TimeOffRequestApprovalStatus();
+      status.setName(TimeOffApprovalStatus.APPROVED.name());
+      timeOffRequest.setTimeOffRequestApprovalStatus(status);
+
+      final Set<TimeOffRequestDate> dates = new HashSet<>();
+      final TimeOffRequestDate date = new TimeOffRequestDate();
+      date.setDate(Timestamp.valueOf(LocalDateTime.now().minusMonths(1)));
+      dates.add(date);
+
+      timeOffRequest.setTimeOffRequestDates(dates);
+
+      Mockito.when(timeOffRequestService.findByRequestId(Mockito.anyString()))
+          .thenReturn(timeOffRequest);
+
+      assertThatThrownBy(
+              () -> timeOffRequestService.deleteUnimplementedRequest(Mockito.anyString()))
+          .isInstanceOf(ForbiddenException.class);
+    }
+
+    @Test
+    void whenStatusIsApprove_DateIsNotExpired_thenShouldSuccess() {
+      final TimeOffRequestApprovalStatus status = new TimeOffRequestApprovalStatus();
+      status.setName(TimeOffApprovalStatus.APPROVED.name());
+      timeOffRequest.setTimeOffRequestApprovalStatus(status);
+
+      final Set<TimeOffRequestDate> dates = new HashSet<>();
+      final TimeOffRequestDate date = new TimeOffRequestDate();
+      date.setDate(Timestamp.valueOf(LocalDateTime.now().plusMonths(1)));
+      dates.add(date);
+
+      timeOffRequest.setTimeOffRequestDates(dates);
+
+      Mockito.when(timeOffRequestService.findByRequestId(Mockito.anyString()))
+          .thenReturn(timeOffRequest);
+
+      assertThatCode(() -> timeOffRequestService.deleteUnimplementedRequest(Mockito.anyString()))
+          .doesNotThrowAnyException();
+    }
+
+    @Test
+    void whenStatusIsDenied_thenShouldSuccess() {
+      final TimeOffRequestApprovalStatus status = new TimeOffRequestApprovalStatus();
+      status.setName(TimeOffApprovalStatus.DENIED.name());
+      timeOffRequest.setTimeOffRequestApprovalStatus(status);
+      Mockito.when(timeOffRequestService.findByRequestId(Mockito.anyString()))
+          .thenReturn(timeOffRequest);
+
+      assertThatCode(() -> timeOffRequestService.deleteUnimplementedRequest(Mockito.anyString()))
+          .doesNotThrowAnyException();
+    }
+
+    @Test
+    void whenStatusIsAwaitingReview_thenShouldSuccess() {
+      final TimeOffRequestApprovalStatus status = new TimeOffRequestApprovalStatus();
+      status.setName(TimeOffApprovalStatus.AWAITING_REVIEW.name());
+      timeOffRequest.setTimeOffRequestApprovalStatus(status);
+      Mockito.when(timeOffRequestService.findByRequestId(Mockito.anyString()))
+          .thenReturn(timeOffRequest);
+
+      assertThatCode(() -> timeOffRequestService.deleteUnimplementedRequest(Mockito.anyString()))
+          .doesNotThrowAnyException();
+    }
+
+    @Test
+    void whenStatusIsViewed_thenShouldFailed() {
+      final TimeOffRequestApprovalStatus status = new TimeOffRequestApprovalStatus();
+      status.setName(TimeOffApprovalStatus.VIEWED.name());
+      timeOffRequest.setTimeOffRequestApprovalStatus(status);
+      Mockito.when(timeOffRequestService.findByRequestId(Mockito.anyString()))
+          .thenReturn(timeOffRequest);
+
+      assertThatThrownBy(
+              () -> timeOffRequestService.deleteUnimplementedRequest(Mockito.anyString()))
+          .isInstanceOf(ForbiddenException.class);
+    }
+
+    @Test
+    void whenStatusIsNoAction_thenShouldFailed() {
+      final TimeOffRequestApprovalStatus status = new TimeOffRequestApprovalStatus();
+      status.setName(TimeOffApprovalStatus.NO_ACTION.name());
+      timeOffRequest.setTimeOffRequestApprovalStatus(status);
+      Mockito.when(timeOffRequestService.findByRequestId(Mockito.anyString()))
+          .thenReturn(timeOffRequest);
+
+      assertThatThrownBy(
+              () -> timeOffRequestService.deleteUnimplementedRequest(Mockito.anyString()))
+          .isInstanceOf(ForbiddenException.class);
+    }
   }
 
   @Test

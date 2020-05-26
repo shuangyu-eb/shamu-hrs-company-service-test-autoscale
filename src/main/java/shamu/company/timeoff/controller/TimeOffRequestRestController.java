@@ -184,14 +184,9 @@ public class TimeOffRequestRestController extends BaseRestController {
     return timeOffRequestDto;
   }
 
-  @DeleteMapping("time-off-requests/{requestId}/unimplemented-requests/{userId}")
-  @PreAuthorize(
-      "(hasPermission(#requestId,'TIME_OFF_REQUEST','MANAGE_TIME_OFF_REQUEST') "
-          + "and hasPermission(#userId,'USER','EDIT_USER'))"
-          + "or (hasPermission(#requestId,'TIME_OFF_REQUEST','MANAGE_SELF_TIME_OFF_REQUEST')"
-          + "and hasPermission(#userId, 'USER', 'EDIT_SELF'))")
-  public void deleteUnimplementedRequest(
-      @PathVariable final String requestId, @PathVariable final String userId) {
+  @DeleteMapping("time-off-requests/{requestId}/unimplemented-requests")
+  @PreAuthorize("hasPermission(#requestId,'TIME_OFF_REQUEST','MANAGE_SELF_TIME_OFF_REQUEST')")
+  public void deleteUnimplementedRequest(@PathVariable final String requestId) {
     timeOffRequestService.deleteUnimplementedRequest(requestId);
   }
 

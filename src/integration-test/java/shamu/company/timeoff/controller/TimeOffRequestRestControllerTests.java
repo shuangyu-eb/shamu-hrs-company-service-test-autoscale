@@ -21,6 +21,7 @@ import shamu.company.timeoff.dto.TimeOffRequestCreateDto;
 import shamu.company.timeoff.dto.TimeOffRequestUpdateDto;
 import shamu.company.timeoff.entity.TimeOffRequest;
 import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus;
+import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.TimeOffApprovalStatus;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserRole;
 import shamu.company.utils.JsonUtil;
@@ -305,15 +306,15 @@ class TimeOffRequestRestControllerTests extends WebControllerBaseTests {
     given(userService.findById(Mockito.any())).willReturn(targetUser);
     final TimeOffRequest timeOffRequest = new TimeOffRequest();
     timeOffRequest.setRequesterUser(targetUser);
+    final TimeOffRequestApprovalStatus status = new TimeOffRequestApprovalStatus();
+    status.setName(TimeOffApprovalStatus.AWAITING_REVIEW.name());
+    timeOffRequest.setTimeOffRequestApprovalStatus(status);
     given(timeOffRequestService.getById(Mockito.any())).willReturn(timeOffRequest);
 
     final MvcResult response =
         mockMvc
             .perform(
-                MockMvcRequestBuilders.delete(
-                        "/company/time-off-requests/1/unimplemented-requests/"
-                            + getAuthUser().getId()
-                            + "")
+                MockMvcRequestBuilders.delete("/company/time-off-requests/1/unimplemented-requests")
                     .contentType(MediaType.APPLICATION_JSON)
                     .headers(httpHeaders))
             .andReturn();
