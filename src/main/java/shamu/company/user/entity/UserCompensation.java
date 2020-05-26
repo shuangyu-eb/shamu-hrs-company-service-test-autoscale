@@ -11,7 +11,7 @@ import javax.validation.constraints.Max;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Type;
-import shamu.company.attendance.entity.Currencies;
+import shamu.company.attendance.entity.Currency;
 import shamu.company.common.entity.BaseEntity;
 import shamu.company.job.entity.CompensationFrequency;
 
@@ -44,5 +44,5 @@ public class UserCompensation extends BaseEntity {
 
   private String comment;
 
-  @OneToOne private Currencies currency;
+  @OneToOne private Currency currency;
 }

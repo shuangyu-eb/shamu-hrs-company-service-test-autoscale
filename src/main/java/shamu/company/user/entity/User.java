@@ -2,6 +2,7 @@ package shamu.company.user.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.io.Serializable;
 import java.sql.Date;
 import java.sql.Timestamp;
 import javax.persistence.CascadeType;
@@ -31,7 +32,7 @@ import shamu.company.utils.UuidUtil;
 @NoArgsConstructor
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class User {
+public class User implements Serializable {
 
   @Id
   @Type(type = "shamu.company.common.PrimaryKeyTypeDescriptor")
