@@ -35,6 +35,21 @@ spring:
       enabled: true
       max-file-size: 30MB
       max-request-size: 30MB
+  quartz:
+    jdbc-store-type: jdbc
+    properties:
+      org:
+        quartz:
+          scheduler:
+            instanceName: clusteredScheduler
+            instanceId: AUTO
+          jobStore:
+            class: org.quartz.impl.jdbcjobstore.JobStoreTX
+            driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
+            tablePrefix: QRTZ_
+            useProperties: false
+            dataSource: myDs
+
 cloud:
   aws:
     stack:

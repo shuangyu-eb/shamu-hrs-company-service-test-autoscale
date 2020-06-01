@@ -52,6 +52,7 @@ import shamu.company.job.service.JobService;
 import shamu.company.job.service.JobUserService;
 import shamu.company.redis.AuthUserCacheManager;
 import shamu.company.scheduler.DynamicScheduler;
+import shamu.company.scheduler.QuartzJobScheduler;
 import shamu.company.server.dto.AuthUser;
 import shamu.company.timeoff.service.PaidHolidayService;
 import shamu.company.user.dto.ChangePasswordDto;
@@ -111,6 +112,7 @@ class UserServiceTests {
   @Mock private UserPersonalInformationService userPersonalInformationService;
   @Mock private AuthUserCacheManager authUserCacheManager;
   @Mock private DynamicScheduler dynamicScheduler;
+  @Mock private QuartzJobScheduler quartzJobScheduler;
   @Mock private AwsHelper awsHelper;
   @Mock private UserRoleService userRoleService;
   @Mock private PermissionUtils permissionUtils;
@@ -339,7 +341,7 @@ class UserServiceTests {
       user = new User();
       final UserRole userRole = new UserRole();
       userId = UUID.randomUUID().toString().replaceAll("-", "");
-      userRole.setName("test");
+      userRole.setName(Role.ADMIN.name());
       user.setUserRole(userRole);
       user.setId(userId);
     }
@@ -360,8 +362,8 @@ class UserServiceTests {
       userService.deactivateUser(email, userStatusUpdateDto, user);
 
       Mockito.verify(userRepository, Mockito.times(1)).save(user);
-      Mockito.verify(dynamicScheduler, Mockito.times(1))
-          .updateOrAddUniqueTriggerTask(Mockito.anyString(), Mockito.any(), Mockito.any());
+      Mockito.verify(quartzJobScheduler, Mockito.times(1))
+          .addOrUpdateJobSchedule(Mockito.any(), Mockito.anyString(), Mockito.anyMap(),  Mockito.any());
     }
   }
 

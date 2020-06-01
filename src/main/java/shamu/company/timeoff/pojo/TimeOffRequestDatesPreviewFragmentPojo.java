@@ -2,6 +2,8 @@ package shamu.company.timeoff.pojo;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -35,7 +37,7 @@ public class TimeOffRequestDatesPreviewFragmentPojo {
   }
 
   public String getStartDateMonth() {
-    return this.startDate.format(DateTimeFormatter.ofPattern(MONTH_PATTERN));
+    return this.startDate.format(DateTimeFormatter.ofPattern(MONTH_PATTERN, Locale.ENGLISH));
   }
 
   public String getLegalEndDateYear() {
@@ -53,13 +55,13 @@ public class TimeOffRequestDatesPreviewFragmentPojo {
           "%d, %d - %s",
           startDate.getDayOfMonth(),
           startDate.getYear(),
-          endDate.format(DateTimeFormatter.ofPattern(MONTH_DAY_PATTERN)));
+          endDate.format(DateTimeFormatter.ofPattern(MONTH_DAY_PATTERN, Locale.ENGLISH)));
       // The continuous time off dates distribute in different months.
     } else if (startDate.getMonthValue() != endDate.getMonthValue()) {
       return String.format(
           "%d - %s",
           startDate.getDayOfMonth(),
-          endDate.format(DateTimeFormatter.ofPattern(MONTH_DAY_PATTERN)));
+          endDate.format(DateTimeFormatter.ofPattern(MONTH_DAY_PATTERN, Locale.ENGLISH)));
     } else {
       // The continuous time off dates distribute in one month.
       return String.format("%d - %d", startDate.getDayOfMonth(), endDate.getDayOfMonth());

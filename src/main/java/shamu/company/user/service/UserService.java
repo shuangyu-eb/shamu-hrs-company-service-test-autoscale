@@ -8,7 +8,9 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -67,7 +69,8 @@ import shamu.company.job.entity.JobUserListItem;
 import shamu.company.job.service.JobService;
 import shamu.company.job.service.JobUserService;
 import shamu.company.redis.AuthUserCacheManager;
-import shamu.company.scheduler.DynamicScheduler;
+import shamu.company.scheduler.QuartzJobScheduler;
+import shamu.company.scheduler.job.DeactivateUserJob;
 import shamu.company.sentry.SentryLogger;
 import shamu.company.server.dto.AuthUser;
 import shamu.company.server.dto.CompanyUser;
@@ -99,6 +102,7 @@ import shamu.company.user.entity.mapper.UserMapper;
 import shamu.company.user.entity.mapper.UserPersonalInformationMapper;
 import shamu.company.user.repository.UserRepository;
 import shamu.company.utils.DateUtil;
+import shamu.company.utils.JsonUtil;
 import shamu.company.utils.UuidUtil;
 
 @Service
@@ -114,7 +118,7 @@ public class UserService {
   private final Auth0Helper auth0Helper;
   private final AwsHelper awsHelper;
   private final AuthUserCacheManager authUserCacheManager;
-  private final DynamicScheduler dynamicScheduler;
+  private final QuartzJobScheduler quartzJobScheduler;
   private final PermissionUtils permissionUtils;
   private final EntityManager entityManager;
 
@@ -156,7 +160,7 @@ public class UserService {
       final UserContactInformationMapper userContactInformationMapper,
       final UserAddressMapper userAddressMapper, final Auth0Helper auth0Helper,
       final UserMapper userMapper, final AuthUserCacheManager authUserCacheManager,
-      final DynamicScheduler dynamicScheduler, final AwsHelper awsHelper,
+      final QuartzJobScheduler quartzJobScheduler, final AwsHelper awsHelper,
       final UserRoleService userRoleService, @Lazy final PermissionUtils permissionUtils,
       @Lazy final JobUserService jobUserService, final UserStatusService userStatusService,
       final CompanyService companyService, final DepartmentService departmentService,
@@ -179,7 +183,7 @@ public class UserService {
     this.auth0Helper = auth0Helper;
     this.userMapper = userMapper;
     this.authUserCacheManager = authUserCacheManager;
-    this.dynamicScheduler = dynamicScheduler;
+    this.quartzJobScheduler = quartzJobScheduler;
     this.awsHelper = awsHelper;
     this.userRoleService = userRoleService;
     this.permissionUtils = permissionUtils;
@@ -438,7 +442,7 @@ public class UserService {
     return userRepository.save(user);
   }
 
-  private void deactivateUser(final UserStatusUpdateDto userStatusUpdateDto, final User user) {
+  public void deactivateUser(final UserStatusUpdateDto userStatusUpdateDto, final User user) {
     if ((Status.ACTIVE.name()).equals(userStatusUpdateDto.getUserStatus().name())
         || Status.CHANGING_EMAIL_VERIFICATION.name()
         .equals(userStatusUpdateDto.getUserStatus().name())) {
@@ -453,8 +457,8 @@ public class UserService {
     }
   }
 
-  public User deactivateUser(final String email, final UserStatusUpdateDto userStatusUpdateDto,
-      final User user) {
+  public User deactivateUser(
+      final String email, final UserStatusUpdateDto userStatusUpdateDto, final User user) {
 
     auth0Helper.login(email, userStatusUpdateDto.getPassWord());
 
@@ -463,8 +467,14 @@ public class UserService {
     if (deactivationDate.toString().equals(LocalDate.now().toString())) {
       deactivateUser(userStatusUpdateDto, user);
     } else {
-      dynamicScheduler.updateOrAddUniqueTriggerTask("deactivate_" + user.getId(),
-          deactivateUserTask(userStatusUpdateDto, user), userStatusUpdateDto.getDeactivationDate());
+      final Map<String, Object> jobParameter = new HashMap<>();
+      jobParameter.put("UserStatusUpdateDto", JsonUtil.formatToString(userStatusUpdateDto));
+      jobParameter.put("User", JsonUtil.formatToString(user));
+      quartzJobScheduler.addOrUpdateJobSchedule(
+          DeactivateUserJob.class,
+          "deactivate_" + user.getId(),
+          jobParameter,
+          userStatusUpdateDto.getDeactivationDate());
     }
 
     user.setDeactivatedAt(userStatusUpdateDto.getDeactivationDate());
@@ -504,11 +514,6 @@ public class UserService {
       teamEmployees.forEach(employee -> employee.setManagerUser(targetManager));
       userRepository.saveAll(teamEmployees);
     }
-  }
-
-  private Runnable deactivateUserTask(final UserStatusUpdateDto userStatusUpdateDto,
-      final User user) {
-    return () -> deactivateUser(userStatusUpdateDto, user);
   }
 
   public void signUp(final UserSignUpDto signUpDto) {
