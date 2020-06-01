@@ -24,6 +24,8 @@ public class TimeOffPolicyRelatedInfoDto {
 
   private String timeOffAccrualFrequency;
 
+  private String timeOffAccrualFrequencyType;
+
   private Integer maxBalanceBaseRate;
 
   private Integer carryoverLimitBaseRate;
@@ -45,6 +47,8 @@ public class TimeOffPolicyRelatedInfoDto {
     if (timeOffPolicyAccrualSchedule != null) {
       startDate = timeOffPolicyAccrualSchedule.getDaysBeforeAccrualStarts();
       timeOffAccrualFrequency = timeOffPolicyAccrualSchedule.getTimeOffAccrualFrequency().getId();
+      timeOffAccrualFrequencyType =
+          timeOffPolicyAccrualSchedule.getTimeOffAccrualFrequency().getName();
       accrualHoursBaseRate = timeOffPolicyAccrualSchedule.getAccrualHours();
       carryoverLimitBaseRate = timeOffPolicyAccrualSchedule.getCarryoverLimit();
       maxBalanceBaseRate = timeOffPolicyAccrualSchedule.getMaxBalance();

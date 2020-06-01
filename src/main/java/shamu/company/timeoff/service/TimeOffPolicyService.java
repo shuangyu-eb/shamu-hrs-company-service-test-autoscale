@@ -415,7 +415,7 @@ public class TimeOffPolicyService {
         timeOffPolicyUsers.stream()
             .map(
                 timeOffPolicyUser -> {
-                  JobUser employeeWithJobInfo =
+                  final JobUser employeeWithJobInfo =
                       jobUserRepository.findJobUserByUser(timeOffPolicyUser.getUser());
                   selectedUsersIds.add(timeOffPolicyUser.getUser().getId());
 
@@ -429,7 +429,7 @@ public class TimeOffPolicyService {
             .filter(user -> !selectedUsersIds.contains(user.getId()))
             .map(
                 user -> {
-                  JobUser employeeWithJobInfo = jobUserRepository.findJobUserByUser(user);
+                  final JobUser employeeWithJobInfo = jobUserRepository.findJobUserByUser(user);
                   return jobUserMapper.convertToTimeOffPolicyRelatedUserDto(
                       user, employeeWithJobInfo);
                 })
@@ -454,7 +454,7 @@ public class TimeOffPolicyService {
         timeOffPolicyUsers.stream()
             .map(
                 timeOffPolicyUser -> {
-                  JobUser employeeWithJobInfo =
+                  final JobUser employeeWithJobInfo =
                       jobUserRepository.findJobUserByUser(timeOffPolicyUser.getUser());
                   return jobUserMapper.convertToTimeOffPolicyRelatedUserDto(
                       timeOffPolicyUser, employeeWithJobInfo);
@@ -465,7 +465,7 @@ public class TimeOffPolicyService {
         selectableTimeOffPolicyUsers.stream()
             .map(
                 user -> {
-                  JobUser employeeWithJobInfo = jobUserRepository.findJobUserByUser(user);
+                  final JobUser employeeWithJobInfo = jobUserRepository.findJobUserByUser(user);
                   return jobUserMapper.convertToTimeOffPolicyRelatedUserDto(
                       user, employeeWithJobInfo);
                 })
@@ -532,7 +532,7 @@ public class TimeOffPolicyService {
         timeOffPolicyAccrualScheduleMapper.createTimeOffPolicyAccrualSchedule(
             timeOffPolicyAccrualScheduleDto,
             timeOffPolicy,
-            originTimeOffSchedule.getTimeOffAccrualFrequency().getId());
+            timeOffPolicyAccrualScheduleDto.getTimeOffAccrualFrequencyId());
 
     if (!isScheduleChanged(originTimeOffSchedule, newTimeOffSchedule)) {
       return originTimeOffSchedule;
@@ -556,7 +556,10 @@ public class TimeOffPolicyService {
             originalSchedule.getDaysBeforeAccrualStarts(), newSchedule.getDaysBeforeAccrualStarts())
         && Objects.equals(originalSchedule.getAccrualHours(), newSchedule.getAccrualHours())
         && Objects.equals(originalSchedule.getCarryoverLimit(), newSchedule.getCarryoverLimit())
-        && Objects.equals(originalSchedule.getMaxBalance(), newSchedule.getMaxBalance()));
+        && Objects.equals(originalSchedule.getMaxBalance(), newSchedule.getMaxBalance())
+        && Objects.equals(
+            originalSchedule.getTimeOffAccrualFrequency().getId(),
+            newSchedule.getTimeOffAccrualFrequency().getId()));
   }
 
   public List<AccrualScheduleMilestone> updateTimeOffPolicyMilestones(

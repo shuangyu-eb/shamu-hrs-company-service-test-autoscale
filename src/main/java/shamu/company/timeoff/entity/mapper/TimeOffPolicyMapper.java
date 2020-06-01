@@ -39,6 +39,9 @@ public interface TimeOffPolicyMapper {
   @Mapping(
       target = "timeOffAccrualFrequency",
       source = "timeOffPolicyAccrualSchedule.timeOffAccrualFrequency.id")
+  @Mapping(
+      target = "timeOffAccrualFrequencyType",
+      source = "timeOffPolicyAccrualSchedule.timeOffAccrualFrequency.name")
   @Mapping(target = "accrualHoursBaseRate", source = "timeOffPolicyAccrualSchedule.accrualHours")
   @Mapping(
       target = "carryoverLimitBaseRate",
