@@ -33,6 +33,8 @@ public class Company extends BaseEntity {
 
   @ManyToOne private Country country;
 
+  private Boolean isPaidHolidaysAutoEnroll;
+
   public Company(final String id) {
     setId(id);
   }

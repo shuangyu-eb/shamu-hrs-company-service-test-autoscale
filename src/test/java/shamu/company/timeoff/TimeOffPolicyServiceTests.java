@@ -40,6 +40,7 @@ import shamu.company.timeoff.entity.mapper.TimeOffPolicyMapper;
 import shamu.company.timeoff.entity.mapper.TimeOffPolicyUserMapper;
 import shamu.company.timeoff.pojo.TimeOffPolicyListPojo;
 import shamu.company.timeoff.repository.AccrualScheduleMilestoneRepository;
+import shamu.company.timeoff.repository.PaidHolidayUserRepository;
 import shamu.company.timeoff.repository.TimeOffAdjustmentRepository;
 import shamu.company.timeoff.repository.TimeOffPolicyAccrualScheduleRepository;
 import shamu.company.timeoff.repository.TimeOffPolicyRepository;
@@ -72,6 +73,8 @@ public class TimeOffPolicyServiceTests {
 
   @Mock private TimeOffAdjustmentRepository timeOffAdjustmentRepository;
 
+  @Mock private PaidHolidayUserRepository paidHolidayUserRepository;
+
   @Mock private TimeOffDetailService timeOffDetailService;
 
   @Mock private CompanyService companyService;
@@ -102,6 +105,7 @@ public class TimeOffPolicyServiceTests {
             userRepository,
             timeOffRequestRepository,
             timeOffAdjustmentRepository,
+            paidHolidayUserRepository,
             accrualScheduleMilestoneMapper,
             timeOffPolicyAccrualScheduleMapper,
             timeOffPolicyUserMapper,
@@ -471,11 +475,15 @@ public class TimeOffPolicyServiceTests {
 
   @Test
   void testAddUserToAutoEnrolledPolicy() {
+    final Company company = new Company();
     final TimeOffPolicy timeOffPolicy = new TimeOffPolicy();
     timeOffPolicy.setId("1");
     timeOffPolicy.setIsLimited(true);
+    company.setIsPaidHolidaysAutoEnroll(true);
+    company.setId("1");
     final List<TimeOffPolicy> timeOffPolicyList = new ArrayList<>();
     timeOffPolicyList.add(timeOffPolicy);
+    Mockito.when(companyService.findById(Mockito.anyString())).thenReturn(company);
     Mockito.when(timeOffPolicyRepository.findByCompanyIdAndIsAutoEnrollEnabledIsTrue(Mockito.any()))
         .thenReturn(timeOffPolicyList);
 

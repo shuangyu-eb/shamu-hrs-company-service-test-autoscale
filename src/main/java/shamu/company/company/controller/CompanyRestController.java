@@ -162,4 +162,18 @@ public class CompanyRestController extends BaseRestController {
     final String companyId = findCompanyId();
     return companyService.updateCompanyName(companyName, companyId);
   }
+
+  @GetMapping("paid-holidays-auto-enrolled")
+  @PreAuthorize("hasAuthority('EDIT_PAID_HOLIDAY')")
+  public boolean getIsPaidHolidayAutoEnrolled() {
+    return companyService.findById(findCompanyId()).getIsPaidHolidaysAutoEnroll();
+  }
+
+  @PatchMapping("global-setting/paid-holidays-auto-enrolled")
+  @PreAuthorize("hasAuthority('EDIT_PAID_HOLIDAY')")
+  public HttpEntity<String> updateIsPaidHolidayAutoEnrolled(
+      @RequestBody final boolean isAutoEnrolled) {
+    companyService.updateIsPaidHolidaysAutoEnrolled(findCompanyId(), isAutoEnrolled);
+    return new ResponseEntity<>(HttpStatus.OK);
+  }
 }

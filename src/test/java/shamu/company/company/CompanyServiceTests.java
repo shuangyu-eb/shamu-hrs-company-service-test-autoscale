@@ -259,4 +259,12 @@ public class CompanyServiceTests {
           .doesNotThrowAnyException();
     }
   }
+
+  @Test
+  void testUpdateIsPaidHolidaysAutoEnrolled() {
+    final Company company = new Company();
+    Mockito.when(companyRepository.findCompanyById(Mockito.anyString())).thenReturn(company);
+    assertThatCode(() -> companyService.updateIsPaidHolidaysAutoEnrolled("1", true))
+        .doesNotThrowAnyException();
+  }
 }

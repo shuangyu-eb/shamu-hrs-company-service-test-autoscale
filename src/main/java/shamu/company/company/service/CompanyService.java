@@ -234,4 +234,11 @@ public class CompanyService {
   public List<Company> findAllById(final List<String> ids) {
     return companyRepository.findAllById(ids);
   }
+
+  public void updateIsPaidHolidaysAutoEnrolled(
+      final String companyId, final boolean isAutoEnrolled) {
+    final Company company = companyRepository.findCompanyById(companyId);
+    company.setIsPaidHolidaysAutoEnroll(isAutoEnrolled);
+    companyRepository.save(company);
+  }
 }

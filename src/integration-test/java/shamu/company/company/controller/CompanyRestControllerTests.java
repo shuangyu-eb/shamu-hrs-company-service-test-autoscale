@@ -246,4 +246,37 @@ public class CompanyRestControllerTests extends WebControllerBaseTests {
             .andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
+
+  @Test
+  void testFindIsPaidHolidayAutoEnrolled() throws Exception {
+    setPermission(Permission.Name.EDIT_PAID_HOLIDAY.name());
+    final HttpHeaders httpHeaders = new HttpHeaders();
+    httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+    final Company company = new Company();
+    company.setIsPaidHolidaysAutoEnroll(true);
+    given(companyService.findById(Mockito.anyString())).willReturn(company);
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.get("/company/paid-holidays-auto-enrolled")
+                    .headers(httpHeaders))
+            .andReturn();
+    assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+  }
+
+  @Test
+  void testUpdateIsPaidHolidayAutoEnrolled() throws Exception {
+    setPermission(Permission.Name.EDIT_PAID_HOLIDAY.name());
+    final HttpHeaders httpHeaders = new HttpHeaders();
+    httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.patch("/company/global-setting/paid-holidays-auto-enrolled")
+                    .headers(httpHeaders)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(JsonUtil.formatToString(true)))
+            .andReturn();
+    assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+  }
 }

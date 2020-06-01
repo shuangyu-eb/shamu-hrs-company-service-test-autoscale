@@ -47,6 +47,7 @@ import shamu.company.timeoff.dto.TimeOffPolicyUserDto;
 import shamu.company.timeoff.dto.TimeOffPolicyUserFrontendDto;
 import shamu.company.timeoff.dto.TimeOffPolicyWrapperDto;
 import shamu.company.timeoff.entity.AccrualScheduleMilestone;
+import shamu.company.timeoff.entity.PaidHolidayUser;
 import shamu.company.timeoff.entity.TimeOffAdjustment;
 import shamu.company.timeoff.entity.TimeOffPolicy;
 import shamu.company.timeoff.entity.TimeOffPolicyAccrualSchedule;
@@ -60,6 +61,7 @@ import shamu.company.timeoff.entity.mapper.TimeOffPolicyMapper;
 import shamu.company.timeoff.entity.mapper.TimeOffPolicyUserMapper;
 import shamu.company.timeoff.pojo.TimeOffPolicyListPojo;
 import shamu.company.timeoff.repository.AccrualScheduleMilestoneRepository;
+import shamu.company.timeoff.repository.PaidHolidayUserRepository;
 import shamu.company.timeoff.repository.TimeOffAdjustmentRepository;
 import shamu.company.timeoff.repository.TimeOffPolicyAccrualScheduleRepository;
 import shamu.company.timeoff.repository.TimeOffPolicyRepository;
@@ -90,6 +92,8 @@ public class TimeOffPolicyService {
 
   private final TimeOffAdjustmentRepository timeOffAdjustmentRepository;
 
+  private final PaidHolidayUserRepository paidHolidayUserRepository;
+
   private final TimeOffDetailService timeOffDetailService;
 
   private final CompanyService companyService;
@@ -117,6 +121,7 @@ public class TimeOffPolicyService {
       final UserRepository userRepository,
       final TimeOffRequestRepository timeOffRequestRepository,
       final TimeOffAdjustmentRepository timeOffAdjustmentRepository,
+      final PaidHolidayUserRepository paidHolidayUserRepository,
       final AccrualScheduleMilestoneMapper accrualScheduleMilestoneMapper,
       final TimeOffPolicyAccrualScheduleMapper timeOffPolicyAccrualScheduleMapper,
       final TimeOffPolicyUserMapper timeOffPolicyUserMapper,
@@ -132,6 +137,7 @@ public class TimeOffPolicyService {
     this.userRepository = userRepository;
     this.timeOffRequestRepository = timeOffRequestRepository;
     this.timeOffAdjustmentRepository = timeOffAdjustmentRepository;
+    this.paidHolidayUserRepository = paidHolidayUserRepository;
     this.timeOffDetailService = timeOffDetailService;
     this.accrualScheduleMilestoneMapper = accrualScheduleMilestoneMapper;
     this.timeOffPolicyAccrualScheduleMapper = timeOffPolicyAccrualScheduleMapper;
@@ -339,6 +345,7 @@ public class TimeOffPolicyService {
   public void addUserToAutoEnrolledPolicy(final String userId, final String companyId) {
     final List<TimeOffPolicy> timeOffPolicyList =
         timeOffPolicyRepository.findByCompanyIdAndIsAutoEnrollEnabledIsTrue(companyId);
+    final Company company = companyService.findById(companyId);
 
     final List<TimeOffPolicyUser> timeOffPolicyUserList =
         timeOffPolicyList.stream()
@@ -350,6 +357,11 @@ public class TimeOffPolicyService {
 
     if (!timeOffPolicyList.isEmpty()) {
       timeOffPolicyUserRepository.saveAll(timeOffPolicyUserList);
+    }
+
+    if (company.getIsPaidHolidaysAutoEnroll()) {
+      final PaidHolidayUser paidHolidayUser = new PaidHolidayUser(companyId, userId, true);
+      paidHolidayUserRepository.save(paidHolidayUser);
     }
   }
 

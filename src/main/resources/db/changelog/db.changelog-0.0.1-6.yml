@@ -715,3 +715,17 @@ databaseChangeLog:
       changes:
         - sql:
             sql: alter table user_compensations change column effective_date start_date datetime;
+
+  - changeSet:
+      id: 1590979227192-1
+      author: jay-eb
+      preConditions:
+        onFail: WARN
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: is_paid_holidays_auto_enroll
+                  type: bool
+                  defaultValue: false
+            tableName: companies
