@@ -738,19 +738,19 @@ databaseChangeLog:
             columns:
               - column:
                   name: SCHED_NAME
-                  type: VARCHAR(120)
+                  type: VARCHAR(60)
                   constraints:
                     nullable: false
                     primaryKey: true
               - column:
                   name: JOB_NAME
-                  type: VARCHAR(200)
+                  type: VARCHAR(60)
                   constraints:
                     nullable: false
                     primaryKey: true
               - column:
                   name: JOB_GROUP
-                  type: VARCHAR(200)
+                  type: VARCHAR(60)
                   constraints:
                     nullable: false
                     primaryKey: true
@@ -799,30 +799,30 @@ databaseChangeLog:
             columns:
               - column:
                   name: SCHED_NAME
-                  type: VARCHAR(120)
+                  type: VARCHAR(60)
                   constraints:
                     nullable: false
                     primaryKey: true
               - column:
                   name: TRIGGER_NAME
-                  type: VARCHAR(200)
+                  type: VARCHAR(60)
                   constraints:
                     nullable: false
                     primaryKey: true
               - column:
                   name: TRIGGER_GROUP
-                  type: VARCHAR(200)
+                  type: VARCHAR(60)
                   constraints:
                     nullable: false
                     primaryKey: true
               - column:
                   name: JOB_NAME
-                  type: VARCHAR(200)
+                  type: VARCHAR(60)
                   constraints:
                     nullable: false
               - column:
                   name: JOB_GROUP
-                  type: VARCHAR(200)
+                  type: VARCHAR(60)
                   constraints:
                     nullable: false
               - column:
@@ -867,7 +867,7 @@ databaseChangeLog:
                     nullable: true
               - column:
                   name: CALENDAR_NAME
-                  type: VARCHAR(200)
+                  type: VARCHAR(60)
                   constraints:
                     nullable: true
               - column:
@@ -890,19 +890,19 @@ databaseChangeLog:
             columns:
               - column:
                   name: SCHED_NAME
-                  type: VARCHAR(120)
+                  type: VARCHAR(60)
                   constraints:
                     nullable: false
                     primaryKey: true
               - column:
                   name: TRIGGER_NAME
-                  type: VARCHAR(200)
+                  type: VARCHAR(60)
                   constraints:
                     nullable: false
                     primaryKey: true
               - column:
                   name: TRIGGER_GROUP
-                  type: VARCHAR(200)
+                  type: VARCHAR(60)
                   constraints:
                     nullable: false
                     primaryKey: true
@@ -931,19 +931,19 @@ databaseChangeLog:
             columns:
               - column:
                   name: SCHED_NAME
-                  type: VARCHAR(120)
+                  type: VARCHAR(60)
                   constraints:
                     nullable: false
                     primaryKey: true
               - column:
                   name: TRIGGER_NAME
-                  type: VARCHAR(200)
+                  type: VARCHAR(60)
                   constraints:
                     nullable: false
                     primaryKey: true
               - column:
                   name: TRIGGER_GROUP
-                  type: VARCHAR(200)
+                  type: VARCHAR(60)
                   constraints:
                     nullable: false
                     primaryKey: true
@@ -967,19 +967,19 @@ databaseChangeLog:
             columns:
               - column:
                   name: SCHED_NAME
-                  type: VARCHAR(120)
+                  type: VARCHAR(60)
                   constraints:
                     nullable: false
                     primaryKey: true
               - column:
                   name: TRIGGER_NAME
-                  type: VARCHAR(200)
+                  type: VARCHAR(60)
                   constraints:
                     nullable: false
                     primaryKey: true
               - column:
                   name: TRIGGER_GROUP
-                  type: VARCHAR(200)
+                  type: VARCHAR(60)
                   constraints:
                     nullable: false
                     primaryKey: true
@@ -1038,19 +1038,19 @@ databaseChangeLog:
             columns:
               - column:
                   name: SCHED_NAME
-                  type: VARCHAR(120)
+                  type: VARCHAR(60)
                   constraints:
                     nullable: false
                     primaryKey: true
               - column:
                   name: TRIGGER_NAME
-                  type: VARCHAR(200)
+                  type: VARCHAR(60)
                   constraints:
                     nullable: false
                     primaryKey: true
               - column:
                   name: TRIGGER_GROUP
-                  type: VARCHAR(200)
+                  type: VARCHAR(60)
                   constraints:
                     nullable: false
                     primaryKey: true
@@ -1069,13 +1069,13 @@ databaseChangeLog:
             columns:
               - column:
                   name: SCHED_NAME
-                  type: VARCHAR(120)
+                  type: VARCHAR(60)
                   constraints:
                     nullable: false
                     primaryKey: true
               - column:
                   name: CALENDAR_NAME
-                  type: VARCHAR(200)
+                  type: VARCHAR(60)
                   constraints:
                     nullable: false
                     primaryKey: true
@@ -1094,13 +1094,13 @@ databaseChangeLog:
             columns:
               - column:
                   name: SCHED_NAME
-                  type: VARCHAR(120)
+                  type: VARCHAR(60)
                   constraints:
                     nullable: false
                     primaryKey: true
               - column:
                   name: TRIGGER_GROUP
-                  type: VARCHAR(200)
+                  type: VARCHAR(60)
                   constraints:
                     nullable: false
                     primaryKey: true
@@ -1114,29 +1114,29 @@ databaseChangeLog:
             columns:
               - column:
                   name: SCHED_NAME
-                  type: VARCHAR(120)
+                  type: VARCHAR(60)
                   constraints:
                     nullable:  false
                     primaryKey: true
               - column:
                   name: ENTRY_ID
-                  type: VARCHAR(95)
+                  type: VARCHAR(120)
                   constraints:
                     nullable:  false
                     primaryKey: true
               - column:
                   name: TRIGGER_NAME
-                  type: VARCHAR(200)
+                  type: VARCHAR(60)
                   constraints:
                     nullable: false
               - column:
                   name: TRIGGER_GROUP
-                  type: VARCHAR(200)
+                  type: VARCHAR(60)
                   constraints:
                     nullable: false
               - column:
                   name: INSTANCE_NAME
-                  type: VARCHAR(200)
+                  type: VARCHAR(60)
                   constraints:
                     nullable: false
               - column:
@@ -1161,12 +1161,12 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: JOB_NAME
-                  type: VARCHAR(200)
+                  type: VARCHAR(60)
                   constraints:
                     nullable: true
               - column:
                   name: JOB_GROUP
-                  type: VARCHAR(200)
+                  type: VARCHAR(60)
                   constraints:
                     nullable: true
               - column:
@@ -1189,13 +1189,13 @@ databaseChangeLog:
             columns:
               - column:
                   name: SCHED_NAME
-                  type: VARCHAR(120)
+                  type: VARCHAR(60)
                   constraints:
                     nullable: false
                     primaryKey: true
               - column:
                   name: INSTANCE_NAME
-                  type: VARCHAR(200)
+                  type: VARCHAR(60)
                   constraints:
                     nullable: false
                     primaryKey: true
@@ -1219,7 +1219,7 @@ databaseChangeLog:
             columns:
               - column:
                   name: SCHED_NAME
-                  type: VARCHAR(120)
+                  type: VARCHAR(60)
                   constraints:
                     nullable: false
                     primaryKey: true
