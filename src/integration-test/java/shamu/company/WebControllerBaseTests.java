@@ -42,6 +42,7 @@ import shamu.company.timeoff.service.PaidHolidayService;
 import shamu.company.timeoff.service.TimeOffPolicyService;
 import shamu.company.timeoff.service.TimeOffPolicyUserService;
 import shamu.company.timeoff.service.TimeOffRequestService;
+import shamu.company.user.entity.User.Role;
 import shamu.company.user.service.UserAddressService;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.UuidUtil;
@@ -88,24 +89,28 @@ public class WebControllerBaseTests {
     getAuthUser().setPermissions(Collections.singletonList(permission));
   }
 
-  protected void buildAuthUserAsDeactivedUser() {
-    final List<String> permissions = getDeactiveUserPermissions();
+  protected void buildAuthUserAsDeactivatedUser() {
+    final List<String> permissions = getDeactivateUserPermissions();
     getAuthUser().setPermissions(permissions);
+    getAuthUser().setRole(Role.INACTIVATE);
   }
 
   protected void buildAuthUserAsEmployee() {
     final List<String> permissions = getEmployeePermissions();
     getAuthUser().setPermissions(permissions);
+    getAuthUser().setRole(Role.EMPLOYEE);
   }
 
   protected void buildAuthUserAsManager() {
     final List<String> permissions = getManagerPermissions();
     getAuthUser().setPermissions(permissions);
+    getAuthUser().setRole(Role.MANAGER);
   }
 
   protected void buildAuthUserAsAdmin() {
     final List<String> permissions = getAdminPermissions();
     getAuthUser().setPermissions(permissions);
+    getAuthUser().setRole(Role.ADMIN);
   }
 
   private List<String> getAdminPermissions() {
@@ -145,7 +150,7 @@ public class WebControllerBaseTests {
         .collect(Collectors.toList());
   }
 
-  private List<String> getDeactiveUserPermissions() {
+  private List<String> getDeactivateUserPermissions() {
     final List<String> permissions = new ArrayList<>();
     permissions.add(Permission.Name.EDIT_SELF.name());
     permissions.add(Permission.Name.MANAGE_SELF_TIME_OFF_BALANCE.name());

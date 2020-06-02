@@ -71,7 +71,7 @@ public class EmergencyContactRestControllerTests extends WebControllerBaseTests 
 
     @Test
     void asSelf_thenShouldSuccess() throws Exception {
-      buildAuthUserAsDeactivedUser();
+      buildAuthUserAsDeactivatedUser();
       targetUser.setId(currentUser.getId());
       targetUser.setCompany(new Company(currentUser.getCompanyId()));
       setGiven();
@@ -118,7 +118,7 @@ public class EmergencyContactRestControllerTests extends WebControllerBaseTests 
 
       @Test
       void asDeactivatedUser_thenShouldFailed() throws Exception {
-        buildAuthUserAsDeactivedUser();
+        buildAuthUserAsDeactivatedUser();
         final MvcResult response = getResponse();
         assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
       }
@@ -159,7 +159,7 @@ public class EmergencyContactRestControllerTests extends WebControllerBaseTests 
 
       @Test
       void asDeactivatedUser_thenShouldFailed() throws Exception {
-        buildAuthUserAsDeactivedUser();
+        buildAuthUserAsDeactivatedUser();
         final MvcResult response = getResponse();
         assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
       }
@@ -204,7 +204,7 @@ public class EmergencyContactRestControllerTests extends WebControllerBaseTests 
 
     @Test
     void asSelf_thenShouldSuccess() throws Exception {
-      buildAuthUserAsDeactivedUser();
+      buildAuthUserAsDeactivatedUser();
       targetUser.setId(currentUser.getId());
       targetUser.setCompany(new Company(currentUser.getCompanyId()));
       setGiven();
@@ -257,7 +257,7 @@ public class EmergencyContactRestControllerTests extends WebControllerBaseTests 
 
       @Test
       void asDeactivatedUser_thenShouldFailed() throws Exception {
-        buildAuthUserAsDeactivedUser();
+        buildAuthUserAsDeactivatedUser();
         final MvcResult response = getResponse();
         assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
       }
@@ -298,7 +298,7 @@ public class EmergencyContactRestControllerTests extends WebControllerBaseTests 
 
       @Test
       void asDeactivatedUser_thenShouldFailed() throws Exception {
-        buildAuthUserAsDeactivedUser();
+        buildAuthUserAsDeactivatedUser();
         final MvcResult response = getResponse();
         assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
       }
@@ -346,7 +346,7 @@ public class EmergencyContactRestControllerTests extends WebControllerBaseTests 
 
     @Test
     void asSelf_thenShouldSuccess() throws Exception {
-      buildAuthUserAsDeactivedUser();
+      buildAuthUserAsDeactivatedUser();
       targetUser.setId(currentUser.getId());
       targetUser.setCompany(new Company(currentUser.getCompanyId()));
       setGiven();
@@ -399,7 +399,7 @@ public class EmergencyContactRestControllerTests extends WebControllerBaseTests 
 
       @Test
       void asDeactivatedUser_thenShouldFailed() throws Exception {
-        buildAuthUserAsDeactivedUser();
+        buildAuthUserAsDeactivatedUser();
         final MvcResult response = getResponse();
         assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
       }
@@ -440,7 +440,7 @@ public class EmergencyContactRestControllerTests extends WebControllerBaseTests 
 
       @Test
       void asDeactivatedUser_thenShouldFailed() throws Exception {
-        buildAuthUserAsDeactivedUser();
+        buildAuthUserAsDeactivatedUser();
         final MvcResult response = getResponse();
         assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
       }

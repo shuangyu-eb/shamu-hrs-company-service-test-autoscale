@@ -288,8 +288,7 @@ public class UserPermissionUtils extends BasePermissionUtils {
     }
   }
 
-  private boolean hasPermissionOfUserJob(
-      final Object target) {
+  private boolean hasPermissionOfUserJob(final Object target) {
     final JobUpdateDto jobUpdateDto = (JobUpdateDto) target;
     final String managerId = jobUpdateDto.getManagerId();
 
@@ -352,9 +351,13 @@ public class UserPermissionUtils extends BasePermissionUtils {
       final Authentication auth, final String id, final Permission.Name permission) {
     if (permission == Name.CREATE_AND_APPROVED_TIME_OFF_REQUEST) {
       final User user = userService.findById(id);
-      return user.getManagerUser() == null
-          || getAuthUser().getId().equals(user.getManagerUser().getId())
-          || getAuthUser().getRole() == User.Role.ADMIN;
+
+      if (getAuthUser().getId().equals(id)) {
+        return user.getManagerUser() == null && hasPermissionOfUser(auth, user, permission);
+      }
+
+      return getAuthUser().getRole() == User.Role.ADMIN
+          && hasPermissionOfUser(auth, user, permission);
     } else {
       final User user = timeOffRequestService.getById(id).getRequesterUser();
       return hasPermissionOfUser(auth, user, permission);
@@ -463,14 +466,15 @@ public class UserPermissionUtils extends BasePermissionUtils {
   private boolean hasPermissionOfUser(
       final Authentication auth, final User targetUser, final Permission.Name permission) {
     final PermissionType permissionType = permission.getPermissionType();
+    final Collection<GrantedAuthority> authorities =
+        (Collection<GrantedAuthority>) auth.getAuthorities();
+
     if (permissionType == PermissionType.SELF_PERMISSION) {
-      return getAuthUser().getId().equals(targetUser.getId());
+      return getAuthUser().getId().equals(targetUser.getId())
+          && hasPermission(authorities, permission);
     }
 
     companyEqual(targetUser.getCompany());
-
-    final Collection<GrantedAuthority> authorities =
-        (Collection<GrantedAuthority>) auth.getAuthorities();
 
     final boolean isCompanyAdmin = hasPermission(authorities, Name.MANAGE_COMPANY_USER);
     final boolean isCompanyManager = hasPermission(authorities, Name.MANAGE_TEAM_USER);

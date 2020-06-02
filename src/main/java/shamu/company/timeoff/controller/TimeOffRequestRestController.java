@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
+import shamu.company.common.exception.ForbiddenException;
 import shamu.company.timeoff.dto.MyTimeOffDto;
 import shamu.company.timeoff.dto.TimeOffRequestCreateDto;
 import shamu.company.timeoff.dto.TimeOffRequestDetailDto;
@@ -61,7 +62,13 @@ public class TimeOffRequestRestController extends BaseRestController {
       @RequestBody final TimeOffRequestCreateDto requestCreateDto) {
     final User user = userService.findById(userId);
     final TimeOffRequest timeOffRequest = requestCreateDto.getTimeOffRequest(user);
-    timeOffRequest.setApproverUser(user.getManagerUser());
+    final User manager = user.getManagerUser();
+
+    if (manager == null) {
+      throw new ForbiddenException("The user has no manager.");
+    }
+
+    timeOffRequest.setApproverUser(manager);
 
     timeOffRequestService.saveTimeOffRequest(timeOffRequest, requestCreateDto, AWAITING_REVIEW);
 

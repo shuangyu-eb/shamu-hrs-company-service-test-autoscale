@@ -108,7 +108,7 @@ public class JobControllerTests extends WebControllerBaseTests {
 
       @Test
       void asDeactivatedUser_thenShouldFailed() throws Exception {
-        buildAuthUserAsDeactivedUser();
+        buildAuthUserAsDeactivatedUser();
         final MvcResult response = getResponse();
         assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
       }
@@ -153,7 +153,7 @@ public class JobControllerTests extends WebControllerBaseTests {
 
       @Test
       void asDeactivatedUser_thenShouldFailed() throws Exception {
-        buildAuthUserAsDeactivedUser();
+        buildAuthUserAsDeactivatedUser();
         final MvcResult response = getResponse();
         assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
       }
@@ -194,7 +194,7 @@ public class JobControllerTests extends WebControllerBaseTests {
 
       @Test
       void asDeactivatedUser_thenShouldFailed() throws Exception {
-        buildAuthUserAsDeactivedUser();
+        buildAuthUserAsDeactivatedUser();
         final MvcResult response = getResponse();
         assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
       }

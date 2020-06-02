@@ -82,7 +82,7 @@ public class UserContactInformationRestControllerTests extends WebControllerBase
 
     @Test
     void asSelf_thenShouldSucess() throws Exception {
-      buildAuthUserAsDeactivedUser();
+      buildAuthUserAsDeactivatedUser();
       final Company company = new Company(currentUser.getCompanyId());
       targetUser.setCompany(company);
       targetUser.setId(currentUser.getId());
@@ -140,7 +140,7 @@ public class UserContactInformationRestControllerTests extends WebControllerBase
 
       @Test
       void asDeactivatedUser_thenShouldFailed() throws Exception {
-        buildAuthUserAsDeactivedUser();
+        buildAuthUserAsDeactivatedUser();
         final MvcResult response = getResponse();
         assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
       }
@@ -181,7 +181,7 @@ public class UserContactInformationRestControllerTests extends WebControllerBase
 
       @Test
       void asDeactivatedUser_thenShouldFailed() throws Exception {
-        buildAuthUserAsDeactivedUser();
+        buildAuthUserAsDeactivatedUser();
         final MvcResult response = getResponse();
         assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
       }

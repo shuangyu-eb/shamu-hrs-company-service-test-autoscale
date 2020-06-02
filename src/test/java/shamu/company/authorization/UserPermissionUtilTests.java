@@ -46,6 +46,7 @@ import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
 import shamu.company.user.service.UserAddressService;
 import shamu.company.user.service.UserService;
+import shamu.company.utils.UuidUtil;
 
 class UserPermissionUtilTests {
 
@@ -88,13 +89,14 @@ class UserPermissionUtilTests {
     Mockito.when(cacheManager.getCachedUser(Mockito.anyString())).thenReturn(authUser);
   }
 
-  void initAuthenticationWithPermission(final List<String> permissionNames) {
+  Authentication initAuthenticationWithPermission(final List<String> permissionNames) {
     final List<GrantedAuthority> authorities =
         permissionNames.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
     final Authentication authentication =
         new DefaultJwtAuthenticationToken(
             jwt, RandomStringUtils.randomAlphabetic(16), authorities, authUser);
     SecurityContextHolder.getContext().setAuthentication(authentication);
+    return SecurityContextHolder.getContext().getAuthentication();
   }
 
   Authentication getAuthentication() {
@@ -159,46 +161,35 @@ class UserPermissionUtilTests {
 
       private Permission.Name permission;
 
+      private Authentication authentication;
+
       @BeforeEach
       void init() {
         permission = Name.CREATE_AND_APPROVED_TIME_OFF_REQUEST;
+        authentication =
+            initAuthenticationWithPermission(Collections.singletonList(permission.name()));
       }
 
       @Test
-      void whenNoManager_thenShouldSuccess() {
-        Mockito.when(userService.findById(Mockito.anyString())).thenReturn(new User());
+      void asSelf_whenNoManager_thenShouldSuccess() {
+        final User targetUser = new User(authUser.getId());
+        targetUser.setCompany(company);
+        Mockito.when(userService.findById(targetUser.getId())).thenReturn(targetUser);
         assertThat(
                 userPermissionUtils.hasPermission(
-                    getAuthentication(), RandomStringUtils.randomAlphabetic(16), type, permission))
+                    authentication, targetUser.getId(), type, permission))
             .isTrue();
       }
 
       @Test
-      void whenIsManager_thenShouldSuccess() {
-        final User targetUser = new User();
-        final User managerUser = new User();
-        managerUser.setId(authUser.getId());
-        targetUser.setManagerUser(managerUser);
-
-        Mockito.when(userService.findById(Mockito.anyString())).thenReturn(targetUser);
-        assertThat(
-                userPermissionUtils.hasPermission(
-                    getAuthentication(), RandomStringUtils.randomAlphabetic(16), type, permission))
-            .isTrue();
-      }
-
-      @Test
-      void whenIsAdmin_thenShouldSuccess() {
-        final User targetUser = new User();
-        final User managerUser = new User();
-        managerUser.setId(authUser.getId());
-        targetUser.setManagerUser(managerUser);
+      void notSelf_asAdmin_whenSameCompany_thenShouldSuccess() {
         authUser.setRole(Role.ADMIN);
-
-        Mockito.when(userService.findById(Mockito.anyString())).thenReturn(targetUser);
+        final User targetUser = new User(UuidUtil.getUuidString());
+        targetUser.setCompany(company);
+        Mockito.when(userService.findById(targetUser.getId())).thenReturn(targetUser);
         assertThat(
                 userPermissionUtils.hasPermission(
-                    getAuthentication(), RandomStringUtils.randomAlphabetic(16), type, permission))
+                    authentication, targetUser.getId(), type, permission))
             .isTrue();
       }
     }
@@ -215,9 +206,14 @@ class UserPermissionUtilTests {
 
         Mockito.when(timeOffRequestService.getById(Mockito.anyString()))
             .thenReturn(mockedTimeOffRequest);
+
+        final Authentication authentication =
+            initAuthenticationWithPermission(
+                Collections.singletonList(Name.MANAGE_SELF_TIME_OFF_REQUEST.name()));
+
         assertThat(
                 userPermissionUtils.hasPermission(
-                    getAuthentication(),
+                    authentication,
                     RandomStringUtils.randomAlphabetic(16),
                     type,
                     Name.MANAGE_SELF_TIME_OFF_REQUEST))
@@ -237,9 +233,13 @@ class UserPermissionUtilTests {
       timeOffPolicyUser.setUser(targetUser);
       Mockito.when(timeOffPolicyUserService.findById(Mockito.anyString()))
           .thenReturn(timeOffPolicyUser);
+
+      final Authentication authentication =
+          initAuthenticationWithPermission(
+              Collections.singletonList(Name.MANAGE_SELF_TIME_OFF_REQUEST.name()));
       assertThat(
               userPermissionUtils.hasPermission(
-                  getAuthentication(),
+                  authentication,
                   RandomStringUtils.randomAlphabetic(16),
                   Type.TIME_OFF_POLICY_USER,
                   Name.MANAGE_SELF_TIME_OFF_REQUEST))
@@ -289,9 +289,11 @@ class UserPermissionUtilTests {
         final User currentUser = new User();
         currentUser.setId(authUser.getId());
         Mockito.when(userService.findById(Mockito.anyString())).thenReturn(currentUser);
+        final Authentication authentication =
+            initAuthenticationWithPermission(Collections.singletonList(Name.EDIT_SELF.name()));
         assertThat(
                 userPermissionUtils.hasPermission(
-                    getAuthentication(),
+                    authentication,
                     RandomStringUtils.randomAlphabetic(16),
                     Type.USER,
                     Name.EDIT_SELF))
