@@ -5,6 +5,8 @@ import static org.mockito.BDDMockito.given;
 
 import java.util.Collections;
 import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -28,6 +30,7 @@ import shamu.company.server.dto.AuthUser;
 import shamu.company.tests.utils.JwtUtil;
 import shamu.company.user.entity.User;
 import shamu.company.utils.JsonUtil;
+import shamu.company.utils.UuidUtil;
 
 @WebMvcTest(controllers = JobController.class)
 public class JobControllerTests extends WebControllerBaseTests {
@@ -57,27 +60,159 @@ public class JobControllerTests extends WebControllerBaseTests {
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
 
-  @Test
-  void testUpdateJobInfo() throws Exception {
-    setPermission(Permission.Name.EDIT_USER.name());
-    final HttpHeaders httpHeaders = new HttpHeaders();
-    httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
-    final AuthUser currentUser = getAuthUser();
-    final User targetUser = new User();
-    final Company company = new Company(currentUser.getCompanyId());
-    targetUser.setCompany(company);
-    targetUser.setId(currentUser.getId());
-    given(userService.findById(currentUser.getId())).willReturn(targetUser);
-    JobUpdateDto jobUpdateDto = new JobUpdateDto();
-    final MvcResult response =
-        mockMvc
-            .perform(
-                MockMvcRequestBuilders.patch("/company/users/" + currentUser.getId() + "/jobs")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .headers(httpHeaders)
-                    .content(JsonUtil.formatToString(jobUpdateDto)))
-            .andReturn();
-    assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+  @Nested
+  class TestUpdateJobInfo {
+
+    private AuthUser currentUser;
+
+    private User targetUser;
+
+    private final JobUpdateDto jobUpdateDto = new JobUpdateDto();
+
+    @BeforeEach
+    void init() {
+      currentUser = getAuthUser();
+      targetUser = new User();
+    }
+
+    @Nested
+    class SameUser {
+
+      @BeforeEach
+      void init() {
+        targetUser.setId(currentUser.getId());
+        targetUser.setCompany(new Company(currentUser.getCompanyId()));
+        setGiven();
+      }
+
+      @Test
+      void asAdmin_thenShouldSuccess() throws Exception {
+        buildAuthUserAsAdmin();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+      }
+
+      @Test
+      void asManager_thenShouldFailed() throws Exception {
+        buildAuthUserAsManager();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+
+      @Test
+      void asEmployee_thenShouldFailed() throws Exception {
+        buildAuthUserAsEmployee();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+
+      @Test
+      void asDeactivatedUser_thenShouldFailed() throws Exception {
+        buildAuthUserAsDeactivedUser();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+    }
+
+    @Nested
+    class SameCompany {
+
+      private Company company;
+
+      @BeforeEach
+      void init() {
+        company = new Company(currentUser.getCompanyId());
+        targetUser.setCompany(company);
+        targetUser.setId(UuidUtil.getUuidString());
+        setGiven();
+      }
+
+      @Test
+      void asAdmin_thenShouldSuccess() throws Exception {
+        buildAuthUserAsAdmin();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+      }
+
+      @Test
+      void asManager_thenShouldFailed() throws Exception {
+        buildAuthUserAsManager();
+        final User manager = new User(currentUser.getId());
+        manager.setCompany(company);
+        targetUser.setManagerUser(manager);
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+
+      @Test
+      void asEmployee_thenShouldFailed() throws Exception {
+        buildAuthUserAsEmployee();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+
+      @Test
+      void asDeactivatedUser_thenShouldFailed() throws Exception {
+        buildAuthUserAsDeactivedUser();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+    }
+
+    @Nested
+    class DifferentCompany {
+
+      private final Company theOtherCompany = new Company(UuidUtil.getUuidString());
+
+      @BeforeEach
+      void init() {
+        targetUser.setId(UuidUtil.getUuidString());
+        targetUser.setCompany(theOtherCompany);
+        setGiven();
+      }
+
+      @Test
+      void asAdmin_thenShouldFailed() throws Exception {
+        buildAuthUserAsAdmin();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+
+      @Test
+      void asManager_thenShouldFailed() throws Exception {
+        buildAuthUserAsManager();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+
+      @Test
+      void asEmployee_thenShouldFailed() throws Exception {
+        buildAuthUserAsEmployee();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+
+      @Test
+      void asDeactivatedUser_thenShouldFailed() throws Exception {
+        buildAuthUserAsDeactivedUser();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+    }
+
+    private void setGiven() {
+      given(userService.findById(currentUser.getId())).willReturn(targetUser);
+    }
+
+    private MvcResult getResponse() throws Exception {
+      return mockMvc
+          .perform(
+              MockMvcRequestBuilders.patch("/company/users/" + currentUser.getId() + "/jobs")
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .headers(httpHeaders)
+                  .content(JsonUtil.formatToString(jobUpdateDto)))
+          .andReturn();
+    }
   }
 
   @Test
@@ -85,7 +220,7 @@ public class JobControllerTests extends WebControllerBaseTests {
     setPermission(Permission.Name.EDIT_USER.name());
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
-    JobSelectOptionUpdateDto jobSelectOptionUpdateDto = new JobSelectOptionUpdateDto();
+    final JobSelectOptionUpdateDto jobSelectOptionUpdateDto = new JobSelectOptionUpdateDto();
     jobSelectOptionUpdateDto.setUpdateField(JobSelectOptionUpdateField.EMPLOYMENT_TYPE);
     final MvcResult response =
         mockMvc
@@ -103,7 +238,7 @@ public class JobControllerTests extends WebControllerBaseTests {
     setPermission(Permission.Name.EDIT_USER.name());
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
-    JobSelectOptionUpdateDto jobSelectOptionUpdateDto = new JobSelectOptionUpdateDto();
+    final JobSelectOptionUpdateDto jobSelectOptionUpdateDto = new JobSelectOptionUpdateDto();
     jobSelectOptionUpdateDto.setUpdateField(JobSelectOptionUpdateField.EMPLOYMENT_TYPE);
     final MvcResult response =
         mockMvc
@@ -121,9 +256,9 @@ public class JobControllerTests extends WebControllerBaseTests {
     setPermission(Permission.Name.VIEW_JOB.name());
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
-    List<SelectFieldSizeDto> selectFieldSizeDtos = Collections.emptyList();
-    String departmentId = "1";
-    Department department = new Department();
+    final List<SelectFieldSizeDto> selectFieldSizeDtos = Collections.emptyList();
+    final String departmentId = "1";
+    final Department department = new Department();
     department.setId(departmentId);
     final AuthUser currentUser = getAuthUser();
     final User targetUser = new User();

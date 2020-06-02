@@ -2,18 +2,24 @@ package shamu.company;
 
 import static org.mockito.BDDMockito.given;
 
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.context.SecurityContextHolder;
 import shamu.company.authorization.MethodPermissionEvaluator;
+import shamu.company.authorization.Permission;
+import shamu.company.authorization.Permission.Name;
+import shamu.company.authorization.Permission.PermissionType;
 import shamu.company.authorization.PermissionUtils;
 import shamu.company.authorization.UserPermissionUtils;
-import shamu.company.benefit.entity.mapper.BenefitPlanDependentMapper;
-import shamu.company.benefit.entity.mapper.BenefitPlanReportMapper;
 import shamu.company.benefit.repository.BenefitCoveragesRepository;
 import shamu.company.benefit.service.BenefitPlanDependentService;
 import shamu.company.benefit.service.BenefitPlanService;
@@ -70,6 +76,8 @@ public class WebControllerBaseTests {
   @MockBean protected BenefitCoveragesRepository benefitCoveragesRepository;
   @MockBean protected Auth0Helper auth0Helper;
 
+  protected HttpHeaders httpHeaders;
+
   protected AuthUser getAuthUser() {
     final DefaultJwtAuthenticationToken authenticationToken =
         (DefaultJwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
@@ -80,8 +88,75 @@ public class WebControllerBaseTests {
     getAuthUser().setPermissions(Collections.singletonList(permission));
   }
 
+  protected void buildAuthUserAsDeactivedUser() {
+    final List<String> permissions = getDeactiveUserPermissions();
+    getAuthUser().setPermissions(permissions);
+  }
+
+  protected void buildAuthUserAsEmployee() {
+    final List<String> permissions = getEmployeePermissions();
+    getAuthUser().setPermissions(permissions);
+  }
+
+  protected void buildAuthUserAsManager() {
+    final List<String> permissions = getManagerPermissions();
+    getAuthUser().setPermissions(permissions);
+  }
+
+  protected void buildAuthUserAsAdmin() {
+    final List<String> permissions = getAdminPermissions();
+    getAuthUser().setPermissions(permissions);
+  }
+
+  private List<String> getAdminPermissions() {
+    final List<String> permissions =
+        Arrays.stream(Name.values())
+            .filter(name -> PermissionType.ADMIN_PERMISSION.equals(name.getPermissionType()))
+            .map(Name::name)
+            .collect(Collectors.toList());
+    permissions.addAll(getManagerPermissions());
+    return permissions;
+  }
+
+  private List<String> getManagerPermissions() {
+    final List<String> permissions =
+        Arrays.stream(Name.values())
+            .filter(name -> PermissionType.MANAGER_PERMISSION.equals(name.getPermissionType()))
+            .map(Name::name)
+            .collect(Collectors.toList());
+    permissions.addAll(getEmployeePermissions());
+    return permissions;
+  }
+
+  private List<String> getEmployeePermissions() {
+    final List<String> permissions =
+        Arrays.stream(Name.values())
+            .filter(name -> PermissionType.EMPLOYEE_PERMISSION.equals(name.getPermissionType()))
+            .map(Name::name)
+            .collect(Collectors.toList());
+    permissions.addAll(getSelfPermissions());
+    return permissions;
+  }
+
+  private List<String> getSelfPermissions() {
+    return Arrays.stream(Name.values())
+        .filter(name -> PermissionType.SELF_PERMISSION.equals(name.getPermissionType()))
+        .map(Name::name)
+        .collect(Collectors.toList());
+  }
+
+  private List<String> getDeactiveUserPermissions() {
+    final List<String> permissions = new ArrayList<>();
+    permissions.add(Permission.Name.EDIT_SELF.name());
+    permissions.add(Permission.Name.MANAGE_SELF_TIME_OFF_BALANCE.name());
+    permissions.add(Permission.Name.VIEW_SELF.name());
+    permissions.add(Permission.Name.VIEW_USER_ROLE_AND_STATUS.name());
+    permissions.add(Permission.Name.VIEW_SELF_BENEFITS.name());
+    return permissions;
+  }
+
   @BeforeEach
-  void setUp() {
+  void setUp() throws NoSuchAlgorithmException {
     final AuthUser authUser = new AuthUser();
     authUser.setId(UuidUtil.getUuidString());
     authUser.setCompanyId(UuidUtil.getUuidString());
@@ -92,6 +167,9 @@ public class WebControllerBaseTests {
         new DefaultJwtAuthenticationToken(
             JwtUtil.getJwt(), authUser.getId(), Collections.emptyList(), authUser);
     SecurityContextHolder.getContext().setAuthentication(defaultJwtAuthenticationToken);
+
+    httpHeaders = new HttpHeaders();
+    httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
 
     given(authUserCacheManager.getCachedUser(Mockito.any())).willReturn(getAuthUser());
   }
