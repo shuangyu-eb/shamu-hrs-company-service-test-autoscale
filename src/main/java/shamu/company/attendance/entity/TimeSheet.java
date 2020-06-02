@@ -3,7 +3,6 @@ package shamu.company.attendance.entity;
 import java.sql.Timestamp;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import lombok.Data;
 import shamu.company.common.entity.BaseEntity;
@@ -20,7 +19,7 @@ public class TimeSheet extends BaseEntity {
 
   @ManyToOne private User employee;
 
-  @OneToOne private StaticTimesheetStatus staticTimesheetStatus;
+  @ManyToOne private StaticTimesheetStatus staticTimesheetStatus;
 
   @ManyToOne private User approverEmployee;
 

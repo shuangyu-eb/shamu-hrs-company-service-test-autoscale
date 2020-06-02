@@ -2,6 +2,7 @@ package shamu.company.attendance.entity;
 
 import java.sql.Timestamp;
 import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import lombok.Data;
@@ -15,9 +16,10 @@ public class CompanyTaSetting extends BaseEntity {
 
   @OneToOne private Company company;
 
-  @OneToOne private StaticTimezone staticTimezone;
+  @ManyToOne
+  private StaticTimezone staticTimezone;
 
-  @OneToOne private StaticCompanyPayFrequencyType staticCompanyPayFrequencyType;
+  @ManyToOne private StaticCompanyPayFrequencyType staticCompanyPayFrequencyType;
 
   private int approvalDaysBeforePayroll;
 

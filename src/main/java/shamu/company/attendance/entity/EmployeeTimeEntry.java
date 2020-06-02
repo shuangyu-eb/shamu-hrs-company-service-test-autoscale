@@ -2,7 +2,6 @@ package shamu.company.attendance.entity;
 
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import lombok.Data;
 import shamu.company.common.entity.BaseEntity;
@@ -17,5 +16,5 @@ public class EmployeeTimeEntry extends BaseEntity {
 
   @ManyToOne User employee;
 
-  @OneToOne private TimeSheet timeSheet;
+  @ManyToOne private TimeSheet timeSheet;
 }

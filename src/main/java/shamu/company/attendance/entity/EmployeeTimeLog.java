@@ -2,7 +2,7 @@ package shamu.company.attendance.entity;
 
 import java.sql.Timestamp;
 import javax.persistence.Entity;
-import javax.persistence.OneToOne;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.Data;
 import shamu.company.common.entity.BaseEntity;
@@ -16,7 +16,8 @@ public class EmployeeTimeLog extends BaseEntity {
 
   private int durationMin;
 
-  @OneToOne private StaticEmployeesTaTimeType staticEmployeesTaTimeType;
+  @ManyToOne
+  private StaticEmployeesTaTimeType staticEmployeesTaTimeType;
 
-  @OneToOne private EmployeeTimeEntry employeeTimeEntry;
+  @ManyToOne private EmployeeTimeEntry employeeTimeEntry;
 }
