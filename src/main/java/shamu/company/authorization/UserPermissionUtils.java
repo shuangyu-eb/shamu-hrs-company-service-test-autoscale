@@ -2,6 +2,7 @@ package shamu.company.authorization;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -349,19 +350,30 @@ public class UserPermissionUtils extends BasePermissionUtils {
 
   private boolean hasPermissionOfTimeOffRequest(
       final Authentication auth, final String id, final Permission.Name permission) {
+    final String authUserId = getAuthUser().getId();
+
     if (permission == Name.CREATE_AND_APPROVED_TIME_OFF_REQUEST) {
       final User user = userService.findById(id);
+      final User manager = user.getManagerUser();
 
-      if (getAuthUser().getId().equals(id)) {
-        return user.getManagerUser() == null && hasPermissionOfUser(auth, user, permission);
+      if (authUserId.equals(id)) {
+        return manager == null && hasPermissionOfUser(auth, user, permission);
+      }
+
+      if (manager != null && authUserId.equals(manager.getId())) {
+        return hasPermissionOfUser(auth, user, permission);
       }
 
       return getAuthUser().getRole() == User.Role.ADMIN
           && hasPermissionOfUser(auth, user, permission);
-    } else {
-      final User user = timeOffRequestService.getById(id).getRequesterUser();
-      return hasPermissionOfUser(auth, user, permission);
     }
+
+    final User user = timeOffRequestService.getById(id).getRequesterUser();
+    if (permission == Name.MANAGE_TIME_OFF_REQUEST) {
+      return !authUserId.equals(user.getId()) && hasPermissionOfUser(auth, user, permission);
+    }
+
+    return hasPermissionOfUser(auth, user, permission);
   }
 
   private boolean hasPermissionOfPersonalInformation(
@@ -489,7 +501,8 @@ public class UserPermissionUtils extends BasePermissionUtils {
         return hasPermission(authorities, permission);
       }
 
-      final String managerUserId = userService.getManagerUserIdById(targetUser.getId());
+      final Optional<User> manager = Optional.ofNullable(targetUser.getManagerUser());
+      final String managerUserId = manager.orElse(new User()).getId();
       final boolean isManager =
           !StringUtils.isEmpty(managerUserId)
               && managerUserId.equalsIgnoreCase(getAuthUser().getId());

@@ -63,17 +63,7 @@ public class JobControllerTests extends WebControllerBaseTests {
   @Nested
   class TestUpdateJobInfo {
 
-    private AuthUser currentUser;
-
-    private User targetUser;
-
     private final JobUpdateDto jobUpdateDto = new JobUpdateDto();
-
-    @BeforeEach
-    void init() {
-      currentUser = getAuthUser();
-      targetUser = new User();
-    }
 
     @Nested
     class SameUser {
@@ -81,7 +71,7 @@ public class JobControllerTests extends WebControllerBaseTests {
       @BeforeEach
       void init() {
         targetUser.setId(currentUser.getId());
-        targetUser.setCompany(new Company(currentUser.getCompanyId()));
+        targetUser.setCompany(company);
         setGiven();
       }
 
@@ -117,11 +107,8 @@ public class JobControllerTests extends WebControllerBaseTests {
     @Nested
     class SameCompany {
 
-      private Company company;
-
       @BeforeEach
       void init() {
-        company = new Company(currentUser.getCompanyId());
         targetUser.setCompany(company);
         targetUser.setId(UuidUtil.getUuidString());
         setGiven();
@@ -161,8 +148,6 @@ public class JobControllerTests extends WebControllerBaseTests {
 
     @Nested
     class DifferentCompany {
-
-      private final Company theOtherCompany = new Company(UuidUtil.getUuidString());
 
       @BeforeEach
       void init() {

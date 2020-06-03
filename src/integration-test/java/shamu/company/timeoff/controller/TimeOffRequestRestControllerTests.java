@@ -18,7 +18,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import shamu.company.WebControllerBaseTests;
 import shamu.company.authorization.Permission.Name;
 import shamu.company.company.entity.Company;
-import shamu.company.server.dto.AuthUser;
 import shamu.company.tests.utils.JwtUtil;
 import shamu.company.timeoff.dto.TimeOffRequestCreateDto;
 import shamu.company.timeoff.dto.TimeOffRequestUpdateDto;
@@ -38,23 +37,13 @@ class TimeOffRequestRestControllerTests extends WebControllerBaseTests {
   @Nested
   class TestCreateTimeOffRequest {
 
-    private AuthUser currentUser;
-
-    private User targetUser;
-
-    @BeforeEach
-    void init() {
-      currentUser = getAuthUser();
-      targetUser = new User();
-    }
-
     @Nested
     class SameUser {
 
       @BeforeEach
       void init() {
         targetUser.setId(currentUser.getId());
-        targetUser.setCompany(new Company(currentUser.getCompanyId()));
+        targetUser.setCompany(company);
         setGiven();
       }
 
@@ -114,11 +103,8 @@ class TimeOffRequestRestControllerTests extends WebControllerBaseTests {
     @Nested
     class SameCompany {
 
-      private Company company;
-
       @BeforeEach
       void init() {
-        company = new Company(currentUser.getCompanyId());
         targetUser.setId(UuidUtil.getUuidString());
         targetUser.setCompany(company);
         setGiven();
@@ -155,8 +141,6 @@ class TimeOffRequestRestControllerTests extends WebControllerBaseTests {
 
     @Nested
     class DifferentCompany {
-
-      private final Company theOtherCompany = new Company(UuidUtil.getUuidString());
 
       @BeforeEach
       void init() {
@@ -213,23 +197,13 @@ class TimeOffRequestRestControllerTests extends WebControllerBaseTests {
   @Nested
   class TestCreateTimeOffRequestAndApprove {
 
-    private AuthUser currentUser;
-
-    private User targetUser;
-
-    @BeforeEach
-    void init() {
-      currentUser = getAuthUser();
-      targetUser = new User();
-    }
-
     @Nested
     class SameUser {
 
       @BeforeEach
       void init() {
         targetUser.setId(currentUser.getId());
-        targetUser.setCompany(new Company(currentUser.getCompanyId()));
+        targetUser.setCompany(company);
         setGiven();
       }
 
@@ -259,8 +233,6 @@ class TimeOffRequestRestControllerTests extends WebControllerBaseTests {
     @Nested
     class SameCompany {
 
-      private Company company;
-
       @BeforeEach
       void init() {
         company = new Company(currentUser.getCompanyId());
@@ -277,10 +249,11 @@ class TimeOffRequestRestControllerTests extends WebControllerBaseTests {
       }
 
       @Test
-      void asManager_thenShouldFailed() throws Exception {
+      void asManager_thenShouldSuccess() throws Exception {
         buildAuthUserAsManager();
+        targetUser.setManagerUser(new User(currentUser.getId()));
         final MvcResult response = getResponse();
-        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
       }
 
       @Test
@@ -300,8 +273,6 @@ class TimeOffRequestRestControllerTests extends WebControllerBaseTests {
 
     @Nested
     class DifferentCompany {
-
-      private final Company theOtherCompany = new Company(UuidUtil.getUuidString());
 
       @BeforeEach
       void init() {
@@ -406,7 +377,7 @@ class TimeOffRequestRestControllerTests extends WebControllerBaseTests {
 
   @Test
   void findTimeOffRequest() throws Exception {
-    setPermission(Name.MANAGE_TIME_OFF_REQUEST.name());
+    setPermission(Name.VIEW_TEAM_TIME_OFF_REQUEST.name());
 
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
@@ -429,30 +400,158 @@ class TimeOffRequestRestControllerTests extends WebControllerBaseTests {
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
 
-  @Test
-  void testUpdateTimeOffRequestStatus() throws Exception {
-    setPermission(Name.MANAGE_TIME_OFF_REQUEST.name());
+  @Nested
+  class TestUpdateTimeOffRequestStatus {
 
-    final HttpHeaders httpHeaders = new HttpHeaders();
-    httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+    private TimeOffRequest timeOffRequest;
 
-    final User targetUser = new User();
-    targetUser.setId(getAuthUser().getId());
-    targetUser.setCompany(new Company(getAuthUser().getCompanyId()));
-    final TimeOffRequest timeOffRequest = new TimeOffRequest();
-    timeOffRequest.setRequesterUser(targetUser);
-    given(timeOffRequestService.getById(Mockito.any())).willReturn(timeOffRequest);
+    @BeforeEach
+    void init() {
+      timeOffRequest = new TimeOffRequest();
+      timeOffRequest.setId(UuidUtil.getUuidString());
+      timeOffRequest.setRequesterUser(targetUser);
+      setGiven();
+    }
 
-    final MvcResult response =
-        mockMvc
-            .perform(
-                MockMvcRequestBuilders.patch("/company/time-off-requests/1")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .headers(httpHeaders)
-                    .content(JsonUtil.formatToString(new TimeOffRequestUpdateDto())))
-            .andReturn();
+    @Nested
+    class SameUser {
 
-    assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+      // As self, whatever the role he is, should return failed.
+
+      @BeforeEach
+      void init() {
+        targetUser.setId(currentUser.getId());
+        targetUser.setCompany(company);
+      }
+
+      @Test
+      void asAdmin_thenShouldFailed() throws Exception {
+        buildAuthUserAsAdmin();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+
+      @Test
+      void asManager_thenShouldFailed() throws Exception {
+        buildAuthUserAsManager();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+
+      @Test
+      void asEmployee_thenShouldFailed() throws Exception {
+        buildAuthUserAsEmployee();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+
+      @Test
+      void asDeactivatedUser_thenShouldFailed() throws Exception {
+        buildAuthUserAsDeactivatedUser();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+    }
+
+    @Nested
+    class SameCompany {
+
+      // Only the admin or the manager of the targetUser could manage requests of the targetUser.
+
+      @BeforeEach
+      void init() {
+        targetUser.setCompany(company);
+        targetUser.setId(UuidUtil.getUuidString());
+      }
+
+      @Test
+      void asAdmin_thenShouldSuccess() throws Exception {
+        buildAuthUserAsAdmin();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+      }
+
+      @Test
+      void asManager_belongToTargetUser_thenShouldSuccess() throws Exception {
+        buildAuthUserAsManager();
+        targetUser.setManagerUser(new User(currentUser.getId()));
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+      }
+
+      @Test
+      void asManager_notBelongToTargetUser_thenShouldFailed() throws Exception {
+        buildAuthUserAsManager();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+
+      @Test
+      void asEmployee_thenShouldFailed() throws Exception {
+        buildAuthUserAsEmployee();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+
+      @Test
+      void asDeactivatedUser_thenShouldFailed() throws Exception {
+        buildAuthUserAsDeactivatedUser();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+    }
+
+    @Nested
+    class DifferentCompany {
+
+      @BeforeEach
+      void init() {
+        targetUser.setCompany(theOtherCompany);
+        targetUser.setId(UuidUtil.getUuidString());
+      }
+
+      @Test
+      void asAdmin_thenShouldFailed() throws Exception {
+        buildAuthUserAsAdmin();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+
+      @Test
+      void asManager_thenShouldFailed() throws Exception {
+        buildAuthUserAsManager();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+
+      @Test
+      void asEmployee_thenShouldFailed() throws Exception {
+        buildAuthUserAsEmployee();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+
+      @Test
+      void asDeactivated_thenShouldFailed() throws Exception {
+        buildAuthUserAsDeactivatedUser();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+    }
+
+    private void setGiven() {
+      given(timeOffRequestService.getById(timeOffRequest.getId())).willReturn(timeOffRequest);
+    }
+
+    private MvcResult getResponse() throws Exception {
+      return mockMvc
+          .perform(
+              MockMvcRequestBuilders.patch("/company/time-off-requests/" + timeOffRequest.getId())
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .headers(httpHeaders)
+                  .content(JsonUtil.formatToString(new TimeOffRequestUpdateDto())))
+          .andReturn();
+    }
   }
 
   @Test
@@ -596,6 +695,151 @@ class TimeOffRequestRestControllerTests extends WebControllerBaseTests {
             .andReturn();
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+  }
+
+  @Nested
+  class TestDeleteUnimplementedRequest {
+
+    private TimeOffRequest timeOffRequest;
+
+    @BeforeEach
+    void init() {
+      timeOffRequest = new TimeOffRequest();
+      timeOffRequest.setId(UuidUtil.getUuidString());
+      timeOffRequest.setRequesterUser(targetUser);
+      setGiven();
+    }
+
+    @Nested
+    class SameUser {
+
+      @BeforeEach
+      void init() {
+        targetUser.setId(currentUser.getId());
+        targetUser.setCompany(company);
+      }
+
+      @Test
+      void asAdmin_thenShouldSuccess() throws Exception {
+        buildAuthUserAsAdmin();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+      }
+
+      @Test
+      void asManager_thenShouldSuccess() throws Exception {
+        buildAuthUserAsManager();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+      }
+
+      @Test
+      void asEmployee_thenShouldSuccess() throws Exception {
+        buildAuthUserAsEmployee();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+      }
+
+      @Test
+      void asDeactivated_thenShouldFailed() throws Exception {
+        buildAuthUserAsDeactivatedUser();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+    }
+
+    @Nested
+    class SameCompany {
+
+      @BeforeEach
+      void init() {
+        targetUser.setCompany(company);
+        targetUser.setId(UuidUtil.getUuidString());
+      }
+
+      @Test
+      void asAdmin_thenShouldFailed() throws Exception {
+        buildAuthUserAsAdmin();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+
+      @Test
+      void asManager_thenShouldFailed() throws Exception {
+        buildAuthUserAsManager();
+        targetUser.setManagerUser(new User(currentUser.getId()));
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+
+      @Test
+      void asEmployee_thenShouldFailed() throws Exception {
+        buildAuthUserAsEmployee();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+
+      @Test
+      void asDeactivated_thenShouldFailed() throws Exception {
+        buildAuthUserAsDeactivatedUser();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+    }
+
+    @Nested
+    class DifferentCompany {
+
+      @BeforeEach
+      void init() {
+        targetUser.setCompany(theOtherCompany);
+        targetUser.setId(UuidUtil.getUuidString());
+      }
+
+      @Test
+      void asAdmin_thenShouldFailed() throws Exception {
+        buildAuthUserAsAdmin();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+
+      @Test
+      void asManager_thenShouldFailed() throws Exception {
+        buildAuthUserAsManager();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+
+      @Test
+      void asEmployee_thenShouldFailed() throws Exception {
+        buildAuthUserAsEmployee();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+
+      @Test
+      void asDeactivated_thenShouldFailed() throws Exception {
+        buildAuthUserAsDeactivatedUser();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+    }
+
+    private void setGiven() {
+      given(timeOffRequestService.getById(timeOffRequest.getId())).willReturn(timeOffRequest);
+    }
+
+    private MvcResult getResponse() throws Exception {
+      return mockMvc
+          .perform(
+              MockMvcRequestBuilders.delete(
+                      String.format(
+                          "/company/time-off-requests/%s/unimplemented-requests",
+                          timeOffRequest.getId()))
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .headers(httpHeaders))
+          .andReturn();
+    }
   }
 
   @Test

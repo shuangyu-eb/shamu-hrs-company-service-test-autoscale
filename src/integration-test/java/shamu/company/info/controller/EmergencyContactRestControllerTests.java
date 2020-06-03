@@ -21,7 +21,6 @@ import shamu.company.authorization.Permission;
 import shamu.company.company.entity.Company;
 import shamu.company.info.dto.UserEmergencyContactDto;
 import shamu.company.info.entity.UserEmergencyContact;
-import shamu.company.server.dto.AuthUser;
 import shamu.company.tests.utils.JwtUtil;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserRole;
@@ -57,23 +56,13 @@ public class EmergencyContactRestControllerTests extends WebControllerBaseTests 
   @Nested
   class TestCreateEmergencyContacts {
 
-    private AuthUser currentUser;
-
-    private User targetUser;
-
     private final UserEmergencyContactDto userEmergencyContactDto = new UserEmergencyContactDto();
-
-    @BeforeEach
-    void init() {
-      currentUser = getAuthUser();
-      targetUser = new User();
-    }
 
     @Test
     void asSelf_thenShouldSuccess() throws Exception {
       buildAuthUserAsDeactivatedUser();
       targetUser.setId(currentUser.getId());
-      targetUser.setCompany(new Company(currentUser.getCompanyId()));
+      targetUser.setCompany(company);
       setGiven();
       final MvcResult response = getResponse();
       assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
@@ -82,11 +71,8 @@ public class EmergencyContactRestControllerTests extends WebControllerBaseTests 
     @Nested
     class SameCompany {
 
-      private Company company;
-
       @BeforeEach
       void init() {
-        company = new Company(currentUser.getCompanyId());
         targetUser.setCompany(company);
         targetUser.setId(UuidUtil.getUuidString());
         setGiven();
@@ -126,8 +112,6 @@ public class EmergencyContactRestControllerTests extends WebControllerBaseTests 
 
     @Nested
     class DifferentCompany {
-
-      private final Company theOtherCompany = new Company(UuidUtil.getUuidString());
 
       @BeforeEach
       void init() {
@@ -187,16 +171,10 @@ public class EmergencyContactRestControllerTests extends WebControllerBaseTests 
   @Nested
   class TestDeleteEmergencyContacts {
 
-    private AuthUser currentUser;
-
-    private User targetUser;
-
     private UserEmergencyContact userEmergencyContact;
 
     @BeforeEach
     void init() {
-      currentUser = getAuthUser();
-      targetUser = new User();
       userEmergencyContact = new UserEmergencyContact();
       userEmergencyContact.setUser(targetUser);
       userEmergencyContact.setId(UuidUtil.getUuidString());
@@ -206,7 +184,7 @@ public class EmergencyContactRestControllerTests extends WebControllerBaseTests 
     void asSelf_thenShouldSuccess() throws Exception {
       buildAuthUserAsDeactivatedUser();
       targetUser.setId(currentUser.getId());
-      targetUser.setCompany(new Company(currentUser.getCompanyId()));
+      targetUser.setCompany(company);
       setGiven();
       final MvcResult response = getResponse();
       assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
@@ -215,11 +193,8 @@ public class EmergencyContactRestControllerTests extends WebControllerBaseTests 
     @Nested
     class SameCompany {
 
-      private Company company;
-
       @BeforeEach
       void init() {
-        company = new Company(currentUser.getCompanyId());
         targetUser.setCompany(company);
         setGiven();
       }
@@ -265,8 +240,6 @@ public class EmergencyContactRestControllerTests extends WebControllerBaseTests 
 
     @Nested
     class DifferentCompany {
-
-      private final Company theOtherCompany = new Company(UuidUtil.getUuidString());
 
       @BeforeEach
       void init() {
@@ -325,18 +298,12 @@ public class EmergencyContactRestControllerTests extends WebControllerBaseTests 
   @Nested
   class TestUpdateEmergencyContact {
 
-    private AuthUser currentUser;
-
-    private User targetUser;
-
     private UserEmergencyContact userEmergencyContact;
 
     private UserEmergencyContactDto userEmergencyContactDto;
 
     @BeforeEach
     void init() {
-      currentUser = getAuthUser();
-      targetUser = new User();
       userEmergencyContact = new UserEmergencyContact();
       userEmergencyContact.setId(UuidUtil.getUuidString());
       userEmergencyContact.setUser(targetUser);
@@ -348,7 +315,7 @@ public class EmergencyContactRestControllerTests extends WebControllerBaseTests 
     void asSelf_thenShouldSuccess() throws Exception {
       buildAuthUserAsDeactivatedUser();
       targetUser.setId(currentUser.getId());
-      targetUser.setCompany(new Company(currentUser.getCompanyId()));
+      targetUser.setCompany(company);
       setGiven();
       final MvcResult response = getResponse();
       assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
@@ -357,11 +324,8 @@ public class EmergencyContactRestControllerTests extends WebControllerBaseTests 
     @Nested
     class SameCompany {
 
-      private Company company;
-
       @BeforeEach
       void init() {
-        company = new Company(currentUser.getCompanyId());
         targetUser.setCompany(company);
         setGiven();
       }
@@ -407,8 +371,6 @@ public class EmergencyContactRestControllerTests extends WebControllerBaseTests 
 
     @Nested
     class DifferentCompany {
-
-      private final Company theOtherCompany = new Company(UuidUtil.getUuidString());
 
       @BeforeEach
       void init() {

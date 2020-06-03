@@ -64,16 +64,10 @@ public class UserContactInformationRestControllerTests extends WebControllerBase
   @Nested
   class testUpdate {
 
-    private AuthUser currentUser;
-
-    private User targetUser;
-
     private UserContactInformationDto userContactInformationDto;
 
     @BeforeEach
     void init() {
-      currentUser = getAuthUser();
-      targetUser = new User();
       userContactInformationDto = new UserContactInformationDto();
       userContactInformationDto.setEmailWork("testEmail@gmail.com");
       userContactInformationDto.setPhoneWork("18002738255");
@@ -83,7 +77,6 @@ public class UserContactInformationRestControllerTests extends WebControllerBase
     @Test
     void asSelf_thenShouldSucess() throws Exception {
       buildAuthUserAsDeactivatedUser();
-      final Company company = new Company(currentUser.getCompanyId());
       targetUser.setCompany(company);
       targetUser.setId(currentUser.getId());
       setGiven();
@@ -96,11 +89,8 @@ public class UserContactInformationRestControllerTests extends WebControllerBase
     @Nested
     class SameCompany {
 
-      private Company company;
-
       @BeforeEach
       void init() {
-        company = new Company(currentUser.getCompanyId());
         targetUser.setCompany(company);
         targetUser.setId(UuidUtil.getUuidString());
         setGiven();
@@ -148,8 +138,6 @@ public class UserContactInformationRestControllerTests extends WebControllerBase
 
     @Nested
     class DifferentCompany {
-
-      private final Company theOtherCompany = new Company(UuidUtil.getUuidString());
 
       @BeforeEach
       void init() {

@@ -27,6 +27,7 @@ import shamu.company.benefit.service.BenefitPlanService;
 import shamu.company.benefit.service.BenefitPlanTypeService;
 import shamu.company.common.config.DefaultAuthenticationEntryPoint;
 import shamu.company.common.config.DefaultJwtAuthenticationToken;
+import shamu.company.company.entity.Company;
 import shamu.company.company.service.CompanyService;
 import shamu.company.helpers.auth0.Auth0Helper;
 import shamu.company.info.entity.mapper.UserEmergencyContactMapper;
@@ -43,6 +44,7 @@ import shamu.company.timeoff.service.PaidHolidayService;
 import shamu.company.timeoff.service.TimeOffPolicyService;
 import shamu.company.timeoff.service.TimeOffPolicyUserService;
 import shamu.company.timeoff.service.TimeOffRequestService;
+import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
 import shamu.company.user.service.UserAddressService;
 import shamu.company.user.service.UserService;
@@ -80,6 +82,14 @@ public class WebControllerBaseTests {
   @MockBean protected AttendanceSetUpService attendanceSetUpService;
 
   protected HttpHeaders httpHeaders;
+
+  protected Company company;
+
+  protected Company theOtherCompany = new Company(UuidUtil.getUuidString());
+
+  protected AuthUser currentUser;
+
+  protected User targetUser;
 
   protected AuthUser getAuthUser() {
     final DefaultJwtAuthenticationToken authenticationToken =
@@ -177,6 +187,10 @@ public class WebControllerBaseTests {
 
     httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+
+    company = new Company(getAuthUser().getCompanyId());
+    currentUser = getAuthUser();
+    targetUser = new User();
 
     given(authUserCacheManager.getCachedUser(Mockito.any())).willReturn(getAuthUser());
   }

@@ -45,24 +45,13 @@ public class UserPersonalInformationRestControllerTests extends WebControllerBas
   @Nested
   class testUpdate {
 
-    private User targetUser;
-
-    private AuthUser currentUser;
-
-    private UserPersonalInformationDto userPersonalInformationDto;
-
-    @BeforeEach
-    void init() {
-      currentUser = getAuthUser();
-      targetUser = new User();
-      userPersonalInformationDto = new UserPersonalInformationDto();
-    }
+    private final UserPersonalInformationDto userPersonalInformationDto =
+        new UserPersonalInformationDto();
 
     @Test
     void asSelf_thenShouldSuccess() throws Exception {
       buildAuthUserAsEmployee();
 
-      final Company company = new Company(currentUser.getCompanyId());
       targetUser.setCompany(company);
       targetUser.setId(currentUser.getId());
 
@@ -76,11 +65,8 @@ public class UserPersonalInformationRestControllerTests extends WebControllerBas
     @Nested
     class SameCompany {
 
-      private Company company;
-
       @BeforeEach
       void init() {
-        company = new Company(currentUser.getCompanyId());
         targetUser.setCompany(company);
         targetUser.setId(UuidUtil.getUuidString());
         setGiven();
@@ -130,8 +116,6 @@ public class UserPersonalInformationRestControllerTests extends WebControllerBas
 
     @Nested
     class DifferentCompany {
-
-      private final Company theOtherCompany = new Company(UuidUtil.getUuidString());
 
       @BeforeEach
       void init() {
