@@ -168,30 +168,50 @@ class UserServiceTests {
     Assertions.assertDoesNotThrow(() -> userService.handleDeleteHeadPortrait(userId));
   }
 
-  @Test
-  void testGetCurrentUserInfo() {
-    final User currentUser = new User();
-    currentUser.setId("1");
-    final String userId = UUID.randomUUID().toString().replaceAll("-", "");
-    currentUser.setId(userId);
+  @Nested
+  class testGetCurrentUserInfo {
+    User currentUser;
+    String userId = UUID.randomUUID().toString().replaceAll("-", "");
+    UserPersonalInformation userPersonalInformation;
+    Company company;
+    UserRole userRole;
 
-    final UserPersonalInformation userPersonalInformation = new UserPersonalInformation();
-    userPersonalInformation.setFirstName("Aa");
-    userPersonalInformation.setLastName("Bb");
-    currentUser.setUserPersonalInformation(userPersonalInformation);
+    @BeforeEach
+    void init() {
+      currentUser = new User();
+      currentUser.setId(userId);
+      userPersonalInformation = new UserPersonalInformation();
+      userPersonalInformation.setFirstName("Aa");
+      userPersonalInformation.setLastName("Bb");
+      currentUser.setUserPersonalInformation(userPersonalInformation);
+      currentUser.setImageUrl(RandomStringUtils.randomAlphabetic(11));
+      company = new Company();
+      company.setId("1");
+      userRole = new UserRole();
+      userRole.setName("admin");
+      Mockito.when(userRepository.findByManagerUser(Mockito.any()))
+              .thenReturn(Collections.emptyList());
+    }
 
-    currentUser.setImageUrl(RandomStringUtils.randomAlphabetic(11));
+    @Test
+    void whenVerifiedAtIsNull_thenShouldSuccess() {
+      Mockito.when(userRepository.findById(Mockito.anyString()))
+              .thenReturn(java.util.Optional.of(currentUser));
+      final CurrentUserDto userInfo = userService.getCurrentUserInfo(currentUser.getId());
+      Assertions.assertEquals(userInfo.getId(), currentUser.getId());
+      Assertions.assertFalse(userInfo.getVerified());
+    }
 
-    final Company company = new Company();
-    company.setId("1");
-
-    Mockito.when(userRepository.findById(Mockito.anyString()))
-        .thenReturn(java.util.Optional.of(currentUser));
-    Mockito.when(userRepository.findByManagerUser(Mockito.any()))
-        .thenReturn(Collections.emptyList());
-
-    final CurrentUserDto userInfo = userService.getCurrentUserInfo(currentUser.getId());
-    Assertions.assertEquals(userInfo.getId(), currentUser.getId());
+    @Test
+    void whenVerifiedAtIsNotNull_thenShouldSuccess() {
+      currentUser.setVerifiedAt(new Timestamp(System.currentTimeMillis()));
+      currentUser.setUserRole(userRole);
+      Mockito.when(userRepository.findById(Mockito.anyString()))
+              .thenReturn(java.util.Optional.of(currentUser));
+      final CurrentUserDto userInfo = userService.getCurrentUserInfo(currentUser.getId());
+      Assertions.assertEquals(userInfo.getId(), currentUser.getId());
+      Assertions.assertTrue(userInfo.getVerified());
+    }
   }
 
   @Test

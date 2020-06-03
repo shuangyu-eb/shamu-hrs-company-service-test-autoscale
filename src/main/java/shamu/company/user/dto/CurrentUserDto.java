@@ -22,4 +22,6 @@ public class CurrentUserDto {
   private List<String> teamMembers;
 
   private Boolean verified;
+
+  private String userRole;
 }

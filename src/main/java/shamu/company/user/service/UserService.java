@@ -718,7 +718,7 @@ public class UserService {
 
     return CurrentUserDto.builder().id(user.getId()).teamMembers(teamMemberIds)
         .name(user.getUserPersonalInformation().getName()).imageUrl(user.getImageUrl())
-        .verified(user.getVerifiedAt() != null).build();
+        .verified(user.getVerifiedAt() != null).userRole(user.getUserRole().getName()).build();
   }
 
   public CurrentUserDto getMockUserInfo(final String userId) {
