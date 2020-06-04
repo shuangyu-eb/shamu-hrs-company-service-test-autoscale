@@ -13,7 +13,7 @@ public class AuthUserCacheManager {
 
   private static final TimeUnit EXPIRATION_UNIT = TimeUnit.SECONDS;
   private final RedisHelper redisHelper;
-  @Value("${spring.redis.expiration}")
+  @Value("${user.cached.expiration}")
   private Long expiration;
 
   @Autowired

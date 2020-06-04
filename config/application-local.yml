@@ -25,7 +25,6 @@ spring:
   redis:
     host: localhost
     port: 6379
-    expiration: 36000
 
 application:
   systemEmailAddress: no-reply@interviewed-qa.com
