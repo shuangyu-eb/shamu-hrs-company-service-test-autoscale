@@ -18,6 +18,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,6 +33,7 @@ import shamu.company.job.entity.JobUser;
 import shamu.company.job.entity.mapper.JobUserMapper;
 import shamu.company.job.repository.JobUserRepository;
 import shamu.company.timeoff.dto.AccrualScheduleMilestoneDto;
+import shamu.company.timeoff.dto.NewPolicyCheckFrontedDto;
 import shamu.company.timeoff.dto.TimeOffAdjustmentCheckDto;
 import shamu.company.timeoff.dto.TimeOffBalanceDto;
 import shamu.company.timeoff.dto.TimeOffBalanceItemDto;
@@ -48,6 +50,8 @@ import shamu.company.timeoff.dto.TimeOffPolicyUserFrontendDto;
 import shamu.company.timeoff.dto.TimeOffPolicyWrapperDto;
 import shamu.company.timeoff.entity.AccrualScheduleMilestone;
 import shamu.company.timeoff.entity.PaidHolidayUser;
+import shamu.company.timeoff.entity.TimeOffAccrualFrequency;
+import shamu.company.timeoff.entity.TimeOffAccrualFrequency.AccrualFrequencyType;
 import shamu.company.timeoff.entity.TimeOffAdjustment;
 import shamu.company.timeoff.entity.TimeOffPolicy;
 import shamu.company.timeoff.entity.TimeOffPolicyAccrualSchedule;
@@ -62,6 +66,7 @@ import shamu.company.timeoff.entity.mapper.TimeOffPolicyUserMapper;
 import shamu.company.timeoff.pojo.TimeOffPolicyListPojo;
 import shamu.company.timeoff.repository.AccrualScheduleMilestoneRepository;
 import shamu.company.timeoff.repository.PaidHolidayUserRepository;
+import shamu.company.timeoff.repository.TimeOffAccrualFrequencyRepository;
 import shamu.company.timeoff.repository.TimeOffAdjustmentRepository;
 import shamu.company.timeoff.repository.TimeOffPolicyAccrualScheduleRepository;
 import shamu.company.timeoff.repository.TimeOffPolicyRepository;
@@ -110,6 +115,8 @@ public class TimeOffPolicyService {
 
   private final UserService userService;
 
+  private final TimeOffAccrualFrequencyRepository timeOffAccrualFrequencyRepository;
+
   @Autowired
   public TimeOffPolicyService(
       final TimeOffPolicyRepository timeOffPolicyRepository,
@@ -128,7 +135,8 @@ public class TimeOffPolicyService {
       final TimeOffPolicyMapper timeOffPolicyMapper,
       final JobUserMapper jobUserMapper,
       final CompanyService companyService,
-      final UserService userService) {
+      final UserService userService,
+      final TimeOffAccrualFrequencyRepository timeOffAccrualFrequencyRepository) {
     this.timeOffPolicyRepository = timeOffPolicyRepository;
     this.timeOffPolicyUserRepository = timeOffPolicyUserRepository;
     this.accrualScheduleMilestoneRepository = accrualScheduleMilestoneRepository;
@@ -146,6 +154,7 @@ public class TimeOffPolicyService {
     this.jobUserMapper = jobUserMapper;
     this.companyService = companyService;
     this.userService = userService;
+    this.timeOffAccrualFrequencyRepository = timeOffAccrualFrequencyRepository;
   }
 
   public void createTimeOffPolicy(
@@ -414,7 +423,11 @@ public class TimeOffPolicyService {
 
     final TimeOffPolicy timeOffPolicy = getTimeOffPolicyById(timeOffPolicyId);
 
-    final Boolean isLimited = timeOffPolicy.getIsLimited();
+    final TimeOffPolicyAccrualSchedule timeOffPolicyAccrualSchedule =
+        timeOffPolicyAccrualScheduleRepository.findByTimeOffPolicy(timeOffPolicy);
+
+    final Boolean isPolicyCalculationRelatedToHireDate =
+        checkIsPolicyCalculationRelatedToHireDate(timeOffPolicyAccrualSchedule);
 
     final List<TimeOffPolicyUser> timeOffPolicyUsers =
         timeOffPolicyUserRepository.findAllByTimeOffPolicyId(timeOffPolicyId);
@@ -432,7 +445,10 @@ public class TimeOffPolicyService {
                   selectedUsersIds.add(timeOffPolicyUser.getUser().getId());
 
                   return jobUserMapper.convertToTimeOffPolicyRelatedUserDto(
-                      timeOffPolicyUser, employeeWithJobInfo);
+                      timeOffPolicyUser,
+                      employeeWithJobInfo,
+                      isPolicyCalculationRelatedToHireDate
+                          && employeeWithJobInfo.getStartDate() == null);
                 })
             .collect(Collectors.toList());
 
@@ -443,11 +459,52 @@ public class TimeOffPolicyService {
                 user -> {
                   final JobUser employeeWithJobInfo = jobUserRepository.findJobUserByUser(user);
                   return jobUserMapper.convertToTimeOffPolicyRelatedUserDto(
-                      user, employeeWithJobInfo);
+                      user,
+                      employeeWithJobInfo,
+                      isPolicyCalculationRelatedToHireDate
+                          && employeeWithJobInfo.getStartDate() == null);
                 })
             .collect(Collectors.toList());
 
-    return new TimeOffPolicyRelatedUserListDto(isLimited, unselectedEmployees, selectedEmployees);
+    return new TimeOffPolicyRelatedUserListDto(
+        timeOffPolicy.getIsLimited(), unselectedEmployees, selectedEmployees);
+  }
+
+  public List<TimeOffPolicyRelatedUserDto> getEmployeesOfNewPolicy(
+      final NewPolicyCheckFrontedDto newPolicyCheckFrontedDto, final String companyId) {
+
+    final List<User> selectableTimeOffPolicyUsers = userRepository.findAllByCompanyId(companyId);
+    if (StringUtils.isEmpty(newPolicyCheckFrontedDto.getTimeOffAccrualFrequencyId())) {
+      final TimeOffPolicyRelatedUserListDto timeOffPolicyRelatedUserListDto =
+          getAllEmployeesByTimeOffPolicyId(
+              newPolicyCheckFrontedDto.getTimeOffPolicyId().trim(), companyId);
+      final List<TimeOffPolicyRelatedUserDto> allEmployees = new ArrayList<>();
+      allEmployees.addAll(timeOffPolicyRelatedUserListDto.getUnSelectedUserList());
+      allEmployees.addAll(timeOffPolicyRelatedUserListDto.getSelectedUserList());
+      return allEmployees;
+    }
+
+    final TimeOffAccrualFrequency timeOffAccrualFrequency =
+        timeOffAccrualFrequencyRepository.getOne(
+            newPolicyCheckFrontedDto.getTimeOffAccrualFrequencyId().trim());
+
+    final Boolean isPolicyCalculationRelatedToHireDate =
+        !(AccrualFrequencyType.FREQUENCY_TYPE_ONE
+                .getValue()
+                .equals(timeOffAccrualFrequency.getName())
+            && BooleanUtils.isFalse(newPolicyCheckFrontedDto.getHasMilestone()));
+
+    return selectableTimeOffPolicyUsers.stream()
+        .map(
+            user -> {
+              final JobUser employeeWithJobInfo = jobUserRepository.findJobUserByUser(user);
+              return jobUserMapper.convertToTimeOffPolicyRelatedUserDto(
+                  user,
+                  employeeWithJobInfo,
+                  isPolicyCalculationRelatedToHireDate
+                      && employeeWithJobInfo.getStartDate() == null);
+            })
+        .collect(Collectors.toList());
   }
 
   public TimeOffPolicyRelatedUserListOnMobileDto getAllEmployeesOnMobileByTimeOffPolicyId(
@@ -455,7 +512,9 @@ public class TimeOffPolicyService {
 
     final TimeOffPolicy timeOffPolicy = getTimeOffPolicyById(timeOffPolicyId);
 
-    final Boolean isLimited = timeOffPolicy.getIsLimited();
+    final Boolean isPolicyCalculationRelatedToHireDate =
+        checkIsPolicyCalculationRelatedToHireDate(
+            timeOffPolicyAccrualScheduleRepository.findByTimeOffPolicy(timeOffPolicy));
 
     final List<TimeOffPolicyUser> timeOffPolicyUsers =
         timeOffPolicyUserRepository.findAllByTimeOffPolicyId(timeOffPolicyId);
@@ -469,7 +528,10 @@ public class TimeOffPolicyService {
                   final JobUser employeeWithJobInfo =
                       jobUserRepository.findJobUserByUser(timeOffPolicyUser.getUser());
                   return jobUserMapper.convertToTimeOffPolicyRelatedUserDto(
-                      timeOffPolicyUser, employeeWithJobInfo);
+                      timeOffPolicyUser,
+                      employeeWithJobInfo,
+                      isPolicyCalculationRelatedToHireDate
+                          && employeeWithJobInfo.getStartDate() == null);
                 })
             .collect(Collectors.toList());
 
@@ -479,12 +541,26 @@ public class TimeOffPolicyService {
                 user -> {
                   final JobUser employeeWithJobInfo = jobUserRepository.findJobUserByUser(user);
                   return jobUserMapper.convertToTimeOffPolicyRelatedUserDto(
-                      user, employeeWithJobInfo);
+                      user,
+                      employeeWithJobInfo,
+                      isPolicyCalculationRelatedToHireDate
+                          && employeeWithJobInfo.getStartDate() == null);
                 })
             .collect(Collectors.toList());
 
     return new TimeOffPolicyRelatedUserListOnMobileDto(
-        isLimited, unselectedEmployees, selectedEmployees);
+        timeOffPolicy.getIsLimited(), unselectedEmployees, selectedEmployees);
+  }
+
+  public boolean checkIsPolicyCalculationRelatedToHireDate(
+      final TimeOffPolicyAccrualSchedule timeOffPolicyAccrualSchedule) {
+    return timeOffPolicyAccrualSchedule.getDaysBeforeAccrualStarts() != null
+        || !AccrualFrequencyType.FREQUENCY_TYPE_ONE
+            .getValue()
+            .equals(timeOffPolicyAccrualSchedule.getTimeOffAccrualFrequency().getName())
+        || !accrualScheduleMilestoneRepository
+            .findByTimeOffPolicyAccrualScheduleId(timeOffPolicyAccrualSchedule.getId())
+            .isEmpty();
   }
 
   public void updateTimeOffPolicy(
@@ -729,15 +805,6 @@ public class TimeOffPolicyService {
       final TimeOffPolicyWrapperDto timeOffPolicyWrapperDto, final String timeOffPolicyId) {
     final List<TimeOffPolicyUserFrontendDto> userStartBalances =
         timeOffPolicyWrapperDto.getUserStartBalances();
-    if (Boolean.TRUE.equals(getTimeOffPolicyById(timeOffPolicyId).getIsLimited())) {
-      userStartBalances.forEach(
-          userStatBalance -> {
-            if (userStatBalance.getStartDate() == null) {
-              throw new ForbiddenException(
-                  "Employees without hire date can't be added to this policy.");
-            }
-          });
-    }
     final List<String> newUserIds =
         userStartBalances.stream()
             .map(TimeOffPolicyUserFrontendDto::getUserId)

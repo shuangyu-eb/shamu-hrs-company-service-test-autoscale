@@ -29,4 +29,6 @@ public class TimeOffPolicyRelatedUserDto {
   private String employmentType;
 
   private Timestamp startDate;
+
+  private Boolean unSelectable;
 }

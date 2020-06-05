@@ -20,15 +20,18 @@ import shamu.company.job.entity.JobUser;
 import shamu.company.job.entity.mapper.JobUserMapper;
 import shamu.company.job.repository.JobUserRepository;
 import shamu.company.timeoff.dto.AccrualScheduleMilestoneDto;
+import shamu.company.timeoff.dto.NewPolicyCheckFrontedDto;
 import shamu.company.timeoff.dto.TimeOffAdjustmentCheckDto;
 import shamu.company.timeoff.dto.TimeOffBreakdownDto;
 import shamu.company.timeoff.dto.TimeOffPolicyAccrualScheduleDto;
 import shamu.company.timeoff.dto.TimeOffPolicyFrontendDto;
+import shamu.company.timeoff.dto.TimeOffPolicyRelatedUserDto;
 import shamu.company.timeoff.dto.TimeOffPolicyUserDto;
 import shamu.company.timeoff.dto.TimeOffPolicyUserFrontendDto;
 import shamu.company.timeoff.dto.TimeOffPolicyWrapperDto;
 import shamu.company.timeoff.entity.AccrualScheduleMilestone;
 import shamu.company.timeoff.entity.TimeOffAccrualFrequency;
+import shamu.company.timeoff.entity.TimeOffAccrualFrequency.AccrualFrequencyType;
 import shamu.company.timeoff.entity.TimeOffAdjustment;
 import shamu.company.timeoff.entity.TimeOffPolicy;
 import shamu.company.timeoff.entity.TimeOffPolicyAccrualSchedule;
@@ -41,6 +44,7 @@ import shamu.company.timeoff.entity.mapper.TimeOffPolicyUserMapper;
 import shamu.company.timeoff.pojo.TimeOffPolicyListPojo;
 import shamu.company.timeoff.repository.AccrualScheduleMilestoneRepository;
 import shamu.company.timeoff.repository.PaidHolidayUserRepository;
+import shamu.company.timeoff.repository.TimeOffAccrualFrequencyRepository;
 import shamu.company.timeoff.repository.TimeOffAdjustmentRepository;
 import shamu.company.timeoff.repository.TimeOffPolicyAccrualScheduleRepository;
 import shamu.company.timeoff.repository.TimeOffPolicyRepository;
@@ -91,6 +95,8 @@ public class TimeOffPolicyServiceTests {
 
   @Mock private UserService userService;
 
+  @Mock private TimeOffAccrualFrequencyRepository timeOffAccrualFrequencyRepository;
+
   @BeforeEach
   void init() {
     MockitoAnnotations.initMocks(this);
@@ -112,7 +118,8 @@ public class TimeOffPolicyServiceTests {
             timeOffPolicyMapper,
             jobUserMapper,
             companyService,
-            userService);
+            userService,
+            timeOffAccrualFrequencyRepository);
   }
 
   @Test
@@ -207,28 +214,155 @@ public class TimeOffPolicyServiceTests {
     timeOffPolicy.setIsLimited(false);
     final List<User> selectableTimeOffPolicyUsers = new ArrayList<>();
     final User user = new User("007");
+    final User user1 = new User("008");
     selectableTimeOffPolicyUsers.add(user);
+    selectableTimeOffPolicyUsers.add(user1);
 
     final List<TimeOffPolicyUser> timeOffPolicyUsers = new ArrayList<>();
     final TimeOffPolicyUser timeOffPolicyUser = new TimeOffPolicyUser();
     timeOffPolicyUser.setId("1");
     timeOffPolicyUser.setUser(new User("1"));
+    final TimeOffPolicyUser timeOffPolicyUser1 = new TimeOffPolicyUser();
+    timeOffPolicyUser1.setId("2");
+    timeOffPolicyUser1.setUser(user1);
     timeOffPolicyUsers.add(timeOffPolicyUser);
+    timeOffPolicyUsers.add(timeOffPolicyUser1);
 
     final JobUser jobUser = new JobUser();
+    final JobUser jobUserHasHireDate = new JobUser();
+    jobUserHasHireDate.setStartDate(new Timestamp(123));
 
+    final TimeOffPolicyAccrualSchedule timeOffPolicyAccrualSchedule =
+        new TimeOffPolicyAccrualSchedule();
+    final TimeOffAccrualFrequency timeOffAccrualFrequency = new TimeOffAccrualFrequency();
+    final TimeOffPolicyRelatedUserDto timeOffPolicyRelatedUserDto =
+        new TimeOffPolicyRelatedUserDto();
+    timeOffAccrualFrequency.setName(AccrualFrequencyType.FREQUENCY_TYPE_TWO.getValue());
+    timeOffPolicyAccrualSchedule.setTimeOffAccrualFrequency(timeOffAccrualFrequency);
+    timeOffPolicyAccrualSchedule.setId("1");
     Mockito.when(timeOffPolicyRepository.findById(Mockito.any()))
         .thenReturn(Optional.of(timeOffPolicy));
     Mockito.when(timeOffPolicyUserRepository.findAllByTimeOffPolicyId(Mockito.any()))
         .thenReturn(timeOffPolicyUsers);
     Mockito.when(userRepository.findAllByCompanyId(Mockito.any()))
         .thenReturn(selectableTimeOffPolicyUsers);
-    Mockito.when(jobUserRepository.findJobUserByUser(Mockito.any())).thenReturn(jobUser);
+    Mockito.when(timeOffPolicyAccrualScheduleRepository.findByTimeOffPolicy(timeOffPolicy))
+        .thenReturn(timeOffPolicyAccrualSchedule);
+    Mockito.when(jobUserRepository.findJobUserByUser(Mockito.any()))
+        .thenReturn(jobUser, jobUserHasHireDate);
+    Mockito.when(
+            jobUserMapper.convertToTimeOffPolicyRelatedUserDto(
+                (TimeOffPolicyUser) Mockito.any(), Mockito.any(), Mockito.anyBoolean()))
+        .thenReturn(timeOffPolicyRelatedUserDto);
+    Mockito.when(
+            jobUserMapper.convertToTimeOffPolicyRelatedUserDto(
+                (User) Mockito.any(), Mockito.any(), Mockito.anyBoolean()))
+        .thenReturn(timeOffPolicyRelatedUserDto);
+    Mockito.when(
+            accrualScheduleMilestoneRepository.findByTimeOffPolicyAccrualScheduleId(Mockito.any()))
+        .thenReturn(new ArrayList<>());
 
     Assertions.assertDoesNotThrow(
         () ->
             timeOffPolicyService.getAllEmployeesByTimeOffPolicyId(
                 timeOffPolicy.getId(), new Company("1").getId()));
+  }
+
+  @Test
+  void testGetAllEmployeesOnMobileByTimeOffPolicyId() {
+    final TimeOffPolicy timeOffPolicy = new TimeOffPolicy();
+    timeOffPolicy.setId("1");
+    timeOffPolicy.setIsLimited(false);
+    final List<User> selectableTimeOffPolicyUsers = new ArrayList<>();
+    final User user = new User("007");
+    final User user1 = new User("008");
+    selectableTimeOffPolicyUsers.add(user);
+    selectableTimeOffPolicyUsers.add(user1);
+
+    final List<TimeOffPolicyUser> timeOffPolicyUsers = new ArrayList<>();
+    final TimeOffPolicyUser timeOffPolicyUser = new TimeOffPolicyUser();
+    timeOffPolicyUser.setId("1");
+    timeOffPolicyUser.setUser(new User("1"));
+    final TimeOffPolicyUser timeOffPolicyUser1 = new TimeOffPolicyUser();
+    timeOffPolicyUser1.setId("2");
+    timeOffPolicyUser1.setUser(user1);
+    timeOffPolicyUsers.add(timeOffPolicyUser);
+    timeOffPolicyUsers.add(timeOffPolicyUser1);
+
+    final JobUser jobUser = new JobUser();
+    final JobUser jobUserHasHireDate = new JobUser();
+    jobUserHasHireDate.setStartDate(new Timestamp(123));
+
+    final TimeOffPolicyAccrualSchedule timeOffPolicyAccrualSchedule =
+        new TimeOffPolicyAccrualSchedule();
+    final TimeOffAccrualFrequency timeOffAccrualFrequency = new TimeOffAccrualFrequency();
+    final TimeOffPolicyRelatedUserDto timeOffPolicyRelatedUserDto =
+        new TimeOffPolicyRelatedUserDto();
+    timeOffAccrualFrequency.setName(AccrualFrequencyType.FREQUENCY_TYPE_TWO.getValue());
+    timeOffPolicyAccrualSchedule.setTimeOffAccrualFrequency(timeOffAccrualFrequency);
+    timeOffPolicyAccrualSchedule.setId("1");
+    Mockito.when(timeOffPolicyRepository.findById(Mockito.any()))
+        .thenReturn(Optional.of(timeOffPolicy));
+    Mockito.when(timeOffPolicyUserRepository.findAllByTimeOffPolicyId(Mockito.any()))
+        .thenReturn(timeOffPolicyUsers);
+    Mockito.when(userRepository.findAllByCompanyId(Mockito.any()))
+        .thenReturn(selectableTimeOffPolicyUsers);
+    Mockito.when(timeOffPolicyAccrualScheduleRepository.findByTimeOffPolicy(timeOffPolicy))
+        .thenReturn(timeOffPolicyAccrualSchedule);
+    Mockito.when(jobUserRepository.findJobUserByUser(Mockito.any()))
+        .thenReturn(jobUser, jobUserHasHireDate);
+    Mockito.when(
+            jobUserMapper.convertToTimeOffPolicyRelatedUserDto(
+                (TimeOffPolicyUser) Mockito.any(), Mockito.any(), Mockito.anyBoolean()))
+        .thenReturn(timeOffPolicyRelatedUserDto);
+    Mockito.when(
+            jobUserMapper.convertToTimeOffPolicyRelatedUserDto(
+                (User) Mockito.any(), Mockito.any(), Mockito.anyBoolean()))
+        .thenReturn(timeOffPolicyRelatedUserDto);
+    Mockito.when(
+            accrualScheduleMilestoneRepository.findByTimeOffPolicyAccrualScheduleId(Mockito.any()))
+        .thenReturn(new ArrayList<>());
+
+    Assertions.assertDoesNotThrow(
+        () ->
+            timeOffPolicyService.getAllEmployeesOnMobileByTimeOffPolicyId(
+                timeOffPolicy.getId(), new Company("1").getId()));
+  }
+
+  @Test
+  void checkIsPolicyCalculationRelatedToHireDate() {
+    final TimeOffPolicyAccrualSchedule timeOffPolicyAccrualSchedule =
+        new TimeOffPolicyAccrualSchedule();
+    timeOffPolicyAccrualSchedule.setTimeOffAccrualFrequency(
+        new TimeOffAccrualFrequency(AccrualFrequencyType.FREQUENCY_TYPE_ONE.getValue()));
+    timeOffPolicyAccrualSchedule.setId("1");
+    final List<AccrualScheduleMilestone> accrualScheduleMilestones = new ArrayList<>();
+    accrualScheduleMilestones.add(new AccrualScheduleMilestone());
+    Mockito.when(
+            accrualScheduleMilestoneRepository.findByTimeOffPolicyAccrualScheduleId(Mockito.any()))
+        .thenReturn(accrualScheduleMilestones);
+    Assertions.assertEquals(
+        true,
+        timeOffPolicyService.checkIsPolicyCalculationRelatedToHireDate(
+            timeOffPolicyAccrualSchedule));
+  }
+
+  @Test
+  void test_checkIsPolicyCalculationRelatedToHireDate() {
+    final TimeOffPolicyAccrualSchedule timeOffPolicyAccrualSchedule =
+        new TimeOffPolicyAccrualSchedule();
+    final TimeOffAccrualFrequency timeOffAccrualFrequency = new TimeOffAccrualFrequency();
+    timeOffAccrualFrequency.setName(AccrualFrequencyType.FREQUENCY_TYPE_ONE.getValue());
+    timeOffPolicyAccrualSchedule.setTimeOffAccrualFrequency(timeOffAccrualFrequency);
+    timeOffPolicyAccrualSchedule.setId("1");
+    final List<AccrualScheduleMilestone> accrualScheduleMilestones = new ArrayList<>();
+    Mockito.when(
+            accrualScheduleMilestoneRepository.findByTimeOffPolicyAccrualScheduleId(Mockito.any()))
+        .thenReturn(accrualScheduleMilestones);
+    Assertions.assertEquals(
+        false,
+        timeOffPolicyService.checkIsPolicyCalculationRelatedToHireDate(
+            timeOffPolicyAccrualSchedule));
   }
 
   @Test
@@ -366,7 +500,16 @@ public class TimeOffPolicyServiceTests {
     timeOffPolicyWrapperDto.setUserStartBalances(userStatBalances);
     final TimeOffPolicy timeOffPolicy = new TimeOffPolicy();
     timeOffPolicy.setIsLimited(false);
+    final TimeOffPolicyAccrualScheduleDto timeOffPolicyAccrualScheduleDto =
+        new TimeOffPolicyAccrualScheduleDto();
+    timeOffPolicyAccrualScheduleDto.setTimeOffAccrualFrequencyId("1");
+    timeOffPolicyWrapperDto.setTimeOffPolicyAccrualSchedule(timeOffPolicyAccrualScheduleDto);
+    timeOffPolicyWrapperDto.setMilestones(new ArrayList<AccrualScheduleMilestoneDto>());
+    final TimeOffAccrualFrequency timeOffAccrualFrequency = new TimeOffAccrualFrequency();
+    timeOffAccrualFrequency.setName(AccrualFrequencyType.FREQUENCY_TYPE_TWO.getValue());
 
+    Mockito.when(timeOffAccrualFrequencyRepository.getOne(Mockito.any()))
+        .thenReturn(timeOffAccrualFrequency);
     Mockito.when(timeOffPolicyUserRepository.findAllByTimeOffPolicyId(Mockito.any()))
         .thenReturn(oldUsersStartBalanceList);
     Mockito.when(timeOffPolicyUserRepository.saveAll(Mockito.any()))
@@ -374,27 +517,6 @@ public class TimeOffPolicyServiceTests {
     Mockito.when(timeOffPolicyRepository.findById(Mockito.any()))
         .thenReturn(Optional.of(timeOffPolicy));
     Assertions.assertDoesNotThrow(
-        () -> timeOffPolicyService.updateTimeOffPolicyUserInfo(timeOffPolicyWrapperDto, "1"));
-  }
-
-  @Test
-  void whenPolicyIsLimitedAndEmployeeHasNoHireDate_shouldThrow() {
-    final TimeOffPolicyUser timeOffPolicyUser = new TimeOffPolicyUser();
-    timeOffPolicyUser.setUser(new User("1"));
-    final List<TimeOffPolicyUserFrontendDto> userStatBalances = new ArrayList<>();
-    final TimeOffPolicyUserFrontendDto timeOffPolicyUserFrontendDto =
-        new TimeOffPolicyUserFrontendDto();
-    timeOffPolicyUserFrontendDto.setUserId("1");
-    userStatBalances.add(timeOffPolicyUserFrontendDto);
-    final TimeOffPolicyWrapperDto timeOffPolicyWrapperDto = new TimeOffPolicyWrapperDto();
-    timeOffPolicyWrapperDto.setUserStartBalances(userStatBalances);
-    final TimeOffPolicy timeOffPolicy = new TimeOffPolicy();
-    timeOffPolicy.setIsLimited(true);
-
-    Mockito.when(timeOffPolicyRepository.findById(Mockito.any()))
-        .thenReturn(Optional.of(timeOffPolicy));
-    Assertions.assertThrows(
-        ForbiddenException.class,
         () -> timeOffPolicyService.updateTimeOffPolicyUserInfo(timeOffPolicyWrapperDto, "1"));
   }
 
@@ -657,7 +779,6 @@ public class TimeOffPolicyServiceTests {
       infoWrapper = new TimeOffPolicyWrapperDto();
       timeOffPolicyFrontendDto = new TimeOffPolicyFrontendDto();
       timeOffPolicyFrontendDto.setIsLimited(true);
-      infoWrapper.setTimeOffPolicy(timeOffPolicyFrontendDto);
 
       timeOffPolicyUserFrontendDtoList = new ArrayList<>();
       timeOffPolicyUserFrontendDto = new TimeOffPolicyUserFrontendDto();
@@ -689,6 +810,17 @@ public class TimeOffPolicyServiceTests {
 
     @Test
     void whenOriginTimeOffScheduleIsNull_thenReturnList() {
+      final TimeOffPolicyAccrualScheduleDto timeOffPolicyAccrualScheduleDto =
+          new TimeOffPolicyAccrualScheduleDto();
+      timeOffPolicyAccrualScheduleDto.setTimeOffAccrualFrequencyId("12323");
+      timeOffPolicyFrontendDto.setPolicyName("test");
+      infoWrapper.setTimeOffPolicy(timeOffPolicyFrontendDto);
+      infoWrapper.setMilestones(accrualScheduleMilestoneDtoList);
+      infoWrapper.setTimeOffPolicyAccrualSchedule(timeOffPolicyAccrualScheduleDto);
+
+      Mockito.when(timeOffAccrualFrequencyRepository.getOne(Mockito.any()))
+          .thenReturn(
+              new TimeOffAccrualFrequency(AccrualFrequencyType.FREQUENCY_TYPE_TWO.getValue()));
 
       Mockito.when(timeOffPolicyRepository.findById(Mockito.any()))
           .thenReturn(Optional.of(timeOffPolicy));
@@ -700,7 +832,6 @@ public class TimeOffPolicyServiceTests {
           .thenReturn(timeOffPolicyAccrualSchedule1);
       Mockito.when(timeOffPolicyAccrualScheduleRepository.save(Mockito.any()))
           .thenReturn(timeOffPolicyAccrualSchedule1);
-
       Assertions.assertDoesNotThrow(
           () ->
               timeOffPolicyService.updateTimeOffPolicy("1", infoWrapper, new Company("1").getId()));
@@ -716,11 +847,15 @@ public class TimeOffPolicyServiceTests {
       accrualScheduleMilestone.setCarryoverLimit(10);
       accrualScheduleMilestone.setMaxBalance(100);
       accrualScheduleMilestones.add(accrualScheduleMilestone);
-
       accrualScheduleMilestoneDto = new AccrualScheduleMilestoneDto();
       accrualScheduleMilestoneDto.setName("007");
-
       accrualScheduleMilestoneDtoList.add(accrualScheduleMilestoneDto);
+      final TimeOffPolicyAccrualScheduleDto timeOffPolicyAccrualScheduleDto =
+          new TimeOffPolicyAccrualScheduleDto();
+      timeOffPolicyAccrualScheduleDto.setTimeOffAccrualFrequencyId("12323");
+      timeOffPolicyFrontendDto.setPolicyName("test");
+      infoWrapper.setTimeOffPolicy(timeOffPolicyFrontendDto);
+      infoWrapper.setTimeOffPolicyAccrualSchedule(timeOffPolicyAccrualScheduleDto);
 
       Mockito.when(timeOffPolicyRepository.findById(Mockito.any()))
           .thenReturn(Optional.of(timeOffPolicy));
@@ -741,7 +876,10 @@ public class TimeOffPolicyServiceTests {
           .thenReturn(timeOffPolicyAccrualSchedule1);
       Mockito.when(timeOffPolicyAccrualScheduleRepository.save(Mockito.any()))
           .thenReturn(timeOffPolicyAccrualSchedule1);
-
+      Mockito.when(timeOffAccrualFrequencyRepository.getOne(Mockito.any()))
+          .thenReturn(
+              new TimeOffAccrualFrequency(AccrualFrequencyType.FREQUENCY_TYPE_TWO.getValue()));
+      System.out.println(infoWrapper);
       Assertions.assertDoesNotThrow(
           () ->
               timeOffPolicyService.updateTimeOffPolicy("1", infoWrapper, new Company("1").getId()));
@@ -811,6 +949,74 @@ public class TimeOffPolicyServiceTests {
             Whitebox.invokeMethod(
                 timeOffPolicyService, "expireAndSaveMilestones", accrualScheduleMilestoneList);
           });
+    }
+  }
+
+  @Nested
+  class getEmployeesOfNewPolicy {
+
+    NewPolicyCheckFrontedDto newPolicyCheckFrontedDto;
+
+    @BeforeEach
+    void init() {
+      newPolicyCheckFrontedDto = new NewPolicyCheckFrontedDto();
+    }
+
+    @Test
+    void whenTimeOffAccrualFrequencyIdIsNotNull_thenReturnAllTheEmployees() {
+      newPolicyCheckFrontedDto.setTimeOffAccrualFrequencyId("1");
+      newPolicyCheckFrontedDto.setHasMilestone(false);
+      final TimeOffAccrualFrequency timeOffAccrualFrequency = new TimeOffAccrualFrequency();
+      timeOffAccrualFrequency.setName(AccrualFrequencyType.FREQUENCY_TYPE_ONE.getValue());
+      final List<User> users = new ArrayList<>();
+      final User user = new User();
+      user.setId("1");
+      users.add(user);
+      final JobUser jobUser = new JobUser();
+      final TimeOffPolicyRelatedUserDto timeOffPolicyRelatedUserDto =
+          new TimeOffPolicyRelatedUserDto();
+      Mockito.when(userRepository.findAllByCompanyId(Mockito.any())).thenReturn(users);
+      Mockito.when(timeOffAccrualFrequencyRepository.getOne(Mockito.any()))
+          .thenReturn(timeOffAccrualFrequency);
+      Mockito.when(jobUserRepository.findJobUserByUser(Mockito.any())).thenReturn(jobUser);
+      Mockito.when(
+              jobUserMapper.convertToTimeOffPolicyRelatedUserDto(
+                  (User) Mockito.any(), Mockito.any(), Mockito.anyBoolean()))
+          .thenReturn(timeOffPolicyRelatedUserDto);
+      Assertions.assertDoesNotThrow(
+          () ->
+              timeOffPolicyService.getEmployeesOfNewPolicy(
+                  newPolicyCheckFrontedDto, new Company("1").getId()));
+    }
+
+    @Test
+    void whenTimeOffAccrualFrequencyIdIsNull_thenReturnPolicyEmployees() {
+      newPolicyCheckFrontedDto.setTimeOffPolicyId("1");
+      final TimeOffPolicyAccrualSchedule timeOffPolicyAccrualSchedule =
+          new TimeOffPolicyAccrualSchedule();
+      final JobUser jobUser = new JobUser();
+      final List<User> users = new ArrayList<>();
+      final User user = new User();
+      user.setId("1");
+      users.add(user);
+      jobUser.setStartDate(new Timestamp(2321));
+      timeOffPolicyAccrualSchedule.setDaysBeforeAccrualStarts(365);
+      final List<TimeOffPolicyUser> timeOffPolicyUsers = new ArrayList<>();
+      final TimeOffPolicyUser timeOffPolicyUser = new TimeOffPolicyUser();
+      timeOffPolicyUser.setUser(user);
+      timeOffPolicyUsers.add(timeOffPolicyUser);
+      Mockito.when(userRepository.findAllByCompanyId("1")).thenReturn(users);
+      Mockito.when(timeOffPolicyRepository.findById(Mockito.any()))
+          .thenReturn(Optional.of(new TimeOffPolicy("1")));
+      Mockito.when(timeOffPolicyAccrualScheduleRepository.findByTimeOffPolicy(Mockito.any()))
+          .thenReturn(timeOffPolicyAccrualSchedule);
+      Mockito.when(timeOffPolicyUserRepository.findAllByTimeOffPolicyId(Mockito.any()))
+          .thenReturn(timeOffPolicyUsers);
+      Mockito.when(jobUserRepository.findJobUserByUser(Mockito.any())).thenReturn(jobUser);
+      Assertions.assertDoesNotThrow(
+          () ->
+              timeOffPolicyService.getEmployeesOfNewPolicy(
+                  newPolicyCheckFrontedDto, new Company("1").getId()));
     }
   }
 }
