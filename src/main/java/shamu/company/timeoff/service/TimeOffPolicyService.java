@@ -427,7 +427,8 @@ public class TimeOffPolicyService {
         timeOffPolicyAccrualScheduleRepository.findByTimeOffPolicy(timeOffPolicy);
 
     final Boolean isPolicyCalculationRelatedToHireDate =
-        checkIsPolicyCalculationRelatedToHireDate(timeOffPolicyAccrualSchedule);
+        timeOffPolicy.getIsLimited()
+            && checkIsPolicyCalculationRelatedToHireDate(timeOffPolicyAccrualSchedule);
 
     final List<TimeOffPolicyUser> timeOffPolicyUsers =
         timeOffPolicyUserRepository.findAllByTimeOffPolicyId(timeOffPolicyId);

@@ -992,6 +992,8 @@ public class TimeOffPolicyServiceTests {
     @Test
     void whenTimeOffAccrualFrequencyIdIsNull_thenReturnPolicyEmployees() {
       newPolicyCheckFrontedDto.setTimeOffPolicyId("1");
+      final TimeOffPolicy timeOffPolicy = new TimeOffPolicy("1");
+      timeOffPolicy.setIsLimited(true);
       final TimeOffPolicyAccrualSchedule timeOffPolicyAccrualSchedule =
           new TimeOffPolicyAccrualSchedule();
       final JobUser jobUser = new JobUser();
@@ -1007,7 +1009,7 @@ public class TimeOffPolicyServiceTests {
       timeOffPolicyUsers.add(timeOffPolicyUser);
       Mockito.when(userRepository.findAllByCompanyId("1")).thenReturn(users);
       Mockito.when(timeOffPolicyRepository.findById(Mockito.any()))
-          .thenReturn(Optional.of(new TimeOffPolicy("1")));
+          .thenReturn(Optional.of(timeOffPolicy));
       Mockito.when(timeOffPolicyAccrualScheduleRepository.findByTimeOffPolicy(Mockito.any()))
           .thenReturn(timeOffPolicyAccrualSchedule);
       Mockito.when(timeOffPolicyUserRepository.findAllByTimeOffPolicyId(Mockito.any()))
