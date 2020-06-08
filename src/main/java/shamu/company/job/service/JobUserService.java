@@ -3,6 +3,7 @@ package shamu.company.job.service;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ import shamu.company.employee.entity.EmploymentType;
 import shamu.company.employee.service.EmploymentTypeService;
 import shamu.company.job.dto.JobSelectOptionUpdateDto;
 import shamu.company.job.dto.JobUpdateDto;
+import shamu.company.job.dto.JobUserHireDateCheckDto;
 import shamu.company.job.entity.Job;
 import shamu.company.job.entity.JobUser;
 import shamu.company.job.entity.mapper.JobUserMapper;
@@ -32,7 +34,13 @@ import shamu.company.server.dto.AuthUser;
 import shamu.company.timeoff.dto.MyTimeOffDto;
 import shamu.company.timeoff.dto.TimeOffRequestDto;
 import shamu.company.timeoff.dto.TimeOffRequestUpdateDto;
+import shamu.company.timeoff.entity.TimeOffPolicy;
+import shamu.company.timeoff.entity.TimeOffPolicyAccrualSchedule;
+import shamu.company.timeoff.entity.TimeOffPolicyUser;
 import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.TimeOffApprovalStatus;
+import shamu.company.timeoff.repository.TimeOffPolicyAccrualScheduleRepository;
+import shamu.company.timeoff.repository.TimeOffPolicyUserRepository;
+import shamu.company.timeoff.service.TimeOffPolicyService;
 import shamu.company.timeoff.service.TimeOffRequestService;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
@@ -76,6 +84,12 @@ public class JobUserService {
 
   private final UserMapper userMapper;
 
+  private final TimeOffPolicyUserRepository timeOffPolicyUserRepository;
+
+  private final TimeOffPolicyAccrualScheduleRepository timeOffPolicyAccrualScheduleRepository;
+
+  private final TimeOffPolicyService timeOffPolicyService;
+
   public JobUserService(
       final JobUserRepository jobUserRepository,
       final UserService userService,
@@ -90,7 +104,10 @@ public class JobUserService {
       final OfficeAddressMapper officeAddressMapper,
       final OfficeMapper officeMapper,
       final JobService jobService,
-      final UserMapper userMapper) {
+      final UserMapper userMapper,
+      final TimeOffPolicyUserRepository timeOffPolicyUserRepository,
+      final TimeOffPolicyAccrualScheduleRepository timeOffPolicyAccrualScheduleRepository,
+      final TimeOffPolicyService timeOffPolicyService) {
     this.jobUserRepository = jobUserRepository;
     this.userService = userService;
     this.userCompensationMapper = userCompensationMapper;
@@ -105,6 +122,9 @@ public class JobUserService {
     this.officeMapper = officeMapper;
     this.jobService = jobService;
     this.userMapper = userMapper;
+    this.timeOffPolicyUserRepository = timeOffPolicyUserRepository;
+    this.timeOffPolicyAccrualScheduleRepository = timeOffPolicyAccrualScheduleRepository;
+    this.timeOffPolicyService = timeOffPolicyService;
   }
 
   public JobUser save(final JobUser jobUser) {
@@ -198,7 +218,7 @@ public class JobUserService {
 
   // The 'userId' represents employee A, 'managerId' represents employee B.
   // This function is to figure out if A is B's subordinate.
-  private boolean isSubordinate(final String userId, String managerId) {
+  private boolean isSubordinate(final String userId, final String managerId) {
     User user = userService.findById(userId);
     while (user.getManagerUser() != null && !user.getManagerUser().getId().equals(managerId)) {
       final String userManagerId = user.getManagerUser().getId();
@@ -388,5 +408,36 @@ public class JobUserService {
     }
 
     return jobUserMapper.convertToBasicJobInformationDto(target);
+  }
+
+  public JobUserHireDateCheckDto checkUserHireDateDeletable(final String userId) {
+
+    final User user = userService.findById(userId);
+
+    final JobUser jobUser = findJobUserByUser(user);
+
+    if (jobUser.getStartDate() == null) {
+      return new JobUserHireDateCheckDto(true);
+    }
+
+    final List<TimeOffPolicyUser> timeOffPolicyUsers =
+        timeOffPolicyUserRepository.findTimeOffPolicyUsersByUser(user);
+
+    final Boolean hireDateDeletable =
+        timeOffPolicyUsers.stream()
+            .noneMatch(
+                timeOffPolicyUser -> {
+                  final TimeOffPolicy timeOffPolicy = timeOffPolicyUser.getTimeOffPolicy();
+                  if (BooleanUtils.isFalse(timeOffPolicy.getIsLimited())) {
+                    return false;
+                  }
+                  final TimeOffPolicyAccrualSchedule timeOffPolicyAccrualSchedule =
+                      timeOffPolicyAccrualScheduleRepository.findByTimeOffPolicy(
+                          timeOffPolicyUser.getTimeOffPolicy());
+                  return timeOffPolicyService.checkIsPolicyCalculationRelatedToHireDate(
+                      timeOffPolicyAccrualSchedule);
+                });
+
+    return new JobUserHireDateCheckDto(hireDateDeletable);
   }
 }

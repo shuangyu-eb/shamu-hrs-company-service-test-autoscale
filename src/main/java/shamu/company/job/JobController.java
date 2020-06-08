@@ -17,6 +17,7 @@ import shamu.company.employee.dto.BasicJobInformationDto;
 import shamu.company.employee.dto.SelectFieldSizeDto;
 import shamu.company.job.dto.JobSelectOptionUpdateDto;
 import shamu.company.job.dto.JobUpdateDto;
+import shamu.company.job.dto.JobUserHireDateCheckDto;
 import shamu.company.job.service.JobUserService;
 
 @RestApiController
@@ -69,5 +70,12 @@ public class JobController extends BaseRestController {
   @PreAuthorize("hasPermission(#id,'DEPARTMENT','VIEW_JOB')")
   public List<SelectFieldSizeDto> findJobsByDepartment(@PathVariable final String id) {
     return jobUserService.findJobsByDepartmentId(id);
+  }
+
+  @GetMapping("job/{userId}/hireDate")
+  @PreAuthorize("hasPermission(#userId,'USER', 'EDIT_USER')")
+  public JobUserHireDateCheckDto checkUserHireDateDeletable(@PathVariable final String userId) {
+
+    return jobUserService.checkUserHireDateDeletable(userId);
   }
 }

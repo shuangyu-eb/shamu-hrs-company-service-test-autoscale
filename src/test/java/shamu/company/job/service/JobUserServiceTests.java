@@ -1,6 +1,7 @@
 package shamu.company.job.service;
 
 import java.math.BigInteger;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -32,11 +33,20 @@ import shamu.company.employee.service.EmploymentTypeService;
 import shamu.company.job.dto.JobSelectOptionUpdateDto;
 import shamu.company.job.dto.JobSelectOptionUpdateField;
 import shamu.company.job.dto.JobUpdateDto;
+import shamu.company.job.dto.JobUserHireDateCheckDto;
 import shamu.company.job.entity.Job;
 import shamu.company.job.entity.JobUser;
 import shamu.company.job.entity.mapper.JobUserMapper;
 import shamu.company.job.entity.mapper.JobUserMapperImpl;
 import shamu.company.job.repository.JobUserRepository;
+import shamu.company.timeoff.entity.TimeOffAccrualFrequency;
+import shamu.company.timeoff.entity.TimeOffAccrualFrequency.AccrualFrequencyType;
+import shamu.company.timeoff.entity.TimeOffPolicy;
+import shamu.company.timeoff.entity.TimeOffPolicyAccrualSchedule;
+import shamu.company.timeoff.entity.TimeOffPolicyUser;
+import shamu.company.timeoff.repository.TimeOffPolicyAccrualScheduleRepository;
+import shamu.company.timeoff.repository.TimeOffPolicyUserRepository;
+import shamu.company.timeoff.service.TimeOffPolicyService;
 import shamu.company.timeoff.service.TimeOffRequestService;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
@@ -62,6 +72,9 @@ class JobUserServiceTests {
   @Mock private OfficeService officeService;
   @Mock private OfficeAddressService officeAddressService;
   @Mock private OfficeAddressMapper officeAddressMapper;
+  @Mock private TimeOffPolicyUserRepository timeOffPolicyUserRepository;
+  @Mock private TimeOffPolicyAccrualScheduleRepository timeOffPolicyAccrualScheduleRepository;
+  @Mock private TimeOffPolicyService timeOffPolicyService;
   private final OfficeMapper officeMapper = new OfficeMapperImpl(officeAddressMapper);
   private final JobUserMapper jobUserMapper =
       new JobUserMapperImpl(officeMapper, userCompensationMapper);
@@ -85,7 +98,10 @@ class JobUserServiceTests {
             officeAddressMapper,
             officeMapper,
             jobService,
-            userMapper);
+            userMapper,
+            timeOffPolicyUserRepository,
+            timeOffPolicyAccrualScheduleRepository,
+            timeOffPolicyService);
   }
 
   @Test
@@ -575,6 +591,95 @@ class JobUserServiceTests {
           () -> jobUserService.deleteJobSelectOption(jobSelectOptionUpdateDto));
       Mockito.verify(officeService, Mockito.times(1)).delete(Mockito.any());
       Mockito.verify(officeAddressService, Mockito.times(1)).delete(Mockito.any());
+    }
+  }
+
+  @Nested
+  class checkUserHireDateDeletable {
+    private JobUserHireDateCheckDto jobUserHireDateCheckDto;
+    private User user;
+    private JobUser jobUser;
+    private TimeOffPolicyUser timeOffPolicyUser;
+
+    @BeforeEach
+    void init() {
+      jobUserHireDateCheckDto = new JobUserHireDateCheckDto();
+      user = new User("1");
+      jobUser = new JobUser();
+    }
+
+    @Test
+    void whenUserHasNoTimeOffPolicy_thenHireDateCanBeDeleted() {
+      jobUserHireDateCheckDto.setHireDateDeletable(true);
+      jobUser.setStartDate(null);
+
+      Mockito.when(jobUserRepository.findJobUserByUser(Mockito.any())).thenReturn(jobUser);
+
+      Assertions.assertEquals(
+          jobUserHireDateCheckDto.getHireDateDeletable(),
+          jobUserService.checkUserHireDateDeletable("1").getHireDateDeletable());
+    }
+
+    @Test
+    void whenUserHasNoPolicyRelatedToHireDate_thenHireDateCanBeDeleted() {
+      jobUserHireDateCheckDto.setHireDateDeletable(true);
+      jobUser.setStartDate(new Timestamp(123));
+      final List<TimeOffPolicyUser> timeOffPolicyUsers = new ArrayList<>();
+      final TimeOffPolicyUser timeOffPolicyUser = new TimeOffPolicyUser();
+      final TimeOffPolicy timeOffPolicy = new TimeOffPolicy();
+      timeOffPolicy.setIsLimited(false);
+      timeOffPolicyUser.setTimeOffPolicy(timeOffPolicy);
+      timeOffPolicyUsers.add(timeOffPolicyUser);
+      final TimeOffPolicyUser timeOffPolicyUser2 = new TimeOffPolicyUser();
+      final TimeOffPolicy timeOffPolicy2 = new TimeOffPolicy();
+      timeOffPolicy2.setIsLimited(true);
+      timeOffPolicyUser2.setTimeOffPolicy(timeOffPolicy2);
+      timeOffPolicyUsers.add(timeOffPolicyUser2);
+
+      final TimeOffPolicyAccrualSchedule timeOffPolicyAccrualSchedule =
+          new TimeOffPolicyAccrualSchedule();
+      final TimeOffAccrualFrequency timeOffAccrualFrequency = new TimeOffAccrualFrequency();
+      timeOffAccrualFrequency.setName(AccrualFrequencyType.FREQUENCY_TYPE_ONE.getValue());
+      timeOffPolicyAccrualSchedule.setTimeOffAccrualFrequency(timeOffAccrualFrequency);
+
+      Mockito.when(jobUserRepository.findJobUserByUser(Mockito.any())).thenReturn(jobUser);
+      Mockito.when(timeOffPolicyUserRepository.findTimeOffPolicyUsersByUser(Mockito.any()))
+          .thenReturn(timeOffPolicyUsers);
+      Mockito.when(timeOffPolicyAccrualScheduleRepository.findByTimeOffPolicy(Mockito.any()))
+          .thenReturn(timeOffPolicyAccrualSchedule);
+
+      Assertions.assertEquals(
+          jobUserHireDateCheckDto.getHireDateDeletable(),
+          jobUserService.checkUserHireDateDeletable("1").getHireDateDeletable());
+    }
+
+    @Test
+    void whenUserHasPolicyRelatedToHireDate_thenHireDateCanNotBeDeleted() {
+      jobUserHireDateCheckDto.setHireDateDeletable(false);
+      jobUser.setStartDate(new Timestamp(123));
+      final List<TimeOffPolicyUser> timeOffPolicyUsers = new ArrayList<>();
+      final TimeOffPolicyUser timeOffPolicyUser = new TimeOffPolicyUser();
+      final TimeOffPolicy timeOffPolicy = new TimeOffPolicy();
+      timeOffPolicy.setIsLimited(true);
+      timeOffPolicyUser.setTimeOffPolicy(timeOffPolicy);
+      timeOffPolicyUsers.add(timeOffPolicyUser);
+      final TimeOffPolicyAccrualSchedule timeOffPolicyAccrualSchedule =
+          new TimeOffPolicyAccrualSchedule();
+      final TimeOffAccrualFrequency timeOffAccrualFrequency = new TimeOffAccrualFrequency();
+      timeOffAccrualFrequency.setName(AccrualFrequencyType.FREQUENCY_TYPE_TWO.getValue());
+      timeOffPolicyAccrualSchedule.setTimeOffAccrualFrequency(timeOffAccrualFrequency);
+
+      Mockito.when(jobUserRepository.findJobUserByUser(Mockito.any())).thenReturn(jobUser);
+      Mockito.when(timeOffPolicyUserRepository.findTimeOffPolicyUsersByUser(Mockito.any()))
+          .thenReturn(timeOffPolicyUsers);
+      Mockito.when(timeOffPolicyAccrualScheduleRepository.findByTimeOffPolicy(Mockito.any()))
+          .thenReturn(timeOffPolicyAccrualSchedule);
+      Mockito.when(timeOffPolicyService.checkIsPolicyCalculationRelatedToHireDate(Mockito.any()))
+          .thenReturn(true);
+
+      Assertions.assertEquals(
+          jobUserHireDateCheckDto.getHireDateDeletable(),
+          jobUserService.checkUserHireDateDeletable("1").getHireDateDeletable());
     }
   }
 }

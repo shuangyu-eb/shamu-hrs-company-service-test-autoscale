@@ -6,6 +6,7 @@ import org.mapstruct.InheritConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.springframework.util.StringUtils;
 import shamu.company.benefit.dto.BenefitPlanUserDto;
 import shamu.company.common.mapper.Config;
@@ -103,6 +104,9 @@ public interface JobUserMapper {
   @Mapping(target = "job", source = "jobId")
   @Mapping(target = "office", source = "officeId")
   @Mapping(target = "employmentType", source = "employmentTypeId")
+  @Mapping(
+      target = "startDate",
+      nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
   void updateFromJobUpdateDto(@MappingTarget JobUser jobUser, JobUpdateDto jobUpdateDto);
 
   BenefitPlanUserDto covertToBenefitPlanUserDto(JobUserDto jobUserDto);
