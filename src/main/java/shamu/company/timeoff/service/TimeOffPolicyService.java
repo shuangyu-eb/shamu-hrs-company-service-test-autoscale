@@ -368,7 +368,7 @@ public class TimeOffPolicyService {
       timeOffPolicyUserRepository.saveAll(timeOffPolicyUserList);
     }
 
-    if (company.getIsPaidHolidaysAutoEnroll()) {
+    if (BooleanUtils.isTrue(company.getIsPaidHolidaysAutoEnroll())) {
       final PaidHolidayUser paidHolidayUser = new PaidHolidayUser(companyId, userId, true);
       paidHolidayUserRepository.save(paidHolidayUser);
     }

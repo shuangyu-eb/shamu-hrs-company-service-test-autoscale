@@ -153,7 +153,7 @@ public class Auth0Helper {
     return users.get(0);
   }
 
-  public Boolean existsByEmail(final String email) {
+  public boolean existsByEmail(final String email) {
     return findByEmail(email) != null;
   }
 

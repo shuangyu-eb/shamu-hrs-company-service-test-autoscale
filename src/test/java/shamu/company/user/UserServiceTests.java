@@ -1,7 +1,7 @@
 package shamu.company.user;
 
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.sql.Date;
@@ -142,7 +142,8 @@ class UserServiceTests {
   @Test
   void testFindAllEmployees() {
     final String userId = UUID.randomUUID().toString().replaceAll("-", "");
-    final EmployeeListSearchCondition employeeListSearchCondition = new EmployeeListSearchCondition();
+    final EmployeeListSearchCondition employeeListSearchCondition =
+        new EmployeeListSearchCondition();
     final User currentUser = new User();
     currentUser.setCompany(new Company(UUID.randomUUID().toString().replaceAll("-", "")));
     Mockito.when(permissionUtils.hasAuthority(Mockito.anyString())).thenReturn(false);
@@ -190,13 +191,13 @@ class UserServiceTests {
       userRole = new UserRole();
       userRole.setName("admin");
       Mockito.when(userRepository.findByManagerUser(Mockito.any()))
-              .thenReturn(Collections.emptyList());
+          .thenReturn(Collections.emptyList());
     }
 
     @Test
     void whenVerifiedAtIsNull_thenShouldSuccess() {
       Mockito.when(userRepository.findById(Mockito.anyString()))
-              .thenReturn(java.util.Optional.of(currentUser));
+          .thenReturn(java.util.Optional.of(currentUser));
       final CurrentUserDto userInfo = userService.getCurrentUserInfo(currentUser.getId());
       Assertions.assertEquals(userInfo.getId(), currentUser.getId());
       Assertions.assertFalse(userInfo.getVerified());
@@ -207,7 +208,7 @@ class UserServiceTests {
       currentUser.setVerifiedAt(new Timestamp(System.currentTimeMillis()));
       currentUser.setUserRole(userRole);
       Mockito.when(userRepository.findById(Mockito.anyString()))
-              .thenReturn(java.util.Optional.of(currentUser));
+          .thenReturn(java.util.Optional.of(currentUser));
       final CurrentUserDto userInfo = userService.getCurrentUserInfo(currentUser.getId());
       Assertions.assertEquals(userInfo.getId(), currentUser.getId());
       Assertions.assertTrue(userInfo.getVerified());
@@ -243,8 +244,8 @@ class UserServiceTests {
     final User user = new User(UuidUtil.getUuidString());
     final SystemAnnouncement systemAnnouncement = new SystemAnnouncement();
 
-    Mockito
-        .when(dismissedAtService.findByUserIdAndSystemAnnouncementId(Mockito.any(), Mockito.any()))
+    Mockito.when(
+            dismissedAtService.findByUserIdAndSystemAnnouncementId(Mockito.any(), Mockito.any()))
         .thenReturn(null);
     Mockito.when(systemAnnouncementsService.findById(Mockito.any())).thenReturn(systemAnnouncement);
     Mockito.when(dismissedAtService.save(Mockito.any())).thenReturn(dismissed);
@@ -269,8 +270,8 @@ class UserServiceTests {
     @Test
     void whenManagerIsNull_thenShouldThrow() {
       Mockito.when(userRepository.findOrgChartItemByUserId(userId, companyId)).thenReturn(null);
-      Assertions
-          .assertThrows(ForbiddenException.class, () -> userService.getOrgChart(userId, companyId));
+      Assertions.assertThrows(
+          ForbiddenException.class, () -> userService.getOrgChart(userId, companyId));
     }
 
     @Test
@@ -383,7 +384,8 @@ class UserServiceTests {
 
       Mockito.verify(userRepository, Mockito.times(1)).save(user);
       Mockito.verify(quartzJobScheduler, Mockito.times(1))
-          .addOrUpdateJobSchedule(Mockito.any(), Mockito.anyString(), Mockito.anyMap(),  Mockito.any());
+          .addOrUpdateJobSchedule(
+              Mockito.any(), Mockito.anyString(), Mockito.anyMap(), Mockito.any());
     }
   }
 
@@ -406,16 +408,16 @@ class UserServiceTests {
     @Test
     void whenPasswordIsSame_thenShouldThrow() {
       changePasswordDto.setNewPassword("password");
-      Assertions.assertThrows(ForbiddenException.class,
-          () -> userService.updatePassword(changePasswordDto, userId));
+      Assertions.assertThrows(
+          ForbiddenException.class, () -> userService.updatePassword(changePasswordDto, userId));
     }
 
     @Test
     void whenPasswordIsError_thenShouldThrow() {
       Mockito.when(auth0Helper.isPasswordValid(user.getEmail(), changePasswordDto.getPassword()))
           .thenReturn(false);
-      Assertions.assertThrows(ForbiddenException.class,
-          () -> userService.updatePassword(changePasswordDto, userId));
+      Assertions.assertThrows(
+          ForbiddenException.class, () -> userService.updatePassword(changePasswordDto, userId));
     }
 
     @Test
@@ -434,6 +436,8 @@ class UserServiceTests {
 
     private String userId;
     private EmailUpdateDto emailUpdateDto;
+
+    private final String currentUserPassword = "password";
 
     @BeforeEach
     void init() {
@@ -459,28 +463,31 @@ class UserServiceTests {
     void whenPasswordIsNotValid_thenShouldThrow() {
       Mockito.when(auth0Helper.isPasswordValid(Mockito.anyString(), Mockito.anyString()))
           .thenReturn(false);
-      Assertions.assertThrows(ForbiddenException.class,
-          () -> userService.updateWorkEmail(emailUpdateDto));
+      Assertions.assertThrows(
+          ForbiddenException.class,
+          () -> userService.updateWorkEmail(emailUpdateDto, currentUserPassword));
     }
 
     @Test
     void whenEmailIsSame_thenShouldThrow() {
       emailUpdateDto.setEmail("example@example.com");
-      Assertions.assertThrows(ForbiddenException.class,
-          () -> userService.updateWorkEmail(emailUpdateDto));
+      Assertions.assertThrows(
+          ForbiddenException.class,
+          () -> userService.updateWorkEmail(emailUpdateDto, currentUserPassword));
     }
 
     @Test
     void whenNewEmailIsUsed_thenShouldThrow() {
       Mockito.when(auth0Helper.existsByEmail(emailUpdateDto.getEmail())).thenReturn(true);
-      Assertions.assertThrows(ForbiddenException.class,
-          () -> userService.updateWorkEmail(emailUpdateDto));
+      Assertions.assertThrows(
+          ForbiddenException.class,
+          () -> userService.updateWorkEmail(emailUpdateDto, currentUserPassword));
     }
 
     @Test
     void whenOk_thenShouldSendEmail() {
       Mockito.when(auth0Helper.existsByEmail(emailUpdateDto.getEmail())).thenReturn(false);
-      userService.updateWorkEmail(emailUpdateDto);
+      userService.updateWorkEmail(emailUpdateDto, currentUserPassword);
 
       Mockito.verify(emailService, Mockito.times(1)).handleEmail(Mockito.any());
       Mockito.verify(userRepository, Mockito.times(1)).save(Mockito.any());
@@ -544,16 +551,16 @@ class UserServiceTests {
     @Test
     void whenUserIsNull_thenShouldThrow() {
       Mockito.when(auth0Helper.findByEmail(email)).thenReturn(null);
-      Assertions
-          .assertThrows(ForbiddenException.class, () -> userService.resendVerificationEmail(email));
+      Assertions.assertThrows(
+          ForbiddenException.class, () -> userService.resendVerificationEmail(email));
     }
 
     @Test
     void whenUserIsVerified_thenShouldThrow() {
       auth0User.setEmailVerified(true);
       Mockito.when(auth0Helper.findByEmail(email)).thenReturn(auth0User);
-      Assertions
-          .assertThrows(ForbiddenException.class, () -> userService.resendVerificationEmail(email));
+      Assertions.assertThrows(
+          ForbiddenException.class, () -> userService.resendVerificationEmail(email));
     }
 
     @Test
@@ -576,11 +583,14 @@ class UserServiceTests {
     @BeforeEach
     void init() {
       userId = UUID.randomUUID().toString().replaceAll("-", "");
-      userSignUpDto = UserSignUpDto.builder().userId(userId)
-          .companyName(RandomStringUtils.randomAlphabetic(4))
-          .firstName(RandomStringUtils.randomAlphabetic(3))
-          .lastName(RandomStringUtils.randomAlphabetic(3))
-          .phone(RandomStringUtils.randomAlphabetic(11)).build();
+      userSignUpDto =
+          UserSignUpDto.builder()
+              .userId(userId)
+              .companyName(RandomStringUtils.randomAlphabetic(4))
+              .firstName(RandomStringUtils.randomAlphabetic(3))
+              .lastName(RandomStringUtils.randomAlphabetic(3))
+              .phone(RandomStringUtils.randomAlphabetic(11))
+              .build();
     }
 
     @Test
@@ -700,8 +710,9 @@ class UserServiceTests {
       createPasswordDto = new CreatePasswordDto();
       createPasswordDto.setEmailWork("example@indeed.com");
       final String password =
-          RandomStringUtils.randomAlphabetic(4).toUpperCase() + RandomStringUtils
-              .randomAlphabetic(4).toLowerCase() + RandomStringUtils.randomNumeric(4);
+          RandomStringUtils.randomAlphabetic(4).toUpperCase()
+              + RandomStringUtils.randomAlphabetic(4).toLowerCase()
+              + RandomStringUtils.randomNumeric(4);
       final String resetPasswordToken = UUID.randomUUID().toString().replaceAll("-", "");
       createPasswordDto.setNewPassword(password);
       createPasswordDto.setResetPasswordToken(resetPasswordToken);
@@ -767,8 +778,8 @@ class UserServiceTests {
     void whenUserIsNull_thenShouldThrow() {
       Mockito.when(userRepository.findByEmailWork(Mockito.anyString())).thenReturn(new User());
       Mockito.when(auth0Helper.getUserByUserIdFromAuth0(Mockito.any())).thenReturn(null);
-      Assertions.assertThrows(ForbiddenException.class,
-          () -> userService.sendResetPasswordEmail("example@indeed.com"));
+      Assertions.assertThrows(
+          ForbiddenException.class, () -> userService.sendResetPasswordEmail("example@indeed.com"));
     }
 
     @Test
@@ -810,7 +821,8 @@ class UserServiceTests {
     @Test
     void whenUserIsNull_thenShouldThrow() {
       Mockito.when(userRepository.findByInvitationEmailToken(Mockito.any())).thenReturn(null);
-      Assertions.assertThrows(ForbiddenException.class,
+      Assertions.assertThrows(
+          ForbiddenException.class,
           () -> userService.createPasswordAndInvitationTokenExist(passwordToken, invitationToken));
     }
 
@@ -819,7 +831,8 @@ class UserServiceTests {
       currentUser.setInvitedAt(null);
       Mockito.when(userRepository.findByInvitationEmailToken(Mockito.any()))
           .thenReturn(currentUser);
-      Assertions.assertThrows(ForbiddenException.class,
+      Assertions.assertThrows(
+          ForbiddenException.class,
           () -> userService.createPasswordAndInvitationTokenExist(passwordToken, invitationToken));
     }
 
@@ -839,7 +852,8 @@ class UserServiceTests {
       Mockito.when(userRepository.findByInvitationEmailToken(Mockito.any()))
           .thenReturn(currentUser);
       Mockito.when(userRepository.existsByResetPasswordToken(Mockito.anyString())).thenReturn(true);
-      Assertions.assertThrows(EmailException.class,
+      Assertions.assertThrows(
+          EmailException.class,
           () -> userService.createPasswordAndInvitationTokenExist(passwordToken, invitationToken));
     }
 
@@ -862,7 +876,7 @@ class UserServiceTests {
       final DismissedAt dismissedAt = new DismissedAt();
 
       Mockito.when(
-          dismissedAtService.findByUserIdAndSystemAnnouncementId(Mockito.any(), Mockito.any()))
+              dismissedAtService.findByUserIdAndSystemAnnouncementId(Mockito.any(), Mockito.any()))
           .thenReturn(dismissedAt);
 
       Assertions.assertDoesNotThrow(
@@ -874,7 +888,7 @@ class UserServiceTests {
     @Test
     void whenDismissAdIsNull_then_shouldReturnFalse() {
       Mockito.when(
-          dismissedAtService.findByUserIdAndSystemAnnouncementId(Mockito.any(), Mockito.any()))
+              dismissedAtService.findByUserIdAndSystemAnnouncementId(Mockito.any(), Mockito.any()))
           .thenReturn(null);
 
       Assertions.assertDoesNotThrow(

@@ -16,6 +16,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceException;
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -146,30 +147,44 @@ public class UserService {
 
   private final DocumentClient documentClient;
 
-  @Value("${application.systemEmailAddress}") private String systemEmailAddress;
+  @Value("${application.systemEmailAddress}")
+  private String systemEmailAddress;
 
-  @Value("${application.frontEndAddress}") private String frontEndAddress;
+  @Value("${application.frontEndAddress}")
+  private String frontEndAddress;
 
   @Autowired
-  public UserService(final ITemplateEngine templateEngine, final UserRepository userRepository,
-      final SecretHashRepository secretHashRepository, final EmailService emailService,
+  public UserService(
+      final ITemplateEngine templateEngine,
+      final UserRepository userRepository,
+      final SecretHashRepository secretHashRepository,
+      final EmailService emailService,
       final UserPersonalInformationMapper userPersonalInformationMapper,
       final UserEmergencyContactService userEmergencyContactService,
       final UserAddressService userAddressService,
       @Lazy final PaidHolidayService paidHolidayService,
       final UserContactInformationMapper userContactInformationMapper,
-      final UserAddressMapper userAddressMapper, final Auth0Helper auth0Helper,
-      final UserMapper userMapper, final AuthUserCacheManager authUserCacheManager,
-      final QuartzJobScheduler quartzJobScheduler, final AwsHelper awsHelper,
-      final UserRoleService userRoleService, @Lazy final PermissionUtils permissionUtils,
-      @Lazy final JobUserService jobUserService, final UserStatusService userStatusService,
-      final CompanyService companyService, final DepartmentService departmentService,
-      final JobService jobService, final UserAccessLevelEventService userAccessLevelEventService,
+      final UserAddressMapper userAddressMapper,
+      final Auth0Helper auth0Helper,
+      final UserMapper userMapper,
+      final AuthUserCacheManager authUserCacheManager,
+      final QuartzJobScheduler quartzJobScheduler,
+      final AwsHelper awsHelper,
+      final UserRoleService userRoleService,
+      @Lazy final PermissionUtils permissionUtils,
+      @Lazy final JobUserService jobUserService,
+      final UserStatusService userStatusService,
+      final CompanyService companyService,
+      final DepartmentService departmentService,
+      final JobService jobService,
+      final UserAccessLevelEventService userAccessLevelEventService,
       final UserContactInformationService userContactInformationService,
       final CompanyBenefitsSettingService companyBenefitsSettingService,
-      final EntityManager entityManager, final CompanyRepository companyRepository,
+      final EntityManager entityManager,
+      final CompanyRepository companyRepository,
       final SystemAnnouncementsService systemAnnouncementsService,
-      final DismissedAtService dismissedAtService, final DocumentClient documentClient) {
+      final DismissedAtService dismissedAtService,
+      final DocumentClient documentClient) {
     this.templateEngine = templateEngine;
     this.userRepository = userRepository;
     this.secretHashRepository = secretHashRepository;
@@ -245,8 +260,8 @@ public class UserService {
     return new JobUserDto(employee, jobUser);
   }
 
-  public Page<JobUserListItem> findAllEmployees(final String userId,
-      final EmployeeListSearchCondition employeeListSearchCondition) {
+  public Page<JobUserListItem> findAllEmployees(
+      final String userId, final EmployeeListSearchCondition employeeListSearchCondition) {
     if (!permissionUtils.hasAuthority(Name.VIEW_DISABLED_USER.name())) {
       employeeListSearchCondition.setIncludeDeactivated(false);
     }
@@ -262,13 +277,16 @@ public class UserService {
     final String sortDirection = employeeListSearchCondition.getSortDirection().toUpperCase();
 
     final String[] sortValue = employeeListSearchCondition.getSortField().getSortValue();
-    return PageRequest
-        .of(employeeListSearchCondition.getPage(), employeeListSearchCondition.getSize(),
-            Sort.Direction.valueOf(sortDirection), sortValue);
+    return PageRequest.of(
+        employeeListSearchCondition.getPage(),
+        employeeListSearchCondition.getSize(),
+        Sort.Direction.valueOf(sortDirection),
+        sortValue);
   }
 
   private Page<JobUserListItem> getAllEmployeesByCompany(
-      final EmployeeListSearchCondition employeeListSearchCondition, final String companyId,
+      final EmployeeListSearchCondition employeeListSearchCondition,
+      final String companyId,
       final Pageable pageable) {
     return userRepository.getAllByCondition(employeeListSearchCondition, companyId, pageable);
   }
@@ -291,10 +309,13 @@ public class UserService {
   public List<JobUserDto> findAllJobUsers(final String companyId) {
     final List<User> policyEmployees = userRepository.findAllByCompanyId(companyId);
 
-    return policyEmployees.stream().map(user -> {
-      final JobUser employeeWithJob = jobUserService.findJobUserByUser(user);
-      return new JobUserDto(user, employeeWithJob);
-    }).collect(Collectors.toList());
+    return policyEmployees.stream()
+        .map(
+            user -> {
+              final JobUser employeeWithJob = jobUserService.findJobUserByUser(user);
+              return new JobUserDto(user, employeeWithJob);
+            })
+        .collect(Collectors.toList());
   }
 
   public List<User> findAllUsersByCompany(final String companyId) {
@@ -313,13 +334,14 @@ public class UserService {
             throw new ForbiddenException("User with id " + userId + " not found.");
           }
 
-          final List<OrgChartDto> orgChartUserItemList = userRepository
-              .findOrgChartItemByManagerId(managerItem.getId(), companyId);
-          orgChartUserItemList.forEach((orgUser -> {
-            final Integer directReportsCount = userRepository
-                .findDirectReportsCount(orgUser.getId(), companyId);
-            orgUser.setDirectReportsCount(directReportsCount);
-          }));
+          final List<OrgChartDto> orgChartUserItemList =
+              userRepository.findOrgChartItemByManagerId(managerItem.getId(), companyId);
+          orgChartUserItemList.forEach(
+              (orgUser -> {
+                final Integer directReportsCount =
+                    userRepository.findDirectReportsCount(orgUser.getId(), companyId);
+                orgUser.setDirectReportsCount(directReportsCount);
+              }));
           managerItem.setDirectReports(orgChartUserItemList);
           managerItem.setDirectReportsCount(orgChartUserItemList.size());
           orgChartDtoList.add(managerItem);
@@ -332,11 +354,12 @@ public class UserService {
       final Integer allEmployeesCount = userRepository.findExistingUserCountByCompanyId(companyId);
       final OrgChartDto orgChartDto = userMapper.convertOrgChartDto(company);
       orgChartDto.setIsCompany(true);
-      orgChartManagerItemList.forEach((orgUser -> {
-        final Integer directReportsCount = userRepository
-            .findDirectReportsCount(orgUser.getId(), companyId);
-        orgUser.setDirectReportsCount(directReportsCount);
-      }));
+      orgChartManagerItemList.forEach(
+          (orgUser -> {
+            final Integer directReportsCount =
+                userRepository.findDirectReportsCount(orgUser.getId(), companyId);
+            orgUser.setDirectReportsCount(directReportsCount);
+          }));
       orgChartDto.setDirectReportsCount(allEmployeesCount);
       orgChartDto.setDirectReports(orgChartManagerItemList);
       orgChartDtoList.add(orgChartDto);
@@ -348,25 +371,30 @@ public class UserService {
     final User user = findById(id);
 
     final UserPersonalInformation userPersonalInformation = user.getUserPersonalInformation();
-    final UserPersonalInformationDto userPersonalInformationDto = userPersonalInformationMapper
-        .convertToUserPersonalInformationDto(userPersonalInformation);
+    final UserPersonalInformationDto userPersonalInformationDto =
+        userPersonalInformationMapper.convertToUserPersonalInformationDto(userPersonalInformation);
 
     final String headPortrait = user.getImageUrl();
 
     final UserAddress userAddress = userAddressService.findUserAddressByUserId(id);
 
     final UserContactInformation userContactInformation = user.getUserContactInformation();
-    final UserContactInformationDto userContactInformationDto = userContactInformationMapper
-        .convertToUserContactInformationDto(userContactInformation);
+    final UserContactInformationDto userContactInformationDto =
+        userContactInformationMapper.convertToUserContactInformationDto(userContactInformation);
 
-    final List<UserEmergencyContact> userEmergencyContacts = userEmergencyContactService
-        .findUserEmergencyContacts(id);
+    final List<UserEmergencyContact> userEmergencyContacts =
+        userEmergencyContactService.findUserEmergencyContacts(id);
 
-    final List<UserEmergencyContactDto> userEmergencyContactDtos = userEmergencyContacts.stream()
-        .map(UserEmergencyContactDto::new).collect(Collectors.toList());
+    final List<UserEmergencyContactDto> userEmergencyContactDtos =
+        userEmergencyContacts.stream()
+            .map(UserEmergencyContactDto::new)
+            .collect(Collectors.toList());
 
-    return new AccountInfoDto(userPersonalInformationDto, headPortrait,
-        userAddressMapper.convertToUserAddressDto(userAddress), userContactInformationDto,
+    return new AccountInfoDto(
+        userPersonalInformationDto,
+        headPortrait,
+        userAddressMapper.convertToUserAddressDto(userAddress),
+        userContactInformationDto,
         userEmergencyContactDtos);
   }
 
@@ -374,14 +402,15 @@ public class UserService {
     return userRepository.existsByResetPasswordToken(token);
   }
 
-  public boolean createPasswordAndInvitationTokenExist(final String passwordToken,
-      final String invitationToken) {
+  public boolean createPasswordAndInvitationTokenExist(
+      final String passwordToken, final String invitationToken) {
     final User user = userRepository.findByInvitationEmailToken(invitationToken);
     if (user == null || user.getInvitedAt() == null) {
       throw new ForbiddenException("User does not exist or not invited");
     }
-    if (Timestamp.from(Instant.now()).after(
-        Timestamp.valueOf(user.getInvitedAt().toLocalDateTime().plus(72, ChronoUnit.HOURS)))) {
+    if (Timestamp.from(Instant.now())
+        .after(
+            Timestamp.valueOf(user.getInvitedAt().toLocalDateTime().plus(72, ChronoUnit.HOURS)))) {
       throw new EmailException("Email is expired");
     }
 
@@ -423,8 +452,8 @@ public class UserService {
     return userRepository.getMyTeamByManager(employeeListSearchCondition, user, paramPageable);
   }
 
-  public User updateUserRole(final String email, final UserRoleUpdateDto userRoleUpdateDto,
-      final User user) {
+  public User updateUserRole(
+      final String email, final UserRoleUpdateDto userRoleUpdateDto, final User user) {
 
     auth0Helper.login(email, userRoleUpdateDto.getPassWord());
 
@@ -444,10 +473,11 @@ public class UserService {
 
   public void deactivateUser(final UserStatusUpdateDto userStatusUpdateDto, final User user) {
     if ((Status.ACTIVE.name()).equals(userStatusUpdateDto.getUserStatus().name())
-        || Status.CHANGING_EMAIL_VERIFICATION.name()
-        .equals(userStatusUpdateDto.getUserStatus().name())) {
-      userAccessLevelEventService
-          .save(new UserAccessLevelEvent(user, user.getUserRole().getName()));
+        || Status.CHANGING_EMAIL_VERIFICATION
+            .name()
+            .equals(userStatusUpdateDto.getUserStatus().name())) {
+      userAccessLevelEventService.save(
+          new UserAccessLevelEvent(user, user.getUserRole().getName()));
 
       user.setUserRole(userRoleService.getInactive());
       user.setUserStatus(userStatusService.findByName(Status.DISABLED.name()));
@@ -503,7 +533,8 @@ public class UserService {
     final String employeeWorkEmail = employee.getUserContactInformation().getEmailWork();
 
     auth0Helper.deleteUser(
-        auth0Helper.getAuth0UserByIdWithByEmailFailover(employee.getId(), employeeWorkEmail)
+        auth0Helper
+            .getAuth0UserByIdWithByEmailFailover(employee.getId(), employeeWorkEmail)
             .getId());
   }
 
@@ -532,12 +563,18 @@ public class UserService {
   }
 
   public void addSignUpInformation(final UserSignUpDto signUpDto) {
-    final UserPersonalInformation userPersonalInformation = UserPersonalInformation.builder()
-        .firstName(signUpDto.getFirstName()).lastName(signUpDto.getLastName()).build();
+    final UserPersonalInformation userPersonalInformation =
+        UserPersonalInformation.builder()
+            .firstName(signUpDto.getFirstName())
+            .lastName(signUpDto.getLastName())
+            .build();
 
     final String emailAddress = findUserEmailOnAuth0(signUpDto.getUserId());
-    final UserContactInformation userContactInformation = UserContactInformation.builder()
-        .emailWork(emailAddress).phoneWork(signUpDto.getPhone()).build();
+    final UserContactInformation userContactInformation =
+        UserContactInformation.builder()
+            .emailWork(emailAddress)
+            .phoneWork(signUpDto.getPhone())
+            .build();
 
     Company company = Company.builder().name(signUpDto.getCompanyName()).build();
     company = companyService.save(company);
@@ -557,10 +594,16 @@ public class UserService {
 
     final UserStatus status = userStatusService.findByName(Status.ACTIVE.name());
 
-    User user = User.builder().userStatus(status).userPersonalInformation(userPersonalInformation)
-        .userContactInformation(userContactInformation).company(company)
-        .verifiedAt(Timestamp.valueOf(DateUtil.getLocalUtcTime()))
-        .userRole(userRoleService.getAdmin()).salt(UuidUtil.getUuidString()).build();
+    User user =
+        User.builder()
+            .userStatus(status)
+            .userPersonalInformation(userPersonalInformation)
+            .userContactInformation(userContactInformation)
+            .company(company)
+            .verifiedAt(Timestamp.valueOf(DateUtil.getLocalUtcTime()))
+            .userRole(userRoleService.getAdmin())
+            .salt(UuidUtil.getUuidString())
+            .build();
     user.setId(signUpDto.getUserId());
 
     user = userRepository.save(user);
@@ -578,13 +621,13 @@ public class UserService {
 
   public void addTenant(final User user) {
     final Company company = user.getCompany();
-    final PactsafeCompanyDto companyDto = PactsafeCompanyDto.builder().id(company.getId())
-        .name(company.getName()).build();
+    final PactsafeCompanyDto companyDto =
+        PactsafeCompanyDto.builder().id(company.getId()).name(company.getName()).build();
 
     final CompanyUser companyUser = new CompanyUser(user);
 
-    final AddTenantDto tenantDto = AddTenantDto.builder().user(companyUser).company(companyDto)
-        .build();
+    final AddTenantDto tenantDto =
+        AddTenantDto.builder().user(companyUser).company(companyDto).build();
 
     documentClient.addTenant(tenantDto);
   }
@@ -606,8 +649,8 @@ public class UserService {
   }
 
   public boolean hasUserAccess(final User currentUser, final String targetUserId) {
-    final User targetUser = userRepository
-        .findByIdAndCompanyId(targetUserId, currentUser.getCompany().getId());
+    final User targetUser =
+        userRepository.findByIdAndCompanyId(targetUserId, currentUser.getCompany().getId());
     if (targetUser == null) {
       throw new ForbiddenException("Cannot find user.");
     }
@@ -644,8 +687,8 @@ public class UserService {
     context.setVariable("frontEndAddress", frontEndAddress);
     final String emailContent = templateEngine.process("password_change_email.html", context);
     final Timestamp sendDate = Timestamp.valueOf(LocalDateTime.now());
-    final Email notificationEmail = new Email(systemEmailAddress, emailAddress, "Password Changed.",
-        emailContent, sendDate);
+    final Email notificationEmail =
+        new Email(systemEmailAddress, emailAddress, "Password Changed.", emailContent, sendDate);
     emailService.saveAndScheduleEmail(notificationEmail);
   }
 
@@ -655,23 +698,24 @@ public class UserService {
     }
   }
 
-  public void updateWorkEmail(final EmailUpdateDto emailUpdateDto) {
+  public void updateWorkEmail(final EmailUpdateDto emailUpdateDto, final String currentUserEmail) {
     final User user = findById(emailUpdateDto.getUserId());
-    checkPassword(user.getUserContactInformation().getEmailWork(), emailUpdateDto.getPassword());
+    checkPassword(currentUserEmail, emailUpdateDto.getPassword());
 
     if (user.getUserContactInformation().getEmailWork().equals(emailUpdateDto.getEmail())) {
       throw new ForbiddenException(" your new work email should be different");
     }
-    if (!auth0Helper.existsByEmail(emailUpdateDto.getEmail())) {
-      user.setUserStatus(
-          userStatusService.findByName(String.valueOf(Status.CHANGING_EMAIL_VERIFICATION)));
-      user.setChangeWorkEmail(emailUpdateDto.getEmail());
-      emailService.handleEmail(user);
-      userRepository.save(user);
-    } else {
+
+    if (BooleanUtils.isTrue(auth0Helper.existsByEmail(emailUpdateDto.getEmail()))) {
       throw new ForbiddenException(
           String.format(" %s has already been used by another user", emailUpdateDto.getEmail()));
     }
+
+    user.setUserStatus(
+        userStatusService.findByName(String.valueOf(Status.CHANGING_EMAIL_VERIFICATION)));
+    user.setChangeWorkEmail(emailUpdateDto.getEmail());
+    emailService.handleEmail(user);
+    userRepository.save(user);
   }
 
   public void sendVerifyChangeWorkEmail(final User user) {
@@ -687,8 +731,8 @@ public class UserService {
     if (!userRepository.existsByChangeWorkEmailToken(token)) {
       return false;
     } else {
-      final com.auth0.json.mgmt.users.User user = auth0Helper
-          .getUserByUserIdFromAuth0(currentUser.getId());
+      final com.auth0.json.mgmt.users.User user =
+          auth0Helper.getUserByUserIdFromAuth0(currentUser.getId());
 
       auth0Helper.updateUserEmail(user, currentUser.getChangeWorkEmail());
 
@@ -710,15 +754,20 @@ public class UserService {
 
   private CurrentUserDto getCurrentUserDto(final User user) {
     final List<User> teamMembers = findByManagerUser(user);
-    final List<String> teamMemberIds = teamMembers.stream().map(User::getId)
-        .collect(Collectors.toList());
+    final List<String> teamMemberIds =
+        teamMembers.stream().map(User::getId).collect(Collectors.toList());
     if (user.getVerifiedAt() == null) {
       return CurrentUserDto.builder().id(user.getId()).verified(false).build();
     }
 
-    return CurrentUserDto.builder().id(user.getId()).teamMembers(teamMemberIds)
-        .name(user.getUserPersonalInformation().getName()).imageUrl(user.getImageUrl())
-        .verified(user.getVerifiedAt() != null).userRole(user.getUserRole().getName()).build();
+    return CurrentUserDto.builder()
+        .id(user.getId())
+        .teamMembers(teamMemberIds)
+        .name(user.getUserPersonalInformation().getName())
+        .imageUrl(user.getImageUrl())
+        .verified(user.getVerifiedAt() != null)
+        .userRole(user.getUserRole().getName())
+        .build();
   }
 
   public CurrentUserDto getMockUserInfo(final String userId) {
@@ -732,8 +781,8 @@ public class UserService {
       throw new ForbiddenException("User account does not exist.");
     }
 
-    final com.auth0.json.mgmt.users.User user = auth0Helper
-        .getUserByUserIdFromAuth0(targetUser.getId());
+    final com.auth0.json.mgmt.users.User user =
+        auth0Helper.getUserByUserIdFromAuth0(targetUser.getId());
     if (user == null) {
       throw new ForbiddenException("User account does not exist.");
     }
@@ -741,22 +790,22 @@ public class UserService {
     final String passwordRestToken = UUID.randomUUID().toString();
     final String emailContent = emailService.getResetPasswordEmail(passwordRestToken, email);
     final Timestamp sendDate = Timestamp.valueOf(LocalDateTime.now());
-    final Email verifyEmail = new Email(systemEmailAddress, email, "Password Reset.", emailContent,
-        sendDate);
+    final Email verifyEmail =
+        new Email(systemEmailAddress, email, "Password Reset.", emailContent, sendDate);
     emailService.saveAndScheduleEmail(verifyEmail);
     targetUser.setResetPasswordToken(passwordRestToken);
     userRepository.save(targetUser);
   }
 
   public void resetPassword(final UpdatePasswordDto updatePasswordDto) {
-    final User user = userRepository
-        .findByResetPasswordToken(updatePasswordDto.getResetPasswordToken());
+    final User user =
+        userRepository.findByResetPasswordToken(updatePasswordDto.getResetPasswordToken());
     if (user == null) {
       throw new ForbiddenException("Reset password Forbidden");
     }
 
-    final com.auth0.json.mgmt.users.User auth0User = auth0Helper
-        .getUserByUserIdFromAuth0(user.getId());
+    final com.auth0.json.mgmt.users.User auth0User =
+        auth0Helper.getUserByUserIdFromAuth0(user.getId());
 
     if (auth0User == null) {
       throw new ForbiddenException("Email account does not exist.");
@@ -769,8 +818,8 @@ public class UserService {
 
     auth0Helper.updatePassword(auth0User, updatePasswordDto.getNewPassword());
 
-    final UserStatus pendingStatus = userStatusService
-        .findByName(Status.PENDING_VERIFICATION.name());
+    final UserStatus pendingStatus =
+        userStatusService.findByName(Status.PENDING_VERIFICATION.name());
 
     if (user.getUserStatus() == pendingStatus) {
       final UserStatus userStatus = userStatusService.findByName(Status.ACTIVE.name());
@@ -841,14 +890,14 @@ public class UserService {
   }
 
   public boolean isCurrentActiveAnnouncementDismissed(final String userId, final String id) {
-    final DismissedAt dismissedAt = dismissedAtService
-        .findByUserIdAndSystemAnnouncementId(userId, id);
+    final DismissedAt dismissedAt =
+        dismissedAtService.findByUserIdAndSystemAnnouncementId(userId, id);
     return dismissedAt != null;
   }
 
   public void dismissCurrentActiveAnnouncement(final String userId, final String id) {
-    final DismissedAt dismissed = dismissedAtService
-        .findByUserIdAndSystemAnnouncementId(userId, id);
+    final DismissedAt dismissed =
+        dismissedAtService.findByUserIdAndSystemAnnouncementId(userId, id);
     if (dismissed == null) {
       final User user = findById(userId);
       final SystemAnnouncement systemAnnouncement = systemAnnouncementsService.findById(id);
