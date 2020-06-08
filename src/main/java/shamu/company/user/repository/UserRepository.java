@@ -89,4 +89,7 @@ public interface UserRepository extends JpaRepository<User, String>, UserCustomR
   @Query(value = "select * from users u "
       + "where u.manager_user_id is null order by u.created_at limit 1", nativeQuery = true)
   User findSuperUser(String companyId);
+
+  @Query(value = "select * from users u left join user_roles ur on u.user_role_id = ur.id where u.company_id = unhex(?1) and ur.name = ?2", nativeQuery=true)
+  List<User> findUsersByCompanyIdAndUserRole(String companyId, String userRole);
 }

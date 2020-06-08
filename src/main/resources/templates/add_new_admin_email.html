@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en"
+      th:replace="~{base_email :: layout(~{::section})}"
+      xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta content="text/html; charset=UTF-8" http-equiv="Content-Type"/>
+  <link href="https://fonts.googleapis.com/css?family=Roboto" media="all" rel="stylesheet"
+        type="text/css">
+</head>
+<body>
+<section align="center">
+  <table style="margin: auto; text-align: center">
+    <tr>
+      <td style="font-size: 24px; line-height: 32px; padding-top: 40px">New Admin Added to HRIS</td>
+    </tr>
+    <tr>
+      <td style="font-size: 16px; line-height: 24px;">
+        <div style="word-wrap:break-word; word-break:break-all; overflow: hidden; margin: 20px auto 0 auto">
+          <span style="font-weight: 600;" th:text="${promotedEmployeeName}"/>
+          has bean changed to an HRIS Admin by
+        </div>
+        <div><span th:text="${promoterName}" /></div>
+      </td>
+    </tr>
+    <tr>
+      <td style="color: #7B7E84;">
+        <div style="width: 60%; margin: 10px auto 0 auto">You can see these changes (and revert them if you wish) in the "Settings" tab of this employee's profile. If there is a problem,</div>
+        <div>please email us: <span style="color: #0075DF">hris-help@simplyhired.com</span></div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <a style="display: block;text-decoration: none; border-radius: 100px; background: #FFFFFF; border: 1px solid #C4C7CE; cursor: pointer; width: 170px; height: 35px; margin: 25px auto 20px auto; font-size: 12px; font-weight: 600; line-height: 35px; letter-spacing: .2px; color: #0075DF;"
+           th:href="@{${frontEndAddress} + 'employees/' + ${promotedEmployeeId} + '/setting'}">
+          <span>Manage Employees</span>
+        </a>
+      </td>
+    </tr>
+  </table>
+</section>
+</body>
+</html>

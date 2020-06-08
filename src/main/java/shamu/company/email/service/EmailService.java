@@ -27,6 +27,7 @@ import shamu.company.email.repository.EmailRepository;
 import shamu.company.helpers.EmailHelper;
 import shamu.company.helpers.s3.AwsHelper;
 import shamu.company.user.entity.User;
+import shamu.company.user.entity.User.Role;
 import shamu.company.user.entity.UserPersonalInformation;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.AvatarUtil;
@@ -37,6 +38,8 @@ import shamu.company.utils.UuidUtil;
 @Service
 public class EmailService {
   private static final String FRONT_END_ADDRESS = "frontEndAddress";
+
+  private static final String NEW_ADMIN_ADDED_TO_HRIS = "New Admin Added to HRIS";
 
   private final EmailRepository emailRepository;
 
@@ -282,5 +285,34 @@ public class EmailService {
         new Email(
             systemEmailAddress, targetEmail, subject, emailContent, DateUtil.getCurrentTime());
     scheduleEmail(email);
+  }
+
+  public void sendEmailToOtherAdminsWhenNewOneAdded(
+      final String promotedEmployeeId, final String currentUserId, final String companyId) {
+    String promotedEmployeeName =
+        userService.findById(promotedEmployeeId).getUserPersonalInformation().getName();
+    String currentUserName = userService.getCurrentUserInfo(currentUserId).getName();
+
+    final Context context = new Context();
+    context.setVariable(FRONT_END_ADDRESS, frontEndAddress);
+    context.setVariable("promotedEmployeeName", promotedEmployeeName);
+    context.setVariable("promoterName", currentUserName);
+    context.setVariable("promotedEmployeeId", promotedEmployeeId);
+    final String emailContent = templateEngine.process("add_new_admin_email.html", context);
+    List<User> admins =
+        userService.findUsersByCompanyIdAndUserRole(companyId, Role.ADMIN.getValue());
+
+    admins.forEach(
+        admin -> {
+          final String adminEmailWork = admin.getUserContactInformation().getEmailWork();
+          final Email email =
+              new Email(
+                  systemEmailAddress,
+                  adminEmailWork,
+                  NEW_ADMIN_ADDED_TO_HRIS,
+                  emailContent,
+                  DateUtil.getCurrentTime());
+          scheduleEmail(email);
+        });
   }
 }

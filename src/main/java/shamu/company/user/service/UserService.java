@@ -916,4 +916,8 @@ public class UserService {
   public User findSuperUser(final String companyId) {
     return userRepository.findSuperUser(companyId);
   }
+
+  public List<User> findUsersByCompanyIdAndUserRole(String companyId, String userRole) {
+    return userRepository.findUsersByCompanyIdAndUserRole(companyId, userRole);
+  }
 }
