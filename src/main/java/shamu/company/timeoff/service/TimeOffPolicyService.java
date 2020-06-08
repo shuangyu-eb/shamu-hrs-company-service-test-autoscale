@@ -657,15 +657,15 @@ public class TimeOffPolicyService {
     final TimeOffPolicyAccrualSchedule originTimeOffSchedule =
         getTimeOffPolicyAccrualScheduleByTimeOffPolicy(timeOffPolicyUpdated);
 
-    if (CollectionUtils.isEmpty(milestones)) {
-      return new LinkedList<>();
-    }
-
     final List<AccrualScheduleMilestone> accrualScheduleMilestoneList;
 
     accrualScheduleMilestoneList =
         accrualScheduleMilestoneRepository.findByTimeOffPolicyAccrualScheduleId(
             originTimeOffSchedule.getId());
+
+    if (CollectionUtils.isEmpty(milestones)&&CollectionUtils.isEmpty(accrualScheduleMilestoneList)) {
+      return new LinkedList<>();
+    }
 
     if (originTimeOffSchedule.getId() != null) {
       final String accrualScheduleId = originTimeOffSchedule.getId();
