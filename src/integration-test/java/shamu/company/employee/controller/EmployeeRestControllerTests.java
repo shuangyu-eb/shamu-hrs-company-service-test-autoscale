@@ -119,85 +119,266 @@ class EmployeeRestControllerTests extends WebControllerBaseTests {
     assertThat(response.getResponse().getContentAsString()).isNotEmpty();
   }
 
-  @Test
-  void testResendWelcomeEmail() throws Exception {
+  @Nested
+  class TestResendWelcomeEmail {
 
-    setPermission(Name.EDIT_USER.name());
+    private EmailResendDto emailResendDto;
 
-    final HttpHeaders httpHeaders = new HttpHeaders();
-    httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+    @BeforeEach
+    void init() {
+      targetUser.setId(UuidUtil.getUuidString());
+      emailResendDto = new EmailResendDto();
+      emailResendDto.setUserId(targetUser.getId());
+      setGiven();
+    }
 
-    final EmailResendDto emailResendDto = new EmailResendDto();
-    emailResendDto.setUserId(UuidUtil.getUuidString());
-    emailResendDto.setEmail("example@example.com");
+    private class CommonTests {
 
-    final User targetUser = new User();
-    targetUser.setCompany(new Company(getAuthUser().getCompanyId()));
-    given(userService.findById(emailResendDto.getUserId())).willReturn(targetUser);
+      @Test
+      void asManager_thenShouldFailed() throws Exception {
+        buildAuthUserAsManager();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
 
-    final MvcResult response =
-        mockMvc
-            .perform(
-                MockMvcRequestBuilders.post("/company/employees/welcome-email/resend")
-                    .content(JsonUtil.formatToString(emailResendDto))
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .headers(httpHeaders))
-            .andReturn();
+      @Test
+      void asEmployee_thenShouldFailed() throws Exception {
+        buildAuthUserAsEmployee();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
 
-    assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+      @Test
+      void asDeactivatedUser_thenShouldFailed() throws Exception {
+        buildAuthUserAsDeactivatedUser();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+    }
+
+    @Nested
+    class SameCompany extends CommonTests {
+
+      @BeforeEach
+      void init() {
+        targetUser.setCompany(company);
+      }
+
+      @Test
+      void asAdmin_thenShouldSuccess() throws Exception {
+        buildAuthUserAsAdmin();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+      }
+    }
+
+    @Nested
+    class DifferentCompany extends CommonTests {
+
+      @BeforeEach
+      void init() {
+        targetUser.setCompany(theOtherCompany);
+      }
+
+      @Test
+      void asAdmin_thenShouldFailed() throws Exception {
+        buildAuthUserAsAdmin();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+    }
+
+    private void setGiven() {
+      given(userService.findById(targetUser.getId())).willReturn(targetUser);
+    }
+
+    private MvcResult getResponse() throws Exception {
+      return mockMvc
+          .perform(
+              MockMvcRequestBuilders.post("/company/employees/welcome-email/resend")
+                  .content(JsonUtil.formatToString(emailResendDto))
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .headers(httpHeaders))
+          .andReturn();
+    }
   }
 
-  @Test
-  void testAddEmployee() throws Exception {
-    setPermission(Name.CREATE_USER.name());
+  @Nested
+  class TestAddEmployee {
 
-    final HttpHeaders httpHeaders = new HttpHeaders();
-    httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
-    final EmployeeDto employeeDto = setUpForAddEmployee();
+    private EmployeeDto employeeDto;
 
-    final MvcResult response =
-        mockMvc
-            .perform(
-                MockMvcRequestBuilders.post("/company/employees")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .headers(httpHeaders)
-                    .content(JsonUtil.formatToString(employeeDto)))
-            .andReturn();
+    private Job job;
 
-    assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
-  }
+    private EmploymentType employmentType;
 
-  private EmployeeDto setUpForAddEmployee() {
-    final EmployeeDto employeeDto = new EmployeeDto();
-    final NewEmployeeJobInformationDto newEmployeeJobInformationDto =
-        new NewEmployeeJobInformationDto();
-    newEmployeeJobInformationDto.setReportsTo(getAuthUser().getId());
-    newEmployeeJobInformationDto.setEmploymentTypeId(UuidUtil.getUuidString());
-    newEmployeeJobInformationDto.setOfficeId(UuidUtil.getUuidString());
-    newEmployeeJobInformationDto.setJobId(UuidUtil.getUuidString());
-    employeeDto.setJobInformation(newEmployeeJobInformationDto);
+    private Office office;
 
-    final User currentUser = new User(getAuthUser().getId());
-    final Company company = new Company(getAuthUser().getCompanyId());
-    currentUser.setCompany(company);
-    Mockito.when(userService.findById(Mockito.anyString())).thenReturn(currentUser);
+    private User manager;
 
-    final Job job = new Job();
-    final Department department = new Department();
-    department.setCompany(company);
-    job.setDepartment(department);
-    Mockito.when(jobService.findById(Mockito.anyString())).thenReturn(job);
+    @BeforeEach
+    void init() {
+      job = new Job();
+      job.setId(UuidUtil.getUuidString());
+      final Department department = new Department();
+      department.setId(UuidUtil.getUuidString());
+      job.setDepartment(department);
 
-    final Office office = new Office();
-    office.setCompany(company);
-    Mockito.when(companyService.findOfficeById(Mockito.anyString())).thenReturn(office);
+      employmentType = new EmploymentType();
+      employmentType.setId(UuidUtil.getUuidString());
 
-    final EmploymentType employmentType = new EmploymentType();
-    employmentType.setCompany(company);
-    Mockito.when(companyService.findEmploymentTypeById(Mockito.anyString()))
-        .thenReturn(employmentType);
+      manager = new User();
+      manager.setId(UuidUtil.getUuidString());
 
-    return employeeDto;
+      office = new Office();
+      office.setId(UuidUtil.getUuidString());
+
+      employeeDto = new EmployeeDto();
+      final NewEmployeeJobInformationDto jobInfo = new NewEmployeeJobInformationDto();
+      jobInfo.setJobId(job.getId());
+      jobInfo.setEmploymentTypeId(employmentType.getId());
+      jobInfo.setReportsTo(manager.getId());
+      jobInfo.setOfficeId(office.getId());
+      employeeDto.setJobInformation(jobInfo);
+
+      setGiven();
+    }
+
+    private class CommonTests {
+
+      @Test
+      void asManager_thenShouldFailed() throws Exception {
+        buildAuthUserAsManager();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+
+      @Test
+      void asEmployee_thenShouldFailed() throws Exception {
+        buildAuthUserAsEmployee();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+
+      @Test
+      void asDeactivatedUser_thenShouldFailed() throws Exception {
+        buildAuthUserAsDeactivatedUser();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+    }
+
+    @Nested
+    class AllInfoBelongToCurrentCompany extends CommonTests {
+
+      @BeforeEach
+      void init() {
+        job.getDepartment().setCompany(company);
+        manager.setCompany(company);
+        office.setCompany(company);
+        employmentType.setCompany(company);
+      }
+
+      @Test
+      void asAdmin_thenShouldSuccess() throws Exception {
+        buildAuthUserAsAdmin();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+      }
+    }
+
+    @Nested
+    class AllInfoNotBelongToCurrentCompany extends CommonTests {
+
+      @BeforeEach
+      void init() {
+        job.getDepartment().setCompany(theOtherCompany);
+        manager.setCompany(theOtherCompany);
+        office.setCompany(theOtherCompany);
+        employmentType.setCompany(theOtherCompany);
+      }
+
+      @Test
+      void asAdmin_thenShouldFailed() throws Exception {
+        buildAuthUserAsAdmin();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+    }
+
+    @Nested
+    class SomeInfoNotBelongToCurrentCompany {
+
+      @Nested
+      class JobNotBelongToCurrentCompany extends AllInfoNotBelongToCurrentCompany {
+
+        @Override
+        @BeforeEach
+        void init() {
+          job.getDepartment().setCompany(theOtherCompany);
+          manager.setCompany(company);
+          office.setCompany(company);
+          employmentType.setCompany(company);
+        }
+      }
+
+      @Nested
+      class ManagerNotBelongToCurrentCompany extends AllInfoNotBelongToCurrentCompany {
+
+        @Override
+        @BeforeEach
+        void init() {
+          job.getDepartment().setCompany(company);
+          manager.setCompany(theOtherCompany);
+          office.setCompany(company);
+          employmentType.setCompany(company);
+        }
+      }
+
+      @Nested
+      class OfficeNotBelongToCurrentCompany extends AllInfoNotBelongToCurrentCompany {
+
+        @Override
+        @BeforeEach
+        void init() {
+          job.getDepartment().setCompany(company);
+          manager.setCompany(company);
+          office.setCompany(theOtherCompany);
+          employmentType.setCompany(company);
+        }
+      }
+
+      @Nested
+      class EmploymentTypeNotBelongToCurrentCompany extends AllInfoNotBelongToCurrentCompany {
+
+        @Override
+        @BeforeEach
+        void init() {
+          job.getDepartment().setCompany(company);
+          manager.setCompany(company);
+          office.setCompany(company);
+          employmentType.setCompany(theOtherCompany);
+        }
+      }
+    }
+
+    private void setGiven() {
+      given(jobService.findById(job.getId())).willReturn(job);
+      given(companyService.findEmploymentTypeById(employmentType.getId()))
+          .willReturn(employmentType);
+      given(userService.findById(manager.getId())).willReturn(manager);
+      given(companyService.findOfficeById(office.getId())).willReturn(office);
+    }
+
+    private MvcResult getResponse() throws Exception {
+      return mockMvc
+          .perform(
+              MockMvcRequestBuilders.post("/company/employees")
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .headers(httpHeaders)
+                  .content(JsonUtil.formatToString(employeeDto)))
+          .andReturn();
+    }
   }
 
   @Test
