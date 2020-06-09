@@ -4,7 +4,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import javax.persistence.Tuple;
 import org.springframework.util.ReflectionUtils;
-import shamu.company.common.exception.ForbiddenException;
+import shamu.company.common.exception.MethodNotFoundException;
+import shamu.company.utils.exception.TupleConvertException;
 
 public interface TupleUtil {
 
@@ -30,9 +31,10 @@ public interface TupleUtil {
               });
       return result;
     } catch (final InstantiationException | IllegalAccessException | InvocationTargetException e) {
-      throw new ForbiddenException(e.getMessage(), e);
+      throw new TupleConvertException("TupleConvertException:" + e.getMessage(), e);
     } catch (final NoSuchMethodException e) {
-      throw new ForbiddenException("No arg constructor not found in class " + t.getName());
+      throw new MethodNotFoundException(
+          String.format("No arg constructor not found in class %s", t.getName()), e);
     }
   }
 }

@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import shamu.company.benefit.entity.BenefitPlanType;
 import shamu.company.benefit.repository.BenefitPlanTypeRepository;
-import shamu.company.common.exception.ResourceNotFoundException;
+import shamu.company.common.exception.errormapping.ResourceNotFoundException;
 
 @Service
 public class BenefitPlanTypeService {

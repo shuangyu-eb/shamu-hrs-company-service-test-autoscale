@@ -10,7 +10,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
-import shamu.company.common.exception.ForbiddenException;
 import shamu.company.timeoff.dto.TimeOffBreakdownDto;
 import shamu.company.timeoff.dto.TimeOffBreakdownItemDto;
 import shamu.company.timeoff.dto.TimeOffBreakdownItemDto.BreakDownType;
@@ -20,6 +19,7 @@ import shamu.company.timeoff.entity.TimeOffAccrualFrequency;
 import shamu.company.timeoff.entity.TimeOffAccrualFrequency.AccrualFrequencyType;
 import shamu.company.timeoff.entity.TimeOffPolicyAccrualSchedule;
 import shamu.company.timeoff.entity.TimeOffPolicyUser;
+import shamu.company.timeoff.exception.NotFoundException;
 import shamu.company.timeoff.pojo.TimeOffBalancePojo;
 import shamu.company.timeoff.pojo.TimeOffBreakdownCalculatePojo;
 import shamu.company.utils.DateUtil;
@@ -313,7 +313,9 @@ public abstract class TimeOffAccrualService {
                     timeOffBreakdownItemDto.getDetail().equals(STARTING_BREAKDOWN_DETAIL))
             .findFirst()
             .orElseThrow(
-                () -> new ForbiddenException("Can't find the starting balance of time off policy"));
+                () ->
+                    new NotFoundException(
+                        "Can not find starting balance of time off policy", "starting balance"));
 
     final List<TimeOffBreakdownItemDto> filteredTimeOffBreakdownItemList =
         timeOffBreakdownItemList.stream()

@@ -5,7 +5,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import shamu.company.common.CommonDictionaryDto;
 import shamu.company.common.entity.Country;
-import shamu.company.common.exception.ResourceNotFoundException;
+import shamu.company.common.exception.errormapping.ResourceNotFoundException;
 import shamu.company.common.repository.CountryRepository;
 import shamu.company.utils.ReflectionUtil;
 

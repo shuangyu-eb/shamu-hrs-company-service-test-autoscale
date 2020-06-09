@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import shamu.company.common.exception.ResourceNotFoundException;
+import shamu.company.common.exception.errormapping.ResourceNotFoundException;
 import shamu.company.job.entity.Job;
 import shamu.company.job.repository.JobRepository;
 

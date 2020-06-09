@@ -15,7 +15,6 @@ import org.mapstruct.factory.Mappers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import shamu.company.common.exception.ForbiddenException;
 import shamu.company.common.service.DepartmentService;
 import shamu.company.common.service.OfficeAddressService;
 import shamu.company.common.service.OfficeService;
@@ -38,6 +37,7 @@ import shamu.company.job.entity.Job;
 import shamu.company.job.entity.JobUser;
 import shamu.company.job.entity.mapper.JobUserMapper;
 import shamu.company.job.entity.mapper.JobUserMapperImpl;
+import shamu.company.job.exception.errormapping.DeletionFailedCausedByCascadeException;
 import shamu.company.job.repository.JobUserRepository;
 import shamu.company.timeoff.entity.TimeOffAccrualFrequency;
 import shamu.company.timeoff.entity.TimeOffAccrualFrequency.AccrualFrequencyType;
@@ -485,7 +485,7 @@ class JobUserServiceTests {
       Mockito.when(departmentService.findCountByDepartment(jobSelectOptionUpdateDto.getId()))
           .thenReturn(10);
       Assertions.assertThrows(
-          ForbiddenException.class,
+          DeletionFailedCausedByCascadeException.class,
           () -> jobUserService.deleteJobSelectOption(jobSelectOptionUpdateDto));
       Mockito.verify(departmentService, Mockito.times(0)).delete(Mockito.any());
       Mockito.verify(jobService, Mockito.times(0)).findAllByDepartmentId(Mockito.any());
@@ -530,7 +530,7 @@ class JobUserServiceTests {
       jobSelectOptionUpdateDto.setUpdateField(JobSelectOptionUpdateField.JOB_TITLE);
       Mockito.when(jobUserService.getCountByJobId(jobSelectOptionUpdateDto.getId())).thenReturn(10);
       Assertions.assertThrows(
-          ForbiddenException.class,
+          DeletionFailedCausedByCascadeException.class,
           () -> jobUserService.deleteJobSelectOption(jobSelectOptionUpdateDto));
       Mockito.verify(jobService, Mockito.times(0)).delete(Mockito.any());
     }
@@ -551,7 +551,7 @@ class JobUserServiceTests {
       Mockito.when(employmentTypeService.findCountByType(jobSelectOptionUpdateDto.getId()))
           .thenReturn(10);
       Assertions.assertThrows(
-          ForbiddenException.class,
+          DeletionFailedCausedByCascadeException.class,
           () -> jobUserService.deleteJobSelectOption(jobSelectOptionUpdateDto));
       Mockito.verify(employmentTypeService, Mockito.times(0)).delete(Mockito.any());
     }
@@ -572,7 +572,7 @@ class JobUserServiceTests {
       Mockito.when(officeService.findCountByOffice(jobSelectOptionUpdateDto.getId()))
           .thenReturn(10);
       Assertions.assertThrows(
-          ForbiddenException.class,
+          DeletionFailedCausedByCascadeException.class,
           () -> jobUserService.deleteJobSelectOption(jobSelectOptionUpdateDto));
       Mockito.verify(officeService, Mockito.times(0)).delete(Mockito.any());
       Mockito.verify(officeAddressService, Mockito.times(0)).delete(Mockito.any());

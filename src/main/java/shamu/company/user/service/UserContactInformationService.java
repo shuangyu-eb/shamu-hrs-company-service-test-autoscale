@@ -2,7 +2,7 @@ package shamu.company.user.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import shamu.company.common.exception.ResourceNotFoundException;
+import shamu.company.common.exception.errormapping.ResourceNotFoundException;
 import shamu.company.user.entity.UserContactInformation;
 import shamu.company.user.repository.UserContactInformationRepository;
 

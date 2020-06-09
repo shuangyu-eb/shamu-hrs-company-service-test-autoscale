@@ -3,12 +3,12 @@ package shamu.company.timeoff.service;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import shamu.company.common.exception.ForbiddenException;
-import shamu.company.common.exception.ResourceNotFoundException;
+import shamu.company.common.exception.errormapping.ResourceNotFoundException;
 import shamu.company.timeoff.dto.TimeOffBreakdownDto;
 import shamu.company.timeoff.dto.TimeOffBreakdownItemDto;
 import shamu.company.timeoff.dto.TimeOffBreakdownYearDto;
 import shamu.company.timeoff.entity.TimeOffAccrualFrequency;
+import shamu.company.timeoff.exception.NotFoundException;
 import shamu.company.timeoff.pojo.TimeOffBreakdownCalculatePojo;
 import shamu.company.timeoff.repository.TimeOffAccrualFrequencyRepository;
 
@@ -48,7 +48,9 @@ public class TimeOffAccrualDelegator {
                 timeOffAccrualService -> timeOffAccrualService.support(timeOffFrequency.getName()))
             .findFirst()
             .orElseThrow(
-                () -> new ForbiddenException("Can not find appropriate accrual strategy."));
+                () ->
+                    new NotFoundException(
+                        "Can not find appropriate accrual strategy.", "accrual strategy"));
 
     return accrualService.getTimeOffBreakdown(startingBreakdown, calculatePojo);
   }

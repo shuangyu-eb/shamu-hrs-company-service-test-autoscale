@@ -1,4 +1,4 @@
-package shamu.company.common.exception;
+package shamu.company.common.exception.errormapping;
 
 import me.alidg.errors.annotation.ExceptionMapping;
 import me.alidg.errors.annotation.ExposeAsArg;

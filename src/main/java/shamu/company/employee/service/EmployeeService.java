@@ -26,7 +26,8 @@ import org.thymeleaf.context.Context;
 import shamu.company.common.entity.Country;
 import shamu.company.common.entity.StateProvince;
 import shamu.company.common.exception.AwsException;
-import shamu.company.common.exception.ForbiddenException;
+import shamu.company.common.exception.errormapping.ForbiddenException;
+import shamu.company.common.exception.errormapping.AlreadyExistsException;
 import shamu.company.common.service.CountryService;
 import shamu.company.common.service.OfficeService;
 import shamu.company.common.service.StateProvinceService;
@@ -223,16 +224,17 @@ public class EmployeeService {
 
   public void resendEmail(final EmailResendDto emailResendDto) {
     final User user = userService.findById(emailResendDto.getUserId());
-
     if (user.getUserStatus().getStatus() != Status.PENDING_VERIFICATION) {
-      throw new ForbiddenException("User is not in Pending Verification.");
+      throw new ForbiddenException(
+          String.format(
+              "User with id %s is not in Pending Verification.", emailResendDto.getUserId()));
     }
 
     final String email = emailResendDto.getEmail();
     final String originalEmail = user.getUserContactInformation().getEmailWork();
     if (!originalEmail.equals(email)) {
       if (userService.findByEmailWork(email) != null) {
-        throw new ForbiddenException("This email already exists.");
+        throw new AlreadyExistsException("Email already exists.", "email");
       }
 
       auth0Helper.updateEmail(user, emailResendDto.getEmail());

@@ -24,7 +24,8 @@ import org.powermock.reflect.Whitebox;
 import org.springframework.context.ApplicationEventPublisher;
 import org.thymeleaf.context.Context;
 import shamu.company.common.entity.StateProvince;
-import shamu.company.common.exception.ForbiddenException;
+import shamu.company.common.exception.errormapping.ForbiddenException;
+import shamu.company.common.exception.errormapping.AlreadyExistsException;
 import shamu.company.common.service.CountryService;
 import shamu.company.common.service.OfficeService;
 import shamu.company.common.service.StateProvinceService;
@@ -312,7 +313,7 @@ class EmployeeServiceTests {
       final String newEmail = "email@example.com";
       emailResendDto.setEmail(newEmail);
       Mockito.when(userService.findByEmailWork(Mockito.anyString())).thenReturn(new User());
-      assertThatExceptionOfType(ForbiddenException.class)
+      assertThatExceptionOfType(AlreadyExistsException.class)
           .isThrownBy(() -> employeeService.resendEmail(emailResendDto));
     }
 

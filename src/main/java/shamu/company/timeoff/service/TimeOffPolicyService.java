@@ -24,9 +24,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-import shamu.company.common.exception.ForbiddenException;
 import shamu.company.common.exception.GeneralException;
-import shamu.company.common.exception.ResourceNotFoundException;
+import shamu.company.common.exception.errormapping.AlreadyExistsException;
+import shamu.company.common.exception.errormapping.ResourceNotFoundException;
 import shamu.company.company.entity.Company;
 import shamu.company.company.service.CompanyService;
 import shamu.company.job.entity.JobUser;
@@ -63,6 +63,7 @@ import shamu.company.timeoff.entity.mapper.AccrualScheduleMilestoneMapper;
 import shamu.company.timeoff.entity.mapper.TimeOffPolicyAccrualScheduleMapper;
 import shamu.company.timeoff.entity.mapper.TimeOffPolicyMapper;
 import shamu.company.timeoff.entity.mapper.TimeOffPolicyUserMapper;
+import shamu.company.timeoff.exception.TimeOffExceedException;
 import shamu.company.timeoff.pojo.TimeOffPolicyListPojo;
 import shamu.company.timeoff.repository.AccrualScheduleMilestoneRepository;
 import shamu.company.timeoff.repository.PaidHolidayUserRepository;
@@ -215,9 +216,8 @@ public class TimeOffPolicyService {
         timeOffPolicyRepository.findByPolicyNameAndCompanyId(
             timeOffPolicyFrontendDto.getPolicyName(), companyId);
     if (existSamePolicyName > existNumber) {
-      throw new ForbiddenException(
-          "A current Time Off policy with that name is already created. "
-              + "Please enter another Policy Name.");
+      throw new AlreadyExistsException(
+          "Time Off policy name already exists", "time off policy name");
     }
   }
 
@@ -663,7 +663,8 @@ public class TimeOffPolicyService {
         accrualScheduleMilestoneRepository.findByTimeOffPolicyAccrualScheduleId(
             originTimeOffSchedule.getId());
 
-    if (CollectionUtils.isEmpty(milestones)&&CollectionUtils.isEmpty(accrualScheduleMilestoneList)) {
+    if (CollectionUtils.isEmpty(milestones)
+        && CollectionUtils.isEmpty(accrualScheduleMilestoneList)) {
       return new LinkedList<>();
     }
 
@@ -698,8 +699,9 @@ public class TimeOffPolicyService {
     final TimeOffAdjustmentCheckDto checkResult =
         timeOffDetailService.checkTimeOffAdjustments(policyUserId, newBalance);
     if (checkResult.getExceed()) {
-      throw new ForbiddenException(
-          String.format("Amount exceeds max balance of %s hours.", checkResult.getMaxBalance()));
+      throw new TimeOffExceedException(
+          String.format("Amount exceeds max balance of %s hours.", checkResult.getMaxBalance()),
+          checkResult.getMaxBalance().toString());
     }
 
     final TimeOffPolicyUser timeOffPolicyUser =

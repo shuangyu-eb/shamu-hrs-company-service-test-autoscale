@@ -22,7 +22,7 @@ import shamu.company.benefit.service.BenefitPlanDependentService;
 import shamu.company.benefit.service.BenefitPlanService;
 import shamu.company.common.config.DefaultJwtAuthenticationToken;
 import shamu.company.common.entity.BaseEntity;
-import shamu.company.common.exception.ForbiddenException;
+import shamu.company.common.exception.errormapping.ForbiddenException;
 import shamu.company.company.entity.Company;
 import shamu.company.company.entity.Department;
 import shamu.company.company.entity.Office;

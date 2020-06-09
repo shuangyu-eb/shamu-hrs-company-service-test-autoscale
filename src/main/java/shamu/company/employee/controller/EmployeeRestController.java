@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.thymeleaf.context.Context;
 import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
-import shamu.company.common.exception.ForbiddenException;
+import shamu.company.common.exception.errormapping.EmailAlreadyVerifiedException;
 import shamu.company.email.service.EmailService;
 import shamu.company.employee.dto.EmailResendDto;
 import shamu.company.employee.dto.EmployeeDetailDto;
@@ -99,8 +99,8 @@ public class EmployeeRestController extends BaseRestController {
   public HttpEntity saveEmployeeSetUpInformation(@RequestBody final EmployeeDto employeeDto) {
     final User employee = userService.findById(findAuthUser().getId());
     if (employee.getVerifiedAt() != null) {
-      throw new ForbiddenException(
-          String.format("User with email %s already verified.", employeeDto.getEmailWork()));
+      throw new EmailAlreadyVerifiedException(
+          String.format("The account %s is already verified.", employeeDto.getEmailWork()));
     }
 
     employeeService.updateEmployee(employeeDto, employee);

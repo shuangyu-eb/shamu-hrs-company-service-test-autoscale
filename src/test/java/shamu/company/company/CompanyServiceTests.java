@@ -16,8 +16,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import shamu.company.common.entity.StateProvince;
-import shamu.company.common.exception.ForbiddenException;
-import shamu.company.common.exception.ResourceNotFoundException;
+import shamu.company.common.exception.errormapping.AlreadyExistsException;
+import shamu.company.common.exception.errormapping.ResourceNotFoundException;
 import shamu.company.common.service.DepartmentService;
 import shamu.company.common.service.OfficeService;
 import shamu.company.common.service.StateProvinceService;
@@ -228,7 +228,7 @@ public class CompanyServiceTests {
     @Test
     void whenUpdateCompanyName_thenShouldThrowException() {
       Mockito.when(companyService.existsByName(Mockito.anyString())).thenReturn(true);
-      assertThatExceptionOfType(ForbiddenException.class)
+      assertThatExceptionOfType(AlreadyExistsException.class)
           .isThrownBy(() -> companyService.updateCompanyName("example", "companyId"));
     }
 

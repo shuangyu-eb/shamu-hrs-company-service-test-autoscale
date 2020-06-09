@@ -5,7 +5,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
-import shamu.company.common.exception.ForbiddenException;
+import shamu.company.utils.exception.DeserializeFailedException;
+import shamu.company.utils.exception.SerializeFailedException;
 
 public abstract class JsonUtil {
 
@@ -22,7 +23,7 @@ public abstract class JsonUtil {
     try {
       return objectMapper.writeValueAsString(object);
     } catch (final JsonProcessingException e) {
-      throw new ForbiddenException("Error while serializing.", e);
+      throw new SerializeFailedException("Error while serializing.");
     }
   }
 
@@ -30,7 +31,7 @@ public abstract class JsonUtil {
     try {
       return objectMapper.readValue(objectString, className);
     } catch (final IOException e) {
-      throw new ForbiddenException("Error while parse json string.", e);
+      throw new DeserializeFailedException("Error while parsing JSON string in deserialize.");
     }
   }
 
@@ -38,7 +39,7 @@ public abstract class JsonUtil {
     try {
       return objectMapper.readValue(objectString, type);
     } catch (final IOException e) {
-      throw new ForbiddenException("Error while parse json string.", e);
+      throw new DeserializeFailedException("Error while parsing JSON string in deserializeType.");
     }
   }
 }

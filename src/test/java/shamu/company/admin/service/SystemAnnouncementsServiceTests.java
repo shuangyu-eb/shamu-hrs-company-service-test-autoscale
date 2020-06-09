@@ -15,7 +15,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.data.domain.Page;
 import shamu.company.admin.entity.SystemAnnouncement;
 import shamu.company.admin.repository.SystemAnnouncementsRepository;
-import shamu.company.common.exception.ResourceNotFoundException;
+import shamu.company.common.exception.errormapping.ResourceNotFoundException;
 
 class SystemAnnouncementsServiceTests {
 

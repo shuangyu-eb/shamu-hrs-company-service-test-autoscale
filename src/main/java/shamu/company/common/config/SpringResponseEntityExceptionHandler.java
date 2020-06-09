@@ -13,12 +13,13 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import shamu.company.common.exception.EmailException;
 import shamu.company.common.exception.FileValidateException;
-import shamu.company.common.exception.ForbiddenException;
 import shamu.company.common.exception.GeneralAuth0Exception;
 import shamu.company.common.exception.NonUniqueAuth0ResourceException;
 import shamu.company.common.exception.TooManyRequestException;
 import shamu.company.common.exception.UnAuthenticatedException;
 import shamu.company.common.exception.ValidationFailedException;
+import shamu.company.common.exception.errormapping.EmailAlreadyVerifiedException;
+import shamu.company.common.exception.errormapping.ForbiddenException;
 import shamu.company.common.exception.response.ErrorMessage;
 import shamu.company.common.exception.response.ErrorType;
 
@@ -40,7 +41,13 @@ public class SpringResponseEntityExceptionHandler {
   @ResponseStatus(HttpStatus.FORBIDDEN)
   @ExceptionHandler(ForbiddenException.class)
   public ErrorMessage handleForbiddenException(final ForbiddenException exception) {
-    return new ErrorMessage(exception.getType(), exception.getMessage());
+    return new ErrorMessage("permission_denied", exception.getMessage());
+  }
+
+  @ResponseStatus(HttpStatus.FORBIDDEN)
+  @ExceptionHandler(EmailAlreadyVerifiedException.class)
+  public ErrorMessage handleOldForbiddenException(final EmailAlreadyVerifiedException exception) {
+    return new ErrorMessage("email_already_verified", exception.getMessage());
   }
 
   @ResponseStatus(HttpStatus.BAD_REQUEST)

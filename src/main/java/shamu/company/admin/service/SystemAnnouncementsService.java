@@ -7,12 +7,12 @@ import org.springframework.stereotype.Service;
 import shamu.company.admin.dto.SystemAnnouncementDto;
 import shamu.company.admin.entity.SystemAnnouncement;
 import shamu.company.admin.repository.SystemAnnouncementsRepository;
-import shamu.company.common.exception.ResourceNotFoundException;
+import shamu.company.common.exception.errormapping.ResourceNotFoundException;
 
 @Service
 public class SystemAnnouncementsService {
 
-  private SystemAnnouncementsRepository systemAnnouncementsRepository;
+  private final SystemAnnouncementsRepository systemAnnouncementsRepository;
 
   @Autowired
   public SystemAnnouncementsService(

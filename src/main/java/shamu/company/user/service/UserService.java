@@ -40,10 +40,10 @@ import shamu.company.client.AddTenantDto;
 import shamu.company.client.DocumentClient;
 import shamu.company.client.PactsafeCompanyDto;
 import shamu.company.common.exception.EmailException;
-import shamu.company.common.exception.ForbiddenException;
 import shamu.company.common.exception.GeneralException;
-import shamu.company.common.exception.ResourceNotFoundException;
-import shamu.company.common.exception.response.ErrorType;
+import shamu.company.common.exception.errormapping.AlreadyExistsException;
+import shamu.company.common.exception.errormapping.EmailAlreadyVerifiedException;
+import shamu.company.common.exception.errormapping.ResourceNotFoundException;
 import shamu.company.common.service.DepartmentService;
 import shamu.company.company.entity.Company;
 import shamu.company.company.entity.CompanyBenefitsSetting;
@@ -101,6 +101,12 @@ import shamu.company.user.entity.mapper.UserAddressMapper;
 import shamu.company.user.entity.mapper.UserContactInformationMapper;
 import shamu.company.user.entity.mapper.UserMapper;
 import shamu.company.user.entity.mapper.UserPersonalInformationMapper;
+import shamu.company.user.exception.Auth0UserNotFoundException;
+import shamu.company.user.exception.errormapping.AuthenticationFailedException;
+import shamu.company.user.exception.errormapping.PasswordDuplicatedException;
+import shamu.company.user.exception.errormapping.UserNotFoundByEmailException;
+import shamu.company.user.exception.errormapping.UserNotFoundByInvitationTokenException;
+import shamu.company.user.exception.errormapping.WorkEmailDuplicatedException;
 import shamu.company.user.repository.UserRepository;
 import shamu.company.utils.DateUtil;
 import shamu.company.utils.JsonUtil;
@@ -330,9 +336,6 @@ public class UserService {
       orgChartManagerItemList.add(manager);
       if (!orgChartManagerItemList.isEmpty()) {
         for (final OrgChartDto managerItem : orgChartManagerItemList) {
-          if (managerItem == null) {
-            throw new ForbiddenException("User with id " + userId + " not found.");
-          }
 
           final List<OrgChartDto> orgChartUserItemList =
               userRepository.findOrgChartItemByManagerId(managerItem.getId(), companyId);
@@ -405,8 +408,10 @@ public class UserService {
   public boolean createPasswordAndInvitationTokenExist(
       final String passwordToken, final String invitationToken) {
     final User user = userRepository.findByInvitationEmailToken(invitationToken);
-    if (user == null || user.getInvitedAt() == null) {
-      throw new ForbiddenException("User does not exist or not invited");
+    if (user == null) {
+      throw new UserNotFoundByInvitationTokenException(
+          String.format("User with invitationToken %s not found!", invitationToken),
+          invitationToken);
     }
     if (Timestamp.from(Instant.now())
         .after(
@@ -432,8 +437,9 @@ public class UserService {
     try {
       authUser = auth0Helper.getAuth0UserByIdWithByEmailFailover(user.getId(), userWorkEmail);
     } catch (final ResourceNotFoundException e) {
-      throw new ForbiddenException(
-          String.format("Cannot find user with email %s", createPasswordDto.getEmailWork()));
+      throw new UserNotFoundByEmailException(
+          String.format("User with email %s not found.", createPasswordDto.getEmailWork()),
+          createPasswordDto.getEmailWork());
     }
 
     auth0Helper.updatePassword(authUser, createPasswordDto.getNewPassword());
@@ -556,7 +562,7 @@ public class UserService {
     }
 
     if (companyService.existsByName(signUpDto.getCompanyName())) {
-      throw new ForbiddenException("Company name already exists.", ErrorType.COMPANY_NAME_CONFLICT);
+      throw new AlreadyExistsException("Company name already exists.", "company name");
     }
 
     addSignUpInformation(signUpDto);
@@ -642,7 +648,8 @@ public class UserService {
   private String findUserEmailOnAuth0(final String userId) {
     final com.auth0.json.mgmt.users.User auth0User = auth0Helper.getUserByUserIdFromAuth0(userId);
     if (auth0User == null) {
-      throw new ForbiddenException("User not registered.");
+      throw new Auth0UserNotFoundException(
+          String.format("Auth0 user with userId %s not registered.", userId));
     }
 
     return auth0User.getEmail();
@@ -652,7 +659,8 @@ public class UserService {
     final User targetUser =
         userRepository.findByIdAndCompanyId(targetUserId, currentUser.getCompany().getId());
     if (targetUser == null) {
-      throw new ForbiddenException("Cannot find user.");
+      throw new ResourceNotFoundException(
+          String.format("User with id %s not found.", targetUserId), targetUserId, "user");
     }
 
     final Role userRole = currentUser.getRole();
@@ -679,7 +687,7 @@ public class UserService {
     final String emailAddress = user.getEmail();
     checkPassword(emailAddress, changePasswordDto.getPassword());
     if (changePasswordDto.getPassword().equals(changePasswordDto.getNewPassword())) {
-      throw new ForbiddenException("New password cannot be the same as the old one.");
+      throw new PasswordDuplicatedException("New password cannot be the same as the old one.");
     }
     auth0Helper.updatePassword(user, changePasswordDto.getNewPassword());
 
@@ -694,7 +702,7 @@ public class UserService {
 
   public void checkPassword(final String email, final String password) {
     if (!auth0Helper.isPasswordValid(email, password)) {
-      throw new ForbiddenException("Wrong email or password.");
+      throw new AuthenticationFailedException("Wrong email or password.");
     }
   }
 
@@ -703,12 +711,11 @@ public class UserService {
     checkPassword(currentUserEmail, emailUpdateDto.getPassword());
 
     if (user.getUserContactInformation().getEmailWork().equals(emailUpdateDto.getEmail())) {
-      throw new ForbiddenException(" your new work email should be different");
+      throw new WorkEmailDuplicatedException("New work email cannot be the same as the old one.");
     }
 
     if (BooleanUtils.isTrue(auth0Helper.existsByEmail(emailUpdateDto.getEmail()))) {
-      throw new ForbiddenException(
-          String.format(" %s has already been used by another user", emailUpdateDto.getEmail()));
+      throw new AlreadyExistsException("Email already exists.", "email");
     }
 
     user.setUserStatus(
@@ -778,13 +785,17 @@ public class UserService {
   public void sendResetPasswordEmail(final String email) {
     final User targetUser = userRepository.findByEmailWork(email);
     if (targetUser == null) {
-      throw new ForbiddenException("User account does not exist.");
+      throw new UserNotFoundByEmailException(
+          String.format("User account with email %s not found.", email), email);
     }
 
     final com.auth0.json.mgmt.users.User user =
         auth0Helper.getUserByUserIdFromAuth0(targetUser.getId());
     if (user == null) {
-      throw new ForbiddenException("User account does not exist.");
+      throw new ResourceNotFoundException(
+          String.format("User account with id %s not found.", targetUser.getId()),
+          targetUser.getId(),
+          "user account");
     }
 
     final String passwordRestToken = UUID.randomUUID().toString();
@@ -801,19 +812,24 @@ public class UserService {
     final User user =
         userRepository.findByResetPasswordToken(updatePasswordDto.getResetPasswordToken());
     if (user == null) {
-      throw new ForbiddenException("Reset password Forbidden");
+      throw new UserNotFoundByInvitationTokenException(
+          String.format("User with id %s not found.", updatePasswordDto.getResetPasswordToken()),
+          updatePasswordDto.getResetPasswordToken());
     }
 
     final com.auth0.json.mgmt.users.User auth0User =
         auth0Helper.getUserByUserIdFromAuth0(user.getId());
 
     if (auth0User == null) {
-      throw new ForbiddenException("Email account does not exist.");
+      throw new ResourceNotFoundException(
+          String.format("Auth0 user with id %s not found.", user.getId()),
+          user.getId(),
+          "Auth0 user");
     }
 
     final String email = user.getUserContactInformation().getEmailWork();
     if (auth0Helper.isPasswordValid(email, updatePasswordDto.getNewPassword())) {
-      throw new ForbiddenException("New password cannot be the same as the old one.");
+      throw new PasswordDuplicatedException("New password cannot be the same as the old one.");
     }
 
     auth0Helper.updatePassword(auth0User, updatePasswordDto.getNewPassword());
@@ -878,12 +894,10 @@ public class UserService {
 
   public void resendVerificationEmail(final String email) {
     final com.auth0.json.mgmt.users.User auth0User = auth0Helper.findByEmail(email);
-    if (auth0User == null) {
-      throw new ForbiddenException(String.format("User with email %s does not exist.", email));
-    }
 
     if (auth0User.isEmailVerified()) {
-      throw new ForbiddenException(String.format("User with email %s is already verified.", email));
+      throw new EmailAlreadyVerifiedException(
+          String.format("The account %s is already verified.", email));
     }
 
     auth0Helper.sendVerificationEmail(auth0User.getId());
@@ -917,7 +931,7 @@ public class UserService {
     return userRepository.findSuperUser(companyId);
   }
 
-  public List<User> findUsersByCompanyIdAndUserRole(String companyId, String userRole) {
+  public List<User> findUsersByCompanyIdAndUserRole(final String companyId, final String userRole) {
     return userRepository.findUsersByCompanyIdAndUserRole(companyId, userRole);
   }
 }

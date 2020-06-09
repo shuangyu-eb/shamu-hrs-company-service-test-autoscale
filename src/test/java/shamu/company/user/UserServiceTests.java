@@ -2,7 +2,6 @@ package shamu.company.user;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.sql.Date;
 import java.sql.Timestamp;
@@ -31,8 +30,9 @@ import shamu.company.admin.service.SystemAnnouncementsService;
 import shamu.company.authorization.PermissionUtils;
 import shamu.company.client.DocumentClient;
 import shamu.company.common.exception.EmailException;
-import shamu.company.common.exception.ForbiddenException;
-import shamu.company.common.exception.ResourceNotFoundException;
+import shamu.company.common.exception.errormapping.AlreadyExistsException;
+import shamu.company.common.exception.errormapping.EmailAlreadyVerifiedException;
+import shamu.company.common.exception.errormapping.ResourceNotFoundException;
 import shamu.company.common.service.DepartmentService;
 import shamu.company.company.entity.Company;
 import shamu.company.company.repository.CompanyRepository;
@@ -74,6 +74,11 @@ import shamu.company.user.entity.mapper.UserAddressMapper;
 import shamu.company.user.entity.mapper.UserContactInformationMapper;
 import shamu.company.user.entity.mapper.UserMapper;
 import shamu.company.user.entity.mapper.UserPersonalInformationMapper;
+import shamu.company.user.exception.Auth0UserNotFoundException;
+import shamu.company.user.exception.errormapping.AuthenticationFailedException;
+import shamu.company.user.exception.errormapping.UserNotFoundByEmailException;
+import shamu.company.user.exception.errormapping.UserNotFoundByInvitationTokenException;
+import shamu.company.user.exception.errormapping.WorkEmailDuplicatedException;
 import shamu.company.user.repository.UserRepository;
 import shamu.company.user.service.DismissedAtService;
 import shamu.company.user.service.UserAccessLevelEventService;
@@ -268,13 +273,6 @@ class UserServiceTests {
     }
 
     @Test
-    void whenManagerIsNull_thenShouldThrow() {
-      Mockito.when(userRepository.findOrgChartItemByUserId(userId, companyId)).thenReturn(null);
-      Assertions.assertThrows(
-          ForbiddenException.class, () -> userService.getOrgChart(userId, companyId));
-    }
-
-    @Test
     void whenManagerIsNotNull_thenShouldNotThrow() {
       final OrgChartDto manager = new OrgChartDto();
       final List<OrgChartDto> orgChartUserItemList = new ArrayList<>();
@@ -408,16 +406,16 @@ class UserServiceTests {
     @Test
     void whenPasswordIsSame_thenShouldThrow() {
       changePasswordDto.setNewPassword("password");
-      Assertions.assertThrows(
-          ForbiddenException.class, () -> userService.updatePassword(changePasswordDto, userId));
+      assertThatExceptionOfType(AuthenticationFailedException.class)
+          .isThrownBy(() -> userService.updatePassword(changePasswordDto, userId));
     }
 
     @Test
     void whenPasswordIsError_thenShouldThrow() {
       Mockito.when(auth0Helper.isPasswordValid(user.getEmail(), changePasswordDto.getPassword()))
           .thenReturn(false);
-      Assertions.assertThrows(
-          ForbiddenException.class, () -> userService.updatePassword(changePasswordDto, userId));
+      assertThatExceptionOfType(AuthenticationFailedException.class)
+          .isThrownBy(() -> userService.updatePassword(changePasswordDto, userId));
     }
 
     @Test
@@ -463,25 +461,22 @@ class UserServiceTests {
     void whenPasswordIsNotValid_thenShouldThrow() {
       Mockito.when(auth0Helper.isPasswordValid(Mockito.anyString(), Mockito.anyString()))
           .thenReturn(false);
-      Assertions.assertThrows(
-          ForbiddenException.class,
-          () -> userService.updateWorkEmail(emailUpdateDto, currentUserPassword));
+      assertThatExceptionOfType(AuthenticationFailedException.class)
+          .isThrownBy(() -> userService.updateWorkEmail(emailUpdateDto, currentUserPassword));
     }
 
     @Test
     void whenEmailIsSame_thenShouldThrow() {
       emailUpdateDto.setEmail("example@example.com");
-      Assertions.assertThrows(
-          ForbiddenException.class,
-          () -> userService.updateWorkEmail(emailUpdateDto, currentUserPassword));
+      assertThatExceptionOfType(WorkEmailDuplicatedException.class)
+          .isThrownBy(() -> userService.updateWorkEmail(emailUpdateDto, currentUserPassword));
     }
 
     @Test
     void whenNewEmailIsUsed_thenShouldThrow() {
       Mockito.when(auth0Helper.existsByEmail(emailUpdateDto.getEmail())).thenReturn(true);
-      Assertions.assertThrows(
-          ForbiddenException.class,
-          () -> userService.updateWorkEmail(emailUpdateDto, currentUserPassword));
+      assertThatExceptionOfType(AlreadyExistsException.class)
+          .isThrownBy(() -> userService.updateWorkEmail(emailUpdateDto, currentUserPassword));
     }
 
     @Test
@@ -549,18 +544,11 @@ class UserServiceTests {
     private String email;
 
     @Test
-    void whenUserIsNull_thenShouldThrow() {
-      Mockito.when(auth0Helper.findByEmail(email)).thenReturn(null);
-      Assertions.assertThrows(
-          ForbiddenException.class, () -> userService.resendVerificationEmail(email));
-    }
-
-    @Test
     void whenUserIsVerified_thenShouldThrow() {
       auth0User.setEmailVerified(true);
       Mockito.when(auth0Helper.findByEmail(email)).thenReturn(auth0User);
-      Assertions.assertThrows(
-          ForbiddenException.class, () -> userService.resendVerificationEmail(email));
+      assertThatExceptionOfType(EmailAlreadyVerifiedException.class)
+          .isThrownBy(() -> userService.resendVerificationEmail(email));
     }
 
     @Test
@@ -595,14 +583,15 @@ class UserServiceTests {
 
     @Test
     void whenCanNotFindEmail_thenShouldThrow() {
-      Assertions.assertThrows(ForbiddenException.class, () -> userService.signUp(userSignUpDto));
+      assertThatExceptionOfType(Auth0UserNotFoundException.class)
+          .isThrownBy(() -> userService.signUp(userSignUpDto));
     }
 
     @Test
     void whenCompanyNameExists_thenShouldThrow() {
       Mockito.when(companyService.existsByName(Mockito.anyString())).thenReturn(true);
-      assertThatThrownBy(() -> userService.signUp(userSignUpDto))
-          .isInstanceOf(ForbiddenException.class);
+      assertThatExceptionOfType(AlreadyExistsException.class)
+          .isThrownBy(() -> userService.signUp(userSignUpDto));
     }
 
     @Test
@@ -693,8 +682,8 @@ class UserServiceTests {
     void whenTargetUserIsNull_thenShouldThrow() {
       Mockito.when(userRepository.findByIdAndCompanyId(Mockito.anyString(), Mockito.anyString()))
           .thenReturn(null);
-      assertThatThrownBy(() -> userService.hasUserAccess(currentUser, targetUserId))
-          .isInstanceOf(ForbiddenException.class);
+      assertThatExceptionOfType(ResourceNotFoundException.class)
+          .isThrownBy(() -> userService.hasUserAccess(currentUser, targetUserId));
     }
   }
 
@@ -778,8 +767,8 @@ class UserServiceTests {
     void whenUserIsNull_thenShouldThrow() {
       Mockito.when(userRepository.findByEmailWork(Mockito.anyString())).thenReturn(new User());
       Mockito.when(auth0Helper.getUserByUserIdFromAuth0(Mockito.any())).thenReturn(null);
-      Assertions.assertThrows(
-          ForbiddenException.class, () -> userService.sendResetPasswordEmail("example@indeed.com"));
+      assertThatExceptionOfType(ResourceNotFoundException.class)
+          .isThrownBy(() -> userService.sendResetPasswordEmail("example@indeed.com"));
     }
 
     @Test
@@ -796,8 +785,8 @@ class UserServiceTests {
     @Test
     void whenTargetUserIsNull_thenShouldThrow() {
       Mockito.when(userRepository.findByEmailWork(Mockito.anyString())).thenReturn(null);
-      assertThatThrownBy(() -> userService.sendResetPasswordEmail("example@indeed.com"))
-          .isInstanceOf(ForbiddenException.class);
+      assertThatExceptionOfType(UserNotFoundByEmailException.class)
+          .isThrownBy(() -> userService.sendResetPasswordEmail("example@indeed.com"));
     }
   }
 
@@ -821,18 +810,9 @@ class UserServiceTests {
     @Test
     void whenUserIsNull_thenShouldThrow() {
       Mockito.when(userRepository.findByInvitationEmailToken(Mockito.any())).thenReturn(null);
-      Assertions.assertThrows(
-          ForbiddenException.class,
-          () -> userService.createPasswordAndInvitationTokenExist(passwordToken, invitationToken));
-    }
 
-    @Test
-    void whenUserInvitedAtIsNull_thenShouldThrow() {
-      currentUser.setInvitedAt(null);
-      Mockito.when(userRepository.findByInvitationEmailToken(Mockito.any()))
-          .thenReturn(currentUser);
       Assertions.assertThrows(
-          ForbiddenException.class,
+          UserNotFoundByInvitationTokenException.class,
           () -> userService.createPasswordAndInvitationTokenExist(passwordToken, invitationToken));
     }
 

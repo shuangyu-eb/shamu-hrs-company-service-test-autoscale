@@ -15,8 +15,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import shamu.company.common.exception.ForbiddenException;
-import shamu.company.common.exception.ResourceNotFoundException;
+import shamu.company.common.exception.errormapping.AlreadyExistsException;
+import shamu.company.common.exception.errormapping.ResourceNotFoundException;
 import shamu.company.company.entity.Company;
 import shamu.company.helpers.FederalHolidayHelper;
 import shamu.company.job.dto.JobUserDto;
@@ -214,9 +214,8 @@ class PaidHolidayServiceTests {
       newPaidHolidayDto.setFederal(true);
       newPaidHolidayDto.setDate(Timestamp.valueOf(LocalDateTime.now()));
 
-      Assertions.assertThrows(
-          ForbiddenException.class,
-          () -> paidHolidayService.updatePaidHoliday(newPaidHolidayDto, authUser));
+      assertThatExceptionOfType(AlreadyExistsException.class)
+          .isThrownBy(() -> paidHolidayService.updatePaidHoliday(newPaidHolidayDto, authUser));
     }
 
     @Test

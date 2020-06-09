@@ -24,7 +24,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import shamu.company.WebControllerBaseTests;
 import shamu.company.authorization.Permission.Name;
-import shamu.company.common.exception.ForbiddenException;
+import shamu.company.common.exception.errormapping.EmailAlreadyVerifiedException;
 import shamu.company.company.entity.Company;
 import shamu.company.company.entity.Department;
 import shamu.company.company.entity.Office;
@@ -153,7 +153,7 @@ class EmployeeRestControllerTests extends WebControllerBaseTests {
 
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
-    EmployeeDto employeeDto = setUpForAddEmployee();
+    final EmployeeDto employeeDto = setUpForAddEmployee();
 
     final MvcResult response =
         mockMvc
@@ -177,22 +177,22 @@ class EmployeeRestControllerTests extends WebControllerBaseTests {
     newEmployeeJobInformationDto.setJobId(UuidUtil.getUuidString());
     employeeDto.setJobInformation(newEmployeeJobInformationDto);
 
-    User currentUser = new User(getAuthUser().getId());
-    Company company = new Company(getAuthUser().getCompanyId());
+    final User currentUser = new User(getAuthUser().getId());
+    final Company company = new Company(getAuthUser().getCompanyId());
     currentUser.setCompany(company);
     Mockito.when(userService.findById(Mockito.anyString())).thenReturn(currentUser);
 
-    Job job = new Job();
-    Department department = new Department();
+    final Job job = new Job();
+    final Department department = new Department();
     department.setCompany(company);
     job.setDepartment(department);
     Mockito.when(jobService.findById(Mockito.anyString())).thenReturn(job);
 
-    Office office = new Office();
+    final Office office = new Office();
     office.setCompany(company);
     Mockito.when(companyService.findOfficeById(Mockito.anyString())).thenReturn(office);
 
-    EmploymentType employmentType = new EmploymentType();
+    final EmploymentType employmentType = new EmploymentType();
     employmentType.setCompany(company);
     Mockito.when(companyService.findEmploymentTypeById(Mockito.anyString()))
         .thenReturn(employmentType);
@@ -266,7 +266,7 @@ class EmployeeRestControllerTests extends WebControllerBaseTests {
                       .content(JsonUtil.formatToString(postBody)))
               .andReturn();
 
-      assertThat(response.getResolvedException()).isInstanceOf(ForbiddenException.class);
+      assertThat(response.getResolvedException()).isInstanceOf(EmailAlreadyVerifiedException.class);
     }
 
     @Test

@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
-import shamu.company.common.exception.ForbiddenException;
+import shamu.company.common.exception.errormapping.ForbiddenException;
 import shamu.company.common.validation.constraints.FileValidate;
 import shamu.company.employee.dto.EmailUpdateDto;
 import shamu.company.user.dto.AccountInfoDto;
@@ -154,11 +154,12 @@ public class UserRestController extends BaseRestController {
       userService.cacheUser(findToken(), userDto.getId());
       return userDto;
     }
-
     final User user = userService.findActiveUserById(findAuthentication().getUserId());
+
     final Role role = user.getRole();
     if (role != Role.SUPER_ADMIN) {
-      throw new ForbiddenException("You are not super admin!");
+      throw new ForbiddenException(
+          String.format("User with id %s is not super admin.", user.getId()));
     }
 
     userService.cacheUser(findToken(), mockId);

@@ -9,7 +9,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-import shamu.company.common.exception.ForbiddenException;
 import shamu.company.common.service.DepartmentService;
 import shamu.company.common.service.OfficeAddressService;
 import shamu.company.common.service.OfficeService;
@@ -29,6 +28,7 @@ import shamu.company.job.dto.JobUserHireDateCheckDto;
 import shamu.company.job.entity.Job;
 import shamu.company.job.entity.JobUser;
 import shamu.company.job.entity.mapper.JobUserMapper;
+import shamu.company.job.exception.errormapping.DeletionFailedCausedByCascadeException;
 import shamu.company.job.repository.JobUserRepository;
 import shamu.company.server.dto.AuthUser;
 import shamu.company.timeoff.dto.MyTimeOffDto;
@@ -325,8 +325,9 @@ public class JobUserService {
   private void deleteDepartment(final String id) {
     final Integer count = departmentService.findCountByDepartment(id);
     if (count > 0) {
-      throw new ForbiddenException(
-          "The Department has people, please remove then to another Department");
+      throw new DeletionFailedCausedByCascadeException(
+          "Couldn't remove department since there are one or more employee assigned to it.",
+          "department");
     }
     final List<Job> jobs = jobService.findAllByDepartmentId(id);
     if (!CollectionUtils.isEmpty(jobs)) {
@@ -339,7 +340,8 @@ public class JobUserService {
   private void deleteJobTitle(final String id) {
     final Integer count = getCountByJobId(id);
     if (count > 0) {
-      throw new ForbiddenException("The Job has people, please remove then to another Job");
+      throw new DeletionFailedCausedByCascadeException(
+          "Couldn't remove job since there are one or more employee assigned to it.", "job");
     }
     jobService.delete(id);
   }
@@ -347,8 +349,9 @@ public class JobUserService {
   private void deleteEmployeeType(final String id) {
     final Integer count = employmentTypeService.findCountByType(id);
     if (count > 0) {
-      throw new ForbiddenException(
-          "The EmployeeType has people, please remove then to another EmployeeType");
+      throw new DeletionFailedCausedByCascadeException(
+          "Couldn't remove employee type since there are one or more employee assigned to it.",
+          "employee type");
     }
     employmentTypeService.delete(id);
   }
@@ -356,7 +359,8 @@ public class JobUserService {
   private void deleteOffice(final String id) {
     final Integer count = officeService.findCountByOffice(id);
     if (count > 0) {
-      throw new ForbiddenException("The Office has people, please remove then to another Office");
+      throw new DeletionFailedCausedByCascadeException(
+          "Couldn't remove office since there are one or more employee assigned to it.", "office");
     }
     final Office office = officeService.findById(id);
     officeService.delete(id);

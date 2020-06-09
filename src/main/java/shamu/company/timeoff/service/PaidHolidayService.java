@@ -12,8 +12,8 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import shamu.company.common.exception.ForbiddenException;
-import shamu.company.common.exception.ResourceNotFoundException;
+import shamu.company.common.exception.errormapping.AlreadyExistsException;
+import shamu.company.common.exception.errormapping.ResourceNotFoundException;
 import shamu.company.company.entity.Company;
 import shamu.company.helpers.FederalHolidayHelper;
 import shamu.company.job.dto.JobUserDto;
@@ -51,6 +51,8 @@ public class PaidHolidayService {
   private final PaidHolidayMapper paidHolidayMapper;
 
   private final FederalHolidayHelper federalHolidayHelper;
+
+  public static final String PAID_HOLIDAY_EXISTES_MESSAGE = "Paid holiday date already exists";
 
   @Autowired
   public PaidHolidayService(
@@ -176,7 +178,7 @@ public class PaidHolidayService {
     final User creator = userService.findById(user.getId());
 
     if (isDateDuplicate(paidHolidayDto, user)) {
-      throw new ForbiddenException("PaidHoliday Date Existed");
+      throw new AlreadyExistsException(PAID_HOLIDAY_EXISTES_MESSAGE, "paid holiday date");
     }
 
     final PaidHoliday paidHoliday =
@@ -191,7 +193,7 @@ public class PaidHolidayService {
 
   public void updatePaidHoliday(final PaidHolidayDto paidHolidayDto, final AuthUser user) {
     if (isDateDuplicate(paidHolidayDto, user)) {
-      throw new ForbiddenException("PaidHoliday Date Existed");
+      throw new AlreadyExistsException(PAID_HOLIDAY_EXISTES_MESSAGE, "paid holiday date");
     }
     paidHolidayRepository.updateDetail(
         paidHolidayDto.getId(), paidHolidayDto.getName(), paidHolidayDto.getDate());

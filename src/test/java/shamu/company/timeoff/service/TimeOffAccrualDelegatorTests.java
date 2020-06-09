@@ -7,17 +7,16 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import shamu.company.common.exception.ForbiddenException;
-import shamu.company.common.exception.ResourceNotFoundException;
+import shamu.company.common.exception.errormapping.ResourceNotFoundException;
 import shamu.company.timeoff.entity.TimeOffAccrualFrequency;
 import shamu.company.timeoff.entity.TimeOffPolicyAccrualSchedule;
 import shamu.company.timeoff.entity.TimeOffPolicyUser;
+import shamu.company.timeoff.exception.NotFoundException;
 import shamu.company.timeoff.pojo.TimeOffBreakdownCalculatePojo;
 import shamu.company.timeoff.repository.TimeOffAccrualFrequencyRepository;
 
@@ -51,9 +50,8 @@ class TimeOffAccrualDelegatorTests {
     Mockito.when(timeOffAccrualFrequencyRepository.findById(Mockito.any()))
         .thenReturn(Optional.of(timeOffFrequency));
 
-    Assertions.assertThrows(
-        ForbiddenException.class,
-        () -> timeOffAccrualDelegator.getTimeOffBreakdown("1", calculatePojo));
+    assertThatExceptionOfType(NotFoundException.class)
+        .isThrownBy(() -> timeOffAccrualDelegator.getTimeOffBreakdown("1", calculatePojo));
   }
 
   @Test

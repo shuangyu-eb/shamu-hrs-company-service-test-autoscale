@@ -5,8 +5,8 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import shamu.company.common.entity.StateProvince;
-import shamu.company.common.exception.ForbiddenException;
-import shamu.company.common.exception.ResourceNotFoundException;
+import shamu.company.common.exception.errormapping.AlreadyExistsException;
+import shamu.company.common.exception.errormapping.ResourceNotFoundException;
 import shamu.company.common.service.DepartmentService;
 import shamu.company.common.service.OfficeService;
 import shamu.company.common.service.StateProvinceService;
@@ -222,7 +222,7 @@ public class CompanyService {
       company.setName(companyName);
       companyRepository.save(company);
     } else {
-      throw new ForbiddenException("New company name cannot be the same as the other company.");
+      throw new AlreadyExistsException("Company name already exists.", "company name");
     }
     return companyName;
   }

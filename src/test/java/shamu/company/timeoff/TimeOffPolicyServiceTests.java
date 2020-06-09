@@ -1,5 +1,7 @@
 package shamu.company.timeoff;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -13,7 +15,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.powermock.reflect.Whitebox;
-import shamu.company.common.exception.ForbiddenException;
+import shamu.company.common.exception.errormapping.AlreadyExistsException;
 import shamu.company.company.entity.Company;
 import shamu.company.company.service.CompanyService;
 import shamu.company.job.entity.JobUser;
@@ -41,6 +43,8 @@ import shamu.company.timeoff.entity.mapper.AccrualScheduleMilestoneMapper;
 import shamu.company.timeoff.entity.mapper.TimeOffPolicyAccrualScheduleMapper;
 import shamu.company.timeoff.entity.mapper.TimeOffPolicyMapper;
 import shamu.company.timeoff.entity.mapper.TimeOffPolicyUserMapper;
+import shamu.company.timeoff.exception.NotFoundException;
+import shamu.company.timeoff.exception.TimeOffExceedException;
 import shamu.company.timeoff.pojo.TimeOffPolicyListPojo;
 import shamu.company.timeoff.repository.AccrualScheduleMilestoneRepository;
 import shamu.company.timeoff.repository.PaidHolidayUserRepository;
@@ -453,9 +457,8 @@ public class TimeOffPolicyServiceTests {
     checkResult.setMaxBalance(100);
     Mockito.when(timeOffDetailService.checkTimeOffAdjustments(Mockito.any(), Mockito.any()))
         .thenReturn(checkResult);
-    Assertions.assertThrows(
-        ForbiddenException.class,
-        () -> timeOffPolicyService.addTimeOffAdjustments(new User("1"), "1", 100));
+    assertThatExceptionOfType(TimeOffExceedException.class)
+        .isThrownBy(() -> timeOffPolicyService.addTimeOffAdjustments(new User("1"), "1", 100));
   }
 
   @Test
@@ -707,15 +710,15 @@ public class TimeOffPolicyServiceTests {
                   timeOffPolicy.getPolicyName(), company.getId()))
           .thenReturn(1);
 
-      Assertions.assertThrows(
-          ForbiddenException.class,
-          () ->
-              Whitebox.invokeMethod(
-                  timeOffPolicyService,
-                  "checkPolicyNameIsExists",
-                  timeOffPolicy,
-                  company.getId(),
-                  0));
+      assertThatExceptionOfType(AlreadyExistsException.class)
+          .isThrownBy(
+              () ->
+                  Whitebox.invokeMethod(
+                      timeOffPolicyService,
+                      "checkPolicyNameIsExists",
+                      timeOffPolicy,
+                      company.getId(),
+                      0));
     }
   }
 

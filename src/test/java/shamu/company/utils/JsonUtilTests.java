@@ -1,29 +1,34 @@
 package shamu.company.utils;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.Collections;
 import java.util.List;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import shamu.company.common.exception.ForbiddenException;
 import shamu.company.user.entity.User;
+import shamu.company.utils.exception.DeserializeFailedException;
+import shamu.company.utils.exception.SerializeFailedException;
 
 public class JsonUtilTests {
 
   @Test
   void testFormatToString() {
     final User user = new User();
-    Assertions.assertDoesNotThrow(() -> JsonUtil.formatToString(user));
-    Assertions.assertThrows(
-        ForbiddenException.class, () -> JsonUtil.formatToString(new innerClass(1)));
+    assertThatCode(() -> JsonUtil.formatToString(user)).doesNotThrowAnyException();
+    assertThatExceptionOfType(SerializeFailedException.class)
+        .isThrownBy(() -> JsonUtil.formatToString(new innerClass(1)));
   }
 
   @Test
   void testDeserialize() {
     final User user = new User();
     final String userString = JsonUtil.formatToString(user);
-    Assertions.assertDoesNotThrow(() -> JsonUtil.deserialize(userString, User.class));
-    Assertions.assertThrows(ForbiddenException.class, () -> JsonUtil.deserialize("1", User.class));
+    assertThatCode(() -> JsonUtil.deserialize(userString, User.class)).doesNotThrowAnyException();
+    assertThatExceptionOfType(DeserializeFailedException.class)
+        .isThrownBy(() -> JsonUtil.deserialize("1", User.class));
   }
 
   private class innerClass {
@@ -39,8 +44,7 @@ public class JsonUtilTests {
     final List<String> randomList = Collections.singletonList("1");
     final String jsonString = JsonUtil.formatToString(randomList);
     final List<String> result =
-        JsonUtil.deserializeType(jsonString, new TypeReference<List<String>>() {
-        });
-    Assertions.assertEquals(randomList.get(0), result.get(0));
+        JsonUtil.deserializeType(jsonString, new TypeReference<List<String>>() {});
+    assertThat(result.get(0)).isEqualTo(randomList.get(0));
   }
 }

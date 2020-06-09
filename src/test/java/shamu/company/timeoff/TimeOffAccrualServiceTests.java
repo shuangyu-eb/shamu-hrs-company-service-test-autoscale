@@ -19,7 +19,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.powermock.reflect.Whitebox;
-import shamu.company.common.exception.ForbiddenException;
 import shamu.company.timeoff.dto.TimeOffBreakdownDto;
 import shamu.company.timeoff.dto.TimeOffBreakdownItemDto;
 import shamu.company.timeoff.entity.AccrualScheduleMilestone;
@@ -27,6 +26,7 @@ import shamu.company.timeoff.entity.TimeOffAccrualFrequency;
 import shamu.company.timeoff.entity.TimeOffAccrualFrequency.AccrualFrequencyType;
 import shamu.company.timeoff.entity.TimeOffPolicyAccrualSchedule;
 import shamu.company.timeoff.entity.TimeOffPolicyUser;
+import shamu.company.timeoff.exception.NotFoundException;
 import shamu.company.timeoff.pojo.TimeOffBalancePojo;
 import shamu.company.timeoff.pojo.TimeOffBreakdownCalculatePojo;
 import shamu.company.timeoff.service.TimeOffAccrualService;
@@ -549,7 +549,7 @@ class TimeOffAccrualServiceTests {
     @Test
     void whenNotFound_thenShouldThrow() {
       startingBreakdown.getList().remove(1);
-      assertThatExceptionOfType(ForbiddenException.class)
+      assertThatExceptionOfType(NotFoundException.class)
           .isThrownBy(
               () ->
                   Whitebox.invokeMethod(

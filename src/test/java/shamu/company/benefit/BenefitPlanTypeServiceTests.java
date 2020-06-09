@@ -14,7 +14,7 @@ import org.mockito.MockitoAnnotations;
 import shamu.company.benefit.entity.BenefitPlanType;
 import shamu.company.benefit.repository.BenefitPlanTypeRepository;
 import shamu.company.benefit.service.BenefitPlanTypeService;
-import shamu.company.common.exception.ResourceNotFoundException;
+import shamu.company.common.exception.errormapping.ResourceNotFoundException;
 
 public class BenefitPlanTypeServiceTests {
 
