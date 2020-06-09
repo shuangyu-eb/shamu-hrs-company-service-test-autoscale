@@ -51,7 +51,7 @@ class TimeOffPolicyRestControllerTests extends WebControllerBaseTests {
       timeOffPolicyWrapperDto = new TimeOffPolicyWrapperDto();
     }
 
-    class CommonTests {
+    private class CommonTests {
 
       @Test
       void asManager_thenShouldFailed() throws Exception {
@@ -178,7 +178,7 @@ class TimeOffPolicyRestControllerTests extends WebControllerBaseTests {
       timeOffPolicy.setCompany(company);
     }
 
-    class CommonTests {
+    private class CommonTests {
 
       @Test
       void asManager_thenShouldFailed() throws Exception {
@@ -413,7 +413,7 @@ class TimeOffPolicyRestControllerTests extends WebControllerBaseTests {
       setGiven();
     }
 
-    class CommonTests {
+    private class CommonTests {
 
       @Test
       void asManager_thenShouldFailed() throws Exception {
@@ -500,7 +500,7 @@ class TimeOffPolicyRestControllerTests extends WebControllerBaseTests {
       setGiven();
     }
 
-    class CommonTests {
+    private class CommonTests {
 
       @Test
       void asManager_thenShouldFailed() throws Exception {
@@ -655,7 +655,7 @@ class TimeOffPolicyRestControllerTests extends WebControllerBaseTests {
       setGiven();
     }
 
-    class CommonTests {
+    private class CommonTests {
 
       @Test
       void asManager_thenShouldFailed() throws Exception {
