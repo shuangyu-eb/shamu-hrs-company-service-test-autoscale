@@ -301,6 +301,9 @@ public class EmailService {
     final String emailContent = templateEngine.process("add_new_admin_email.html", context);
     List<User> admins =
         userService.findUsersByCompanyIdAndUserRole(companyId, Role.ADMIN.getValue());
+    List<User> superAdmins =
+        userService.findUsersByCompanyIdAndUserRole(companyId, Role.SUPER_ADMIN.getValue());
+    admins.addAll(superAdmins);
 
     admins.forEach(
         admin -> {

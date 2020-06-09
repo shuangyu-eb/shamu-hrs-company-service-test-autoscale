@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -23,7 +24,9 @@ import shamu.company.email.repository.EmailRepository;
 import shamu.company.email.service.EmailService;
 import shamu.company.helpers.EmailHelper;
 import shamu.company.helpers.s3.AwsHelper;
+import shamu.company.user.dto.CurrentUserDto;
 import shamu.company.user.entity.User;
+import shamu.company.user.entity.User.Role;
 import shamu.company.user.entity.UserContactInformation;
 import shamu.company.user.entity.UserPersonalInformation;
 import shamu.company.user.service.UserService;
@@ -294,6 +297,52 @@ class EmailServiceTests {
       Whitebox.invokeMethod(
           emailService, "sendDeliveryErrorEmail", user, emailSentDate, targetEmail);
     }
+  }
+
+  @Test
+  void sendEmailToOtherAdminsWhenNewOneAdded () throws Exception {
+    String companyId = "1";
+    String promotedEmployeeId = "2";
+    String currentUserId = "3";
+
+    User promotedEmployee = new User();
+    promotedEmployee.setId(promotedEmployeeId);
+    UserPersonalInformation promotedEmployeePersonalInformation = new UserPersonalInformation();
+    promotedEmployeePersonalInformation.setFirstName("promoted");
+    promotedEmployeePersonalInformation.setLastName("employee");
+    promotedEmployee.setUserPersonalInformation(promotedEmployeePersonalInformation);
+    Mockito.when(userService.findById(promotedEmployeeId)).thenReturn(promotedEmployee);
+
+    CurrentUserDto currentUserDto = new CurrentUserDto();
+    currentUserDto.setName("current user");
+    Mockito.when(userService.getCurrentUserInfo(currentUserId)).thenReturn(currentUserDto);
+
+
+    List<User> admins = new ArrayList<>();
+    User admin = new User();
+    UserContactInformation adminContactInfo = new UserContactInformation();
+    adminContactInfo.setEmailWork("mock-admin@mock.com");
+    admin.setUserContactInformation(adminContactInfo);
+    admins.add(admin);
+
+    List<User> superAdmins = new ArrayList<>();
+    User superAdmin = new User();
+    UserContactInformation superAdminContactInfo = new UserContactInformation();
+    superAdminContactInfo.setEmailWork("mock-super-admin@mock.com");
+    superAdmin.setUserContactInformation(superAdminContactInfo);
+    superAdmins.add(superAdmin);
+
+    Mockito.when(userService.findUsersByCompanyIdAndUserRole(companyId, Role.ADMIN.getValue()))
+        .thenReturn(admins);
+    Mockito.when(
+            userService.findUsersByCompanyIdAndUserRole(companyId, Role.SUPER_ADMIN.getValue()))
+        .thenReturn(superAdmins);
+    Whitebox.invokeMethod(
+        emailService,
+        "sendEmailToOtherAdminsWhenNewOneAdded",
+        promotedEmployeeId,
+        currentUserId,
+        companyId);
   }
 
   @Nested
