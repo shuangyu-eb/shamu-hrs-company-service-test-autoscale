@@ -17,7 +17,7 @@ public class EmployeeTimeLog extends BaseEntity {
   private int durationMin;
 
   @ManyToOne
-  private StaticEmployeesTaTimeType staticEmployeesTaTimeType;
+  private StaticEmployeesTaTimeType timeType;
 
-  @ManyToOne private EmployeeTimeEntry employeeTimeEntry;
+  @ManyToOne private EmployeeTimeEntry entry;
 }

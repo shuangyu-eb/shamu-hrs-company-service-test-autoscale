@@ -14,6 +14,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.context.SecurityContextHolder;
+import shamu.company.attendance.service.AttendanceMyHoursService;
 import shamu.company.attendance.service.AttendanceSetUpService;
 import shamu.company.authorization.MethodPermissionEvaluator;
 import shamu.company.authorization.Permission;
@@ -80,6 +81,7 @@ public class WebControllerBaseTests {
   @MockBean protected BenefitCoveragesRepository benefitCoveragesRepository;
   @MockBean protected Auth0Helper auth0Helper;
   @MockBean protected AttendanceSetUpService attendanceSetUpService;
+  @MockBean protected AttendanceMyHoursService attendanceMyHoursService;
 
   protected HttpHeaders httpHeaders;
 

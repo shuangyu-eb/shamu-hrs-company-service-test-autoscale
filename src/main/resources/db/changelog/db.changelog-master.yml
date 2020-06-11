@@ -11,6 +11,8 @@ databaseChangeLog:
       file: db/changelog/db.changelog-0.0.1-5.yml
   - include:
       file: db/changelog/db.changelog-0.0.1-6.yml
+  - include:
+      file: db/changelog/db.changelog-0.0.1-7.yml
   # includeAll have bugs in 3.6.1, needs to upgrade to later versions to enable it to work
   # https://github.com/liquibase/liquibase/pull/698
   # https://github.com/spring-projects/spring-boot/issues/11615

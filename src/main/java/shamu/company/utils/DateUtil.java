@@ -3,8 +3,10 @@ package shamu.company.utils;
 import static java.time.temporal.TemporalAdjusters.firstDayOfYear;
 
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
@@ -88,6 +90,10 @@ public abstract class DateUtil {
 
   public static LocalDate toLocalDate(final Date date) {
     return toLocalDateTime(date).toLocalDate();
+  }
+
+  public static Timestamp longToTimestamp(final long date) {
+    return Timestamp.valueOf(LocalDateTime.ofInstant(Instant.ofEpochMilli(date), ZoneId.of("UTC")));
   }
 
   // Get current UTC time

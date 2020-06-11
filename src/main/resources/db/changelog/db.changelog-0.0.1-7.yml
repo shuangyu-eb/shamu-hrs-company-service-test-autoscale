@@ -1,0 +1,56 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1591756361000-1
+      author: michael-eb
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: static_company_pay_frequency_types
+
+  - changeSet:
+      id: 1591756361000-2
+      author: michael-eb
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: static_employees_ta_time_types
+
+  - changeSet:
+      id: 1591756361000-3
+      author: michael-eb
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: static_timesheet_status
+
+  - changeSet:
+      id: 1591756361000-4
+      author: michael-eb
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: static_timezones
