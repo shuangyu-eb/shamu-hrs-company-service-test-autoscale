@@ -2,6 +2,9 @@ package shamu.company.common.exception;
 
 import shamu.company.common.exception.response.ErrorType;
 
+/**
+ * @deprecated (new exceptions related module like NotFoundException... are created, this old one wait to be deleted)
+ */
 @Deprecated
 public class OldForbiddenException extends AbstractException {
 

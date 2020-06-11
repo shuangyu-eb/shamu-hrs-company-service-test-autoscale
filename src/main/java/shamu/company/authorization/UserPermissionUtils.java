@@ -190,7 +190,6 @@ public class UserPermissionUtils extends BasePermissionUtils {
           final String id = paidHolidayDto.getId();
           final BaseEntity[] entities =
               companyPaidHolidayService.findAllByCompanyId(getCompanyId()).stream()
-                  .map(companyPaidHoliday -> (BaseEntity) companyPaidHoliday)
                   .toArray(BaseEntity[]::new);
           hasPermission = hasPermission(auth, id, type, permission, entities);
           if (!hasPermission) {

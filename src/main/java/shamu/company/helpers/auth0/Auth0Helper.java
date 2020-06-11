@@ -18,6 +18,7 @@ import com.auth0.net.AuthRequest;
 import com.auth0.net.CustomRequest;
 import com.auth0.net.Request;
 import com.fasterxml.jackson.core.type.TypeReference;
+import java.security.SecureRandom;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -128,10 +129,10 @@ public class Auth0Helper {
   public boolean isPasswordValid(final String email, final String password) {
     try {
       login(email, password);
+      return true;
     } catch (final GeneralAuth0Exception exception) {
       return false;
     }
-    return true;
   }
 
   public User findByEmail(final String emailRaw) {
@@ -290,10 +291,14 @@ public class Auth0Helper {
     auth0User.setEmail(email);
 
     if (StringUtils.isBlank(password)) {
+      final SecureRandom secureRandom = new SecureRandom();
       password =
           RandomStringUtils.randomAlphabetic(4).toUpperCase()
               + RandomStringUtils.randomAlphabetic(4).toLowerCase()
-              + RandomStringUtils.randomNumeric(4);
+              + secureRandom.nextInt(10)
+              + secureRandom.nextInt(10)
+              + secureRandom.nextInt(10)
+              + secureRandom.nextInt(10);
     }
 
     auth0User.setPassword(password);
