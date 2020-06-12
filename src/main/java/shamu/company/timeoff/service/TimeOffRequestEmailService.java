@@ -2,6 +2,7 @@ package shamu.company.timeoff.service;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -18,6 +19,8 @@ import shamu.company.common.ApplicationConfig;
 import shamu.company.email.entity.Email;
 import shamu.company.email.service.EmailService;
 import shamu.company.helpers.s3.AwsHelper;
+import shamu.company.timeoff.dto.TimeOffBreakdownDto;
+import shamu.company.timeoff.entity.TimeOffPolicyUser;
 import shamu.company.timeoff.entity.TimeOffRequest;
 import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.TimeOffApprovalStatus;
 import shamu.company.timeoff.pojo.TimeOffEmailCommentPojo;
@@ -40,6 +43,10 @@ public class TimeOffRequestEmailService {
 
   private final TimeOffDetailService timeOffDetailService;
 
+  private final TimeOffPolicyUserService timeOffPolicyUserService;
+
+  private static final String FIELD_REMAIN = "remain";
+
   @Autowired
   public TimeOffRequestEmailService(
       final EmailService emailService,
@@ -47,13 +54,15 @@ public class TimeOffRequestEmailService {
       final ITemplateEngine templateEngine,
       final ApplicationConfig applicationConfig,
       @Lazy final TimeOffRequestService timeOffRequestService,
-      final TimeOffDetailService timeOffDetailService) {
+      final TimeOffDetailService timeOffDetailService,
+      final TimeOffPolicyUserService timeOffPolicyUserService) {
     this.emailService = emailService;
     this.awsHelper = awsHelper;
     this.templateEngine = templateEngine;
     this.applicationConfig = applicationConfig;
     this.timeOffRequestService = timeOffRequestService;
     this.timeOffDetailService = timeOffDetailService;
+    this.timeOffPolicyUserService = timeOffPolicyUserService;
   }
 
   public void sendEmail(TimeOffRequest timeOffRequest) {
@@ -84,7 +93,7 @@ public class TimeOffRequestEmailService {
 
     if (timeOffRequest.getTimeOffPolicy().getIsLimited()) {
       final Integer balance = timeOffRequest.getBalance() - timeOffRequest.getHours();
-      variables.put("remain", balance);
+      variables.put(FIELD_REMAIN, balance);
     }
 
     final String subject = "Time Off Approved";
@@ -200,7 +209,7 @@ public class TimeOffRequestEmailService {
     final long conflict = getConflictOfTimeOffRequest(timeOffRequest);
     if (timeOffRequest.getTimeOffPolicy().getIsLimited()) {
       final Integer balance = timeOffRequest.getBalance();
-      variables.put("remain", balance - timeOffRequest.getHours());
+      variables.put(FIELD_REMAIN, balance - timeOffRequest.getHours());
     }
 
     variables.put("conflict", conflict);
@@ -215,6 +224,40 @@ public class TimeOffRequestEmailService {
             "Time Off Request");
 
     processAndSendEmail(variables, "time_off_request_pending.html", email);
+  }
+
+  public void sendDeleteRequestEmail(final TimeOffRequest timeOffRequest) {
+    if (!TimeOffApprovalStatus.APPROVED.equals(timeOffRequest.getApprovalStatus())) {
+      return;
+    }
+
+    final Map<String, Object> variables = getVariablesOfTimeOffRequestEmail(timeOffRequest);
+    final User requester = timeOffRequest.getRequesterUser();
+    final User approver = timeOffRequest.getApproverUser();
+
+    final Email email =
+        new Email(
+            applicationConfig.getSystemEmailAddress(),
+            requester.getUserPersonalInformation().getName(),
+            approver.getUserContactInformation().getEmailWork(),
+            approver.getUserPersonalInformation().getName(),
+            "Time Off Request Deleted");
+
+    variables.put(FIELD_REMAIN, getRemainingBalanceForNow(timeOffRequest));
+    variables.put("isLimited", timeOffRequest.getTimeOffPolicy().getIsLimited());
+    variables.put("isDeleteRequest", true);
+
+    processAndSendEmail(variables, "time_off_request_delete.html", email);
+  }
+
+  private Integer getRemainingBalanceForNow(final TimeOffRequest request) {
+    final User requester = request.getRequesterUser();
+    final TimeOffPolicyUser timeOffPolicyUser =
+        timeOffPolicyUserService.findByUserAndTimeOffPolicy(requester, request.getTimeOffPolicy());
+    final TimeOffBreakdownDto timeOffBreakdownDto =
+        timeOffDetailService.getTimeOffBreakdown(
+            timeOffPolicyUser.getId(), Timestamp.valueOf(LocalDateTime.now()).getTime());
+    return timeOffBreakdownDto.getBalance();
   }
 
   private void processAndSendEmail(

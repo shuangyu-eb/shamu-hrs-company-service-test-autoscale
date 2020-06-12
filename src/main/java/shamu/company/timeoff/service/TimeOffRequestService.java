@@ -339,6 +339,7 @@ public class TimeOffRequestService {
     final TimeOffRequest timeOffRequest = findByRequestId(requestId);
     if (isRequestCanbeDeleted(timeOffRequest)) {
       timeOffRequestRepository.delete(timeOffRequest);
+      timeOffRequestEmailService.sendDeleteRequestEmail(timeOffRequest);
     } else {
       throw new ForbiddenException("The request cannot be deleted.");
     }

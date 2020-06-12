@@ -1,12 +1,14 @@
 package shamu.company.timeoff;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -20,12 +22,16 @@ import org.thymeleaf.ITemplateEngine;
 import shamu.company.common.ApplicationConfig;
 import shamu.company.email.service.EmailService;
 import shamu.company.helpers.s3.AwsHelper;
+import shamu.company.timeoff.dto.TimeOffBreakdownDto;
 import shamu.company.timeoff.entity.TimeOffPolicy;
+import shamu.company.timeoff.entity.TimeOffPolicyUser;
 import shamu.company.timeoff.entity.TimeOffRequest;
 import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus;
+import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.TimeOffApprovalStatus;
 import shamu.company.timeoff.entity.TimeOffRequestComment;
 import shamu.company.timeoff.entity.TimeOffRequestDate;
 import shamu.company.timeoff.service.TimeOffDetailService;
+import shamu.company.timeoff.service.TimeOffPolicyUserService;
 import shamu.company.timeoff.service.TimeOffRequestEmailService;
 import shamu.company.timeoff.service.TimeOffRequestService;
 import shamu.company.user.entity.User;
@@ -45,9 +51,11 @@ public class TimeOffRequestEmailServiceTests {
 
   @Mock private TimeOffRequestService timeOffRequestService;
 
-  @InjectMocks private TimeOffRequestEmailService timeOffRequestEmailService;
-
   @Mock private TimeOffDetailService timeOffDetailService;
+
+  @Mock private TimeOffPolicyUserService timeOffPolicyUserService;
+
+  @InjectMocks private TimeOffRequestEmailService timeOffRequestEmailService;
 
   @BeforeEach
   void setUp() {
@@ -137,7 +145,8 @@ public class TimeOffRequestEmailServiceTests {
       Mockito.when(timeOffDetailService.getTimeOffRequestDatesPreview(Mockito.any()))
           .thenReturn("123");
 
-      Assertions.assertDoesNotThrow(() -> timeOffRequestEmailService.sendEmail(timeOffRequest));
+      assertThatCode(() -> timeOffRequestEmailService.sendEmail(timeOffRequest))
+          .doesNotThrowAnyException();
     }
 
     @Test
@@ -153,7 +162,8 @@ public class TimeOffRequestEmailServiceTests {
       Mockito.when(timeOffDetailService.getTimeOffRequestDatesPreview(Mockito.any()))
           .thenReturn("123");
 
-      Assertions.assertDoesNotThrow(() -> timeOffRequestEmailService.sendEmail(timeOffRequest));
+      assertThatCode(() -> timeOffRequestEmailService.sendEmail(timeOffRequest))
+          .doesNotThrowAnyException();
     }
 
     @Test
@@ -169,7 +179,8 @@ public class TimeOffRequestEmailServiceTests {
       Mockito.when(timeOffDetailService.getTimeOffRequestDatesPreview(Mockito.any()))
           .thenReturn("123");
 
-      Assertions.assertDoesNotThrow(() -> timeOffRequestEmailService.sendEmail(timeOffRequest));
+      assertThatCode(() -> timeOffRequestEmailService.sendEmail(timeOffRequest))
+          .doesNotThrowAnyException();
     }
 
     @AfterEach
@@ -177,7 +188,105 @@ public class TimeOffRequestEmailServiceTests {
       final Map<String, Object> variables =
           Whitebox.invokeMethod(
               timeOffRequestEmailService, "getVariablesOfTimeOffRequestEmail", timeOffRequest);
-      Assertions.assertEquals("HK", variables.get("avatarText"));
+      assertThat(variables.get("avatarText")).isEqualTo("HK");
+    }
+  }
+
+  @Nested
+  class TestSendDeleteRequestEmail {
+
+    private TimeOffRequest timeOffRequest;
+
+    private TimeOffPolicy timeOffPolicy;
+
+    private TimeOffPolicyUser timeOffPolicyUser;
+
+    private TimeOffBreakdownDto timeOffBreakdownDto;
+
+    private UserPersonalInformation requesterPersonalInformation;
+
+    private UserPersonalInformation approverPersonalInformation;
+
+    private UserContactInformation approverContactInformation;
+
+    private User requester;
+
+    private User approver;
+
+    @BeforeEach
+    void init() {
+      timeOffPolicy = new TimeOffPolicy();
+      timeOffPolicy.setId(UuidUtil.getUuidString());
+      timeOffPolicy.setIsLimited(true);
+
+      timeOffPolicyUser = new TimeOffPolicyUser();
+      timeOffPolicyUser.setId(UuidUtil.getUuidString());
+      timeOffPolicyUser.setTimeOffPolicy(timeOffPolicy);
+      timeOffPolicyUser.setUser(requester);
+
+      timeOffRequest = new TimeOffRequest();
+      timeOffRequest.setId(UuidUtil.getUuidString());
+      timeOffRequest.setTimeOffPolicy(timeOffPolicy);
+
+      requesterPersonalInformation = new UserPersonalInformation();
+      requesterPersonalInformation.setId(UuidUtil.getUuidString());
+      requesterPersonalInformation.setFirstName("re");
+      requesterPersonalInformation.setLastName("df");
+
+      requester = new User(UuidUtil.getUuidString());
+      requester.setUserPersonalInformation(requesterPersonalInformation);
+
+      approverPersonalInformation = new UserPersonalInformation();
+      approverPersonalInformation.setId(UuidUtil.getUuidString());
+      approverPersonalInformation.setFirstName("zxc");
+      approverPersonalInformation.setLastName("asd");
+
+      approverContactInformation = new UserContactInformation();
+      approverContactInformation.setId(UuidUtil.getUuidString());
+      approverContactInformation.setEmailWork("qwe@asd.zxc");
+
+      approver = new User(UuidUtil.getUuidString());
+      approver.setUserPersonalInformation(approverPersonalInformation);
+      approver.setUserContactInformation(approverContactInformation);
+
+      timeOffRequest.setRequesterUser(requester);
+      timeOffRequest.setApproverUser(approver);
+
+      timeOffBreakdownDto = new TimeOffBreakdownDto();
+      timeOffBreakdownDto.setBalance(1);
+    }
+
+    @Test
+    void whenStatusIsNotApproved_thenShouldDoNothing() {
+      final TimeOffRequestApprovalStatus timeOffRequestApprovalStatus =
+          new TimeOffRequestApprovalStatus();
+      timeOffRequestApprovalStatus.setName(TimeOffApprovalStatus.AWAITING_REVIEW.name());
+      timeOffRequest.setTimeOffRequestApprovalStatus(timeOffRequestApprovalStatus);
+
+      assertThatCode(() -> timeOffRequestEmailService.sendDeleteRequestEmail(timeOffRequest))
+          .doesNotThrowAnyException();
+    }
+
+    @Test
+    void whenStatusIsApproved_thenShouldSuccess() {
+      final TimeOffRequestApprovalStatus timeOffRequestApprovalStatus =
+          new TimeOffRequestApprovalStatus();
+      timeOffRequestApprovalStatus.setName(TimeOffApprovalStatus.APPROVED.name());
+      timeOffRequest.setTimeOffRequestApprovalStatus(timeOffRequestApprovalStatus);
+
+      Mockito.when(timeOffRequestService.findByRequestId(timeOffRequest.getId()))
+          .thenReturn(timeOffRequest);
+      Mockito.when(timeOffPolicyUserService.findByUserAndTimeOffPolicy(requester, timeOffPolicy))
+          .thenReturn(timeOffPolicyUser);
+      Mockito.when(timeOffDetailService.getTimeOffBreakdown(Mockito.anyString(), Mockito.anyLong()))
+          .thenReturn(timeOffBreakdownDto);
+
+      Mockito.when(
+              templateEngine.process(Mockito.eq("time_off_request_delete.html"), Mockito.any()))
+          .thenReturn("");
+
+      assertThatCode(() -> timeOffRequestEmailService.sendDeleteRequestEmail(timeOffRequest))
+          .doesNotThrowAnyException();
     }
   }
 }

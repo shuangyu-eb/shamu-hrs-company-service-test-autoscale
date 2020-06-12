@@ -157,7 +157,10 @@
                 <a style="color: #0075DF;text-decoration: none;"
                    th:href="@{${frontEndAddress}+'employees/'+${requesterId}}"
                    th:text="${requesterName}">name</a>
-                Requested Time Off
+                <span th:switch="${isDeleteRequest}">
+                  <span th:case="true">Deleted a Time Off Request</span>
+                  <span th:case="*">Requested Time Off</span>
+                </span>
               </td>
             </tr>
             </tbody>
