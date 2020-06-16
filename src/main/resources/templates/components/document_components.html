@@ -9,7 +9,7 @@
 <tr th:fragment="title">
   <td style="text-align: center" colspan="3">
     <div class="rectangle-card"
-         style="width: 277px; height: 100px; border-radius: 5px; border: solid 1px #dfe2e9; background-color: #ffffff; padding: 21px 0 0 13px; margin: auto;">
+         style="width: 277px; height: auto; min-height: 100px; border-radius: 5px; border: solid 1px #dfe2e9; background-color: #ffffff; padding: 21px 0 0 13px; margin: auto;">
       <img alt="document" style="width: 40px; height: 45px;" th:src="@{${frontEndAddress}+'image/document.png'}">
       <div th:text="${documentTitle}"></div>
     </div>
