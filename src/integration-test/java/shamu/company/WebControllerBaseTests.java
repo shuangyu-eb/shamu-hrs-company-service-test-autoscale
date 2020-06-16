@@ -127,6 +127,12 @@ public class WebControllerBaseTests {
     getAuthUser().setRole(Role.ADMIN);
   }
 
+  protected void buildAuthUserAsSuperAdmin() {
+    final List<String> permissions = getSuperAdminPermissions();
+    getAuthUser().setPermissions(permissions);
+    getAuthUser().setRole(Role.SUPER_ADMIN);
+  }
+
   private List<String> getAdminPermissions() {
     final List<String> permissions =
         Arrays.stream(Name.values())
@@ -151,6 +157,16 @@ public class WebControllerBaseTests {
     final List<String> permissions =
         Arrays.stream(Name.values())
             .filter(name -> PermissionType.EMPLOYEE_PERMISSION.equals(name.getPermissionType()))
+            .map(Name::name)
+            .collect(Collectors.toList());
+    permissions.addAll(getSelfPermissions());
+    return permissions;
+  }
+
+  private List<String> getSuperAdminPermissions() {
+    final List<String> permissions =
+        Arrays.stream(Name.values())
+            .filter(name -> PermissionType.SUPER_ADMIN_PERMISSION.equals(name.getPermissionType()))
             .map(Name::name)
             .collect(Collectors.toList());
     permissions.addAll(getSelfPermissions());
