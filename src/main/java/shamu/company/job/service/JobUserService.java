@@ -401,7 +401,7 @@ public class JobUserService {
     // The user's full job message can only be accessed by admin, the manager and himself.
     final User currentUser = userService.findById(authUserId);
     final Role userRole = currentUser.getRole();
-    if (authUserId.equals(targetUserId) || userRole == Role.ADMIN) {
+    if (authUserId.equals(targetUserId) || userRole == Role.ADMIN || userRole == Role.SUPER_ADMIN) {
       return jobUserMapper.convertToJobInformationDto(target);
     }
 
