@@ -2,6 +2,8 @@ package shamu.company.timeoff.service;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashMap;
@@ -27,6 +29,7 @@ import shamu.company.timeoff.pojo.TimeOffEmailCommentPojo;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserPersonalInformation;
 import shamu.company.utils.AvatarUtil;
+import shamu.company.utils.DateUtil;
 
 @Service
 public class TimeOffRequestEmailService {
@@ -46,6 +49,10 @@ public class TimeOffRequestEmailService {
   private final TimeOffPolicyUserService timeOffPolicyUserService;
 
   private static final String FIELD_REMAIN = "remain";
+
+  private static final String CURRENT_YEAR = "currentYear";
+
+  private static final String AMERICA_MANAGUA = "America/Managua";
 
   @Autowired
   public TimeOffRequestEmailService(
@@ -95,6 +102,15 @@ public class TimeOffRequestEmailService {
       final Integer balance = timeOffRequest.getBalance() - timeOffRequest.getHours();
       variables.put(FIELD_REMAIN, balance);
     }
+
+    final ZonedDateTime zonedDateTime =
+        ZonedDateTime.of(
+            LocalDateTime.now(), ZoneId.of("UTC"));
+    final String currentYear =  DateUtil.formatDateTo(
+        zonedDateTime.withZoneSameInstant(ZoneId.of(AMERICA_MANAGUA)).toLocalDateTime(),
+        "YYYY");
+
+    variables.put(CURRENT_YEAR, currentYear);
 
     final String subject = "Time Off Approved";
     final String template = "time_off_request_approve.html";
@@ -212,7 +228,16 @@ public class TimeOffRequestEmailService {
       variables.put(FIELD_REMAIN, balance - timeOffRequest.getHours());
     }
 
+    final ZonedDateTime zonedDateTime =
+        ZonedDateTime.of(
+            LocalDateTime.now(), ZoneId.of("UTC"));
+    final String currentYear =  DateUtil.formatDateTo(
+        zonedDateTime.withZoneSameInstant(ZoneId.of(AMERICA_MANAGUA)).toLocalDateTime(),
+        "YYYY");
+
     variables.put("conflict", conflict);
+
+    variables.put(CURRENT_YEAR, currentYear);
 
     final User approver = timeOffRequest.getApproverUser();
     final Email email =
@@ -246,6 +271,16 @@ public class TimeOffRequestEmailService {
     variables.put(FIELD_REMAIN, getRemainingBalanceForNow(timeOffRequest));
     variables.put("isLimited", timeOffRequest.getTimeOffPolicy().getIsLimited());
     variables.put("isDeleteRequest", true);
+
+
+    final ZonedDateTime zonedDateTime =
+        ZonedDateTime.of(
+            LocalDateTime.now(), ZoneId.of("UTC"));
+    final String currentYear =  DateUtil.formatDateTo(
+        zonedDateTime.withZoneSameInstant(ZoneId.of(AMERICA_MANAGUA)).toLocalDateTime(),
+        "YYYY");
+
+    variables.put(CURRENT_YEAR, currentYear);
 
     processAndSendEmail(variables, "time_off_request_delete.html", email);
   }
@@ -286,6 +321,15 @@ public class TimeOffRequestEmailService {
     variables.put("type", timeOffRequest.getTimeOffPolicy().getName());
     variables.put("hours", timeOffRequest.getHours());
     variables.put("comment", timeOffRequest.getRequsterComment());
+
+    final ZonedDateTime zonedDateTime =
+        ZonedDateTime.of(
+            LocalDateTime.now(), ZoneId.of("UTC"));
+    final String currentYear =  DateUtil.formatDateTo(
+        zonedDateTime.withZoneSameInstant(ZoneId.of(AMERICA_MANAGUA)).toLocalDateTime(),
+        "YYYY");
+
+    variables.put(CURRENT_YEAR, currentYear);
 
     if (StringUtils.isNotBlank(requester.getImageUrl())) {
       variables.put("requesterImageUrl", requester.getImageUrl());

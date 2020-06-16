@@ -5,6 +5,7 @@ import static shamu.company.server.dto.DocumentRequestEmailDto.DocumentRequestTy
 import static shamu.company.server.dto.DocumentRequestEmailDto.DocumentRequestType.VIEW;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Date;
@@ -119,6 +120,15 @@ public class CompanyEmailService {
     if (StringUtils.isNotEmpty(message)) {
       variables.put("message", "\"" + message + "\"");
     }
+
+    final ZonedDateTime zonedDateTime =
+        ZonedDateTime.of(
+            LocalDateTime.now(), ZoneId.of("UTC"));
+    final String currentYear =  DateUtil.formatDateTo(
+        zonedDateTime.withZoneSameInstant(ZoneId.of("America/Managua")).toLocalDateTime(),
+        "YYYY");
+
+    variables.put("currentYear",currentYear);
 
     final DocumentRequestType type = documentRequestEmailDto.getType();
     final List<String> recipientUserIds = documentRequestEmailDto.getRecipientUserIds();

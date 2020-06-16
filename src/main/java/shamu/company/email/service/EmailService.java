@@ -2,6 +2,8 @@ package shamu.company.email.service;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 import java.util.Date;
@@ -57,6 +59,10 @@ public class EmailService {
   private String systemEmailAddress;
   @Value("${application.frontEndAddress}")
   private String frontEndAddress;
+
+  private static final String CURRENT_YEAR = "currentYear";
+
+  private static final String AMERICA_MANAGUA = "America/Managua";
 
   @Autowired
   public EmailService(
@@ -193,6 +199,13 @@ public class EmailService {
     context.setVariable(FRONT_END_ADDRESS, frontEndAddress);
     context.setVariable(
         "changePasswordToken", String.format("account/change-work-email/%s", changePasswordToken));
+    final ZonedDateTime zonedDateTime =
+        ZonedDateTime.of(
+            LocalDateTime.now(), ZoneId.of("UTC"));
+    final String currentYear =  DateUtil.formatDateTo(
+        zonedDateTime.withZoneSameInstant(ZoneId.of(AMERICA_MANAGUA)).toLocalDateTime(),
+        "YYYY");
+    context.setVariable(CURRENT_YEAR, currentYear);
     return templateEngine.process("verify_change_work_email.html", context);
   }
 
@@ -276,6 +289,13 @@ public class EmailService {
         sentDateTime.format(DateTimeFormatter.ofPattern("MMM d").withLocale(Locale.ENGLISH));
     context.setVariable("sentDate", sentDate);
     context.setVariable("userLink", frontEndAddress + "employees/" + targetUser.getId());
+    final ZonedDateTime zonedDateTime =
+        ZonedDateTime.of(
+            LocalDateTime.now(), ZoneId.of("UTC"));
+    final String currentYear =  DateUtil.formatDateTo(
+        zonedDateTime.withZoneSameInstant(ZoneId.of(AMERICA_MANAGUA)).toLocalDateTime(),
+        "YYYY");
+    context.setVariable(CURRENT_YEAR,currentYear);
     final String emailContent = templateEngine.process("delivery_error_email.html", context);
 
     final String subject =
@@ -298,6 +318,13 @@ public class EmailService {
     context.setVariable("promotedEmployeeName", promotedEmployeeName);
     context.setVariable("promoterName", currentUserName);
     context.setVariable("promotedEmployeeId", promotedEmployeeId);
+    final ZonedDateTime zonedDateTime =
+        ZonedDateTime.of(
+            LocalDateTime.now(), ZoneId.of("UTC"));
+    final String currentYear =  DateUtil.formatDateTo(
+        zonedDateTime.withZoneSameInstant(ZoneId.of(AMERICA_MANAGUA)).toLocalDateTime(),
+        "YYYY");
+    context.setVariable(CURRENT_YEAR,currentYear);
     final String emailContent = templateEngine.process("add_new_admin_email.html", context);
     List<User> admins =
         userService.findUsersByCompanyIdAndUserRole(companyId, Role.ADMIN.getValue());

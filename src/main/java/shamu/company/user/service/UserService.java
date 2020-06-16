@@ -5,6 +5,8 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
@@ -692,6 +694,13 @@ public class UserService {
     auth0Helper.updatePassword(user, changePasswordDto.getNewPassword());
 
     final Context context = new Context();
+    final ZonedDateTime zonedDateTime =
+        ZonedDateTime.of(
+            LocalDateTime.now(), ZoneId.of("UTC"));
+    final String currentYear =  DateUtil.formatDateTo(
+        zonedDateTime.withZoneSameInstant(ZoneId.of("America/Managua")).toLocalDateTime(),
+        "YYYY");
+    context.setVariable("currentYear", currentYear);
     context.setVariable("frontEndAddress", frontEndAddress);
     final String emailContent = templateEngine.process("password_change_email.html", context);
     final Timestamp sendDate = Timestamp.valueOf(LocalDateTime.now());
