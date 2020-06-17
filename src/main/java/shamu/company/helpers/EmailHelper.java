@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-import shamu.company.common.exception.EmailException;
+import shamu.company.helpers.exception.EmailSendFailedException;
 
 @Component
 public class EmailHelper {
@@ -48,10 +48,10 @@ public class EmailHelper {
       final boolean sendResult =
           statusCode == HttpStatus.OK.value() || statusCode == HttpStatus.ACCEPTED.value();
       if (!sendResult) {
-        throw new EmailException("Failed to send email.");
+        throw new EmailSendFailedException("Failed to send email.");
       }
     } catch (final IOException e) {
-      throw new EmailException(e.getMessage(), e);
+      throw new EmailSendFailedException(e.getMessage(), e);
     }
   }
 

@@ -29,7 +29,6 @@ import shamu.company.admin.entity.SystemAnnouncement;
 import shamu.company.admin.service.SystemAnnouncementsService;
 import shamu.company.authorization.PermissionUtils;
 import shamu.company.client.DocumentClient;
-import shamu.company.common.exception.EmailException;
 import shamu.company.common.exception.errormapping.AlreadyExistsException;
 import shamu.company.common.exception.errormapping.EmailAlreadyVerifiedException;
 import shamu.company.common.exception.errormapping.ResourceNotFoundException;
@@ -76,6 +75,7 @@ import shamu.company.user.entity.mapper.UserMapper;
 import shamu.company.user.entity.mapper.UserPersonalInformationMapper;
 import shamu.company.user.exception.Auth0UserNotFoundException;
 import shamu.company.user.exception.errormapping.AuthenticationFailedException;
+import shamu.company.user.exception.errormapping.EmailExpiredException;
 import shamu.company.user.exception.errormapping.UserNotFoundByEmailException;
 import shamu.company.user.exception.errormapping.UserNotFoundByInvitationTokenException;
 import shamu.company.user.exception.errormapping.WorkEmailDuplicatedException;
@@ -833,7 +833,7 @@ class UserServiceTests {
           .thenReturn(currentUser);
       Mockito.when(userRepository.existsByResetPasswordToken(Mockito.anyString())).thenReturn(true);
       Assertions.assertThrows(
-          EmailException.class,
+          EmailExpiredException.class,
           () -> userService.createPasswordAndInvitationTokenExist(passwordToken, invitationToken));
     }
 

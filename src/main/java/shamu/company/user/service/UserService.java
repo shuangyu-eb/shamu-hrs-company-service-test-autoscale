@@ -41,7 +41,6 @@ import shamu.company.authorization.PermissionUtils;
 import shamu.company.client.AddTenantDto;
 import shamu.company.client.DocumentClient;
 import shamu.company.client.PactsafeCompanyDto;
-import shamu.company.common.exception.EmailException;
 import shamu.company.common.exception.GeneralException;
 import shamu.company.common.exception.errormapping.AlreadyExistsException;
 import shamu.company.common.exception.errormapping.EmailAlreadyVerifiedException;
@@ -105,6 +104,7 @@ import shamu.company.user.entity.mapper.UserMapper;
 import shamu.company.user.entity.mapper.UserPersonalInformationMapper;
 import shamu.company.user.exception.Auth0UserNotFoundException;
 import shamu.company.user.exception.errormapping.AuthenticationFailedException;
+import shamu.company.user.exception.errormapping.EmailExpiredException;
 import shamu.company.user.exception.errormapping.PasswordDuplicatedException;
 import shamu.company.user.exception.errormapping.UserNotFoundByEmailException;
 import shamu.company.user.exception.errormapping.UserNotFoundByInvitationTokenException;
@@ -418,7 +418,7 @@ public class UserService {
     if (Timestamp.from(Instant.now())
         .after(
             Timestamp.valueOf(user.getInvitedAt().toLocalDateTime().plus(72, ChronoUnit.HOURS)))) {
-      throw new EmailException("Email is expired");
+      throw new EmailExpiredException("Email is expired.");
     }
 
     return userRepository.existsByResetPasswordToken(passwordToken);
@@ -694,12 +694,11 @@ public class UserService {
     auth0Helper.updatePassword(user, changePasswordDto.getNewPassword());
 
     final Context context = new Context();
-    final ZonedDateTime zonedDateTime =
-        ZonedDateTime.of(
-            LocalDateTime.now(), ZoneId.of("UTC"));
-    final String currentYear =  DateUtil.formatDateTo(
-        zonedDateTime.withZoneSameInstant(ZoneId.of("America/Managua")).toLocalDateTime(),
-        "YYYY");
+    final ZonedDateTime zonedDateTime = ZonedDateTime.of(LocalDateTime.now(), ZoneId.of("UTC"));
+    final String currentYear =
+        DateUtil.formatDateTo(
+            zonedDateTime.withZoneSameInstant(ZoneId.of("America/Managua")).toLocalDateTime(),
+            "YYYY");
     context.setVariable("currentYear", currentYear);
     context.setVariable("frontEndAddress", frontEndAddress);
     final String emailContent = templateEngine.process("password_change_email.html", context);

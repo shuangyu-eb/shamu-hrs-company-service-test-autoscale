@@ -16,9 +16,9 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.powermock.reflect.Whitebox;
 import org.springframework.http.HttpStatus;
-import shamu.company.common.exception.EmailException;
 import shamu.company.email.entity.Email;
 import shamu.company.email.event.EmailStatus;
+import shamu.company.helpers.exception.EmailSendFailedException;
 import shamu.company.user.entity.User;
 
 class EmailHelperTests {
@@ -46,7 +46,8 @@ class EmailHelperTests {
     void whenEntityStatusFalse_thenShouldThrow() throws IOException {
       final Response response = Mockito.mock(Response.class);
       Mockito.when(sendGrid.api(Mockito.any())).thenReturn(response);
-      assertThatExceptionOfType(EmailException.class).isThrownBy(() -> emailHelper.send(email));
+      assertThatExceptionOfType(EmailSendFailedException.class)
+          .isThrownBy(() -> emailHelper.send(email));
     }
 
     @Test
@@ -61,7 +62,7 @@ class EmailHelperTests {
     void whenParamStatusFalse_thenShouldThrow() throws IOException {
       final Response response = Mockito.mock(Response.class);
       Mockito.when(sendGrid.api(Mockito.any())).thenReturn(response);
-      assertThatExceptionOfType(EmailException.class)
+      assertThatExceptionOfType(EmailSendFailedException.class)
           .isThrownBy(
               () ->
                   emailHelper.send(
