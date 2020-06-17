@@ -75,7 +75,6 @@ import shamu.company.scheduler.QuartzJobScheduler;
 import shamu.company.scheduler.job.DeactivateUserJob;
 import shamu.company.sentry.SentryLogger;
 import shamu.company.server.dto.AuthUser;
-import shamu.company.server.dto.CompanyUser;
 import shamu.company.timeoff.service.PaidHolidayService;
 import shamu.company.user.dto.AccountInfoDto;
 import shamu.company.user.dto.ChangePasswordDto;
@@ -632,10 +631,7 @@ public class UserService {
     final PactsafeCompanyDto companyDto =
         PactsafeCompanyDto.builder().id(company.getId()).name(company.getName()).build();
 
-    final CompanyUser companyUser = new CompanyUser(user);
-
-    final AddTenantDto tenantDto =
-        AddTenantDto.builder().user(companyUser).company(companyDto).build();
+    final AddTenantDto tenantDto = AddTenantDto.builder().company(companyDto).build();
 
     documentClient.addTenant(tenantDto);
   }
