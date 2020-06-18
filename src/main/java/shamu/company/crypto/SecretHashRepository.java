@@ -5,7 +5,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Repository;
-import shamu.company.common.exception.GeneralException;
+import shamu.company.crypto.exception.SecretHashNotFoundException;
 import shamu.company.sentry.SentryLogger;
 
 @Repository
@@ -27,7 +27,7 @@ public class SecretHashRepository {
     try {
       secret = secretJdbcTemplate.queryForObject(sql, String.class, companyId);
     } catch (final EmptyResultDataAccessException e) {
-      throw new GeneralException("No secret hash of this company.", e);
+      throw new SecretHashNotFoundException("No secret hash of this company.", e);
     }
     return secret;
   }

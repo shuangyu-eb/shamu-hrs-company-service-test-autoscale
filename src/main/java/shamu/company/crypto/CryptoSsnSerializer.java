@@ -6,7 +6,8 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import java.io.IOException;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
-import shamu.company.common.exception.GeneralException;
+import shamu.company.crypto.exception.AnnotationNotFoundException;
+import shamu.company.crypto.exception.FieldNotFoundException;
 import shamu.company.utils.AnnotationUtil;
 
 public class CryptoSsnSerializer extends JsonSerializer<String> {
@@ -31,11 +32,11 @@ public class CryptoSsnSerializer extends JsonSerializer<String> {
     if (Strings.isNotBlank(value)) {
       final Crypto crypto =
           AnnotationUtil.getFieldAnnotation(currentObject, fieldName, Crypto.class)
-              .orElseThrow(() -> new GeneralException("The field has no annotation"));
+              .orElseThrow(() -> new AnnotationNotFoundException("The field has no annotation"));
       final String id =
           (String)
               AnnotationUtil.getFieldValue(currentObject, crypto.field())
-                  .orElseThrow(() -> new GeneralException("The field was not found"));
+                  .orElseThrow(() -> new FieldNotFoundException("The field was not found"));
       final Class aClass = crypto.targetType();
       jsonGenerator.writeString(encryptor.decrypt(id, aClass, value));
     } else {

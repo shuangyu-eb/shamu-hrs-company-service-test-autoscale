@@ -41,7 +41,6 @@ import shamu.company.authorization.PermissionUtils;
 import shamu.company.client.AddTenantDto;
 import shamu.company.client.DocumentClient;
 import shamu.company.client.PactsafeCompanyDto;
-import shamu.company.common.exception.GeneralException;
 import shamu.company.common.exception.errormapping.AlreadyExistsException;
 import shamu.company.common.exception.errormapping.EmailAlreadyVerifiedException;
 import shamu.company.common.exception.errormapping.ResourceNotFoundException;
@@ -105,6 +104,7 @@ import shamu.company.user.exception.Auth0UserNotFoundException;
 import shamu.company.user.exception.errormapping.AuthenticationFailedException;
 import shamu.company.user.exception.errormapping.EmailExpiredException;
 import shamu.company.user.exception.errormapping.PasswordDuplicatedException;
+import shamu.company.user.exception.errormapping.UserDeletionFailedException;
 import shamu.company.user.exception.errormapping.UserNotFoundByEmailException;
 import shamu.company.user.exception.errormapping.UserNotFoundByInvitationTokenException;
 import shamu.company.user.exception.errormapping.WorkEmailDuplicatedException;
@@ -530,7 +530,7 @@ public class UserService {
       entityManager.flush();
     } catch (final PersistenceException e) {
       log.error("User with id " + employee.getId() + " deletes failed", e);
-      throw new GeneralException("User deletes failed.");
+      throw new UserDeletionFailedException("User deletes failed.");
     } finally {
       if (entityManager.isOpen()) {
         entityManager.close();

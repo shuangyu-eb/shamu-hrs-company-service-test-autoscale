@@ -30,11 +30,11 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import shamu.company.common.exception.GeneralAuth0Exception;
-import shamu.company.common.exception.GeneralException;
 import shamu.company.common.exception.NonUniqueAuth0ResourceException;
 import shamu.company.helpers.auth0.Auth0Config;
 import shamu.company.helpers.auth0.Auth0Helper;
 import shamu.company.helpers.auth0.Auth0Manager;
+import shamu.company.helpers.auth0.exception.LoginFailedException;
 import shamu.company.user.entity.User.Role;
 import shamu.company.user.entity.UserContactInformation;
 
@@ -75,7 +75,7 @@ class Auth0HelperTests {
 
   @Test
   void whenAPINotLoad_thenShouldThrow() {
-    assertThatExceptionOfType(GeneralException.class)
+    assertThatExceptionOfType(LoginFailedException.class)
         .isThrownBy(() -> auth0Helper.login("1", RandomStringUtils.randomAlphabetic(10)));
   }
 

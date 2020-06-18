@@ -24,7 +24,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-import shamu.company.common.exception.GeneralException;
 import shamu.company.common.exception.errormapping.AlreadyExistsException;
 import shamu.company.common.exception.errormapping.ResourceNotFoundException;
 import shamu.company.company.entity.Company;
@@ -668,29 +667,25 @@ public class TimeOffPolicyService {
       return new LinkedList<>();
     }
 
-    if (originTimeOffSchedule.getId() != null) {
-      final String accrualScheduleId = originTimeOffSchedule.getId();
-      final List<AccrualScheduleMilestone> newAccrualMilestoneList =
-          milestones.stream()
-              .map(
-                  accrualScheduleMilestoneDto ->
-                      accrualScheduleMilestoneMapper
-                          .createFromAccrualScheduleMilestoneDtoAndTimeOffPolicyAccrualScheduleId(
-                              accrualScheduleMilestoneDto, accrualScheduleId))
-              .collect(Collectors.toList());
+    final String accrualScheduleId = originTimeOffSchedule.getId();
+    final List<AccrualScheduleMilestone> newAccrualMilestoneList =
+        milestones.stream()
+            .map(
+                accrualScheduleMilestoneDto ->
+                    accrualScheduleMilestoneMapper
+                        .createFromAccrualScheduleMilestoneDtoAndTimeOffPolicyAccrualScheduleId(
+                            accrualScheduleMilestoneDto, accrualScheduleId))
+            .collect(Collectors.toList());
 
-      sortMilestoneList(accrualScheduleMilestoneList);
-      sortMilestoneList(newAccrualMilestoneList);
+    sortMilestoneList(accrualScheduleMilestoneList);
+    sortMilestoneList(newAccrualMilestoneList);
 
-      final HashMap<Integer, List<AccrualScheduleMilestone>> hashMap =
-          transformMilestoneListToMap(accrualScheduleMilestoneList, newAccrualMilestoneList);
+    final HashMap<Integer, List<AccrualScheduleMilestone>> hashMap =
+        transformMilestoneListToMap(accrualScheduleMilestoneList, newAccrualMilestoneList);
 
-      return hashMap.values().stream()
-          .map(this::expireAndSaveMilestones)
-          .collect(Collectors.toList());
-    } else {
-      throw new GeneralException("originTimeOffSchedule can't acceptable");
-    }
+    return hashMap.values().stream()
+        .map(this::expireAndSaveMilestones)
+        .collect(Collectors.toList());
   }
 
   public void addTimeOffAdjustments(

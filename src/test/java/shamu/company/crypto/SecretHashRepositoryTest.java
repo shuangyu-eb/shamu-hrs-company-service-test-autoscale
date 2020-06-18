@@ -11,7 +11,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import shamu.company.common.exception.GeneralException;
+import shamu.company.crypto.exception.SecretHashNotFoundException;
 
 class SecretHashRepositoryTest {
 
@@ -44,7 +44,7 @@ class SecretHashRepositoryTest {
     void whenSecretHashIsEmpty_thenShouldThrow() {
       Mockito.when(secretJdbcTemplate.queryForObject(sql, String.class, companyId))
           .thenThrow(EmptyResultDataAccessException.class);
-      assertThatExceptionOfType(GeneralException.class)
+      assertThatExceptionOfType(SecretHashNotFoundException.class)
           .isThrownBy(() -> secretHashRepository.getCompanySecretByCompanyId(companyId));
     }
   }

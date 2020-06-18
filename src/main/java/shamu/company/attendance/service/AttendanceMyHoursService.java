@@ -25,10 +25,10 @@ import shamu.company.attendance.entity.EmployeeTimeLog;
 import shamu.company.attendance.entity.StaticEmployeesTaTimeType;
 import shamu.company.attendance.entity.TimeSheet;
 import shamu.company.attendance.entity.mapper.EmployeeTimeLogMapper;
+import shamu.company.attendance.exception.ParseDateException;
 import shamu.company.attendance.repository.EmployeeTimeEntryRepository;
 import shamu.company.attendance.repository.EmployeeTimeLogRepository;
 import shamu.company.attendance.repository.StaticEmployeesTaTimeTypeRepository;
-import shamu.company.common.exception.GeneralException;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserCompensation;
 import shamu.company.user.service.UserCompensationService;
@@ -351,7 +351,7 @@ public class AttendanceMyHoursService {
                 (new Timestamp(dateFormat.parse(o1.getDate()).getTime()).getTime()
                     - new Timestamp(dateFormat.parse(o2.getDate()).getTime()).getTime());
           } catch (final ParseException e) {
-            throw new GeneralException("Unable to parse date.", e);
+            throw new ParseDateException("Unable to parse date.", e);
           }
         });
   }

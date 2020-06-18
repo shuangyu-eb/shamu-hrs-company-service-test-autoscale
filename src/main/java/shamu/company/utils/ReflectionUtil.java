@@ -4,7 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.BeanUtils;
-import shamu.company.common.exception.GeneralException;
+import shamu.company.utils.exception.ReflectionConvertException;
 
 public interface ReflectionUtil {
 
@@ -16,7 +16,10 @@ public interface ReflectionUtil {
         | IllegalAccessException
         | NoSuchMethodException
         | InvocationTargetException e) {
-      throw new GeneralException("Can not construct a new instance of " + className);
+      throw new ReflectionConvertException(
+          String.format(
+              "ReflectionConvertException: Can not construct a new instance of %s.", className),
+          e);
     }
 
     BeanUtils.copyProperties(object, newInstance);

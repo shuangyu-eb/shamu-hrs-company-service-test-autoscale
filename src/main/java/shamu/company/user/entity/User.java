@@ -22,8 +22,8 @@ import org.apache.commons.lang.StringUtils;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
-import shamu.company.common.exception.GeneralException;
 import shamu.company.company.entity.Company;
+import shamu.company.user.entity.exception.SetManagerFailedException;
 import shamu.company.utils.UuidUtil;
 
 @Data
@@ -102,10 +102,10 @@ public class User implements Serializable {
       return;
     }
     if (StringUtils.isEmpty(managerUser.getId())) {
-      throw new GeneralException("Please save this manager before setting this user's manager.");
+      throw new SetManagerFailedException("Please save this manager before setting this user's manager.");
     }
     if (managerUser.getId().equals(getId())) {
-      throw new GeneralException("Users cannot set themselves to be their manager.");
+      throw new SetManagerFailedException("Users cannot set themselves to be their manager.");
     }
     this.managerUser = managerUser;
   }

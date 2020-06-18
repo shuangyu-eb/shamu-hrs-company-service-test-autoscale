@@ -35,9 +35,9 @@ import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Component;
 import shamu.company.common.exception.AbstractException;
 import shamu.company.common.exception.GeneralAuth0Exception;
-import shamu.company.common.exception.GeneralException;
 import shamu.company.common.exception.NonUniqueAuth0ResourceException;
 import shamu.company.common.exception.TooManyRequestException;
+import shamu.company.helpers.auth0.exception.LoginFailedException;
 import shamu.company.sentry.SentryLogger;
 
 @Component
@@ -97,7 +97,7 @@ public class Auth0Helper {
     } catch (final Auth0Exception exception) {
       throw handleAuth0Exception(exception, AUTH_API);
     } catch (final Exception e) {
-      throw new GeneralException(e.getMessage());
+      throw new LoginFailedException("LoginFailedException:" + e.getMessage(), e);
     }
   }
 

@@ -9,7 +9,7 @@ import liquibase.exception.DatabaseException;
 import liquibase.exception.ValidationErrors;
 import liquibase.resource.ResourceAccessor;
 import lombok.Data;
-import shamu.company.common.exception.GeneralException;
+import shamu.company.utils.database.exception.DatabaseCustomTaskFailedException;
 
 @Data
 public class StaticTableDeleteTaskChange implements CustomTaskChange {
@@ -32,7 +32,8 @@ public class StaticTableDeleteTaskChange implements CustomTaskChange {
       preparedStatement.execute();
       preparedStatement.close();
     } catch (final DatabaseException | SQLException e) {
-      throw new GeneralException("Delete static table error: " + e.getMessage());
+      throw new DatabaseCustomTaskFailedException(
+          "Delete static table error: " + e.getMessage(), e);
     }
   }
 
