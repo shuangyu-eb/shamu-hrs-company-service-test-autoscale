@@ -14,12 +14,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import shamu.company.WebControllerBaseTests;
+import shamu.company.attendance.service.PayPeriodFrequencyService;
 import shamu.company.authorization.Permission;
 import shamu.company.company.entity.Company;
 import shamu.company.server.dto.AuthUser;
 import shamu.company.tests.utils.JwtUtil;
 import shamu.company.user.entity.User;
-import shamu.company.attendance.service.PayPeriodFrequencyService;
 
 @WebMvcTest(controllers = AttendanceSetUpController.class)
 public class AttendanceSetUpControllerTests extends WebControllerBaseTests {
@@ -30,9 +30,6 @@ public class AttendanceSetUpControllerTests extends WebControllerBaseTests {
   @Test
   void findIsAttendanceSetUp() throws Exception {
     setPermission(Permission.Name.VIEW_SELF.name());
-
-    final HttpHeaders httpHeaders = new HttpHeaders();
-    httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
 
     final AuthUser currentUser = getAuthUser();
     final User targetUser = new User();
@@ -46,7 +43,9 @@ public class AttendanceSetUpControllerTests extends WebControllerBaseTests {
         mockMvc
             .perform(
                 MockMvcRequestBuilders.get(
-                        "/company/time-and-attendance/" + currentUser.getId() + "/is-attendance-set-up")
+                        "/company/time-and-attendance/"
+                            + currentUser.getId()
+                            + "/is-attendance-set-up")
                     .headers(httpHeaders))
             .andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
@@ -60,9 +59,10 @@ public class AttendanceSetUpControllerTests extends WebControllerBaseTests {
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
 
     final MvcResult response =
-            mockMvc
-                    .perform(MockMvcRequestBuilders.get("/company/pay-period-frequency").headers(httpHeaders))
-                    .andReturn();
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.get("/company/pay-period-frequency").headers(httpHeaders))
+            .andReturn();
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
