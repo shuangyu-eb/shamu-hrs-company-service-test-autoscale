@@ -82,9 +82,7 @@ public interface JobUserMapper {
   @Mapping(target = "lastName", source = "user.userPersonalInformation.lastName")
   @Mapping(target = "id", source = "user.id")
   @Mapping(target = "imageUrl", source = "user.imageUrl")
-  @Mapping(target = "startDate", source = "jobUser.startDate")
-  TimeOffPolicyRelatedUserDto convertToTimeOffPolicyRelatedUserDto(
-      User user, JobUser jobUser, boolean unSelectable);
+  TimeOffPolicyRelatedUserDto convertToTimeOffPolicyRelatedUserDto(User user, JobUser jobUser);
 
   @Mapping(target = "jobTitle", source = "jobUser.job.title")
   @Mapping(target = "employmentType", source = "jobUser.employmentType.name")
@@ -97,9 +95,8 @@ public interface JobUserMapper {
   @Mapping(target = "id", source = "policyUser.user.id")
   @Mapping(target = "imageUrl", source = "policyUser.user.imageUrl")
   @Mapping(target = "balance", source = "policyUser.initialBalance")
-  @Mapping(target = "startDate", source = "jobUser.startDate")
   TimeOffPolicyRelatedUserDto convertToTimeOffPolicyRelatedUserDto(
-      TimeOffPolicyUser policyUser, JobUser jobUser, boolean unSelectable);
+      TimeOffPolicyUser policyUser, JobUser jobUser);
 
   @Mapping(target = "job", source = "jobId")
   @Mapping(target = "office", source = "officeId")

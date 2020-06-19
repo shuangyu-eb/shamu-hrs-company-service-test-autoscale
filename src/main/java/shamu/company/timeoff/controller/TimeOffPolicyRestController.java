@@ -15,13 +15,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
-import shamu.company.timeoff.dto.NewPolicyCheckFrontedDto;
 import shamu.company.timeoff.dto.TimeOffAdjustmentCheckDto;
 import shamu.company.timeoff.dto.TimeOffBalanceDto;
 import shamu.company.timeoff.dto.TimeOffBreakdownDto;
 import shamu.company.timeoff.dto.TimeOffPolicyListDto;
 import shamu.company.timeoff.dto.TimeOffPolicyRelatedInfoDto;
-import shamu.company.timeoff.dto.TimeOffPolicyRelatedUserDto;
 import shamu.company.timeoff.dto.TimeOffPolicyRelatedUserListDto;
 import shamu.company.timeoff.dto.TimeOffPolicyRelatedUserListOnMobileDto;
 import shamu.company.timeoff.dto.TimeOffPolicyUserDto;
@@ -112,13 +110,6 @@ public class TimeOffPolicyRestController extends BaseRestController {
   public TimeOffPolicyRelatedUserListDto getEmployeesByTimeOffPolicyId(
       @PathVariable final String policyId) {
     return timeOffPolicyService.getAllEmployeesByTimeOffPolicyId(policyId, findCompanyId());
-  }
-
-  @GetMapping("time-off-policies/new-policy/users")
-  @PreAuthorize("hasAuthority('MANAGE_TIME_OFF_POLICY')")
-  public List<TimeOffPolicyRelatedUserDto> getEmployeesOfNewPolicy(
-      final NewPolicyCheckFrontedDto newPolicyCheckFrontedDto) {
-    return timeOffPolicyService.getEmployeesOfNewPolicy(newPolicyCheckFrontedDto, findCompanyId());
   }
 
   @GetMapping("time-off-policies/mobile/{policyId}/users")
