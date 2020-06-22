@@ -25,8 +25,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ResourceUtils;
 import org.springframework.web.multipart.MultipartFile;
-import shamu.company.common.exception.AwsException;
-import shamu.company.common.exception.response.ErrorType;
+import shamu.company.helpers.exception.FileUrlNotFoundException;
+import shamu.company.helpers.exception.GenerateFileFailedException;
+import shamu.company.helpers.exception.errormapping.FileDeletionFailedException;
+import shamu.company.helpers.exception.errormapping.FileMovementFailedException;
+import shamu.company.helpers.exception.errormapping.FileUploadFailedException;
+import shamu.company.timeoff.exception.NotFoundException;
 
 @Component
 @Slf4j
@@ -41,6 +45,9 @@ public class AwsHelper {
   private static final String FAILED_TO_UPLOAD_FILE = "Failed to upload file.";
 
   private static final String ERROR_MESSAGE_FORMAT = "Error Message:    %s";
+
+  private static final String FILE_DELETION_FAILED_EXCEPTION_MESSAGE_TEMPLATE =
+      "FileDeletionFailedException: %s";
 
   private final String bucketName;
 
@@ -69,9 +76,9 @@ public class AwsHelper {
               projectDir, System.currentTimeMillis(), UUID.randomUUID().toString());
       return File.createTempFile(fileName, suffix);
     } catch (final FileNotFoundException e) {
-      throw new AwsException("The file: " + originalFilename + " doesn't exist.");
+      throw new NotFoundException("The file: " + originalFilename + " doesn't exist.", "file");
     } catch (final IOException e) {
-      throw new AwsException("Create the temp file failed.");
+      throw new GenerateFileFailedException("Create the temp file failed.", e);
     }
   }
 
@@ -101,13 +108,13 @@ public class AwsHelper {
       @NotNull final MultipartFile multipartFile, final Type type, final AccessType accessType) {
     final File file = generateFile(multipartFile.getOriginalFilename());
     if (multipartFile.isEmpty()) {
-      throw new AwsException("File is empty.");
+      throw new NotFoundException("File is empty.", "file");
     }
     try {
       multipartFile.transferTo(file);
     } catch (final IOException e) {
       log.error(String.format("Caught an exception while uploading file: %s", e.getMessage()));
-      throw new AwsException(FAILED_TO_UPLOAD_FILE);
+      throw new FileUploadFailedException("UploadFileFailedException:" + FAILED_TO_UPLOAD_FILE, e);
     }
 
     return uploadFile(file.getPath(), type, accessType);
@@ -123,7 +130,7 @@ public class AwsHelper {
     final String fileName = file.getName();
     final String path = findSavePathInAws(fileName, type);
     if (!file.exists() || !file.isFile()) {
-      throw new AwsException("The file: " + filePath + " doesn't exist.");
+      throw new NotFoundException("The file: " + filePath + " doesn't exist.", "file");
     }
 
     try {
@@ -141,10 +148,10 @@ public class AwsHelper {
       log.error(String.format("AWS Error Code:   %s", ase.getErrorCode()));
       log.error(String.format("Error Type:       %s", ase.getErrorType()));
       log.error(String.format("Request ID:       %s", ase.getRequestId()));
-      throw new AwsException(FAILED_TO_UPLOAD_FILE);
+      throw new FileUploadFailedException("UploadFileFailedException" + FAILED_TO_UPLOAD_FILE, ase);
     } catch (final AmazonClientException ace) {
       logAmazonClientException(ace);
-      throw new AwsException(FAILED_TO_UPLOAD_FILE);
+      throw new FileUploadFailedException("UploadFileFailedException" + FAILED_TO_UPLOAD_FILE, ace);
     }
 
     deleteFile(file);
@@ -173,10 +180,10 @@ public class AwsHelper {
           "Caught an AmazonServiceException, which means your request made it to Amazon S3, but was"
               + " rejected with an error response for some reason.");
       log.error(String.format(ERROR_MESSAGE_FORMAT, ase.getMessage()));
-      throw new AwsException(ase.getMessage());
+      throw new FileMovementFailedException("MoveFileFailedException:" + ase.getMessage(), ase);
     } catch (final AmazonClientException ace) {
       logAmazonClientException(ace);
-      throw new AwsException(ace.getMessage());
+      throw new FileMovementFailedException("MoveFileFailedException:" + ace.getMessage(), ace);
     }
   }
 
@@ -186,7 +193,8 @@ public class AwsHelper {
         Files.deleteIfExists(file.toPath());
       } catch (final IOException e) {
         log.error(String.format("Caught an IOException: %s", e.getMessage()));
-        throw new AwsException(e.getMessage());
+        throw new FileDeletionFailedException(
+            String.format(FILE_DELETION_FAILED_EXCEPTION_MESSAGE_TEMPLATE, e.getMessage()), e);
       }
     }
   }
@@ -204,10 +212,12 @@ public class AwsHelper {
           "Caught an AmazonServiceException, which means your request made it to Amazon S3, but "
               + "was rejected with an error response for some reason.");
       log.error(String.format(ERROR_MESSAGE_FORMAT, ase.getMessage()));
-      throw new AwsException(ase.getMessage());
+      throw new FileDeletionFailedException(
+          String.format(FILE_DELETION_FAILED_EXCEPTION_MESSAGE_TEMPLATE, ase.getMessage()), ase);
     } catch (final AmazonClientException ace) {
       logAmazonClientException(ace);
-      throw new AwsException(ace.getMessage());
+      throw new FileDeletionFailedException(
+          String.format(FILE_DELETION_FAILED_EXCEPTION_MESSAGE_TEMPLATE, ace.getMessage()), ace);
     }
   }
 
@@ -231,7 +241,7 @@ public class AwsHelper {
     } catch (final SdkClientException e) {
       // The call was transmitted successfully, but Amazon S3 couldn't process
       // it, so it returned an error response.
-      throw new AwsException("Failed to get url of file.", ErrorType.AWS_GET_URL_EXCEPTION, e);
+      throw new FileUrlNotFoundException("Failed to get url of file.", e);
     }
   }
 

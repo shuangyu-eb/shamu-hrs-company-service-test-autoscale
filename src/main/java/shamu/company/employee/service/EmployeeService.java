@@ -25,9 +25,8 @@ import org.springframework.util.FileCopyUtils;
 import org.thymeleaf.context.Context;
 import shamu.company.common.entity.Country;
 import shamu.company.common.entity.StateProvince;
-import shamu.company.common.exception.AwsException;
-import shamu.company.common.exception.errormapping.ForbiddenException;
 import shamu.company.common.exception.errormapping.AlreadyExistsException;
+import shamu.company.common.exception.errormapping.ForbiddenException;
 import shamu.company.common.service.CountryService;
 import shamu.company.common.service.OfficeService;
 import shamu.company.common.service.StateProvinceService;
@@ -44,6 +43,7 @@ import shamu.company.employee.dto.WelcomeEmailDto;
 import shamu.company.employee.entity.EmploymentType;
 import shamu.company.employee.event.Auth0UserCreatedEvent;
 import shamu.company.helpers.auth0.Auth0Helper;
+import shamu.company.helpers.exception.errormapping.FileUploadFailedException;
 import shamu.company.helpers.s3.AwsHelper;
 import shamu.company.helpers.s3.Type;
 import shamu.company.info.dto.UserEmergencyContactDto;
@@ -283,7 +283,7 @@ public class EmployeeService {
           file, 2 * FileValidateUtils.MB, FileFormat.JPEG, FileFormat.PNG, FileFormat.GIF);
       return awsHelper.uploadFile(file.getCanonicalPath(), Type.IMAGE);
     } catch (final IOException e) {
-      throw new AwsException("Error while uploading employee photo.", e);
+      throw new FileUploadFailedException("Error while uploading employee photo.", e);
     }
   }
 

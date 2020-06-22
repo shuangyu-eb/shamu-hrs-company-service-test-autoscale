@@ -15,7 +15,6 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
-import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -78,7 +77,6 @@ import shamu.company.benefit.repository.BenefitPlanRepository;
 import shamu.company.benefit.repository.BenefitPlanTypeRepository;
 import shamu.company.benefit.repository.BenefitPlanUserRepository;
 import shamu.company.benefit.repository.RetirementPlanTypeRepository;
-import shamu.company.common.exception.AwsException;
 import shamu.company.common.exception.errormapping.ResourceNotFoundException;
 import shamu.company.company.entity.Company;
 import shamu.company.helpers.s3.AccessType;
@@ -749,9 +747,6 @@ public class BenefitPlanService {
         file -> {
           final String path = awsHelper.uploadFile(file, AccessType.PRIVATE);
 
-          if (Strings.isBlank(path)) {
-            throw new AwsException("AWS upload failed");
-          }
           final String title =
               StringUtils.isNotBlank(file.getOriginalFilename()) ? file.getOriginalFilename() : "";
           final String fileName = title.substring(0, title.lastIndexOf('.'));

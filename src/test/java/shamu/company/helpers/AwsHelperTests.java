@@ -16,10 +16,13 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.powermock.reflect.Whitebox;
 import org.springframework.web.multipart.MultipartFile;
-import shamu.company.common.exception.AwsException;
+import shamu.company.helpers.exception.errormapping.FileDeletionFailedException;
+import shamu.company.helpers.exception.errormapping.FileMovementFailedException;
+import shamu.company.helpers.exception.errormapping.FileUploadFailedException;
 import shamu.company.helpers.s3.AccessType;
 import shamu.company.helpers.s3.AwsHelper;
 import shamu.company.helpers.s3.Type;
+import shamu.company.timeoff.exception.NotFoundException;
 
 public class AwsHelperTests {
 
@@ -88,7 +91,7 @@ public class AwsHelperTests {
     @Test
     void whenFileIsEmpty_thenShouldThrow() {
       Mockito.when(multipartFile.isEmpty()).thenReturn(true);
-      assertThatExceptionOfType(AwsException.class)
+      assertThatExceptionOfType(NotFoundException.class)
           .isThrownBy(() -> awsHelper.uploadFile(multipartFile));
     }
 
@@ -106,7 +109,7 @@ public class AwsHelperTests {
     @Test
     void whenUploadWithFileAndTypeS3Error_thenShouldThrow() {
       final AwsHelper falseAwsHelper = new AwsHelper("1", "1");
-      assertThatExceptionOfType(AwsException.class)
+      assertThatExceptionOfType(FileUploadFailedException.class)
           .isThrownBy(() -> falseAwsHelper.uploadFile(multipartFile, Type.IMAGE));
     }
 
@@ -122,7 +125,7 @@ public class AwsHelperTests {
 
     @Test
     void whenFileNotExist_thenShouldThrow() {
-      assertThatExceptionOfType(AwsException.class)
+      assertThatExceptionOfType(NotFoundException.class)
           .isThrownBy(() -> awsHelper.uploadFile("default/file.jpg", Type.IMAGE));
     }
   }
@@ -132,7 +135,7 @@ public class AwsHelperTests {
 
     @Test
     void whenS3BucketRight_thenShouldSuccess() {
-      assertThatExceptionOfType(AwsException.class)
+      assertThatExceptionOfType(FileMovementFailedException.class)
           .isThrownBy(() -> awsHelper.moveFileFromTemp("default/file.jpg"));
     }
   }
@@ -145,7 +148,7 @@ public class AwsHelperTests {
       final File file = Mockito.mock(File.class);
       final Path path = Mockito.mock(Path.class);
       Mockito.when(file.toPath()).thenReturn(path);
-      assertThatExceptionOfType(AwsException.class)
+      assertThatExceptionOfType(FileDeletionFailedException.class)
           .isThrownBy(() -> awsHelper.deleteFile(new File("/")));
     }
 
@@ -164,7 +167,7 @@ public class AwsHelperTests {
     @Test
     void whenS3BucketWrong_thenShouldThrow() {
       final AwsHelper falseAwsHelper = new AwsHelper("1", "1");
-      assertThatExceptionOfType(AwsException.class)
+      assertThatExceptionOfType(FileDeletionFailedException.class)
           .isThrownBy(() -> falseAwsHelper.deleteFile("default/file.jpg"));
     }
 
