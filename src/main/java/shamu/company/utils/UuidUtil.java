@@ -19,7 +19,7 @@ public interface UuidUtil {
   static String toJavaString(final String hexString) {
     String targetString = hexString;
     if (hexString.contains("-")) {
-      targetString = hexString.replaceAll("-", "");
+      targetString = hexString.replace("-", "");
     }
 
     final StringBuilder result = new StringBuilder();
@@ -34,7 +34,7 @@ public interface UuidUtil {
   static byte[] toBytes(final String hexString) {
     String targetString = hexString;
     if (hexString.contains("-")) {
-      targetString = hexString.replaceAll("-", "");
+      targetString = hexString.replace("-", "");
     }
 
     final int stringLen = targetString.length();
@@ -59,7 +59,7 @@ public interface UuidUtil {
   }
 
   static String toHexString(final byte[] id) {
-    return fromBytes(id).toString().toUpperCase().replaceAll("-", "");
+    return fromBytes(id).toString().toUpperCase().replace("-", "");
   }
 
   static String getUuidString() {

@@ -73,7 +73,6 @@ public class PaidHolidayService {
   }
 
   public void initDefaultPaidHolidays(final Company company) {
-    // TODO: query by country of company
     final List<PaidHoliday> defaultPaidHolidays = paidHolidayRepository.findDefaultPaidHolidays();
     final List<CompanyPaidHoliday> companyPaidHolidays =
         defaultPaidHolidays.stream()
@@ -159,9 +158,9 @@ public class PaidHolidayService {
                         paidHolidayDto.getName(), Integer.parseInt(year)));
                 return true;
               }
-              Timestamp date = paidHolidayDto.getDate();
-              LocalDate localDate = date.toLocalDateTime().toLocalDate();
-              int holidayYear = localDate.getYear();
+              final Timestamp date = paidHolidayDto.getDate();
+              final LocalDate localDate = date.toLocalDateTime().toLocalDate();
+              final int holidayYear = localDate.getYear();
               return Integer.parseInt(year) == holidayYear;
             })
         .collect(Collectors.toList());

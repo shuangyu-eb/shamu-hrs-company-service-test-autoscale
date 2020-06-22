@@ -261,7 +261,6 @@ public class TimeOffDetailService {
     return TimeOffAdjustmentCheckDto.builder().maxBalance(maxBalance).exceed(exceed).build();
   }
 
-  // TODO simplify
   private Integer getMaxBalance(final String policyUserId) {
     final TimeOffPolicyUser timeOffPolicyUser =
         timeOffPolicyUserRepository
