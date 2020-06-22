@@ -8,6 +8,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.springframework.util.StringUtils;
+import shamu.company.attendance.dto.TimeAndAttendanceRelatedUserDto;
 import shamu.company.benefit.dto.BenefitPlanUserDto;
 import shamu.company.common.mapper.Config;
 import shamu.company.company.entity.Office;
@@ -97,6 +98,21 @@ public interface JobUserMapper {
   @Mapping(target = "balance", source = "policyUser.initialBalance")
   TimeOffPolicyRelatedUserDto convertToTimeOffPolicyRelatedUserDto(
       TimeOffPolicyUser policyUser, JobUser jobUser);
+
+  @Mapping(target = "jobTitle", source = "jobUser.job.title")
+  @Mapping(target = "employmentType", source = "jobUser.employmentType.name")
+  @Mapping(target = "department", source = "jobUser.job.department.name")
+  @Mapping(target = "startDate", source = "jobUser.startDate")
+  @Mapping(target = "compensation", source = "jobUser.userCompensation")
+  @Mapping(target = "firstName", source = "user.userPersonalInformation.firstName")
+  @Mapping(
+          target = "preferredName",
+          source = "user.userPersonalInformation.preferredName")
+  @Mapping(target = "lastName", source = "user.userPersonalInformation.lastName")
+  @Mapping(target = "id", source = "user.id")
+  @Mapping(target = "imageUrl", source = "user.imageUrl")
+  TimeAndAttendanceRelatedUserDto convertToTimeAndAttendanceRelatedUserDto(
+          User user, JobUser jobUser);
 
   @Mapping(target = "job", source = "jobId")
   @Mapping(target = "office", source = "officeId")

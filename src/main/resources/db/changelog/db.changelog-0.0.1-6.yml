@@ -1275,3 +1275,33 @@ databaseChangeLog:
             onUpdate: RESTRICT
             referencedColumnNames: SCHED_NAME,JOB_NAME,JOB_GROUP
             referencedTableName: QRTZ_JOB_DETAILS
+
+  - changeSet:
+      id: 1592461477935-0
+      author: qian-eb
+      changes:
+        - sql:
+            sql: create trigger ins_compensation_overtime_statuses before insert on compensation_overtime_statuses for each row set new.id = unhex(replace(uuid(), '-', ''));
+
+  - changeSet:
+      id: 1592461477935-1
+      author: qian-eb
+      runOnChange: true
+      changes:
+        - loadUpdateData:
+            columns:
+              - column:
+                  name: name
+                  type: STRING
+            file: db/changelog/data/compensation_overtime_statuses.csv
+            primaryKey: id
+            tableName: compensation_overtime_statuses
+
+  - changeSet:
+      id: 1592461477935-2desc
+      author: qian-eb
+      preConditions:
+        onFail: WARN
+      changes:
+        - sql:
+            sql: alter table user_compensations change overtime_status overtime_status_id binary(16);

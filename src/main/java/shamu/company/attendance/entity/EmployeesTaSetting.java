@@ -16,7 +16,7 @@ public class EmployeesTaSetting extends BaseEntity {
   @OneToOne private User employee;
 
   @ManyToOne
-  private StaticTimezone staticTimezone;
+  private StaticTimezone timeZone;
 
   private int messagingOn;
 }

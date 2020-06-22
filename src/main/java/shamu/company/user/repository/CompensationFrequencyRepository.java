@@ -8,4 +8,5 @@ public interface CompensationFrequencyRepository
     extends BaseRepository<CompensationFrequency, String> {
 
   List<CompensationFrequency> findAll();
+
 }

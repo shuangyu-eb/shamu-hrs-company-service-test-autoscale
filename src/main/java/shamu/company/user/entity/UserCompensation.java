@@ -30,7 +30,7 @@ public class UserCompensation extends BaseEntity {
 
   private Timestamp endDate;
 
-  private String overtimeStatus;
+  @ManyToOne private CompensationOvertimeStatus overtimeStatus;
 
   @Column(name = "user_id")
   @Type(type = "shamu.company.common.PrimaryKeyTypeDescriptor")
@@ -45,4 +45,12 @@ public class UserCompensation extends BaseEntity {
   private String comment;
 
   @OneToOne private Currency currency;
+
+  public UserCompensation(String userId, BigInteger wageCents,
+                   CompensationOvertimeStatus overtimeStatus, CompensationFrequency compensationFrequency) {
+    this.userId = userId;
+    this.wageCents = wageCents;
+    this.overtimeStatus = overtimeStatus;
+    this.compensationFrequency = compensationFrequency;
+  }
 }

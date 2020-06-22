@@ -1,8 +1,5 @@
 package shamu.company.attendance.controller;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.BDDMockito.given;
-
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +18,9 @@ import shamu.company.server.dto.AuthUser;
 import shamu.company.tests.utils.JwtUtil;
 import shamu.company.user.entity.User;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
+
 @WebMvcTest(controllers = AttendanceSetUpController.class)
 public class AttendanceSetUpControllerTests extends WebControllerBaseTests {
   @MockBean private PayPeriodFrequencyService payPeriodFrequencyService;
@@ -30,6 +30,9 @@ public class AttendanceSetUpControllerTests extends WebControllerBaseTests {
   @Test
   void findIsAttendanceSetUp() throws Exception {
     setPermission(Permission.Name.VIEW_SELF.name());
+
+    final HttpHeaders httpHeaders = new HttpHeaders();
+    httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
 
     final AuthUser currentUser = getAuthUser();
     final User targetUser = new User();
@@ -61,7 +64,23 @@ public class AttendanceSetUpControllerTests extends WebControllerBaseTests {
     final MvcResult response =
         mockMvc
             .perform(
-                MockMvcRequestBuilders.get("/company/pay-period-frequency").headers(httpHeaders))
+                MockMvcRequestBuilders.get("/company/time-and-attendance/pay-period-frequency")
+                    .headers(httpHeaders))
+            .andReturn();
+
+    assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+  }
+
+  @Test
+  void testGetUsers() throws Exception {
+    final HttpHeaders httpHeaders = new HttpHeaders();
+    httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.get("/company/time-and-attendance/users")
+                    .headers(httpHeaders))
             .andReturn();
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());

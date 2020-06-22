@@ -3,6 +3,7 @@ package shamu.company.employee.dto;
 import java.math.BigInteger;
 import java.sql.Timestamp;
 import lombok.Data;
+import shamu.company.user.entity.CompensationOvertimeStatus;
 import shamu.company.user.entity.CompensationType;
 import shamu.company.user.entity.UserCompensation;
 
@@ -13,7 +14,7 @@ public class UserCompensationDto {
 
   private Timestamp startDate;
 
-  private String overtimeStatus;
+  private CompensationOvertimeStatus overtimeStatus;
 
   private CompensationType compensationType;
 

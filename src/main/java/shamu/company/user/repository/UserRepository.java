@@ -45,6 +45,8 @@ public interface UserRepository extends JpaRepository<User, String>, UserCustomR
       + ACTIVE_USER_QUERY, nativeQuery = true)
   List<User> findAllByCompanyId(String companyId);
 
+  List<User> findAllByCompanyIdAndIdNotIn(String companyId, List<String> userIdList);
+
   Boolean existsByResetPasswordToken(String token);
 
   User findByInvitationEmailToken(String token);
