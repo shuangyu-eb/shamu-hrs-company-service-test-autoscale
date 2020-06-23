@@ -59,7 +59,10 @@ public class TimeOffRequest extends BaseEntity {
   public String getRequsterComment() {
     final List<TimeOffRequestComment> requestComments =
         comments.stream()
-            .filter(comment -> comment.getUser().getId().equals(requesterUser.getId()))
+            .filter(
+                comment ->
+                    comment.getUser() != null
+                        && comment.getUser().getId().equals(requesterUser.getId()))
             .collect(Collectors.toList());
     if (!requestComments.isEmpty()) {
       return requestComments.get(0).getComment();
@@ -69,7 +72,10 @@ public class TimeOffRequest extends BaseEntity {
 
   public List<TimeOffRequestComment> getApproverComments() {
     return comments.stream()
-        .filter(comment -> !comment.getUser().getId().equals(requesterUser.getId()))
+        .filter(
+            comment ->
+                comment.getUser() == null
+                    || !comment.getUser().getId().equals(requesterUser.getId()))
         .collect(Collectors.toList());
   }
 
@@ -105,7 +111,7 @@ public class TimeOffRequest extends BaseEntity {
   }
 
   public TimeOffApprovalStatus getApprovalStatus() {
-    String name = this.timeOffRequestApprovalStatus.getName();
+    final String name = timeOffRequestApprovalStatus.getName();
     return StringUtils.isEmpty(name) ? null : TimeOffApprovalStatus.valueOf(name);
   }
 }

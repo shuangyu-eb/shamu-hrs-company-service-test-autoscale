@@ -1305,3 +1305,20 @@ databaseChangeLog:
       changes:
         - sql:
             sql: alter table user_compensations change overtime_status overtime_status_id binary(16);
+
+
+  - changeSet:
+      id: 1589964975996-11
+      author: Jiansheng-Xu
+      changes:
+        - dropForeignKeyConstraint:
+            baseTableName: time_off_request_comments
+            constraintName: fk_time_off_request_comments_users
+        - addForeignKeyConstraint:
+            baseColumnNames: user_id
+            baseTableName: time_off_request_comments
+            constraintName: fk_time_off_request_comments_users
+            onDelete: SET NULL
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: users
