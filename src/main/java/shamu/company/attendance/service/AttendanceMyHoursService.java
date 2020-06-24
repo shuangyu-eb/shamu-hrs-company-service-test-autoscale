@@ -103,65 +103,42 @@ public class AttendanceMyHoursService {
 
     if (!breakTimeLogDtos.isEmpty()) {
 
-      breakTimeLogDtos.sort(
-          (o1, o2) -> (int) (o1.getBreakStart().getTime() - o2.getBreakStart().getTime()));
-      // break time
+      Timestamp currentWorkStart = timeEntryDto.getStartTime();
       for (final BreakTimeLogDto breakTimeLogDto : breakTimeLogDtos) {
-        final EmployeeTimeLog employeeTimeLog = new EmployeeTimeLog();
-        employeeTimeLog.setStart(breakTimeLogDto.getBreakStart());
-        employeeTimeLog.setTimeType(breakType);
-        employeeTimeLog.setDurationMin(breakTimeLogDto.getBreakMin());
-        employeeTimeLog.setEntry(savedEntry);
-        employeeTimeLogs.add(employeeTimeLog);
+        final Timestamp breakStart = breakTimeLogDto.getBreakStart();
+        final long workMin =
+            (breakStart.getTime() - currentWorkStart.getTime()) / (CONVERT_MIN_TO_MS);
+        final long breakMin = breakTimeLogDto.getBreakMin();
+        final EmployeeTimeLog breakTimeLog =
+            EmployeeTimeLog.builder()
+                .start(breakStart)
+                .timeType(breakType)
+                .durationMin((int) breakMin)
+                .entry(savedEntry)
+                .build();
+        final EmployeeTimeLog workTimeLog =
+            EmployeeTimeLog.builder()
+                .start(currentWorkStart)
+                .timeType(workType)
+                .durationMin((int) workMin)
+                .entry(savedEntry)
+                .build();
+        employeeTimeLogs.add(breakTimeLog);
+        employeeTimeLogs.add(workTimeLog);
+        currentWorkStart =
+            DateUtil.longToTimestamp(
+                breakStart.getTime() + breakTimeLogDto.getBreakMin() * CONVERT_MIN_TO_MS);
       }
-
-      // work time between break
-      for (int i = 0; i < breakTimeLogDtos.size() - 1; i++) {
-        final EmployeeTimeLog employeeTimeLog = new EmployeeTimeLog();
-        final long workStartTimeMs =
-            breakTimeLogDtos.get(i).getBreakStart().getTime()
-                + breakTimeLogDtos.get(i).getBreakMin() * CONVERT_MIN_TO_MS;
-        final Timestamp workStartTime = DateUtil.longToTimestamp(workStartTimeMs);
-        final long durationMin =
-            (breakTimeLogDtos.get(i + 1).getBreakStart().getTime() - workStartTime.getTime())
-                / (CONVERT_MIN_TO_MS);
-        employeeTimeLog.setStart(workStartTime);
-        employeeTimeLog.setDurationMin((int) durationMin);
-        employeeTimeLog.setTimeType(workType);
-        employeeTimeLog.setEntry(savedEntry);
-        employeeTimeLogs.add(employeeTimeLog);
-      }
-
-      // work time outside breaks
-
-      // first work start time to first break time
-      final EmployeeTimeLog startTimeLog = new EmployeeTimeLog();
-      final long startDurationMin =
-          (breakTimeLogDtos.get(0).getBreakStart().getTime()
-                  - timeEntryDto.getStartTime().getTime())
-              / (CONVERT_MIN_TO_MS);
-      startTimeLog.setStart(timeEntryDto.getStartTime());
-      startTimeLog.setDurationMin((int) startDurationMin);
-      startTimeLog.setTimeType(workType);
-      startTimeLog.setEntry(savedEntry);
-      employeeTimeLogs.add(startTimeLog);
-
-      // last work start time to end time
-      final EmployeeTimeLog endTimeLog = new EmployeeTimeLog();
-      final Timestamp lastBreakTime =
-          breakTimeLogDtos.get(breakTimeLogDtos.size() - 1).getBreakStart();
-      final int lastBreakDurationMin =
-          breakTimeLogDtos.get(breakTimeLogDtos.size() - 1).getBreakMin();
-      final long lastWorkStartTimeMs =
-          lastBreakTime.getTime() + lastBreakDurationMin * CONVERT_MIN_TO_MS;
-      final Timestamp lastWorkStartTime = DateUtil.longToTimestamp(lastWorkStartTimeMs);
-      final long endDurationMin =
-          (timeEntryDto.getEndTime().getTime() - lastWorkStartTime.getTime()) / (CONVERT_MIN_TO_MS);
-      endTimeLog.setStart(lastWorkStartTime);
-      endTimeLog.setDurationMin((int) endDurationMin);
-      endTimeLog.setTimeType(workType);
-      endTimeLog.setEntry(savedEntry);
-      employeeTimeLogs.add(endTimeLog);
+      final Timestamp workEnd = timeEntryDto.getEndTime();
+      final long workMin = (workEnd.getTime() - currentWorkStart.getTime()) / (CONVERT_MIN_TO_MS);
+      final EmployeeTimeLog workTimeLog =
+          EmployeeTimeLog.builder()
+              .start(currentWorkStart)
+              .timeType(workType)
+              .durationMin((int) workMin)
+              .entry(savedEntry)
+              .build();
+      employeeTimeLogs.add(workTimeLog);
     }
 
     // do not have break
