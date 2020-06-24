@@ -10,8 +10,10 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
-import shamu.company.common.exception.FileValidateException;
 import shamu.company.utils.FileValidateUtils.FileFormat;
+import shamu.company.utils.exception.errormapping.FileFormatNotAcceptableException;
+import shamu.company.utils.exception.errormapping.FileSizeExceedException;
+import shamu.company.utils.exception.errormapping.FileSizeTooSmallException;
 
 public class FileValidateUtilsTests {
 
@@ -27,7 +29,7 @@ public class FileValidateUtilsTests {
       assertThatThrownBy(
               () ->
                   FileValidateUtils.validate(fakeImage, 2 * FileValidateUtils.MB, FileFormat.JPEG))
-          .isInstanceOf(FileValidateException.class);
+          .isInstanceOf(FileFormatNotAcceptableException.class);
     }
 
     @Test
@@ -43,7 +45,7 @@ public class FileValidateUtilsTests {
       final File file = new File("nonExistingFile");
       assertThatThrownBy(
               () -> FileValidateUtils.validate(file, 2 * FileValidateUtils.MB, FileFormat.JPEG))
-          .isInstanceOf(FileValidateException.class);
+          .isInstanceOf(FileFormatNotAcceptableException.class);
     }
 
     @Test
@@ -51,13 +53,13 @@ public class FileValidateUtilsTests {
       assertThatThrownBy(
               () ->
                   FileValidateUtils.validate(validImage, 2 * FileValidateUtils.KB, FileFormat.JPEG))
-          .isInstanceOf(FileValidateException.class);
+          .isInstanceOf(FileSizeExceedException.class);
     }
 
     @Test
     void whenFileSizeLimitationSmallerThan256B() {
       assertThatThrownBy(() -> FileValidateUtils.validate(validImage, 256L, FileFormat.JPEG))
-          .isInstanceOf(FileValidateException.class);
+          .isInstanceOf(FileSizeTooSmallException.class);
     }
 
     @Test
@@ -65,7 +67,7 @@ public class FileValidateUtilsTests {
       assertThatThrownBy(
               () ->
                   FileValidateUtils.validate(validImage, 2 * FileValidateUtils.MB, FileFormat.PDF))
-          .isInstanceOf(FileValidateException.class);
+          .isInstanceOf(FileFormatNotAcceptableException.class);
     }
 
     @Test
@@ -95,7 +97,7 @@ public class FileValidateUtilsTests {
               "validImage.jpeg", "validImage.aaa", "", new FileInputStream(validImage));
       assertThatThrownBy(
               () -> FileValidateUtils.validate(file, 2 * FileValidateUtils.MB, FileFormat.JPEG))
-          .isInstanceOf(FileValidateException.class);
+          .isInstanceOf(FileFormatNotAcceptableException.class);
     }
   }
 }

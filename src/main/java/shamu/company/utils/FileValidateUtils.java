@@ -10,7 +10,11 @@ import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
 import org.springframework.web.multipart.MultipartFile;
-import shamu.company.common.exception.FileValidateException;
+import shamu.company.timeoff.exception.NotFoundException;
+import shamu.company.utils.exception.FileValidateFailedException;
+import shamu.company.utils.exception.errormapping.FileFormatNotAcceptableException;
+import shamu.company.utils.exception.errormapping.FileSizeExceedException;
+import shamu.company.utils.exception.errormapping.FileSizeTooSmallException;
 
 @Slf4j
 public abstract class FileValidateUtils {
@@ -23,33 +27,33 @@ public abstract class FileValidateUtils {
 
   public static void validate(final File file, final Long maxSize, final FileFormat... formats) {
     if (!file.isFile()) {
-      throw new FileValidateException("File is invalid!");
+      throw new FileFormatNotAcceptableException("File is invalid!");
     }
 
     try {
       validateWithInputStream(new FileInputStream(file), file.length(), maxSize, formats);
     } catch (final FileNotFoundException e) {
-      throw new FileValidateException("File not found!");
+      throw new NotFoundException("File not found.", "file");
     }
   }
 
   public static void validate(
       final MultipartFile multipartFile, final Long maxSize, final FileFormat... formats) {
     if (multipartFile.isEmpty()) {
-      throw new FileValidateException("Multipart file not found!");
+      throw new NotFoundException("Multipart file not found.", "file");
     }
 
     final boolean isValidatedFileName =
         validateWithFileName(multipartFile.getOriginalFilename(), formats);
     if (!isValidatedFileName) {
-      throw new FileValidateException("File type error.");
+      throw new FileFormatNotAcceptableException("File type error.");
     }
 
     try (final InputStream inputStream = multipartFile.getInputStream()) {
       validateWithInputStream(inputStream, multipartFile.getSize(), maxSize, formats);
     } catch (final IOException e) {
       log.error(String.format("Caught an exception while validate file: %s", e.getMessage()));
-      throw new FileValidateException("Failed to upload file.");
+      throw new FileValidateFailedException("Failed to upload file.");
     }
   }
 
@@ -74,18 +78,19 @@ public abstract class FileValidateUtils {
     final FileFormat fileFormat = getFileFormat(inputStream);
 
     if (Arrays.asList(formats).indexOf(fileFormat) == -1) {
-      throw new FileValidateException("File format not valid!");
+      throw new FileFormatNotAcceptableException("File format not valid!");
     }
 
     if (fileSize > maxSize) {
-      throw new FileValidateException(
-          String.format("File size exceeds %s!", getHumanReadableFileSize(maxSize)));
+      throw new FileSizeExceedException(
+          String.format("File size exceeds %s!", getHumanReadableFileSize(maxSize)),
+          getHumanReadableFileSize(maxSize));
     }
   }
 
   private static String getHumanReadableFileSize(final Long size) {
     if (size < KB) {
-      throw new FileValidateException("Unsupported file size!");
+      throw new FileSizeTooSmallException("Unsupported file size!");
     } else if (size < MB) {
       return size / KB + "KB";
     } else {
@@ -98,7 +103,7 @@ public abstract class FileValidateUtils {
       String fileHeader = readFileHeader(inputStream);
       fileHeader = fileHeader.toUpperCase();
       if (fileHeader.length() == 0) {
-        throw new FileValidateException("File format not recognized!");
+        throw new FileFormatNotAcceptableException("File format not recognized!");
       }
 
       final FileFormat[] fileFormats = FileFormat.values();
@@ -110,7 +115,7 @@ public abstract class FileValidateUtils {
     } catch (final IOException e) {
       log.error(String.format("Caught an IO exception while validate file: %s", e.getMessage()));
     }
-    throw new FileValidateException("File format not recognized!");
+    throw new FileFormatNotAcceptableException("File format not recognized!");
   }
 
   private static String readFileHeader(final InputStream inputStream) throws IOException {
