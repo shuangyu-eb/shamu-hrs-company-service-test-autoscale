@@ -27,6 +27,7 @@ public interface TimeOffPolicyMapper {
       TimeOffPolicyFrontendDto timeOffPolicyFrontendDto, Company company);
 
   @Mapping(target = "name", source = "policyName")
+  @Mapping(target = "isAutoEnrollEnabled", source = "isAutoEnrolled")
   void updateFromTimeOffPolicyFrontendDto(
       @MappingTarget TimeOffPolicy timeOffPolicy,
       TimeOffPolicyFrontendDto timeOffPolicyFrontendDto);
