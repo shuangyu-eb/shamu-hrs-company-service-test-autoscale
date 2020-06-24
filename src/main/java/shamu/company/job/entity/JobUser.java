@@ -6,6 +6,7 @@ import shamu.company.common.entity.BaseEntity;
 import shamu.company.company.entity.Company;
 import shamu.company.company.entity.Office;
 import shamu.company.employee.entity.EmploymentType;
+import shamu.company.user.entity.EmployeeType;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserCompensation;
 
@@ -25,6 +26,8 @@ public class JobUser extends BaseEntity {
   @ManyToOne private Job job;
 
   @ManyToOne private EmploymentType employmentType;
+
+  @ManyToOne private EmployeeType employeeType;
 
   private Timestamp startDate;
 

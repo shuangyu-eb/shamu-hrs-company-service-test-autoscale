@@ -1,10 +1,11 @@
 package shamu.company.employee.dto;
 
-import java.math.BigInteger;
-import java.sql.Timestamp;
+import lombok.Data;
+
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import lombok.Data;
+import java.math.BigInteger;
+import java.sql.Timestamp;
 
 @Data
 public class NewEmployeeJobInformationDto {
@@ -15,11 +16,15 @@ public class NewEmployeeJobInformationDto {
 
   @NotNull private Timestamp hireDate;
 
-  private String reportsTo;
+  @NotNull private String reportsTo;
 
-  private BigInteger compensation;
+  @NotNull private BigInteger compensation;
 
-  private String compensationFrequencyId;
+  @NotNull private String employeeTypeId;
 
-  private String officeId;
+  @NotNull private String payTypeName;
+
+  @NotNull private String compensationFrequencyId;
+
+  @NotNull private String officeId;
 }

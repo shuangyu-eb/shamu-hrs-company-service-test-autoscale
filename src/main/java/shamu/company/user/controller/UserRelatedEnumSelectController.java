@@ -1,6 +1,5 @@
 package shamu.company.user.controller;
 
-import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
 import shamu.company.benefit.entity.RetirementType;
 import shamu.company.common.BaseRestController;
@@ -8,6 +7,7 @@ import shamu.company.common.CommonDictionaryDto;
 import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.job.entity.CompensationFrequency;
 import shamu.company.user.entity.CompensationOvertimeStatus;
+import shamu.company.user.entity.EmployeeType;
 import shamu.company.user.entity.DeactivationReasons;
 import shamu.company.user.entity.Ethnicity;
 import shamu.company.user.entity.Gender;
@@ -17,6 +17,7 @@ import shamu.company.user.entity.UserStatus;
 import shamu.company.user.service.CompensationFrequencyService;
 import shamu.company.user.service.CompensationOvertimeStatusService;
 import shamu.company.user.service.DeactivationReasonService;
+import shamu.company.user.service.EmployeeTypesService;
 import shamu.company.user.service.EthnicityService;
 import shamu.company.user.service.GenderService;
 import shamu.company.user.service.MaritalStatusService;
@@ -24,6 +25,8 @@ import shamu.company.user.service.RetirementTypeService;
 import shamu.company.user.service.UserRoleService;
 import shamu.company.user.service.UserStatusService;
 import shamu.company.utils.ReflectionUtil;
+
+import java.util.List;
 
 @RestApiController
 public class UserRelatedEnumSelectController extends BaseRestController {
@@ -46,16 +49,19 @@ public class UserRelatedEnumSelectController extends BaseRestController {
 
   private final UserStatusService userStatusService;
 
+  private final EmployeeTypesService employeeTypesService;
+
   public UserRelatedEnumSelectController(
       final CompensationFrequencyService compensationFrequencyService,
       final CompensationOvertimeStatusService compensationOvertimeStatusService,
       final DeactivationReasonService deactivationReasonService,
       final EthnicityService ethnicityService,
-      GenderService genderService,
+      final GenderService genderService,
       final MaritalStatusService maritalStatusService,
       final RetirementTypeService retirementTypeService,
       final UserRoleService userRoleService,
-      UserStatusService userStatusService) {
+      final UserStatusService userStatusService,
+      final EmployeeTypesService employeeTypesService) {
     this.compensationFrequencyService = compensationFrequencyService;
     this.compensationOvertimeStatusService = compensationOvertimeStatusService;
     this.deactivationReasonService = deactivationReasonService;
@@ -65,6 +71,7 @@ public class UserRelatedEnumSelectController extends BaseRestController {
     this.retirementTypeService = retirementTypeService;
     this.userRoleService = userRoleService;
     this.userStatusService = userStatusService;
+    this.employeeTypesService = employeeTypesService;
   }
 
   @GetMapping("compensation-frequencies")
@@ -120,5 +127,11 @@ public class UserRelatedEnumSelectController extends BaseRestController {
   public List<CommonDictionaryDto> getAllUserStatuses() {
     final List<UserStatus> userStatuses = userStatusService.findAll();
     return ReflectionUtil.convertTo(userStatuses, CommonDictionaryDto.class);
+  }
+
+  @GetMapping("employee-types")
+  public List<CommonDictionaryDto> getAllEmployeeTypes() {
+    final List<EmployeeType> employeeTypes = employeeTypesService.findAll();
+    return ReflectionUtil.convertTo(employeeTypes, CommonDictionaryDto.class);
   }
 }

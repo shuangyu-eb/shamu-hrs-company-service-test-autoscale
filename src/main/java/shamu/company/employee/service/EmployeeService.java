@@ -1,14 +1,5 @@
 package shamu.company.employee.service;
 
-import java.io.File;
-import java.io.IOException;
-import java.sql.Timestamp;
-import java.time.Instant;
-import java.util.Base64;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.BeanUtils;
@@ -63,6 +54,8 @@ import shamu.company.user.dto.BasicUserPersonalInformationDto;
 import shamu.company.user.dto.UserAddressDto;
 import shamu.company.user.dto.UserContactInformationDto;
 import shamu.company.user.dto.UserPersonalInformationDto;
+import shamu.company.user.entity.CompensationOvertimeStatus;
+import shamu.company.user.entity.EmployeeType;
 import shamu.company.user.entity.Gender;
 import shamu.company.user.entity.MaritalStatus;
 import shamu.company.user.entity.User;
@@ -78,6 +71,8 @@ import shamu.company.user.entity.mapper.UserContactInformationMapper;
 import shamu.company.user.entity.mapper.UserPersonalInformationMapper;
 import shamu.company.user.event.UserEmailUpdatedEvent;
 import shamu.company.user.service.CompensationFrequencyService;
+import shamu.company.user.service.CompensationOvertimeStatusService;
+import shamu.company.user.service.EmployeeTypesService;
 import shamu.company.user.service.GenderService;
 import shamu.company.user.service.MaritalStatusService;
 import shamu.company.user.service.UserAddressService;
@@ -90,6 +85,15 @@ import shamu.company.user.service.UserStatusService;
 import shamu.company.utils.DateUtil;
 import shamu.company.utils.FileValidateUtils;
 import shamu.company.utils.FileValidateUtils.FileFormat;
+import java.io.File;
+import java.io.IOException;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.util.Base64;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -123,8 +127,9 @@ public class EmployeeService {
   private final ApplicationEventPublisher applicationEventPublisher;
   private final UserRoleService userRoleService;
   private final TimeOffPolicyService timeOffPolicyService;
-
   private final EncryptorUtil encryptorUtil;
+  private final EmployeeTypesService employeeTypesService;
+  private final CompensationOvertimeStatusService compensationOvertimeStatusService;
 
   @Value("${application.systemEmailAddress}")
   private String systemEmailAddress;
@@ -158,7 +163,9 @@ public class EmployeeService {
       final JobUserMapper jobUserMapper,
       @Lazy final JobUserService jobUserService,
       final UserRoleService userRoleService,
-      final EncryptorUtil encryptorUtil) {
+      final EncryptorUtil encryptorUtil,
+      final EmployeeTypesService employeeTypesService,
+      final CompensationOvertimeStatusService compensationOvertimeStatusService) {
     this.timeOffPolicyService = timeOffPolicyService;
     this.userAddressService = userAddressService;
     this.employmentTypeService = employmentTypeService;
@@ -187,6 +194,8 @@ public class EmployeeService {
     this.jobUserService = jobUserService;
     this.userRoleService = userRoleService;
     this.encryptorUtil = encryptorUtil;
+    this.employeeTypesService = employeeTypesService;
+    this.compensationOvertimeStatusService = compensationOvertimeStatusService;
   }
 
   public List<User> findByCompanyId(final String companyId) {
@@ -450,16 +459,18 @@ public class EmployeeService {
       final NewEmployeeJobInformationDto jobInformation) {
 
     UserCompensation userCompensation = new UserCompensation();
-    if (jobInformation.getCompensation() != null
-        && jobInformation.getCompensationFrequencyId() != null) {
-      userCompensation.setWageCents(jobInformation.getCompensation());
-      final String compensationFrequencyId = jobInformation.getCompensationFrequencyId();
-      final CompensationFrequency compensationFrequency =
-          compensationFrequencyService.findById(compensationFrequencyId);
-      userCompensation.setCompensationFrequency(compensationFrequency);
-      userCompensation.setUserId(employee.getId());
-      userCompensation = userCompensationService.save(userCompensation);
+    userCompensation.setWageCents(jobInformation.getCompensation());
+    final String compensationFrequencyId = jobInformation.getCompensationFrequencyId();
+    final CompensationFrequency compensationFrequency =
+        compensationFrequencyService.findById(compensationFrequencyId);
+    userCompensation.setCompensationFrequency(compensationFrequency);
+    userCompensation.setUserId(employee.getId());
+    final CompensationOvertimeStatus compensationOvertimeStatus =
+        compensationOvertimeStatusService.findByName(jobInformation.getPayTypeName());
+    if (compensationOvertimeStatus != null) {
+      userCompensation.setOvertimeStatus(compensationOvertimeStatus);
     }
+    userCompensation = userCompensationService.save(userCompensation);
 
     final JobUser jobUser = new JobUser();
     if (StringUtils.isNotEmpty(userCompensation.getId())) {
@@ -477,9 +488,11 @@ public class EmployeeService {
     }
 
     final Timestamp hireDate = jobInformation.getHireDate();
-    if (hireDate != null) {
-      jobUser.setStartDate(new Timestamp(hireDate.getTime()));
-    }
+    jobUser.setStartDate(hireDate);
+
+    final String employeeTypeId = jobInformation.getEmployeeTypeId();
+    final EmployeeType employeeType = employeeTypesService.findById(employeeTypeId);
+    jobUser.setEmployeeType(employeeType);
 
     final String officeId = jobInformation.getOfficeId();
     if (StringUtils.isNotEmpty(officeId)) {

@@ -1,16 +1,5 @@
 package shamu.company.employee;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-
-import java.math.BigInteger;
-import java.sql.Timestamp;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
-import java.util.UUID;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,8 +13,8 @@ import org.powermock.reflect.Whitebox;
 import org.springframework.context.ApplicationEventPublisher;
 import org.thymeleaf.context.Context;
 import shamu.company.common.entity.StateProvince;
-import shamu.company.common.exception.errormapping.ForbiddenException;
 import shamu.company.common.exception.errormapping.AlreadyExistsException;
+import shamu.company.common.exception.errormapping.ForbiddenException;
 import shamu.company.common.service.CountryService;
 import shamu.company.common.service.OfficeService;
 import shamu.company.common.service.StateProvinceService;
@@ -80,6 +69,8 @@ import shamu.company.user.entity.mapper.UserContactInformationMapper;
 import shamu.company.user.entity.mapper.UserPersonalInformationMapper;
 import shamu.company.user.event.UserEmailUpdatedEvent;
 import shamu.company.user.service.CompensationFrequencyService;
+import shamu.company.user.service.CompensationOvertimeStatusService;
+import shamu.company.user.service.EmployeeTypesService;
 import shamu.company.user.service.GenderService;
 import shamu.company.user.service.MaritalStatusService;
 import shamu.company.user.service.UserAddressService;
@@ -90,6 +81,18 @@ import shamu.company.user.service.UserRoleService;
 import shamu.company.user.service.UserService;
 import shamu.company.user.service.UserStatusService;
 import shamu.company.utils.FileValidateUtils.FileFormat;
+
+import java.math.BigInteger;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.List;
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 class EmployeeServiceTests {
 
@@ -132,6 +135,8 @@ class EmployeeServiceTests {
   @Mock private TimeOffPolicyService timeOffPolicyService;
   @Mock private UserRoleService userRoleService;
   @Mock private EncryptorUtil encryptorUtil;
+  @Mock private EmployeeTypesService employeeTypesService;
+  @Mock private CompensationOvertimeStatusService compensationOvertimeStatusService;
 
   private EmployeeService employeeService;
 
@@ -167,7 +172,9 @@ class EmployeeServiceTests {
             jobUserMapper,
             jobUserService,
             userRoleService,
-            encryptorUtil);
+            encryptorUtil,
+            employeeTypesService,
+            compensationOvertimeStatusService);
   }
 
   @Test
@@ -537,13 +544,6 @@ class EmployeeServiceTests {
     }
 
     @Test
-    void whenJobInformationIsNotNull_thenShouldSuccess() {
-      employeeDto.setJobInformation(jobInformation);
-      employeeService.addEmployee(employeeDto, currentUser);
-      Mockito.verify(jobUserService, Mockito.times(1)).save(Mockito.any());
-    }
-
-    @Test
     void whenJobInformationIsNull_thenShouldSuccess() {
       employeeService.addEmployee(employeeDto, currentUser);
       Mockito.verify(jobUserService, Mockito.times(0)).save(Mockito.any());
@@ -796,6 +796,7 @@ class EmployeeServiceTests {
     @Test
     void whenEmploymentTypeIdIsNotEmpty_thenShouldSuccess() throws Exception {
       jobInformation.setEmploymentTypeId("a");
+      Mockito.when(userCompensationService.save(Mockito.any())).thenReturn(userCompensation);
       Whitebox.invokeMethod(
           employeeService, "saveEmployeeJob", employee, currentUser, jobInformation);
       Mockito.verify(employmentTypeService, Mockito.times(1)).findById(Mockito.anyString());
@@ -805,6 +806,7 @@ class EmployeeServiceTests {
     @Test
     void whenOfficeIdIsNotNull_thenShouldSuccess() throws Exception {
       jobInformation.setOfficeId("a");
+      Mockito.when(userCompensationService.save(Mockito.any())).thenReturn(userCompensation);
       Whitebox.invokeMethod(
           employeeService, "saveEmployeeJob", employee, currentUser, jobInformation);
       Mockito.verify(officeService, Mockito.times(1)).findById(Mockito.anyString());

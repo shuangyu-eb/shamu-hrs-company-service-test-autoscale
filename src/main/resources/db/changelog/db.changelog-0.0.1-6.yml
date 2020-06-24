@@ -1306,6 +1306,66 @@ databaseChangeLog:
         - sql:
             sql: alter table user_compensations change overtime_status overtime_status_id binary(16);
 
+  - changeSet:
+      id: 1592882531727-0
+      author: qian-eb
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  name: id
+                  type: binary(16)
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: name
+                  type: varchar(255)
+                  constraints:
+                    nullable:  false
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: employee_types
+
+  - changeSet:
+      id: 1592882531727-1
+      author: qian-eb
+      changes:
+        - sql:
+            sql: create trigger ins_employee_types before insert on employee_types for each row set new.id = unhex(replace(uuid(), '-', ''));
+
+  - changeSet:
+      id: 1592882531727-2
+      author: qian-eb
+      runOnChange: true
+      changes:
+        - loadUpdateData:
+            columns:
+              - column:
+                  name: name
+                  type: STRING
+            file: db/changelog/data/employee-types.csv
+            primaryKey: id
+            tableName: employee_types
+
+  - changeSet:
+      id: 1592882531727-3
+      author: qian-eb
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: employee_type_id
+                  type: BINARY(16)
+                  constraints:
+                    foreignKeyName: fk_employee_types_id
+                    references: employee_types(id)
+            tableName: jobs_users
+
+
 
   - changeSet:
       id: 1589964975996-11

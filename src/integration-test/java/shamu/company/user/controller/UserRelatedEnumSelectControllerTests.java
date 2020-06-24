@@ -1,7 +1,5 @@
 package shamu.company.user.controller;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -22,6 +20,9 @@ import shamu.company.user.service.MaritalStatusService;
 import shamu.company.user.service.RetirementTypeService;
 import shamu.company.user.service.UserRoleService;
 import shamu.company.user.service.UserStatusService;
+import shamu.company.user.service.EmployeeTypesService;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @WebMvcTest(controllers = UserRelatedEnumSelectController.class)
 public class UserRelatedEnumSelectControllerTests extends WebControllerBaseTests {
@@ -44,6 +45,7 @@ public class UserRelatedEnumSelectControllerTests extends WebControllerBaseTests
 
   @MockBean private UserStatusService userStatusService;
 
+  @MockBean private EmployeeTypesService employeeTypesService;
   @Autowired private MockMvc mockMvc;
 
   @Test
@@ -163,6 +165,19 @@ public class UserRelatedEnumSelectControllerTests extends WebControllerBaseTests
     final MvcResult response =
         mockMvc
             .perform(MockMvcRequestBuilders.get("/company/user-statuses").headers(httpHeaders))
+            .andReturn();
+
+    assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+  }
+
+  @Test
+  void testGetAllEmployeeTypes() throws Exception {
+    final HttpHeaders httpHeaders = new HttpHeaders();
+    httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+
+    final MvcResult response =
+        mockMvc
+            .perform(MockMvcRequestBuilders.get("/company/employee-types").headers(httpHeaders))
             .andReturn();
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
