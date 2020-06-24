@@ -528,6 +528,7 @@ public class UserService {
       final User deletedUser = entityManager.find(User.class, employee.getId());
       entityManager.remove(entityManager.merge(deletedUser));
       entityManager.flush();
+      documentClient.deleteDocumentRequestUser(employee.getId());
     } catch (final PersistenceException e) {
       log.error("User with id " + employee.getId() + " deletes failed", e);
       throw new UserDeletionFailedException("User deletes failed.");

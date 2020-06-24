@@ -1,6 +1,7 @@
 package shamu.company.user;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import java.sql.Date;
@@ -893,5 +894,24 @@ class UserServiceTests {
     Mockito.when(userRepository.findSuperUser(companyId)).thenReturn(user);
     final User resultUser = userService.findSuperUser(companyId);
     assertThat(resultUser).isEqualTo(user);
+  }
+
+  @Test
+  void testDeleteUser() {
+    final com.auth0.json.mgmt.users.User auth0User = new com.auth0.json.mgmt.users.User();
+    final User employee = new User();
+    final User deletedUser = new User();
+    final UserContactInformation userContactInformation = new UserContactInformation();
+    employee.setId("1");
+    userContactInformation.setEmailWork("@indeed.com");
+    employee.setUserContactInformation(userContactInformation);
+    Mockito.when(userRepository.findAllByManagerUserId(Mockito.anyString()))
+        .thenReturn(Collections.emptyList());
+    Mockito.when(entityManager.find(Mockito.any(), Mockito.any())).thenReturn(deletedUser);
+    Mockito.when(
+            auth0Helper.getAuth0UserByIdWithByEmailFailover(
+                Mockito.anyString(), Mockito.anyString()))
+        .thenReturn(auth0User);
+    assertThatCode(() -> userService.deleteUser(employee)).doesNotThrowAnyException();
   }
 }
