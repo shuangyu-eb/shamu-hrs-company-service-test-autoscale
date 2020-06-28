@@ -88,7 +88,6 @@ class EmployeeRestControllerIT extends BaseIntegrationTest {
 
       final EmploymentType newEmploymentType = new EmploymentType();
       newEmploymentType.setName(RandomStringUtils.randomAlphabetic(4));
-      newEmploymentType.setCompany(company);
       employmentType = employmentTypeService.save(newEmploymentType);
 
       final Office newOffice = new Office();

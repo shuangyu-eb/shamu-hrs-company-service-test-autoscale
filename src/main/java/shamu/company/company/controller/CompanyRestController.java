@@ -27,7 +27,6 @@ import shamu.company.company.entity.mapper.OfficeMapper;
 import shamu.company.company.service.CompanyService;
 import shamu.company.employee.dto.SelectFieldInformationDto;
 import shamu.company.employee.dto.SelectFieldSizeDto;
-import shamu.company.employee.entity.EmploymentType;
 import shamu.company.employee.service.EmployeeService;
 import shamu.company.job.entity.Job;
 import shamu.company.user.entity.User;
@@ -69,18 +68,6 @@ public class CompanyRestController extends BaseRestController {
       @PathVariable final String id, @RequestBody final String name) {
     final Job job = companyService.saveJobsByDepartmentId(id, name);
     return new SelectFieldInformationDto(job.getId(), job.getTitle());
-  }
-
-  @GetMapping("employment-types")
-  public List<SelectFieldSizeDto> findEmploymentTypes() {
-    return companyService.findEmploymentTypesByCompanyId(findCompanyId());
-  }
-
-  @PostMapping(value = "employment-types")
-  @PreAuthorize("hasAuthority('CREATE_EMPLOYEE_TYPE')")
-  public SelectFieldInformationDto createEmploymentType(@RequestBody final String name) {
-    final EmploymentType employmentType = companyService.saveEmploymentType(name, findCompanyId());
-    return new SelectFieldInformationDto(employmentType.getId(), employmentType.getName());
   }
 
   @GetMapping("offices")

@@ -28,16 +28,6 @@ class EmploymentTypeServiceTests {
   }
 
   @Test
-  void testFindAllByCompanyId() {
-    assertThatCode(() -> employmentTypeService.findAllByCompanyId("1")).doesNotThrowAnyException();
-  }
-
-  @Test
-  void testFindCountByType() {
-    assertThatCode(() -> employmentTypeService.findCountByType("1")).doesNotThrowAnyException();
-  }
-
-  @Test
   void testSave() {
     assertThatCode(() -> employmentTypeService.save(new EmploymentType()))
         .doesNotThrowAnyException();

@@ -10,6 +10,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import shamu.company.WebControllerBaseTests;
+import shamu.company.employee.entity.EmploymentType;
+import shamu.company.employee.service.EmploymentTypeService;
 import shamu.company.tests.utils.JwtUtil;
 import shamu.company.user.service.CompensationFrequencyService;
 import shamu.company.user.service.CompensationOvertimeStatusService;
@@ -46,6 +48,8 @@ public class UserRelatedEnumSelectControllerTests extends WebControllerBaseTests
   @MockBean private UserStatusService userStatusService;
 
   @MockBean private EmployeeTypesService employeeTypesService;
+
+  @MockBean private EmploymentTypeService employmentTypeService;
   @Autowired private MockMvc mockMvc;
 
   @Test
@@ -178,6 +182,19 @@ public class UserRelatedEnumSelectControllerTests extends WebControllerBaseTests
     final MvcResult response =
         mockMvc
             .perform(MockMvcRequestBuilders.get("/company/employee-types").headers(httpHeaders))
+            .andReturn();
+
+    assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+  }
+
+  @Test
+  void testGetAllEmploymentTypes() throws Exception {
+    final HttpHeaders httpHeaders = new HttpHeaders();
+    httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+
+    final MvcResult response =
+            mockMvc
+            .perform(MockMvcRequestBuilders.get("/company/employment-types").headers(httpHeaders))
             .andReturn();
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());

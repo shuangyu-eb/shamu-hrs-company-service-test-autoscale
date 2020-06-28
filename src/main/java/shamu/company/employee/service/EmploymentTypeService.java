@@ -30,12 +30,8 @@ public class EmploymentTypeService {
                     "employment type"));
   }
 
-  public List<EmploymentType> findAllByCompanyId(final String companyId) {
-    return employmentTypeRepository.findAllByCompanyId(companyId);
-  }
-
-  public Integer findCountByType(final String typeId) {
-    return employmentTypeRepository.findCountByType(typeId);
+  public List<EmploymentType> findAll() {
+    return employmentTypeRepository.findAll();
   }
 
   public EmploymentType save(final EmploymentType employmentType) {

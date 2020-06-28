@@ -155,29 +155,6 @@ public class CompanyService {
     return officeService.save(office);
   }
 
-  public List<SelectFieldSizeDto> findEmploymentTypesByCompanyId(final String companyId) {
-    final List<EmploymentType> types = employmentTypeService.findAllByCompanyId(companyId);
-    return types.stream()
-        .map(
-            type -> {
-              final SelectFieldSizeDto selectFieldSizeDto = new SelectFieldSizeDto();
-              final Integer size = employmentTypeService.findCountByType(type.getId());
-              selectFieldSizeDto.setId(type.getId());
-              selectFieldSizeDto.setName(type.getName());
-              selectFieldSizeDto.setSize(size);
-              return selectFieldSizeDto;
-            })
-        .collect(Collectors.toList());
-  }
-
-  public EmploymentType saveEmploymentType(
-      final String employmentTypeName, final String companyId) {
-    final EmploymentType employmentType = EmploymentType.builder().name(employmentTypeName).build();
-    employmentType.setCompany(new Company(companyId));
-
-    return employmentTypeService.save(employmentType);
-  }
-
   public Company findById(final String companyId) {
     return companyRepository
         .findById(companyId)

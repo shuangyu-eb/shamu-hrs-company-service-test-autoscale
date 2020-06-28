@@ -27,8 +27,6 @@ import shamu.company.company.entity.mapper.OfficeMapper;
 import shamu.company.company.entity.mapper.OfficeMapperImpl;
 import shamu.company.employee.dto.BasicJobInformationDto;
 import shamu.company.employee.dto.JobInformationDto;
-import shamu.company.employee.entity.EmploymentType;
-import shamu.company.employee.service.EmploymentTypeService;
 import shamu.company.job.dto.JobSelectOptionUpdateDto;
 import shamu.company.job.dto.JobSelectOptionUpdateField;
 import shamu.company.job.dto.JobUpdateDto;
@@ -68,7 +66,6 @@ class JobUserServiceTests {
   @Mock private TimeOffRequestService timeOffRequestService;
   @Mock private DepartmentService departmentService;
   @Mock private JobService jobService;
-  @Mock private EmploymentTypeService employmentTypeService;
   @Mock private OfficeService officeService;
   @Mock private OfficeAddressService officeAddressService;
   @Mock private OfficeAddressMapper officeAddressMapper;
@@ -92,7 +89,6 @@ class JobUserServiceTests {
             userRoleService,
             timeOffRequestService,
             departmentService,
-            employmentTypeService,
             officeService,
             officeAddressService,
             officeAddressMapper,
@@ -411,21 +407,6 @@ class JobUserServiceTests {
     }
 
     @Test
-    void whenUpdatedFieldIsEmployeeType_thenUpdateShouldSuccess() {
-      jobSelectOptionUpdateDto.setUpdateField(JobSelectOptionUpdateField.EMPLOYMENT_TYPE);
-      final EmploymentType employmentType = new EmploymentType();
-      employmentType.setId("1");
-
-      Mockito.when(employmentTypeService.findById(employmentType.getId()))
-          .thenReturn(employmentType);
-      Mockito.when(employmentTypeService.save(employmentType)).thenReturn(employmentType);
-      Assertions.assertDoesNotThrow(
-          () -> jobUserService.updateJobSelectOption(jobSelectOptionUpdateDto));
-      Mockito.verify(employmentTypeService, Mockito.times(1)).save(Mockito.any());
-      Mockito.verify(employmentTypeService, Mockito.times(1)).findById(Mockito.any());
-    }
-
-    @Test
     void whenUpdatedFieldIsOfficeLocation_thenUpdateShouldSuccess() {
       jobSelectOptionUpdateDto.setUpdateField(JobSelectOptionUpdateField.OFFICE_LOCATION);
       final Office office = new Office();
@@ -543,27 +524,6 @@ class JobUserServiceTests {
       Assertions.assertDoesNotThrow(
           () -> jobUserService.deleteJobSelectOption(jobSelectOptionUpdateDto));
       Mockito.verify(jobService, Mockito.times(1)).delete(Mockito.any());
-    }
-
-    @Test
-    void whenEmployeeBelongToThisEmployeeType_thenDeleteEmployeeTypeShouldFail() {
-      jobSelectOptionUpdateDto.setUpdateField(JobSelectOptionUpdateField.EMPLOYMENT_TYPE);
-      Mockito.when(employmentTypeService.findCountByType(jobSelectOptionUpdateDto.getId()))
-          .thenReturn(10);
-      Assertions.assertThrows(
-          DeletionFailedCausedByCascadeException.class,
-          () -> jobUserService.deleteJobSelectOption(jobSelectOptionUpdateDto));
-      Mockito.verify(employmentTypeService, Mockito.times(0)).delete(Mockito.any());
-    }
-
-    @Test
-    void whenNoEmployeeBelongsToThisEmployeeType_thenDeleteEmployeeTypeShouldSuccess() {
-      jobSelectOptionUpdateDto.setUpdateField(JobSelectOptionUpdateField.EMPLOYMENT_TYPE);
-      Mockito.when(departmentService.findCountByDepartment(jobSelectOptionUpdateDto.getId()))
-          .thenReturn(0);
-      Assertions.assertDoesNotThrow(
-          () -> jobUserService.deleteJobSelectOption(jobSelectOptionUpdateDto));
-      Mockito.verify(employmentTypeService, Mockito.times(1)).delete(Mockito.any());
     }
 
     @Test

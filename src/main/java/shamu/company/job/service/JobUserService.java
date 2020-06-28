@@ -20,8 +20,6 @@ import shamu.company.company.entity.mapper.OfficeAddressMapper;
 import shamu.company.company.entity.mapper.OfficeMapper;
 import shamu.company.employee.dto.BasicJobInformationDto;
 import shamu.company.employee.dto.SelectFieldSizeDto;
-import shamu.company.employee.entity.EmploymentType;
-import shamu.company.employee.service.EmploymentTypeService;
 import shamu.company.job.dto.JobSelectOptionUpdateDto;
 import shamu.company.job.dto.JobUpdateDto;
 import shamu.company.job.dto.JobUserHireDateCheckDto;
@@ -70,8 +68,6 @@ public class JobUserService {
 
   private final DepartmentService departmentService;
 
-  private final EmploymentTypeService employmentTypeService;
-
   private final OfficeService officeService;
 
   private final OfficeAddressService officeAddressService;
@@ -98,7 +94,6 @@ public class JobUserService {
       final UserRoleService userRoleService,
       final TimeOffRequestService timeOffRequestService,
       final DepartmentService departmentService,
-      final EmploymentTypeService employmentTypeService,
       final OfficeService officeService,
       final OfficeAddressService officeAddressService,
       final OfficeAddressMapper officeAddressMapper,
@@ -115,7 +110,6 @@ public class JobUserService {
     this.userRoleService = userRoleService;
     this.timeOffRequestService = timeOffRequestService;
     this.departmentService = departmentService;
-    this.employmentTypeService = employmentTypeService;
     this.officeService = officeService;
     this.officeAddressService = officeAddressService;
     this.officeAddressMapper = officeAddressMapper;
@@ -261,9 +255,6 @@ public class JobUserService {
       case JOB_TITLE:
         updateJobTitleName(id, name);
         break;
-      case EMPLOYMENT_TYPE:
-        updateEmployeeTypeName(id, name);
-        break;
       case OFFICE_LOCATION:
         updateOfficeContent(id, jobSelectOptionUpdateDto.getOfficeCreateDto());
         break;
@@ -282,12 +273,6 @@ public class JobUserService {
     final Job job = jobService.findById(id);
     job.setTitle(name);
     jobService.save(job);
-  }
-
-  private void updateEmployeeTypeName(final String id, final String name) {
-    final EmploymentType employmentType = employmentTypeService.findById(id);
-    employmentType.setName(name);
-    employmentTypeService.save(employmentType);
   }
 
   private void updateOfficeContent(final String id, final OfficeCreateDto officeCreateDto) {
@@ -310,9 +295,6 @@ public class JobUserService {
         break;
       case JOB_TITLE:
         deleteJobTitle(id);
-        break;
-      case EMPLOYMENT_TYPE:
-        deleteEmployeeType(id);
         break;
       case OFFICE_LOCATION:
         deleteOffice(id);
@@ -344,16 +326,6 @@ public class JobUserService {
           "Couldn't remove job since there are one or more employee assigned to it.", "job");
     }
     jobService.delete(id);
-  }
-
-  private void deleteEmployeeType(final String id) {
-    final Integer count = employmentTypeService.findCountByType(id);
-    if (count > 0) {
-      throw new DeletionFailedCausedByCascadeException(
-          "Couldn't remove employee type since there are one or more employee assigned to it.",
-          "employee type");
-    }
-    employmentTypeService.delete(id);
   }
 
   private void deleteOffice(final String id) {

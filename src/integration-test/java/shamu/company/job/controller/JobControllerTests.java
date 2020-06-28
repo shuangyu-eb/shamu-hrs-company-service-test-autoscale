@@ -206,7 +206,7 @@ public class JobControllerTests extends WebControllerBaseTests {
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
     final JobSelectOptionUpdateDto jobSelectOptionUpdateDto = new JobSelectOptionUpdateDto();
-    jobSelectOptionUpdateDto.setUpdateField(JobSelectOptionUpdateField.EMPLOYMENT_TYPE);
+    jobSelectOptionUpdateDto.setUpdateField(JobSelectOptionUpdateField.JOB_TITLE);
     final MvcResult response =
         mockMvc
             .perform(
@@ -224,7 +224,7 @@ public class JobControllerTests extends WebControllerBaseTests {
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
     final JobSelectOptionUpdateDto jobSelectOptionUpdateDto = new JobSelectOptionUpdateDto();
-    jobSelectOptionUpdateDto.setUpdateField(JobSelectOptionUpdateField.EMPLOYMENT_TYPE);
+    jobSelectOptionUpdateDto.setUpdateField(JobSelectOptionUpdateField.JOB_TITLE);
     final MvcResult response =
         mockMvc
             .perform(

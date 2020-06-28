@@ -29,7 +29,6 @@ import shamu.company.company.entity.Office;
 import shamu.company.company.service.CompanyService;
 import shamu.company.employee.dto.EmployeeDto;
 import shamu.company.employee.dto.NewEmployeeJobInformationDto;
-import shamu.company.employee.entity.EmploymentType;
 import shamu.company.info.entity.UserEmergencyContact;
 import shamu.company.info.service.UserEmergencyContactService;
 import shamu.company.job.dto.JobUpdateDto;
@@ -123,8 +122,6 @@ public class UserPermissionUtils extends BasePermissionUtils {
         return hasPermissionOfDepartment(auth, targetId, permission);
       case JOB_TITLE:
         return hasPermissionOfJobTitle(auth, targetId, permission);
-      case EMPLOYMENT_TYPE:
-        return hasPermissionOfEmploymentType(auth, targetId, permission);
       case OFFICE_LOCATION:
         return hasPermissionOfOfficeLocation(auth, targetId, permission);
       case BENEFIT_PLAN:
@@ -266,17 +263,9 @@ public class UserPermissionUtils extends BasePermissionUtils {
       }
 
       final String officeId = jobInformationDto.getOfficeId();
-      if (!StringUtils.isEmpty(officeId)
-          && !hasPermissionOfOfficeLocation(auth, officeId, permission)) {
-        return false;
-      }
-
-      final String employmentTypeId = jobInformationDto.getEmploymentTypeId();
-      if (!StringUtils.isEmpty(employmentTypeId)) {
-        return hasPermissionOfEmploymentType(auth, employmentTypeId, permission);
-      }
-
-      return true;
+      final boolean hasPermissionOfOfficeLocation = !StringUtils.isEmpty(officeId)
+          && !hasPermissionOfOfficeLocation(auth, officeId, permission);
+      return !hasPermissionOfOfficeLocation;
     }
 
     return hasPermission(auth, permission);
@@ -323,14 +312,6 @@ public class UserPermissionUtils extends BasePermissionUtils {
       final Authentication auth, final String id, final Permission.Name permission) {
     final Job job = companyService.findJobsById(id);
     return hasPermissionOfDepartment(auth, job.getDepartment().getId(), permission);
-  }
-
-  private boolean hasPermissionOfEmploymentType(
-      final Authentication auth, final String id, final Permission.Name permission) {
-    final EmploymentType employmentType = companyService.findEmploymentTypeById(id);
-    companyEqual(employmentType.getCompany());
-
-    return hasPermission(auth, permission);
   }
 
   private boolean hasPermissionOfOfficeLocation(

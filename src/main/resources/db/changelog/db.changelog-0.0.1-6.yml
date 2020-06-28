@@ -1447,3 +1447,96 @@ databaseChangeLog:
             onUpdate: RESTRICT
             referencedColumnNames: id
             referencedTableName: time_period
+
+  - changeSet:
+      id: 1592992100566-0
+      author: qian-eb
+      changes:
+        - sql:
+            sql: delete from employment_types where 1;
+
+  - changeSet:
+      id: 1592992100566-1
+      author: qian-eb
+      preConditions:
+        onFail: WARN
+      changes:
+        - dropAllForeignKeyConstraints:
+            baseTableName: employment_types
+
+  - changeSet:
+      id: 1592992100566-2
+      author: qian-eb
+      preConditions:
+        onFail: WARN
+      changes:
+        - dropAllForeignKeyConstraints:
+            baseTableName: jobs_users
+            referencedTableName: employment_types
+
+  - changeSet:
+      id: 1592992100566-3
+      author: qian-eb
+      changes:
+        - dropTable:
+            tableName: employment_types
+
+  - changeSet:
+      id: 1592992100566-4
+      author: qian-eb
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  name: id
+                  type: binary(16)
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: name
+                  type: varchar(255)
+                  constraints:
+                    nullable:  false
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: employment_types
+
+  - changeSet:
+      id: 1592992100566-5
+      author: qian-eb
+      changes:
+        - sql:
+            sql: create trigger ins_employment_types before insert on employment_types for each row set new.id = unhex(replace(uuid(), '-', ''));
+
+  - changeSet:
+      id: 1592992100566-6
+      author: qian-eb
+      runOnChange: true
+      changes:
+        - loadUpdateData:
+            columns:
+              - column:
+                  name: name
+                  type: STRING
+            file: db/changelog/data/employment-types.csv
+            primaryKey: id
+            tableName: employment_types
+
+  - changeSet:
+      id: 1592992100566-7
+      author: qian-eb
+      preConditions:
+        onFail: WARN
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: employment_type_id
+            baseTableName: jobs_users
+            constraintName: fk_jobs_users_employment_type
+            onDelete: SET NULL
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: employment_types

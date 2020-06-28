@@ -90,37 +90,6 @@ public class CompanyRestControllerTests extends WebControllerBaseTests {
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
 
-  @Test
-  void testFindEmploymentTypes() throws Exception {
-    final HttpHeaders httpHeaders = new HttpHeaders();
-    httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
-    final MvcResult response =
-        mockMvc
-            .perform(MockMvcRequestBuilders.get("/company/employment-types").headers(httpHeaders))
-            .andReturn();
-    assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
-  }
-
-  @Test
-  void testCreateEmploymentType() throws Exception {
-    setPermission(Permission.Name.CREATE_EMPLOYEE_TYPE.name());
-    final HttpHeaders httpHeaders = new HttpHeaders();
-    final EmploymentType employmentType = new EmploymentType();
-    employmentType.setId("1");
-    employmentType.setName("name");
-    httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
-    given(companyService.saveEmploymentType(Mockito.anyString(), Mockito.anyString()))
-        .willReturn(employmentType);
-    final MvcResult response =
-        mockMvc
-            .perform(
-                MockMvcRequestBuilders.post("/company/employment-types")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .headers(httpHeaders)
-                    .content("name"))
-            .andReturn();
-    assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
-  }
 
   @Test
   void testFindOffices() throws Exception {

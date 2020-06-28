@@ -1,17 +1,13 @@
 package shamu.company.employee.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.validator.constraints.Length;
 import shamu.company.common.entity.BaseEntity;
-import shamu.company.company.entity.Company;
 
 @Data
 @Entity
@@ -21,8 +17,5 @@ import shamu.company.company.entity.Company;
 @Builder
 public class EmploymentType extends BaseEntity {
 
-  @Length(max = 30)
   private String name;
-
-  @ManyToOne @JsonIgnore private Company company;
 }

@@ -276,7 +276,6 @@ class EmployeeRestControllerTests extends WebControllerBaseTests {
         job.getDepartment().setCompany(company);
         manager.setCompany(company);
         office.setCompany(company);
-        employmentType.setCompany(company);
       }
 
       @Test
@@ -295,14 +294,6 @@ class EmployeeRestControllerTests extends WebControllerBaseTests {
         job.getDepartment().setCompany(theOtherCompany);
         manager.setCompany(theOtherCompany);
         office.setCompany(theOtherCompany);
-        employmentType.setCompany(theOtherCompany);
-      }
-
-      @Test
-      void asAdmin_thenShouldFailed() throws Exception {
-        buildAuthUserAsAdmin();
-        final MvcResult response = getResponse();
-        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
       }
     }
 
@@ -318,7 +309,6 @@ class EmployeeRestControllerTests extends WebControllerBaseTests {
           job.getDepartment().setCompany(theOtherCompany);
           manager.setCompany(company);
           office.setCompany(company);
-          employmentType.setCompany(company);
         }
       }
 
@@ -331,7 +321,6 @@ class EmployeeRestControllerTests extends WebControllerBaseTests {
           job.getDepartment().setCompany(company);
           manager.setCompany(theOtherCompany);
           office.setCompany(company);
-          employmentType.setCompany(company);
         }
       }
 
@@ -344,7 +333,6 @@ class EmployeeRestControllerTests extends WebControllerBaseTests {
           job.getDepartment().setCompany(company);
           manager.setCompany(company);
           office.setCompany(theOtherCompany);
-          employmentType.setCompany(company);
         }
       }
 
@@ -357,7 +345,6 @@ class EmployeeRestControllerTests extends WebControllerBaseTests {
           job.getDepartment().setCompany(company);
           manager.setCompany(company);
           office.setCompany(company);
-          employmentType.setCompany(theOtherCompany);
         }
       }
     }

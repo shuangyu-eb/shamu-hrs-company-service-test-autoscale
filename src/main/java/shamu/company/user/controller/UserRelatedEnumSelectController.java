@@ -5,6 +5,8 @@ import shamu.company.benefit.entity.RetirementType;
 import shamu.company.common.BaseRestController;
 import shamu.company.common.CommonDictionaryDto;
 import shamu.company.common.config.annotations.RestApiController;
+import shamu.company.employee.entity.EmploymentType;
+import shamu.company.employee.service.EmploymentTypeService;
 import shamu.company.job.entity.CompensationFrequency;
 import shamu.company.user.entity.CompensationOvertimeStatus;
 import shamu.company.user.entity.EmployeeType;
@@ -51,6 +53,8 @@ public class UserRelatedEnumSelectController extends BaseRestController {
 
   private final EmployeeTypesService employeeTypesService;
 
+  private final EmploymentTypeService employmentTypeService;
+
   public UserRelatedEnumSelectController(
       final CompensationFrequencyService compensationFrequencyService,
       final CompensationOvertimeStatusService compensationOvertimeStatusService,
@@ -61,7 +65,8 @@ public class UserRelatedEnumSelectController extends BaseRestController {
       final RetirementTypeService retirementTypeService,
       final UserRoleService userRoleService,
       final UserStatusService userStatusService,
-      final EmployeeTypesService employeeTypesService) {
+      final EmployeeTypesService employeeTypesService,
+      final EmploymentTypeService employmentTypeService) {
     this.compensationFrequencyService = compensationFrequencyService;
     this.compensationOvertimeStatusService = compensationOvertimeStatusService;
     this.deactivationReasonService = deactivationReasonService;
@@ -72,6 +77,7 @@ public class UserRelatedEnumSelectController extends BaseRestController {
     this.userRoleService = userRoleService;
     this.userStatusService = userStatusService;
     this.employeeTypesService = employeeTypesService;
+    this.employmentTypeService =employmentTypeService;
   }
 
   @GetMapping("compensation-frequencies")
@@ -133,5 +139,11 @@ public class UserRelatedEnumSelectController extends BaseRestController {
   public List<CommonDictionaryDto> getAllEmployeeTypes() {
     final List<EmployeeType> employeeTypes = employeeTypesService.findAll();
     return ReflectionUtil.convertTo(employeeTypes, CommonDictionaryDto.class);
+  }
+
+  @GetMapping("employment-types")
+  public List<CommonDictionaryDto> getAllEmploymentTypes() {
+    final List<EmploymentType> employmentTypes = employmentTypeService.findAll();
+    return ReflectionUtil.convertTo(employmentTypes, CommonDictionaryDto.class);
   }
 }

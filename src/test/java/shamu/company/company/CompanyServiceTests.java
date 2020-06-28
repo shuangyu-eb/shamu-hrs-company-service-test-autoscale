@@ -146,21 +146,6 @@ public class CompanyServiceTests {
   }
 
   @Test
-  void testFindEmploymentTypesByCompanyId() {
-    final List<EmploymentType> types = new ArrayList<>();
-    types.add(type);
-    Mockito.when(employmentTypeService.findAllByCompanyId(Mockito.anyString())).thenReturn(types);
-    Mockito.when(employmentTypeService.findCountByType(Mockito.anyString())).thenReturn(1);
-    assertThatCode(() -> companyService.findEmploymentTypesByCompanyId("1"))
-        .doesNotThrowAnyException();
-  }
-
-  @Test
-  void testSaveEmploymentType() {
-    assertThatCode(() -> companyService.saveEmploymentType("name", "1")).doesNotThrowAnyException();
-  }
-
-  @Test
   void testSave() {
 
     assertThatCode(() -> companyService.save(new Company())).doesNotThrowAnyException();
