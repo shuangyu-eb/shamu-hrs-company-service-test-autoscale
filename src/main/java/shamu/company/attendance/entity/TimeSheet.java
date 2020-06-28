@@ -27,4 +27,6 @@ public class TimeSheet extends BaseEntity {
   private Timestamp approvedTimestamp;
 
   @ManyToOne private UserCompensation userCompensation;
+
+  @ManyToOne private TimePeriod timePeriod;
 }

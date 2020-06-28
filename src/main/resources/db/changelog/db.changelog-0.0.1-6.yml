@@ -1382,3 +1382,68 @@ databaseChangeLog:
             onUpdate: CASCADE
             referencedColumnNames: id
             referencedTableName: users
+
+  - changeSet:
+      id: 1593313593000-1
+      author: michael-eb
+      changes:
+        - dropColumn:
+            columnName: start_date
+            tableName: timesheets
+
+  - changeSet:
+      id: 1593313593000-2
+      author: michael-eb
+      changes:
+        - dropColumn:
+            columnName: end_date
+            tableName: timesheets
+
+  - changeSet:
+      id: 1593313593000-3
+      author: michael-eb
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  name: id
+                  type: binary(16)
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: start_date
+                  type: datetime
+              - column:
+                  name: end_date
+                  type: datetime
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: time_period
+
+  - changeSet:
+      id: 1593313593000-4
+      author: michael-eb
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: time_period_id
+                  type: binary(16)
+            tableName: timesheets
+
+  - changeSet:
+      id: 1593313593000-5
+      author: michael-eb
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: time_period_id
+            baseTableName: timesheets
+            constraintName: fk_timesheets_time_period_id
+            onDelete: SET NULL
+            onUpdate: RESTRICT
+            referencedColumnNames: id
+            referencedTableName: time_period
