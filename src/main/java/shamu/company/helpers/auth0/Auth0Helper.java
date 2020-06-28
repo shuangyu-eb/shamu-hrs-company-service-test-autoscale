@@ -33,11 +33,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Component;
-import shamu.company.common.exception.AbstractException;
 import shamu.company.common.exception.GeneralAuth0Exception;
-import shamu.company.common.exception.NonUniqueAuth0ResourceException;
-import shamu.company.common.exception.TooManyRequestException;
 import shamu.company.helpers.auth0.exception.LoginFailedException;
+import shamu.company.helpers.auth0.exception.NonUniqueAuth0ResourceException;
+import shamu.company.helpers.auth0.exception.TooManyRequestException;
 import shamu.company.sentry.SentryLogger;
 
 @Component
@@ -65,7 +64,7 @@ public class Auth0Helper {
     return auth0Config.getAuthApi();
   }
 
-  private AbstractException handleAuth0Exception(final Auth0Exception e, final String api) {
+  private RuntimeException handleAuth0Exception(final Auth0Exception e, final String api) {
     if ((e.getMessage().contains(String.valueOf(HttpStatus.TOO_MANY_REQUESTS.value()))
             || e.getMessage().contains(HttpStatus.TOO_MANY_REQUESTS.getReasonPhrase()))
         && AUTH_API.equals(api)) {

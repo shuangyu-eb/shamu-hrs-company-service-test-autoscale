@@ -1,10 +1,10 @@
 package shamu.company.common.exception;
 
-import shamu.company.common.exception.response.ErrorType;
+public class UnAuthenticatedException extends RuntimeException {
 
-public class UnAuthenticatedException extends AbstractException {
+  private static final long serialVersionUID = 8929732219369881698L;
 
-  public UnAuthenticatedException(String message) {
-    super(message, ErrorType.UNAUTHENTICATED);
+  public UnAuthenticatedException(final String message) {
+    super(message);
   }
 }

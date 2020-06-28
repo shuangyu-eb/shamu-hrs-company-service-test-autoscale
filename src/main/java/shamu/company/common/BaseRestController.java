@@ -39,10 +39,10 @@ public class BaseRestController {
   }
 
   public String findCompanyId() {
-    return this.findAuthUser().getCompanyId();
+    return findAuthUser().getCompanyId();
   }
 
-  public boolean isCurrentUserSelfOrAdminOrManager(String targetUserId) {
+  public boolean isCurrentUserSelfOrAdminOrManager(final String targetUserId) {
     final AuthUser currentUser = findAuthUser();
     final User targetUser = userService.findById(targetUserId);
     final User manager = targetUser.getManagerUser();

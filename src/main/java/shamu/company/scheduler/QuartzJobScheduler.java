@@ -14,7 +14,7 @@ import org.quartz.TriggerKey;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 import org.springframework.stereotype.Component;
-import shamu.company.common.exception.QuartzException;
+import shamu.company.scheduler.exception.QuartzException;
 
 @Component
 public class QuartzJobScheduler {
@@ -27,8 +27,8 @@ public class QuartzJobScheduler {
   }
 
   /**
-   *  The job will be executed only once at the startDate. If the startDate is
-   *  missed, the job will be executed as soon as the service restarted.
+   * The job will be executed only once at the startDate. If the startDate is missed, the job will
+   * be executed as soon as the service restarted.
    */
   public void addOrUpdateJobSchedule(
       final Class<? extends QuartzJobBean> jobClass,
@@ -60,8 +60,8 @@ public class QuartzJobScheduler {
       } else {
         scheduler.scheduleJob(jobDetail, trigger);
       }
-    } catch (SchedulerException e) {
-      throw new QuartzException("Schedule task failed.");
+    } catch (final SchedulerException e) {
+      throw new QuartzException("Schedule task failed.", e);
     }
   }
 }
