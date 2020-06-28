@@ -396,6 +396,7 @@ public class TimeOffRequestService {
       final AuthUser currentUser,
       final TimeOffRequestDetailDto timeOffRequestDetailDto) {
     if (currentUser.getRole() == Role.ADMIN
+        || currentUser.getRole() == Role.SUPER_ADMIN
         || (requester.getManagerUser() != null
             && requester.getManagerUser().getId().equals(currentUser.getId()))) {
       timeOffRequestDetailDto.setIsCurrentUserPrivileged(true);

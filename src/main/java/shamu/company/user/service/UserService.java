@@ -663,7 +663,7 @@ public class UserService {
     }
 
     final Role userRole = currentUser.getRole();
-    final Boolean isAdmin = Role.ADMIN == userRole;
+    final Boolean isAdmin = Role.ADMIN == userRole || Role.SUPER_ADMIN == userRole;
     final User manager = targetUser.getManagerUser();
 
     final Boolean isManager =
