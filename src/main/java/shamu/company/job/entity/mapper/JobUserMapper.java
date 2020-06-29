@@ -111,6 +111,7 @@ public interface JobUserMapper {
   @Mapping(target = "lastName", source = "user.userPersonalInformation.lastName")
   @Mapping(target = "id", source = "user.id")
   @Mapping(target = "imageUrl", source = "user.imageUrl")
+  @Mapping(target = "compensation.overtimeStatus", source = "jobUser.userCompensation.overtimeStatus")
   TimeAndAttendanceRelatedUserDto convertToTimeAndAttendanceRelatedUserDto(
           User user, JobUser jobUser);
 

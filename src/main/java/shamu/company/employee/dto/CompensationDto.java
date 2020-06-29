@@ -10,5 +10,7 @@ public class CompensationDto {
 
   private BigInteger wage;
 
+  private CompensationOvertimeStatusDto overtimeStatus;
+
   private SelectFieldInformationDto compensationFrequency;
 }
