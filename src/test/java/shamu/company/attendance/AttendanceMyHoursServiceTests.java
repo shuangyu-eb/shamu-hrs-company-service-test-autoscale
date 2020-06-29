@@ -21,6 +21,7 @@ import shamu.company.attendance.dto.TimeEntryDto;
 import shamu.company.attendance.entity.EmployeeTimeEntry;
 import shamu.company.attendance.entity.EmployeeTimeLog;
 import shamu.company.attendance.entity.StaticEmployeesTaTimeType;
+import shamu.company.attendance.entity.TimePeriod;
 import shamu.company.attendance.entity.TimeSheet;
 import shamu.company.attendance.entity.mapper.EmployeeTimeLogMapper;
 import shamu.company.attendance.repository.EmployeeTimeEntryRepository;
@@ -124,9 +125,11 @@ public class AttendanceMyHoursServiceTests {
     StaticEmployeesTaTimeType staticEmployeesTaTimeType;
     MyHoursEntryDto myHoursEntryDto;
     MyHoursListDto myHoursListDto;
+    TimePeriod timePeriod;
 
     @BeforeEach
     void init() {
+      timePeriod = new TimePeriod();
       myHoursListDto = new MyHoursListDto();
       myHoursEntryDto = new MyHoursEntryDto();
       myHoursEntryDto.setComments("1");
@@ -144,8 +147,9 @@ public class AttendanceMyHoursServiceTests {
       userCompensation.setCompensationFrequency(compensationFrequency);
       timeSheet = new TimeSheet();
       timeSheet.setUserCompensation(userCompensation);
-      timeSheet.setStartDate(new Timestamp(new Date().getTime()));
-      timeSheet.setEndDate(new Timestamp(new Date().getTime()));
+      timePeriod.setStartDate(new Timestamp(new Date().getTime()));
+      timePeriod.setEndDate(new Timestamp(new Date().getTime()));
+      timeSheet.setTimePeriod(timePeriod);
       employeeTimeLog = new EmployeeTimeLog();
       employeeTimeLog.setStart(new Timestamp(new Date().getTime()));
       employeeTimeLog.setTimeType(staticEmployeesTaTimeType);

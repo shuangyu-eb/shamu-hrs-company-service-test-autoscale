@@ -292,13 +292,13 @@ public class AttendanceMyHoursService {
       }
     }
 
-    Date tmp = timeSheet.getStartDate();
+    Date tmp = timeSheet.getTimePeriod().getStartDate();
     final Calendar calendar = Calendar.getInstance();
-    calendar.setTime(timeSheet.getStartDate());
+    calendar.setTime(timeSheet.getTimePeriod().getStartDate());
 
     // Get days in one period
     final List<String> periodDates = new ArrayList<>();
-    while (tmp.getTime() <= timeSheet.getEndDate().getTime()) {
+    while (tmp.getTime() <= timeSheet.getTimePeriod().getEndDate().getTime()) {
       periodDates.add(dateFormat.format(tmp));
       calendar.add(Calendar.DAY_OF_MONTH, 1);
       tmp = calendar.getTime();

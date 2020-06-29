@@ -14,9 +14,6 @@ import shamu.company.user.entity.UserCompensation;
 @Table(name = "timesheets")
 public class TimeSheet extends BaseEntity {
   private static final long serialVersionUID = 8705148089462995423L;
-  private Timestamp startDate;
-
-  private Timestamp endDate;
 
   @ManyToOne private User employee;
 
