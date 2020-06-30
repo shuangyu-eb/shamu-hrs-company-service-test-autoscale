@@ -121,7 +121,7 @@ public class CompanyServiceTests {
 
   @Test
   void testSaveJobsByDepartmentId() {
-    assertThatCode(() -> companyService.saveJobsByDepartmentId("1", "name"))
+    assertThatCode(() -> companyService.saveJobsByCompany("1", "name"))
         .doesNotThrowAnyException();
   }
 

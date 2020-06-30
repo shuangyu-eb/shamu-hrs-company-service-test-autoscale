@@ -1365,8 +1365,6 @@ databaseChangeLog:
                     references: employee_types(id)
             tableName: jobs_users
 
-
-
   - changeSet:
       id: 1589964975996-11
       author: Jiansheng-Xu
@@ -1540,3 +1538,85 @@ databaseChangeLog:
             onUpdate: CASCADE
             referencedColumnNames: id
             referencedTableName: employment_types
+
+  - changeSet:
+      id: 1593396242155-0
+      author: qian-eb
+      preConditions:
+        onFail: WARN
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: department_id
+                  type: binary(16)
+            tableName: jobs_users
+
+  - changeSet:
+      id: 1593396242155-1
+      author: qian-eb
+      preConditions:
+        onFail: WARN
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: department_id
+            baseTableName: jobs_users
+            constraintName: fk_users_department_id
+            onDelete: RESTRICT
+            onUpdate: RESTRICT
+            referencedColumnNames: id
+            referencedTableName: departments
+
+  - changeSet:
+      id: 1593396242155-2
+      author: qian-eb
+      preConditions:
+        onFail: WARN
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: company_id
+                  type: binary(16)
+            tableName: jobs
+
+  - changeSet:
+      id: 1593396242155-3
+      author: qian-eb
+      preConditions:
+        onFail: WARN
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: company_id
+            baseTableName: jobs
+            constraintName: fk_jobs_company_id
+            onDelete: RESTRICT
+            onUpdate: RESTRICT
+            referencedColumnNames: id
+            referencedTableName: companies
+
+  - changeSet:
+      id: 1593396242155-4
+      author: qian-eb
+      changes:
+        - sql:
+            sql: update jobs_users ju, jobs j set ju.department_id = j.department_id, j.company_id = ju.company_id where ju.job_id = j.id;
+
+  - changeSet:
+      id: 1593396242155-5
+      author: qian-eb
+      preConditions:
+        onFail: WARN
+      changes:
+        - dropAllForeignKeyConstraints:
+            baseTableName: jobs
+            referencedTableName: departments
+
+  - changeSet:
+      id: 1593396242155-6
+      author: qian-eb
+      changes:
+        - dropColumn:
+            columnName: department_id
+            tableName: jobs
+

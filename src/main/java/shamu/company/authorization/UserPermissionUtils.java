@@ -33,7 +33,6 @@ import shamu.company.info.entity.UserEmergencyContact;
 import shamu.company.info.service.UserEmergencyContactService;
 import shamu.company.job.dto.JobUpdateDto;
 import shamu.company.job.entity.Job;
-import shamu.company.job.service.JobService;
 import shamu.company.timeoff.dto.PaidHolidayDto;
 import shamu.company.timeoff.dto.UserIdDto;
 import shamu.company.timeoff.entity.CompanyPaidHoliday;
@@ -76,8 +75,6 @@ public class UserPermissionUtils extends BasePermissionUtils {
 
   private final UserEmergencyContactService userEmergencyContactService;
 
-  private final JobService jobService;
-
   @Autowired
   public UserPermissionUtils(
       final UserService userService,
@@ -91,7 +88,6 @@ public class UserPermissionUtils extends BasePermissionUtils {
       final PaidHolidayService paidHolidayService,
       final CompanyPaidHolidayService companyPaidHolidayService,
       final UserEmergencyContactService userEmergencyContactService,
-      final JobService jobService,
       final BenefitCoveragesRepository benefitCoveragesRepository) {
     this.userService = userService;
     this.companyService = companyService;
@@ -104,7 +100,6 @@ public class UserPermissionUtils extends BasePermissionUtils {
     this.paidHolidayService = paidHolidayService;
     this.companyPaidHolidayService = companyPaidHolidayService;
     this.userEmergencyContactService = userEmergencyContactService;
-    this.jobService = jobService;
   }
 
   boolean hasPermission(
@@ -255,13 +250,6 @@ public class UserPermissionUtils extends BasePermissionUtils {
         }
       }
 
-      final String jobId = jobInformationDto.getJobId();
-      final Job job = jobService.findById(jobId);
-      if (!StringUtils.isEmpty(jobId)
-          && !hasPermissionOfDepartment(auth, job.getDepartment(), permission)) {
-        return false;
-      }
-
       final String officeId = jobInformationDto.getOfficeId();
       final boolean hasPermissionOfOfficeLocation = !StringUtils.isEmpty(officeId)
           && !hasPermissionOfOfficeLocation(auth, officeId, permission);
@@ -299,19 +287,19 @@ public class UserPermissionUtils extends BasePermissionUtils {
   private boolean hasPermissionOfDepartment(
       final Authentication auth, final String id, final Permission.Name permission) {
     final Department department = companyService.findDepartmentsById(id);
-    return hasPermissionOfDepartment(auth, department, permission);
-  }
-
-  private boolean hasPermissionOfDepartment(
-      final Authentication auth, final Department department, final Permission.Name permission) {
-    companyEqual(department.getCompany());
-    return hasPermission(auth, permission);
+    return hasPermissionOfCompany(auth, department.getCompany(), permission);
   }
 
   private boolean hasPermissionOfJobTitle(
-      final Authentication auth, final String id, final Permission.Name permission) {
+          final Authentication auth, final String id, final Permission.Name permission) {
     final Job job = companyService.findJobsById(id);
-    return hasPermissionOfDepartment(auth, job.getDepartment().getId(), permission);
+    return hasPermissionOfCompany(auth, job.getCompany(), permission);
+  }
+
+  private boolean hasPermissionOfCompany(
+      final Authentication auth, final Company company, final Permission.Name permission) {
+    companyEqual(company);
+    return hasPermission(auth, permission);
   }
 
   private boolean hasPermissionOfOfficeLocation(

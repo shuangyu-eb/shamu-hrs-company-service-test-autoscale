@@ -220,9 +220,9 @@ class EmployeeRestControllerTests extends WebControllerBaseTests {
     void init() {
       job = new Job();
       job.setId(UuidUtil.getUuidString());
-      final Department department = new Department();
-      department.setId(UuidUtil.getUuidString());
-      job.setDepartment(department);
+      final Company company = new Company();
+      company.setId(UuidUtil.getUuidString());
+      job.setCompany(company);
 
       employmentType = new EmploymentType();
       employmentType.setId(UuidUtil.getUuidString());
@@ -273,7 +273,7 @@ class EmployeeRestControllerTests extends WebControllerBaseTests {
 
       @BeforeEach
       void init() {
-        job.getDepartment().setCompany(company);
+        job.setCompany(company);
         manager.setCompany(company);
         office.setCompany(company);
       }
@@ -291,7 +291,7 @@ class EmployeeRestControllerTests extends WebControllerBaseTests {
 
       @BeforeEach
       void init() {
-        job.getDepartment().setCompany(theOtherCompany);
+        job.setCompany(theOtherCompany);
         manager.setCompany(theOtherCompany);
         office.setCompany(theOtherCompany);
       }
@@ -306,7 +306,7 @@ class EmployeeRestControllerTests extends WebControllerBaseTests {
         @Override
         @BeforeEach
         void init() {
-          job.getDepartment().setCompany(theOtherCompany);
+          job.setCompany(theOtherCompany);
           manager.setCompany(company);
           office.setCompany(company);
         }
@@ -318,7 +318,7 @@ class EmployeeRestControllerTests extends WebControllerBaseTests {
         @Override
         @BeforeEach
         void init() {
-          job.getDepartment().setCompany(company);
+          job.setCompany(company);
           manager.setCompany(theOtherCompany);
           office.setCompany(company);
         }
@@ -330,7 +330,7 @@ class EmployeeRestControllerTests extends WebControllerBaseTests {
         @Override
         @BeforeEach
         void init() {
-          job.getDepartment().setCompany(company);
+          job.setCompany(company);
           manager.setCompany(company);
           office.setCompany(theOtherCompany);
         }
@@ -342,7 +342,7 @@ class EmployeeRestControllerTests extends WebControllerBaseTests {
         @Override
         @BeforeEach
         void init() {
-          job.getDepartment().setCompany(company);
+          job.setCompany(company);
           manager.setCompany(company);
           office.setCompany(company);
         }

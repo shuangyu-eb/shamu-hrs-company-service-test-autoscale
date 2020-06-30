@@ -28,8 +28,8 @@ public class JobService {
                     String.format("Job with id %s not found.", id), id, "job"));
   }
 
-  public List<Job> findAllByDepartmentId(final String id) {
-    return jobRepository.findAllByDepartmentId(id);
+  public List<Job> findAllByCompanyId(final String id) {
+    return jobRepository.findByCompanyId(id);
   }
 
   public Job save(final Job job) {

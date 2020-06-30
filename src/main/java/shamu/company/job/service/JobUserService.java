@@ -8,7 +8,6 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 import shamu.company.common.service.DepartmentService;
 import shamu.company.common.service.OfficeAddressService;
 import shamu.company.common.service.OfficeService;
@@ -311,11 +310,6 @@ public class JobUserService {
           "Couldn't remove department since there are one or more employee assigned to it.",
           "department");
     }
-    final List<Job> jobs = jobService.findAllByDepartmentId(id);
-    if (!CollectionUtils.isEmpty(jobs)) {
-      final List<String> jobIds = jobs.stream().map(Job::getId).collect(Collectors.toList());
-      jobService.deleteInBatch(jobIds);
-    }
     departmentService.delete(id);
   }
 
@@ -343,8 +337,8 @@ public class JobUserService {
     return jobUserRepository.getCountByJobId(jobId);
   }
 
-  public List<SelectFieldSizeDto> findJobsByDepartmentId(final String id) {
-    final List<Job> jobs = jobService.findAllByDepartmentId(id);
+  public List<SelectFieldSizeDto> findJobsByCompanyId(final String companyId) {
+    final List<Job> jobs = jobService.findAllByCompanyId(companyId);
     return jobs.stream()
         .map(
             job -> {

@@ -411,13 +411,9 @@ class UserPermissionUtilTests {
     @Test
     void whenHasJobTitlePermission_thenShouldReturnTrue() {
 
-      final Department department = new Department();
-      department.setId("1");
-      department.setCompany(company);
       final Job job = new Job();
-      job.setDepartment(department);
+      job.setCompany(company);
       Mockito.when(companyService.findJobsById(Mockito.anyString())).thenReturn(job);
-      Mockito.when(companyService.findDepartmentsById(Mockito.anyString())).thenReturn(department);
       final Name permission = Name.CREATE_JOB;
       final Type permissionType = Type.JOB_TITLE;
       initAuthenticationWithPermission(Collections.singletonList(permission.name()));
@@ -433,13 +429,9 @@ class UserPermissionUtilTests {
     @Test
     void whenNoJobTitlePermission_thenShouldReturnFalse() {
 
-      final Department department = new Department();
-      department.setId("1");
-      department.setCompany(company);
       final Job job = new Job();
-      job.setDepartment(department);
+      job.setCompany(company);
       Mockito.when(companyService.findJobsById(Mockito.anyString())).thenReturn(job);
-      Mockito.when(companyService.findDepartmentsById(Mockito.anyString())).thenReturn(department);
       final Name permission = Name.CREATE_JOB;
       final Type permissionType = Type.JOB_TITLE;
       assertThat(

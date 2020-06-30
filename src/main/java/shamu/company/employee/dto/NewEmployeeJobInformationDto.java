@@ -12,6 +12,8 @@ public class NewEmployeeJobInformationDto {
 
   @NotBlank private String jobId;
 
+  @NotBlank private String departmentId;
+
   private String employmentTypeId;
 
   @NotNull private Timestamp hireDate;

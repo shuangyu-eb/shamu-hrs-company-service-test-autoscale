@@ -116,9 +116,9 @@ class JobUserServiceTests {
     final List<Job> jobs = new LinkedList<>();
     jobs.add(job1);
 
-    Mockito.when(jobService.findAllByDepartmentId(id)).thenReturn(jobs);
+    Mockito.when(jobService.findAllByCompanyId(id)).thenReturn(jobs);
     Mockito.when(jobUserService.getCountByJobId(job1.getId())).thenReturn(2);
-    Assertions.assertDoesNotThrow(() -> jobUserService.findJobsByDepartmentId(id));
+    Assertions.assertDoesNotThrow(() -> jobUserService.findJobsByCompanyId(id));
   }
 
   @Nested
@@ -469,7 +469,7 @@ class JobUserServiceTests {
           DeletionFailedCausedByCascadeException.class,
           () -> jobUserService.deleteJobSelectOption(jobSelectOptionUpdateDto));
       Mockito.verify(departmentService, Mockito.times(0)).delete(Mockito.any());
-      Mockito.verify(jobService, Mockito.times(0)).findAllByDepartmentId(Mockito.any());
+      Mockito.verify(jobService, Mockito.times(0)).findAllByCompanyId(Mockito.any());
       Mockito.verify(jobService, Mockito.times(0)).deleteInBatch(Mockito.any());
     }
 
@@ -478,12 +478,10 @@ class JobUserServiceTests {
       jobSelectOptionUpdateDto.setUpdateField(JobSelectOptionUpdateField.DEPARTMENT);
       Mockito.when(departmentService.findCountByDepartment(jobSelectOptionUpdateDto.getId()))
           .thenReturn(0);
-      Mockito.when(jobService.findAllByDepartmentId(jobSelectOptionUpdateDto.getId()))
+      Mockito.when(jobService.findAllByCompanyId(jobSelectOptionUpdateDto.getId()))
           .thenReturn(Collections.emptyList());
       Assertions.assertDoesNotThrow(
           () -> jobUserService.deleteJobSelectOption(jobSelectOptionUpdateDto));
-      Mockito.verify(jobService, Mockito.times(1)).findAllByDepartmentId(Mockito.any());
-      Mockito.verify(jobService, Mockito.times(0)).deleteInBatch(Mockito.any());
       Mockito.verify(departmentService, Mockito.times(1)).delete(Mockito.any());
     }
 
@@ -497,12 +495,10 @@ class JobUserServiceTests {
 
       Mockito.when(departmentService.findCountByDepartment(jobSelectOptionUpdateDto.getId()))
           .thenReturn(0);
-      Mockito.when(jobService.findAllByDepartmentId(jobSelectOptionUpdateDto.getId()))
+      Mockito.when(jobService.findAllByCompanyId(jobSelectOptionUpdateDto.getId()))
           .thenReturn(jobs);
       Assertions.assertDoesNotThrow(
           () -> jobUserService.deleteJobSelectOption(jobSelectOptionUpdateDto));
-      Mockito.verify(jobService, Mockito.times(1)).findAllByDepartmentId(Mockito.any());
-      Mockito.verify(jobService, Mockito.times(1)).deleteInBatch(Mockito.any());
       Mockito.verify(departmentService, Mockito.times(1)).delete(Mockito.any());
     }
 

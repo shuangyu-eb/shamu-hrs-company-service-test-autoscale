@@ -16,6 +16,7 @@ import shamu.company.common.entity.StateProvince;
 import shamu.company.common.exception.errormapping.AlreadyExistsException;
 import shamu.company.common.exception.errormapping.ForbiddenException;
 import shamu.company.common.service.CountryService;
+import shamu.company.common.service.DepartmentService;
 import shamu.company.common.service.OfficeService;
 import shamu.company.common.service.StateProvinceService;
 import shamu.company.company.entity.Company;
@@ -137,6 +138,7 @@ class EmployeeServiceTests {
   @Mock private EncryptorUtil encryptorUtil;
   @Mock private EmployeeTypesService employeeTypesService;
   @Mock private CompensationOvertimeStatusService compensationOvertimeStatusService;
+  @Mock private DepartmentService departmentService;
 
   private EmployeeService employeeService;
 
@@ -174,7 +176,8 @@ class EmployeeServiceTests {
             userRoleService,
             encryptorUtil,
             employeeTypesService,
-            compensationOvertimeStatusService);
+            compensationOvertimeStatusService,
+            departmentService);
   }
 
   @Test

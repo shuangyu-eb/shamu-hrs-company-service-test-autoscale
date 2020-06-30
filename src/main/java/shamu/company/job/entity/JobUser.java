@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import shamu.company.common.entity.BaseEntity;
 import shamu.company.company.entity.Company;
+import shamu.company.company.entity.Department;
 import shamu.company.company.entity.Office;
 import shamu.company.employee.entity.EmploymentType;
 import shamu.company.user.entity.EmployeeType;
@@ -24,6 +25,8 @@ public class JobUser extends BaseEntity {
   @OneToOne private User user;
 
   @ManyToOne private Job job;
+
+  @ManyToOne private Department department;
 
   @ManyToOne private EmploymentType employmentType;
 

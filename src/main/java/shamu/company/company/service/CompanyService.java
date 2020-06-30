@@ -113,12 +113,10 @@ public class CompanyService {
     return departmentService.save(department);
   }
 
-  public Job saveJobsByDepartmentId(final String departmentId, final String name) {
+  public Job saveJobsByCompany(final String name, final String companyId) {
     final Job job = new Job();
-    final Department department = new Department();
-    department.setId(departmentId);
 
-    job.setDepartment(department);
+    job.setCompany(new Company(companyId));
     job.setTitle(name);
 
     return jobService.save(job);

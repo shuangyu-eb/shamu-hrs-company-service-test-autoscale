@@ -28,8 +28,10 @@ import shamu.company.common.entity.StateProvince;
 import shamu.company.common.exception.errormapping.AlreadyExistsException;
 import shamu.company.common.exception.errormapping.ForbiddenException;
 import shamu.company.common.service.CountryService;
+import shamu.company.common.service.DepartmentService;
 import shamu.company.common.service.OfficeService;
 import shamu.company.common.service.StateProvinceService;
+import shamu.company.company.entity.Department;
 import shamu.company.company.entity.Office;
 import shamu.company.crypto.EncryptorUtil;
 import shamu.company.email.entity.Email;
@@ -130,6 +132,7 @@ public class EmployeeService {
   private final EncryptorUtil encryptorUtil;
   private final EmployeeTypesService employeeTypesService;
   private final CompensationOvertimeStatusService compensationOvertimeStatusService;
+  private final DepartmentService departmentService;
 
   @Value("${application.systemEmailAddress}")
   private String systemEmailAddress;
@@ -165,7 +168,8 @@ public class EmployeeService {
       final UserRoleService userRoleService,
       final EncryptorUtil encryptorUtil,
       final EmployeeTypesService employeeTypesService,
-      final CompensationOvertimeStatusService compensationOvertimeStatusService) {
+      final CompensationOvertimeStatusService compensationOvertimeStatusService,
+      final DepartmentService departmentService) {
     this.timeOffPolicyService = timeOffPolicyService;
     this.userAddressService = userAddressService;
     this.employmentTypeService = employmentTypeService;
@@ -196,6 +200,7 @@ public class EmployeeService {
     this.encryptorUtil = encryptorUtil;
     this.employeeTypesService = employeeTypesService;
     this.compensationOvertimeStatusService = compensationOvertimeStatusService;
+    this.departmentService = departmentService;
   }
 
   public List<User> findByCompanyId(final String companyId) {
@@ -476,8 +481,12 @@ public class EmployeeService {
     if (StringUtils.isNotEmpty(userCompensation.getId())) {
       jobUser.setUserCompensation(userCompensation);
     }
-    final Job job = jobService.findById(jobInformation.getJobId());
-    jobUser.setJob(job);
+
+    final String jobId = jobInformation.getJobId();
+    if (StringUtils.isNotEmpty(jobId)) {
+      final Job job = jobService.findById(jobInformation.getJobId());
+      jobUser.setJob(job);
+    }
     jobUser.setCompany(currentUser.getCompany());
     jobUser.setUser(employee);
 
@@ -485,6 +494,12 @@ public class EmployeeService {
     if (StringUtils.isNotEmpty(employmentTypeId)) {
       final EmploymentType employmentType = employmentTypeService.findById(employmentTypeId);
       jobUser.setEmploymentType(employmentType);
+    }
+
+    final String departmentId = jobInformation.getDepartmentId();
+    if (StringUtils.isNotEmpty(departmentId)) {
+      final Department department = departmentService.findById(departmentId);
+      jobUser.setDepartment(department);
     }
 
     final Timestamp hireDate = jobInformation.getHireDate();

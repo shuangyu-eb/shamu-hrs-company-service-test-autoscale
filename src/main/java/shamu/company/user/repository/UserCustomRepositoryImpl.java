@@ -34,6 +34,14 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
           + "or (u.deactivated_at is not null "
           + "and u.deactivated_at > current_timestamp)) ";
 
+  static final String FROM_SQL =
+          "from users u "
+          + "left join  user_personal_information up on u.user_personal_information_id = up.id "
+          + "left join jobs_users ju on u.id = ju.user_id "
+          + "left join jobs j on ju.job_id = j.id "
+          + "left join departments d on ju.department_id = d.id "
+          + "left join user_roles ur on u.user_role_id = ur.id ";
+
   private final EntityManager entityManager;
 
   private final Auth0Helper auth0Helper;
@@ -56,13 +64,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
       final String companyId,
       final Pageable pageable) {
 
-    final String conditionSql =
-        "from users u "
-            + "left join  user_personal_information up on u.user_personal_information_id = up.id "
-            + "left join jobs_users ju on u.id = ju.user_id "
-            + "left join jobs j on ju.job_id = j.id "
-            + "left join departments d on j.department_id = d.id "
-            + "left join user_roles ur on u.user_role_id = ur.id "
+    final String conditionSql = FROM_SQL
             + "where u.company_id = unhex(?1) "
             + "and (concat(up.first_name, ' ', up.last_name) like concat('%', ?2, '%') "
             + "or concat(up.preferred_name, ' ', up.last_name) like concat('%', ?2, '%') "
@@ -140,13 +142,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
             + "up.last_name as lastName, up.preferred_name as preferredName, "
             + "d.name as department, j.title as jobTitle, ur.name as roleName ";
 
-    final String queryCondition =
-        "from users u "
-            + "left join  user_personal_information up on u.user_personal_information_id = up.id "
-            + "left join jobs_users ju on u.id = ju.user_id "
-            + "left join jobs j on ju.job_id = j.id "
-            + "left join departments d on j.department_id = d.id "
-            + "left join user_roles ur on u.user_role_id = ur.id "
+    final String queryCondition = FROM_SQL
             + "where "
             + userCondition
             + ACTIVE_USER_QUERY
@@ -215,7 +211,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
                 + "on u.user_personal_information_id = up.id "
                 + "left join jobs_users jobUser on u.id = jobUser.user_id "
                 + "left join jobs j on jobUser.job_id = j.id "
-                + "left join departments d on j.department_id=d.id "
+                + "left join departments d on jobUser.department_id=d.id "
                 + "left join offices o on jobUser.office_id = o.id "
                 + "left join office_addresses a on o.office_address_id = a.id "
                 + "left join states_provinces province on a.state_province_id = province.id "
@@ -255,7 +251,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
             + "left join user_personal_information up on u.user_personal_information_id = up.id "
             + "left join jobs_users jobUser on u.id = jobUser.user_id "
             + "left join jobs j on jobUser.job_id = j.id "
-            + "left join departments d on j.department_id=d.id "
+            + "left join departments d on jobUser.department_id=d.id "
             + "left join offices o on jobUser.office_id = o.id "
             + "left join office_addresses a on o.office_address_id = a.id "
             + "left join states_provinces province on a.state_province_id = province.id "
@@ -310,13 +306,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
       final String companyId,
       final Pageable pageable) {
 
-    final String conditionSql =
-        "from users u "
-            + "left join  user_personal_information up on u.user_personal_information_id = up.id "
-            + "left join jobs_users ju on u.id = ju.user_id "
-            + "left join jobs j on ju.job_id = j.id "
-            + "left join departments d on j.department_id = d.id "
-            + "left join user_roles ur on u.user_role_id = ur.id "
+    final String conditionSql = FROM_SQL
             + "where u.company_id = unhex(?1) "
             + "and (concat(up.first_name, ' ', up.last_name) like concat('%', ?2, '%') "
             + "or concat(up.preferred_name, ' ', up.last_name) like concat('%', ?2, '%'))";

@@ -6,7 +6,7 @@ import javax.persistence.Table;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 import shamu.company.common.entity.BaseEntity;
-import shamu.company.company.entity.Department;
+import shamu.company.company.entity.Company;
 
 @Entity
 @Data
@@ -16,5 +16,5 @@ public class Job extends BaseEntity {
   @Length(max = 100)
   private String title;
 
-  @ManyToOne private Department department;
+  @ManyToOne private Company company;
 }

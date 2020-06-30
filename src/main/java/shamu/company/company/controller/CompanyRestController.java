@@ -62,11 +62,10 @@ public class CompanyRestController extends BaseRestController {
     return companyService.saveDepartmentsByCompany(name, findCompanyId());
   }
 
-  @PostMapping("departments/{id}/jobs")
+  @PostMapping("jobs")
   @PreAuthorize("hasPermission(#id,'DEPARTMENT','CREATE_JOB')")
-  public SelectFieldInformationDto saveJobsByDepartment(
-      @PathVariable final String id, @RequestBody final String name) {
-    final Job job = companyService.saveJobsByDepartmentId(id, name);
+  public SelectFieldInformationDto createJob(@RequestBody final String name) {
+    final Job job = companyService.saveJobsByCompany(name, findCompanyId());
     return new SelectFieldInformationDto(job.getId(), job.getTitle());
   }
 

@@ -66,10 +66,9 @@ public class JobController extends BaseRestController {
     return new ResponseEntity(HttpStatus.OK);
   }
 
-  @GetMapping("departments/{id}/jobs")
-  @PreAuthorize("hasPermission(#id,'DEPARTMENT','VIEW_JOB')")
-  public List<SelectFieldSizeDto> findJobsByDepartment(@PathVariable final String id) {
-    return jobUserService.findJobsByDepartmentId(id);
+  @GetMapping("jobs")
+  public List<SelectFieldSizeDto> findJobsByDepartment() {
+    return jobUserService.findJobsByCompanyId(findCompanyId());
   }
 
   @GetMapping("job/{userId}/hireDate")

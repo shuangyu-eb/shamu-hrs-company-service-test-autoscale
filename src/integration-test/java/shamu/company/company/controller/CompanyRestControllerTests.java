@@ -23,7 +23,6 @@ import shamu.company.company.dto.OfficeCreateDto;
 import shamu.company.company.entity.Company;
 import shamu.company.company.entity.Department;
 import shamu.company.company.entity.mapper.OfficeMapper;
-import shamu.company.employee.entity.EmploymentType;
 import shamu.company.employee.service.EmployeeService;
 import shamu.company.job.entity.Job;
 import shamu.company.tests.utils.JwtUtil;
@@ -77,12 +76,12 @@ public class CompanyRestControllerTests extends WebControllerBaseTests {
     job.setTitle("title");
     department.setCompany(new Company(getAuthUser().getCompanyId()));
     given(companyService.findDepartmentsById("1")).willReturn(department);
-    given(companyService.saveJobsByDepartmentId(Mockito.anyString(), Mockito.anyString()))
+    given(companyService.saveJobsByCompany(Mockito.anyString(), Mockito.anyString()))
         .willReturn(job);
     final MvcResult response =
         mockMvc
             .perform(
-                MockMvcRequestBuilders.post("/company/departments/1/jobs")
+                MockMvcRequestBuilders.post("/company/jobs")
                     .contentType(MediaType.APPLICATION_JSON)
                     .headers(httpHeaders)
                     .content("name"))

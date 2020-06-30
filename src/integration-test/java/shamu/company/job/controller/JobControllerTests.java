@@ -253,11 +253,11 @@ public class JobControllerTests extends WebControllerBaseTests {
     department.setCompany(company);
     given(userService.findById(currentUser.getId())).willReturn(targetUser);
     given(companyService.findDepartmentsById(departmentId)).willReturn(department);
-    given(jobUserService.findJobsByDepartmentId(departmentId)).willReturn(selectFieldSizeDtos);
+    given(jobUserService.findJobsByCompanyId(departmentId)).willReturn(selectFieldSizeDtos);
     final MvcResult response =
         mockMvc
             .perform(
-                MockMvcRequestBuilders.get("/company/departments/" + departmentId + "/jobs")
+                MockMvcRequestBuilders.get("/company/jobs")
                     .contentType(MediaType.APPLICATION_JSON)
                     .headers(httpHeaders))
             .andReturn();

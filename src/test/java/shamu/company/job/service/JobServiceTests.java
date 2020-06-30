@@ -48,11 +48,11 @@ public class JobServiceTests {
   }
 
   @Test
-  void findAllByDepartmentId() {
+  void findAllByCompanyId() {
     final String id = "1";
-    Mockito.when(jobRepository.findAllByDepartmentId(id))
+    Mockito.when(jobRepository.findByCompanyId(id))
         .thenReturn(Collections.singletonList(new Job()));
-    assertThatCode(() -> jobService.findAllByDepartmentId(id)).doesNotThrowAnyException();
+    assertThatCode(() -> jobService.findAllByCompanyId(id)).doesNotThrowAnyException();
   }
 
   @Test

@@ -26,4 +26,6 @@ public class JobUpdateDto implements Serializable {
   private String officeId;
 
   private Timestamp startDate;
+
+  private String departmentId;
 }

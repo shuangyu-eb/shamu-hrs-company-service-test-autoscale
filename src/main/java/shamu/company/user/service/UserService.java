@@ -597,7 +597,7 @@ public class UserService {
 
     Job job = new Job();
     job.setTitle(signUpDto.getJobTitle());
-    job.setDepartment(department);
+    job.setCompany(company);
     job = jobService.save(job);
 
     final UserStatus status = userStatusService.findByName(Status.ACTIVE.name());
@@ -620,6 +620,7 @@ public class UserService {
     jobUser.setUser(user);
     jobUser.setJob(job);
     jobUser.setCompany(company);
+    jobUser.setDepartment(department);
     jobUserService.save(jobUser);
 
     paidHolidayService.initDefaultPaidHolidays(user.getCompany());

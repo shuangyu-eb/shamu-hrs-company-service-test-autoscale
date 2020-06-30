@@ -11,6 +11,7 @@ import org.springframework.util.StringUtils;
 import shamu.company.attendance.dto.TimeAndAttendanceRelatedUserDto;
 import shamu.company.benefit.dto.BenefitPlanUserDto;
 import shamu.company.common.mapper.Config;
+import shamu.company.company.entity.Department;
 import shamu.company.company.entity.Office;
 import shamu.company.company.entity.mapper.OfficeMapper;
 import shamu.company.employee.dto.BasicJobInformationDto;
@@ -35,7 +36,7 @@ import shamu.company.user.entity.mapper.UserCompensationMapper;
 public interface JobUserMapper {
 
   @Mapping(target = "jobUserId", source = "user.id")
-  @Mapping(target = "department", source = "job.department")
+  @Mapping(target = "department", source = "department")
   @Mapping(target = "manager", source = "user.managerUser")
   @Mapping(target = "manager.name", source = "user.managerUser.userPersonalInformation.name")
   @Mapping(target = "manager.id", source = "user.managerUser.id")
@@ -77,7 +78,7 @@ public interface JobUserMapper {
 
   @Mapping(target = "jobTitle", source = "jobUser.job.title")
   @Mapping(target = "employmentType", source = "jobUser.employmentType.name")
-  @Mapping(target = "department", source = "jobUser.job.department.name")
+  @Mapping(target = "department", source = "jobUser.department.name")
   @Mapping(target = "firstName", source = "user.userPersonalInformation.firstName")
   @Mapping(target = "preferredName", source = "user.userPersonalInformation.preferredName")
   @Mapping(target = "lastName", source = "user.userPersonalInformation.lastName")
@@ -87,7 +88,7 @@ public interface JobUserMapper {
 
   @Mapping(target = "jobTitle", source = "jobUser.job.title")
   @Mapping(target = "employmentType", source = "jobUser.employmentType.name")
-  @Mapping(target = "department", source = "jobUser.job.department.name")
+  @Mapping(target = "department", source = "jobUser.department.name")
   @Mapping(target = "firstName", source = "policyUser.user.userPersonalInformation.firstName")
   @Mapping(
       target = "preferredName",
@@ -101,7 +102,7 @@ public interface JobUserMapper {
 
   @Mapping(target = "jobTitle", source = "jobUser.job.title")
   @Mapping(target = "employmentType", source = "jobUser.employmentType.name")
-  @Mapping(target = "department", source = "jobUser.job.department.name")
+  @Mapping(target = "department", source = "jobUser.department.name")
   @Mapping(target = "startDate", source = "jobUser.startDate")
   @Mapping(target = "compensation", source = "jobUser.userCompensation")
   @Mapping(target = "firstName", source = "user.userPersonalInformation.firstName")
@@ -114,7 +115,7 @@ public interface JobUserMapper {
   @Mapping(target = "compensation.overtimeStatus", source = "jobUser.userCompensation.overtimeStatus")
   TimeAndAttendanceRelatedUserDto convertToTimeAndAttendanceRelatedUserDto(
           User user, JobUser jobUser);
-
+  @Mapping(target = "department", source = "departmentId")
   @Mapping(target = "job", source = "jobId")
   @Mapping(target = "office", source = "officeId")
   @Mapping(target = "employmentType", source = "employmentTypeId")
@@ -130,6 +131,15 @@ public interface JobUserMapper {
       final Job job = new Job();
       job.setId(jobId);
       return job;
+    }
+    return null;
+  }
+
+  default Department convertToDepartment(final String departmentId) {
+    if(!StringUtils.isEmpty(departmentId)) {
+      final Department department = new Department();
+      department.setId(departmentId);
+      return department;
     }
     return null;
   }

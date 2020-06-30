@@ -3,6 +3,7 @@ package shamu.company.job.dto;
 import java.sql.Timestamp;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import shamu.company.company.entity.Department;
 import shamu.company.job.entity.Job;
 import shamu.company.job.entity.JobUser;
 import shamu.company.user.entity.User;
@@ -53,8 +54,15 @@ public class JobUserDto {
     setImageUrl(user.getImageUrl());
     if (userWithJob != null) {
       final Job job = userWithJob.getJob();
-      setJobTitle(job.getTitle());
-      setDepartment(job.getDepartment().getName());
+      final Department userWithJobDepartment = userWithJob.getDepartment();
+
+      if (job != null) {
+        setJobTitle(job.getTitle());
+      }
+      if (userWithJobDepartment != null) {
+        setDepartment(userWithJobDepartment.getName());
+      }
+
       employmentType =
           userWithJob.getEmploymentType() == null
               ? null

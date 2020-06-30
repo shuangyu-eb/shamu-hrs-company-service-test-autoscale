@@ -65,6 +65,7 @@ import shamu.company.benefit.repository.BenefitPlanUserRepository;
 import shamu.company.benefit.repository.RetirementPlanTypeRepository;
 import shamu.company.benefit.service.BenefitPlanService;
 import shamu.company.common.exception.errormapping.ResourceNotFoundException;
+import shamu.company.company.entity.Company;
 import shamu.company.company.entity.Department;
 import shamu.company.helpers.s3.AwsHelper;
 import shamu.company.job.dto.JobUserDto;
@@ -1384,7 +1385,7 @@ class BenefitPlanServiceTests {
       jobUserDto.setJobTitle("jobTitle");
       job = new Job();
       job.setTitle("jobTitle");
-      job.setDepartment(new Department());
+      job.setCompany(new Company());
       jobUser.setJob(job);
     }
 
