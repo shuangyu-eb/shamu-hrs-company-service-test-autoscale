@@ -1,11 +1,5 @@
 package shamu.company.email;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -24,6 +18,7 @@ import shamu.company.email.repository.EmailRepository;
 import shamu.company.email.service.EmailService;
 import shamu.company.helpers.EmailHelper;
 import shamu.company.helpers.s3.AwsHelper;
+import shamu.company.scheduler.QuartzJobScheduler;
 import shamu.company.user.dto.CurrentUserDto;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
@@ -32,6 +27,12 @@ import shamu.company.user.entity.UserPersonalInformation;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.DateUtil;
 import shamu.company.utils.UuidUtil;
+
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class EmailServiceTests {
 
@@ -53,6 +54,8 @@ class EmailServiceTests {
 
   @Mock private AwsHelper awsHelper;
 
+  @Mock private QuartzJobScheduler quartzJobScheduler;
+
   @BeforeEach
   void init() {
     MockitoAnnotations.initMocks(this);
@@ -65,7 +68,8 @@ class EmailServiceTests {
             emailRetryLimit,
             templateEngine,
             userService,
-            awsHelper);
+            awsHelper,
+            quartzJobScheduler);
     email = new Email();
   }
 
@@ -300,34 +304,34 @@ class EmailServiceTests {
   }
 
   @Test
-  void sendEmailToOtherAdminsWhenNewOneAdded () throws Exception {
-    String companyId = "1";
-    String promotedEmployeeId = "2";
-    String currentUserId = "3";
+  void sendEmailToOtherAdminsWhenNewOneAdded() throws Exception {
+    final String companyId = "1";
+    final String promotedEmployeeId = "2";
+    final String currentUserId = "3";
 
-    User promotedEmployee = new User();
+    final User promotedEmployee = new User();
     promotedEmployee.setId(promotedEmployeeId);
-    UserPersonalInformation promotedEmployeePersonalInformation = new UserPersonalInformation();
+    final UserPersonalInformation promotedEmployeePersonalInformation =
+        new UserPersonalInformation();
     promotedEmployeePersonalInformation.setFirstName("promoted");
     promotedEmployeePersonalInformation.setLastName("employee");
     promotedEmployee.setUserPersonalInformation(promotedEmployeePersonalInformation);
     Mockito.when(userService.findById(promotedEmployeeId)).thenReturn(promotedEmployee);
 
-    CurrentUserDto currentUserDto = new CurrentUserDto();
+    final CurrentUserDto currentUserDto = new CurrentUserDto();
     currentUserDto.setName("current user");
     Mockito.when(userService.getCurrentUserInfo(currentUserId)).thenReturn(currentUserDto);
 
-
-    List<User> admins = new ArrayList<>();
-    User admin = new User();
-    UserContactInformation adminContactInfo = new UserContactInformation();
+    final List<User> admins = new ArrayList<>();
+    final User admin = new User();
+    final UserContactInformation adminContactInfo = new UserContactInformation();
     adminContactInfo.setEmailWork("mock-admin@mock.com");
     admin.setUserContactInformation(adminContactInfo);
     admins.add(admin);
 
-    List<User> superAdmins = new ArrayList<>();
-    User superAdmin = new User();
-    UserContactInformation superAdminContactInfo = new UserContactInformation();
+    final List<User> superAdmins = new ArrayList<>();
+    final User superAdmin = new User();
+    final UserContactInformation superAdminContactInfo = new UserContactInformation();
     superAdminContactInfo.setEmailWork("mock-super-admin@mock.com");
     superAdmin.setUserContactInformation(superAdminContactInfo);
     superAdmins.add(superAdmin);
@@ -343,22 +347,6 @@ class EmailServiceTests {
         promotedEmployeeId,
         currentUserId,
         companyId);
-  }
-
-  @Nested
-  class getEmailTask {
-    Email email;
-
-    @BeforeEach
-    void init() {
-      email = new Email();
-    }
-
-    @Test
-    void whenGetEmailTask_thenShouldSuccess() {
-      emailService.getEmailTask(email);
-      Mockito.verify(emailRepository, Mockito.times(0)).save(Mockito.any());
-    }
   }
 
   @Nested

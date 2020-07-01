@@ -1,16 +1,5 @@
 package shamu.company.email.service;
 
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Base64;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.UUID;
-import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.slf4j.Logger;
@@ -28,6 +17,8 @@ import shamu.company.email.event.EmailStatus;
 import shamu.company.email.repository.EmailRepository;
 import shamu.company.helpers.EmailHelper;
 import shamu.company.helpers.s3.AwsHelper;
+import shamu.company.scheduler.QuartzJobScheduler;
+import shamu.company.scheduler.job.SendEmailJob;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
 import shamu.company.user.entity.UserPersonalInformation;
@@ -37,6 +28,14 @@ import shamu.company.utils.DateUtil;
 import shamu.company.utils.HtmlUtils;
 import shamu.company.utils.UuidUtil;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.regex.Pattern;
+
 @Service
 public class EmailService {
   private static final String FRONT_END_ADDRESS = "frontEndAddress";
@@ -45,20 +44,20 @@ public class EmailService {
 
   private final EmailRepository emailRepository;
 
-  private final TaskScheduler taskScheduler;
-
-  private final EmailHelper emailHelper;
-
   private final Integer emailRetryLimit;
 
   private final ITemplateEngine templateEngine;
   private final UserService userService;
   private final AwsHelper awsHelper;
   private final Logger logger = LoggerFactory.getLogger(EmailService.class);
+
   @Value("${application.systemEmailAddress}")
   private String systemEmailAddress;
+
   @Value("${application.frontEndAddress}")
   private String frontEndAddress;
+
+  private final QuartzJobScheduler quartzJobScheduler;
 
   private static final String CURRENT_YEAR = "currentYear";
 
@@ -72,14 +71,14 @@ public class EmailService {
       @Value("${email.retryLimit}") final Integer emailRetryLimit,
       final ITemplateEngine templateEngine,
       @Lazy final UserService userService,
-      final AwsHelper awsHelper) {
+      final AwsHelper awsHelper,
+      final QuartzJobScheduler quartzJobScheduler) {
     this.emailRepository = emailRepository;
-    this.taskScheduler = taskScheduler;
-    this.emailHelper = emailHelper;
     this.emailRetryLimit = emailRetryLimit;
     this.templateEngine = templateEngine;
     this.userService = userService;
     this.awsHelper = awsHelper;
+    this.quartzJobScheduler = quartzJobScheduler;
   }
 
   public Email save(final Email email) {
@@ -95,7 +94,12 @@ public class EmailService {
     if (sendDate == null) {
       sendDate = Timestamp.valueOf(LocalDateTime.now());
     }
-    taskScheduler.schedule(getEmailTask(email), sendDate);
+    final String messageId = UuidUtil.getUuidString();
+    email.setMessageId(messageId);
+    final Map<String, Object> jobParameter = new HashMap<>();
+    jobParameter.put("email", email);
+    quartzJobScheduler.addOrUpdateJobSchedule(
+        SendEmailJob.class, "send_email_" + messageId, jobParameter, sendDate);
   }
 
   public void saveAndScheduleEmail(final Email email) {
@@ -103,7 +107,7 @@ public class EmailService {
     scheduleEmail(email);
   }
 
-  private void rescheduleFailedEmail(final Email email) {
+  public void rescheduleFailedEmail(final Email email) {
     final Integer currentRetryCount = email.getRetryCount() == null ? 0 : email.getRetryCount() + 1;
     email.setRetryCount(currentRetryCount);
     save(email);
@@ -115,19 +119,6 @@ public class EmailService {
     final LocalDateTime afterOneHour = LocalDateTime.now().plusHours(1);
     email.setSendDate(Timestamp.valueOf(afterOneHour));
     saveAndScheduleEmail(email);
-  }
-
-  public Runnable getEmailTask(final Email email) {
-    return () -> {
-      try {
-        email.setMessageId(UuidUtil.getUuidString());
-        emailHelper.send(email);
-        email.setSentAt(new Timestamp(new Date().getTime()));
-        emailRepository.save(email);
-      } catch (final Exception exception) {
-        rescheduleFailedEmail(email);
-      }
-    };
   }
 
   public Email findFirstByToAndSubjectOrderBySendDateDesc(final String email, final String s) {
@@ -174,7 +165,7 @@ public class EmailService {
     if (Strings.isBlank(emailAddress) || !Pattern.matches("^[a-zA-Z0-9@.+]*$", emailAddress)) {
       return "";
     }
-    byte[] reverseEmails = StringUtils.reverse(emailAddress).getBytes();
+    final byte[] reverseEmails = StringUtils.reverse(emailAddress).getBytes();
     return Base64.getEncoder().encodeToString(reverseEmails);
   }
 
@@ -199,12 +190,11 @@ public class EmailService {
     context.setVariable(FRONT_END_ADDRESS, frontEndAddress);
     context.setVariable(
         "changePasswordToken", String.format("account/change-work-email/%s", changePasswordToken));
-    final ZonedDateTime zonedDateTime =
-        ZonedDateTime.of(
-            LocalDateTime.now(), ZoneId.of("UTC"));
-    final String currentYear =  DateUtil.formatDateTo(
-        zonedDateTime.withZoneSameInstant(ZoneId.of(AMERICA_MANAGUA)).toLocalDateTime(),
-        "YYYY");
+    final ZonedDateTime zonedDateTime = ZonedDateTime.of(LocalDateTime.now(), ZoneId.of("UTC"));
+    final String currentYear =
+        DateUtil.formatDateTo(
+            zonedDateTime.withZoneSameInstant(ZoneId.of(AMERICA_MANAGUA)).toLocalDateTime(),
+            "YYYY");
     context.setVariable(CURRENT_YEAR, currentYear);
     return templateEngine.process("verify_change_work_email.html", context);
   }
@@ -289,13 +279,12 @@ public class EmailService {
         sentDateTime.format(DateTimeFormatter.ofPattern("MMM d").withLocale(Locale.ENGLISH));
     context.setVariable("sentDate", sentDate);
     context.setVariable("userLink", frontEndAddress + "employees/" + targetUser.getId());
-    final ZonedDateTime zonedDateTime =
-        ZonedDateTime.of(
-            LocalDateTime.now(), ZoneId.of("UTC"));
-    final String currentYear =  DateUtil.formatDateTo(
-        zonedDateTime.withZoneSameInstant(ZoneId.of(AMERICA_MANAGUA)).toLocalDateTime(),
-        "YYYY");
-    context.setVariable(CURRENT_YEAR,currentYear);
+    final ZonedDateTime zonedDateTime = ZonedDateTime.of(LocalDateTime.now(), ZoneId.of("UTC"));
+    final String currentYear =
+        DateUtil.formatDateTo(
+            zonedDateTime.withZoneSameInstant(ZoneId.of(AMERICA_MANAGUA)).toLocalDateTime(),
+            "YYYY");
+    context.setVariable(CURRENT_YEAR, currentYear);
     final String emailContent = templateEngine.process("delivery_error_email.html", context);
 
     final String subject =
@@ -309,26 +298,25 @@ public class EmailService {
 
   public void sendEmailToOtherAdminsWhenNewOneAdded(
       final String promotedEmployeeId, final String currentUserId, final String companyId) {
-    String promotedEmployeeName =
+    final String promotedEmployeeName =
         userService.findById(promotedEmployeeId).getUserPersonalInformation().getName();
-    String currentUserName = userService.getCurrentUserInfo(currentUserId).getName();
+    final String currentUserName = userService.getCurrentUserInfo(currentUserId).getName();
 
     final Context context = new Context();
     context.setVariable(FRONT_END_ADDRESS, frontEndAddress);
     context.setVariable("promotedEmployeeName", promotedEmployeeName);
     context.setVariable("promoterName", currentUserName);
     context.setVariable("promotedEmployeeId", promotedEmployeeId);
-    final ZonedDateTime zonedDateTime =
-        ZonedDateTime.of(
-            LocalDateTime.now(), ZoneId.of("UTC"));
-    final String currentYear =  DateUtil.formatDateTo(
-        zonedDateTime.withZoneSameInstant(ZoneId.of(AMERICA_MANAGUA)).toLocalDateTime(),
-        "YYYY");
-    context.setVariable(CURRENT_YEAR,currentYear);
+    final ZonedDateTime zonedDateTime = ZonedDateTime.of(LocalDateTime.now(), ZoneId.of("UTC"));
+    final String currentYear =
+        DateUtil.formatDateTo(
+            zonedDateTime.withZoneSameInstant(ZoneId.of(AMERICA_MANAGUA)).toLocalDateTime(),
+            "YYYY");
+    context.setVariable(CURRENT_YEAR, currentYear);
     final String emailContent = templateEngine.process("add_new_admin_email.html", context);
-    List<User> admins =
+    final List<User> admins =
         userService.findUsersByCompanyIdAndUserRole(companyId, Role.ADMIN.getValue());
-    List<User> superAdmins =
+    final List<User> superAdmins =
         userService.findUsersByCompanyIdAndUserRole(companyId, Role.SUPER_ADMIN.getValue());
     admins.addAll(superAdmins);
 
