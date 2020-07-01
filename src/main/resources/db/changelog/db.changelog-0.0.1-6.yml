@@ -1620,3 +1620,12 @@ databaseChangeLog:
             columnName: department_id
             tableName: jobs
 
+  - changeSet:
+      id: 1593565753858-1
+      author: bin-eb
+      preConditions:
+        onFail: WARN
+      changes:
+        - sql:
+            sql: UPDATE user_compensations set wage_cents = wage_cents * 100 WHERE wage_cents is NOT NULL;
+

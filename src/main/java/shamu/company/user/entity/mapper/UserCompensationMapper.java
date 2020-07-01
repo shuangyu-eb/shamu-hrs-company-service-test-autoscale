@@ -1,5 +1,7 @@
 package shamu.company.user.entity.mapper;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -13,17 +15,26 @@ import shamu.company.user.entity.UserCompensation;
 public interface UserCompensationMapper {
 
   @Mapping(target = "id", source = "userCompensationId")
-  @Mapping(target = "wageCents", source = "compensationWage")
+  @Mapping(target = "wageCents", expression = "java(updateCompensationCents(jobUpdateDto))")
   @Mapping(target = "compensationFrequency", source = "compensationFrequencyId")
   void updateFromJobUpdateDto(
       @MappingTarget UserCompensation userCompensation, JobUpdateDto jobUpdateDto);
 
-  @Mapping(target = "wage", source = "wageCents")
+  @Mapping(target = "wage", expression = "java(updateCompensationDollar(userCompensation))")
   CompensationDto convertToCompensationDto(UserCompensation userCompensation);
 
   default CompensationFrequency convertToCompensationFrequency(final String id) {
     final CompensationFrequency compensationFrequency = new CompensationFrequency();
     compensationFrequency.setId(id);
     return compensationFrequency;
+  }
+
+  default BigInteger updateCompensationCents(final JobUpdateDto jobUpdateDto) {
+    BigDecimal bd = BigDecimal.valueOf(jobUpdateDto.getCompensationWage() * 100);
+    return bd.toBigIntegerExact();
+  }
+
+  default Double updateCompensationDollar(final UserCompensation userCompensation) {
+    return userCompensation.getWageCents().doubleValue() / 100;
   }
 }

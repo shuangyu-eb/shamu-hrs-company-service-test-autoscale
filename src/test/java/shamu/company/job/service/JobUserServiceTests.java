@@ -1,6 +1,5 @@
 package shamu.company.job.service;
 
-import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -138,7 +137,7 @@ class JobUserServiceTests {
     void init() {
       jobUpdateDto.setJobId("1");
       jobUpdateDto.setCompensationFrequencyId("1");
-      jobUpdateDto.setCompensationWage(BigInteger.valueOf(1000));
+      jobUpdateDto.setCompensationWage(1000.00);
       jobUpdateDto.setManagerId("2");
       jobUpdateDto.setStartDate(DateUtil.getToday());
 
