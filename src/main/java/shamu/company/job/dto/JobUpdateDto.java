@@ -18,6 +18,10 @@ public class JobUpdateDto implements Serializable {
 
   private String employmentTypeId;
 
+  private String employeeTypeId;
+
+  private String payTypeName;
+
   private String jobId;
 
   private String managerId;

@@ -6,4 +6,6 @@ import lombok.Data;
 public class JobInformationDto extends BasicJobInformationDto {
 
   private CompensationDto compensation;
+
+  private SelectFieldInformationDto employeeType;
 }

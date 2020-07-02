@@ -39,12 +39,14 @@ import shamu.company.timeoff.repository.TimeOffPolicyAccrualScheduleRepository;
 import shamu.company.timeoff.repository.TimeOffPolicyUserRepository;
 import shamu.company.timeoff.service.TimeOffPolicyService;
 import shamu.company.timeoff.service.TimeOffRequestService;
+import shamu.company.user.entity.CompensationOvertimeStatus;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
 import shamu.company.user.entity.UserCompensation;
 import shamu.company.user.entity.UserRole;
 import shamu.company.user.entity.mapper.UserCompensationMapper;
 import shamu.company.user.entity.mapper.UserMapper;
+import shamu.company.user.service.CompensationOvertimeStatusService;
 import shamu.company.user.service.UserRoleService;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.DateUtil;
@@ -85,6 +87,8 @@ public class JobUserService {
 
   private final TimeOffPolicyService timeOffPolicyService;
 
+  private final CompensationOvertimeStatusService compensationOvertimeStatusService;
+
   public JobUserService(
       final JobUserRepository jobUserRepository,
       final UserService userService,
@@ -101,7 +105,9 @@ public class JobUserService {
       final UserMapper userMapper,
       final TimeOffPolicyUserRepository timeOffPolicyUserRepository,
       final TimeOffPolicyAccrualScheduleRepository timeOffPolicyAccrualScheduleRepository,
-      final TimeOffPolicyService timeOffPolicyService) {
+      final TimeOffPolicyService timeOffPolicyService,
+      final CompensationOvertimeStatusService compensationOvertimeStatusService
+      ) {
     this.jobUserRepository = jobUserRepository;
     this.userService = userService;
     this.userCompensationMapper = userCompensationMapper;
@@ -118,6 +124,7 @@ public class JobUserService {
     this.timeOffPolicyUserRepository = timeOffPolicyUserRepository;
     this.timeOffPolicyAccrualScheduleRepository = timeOffPolicyAccrualScheduleRepository;
     this.timeOffPolicyService = timeOffPolicyService;
+    this.compensationOvertimeStatusService = compensationOvertimeStatusService;
   }
 
   public JobUser save(final JobUser jobUser) {
@@ -180,12 +187,21 @@ public class JobUserService {
 
   private void addOrUpdateJobUserCompensation(
       final String userId, final JobUpdateDto jobUpdateDto, final JobUser jobUser) {
-    if (jobUserCompensationUpdated(jobUpdateDto)) {
+    if (jobUserCompensationUpdated(jobUpdateDto) || jobUpdateDto.getPayTypeName() != null) {
       UserCompensation userCompensation = jobUser.getUserCompensation();
       if (userCompensation == null) {
         userCompensation = new UserCompensation();
       }
-      userCompensationMapper.updateFromJobUpdateDto(userCompensation, jobUpdateDto);
+      if (jobUserCompensationUpdated(jobUpdateDto)) {
+        userCompensationMapper.updateFromJobUpdateDto(userCompensation, jobUpdateDto);
+
+      }
+      if (jobUpdateDto.getPayTypeName() != null) {
+        CompensationOvertimeStatus compensationOvertimeStatus =
+            compensationOvertimeStatusService.findByName(jobUpdateDto.getPayTypeName());
+        userCompensation.setOvertimeStatus(compensationOvertimeStatus);
+
+      }
       userCompensation.setUserId(userId);
       jobUser.setUserCompensation(userCompensation);
     }

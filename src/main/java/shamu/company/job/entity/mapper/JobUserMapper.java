@@ -25,6 +25,7 @@ import shamu.company.job.entity.Job;
 import shamu.company.job.entity.JobUser;
 import shamu.company.timeoff.dto.TimeOffPolicyRelatedUserDto;
 import shamu.company.timeoff.entity.TimeOffPolicyUser;
+import shamu.company.user.entity.EmployeeType;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
 import shamu.company.user.entity.UserRole;
@@ -46,6 +47,7 @@ public interface JobUserMapper {
 
   @InheritConfiguration
   @Mapping(target = "compensation", source = "userCompensation")
+  @Mapping(target = "employeeType", source = "employeeType")
   JobInformationDto convertToJobInformationDto(JobUser jobUser);
 
   @Mapping(target = "userStatus", source = "userStatus")
@@ -115,10 +117,13 @@ public interface JobUserMapper {
   @Mapping(target = "compensation.overtimeStatus", source = "jobUser.userCompensation.overtimeStatus")
   TimeAndAttendanceRelatedUserDto convertToTimeAndAttendanceRelatedUserDto(
           User user, JobUser jobUser);
+
+
   @Mapping(target = "department", source = "departmentId")
   @Mapping(target = "job", source = "jobId")
   @Mapping(target = "office", source = "officeId")
   @Mapping(target = "employmentType", source = "employmentTypeId")
+  @Mapping(target = "employeeType", source = "employeeTypeId")
   @Mapping(
       target = "startDate",
       nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
@@ -158,6 +163,15 @@ public interface JobUserMapper {
       final EmploymentType employmentType = new EmploymentType();
       employmentType.setId(employmentTypeId);
       return employmentType;
+    }
+    return null;
+  }
+
+  default EmployeeType convertFromEmployeeTypeId(final String employeeTypeId) {
+    if (!StringUtils.isEmpty(employeeTypeId)) {
+      final EmployeeType employeeType = new EmployeeType();
+      employeeType.setId(employeeTypeId);
+      return employeeType;
     }
     return null;
   }

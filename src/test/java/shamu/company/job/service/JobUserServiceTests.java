@@ -50,6 +50,8 @@ import shamu.company.user.entity.User.Role;
 import shamu.company.user.entity.UserRole;
 import shamu.company.user.entity.mapper.UserCompensationMapper;
 import shamu.company.user.entity.mapper.UserMapper;
+import shamu.company.user.service.CompensationOvertimeStatusService;
+import shamu.company.user.service.EmployeeTypesService;
 import shamu.company.user.service.UserRoleService;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.DateUtil;
@@ -75,6 +77,7 @@ class JobUserServiceTests {
   private final JobUserMapper jobUserMapper =
       new JobUserMapperImpl(officeMapper, userCompensationMapper);
   private JobUserService jobUserService;
+  private CompensationOvertimeStatusService compensationOvertimeStatusService;
 
   @BeforeEach
   void setUp() {
@@ -96,7 +99,8 @@ class JobUserServiceTests {
             userMapper,
             timeOffPolicyUserRepository,
             timeOffPolicyAccrualScheduleRepository,
-            timeOffPolicyService);
+            timeOffPolicyService,
+            compensationOvertimeStatusService);
   }
 
   @Test
