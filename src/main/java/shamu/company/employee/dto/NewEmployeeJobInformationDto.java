@@ -1,11 +1,9 @@
 package shamu.company.employee.dto;
 
-import lombok.Data;
-
+import java.sql.Timestamp;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.math.BigInteger;
-import java.sql.Timestamp;
+import lombok.Data;
 
 @Data
 public class NewEmployeeJobInformationDto {
@@ -20,7 +18,7 @@ public class NewEmployeeJobInformationDto {
 
   @NotNull private String reportsTo;
 
-  @NotNull private BigInteger compensation;
+  @NotNull private Double compensation;
 
   @NotNull private String employeeTypeId;
 

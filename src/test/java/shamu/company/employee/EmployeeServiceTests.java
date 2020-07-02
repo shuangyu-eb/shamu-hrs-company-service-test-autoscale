@@ -1,5 +1,16 @@
 package shamu.company.employee;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
+
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.List;
+import java.util.UUID;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -82,18 +93,6 @@ import shamu.company.user.service.UserRoleService;
 import shamu.company.user.service.UserService;
 import shamu.company.user.service.UserStatusService;
 import shamu.company.utils.FileValidateUtils.FileFormat;
-
-import java.math.BigInteger;
-import java.sql.Timestamp;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
-import java.util.UUID;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 class EmployeeServiceTests {
 
@@ -786,7 +785,7 @@ class EmployeeServiceTests {
     @Test
     void whenCompensationAndFrequencyIdIsNotNull_thenShouldSuccess() throws Exception {
       jobInformation.setEmploymentTypeId("a");
-      jobInformation.setCompensation(BigInteger.valueOf(1));
+      jobInformation.setCompensation(1.0);
       jobInformation.setCompensationFrequencyId("a");
       Mockito.when(userCompensationService.save(Mockito.any())).thenReturn(userCompensation);
       Whitebox.invokeMethod(
@@ -799,6 +798,7 @@ class EmployeeServiceTests {
     @Test
     void whenEmploymentTypeIdIsNotEmpty_thenShouldSuccess() throws Exception {
       jobInformation.setEmploymentTypeId("a");
+      jobInformation.setCompensation(2.0);
       Mockito.when(userCompensationService.save(Mockito.any())).thenReturn(userCompensation);
       Whitebox.invokeMethod(
           employeeService, "saveEmployeeJob", employee, currentUser, jobInformation);
@@ -809,6 +809,7 @@ class EmployeeServiceTests {
     @Test
     void whenOfficeIdIsNotNull_thenShouldSuccess() throws Exception {
       jobInformation.setOfficeId("a");
+      jobInformation.setCompensation(3.0);
       Mockito.when(userCompensationService.save(Mockito.any())).thenReturn(userCompensation);
       Whitebox.invokeMethod(
           employeeService, "saveEmployeeJob", employee, currentUser, jobInformation);

@@ -2,6 +2,7 @@ package shamu.company.employee.service;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Base64;
@@ -464,7 +465,8 @@ public class EmployeeService {
       final NewEmployeeJobInformationDto jobInformation) {
 
     UserCompensation userCompensation = new UserCompensation();
-    userCompensation.setWageCents(jobInformation.getCompensation());
+    BigDecimal compensationWageCents = BigDecimal.valueOf(jobInformation.getCompensation() * 100);
+    userCompensation.setWageCents(compensationWageCents.toBigIntegerExact());
     final String compensationFrequencyId = jobInformation.getCompensationFrequencyId();
     final CompensationFrequency compensationFrequency =
         compensationFrequencyService.findById(compensationFrequencyId);

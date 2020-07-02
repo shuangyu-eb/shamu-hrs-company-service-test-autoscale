@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
-import java.math.BigInteger;
+
 import java.sql.Timestamp;
 import java.util.Collections;
 import java.util.List;
@@ -114,7 +114,7 @@ class EmployeeRestControllerIT extends BaseIntegrationTest {
 
       final NewEmployeeJobInformationDto jobInformationDto = new NewEmployeeJobInformationDto();
       jobInformationDto.setReportsTo(manager.getId());
-      jobInformationDto.setCompensation(BigInteger.valueOf(4));
+      jobInformationDto.setCompensation(4.0);
       jobInformationDto.setCompensationFrequencyId(compensationFrequency.getId());
       jobInformationDto.setJobId(job.getId());
       jobInformationDto.setEmploymentTypeId(employmentType.getId());
