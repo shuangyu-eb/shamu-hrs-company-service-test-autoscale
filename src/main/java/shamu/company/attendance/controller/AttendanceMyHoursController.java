@@ -9,6 +9,7 @@ import shamu.company.attendance.dto.MyHoursListDto;
 import shamu.company.attendance.dto.TimeEntryDto;
 import shamu.company.attendance.service.AttendanceMyHoursService;
 import shamu.company.common.config.annotations.RestApiController;
+import shamu.company.employee.dto.CompensationDto;
 
 @RestApiController
 public class AttendanceMyHoursController {
@@ -28,5 +29,10 @@ public class AttendanceMyHoursController {
   @GetMapping("time-and-attendance/total-paid-time/{timesheetId}")
   public List<MyHoursListDto> findMyHoursList(@PathVariable final String timesheetId) {
     return attendanceMyHoursService.findMyHoursLists(timesheetId);
+  }
+
+  @GetMapping("time-and-attendance/user-compensation/{userId}")
+  public CompensationDto findUserCompensation(@PathVariable final String userId) {
+    return attendanceMyHoursService.findUserCompensation(userId);
   }
 }

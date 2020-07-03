@@ -29,6 +29,7 @@ import shamu.company.attendance.exception.ParseDateException;
 import shamu.company.attendance.repository.EmployeeTimeEntryRepository;
 import shamu.company.attendance.repository.EmployeeTimeLogRepository;
 import shamu.company.attendance.repository.StaticEmployeesTaTimeTypeRepository;
+import shamu.company.employee.dto.CompensationDto;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserCompensation;
 import shamu.company.user.service.UserCompensationService;
@@ -331,5 +332,9 @@ public class AttendanceMyHoursService {
             throw new ParseDateException("Unable to parse date.", e);
           }
         });
+  }
+
+  public CompensationDto findUserCompensation(final String userId) {
+    return userCompensationService.findCompensationByUserId(userId);
   }
 }

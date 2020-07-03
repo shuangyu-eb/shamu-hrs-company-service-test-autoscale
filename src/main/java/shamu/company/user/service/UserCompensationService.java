@@ -4,7 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shamu.company.common.exception.errormapping.ResourceNotFoundException;
+import shamu.company.employee.dto.CompensationDto;
 import shamu.company.user.entity.UserCompensation;
+import shamu.company.user.entity.mapper.UserCompensationMapper;
 import shamu.company.user.repository.UserCompensationRepository;
 
 @Service
@@ -13,9 +15,14 @@ public class UserCompensationService {
 
   private final UserCompensationRepository userCompensationRepository;
 
+  private final UserCompensationMapper userCompensationMapper;
+
   @Autowired
-  public UserCompensationService(final UserCompensationRepository userCompensationRepository) {
+  public UserCompensationService(
+      final UserCompensationRepository userCompensationRepository,
+      final UserCompensationMapper userCompensationMapper) {
     this.userCompensationRepository = userCompensationRepository;
+    this.userCompensationMapper = userCompensationMapper;
   }
 
   public UserCompensation save(final UserCompensation userCompensation) {
@@ -31,5 +38,9 @@ public class UserCompensationService {
                     String.format("Compensation with id %s not found!", compensationId),
                     compensationId,
                     "compensation"));
+  }
+
+  public CompensationDto findCompensationByUserId(final String userId) {
+    return userCompensationMapper.convertToCompensationDto(userCompensationRepository.findByUserId(userId));
   }
 }
