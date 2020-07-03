@@ -89,6 +89,7 @@ import shamu.company.user.entity.User;
 import shamu.company.user.entity.mapper.UserMapper;
 import shamu.company.user.repository.UserRepository;
 import shamu.company.user.service.UserBenefitsSettingService;
+import shamu.company.user.service.UserService;
 
 @Service
 public class BenefitPlanService {
@@ -139,6 +140,8 @@ public class BenefitPlanService {
 
   private final BenefitPlanReportMapper benefitPlanReportMapper;
 
+  private final UserService userService;
+
   public BenefitPlanService(
       final BenefitPlanRepository benefitPlanRepository,
       final BenefitPlanUserRepository benefitPlanUserRepository,
@@ -160,7 +163,8 @@ public class BenefitPlanService {
       final JobUserService jobUserService,
       final JobUserMapper jobUserMapper,
       final BenefitPlanDependentMapper benefitPlanDependentMapper,
-      final BenefitPlanReportMapper benefitPlanReportMapper) {
+      final BenefitPlanReportMapper benefitPlanReportMapper,
+      final UserService userService) {
     this.benefitPlanRepository = benefitPlanRepository;
     this.benefitPlanUserRepository = benefitPlanUserRepository;
     this.benefitPlanCoverageRepository = benefitPlanCoverageRepository;
@@ -182,6 +186,7 @@ public class BenefitPlanService {
     this.jobUserMapper = jobUserMapper;
     this.benefitPlanDependentMapper = benefitPlanDependentMapper;
     this.benefitPlanReportMapper = benefitPlanReportMapper;
+    this.userService = userService;
   }
 
   static <T> Predicate<T> distinctByKey(final Function<? super T, ?> keyExtractor) {
@@ -808,7 +813,8 @@ public class BenefitPlanService {
             .map(
                 user -> {
                   JobUser employeeWithJob = jobUserService.findJobUserByUser(user);
-                  return new JobUserDto(user, employeeWithJob);
+                  final String name = userService.getUserNameInUsers(user, policyEmployees);
+                  return new JobUserDto(user, employeeWithJob, name);
                 })
             .collect(Collectors.toList());
     final List<BenefitPlanUserDto> allUsers =

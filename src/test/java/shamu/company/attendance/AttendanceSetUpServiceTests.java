@@ -1,5 +1,11 @@
 package shamu.company.attendance;
 
+import static org.assertj.core.api.Assertions.assertThatCode;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -25,17 +31,12 @@ import shamu.company.job.repository.JobUserRepository;
 import shamu.company.user.entity.CompensationOvertimeStatus;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserCompensation;
+import shamu.company.user.entity.UserContactInformation;
+import shamu.company.user.entity.UserPersonalInformation;
 import shamu.company.user.repository.CompensationFrequencyRepository;
 import shamu.company.user.repository.CompensationOvertimeStatusRepository;
 import shamu.company.user.repository.UserCompensationRepository;
 import shamu.company.user.repository.UserRepository;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThatCode;
 
 public class AttendanceSetUpServiceTests {
 
@@ -97,6 +98,13 @@ public class AttendanceSetUpServiceTests {
     @Test
     void whenEmployeesAreNotEmpty_shouldSucceed() {
       final EmployeesTaSetting employeesTaSetting = new EmployeesTaSetting();
+      UserPersonalInformation userPersonalInformation = new UserPersonalInformation();
+      UserContactInformation userContactInformation = new UserContactInformation();
+      userContactInformation.setEmailWork("test@qq.com");
+      userPersonalInformation.setFirstName("1");
+      userPersonalInformation.setLastName("2");
+      user.setUserPersonalInformation(userPersonalInformation);
+      user.setUserContactInformation(userContactInformation);
       employeesTaSetting.setEmployee(user);
       selectedUsers.add(employeesTaSetting);
       final User anotherUser = new User();
@@ -106,7 +114,8 @@ public class AttendanceSetUpServiceTests {
       Mockito.when(employeesTaSettingRepository.findAll()).thenReturn(selectedUsers);
       Mockito.when(jobUserRepository.findJobUserByUser(user)).thenReturn(employeeWithJobInfo);
       Mockito.when(
-              jobUserMapper.convertToTimeAndAttendanceRelatedUserDto(user, employeeWithJobInfo))
+              jobUserMapper.convertToTimeAndAttendanceRelatedUserDto(
+                  user, employeeWithJobInfo, "123"))
           .thenReturn(relatedUserDto);
       assertThatCode(() -> attendanceSetUpService.getRelatedUsers(companyId))
           .doesNotThrowAnyException();

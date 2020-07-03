@@ -1,5 +1,11 @@
 package shamu.company.attendance.service;
 
+import java.math.BigInteger;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import shamu.company.attendance.dto.TimeAndAttendanceDetailsDto;
 import shamu.company.attendance.dto.TimeAndAttendanceRelatedUserDto;
@@ -23,13 +29,7 @@ import shamu.company.user.repository.CompensationFrequencyRepository;
 import shamu.company.user.repository.CompensationOvertimeStatusRepository;
 import shamu.company.user.repository.UserCompensationRepository;
 import shamu.company.user.repository.UserRepository;
-
-import java.math.BigInteger;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
+import shamu.company.user.service.UserService;
 
 @Service
 public class AttendanceSetUpService {
@@ -54,6 +54,8 @@ public class AttendanceSetUpService {
 
   private final UserCompensationRepository userCompensationRepository;
 
+  private final UserService userService;
+
   public AttendanceSetUpService(
       final CompanyTaSettingRepository companyTaSettingRepository,
       final EmployeesTaSettingRepository employeesTaSettingRepository,
@@ -64,7 +66,8 @@ public class AttendanceSetUpService {
       final CompanyRepository companyRepository,
       final CompensationFrequencyRepository compensationFrequencyRepository,
       final CompensationOvertimeStatusRepository compensationOvertimeStatusRepository,
-      final UserCompensationRepository userCompensationRepository) {
+      final UserCompensationRepository userCompensationRepository,
+      final UserService userService) {
     this.companyTaSettingRepository = companyTaSettingRepository;
     this.employeesTaSettingRepository = employeesTaSettingRepository;
     this.userRepository = userRepository;
@@ -75,6 +78,7 @@ public class AttendanceSetUpService {
     this.compensationFrequencyRepository = compensationFrequencyRepository;
     this.compensationOvertimeStatusRepository = compensationOvertimeStatusRepository;
     this.userCompensationRepository = userCompensationRepository;
+    this.userService = userService;
   }
 
   public Boolean findIsAttendanceSetUp(final String companyId) {
@@ -93,8 +97,11 @@ public class AttendanceSetUpService {
                   final User user = timeAndAttendanceUser.getEmployee();
                   final JobUser employeeWithJobInfo = jobUserRepository.findJobUserByUser(user);
                   selectedUsersIds.add(user.getId());
+                  String userNameOrUserNameWithEmailAddress =
+                      getUserNameInEmployeesTaSetting(
+                          timeAndAttendanceUser.getEmployee(), timeAndAttendanceUsers);
                   return jobUserMapper.convertToTimeAndAttendanceRelatedUserDto(
-                      user, employeeWithJobInfo);
+                      user, employeeWithJobInfo, userNameOrUserNameWithEmailAddress);
                 })
             .collect(Collectors.toList());
 
@@ -107,12 +114,32 @@ public class AttendanceSetUpService {
             .map(
                 user -> {
                   final JobUser employeeWithJobInfo = jobUserRepository.findJobUserByUser(user);
+                  String userNameOrUserNameWithEmailAddress = userService.getUserNameInUsers(user, unSelectedUsers);
                   return jobUserMapper.convertToTimeAndAttendanceRelatedUserDto(
-                      user, employeeWithJobInfo);
+                      user, employeeWithJobInfo, userNameOrUserNameWithEmailAddress);
                 })
             .collect(Collectors.toList());
 
     return new TimeAndAttendanceRelatedUserListDto(selectedEmployees, unSelectedEmployees);
+  }
+
+  // When the user has the same name in the user list, the user's email address needs to be added
+  private String getUserNameInEmployeesTaSetting(
+      final User user, final List<EmployeesTaSetting> employeesTaSettingList) {
+    int count = 0;
+    final String currentUserName = user.getUserPersonalInformation().getName();
+    final String userEmail = " (" + user.getUserContactInformation().getEmailWork() + ")";
+    for (final EmployeesTaSetting employeesTaSetting : employeesTaSettingList) {
+      final String userName =
+          employeesTaSetting.getEmployee().getUserPersonalInformation().getName();
+      if (currentUserName.equals(userName)) {
+        count++;
+      }
+      if (count > 1) {
+        return currentUserName.concat(userEmail);
+      }
+    }
+    return currentUserName;
   }
 
   public void saveAttendanceDetails(

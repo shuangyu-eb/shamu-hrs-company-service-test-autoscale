@@ -66,7 +66,6 @@ import shamu.company.benefit.repository.RetirementPlanTypeRepository;
 import shamu.company.benefit.service.BenefitPlanService;
 import shamu.company.common.exception.errormapping.ResourceNotFoundException;
 import shamu.company.company.entity.Company;
-import shamu.company.company.entity.Department;
 import shamu.company.helpers.s3.AwsHelper;
 import shamu.company.job.dto.JobUserDto;
 import shamu.company.job.entity.Job;
@@ -77,6 +76,7 @@ import shamu.company.user.entity.User;
 import shamu.company.user.entity.mapper.UserMapper;
 import shamu.company.user.repository.UserRepository;
 import shamu.company.user.service.UserBenefitsSettingService;
+import shamu.company.user.service.UserService;
 
 class BenefitPlanServiceTests {
 
@@ -121,6 +121,8 @@ class BenefitPlanServiceTests {
   @Mock private BenefitPlanReportMapper benefitPlanReportMapper;
 
   @Mock private BenefitPlanDependentMapper benefitPlanDependentMapper;
+
+  @Mock private UserService userService;
 
   @BeforeEach
   void init() {
@@ -1391,7 +1393,7 @@ class BenefitPlanServiceTests {
 
     @Test
     void whenFindAllEmployees_thenShouldSuccess() {
-      Mockito.when(userMapper.covertToBenefitPlanUserDto(user)).thenReturn(benefitPlanUserDto);
+      Mockito.when(userMapper.covertToBenefitPlanUserDto(Mockito.any())).thenReturn(benefitPlanUserDto);
       Mockito.when(benefitPlanUserMapper.convertToBenefitPlanUserDto(benefitPlanUser))
           .thenReturn(benefitPlanUserDto);
       Mockito.when(userRepository.findAllByCompanyId(companyId)).thenReturn(users);

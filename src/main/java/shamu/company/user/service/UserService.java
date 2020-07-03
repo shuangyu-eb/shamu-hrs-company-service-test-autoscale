@@ -1,6 +1,23 @@
 package shamu.company.user.service;
 
 import io.micrometer.core.instrument.util.StringUtils;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceException;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -94,14 +111,6 @@ import shamu.company.user.exception.errormapping.WorkEmailDuplicatedException;
 import shamu.company.user.repository.UserRepository;
 import shamu.company.utils.DateUtil;
 import shamu.company.utils.UuidUtil;
-
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceException;
-import java.sql.Timestamp;
-import java.time.*;
-import java.time.temporal.ChronoUnit;
-import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -254,7 +263,7 @@ public class UserService {
   public JobUserDto findEmployeeInfoByEmployeeId(final String id) {
     final User employee = findById(id);
     final JobUser jobUser = jobUserService.findJobUserByUser(employee);
-    return new JobUserDto(employee, jobUser);
+    return new JobUserDto(employee, jobUser, null);
   }
 
   public Page<JobUserListItem> findAllEmployees(
@@ -310,7 +319,8 @@ public class UserService {
         .map(
             user -> {
               final JobUser employeeWithJob = jobUserService.findJobUserByUser(user);
-              return new JobUserDto(user, employeeWithJob);
+              final String name = getUserNameInUsers(user, policyEmployees);
+              return new JobUserDto(user, employeeWithJob, name);
             })
         .collect(Collectors.toList());
   }
@@ -929,5 +939,24 @@ public class UserService {
 
   public List<User> findUsersByCompanyIdAndUserRole(final String companyId, final String userRole) {
     return userRepository.findUsersByCompanyIdAndUserRole(companyId, userRole);
+  }
+
+  //When the user has the same name in the user list, the user's email address needs to be added
+  public String getUserNameInUsers(
+      final User currentUser, final List<User> users) {
+    final String userName = currentUser.getUserPersonalInformation().getName();
+    final String userEmail = " (" + currentUser.getUserContactInformation().getEmailWork() + ")";
+
+    int count = 0;
+    for (final User user : users) {
+      final String name = user.getUserPersonalInformation().getName();
+      if (userName.equals(name)) {
+        count ++;
+      }
+      if (count > 1) {
+        return userName.concat(userEmail);
+      }
+    }
+    return userName;
   }
 }

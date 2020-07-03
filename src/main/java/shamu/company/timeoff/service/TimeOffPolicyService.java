@@ -429,8 +429,12 @@ public class TimeOffPolicyService {
                       jobUserRepository.findJobUserByUser(timeOffPolicyUser.getUser());
                   selectedUsersIds.add(timeOffPolicyUser.getUser().getId());
 
+                  String userNameOrUserNameWithEmailAddress =
+                      getUserNameInTimeOffPolicyUsers(
+                          timeOffPolicyUser.getUser(), timeOffPolicyUsers);
+
                   return jobUserMapper.convertToTimeOffPolicyRelatedUserDto(
-                      timeOffPolicyUser, employeeWithJobInfo);
+                      timeOffPolicyUser, employeeWithJobInfo, userNameOrUserNameWithEmailAddress);
                 })
             .collect(Collectors.toList());
 
@@ -440,8 +444,10 @@ public class TimeOffPolicyService {
             .map(
                 user -> {
                   final JobUser employeeWithJobInfo = jobUserRepository.findJobUserByUser(user);
+                  String userNameOrUserNameWithEmailAddress =
+                      userService.getUserNameInUsers(user, selectableTimeOffPolicyUsers);
                   return jobUserMapper.convertToTimeOffPolicyRelatedUserDto(
-                      user, employeeWithJobInfo);
+                      user, employeeWithJobInfo, userNameOrUserNameWithEmailAddress);
                 })
             .collect(Collectors.toList());
 
@@ -465,8 +471,11 @@ public class TimeOffPolicyService {
                 timeOffPolicyUser -> {
                   final JobUser employeeWithJobInfo =
                       jobUserRepository.findJobUserByUser(timeOffPolicyUser.getUser());
+                  String userNameOrUserNameWithEmailAddress =
+                      getUserNameInTimeOffPolicyUsers(
+                          timeOffPolicyUser.getUser(), timeOffPolicyUsers);
                   return jobUserMapper.convertToTimeOffPolicyRelatedUserDto(
-                      timeOffPolicyUser, employeeWithJobInfo);
+                      timeOffPolicyUser, employeeWithJobInfo, userNameOrUserNameWithEmailAddress);
                 })
             .collect(Collectors.toList());
 
@@ -475,13 +484,33 @@ public class TimeOffPolicyService {
             .map(
                 user -> {
                   final JobUser employeeWithJobInfo = jobUserRepository.findJobUserByUser(user);
+                  String userNameOrUserNameWithEmailAddress =
+                      userService.getUserNameInUsers(user, selectableTimeOffPolicyUsers);
                   return jobUserMapper.convertToTimeOffPolicyRelatedUserDto(
-                      user, employeeWithJobInfo);
+                      user, employeeWithJobInfo, userNameOrUserNameWithEmailAddress);
                 })
             .collect(Collectors.toList());
 
     return new TimeOffPolicyRelatedUserListOnMobileDto(
         timeOffPolicy.getIsLimited(), unselectedEmployees, selectedEmployees);
+  }
+
+  // When the user has the same name in the user list, the user's email address needs to be added
+  private String getUserNameInTimeOffPolicyUsers(
+      final User user, final List<TimeOffPolicyUser> timeOffPolicyUsers) {
+    int count = 0;
+    final String currentUserName = user.getUserPersonalInformation().getName();
+    final String userEmail = " (" + user.getUserContactInformation().getEmailWork() + ")";
+    for (final TimeOffPolicyUser timeOffPolicyUser : timeOffPolicyUsers) {
+      final String userName = timeOffPolicyUser.getUser().getUserPersonalInformation().getName();
+      if (currentUserName.equals(userName)) {
+        count++;
+      }
+      if (count > 1) {
+        return currentUserName.concat(userEmail);
+      }
+    }
+    return currentUserName;
   }
 
   public boolean checkIsPolicyCalculationRelatedToHireDate(

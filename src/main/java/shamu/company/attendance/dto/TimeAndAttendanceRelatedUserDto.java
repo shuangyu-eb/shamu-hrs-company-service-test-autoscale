@@ -26,4 +26,6 @@ public class TimeAndAttendanceRelatedUserDto {
     private Timestamp startDate;
 
     private CompensationDto compensation;
+
+    private String name;
 }

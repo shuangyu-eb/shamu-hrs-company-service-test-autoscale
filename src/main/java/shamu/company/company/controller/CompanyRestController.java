@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +32,7 @@ import shamu.company.employee.service.EmployeeService;
 import shamu.company.job.entity.Job;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserPersonalInformation;
+import shamu.company.user.service.UserService;
 
 @RestApiController
 public class CompanyRestController extends BaseRestController {
@@ -41,14 +43,18 @@ public class CompanyRestController extends BaseRestController {
 
   private final OfficeMapper officeMapper;
 
+  private final UserService userService;
+
   @Autowired
   public CompanyRestController(
       final CompanyService companyService,
       final EmployeeService employeeService,
-      final OfficeMapper officeMapper) {
+      final OfficeMapper officeMapper,
+      @Lazy final UserService userService) {
     this.companyService = companyService;
     this.employeeService = employeeService;
     this.officeMapper = officeMapper;
+    this.userService = userService;
   }
 
   @GetMapping("departments")
@@ -114,7 +120,8 @@ public class CompanyRestController extends BaseRestController {
             user -> {
               UserPersonalInformation userInfo = user.getUserPersonalInformation();
               if (userInfo != null) {
-                return new SelectFieldInformationDto(user.getId(), userInfo.getName());
+                String returnName = userService.getUserNameInUsers(user, users);
+                return new SelectFieldInformationDto(user.getId(), returnName);
               }
               return null;
             })

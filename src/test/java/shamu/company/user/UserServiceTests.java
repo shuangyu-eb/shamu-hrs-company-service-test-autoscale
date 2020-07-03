@@ -914,4 +914,25 @@ class UserServiceTests {
         .thenReturn(auth0User);
     assertThatCode(() -> userService.deleteUser(employee)).doesNotThrowAnyException();
   }
+
+  @Test
+  void getUserNameInUsers() {
+    final User user = new User();
+    final List<User> users = new ArrayList<>();
+    final UserPersonalInformation userPersonalInformation = new UserPersonalInformation();
+    userPersonalInformation.setFirstName("1");
+    userPersonalInformation.setLastName("2");
+
+    final UserContactInformation userContactInformation = new UserContactInformation();
+    userContactInformation.setEmailWork("test@qq.com");
+
+    user.setId(UuidUtil.getUuidString());
+    user.setUserContactInformation(userContactInformation);
+    user.setUserPersonalInformation(userPersonalInformation);
+
+    users.add(user);
+
+    String name = userService.getUserNameInUsers(user, users);
+    assertThat(name).isEqualTo(user.getUserPersonalInformation().getName());
+  }
 }

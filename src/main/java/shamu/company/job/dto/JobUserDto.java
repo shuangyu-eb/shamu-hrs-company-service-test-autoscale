@@ -24,6 +24,8 @@ public class JobUserDto {
 
   private String lastName;
 
+  private String name;
+
   private String email;
 
   private String jobTitle;
@@ -38,8 +40,9 @@ public class JobUserDto {
 
   private Timestamp startDate;
 
-  public JobUserDto(final User user, final JobUser userWithJob) {
+  public JobUserDto(final User user, final JobUser userWithJob, final String userName) {
     setId(user.getId());
+    setName(userName);
     if (user.getUserPersonalInformation() != null) {
       setFirstName(user.getUserPersonalInformation().getFirstName());
       setLastName(user.getUserPersonalInformation().getLastName());

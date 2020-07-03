@@ -55,6 +55,7 @@ import shamu.company.timeoff.repository.TimeOffRequestRepository;
 import shamu.company.timeoff.service.TimeOffDetailService;
 import shamu.company.timeoff.service.TimeOffPolicyService;
 import shamu.company.user.entity.User;
+import shamu.company.user.entity.UserContactInformation;
 import shamu.company.user.entity.UserPersonalInformation;
 import shamu.company.user.repository.UserRepository;
 import shamu.company.user.service.UserService;
@@ -210,11 +211,18 @@ public class TimeOffPolicyServiceTests {
 
   @Test
   void testGetAllEmployeesByTimeOffPolicyId() {
+    UserPersonalInformation userPersonalInformation = new UserPersonalInformation();
+    userPersonalInformation.setFirstName("1");
+    userPersonalInformation.setLastName("2");
+    UserContactInformation userContactInformation = new UserContactInformation();
+    userContactInformation.setEmailWork("111@test.com");
     final TimeOffPolicy timeOffPolicy = new TimeOffPolicy();
     timeOffPolicy.setId("1");
     timeOffPolicy.setIsLimited(false);
     final List<User> selectableTimeOffPolicyUsers = new ArrayList<>();
     final User user = new User("007");
+    user.setUserPersonalInformation(userPersonalInformation);
+    user.setUserContactInformation(userContactInformation);
     final User user1 = new User("008");
     selectableTimeOffPolicyUsers.add(user);
     selectableTimeOffPolicyUsers.add(user1);
@@ -222,10 +230,10 @@ public class TimeOffPolicyServiceTests {
     final List<TimeOffPolicyUser> timeOffPolicyUsers = new ArrayList<>();
     final TimeOffPolicyUser timeOffPolicyUser = new TimeOffPolicyUser();
     timeOffPolicyUser.setId("1");
-    timeOffPolicyUser.setUser(new User("1"));
+    timeOffPolicyUser.setUser(user);
     final TimeOffPolicyUser timeOffPolicyUser1 = new TimeOffPolicyUser();
     timeOffPolicyUser1.setId("2");
-    timeOffPolicyUser1.setUser(user1);
+    timeOffPolicyUser1.setUser(user);
     timeOffPolicyUsers.add(timeOffPolicyUser);
     timeOffPolicyUsers.add(timeOffPolicyUser1);
 
@@ -253,10 +261,11 @@ public class TimeOffPolicyServiceTests {
         .thenReturn(jobUser, jobUserHasHireDate);
     Mockito.when(
             jobUserMapper.convertToTimeOffPolicyRelatedUserDto(
-                (TimeOffPolicyUser) Mockito.any(), Mockito.any()))
+                (TimeOffPolicyUser) Mockito.any(), Mockito.any(), Mockito.anyString()))
         .thenReturn(timeOffPolicyRelatedUserDto);
     Mockito.when(
-            jobUserMapper.convertToTimeOffPolicyRelatedUserDto((User) Mockito.any(), Mockito.any()))
+            jobUserMapper.convertToTimeOffPolicyRelatedUserDto(
+                (User) Mockito.any(), Mockito.any(), Mockito.anyString()))
         .thenReturn(timeOffPolicyRelatedUserDto);
     Mockito.when(
             accrualScheduleMilestoneRepository.findByTimeOffPolicyAccrualScheduleId(Mockito.any()))
@@ -275,6 +284,13 @@ public class TimeOffPolicyServiceTests {
     timeOffPolicy.setIsLimited(false);
     final List<User> selectableTimeOffPolicyUsers = new ArrayList<>();
     final User user = new User("007");
+    UserPersonalInformation userPersonalInformation = new UserPersonalInformation();
+    userPersonalInformation.setFirstName("1");
+    userPersonalInformation.setLastName("2");
+    UserContactInformation userContactInformation = new UserContactInformation();
+    userContactInformation.setEmailWork("test@qq.com");
+    user.setUserContactInformation(userContactInformation);
+    user.setUserPersonalInformation(userPersonalInformation);
     final User user1 = new User("008");
     selectableTimeOffPolicyUsers.add(user);
     selectableTimeOffPolicyUsers.add(user1);
@@ -282,10 +298,10 @@ public class TimeOffPolicyServiceTests {
     final List<TimeOffPolicyUser> timeOffPolicyUsers = new ArrayList<>();
     final TimeOffPolicyUser timeOffPolicyUser = new TimeOffPolicyUser();
     timeOffPolicyUser.setId("1");
-    timeOffPolicyUser.setUser(new User("1"));
+    timeOffPolicyUser.setUser(user);
     final TimeOffPolicyUser timeOffPolicyUser1 = new TimeOffPolicyUser();
     timeOffPolicyUser1.setId("2");
-    timeOffPolicyUser1.setUser(user1);
+    timeOffPolicyUser1.setUser(user);
     timeOffPolicyUsers.add(timeOffPolicyUser);
     timeOffPolicyUsers.add(timeOffPolicyUser1);
 
@@ -313,10 +329,11 @@ public class TimeOffPolicyServiceTests {
         .thenReturn(jobUser, jobUserHasHireDate);
     Mockito.when(
             jobUserMapper.convertToTimeOffPolicyRelatedUserDto(
-                (TimeOffPolicyUser) Mockito.any(), Mockito.any()))
+                (TimeOffPolicyUser) Mockito.any(), Mockito.any(), Mockito.anyString()))
         .thenReturn(timeOffPolicyRelatedUserDto);
     Mockito.when(
-            jobUserMapper.convertToTimeOffPolicyRelatedUserDto((User) Mockito.any(), Mockito.any()))
+            jobUserMapper.convertToTimeOffPolicyRelatedUserDto(
+                (User) Mockito.any(), Mockito.any(), Mockito.anyString()))
         .thenReturn(timeOffPolicyRelatedUserDto);
     Mockito.when(
             accrualScheduleMilestoneRepository.findByTimeOffPolicyAccrualScheduleId(Mockito.any()))
