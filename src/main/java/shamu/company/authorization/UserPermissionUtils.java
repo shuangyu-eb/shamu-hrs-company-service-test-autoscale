@@ -45,6 +45,7 @@ import shamu.company.timeoff.service.TimeOffPolicyService;
 import shamu.company.timeoff.service.TimeOffPolicyUserService;
 import shamu.company.timeoff.service.TimeOffRequestService;
 import shamu.company.user.entity.User;
+import shamu.company.user.entity.User.Role;
 import shamu.company.user.service.UserAddressService;
 import shamu.company.user.service.UserService;
 
@@ -251,8 +252,9 @@ public class UserPermissionUtils extends BasePermissionUtils {
       }
 
       final String officeId = jobInformationDto.getOfficeId();
-      final boolean hasPermissionOfOfficeLocation = !StringUtils.isEmpty(officeId)
-          && !hasPermissionOfOfficeLocation(auth, officeId, permission);
+      final boolean hasPermissionOfOfficeLocation =
+          !StringUtils.isEmpty(officeId)
+              && !hasPermissionOfOfficeLocation(auth, officeId, permission);
       return !hasPermissionOfOfficeLocation;
     }
 
@@ -291,7 +293,7 @@ public class UserPermissionUtils extends BasePermissionUtils {
   }
 
   private boolean hasPermissionOfJobTitle(
-          final Authentication auth, final String id, final Permission.Name permission) {
+      final Authentication auth, final String id, final Permission.Name permission) {
     final Job job = companyService.findJobsById(id);
     return hasPermissionOfCompany(auth, job.getCompany(), permission);
   }
@@ -338,7 +340,10 @@ public class UserPermissionUtils extends BasePermissionUtils {
 
     final User user = timeOffRequestService.getById(id).getRequesterUser();
     if (permission == Name.MANAGE_TIME_OFF_REQUEST) {
-      return !authUserId.equals(user.getId()) && hasPermissionOfUser(auth, user, permission);
+      return (!authUserId.equals(user.getId()) && hasPermissionOfUser(auth, user, permission))
+          || (authUserId.equals(user.getId())
+              && (Role.ADMIN.equals(user.getRole()) || Role.SUPER_ADMIN.equals(user.getRole()))
+              && user.getManagerUser() == null);
     }
 
     return hasPermissionOfUser(auth, user, permission);
