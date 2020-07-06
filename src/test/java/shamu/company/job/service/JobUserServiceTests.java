@@ -45,16 +45,17 @@ import shamu.company.timeoff.repository.TimeOffPolicyAccrualScheduleRepository;
 import shamu.company.timeoff.repository.TimeOffPolicyUserRepository;
 import shamu.company.timeoff.service.TimeOffPolicyService;
 import shamu.company.timeoff.service.TimeOffRequestService;
+import shamu.company.user.entity.EmployeeType;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
 import shamu.company.user.entity.UserRole;
 import shamu.company.user.entity.mapper.UserCompensationMapper;
 import shamu.company.user.entity.mapper.UserMapper;
 import shamu.company.user.service.CompensationOvertimeStatusService;
-import shamu.company.user.service.EmployeeTypesService;
 import shamu.company.user.service.UserRoleService;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.DateUtil;
+import shamu.company.utils.UuidUtil;
 
 class JobUserServiceTests {
 
@@ -308,6 +309,32 @@ class JobUserServiceTests {
           .findSubordinatesByManagerUserId(Mockito.any(), Mockito.any());
       Mockito.verify(userService, Mockito.times(1)).save(Mockito.any());
     }
+  }
+
+  @Nested
+  class checkEmployeeType {
+
+    @Test
+    void whenEmployeeTypeIsNull_thenReturnFalse() {
+      final JobUser jobUser = new JobUser();
+      String userId = UuidUtil.getUuidString();
+      jobUser.setEmployeeType(new EmployeeType());
+      Mockito.when(jobUserRepository.findByUserId(userId)).thenReturn(jobUser);
+      Assertions.assertFalse(jobUserService.checkEmployeeType(userId));
+    }
+
+    @Test
+    void whenEmployeeTypeIsNotNull_thenReturnTrue() {
+      final JobUser jobUser = new JobUser();
+      String userId = UuidUtil.getUuidString();
+      EmployeeType employeeType = new EmployeeType();
+      employeeType.setName("test");
+      jobUser.setEmployeeType(employeeType);
+      Mockito.when(jobUserRepository.findByUserId(userId)).thenReturn(jobUser);
+      Assertions.assertTrue(jobUserService.checkEmployeeType(userId));
+    }
+
+
   }
 
   @Nested

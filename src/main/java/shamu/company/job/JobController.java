@@ -71,6 +71,11 @@ public class JobController extends BaseRestController {
     return jobUserService.findJobsByCompanyId(findCompanyId());
   }
 
+  @GetMapping("current/check-employee-type")
+  public boolean checkEmployeeType() {
+    return jobUserService.checkEmployeeType(findUserId());
+  }
+
   @GetMapping("job/{userId}/hireDate")
   @PreAuthorize("hasPermission(#userId,'USER', 'EDIT_USER')")
   public JobUserHireDateCheckDto checkUserHireDateDeletable(@PathVariable final String userId) {

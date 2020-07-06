@@ -431,6 +431,37 @@ class UserServiceTests {
   }
 
   @Nested
+  class checkSSN {
+
+    private UserPersonalInformation userPersonalInformation;
+
+    @Test
+    void whenSSNIsNull_thenReturnFalse() {
+      final User user = new User();
+      String userId = UuidUtil.getUuidString();
+      user.setId(userId);
+      userPersonalInformation = new UserPersonalInformation();
+      user.setUserPersonalInformation(userPersonalInformation);
+      Mockito.when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+      Assertions.assertFalse(userService.checkSsnComplete(userId));
+    }
+
+    @Test
+    void whenSSNIsNotNull_thenReturnTrue() {
+      final User user = new User();
+      String userId = UuidUtil.getUuidString();
+      user.setId(userId);
+      userPersonalInformation = new UserPersonalInformation();
+      userPersonalInformation.setSsn("1111");
+      user.setUserPersonalInformation(userPersonalInformation);
+      Mockito.when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+      Assertions.assertTrue(userService.checkSsnComplete(userId));
+    }
+
+
+  }
+
+  @Nested
   class UpdateWorkEmail {
 
     private String userId;

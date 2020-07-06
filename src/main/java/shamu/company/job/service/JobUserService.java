@@ -426,4 +426,11 @@ public class JobUserService {
 
     return new JobUserHireDateCheckDto(hireDateDeletable);
   }
+
+  public Boolean checkEmployeeType(final String userId) {
+    JobUser jobUser = jobUserRepository.findByUserId(userId);
+
+    return jobUser.getEmployeeType() != null && jobUser.getEmployeeType().getName() != null;
+
+  }
 }

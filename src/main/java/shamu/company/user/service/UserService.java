@@ -959,4 +959,11 @@ public class UserService {
     }
     return userName;
   }
+
+  public Boolean checkSsnComplete(final String userId) {
+
+    final Optional<User> user = userRepository.findById(userId);
+
+    return user.isPresent() && user.get().getUserPersonalInformation().getSsn() != null;
+  }
 }

@@ -172,6 +172,11 @@ public class UserRestController extends BaseRestController {
     return user.getCompany().getName();
   }
 
+  @GetMapping("current/check-ssn")
+  public Boolean checkSSN() {
+    return userService.checkSsnComplete(findUserId());
+  }
+
   @GetMapping("/users/check-password/{password}")
   @PreAuthorize("hasAuthority('EDIT_SELF')")
   public void checkPassword(@PathVariable final String password) {
