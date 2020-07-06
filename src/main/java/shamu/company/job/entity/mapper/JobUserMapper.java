@@ -84,11 +84,10 @@ public interface JobUserMapper {
   @Mapping(target = "firstName", source = "user.userPersonalInformation.firstName")
   @Mapping(target = "preferredName", source = "user.userPersonalInformation.preferredName")
   @Mapping(target = "lastName", source = "user.userPersonalInformation.lastName")
-  @Mapping(target = "name", source = "name")
   @Mapping(target = "id", source = "user.id")
   @Mapping(target = "imageUrl", source = "user.imageUrl")
   TimeOffPolicyRelatedUserDto convertToTimeOffPolicyRelatedUserDto(
-      User user, JobUser jobUser, String name);
+      User user, JobUser jobUser, String name, boolean unSelectable);
 
   @Mapping(target = "jobTitle", source = "jobUser.job.title")
   @Mapping(target = "employmentType", source = "jobUser.employmentType.name")
@@ -98,12 +97,11 @@ public interface JobUserMapper {
       target = "preferredName",
       source = "policyUser.user.userPersonalInformation.preferredName")
   @Mapping(target = "lastName", source = "policyUser.user.userPersonalInformation.lastName")
-  @Mapping(target = "name", source = "name")
   @Mapping(target = "id", source = "policyUser.user.id")
   @Mapping(target = "imageUrl", source = "policyUser.user.imageUrl")
   @Mapping(target = "balance", source = "policyUser.initialBalance")
   TimeOffPolicyRelatedUserDto convertToTimeOffPolicyRelatedUserDto(
-      TimeOffPolicyUser policyUser, JobUser jobUser, String name);
+      TimeOffPolicyUser policyUser, JobUser jobUser,String name, boolean unSelectable);
 
   @Mapping(target = "jobTitle", source = "jobUser.job.title")
   @Mapping(target = "employmentType", source = "jobUser.employmentType.name")
@@ -111,7 +109,9 @@ public interface JobUserMapper {
   @Mapping(target = "startDate", source = "jobUser.startDate")
   @Mapping(target = "compensation", source = "jobUser.userCompensation")
   @Mapping(target = "firstName", source = "user.userPersonalInformation.firstName")
-  @Mapping(target = "preferredName", source = "user.userPersonalInformation.preferredName")
+  @Mapping(
+          target = "preferredName",
+          source = "user.userPersonalInformation.preferredName")
   @Mapping(target = "lastName", source = "user.userPersonalInformation.lastName")
   @Mapping(target = "id", source = "user.id")
   @Mapping(target = "imageUrl", source = "user.imageUrl")

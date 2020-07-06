@@ -27,5 +27,7 @@ public class TimeOffPolicyRelatedUserDto {
 
   private String employmentType;
 
+  private Boolean unSelectable;
+
   private String name;
 }

@@ -41,7 +41,6 @@ import shamu.company.timeoff.dto.TimeOffPolicyListDto;
 import shamu.company.timeoff.dto.TimeOffPolicyRelatedInfoDto;
 import shamu.company.timeoff.dto.TimeOffPolicyRelatedUserDto;
 import shamu.company.timeoff.dto.TimeOffPolicyRelatedUserListDto;
-import shamu.company.timeoff.dto.TimeOffPolicyRelatedUserListOnMobileDto;
 import shamu.company.timeoff.dto.TimeOffPolicyUserDto;
 import shamu.company.timeoff.dto.TimeOffPolicyUserFrontendDto;
 import shamu.company.timeoff.dto.TimeOffPolicyWrapperDto;
@@ -69,7 +68,10 @@ import shamu.company.timeoff.repository.TimeOffPolicyRepository;
 import shamu.company.timeoff.repository.TimeOffPolicyUserRepository;
 import shamu.company.timeoff.repository.TimeOffRequestRepository;
 import shamu.company.user.entity.User;
+import shamu.company.user.entity.UserAddress;
+import shamu.company.user.entity.UserPersonalInformation;
 import shamu.company.user.repository.UserRepository;
+import shamu.company.user.service.UserAddressService;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.DateUtil;
 
@@ -111,6 +113,8 @@ public class TimeOffPolicyService {
 
   private final UserService userService;
 
+  private final UserAddressService userAddressService;
+
   @Autowired
   public TimeOffPolicyService(
       final TimeOffPolicyRepository timeOffPolicyRepository,
@@ -129,7 +133,8 @@ public class TimeOffPolicyService {
       final TimeOffPolicyMapper timeOffPolicyMapper,
       final JobUserMapper jobUserMapper,
       final CompanyService companyService,
-      final UserService userService) {
+      final UserService userService,
+      final UserAddressService userAddressService) {
     this.timeOffPolicyRepository = timeOffPolicyRepository;
     this.timeOffPolicyUserRepository = timeOffPolicyUserRepository;
     this.accrualScheduleMilestoneRepository = accrualScheduleMilestoneRepository;
@@ -147,6 +152,7 @@ public class TimeOffPolicyService {
     this.jobUserMapper = jobUserMapper;
     this.companyService = companyService;
     this.userService = userService;
+    this.userAddressService = userAddressService;
   }
 
   public void createTimeOffPolicy(
@@ -425,16 +431,23 @@ public class TimeOffPolicyService {
         timeOffPolicyUsers.stream()
             .map(
                 timeOffPolicyUser -> {
-                  final JobUser employeeWithJobInfo =
-                      jobUserRepository.findJobUserByUser(timeOffPolicyUser.getUser());
-                  selectedUsersIds.add(timeOffPolicyUser.getUser().getId());
+                  final User user = timeOffPolicyUser.getUser();
 
-                  String userNameOrUserNameWithEmailAddress =
-                      userService.getUserNameInUsers(
-                          timeOffPolicyUser.getUser(), selectableTimeOffPolicyUsers);
+                  final JobUser employeeWithJobInfo = jobUserRepository.findJobUserByUser(user);
+
+                  selectedUsersIds.add(user.getId());
+
+                  final boolean isEmployeeAddable =
+                      verifyIntegrityOfEmployeeInformation(user, employeeWithJobInfo);
+
+                  final String userNameOrUserNameWithEmailAddress =
+                      userService.getUserNameInUsers(user, selectableTimeOffPolicyUsers);
 
                   return jobUserMapper.convertToTimeOffPolicyRelatedUserDto(
-                      timeOffPolicyUser, employeeWithJobInfo, userNameOrUserNameWithEmailAddress);
+                      timeOffPolicyUser,
+                      employeeWithJobInfo,
+                      userNameOrUserNameWithEmailAddress,
+                      !isEmployeeAddable);
                 })
             .collect(Collectors.toList());
 
@@ -444,10 +457,15 @@ public class TimeOffPolicyService {
             .map(
                 user -> {
                   final JobUser employeeWithJobInfo = jobUserRepository.findJobUserByUser(user);
-                  String userNameOrUserNameWithEmailAddress =
+                  final boolean isEmployeeAddable =
+                      verifyIntegrityOfEmployeeInformation(user, employeeWithJobInfo);
+                  final String userNameOrUserNameWithEmailAddress =
                       userService.getUserNameInUsers(user, selectableTimeOffPolicyUsers);
                   return jobUserMapper.convertToTimeOffPolicyRelatedUserDto(
-                      user, employeeWithJobInfo, userNameOrUserNameWithEmailAddress);
+                      user,
+                      employeeWithJobInfo,
+                      userNameOrUserNameWithEmailAddress,
+                      !isEmployeeAddable);
                 })
             .collect(Collectors.toList());
 
@@ -455,44 +473,35 @@ public class TimeOffPolicyService {
         timeOffPolicy.getIsLimited(), unselectedEmployees, selectedEmployees);
   }
 
-  public TimeOffPolicyRelatedUserListOnMobileDto getAllEmployeesOnMobileByTimeOffPolicyId(
-      final String timeOffPolicyId, final String companyId) {
+  public List<TimeOffPolicyRelatedUserDto> getEmployeesOfNewPolicy(final String companyId) {
+    final List<User> allUsers = userRepository.findAllByCompanyId(companyId);
+    return allUsers.stream()
+        .map(
+            user -> {
+              final JobUser jobUser = jobUserRepository.findJobUserByUser(user);
+              final boolean isEmployeeAddable = verifyIntegrityOfEmployeeInformation(user, jobUser);
+              final String userNameOrUserNameWithEmailAddress =
+                  userService.getUserNameInUsers(user, allUsers);
+              return jobUserMapper.convertToTimeOffPolicyRelatedUserDto(
+                  user, jobUser, userNameOrUserNameWithEmailAddress, !isEmployeeAddable);
+            })
+        .collect(Collectors.toList());
+  }
 
-    final TimeOffPolicy timeOffPolicy = getTimeOffPolicyById(timeOffPolicyId);
-
-    final List<TimeOffPolicyUser> timeOffPolicyUsers =
-        timeOffPolicyUserRepository.findAllByTimeOffPolicyId(timeOffPolicyId);
-
-    final List<User> selectableTimeOffPolicyUsers = userRepository.findAllByCompanyId(companyId);
-
-    final List<TimeOffPolicyRelatedUserDto> selectedEmployees =
-        timeOffPolicyUsers.stream()
-            .map(
-                timeOffPolicyUser -> {
-                  final JobUser employeeWithJobInfo =
-                      jobUserRepository.findJobUserByUser(timeOffPolicyUser.getUser());
-                  String userNameOrUserNameWithEmailAddress =
-                      userService.getUserNameInUsers(
-                          timeOffPolicyUser.getUser(), selectableTimeOffPolicyUsers);
-                  return jobUserMapper.convertToTimeOffPolicyRelatedUserDto(
-                      timeOffPolicyUser, employeeWithJobInfo, userNameOrUserNameWithEmailAddress);
-                })
-            .collect(Collectors.toList());
-
-    final List<TimeOffPolicyRelatedUserDto> unselectedEmployees =
-        selectableTimeOffPolicyUsers.stream()
-            .map(
-                user -> {
-                  final JobUser employeeWithJobInfo = jobUserRepository.findJobUserByUser(user);
-                  String userNameOrUserNameWithEmailAddress =
-                      userService.getUserNameInUsers(user, selectableTimeOffPolicyUsers);
-                  return jobUserMapper.convertToTimeOffPolicyRelatedUserDto(
-                      user, employeeWithJobInfo, userNameOrUserNameWithEmailAddress);
-                })
-            .collect(Collectors.toList());
-
-    return new TimeOffPolicyRelatedUserListOnMobileDto(
-        timeOffPolicy.getIsLimited(), unselectedEmployees, selectedEmployees);
+  public boolean verifyIntegrityOfEmployeeInformation(
+      final User user, final JobUser employeeWithJobInfo) {
+    final UserPersonalInformation userPersonalInformation = user.getUserPersonalInformation();
+    final UserAddress userAddress = userAddressService.findUserAddressByUserId(user.getId());
+    return userPersonalInformation.getBirthDate() != null
+        && userPersonalInformation.getSsn() != null
+        && userAddress.getCountry() != null
+        && userAddress.getStateProvince() != null
+        && userAddress.getCity() != null
+        && userAddress.getStreet1() != null
+        && employeeWithJobInfo.getEmployeeType() != null
+        && employeeWithJobInfo.getStartDate() != null
+        && employeeWithJobInfo.getOffice() != null
+        && employeeWithJobInfo.getUserCompensation() != null;
   }
 
   public boolean checkIsPolicyCalculationRelatedToHireDate(

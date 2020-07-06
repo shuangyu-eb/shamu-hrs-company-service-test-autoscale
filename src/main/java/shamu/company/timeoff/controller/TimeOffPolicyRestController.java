@@ -20,8 +20,8 @@ import shamu.company.timeoff.dto.TimeOffBalanceDto;
 import shamu.company.timeoff.dto.TimeOffBreakdownDto;
 import shamu.company.timeoff.dto.TimeOffPolicyListDto;
 import shamu.company.timeoff.dto.TimeOffPolicyRelatedInfoDto;
+import shamu.company.timeoff.dto.TimeOffPolicyRelatedUserDto;
 import shamu.company.timeoff.dto.TimeOffPolicyRelatedUserListDto;
-import shamu.company.timeoff.dto.TimeOffPolicyRelatedUserListOnMobileDto;
 import shamu.company.timeoff.dto.TimeOffPolicyUserDto;
 import shamu.company.timeoff.dto.TimeOffPolicyWrapperDto;
 import shamu.company.timeoff.service.TimeOffDetailService;
@@ -112,11 +112,10 @@ public class TimeOffPolicyRestController extends BaseRestController {
     return timeOffPolicyService.getAllEmployeesByTimeOffPolicyId(policyId, findCompanyId());
   }
 
-  @GetMapping("time-off-policies/mobile/{policyId}/users")
-  @PreAuthorize("hasPermission(#policyId, 'TIME_OFF_POLICY', 'MANAGE_TIME_OFF_POLICY')")
-  public TimeOffPolicyRelatedUserListOnMobileDto getEmployeesOnMobileByTimeOffPolicyId(
-      @PathVariable final String policyId) {
-    return timeOffPolicyService.getAllEmployeesOnMobileByTimeOffPolicyId(policyId, findCompanyId());
+  @GetMapping("new-time-off-policy/users")
+  @PreAuthorize("hasAnyAuthority('TIME_OFF_POLICY', 'MANAGE_TIME_OFF_POLICY')")
+  public List<TimeOffPolicyRelatedUserDto> getEmployeesOfNewPolicy() {
+    return timeOffPolicyService.getEmployeesOfNewPolicy(findCompanyId());
   }
 
   @DeleteMapping("time-off-policies/{policyId}")
