@@ -88,6 +88,7 @@ public class AttendanceSetUpService {
   public TimeAndAttendanceRelatedUserListDto getRelatedUsers(final String companyId) {
     // The logic of unSelectedUsers should be modified.
     final List<EmployeesTaSetting> timeAndAttendanceUsers = employeesTaSettingRepository.findAll();
+    final List<User> allUsers = userRepository.findAllByCompanyId(companyId);
 
     final List<String> selectedUsersIds = new ArrayList<>();
     final List<TimeAndAttendanceRelatedUserDto> selectedEmployees =
@@ -98,8 +99,7 @@ public class AttendanceSetUpService {
                   final JobUser employeeWithJobInfo = jobUserRepository.findJobUserByUser(user);
                   selectedUsersIds.add(user.getId());
                   String userNameOrUserNameWithEmailAddress =
-                      getUserNameInEmployeesTaSetting(
-                          timeAndAttendanceUser.getEmployee(), timeAndAttendanceUsers);
+                      userService.getUserNameInUsers(user, allUsers);
                   return jobUserMapper.convertToTimeAndAttendanceRelatedUserDto(
                       user, employeeWithJobInfo, userNameOrUserNameWithEmailAddress);
                 })
@@ -107,39 +107,21 @@ public class AttendanceSetUpService {
 
     final List<User> unSelectedUsers =
         selectedUsersIds.isEmpty()
-            ? userRepository.findAllByCompanyId(companyId)
+            ? allUsers
             : userRepository.findAllByCompanyIdAndIdNotIn(companyId, selectedUsersIds);
     final List<TimeAndAttendanceRelatedUserDto> unSelectedEmployees =
         unSelectedUsers.stream()
             .map(
                 user -> {
                   final JobUser employeeWithJobInfo = jobUserRepository.findJobUserByUser(user);
-                  String userNameOrUserNameWithEmailAddress = userService.getUserNameInUsers(user, unSelectedUsers);
+                  String userNameOrUserNameWithEmailAddress =
+                      userService.getUserNameInUsers(user, allUsers);
                   return jobUserMapper.convertToTimeAndAttendanceRelatedUserDto(
                       user, employeeWithJobInfo, userNameOrUserNameWithEmailAddress);
                 })
             .collect(Collectors.toList());
 
     return new TimeAndAttendanceRelatedUserListDto(selectedEmployees, unSelectedEmployees);
-  }
-
-  // When the user has the same name in the user list, the user's email address needs to be added
-  private String getUserNameInEmployeesTaSetting(
-      final User user, final List<EmployeesTaSetting> employeesTaSettingList) {
-    int count = 0;
-    final String currentUserName = user.getUserPersonalInformation().getName();
-    final String userEmail = " (" + user.getUserContactInformation().getEmailWork() + ")";
-    for (final EmployeesTaSetting employeesTaSetting : employeesTaSettingList) {
-      final String userName =
-          employeesTaSetting.getEmployee().getUserPersonalInformation().getName();
-      if (currentUserName.equals(userName)) {
-        count++;
-      }
-      if (count > 1) {
-        return currentUserName.concat(userEmail);
-      }
-    }
-    return currentUserName;
   }
 
   public void saveAttendanceDetails(

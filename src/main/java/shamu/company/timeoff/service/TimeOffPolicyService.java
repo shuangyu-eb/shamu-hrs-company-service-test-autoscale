@@ -430,8 +430,8 @@ public class TimeOffPolicyService {
                   selectedUsersIds.add(timeOffPolicyUser.getUser().getId());
 
                   String userNameOrUserNameWithEmailAddress =
-                      getUserNameInTimeOffPolicyUsers(
-                          timeOffPolicyUser.getUser(), timeOffPolicyUsers);
+                      userService.getUserNameInUsers(
+                          timeOffPolicyUser.getUser(), selectableTimeOffPolicyUsers);
 
                   return jobUserMapper.convertToTimeOffPolicyRelatedUserDto(
                       timeOffPolicyUser, employeeWithJobInfo, userNameOrUserNameWithEmailAddress);
@@ -472,8 +472,8 @@ public class TimeOffPolicyService {
                   final JobUser employeeWithJobInfo =
                       jobUserRepository.findJobUserByUser(timeOffPolicyUser.getUser());
                   String userNameOrUserNameWithEmailAddress =
-                      getUserNameInTimeOffPolicyUsers(
-                          timeOffPolicyUser.getUser(), timeOffPolicyUsers);
+                      userService.getUserNameInUsers(
+                          timeOffPolicyUser.getUser(), selectableTimeOffPolicyUsers);
                   return jobUserMapper.convertToTimeOffPolicyRelatedUserDto(
                       timeOffPolicyUser, employeeWithJobInfo, userNameOrUserNameWithEmailAddress);
                 })
@@ -493,24 +493,6 @@ public class TimeOffPolicyService {
 
     return new TimeOffPolicyRelatedUserListOnMobileDto(
         timeOffPolicy.getIsLimited(), unselectedEmployees, selectedEmployees);
-  }
-
-  // When the user has the same name in the user list, the user's email address needs to be added
-  private String getUserNameInTimeOffPolicyUsers(
-      final User user, final List<TimeOffPolicyUser> timeOffPolicyUsers) {
-    int count = 0;
-    final String currentUserName = user.getUserPersonalInformation().getName();
-    final String userEmail = " (" + user.getUserContactInformation().getEmailWork() + ")";
-    for (final TimeOffPolicyUser timeOffPolicyUser : timeOffPolicyUsers) {
-      final String userName = timeOffPolicyUser.getUser().getUserPersonalInformation().getName();
-      if (currentUserName.equals(userName)) {
-        count++;
-      }
-      if (count > 1) {
-        return currentUserName.concat(userEmail);
-      }
-    }
-    return currentUserName;
   }
 
   public boolean checkIsPolicyCalculationRelatedToHireDate(

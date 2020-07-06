@@ -37,6 +37,7 @@ import shamu.company.user.repository.CompensationFrequencyRepository;
 import shamu.company.user.repository.CompensationOvertimeStatusRepository;
 import shamu.company.user.repository.UserCompensationRepository;
 import shamu.company.user.repository.UserRepository;
+import shamu.company.user.service.UserService;
 
 public class AttendanceSetUpServiceTests {
 
@@ -61,6 +62,8 @@ public class AttendanceSetUpServiceTests {
   @Mock private CompensationOvertimeStatusRepository compensationOvertimeStatusRepository;
 
   @Mock private UserCompensationRepository userCompensationRepository;
+
+  @Mock private UserService userService;
 
   @BeforeEach
   void init() {
@@ -113,6 +116,9 @@ public class AttendanceSetUpServiceTests {
       Mockito.when(userRepository.findAllByCompanyId(companyId)).thenReturn(unselectedUsers);
       Mockito.when(employeesTaSettingRepository.findAll()).thenReturn(selectedUsers);
       Mockito.when(jobUserRepository.findJobUserByUser(user)).thenReturn(employeeWithJobInfo);
+      Mockito.when(
+              userService.getUserNameInUsers(employeesTaSetting.getEmployee(), unselectedUsers))
+          .thenReturn("123");
       Mockito.when(
               jobUserMapper.convertToTimeAndAttendanceRelatedUserDto(
                   user, employeeWithJobInfo, "123"))
