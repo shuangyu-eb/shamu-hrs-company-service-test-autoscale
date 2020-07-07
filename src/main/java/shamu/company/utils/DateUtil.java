@@ -1,8 +1,12 @@
 package shamu.company.utils;
 
 import static java.time.temporal.TemporalAdjusters.firstDayOfYear;
+import static java.time.temporal.TemporalAdjusters.previousOrSame;
 
 import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.DayOfWeek;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -12,6 +16,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
 import java.util.Date;
 import java.util.Locale;
+import shamu.company.attendance.exception.ParseDateException;
 
 public abstract class DateUtil {
 
@@ -99,5 +104,33 @@ public abstract class DateUtil {
   // Get current UTC time
   public static LocalDateTime getLocalUtcTime() {
     return LocalDateTime.now(ZoneOffset.UTC);
+  }
+
+  public static long stringToLong(final String date) {
+    final SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM d, yyyy", Locale.ENGLISH);
+    try {
+      return new Timestamp(dateFormat.parse(date).getTime()).getTime();
+    } catch (final ParseException e) {
+      throw new ParseDateException("Unable to parse date.", e);
+    }
+  }
+
+  public static long getFirstHourOfWeek(final Timestamp timestamp, final String timezone) {
+
+    final LocalDate currentDate = timestamp.toInstant().atZone(ZoneId.of(timezone)).toLocalDate();
+    final LocalDateTime firstDatimeOfWeek =
+        currentDate.with(previousOrSame(DayOfWeek.SATURDAY)).atStartOfDay();
+    return firstDatimeOfWeek.atZone(ZoneId.of(timezone)).toEpochSecond();
+  }
+
+  public static LocalDate getFirstDayOfWeek(final Timestamp timestamp, final String timezone) {
+
+    final LocalDate currentDate = timestamp.toInstant().atZone(ZoneId.of(timezone)).toLocalDate();
+    return currentDate.with(previousOrSame(DayOfWeek.SATURDAY));
+  }
+
+  public static LocalDateTime convertUnixToLocalDateTime(
+      final Timestamp timestamp, final String timezone) {
+    return timestamp.toInstant().atZone(ZoneId.of(timezone)).toLocalDateTime();
   }
 }

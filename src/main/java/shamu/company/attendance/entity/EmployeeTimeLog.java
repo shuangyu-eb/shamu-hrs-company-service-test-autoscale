@@ -13,12 +13,12 @@ import shamu.company.common.entity.BaseEntity;
 @Data
 @Entity
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "employee_time_logs")
 public class EmployeeTimeLog extends BaseEntity {
 
-  private static final long serialVersionUID = 3096195400374918373L;
+  private static final long serialVersionUID = 3098750609517123957L;
   private Timestamp start;
 
   private int durationMin;

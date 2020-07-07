@@ -5,14 +5,16 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import shamu.company.attendance.dto.AttendanceSummaryDto;
 import shamu.company.attendance.dto.MyHoursListDto;
 import shamu.company.attendance.dto.TimeEntryDto;
 import shamu.company.attendance.service.AttendanceMyHoursService;
+import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.employee.dto.CompensationDto;
 
 @RestApiController
-public class AttendanceMyHoursController {
+public class AttendanceMyHoursController extends BaseRestController {
 
   private final AttendanceMyHoursService attendanceMyHoursService;
 
@@ -34,5 +36,10 @@ public class AttendanceMyHoursController {
   @GetMapping("time-and-attendance/user-compensation/{userId}")
   public CompensationDto findUserCompensation(@PathVariable final String userId) {
     return attendanceMyHoursService.findUserCompensation(userId);
+  }
+
+  @GetMapping("time-and-attendance/attendance-summary/{timesheetId}")
+  public AttendanceSummaryDto findAttendanceSummary(@PathVariable final String timesheetId) {
+    return attendanceMyHoursService.findAttendanceSummary(timesheetId);
   }
 }

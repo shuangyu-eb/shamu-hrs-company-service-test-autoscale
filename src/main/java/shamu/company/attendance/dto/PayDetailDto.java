@@ -4,6 +4,9 @@ import lombok.Data;
 
 @Data
 public class PayDetailDto {
+
+  private String timeLogId;
+
   private String timeRange;
 
   private String minutes;

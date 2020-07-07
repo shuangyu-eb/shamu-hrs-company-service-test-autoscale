@@ -501,4 +501,16 @@ public class TimeOffRequestService {
       return value;
     }
   }
+
+  public int findTimeOffHoursBetweenWorkPeriod(
+      final String userId, final long startDate, final long endDate) {
+    final List<TimeOffRequest> timeOffRequests =
+        timeOffRequestRepository.findApprovedRequestByRequesterUserIdFilteredByStartAndEndDay(
+            userId, startDate, endDate, APPROVED.name());
+    int timeOffHours = 0;
+    for (final TimeOffRequest timeOffRequest : timeOffRequests) {
+      timeOffHours += timeOffRequest.getHours();
+    }
+    return timeOffHours;
+  }
 }

@@ -157,6 +157,23 @@ public interface TimeOffRequestRepository
 
   @Query(
       value =
+          "select * from time_off_requests tr "
+              + "left join time_off_request_approval_statuses tras "
+              + "on tr.time_off_request_approval_status_id = tras.id "
+              + "where tr.id in "
+              + "(select trspan.time_off_request_id from "
+              + "(select min(trd.date) startDay, max(trd.date) endDay, trd.time_off_request_id "
+              + "from time_off_request_dates trd "
+              + "group by trd.time_off_request_id "
+              + "having UNIX_TIMESTAMP(endDay) >= ?2 and UNIX_TIMESTAMP(startDay) <= ?3) trspan) "
+              + "and tr.requester_user_id = unhex(?1) "
+              + "and tras.name = ?4",
+      nativeQuery = true)
+  List<TimeOffRequest> findApprovedRequestByRequesterUserIdFilteredByStartAndEndDay(
+      String id, long startDay, long endDay, String status);
+
+  @Query(
+      value =
           "select tr.* from time_off_requests tr "
               + "join time_off_request_dates tord on tr.id = tord.time_off_request_id "
               + "join time_off_request_approval_statuses tras "

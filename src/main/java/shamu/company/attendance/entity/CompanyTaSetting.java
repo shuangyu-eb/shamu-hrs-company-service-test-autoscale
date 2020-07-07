@@ -1,17 +1,20 @@
 package shamu.company.attendance.entity;
 
-import lombok.Data;
-import shamu.company.common.entity.BaseEntity;
-import shamu.company.company.entity.Company;
-
+import java.sql.Timestamp;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import java.sql.Timestamp;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import shamu.company.common.entity.BaseEntity;
+import shamu.company.company.entity.Company;
 
 @Data
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "company_ta_settings")
 public class CompanyTaSetting extends BaseEntity {
 
@@ -27,9 +30,9 @@ public class CompanyTaSetting extends BaseEntity {
   private Timestamp lastPayrollPayday;
 
   public CompanyTaSetting(
-          final Company company,
-          final StaticCompanyPayFrequencyType payFrequencyType,
-          final Timestamp lastPayrollPayday) {
+      final Company company,
+      final StaticCompanyPayFrequencyType payFrequencyType,
+      final Timestamp lastPayrollPayday) {
     this.company = company;
     this.payFrequencyType = payFrequencyType;
     this.lastPayrollPayday = lastPayrollPayday;

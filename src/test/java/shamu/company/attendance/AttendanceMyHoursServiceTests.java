@@ -1,10 +1,13 @@
 package shamu.company.attendance;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
 import java.math.BigInteger;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,13 +17,16 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import shamu.company.attendance.dto.AttendanceSummaryDto;
 import shamu.company.attendance.dto.BreakTimeLogDto;
 import shamu.company.attendance.dto.MyHoursEntryDto;
 import shamu.company.attendance.dto.MyHoursListDto;
 import shamu.company.attendance.dto.TimeEntryDto;
+import shamu.company.attendance.entity.CompanyTaSetting;
 import shamu.company.attendance.entity.EmployeeTimeEntry;
 import shamu.company.attendance.entity.EmployeeTimeLog;
 import shamu.company.attendance.entity.StaticEmployeesTaTimeType;
+import shamu.company.attendance.entity.StaticTimezone;
 import shamu.company.attendance.entity.TimePeriod;
 import shamu.company.attendance.entity.TimeSheet;
 import shamu.company.attendance.entity.mapper.EmployeeTimeLogMapper;
@@ -28,12 +34,18 @@ import shamu.company.attendance.repository.EmployeeTimeEntryRepository;
 import shamu.company.attendance.repository.EmployeeTimeLogRepository;
 import shamu.company.attendance.repository.StaticEmployeesTaTimeTypeRepository;
 import shamu.company.attendance.service.AttendanceMyHoursService;
+import shamu.company.attendance.service.AttendanceSettingsService;
+import shamu.company.attendance.service.EmployeeTimeEntryService;
 import shamu.company.attendance.service.TimeSheetService;
+import shamu.company.company.entity.Company;
 import shamu.company.job.entity.CompensationFrequency;
+import shamu.company.timeoff.service.TimeOffRequestService;
+import shamu.company.user.entity.CompensationOvertimeStatus;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserCompensation;
 import shamu.company.user.service.UserCompensationService;
 import shamu.company.user.service.UserService;
+import shamu.company.utils.DateUtil;
 
 public class AttendanceMyHoursServiceTests {
   @InjectMocks AttendanceMyHoursService attendanceMyHoursService;
@@ -51,6 +63,12 @@ public class AttendanceMyHoursServiceTests {
   @Mock private UserCompensationService userCompensationService;
 
   @Mock private EmployeeTimeLogMapper employeeTimeLogMapper;
+
+  @Mock private EmployeeTimeEntryService employeeTimeEntryService;
+
+  @Mock private AttendanceSettingsService attendanceSettingsService;
+
+  @Mock private TimeOffRequestService timeOffRequestService;
 
   @BeforeEach
   void init() {
@@ -171,7 +189,7 @@ public class AttendanceMyHoursServiceTests {
 
     @Test
     void whenTimeEntryIsEmpty_thenShouldSuccess() {
-      Mockito.when(employeeTimeEntryRepository.findAllByTimesheetId(Mockito.anyString()))
+      Mockito.when(employeeTimeEntryService.findEntriesById(Mockito.anyString()))
           .thenReturn(employeeTimeEntries);
       assertThatCode(() -> attendanceMyHoursService.findMyHoursLists("1"))
           .doesNotThrowAnyException();
@@ -180,10 +198,66 @@ public class AttendanceMyHoursServiceTests {
     @Test
     void whenTimeEntryIsNotEmpty_thenShouldSuccess() {
       employeeTimeEntries.add(employeeTimeEntry);
-      Mockito.when(employeeTimeEntryRepository.findAllByTimesheetId(Mockito.anyString()))
+      Mockito.when(employeeTimeEntryService.findEntriesById(Mockito.anyString()))
           .thenReturn(employeeTimeEntries);
       assertThatCode(() -> attendanceMyHoursService.findMyHoursLists("1"))
           .doesNotThrowAnyException();
     }
+  }
+
+  @Test
+  void findAttendanceSummary() {
+    final TimeSheet timeSheet = new TimeSheet();
+    final TimePeriod timePeriod = new TimePeriod();
+    timePeriod.setStartDate(Timestamp.valueOf(LocalDateTime.parse("2020-07-01T01:00:00")));
+    timePeriod.setEndDate(Timestamp.valueOf(LocalDateTime.parse("2020-07-08T01:00:00")));
+    timeSheet.setTimePeriod(timePeriod);
+    final UserCompensation userCompensation = new UserCompensation();
+    final CompensationFrequency compensationFrequency = new CompensationFrequency();
+    compensationFrequency.setName("Per Hour");
+    final CompensationOvertimeStatus compensationOvertimeStatus = new CompensationOvertimeStatus();
+    compensationOvertimeStatus.setName("California");
+    userCompensation.setOvertimeStatus(compensationOvertimeStatus);
+    userCompensation.setCompensationFrequency(compensationFrequency);
+    userCompensation.setWageCents(BigInteger.valueOf(10));
+    timeSheet.setUserCompensation(userCompensation);
+    final User user = new User();
+    user.setId("1");
+    final Company company = new Company();
+    company.setId("1");
+    user.setCompany(company);
+    timeSheet.setEmployee(user);
+    final CompanyTaSetting companyTaSetting = new CompanyTaSetting();
+    final StaticTimezone staticTimezone = new StaticTimezone();
+    staticTimezone.setName("Africa/Abidjan");
+    companyTaSetting.setTimeZone(staticTimezone);
+    final EmployeeTimeLog employeeTimeLog = new EmployeeTimeLog();
+    final StaticEmployeesTaTimeType staticEmployeesTaTimeType = new StaticEmployeesTaTimeType();
+    staticEmployeesTaTimeType.setName("WORK");
+    employeeTimeLog.setDurationMin(540);
+    employeeTimeLog.setStart(Timestamp.valueOf(LocalDateTime.parse("2020-07-02T08:00:00")));
+    employeeTimeLog.setTimeType(staticEmployeesTaTimeType);
+
+    final long startOfTimesheetWeek =
+        DateUtil.getFirstHourOfWeek(
+            timeSheet.getTimePeriod().getStartDate(), companyTaSetting.getTimeZone().getName());
+    final long endOfTimesheetWeek =
+        DateUtil.getFirstHourOfWeek(
+            timeSheet.getTimePeriod().getEndDate(), companyTaSetting.getTimeZone().getName());
+
+    Mockito.when(timeSheetService.findTimeSheetById("1")).thenReturn(timeSheet);
+    Mockito.when(attendanceSettingsService.findCompanySettings(user.getCompany().getId()))
+        .thenReturn(companyTaSetting);
+    Mockito.when(
+            timeOffRequestService.findTimeOffHoursBetweenWorkPeriod(
+                user.getId(), startOfTimesheetWeek, endOfTimesheetWeek))
+        .thenReturn(1);
+    Mockito.when(
+            employeeTimeLogRepository.findEmployeeTimeLogByTime(
+                startOfTimesheetWeek, endOfTimesheetWeek, user.getId()))
+        .thenReturn(Collections.singletonList(employeeTimeLog));
+    final AttendanceSummaryDto attendanceSummaryDto =
+        attendanceMyHoursService.findAttendanceSummary("1");
+    assertThat(attendanceSummaryDto.getOverTimeHours()).isEqualTo("1:00");
   }
 }
