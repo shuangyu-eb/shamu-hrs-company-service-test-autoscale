@@ -18,6 +18,7 @@ import shamu.company.common.service.DepartmentService;
 import shamu.company.common.service.OfficeAddressService;
 import shamu.company.common.service.OfficeService;
 import shamu.company.company.dto.OfficeCreateDto;
+import shamu.company.company.entity.Company;
 import shamu.company.company.entity.Department;
 import shamu.company.company.entity.Office;
 import shamu.company.company.entity.OfficeAddress;
@@ -333,8 +334,6 @@ class JobUserServiceTests {
       Mockito.when(jobUserRepository.findByUserId(userId)).thenReturn(jobUser);
       Assertions.assertTrue(jobUserService.checkEmployeeType(userId));
     }
-
-
   }
 
   @Nested
@@ -427,8 +426,13 @@ class JobUserServiceTests {
       jobSelectOptionUpdateDto.setUpdateField(JobSelectOptionUpdateField.JOB_TITLE);
       final Job job = new Job();
       job.setId("1");
+      job.setCompany(new Company(UuidUtil.getUuidString()));
 
       Mockito.when(jobService.findById(job.getId())).thenReturn(job);
+      Mockito.when(
+              jobService.findByTitleAndCompanyId(
+                  jobSelectOptionUpdateDto.getNewName(), job.getCompany().getId()))
+          .thenReturn(Collections.emptyList());
       Mockito.when(jobService.save(job)).thenReturn(job);
       Assertions.assertDoesNotThrow(
           () -> jobUserService.updateJobSelectOption(jobSelectOptionUpdateDto));
@@ -442,6 +446,7 @@ class JobUserServiceTests {
       final Office office = new Office();
       office.setId("1");
       office.setOfficeAddress(new OfficeAddress());
+      office.setCompany(new Company(UuidUtil.getUuidString()));
 
       final OfficeCreateDto officeCreateDto = new OfficeCreateDto();
       officeCreateDto.setOfficeName("office name");
@@ -458,6 +463,11 @@ class JobUserServiceTests {
       final Office newOffice = officeMapper.convertToOffice(office, officeCreateDto, officeAddress);
 
       Mockito.when(officeService.findById(office.getId())).thenReturn(office);
+
+      Mockito.when(
+              officeService.findByNameAndCompanyId(
+                  officeCreateDto.getOfficeName(), office.getCompany().getId()))
+          .thenReturn(Collections.emptyList());
       Mockito.when(officeService.save(newOffice)).thenReturn(newOffice);
       Assertions.assertDoesNotThrow(
           () -> jobUserService.updateJobSelectOption(jobSelectOptionUpdateDto));
@@ -470,8 +480,13 @@ class JobUserServiceTests {
       jobSelectOptionUpdateDto.setUpdateField(JobSelectOptionUpdateField.DEPARTMENT);
       final Department department = new Department();
       department.setId("1");
+      department.setCompany(new Company(UuidUtil.getUuidString()));
 
       Mockito.when(departmentService.findById(department.getId())).thenReturn(department);
+      Mockito.when(
+              departmentService.findByNameAndCompanyId(
+                  jobSelectOptionUpdateDto.getNewName(), department.getCompany().getId()))
+          .thenReturn(Collections.emptyList());
       Mockito.when(departmentService.save(department)).thenReturn(department);
       Assertions.assertDoesNotThrow(
           () -> jobUserService.updateJobSelectOption(jobSelectOptionUpdateDto));

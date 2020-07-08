@@ -36,6 +36,7 @@ import shamu.company.employee.entity.EmploymentType;
 import shamu.company.employee.service.EmploymentTypeService;
 import shamu.company.job.service.JobService;
 import shamu.company.server.dto.CompanyDtoProjection;
+import shamu.company.utils.UuidUtil;
 
 public class CompanyServiceTests {
 
@@ -121,8 +122,7 @@ public class CompanyServiceTests {
 
   @Test
   void testSaveJobsByDepartmentId() {
-    assertThatCode(() -> companyService.saveJobsByCompany("1", "name"))
-        .doesNotThrowAnyException();
+    assertThatCode(() -> companyService.saveJobsByCompany("1", "name")).doesNotThrowAnyException();
   }
 
   @Test
@@ -141,7 +141,10 @@ public class CompanyServiceTests {
     stateProvince.setId("1");
     officeAddress.setStateProvince(stateProvince);
     office.setOfficeAddress(officeAddress);
+    office.setCompany(new Company(UuidUtil.getUuidString()));
     Mockito.when(stateProvinceService.findById(Mockito.anyString())).thenReturn(stateProvince);
+    Mockito.when(officeService.findByNameAndCompanyId(Mockito.anyString(), Mockito.anyString()))
+        .thenReturn(Collections.EMPTY_LIST);
     assertThatCode(() -> companyService.saveOffice(office)).doesNotThrowAnyException();
   }
 

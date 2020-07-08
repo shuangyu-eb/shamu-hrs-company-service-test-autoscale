@@ -18,4 +18,10 @@ public interface DepartmentRepository extends BaseRepository<Department, String>
               + " WHERE department_id = unhex(?1) ",
       nativeQuery = true)
   Integer findCountByDepartment(String departmentId);
+
+  @Query(
+      value =
+          "SELECT * FROM departments d" + " WHERE binary d.name = ?1 and d.company_id = unhex(?2) ",
+      nativeQuery = true)
+  List<Department> findByNameAndCompanyId(String name, String companyId);
 }

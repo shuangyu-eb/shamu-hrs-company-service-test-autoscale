@@ -43,4 +43,8 @@ public class JobService {
   public void delete(final String id) {
     jobRepository.delete(id);
   }
+
+  public List<Job> findByTitleAndCompanyId(final String title, final String companyId) {
+    return jobRepository.findByTitleAndCompanyId(title, companyId);
+  }
 }

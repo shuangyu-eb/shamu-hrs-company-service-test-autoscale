@@ -43,4 +43,8 @@ public class OfficeService {
   public void delete(final String id) {
     officeRepository.delete(id);
   }
+
+  public List<Office> findByNameAndCompanyId(final String name, final String companyId) {
+    return officeRepository.findByNameAndCompanyId(name, companyId);
+  }
 }

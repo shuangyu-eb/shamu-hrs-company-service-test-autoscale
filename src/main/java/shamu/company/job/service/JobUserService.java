@@ -8,6 +8,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import shamu.company.common.exception.errormapping.AlreadyExistsException;
 import shamu.company.common.service.DepartmentService;
 import shamu.company.common.service.OfficeAddressService;
 import shamu.company.common.service.OfficeService;
@@ -106,8 +107,7 @@ public class JobUserService {
       final TimeOffPolicyUserRepository timeOffPolicyUserRepository,
       final TimeOffPolicyAccrualScheduleRepository timeOffPolicyAccrualScheduleRepository,
       final TimeOffPolicyService timeOffPolicyService,
-      final CompensationOvertimeStatusService compensationOvertimeStatusService
-      ) {
+      final CompensationOvertimeStatusService compensationOvertimeStatusService) {
     this.jobUserRepository = jobUserRepository;
     this.userService = userService;
     this.userCompensationMapper = userCompensationMapper;
@@ -194,13 +194,11 @@ public class JobUserService {
       }
       if (jobUserCompensationUpdated(jobUpdateDto)) {
         userCompensationMapper.updateFromJobUpdateDto(userCompensation, jobUpdateDto);
-
       }
       if (jobUpdateDto.getPayTypeName() != null) {
         CompensationOvertimeStatus compensationOvertimeStatus =
             compensationOvertimeStatusService.findByName(jobUpdateDto.getPayTypeName());
         userCompensation.setOvertimeStatus(compensationOvertimeStatus);
-
       }
       userCompensation.setUserId(userId);
       jobUser.setUserCompensation(userCompensation);
@@ -280,18 +278,34 @@ public class JobUserService {
 
   private void updateDepartmentName(final String id, final String name) {
     final Department department = departmentService.findById(id);
+    final List<Department> oldDepartments =
+        departmentService.findByNameAndCompanyId(name, department.getCompany().getId());
+    if (!oldDepartments.isEmpty()) {
+      throw new AlreadyExistsException("Department already exists.", "department");
+    }
     department.setName(name);
     departmentService.save(department);
   }
 
   private void updateJobTitleName(final String id, final String name) {
     final Job job = jobService.findById(id);
+    final List<Job> oldJobs = jobService.findByTitleAndCompanyId(name, job.getCompany().getId());
+    if (!oldJobs.isEmpty()) {
+      throw new AlreadyExistsException("Job title already exists.", "job title");
+    }
     job.setTitle(name);
     jobService.save(job);
   }
 
   private void updateOfficeContent(final String id, final OfficeCreateDto officeCreateDto) {
     final Office office = officeService.findById(id);
+    final List<Office> oldOffices =
+        officeService.findByNameAndCompanyId(
+            officeCreateDto.getOfficeName(), office.getCompany().getId());
+    if (!oldOffices.isEmpty()) {
+      throw new AlreadyExistsException(
+          "Office already exists.", "office");
+    }
     office.setName(officeCreateDto.getOfficeName());
 
     final OfficeAddress officeAddress =
@@ -431,6 +445,5 @@ public class JobUserService {
     JobUser jobUser = jobUserRepository.findByUserId(userId);
 
     return jobUser.getEmployeeType() != null && jobUser.getEmployeeType().getName() != null;
-
   }
 }

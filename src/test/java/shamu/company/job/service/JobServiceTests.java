@@ -1,8 +1,11 @@
 package shamu.company.job.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
+
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,6 +16,7 @@ import org.mockito.MockitoAnnotations;
 import shamu.company.common.exception.errormapping.ResourceNotFoundException;
 import shamu.company.job.entity.Job;
 import shamu.company.job.repository.JobRepository;
+import shamu.company.utils.UuidUtil;
 
 public class JobServiceTests {
 
@@ -75,5 +79,20 @@ public class JobServiceTests {
     final String id = "1";
     jobService.delete(id);
     Mockito.verify(jobRepository, Mockito.times(1)).delete(id);
+  }
+
+  @Test
+  void findByTitleAndCompanyId() {
+    final List<Job> jobs = new ArrayList<>();
+    final Job job = new Job();
+    job.setId(UuidUtil.getUuidString());
+
+    jobs.add(job);
+
+    Mockito.when(
+        jobRepository.findByTitleAndCompanyId("123", "123"))
+        .thenReturn(jobs);
+
+    assertThat(jobService.findByTitleAndCompanyId("123", "123")).isEqualTo(jobs);
   }
 }

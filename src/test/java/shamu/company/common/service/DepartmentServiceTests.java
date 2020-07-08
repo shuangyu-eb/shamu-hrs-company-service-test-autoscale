@@ -1,8 +1,11 @@
 package shamu.company.common.service;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -13,6 +16,7 @@ import org.mockito.MockitoAnnotations;
 import shamu.company.common.exception.errormapping.ResourceNotFoundException;
 import shamu.company.common.repository.DepartmentRepository;
 import shamu.company.company.entity.Department;
+import shamu.company.utils.UuidUtil;
 
 public class DepartmentServiceTests {
 
@@ -67,5 +71,20 @@ public class DepartmentServiceTests {
       assertThatExceptionOfType(ResourceNotFoundException.class)
           .isThrownBy(() -> departmentService.findById("1"));
     }
+  }
+
+  @Test
+  void findByNameAndCompanyId() {
+    final List<Department> departments = new ArrayList<>();
+    final Department department = new Department();
+    department.setId(UuidUtil.getUuidString());
+
+    departments.add(department);
+
+    Mockito.when(
+            departmentRepository.findByNameAndCompanyId("123", "123"))
+        .thenReturn(departments);
+
+    assertThat(departmentService.findByNameAndCompanyId("123", "123")).isEqualTo(departments);
   }
 }

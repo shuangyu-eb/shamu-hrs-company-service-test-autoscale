@@ -43,4 +43,8 @@ public class DepartmentService {
   public void delete(final String id) {
     departmentRepository.delete(id);
   }
+
+  public List<Department> findByNameAndCompanyId(final String name, final String companyId) {
+    return departmentRepository.findByNameAndCompanyId(name, companyId);
+  }
 }

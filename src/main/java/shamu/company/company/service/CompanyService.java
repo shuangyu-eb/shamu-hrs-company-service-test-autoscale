@@ -107,6 +107,11 @@ public class CompanyService {
   }
 
   public Department saveDepartmentsByCompany(final String name, final String companyId) {
+    final List<Department> oldDepartments =
+        departmentService.findByNameAndCompanyId(name, companyId);
+    if (!oldDepartments.isEmpty()) {
+      throw new AlreadyExistsException("Department already exists.", "department");
+    }
     final Department department = new Department();
     department.setName(name);
     department.setCompany(new Company(companyId));
@@ -114,6 +119,10 @@ public class CompanyService {
   }
 
   public Job saveJobsByCompany(final String name, final String companyId) {
+    final List<Job> oldJob = jobService.findByTitleAndCompanyId(name, companyId);
+    if (!oldJob.isEmpty()) {
+      throw new AlreadyExistsException("Job title already exists.", "job title");
+    }
     final Job job = new Job();
 
     job.setCompany(new Company(companyId));
@@ -140,6 +149,11 @@ public class CompanyService {
   }
 
   public Office saveOffice(final Office office) {
+    List<Office> oldOffices =
+        officeService.findByNameAndCompanyId(office.getName(), office.getCompany().getId());
+    if (!oldOffices.isEmpty()) {
+      throw new AlreadyExistsException("Office already exists.", "office");
+    }
     final OfficeAddress officeAddress = office.getOfficeAddress();
     final StateProvince stateProvince = officeAddress.getStateProvince();
     if (stateProvince != null && stateProvince.getId() != null) {
