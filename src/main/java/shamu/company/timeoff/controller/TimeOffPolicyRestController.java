@@ -114,8 +114,8 @@ public class TimeOffPolicyRestController extends BaseRestController {
 
   @GetMapping("new-time-off-policy/users")
   @PreAuthorize("hasAnyAuthority('TIME_OFF_POLICY', 'MANAGE_TIME_OFF_POLICY')")
-  public List<TimeOffPolicyRelatedUserDto> getEmployeesOfNewPolicy() {
-    return timeOffPolicyService.getEmployeesOfNewPolicy(findCompanyId());
+  public List<TimeOffPolicyRelatedUserDto> getEmployeesOfNewPolicyOrPaidHoliday() {
+    return timeOffPolicyService.getEmployeesOfNewPolicyOrPaidHoliday(findCompanyId());
   }
 
   @DeleteMapping("time-off-policies/{policyId}")

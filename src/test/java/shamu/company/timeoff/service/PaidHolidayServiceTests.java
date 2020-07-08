@@ -19,10 +19,10 @@ import shamu.company.common.exception.errormapping.AlreadyExistsException;
 import shamu.company.common.exception.errormapping.ResourceNotFoundException;
 import shamu.company.company.entity.Company;
 import shamu.company.helpers.FederalHolidayHelper;
-import shamu.company.job.dto.JobUserDto;
 import shamu.company.server.dto.AuthUser;
 import shamu.company.timeoff.dto.PaidHolidayDto;
 import shamu.company.timeoff.dto.PaidHolidayEmployeeDto;
+import shamu.company.timeoff.dto.TimeOffPolicyRelatedUserDto;
 import shamu.company.timeoff.entity.CompanyPaidHoliday;
 import shamu.company.timeoff.entity.PaidHoliday;
 import shamu.company.timeoff.entity.PaidHolidayUser;
@@ -44,6 +44,7 @@ class PaidHolidayServiceTests {
   @Mock private CompanyPaidHolidayMapper companyPaidHolidayMapper;
   @Mock private PaidHolidayMapper paidHolidayMapper;
   @Mock private FederalHolidayHelper federalHolidayHelper;
+  @Mock private TimeOffPolicyService timeOffPolicyService;
 
   @BeforeEach
   void setUp() {
@@ -56,7 +57,8 @@ class PaidHolidayServiceTests {
             paidHolidayUserRepository,
             companyPaidHolidayMapper,
             paidHolidayMapper,
-            federalHolidayHelper);
+            federalHolidayHelper,
+            timeOffPolicyService);
   }
 
   @Test
@@ -244,10 +246,11 @@ class PaidHolidayServiceTests {
 
   @Test
   void getPaidHolidayEmployees() {
-    final List<JobUserDto> jobUserDtos = new ArrayList<>();
-    final JobUserDto jobUserDto = new JobUserDto();
-    jobUserDto.setId("1");
-    jobUserDtos.add(jobUserDto);
+    final List<TimeOffPolicyRelatedUserDto> timeOffPolicyRelatedUserDtos = new ArrayList<>();
+    final TimeOffPolicyRelatedUserDto timeOffPolicyRelatedUserDto =
+        new TimeOffPolicyRelatedUserDto();
+    timeOffPolicyRelatedUserDto.setId("1");
+    timeOffPolicyRelatedUserDtos.add(timeOffPolicyRelatedUserDto);
 
     final List<String> filterIds = new ArrayList<>();
     filterIds.add("2");
@@ -258,7 +261,8 @@ class PaidHolidayServiceTests {
     paidHolidayUser.setSelected(false);
     paidHolidayUser.setUserId("1");
 
-    Mockito.when(userService.findAllJobUsers(Mockito.any())).thenReturn(jobUserDtos);
+    Mockito.when(timeOffPolicyService.getEmployeesOfNewPolicyOrPaidHoliday(Mockito.any()))
+        .thenReturn(timeOffPolicyRelatedUserDtos);
     Mockito.when(paidHolidayUserRepository.findAllUserIdByCompanyId(Mockito.any()))
         .thenReturn(filterIds);
     Mockito.when(paidHolidayUserRepository.save(Mockito.any())).thenReturn(paidHolidayUser);

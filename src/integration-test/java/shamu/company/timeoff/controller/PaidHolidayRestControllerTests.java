@@ -20,11 +20,11 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import shamu.company.WebControllerBaseTests;
 import shamu.company.authorization.Permission.Name;
-import shamu.company.job.dto.JobUserDto;
 import shamu.company.tests.utils.JwtUtil;
 import shamu.company.timeoff.dto.PaidHolidayDto;
 import shamu.company.timeoff.dto.PaidHolidayEmployeeDto;
 import shamu.company.timeoff.dto.PaidHolidayRelatedUserListDto;
+import shamu.company.timeoff.dto.TimeOffPolicyRelatedUserDto;
 import shamu.company.timeoff.entity.CompanyPaidHoliday;
 import shamu.company.timeoff.entity.PaidHoliday;
 import shamu.company.user.entity.User;
@@ -83,8 +83,8 @@ class PaidHolidayRestControllerTests extends WebControllerBaseTests {
 
     final PaidHolidayRelatedUserListDto paidHolidayRelatedUserListDto =
         new PaidHolidayRelatedUserListDto();
-    final List<JobUserDto> jobUserDtoList = new ArrayList<>();
-    paidHolidayRelatedUserListDto.setPaidHolidaySelectedEmployees(jobUserDtoList);
+    final List<TimeOffPolicyRelatedUserDto> timeOffPolicyRelatedUserDtos = new ArrayList<>();
+    paidHolidayRelatedUserListDto.setPaidHolidaySelectedEmployees(timeOffPolicyRelatedUserDtos);
     given(paidHolidayService.getPaidHolidayEmployees(Mockito.any()))
         .willReturn(paidHolidayRelatedUserListDto);
 

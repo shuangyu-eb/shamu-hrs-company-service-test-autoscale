@@ -16,12 +16,12 @@ import shamu.company.common.exception.errormapping.AlreadyExistsException;
 import shamu.company.common.exception.errormapping.ResourceNotFoundException;
 import shamu.company.company.entity.Company;
 import shamu.company.helpers.FederalHolidayHelper;
-import shamu.company.job.dto.JobUserDto;
 import shamu.company.server.dto.AuthUser;
 import shamu.company.timeoff.dto.PaidHolidayDto;
 import shamu.company.timeoff.dto.PaidHolidayEmployeeDto;
 import shamu.company.timeoff.dto.PaidHolidayRelatedUserListDto;
 import shamu.company.timeoff.dto.PaidHolidayRelatedUserListMobileDto;
+import shamu.company.timeoff.dto.TimeOffPolicyRelatedUserDto;
 import shamu.company.timeoff.entity.CompanyPaidHoliday;
 import shamu.company.timeoff.entity.PaidHoliday;
 import shamu.company.timeoff.entity.PaidHolidayUser;
@@ -52,6 +52,8 @@ public class PaidHolidayService {
 
   private final FederalHolidayHelper federalHolidayHelper;
 
+  private final TimeOffPolicyService timeOffPolicyService;
+
   public static final String PAID_HOLIDAY_EXISTES_MESSAGE = "Paid holiday date already exists";
 
   @Autowired
@@ -62,7 +64,8 @@ public class PaidHolidayService {
       final PaidHolidayUserRepository paidHolidayUserRepository,
       final CompanyPaidHolidayMapper companyPaidHolidayMapper,
       final PaidHolidayMapper paidHolidayMapper,
-      final FederalHolidayHelper federalHolidayHelper) {
+      final FederalHolidayHelper federalHolidayHelper,
+      final TimeOffPolicyService timeOffPolicyService) {
     this.paidHolidayRepository = paidHolidayRepository;
     this.companyPaidHolidayRepository = companyPaidHolidayRepository;
     this.userService = userService;
@@ -70,6 +73,7 @@ public class PaidHolidayService {
     this.companyPaidHolidayMapper = companyPaidHolidayMapper;
     this.paidHolidayMapper = paidHolidayMapper;
     this.federalHolidayHelper = federalHolidayHelper;
+    this.timeOffPolicyService = timeOffPolicyService;
   }
 
   public void initDefaultPaidHolidays(final Company company) {
@@ -220,7 +224,7 @@ public class PaidHolidayService {
   }
 
   List<String> saveNewAddedPaidHolidayUserAndGetUnSelectedEmployeeIds(
-      final List<JobUserDto> allEmployees, final String companyId) {
+      final List<TimeOffPolicyRelatedUserDto> allEmployees, final String companyId) {
     final List<String> filterIds = paidHolidayUserRepository.findAllUserIdByCompanyId(companyId);
 
     final List<PaidHolidayUser> paidHolidayUsers =
@@ -241,17 +245,18 @@ public class PaidHolidayService {
   }
 
   public PaidHolidayRelatedUserListDto getPaidHolidayEmployees(final String companyId) {
-    final List<JobUserDto> allEmployees = userService.findAllJobUsers(companyId);
+    final List<TimeOffPolicyRelatedUserDto> allEmployees =
+        timeOffPolicyService.getEmployeesOfNewPolicyOrPaidHoliday(companyId);
 
     final List<String> unSelectedEmployeeIds =
         saveNewAddedPaidHolidayUserAndGetUnSelectedEmployeeIds(allEmployees, companyId);
 
-    final List<JobUserDto> selectedEmployees =
+    final List<TimeOffPolicyRelatedUserDto> selectedEmployees =
         allEmployees.stream()
             .filter(u -> !unSelectedEmployeeIds.contains(u.getId()))
             .collect(Collectors.toList());
 
-    final List<JobUserDto> unSelectedEmployees =
+    final List<TimeOffPolicyRelatedUserDto> unSelectedEmployees =
         allEmployees.stream()
             .filter(u -> unSelectedEmployeeIds.contains(u.getId()))
             .collect(Collectors.toList());
@@ -261,12 +266,13 @@ public class PaidHolidayService {
 
   public PaidHolidayRelatedUserListMobileDto getPaidHolidayEmployeesOnMobile(
       final String companyId) {
-    final List<JobUserDto> allEmployees = userService.findAllJobUsers(companyId);
+    final List<TimeOffPolicyRelatedUserDto> allEmployees =
+        timeOffPolicyService.getEmployeesOfNewPolicyOrPaidHoliday(companyId);
 
     final List<String> unSelectedEmployeeIds =
         saveNewAddedPaidHolidayUserAndGetUnSelectedEmployeeIds(allEmployees, companyId);
 
-    final List<JobUserDto> selectedEmployees =
+    final List<TimeOffPolicyRelatedUserDto> selectedEmployees =
         allEmployees.stream()
             .filter(u -> !unSelectedEmployeeIds.contains(u.getId()))
             .collect(Collectors.toList());

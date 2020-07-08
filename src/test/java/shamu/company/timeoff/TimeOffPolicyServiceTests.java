@@ -303,7 +303,7 @@ public class TimeOffPolicyServiceTests {
   }
 
   @Test
-  void getEmployeesOfNewPolicy() {
+  void getEmployeesOfNewPolicyOrPaidHoliday() {
     final List<User> allUsers = new ArrayList<>();
     final User user = new User("007");
     final UserPersonalInformation userPersonalInformation = new UserPersonalInformation();
@@ -331,7 +331,7 @@ public class TimeOffPolicyServiceTests {
         .thenReturn(timeOffPolicyRelatedUserDto);
 
     Assertions.assertDoesNotThrow(
-        () -> timeOffPolicyService.getEmployeesOfNewPolicy(Mockito.any()));
+        () -> timeOffPolicyService.getEmployeesOfNewPolicyOrPaidHoliday(Mockito.any()));
   }
 
   @Test

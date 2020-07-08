@@ -473,7 +473,8 @@ public class TimeOffPolicyService {
         timeOffPolicy.getIsLimited(), unselectedEmployees, selectedEmployees);
   }
 
-  public List<TimeOffPolicyRelatedUserDto> getEmployeesOfNewPolicy(final String companyId) {
+  public List<TimeOffPolicyRelatedUserDto> getEmployeesOfNewPolicyOrPaidHoliday(
+      final String companyId) {
     final List<User> allUsers = userRepository.findAllByCompanyId(companyId);
     return allUsers.stream()
         .map(
