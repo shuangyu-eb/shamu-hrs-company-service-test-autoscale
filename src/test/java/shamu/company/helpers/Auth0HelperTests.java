@@ -29,12 +29,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import shamu.company.common.exception.GeneralAuth0Exception;
 import shamu.company.helpers.auth0.Auth0Config;
 import shamu.company.helpers.auth0.Auth0Helper;
 import shamu.company.helpers.auth0.Auth0Manager;
+import shamu.company.helpers.auth0.exception.EmailUpdateFailedException;
+import shamu.company.helpers.auth0.exception.GeneralAuth0Exception;
 import shamu.company.helpers.auth0.exception.LoginFailedException;
 import shamu.company.helpers.auth0.exception.NonUniqueAuth0ResourceException;
+import shamu.company.helpers.auth0.exception.PermissionGetFailedException;
 import shamu.company.user.entity.User.Role;
 import shamu.company.user.entity.UserContactInformation;
 
@@ -444,7 +446,7 @@ class Auth0HelperTests {
       Mockito.when(usersEntity.listPermissions(Mockito.anyString(), Mockito.any()))
           .thenReturn(permissionRequest);
       Mockito.when(permissionRequest.execute()).thenThrow(auth0Exception);
-      assertThatExceptionOfType(GeneralAuth0Exception.class)
+      assertThatExceptionOfType(PermissionGetFailedException.class)
           .isThrownBy(
               () -> {
                 auth0Helper.getPermissionBy(companyUser);
@@ -506,7 +508,7 @@ class Auth0HelperTests {
     void whenUpdateUserEmailFail_thenShouldThrow() throws Auth0Exception {
       Mockito.when(usersEntity.update(Mockito.anyString(), Mockito.any())).thenReturn(request);
       Mockito.when(request.execute()).thenThrow(auth0Exception);
-      assertThatExceptionOfType(GeneralAuth0Exception.class)
+      assertThatExceptionOfType(EmailUpdateFailedException.class)
           .isThrownBy(
               () -> {
                 auth0Helper.updateUserEmail(auth0User, "newexample@indeed.com");

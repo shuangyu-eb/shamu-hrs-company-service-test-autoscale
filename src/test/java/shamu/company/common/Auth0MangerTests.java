@@ -20,9 +20,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.reflect.Whitebox;
-import shamu.company.common.exception.GeneralAuth0Exception;
 import shamu.company.helpers.auth0.Auth0Config;
 import shamu.company.helpers.auth0.Auth0Manager;
+import shamu.company.helpers.auth0.exception.GeneralAuth0Exception;
 import shamu.company.tests.utils.JwtUtil;
 
 @PrepareForTest(value = {UrlJwkProvider.class, Algorithm.class})

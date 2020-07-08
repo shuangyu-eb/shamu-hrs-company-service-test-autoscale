@@ -16,7 +16,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.net.AuthRequest;
 import java.security.interfaces.RSAPublicKey;
 import org.springframework.stereotype.Component;
-import shamu.company.common.exception.GeneralAuth0Exception;
+import shamu.company.helpers.auth0.exception.GeneralAuth0Exception;
 
 @Component
 public class Auth0Manager {

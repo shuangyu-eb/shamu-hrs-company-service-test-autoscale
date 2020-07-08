@@ -33,10 +33,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Component;
-import shamu.company.common.exception.GeneralAuth0Exception;
+import shamu.company.common.exception.errormapping.ResourceNotFoundException;
+import shamu.company.helpers.auth0.exception.EmailUpdateFailedException;
+import shamu.company.helpers.auth0.exception.GeneralAuth0Exception;
 import shamu.company.helpers.auth0.exception.LoginFailedException;
 import shamu.company.helpers.auth0.exception.NonUniqueAuth0ResourceException;
+import shamu.company.helpers.auth0.exception.PermissionGetFailedException;
 import shamu.company.helpers.auth0.exception.TooManyRequestException;
+import shamu.company.helpers.auth0.exception.errormapping.VerificationEmailSendFailedException;
 import shamu.company.sentry.SentryLogger;
 
 @Component
@@ -129,7 +133,7 @@ public class Auth0Helper {
     try {
       login(email, password);
       return true;
-    } catch (final GeneralAuth0Exception exception) {
+    } catch (final GeneralAuth0Exception | LoginFailedException e) {
       return false;
     }
   }
@@ -217,7 +221,7 @@ public class Auth0Helper {
           .map(Permission::getName)
           .collect(Collectors.toList());
     } catch (final Auth0Exception e) {
-      throw new GeneralAuth0Exception(
+      throw new PermissionGetFailedException(
           "Get permission error with auth0UserId: " + auth0User.getId(), e);
     }
   }
@@ -261,7 +265,7 @@ public class Auth0Helper {
           manager.users().update(user.getId(), emailUpdateUser);
       passwordUpdateRequest.execute();
     } catch (final Auth0Exception e) {
-      throw new GeneralAuth0Exception(e.getMessage(), e);
+      throw new EmailUpdateFailedException(e.getMessage(), e);
     }
   }
 
@@ -331,8 +335,10 @@ public class Auth0Helper {
       final String userWorkEmail = user.getUserContactInformation().getEmailWork();
       final User auth0User = getAuth0UserByIdWithByEmailFailover(user.getId(), userWorkEmail);
       if (auth0User == null) {
-        throw new GeneralAuth0Exception(
-            String.format("Cannot get Auth0 user with user id %s", user.getId()));
+        throw new ResourceNotFoundException(
+            String.format("Auth0 user with id %s not found", user.getId()),
+            user.getId(),
+            "auth0 user");
       }
 
       final ManagementAPI manager = auth0Manager.getManagementApi();
@@ -413,7 +419,7 @@ public class Auth0Helper {
     try {
       sendVerificationEmail.execute();
     } catch (final Auth0Exception e) {
-      throw new GeneralAuth0Exception(e.getMessage(), e);
+      throw new VerificationEmailSendFailedException(e.getMessage(), e);
     }
   }
 
