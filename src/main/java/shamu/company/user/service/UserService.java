@@ -808,7 +808,7 @@ public class UserService {
     final String emailContent = emailService.getResetPasswordEmail(passwordRestToken, email);
     final Timestamp sendDate = Timestamp.valueOf(LocalDateTime.now());
     final Email verifyEmail =
-        new Email(systemEmailAddress, email, "Password Reset.", emailContent, sendDate);
+        new Email(systemEmailAddress, email, "Password Reset", emailContent, sendDate);
     emailService.saveAndScheduleEmail(verifyEmail);
     targetUser.setResetPasswordToken(passwordRestToken);
     userRepository.save(targetUser);
