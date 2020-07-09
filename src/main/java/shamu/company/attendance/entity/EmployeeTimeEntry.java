@@ -18,9 +18,8 @@ import shamu.company.user.entity.User;
 @Table(name = "employee_time_entries")
 public class EmployeeTimeEntry extends BaseEntity {
 
+  private static final long serialVersionUID = -1648786953914936926L;
   private String comment;
 
   @ManyToOne User employee;
-
-  @ManyToOne private TimeSheet timesheet;
 }

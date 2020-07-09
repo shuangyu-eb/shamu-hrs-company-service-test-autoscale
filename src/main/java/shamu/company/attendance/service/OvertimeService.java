@@ -38,12 +38,10 @@ public class OvertimeService {
     final Timestamp timesheetEnd = timeSheet.getTimePeriod().getEndDate();
     final long startOfTimesheetWeek =
         DateUtil.getFirstHourOfWeek(timeSheetStart, companyTaSetting.getTimeZone().getName());
-    final long endOfTimesheetWeek =
-        DateUtil.getFirstHourOfWeek(timesheetEnd, companyTaSetting.getTimeZone().getName());
     final String userId = timeSheet.getEmployee().getId();
     final List<EmployeeTimeLog> allEmployeeEntries =
-        attendanceMyHoursService.findWorkEntriesBetweenDates(
-            startOfTimesheetWeek, endOfTimesheetWeek, userId);
+        attendanceMyHoursService.findEntriesBetweenDates(
+            startOfTimesheetWeek, timesheetEnd.getTime(), userId, true);
     final List<LocalDateEntryDto> localDateEntries =
         TimeEntryUtils.transformTimeLogsToLocalDate(
             allEmployeeEntries, companyTaSetting.getTimeZone());

@@ -19,6 +19,9 @@ public abstract class TimeEntryUtils {
   public static final Comparator<LocalDateEntryDto> compareByStartDate =
       Comparator.comparing(LocalDateEntryDto::getStartTime);
 
+  public static final Comparator<EmployeeTimeLog> compareByLogStartDate =
+      Comparator.comparing(EmployeeTimeLog::getStart);
+
   public static List<LocalDateEntryDto> transformTimeLogsToLocalDate(
       final List<EmployeeTimeLog> allEmployeeEntries, final StaticTimezone timezone) {
 

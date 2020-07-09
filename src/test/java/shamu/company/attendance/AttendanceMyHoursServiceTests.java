@@ -20,11 +20,12 @@ import org.mockito.MockitoAnnotations;
 import shamu.company.attendance.dto.AttendanceSummaryDto;
 import shamu.company.attendance.dto.BreakTimeLogDto;
 import shamu.company.attendance.dto.MyHoursEntryDto;
-import shamu.company.attendance.dto.MyHoursListDto;
+import shamu.company.attendance.dto.MyHoursTimeLogDto;
 import shamu.company.attendance.dto.TimeEntryDto;
 import shamu.company.attendance.entity.CompanyTaSetting;
 import shamu.company.attendance.entity.EmployeeTimeEntry;
 import shamu.company.attendance.entity.EmployeeTimeLog;
+import shamu.company.attendance.entity.EmployeesTaSetting;
 import shamu.company.attendance.entity.StaticEmployeesTaTimeType;
 import shamu.company.attendance.entity.StaticTimezone;
 import shamu.company.attendance.entity.TimePeriod;
@@ -36,6 +37,7 @@ import shamu.company.attendance.repository.StaticEmployeesTaTimeTypeRepository;
 import shamu.company.attendance.service.AttendanceMyHoursService;
 import shamu.company.attendance.service.AttendanceSettingsService;
 import shamu.company.attendance.service.EmployeeTimeEntryService;
+import shamu.company.attendance.service.EmployeesTaSettingService;
 import shamu.company.attendance.service.TimeSheetService;
 import shamu.company.company.entity.Company;
 import shamu.company.job.entity.CompensationFrequency;
@@ -69,6 +71,8 @@ public class AttendanceMyHoursServiceTests {
   @Mock private AttendanceSettingsService attendanceSettingsService;
 
   @Mock private TimeOffRequestService timeOffRequestService;
+
+  @Mock private EmployeesTaSettingService employeesTaSettingService;
 
   @BeforeEach
   void init() {
@@ -131,80 +135,6 @@ public class AttendanceMyHoursServiceTests {
     }
   }
 
-  @Nested
-  class findMyHoursLists {
-    List<EmployeeTimeEntry> employeeTimeEntries;
-    TimeSheet timeSheet;
-    UserCompensation userCompensation;
-    CompensationFrequency compensationFrequency;
-    EmployeeTimeLog employeeTimeLog;
-    List<EmployeeTimeLog> employeeTimeLogs;
-    EmployeeTimeEntry employeeTimeEntry;
-    StaticEmployeesTaTimeType staticEmployeesTaTimeType;
-    MyHoursEntryDto myHoursEntryDto;
-    MyHoursListDto myHoursListDto;
-    TimePeriod timePeriod;
-
-    @BeforeEach
-    void init() {
-      timePeriod = new TimePeriod();
-      myHoursListDto = new MyHoursListDto();
-      myHoursEntryDto = new MyHoursEntryDto();
-      myHoursEntryDto.setComments("1");
-      myHoursEntryDto.setDate(new Timestamp(new Date().getTime()));
-      staticEmployeesTaTimeType = new StaticEmployeesTaTimeType();
-      staticEmployeesTaTimeType.setName(StaticEmployeesTaTimeType.TimeType.BREAK.name());
-      employeeTimeEntries = new ArrayList<>();
-      employeeTimeEntry = new EmployeeTimeEntry();
-      employeeTimeEntry.setComment("1");
-      userCompensation = new UserCompensation();
-      userCompensation.setId("1");
-      userCompensation.setWageCents(BigInteger.valueOf(1));
-      compensationFrequency = new CompensationFrequency();
-      compensationFrequency.setName("HOUR_TYPE");
-      userCompensation.setCompensationFrequency(compensationFrequency);
-      timeSheet = new TimeSheet();
-      timeSheet.setUserCompensation(userCompensation);
-      timePeriod.setStartDate(new Timestamp(new Date().getTime()));
-      timePeriod.setEndDate(new Timestamp(new Date().getTime()));
-      timeSheet.setTimePeriod(timePeriod);
-      employeeTimeLog = new EmployeeTimeLog();
-      employeeTimeLog.setStart(new Timestamp(new Date().getTime()));
-      employeeTimeLog.setTimeType(staticEmployeesTaTimeType);
-      employeeTimeLogs = new ArrayList<>();
-      employeeTimeLogs.add(employeeTimeLog);
-      Mockito.when(timeSheetService.findTimeSheetById(Mockito.anyString())).thenReturn(timeSheet);
-      Mockito.when(
-              userCompensationService.findCompensationById(timeSheet.getUserCompensation().getId()))
-          .thenReturn(userCompensation);
-      Mockito.when(employeeTimeLogRepository.findAllByEntryId(employeeTimeEntry.getId()))
-          .thenReturn(employeeTimeLogs);
-      Mockito.when(
-              employeeTimeLogMapper.convertToMyHoursEntryDto(
-                  Mockito.any(), Mockito.anyString(), Mockito.anyList()))
-          .thenReturn(myHoursEntryDto);
-      Mockito.when(employeeTimeLogMapper.convertToMyHoursListDto(Mockito.any(), Mockito.anyList()))
-          .thenReturn(myHoursListDto);
-    }
-
-    @Test
-    void whenTimeEntryIsEmpty_thenShouldSuccess() {
-      Mockito.when(employeeTimeEntryService.findEntriesById(Mockito.anyString()))
-          .thenReturn(employeeTimeEntries);
-      assertThatCode(() -> attendanceMyHoursService.findMyHoursLists("1"))
-          .doesNotThrowAnyException();
-    }
-
-    @Test
-    void whenTimeEntryIsNotEmpty_thenShouldSuccess() {
-      employeeTimeEntries.add(employeeTimeEntry);
-      Mockito.when(employeeTimeEntryService.findEntriesById(Mockito.anyString()))
-          .thenReturn(employeeTimeEntries);
-      assertThatCode(() -> attendanceMyHoursService.findMyHoursLists("1"))
-          .doesNotThrowAnyException();
-    }
-  }
-
   @Test
   void findAttendanceSummary() {
     final TimeSheet timeSheet = new TimeSheet();
@@ -241,23 +171,81 @@ public class AttendanceMyHoursServiceTests {
     final long startOfTimesheetWeek =
         DateUtil.getFirstHourOfWeek(
             timeSheet.getTimePeriod().getStartDate(), companyTaSetting.getTimeZone().getName());
-    final long endOfTimesheetWeek =
-        DateUtil.getFirstHourOfWeek(
-            timeSheet.getTimePeriod().getEndDate(), companyTaSetting.getTimeZone().getName());
 
     Mockito.when(timeSheetService.findTimeSheetById("1")).thenReturn(timeSheet);
     Mockito.when(attendanceSettingsService.findCompanySettings(user.getCompany().getId()))
         .thenReturn(companyTaSetting);
     Mockito.when(
             timeOffRequestService.findTimeOffHoursBetweenWorkPeriod(
-                user.getId(), startOfTimesheetWeek, endOfTimesheetWeek))
+                user.getId(),
+                timePeriod.getStartDate().getTime(),
+                timePeriod.getEndDate().getTime()))
         .thenReturn(1);
     Mockito.when(
             employeeTimeLogRepository.findEmployeeTimeLogByTime(
-                startOfTimesheetWeek, endOfTimesheetWeek, user.getId()))
+                startOfTimesheetWeek * 1000, timePeriod.getEndDate().getTime(), user.getId()))
         .thenReturn(Collections.singletonList(employeeTimeLog));
     final AttendanceSummaryDto attendanceSummaryDto =
         attendanceMyHoursService.findAttendanceSummary("1");
     assertThat(attendanceSummaryDto.getOverTimeHours()).isEqualTo("1:00");
+  }
+
+  @Test
+  void findUserTimeZone() {
+    final TimeSheet timeSheet = new TimeSheet();
+    final User user = new User();
+    user.setId("1");
+    timeSheet.setEmployee(user);
+    final EmployeesTaSetting employeesTaSetting = new EmployeesTaSetting();
+    final StaticTimezone staticTimezone = new StaticTimezone();
+    employeesTaSetting.setTimeZone(staticTimezone);
+    employeesTaSetting.getTimeZone().setName("Africa/Abidjan");
+    Mockito.when(timeSheetService.findTimeSheetById("1")).thenReturn(timeSheet);
+    Mockito.when(employeesTaSettingService.findByUserId("1")).thenReturn(employeesTaSetting);
+    final String timeZone = attendanceMyHoursService.findUserTimeZone("1");
+    assertThat(timeZone).isEqualTo("Africa/Abidjan");
+  }
+
+  @Test
+  void findMyHoursEntries() {
+    final TimeSheet timeSheet = new TimeSheet();
+    final User user = new User();
+    user.setId("1");
+    final TimePeriod timePeriod = new TimePeriod();
+    timePeriod.setStartDate(Timestamp.valueOf(LocalDateTime.parse("2020-07-01T01:00:00")));
+    timePeriod.setEndDate(Timestamp.valueOf(LocalDateTime.parse("2020-07-08T01:00:00")));
+    final UserCompensation userCompensation = new UserCompensation();
+    final CompensationFrequency compensationFrequency = new CompensationFrequency();
+    compensationFrequency.setName("Per Hour");
+    userCompensation.setCompensationFrequency(compensationFrequency);
+    userCompensation.setWageCents(BigInteger.valueOf(1));
+    timeSheet.setEmployee(user);
+    timeSheet.setTimePeriod(timePeriod);
+    timeSheet.setUserCompensation(userCompensation);
+    final EmployeeTimeEntry entry = new EmployeeTimeEntry();
+    entry.setId("1");
+    entry.setComment("aaa");
+    final EmployeeTimeLog employeeTimeLog = new EmployeeTimeLog();
+    employeeTimeLog.setDurationMin(720);
+    employeeTimeLog.setEntry(entry);
+    final List<EmployeeTimeLog> employeeTimeLogs = new ArrayList<>();
+    employeeTimeLogs.add(employeeTimeLog);
+    final MyHoursTimeLogDto myHoursTimeLogDto = new MyHoursTimeLogDto();
+    final MyHoursEntryDto myHoursEntryDto = new MyHoursEntryDto();
+    myHoursEntryDto.setComments("aaa");
+
+    Mockito.when(timeSheetService.findTimeSheetById("1")).thenReturn(timeSheet);
+    Mockito.when(employeeTimeLogMapper.convertToMyHoursTimeLogDto(Mockito.any(), Mockito.any()))
+        .thenReturn(myHoursTimeLogDto);
+    Mockito.when(employeeTimeLogMapper.convertToMyHoursEntryDto(Mockito.any(), Mockito.any()))
+        .thenReturn(myHoursEntryDto);
+    Mockito.when(
+            employeeTimeLogRepository.findEmployeeTimeLogByTime(
+                timePeriod.getStartDate().getTime(),
+                timePeriod.getEndDate().getTime(),
+                user.getId()))
+        .thenReturn(employeeTimeLogs);
+    final List<MyHoursEntryDto> myHoursEntryDtos = attendanceMyHoursService.findMyHoursEntries("1");
+    assertThat(myHoursEntryDtos.get(0).getComments()).isEqualTo("aaa");
   }
 }

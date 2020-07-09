@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import shamu.company.attendance.dto.AttendanceSummaryDto;
-import shamu.company.attendance.dto.MyHoursListDto;
+import shamu.company.attendance.dto.MyHoursEntryDto;
 import shamu.company.attendance.dto.TimeEntryDto;
 import shamu.company.attendance.service.AttendanceMyHoursService;
 import shamu.company.common.BaseRestController;
@@ -29,8 +29,8 @@ public class AttendanceMyHoursController extends BaseRestController {
   }
 
   @GetMapping("time-and-attendance/total-paid-time/{timesheetId}")
-  public List<MyHoursListDto> findMyHoursList(@PathVariable final String timesheetId) {
-    return attendanceMyHoursService.findMyHoursLists(timesheetId);
+  public List<MyHoursEntryDto> findMyHoursList(@PathVariable final String timesheetId) {
+    return attendanceMyHoursService.findMyHoursEntries(timesheetId);
   }
 
   @GetMapping("time-and-attendance/user-compensation/{userId}")
@@ -41,5 +41,10 @@ public class AttendanceMyHoursController extends BaseRestController {
   @GetMapping("time-and-attendance/attendance-summary/{timesheetId}")
   public AttendanceSummaryDto findAttendanceSummary(@PathVariable final String timesheetId) {
     return attendanceMyHoursService.findAttendanceSummary(timesheetId);
+  }
+
+  @GetMapping("time-and-attendance/user-timezone/{timesheetId}")
+  public String findUserTimeZone(@PathVariable final String timesheetId) {
+    return attendanceMyHoursService.findUserTimeZone(timesheetId);
   }
 }

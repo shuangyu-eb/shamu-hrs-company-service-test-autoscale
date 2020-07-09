@@ -45,6 +45,19 @@ public class AttendanceMyHoursControllerTests extends WebControllerBaseTests {
             .andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
     Mockito.verify(attendanceMyHoursService, Mockito.times(1))
-        .findMyHoursLists(Mockito.anyString());
+        .findMyHoursEntries(Mockito.anyString());
+  }
+
+  @Test
+  void findUserTimeZone() throws Exception {
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.get("/company/time-and-attendance/user-timezone/1")
+                    .headers(httpHeaders))
+            .andReturn();
+    assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+    Mockito.verify(attendanceMyHoursService, Mockito.times(1))
+        .findUserTimeZone(Mockito.anyString());
   }
 }

@@ -1647,3 +1647,18 @@ databaseChangeLog:
         - sql:
             sql: create trigger ins_time_period before insert on time_period for each row set new.id = unhex(replace(uuid(), '-', ''));
 
+  - changeSet:
+      id: 1594200120000-1
+      author: michael-eb
+      changes:
+        - dropForeignKeyConstraint:
+            baseTableName: employee_time_entries
+            constraintName: fk_employee_time_entries_timesheet_id
+
+  - changeSet:
+      id: 1594200120000-2
+      author: michael-eb
+      changes:
+        - dropColumn:
+            columnName: timesheet_id
+            tableName: employee_time_entries
