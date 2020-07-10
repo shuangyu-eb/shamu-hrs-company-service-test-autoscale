@@ -19,4 +19,6 @@ public class BenefitCoverages extends BaseEntity {
   private String benefitPlanId;
 
   private String name;
+
+  private int refId;
 }

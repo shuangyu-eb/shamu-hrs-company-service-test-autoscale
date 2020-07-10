@@ -198,7 +198,7 @@ public class UserPermissionUtils extends BasePermissionUtils {
                 .filter(coverage -> !coverage.getId().startsWith(BENEFIT_NEW_COVERAGE))
                 .collect(Collectors.toList());
         final List<String> existIds =
-            benefitPlanService.findPlansWhenPlanIdIsNull().stream()
+            benefitPlanService.findAllByBenefitPlanIdIsNullOrderByRefIdAsc().stream()
                 .map(BenefitCoverages::getId)
                 .collect(Collectors.toList());
         for (final BenefitPlanCoverageDto benefitPlanCoverageDto : coverageList) {

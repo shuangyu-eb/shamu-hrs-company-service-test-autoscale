@@ -867,7 +867,7 @@ public class BenefitPlanService {
 
   public BenefitPlanCoveragesDto findCoveragesByBenefitPlanId() {
     final List<BenefitCoverages> coverages =
-        benefitCoveragesRepository.findAllByBenefitPlanIdIsNull();
+        benefitCoveragesRepository.findAllByBenefitPlanIdIsNullOrderByRefIdAsc();
     final List<BenefitCoveragesDto> benefitCoveragesDtos =
         coverages.stream()
             .map(benefitCoveragesMapper::convertToBenefitCoveragesDto)
@@ -1279,7 +1279,7 @@ public class BenefitPlanService {
         .collect(Collectors.toList());
   }
 
-  public List<BenefitCoverages> findPlansWhenPlanIdIsNull() {
-    return benefitCoveragesRepository.findAllByBenefitPlanIdIsNull();
+  public List<BenefitCoverages> findAllByBenefitPlanIdIsNullOrderByRefIdAsc() {
+    return benefitCoveragesRepository.findAllByBenefitPlanIdIsNullOrderByRefIdAsc();
   }
 }

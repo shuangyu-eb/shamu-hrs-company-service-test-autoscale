@@ -9,7 +9,7 @@ public interface BenefitCoveragesRepository extends BaseRepository<BenefitCovera
 
   List<BenefitCoverages> findAllByBenefitPlanIdAndBenefitPlanIdIsNull(String benefitPlanId);
 
-  List<BenefitCoverages> findAllByBenefitPlanIdIsNull();
+  List<BenefitCoverages> findAllByBenefitPlanIdIsNullOrderByRefIdAsc();
 
   List<BenefitCoverages> findAllByBenefitPlanId(String benefitPlanId);
 

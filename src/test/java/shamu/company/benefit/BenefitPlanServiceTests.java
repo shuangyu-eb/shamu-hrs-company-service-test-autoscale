@@ -793,7 +793,7 @@ class BenefitPlanServiceTests {
 
     @Test
     void whenFindCoveragesByBenefitPlanId_thenShouldSuccess() {
-      Mockito.when(benefitCoveragesRepository.findAllByBenefitPlanIdIsNull())
+      Mockito.when(benefitCoveragesRepository.findAllByBenefitPlanIdIsNullOrderByRefIdAsc())
           .thenReturn(benefitCoverageList);
       benefitPlanService.findCoveragesByBenefitPlanId();
       Mockito.verify(benefitCoveragesMapper, Mockito.times(1))
@@ -1483,9 +1483,9 @@ class BenefitPlanServiceTests {
 
     @Test
     void findPlansWhenPlanIdIsNull_thenShouldSuccess() {
-      Mockito.when(benefitCoveragesRepository.findAllByBenefitPlanIdIsNull()).thenReturn(coverages);
-      benefitPlanService.findPlansWhenPlanIdIsNull();
-      Mockito.verify(benefitCoveragesRepository, Mockito.times(1)).findAllByBenefitPlanIdIsNull();
+      Mockito.when(benefitCoveragesRepository.findAllByBenefitPlanIdIsNullOrderByRefIdAsc()).thenReturn(coverages);
+      benefitPlanService.findAllByBenefitPlanIdIsNullOrderByRefIdAsc();
+      Mockito.verify(benefitCoveragesRepository, Mockito.times(1)).findAllByBenefitPlanIdIsNullOrderByRefIdAsc();
     }
   }
 }

@@ -87,7 +87,7 @@ public class BenefitPlanRestControllerTests extends WebControllerBaseTests {
     benefitCoverages.setId("1");
     coverageEns.add(benefitCoverages);
 
-    given(benefitPlanService.findPlansWhenPlanIdIsNull()).willReturn(coverageEns);
+    given(benefitPlanService.findAllByBenefitPlanIdIsNullOrderByRefIdAsc()).willReturn(coverageEns);
 
     final MvcResult response =
         mockMvc
