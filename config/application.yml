@@ -49,6 +49,9 @@ spring:
             tablePrefix: QRTZ_
             useProperties: false
             dataSource: myDs
+  http:
+    encoding:
+      enabled: true
 
 cloud:
   aws:

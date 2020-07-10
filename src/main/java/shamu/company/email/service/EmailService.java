@@ -1,5 +1,17 @@
 package shamu.company.email.service;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
+import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.slf4j.Logger;
@@ -27,14 +39,6 @@ import shamu.company.utils.AvatarUtil;
 import shamu.company.utils.DateUtil;
 import shamu.company.utils.HtmlUtils;
 import shamu.company.utils.UuidUtil;
-
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
-import java.util.regex.Pattern;
 
 @Service
 public class EmailService {
