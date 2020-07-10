@@ -1,9 +1,5 @@
 package shamu.company.user;
 
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-
-import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -15,6 +11,12 @@ import shamu.company.common.exception.errormapping.ResourceNotFoundException;
 import shamu.company.user.entity.UserCompensation;
 import shamu.company.user.repository.UserCompensationRepository;
 import shamu.company.user.service.UserCompensationService;
+
+import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 public class UserCompensationServiceTest {
   @Mock private UserCompensationRepository userCompensationRepository;
@@ -56,6 +58,14 @@ public class UserCompensationServiceTest {
           .thenReturn(Optional.empty());
       assertThatExceptionOfType(ResourceNotFoundException.class)
           .isThrownBy(() -> userCompensationService.findCompensationById("1"));
+    }
+
+    @Test
+    void whenCompanyIdValid_shouldSuccess() {
+      final List<UserCompensation> userCompensationList =
+          userCompensationService.listNewestEnrolledCompensation(
+              "6F91071A5A314DDCA0E3DDF9C2708403");
+      final int size = userCompensationList.size();
     }
   }
 }

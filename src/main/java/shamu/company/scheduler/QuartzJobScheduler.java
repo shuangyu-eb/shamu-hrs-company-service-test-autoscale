@@ -1,7 +1,7 @@
 package shamu.company.scheduler;
 
-import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
+import org.quartz.JobDataMap;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.SimpleTrigger;
@@ -40,7 +40,7 @@ public class QuartzJobScheduler {
       final String jobName,
       final Map<String, Object> jobParameter,
       final Date startDate) {
-    final String triggerName = jobName + "_TRIGGER";
+    final String triggerName = jobName;
 
     final JobDetail jobDetail =
         assembleJobDetail(jobClass, jobName, formatValuesToString(jobParameter));
@@ -55,7 +55,7 @@ public class QuartzJobScheduler {
         scheduler.scheduleJob(jobDetail, trigger);
       }
     } catch (final SchedulerException e) {
-      throw new QuartzException("Schedule task failed.", e);
+      throw new QuartzException("Schedule task failed." + e, e);
     }
   }
 
@@ -71,11 +71,12 @@ public class QuartzJobScheduler {
 
   private SimpleTrigger assembleSimpleTrigger(
       final String jobName, final String triggerName, final Date startDate) {
-    return (SimpleTrigger)newTrigger()
-        .withIdentity(triggerName, ONCE_TIME_TRIGGER_GROUP)
-        .startAt(startDate)
-        .forJob(jobName, ONCE_TIME_JOB_GROUP)
-        .build();
+    return (SimpleTrigger)
+        newTrigger()
+            .withIdentity(triggerName, ONCE_TIME_TRIGGER_GROUP)
+            .startAt(startDate)
+            .forJob(jobName, ONCE_TIME_JOB_GROUP)
+            .build();
   }
 
   private Map<String, String> formatValuesToString(final Map<String, Object> map) {

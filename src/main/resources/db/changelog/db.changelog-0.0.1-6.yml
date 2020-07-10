@@ -1662,3 +1662,10 @@ databaseChangeLog:
         - dropColumn:
             columnName: timesheet_id
             tableName: employee_time_entries
+
+  - changeSet:
+      id: 1593658305099-1
+      author: qian-eb
+      changes:
+        - sql:
+            sql: drop trigger ins_time_period;

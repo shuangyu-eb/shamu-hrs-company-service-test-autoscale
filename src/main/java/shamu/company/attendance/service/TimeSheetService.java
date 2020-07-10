@@ -5,6 +5,8 @@ import shamu.company.attendance.entity.TimeSheet;
 import shamu.company.attendance.repository.TimeSheetRepository;
 import shamu.company.common.exception.errormapping.ResourceNotFoundException;
 
+import java.util.List;
+
 @Service
 public class TimeSheetService {
 
@@ -23,5 +25,9 @@ public class TimeSheetService {
                     String.format("Time sheet with id %s not found!", timeSheetId),
                     timeSheetId,
                     "time sheet"));
+  }
+
+  public List<TimeSheet> saveAll(final List<TimeSheet> timeSheets) {
+    return timeSheetRepository.saveAll(timeSheets);
   }
 }

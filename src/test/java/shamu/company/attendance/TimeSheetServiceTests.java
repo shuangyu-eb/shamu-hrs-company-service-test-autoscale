@@ -1,9 +1,5 @@
 package shamu.company.attendance;
 
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-
-import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -15,6 +11,13 @@ import shamu.company.attendance.entity.TimeSheet;
 import shamu.company.attendance.repository.TimeSheetRepository;
 import shamu.company.attendance.service.TimeSheetService;
 import shamu.company.common.exception.errormapping.ResourceNotFoundException;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 public class TimeSheetServiceTests {
 
@@ -48,6 +51,22 @@ public class TimeSheetServiceTests {
       Mockito.when(timeSheetRepository.findById(Mockito.anyString())).thenReturn(Optional.empty());
       assertThatExceptionOfType(ResourceNotFoundException.class)
           .isThrownBy(() -> timeSheetService.findTimeSheetById("1"));
+    }
+  }
+
+  @Nested
+  class saveAll {
+    List<TimeSheet> timeSheetList;
+
+    @BeforeEach
+    void init() {
+      timeSheetList = new ArrayList<>();
+    }
+
+    @Test
+    void whenListValid_shouldSucceed() {
+      Mockito.when(timeSheetRepository.saveAll(timeSheetList)).thenReturn(Mockito.any());
+      assertThatCode(() -> timeSheetService.saveAll(timeSheetList)).doesNotThrowAnyException();
     }
   }
 }

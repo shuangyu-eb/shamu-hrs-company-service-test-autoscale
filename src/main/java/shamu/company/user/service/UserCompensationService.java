@@ -5,9 +5,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shamu.company.common.exception.errormapping.ResourceNotFoundException;
 import shamu.company.employee.dto.CompensationDto;
+import shamu.company.user.entity.CompensationOvertimeStatus;
 import shamu.company.user.entity.UserCompensation;
 import shamu.company.user.entity.mapper.UserCompensationMapper;
 import shamu.company.user.repository.UserCompensationRepository;
+
+import java.util.List;
 
 @Service
 @Transactional
@@ -41,6 +44,24 @@ public class UserCompensationService {
   }
 
   public CompensationDto findCompensationByUserId(final String userId) {
-    return userCompensationMapper.convertToCompensationDto(userCompensationRepository.findByUserId(userId));
+    return userCompensationMapper.convertToCompensationDto(
+        userCompensationRepository.findByUserId(userId));
+  }
+
+  public List<UserCompensation> listNewestEnrolledCompensation(final String companyId) {
+    return userCompensationRepository.listNewestEnrolledUserByCompanyId(
+        companyId, CompensationOvertimeStatus.OvertimeStatus.NOT_ELIGIBLE.getValue());
+  }
+
+  public boolean existsByUserId(final String userId) {
+    return userCompensationRepository.existsByUserId(userId);
+  }
+
+  public UserCompensation findByUserId(final String userId) {
+    return userCompensationRepository.findByUserId(userId);
+  }
+
+  public void saveAll(final List<UserCompensation> userCompensationList) {
+    userCompensationRepository.saveAll(userCompensationList);
   }
 }

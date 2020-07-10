@@ -12,10 +12,13 @@ import shamu.company.email.entity.Email;
 import shamu.company.email.service.EmailService;
 import shamu.company.helpers.EmailHelper;
 import shamu.company.scheduler.job.SendEmailJob;
+import shamu.company.utils.JsonUtil;
 import shamu.company.utils.UuidUtil;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 public class SendEmailJobTests {
   private static SendEmailJob sendEmailJob;
@@ -45,9 +48,11 @@ public class SendEmailJobTests {
     @Test
     void whenJobExecutionContextIsValid_thenShouldSuccess() {
       final Map<String, Object> jobParameter = new HashMap<>();
-      jobParameter.put("email", email);
+      jobParameter.put("email", JsonUtil.formatToString(email));
       Mockito.when(jobExecutionContext.getMergedJobDataMap())
           .thenReturn(new JobDataMap(jobParameter));
+      assertThatCode(() -> sendEmailJob.executeInternal(jobExecutionContext))
+          .doesNotThrowAnyException();
     }
   }
 }

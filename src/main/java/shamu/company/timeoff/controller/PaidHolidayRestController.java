@@ -1,6 +1,5 @@
 package shamu.company.timeoff.controller;
 
-import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
@@ -20,6 +19,8 @@ import shamu.company.timeoff.dto.PaidHolidayEmployeeDto;
 import shamu.company.timeoff.dto.PaidHolidayRelatedUserListDto;
 import shamu.company.timeoff.dto.PaidHolidayRelatedUserListMobileDto;
 import shamu.company.timeoff.service.PaidHolidayService;
+
+import java.util.List;
 
 @RestApiController
 public class PaidHolidayRestController extends BaseRestController {
@@ -70,6 +71,12 @@ public class PaidHolidayRestController extends BaseRestController {
   @GetMapping(value = "paid-holidays/years/{year}")
   public List<PaidHolidayDto> getPaidHolidaysByYear(@PathVariable final String year) {
     return paidHolidayService.getPaidHolidaysByYear(findAuthUser(), year);
+  }
+
+  @GetMapping(value = "/federal-paid-holidays/current-two-years/{currentYear}")
+  public List<PaidHolidayDto> getCurrentTwoYearsFederalHolidays(
+      @PathVariable final String currentYear) {
+    return paidHolidayService.getCurrentTwoYearsFederalHolidays(Integer.valueOf(currentYear));
   }
 
   @PatchMapping(value = "paid-holidays/select")

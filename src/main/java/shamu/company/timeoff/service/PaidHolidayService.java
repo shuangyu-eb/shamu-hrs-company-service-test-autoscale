@@ -1,13 +1,5 @@
 package shamu.company.timeoff.service;
 
-import java.sql.Timestamp;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Locale;
-import java.util.stream.Collectors;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -33,6 +25,16 @@ import shamu.company.timeoff.repository.PaidHolidayUserRepository;
 import shamu.company.user.entity.User;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.DateUtil;
+import shamu.company.utils.ReflectionUtil;
+
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -168,6 +170,24 @@ public class PaidHolidayService {
               return Integer.parseInt(year) == holidayYear;
             })
         .collect(Collectors.toList());
+  }
+
+  public List<PaidHolidayDto> getCurrentTwoYearsFederalHolidays(final int currentYear) {
+    final List<PaidHolidayDto> paidHolidays = new ArrayList<>();
+    paidHolidays.addAll(getFederalHolidaysByYear(currentYear));
+    paidHolidays.addAll(getFederalHolidaysByYear(currentYear + 1));
+    return paidHolidays;
+  }
+
+  public List<PaidHolidayDto> getFederalHolidaysByYear(final int year) {
+    final List<PaidHoliday> paidHolidays = paidHolidayRepository.findByFederal(true);
+    final List<PaidHolidayDto> paidHolidayDtoList =
+        ReflectionUtil.convertTo(paidHolidays, PaidHolidayDto.class);
+    paidHolidayDtoList.forEach(
+        paidHolidayDto ->
+            paidHolidayDto.setDate(
+                federalHolidayHelper.timestampOf(paidHolidayDto.getName(), year)));
+    return paidHolidayDtoList;
   }
 
   public void updateHolidaySelects(final List<PaidHolidayDto> holidaySelectDtos) {

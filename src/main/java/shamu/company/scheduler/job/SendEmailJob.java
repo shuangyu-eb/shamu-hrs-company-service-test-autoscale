@@ -22,7 +22,7 @@ public class SendEmailJob extends QuartzJobBean {
   }
 
   @Override
-  protected void executeInternal(final JobExecutionContext jobExecutionContext) {
+  public void executeInternal(final JobExecutionContext jobExecutionContext) {
     final String emailJson = String.valueOf(jobExecutionContext.getMergedJobDataMap().get("email"));
     final Email email = JsonUtil.deserialize(emailJson, Email.class);
     try {

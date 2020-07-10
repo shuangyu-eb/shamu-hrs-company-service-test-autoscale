@@ -1,13 +1,5 @@
 package shamu.company.timeoff.service;
 
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -33,6 +25,15 @@ import shamu.company.timeoff.repository.PaidHolidayRepository;
 import shamu.company.timeoff.repository.PaidHolidayUserRepository;
 import shamu.company.user.entity.User;
 import shamu.company.user.service.UserService;
+
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 class PaidHolidayServiceTests {
 
@@ -346,6 +347,28 @@ class PaidHolidayServiceTests {
           .thenReturn(Optional.of(paidHoliday));
 
       assertThatCode(() -> paidHolidayService.getPaidHoliday("1")).doesNotThrowAnyException();
+    }
+  }
+
+  @Nested
+  class getFederalPaidHoliday {
+    int year;
+
+    @BeforeEach
+    void init() {
+      year = 1949;
+    }
+
+    @Test
+    void whenYearValid_getTwoYearsShouldSucceed() {
+      assertThatCode(() -> paidHolidayService.getCurrentTwoYearsFederalHolidays(year))
+          .doesNotThrowAnyException();
+    }
+
+    @Test
+    void whenYearValid_shouldSucceed() {
+      assertThatCode(() -> paidHolidayService.getFederalHolidaysByYear(year))
+          .doesNotThrowAnyException();
     }
   }
 }

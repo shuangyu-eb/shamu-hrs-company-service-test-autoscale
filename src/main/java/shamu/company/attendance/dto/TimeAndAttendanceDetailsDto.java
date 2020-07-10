@@ -8,11 +8,18 @@ import java.util.List;
 
 @Data
 public class TimeAndAttendanceDetailsDto {
+  private static final String DATE_FORMAT = "MM/dd/yyyy";
 
-    @JsonFormat(pattern = "MM/dd/yyyy")
-    private Date payDate;
+  @JsonFormat(pattern = DATE_FORMAT)
+  private Date payDate;
 
-    private String payPeriodFrequency;
+  private String payPeriodFrequency;
 
-    private List<EmployeeOvertimeDetailsDto> overtimeDetails;
+  @JsonFormat(pattern = DATE_FORMAT)
+  private Date periodStartDate;
+
+  @JsonFormat(pattern = DATE_FORMAT)
+  private Date periodEndDate;
+
+  private List<EmployeeOvertimeDetailsDto> overtimeDetails;
 }
