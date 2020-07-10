@@ -218,4 +218,15 @@ public class CompanyServerControllerTests extends WebControllerBaseTests {
         .deserialize(response.getResponse().getContentAsString(), CompanyUser.class);
     assertThat(user.getId()).isEqualTo(companyUser.getId());
   }
+
+  @Test
+  void testFindAllRegisteredUsers() throws Exception {
+    final HttpHeaders httpHeaders = new HttpHeaders();
+    httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+    given(companyUserService.findAllRegisteredUsers(Mockito.anyString())).willReturn(new ArrayList<>());
+    final MvcResult response = mockMvc
+        .perform(MockMvcRequestBuilders.get("/server/company/users/registered").headers(httpHeaders))
+        .andReturn();
+    assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+  }
 }

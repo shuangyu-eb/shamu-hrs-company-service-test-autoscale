@@ -141,4 +141,14 @@ class CompanyUserServiceTests {
     final CompanyUser resultUser = companyUserService.findSuperUser(companyId);
     assertThat(resultUser.getId()).isEqualTo(user.getId());
   }
+
+  @Test
+  void testFindAllRegisteredUsers() {
+    final Company company = new Company();
+    company.setId("1");
+    Mockito.when(companyService.findById(Mockito.anyString())).thenReturn(company);
+    Mockito.when(userService.findRegisteredUsersByCompany(Mockito.anyString())).thenReturn(Collections.emptyList());
+    final List<User> users = companyUserService.findAllRegisteredUsers("1");
+    assertThat(users).isEmpty();
+  }
 }

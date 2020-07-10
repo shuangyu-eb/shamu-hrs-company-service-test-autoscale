@@ -75,4 +75,9 @@ public class CompanyUserService {
     final User user = userService.findSuperUser(companyId);
     return new CompanyUser(user);
   }
+
+  public List<User> findAllRegisteredUsers(final String companyId) {
+    final Company company = companyService.findById(companyId);
+    return userService.findRegisteredUsersByCompany(company.getId());
+  }
 }

@@ -214,4 +214,10 @@ public class UserRestController extends BaseRestController {
     userService.dismissCurrentActiveAnnouncement(findAuthUser().getId(), id);
     return new HttpEntity(HttpStatus.OK);
   }
+
+  @GetMapping("users/registered")
+  public List<UserDto> getAllRegisteredUsers() {
+    final List<User> users = userService.findRegisteredUsersByCompany(findCompanyId());
+    return userMapper.convertToUserDtos(users);
+  }
 }

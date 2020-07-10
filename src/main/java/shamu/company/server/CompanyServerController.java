@@ -90,4 +90,10 @@ public class CompanyServerController extends BaseRestController {
   public CompanyUser findSuperUser() {
     return companyUserService.findSuperUser(findCompanyId());
   }
+
+  @GetMapping(value = "/users/registered")
+  public List<CompanyUser> findAllRegisteredUsers() {
+    return companyUserService.findAllRegisteredUsers(findCurrentUser().getCompanyId()).stream()
+        .map(CompanyUser::new).collect(Collectors.toList());
+  }
 }

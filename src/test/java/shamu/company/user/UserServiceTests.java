@@ -438,7 +438,7 @@ class UserServiceTests {
     @Test
     void whenSSNIsNull_thenReturnFalse() {
       final User user = new User();
-      String userId = UuidUtil.getUuidString();
+      final String userId = UuidUtil.getUuidString();
       user.setId(userId);
       userPersonalInformation = new UserPersonalInformation();
       user.setUserPersonalInformation(userPersonalInformation);
@@ -449,7 +449,7 @@ class UserServiceTests {
     @Test
     void whenSSNIsNotNull_thenReturnTrue() {
       final User user = new User();
-      String userId = UuidUtil.getUuidString();
+      final String userId = UuidUtil.getUuidString();
       user.setId(userId);
       userPersonalInformation = new UserPersonalInformation();
       userPersonalInformation.setSsn("1111");
@@ -963,7 +963,19 @@ class UserServiceTests {
 
     users.add(user);
 
-    String name = userService.getUserNameInUsers(user, users);
+    final String name = userService.getUserNameInUsers(user, users);
     assertThat(name).isEqualTo(user.getUserPersonalInformation().getName());
+  }
+
+  @Test
+  void testFindRegisteredUsersByCompany() {
+    final User user = new User();
+    user.setId("1");
+    final UserStatus userStatus = new UserStatus(Status.PENDING_VERIFICATION.name());
+    user.setUserStatus(userStatus);
+    final List<User> mockedUsers = Collections.singletonList(user);
+    Mockito.when(userRepository.findAllByCompanyId(Mockito.anyString())).thenReturn(mockedUsers);
+    final List<User> users = userService.findRegisteredUsersByCompany("1");
+    assertThat(users).isEmpty();
   }
 }

@@ -966,4 +966,11 @@ public class UserService {
 
     return user.isPresent() && user.get().getUserPersonalInformation().getSsn() != null;
   }
+
+  public List<User> findRegisteredUsersByCompany(final String companyId) {
+    final List<User> users = userRepository.findAllByCompanyId(companyId);
+    return users.stream()
+        .filter(user -> !user.getUserStatus().getStatus().equals(Status.PENDING_VERIFICATION))
+        .collect(Collectors.toList());
+  }
 }
