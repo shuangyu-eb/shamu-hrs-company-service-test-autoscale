@@ -12,17 +12,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class UserSignUpDto {
 
-  private String userId;
-
   private String firstName;
 
   private String lastName;
 
-  private String phone;
-
   private String companyName;
 
-  private String department;
+  private String workEmail;
 
-  private String jobTitle;
+  private String password;
 }

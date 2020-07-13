@@ -1,5 +1,6 @@
 package shamu.company.user.service;
 
+import com.auth0.json.auth.CreatedUser;
 import io.micrometer.core.instrument.util.StringUtils;
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -23,7 +24,6 @@ import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -44,10 +44,8 @@ import shamu.company.client.PactsafeCompanyDto;
 import shamu.company.common.exception.errormapping.AlreadyExistsException;
 import shamu.company.common.exception.errormapping.EmailAlreadyVerifiedException;
 import shamu.company.common.exception.errormapping.ResourceNotFoundException;
-import shamu.company.common.service.DepartmentService;
 import shamu.company.company.entity.Company;
 import shamu.company.company.entity.CompanyBenefitsSetting;
-import shamu.company.company.entity.Department;
 import shamu.company.company.repository.CompanyRepository;
 import shamu.company.company.service.CompanyBenefitsSettingService;
 import shamu.company.company.service.CompanyService;
@@ -64,10 +62,8 @@ import shamu.company.info.dto.UserEmergencyContactDto;
 import shamu.company.info.entity.UserEmergencyContact;
 import shamu.company.info.service.UserEmergencyContactService;
 import shamu.company.job.dto.JobUserDto;
-import shamu.company.job.entity.Job;
 import shamu.company.job.entity.JobUser;
 import shamu.company.job.entity.JobUserListItem;
-import shamu.company.job.service.JobService;
 import shamu.company.job.service.JobUserService;
 import shamu.company.redis.AuthUserCacheManager;
 import shamu.company.scheduler.QuartzJobScheduler;
@@ -100,7 +96,6 @@ import shamu.company.user.entity.mapper.UserAddressMapper;
 import shamu.company.user.entity.mapper.UserContactInformationMapper;
 import shamu.company.user.entity.mapper.UserMapper;
 import shamu.company.user.entity.mapper.UserPersonalInformationMapper;
-import shamu.company.user.exception.Auth0UserNotFoundException;
 import shamu.company.user.exception.errormapping.AuthenticationFailedException;
 import shamu.company.user.exception.errormapping.EmailExpiredException;
 import shamu.company.user.exception.errormapping.PasswordDuplicatedException;
@@ -137,8 +132,6 @@ public class UserService {
   private final JobUserService jobUserService;
   private final UserStatusService userStatusService;
   private final CompanyService companyService;
-  private final DepartmentService departmentService;
-  private final JobService jobService;
   private final UserAccessLevelEventService userAccessLevelEventService;
   private final UserContactInformationService userContactInformationService;
 
@@ -181,8 +174,6 @@ public class UserService {
       @Lazy final JobUserService jobUserService,
       final UserStatusService userStatusService,
       final CompanyService companyService,
-      final DepartmentService departmentService,
-      final JobService jobService,
       final UserAccessLevelEventService userAccessLevelEventService,
       final UserContactInformationService userContactInformationService,
       final CompanyBenefitsSettingService companyBenefitsSettingService,
@@ -211,8 +202,6 @@ public class UserService {
     this.jobUserService = jobUserService;
     this.userStatusService = userStatusService;
     this.companyService = companyService;
-    this.departmentService = departmentService;
-    this.jobService = jobService;
     this.userAccessLevelEventService = userAccessLevelEventService;
     this.userContactInformationService = userContactInformationService;
     this.companyBenefitsSettingService = companyBenefitsSettingService;
@@ -556,49 +545,33 @@ public class UserService {
   }
 
   public void signUp(final UserSignUpDto signUpDto) {
-    final Optional<User> existingUser = userRepository.findById(signUpDto.getUserId());
-
-    if (existingUser.isPresent()) {
-      throw new DataIntegrityViolationException(
-          "User " + "already signed up successfully in previous attempts.");
-    }
 
     if (companyService.existsByName(signUpDto.getCompanyName())) {
       throw new AlreadyExistsException("Company name already exists.", "company name");
     }
 
-    addSignUpInformation(signUpDto);
+    final String uuid = UuidUtil.getUuidString();
+    addSignUpInformation(signUpDto, uuid);
+    CreatedUser user = auth0Helper.signUp(signUpDto.getWorkEmail(), signUpDto.getPassword());
+    auth0Helper.updateAuthUserAppMetaData(user.getUserId(), signUpDto.getWorkEmail(), uuid);
   }
 
-  public void addSignUpInformation(final UserSignUpDto signUpDto) {
+  public void addSignUpInformation(final UserSignUpDto signUpDto, final String id) {
     final UserPersonalInformation userPersonalInformation =
         UserPersonalInformation.builder()
             .firstName(signUpDto.getFirstName())
             .lastName(signUpDto.getLastName())
             .build();
 
-    final String emailAddress = findUserEmailOnAuth0(signUpDto.getUserId());
+    final String emailAddress = signUpDto.getWorkEmail();
     final UserContactInformation userContactInformation =
-        UserContactInformation.builder()
-            .emailWork(emailAddress)
-            .phoneWork(signUpDto.getPhone())
-            .build();
+        UserContactInformation.builder().emailWork(emailAddress).build();
 
     Company company = Company.builder().name(signUpDto.getCompanyName()).build();
     company = companyService.save(company);
     secretHashRepository.generateCompanySecretByCompanyId(company.getId());
 
     saveCompanyBenefitsSetting(company);
-
-    Department department = new Department();
-    department.setName(signUpDto.getDepartment());
-    department.setCompany(company);
-    department = departmentService.save(department);
-
-    Job job = new Job();
-    job.setTitle(signUpDto.getJobTitle());
-    job.setCompany(company);
-    job = jobService.save(job);
 
     final UserStatus status = userStatusService.findByName(Status.ACTIVE.name());
 
@@ -612,16 +585,9 @@ public class UserService {
             .userRole(userRoleService.getAdmin())
             .salt(UuidUtil.getUuidString())
             .build();
-    user.setId(signUpDto.getUserId());
+    user.setId(id);
 
     user = userRepository.save(user);
-
-    final JobUser jobUser = new JobUser();
-    jobUser.setUser(user);
-    jobUser.setJob(job);
-    jobUser.setCompany(company);
-    jobUser.setDepartment(department);
-    jobUserService.save(jobUser);
 
     paidHolidayService.initDefaultPaidHolidays(user.getCompany());
 
@@ -643,16 +609,6 @@ public class UserService {
     benefitsSetting.setCompany(company);
     benefitsSetting.setIsAutomaticRollover(true);
     companyBenefitsSettingService.save(benefitsSetting);
-  }
-
-  private String findUserEmailOnAuth0(final String userId) {
-    final com.auth0.json.mgmt.users.User auth0User = auth0Helper.getUserByUserIdFromAuth0(userId);
-    if (auth0User == null) {
-      throw new Auth0UserNotFoundException(
-          String.format("Auth0 user with userId %s not registered.", userId));
-    }
-
-    return auth0User.getEmail();
   }
 
   public boolean hasUserAccess(final User currentUser, final String targetUserId) {

@@ -6,6 +6,7 @@ import com.auth0.client.mgmt.filter.PageFilter;
 import com.auth0.client.mgmt.filter.UserFilter;
 import com.auth0.exception.APIException;
 import com.auth0.exception.Auth0Exception;
+import com.auth0.json.auth.CreatedUser;
 import com.auth0.json.auth.TokenHolder;
 import com.auth0.json.mgmt.Permission;
 import com.auth0.json.mgmt.PermissionsPage;
@@ -17,6 +18,7 @@ import com.auth0.json.mgmt.users.UsersPage;
 import com.auth0.net.AuthRequest;
 import com.auth0.net.CustomRequest;
 import com.auth0.net.Request;
+import com.auth0.net.SignUpRequest;
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.security.SecureRandom;
 import java.util.Comparator;
@@ -36,9 +38,11 @@ import org.springframework.stereotype.Component;
 import shamu.company.common.exception.errormapping.ResourceNotFoundException;
 import shamu.company.helpers.auth0.exception.EmailUpdateFailedException;
 import shamu.company.helpers.auth0.exception.GeneralAuth0Exception;
+import shamu.company.common.exception.errormapping.AlreadyExistsException;
 import shamu.company.helpers.auth0.exception.LoginFailedException;
 import shamu.company.helpers.auth0.exception.NonUniqueAuth0ResourceException;
 import shamu.company.helpers.auth0.exception.PermissionGetFailedException;
+import shamu.company.helpers.auth0.exception.SignUpFailedException;
 import shamu.company.helpers.auth0.exception.TooManyRequestException;
 import shamu.company.helpers.auth0.exception.errormapping.VerificationEmailSendFailedException;
 import shamu.company.sentry.SentryLogger;
@@ -57,6 +61,7 @@ public class Auth0Helper {
   private final Auth0Config auth0Config;
   private final Auth0Manager auth0Manager;
   private final OkHttpClient httpClient = new Builder().build();
+  private static final String USER_SECRET = "userSecret";
 
   @Autowired
   public Auth0Helper(final Auth0Manager auth0Manager, final Auth0Config auth0Config) {
@@ -101,6 +106,23 @@ public class Auth0Helper {
       throw handleAuth0Exception(exception, AUTH_API);
     } catch (final Exception e) {
       throw new LoginFailedException("LoginFailedException:" + e.getMessage(), e);
+    }
+  }
+
+  public CreatedUser signUp(final String email, final String password) {
+    final SignUpRequest request =
+        getAuthApi().signUp(email, password, auth0Config.getDatabase());
+    try {
+      return request.execute();
+    } catch (final APIException apiException) {
+      if ("user_exists".equals(apiException.getError())) {
+        throw new AlreadyExistsException("The email already exists.", email);
+      }
+      throw handleAuth0Exception(apiException, AUTH_API);
+    }  catch (Auth0Exception exception) {
+      throw handleAuth0Exception(exception, AUTH_API);
+    } catch (Exception e) {
+      throw new SignUpFailedException("SignUpFailedException:" + e.getMessage(), e);
     }
   }
 
@@ -289,6 +311,26 @@ public class Auth0Helper {
     return (String) appMetadata.get("id");
   }
 
+  public User updateAuthUserAppMetaData(final String userId, final String email, final String uuid) {
+    String newUserId = "auth0|" + userId;
+    final User user = new User();
+    user.setEmail(email);
+    final String userSecret = generateUserSecret(uuid);
+    final Map<String, Object> appMetaData = new HashMap<>();
+    appMetaData.put("id", uuid);
+    appMetaData.put("idVerified", true);
+    appMetaData.put(USER_SECRET, userSecret);
+    user.setAppMetadata(appMetaData);
+    final ManagementAPI manager = auth0Manager.getManagementApi();
+    final Request<User> request = manager.users().update(newUserId, user);
+
+    try {
+      return request.execute();
+    } catch (final Auth0Exception e) {
+      throw handleAuth0Exception(e, MANAGEMENT_API);
+    }
+  }
+
   public User addUser(final String email, String password, final String roleName) {
     final User auth0User = new User();
     auth0User.setEmail(email);
@@ -314,7 +356,7 @@ public class Auth0Helper {
     appMetaData.put("id", userId);
     appMetaData.put("idVerified", true);
     appMetaData.put("role", roleName);
-    appMetaData.put("userSecret", userSecret);
+    appMetaData.put(USER_SECRET, userSecret);
     auth0User.setAppMetadata(appMetaData);
 
     auth0User.setEmailVerified(true);
@@ -409,7 +451,7 @@ public class Auth0Helper {
     final String userWorkEmail = user.getUserContactInformation().getEmailWork();
     final User auth0User = getAuth0UserByIdWithByEmailFailover(user.getId(), userWorkEmail);
     final Map<String, Object> appMetaData = auth0User.getAppMetadata();
-    return (String) appMetaData.get("userSecret");
+    return (String) appMetaData.get(USER_SECRET);
   }
 
   public void sendVerificationEmail(final String authUserId) {

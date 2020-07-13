@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
+
+import com.auth0.json.auth.CreatedUser;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -74,7 +76,6 @@ import shamu.company.user.entity.mapper.UserAddressMapper;
 import shamu.company.user.entity.mapper.UserContactInformationMapper;
 import shamu.company.user.entity.mapper.UserMapper;
 import shamu.company.user.entity.mapper.UserPersonalInformationMapper;
-import shamu.company.user.exception.Auth0UserNotFoundException;
 import shamu.company.user.exception.errormapping.AuthenticationFailedException;
 import shamu.company.user.exception.errormapping.EmailExpiredException;
 import shamu.company.user.exception.errormapping.UserNotFoundByEmailException;
@@ -605,18 +606,11 @@ class UserServiceTests {
       userId = UUID.randomUUID().toString().replaceAll("-", "");
       userSignUpDto =
           UserSignUpDto.builder()
-              .userId(userId)
               .companyName(RandomStringUtils.randomAlphabetic(4))
               .firstName(RandomStringUtils.randomAlphabetic(3))
               .lastName(RandomStringUtils.randomAlphabetic(3))
-              .phone(RandomStringUtils.randomAlphabetic(11))
+              .workEmail("test@qq.com")
               .build();
-    }
-
-    @Test
-    void whenCanNotFindEmail_thenShouldThrow() {
-      assertThatExceptionOfType(Auth0UserNotFoundException.class)
-          .isThrownBy(() -> userService.signUp(userSignUpDto));
     }
 
     @Test
@@ -647,6 +641,10 @@ class UserServiceTests {
       persistedUser.getUserPersonalInformation().setLastName("L");
       Mockito.when(userRepository.save(Mockito.any())).thenReturn(persistedUser);
       Mockito.doNothing().when(secretHashRepository).generateCompanySecretByCompanyId("companyId");
+      com.auth0.json.mgmt.users.User user = new com.auth0.json.mgmt.users.User();
+      CreatedUser createdUser = new CreatedUser();
+      Mockito.when(auth0Helper.signUp(Mockito.any(), Mockito.any())).thenReturn(createdUser);
+      Mockito.when(auth0Helper.updateAuthUserAppMetaData(Mockito.anyString(), Mockito.any(), Mockito.anyString())).thenReturn(user);
       userService.signUp(userSignUpDto);
       Mockito.verify(userRepository, Mockito.times(1)).save(Mockito.any());
     }
