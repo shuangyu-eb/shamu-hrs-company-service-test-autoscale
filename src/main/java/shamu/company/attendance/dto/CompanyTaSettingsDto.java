@@ -17,4 +17,6 @@ public class CompanyTaSettingsDto {
   private int approvalDaysBeforePayroll;
 
   private Timestamp lastPayrollPayday;
+
+  private String startOfWeek;
 }

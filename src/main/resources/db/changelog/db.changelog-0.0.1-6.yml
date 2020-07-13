@@ -1679,3 +1679,14 @@ databaseChangeLog:
             columnNames: ref_id, name
             constraintName: uq_static_timesheet_status
             tableName: static_timesheet_status
+
+  - changeSet:
+      id: 1594367513853
+      author: lei-eb
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: start_of_week
+                  type: VARCHAR(10)
+            tableName: company_ta_settings

@@ -29,6 +29,8 @@ public class CompanyTaSetting extends BaseEntity {
 
   private Timestamp lastPayrollPayday;
 
+  private String startOfWeek;
+
   public CompanyTaSetting(
       final Company company,
       final StaticCompanyPayFrequencyType payFrequencyType,
