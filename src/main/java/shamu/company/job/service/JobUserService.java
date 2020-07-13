@@ -444,6 +444,6 @@ public class JobUserService {
   public Boolean checkEmployeeType(final String userId) {
     JobUser jobUser = jobUserRepository.findByUserId(userId);
 
-    return jobUser.getEmployeeType() != null && jobUser.getEmployeeType().getName() != null;
+    return jobUser != null && jobUser.getEmployeeType() != null && jobUser.getEmployeeType().getName() != null;
   }
 }
