@@ -1669,3 +1669,13 @@ databaseChangeLog:
       changes:
         - sql:
             sql: drop trigger ins_time_period;
+
+  - changeSet:
+      id: 1593658305099-2
+      author: qian-eb
+      runOnChange: true
+      changes:
+        - addUniqueConstraint:
+            columnNames: ref_id, name
+            constraintName: uq_static_timesheet_status
+            tableName: static_timesheet_status
