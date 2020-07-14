@@ -4,6 +4,7 @@
     <Console name="Console" target="SYSTEM_OUT">
       <JsonLayout complete="false" compact="true"  eventEol="true" objectMessageAsJsonObject="true">
         <KeyValuePair key="service" value="company"/>
+        <KeyValuePair key="correlationId" value="${ctx:correlationId}"/>
       </JsonLayout>
     </Console>
   </Appenders>
