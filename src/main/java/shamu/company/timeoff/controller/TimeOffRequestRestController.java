@@ -105,7 +105,7 @@ public class TimeOffRequestRestController extends BaseRestController {
 
   @GetMapping("time-off-requests/{id}")
   @PreAuthorize(
-      "hasPermission(#id,'TIME_OFF_REQUEST','MANAGE_SELF_TIME_OFF_REQUEST') "
+      "hasPermission(#id,'USER','VIEW_SELF_TIME_OFF_REQUEST') "
           + "or hasPermission(#id,'TIME_OFF_REQUEST','VIEW_TEAM_TIME_OFF_REQUEST')")
   public TimeOffRequestDetailDto findTimeOffRequest(@PathVariable final String id) {
 
@@ -143,7 +143,7 @@ public class TimeOffRequestRestController extends BaseRestController {
 
   @GetMapping(value = "time-off-pending-requests/requester/{id}")
   @PreAuthorize(
-      "hasPermission(#id,'USER','MANAGE_SELF_TIME_OFF_REQUEST') "
+      "hasPermission(#id,'USER','VIEW_SELF_TIME_OFF_REQUEST') "
           + "or hasPermission(#id,'USER','MANAGE_TIME_OFF_REQUEST')")
   public MyTimeOffDto findPendingRequests(
       @PathVariable(name = "id") final String id,
@@ -166,7 +166,7 @@ public class TimeOffRequestRestController extends BaseRestController {
 
   @GetMapping(value = "time-off-reviewed-requests/requester/{id}")
   @PreAuthorize(
-      "hasPermission(#id,'USER','MANAGE_SELF_TIME_OFF_REQUEST') "
+      "hasPermission(#id,'USER','VIEW_SELF_TIME_OFF_REQUEST') "
           + "or hasPermission(#id,'USER','MANAGE_TIME_OFF_REQUEST')")
   public MyTimeOffDto findReviewedRequests(
       @PathVariable(name = "id") final String id,
@@ -179,7 +179,7 @@ public class TimeOffRequestRestController extends BaseRestController {
 
   @GetMapping(value = "time-off-requests/approved-after-now/requester/{id}")
   @PreAuthorize(
-      "hasPermission(#id,'USER','MANAGE_SELF_TIME_OFF_REQUEST') "
+      "hasPermission(#id,'USER','VIEW_SELF_TIME_OFF_REQUEST') "
           + "or hasPermission(#id,'USER','MANAGE_TIME_OFF_REQUEST')")
   public TimeOffRequestDto findMyTimeOffRequests(@PathVariable(name = "id") final String id) {
 

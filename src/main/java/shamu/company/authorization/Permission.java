@@ -56,7 +56,8 @@ public class Permission {
     VIEW_SELF_BENEFITS(PermissionType.SELF_PERMISSION),
     VIEW_DISABLED_USER(PermissionType.ADMIN_PERMISSION),
     MANAGE_BENEFIT(PermissionType.ADMIN_PERMISSION),
-    UPDATE_COMPANY_NAME(PermissionType.ADMIN_PERMISSION);
+    UPDATE_COMPANY_NAME(PermissionType.ADMIN_PERMISSION),
+    VIEW_SELF_TIME_OFF_REQUEST(PermissionType.SELF_PERMISSION);
 
     private final PermissionType permissionType;
 

@@ -387,6 +387,7 @@ class TimeOffRequestRestControllerTests extends WebControllerBaseTests {
     targetUser.setCompany(new Company(getAuthUser().getCompanyId()));
     final TimeOffRequest timeOffRequest = new TimeOffRequest();
     timeOffRequest.setRequesterUser(targetUser);
+    given(userService.findById(Mockito.any())).willReturn(targetUser);
     given(timeOffRequestService.getById(Mockito.any())).willReturn(timeOffRequest);
 
     final MvcResult response =
