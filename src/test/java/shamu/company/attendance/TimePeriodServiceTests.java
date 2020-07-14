@@ -8,6 +8,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import shamu.company.attendance.entity.TimePeriod;
+import shamu.company.attendance.entity.TimeSheetPeriodPojo;
 import shamu.company.attendance.repository.TimePeriodRepository;
 import shamu.company.attendance.service.TimePeriodService;
 
@@ -31,7 +32,7 @@ public class TimePeriodServiceTests {
   class get {
     String userId;
     String companyId;
-    List<TimePeriod> timePeriodList;
+    List<TimeSheetPeriodPojo> timePeriodList;
     TimePeriod timePeriod;
 
     @BeforeEach
@@ -44,7 +45,8 @@ public class TimePeriodServiceTests {
 
     @Test
     void whenUserIdValid_shouldSucceed() {
-      Mockito.when(timePeriodRepository.listTimePeriodsByUser(userId)).thenReturn(timePeriodList);
+      Mockito.when(timePeriodRepository.listTimeSheetPeriodsByUser(userId))
+          .thenReturn(timePeriodList);
       assertThatCode(() -> timePeriodService.listByUser(userId)).doesNotThrowAnyException();
     }
 
@@ -68,7 +70,8 @@ public class TimePeriodServiceTests {
     @Test
     void whenTimePeriodValid_shouldSucceed() {
       Mockito.when(timePeriodRepository.save(timePeriod)).thenReturn(timePeriod);
-      assertThatCode(() -> timePeriodService.save(timePeriod)).doesNotThrowAnyException();
+      assertThatCode(() -> timePeriodService.createIfNotExist(timePeriod))
+          .doesNotThrowAnyException();
     }
   }
 }

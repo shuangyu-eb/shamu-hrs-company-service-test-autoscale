@@ -1,6 +1,5 @@
 package shamu.company.attendance.dto;
 
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,9 +7,9 @@ import lombok.NoArgsConstructor;
 import java.sql.Timestamp;
 
 @Data
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor
 @NoArgsConstructor
-public class TimePeriodDto {
+public class TimeSheetPeriodDto {
   private String id;
   private Timestamp startDate;
   private Timestamp endDate;

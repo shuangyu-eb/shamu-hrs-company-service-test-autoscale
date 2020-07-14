@@ -2,12 +2,18 @@ package shamu.company.attendance.service;
 
 import org.apache.commons.lang.time.DateUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import shamu.company.attendance.dto.EmployeeOvertimeDetailsDto;
 import shamu.company.attendance.dto.TimeAndAttendanceDetailsDto;
 import shamu.company.attendance.dto.TimeAndAttendanceRelatedUserDto;
 import shamu.company.attendance.dto.TimeAndAttendanceRelatedUserListDto;
-import shamu.company.attendance.entity.*;
+import shamu.company.attendance.entity.CompanyTaSetting;
+import shamu.company.attendance.entity.EmployeesTaSetting;
+import shamu.company.attendance.entity.StaticCompanyPayFrequencyType;
 import shamu.company.attendance.entity.StaticCompanyPayFrequencyType.PayFrequencyType;
+import shamu.company.attendance.entity.StaticTimesheetStatus;
+import shamu.company.attendance.entity.TimePeriod;
+import shamu.company.attendance.entity.TimeSheet;
 import shamu.company.attendance.repository.EmployeesTaSettingRepository;
 import shamu.company.attendance.repository.StaticCompanyPayFrequencyTypeRepository;
 import shamu.company.attendance.repository.StaticTimesheetStatusRepository;
@@ -18,6 +24,7 @@ import shamu.company.job.entity.JobUser;
 import shamu.company.job.entity.mapper.JobUserMapper;
 import shamu.company.job.repository.JobUserRepository;
 import shamu.company.scheduler.QuartzJobScheduler;
+import shamu.company.scheduler.job.ActivateTimeSheetJob;
 import shamu.company.scheduler.job.AddPayPeriodJob;
 import shamu.company.timeoff.dto.PaidHolidayDto;
 import shamu.company.timeoff.service.PaidHolidayService;
@@ -54,7 +61,7 @@ public class AttendanceSetUpService {
   private static final int PAY_DATE_AFTER_PERIOD_DAYS = 7;
   private static final long MS_OF_ONE_DAY = 24 * 60 * 60 * 1000l;
 
-  private final CompanyTaSettingService companyTaSettingService;
+  private final AttendanceSettingsService attendanceSettingsService;
 
   private final EmployeesTaSettingRepository employeesTaSettingRepository;
 
@@ -87,7 +94,7 @@ public class AttendanceSetUpService {
   private final StaticTimesheetStatusRepository staticTimesheetStatusRepository;
 
   public AttendanceSetUpService(
-      final CompanyTaSettingService companyTaSettingService,
+      final AttendanceSettingsService attendanceSettingsService,
       final EmployeesTaSettingRepository employeesTaSettingRepository,
       final UserRepository userRepository,
       final JobUserRepository jobUserRepository,
@@ -103,7 +110,7 @@ public class AttendanceSetUpService {
       final TimeSheetService timeSheetService,
       final QuartzJobScheduler quartzJobScheduler,
       final StaticTimesheetStatusRepository staticTimesheetStatusRepository) {
-    this.companyTaSettingService = companyTaSettingService;
+    this.attendanceSettingsService = attendanceSettingsService;
     this.employeesTaSettingRepository = employeesTaSettingRepository;
     this.userRepository = userRepository;
     this.jobUserRepository = jobUserRepository;
@@ -122,7 +129,7 @@ public class AttendanceSetUpService {
   }
 
   public Boolean findIsAttendanceSetUp(final String companyId) {
-    return companyTaSettingService.existsByCompanyId(companyId);
+    return attendanceSettingsService.existsByCompanyId(companyId);
   }
 
   public TimeAndAttendanceRelatedUserListDto getRelatedUsers(final String companyId) {
@@ -164,6 +171,7 @@ public class AttendanceSetUpService {
     return new TimeAndAttendanceRelatedUserListDto(selectedEmployees, unSelectedEmployees);
   }
 
+  @Transactional
   public void saveAttendanceDetails(
       final TimeAndAttendanceDetailsDto timeAndAttendanceDetailsDto, final String companyId) {
     saveCompanyTaSetting(timeAndAttendanceDetailsDto, companyId);
@@ -174,20 +182,27 @@ public class AttendanceSetUpService {
     saveUserCompensations(overtimeDetailsDtoList);
     saveJobUsers(overtimeDetailsDtoList);
 
-    final TimePeriod firstTimePeriod =
-        new TimePeriod(
-            timeAndAttendanceDetailsDto.getPeriodStartDate(),
-            timeAndAttendanceDetailsDto.getPeriodEndDate());
+    final Date periodStartDate = getStartOfDay(timeAndAttendanceDetailsDto.getPeriodStartDate());
+    final Date periodEndDate = timeAndAttendanceDetailsDto.getPeriodEndDate();
 
-    createTimeSheetsAndPeriod(companyId, firstTimePeriod);
+    final TimePeriod firstTimePeriod = new TimePeriod(periodStartDate, periodEndDate);
 
-    scheduleNextPeriod(companyId, new Date(firstTimePeriod.getEndDate().getTime()));
+    final TimeSheetStatus timeSheetStatus;
+    if (periodEndDate.after(new Date())) {
+      timeSheetStatus = TimeSheetStatus.NOT_YET_START;
+      scheduleActivateTimeSheet(companyId, new Date());
+    } else {
+      timeSheetStatus = TimeSheetStatus.ACTIVE;
+    }
+
+    createTimeSheetsAndPeriod(companyId, firstTimePeriod, timeSheetStatus);
+
+    scheduleCreateNextPeriod(companyId, new Date(new Date().getTime()));
   }
 
-  public void scheduleNextPeriod(final String companyId, final Date currentPeriodEndDate) {
-    final Date executeDate = set12PMOfDay(currentPeriodEndDate);
-    final Map<String, Object> jobParameter = new HashMap<>();
-    jobParameter.put("companyId", companyId);
+  public void scheduleCreateNextPeriod(final String companyId, final Date currentPeriodEndDate) {
+    final Date executeDate = getEndOfDay(currentPeriodEndDate);
+    final Map<String, Object> jobParameter = assembleCompanyIdParameter(companyId);
     quartzJobScheduler.addOrUpdateJobSchedule(
         AddPayPeriodJob.class,
         "new_period_" + companyId + "_" + executeDate.getTime(),
@@ -195,7 +210,26 @@ public class AttendanceSetUpService {
         executeDate);
   }
 
-  private Date set12PMOfDay(final Date date) {
+  private void scheduleActivateTimeSheet(final String companyId, final Date periodStartDate) {
+    final Date executeDate = getStartOfDay(periodStartDate);
+    final Map<String, Object> jobParameter = assembleCompanyIdParameter(companyId);
+    quartzJobScheduler.addOrUpdateJobSchedule(
+        ActivateTimeSheetJob.class, "activate_time_sheet" + companyId, jobParameter, executeDate);
+  }
+
+  private Map<String, Object> assembleCompanyIdParameter(final String companyId) {
+    final Map<String, Object> jobParameter = new HashMap<>();
+    jobParameter.put("companyId", companyId);
+    return jobParameter;
+  }
+
+  private Date getStartOfDay(final Date date) {
+    long time = date.getTime();
+    time = time - time % MS_OF_ONE_DAY;
+    return new Date(time);
+  }
+
+  private Date getEndOfDay(final Date date) {
     long time = date.getTime();
     time = time + MS_OF_ONE_DAY - time % MS_OF_ONE_DAY;
     return new Date(time);
@@ -210,7 +244,7 @@ public class AttendanceSetUpService {
     final Timestamp payDay = new Timestamp(payDate.getTime());
     final CompanyTaSetting companyTaSetting =
         new CompanyTaSetting(company, staticCompanyPayFrequencyType, payDay);
-    companyTaSettingService.save(companyTaSetting);
+    attendanceSettingsService.saveCompanyTaSetting(companyTaSetting);
   }
 
   private void saveUserCompensations(
@@ -255,6 +289,9 @@ public class AttendanceSetUpService {
                       jobUserRepository.findByUserId(employeeOvertimeDetailsDto.getEmployeeId());
                   Timestamp hireDate =
                       new Timestamp(employeeOvertimeDetailsDto.getHireDate().getTime());
+                  if (jobUser == null) {
+                    jobUser = new JobUser();
+                  }
                   jobUser.setStartDate(hireDate);
                   return jobUser;
                 })
@@ -262,13 +299,16 @@ public class AttendanceSetUpService {
     jobUserRepository.saveAll(jobUsers);
   }
 
-  public void createTimeSheetsAndPeriod(final String companyId, final TimePeriod newTimePeriod) {
+  public void createTimeSheetsAndPeriod(
+      final String companyId,
+      final TimePeriod newTimePeriod,
+      final TimeSheetStatus timeSheetStatus) {
     final List<UserCompensation> userCompensationList =
         userCompensationService.listNewestEnrolledCompensation(companyId);
     final List<TimeSheet> timeSheets = new ArrayList<>();
     final StaticTimesheetStatus timesheetStatus =
-        staticTimesheetStatusRepository.findByName(TimeSheetStatus.ACTIVE.name());
-    final TimePeriod timePeriod = timePeriodService.save(newTimePeriod);
+        staticTimesheetStatusRepository.findByName(timeSheetStatus.getValue());
+    final TimePeriod timePeriod = timePeriodService.createIfNotExist(newTimePeriod);
     userCompensationList.forEach(
         userCompensation -> {
           final TimeSheet timeSheet = new TimeSheet();

@@ -14,8 +14,18 @@ public class StaticTimesheetStatus extends BaseEntity {
   private String name;
 
   public enum TimeSheetStatus {
-    ACTIVE,
-    SUBMITTED,
-    APPROVED,
+    ACTIVE("ACTIVE"),
+    SUBMITTED("SUBMITTED"),
+    APPROVED("APPROVED"),
+    NOT_YET_START("NOT YET START");
+    private final String value;
+
+    TimeSheetStatus(final String value) {
+      this.value = value;
+    }
+
+    public String getValue() {
+      return value;
+    }
   }
 }

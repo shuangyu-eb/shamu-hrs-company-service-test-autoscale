@@ -7,35 +7,41 @@ import shamu.company.attendance.entity.CompanyTaSetting;
 import shamu.company.attendance.entity.StaticCompanyPayFrequencyType;
 import shamu.company.attendance.entity.TimePeriod;
 import shamu.company.attendance.service.AttendanceSetUpService;
-import shamu.company.attendance.service.CompanyTaSettingService;
+import shamu.company.attendance.service.AttendanceSettingsService;
 import shamu.company.attendance.service.PayPeriodFrequencyService;
 import shamu.company.attendance.service.TimePeriodService;
+import shamu.company.utils.JsonUtil;
+
+import static shamu.company.attendance.entity.StaticTimesheetStatus.TimeSheetStatus;
 
 public class AddPayPeriodJob extends QuartzJobBean {
   private final AttendanceSetUpService attendanceSetUpService;
   private final TimePeriodService timePeriodService;
-  private final CompanyTaSettingService companyTaSettingService;
+  private final AttendanceSettingsService attendanceSettingsService;
   private final PayPeriodFrequencyService payPeriodFrequencyService;
 
   @Autowired
   public AddPayPeriodJob(
       final AttendanceSetUpService attendanceSetUpService,
       final TimePeriodService timePeriodService,
-      final CompanyTaSettingService companyTaSettingService,
+      final AttendanceSettingsService attendanceSettingsService,
       final PayPeriodFrequencyService payPeriodFrequencyService) {
     this.attendanceSetUpService = attendanceSetUpService;
     this.timePeriodService = timePeriodService;
-    this.companyTaSettingService = companyTaSettingService;
+    this.attendanceSettingsService = attendanceSettingsService;
     this.payPeriodFrequencyService = payPeriodFrequencyService;
   }
 
   @Override
   public void executeInternal(final JobExecutionContext jobExecutionContext) {
 
-    final String companyId = (String) jobExecutionContext.getMergedJobDataMap().get("companyId");
+    final String companyIdJson =
+        String.valueOf(jobExecutionContext.getMergedJobDataMap().get("companyId"));
+    final String companyId = JsonUtil.deserialize(companyIdJson, String.class);
     final TimePeriod currentTimePeriod = timePeriodService.findCompanyCurrentPeriod(companyId);
 
-    final CompanyTaSetting companyTaSetting = companyTaSettingService.findByCompany(companyId);
+    final CompanyTaSetting companyTaSetting =
+        attendanceSettingsService.findCompanySettings(companyId);
     final String payFrequencyTypeId = companyTaSetting.getPayFrequencyType().getId();
     final StaticCompanyPayFrequencyType staticCompanyPayFrequencyType =
         payPeriodFrequencyService.findById(payFrequencyTypeId);
@@ -44,7 +50,8 @@ public class AddPayPeriodJob extends QuartzJobBean {
         attendanceSetUpService.getNextPeriod(
             currentTimePeriod, staticCompanyPayFrequencyType.getName());
 
-    attendanceSetUpService.createTimeSheetsAndPeriod(companyId, nextTimePeriod);
-    attendanceSetUpService.scheduleNextPeriod(companyId, nextTimePeriod.getEndDate());
+    attendanceSetUpService.createTimeSheetsAndPeriod(
+        companyId, nextTimePeriod, TimeSheetStatus.ACTIVE);
+    attendanceSetUpService.scheduleCreateNextPeriod(companyId, nextTimePeriod.getEndDate());
   }
 }

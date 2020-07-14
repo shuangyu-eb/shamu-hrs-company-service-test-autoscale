@@ -16,4 +16,12 @@ public class AttendanceSettingsService {
   public CompanyTaSetting findCompanySettings(final String companyId) {
     return companyTaSettingRepository.findByCompanyId(companyId);
   }
+
+  public boolean existsByCompanyId(final String companyId) {
+    return companyTaSettingRepository.existsByCompanyId(companyId);
+  }
+
+  public CompanyTaSetting saveCompanyTaSetting(final CompanyTaSetting companyTaSetting) {
+    return companyTaSettingRepository.save(companyTaSetting);
+  }
 }

@@ -30,4 +30,8 @@ public class TimeSheetService {
   public List<TimeSheet> saveAll(final List<TimeSheet> timeSheets) {
     return timeSheetRepository.saveAll(timeSheets);
   }
+
+  public List<TimeSheet> listByCompany(final String companyId) {
+    return timeSheetRepository.listByCompanyId(companyId);
+  }
 }

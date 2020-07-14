@@ -18,7 +18,7 @@ import shamu.company.attendance.repository.EmployeesTaSettingRepository;
 import shamu.company.attendance.repository.StaticCompanyPayFrequencyTypeRepository;
 import shamu.company.attendance.repository.StaticTimesheetStatusRepository;
 import shamu.company.attendance.service.AttendanceSetUpService;
-import shamu.company.attendance.service.CompanyTaSettingService;
+import shamu.company.attendance.service.AttendanceSettingsService;
 import shamu.company.attendance.service.TimePeriodService;
 import shamu.company.attendance.service.TimeSheetService;
 import shamu.company.company.entity.Company;
@@ -29,9 +29,9 @@ import shamu.company.job.entity.mapper.JobUserMapper;
 import shamu.company.job.repository.JobUserRepository;
 import shamu.company.scheduler.QuartzJobScheduler;
 import shamu.company.timeoff.service.PaidHolidayService;
+import shamu.company.user.entity.CompensationOvertimeStatus;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserCompensation;
-import shamu.company.user.entity.CompensationOvertimeStatus;
 import shamu.company.user.entity.UserContactInformation;
 import shamu.company.user.entity.UserPersonalInformation;
 import shamu.company.user.repository.CompensationFrequencyRepository;
@@ -51,7 +51,7 @@ public class AttendanceSetUpServiceTests {
 
   @InjectMocks AttendanceSetUpService attendanceSetUpService;
 
-  @Mock private CompanyTaSettingService companyTaSettingService;
+  @Mock private AttendanceSettingsService attendanceSettingsService;
 
   @Mock private UserRepository userRepository;
 
@@ -90,7 +90,7 @@ public class AttendanceSetUpServiceTests {
 
   @Test
   void findIsAttendanceSetUp() {
-    Mockito.when(companyTaSettingService.existsByCompanyId("1")).thenReturn(true);
+    Mockito.when(attendanceSettingsService.existsByCompanyId("1")).thenReturn(true);
     attendanceSetUpService.findIsAttendanceSetUp("1");
     assertThatCode(() -> attendanceSetUpService.findIsAttendanceSetUp("1"))
         .doesNotThrowAnyException();
@@ -168,7 +168,8 @@ public class AttendanceSetUpServiceTests {
       Mockito.when(payFrequencyTypeRepository.findByName(Mockito.any()))
           .thenReturn(staticCompanyPayFrequencyType);
       Mockito.when(companyRepository.findCompanyById(companyId)).thenReturn(new Company());
-      Mockito.when(companyTaSettingService.save(Mockito.any())).thenReturn(Mockito.any());
+      Mockito.when(attendanceSettingsService.saveCompanyTaSetting(Mockito.any()))
+          .thenReturn(Mockito.any());
       assertThatCode(
               () ->
                   attendanceSetUpService.saveAttendanceDetails(
@@ -191,7 +192,7 @@ public class AttendanceSetUpServiceTests {
       Mockito.when(compensationOvertimeStatusRepository.findById(Mockito.any()))
           .thenReturn(Optional.of(new CompensationOvertimeStatus()));
       Mockito.when(jobUserRepository.findByUserId(Mockito.any())).thenReturn(new JobUser());
-      Mockito.when(timePeriodService.save(Mockito.any()))
+      Mockito.when(timePeriodService.createIfNotExist(Mockito.any()))
           .thenReturn(new TimePeriod(new Date(), new Date()));
       Mockito.when(timeSheetService.saveAll(Mockito.any())).thenReturn(Mockito.any());
       assertThatCode(

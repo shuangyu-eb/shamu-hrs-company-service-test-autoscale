@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import shamu.company.attendance.dto.AllTimeEntryDto;
 import shamu.company.attendance.dto.AttendanceSummaryDto;
 import shamu.company.attendance.dto.TimeEntryDto;
-import shamu.company.attendance.dto.TimePeriodDto;
+import shamu.company.attendance.dto.TimeSheetPeriodDto;
 import shamu.company.attendance.service.AttendanceMyHoursService;
 import shamu.company.attendance.service.TimePeriodService;
 import shamu.company.common.BaseRestController;
@@ -55,7 +55,7 @@ public class AttendanceMyHoursController extends BaseRestController {
   }
 
   @GetMapping("time-and-attendance/time-periods/{userId}")
-  public List<TimePeriodDto> findTimePeriodsByUser(@PathVariable final String userId) {
+  public List<TimeSheetPeriodDto> findTimePeriodsByUser(@PathVariable final String userId) {
     return timePeriodService.listByUser(userId);
   }
 
