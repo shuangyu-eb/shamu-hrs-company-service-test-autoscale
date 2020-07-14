@@ -38,6 +38,7 @@ public class HourContainer {
       final int totMin, final LocalDateEntryDto localDateEntryDto, final Double rate) {
     final String entryId = localDateEntryDto.getTimeLogId();
     final OvertimeDetailDto otDetails;
+    // One time log may be divided into two time logs with different rates
     if (timeLogToOvertimeDetails.containsKey(entryId)) {
       otDetails = timeLogToOvertimeDetails.get(entryId);
     } else {

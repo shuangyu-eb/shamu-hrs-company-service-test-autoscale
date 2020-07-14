@@ -27,14 +27,17 @@ public abstract class TimeEntryUtils {
 
     final ArrayList<LocalDateEntryDto> entries = new ArrayList<>();
     for (final EmployeeTimeLog employeeEntry : allEmployeeEntries) {
+      // convert start time from utc time zone to company time zone
       final LocalDateTime startTime =
           DateUtil.convertUnixToLocalDateTime(employeeEntry.getStart(), timezone.getName());
       final int duration = employeeEntry.getDurationMin();
       final LocalDateTime endTime = startTime.plusMinutes(duration);
+      // get the start of week closest to the period start time
       final LocalDate week =
           DateUtil.getFirstDayOfWeek(employeeEntry.getStart(), timezone.getName());
       final LocalDateEntryDto entry =
           new LocalDateEntryDto(employeeEntry.getId(), startTime, endTime, week, duration);
+      // split entry by day for calculation
       entries.addAll(splitLocalDateEntry(entry, new ArrayList<>()));
     }
     return entries;

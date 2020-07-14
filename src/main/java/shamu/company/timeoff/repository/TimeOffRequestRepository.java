@@ -165,7 +165,8 @@ public interface TimeOffRequestRepository
               + "(select min(trd.date) startDay, max(trd.date) endDay, trd.time_off_request_id "
               + "from time_off_request_dates trd "
               + "group by trd.time_off_request_id "
-              + "having UNIX_TIMESTAMP(endDay) >= ?2 and UNIX_TIMESTAMP(startDay) <= ?3) trspan) "
+              + "having UNIX_TIMESTAMP(endDay) * 1000 >= ?2 "
+              + "and UNIX_TIMESTAMP(startDay) * 1000 <= ?3) trspan) "
               + "and tr.requester_user_id = unhex(?1) "
               + "and tras.name = ?4",
       nativeQuery = true)

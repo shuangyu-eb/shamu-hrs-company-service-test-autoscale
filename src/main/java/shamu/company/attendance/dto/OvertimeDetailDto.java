@@ -1,6 +1,7 @@
 package shamu.company.attendance.dto;
 
 import java.util.ArrayList;
+import java.util.List;
 import lombok.Data;
 
 /** @author mshumaker */
@@ -14,5 +15,9 @@ public class OvertimeDetailDto {
 
   public void addMinuteDto(final OverTimeMinutesDto dto) {
     overTimeMinutesDtos.add(dto);
+  }
+
+  public void addMinuteDtos(final List<OverTimeMinutesDto> dtos) {
+    overTimeMinutesDtos.addAll(dtos);
   }
 }

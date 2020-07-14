@@ -38,6 +38,8 @@ public class CaliforniaOvertimePay extends FederalOverTimePay {
         myHours.stream()
             .filter(myHour -> !the7thConsecutiveDayTimeLogId.contains(myHour.getTimeLogId()))
             .collect(Collectors.toList());
+
+    // Calculate the time to work more than eight hours and more than twelve hours each day
     for (final LocalDateEntryDto singleEntry : dailyHours) {
       final LocalDate currentDay = singleEntry.getStartTime().toLocalDate();
       totalDailyHours.putIfAbsent(currentDay, 0);
@@ -86,6 +88,7 @@ public class CaliforniaOvertimePay extends FederalOverTimePay {
         return;
       } else if (entry.getDuration() > 0) {
         currentDayOfWeek = entry.getStartTime().toLocalDate();
+        // find the seventh consecutive day
         if (currentDayOfWeek.equals(firstDayofWeek.plusDays(6))) {
           the7thConsecutiveDayTimeLogId.add(entry.getTimeLogId());
           final int minInFirstEightHours =

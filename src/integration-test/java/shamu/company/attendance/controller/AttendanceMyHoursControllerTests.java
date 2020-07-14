@@ -1,5 +1,7 @@
 package shamu.company.attendance.controller;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +18,6 @@ import shamu.company.attendance.dto.TimeEntryDto;
 import shamu.company.attendance.service.TimePeriodService;
 import shamu.company.tests.utils.JwtUtil;
 import shamu.company.utils.JsonUtil;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 @WebMvcTest(controllers = AttendanceMyHoursController.class)
 public class AttendanceMyHoursControllerTests extends WebControllerBaseTests {
@@ -45,12 +45,11 @@ public class AttendanceMyHoursControllerTests extends WebControllerBaseTests {
     final MvcResult response =
         mockMvc
             .perform(
-                MockMvcRequestBuilders.get("/company/time-and-attendance/total-paid-time/1")
+                MockMvcRequestBuilders.get("/company/time-and-attendance/all-paid-time/1")
                     .headers(httpHeaders))
             .andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
-    Mockito.verify(attendanceMyHoursService, Mockito.times(1))
-        .findMyHoursEntries(Mockito.anyString());
+    Mockito.verify(attendanceMyHoursService, Mockito.times(1)).findAllHours(Mockito.anyString());
   }
 
   @Test

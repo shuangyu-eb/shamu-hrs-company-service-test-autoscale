@@ -1,11 +1,12 @@
 package shamu.company.attendance.controller;
 
+import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import shamu.company.attendance.dto.AllTimeEntryDto;
 import shamu.company.attendance.dto.AttendanceSummaryDto;
-import shamu.company.attendance.dto.MyHoursEntryDto;
 import shamu.company.attendance.dto.TimeEntryDto;
 import shamu.company.attendance.dto.TimePeriodDto;
 import shamu.company.attendance.service.AttendanceMyHoursService;
@@ -13,8 +14,6 @@ import shamu.company.attendance.service.TimePeriodService;
 import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.employee.dto.CompensationDto;
-
-import java.util.List;
 
 @RestApiController
 public class AttendanceMyHoursController extends BaseRestController {
@@ -35,9 +34,9 @@ public class AttendanceMyHoursController extends BaseRestController {
     attendanceMyHoursService.saveTimeEntry(userId, timeEntryDto);
   }
 
-  @GetMapping("time-and-attendance/total-paid-time/{timesheetId}")
-  public List<MyHoursEntryDto> findMyHoursList(@PathVariable final String timesheetId) {
-    return attendanceMyHoursService.findMyHoursEntries(timesheetId);
+  @GetMapping("time-and-attendance/all-paid-time/{timesheetId}")
+  public List<AllTimeEntryDto> findAllHours(@PathVariable final String timesheetId) {
+    return attendanceMyHoursService.findAllHours(timesheetId);
   }
 
   @GetMapping("time-and-attendance/user-compensation/{userId}")
@@ -58,5 +57,10 @@ public class AttendanceMyHoursController extends BaseRestController {
   @GetMapping("time-and-attendance/time-periods/{userId}")
   public List<TimePeriodDto> findTimePeriodsByUser(@PathVariable final String userId) {
     return timePeriodService.listByUser(userId);
+  }
+
+  @GetMapping("time-and-attendance/compensation-frequency/{timesheetId}")
+  public String findCompensationFrequency(@PathVariable final String timesheetId) {
+    return attendanceMyHoursService.findCompensationFrequency(timesheetId);
   }
 }

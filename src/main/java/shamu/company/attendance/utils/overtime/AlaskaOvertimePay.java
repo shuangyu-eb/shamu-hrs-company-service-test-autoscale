@@ -1,7 +1,6 @@
 package shamu.company.attendance.utils.overtime;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import shamu.company.attendance.dto.LocalDateEntryDto;
@@ -14,13 +13,10 @@ public class AlaskaOvertimePay extends FederalOverTimePay {
   @Override
   public void calculateDailyOvertime(final List<LocalDateEntryDto> myHours) {
     final HashMap<LocalDate, Integer> totalDailyHours = new HashMap<>();
-    final HashMap<LocalDate, ArrayList<LocalDateEntryDto>> dailyHourlyEntries = new HashMap<>();
     for (final LocalDateEntryDto singleEntry : myHours) {
       final LocalDate currentDay = singleEntry.getStartTime().toLocalDate();
       totalDailyHours.putIfAbsent(currentDay, 0);
-      dailyHourlyEntries.putIfAbsent(currentDay, new ArrayList<>());
       totalDailyHours.compute(currentDay, (key, val) -> val + singleEntry.getDuration());
-      dailyHourlyEntries.get(currentDay).add(0, singleEntry);
       if (totalDailyHours.get(currentDay) > DAILY_OVERTIME_LIMIT_ALASKA) {
         final int otMin =
             Math.min(

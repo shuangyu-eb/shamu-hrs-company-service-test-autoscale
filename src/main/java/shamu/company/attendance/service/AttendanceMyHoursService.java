@@ -6,17 +6,15 @@ import java.sql.Timestamp;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import shamu.company.attendance.dto.AllTimeDto;
+import shamu.company.attendance.dto.AllTimeEntryDto;
 import shamu.company.attendance.dto.AttendanceSummaryDto;
 import shamu.company.attendance.dto.BreakTimeLogDto;
 import shamu.company.attendance.dto.LocalDateEntryDto;
-import shamu.company.attendance.dto.MyHoursEntryDto;
-import shamu.company.attendance.dto.MyHoursTimeLogDto;
 import shamu.company.attendance.dto.OverTimeMinutesDto;
 import shamu.company.attendance.dto.OvertimeDetailDto;
 import shamu.company.attendance.dto.TimeEntryDto;
@@ -29,8 +27,6 @@ import shamu.company.attendance.entity.TimeSheet;
 import shamu.company.attendance.entity.mapper.EmployeeTimeLogMapper;
 import shamu.company.attendance.repository.EmployeeTimeLogRepository;
 import shamu.company.attendance.repository.StaticEmployeesTaTimeTypeRepository;
-import shamu.company.attendance.utils.TimeEntryUtils;
-import shamu.company.attendance.utils.overtime.OverTimePayFactory;
 import shamu.company.employee.dto.CompensationDto;
 import shamu.company.timeoff.service.TimeOffRequestService;
 import shamu.company.user.entity.User;
@@ -47,7 +43,6 @@ public class AttendanceMyHoursService {
   private static final int CONVERT_WEEK_TO_MIN = 60 * 40;
   private static final int CONVERT_MONTH_TO_MIN = 60 * 40 * 52 / 12;
   private static final int CONVERT_YEAR_TO_MIN = 60 * 40 * 52;
-  private static final int CONVERT_SECOND_TO_MS = 1000;
   private static final String YEAR_TYPE = "Per Year";
   private static final String MONTH_TYPE = "Per Month";
   private static final String WEEK_TYPE = "Per Week";
@@ -73,6 +68,10 @@ public class AttendanceMyHoursService {
 
   private final EmployeesTaSettingService employeesTaSettingService;
 
+  private final OvertimeService overtimeService;
+
+  private final GenericHoursService genericHoursService;
+
   public AttendanceMyHoursService(
       final EmployeeTimeEntryService employeeTimeEntryService,
       final EmployeeTimeLogRepository employeeTimeLogRepository,
@@ -83,7 +82,9 @@ public class AttendanceMyHoursService {
       final EmployeeTimeLogMapper employeeTimeLogMapper,
       final AttendanceSettingsService attendanceSettingsService,
       final TimeOffRequestService timeOffRequestService,
-      final EmployeesTaSettingService employeesTaSettingService) {
+      final EmployeesTaSettingService employeesTaSettingService,
+      final OvertimeService overtimeService,
+      final GenericHoursService genericHoursService) {
     this.employeeTimeEntryService = employeeTimeEntryService;
     this.employeeTimeLogRepository = employeeTimeLogRepository;
     this.timeSheetService = timeSheetService;
@@ -94,6 +95,8 @@ public class AttendanceMyHoursService {
     this.attendanceSettingsService = attendanceSettingsService;
     this.timeOffRequestService = timeOffRequestService;
     this.employeesTaSettingService = employeesTaSettingService;
+    this.overtimeService = overtimeService;
+    this.genericHoursService = genericHoursService;
   }
 
   public void saveTimeEntry(final String userId, final TimeEntryDto timeEntryDto) {
@@ -192,44 +195,6 @@ public class AttendanceMyHoursService {
     return wagesPerMin;
   }
 
-  public List<EmployeeTimeLog> findEntriesBetweenDates(
-      final long startDate, final long endDate, final String userId, final boolean isWorkEntries) {
-    final List<EmployeeTimeLog> employeeTimeLogs =
-        employeeTimeLogRepository.findEmployeeTimeLogByTime(
-            startDate * CONVERT_SECOND_TO_MS, endDate, userId);
-    employeeTimeLogs.forEach(
-        employeeTimeLog -> {
-          final long timeStart = employeeTimeLog.getStart().getTime();
-          final long timeEnd = timeStart + employeeTimeLog.getDurationMin() * CONVERT_MIN_TO_MS;
-          final int durationMin = employeeTimeLog.getDurationMin();
-          final long amountOfTimeBeforeStart =
-              Math.max(startDate * CONVERT_SECOND_TO_MS - timeStart, 0);
-          final long amountOfTimeAfterEnd = Math.max(timeEnd - endDate, 0);
-          employeeTimeLog.setStart(new Timestamp(timeStart + amountOfTimeBeforeStart));
-          employeeTimeLog.setDurationMin(
-              (int)
-                  ((durationMin * CONVERT_MIN_TO_MS
-                          - amountOfTimeAfterEnd
-                          - amountOfTimeBeforeStart)
-                      / (CONVERT_MIN_TO_MS)));
-        });
-
-    employeeTimeLogs.sort(TimeEntryUtils.compareByLogStartDate);
-
-    if (isWorkEntries) {
-      return employeeTimeLogs.stream()
-          .filter(
-              employeeTimeLog ->
-                  employeeTimeLog
-                      .getTimeType()
-                      .getName()
-                      .equals(StaticEmployeesTaTimeType.TimeType.WORK.name()))
-          .collect(Collectors.toList());
-    }
-
-    return employeeTimeLogs;
-  }
-
   public AttendanceSummaryDto findAttendanceSummary(final String timesheetId) {
     final TimeSheet timeSheet = timeSheetService.findTimeSheetById(timesheetId);
     final User user = timeSheet.getEmployee();
@@ -238,8 +203,6 @@ public class AttendanceMyHoursService {
         attendanceSettingsService.findCompanySettings(user.getCompany().getId());
     final Timestamp timeSheetStart = timeSheet.getTimePeriod().getStartDate();
     final Timestamp timesheetEnd = timeSheet.getTimePeriod().getEndDate();
-    final long startOfTimesheetWeek =
-        DateUtil.getFirstHourOfWeek(timeSheetStart, companyTaSetting.getTimeZone().getName());
     final int timeOffHours =
         timeOffRequestService.findTimeOffHoursBetweenWorkPeriod(
             user.getId(), timeSheetStart.getTime(), timesheetEnd.getTime());
@@ -247,15 +210,12 @@ public class AttendanceMyHoursService {
     final UserCompensation userCompensation = timeSheet.getUserCompensation();
     final boolean isHourly =
         userCompensation.getCompensationFrequency().getName().equals(HOUR_TYPE);
-    final List<EmployeeTimeLog> allEmployeeEntries =
-        findEntriesBetweenDates(startOfTimesheetWeek, timesheetEnd.getTime(), user.getId(), true);
+
     final List<LocalDateEntryDto> localDateEntries =
-        TimeEntryUtils.transformTimeLogsToLocalDate(
-            allEmployeeEntries, companyTaSetting.getTimeZone());
+        overtimeService.getLocalDateEntries(timeSheet, companyTaSetting);
 
     final List<OvertimeDetailDto> overtimeDetailDtos =
-        OverTimePayFactory.getOverTimePay(timeSheet.getUserCompensation())
-            .getOvertimePay(localDateEntries);
+        overtimeService.getOvertimeEntries(localDateEntries, timeSheet, companyTaSetting);
 
     int totalOvertimeMin = 0;
     double grossPay = 0;
@@ -267,44 +227,22 @@ public class AttendanceMyHoursService {
       final ArrayList<OverTimeMinutesDto> overTimeMinutesDtos =
           overtimeDetailDto.getOverTimeMinutesDtos();
       for (final OverTimeMinutesDto overTimeMinutesDto : overTimeMinutesDtos) {
-        final Timestamp timeLogStartTime = Timestamp.valueOf(overTimeMinutesDto.getStartTime());
-        if (timeLogStartTime.getTime() <= timeSheetStart.getTime()) {
-          final int overTimeMin =
-              (int)
-                      Math.max(
-                          timeLogStartTime.getTime()
-                              + overTimeMinutesDto.getMinutes() * CONVERT_MIN_TO_MS
-                              - timeSheetStart.getTime(),
-                          0)
-                  / CONVERT_MIN_TO_MS;
-          totalOvertimeMin += overTimeMin;
-          grossPay += totalOvertimeMin * wagesPerMin * overTimeMinutesDto.getRate();
-        } else {
-          totalOvertimeMin += overTimeMinutesDto.getMinutes();
-          grossPay += overTimeMinutesDto.getMinutes() * wagesPerMin * overTimeMinutesDto.getRate();
-        }
+        totalOvertimeMin += overTimeMinutesDto.getMinutes();
+        grossPay +=
+            overTimeMinutesDto.getMinutes() * wagesPerMin * (overTimeMinutesDto.getRate() - 1);
       }
     }
 
     int paidMin = 0;
     if (isHourly) {
       for (final LocalDateEntryDto localDateEntryDto : localDateEntries) {
-        final Timestamp timeLogStartTime = Timestamp.valueOf(localDateEntryDto.getStartTime());
-        if (timeLogStartTime.getTime() <= timeSheetStart.getTime()) {
-          final int overTimeMin =
-              (int)
-                      Math.max(
-                          Timestamp.valueOf(localDateEntryDto.getEndTime()).getTime()
-                              - timeSheetStart.getTime(),
-                          0)
-                  / CONVERT_MIN_TO_MS;
-          paidMin += overTimeMin;
-        } else {
-          paidMin += localDateEntryDto.getDuration();
-        }
+        paidMin += localDateEntryDto.getDuration();
+        grossPay += localDateEntryDto.getDuration() * wagesPerMin;
       }
+      grossPay += timeOffHours * CONVERT_HOUR_TO_MIN * wagesPerMin;
     } else {
       paidMin = totalOvertimeMin;
+      grossPay += paidMin * wagesPerMin;
     }
 
     final DecimalFormat df = new DecimalFormat("0.00");
@@ -327,47 +265,57 @@ public class AttendanceMyHoursService {
     return userCompensationService.findCompensationByUserId(userId);
   }
 
-  public List<MyHoursEntryDto> findMyHoursEntries(final String timesheetId) {
+  public List<AllTimeEntryDto> findAllHours(final String timesheetId) {
     final TimeSheet timeSheet = timeSheetService.findTimeSheetById(timesheetId);
-    final User user = timeSheet.getEmployee();
-
-    final Timestamp timeSheetStart = timeSheet.getTimePeriod().getStartDate();
-    final Timestamp timesheetEnd = timeSheet.getTimePeriod().getEndDate();
-    final List<EmployeeTimeLog> allEmployeeTimeLogs =
-        employeeTimeLogRepository.findEmployeeTimeLogByTime(
-            timeSheetStart.getTime(), timesheetEnd.getTime(), user.getId());
-    allEmployeeTimeLogs.sort(TimeEntryUtils.compareByLogStartDate);
-    final UserCompensation userCompensation = timeSheet.getUserCompensation();
-    final BigInteger wageCents = userCompensation.getWageCents();
-    final String compensationFrequency = userCompensation.getCompensationFrequency().getName();
-
-    final DecimalFormat df = new DecimalFormat("0.00");
-    df.setRoundingMode(RoundingMode.HALF_UP);
-
-    final double wagesPerMin = getWagesPerMin(compensationFrequency, wageCents);
-    final LinkedHashMap<String, MyHoursEntryDto> timeLogToEntries = new LinkedHashMap<>();
-    for (final EmployeeTimeLog employeeTimeLog : allEmployeeTimeLogs) {
-      final String entryId = employeeTimeLog.getEntry().getId();
-      final String basePay = df.format(employeeTimeLog.getDurationMin() * wagesPerMin);
-      final MyHoursTimeLogDto myHoursTimeLogDto =
-          employeeTimeLogMapper.convertToMyHoursTimeLogDto(employeeTimeLog, basePay);
-      if (timeLogToEntries.containsKey(entryId)) {
-        timeLogToEntries.get(entryId).getMyHoursTimeLogDtos().add(myHoursTimeLogDto);
+    final CompanyTaSetting companyTaSetting =
+        attendanceSettingsService.findCompanySettings(timeSheet.getEmployee().getCompany().getId());
+    final List<LocalDateEntryDto> localDateEntries =
+        overtimeService.getLocalDateEntries(timeSheet, companyTaSetting);
+    final List<OvertimeDetailDto> overtimeDetailDtos =
+        overtimeService.getOvertimeEntries(localDateEntries, timeSheet, companyTaSetting);
+    final HashMap<String, OvertimeDetailDto> overtimeHours =
+        convertOvertimeHours(overtimeDetailDtos);
+    final List<EmployeeTimeLog> timesheetEntries =
+        genericHoursService.findEntriesBetweenDates(
+            timeSheet.getTimePeriod().getStartDate().getTime(),
+            timeSheet.getTimePeriod().getEndDate().getTime(),
+            timeSheet.getEmployee().getId(),
+            false);
+    final HashMap<String, AllTimeEntryDto> allTimeDtos = new HashMap<>();
+    for (final EmployeeTimeLog employeeTimeLog : timesheetEntries) {
+      final String entry = employeeTimeLog.getEntry().getId();
+      final AllTimeDto allTimeDto =
+          employeeTimeLogMapper.convertToTimeLogDto(
+              employeeTimeLog, overtimeHours.getOrDefault(employeeTimeLog.getId(), null));
+      if (allTimeDtos.containsKey(entry)) {
+        allTimeDtos.get(entry).addAllTimeLogs(allTimeDto);
       } else {
-        final MyHoursEntryDto myHoursEntryDto =
-            employeeTimeLogMapper.convertToMyHoursEntryDto(
-                employeeTimeLog, Collections.singletonList(myHoursTimeLogDto));
-        timeLogToEntries.put(entryId, myHoursEntryDto);
+        allTimeDtos.put(
+            entry,
+            new AllTimeEntryDto(
+                entry,
+                employeeTimeLog.getEntry().getComment(),
+                new ArrayList<>(Collections.singletonList(allTimeDto))));
       }
     }
+    return new ArrayList<>(allTimeDtos.values());
+  }
 
-    final List<MyHoursEntryDto> myHoursEntryDtos = new ArrayList<>();
-    for (final Map.Entry<String, MyHoursEntryDto> myHoursEntryDtoEntry :
-        timeLogToEntries.entrySet()) {
-      myHoursEntryDtos.add(myHoursEntryDtoEntry.getValue());
+  private HashMap<String, OvertimeDetailDto> convertOvertimeHours(
+      final List<OvertimeDetailDto> overtimeDetailDtos) {
+    final HashMap<String, OvertimeDetailDto> idToTimeLogDto = new HashMap<>();
+    for (final OvertimeDetailDto overtimeDetailDto : overtimeDetailDtos) {
+      if (idToTimeLogDto.containsKey(overtimeDetailDto.getTimeLogId())) {
+        final OvertimeDetailDto currentTimeLog =
+            idToTimeLogDto.get(overtimeDetailDto.getTimeLogId());
+        currentTimeLog.addMinuteDtos(overtimeDetailDto.getOverTimeMinutesDtos());
+        currentTimeLog.setTotalMinutes(
+            currentTimeLog.getTotalMinutes() + overtimeDetailDto.getTotalMinutes());
+      } else {
+        idToTimeLogDto.putIfAbsent(overtimeDetailDto.getTimeLogId(), overtimeDetailDto);
+      }
     }
-
-    return myHoursEntryDtos;
+    return idToTimeLogDto;
   }
 
   public String findUserTimeZone(final String timesheetId) {
@@ -376,5 +324,10 @@ public class AttendanceMyHoursService {
     final EmployeesTaSetting employeesTaSetting =
         employeesTaSettingService.findByUserId(user.getId());
     return employeesTaSetting.getTimeZone().getName();
+  }
+
+  public String findCompensationFrequency(final String timesheetId) {
+    final TimeSheet timeSheet = timeSheetService.findTimeSheetById(timesheetId);
+    return timeSheet.getUserCompensation().getCompensationFrequency().getName();
   }
 }
