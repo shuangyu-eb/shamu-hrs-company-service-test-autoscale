@@ -1,6 +1,7 @@
 package shamu.company.job.service;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang.BooleanUtils;
@@ -12,6 +13,7 @@ import shamu.company.common.exception.errormapping.AlreadyExistsException;
 import shamu.company.common.service.DepartmentService;
 import shamu.company.common.service.OfficeAddressService;
 import shamu.company.common.service.OfficeService;
+import shamu.company.company.dto.OfficeAddressDto;
 import shamu.company.company.dto.OfficeCreateDto;
 import shamu.company.company.entity.Department;
 import shamu.company.company.entity.Office;
@@ -41,13 +43,17 @@ import shamu.company.timeoff.repository.TimeOffPolicyUserRepository;
 import shamu.company.timeoff.service.TimeOffPolicyService;
 import shamu.company.timeoff.service.TimeOffRequestService;
 import shamu.company.user.entity.CompensationOvertimeStatus;
+import shamu.company.user.dto.UserAddressDto;
+import shamu.company.user.dto.UserOfficeAndHomeAddressDto;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
 import shamu.company.user.entity.UserCompensation;
 import shamu.company.user.entity.UserRole;
+import shamu.company.user.entity.mapper.UserAddressMapper;
 import shamu.company.user.entity.mapper.UserCompensationMapper;
 import shamu.company.user.entity.mapper.UserMapper;
 import shamu.company.user.service.CompensationOvertimeStatusService;
+import shamu.company.user.repository.UserAddressRepository;
 import shamu.company.user.service.UserRoleService;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.DateUtil;
@@ -86,6 +92,10 @@ public class JobUserService {
 
   private final TimeOffPolicyAccrualScheduleRepository timeOffPolicyAccrualScheduleRepository;
 
+  private final UserAddressRepository userAddressRepository;
+
+  private final UserAddressMapper userAddressMapper;
+
   private final TimeOffPolicyService timeOffPolicyService;
 
   private final CompensationOvertimeStatusService compensationOvertimeStatusService;
@@ -106,6 +116,8 @@ public class JobUserService {
       final UserMapper userMapper,
       final TimeOffPolicyUserRepository timeOffPolicyUserRepository,
       final TimeOffPolicyAccrualScheduleRepository timeOffPolicyAccrualScheduleRepository,
+      final UserAddressRepository userAddressRepository,
+      final UserAddressMapper userAddressMapper,
       final TimeOffPolicyService timeOffPolicyService,
       final CompensationOvertimeStatusService compensationOvertimeStatusService) {
     this.jobUserRepository = jobUserRepository;
@@ -124,6 +136,8 @@ public class JobUserService {
     this.timeOffPolicyUserRepository = timeOffPolicyUserRepository;
     this.timeOffPolicyAccrualScheduleRepository = timeOffPolicyAccrualScheduleRepository;
     this.timeOffPolicyService = timeOffPolicyService;
+    this.userAddressRepository = userAddressRepository;
+    this.userAddressMapper = userAddressMapper;
     this.compensationOvertimeStatusService = compensationOvertimeStatusService;
   }
 
@@ -196,7 +210,7 @@ public class JobUserService {
         userCompensationMapper.updateFromJobUpdateDto(userCompensation, jobUpdateDto);
       }
       if (jobUpdateDto.getPayTypeName() != null) {
-        CompensationOvertimeStatus compensationOvertimeStatus =
+        final CompensationOvertimeStatus compensationOvertimeStatus =
             compensationOvertimeStatusService.findByName(jobUpdateDto.getPayTypeName());
         userCompensation.setOvertimeStatus(compensationOvertimeStatus);
       }
@@ -303,8 +317,7 @@ public class JobUserService {
         officeService.findByNameAndCompanyId(
             officeCreateDto.getOfficeName(), office.getCompany().getId());
     if (!oldOffices.isEmpty()) {
-      throw new AlreadyExistsException(
-          "Office already exists.", "office");
+      throw new AlreadyExistsException("Office already exists.", "office");
     }
     office.setName(officeCreateDto.getOfficeName());
 
@@ -441,8 +454,32 @@ public class JobUserService {
     return new JobUserHireDateCheckDto(hireDateDeletable);
   }
 
+  public List<UserOfficeAndHomeAddressDto> findHomeAndOfficeAddressByUsers(
+      final List<String> userIds) {
+    final List<UserOfficeAndHomeAddressDto> userOfficeAndHomeAddressDtos = new ArrayList<>();
+
+    userIds.stream()
+        .forEach(
+            userId -> {
+              final UserAddressDto userAddressDto =
+                  userAddressMapper.convertToUserAddressDto(
+                      userAddressRepository.findUserAddressByUserId(userId));
+              final OfficeAddressDto officeAddressDto =
+                  jobUserMapper.convertToOfficeAddressDto(jobUserRepository.findByUserId(userId));
+
+              userOfficeAndHomeAddressDtos.add(
+                  UserOfficeAndHomeAddressDto.builder()
+                      .userId(userId)
+                      .userHomeAddress(userAddressDto)
+                      .userOfficeAddress(officeAddressDto)
+                      .build());
+            });
+
+    return userOfficeAndHomeAddressDtos;
+  }
+
   public Boolean checkEmployeeType(final String userId) {
-    JobUser jobUser = jobUserRepository.findByUserId(userId);
+    final JobUser jobUser = jobUserRepository.findByUserId(userId);
 
     return jobUser != null && jobUser.getEmployeeType() != null && jobUser.getEmployeeType().getName() != null;
   }

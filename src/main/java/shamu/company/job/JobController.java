@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
@@ -19,6 +20,7 @@ import shamu.company.job.dto.JobSelectOptionUpdateDto;
 import shamu.company.job.dto.JobUpdateDto;
 import shamu.company.job.dto.JobUserHireDateCheckDto;
 import shamu.company.job.service.JobUserService;
+import shamu.company.user.dto.UserOfficeAndHomeAddressDto;
 
 @RestApiController
 public class JobController extends BaseRestController {
@@ -81,5 +83,10 @@ public class JobController extends BaseRestController {
   public JobUserHireDateCheckDto checkUserHireDateDeletable(@PathVariable final String userId) {
 
     return jobUserService.checkUserHireDateDeletable(userId);
+  }
+
+  @PostMapping("job/homeAndOfficeAddresses")
+  public List<UserOfficeAndHomeAddressDto> homeAndOfficeAddresses(@RequestBody final List<String> userIds) {
+    return jobUserService.findHomeAndOfficeAddressByUsers(userIds);
   }
 }

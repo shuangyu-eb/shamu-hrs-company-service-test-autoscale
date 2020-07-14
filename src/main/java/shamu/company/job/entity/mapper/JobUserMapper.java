@@ -12,6 +12,7 @@ import shamu.company.attendance.dto.TimeAndAttendanceRelatedUserDto;
 import shamu.company.benefit.dto.BenefitPlanUserDto;
 import shamu.company.common.mapper.Config;
 import shamu.company.company.entity.Department;
+import shamu.company.company.dto.OfficeAddressDto;
 import shamu.company.company.entity.Office;
 import shamu.company.company.entity.mapper.OfficeMapper;
 import shamu.company.employee.dto.BasicJobInformationDto;
@@ -49,6 +50,16 @@ public interface JobUserMapper {
   @Mapping(target = "compensation", source = "userCompensation")
   @Mapping(target = "employeeType", source = "employeeType")
   JobInformationDto convertToJobInformationDto(JobUser jobUser);
+
+  @Mapping(target = "street1", source = "jobUser.office.officeAddress.street1")
+  @Mapping(target = "street2", source = "jobUser.office.officeAddress.street2")
+  @Mapping(target = "city", source = "jobUser.office.officeAddress.city")
+  @Mapping(target = "stateId", source = "jobUser.office.officeAddress.stateProvince.id")
+  @Mapping(target = "stateName", source = "jobUser.office.officeAddress.stateProvince.name")
+  @Mapping(target = "postalCode", source = "jobUser.office.officeAddress.postalCode")
+  @Mapping(target = "countryId", source = "jobUser.office.officeAddress.stateProvince.country.id")
+  @Mapping(target = "countryName", source = "jobUser.office.officeAddress.stateProvince.country.name")
+  OfficeAddressDto convertToOfficeAddressDto(JobUser jobUser);
 
   @Mapping(target = "userStatus", source = "userStatus")
   @Mapping(target = "emailSendDate", source = "emailSendDate")

@@ -50,8 +50,10 @@ import shamu.company.user.entity.EmployeeType;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
 import shamu.company.user.entity.UserRole;
+import shamu.company.user.entity.mapper.UserAddressMapper;
 import shamu.company.user.entity.mapper.UserCompensationMapper;
 import shamu.company.user.entity.mapper.UserMapper;
+import shamu.company.user.repository.UserAddressRepository;
 import shamu.company.user.service.CompensationOvertimeStatusService;
 import shamu.company.user.service.UserRoleService;
 import shamu.company.user.service.UserService;
@@ -75,6 +77,8 @@ class JobUserServiceTests {
   @Mock private TimeOffPolicyUserRepository timeOffPolicyUserRepository;
   @Mock private TimeOffPolicyAccrualScheduleRepository timeOffPolicyAccrualScheduleRepository;
   @Mock private TimeOffPolicyService timeOffPolicyService;
+  @Mock private UserAddressRepository userAddressRepository;
+  @Mock private UserAddressMapper userAddressMapper;
   private final OfficeMapper officeMapper = new OfficeMapperImpl(officeAddressMapper);
   private final JobUserMapper jobUserMapper =
       new JobUserMapperImpl(officeMapper, userCompensationMapper);
@@ -101,6 +105,8 @@ class JobUserServiceTests {
             userMapper,
             timeOffPolicyUserRepository,
             timeOffPolicyAccrualScheduleRepository,
+            userAddressRepository,
+            userAddressMapper,
             timeOffPolicyService,
             compensationOvertimeStatusService);
   }
@@ -124,6 +130,14 @@ class JobUserServiceTests {
     Mockito.when(jobService.findAllByCompanyId(id)).thenReturn(jobs);
     Mockito.when(jobUserService.getCountByJobId(job1.getId())).thenReturn(2);
     Assertions.assertDoesNotThrow(() -> jobUserService.findJobsByCompanyId(id));
+  }
+
+  @Test
+  void findHomeAndOfficeAddressByUsers() {
+    final String userId = "userId";
+    final List userIds = new ArrayList();
+    userIds.add(userId);
+    Assertions.assertDoesNotThrow(() -> jobUserService.findHomeAndOfficeAddressByUsers(userIds));
   }
 
   @Nested
@@ -318,7 +332,7 @@ class JobUserServiceTests {
     @Test
     void whenEmployeeTypeIsNull_thenReturnFalse() {
       final JobUser jobUser = new JobUser();
-      String userId = UuidUtil.getUuidString();
+      final String userId = UuidUtil.getUuidString();
       jobUser.setEmployeeType(new EmployeeType());
       Mockito.when(jobUserRepository.findByUserId(userId)).thenReturn(jobUser);
       Assertions.assertFalse(jobUserService.checkEmployeeType(userId));
@@ -327,8 +341,8 @@ class JobUserServiceTests {
     @Test
     void whenEmployeeTypeIsNotNull_thenReturnTrue() {
       final JobUser jobUser = new JobUser();
-      String userId = UuidUtil.getUuidString();
-      EmployeeType employeeType = new EmployeeType();
+      final String userId = UuidUtil.getUuidString();
+      final EmployeeType employeeType = new EmployeeType();
       employeeType.setName("test");
       jobUser.setEmployeeType(employeeType);
       Mockito.when(jobUserRepository.findByUserId(userId)).thenReturn(jobUser);

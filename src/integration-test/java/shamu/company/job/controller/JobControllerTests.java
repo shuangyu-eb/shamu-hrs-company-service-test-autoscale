@@ -3,6 +3,7 @@ package shamu.company.job.controller;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -261,6 +262,22 @@ public class JobControllerTests extends WebControllerBaseTests {
                     .contentType(MediaType.APPLICATION_JSON)
                     .headers(httpHeaders))
             .andReturn();
+    assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+  }
+
+  @Test
+  void testFindHomeAndOfficeAddresses() throws Exception{
+    setPermission(Permission.Name.VIEW_USER_JOB.name());
+    final HttpHeaders httpHeaders = new HttpHeaders();
+    httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+    final MvcResult response =
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post("/company/job/homeAndOfficeAddresses")
+                .content(JsonUtil.formatToString(new ArrayList<>()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .headers(httpHeaders))
+        .andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
 }
