@@ -682,6 +682,30 @@ databaseChangeLog:
             tableName: static_employees_ta_time_types
 
   - changeSet:
+      id: 1593658305099-3
+      author: qian-eb
+      changes:
+        - sql:
+            sql: alter table static_timesheet_status modify ref_id binary(16);
+
+  - changeSet:
+      id: 1593658305099-4
+      author: qian-eb
+      changes:
+        - sql:
+            sql: alter table static_timesheet_status modify name varchar(60);
+
+  - changeSet:
+      id: 1593658305099-2
+      author: qian-eb
+      runOnChange: true
+      changes:
+        - addUniqueConstraint:
+            columnNames: ref_id, name
+            constraintName: uq_static_timesheet_status
+            tableName: static_timesheet_status
+
+  - changeSet:
       id: 1589963373000-27
       author: michael-eb
       runOnChange: true
@@ -1664,35 +1688,11 @@ databaseChangeLog:
             tableName: employee_time_entries
 
   - changeSet:
-      id: 1593658305099-3
-      author: qian-eb
-      changes:
-        - sql:
-            sql: alter table static_timesheet_status modify ref_id binary(16);
-
-  - changeSet:
-      id: 1593658305099-4
-      author: qian-eb
-      changes:
-        - sql:
-            sql: alter table static_timesheet_status modify name varchar(60);
-
-  - changeSet:
       id: 1593658305099-1
       author: qian-eb
       changes:
         - sql:
             sql: drop trigger ins_time_period;
-
-  - changeSet:
-      id: 1593658305099-2
-      author: qian-eb
-      runOnChange: true
-      changes:
-        - addUniqueConstraint:
-            columnNames: ref_id, name
-            constraintName: uq_static_timesheet_status
-            tableName: static_timesheet_status
 
   - changeSet:
       id: 1594367513853
