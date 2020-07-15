@@ -105,7 +105,7 @@ public class TimeOffRequestRestController extends BaseRestController {
 
   @GetMapping("time-off-requests/{id}")
   @PreAuthorize(
-      "hasPermission(#id,'USER','VIEW_SELF_TIME_OFF_REQUEST') "
+      "hasPermission(#id,'TIME_OFF_REQUEST','VIEW_SELF_TIME_OFF_REQUEST') "
           + "or hasPermission(#id,'TIME_OFF_REQUEST','VIEW_TEAM_TIME_OFF_REQUEST')")
   public TimeOffRequestDetailDto findTimeOffRequest(@PathVariable final String id) {
 
