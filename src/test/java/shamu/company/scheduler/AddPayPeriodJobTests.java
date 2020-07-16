@@ -16,6 +16,7 @@ import shamu.company.attendance.service.AttendanceSettingsService;
 import shamu.company.attendance.service.PayPeriodFrequencyService;
 import shamu.company.attendance.service.TimePeriodService;
 import shamu.company.scheduler.job.AddPayPeriodJob;
+import shamu.company.user.service.UserCompensationService;
 import shamu.company.utils.JsonUtil;
 
 import java.util.HashMap;
@@ -31,6 +32,7 @@ public class AddPayPeriodJobTests {
   @Mock private AttendanceSettingsService attendanceSettingsService;
   @Mock private PayPeriodFrequencyService payPeriodFrequencyService;
   @Mock private JobExecutionContext jobExecutionContext;
+  @Mock private UserCompensationService userCompensationService;
 
   @BeforeEach
   void init() {
@@ -40,7 +42,8 @@ public class AddPayPeriodJobTests {
             attendanceSetUpService,
             timePeriodService,
             attendanceSettingsService,
-            payPeriodFrequencyService);
+            payPeriodFrequencyService,
+            userCompensationService);
   }
 
   @Nested

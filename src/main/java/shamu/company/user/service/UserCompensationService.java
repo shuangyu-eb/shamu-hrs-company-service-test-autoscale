@@ -61,7 +61,7 @@ public class UserCompensationService {
     return userCompensationRepository.findByUserId(userId);
   }
 
-  public void saveAll(final List<UserCompensation> userCompensationList) {
-    userCompensationRepository.saveAll(userCompensationList);
+  public List<UserCompensation> saveAll(final List<UserCompensation> userCompensationList) {
+    return userCompensationRepository.saveAll(userCompensationList);
   }
 }

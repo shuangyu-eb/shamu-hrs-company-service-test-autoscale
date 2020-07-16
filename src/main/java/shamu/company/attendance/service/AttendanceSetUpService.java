@@ -179,7 +179,8 @@ public class AttendanceSetUpService {
     final List<EmployeeOvertimeDetailsDto> overtimeDetailsDtoList =
         timeAndAttendanceDetailsDto.getOvertimeDetails();
 
-    saveUserCompensations(overtimeDetailsDtoList);
+    final List<UserCompensation> userCompensationList =
+        saveUserCompensations(overtimeDetailsDtoList);
     saveJobUsers(overtimeDetailsDtoList);
 
     final Date periodStartDate = getStartOfDay(timeAndAttendanceDetailsDto.getPeriodStartDate());
@@ -188,16 +189,16 @@ public class AttendanceSetUpService {
     final TimePeriod firstTimePeriod = new TimePeriod(periodStartDate, periodEndDate);
 
     final TimeSheetStatus timeSheetStatus;
-    if (periodEndDate.after(new Date())) {
+    if (periodStartDate.after(getEndOfDay(new Date()))) {
       timeSheetStatus = TimeSheetStatus.NOT_YET_START;
-      scheduleActivateTimeSheet(companyId, new Date());
+      scheduleActivateTimeSheet(companyId, periodStartDate);
     } else {
       timeSheetStatus = TimeSheetStatus.ACTIVE;
     }
 
-    createTimeSheetsAndPeriod(companyId, firstTimePeriod, timeSheetStatus);
+    createTimeSheetsAndPeriod(firstTimePeriod, timeSheetStatus, userCompensationList);
 
-    scheduleCreateNextPeriod(companyId, new Date(new Date().getTime()));
+    scheduleCreateNextPeriod(companyId, new Date(periodEndDate.getTime()));
   }
 
   public void scheduleCreateNextPeriod(final String companyId, final Date currentPeriodEndDate) {
@@ -247,7 +248,7 @@ public class AttendanceSetUpService {
     attendanceSettingsService.saveCompanyTaSetting(companyTaSetting);
   }
 
-  private void saveUserCompensations(
+  private List<UserCompensation> saveUserCompensations(
       final List<EmployeeOvertimeDetailsDto> overtimeDetailsDtoList) {
     final List<UserCompensation> userCompensations =
         overtimeDetailsDtoList.stream()
@@ -277,7 +278,7 @@ public class AttendanceSetUpService {
                   }
                 })
             .collect(Collectors.toList());
-    userCompensationService.saveAll(userCompensations);
+    return userCompensationService.saveAll(userCompensations);
   }
 
   private void saveJobUsers(final List<EmployeeOvertimeDetailsDto> overtimeDetailsDtoList) {
@@ -300,11 +301,9 @@ public class AttendanceSetUpService {
   }
 
   public void createTimeSheetsAndPeriod(
-      final String companyId,
       final TimePeriod newTimePeriod,
-      final TimeSheetStatus timeSheetStatus) {
-    final List<UserCompensation> userCompensationList =
-        userCompensationService.listNewestEnrolledCompensation(companyId);
+      final TimeSheetStatus timeSheetStatus,
+      final List<UserCompensation> userCompensationList) {
     final List<TimeSheet> timeSheets = new ArrayList<>();
     final StaticTimesheetStatus timesheetStatus =
         staticTimesheetStatusRepository.findByName(timeSheetStatus.getValue());

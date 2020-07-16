@@ -12,6 +12,7 @@ import shamu.company.user.entity.UserCompensation;
 import shamu.company.user.repository.UserCompensationRepository;
 import shamu.company.user.service.UserCompensationService;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -59,13 +60,25 @@ public class UserCompensationServiceTest {
       assertThatExceptionOfType(ResourceNotFoundException.class)
           .isThrownBy(() -> userCompensationService.findCompensationById("1"));
     }
+  }
+
+  @Nested
+  class save {
+    UserCompensation userCompensation;
+
+    @BeforeEach
+    void init() {
+      userCompensation = new UserCompensation();
+    }
 
     @Test
-    void whenCompanyIdValid_shouldSuccess() {
-      final List<UserCompensation> userCompensationList =
-          userCompensationService.listNewestEnrolledCompensation(
-              "6F91071A5A314DDCA0E3DDF9C2708403");
-      final int size = userCompensationList.size();
+    void whenCompensationValid_thenShouldSucceed() {
+      final List<UserCompensation> userCompensationList = new ArrayList<>();
+      userCompensationList.add(userCompensation);
+      Mockito.when(userCompensationRepository.saveAll(userCompensationList))
+          .thenReturn(userCompensationList);
+      assertThatCode(() -> userCompensationService.saveAll(userCompensationList))
+          .doesNotThrowAnyException();
     }
   }
 }

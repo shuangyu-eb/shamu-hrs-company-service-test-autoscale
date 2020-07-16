@@ -10,7 +10,11 @@ import shamu.company.attendance.service.AttendanceSetUpService;
 import shamu.company.attendance.service.AttendanceSettingsService;
 import shamu.company.attendance.service.PayPeriodFrequencyService;
 import shamu.company.attendance.service.TimePeriodService;
+import shamu.company.user.entity.UserCompensation;
+import shamu.company.user.service.UserCompensationService;
 import shamu.company.utils.JsonUtil;
+
+import java.util.List;
 
 import static shamu.company.attendance.entity.StaticTimesheetStatus.TimeSheetStatus;
 
@@ -19,17 +23,20 @@ public class AddPayPeriodJob extends QuartzJobBean {
   private final TimePeriodService timePeriodService;
   private final AttendanceSettingsService attendanceSettingsService;
   private final PayPeriodFrequencyService payPeriodFrequencyService;
+  private final UserCompensationService userCompensationService;
 
   @Autowired
   public AddPayPeriodJob(
       final AttendanceSetUpService attendanceSetUpService,
       final TimePeriodService timePeriodService,
       final AttendanceSettingsService attendanceSettingsService,
-      final PayPeriodFrequencyService payPeriodFrequencyService) {
+      final PayPeriodFrequencyService payPeriodFrequencyService,
+      final UserCompensationService userCompensationService) {
     this.attendanceSetUpService = attendanceSetUpService;
     this.timePeriodService = timePeriodService;
     this.attendanceSettingsService = attendanceSettingsService;
     this.payPeriodFrequencyService = payPeriodFrequencyService;
+    this.userCompensationService = userCompensationService;
   }
 
   @Override
@@ -50,8 +57,10 @@ public class AddPayPeriodJob extends QuartzJobBean {
         attendanceSetUpService.getNextPeriod(
             currentTimePeriod, staticCompanyPayFrequencyType.getName());
 
+    final List<UserCompensation> userCompensationList =
+        userCompensationService.listNewestEnrolledCompensation(companyId);
     attendanceSetUpService.createTimeSheetsAndPeriod(
-        companyId, nextTimePeriod, TimeSheetStatus.ACTIVE);
+        nextTimePeriod, TimeSheetStatus.ACTIVE, userCompensationList);
     attendanceSetUpService.scheduleCreateNextPeriod(companyId, nextTimePeriod.getEndDate());
   }
 }
