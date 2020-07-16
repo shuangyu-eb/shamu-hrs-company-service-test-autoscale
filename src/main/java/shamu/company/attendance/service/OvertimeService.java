@@ -3,7 +3,9 @@ package shamu.company.attendance.service;
 import java.sql.Timestamp;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import shamu.company.attendance.dto.LocalDateEntryDto;
@@ -92,5 +94,29 @@ public class OvertimeService {
     return overtimeDetails.stream()
         .filter(overtimeDetailDto -> overtimeDetailDto.getTotalMinutes() > 0)
         .collect(Collectors.toList());
+  }
+
+  public Map<Double, Integer> findAllOvertimeHours(
+      final List<EmployeeTimeLog> workedHours,
+      final TimeSheet timeSheet,
+      final CompanyTaSetting companyTaSetting) {
+    final List<LocalDateEntryDto> localDateEntryDtos =
+        TimeEntryUtils.transformTimeLogsToLocalDate(workedHours, companyTaSetting.getTimeZone());
+    final List<OvertimeDetailDto> overtimeDetailDtos =
+        getOvertimeEntries(localDateEntryDtos, timeSheet, companyTaSetting);
+    final Map<Double, Integer> rateToMin = new HashMap<>();
+    overtimeDetailDtos.forEach(
+        overtimeDetailDto -> {
+          final ArrayList<OverTimeMinutesDto> overTimeMinutesDtos =
+              overtimeDetailDto.getOverTimeMinutesDtos();
+          overTimeMinutesDtos.forEach(
+              overTimeMinutesDto -> {
+                rateToMin.putIfAbsent(overTimeMinutesDto.getRate(), 0);
+                rateToMin.compute(
+                    overTimeMinutesDto.getRate(),
+                    (key, val) -> val + overTimeMinutesDto.getMinutes());
+              });
+        });
+    return rateToMin;
   }
 }

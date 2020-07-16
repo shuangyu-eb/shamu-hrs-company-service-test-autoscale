@@ -6,11 +6,15 @@ import lombok.Data;
 @Data
 @Builder
 public class AttendanceSummaryDto {
-  private String overTimeHours;
+  private int overTimeMinutes;
 
-  private String timeOffHours;
+  private int workedMinutes;
 
-  private String paidHours;
+  private int totalPtoMinutes;
 
-  private String grossPay;
+  private double ptoPay;
+
+  private double regHourlyPay;
+
+  private double overTimePay;
 }
