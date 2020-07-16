@@ -119,6 +119,7 @@ public interface JobUserMapper {
   @Mapping(target = "department", source = "jobUser.department.name")
   @Mapping(target = "startDate", source = "jobUser.startDate")
   @Mapping(target = "compensation", source = "jobUser.userCompensation")
+  @Mapping(target = "compensation.wage", expression = "java(userCompensationMapper.updateCompensationDollar(userCompensation))")
   @Mapping(target = "firstName", source = "user.userPersonalInformation.firstName")
   @Mapping(
           target = "preferredName",

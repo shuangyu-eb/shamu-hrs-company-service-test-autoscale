@@ -31,6 +31,7 @@ import shamu.company.timeoff.service.PaidHolidayService;
 import shamu.company.user.entity.CompensationOvertimeStatus;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserCompensation;
+import shamu.company.user.entity.mapper.UserCompensationMapper;
 import shamu.company.user.repository.CompensationFrequencyRepository;
 import shamu.company.user.repository.CompensationOvertimeStatusRepository;
 import shamu.company.user.repository.UserRepository;
@@ -93,6 +94,8 @@ public class AttendanceSetUpService {
 
   private final StaticTimesheetStatusRepository staticTimesheetStatusRepository;
 
+  private final UserCompensationMapper userCompensationMapper;
+
   public AttendanceSetUpService(
       final AttendanceSettingsService attendanceSettingsService,
       final EmployeesTaSettingRepository employeesTaSettingRepository,
@@ -109,7 +112,8 @@ public class AttendanceSetUpService {
       final PaidHolidayService paidHolidayService,
       final TimeSheetService timeSheetService,
       final QuartzJobScheduler quartzJobScheduler,
-      final StaticTimesheetStatusRepository staticTimesheetStatusRepository) {
+      final StaticTimesheetStatusRepository staticTimesheetStatusRepository,
+      final UserCompensationMapper userCompensationMapper) {
     this.attendanceSettingsService = attendanceSettingsService;
     this.employeesTaSettingRepository = employeesTaSettingRepository;
     this.userRepository = userRepository;
@@ -126,6 +130,7 @@ public class AttendanceSetUpService {
     this.timeSheetService = timeSheetService;
     this.quartzJobScheduler = quartzJobScheduler;
     this.staticTimesheetStatusRepository = staticTimesheetStatusRepository;
+    this.userCompensationMapper = userCompensationMapper;
   }
 
   public Boolean findIsAttendanceSetUp(final String companyId) {
@@ -145,7 +150,7 @@ public class AttendanceSetUpService {
                   final User user = timeAndAttendanceUser.getEmployee();
                   final JobUser employeeWithJobInfo = jobUserRepository.findJobUserByUser(user);
                   selectedUsersIds.add(user.getId());
-                  String userNameOrUserNameWithEmailAddress =
+                  final String userNameOrUserNameWithEmailAddress =
                       userService.getUserNameInUsers(user, allUsers);
                   return jobUserMapper.convertToTimeAndAttendanceRelatedUserDto(
                       user, employeeWithJobInfo, userNameOrUserNameWithEmailAddress);
@@ -161,7 +166,7 @@ public class AttendanceSetUpService {
             .map(
                 user -> {
                   final JobUser employeeWithJobInfo = jobUserRepository.findJobUserByUser(user);
-                  String userNameOrUserNameWithEmailAddress =
+                  final String userNameOrUserNameWithEmailAddress =
                       userService.getUserNameInUsers(user, allUsers);
                   return jobUserMapper.convertToTimeAndAttendanceRelatedUserDto(
                       user, employeeWithJobInfo, userNameOrUserNameWithEmailAddress);
@@ -238,6 +243,8 @@ public class AttendanceSetUpService {
 
   private void saveCompanyTaSetting(
       final TimeAndAttendanceDetailsDto timeAndAttendanceDetailsDto, final String companyId) {
+    final CompanyTaSetting existCompanyTaSetting =
+        attendanceSettingsService.findCompanySettings(companyId);
     final StaticCompanyPayFrequencyType staticCompanyPayFrequencyType =
         payFrequencyTypeRepository.findByName(timeAndAttendanceDetailsDto.getPayPeriodFrequency());
     final Company company = companyRepository.findCompanyById(companyId);
@@ -245,6 +252,9 @@ public class AttendanceSetUpService {
     final Timestamp payDay = new Timestamp(payDate.getTime());
     final CompanyTaSetting companyTaSetting =
         new CompanyTaSetting(company, staticCompanyPayFrequencyType, payDay);
+    if (null != existCompanyTaSetting) {
+      companyTaSetting.setId(existCompanyTaSetting.getId());
+    }
     attendanceSettingsService.saveCompanyTaSetting(companyTaSetting);
   }
 
@@ -254,19 +264,20 @@ public class AttendanceSetUpService {
         overtimeDetailsDtoList.stream()
             .map(
                 employeeOvertimeDetailsDto -> {
-                  String userId = employeeOvertimeDetailsDto.getEmployeeId();
-                  BigInteger wageCents =
-                      BigInteger.valueOf(Math.round(employeeOvertimeDetailsDto.getRegularPay()));
-                  CompensationFrequency compensationFrequency =
+                  final String userId = employeeOvertimeDetailsDto.getEmployeeId();
+                  final BigInteger wageCents =
+                      userCompensationMapper.updateCompensationCents(
+                          employeeOvertimeDetailsDto.getRegularPay());
+                  final CompensationFrequency compensationFrequency =
                       compensationFrequencyRepository
                           .findById(employeeOvertimeDetailsDto.getCompensationUnit())
                           .get();
-                  CompensationOvertimeStatus compensationOvertimeStatus =
+                  final CompensationOvertimeStatus compensationOvertimeStatus =
                       compensationOvertimeStatusRepository
                           .findById(employeeOvertimeDetailsDto.getOvertimeLaw())
                           .get();
                   if (userCompensationService.existsByUserId(userId)) {
-                    UserCompensation userCompensation =
+                    final UserCompensation userCompensation =
                         userCompensationService.findByUserId(userId);
                     userCompensation.setCompensationFrequency(compensationFrequency);
                     userCompensation.setOvertimeStatus(compensationOvertimeStatus);
@@ -288,7 +299,7 @@ public class AttendanceSetUpService {
                 employeeOvertimeDetailsDto -> {
                   JobUser jobUser =
                       jobUserRepository.findByUserId(employeeOvertimeDetailsDto.getEmployeeId());
-                  Timestamp hireDate =
+                  final Timestamp hireDate =
                       new Timestamp(employeeOvertimeDetailsDto.getHireDate().getTime());
                   if (jobUser == null) {
                     jobUser = new JobUser();

@@ -16,5 +16,5 @@ public class EmployeeOvertimeDetailsDto {
 
     private String overtimeLaw;
 
-    private Float regularPay;
+    private Double regularPay;
 }

@@ -34,6 +34,7 @@ import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserCompensation;
 import shamu.company.user.entity.UserContactInformation;
 import shamu.company.user.entity.UserPersonalInformation;
+import shamu.company.user.entity.mapper.UserCompensationMapper;
 import shamu.company.user.repository.CompensationFrequencyRepository;
 import shamu.company.user.repository.CompensationOvertimeStatusRepository;
 import shamu.company.user.repository.UserRepository;
@@ -82,6 +83,8 @@ public class AttendanceSetUpServiceTests {
   @Mock private PaidHolidayService paidHolidayService;
 
   @Mock private StaticTimesheetStatusRepository staticTimesheetStatusRepository;
+
+  @Mock private UserCompensationMapper userCompensationMapper;
 
   @BeforeEach
   void init() {
@@ -181,7 +184,7 @@ public class AttendanceSetUpServiceTests {
     void whenDetailsIsNotEmpty_shouldSucceed() {
       final EmployeeOvertimeDetailsDto detailsDto = new EmployeeOvertimeDetailsDto();
       detailsDto.setEmployeeId(userId);
-      detailsDto.setRegularPay(7.1f);
+      detailsDto.setRegularPay(7.1d);
       detailsDto.setHireDate(new Date());
       details.add(detailsDto);
       Mockito.when(userCompensationService.existsByUserId(Mockito.any())).thenReturn(true);
