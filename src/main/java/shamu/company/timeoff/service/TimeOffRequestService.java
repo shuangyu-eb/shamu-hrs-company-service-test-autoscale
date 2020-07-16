@@ -8,6 +8,7 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -503,13 +504,25 @@ public class TimeOffRequestService {
   }
 
   public int findTimeOffHoursBetweenWorkPeriod(
-      final String userId, final long startDate, final long endDate) {
+      final User user, final long startDate, final long endDate) {
     final List<TimeOffRequest> timeOffRequests =
         timeOffRequestRepository.findApprovedRequestByRequesterUserIdFilteredByStartAndEndDay(
-            userId, startDate, endDate, APPROVED.name());
+            user.getId(), startDate, endDate, APPROVED.name());
     int timeOffHours = 0;
+    final List<String> timeOffPolicyId = new ArrayList<>();
     for (final TimeOffRequest timeOffRequest : timeOffRequests) {
       timeOffHours += timeOffRequest.getHours();
+      if (!timeOffPolicyId.contains(timeOffRequest.getTimeOffPolicy().getId())) {
+        final TimeOffPolicyUser timeOffPolicyUser =
+            timeOffPolicyUserService.findByUserAndTimeOffPolicy(
+                user, timeOffRequest.getTimeOffPolicy());
+        final TimeOffBreakdownDto timeOffBreakdownDto =
+            timeOffDetailService.getTimeOffBreakdown(timeOffPolicyUser.getId(), endDate);
+        if (timeOffBreakdownDto.getBalance() < 0) {
+          timeOffHours += timeOffBreakdownDto.getBalance();
+        }
+        timeOffPolicyId.add(timeOffRequest.getTimeOffPolicy().getId());
+      }
     }
     return timeOffHours;
   }

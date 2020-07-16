@@ -207,9 +207,7 @@ public class AttendanceMyHoursServiceTests {
         .thenReturn(companyTaSetting);
     Mockito.when(
             timeOffRequestService.findTimeOffHoursBetweenWorkPeriod(
-                user.getId(),
-                timePeriod.getStartDate().getTime(),
-                timePeriod.getEndDate().getTime()))
+                user, timePeriod.getStartDate().getTime(), timePeriod.getEndDate().getTime()))
         .thenReturn(1);
     Mockito.when(
             genericHoursService.findEntriesBetweenDates(

@@ -5,6 +5,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.springframework.stereotype.Service;
@@ -202,7 +203,7 @@ public class AttendanceMyHoursService {
     final Timestamp timesheetEnd = timeSheet.getTimePeriod().getEndDate();
     final int timeOffHours =
         timeOffRequestService.findTimeOffHoursBetweenWorkPeriod(
-            user.getId(), timeSheetStart.getTime(), timesheetEnd.getTime());
+            user, timeSheetStart.getTime(), timesheetEnd.getTime());
 
     final CompanyTaSetting companyTaSetting =
         attendanceSettingsService.findCompanySettings(user.getCompany().getId());
@@ -292,7 +293,7 @@ public class AttendanceMyHoursService {
             timeSheet.getTimePeriod().getEndDate().getTime(),
             timeSheet.getEmployee().getId(),
             false);
-    final HashMap<String, AllTimeEntryDto> allTimeDtos = new HashMap<>();
+    final LinkedHashMap<String, AllTimeEntryDto> allTimeDtos = new LinkedHashMap<>();
     for (final EmployeeTimeLog employeeTimeLog : timesheetEntries) {
       final String entry = employeeTimeLog.getEntry().getId();
       final AllTimeDto allTimeDto =
