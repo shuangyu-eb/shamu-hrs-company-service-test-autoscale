@@ -165,7 +165,7 @@ public class CompanyRestControllerTests extends WebControllerBaseTests {
     final MvcResult response =
         mockMvc
             .perform(
-                MockMvcRequestBuilders.get("/company/departments/manager-candidate/1/1/users")
+                MockMvcRequestBuilders.get("/company/manager-candidate/1/users")
                     .headers(httpHeaders))
             .andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());

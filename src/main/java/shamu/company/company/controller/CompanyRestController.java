@@ -96,12 +96,10 @@ public class CompanyRestController extends BaseRestController {
     return collectUserPersonInformations(users);
   }
 
-  @GetMapping("departments/manager-candidate/{userId}/{departmentId}/users")
-  @PreAuthorize(
-      "hasPermission(#departmentId,'DEPARTMENT','VIEW_JOB')"
-          + "and hasPermission(#userId,'USER','VIEW_JOB')")
-  public List<SelectFieldInformationDto> findUsersFromDepartment(
-      @PathVariable final String userId, @PathVariable final String departmentId) {
+  @GetMapping("manager-candidate/{userId}/users")
+  @PreAuthorize("hasPermission(#userId,'USER','VIEW_JOB')")
+  public List<SelectFieldInformationDto> findUsersFromCompany(
+      @PathVariable final String userId) {
     final List<User> users;
 
     users = employeeService.findByCompanyId(findCompanyId());
