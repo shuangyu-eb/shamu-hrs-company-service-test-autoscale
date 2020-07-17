@@ -26,12 +26,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.powermock.reflect.Whitebox;
 import org.springframework.web.multipart.MultipartFile;
 import org.thymeleaf.ITemplateEngine;
 import shamu.company.admin.entity.SystemAnnouncement;
 import shamu.company.admin.service.SystemAnnouncementsService;
 import shamu.company.authorization.PermissionUtils;
 import shamu.company.client.DocumentClient;
+import shamu.company.common.entity.Country;
+import shamu.company.common.entity.StateProvince;
 import shamu.company.common.exception.errormapping.AlreadyExistsException;
 import shamu.company.common.exception.errormapping.EmailAlreadyVerifiedException;
 import shamu.company.common.exception.errormapping.ResourceNotFoundException;
@@ -67,6 +70,7 @@ import shamu.company.user.dto.UserStatusUpdateDto;
 import shamu.company.user.entity.DismissedAt;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
+import shamu.company.user.entity.UserAddress;
 import shamu.company.user.entity.UserContactInformation;
 import shamu.company.user.entity.UserPersonalInformation;
 import shamu.company.user.entity.UserRole;
@@ -437,26 +441,33 @@ class UserServiceTests {
     private UserPersonalInformation userPersonalInformation;
 
     @Test
-    void whenSSNIsNull_thenReturnFalse() {
+    void whenPersonalInfoIsNotComplete_thenReturnFalse() {
       final User user = new User();
       final String userId = UuidUtil.getUuidString();
       user.setId(userId);
       userPersonalInformation = new UserPersonalInformation();
       user.setUserPersonalInformation(userPersonalInformation);
       Mockito.when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-      Assertions.assertFalse(userService.checkSsnComplete(userId));
+      Assertions.assertFalse(userService.checkPersonalInfoComplete(userId));
     }
 
     @Test
-    void whenSSNIsNotNull_thenReturnTrue() {
+    void whenPersonalInfoIsComplete_thenReturnTrue() {
       final User user = new User();
       final String userId = UuidUtil.getUuidString();
       user.setId(userId);
       userPersonalInformation = new UserPersonalInformation();
       userPersonalInformation.setSsn("1111");
+      userPersonalInformation.setBirthDate(new Date(123));
       user.setUserPersonalInformation(userPersonalInformation);
+      UserAddress userAddress = new UserAddress();
+      userAddress.setCity("112");
+      userAddress.setCountry(new Country());
+      userAddress.setStateProvince(new StateProvince());
+      userAddress.setStreet1("123");
       Mockito.when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-      Assertions.assertTrue(userService.checkSsnComplete(userId));
+      Mockito.when(userAddressService.findUserAddressByUserId(user.getId())).thenReturn(userAddress);
+      Assertions.assertTrue(userService.checkPersonalInfoComplete(userId));
     }
 
 

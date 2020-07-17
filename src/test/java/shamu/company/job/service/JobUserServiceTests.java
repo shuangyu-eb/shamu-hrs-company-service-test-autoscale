@@ -49,6 +49,7 @@ import shamu.company.timeoff.service.TimeOffRequestService;
 import shamu.company.user.entity.EmployeeType;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
+import shamu.company.user.entity.UserCompensation;
 import shamu.company.user.entity.UserRole;
 import shamu.company.user.entity.mapper.UserAddressMapper;
 import shamu.company.user.entity.mapper.UserCompensationMapper;
@@ -327,26 +328,56 @@ class JobUserServiceTests {
   }
 
   @Nested
-  class checkEmployeeType {
+  class checkJobInfoComplete {
+
+
+    @Test
+    void whenJobUserIsNull_thenReturnFalse() {
+      final String userId = UuidUtil.getUuidString();
+      Mockito.when(jobUserRepository.findByUserId(userId)).thenReturn(null);
+      Assertions.assertFalse(jobUserService.checkJobInfoComplete(userId));
+    }
 
     @Test
     void whenEmployeeTypeIsNull_thenReturnFalse() {
       final JobUser jobUser = new JobUser();
       final String userId = UuidUtil.getUuidString();
-      jobUser.setEmployeeType(new EmployeeType());
+      jobUser.setEmployeeType(null);
       Mockito.when(jobUserRepository.findByUserId(userId)).thenReturn(jobUser);
-      Assertions.assertFalse(jobUserService.checkEmployeeType(userId));
+      Assertions.assertFalse(jobUserService.checkJobInfoComplete(userId));
     }
 
     @Test
-    void whenEmployeeTypeIsNotNull_thenReturnTrue() {
+    void whenJobInfoIsComplete_thenReturnTrue() {
       final JobUser jobUser = new JobUser();
       final String userId = UuidUtil.getUuidString();
       final EmployeeType employeeType = new EmployeeType();
       employeeType.setName("test");
       jobUser.setEmployeeType(employeeType);
+      jobUser.setStartDate(new Timestamp(123));
+      final Office office = new Office();
+      office.setId("1");
+      office.setOfficeAddress(new OfficeAddress());
+      office.setCompany(new Company(UuidUtil.getUuidString()));
+      jobUser.setOffice(office);
+      UserCompensation userCompensation = new UserCompensation();
+      jobUser.setUserCompensation(userCompensation);
       Mockito.when(jobUserRepository.findByUserId(userId)).thenReturn(jobUser);
-      Assertions.assertTrue(jobUserService.checkEmployeeType(userId));
+      Assertions.assertTrue(jobUserService.checkJobInfoComplete(userId));
+    }
+
+    @Test
+    void whenUserAddressInfoIsNotComplete_thenReturnFalse() {
+      final JobUser jobUser = new JobUser();
+      final String userId = UuidUtil.getUuidString();
+      final EmployeeType employeeType = new EmployeeType();
+      employeeType.setName("test");
+      jobUser.setEmployeeType(employeeType);
+      jobUser.setStartDate(null);
+      jobUser.setOffice(null);
+      jobUser.setUserCompensation(null);
+      Mockito.when(jobUserRepository.findByUserId(userId)).thenReturn(jobUser);
+      Assertions.assertFalse(jobUserService.checkJobInfoComplete(userId));
     }
   }
 

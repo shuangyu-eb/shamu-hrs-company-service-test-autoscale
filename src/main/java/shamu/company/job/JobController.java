@@ -73,9 +73,9 @@ public class JobController extends BaseRestController {
     return jobUserService.findJobsByCompanyId(findCompanyId());
   }
 
-  @GetMapping("current/check-employee-type")
-  public boolean checkEmployeeType() {
-    return jobUserService.checkEmployeeType(findUserId());
+  @GetMapping("current/check-job-info-complete")
+  public boolean checkJobInfoComplete() {
+    return jobUserService.checkJobInfoComplete(findUserId());
   }
 
   @GetMapping("job/{userId}/hireDate")
@@ -86,7 +86,8 @@ public class JobController extends BaseRestController {
   }
 
   @PostMapping("job/homeAndOfficeAddresses")
-  public List<UserOfficeAndHomeAddressDto> homeAndOfficeAddresses(@RequestBody final List<String> userIds) {
+  public List<UserOfficeAndHomeAddressDto> homeAndOfficeAddresses(
+      @RequestBody final List<String> userIds) {
     return jobUserService.findHomeAndOfficeAddressByUsers(userIds);
   }
 }

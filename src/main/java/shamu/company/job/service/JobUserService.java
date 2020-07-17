@@ -42,9 +42,9 @@ import shamu.company.timeoff.repository.TimeOffPolicyAccrualScheduleRepository;
 import shamu.company.timeoff.repository.TimeOffPolicyUserRepository;
 import shamu.company.timeoff.service.TimeOffPolicyService;
 import shamu.company.timeoff.service.TimeOffRequestService;
-import shamu.company.user.entity.CompensationOvertimeStatus;
 import shamu.company.user.dto.UserAddressDto;
 import shamu.company.user.dto.UserOfficeAndHomeAddressDto;
+import shamu.company.user.entity.CompensationOvertimeStatus;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
 import shamu.company.user.entity.UserCompensation;
@@ -52,8 +52,8 @@ import shamu.company.user.entity.UserRole;
 import shamu.company.user.entity.mapper.UserAddressMapper;
 import shamu.company.user.entity.mapper.UserCompensationMapper;
 import shamu.company.user.entity.mapper.UserMapper;
-import shamu.company.user.service.CompensationOvertimeStatusService;
 import shamu.company.user.repository.UserAddressRepository;
+import shamu.company.user.service.CompensationOvertimeStatusService;
 import shamu.company.user.service.UserRoleService;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.DateUtil;
@@ -478,9 +478,16 @@ public class JobUserService {
     return userOfficeAndHomeAddressDtos;
   }
 
-  public Boolean checkEmployeeType(final String userId) {
+  public Boolean checkJobInfoComplete(final String userId) {
     final JobUser jobUser = jobUserRepository.findByUserId(userId);
 
-    return jobUser != null && jobUser.getEmployeeType() != null && jobUser.getEmployeeType().getName() != null;
+    return jobUser != null && verifyJobInfoComplete(jobUser);
+  }
+
+  private boolean verifyJobInfoComplete(final JobUser employeeWithJobInfo) {
+    return employeeWithJobInfo.getEmployeeType() != null
+        && employeeWithJobInfo.getStartDate() != null
+        && employeeWithJobInfo.getOffice() != null
+        && employeeWithJobInfo.getUserCompensation() != null;
   }
 }

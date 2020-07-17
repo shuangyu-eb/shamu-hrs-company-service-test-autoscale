@@ -552,7 +552,7 @@ public class UserService {
 
     final String uuid = UuidUtil.getUuidString();
     addSignUpInformation(signUpDto, uuid);
-    CreatedUser user = auth0Helper.signUp(signUpDto.getWorkEmail(), signUpDto.getPassword());
+    final CreatedUser user = auth0Helper.signUp(signUpDto.getWorkEmail(), signUpDto.getPassword());
     auth0Helper.updateAuthUserAppMetaData(user.getUserId(), signUpDto.getWorkEmail(), uuid);
   }
 
@@ -897,9 +897,8 @@ public class UserService {
     return userRepository.findUsersByCompanyIdAndUserRole(companyId, userRole);
   }
 
-  //When the user has the same name in the user list, the user's email address needs to be added
-  public String getUserNameInUsers(
-      final User currentUser, final List<User> users) {
+  // When the user has the same name in the user list, the user's email address needs to be added
+  public String getUserNameInUsers(final User currentUser, final List<User> users) {
     final String userName = currentUser.getUserPersonalInformation().getName();
     final String userEmail = " (" + currentUser.getUserContactInformation().getEmailWork() + ")";
 
@@ -907,7 +906,7 @@ public class UserService {
     for (final User user : users) {
       final String name = user.getUserPersonalInformation().getName();
       if (userName.equals(name)) {
-        count ++;
+        count++;
       }
       if (count > 1) {
         return userName.concat(userEmail);
@@ -916,11 +915,22 @@ public class UserService {
     return userName;
   }
 
-  public Boolean checkSsnComplete(final String userId) {
+  public Boolean checkPersonalInfoComplete(final String userId) {
 
     final Optional<User> user = userRepository.findById(userId);
 
-    return user.isPresent() && user.get().getUserPersonalInformation().getSsn() != null;
+    return user.isPresent() && verifyPersonalInfoComplete(user.get());
+  }
+
+  private boolean verifyPersonalInfoComplete(final User user) {
+    final UserPersonalInformation userPersonalInformation = user.getUserPersonalInformation();
+    final UserAddress userAddress = userAddressService.findUserAddressByUserId(user.getId());
+    return userPersonalInformation.getBirthDate() != null
+        && userPersonalInformation.getSsn() != null
+        && userAddress.getCountry() != null
+        && userAddress.getStateProvince() != null
+        && userAddress.getCity() != null
+        && userAddress.getStreet1() != null;
   }
 
   public List<User> findRegisteredUsersByCompany(final String companyId) {
