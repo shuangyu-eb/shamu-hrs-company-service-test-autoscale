@@ -1,6 +1,5 @@
 package shamu.company.attendance.controller;
 
-import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,6 +13,8 @@ import shamu.company.attendance.service.TimePeriodService;
 import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.employee.dto.CompensationDto;
+
+import java.util.List;
 
 @RestApiController
 public class AttendanceMyHoursController extends BaseRestController {
@@ -49,9 +50,9 @@ public class AttendanceMyHoursController extends BaseRestController {
     return attendanceMyHoursService.findAttendanceSummary(timesheetId);
   }
 
-  @GetMapping("time-and-attendance/user-timezone/{timesheetId}")
-  public String findUserTimeZone(@PathVariable final String timesheetId) {
-    return attendanceMyHoursService.findUserTimeZone(timesheetId);
+  @GetMapping("time-and-attendance/user-timezone/{userId}")
+  public String findUserTimeZone(@PathVariable final String userId) {
+    return attendanceMyHoursService.findUserTimeZone(userId);
   }
 
   @GetMapping("time-and-attendance/time-periods/{userId}")
