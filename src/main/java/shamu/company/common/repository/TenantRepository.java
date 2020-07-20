@@ -131,11 +131,11 @@ public class TenantRepository {
         final Tenant tenant = query.getSingleResult();
         final Transaction transaction = session.beginTransaction();
         session.delete(tenant);
+        deleteSchema(companyId);
         transaction.commit();
       } catch (final NoResultException e) {
         throw new CustomLiquibaseException("Error while dropping database", e);
       }
-      deleteSchema(companyId);
     }
   }
 

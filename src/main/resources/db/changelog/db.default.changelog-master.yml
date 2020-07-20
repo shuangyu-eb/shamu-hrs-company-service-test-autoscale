@@ -1,0 +1,665 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1592386826781-1
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  name: company_id
+                  type: BINARY(16)
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+              - column:
+                  name: image_url
+                  type: TEXT
+              - column:
+                  name: EIN
+                  type: VARCHAR(255)
+              - column:
+                  name: country_id
+                  type: BINARY(16)
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+              - column:
+                  defaultValueBoolean: false
+                  name: is_paid_holidays_auto_enroll
+                  type: BIT(1)
+            tableName: tenants
+
+  - changeSet:
+      id: 1592386826781-2
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  constraints:
+                    unique: true
+                  name: name
+                  type: VARCHAR(32)
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+              - column:
+                  constraints:
+                    unique: true
+                  name: ref_id
+                  type: INT
+            tableName: countries
+
+  - changeSet:
+      id: 15923868267815-1
+      author: whb
+      changes:
+        - sql:
+            sql: create trigger ins_countries before insert on countries for each row set new.id = unhex(replace(uuid(), '-', ''));
+
+  - changeSet:
+      id: 15923868267815-2
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: country_id
+            baseTableName: tenants
+            constraintName: fk_company_info_country_id
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: SET NULL
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: countries
+            validate: true
+
+  - changeSet:
+      id: 15923868267815-3
+      author: bin-eb
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  name: id
+                  type: binary(16)
+              - column:
+                  name: user_id
+                  type: binary(16)
+              - column:
+                  name: content
+                  type: text
+              - column:
+                  name: is_past_announcement
+                  type: bool
+                  defaultValue: true
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: system_announcements
+
+  - changeSet:
+      id: 1593746381257-0
+      author: haibo-eb
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  name: SCHED_NAME
+                  type: VARCHAR(60)
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: JOB_NAME
+                  type: VARCHAR(60)
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: JOB_GROUP
+                  type: VARCHAR(60)
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: DESCRIPTION
+                  type: VARCHAR(250)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: JOB_CLASS_NAME
+                  type: VARCHAR(250)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: IS_DURABLE
+                  type: VARCHAR(1)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: IS_NONCONCURRENT
+                  type: VARCHAR(1)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: IS_UPDATE_DATA
+                  type: VARCHAR(1)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: REQUESTS_RECOVERY
+                  type: VARCHAR(1)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: JOB_DATA
+                  type: BLOB
+                  constraints:
+                    nullable: true
+            tableName: QRTZ_JOB_DETAILS
+
+  - changeSet:
+      id: 1593746381257-1
+      author: haibo-eb
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  name: SCHED_NAME
+                  type: VARCHAR(60)
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: TRIGGER_NAME
+                  type: VARCHAR(60)
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: TRIGGER_GROUP
+                  type: VARCHAR(60)
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: JOB_NAME
+                  type: VARCHAR(60)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: JOB_GROUP
+                  type: VARCHAR(60)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: DESCRIPTION
+                  type: VARCHAR(250)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: NEXT_FIRE_TIME
+                  type: BIGINT(13)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: PREV_FIRE_TIME
+                  type: BIGINT(13)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: PRIORITY
+                  type: INTEGER
+                  constraints:
+                    nullable: true
+              - column:
+                  name: TRIGGER_STATE
+                  type: VARCHAR(16)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: TRIGGER_TYPE
+                  type: VARCHAR(8)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: START_TIME
+                  type: BIGINT(13)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: END_TIME
+                  type: BIGINT(13)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: CALENDAR_NAME
+                  type: VARCHAR(60)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: MISFIRE_INSTR
+                  type: SMALLINT(2)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: JOB_DATA
+                  type: BLOB
+                  constraints:
+                    nullable: true
+            tableName: QRTZ_TRIGGERS
+
+  - changeSet:
+      id: 1593746381257-2
+      author: haibo-eb
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  name: SCHED_NAME
+                  type: VARCHAR(60)
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: TRIGGER_NAME
+                  type: VARCHAR(60)
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: TRIGGER_GROUP
+                  type: VARCHAR(60)
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: REPEAT_COUNT
+                  type: BIGINT(7)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: REPEAT_INTERVAL
+                  type: BIGINT(12)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: TIMES_TRIGGERED
+                  type: BIGINT(10)
+                  constraints:
+                    nullable: false
+            tableName: QRTZ_SIMPLE_TRIGGERS
+
+  - changeSet:
+      id: 1593746381257-3
+      author: haibo-eb
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  name: SCHED_NAME
+                  type: VARCHAR(60)
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: TRIGGER_NAME
+                  type: VARCHAR(60)
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: TRIGGER_GROUP
+                  type: VARCHAR(60)
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: CRON_EXPRESSION
+                  type: VARCHAR(200)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: TIME_ZONE_ID
+                  type: VARCHAR(80)
+                  constraints:
+                    nullable: true
+            tableName: QRTZ_CRON_TRIGGERS
+
+  - changeSet:
+      id: 1593746381257-4
+      author: haibo-eb
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  name: SCHED_NAME
+                  type: VARCHAR(60)
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: TRIGGER_NAME
+                  type: VARCHAR(60)
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: TRIGGER_GROUP
+                  type: VARCHAR(60)
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: STR_PROP_1
+                  type: VARCHAR(512)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: STR_PROP_2
+                  type: VARCHAR(512)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: STR_PROP_3
+                  type: VARCHAR(512)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: INT_PROP_1
+                  type: INT
+                  constraints:
+                    nullable: true
+              - column:
+                  name: INT_PROP_2
+                  type: INT
+                  constraints:
+                    nullable: true
+              - column:
+                  name: DEC_PROP_1
+                  type: NUMERIC(13,4)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: DEC_PROP_2
+                  type: NUMERIC(13,4)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: BOOL_PROP_1
+                  type: VARCHAR(1)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: BOOL_PROP_2
+                  type: VARCHAR(1)
+                  constraints:
+                    nullable: true
+            tableName: QRTZ_SIMPROP_TRIGGERS
+
+  - changeSet:
+      id: 1593746381257-5
+      author: haibo-eb
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  name: SCHED_NAME
+                  type: VARCHAR(60)
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: TRIGGER_NAME
+                  type: VARCHAR(60)
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: TRIGGER_GROUP
+                  type: VARCHAR(60)
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: BLOB_DATA
+                  type: BLOB
+                  constraints:
+                    nullable: true
+            tableName: QRTZ_BLOB_TRIGGERS
+
+  - changeSet:
+      id: 1593746381257-6
+      author: haibo-eb
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  name: SCHED_NAME
+                  type: VARCHAR(60)
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: CALENDAR_NAME
+                  type: VARCHAR(60)
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: CALENDAR
+                  type: BLOB
+                  constraints:
+                    nullable: false
+            tableName: QRTZ_CALENDARS
+
+  - changeSet:
+      id: 1593746381257-7
+      author: haibo-eb
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  name: SCHED_NAME
+                  type: VARCHAR(60)
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: TRIGGER_GROUP
+                  type: VARCHAR(60)
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+            tableName: QRTZ_PAUSED_TRIGGER_GRPS
+
+  - changeSet:
+      id: 1593746381257-8
+      author: haibo-eb
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  name: SCHED_NAME
+                  type: VARCHAR(60)
+                  constraints:
+                    nullable:  false
+                    primaryKey: true
+              - column:
+                  name: ENTRY_ID
+                  type: VARCHAR(120)
+                  constraints:
+                    nullable:  false
+                    primaryKey: true
+              - column:
+                  name: TRIGGER_NAME
+                  type: VARCHAR(60)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: TRIGGER_GROUP
+                  type: VARCHAR(60)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: INSTANCE_NAME
+                  type: VARCHAR(60)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: FIRED_TIME
+                  type: BIGINT(13)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: SCHED_TIME
+                  type: BIGINT(13)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: PRIORITY
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+              - column:
+                  name: STATE
+                  type: VARCHAR(16)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: JOB_NAME
+                  type: VARCHAR(60)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: JOB_GROUP
+                  type: VARCHAR(60)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: IS_NONCONCURRENT
+                  type: VARCHAR(1)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: REQUESTS_RECOVERY
+                  type: VARCHAR(1)
+                  constraints:
+                    nullable: true
+            tableName: QRTZ_FIRED_TRIGGERS
+
+  - changeSet:
+      id: 1593746381257-9
+      author: haibo-eb
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  name: SCHED_NAME
+                  type: VARCHAR(60)
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: INSTANCE_NAME
+                  type: VARCHAR(60)
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: LAST_CHECKIN_TIME
+                  type: BIGINT(13)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: CHECKIN_INTERVAL
+                  type: BIGINT(13)
+                  constraints:
+                    nullable: false
+            tableName: QRTZ_SCHEDULER_STATE
+
+  - changeSet:
+      id: 1593746381257-10
+      author: haibo-eb
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  name: SCHED_NAME
+                  type: VARCHAR(60)
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: LOCK_NAME
+                  type: VARCHAR(40)
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+            tableName: QRTZ_LOCKS
+
+  - changeSet:
+      id: 1593746381257-11
+      author: haibo-eb
+      changes:
+        - addForeignKeyConstraint:
+            constraintName: FK_QRTZ_BLOB_TRIGGERS
+            baseColumnNames: SCHED_NAME,TRIGGER_NAME,TRIGGER_GROUP
+            baseTableName: QRTZ_BLOB_TRIGGERS
+            onDelete: RESTRICT
+            onUpdate: RESTRICT
+            referencedColumnNames: SCHED_NAME,TRIGGER_NAME,TRIGGER_GROUP
+            referencedTableName: QRTZ_TRIGGERS
+        - addForeignKeyConstraint:
+            constraintName: FK_QRTZ_SIMPROP_TRIGGERS
+            baseColumnNames: SCHED_NAME,TRIGGER_NAME,TRIGGER_GROUP
+            baseTableName: QRTZ_SIMPROP_TRIGGERS
+            onDelete: RESTRICT
+            onUpdate: RESTRICT
+            referencedColumnNames: SCHED_NAME,TRIGGER_NAME,TRIGGER_GROUP
+            referencedTableName: QRTZ_TRIGGERS
+        - addForeignKeyConstraint:
+            constraintName: FK_QRTZ_CRON_TRIGGERS
+            baseColumnNames: SCHED_NAME,TRIGGER_NAME,TRIGGER_GROUP
+            baseTableName: QRTZ_CRON_TRIGGERS
+            onDelete: RESTRICT
+            onUpdate: RESTRICT
+            referencedColumnNames: SCHED_NAME,TRIGGER_NAME,TRIGGER_GROUP
+            referencedTableName: QRTZ_TRIGGERS
+        - addForeignKeyConstraint:
+            constraintName: FK_QRTZ_SIMPLE_TRIGGERS
+            baseColumnNames: SCHED_NAME,TRIGGER_NAME,TRIGGER_GROUP
+            baseTableName: QRTZ_SIMPLE_TRIGGERS
+            onDelete: RESTRICT
+            onUpdate: RESTRICT
+            referencedColumnNames: SCHED_NAME,TRIGGER_NAME,TRIGGER_GROUP
+            referencedTableName: QRTZ_TRIGGERS
+        - addForeignKeyConstraint:
+            constraintName: FK_QRTZ_TRIGGERS
+            baseColumnNames: SCHED_NAME,JOB_NAME,JOB_GROUP
+            baseTableName: QRTZ_TRIGGERS
+            onDelete: RESTRICT
+            onUpdate: RESTRICT
+            referencedColumnNames: SCHED_NAME,JOB_NAME,JOB_GROUP
+            referencedTableName: QRTZ_JOB_DETAILS
