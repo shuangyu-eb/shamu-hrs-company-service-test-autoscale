@@ -12,7 +12,15 @@ public abstract class AvatarUtil {
     }
 
     double num = 0;
-    final char[] charArr = name.toCharArray();
+
+    String newName = name.replaceAll("[^0-9a-zA-Z]", "");
+    // limit the length of name to keep it consistent with frontend. Too long name will produce Nan
+    // exception and num become Infinity in frontend
+    if (newName.length() > 5) {
+      newName = newName.substring(0, 5);
+    }
+
+    final char[] charArr = newName.toCharArray();
     for (int index = 0, len = charArr.length; index < len; index++) {
 
       final int charCode = Character.codePointAt(charArr, index);
