@@ -23,11 +23,21 @@
     </td>
   </tr>
 
+  <tr>
+    <td style="display: block">
+      <table
+          style="height: 352px; background-color: white; padding: 26px 25px 30px 25px; width: 100%;">
+        <tbody>
+          <tr th:if="${toManager}" th:replace="components/request::requster"></tr>
 
-  <tr th:if="${toManager}" th:replace="components/request::requster"></tr>
-
-  <tr th:replace="components/request::time" style="margin: 20px">
+          <tr th:replace="components/request::time" style="margin: 20px">
+        </tr>
+        </tbody>
+      </table>
+    </td>
   </tr>
+
+
 
   <tr>
     <td style="padding-top: 15px;">
