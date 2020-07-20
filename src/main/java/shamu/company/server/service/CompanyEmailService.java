@@ -70,6 +70,7 @@ public class CompanyEmailService {
       final DocumentRequestEmailDto documentRequestEmailDto, final User sender) {
     final String documentRequestId = documentRequestEmailDto.getDocumentRequestId();
     final String documentTitle = documentRequestEmailDto.getDocumentTitle();
+    final String type = documentRequestEmailDto.getType().name();
     final Map<String, Object> variables = new HashMap<>();
 
     variables.put("frontEndAddress", applicationConfig.getFrontEndAddress());
@@ -95,6 +96,7 @@ public class CompanyEmailService {
 
     variables.put("documentRequestId", documentRequestId);
     variables.put("documentTitle", documentTitle);
+    variables.put("requestType", type);
 
     if (!VIEW.equals(documentRequestEmailDto.getType())
         && null != documentRequestEmailDto.getExpiredAt()) {

@@ -26,24 +26,7 @@
         <table
             style="height: 352px; background-color: white; padding: 26px 25px 30px 25px; width: 100%;">
           <tbody>
-          <tr>
-            <td>
-              <div class="card-title"
-                   style="margin: auto; width: fit-content; margin-bottom: 32px;line-height: 46px;font-size: 14px; letter-spacing: 0.36px;width: -moz-fit-content;">
-                <img th:if="${senderAvatar}"
-                     style="width:47px; height: 47px; vertical-align: -18px; border: 1px solid #dfe2e9; border-radius: 50%; margin-right: 12px;"
-                     alt="avatar" th:src="${senderAvatar}"/>
-                <div
-                    th:if="${senderAvatar} == null"
-                    th:style="|background: ${backgroundColor}| + ';float:left; width:47px; height: 47px; vertical-align: -18px; border: 1px solid #dfe2e9; border-radius: 50%; margin-right: 14px; text-align:center; color:white; line-height:47px;'"
-                    th:text="${avatarText}">
-                </div>
-
-                <span th:text="${senderName}" style="color: #0075DF; width: fit-content"></span>
-                <span>Requested Your Acknowledgement</span>
-              </div>
-            </td>
-          </tr>
+          <tr th:replace="components/document_components::requster"></tr>
           <tr th:replace="components/document_components::title"></tr>
           <tr>
             <td colspan="3">
