@@ -15,7 +15,6 @@ import shamu.company.authorization.Permission.Name;
 import shamu.company.authorization.Permission.PermissionType;
 import shamu.company.benefit.dto.BenefitPlanCoverageDto;
 import shamu.company.benefit.entity.BenefitCoverages;
-import shamu.company.benefit.entity.BenefitPlan;
 import shamu.company.benefit.entity.BenefitPlanDependent;
 import shamu.company.benefit.repository.BenefitCoveragesRepository;
 import shamu.company.benefit.service.BenefitPlanDependentService;
@@ -280,9 +279,7 @@ public class UserPermissionUtils extends BasePermissionUtils {
 
   private boolean hasPermissionOfBenefitPlan(
       final Authentication auth, final String id, final Permission.Name permission) {
-    final BenefitPlan targetBenefitPlan = benefitPlanService.findBenefitPlanById(id);
-    companyEqual(targetBenefitPlan.getCompany());
-
+    benefitPlanService.findBenefitPlanById(id);
     return hasPermission(auth, permission);
   }
 

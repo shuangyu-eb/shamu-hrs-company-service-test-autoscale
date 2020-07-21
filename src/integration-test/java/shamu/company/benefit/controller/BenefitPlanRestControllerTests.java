@@ -105,10 +105,7 @@ public class BenefitPlanRestControllerTests extends WebControllerBaseTests {
     setPermission(Permission.Name.MANAGE_BENEFIT_PLAN.name());
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
-    final AuthUser currentUser = getAuthUser();
-    final Company company = new Company(currentUser.getCompanyId());
     final BenefitPlan benefitPlan = new BenefitPlan();
-    benefitPlan.setCompany(company);
     given(benefitPlanService.findBenefitPlanById("1")).willReturn(benefitPlan);
     final NewBenefitPlanWrapperDto data = new NewBenefitPlanWrapperDto();
     final MvcResult response =
@@ -158,9 +155,7 @@ public class BenefitPlanRestControllerTests extends WebControllerBaseTests {
     benefitPlanUserCreateDto.setId("2");
     benefitPlanUsers.add(benefitPlanUserCreateDto);
     final AuthUser currentUser = getAuthUser();
-    final Company company = new Company(currentUser.getCompanyId());
     final BenefitPlan benefitPlan = new BenefitPlan();
-    benefitPlan.setCompany(company);
     given(benefitPlanService.findBenefitPlanById("1")).willReturn(benefitPlan);
     final MvcResult response =
         mockMvc
@@ -223,9 +218,7 @@ public class BenefitPlanRestControllerTests extends WebControllerBaseTests {
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
     final AuthUser currentUser = getAuthUser();
-    final Company company = new Company(currentUser.getCompanyId());
     final BenefitPlan benefitPlan = new BenefitPlan();
-    benefitPlan.setCompany(company);
     given(benefitPlanService.findBenefitPlanById("1")).willReturn(benefitPlan);
     final MvcResult response =
         mockMvc
@@ -263,9 +256,7 @@ public class BenefitPlanRestControllerTests extends WebControllerBaseTests {
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
     final AuthUser currentUser = getAuthUser();
-    final Company company = new Company(currentUser.getCompanyId());
     final BenefitPlan benefitPlan = new BenefitPlan();
-    benefitPlan.setCompany(company);
     given(benefitPlanService.findBenefitPlanById("1")).willReturn(benefitPlan);
     final MvcResult response =
         mockMvc
@@ -283,9 +274,7 @@ public class BenefitPlanRestControllerTests extends WebControllerBaseTests {
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
     final AuthUser currentUser = getAuthUser();
-    final Company company = new Company(currentUser.getCompanyId());
     final BenefitPlan benefitPlan = new BenefitPlan();
-    benefitPlan.setCompany(company);
     given(benefitPlanService.findBenefitPlanById("1")).willReturn(benefitPlan);
 
     final MvcResult response =
@@ -369,9 +358,7 @@ public class BenefitPlanRestControllerTests extends WebControllerBaseTests {
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
     final List<BenefitPlanUserCreateDto> unSelectedEmployees = new ArrayList<>();
     final AuthUser currentUser = getAuthUser();
-    final Company company = new Company(currentUser.getCompanyId());
     final BenefitPlan benefitPlan = new BenefitPlan();
-    benefitPlan.setCompany(company);
     given(benefitPlanService.findBenefitPlanById("1")).willReturn(benefitPlan);
 
     final MvcResult response =
@@ -391,9 +378,7 @@ public class BenefitPlanRestControllerTests extends WebControllerBaseTests {
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
     final AuthUser currentUser = getAuthUser();
-    final Company company = new Company(currentUser.getCompanyId());
     final BenefitPlan benefitPlan = new BenefitPlan();
-    benefitPlan.setCompany(company);
     given(benefitPlanService.findBenefitPlanById("1")).willReturn(benefitPlan);
 
     final MvcResult response =
@@ -456,10 +441,7 @@ public class BenefitPlanRestControllerTests extends WebControllerBaseTests {
     setPermission(Permission.Name.MANAGE_BENEFIT_PLAN.name());
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
-    final AuthUser currentUser = getAuthUser();
-    final Company company = new Company(currentUser.getCompanyId());
     final BenefitPlan benefitPlan = new BenefitPlan();
-    benefitPlan.setCompany(company);
     given(benefitPlanService.findBenefitPlanById("1")).willReturn(benefitPlan);
     final MvcResult response =
         mockMvc
@@ -476,10 +458,7 @@ public class BenefitPlanRestControllerTests extends WebControllerBaseTests {
     setPermission(Permission.Name.MANAGE_BENEFIT_PLAN.name());
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
-    final AuthUser currentUser = getAuthUser();
-    final Company company = new Company(currentUser.getCompanyId());
     final BenefitPlan benefitPlan = new BenefitPlan();
-    benefitPlan.setCompany(company);
     given(benefitPlanService.findBenefitPlanById("1")).willReturn(benefitPlan);
     final MvcResult response =
         mockMvc
