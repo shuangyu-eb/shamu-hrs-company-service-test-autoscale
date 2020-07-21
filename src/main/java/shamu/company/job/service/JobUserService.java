@@ -1,9 +1,5 @@
 package shamu.company.job.service;
 
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.data.domain.PageRequest;
@@ -57,6 +53,11 @@ import shamu.company.user.service.CompensationOvertimeStatusService;
 import shamu.company.user.service.UserRoleService;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.DateUtil;
+
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -202,10 +203,7 @@ public class JobUserService {
   private void addOrUpdateJobUserCompensation(
       final String userId, final JobUpdateDto jobUpdateDto, final JobUser jobUser) {
     if (jobUserCompensationUpdated(jobUpdateDto) || jobUpdateDto.getPayTypeName() != null) {
-      UserCompensation userCompensation = jobUser.getUserCompensation();
-      if (userCompensation == null) {
-        userCompensation = new UserCompensation();
-      }
+      final UserCompensation userCompensation = new UserCompensation();
       if (jobUserCompensationUpdated(jobUpdateDto)) {
         userCompensationMapper.updateFromJobUpdateDto(userCompensation, jobUpdateDto);
       }

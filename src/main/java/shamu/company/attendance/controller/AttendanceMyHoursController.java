@@ -8,7 +8,9 @@ import shamu.company.attendance.dto.AllTimeEntryDto;
 import shamu.company.attendance.dto.AttendanceSummaryDto;
 import shamu.company.attendance.dto.TimeEntryDto;
 import shamu.company.attendance.dto.TimeSheetPeriodDto;
+import shamu.company.attendance.entity.TimePeriod;
 import shamu.company.attendance.service.AttendanceMyHoursService;
+import shamu.company.attendance.service.AttendanceSetUpService;
 import shamu.company.attendance.service.TimePeriodService;
 import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
@@ -21,12 +23,15 @@ public class AttendanceMyHoursController extends BaseRestController {
 
   private final AttendanceMyHoursService attendanceMyHoursService;
   private final TimePeriodService timePeriodService;
+  private final AttendanceSetUpService attendanceSetUpService;
 
   public AttendanceMyHoursController(
       final AttendanceMyHoursService attendanceMyHoursService,
-      final TimePeriodService timePeriodService) {
+      final TimePeriodService timePeriodService,
+      final AttendanceSetUpService attendanceSetUpService) {
     this.attendanceMyHoursService = attendanceMyHoursService;
     this.timePeriodService = timePeriodService;
+    this.attendanceSetUpService = attendanceSetUpService;
   }
 
   @PostMapping("time-and-attendance/{userId}/add-time-entries")
@@ -58,6 +63,11 @@ public class AttendanceMyHoursController extends BaseRestController {
   @GetMapping("time-and-attendance/time-periods/{userId}")
   public List<TimeSheetPeriodDto> findTimePeriodsByUser(@PathVariable final String userId) {
     return timePeriodService.listByUser(userId);
+  }
+
+  @GetMapping("time-and-attendance/{userId}/next-time-period")
+  public TimePeriod findNextTimePeriodByUser(@PathVariable final String userId) {
+    return attendanceSetUpService.findNextPeriodByUser(userId);
   }
 
   @GetMapping("time-and-attendance/compensation-frequency/{timesheetId}")

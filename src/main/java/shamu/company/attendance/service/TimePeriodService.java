@@ -31,6 +31,10 @@ public class TimePeriodService {
     return timeSheetPeriodDtoList;
   }
 
+  public TimePeriod findUserLatestPeriod(final String userId) {
+    return timePeriodRepository.findLatestPeriodByUser(userId);
+  }
+
   public TimePeriod createIfNotExist(final TimePeriod timePeriod) {
     final TimePeriod existedPeriod =
         timePeriodRepository.findByStartDateAndEndDate(

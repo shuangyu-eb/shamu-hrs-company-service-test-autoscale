@@ -1,7 +1,5 @@
 package shamu.company.user.entity.mapper;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -11,11 +9,15 @@ import shamu.company.job.dto.JobUpdateDto;
 import shamu.company.job.entity.CompensationFrequency;
 import shamu.company.user.entity.UserCompensation;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
 @Mapper(config = Config.class)
 public interface UserCompensationMapper {
 
-  @Mapping(target = "id", source = "userCompensationId")
-  @Mapping(target = "wageCents", expression = "java(updateCompensationCents(jobUpdateDto.getCompensationWage()))")
+  @Mapping(
+      target = "wageCents",
+      expression = "java(updateCompensationCents(jobUpdateDto.getCompensationWage()))")
   @Mapping(target = "compensationFrequency", source = "compensationFrequencyId")
   void updateFromJobUpdateDto(
       @MappingTarget UserCompensation userCompensation, JobUpdateDto jobUpdateDto);

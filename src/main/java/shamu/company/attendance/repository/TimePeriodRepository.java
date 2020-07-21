@@ -9,14 +9,21 @@ import java.sql.Timestamp;
 import java.util.List;
 
 public interface TimePeriodRepository extends BaseRepository<TimePeriod, String> {
+  String TIME_SHEET_PERIOD_QUERY =
+      "from timesheets t "
+          + "join time_period tp on t.time_period_id = tp.id "
+          + "where t.employee_id = unhex(?1) "
+          + "order by start_date desc";
+
   @Query(
       value =
-          "select hex(t.id) as id, tp.start_date as startDate, tp.end_date as endDate from timesheets t "
-              + "join time_period tp on t.time_period_id = tp.id "
-              + "where t.employee_id = unhex(?1) "
-              + "order by start_date desc",
+          "select hex(t.id) as id, tp.start_date as startDate, tp.end_date as endDate "
+              + TIME_SHEET_PERIOD_QUERY,
       nativeQuery = true)
   List<TimeSheetPeriodPojo> listTimeSheetPeriodsByUser(String userId);
+
+  @Query(value = "select tp.* " + TIME_SHEET_PERIOD_QUERY + " limit 1", nativeQuery = true)
+  TimePeriod findLatestPeriodByUser(String userId);
 
   @Query(
       value =

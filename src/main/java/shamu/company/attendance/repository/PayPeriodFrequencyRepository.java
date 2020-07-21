@@ -14,4 +14,6 @@ public interface PayPeriodFrequencyRepository
 
   @Override
   Optional<StaticCompanyPayFrequencyType> findById(String id);
+
+  StaticCompanyPayFrequencyType findByName(String name);
 }

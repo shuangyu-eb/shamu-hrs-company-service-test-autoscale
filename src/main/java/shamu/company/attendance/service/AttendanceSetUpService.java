@@ -15,7 +15,6 @@ import shamu.company.attendance.entity.StaticTimesheetStatus;
 import shamu.company.attendance.entity.TimePeriod;
 import shamu.company.attendance.entity.TimeSheet;
 import shamu.company.attendance.repository.EmployeesTaSettingRepository;
-import shamu.company.attendance.repository.StaticCompanyPayFrequencyTypeRepository;
 import shamu.company.attendance.repository.StaticTimesheetStatusRepository;
 import shamu.company.company.entity.Company;
 import shamu.company.company.repository.CompanyRepository;
@@ -72,8 +71,6 @@ public class AttendanceSetUpService {
 
   private final JobUserMapper jobUserMapper;
 
-  private final StaticCompanyPayFrequencyTypeRepository payFrequencyTypeRepository;
-
   private final CompanyRepository companyRepository;
 
   private final CompensationFrequencyRepository compensationFrequencyRepository;
@@ -96,13 +93,14 @@ public class AttendanceSetUpService {
 
   private final UserCompensationMapper userCompensationMapper;
 
+  private final PayPeriodFrequencyService payPeriodFrequencyService;
+
   public AttendanceSetUpService(
       final AttendanceSettingsService attendanceSettingsService,
       final EmployeesTaSettingRepository employeesTaSettingRepository,
       final UserRepository userRepository,
       final JobUserRepository jobUserRepository,
       final JobUserMapper jobUserMapper,
-      final StaticCompanyPayFrequencyTypeRepository payFrequencyTypeRepository,
       final CompanyRepository companyRepository,
       final CompensationFrequencyRepository compensationFrequencyRepository,
       final CompensationOvertimeStatusRepository compensationOvertimeStatusRepository,
@@ -113,13 +111,13 @@ public class AttendanceSetUpService {
       final TimeSheetService timeSheetService,
       final QuartzJobScheduler quartzJobScheduler,
       final StaticTimesheetStatusRepository staticTimesheetStatusRepository,
-      final UserCompensationMapper userCompensationMapper) {
+      final UserCompensationMapper userCompensationMapper,
+      final PayPeriodFrequencyService payPeriodFrequencyService) {
     this.attendanceSettingsService = attendanceSettingsService;
     this.employeesTaSettingRepository = employeesTaSettingRepository;
     this.userRepository = userRepository;
     this.jobUserRepository = jobUserRepository;
     this.jobUserMapper = jobUserMapper;
-    this.payFrequencyTypeRepository = payFrequencyTypeRepository;
     this.companyRepository = companyRepository;
     this.compensationFrequencyRepository = compensationFrequencyRepository;
     this.compensationOvertimeStatusRepository = compensationOvertimeStatusRepository;
@@ -131,6 +129,7 @@ public class AttendanceSetUpService {
     this.quartzJobScheduler = quartzJobScheduler;
     this.staticTimesheetStatusRepository = staticTimesheetStatusRepository;
     this.userCompensationMapper = userCompensationMapper;
+    this.payPeriodFrequencyService = payPeriodFrequencyService;
   }
 
   public Boolean findIsAttendanceSetUp(final String companyId) {
@@ -246,7 +245,7 @@ public class AttendanceSetUpService {
     final CompanyTaSetting existCompanyTaSetting =
         attendanceSettingsService.findCompanySettings(companyId);
     final StaticCompanyPayFrequencyType staticCompanyPayFrequencyType =
-        payFrequencyTypeRepository.findByName(timeAndAttendanceDetailsDto.getPayPeriodFrequency());
+        payPeriodFrequencyService.findByName(timeAndAttendanceDetailsDto.getPayPeriodFrequency());
     final Company company = companyRepository.findCompanyById(companyId);
     final Date payDate = timeAndAttendanceDetailsDto.getPayDate();
     final Timestamp payDay = new Timestamp(payDate.getTime());
@@ -422,5 +421,13 @@ public class AttendanceSetUpService {
       }
     }
     return true;
+  }
+
+  public TimePeriod findNextPeriodByUser(final String userId) {
+    final TimePeriod timePeriod = timePeriodService.findUserLatestPeriod(userId);
+    final User user = userService.findById(userId);
+    final StaticCompanyPayFrequencyType payFrequencyType =
+        payPeriodFrequencyService.findByCompany(user.getCompany().getId());
+    return getNextPeriod(timePeriod, payFrequencyType.getName());
   }
 }

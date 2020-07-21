@@ -15,10 +15,10 @@ import shamu.company.attendance.entity.StaticCompanyPayFrequencyType;
 import shamu.company.attendance.entity.StaticCompanyPayFrequencyType.PayFrequencyType;
 import shamu.company.attendance.entity.TimePeriod;
 import shamu.company.attendance.repository.EmployeesTaSettingRepository;
-import shamu.company.attendance.repository.StaticCompanyPayFrequencyTypeRepository;
 import shamu.company.attendance.repository.StaticTimesheetStatusRepository;
 import shamu.company.attendance.service.AttendanceSetUpService;
 import shamu.company.attendance.service.AttendanceSettingsService;
+import shamu.company.attendance.service.PayPeriodFrequencyService;
 import shamu.company.attendance.service.TimePeriodService;
 import shamu.company.attendance.service.TimeSheetService;
 import shamu.company.company.entity.Company;
@@ -62,8 +62,6 @@ public class AttendanceSetUpServiceTests {
 
   @Mock private JobUserMapper jobUserMapper;
 
-  @Mock private StaticCompanyPayFrequencyTypeRepository payFrequencyTypeRepository;
-
   @Mock private CompanyRepository companyRepository;
 
   @Mock private CompensationFrequencyRepository compensationFrequencyRepository;
@@ -85,6 +83,8 @@ public class AttendanceSetUpServiceTests {
   @Mock private StaticTimesheetStatusRepository staticTimesheetStatusRepository;
 
   @Mock private UserCompensationMapper userCompensationMapper;
+
+  @Mock private PayPeriodFrequencyService payPeriodFrequencyService;
 
   @BeforeEach
   void init() {
@@ -168,7 +168,7 @@ public class AttendanceSetUpServiceTests {
 
     @Test
     void whenDetailsIsEmpty_shouldSucceed() {
-      Mockito.when(payFrequencyTypeRepository.findByName(Mockito.any()))
+      Mockito.when(payPeriodFrequencyService.findByName(Mockito.any()))
           .thenReturn(staticCompanyPayFrequencyType);
       Mockito.when(companyRepository.findCompanyById(companyId)).thenReturn(new Company());
       Mockito.when(attendanceSettingsService.saveCompanyTaSetting(Mockito.any()))
@@ -210,6 +210,7 @@ public class AttendanceSetUpServiceTests {
   class getNextPeriod {
     TimePeriod timePeriod;
     String payPeriodFrequency;
+    String userId;
 
     @BeforeEach
     void init() {
@@ -224,6 +225,23 @@ public class AttendanceSetUpServiceTests {
                 () -> attendanceSetUpService.getNextPeriod(timePeriod, payPeriodFrequency.name()))
             .doesNotThrowAnyException();
       }
+    }
+
+    @Test
+    void userIdIsValid_shouldSucceed() {
+      userId = "test_user_id";
+      final User user = new User();
+      user.setId(userId);
+      user.setCompany(new Company());
+      final StaticCompanyPayFrequencyType staticCompanyPayFrequencyType =
+          new StaticCompanyPayFrequencyType();
+      staticCompanyPayFrequencyType.setName(payPeriodFrequency);
+      Mockito.when(timePeriodService.findUserLatestPeriod(userId)).thenReturn(timePeriod);
+      Mockito.when(userService.findById(userId)).thenReturn(user);
+      Mockito.when(payPeriodFrequencyService.findByCompany(Mockito.any()))
+          .thenReturn(staticCompanyPayFrequencyType);
+      assertThatCode(() -> attendanceSetUpService.findNextPeriodByUser(userId))
+          .doesNotThrowAnyException();
     }
   }
 }

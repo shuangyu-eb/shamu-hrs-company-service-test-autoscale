@@ -12,15 +12,22 @@ import java.util.Optional;
 @Service
 public class PayPeriodFrequencyService {
   private final PayPeriodFrequencyRepository payPeriodFrequencyRepository;
+  private final AttendanceSettingsService attendanceSettingsService;
 
   @Autowired
   public PayPeriodFrequencyService(
-      final PayPeriodFrequencyRepository payPeriodFrequencyRepository) {
+      final PayPeriodFrequencyRepository payPeriodFrequencyRepository,
+      final AttendanceSettingsService attendanceSettingsService) {
     this.payPeriodFrequencyRepository = payPeriodFrequencyRepository;
+    this.attendanceSettingsService = attendanceSettingsService;
   }
 
   public List<StaticCompanyPayFrequencyType> findAll() {
     return payPeriodFrequencyRepository.findAll();
+  }
+
+  public StaticCompanyPayFrequencyType findByName(final String name) {
+    return payPeriodFrequencyRepository.findByName(name);
   }
 
   public StaticCompanyPayFrequencyType findById(final String id) {
@@ -32,5 +39,9 @@ public class PayPeriodFrequencyService {
                 String.format("payFrequencyType with id %s not found!", id),
                 id,
                 "payFrequencyType"));
+  }
+
+  public StaticCompanyPayFrequencyType findByCompany(final String companyId) {
+    return attendanceSettingsService.findCompanySettings(companyId).getPayFrequencyType();
   }
 }

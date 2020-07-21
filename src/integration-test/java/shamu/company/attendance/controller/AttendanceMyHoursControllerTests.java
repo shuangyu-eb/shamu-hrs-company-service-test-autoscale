@@ -1,7 +1,5 @@
 package shamu.company.attendance.controller;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +16,8 @@ import shamu.company.attendance.dto.TimeEntryDto;
 import shamu.company.attendance.service.TimePeriodService;
 import shamu.company.tests.utils.JwtUtil;
 import shamu.company.utils.JsonUtil;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @WebMvcTest(controllers = AttendanceMyHoursController.class)
 public class AttendanceMyHoursControllerTests extends WebControllerBaseTests {
@@ -63,6 +63,19 @@ public class AttendanceMyHoursControllerTests extends WebControllerBaseTests {
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
     Mockito.verify(attendanceMyHoursService, Mockito.times(1))
         .findUserTimeZone(Mockito.anyString());
+  }
+
+  @Test
+  void findUserNextPeriod() throws Exception {
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.get("/company/time-and-attendance/1/next-time-period")
+                    .headers(httpHeaders))
+            .andReturn();
+    assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+    Mockito.verify(attendanceSetUpService, Mockito.times(1))
+        .findNextPeriodByUser(Mockito.anyString());
   }
 
   @Test
