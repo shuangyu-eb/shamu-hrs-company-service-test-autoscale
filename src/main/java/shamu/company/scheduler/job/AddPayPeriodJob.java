@@ -59,9 +59,8 @@ public class AddPayPeriodJob extends QuartzJobBean {
         QuartzUtil.getParameter(jobExecutionContext, "companyId", String.class);
     final TimePeriod currentTimePeriod = timePeriodService.findCompanyCurrentPeriod(companyId);
 
-    final Company company = companyService.findById(companyId);
     final CompanyTaSetting companyTaSetting =
-        attendanceSettingsService.findCompanySettings(companyId);
+        attendanceSettingsService.findCompanySetting();
     final PayrollDetail payrollDetail = payrollDetailService.findByCompanyId(companyId);
     final String payFrequencyTypeId = payrollDetail.getPayFrequencyType().getId();
     final StaticCompanyPayFrequencyType staticCompanyPayFrequencyType =

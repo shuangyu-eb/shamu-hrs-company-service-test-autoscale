@@ -57,7 +57,7 @@ public class AttendanceSettingsController extends BaseRestController {
   public CompanyTaSettingsDto findCompanySettings() {
     return companyTaSettingsMapper.convertToCompanyTaSettingsDto(
         attendanceSettingsService.findCompanySettings(findCompanyId()),
-        payrollDetailService.findByCompanyId(findCompanyId()));
+        payrollDetailService.findByCompanyId());
   }
 
   @GetMapping("time-and-attendance/employeeSettings/{employeeId}")

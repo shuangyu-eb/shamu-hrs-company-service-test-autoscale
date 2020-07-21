@@ -100,7 +100,7 @@ public class AttendanceSetUpService {
 
   private final JobUserMapper jobUserMapper;
 
-  private final CompanyRepository companyRepository;
+  private final StaticCompanyPayFrequencyTypeRepository payFrequencyTypeRepository;
 
   private final CompensationFrequencyRepository compensationFrequencyRepository;
 
@@ -169,7 +169,7 @@ public class AttendanceSetUpService {
     this.userRepository = userRepository;
     this.jobUserRepository = jobUserRepository;
     this.jobUserMapper = jobUserMapper;
-    this.companyRepository = companyRepository;
+    this.payFrequencyTypeRepository = payFrequencyTypeRepository;
     this.compensationFrequencyRepository = compensationFrequencyRepository;
     this.userCompensationService = userCompensationService;
     this.userService = userService;
@@ -191,8 +191,8 @@ public class AttendanceSetUpService {
     this.overtimeService = overtimeService;
   }
 
-  public Boolean findIsAttendanceSetUp(final String companyId) {
-    return attendanceSettingsService.existsByCompanyId(companyId);
+  public Boolean findIsAttendanceSetUp() {
+    return attendanceSettingsService.exists();
   }
 
   public TimeAndAttendanceRelatedUserListDto getRelatedUsers(final String companyId) {
@@ -274,7 +274,6 @@ public class AttendanceSetUpService {
         saveUserCompensations(overtimeDetailsDtoList, savedPolicies, periodStartDate);
     saveJobUsers(overtimeDetailsDtoList);
 
-    final Company company = companyService.findById(companyId);
     final TimePeriod firstTimePeriod =
         Boolean.FALSE.equals(isAddOrRemoveEmployee)
             ? timePeriodService.save(new TimePeriod(periodStartDate, periodEndDate, company))
@@ -462,17 +461,14 @@ public class AttendanceSetUpService {
   private void saveCompanyTaSetting(
       final String periodFrequency,
       final Date payDate,
-      final String companyId,
       final StaticTimezone companyTimezone) {
     final CompanyTaSetting existCompanyTaSetting =
-        attendanceSettingsService.findCompanySettings(companyId);
+        attendanceSettingsService.findCompanySettings();
     final StaticCompanyPayFrequencyType staticCompanyPayFrequencyType =
         payPeriodFrequencyService.findByName(periodFrequency);
-    final Company company = companyRepository.findCompanyById(companyId);
     final PayrollDetail payrollDetail =
         new PayrollDetail(company, staticCompanyPayFrequencyType, payDate);
     final CompanyTaSetting companyTaSetting = new CompanyTaSetting();
-    companyTaSetting.setCompany(company);
     companyTaSettingsMapper.updateFromCompanyTaSettings(
         companyTaSetting,
         companyTimezone,

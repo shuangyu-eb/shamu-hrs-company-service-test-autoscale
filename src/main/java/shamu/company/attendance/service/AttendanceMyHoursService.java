@@ -228,8 +228,7 @@ public class AttendanceMyHoursService {
         timeOffRequestService.findTimeOffHoursBetweenWorkPeriod(
             user, timeSheetStart.getTime(), timesheetEnd.getTime());
 
-    final CompanyTaSetting companyTaSetting =
-        attendanceSettingsService.findCompanySettings(user.getCompany().getId());
+    final CompanyTaSetting companyTaSetting = attendanceSettingsService.findCompanySetting();
     final List<EmployeeTimeLog> workedMinutes =
         findAllRelevantTimelogs(timeSheet, companyTaSetting);
 
@@ -302,8 +301,7 @@ public class AttendanceMyHoursService {
 
   public List<AllTimeEntryDto> findAllHours(final String timesheetId) {
     final TimeSheet timeSheet = timeSheetService.findTimeSheetById(timesheetId);
-    final CompanyTaSetting companyTaSetting =
-        attendanceSettingsService.findCompanySettings(timeSheet.getEmployee().getCompany().getId());
+    final CompanyTaSetting companyTaSetting = attendanceSettingsService.findCompanySetting();
     final List<LocalDateEntryDto> localDateEntries =
         overtimeService.getLocalDateEntries(timeSheet, companyTaSetting);
     final List<OvertimeDetailDto> overtimeDetailDtos =

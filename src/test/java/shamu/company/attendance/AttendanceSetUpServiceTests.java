@@ -128,7 +128,7 @@ public class AttendanceSetUpServiceTests {
 
   @Test
   void findIsAttendanceSetUp() {
-    Mockito.when(attendanceSettingsService.existsByCompanyId("1")).thenReturn(true);
+    Mockito.when(attendanceSettingsService.exists()).thenReturn(true);
     attendanceSetUpService.findIsAttendanceSetUp("1");
     assertThatCode(() -> attendanceSetUpService.findIsAttendanceSetUp("1"))
         .doesNotThrowAnyException();

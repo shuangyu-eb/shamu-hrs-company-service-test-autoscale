@@ -1,6 +1,7 @@
 package shamu.company.attendance.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import shamu.company.attendance.dto.CompanyTaSettingsDto;
 import shamu.company.attendance.dto.EmployeesTaSettingDto;
 import shamu.company.attendance.entity.CompanyTaSetting;
@@ -82,8 +83,8 @@ public class AttendanceSettingsService {
     this.googleMapsHelper = googleMapsHelper;
   }
 
-  public CompanyTaSetting findCompanySettings(final String companyId) {
-    return companyTaSettingRepository.findByCompanyId(companyId);
+  public CompanyTaSetting findCompanySetting() {
+    return companyTaSettingRepository.findAll().get(0);
   }
 
   public EmployeesTaSettingDto findEmployeesSettings(final String employeeId) {
@@ -93,8 +94,8 @@ public class AttendanceSettingsService {
         user.map(User::getTimeZone).orElse(null));
   }
 
-  public boolean existsByCompanyId(final String companyId) {
-    return companyTaSettingRepository.existsByCompanyId(companyId);
+  public boolean exists() {
+    return CollectionUtils.isEmpty(companyTaSettingRepository.findAll());
   }
 
   public Boolean findEmployeeIsAttendanceSetUp(final String employeeId) {

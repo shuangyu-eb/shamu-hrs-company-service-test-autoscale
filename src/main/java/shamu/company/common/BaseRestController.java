@@ -5,6 +5,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import shamu.company.common.config.DefaultJwtAuthenticationToken;
 import shamu.company.common.exception.UnAuthenticatedException;
+import shamu.company.common.multitenant.TenantContext;
 import shamu.company.redis.AuthUserCacheManager;
 import shamu.company.server.dto.AuthUser;
 import shamu.company.user.entity.User;
@@ -39,7 +40,7 @@ public class BaseRestController {
   }
 
   public String findCompanyId() {
-    return findAuthUser().getCompanyId();
+    return TenantContext.getCurrentTenant();
   }
 
   public boolean isCurrentUserSelfOrAdminOrManager(final String targetUserId) {

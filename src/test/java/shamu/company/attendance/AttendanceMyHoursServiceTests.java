@@ -228,8 +228,7 @@ public class AttendanceMyHoursServiceTests {
             timeSheet.getTimePeriod().getStartDate(), companyTaSetting.getTimeZone().getName());
     final Timestamp timesheetEnd = timeSheet.getTimePeriod().getEndDate();
     Mockito.when(timeSheetService.findTimeSheetById("1")).thenReturn(timeSheet);
-    Mockito.when(attendanceSettingsService.findCompanySettings(user.getCompany().getId()))
-        .thenReturn(companyTaSetting);
+    Mockito.when(attendanceSettingsService.findCompanySetting()).thenReturn(companyTaSetting);
     Mockito.when(
             timeOffRequestService.findTimeOffHoursBetweenWorkPeriod(
                 user, timePeriod.getStartDate().getTime(), timePeriod.getEndDate().getTime()))
@@ -314,10 +313,7 @@ public class AttendanceMyHoursServiceTests {
     localDateEntryDto.setWeek(week);
 
     Mockito.when(timeSheetService.findTimeSheetById("1")).thenReturn(timeSheet);
-    Mockito.when(
-            attendanceSettingsService.findCompanySettings(
-                timeSheet.getEmployee().getCompany().getId()))
-        .thenReturn(companyTaSetting);
+    Mockito.when(attendanceSettingsService.findCompanySetting()).thenReturn(companyTaSetting);
     Mockito.when(
             genericHoursService.findEntriesBetweenDates(
                 timePeriod.getStartDate().getTime(), timePeriod.getEndDate().getTime(), "1", false))
