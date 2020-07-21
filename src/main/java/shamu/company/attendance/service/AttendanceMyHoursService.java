@@ -18,6 +18,7 @@ import shamu.company.attendance.entity.TimeSheet;
 import shamu.company.attendance.entity.mapper.EmployeeTimeLogMapper;
 import shamu.company.attendance.repository.EmployeeTimeLogRepository;
 import shamu.company.attendance.repository.StaticEmployeesTaTimeTypeRepository;
+import shamu.company.attendance.utils.TimeEntryUtils;
 import shamu.company.employee.dto.CompensationDto;
 import shamu.company.timeoff.service.TimeOffRequestService;
 import shamu.company.user.entity.User;
@@ -104,6 +105,11 @@ public class AttendanceMyHoursService {
     final User user = userService.findById(userId);
     final EmployeeTimeEntry employeeTimeEntry =
         EmployeeTimeEntry.builder().employee(user).comment(timeEntryDto.getComment()).build();
+    if (timeEntryDto.getEntryId() != null) {
+      final List<EmployeeTimeLog> employeeTimeLogs =
+          employeeTimeLogRepository.findAllByEntryId(timeEntryDto.getEntryId());
+      employeeTimeLogRepository.deleteInBatch(employeeTimeLogs);
+    }
     final EmployeeTimeEntry savedEntry = employeeTimeEntryService.saveEntry(employeeTimeEntry);
     saveTimeLogs(timeEntryDto, savedEntry);
   }
@@ -339,5 +345,42 @@ public class AttendanceMyHoursService {
   public String findCompensationFrequency(final String timesheetId) {
     final TimeSheet timeSheet = timeSheetService.findTimeSheetById(timesheetId);
     return timeSheet.getUserCompensation().getCompensationFrequency().getName();
+  }
+
+  public TimeEntryDto findMyHourEntry(final String entryId) {
+    final EmployeeTimeEntry employeeTimeEntry = employeeTimeEntryService.findById(entryId);
+    final List<EmployeeTimeLog> employeeTimeLogs =
+        employeeTimeLogRepository.findAllByEntryId(entryId);
+    employeeTimeLogs.sort(TimeEntryUtils.compareByLogStartDate);
+    final EmployeeTimeLog lastTimeLog = employeeTimeLogs.get(employeeTimeLogs.size() - 1);
+    final Timestamp endTime =
+        DateUtil.longToTimestamp(
+            lastTimeLog.getStart().getTime() + lastTimeLog.getDurationMin() * CONVERT_MIN_TO_MS);
+    final Timestamp startTime = employeeTimeLogs.get(0).getStart();
+    int totalWorkMin = 0;
+    final List<BreakTimeLogDto> breakTimeLogDtos = new ArrayList<>();
+    for (final EmployeeTimeLog employeeTimeLog : employeeTimeLogs) {
+      if (StaticEmployeesTaTimeType.TimeType.BREAK
+          .name()
+          .equals(employeeTimeLog.getTimeType().getName())) {
+        final BreakTimeLogDto breakTimeLogDto =
+            employeeTimeLogMapper.convertToBreakTimeLogDto(employeeTimeLog);
+        breakTimeLogDtos.add(breakTimeLogDto);
+      }
+      if (StaticEmployeesTaTimeType.TimeType.WORK
+          .name()
+          .equals(employeeTimeLog.getTimeType().getName())) {
+        totalWorkMin += employeeTimeLog.getDurationMin();
+      }
+    }
+    return TimeEntryDto.builder()
+        .entryId(entryId)
+        .startTime(startTime)
+        .endTime(endTime)
+        .comment(employeeTimeEntry.getComment())
+        .hoursWorked(totalWorkMin / 60)
+        .minutesWorked(totalWorkMin % 60)
+        .breakTimeLogs(breakTimeLogDtos)
+        .build();
   }
 }

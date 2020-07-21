@@ -7,6 +7,7 @@ import java.util.Locale;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import shamu.company.attendance.dto.AllTimeDto;
+import shamu.company.attendance.dto.BreakTimeLogDto;
 import shamu.company.attendance.dto.OvertimeDetailDto;
 import shamu.company.attendance.entity.EmployeeTimeLog;
 import shamu.company.common.mapper.Config;
@@ -27,4 +28,9 @@ public interface EmployeeTimeLogMapper {
         new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.ENGLISH);
     return dateFormat.format(new Date(startTime.getTime()));
   }
+
+  @Mapping(target = "breakStart", source = "start")
+  @Mapping(target = "breakMin", source = "durationMin")
+  @Mapping(target = "timeType", source = "timeType.name")
+  BreakTimeLogDto convertToBreakTimeLogDto(EmployeeTimeLog employeeTimeLog);
 }

@@ -309,4 +309,26 @@ public class AttendanceMyHoursServiceTests {
             allTimeEntryDtos.get(0).getAllTimeLogs().get(0).getOvertimeDetails().getTotalMinutes())
         .isEqualTo(240);
   }
+
+  @Test
+  void findMyHourEntry() {
+    final EmployeeTimeEntry entry = new EmployeeTimeEntry();
+    entry.setId("1");
+    entry.setComment("aaa");
+    final EmployeeTimeLog employeeTimeLog = new EmployeeTimeLog();
+    employeeTimeLog.setId("1");
+    employeeTimeLog.setDurationMin(60);
+    employeeTimeLog.setEntry(entry);
+    employeeTimeLog.setStart(Timestamp.valueOf(LocalDateTime.parse("2020-07-03T09:00:00")));
+    final StaticEmployeesTaTimeType staticEmployeesTaTimeType = new StaticEmployeesTaTimeType();
+    staticEmployeesTaTimeType.setName("WORK");
+    employeeTimeLog.setTimeType(staticEmployeesTaTimeType);
+    final List<EmployeeTimeLog> employeeTimeLogs = new ArrayList<>();
+    employeeTimeLogs.add(employeeTimeLog);
+
+    Mockito.when(employeeTimeEntryService.findById("1")).thenReturn(entry);
+    Mockito.when(employeeTimeLogRepository.findAllByEntryId("1")).thenReturn(employeeTimeLogs);
+    final TimeEntryDto timeEntryDto = attendanceMyHoursService.findMyHourEntry("1");
+    assertThat(timeEntryDto.getHoursWorked()).isEqualTo(1);
+  }
 }

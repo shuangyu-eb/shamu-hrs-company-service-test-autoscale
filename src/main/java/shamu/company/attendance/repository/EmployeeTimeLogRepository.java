@@ -16,4 +16,6 @@ public interface EmployeeTimeLogRepository extends BaseRepository<EmployeeTimeLo
               + "(UNIX_TIMESTAMP(etl.start) * 1000 + etl.duration_min * 60 * 1000) > ?1",
       nativeQuery = true)
   List<EmployeeTimeLog> findEmployeeTimeLogByTime(long start, long end, String userId);
+
+  List<EmployeeTimeLog> findAllByEntryId(String entryId);
 }

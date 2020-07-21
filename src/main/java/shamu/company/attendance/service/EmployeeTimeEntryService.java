@@ -3,6 +3,7 @@ package shamu.company.attendance.service;
 import org.springframework.stereotype.Service;
 import shamu.company.attendance.entity.EmployeeTimeEntry;
 import shamu.company.attendance.repository.EmployeeTimeEntryRepository;
+import shamu.company.common.exception.errormapping.ResourceNotFoundException;
 
 @Service
 public class EmployeeTimeEntryService {
@@ -15,5 +16,14 @@ public class EmployeeTimeEntryService {
 
   public EmployeeTimeEntry saveEntry(final EmployeeTimeEntry employeeTimeEntry) {
     return employeeTimeEntryRepository.save(employeeTimeEntry);
+  }
+
+  public EmployeeTimeEntry findById(final String entryId) {
+    return employeeTimeEntryRepository
+        .findById(entryId)
+        .orElseThrow(
+            () ->
+                new ResourceNotFoundException(
+                    String.format("Entry with id %s not found!", entryId), entryId, "entry"));
   }
 }

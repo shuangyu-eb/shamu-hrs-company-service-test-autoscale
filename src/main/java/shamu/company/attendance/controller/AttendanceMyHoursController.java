@@ -64,4 +64,9 @@ public class AttendanceMyHoursController extends BaseRestController {
   public String findCompensationFrequency(@PathVariable final String timesheetId) {
     return attendanceMyHoursService.findCompensationFrequency(timesheetId);
   }
+
+  @GetMapping("time-and-attendance/entry/{entryId}")
+  public TimeEntryDto findMyHourEntry(@PathVariable final String entryId) {
+    return attendanceMyHoursService.findMyHourEntry(entryId);
+  }
 }

@@ -3,22 +3,26 @@ package shamu.company.attendance.dto;
 import java.sql.Timestamp;
 import java.util.List;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class TimeEntryDto {
-    private Timestamp startTime;
+  private String entryId;
 
-    private Timestamp endTime;
+  private Timestamp startTime;
 
-    private Integer hoursWorked;
+  private Timestamp endTime;
 
-    private Integer minutesWorked;
+  private Integer hoursWorked;
 
-    private String comment;
+  private Integer minutesWorked;
 
-    List<BreakTimeLogDto> breakTimeLogs;
+  private String comment;
+
+  List<BreakTimeLogDto> breakTimeLogs;
 }
