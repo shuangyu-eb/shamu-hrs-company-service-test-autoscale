@@ -251,10 +251,9 @@ public class JobControllerTests extends WebControllerBaseTests {
     final Company company = new Company(currentUser.getCompanyId());
     targetUser.setCompany(company);
     targetUser.setId(currentUser.getId());
-    department.setCompany(company);
     given(userService.findById(currentUser.getId())).willReturn(targetUser);
     given(companyService.findDepartmentsById(departmentId)).willReturn(department);
-    given(jobUserService.findJobsByCompanyId(departmentId)).willReturn(selectFieldSizeDtos);
+    given(jobUserService.findJobs()).willReturn(selectFieldSizeDtos);
     final MvcResult response =
         mockMvc
             .perform(
@@ -266,18 +265,18 @@ public class JobControllerTests extends WebControllerBaseTests {
   }
 
   @Test
-  void testFindHomeAndOfficeAddresses() throws Exception{
+  void testFindHomeAndOfficeAddresses() throws Exception {
     setPermission(Permission.Name.VIEW_USER_JOB.name());
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
     final MvcResult response =
-    mockMvc
-        .perform(
-            MockMvcRequestBuilders.post("/company/job/homeAndOfficeAddresses")
-                .content(JsonUtil.formatToString(new ArrayList<>()))
-                .contentType(MediaType.APPLICATION_JSON)
-                .headers(httpHeaders))
-        .andReturn();
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.post("/company/job/homeAndOfficeAddresses")
+                    .content(JsonUtil.formatToString(new ArrayList<>()))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .headers(httpHeaders))
+            .andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
 }

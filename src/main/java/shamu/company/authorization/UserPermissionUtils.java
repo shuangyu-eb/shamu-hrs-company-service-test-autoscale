@@ -23,15 +23,12 @@ import shamu.company.common.config.DefaultJwtAuthenticationToken;
 import shamu.company.common.entity.BaseEntity;
 import shamu.company.common.exception.errormapping.ForbiddenException;
 import shamu.company.company.entity.Company;
-import shamu.company.company.entity.Department;
-import shamu.company.company.entity.Office;
 import shamu.company.company.service.CompanyService;
 import shamu.company.employee.dto.EmployeeDto;
 import shamu.company.employee.dto.NewEmployeeJobInformationDto;
 import shamu.company.info.entity.UserEmergencyContact;
 import shamu.company.info.service.UserEmergencyContactService;
 import shamu.company.job.dto.JobUpdateDto;
-import shamu.company.job.entity.Job;
 import shamu.company.timeoff.dto.PaidHolidayDto;
 import shamu.company.timeoff.dto.UserIdDto;
 import shamu.company.timeoff.entity.CompanyPaidHoliday;
@@ -112,6 +109,8 @@ public class UserPermissionUtils extends BasePermissionUtils {
       return false;
     }
 
+    // TODO: Company field have been deleted in some entities, permission code need to be
+    // refactored.
     switch (targetType) {
       case DEPARTMENT:
         return hasPermissionOfDepartment(auth, targetId, permission);
@@ -285,14 +284,14 @@ public class UserPermissionUtils extends BasePermissionUtils {
 
   private boolean hasPermissionOfDepartment(
       final Authentication auth, final String id, final Permission.Name permission) {
-    final Department department = companyService.findDepartmentsById(id);
-    return hasPermissionOfCompany(auth, department.getCompany(), permission);
+    companyService.findDepartmentsById(id);
+    return hasPermission(auth, permission);
   }
 
   private boolean hasPermissionOfJobTitle(
       final Authentication auth, final String id, final Permission.Name permission) {
-    final Job job = companyService.findJobsById(id);
-    return hasPermissionOfCompany(auth, job.getCompany(), permission);
+    companyService.findJobsById(id);
+    return hasPermission(auth, permission);
   }
 
   private boolean hasPermissionOfCompany(
@@ -303,9 +302,7 @@ public class UserPermissionUtils extends BasePermissionUtils {
 
   private boolean hasPermissionOfOfficeLocation(
       final Authentication auth, final String id, final Permission.Name permission) {
-    final Office office = companyService.findOfficeById(id);
-    companyEqual(office.getCompany());
-
+    companyService.findOfficeById(id);
     return hasPermission(auth, permission);
   }
 

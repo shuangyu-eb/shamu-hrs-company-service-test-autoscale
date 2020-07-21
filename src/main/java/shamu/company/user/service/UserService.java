@@ -585,7 +585,7 @@ public class UserService {
     company = companyService.save(company);
     secretHashRepository.generateCompanySecretByCompanyId(company.getId());
 
-    saveCompanyBenefitsSetting(company);
+    saveCompanyBenefitsSetting();
 
     final UserStatus status = userStatusService.findByName(Status.ACTIVE.name());
 
@@ -619,9 +619,8 @@ public class UserService {
     documentClient.addTenant(tenantDto);
   }
 
-  private void saveCompanyBenefitsSetting(final Company company) {
+  private void saveCompanyBenefitsSetting() {
     final CompanyBenefitsSetting benefitsSetting = new CompanyBenefitsSetting();
-    benefitsSetting.setCompany(company);
     benefitsSetting.setIsAutomaticRollover(true);
     companyBenefitsSettingService.save(benefitsSetting);
   }

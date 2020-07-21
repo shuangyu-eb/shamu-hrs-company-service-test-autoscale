@@ -70,7 +70,7 @@ public class JobController extends BaseRestController {
 
   @GetMapping("jobs")
   public List<SelectFieldSizeDto> findJobsByDepartment() {
-    return jobUserService.findJobsByCompanyId(findCompanyId());
+    return jobUserService.findJobs();
   }
 
   @GetMapping("{userId}/check-job-info-complete")

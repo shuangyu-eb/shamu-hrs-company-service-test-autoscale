@@ -1,7 +1,6 @@
 package shamu.company.company.entity;
 
 import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -16,8 +15,7 @@ import shamu.company.common.entity.BaseEntity;
 @AllArgsConstructor
 public class Department extends BaseEntity {
 
-  @ManyToOne private Company company;
-
+  private static final long serialVersionUID = -4150407462626237929L;
   @Length(max = 100)
   private String name;
 }

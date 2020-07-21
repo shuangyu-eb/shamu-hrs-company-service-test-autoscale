@@ -110,7 +110,6 @@ class UserPermissionUtilTests {
     void whenHasDepartmentPermission_thenShouldReturnTrue() {
 
       final Department department = new Department();
-      department.setCompany(company);
 
       Mockito.when(companyService.findDepartmentsById(Mockito.anyString())).thenReturn(department);
 
@@ -130,7 +129,6 @@ class UserPermissionUtilTests {
     void whenNoDepartmentPermission_thenShouldReturnFalse() {
 
       final Department department = new Department();
-      department.setCompany(company);
 
       Mockito.when(companyService.findDepartmentsById(Mockito.anyString())).thenReturn(department);
 
@@ -412,7 +410,6 @@ class UserPermissionUtilTests {
     void whenHasJobTitlePermission_thenShouldReturnTrue() {
 
       final Job job = new Job();
-      job.setCompany(company);
       Mockito.when(companyService.findJobsById(Mockito.anyString())).thenReturn(job);
       final Name permission = Name.CREATE_JOB;
       final Type permissionType = Type.JOB_TITLE;
@@ -430,7 +427,6 @@ class UserPermissionUtilTests {
     void whenNoJobTitlePermission_thenShouldReturnFalse() {
 
       final Job job = new Job();
-      job.setCompany(company);
       Mockito.when(companyService.findJobsById(Mockito.anyString())).thenReturn(job);
       final Name permission = Name.CREATE_JOB;
       final Type permissionType = Type.JOB_TITLE;

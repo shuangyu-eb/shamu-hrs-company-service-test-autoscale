@@ -37,7 +37,6 @@ import shamu.company.employee.service.EmploymentTypeService;
 import shamu.company.helpers.googlemaps.GoogleMapsHelper;
 import shamu.company.job.service.JobService;
 import shamu.company.server.dto.CompanyDtoProjection;
-import shamu.company.utils.UuidUtil;
 
 public class CompanyServiceTests {
 
@@ -90,9 +89,9 @@ public class CompanyServiceTests {
   void testFindDepartmentsByCompanyId() {
     final List<Department> list = new ArrayList<>();
     list.add(department);
-    Mockito.when(departmentService.findAllByCompanyId(Mockito.anyString())).thenReturn(list);
+    Mockito.when(departmentService.findAll()).thenReturn(list);
     Mockito.when(departmentService.findCountByDepartment(Mockito.anyString())).thenReturn(1);
-    assertThatCode(() -> companyService.findDepartmentsByCompanyId("1")).doesNotThrowAnyException();
+    assertThatCode(() -> companyService.findDepartments()).doesNotThrowAnyException();
   }
 
   @Test
@@ -119,22 +118,21 @@ public class CompanyServiceTests {
 
   @Test
   void testSaveDepartmentsByCompany() {
-    assertThatCode(() -> companyService.saveDepartmentsByCompany("name", "1"))
-        .doesNotThrowAnyException();
+    assertThatCode(() -> companyService.saveDepartment("name")).doesNotThrowAnyException();
   }
 
   @Test
   void testSaveJobsByDepartmentId() {
-    assertThatCode(() -> companyService.saveJobsByCompany("1", "name")).doesNotThrowAnyException();
+    assertThatCode(() -> companyService.saveJob("name")).doesNotThrowAnyException();
   }
 
   @Test
   void testFindOfficesByCompany() {
     final List<Office> list = new ArrayList<>();
     list.add(office);
-    Mockito.when(officeService.findByCompanyId(Mockito.anyString())).thenReturn(list);
+    Mockito.when(officeService.findAll()).thenReturn(list);
     Mockito.when(officeService.findCountByOffice(Mockito.anyString())).thenReturn(1);
-    assertThatCode(() -> companyService.findOfficesByCompany("1")).doesNotThrowAnyException();
+    assertThatCode(() -> companyService.findOffices()).doesNotThrowAnyException();
   }
 
   @Test
@@ -145,9 +143,8 @@ public class CompanyServiceTests {
     officeAddress.setStateProvince(stateProvince);
     officeAddress.setPostalCode("02114");
     office.setOfficeAddress(officeAddress);
-    office.setCompany(new Company(UuidUtil.getUuidString()));
     Mockito.when(stateProvinceService.findById(Mockito.anyString())).thenReturn(stateProvince);
-    Mockito.when(officeService.findByNameAndCompanyId(Mockito.anyString(), Mockito.anyString()))
+    Mockito.when(officeService.findByName(Mockito.anyString()))
         .thenReturn(Collections.EMPTY_LIST);
     Mockito.when(googleMapsHelper.findTimezoneByPostalCode("02114")).thenReturn("timezone");
     assertThatCode(() -> companyService.saveOffice(office)).doesNotThrowAnyException();

@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
-
 import java.sql.Timestamp;
 import java.util.Collections;
 import java.util.List;
@@ -92,7 +91,6 @@ class EmployeeRestControllerIT extends BaseIntegrationTest {
 
       final Office newOffice = new Office();
       newOffice.setName(RandomStringUtils.randomAlphabetic(4));
-      newOffice.setCompany(company);
       office = officeService.save(newOffice);
     }
 

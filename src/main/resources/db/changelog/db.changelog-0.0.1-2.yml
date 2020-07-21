@@ -168,6 +168,34 @@ databaseChangeLog:
             sql: create trigger ins_user_statuses before insert on user_statuses for each row set new.id = unhex(replace(uuid(), '-', ''));
 
   - changeSet:
+      id: 1594263749216-25
+      author: haibo-eb
+      changes:
+        - sql:
+            sql: create trigger ins_benefit_coverages before insert on benefit_coverages for each row set new.id = unhex(replace(uuid(), '-', ''));
+
+  - changeSet:
+      id: 1594263749216-26
+      author: haibo-eb
+      changes:
+        - sql:
+            sql: create trigger ins_paid_holidays before insert on paid_holidays for each row set new.id = unhex(replace(uuid(), '-', ''));
+
+  - changeSet:
+      id: 1594263749216-27
+      author: haibo-eb
+      changes:
+        - sql:
+            sql: create trigger ins_states before insert on states for each row set new.id = unhex(replace(uuid(), '-', ''));
+
+  - changeSet:
+      id: 1594263749216-28
+      author: haibo-eb
+      changes:
+        - sql:
+            sql: create trigger ins_time_period before insert on time_period for each row set new.id = unhex(replace(uuid(), '-', ''));
+
+  - changeSet:
       id: 1594606148716-1
       author: haibo-eb
       runOnChange: true
@@ -489,6 +517,78 @@ databaseChangeLog:
             primaryKey: id
             tableName: user_statuses
 
+  - changeSet:
+      id: 1594606148716-24
+      author: haibo-eb
+      runOnChange: true
+      changes:
+        - loadUpdateData:
+            columns:
+              - column:
+                  name: name
+                  type: STRING
+            file: db/changelog/data/benefit_coverages.csv
+            primaryKey: id
+            tableName: benefit_coverages
+
+  - changeSet:
+      id: 1594606148716-25
+      author: haibo-eb
+      runOnChange: true
+      changes:
+        - loadUpdateData:
+            columns:
+              - column:
+                  name: name
+                  type: STRING
+              - column:
+                  name: name_show
+                  type: STRING
+              - column:
+                  name: federal
+                  type: BOOLEAN
+            file: db/changelog/data/paid-holidays.csv
+            primaryKey: id
+            tableName: paid_holidays
+
+  - changeSet:
+      id: 1594606148716-26
+      author: haibo-eb
+      changes:
+        - loadUpdateData:
+            columns:
+              - column:
+                  name: name
+                  type: STRING
+            file: db/changelog/data/states.csv
+            primaryKey: id
+            tableName: states
+
+  - changeSet:
+      id: 1594606148716-27
+      author: michael-eb
+      changes:
+        - sql:
+            sql: drop trigger ins_benefit_coverages;
+
+  - changeSet:
+      id: 1594606148716-28
+      author: haibo-eb
+      changes:
+        - sql:
+            sql: drop trigger ins_paid_holidays
+  - changeSet:
+      id: 1594606148716-29
+      author: haibo-eb
+      changes:
+        - sql:
+            sql: drop trigger if exists ins_states
+  - changeSet:
+      id: 1594606148716-30
+      author: haibo-eb
+      changes:
+        - sql:
+            sql: drop trigger ins_time_period;
 
   - changeSet:
       id: 1594015822000-1

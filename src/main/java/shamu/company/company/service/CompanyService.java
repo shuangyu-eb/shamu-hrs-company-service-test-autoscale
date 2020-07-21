@@ -80,8 +80,8 @@ public class CompanyService {
     return companyRepository.existsByName(companyName);
   }
 
-  public List<SelectFieldSizeDto> findDepartmentsByCompanyId(final String companyId) {
-    final List<Department> departments = departmentService.findAllByCompanyId(companyId);
+  public List<SelectFieldSizeDto> findDepartments() {
+    final List<Department> departments = departmentService.findAll();
 
     return departments.stream()
         .map(
@@ -112,33 +112,29 @@ public class CompanyService {
     return officeService.findById(id);
   }
 
-  public Department saveDepartmentsByCompany(final String name, final String companyId) {
-    final List<Department> oldDepartments =
-        departmentService.findByNameAndCompanyId(name, companyId);
+  public Department saveDepartment(final String name) {
+    final List<Department> oldDepartments = departmentService.findByName(name);
     if (!oldDepartments.isEmpty()) {
       throw new AlreadyExistsException("Department already exists.", "department");
     }
     final Department department = new Department();
     department.setName(name);
-    department.setCompany(new Company(companyId));
     return departmentService.save(department);
   }
 
-  public Job saveJobsByCompany(final String name, final String companyId) {
-    final List<Job> oldJob = jobService.findByTitleAndCompanyId(name, companyId);
+  public Job saveJob(final String name) {
+    final List<Job> oldJob = jobService.findByTitle(name);
     if (!oldJob.isEmpty()) {
       throw new AlreadyExistsException("Job title already exists.", "job title");
     }
     final Job job = new Job();
-
-    job.setCompany(new Company(companyId));
     job.setTitle(name);
 
     return jobService.save(job);
   }
 
-  public List<OfficeSizeDto> findOfficesByCompany(final String companyId) {
-    final List<Office> offices = officeService.findByCompanyId(companyId);
+  public List<OfficeSizeDto> findOffices() {
+    final List<Office> offices = officeService.findAll();
     return offices.stream()
         .map(
             office -> {
@@ -155,8 +151,7 @@ public class CompanyService {
   }
 
   public Office saveOffice(final Office office) {
-    final List<Office> oldOffices =
-        officeService.findByNameAndCompanyId(office.getName(), office.getCompany().getId());
+    final List<Office> oldOffices = officeService.findByName(office.getName());
     if (!oldOffices.isEmpty()) {
       throw new AlreadyExistsException("Office already exists.", "office");
     }
