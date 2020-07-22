@@ -16,6 +16,10 @@ public class TimeSheetService {
     this.timeSheetRepository = timeSheetRepository;
   }
 
+  public boolean existByUser(final String userId) {
+    return timeSheetRepository.existsByEmployeeId(userId);
+  }
+
   public TimeSheet findTimeSheetById(final String timeSheetId) {
     return timeSheetRepository
         .findById(timeSheetId)

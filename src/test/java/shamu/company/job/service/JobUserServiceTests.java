@@ -1,10 +1,5 @@
 package shamu.company.job.service;
 
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,6 +9,7 @@ import org.mapstruct.factory.Mappers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import shamu.company.attendance.service.TimeSheetService;
 import shamu.company.common.service.DepartmentService;
 import shamu.company.common.service.OfficeAddressService;
 import shamu.company.common.service.OfficeService;
@@ -61,6 +57,12 @@ import shamu.company.user.service.UserService;
 import shamu.company.utils.DateUtil;
 import shamu.company.utils.UuidUtil;
 
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+
 class JobUserServiceTests {
 
   private final UserCompensationMapper userCompensationMapper =
@@ -80,6 +82,7 @@ class JobUserServiceTests {
   @Mock private TimeOffPolicyService timeOffPolicyService;
   @Mock private UserAddressRepository userAddressRepository;
   @Mock private UserAddressMapper userAddressMapper;
+  @Mock private TimeSheetService timeSheetService;
   private final OfficeMapper officeMapper = new OfficeMapperImpl(officeAddressMapper);
   private final JobUserMapper jobUserMapper =
       new JobUserMapperImpl(officeMapper, userCompensationMapper);
@@ -109,7 +112,8 @@ class JobUserServiceTests {
             userAddressRepository,
             userAddressMapper,
             timeOffPolicyService,
-            compensationOvertimeStatusService);
+            compensationOvertimeStatusService,
+            timeSheetService);
   }
 
   @Test
@@ -330,7 +334,6 @@ class JobUserServiceTests {
   @Nested
   class checkJobInfoComplete {
 
-
     @Test
     void whenJobUserIsNull_thenReturnFalse() {
       final String userId = UuidUtil.getUuidString();
@@ -360,7 +363,7 @@ class JobUserServiceTests {
       office.setOfficeAddress(new OfficeAddress());
       office.setCompany(new Company(UuidUtil.getUuidString()));
       jobUser.setOffice(office);
-      UserCompensation userCompensation = new UserCompensation();
+      final UserCompensation userCompensation = new UserCompensation();
       jobUser.setUserCompensation(userCompensation);
       Mockito.when(jobUserRepository.findByUserId(userId)).thenReturn(jobUser);
       Assertions.assertTrue(jobUserService.checkJobInfoComplete(userId));

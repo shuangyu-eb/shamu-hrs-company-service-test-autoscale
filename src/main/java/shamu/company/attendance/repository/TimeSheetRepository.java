@@ -14,4 +14,6 @@ public interface TimeSheetRepository extends BaseRepository<TimeSheet, String> {
               + "on u.id = t.employee_id and u.company_id = unhex(?1)",
       nativeQuery = true)
   List<TimeSheet> listByCompanyId(String companyId);
+
+  boolean existsByEmployeeId(String employeeId);
 }

@@ -5,6 +5,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import shamu.company.attendance.service.TimeSheetService;
 import shamu.company.common.exception.errormapping.AlreadyExistsException;
 import shamu.company.common.service.DepartmentService;
 import shamu.company.common.service.OfficeAddressService;
@@ -101,6 +102,8 @@ public class JobUserService {
 
   private final CompensationOvertimeStatusService compensationOvertimeStatusService;
 
+  private final TimeSheetService timeSheetService;
+
   public JobUserService(
       final JobUserRepository jobUserRepository,
       final UserService userService,
@@ -120,7 +123,8 @@ public class JobUserService {
       final UserAddressRepository userAddressRepository,
       final UserAddressMapper userAddressMapper,
       final TimeOffPolicyService timeOffPolicyService,
-      final CompensationOvertimeStatusService compensationOvertimeStatusService) {
+      final CompensationOvertimeStatusService compensationOvertimeStatusService,
+      final TimeSheetService timeSheetService) {
     this.jobUserRepository = jobUserRepository;
     this.userService = userService;
     this.userCompensationMapper = userCompensationMapper;
@@ -140,6 +144,7 @@ public class JobUserService {
     this.userAddressRepository = userAddressRepository;
     this.userAddressMapper = userAddressMapper;
     this.compensationOvertimeStatusService = compensationOvertimeStatusService;
+    this.timeSheetService = timeSheetService;
   }
 
   public JobUser save(final JobUser jobUser) {
@@ -203,7 +208,12 @@ public class JobUserService {
   private void addOrUpdateJobUserCompensation(
       final String userId, final JobUpdateDto jobUpdateDto, final JobUser jobUser) {
     if (jobUserCompensationUpdated(jobUpdateDto) || jobUpdateDto.getPayTypeName() != null) {
-      final UserCompensation userCompensation = new UserCompensation();
+      UserCompensation userCompensation = jobUser.getUserCompensation();
+      if (userCompensation == null || timeSheetService.existByUser(userId)) {
+        userCompensation = new UserCompensation();
+      } else {
+        userCompensation.setId(jobUpdateDto.getUserCompensationId());
+      }
       if (jobUserCompensationUpdated(jobUpdateDto)) {
         userCompensationMapper.updateFromJobUpdateDto(userCompensation, jobUpdateDto);
       }
