@@ -17,11 +17,17 @@ Please describe the tests that you ran to verify your changes. Provide instructi
 
 # Checklist:
 
-- [ ] My code follows the style guidelines/coding guidelines of this project
 - [ ] My changes generate no new warnings/errors
 - [ ] I have performed a self-review of my own code
 - [ ] I have made corresponding changes to the documentation
 - [ ] I have commented my code, particularly in hard-to-understand areas
 - [ ] I have added tests that prove my fix is effective or that my feature works  
+
+# Merge Type:
+
+**Please select the type you want to merge, you can only choose one at most**
+
+- [ ] Squash & Merge
+- [ ] Rebase & Merge
 
 **Primary reviewer:** @xxx
