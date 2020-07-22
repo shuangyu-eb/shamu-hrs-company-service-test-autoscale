@@ -366,7 +366,7 @@ public class TimeOffPolicyService {
     }
 
     if (BooleanUtils.isTrue(company.getIsPaidHolidaysAutoEnroll())) {
-      final PaidHolidayUser paidHolidayUser = new PaidHolidayUser(companyId, userId, true);
+      final PaidHolidayUser paidHolidayUser = new PaidHolidayUser(userId, true);
       paidHolidayUserRepository.save(paidHolidayUser);
     }
   }
@@ -473,9 +473,8 @@ public class TimeOffPolicyService {
         timeOffPolicy.getIsLimited(), unselectedEmployees, selectedEmployees);
   }
 
-  public List<TimeOffPolicyRelatedUserDto> getEmployeesOfNewPolicyOrPaidHoliday(
-      final String companyId) {
-    final List<User> allUsers = userRepository.findAllByCompanyId(companyId);
+  public List<TimeOffPolicyRelatedUserDto> getEmployeesOfNewPolicyOrPaidHoliday() {
+    final List<User> allUsers = userRepository.findAllActiveUsers();
     return allUsers.stream()
         .map(
             user -> {
@@ -836,7 +835,6 @@ public class TimeOffPolicyService {
                   .comment(
                       String.format(
                           "Rolled from policy %s", policyUser.getTimeOffPolicy().getName()))
-                  .company(policyUser.getUser().getCompany())
                   .user(policyUser.getUser())
                   .build();
           timeOffAdjustmentRepository.save(timeOffAdjustment);

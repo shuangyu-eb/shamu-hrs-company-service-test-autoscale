@@ -9,7 +9,6 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.HttpHeaders;
@@ -85,8 +84,7 @@ class PaidHolidayRestControllerTests extends WebControllerBaseTests {
         new PaidHolidayRelatedUserListDto();
     final List<TimeOffPolicyRelatedUserDto> timeOffPolicyRelatedUserDtos = new ArrayList<>();
     paidHolidayRelatedUserListDto.setPaidHolidaySelectedEmployees(timeOffPolicyRelatedUserDtos);
-    given(paidHolidayService.getPaidHolidayEmployees(Mockito.any()))
-        .willReturn(paidHolidayRelatedUserListDto);
+    given(paidHolidayService.getPaidHolidayEmployees()).willReturn(paidHolidayRelatedUserListDto);
 
     final MvcResult response =
         mockMvc
@@ -368,7 +366,6 @@ class PaidHolidayRestControllerTests extends WebControllerBaseTests {
 
       @BeforeEach
       void init() {
-        paidHoliday.setCompany(company);
         paidHoliday.setCreator(new User(currentUser.getId()));
       }
 
@@ -385,17 +382,6 @@ class PaidHolidayRestControllerTests extends WebControllerBaseTests {
 
       @BeforeEach
       void init() {
-        paidHoliday.setCompany(company);
-        paidHoliday.setCreator(new User(UuidUtil.getUuidString()));
-      }
-    }
-
-    @Nested
-    class DifferentCompany extends DefaultPaidHoliday {
-
-      @BeforeEach
-      void init() {
-        paidHoliday.setCompany(theOtherCompany);
         paidHoliday.setCreator(new User(UuidUtil.getUuidString()));
       }
     }

@@ -6,10 +6,13 @@ import shamu.company.common.repository.BaseRepository;
 import shamu.company.timeoff.entity.PaidHolidayUser;
 
 public interface PaidHolidayUserRepository extends BaseRepository<PaidHolidayUser, String> {
+
   String ACTIVE_USER_QUERY =
-      "and (u.deactivated_at is null "
+      "(u.deactivated_at is null "
           + "or (u.deactivated_at is not null "
           + "and u.deactivated_at > current_timestamp)) ";
+
+  String AND_ACTIVE_USER_QUERY = " and " + ACTIVE_USER_QUERY;
 
   @Query(
       value =
@@ -17,10 +20,10 @@ public interface PaidHolidayUserRepository extends BaseRepository<PaidHolidayUse
               + "FROM paid_holidays_users phu "
               + "LEFT JOIN users u "
               + "ON phu.user_id = u.id "
-              + "WHERE phu.company_id = unhex(?1) "
+              + "WHERE "
               + ACTIVE_USER_QUERY,
       nativeQuery = true)
-  List<PaidHolidayUser> findAllByCompanyId(String id);
+  List<PaidHolidayUser> findAllPaidHolidayUsers();
 
   @Query(
       value =
@@ -28,18 +31,18 @@ public interface PaidHolidayUserRepository extends BaseRepository<PaidHolidayUse
               + "FROM paid_holidays_users phu "
               + "LEFT JOIN users u "
               + "ON phu.user_id = u.id "
-              + "WHERE phu.company_id = unhex(?1) "
+              + "WHERE "
               + ACTIVE_USER_QUERY,
       nativeQuery = true)
-  List<String> findAllUserIdByCompanyId(String companyId);
+  List<String> findAllUserId();
 
   @Query(
       value =
           "SELECT phu.* FROM paid_holidays_users phu "
               + "LEFT JOIN users u "
               + "ON phu.user_id = u.id "
-              + "WHERE phu.company_id = unhex(?1) AND phu.user_id = unhex(?2) "
-              + ACTIVE_USER_QUERY,
+              + "WHERE phu.user_id = unhex(?2) "
+              + AND_ACTIVE_USER_QUERY,
       nativeQuery = true)
-  PaidHolidayUser findByCompanyIdAndUserId(String companyId, String userId);
+  PaidHolidayUser findByUserId(String userId);
 }

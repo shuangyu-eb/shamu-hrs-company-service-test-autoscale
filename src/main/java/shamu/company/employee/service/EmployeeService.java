@@ -511,7 +511,6 @@ public class EmployeeService {
       final Job job = jobService.findById(jobInformation.getJobId());
       jobUser.setJob(job);
     }
-    jobUser.setCompany(currentUser.getCompany());
     jobUser.setUser(employee);
 
     final String employmentTypeId = jobInformation.getEmploymentTypeId();

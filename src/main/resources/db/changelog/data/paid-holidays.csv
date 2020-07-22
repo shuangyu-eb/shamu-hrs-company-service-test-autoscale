@@ -1,12 +1,11 @@
-name,name_show,federal
-New Year's Day,New Year's Day,true
-Martin Luther King Jr. Day,Martin Luther King Jr. Day,true
-Washington's Birthday,Presidents' Day,true
-Memorial Day,Memorial Day,true
-Labor Day,Labor Day,true
-Columbus Day,Columbus Day (Indigenous Peoples' Day),true
-Veterans Day,Veterans Day,true
-Thanksgiving Day,Thanksgiving,true
-Christmas Day,Christmas Day,true
-President's Day,President's Day,true
-Independence Day,Independence Day,true
+name                      ,name_show                             ,federal
+New Year's Day            ,New Year's Day                        ,true
+Martin Luther King Jr. Day,Martin Luther King Jr. Day            ,true
+Memorial Day              ,Memorial Day                          ,true
+Labor Day                 ,Labor Day                             ,true
+Columbus Day              ,Columbus Day (Indigenous Peoples' Day),true
+Veterans Day              ,Veterans Day                          ,true
+Thanksgiving Day          ,Thanksgiving                          ,true
+Christmas Day             ,Christmas Day                         ,true
+President's Day           ,President's Day                       ,true
+Independence Day          ,Independence Day                      ,true

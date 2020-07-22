@@ -537,7 +537,6 @@ class UserPermissionUtilTests {
       final User creator = new User();
       creator.setId("1");
       paidHoliday = new PaidHoliday();
-      paidHoliday.setCompany(company);
       paidHoliday.setCreator(creator);
       companyPaidHoliday = new CompanyPaidHoliday();
       companyPaidHoliday.setPaidHoliday(paidHoliday);

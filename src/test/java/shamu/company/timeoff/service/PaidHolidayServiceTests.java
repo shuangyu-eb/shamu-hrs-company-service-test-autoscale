@@ -1,5 +1,13 @@
 package shamu.company.timeoff.service;
 
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -25,15 +33,6 @@ import shamu.company.timeoff.repository.PaidHolidayRepository;
 import shamu.company.timeoff.repository.PaidHolidayUserRepository;
 import shamu.company.user.entity.User;
 import shamu.company.user.service.UserService;
-
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 class PaidHolidayServiceTests {
 
@@ -262,15 +261,13 @@ class PaidHolidayServiceTests {
     paidHolidayUser.setSelected(false);
     paidHolidayUser.setUserId("1");
 
-    Mockito.when(timeOffPolicyService.getEmployeesOfNewPolicyOrPaidHoliday(Mockito.any()))
+    Mockito.when(timeOffPolicyService.getEmployeesOfNewPolicyOrPaidHoliday())
         .thenReturn(timeOffPolicyRelatedUserDtos);
-    Mockito.when(paidHolidayUserRepository.findAllUserIdByCompanyId(Mockito.any()))
-        .thenReturn(filterIds);
+    Mockito.when(paidHolidayUserRepository.findAllUserId()).thenReturn(filterIds);
     Mockito.when(paidHolidayUserRepository.save(Mockito.any())).thenReturn(paidHolidayUser);
-    Mockito.when(paidHolidayUserRepository.findAllByCompanyId(Mockito.any()))
-        .thenReturn(newFilterDataSet);
+    Mockito.when(paidHolidayUserRepository.findAllPaidHolidayUsers()).thenReturn(newFilterDataSet);
 
-    Assertions.assertDoesNotThrow(() -> paidHolidayService.getPaidHolidayEmployees("1"));
+    Assertions.assertDoesNotThrow(() -> paidHolidayService.getPaidHolidayEmployees());
   }
 
   @Nested
@@ -296,16 +293,16 @@ class PaidHolidayServiceTests {
       paidHolidayUser.setUserId("1");
       employeesStateBefore.add(paidHolidayUser);
 
-      Mockito.when(paidHolidayUserRepository.findAllByCompanyId(Mockito.any()))
+      Mockito.when(paidHolidayUserRepository.findAllPaidHolidayUsers())
           .thenReturn(employeesStateBefore);
       Mockito.when(paidHolidayUserRepository.saveAll(Mockito.any()))
           .thenReturn(employeesStateBefore);
-      Mockito.when(paidHolidayUserRepository.findByCompanyIdAndUserId(Mockito.any(), Mockito.any()))
+      Mockito.when(paidHolidayUserRepository.findByUserId(Mockito.any()))
           .thenReturn(paidHolidayUser);
       Mockito.when(paidHolidayUserRepository.save(Mockito.any())).thenReturn(paidHolidayUser);
 
       Assertions.assertDoesNotThrow(
-          () -> paidHolidayService.updatePaidHolidayEmployees(newPaidEmployees, "1"));
+          () -> paidHolidayService.updatePaidHolidayEmployees(newPaidEmployees));
     }
 
     @Test
@@ -316,16 +313,16 @@ class PaidHolidayServiceTests {
       paidHolidayUser.setUserId("1");
       employeesStateBefore.add(paidHolidayUser);
 
-      Mockito.when(paidHolidayUserRepository.findAllByCompanyId(Mockito.any()))
+      Mockito.when(paidHolidayUserRepository.findAllPaidHolidayUsers())
           .thenReturn(employeesStateBefore);
       Mockito.when(paidHolidayUserRepository.saveAll(Mockito.any()))
           .thenReturn(employeesStateBefore);
-      Mockito.when(paidHolidayUserRepository.findByCompanyIdAndUserId(Mockito.any(), Mockito.any()))
+      Mockito.when(paidHolidayUserRepository.findByUserId(Mockito.any()))
           .thenReturn(paidHolidayUser);
       Mockito.when(paidHolidayUserRepository.save(Mockito.any())).thenReturn(paidHolidayUser);
 
       Assertions.assertDoesNotThrow(
-          () -> paidHolidayService.updatePaidHolidayEmployees(newPaidEmployees, "1"));
+          () -> paidHolidayService.updatePaidHolidayEmployees(newPaidEmployees));
     }
   }
 

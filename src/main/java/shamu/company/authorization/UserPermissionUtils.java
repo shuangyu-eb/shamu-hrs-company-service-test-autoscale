@@ -33,7 +33,6 @@ import shamu.company.timeoff.dto.PaidHolidayDto;
 import shamu.company.timeoff.dto.UserIdDto;
 import shamu.company.timeoff.entity.CompanyPaidHoliday;
 import shamu.company.timeoff.entity.PaidHoliday;
-import shamu.company.timeoff.entity.TimeOffPolicy;
 import shamu.company.timeoff.entity.TimeOffPolicyUser;
 import shamu.company.timeoff.service.CompanyPaidHolidayService;
 import shamu.company.timeoff.service.PaidHolidayService;
@@ -371,9 +370,7 @@ public class UserPermissionUtils extends BasePermissionUtils {
 
   private boolean hasPermissionOfTimeOffPolicy(
       final Authentication auth, final String policyId, final Permission.Name permission) {
-    final TimeOffPolicy timeOffPolicy = timeOffPolicyService.getTimeOffPolicyById(policyId);
-    final Company company = timeOffPolicy.getCompany();
-    companyEqual(company);
+    timeOffPolicyService.getTimeOffPolicyById(policyId);
     return hasPermission(auth, permission);
   }
 
@@ -381,12 +378,10 @@ public class UserPermissionUtils extends BasePermissionUtils {
       final Authentication auth, final String policyId, final Permission.Name permission) {
     final PaidHoliday paidHoliday = paidHolidayService.getPaidHoliday(policyId);
     final User creator = paidHoliday.getCreator();
-    final Company company = paidHoliday.getCompany();
-    if (company == null || creator == null) {
+    if (creator == null) {
       return false;
     }
 
-    companyEqual(company);
     return hasPermission(auth, permission)
         && paidHoliday.getCreator().getId().equals(getAuthUser().getId());
   }
@@ -425,9 +420,6 @@ public class UserPermissionUtils extends BasePermissionUtils {
     }
 
     final PaidHoliday paidHoliday = companyPaidHoliday.getPaidHoliday();
-    if (paidHoliday.getCompany() == null) {
-      return hasPermission(auth, permission);
-    }
 
     return hasPermission(auth, permission)
         && getAuthUser().getId().equals(paidHoliday.getCreator().getId());

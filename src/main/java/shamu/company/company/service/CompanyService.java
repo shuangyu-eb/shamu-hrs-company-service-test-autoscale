@@ -127,9 +127,9 @@ public class CompanyService {
     if (!oldJob.isEmpty()) {
       throw new AlreadyExistsException("Job title already exists.", "job title");
     }
+
     final Job job = new Job();
     job.setTitle(name);
-
     return jobService.save(job);
   }
 

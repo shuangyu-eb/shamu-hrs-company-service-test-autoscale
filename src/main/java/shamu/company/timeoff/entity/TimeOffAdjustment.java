@@ -34,8 +34,6 @@ public class TimeOffAdjustment extends BaseEntity {
 
   @CreationTimestamp private Timestamp createdAt;
 
-  @ManyToOne private Company company;
-
   @ManyToOne private User user;
 
   @ManyToOne private TimeOffPolicy timeOffPolicy;
@@ -49,7 +47,6 @@ public class TimeOffAdjustment extends BaseEntity {
 
   public TimeOffAdjustment(
       final TimeOffPolicyUser user, final TimeOffPolicy enrollPolicy, final User currentUser) {
-    this.company = user.getUser().getCompany();
     this.user = user.getUser();
     this.timeOffPolicy = enrollPolicy;
     this.adjusterUserId = currentUser.getId();

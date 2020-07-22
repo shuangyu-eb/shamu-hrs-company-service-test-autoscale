@@ -9,7 +9,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import shamu.company.common.entity.BaseEntity;
 import shamu.company.common.entity.Country;
-import shamu.company.company.entity.Company;
 import shamu.company.user.entity.User;
 
 @Data
@@ -19,9 +18,8 @@ import shamu.company.user.entity.User;
 @AllArgsConstructor
 public class PaidHoliday extends BaseEntity {
 
+  private static final long serialVersionUID = -3743840058801034506L;
   @ManyToOne private Country country;
-
-  @ManyToOne private Company company;
 
   @ManyToOne private User creator;
 

@@ -331,7 +331,7 @@ public class TimeOffPolicyServiceTests {
         .thenReturn(timeOffPolicyRelatedUserDto);
 
     Assertions.assertDoesNotThrow(
-        () -> timeOffPolicyService.getEmployeesOfNewPolicyOrPaidHoliday(Mockito.any()));
+        () -> timeOffPolicyService.getEmployeesOfNewPolicyOrPaidHoliday());
   }
 
   @Test
