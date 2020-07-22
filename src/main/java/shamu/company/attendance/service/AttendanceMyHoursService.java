@@ -1,5 +1,13 @@
 package shamu.company.attendance.service;
 
+import java.math.BigInteger;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shamu.company.attendance.dto.AllTimeDto;
@@ -26,15 +34,6 @@ import shamu.company.user.entity.UserCompensation;
 import shamu.company.user.service.UserCompensationService;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.DateUtil;
-
-import java.math.BigInteger;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 
 @Service
 @Transactional
@@ -250,7 +249,7 @@ public class AttendanceMyHoursService {
         .build();
   }
 
-  int getTotalNumberOfWorkedMinutes(
+  public int getTotalNumberOfWorkedMinutes(
       final List<EmployeeTimeLog> workedMinutes, final TimeSheet timeSheet) {
     final long timeSheetStart = timeSheet.getTimePeriod().getStartDate().getTime();
     int workedMin = 0;
@@ -269,7 +268,7 @@ public class AttendanceMyHoursService {
     return workedMin;
   }
 
-  final List<EmployeeTimeLog> findAllRelevantTimelogs(
+  public List<EmployeeTimeLog> findAllRelevantTimelogs(
       final TimeSheet timeSheet, final CompanyTaSetting companyTaSetting) {
     final Timestamp timeSheetStart = timeSheet.getTimePeriod().getStartDate();
     final Timestamp timesheetEnd = timeSheet.getTimePeriod().getEndDate();
