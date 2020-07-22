@@ -29,5 +29,7 @@ public class PaidHoliday extends BaseEntity {
 
   private Timestamp date;
 
+  private Boolean isSelected;
+
   private Boolean federal = false;
 }

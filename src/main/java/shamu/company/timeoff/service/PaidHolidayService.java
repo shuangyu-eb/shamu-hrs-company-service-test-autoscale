@@ -21,12 +21,9 @@ import shamu.company.timeoff.dto.PaidHolidayEmployeeDto;
 import shamu.company.timeoff.dto.PaidHolidayRelatedUserListDto;
 import shamu.company.timeoff.dto.PaidHolidayRelatedUserListMobileDto;
 import shamu.company.timeoff.dto.TimeOffPolicyRelatedUserDto;
-import shamu.company.timeoff.entity.CompanyPaidHoliday;
 import shamu.company.timeoff.entity.PaidHoliday;
 import shamu.company.timeoff.entity.PaidHolidayUser;
-import shamu.company.timeoff.entity.mapper.CompanyPaidHolidayMapper;
 import shamu.company.timeoff.entity.mapper.PaidHolidayMapper;
-import shamu.company.timeoff.repository.CompanyPaidHolidayRepository;
 import shamu.company.timeoff.repository.PaidHolidayRepository;
 import shamu.company.timeoff.repository.PaidHolidayUserRepository;
 import shamu.company.user.entity.User;
@@ -40,13 +37,9 @@ public class PaidHolidayService {
 
   private final PaidHolidayRepository paidHolidayRepository;
 
-  private final CompanyPaidHolidayRepository companyPaidHolidayRepository;
-
   private final UserService userService;
 
   private final PaidHolidayUserRepository paidHolidayUserRepository;
-
-  private final CompanyPaidHolidayMapper companyPaidHolidayMapper;
 
   private final PaidHolidayMapper paidHolidayMapper;
 
@@ -54,72 +47,26 @@ public class PaidHolidayService {
 
   private final TimeOffPolicyService timeOffPolicyService;
 
-  public static final String PAID_HOLIDAY_EXISTES_MESSAGE = "Paid holiday date already exists";
+  public static final String PAID_HOLIDAY_EXISTS_MESSAGE = "Paid holiday date already exists";
 
   @Autowired
   public PaidHolidayService(
       final PaidHolidayRepository paidHolidayRepository,
-      final CompanyPaidHolidayRepository companyPaidHolidayRepository,
       final UserService userService,
       final PaidHolidayUserRepository paidHolidayUserRepository,
-      final CompanyPaidHolidayMapper companyPaidHolidayMapper,
       final PaidHolidayMapper paidHolidayMapper,
       final FederalHolidayHelper federalHolidayHelper,
       final TimeOffPolicyService timeOffPolicyService) {
     this.paidHolidayRepository = paidHolidayRepository;
-    this.companyPaidHolidayRepository = companyPaidHolidayRepository;
     this.userService = userService;
     this.paidHolidayUserRepository = paidHolidayUserRepository;
-    this.companyPaidHolidayMapper = companyPaidHolidayMapper;
     this.paidHolidayMapper = paidHolidayMapper;
     this.federalHolidayHelper = federalHolidayHelper;
     this.timeOffPolicyService = timeOffPolicyService;
   }
 
-  // TODO: It would be delete in another PR.
-  //  public void initDefaultPaidHolidays(final Company company) {
-  //    final List<PaidHoliday> defaultPaidHolidays =
-  // paidHolidayRepository.findDefaultPaidHolidays();
-  //    final List<CompanyPaidHoliday> companyPaidHolidays =
-  //        defaultPaidHolidays.stream()
-  //            .map(holiday -> new CompanyPaidHoliday(holiday, company, true))
-  //            .collect(Collectors.toList());
-  //    companyPaidHolidayRepository.saveAll(companyPaidHolidays);
-  //  }
-
-  private List<PaidHolidayDto> getCurrentYearPaidHolidays(final AuthUser user) {
-    final List<CompanyPaidHoliday> companyPaidHolidays;
-    companyPaidHolidays = companyPaidHolidayRepository.findAllByCompanyId(user.getCompanyId());
-    return getPaidHolidayFromCompany(user, companyPaidHolidays);
-  }
-
-  private List<PaidHolidayDto> getCurrentYearUserPaidHolidays(
-      final AuthUser user, final String userId) {
-    final List<CompanyPaidHoliday> companyPaidHolidays;
-    companyPaidHolidays =
-        companyPaidHolidayRepository.findAllByCompanyIdAndUserId(user.getCompanyId(), userId);
-    return getPaidHolidayFromCompany(user, companyPaidHolidays);
-  }
-
-  private List<PaidHolidayDto> getPaidHolidayFromCompany(
-      final AuthUser user, final List<CompanyPaidHoliday> companyPaidHolidays) {
-    final List<PaidHolidayDto> list = new ArrayList<>();
-    for (final CompanyPaidHoliday paidHoliday : companyPaidHolidays) {
-      final PaidHolidayDto paidHolidayDto =
-          companyPaidHolidayMapper.convertToPaidHolidayDto(paidHoliday, user);
-      if (paidHolidayDto.getFederal()) {
-        paidHolidayDto.setDate(federalHolidayHelper.timestampOf(paidHolidayDto.getName()));
-      }
-      list.add(paidHolidayDto);
-    }
-    return list;
-  }
-
-  private PaidHolidayDto getNewPaidHolidayDto(final PaidHolidayDto paidHolidayDto, final int year) {
-    final PaidHolidayDto newPaidHolidayDto = new PaidHolidayDto();
-    BeanUtils.copyProperties(paidHolidayDto, newPaidHolidayDto);
-    newPaidHolidayDto.setDate(federalHolidayHelper.timestampOf(paidHolidayDto.getName(), year));
-    return newPaidHolidayDto;
+  public List<PaidHoliday> findAll() {
+    return paidHolidayRepository.findAll();
   }
 
   /** * Get this year, last year and next two years' federal holidays. */
@@ -130,12 +77,39 @@ public class PaidHolidayService {
     return currentYearPaidHolidays;
   }
 
+  private List<PaidHolidayDto> getCurrentYearPaidHolidays(final AuthUser user) {
+    final List<PaidHoliday> paidHolidays = paidHolidayRepository.findAll();
+    return getPaidHolidays(user, paidHolidays);
+  }
+
+  private List<PaidHolidayDto> getPaidHolidays(
+      final AuthUser user, final List<PaidHoliday> paidHolidays) {
+    final List<PaidHolidayDto> list = new ArrayList<>();
+    for (final PaidHoliday paidHoliday : paidHolidays) {
+      final PaidHolidayDto paidHolidayDto =
+          paidHolidayMapper.convertToPaidHolidayDto(paidHoliday, user);
+      if (paidHolidayDto.getFederal()) {
+        paidHolidayDto.setDate(federalHolidayHelper.timestampOf(paidHolidayDto.getName()));
+      }
+      list.add(paidHolidayDto);
+    }
+    return list;
+  }
+
   // UserPaidHolidays
   public List<PaidHolidayDto> getUserPaidHolidays(final AuthUser user, final String userId) {
     final List<PaidHolidayDto> currentYearPaidHolidays =
         getCurrentYearUserPaidHolidays(user, userId);
     currentYearPaidHolidays.addAll(getOtherYearsObservances(currentYearPaidHolidays));
     return currentYearPaidHolidays;
+  }
+
+  private List<PaidHolidayDto> getCurrentYearUserPaidHolidays(
+      final AuthUser user, final String userId) {
+    final PaidHolidayUser paidHolidayUser = paidHolidayUserRepository.findByUserId(userId);
+    final List<PaidHoliday> paidHolidays =
+        paidHolidayUser.isSelected() ? paidHolidayRepository.findAll() : new ArrayList<>();
+    return getPaidHolidays(user, paidHolidays);
   }
 
   private List<PaidHolidayDto> getOtherYearsObservances(
@@ -151,6 +125,13 @@ public class PaidHolidayService {
           }
         });
     return otherYearsObservances;
+  }
+
+  private PaidHolidayDto getNewPaidHolidayDto(final PaidHolidayDto paidHolidayDto, final int year) {
+    final PaidHolidayDto newPaidHolidayDto = new PaidHolidayDto();
+    BeanUtils.copyProperties(paidHolidayDto, newPaidHolidayDto);
+    newPaidHolidayDto.setDate(federalHolidayHelper.timestampOf(paidHolidayDto.getName(), year));
+    return newPaidHolidayDto;
   }
 
   public List<PaidHolidayDto> getPaidHolidaysByYear(final AuthUser user, final String year) {
@@ -201,22 +182,18 @@ public class PaidHolidayService {
     final User creator = userService.findById(user.getId());
 
     if (isDateDuplicate(paidHolidayDto, user)) {
-      throw new AlreadyExistsException(PAID_HOLIDAY_EXISTES_MESSAGE, "paid holiday date");
+      throw new AlreadyExistsException(PAID_HOLIDAY_EXISTS_MESSAGE, "paid holiday date");
     }
 
     final PaidHoliday paidHoliday =
         paidHolidayMapper.createFromPaidHolidayDtoAndCreator(paidHolidayDto, creator);
-    final PaidHoliday paidHolidayReturned = paidHolidayRepository.save(paidHoliday);
 
-    final CompanyPaidHoliday companyPaidHoliday =
-        companyPaidHolidayMapper.createFromPaidHolidayDtoAndPaidHoliday(
-            paidHolidayDto, paidHolidayReturned);
-    companyPaidHolidayRepository.save(companyPaidHoliday);
+    paidHolidayRepository.save(paidHoliday);
   }
 
   public void updatePaidHoliday(final PaidHolidayDto paidHolidayDto, final AuthUser user) {
     if (isDateDuplicate(paidHolidayDto, user)) {
-      throw new AlreadyExistsException(PAID_HOLIDAY_EXISTES_MESSAGE, "paid holiday date");
+      throw new AlreadyExistsException(PAID_HOLIDAY_EXISTS_MESSAGE, "paid holiday date");
     }
     paidHolidayRepository.updateDetail(
         paidHolidayDto.getId(), paidHolidayDto.getName(), paidHolidayDto.getDate());
@@ -240,7 +217,6 @@ public class PaidHolidayService {
 
   public void deletePaidHoliday(final String id) {
     paidHolidayRepository.delete(id);
-    companyPaidHolidayRepository.deleteByPaidHolidayId(id);
   }
 
   List<String> saveNewAddedPaidHolidayUserAndGetUnSelectedEmployeeIds(

@@ -1,10 +1,11 @@
 package shamu.company.authorization;
 
+import static shamu.company.authorization.Permission.Name.SELECT_PAID_HOLIDAY;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -28,10 +29,8 @@ import shamu.company.info.entity.UserEmergencyContact;
 import shamu.company.info.service.UserEmergencyContactService;
 import shamu.company.timeoff.dto.PaidHolidayDto;
 import shamu.company.timeoff.dto.UserIdDto;
-import shamu.company.timeoff.entity.CompanyPaidHoliday;
 import shamu.company.timeoff.entity.PaidHoliday;
 import shamu.company.timeoff.entity.TimeOffPolicyUser;
-import shamu.company.timeoff.service.CompanyPaidHolidayService;
 import shamu.company.timeoff.service.PaidHolidayService;
 import shamu.company.timeoff.service.TimeOffPolicyService;
 import shamu.company.timeoff.service.TimeOffPolicyUserService;
@@ -64,8 +63,6 @@ public class UserPermissionUtils extends BasePermissionUtils {
 
   private final PaidHolidayService paidHolidayService;
 
-  private final CompanyPaidHolidayService companyPaidHolidayService;
-
   private final UserEmergencyContactService userEmergencyContactService;
 
   @Autowired
@@ -79,7 +76,6 @@ public class UserPermissionUtils extends BasePermissionUtils {
       final TimeOffPolicyUserService timeOffPolicyUserService,
       final TimeOffPolicyService timeOffPolicyService,
       final PaidHolidayService paidHolidayService,
-      final CompanyPaidHolidayService companyPaidHolidayService,
       final UserEmergencyContactService userEmergencyContactService,
       final BenefitCoveragesRepository benefitCoveragesRepository) {
     this.userService = userService;
@@ -91,7 +87,6 @@ public class UserPermissionUtils extends BasePermissionUtils {
     this.timeOffPolicyUserService = timeOffPolicyUserService;
     this.timeOffPolicyService = timeOffPolicyService;
     this.paidHolidayService = paidHolidayService;
-    this.companyPaidHolidayService = companyPaidHolidayService;
     this.userEmergencyContactService = userEmergencyContactService;
   }
 
@@ -132,8 +127,6 @@ public class UserPermissionUtils extends BasePermissionUtils {
         return hasPermissionOfTimeOffPolicy(auth, targetId, permission);
       case PAID_HOLIDAY:
         return hasPermissionOfPaidHoliday(auth, targetId, permission);
-      case COMPANY_PAID_HOLIDAY:
-        return hasPermissionOfCompanyPaidHoliday(auth, targetId, permission, entities);
       case USER_EMERGENCY_CONTACT:
         return hasPermissionOfUserEmergencyContact(auth, targetId, permission);
       case USER:
@@ -171,14 +164,11 @@ public class UserPermissionUtils extends BasePermissionUtils {
       return hasPermission(auth, permission);
     }
     switch (type) {
-      case COMPANY_PAID_HOLIDAY:
+      case PAID_HOLIDAY:
         final List<PaidHolidayDto> paidHolidayDtos = (List<PaidHolidayDto>) targets;
         for (final PaidHolidayDto paidHolidayDto : paidHolidayDtos) {
           final String id = paidHolidayDto.getId();
-          final BaseEntity[] entities =
-              companyPaidHolidayService.findAllByCompanyId(getCompanyId()).stream()
-                  .toArray(BaseEntity[]::new);
-          hasPermission = hasPermission(auth, id, type, permission, entities);
+          hasPermission = hasPermission(auth, id, type, permission);
           if (!hasPermission) {
             return false;
           }
@@ -350,6 +340,9 @@ public class UserPermissionUtils extends BasePermissionUtils {
 
   private boolean hasPermissionOfPaidHoliday(
       final Authentication auth, final String policyId, final Permission.Name permission) {
+    if (permission.equals(SELECT_PAID_HOLIDAY)) {
+      return hasPermission(auth, permission);
+    }
     final PaidHoliday paidHoliday = paidHolidayService.getPaidHoliday(policyId);
     final User creator = paidHoliday.getCreator();
     if (creator == null) {
@@ -358,45 +351,6 @@ public class UserPermissionUtils extends BasePermissionUtils {
 
     return hasPermission(auth, permission)
         && paidHoliday.getCreator().getId().equals(getAuthUser().getId());
-  }
-
-  private CompanyPaidHoliday getCompanyPaidHoliday(
-      final String paidHolidayId, final BaseEntity... entities) {
-    CompanyPaidHoliday companyPaidHoliday = null;
-    if (entities.length != 0) {
-      companyPaidHoliday =
-          Stream.of(entities)
-              .map(entity -> (CompanyPaidHoliday) entity)
-              .filter(holiday -> holiday.getPaidHoliday().getId().equals(paidHolidayId))
-              .findAny()
-              .orElse(null);
-    }
-
-    if (companyPaidHoliday == null) {
-      companyPaidHoliday =
-          companyPaidHolidayService.findCompanyPaidHolidayByPaidHolidayIdAndCompanyId(
-              paidHolidayId, getCompanyId());
-    }
-    return companyPaidHoliday;
-  }
-
-  private boolean hasPermissionOfCompanyPaidHoliday(
-      final Authentication auth,
-      final String companyPaidHolidayId,
-      final Permission.Name permission,
-      final BaseEntity... entities) {
-
-    final CompanyPaidHoliday companyPaidHoliday =
-        getCompanyPaidHoliday(companyPaidHolidayId, entities);
-
-    if (companyPaidHoliday == null) {
-      return false;
-    }
-
-    final PaidHoliday paidHoliday = companyPaidHoliday.getPaidHoliday();
-
-    return hasPermission(auth, permission)
-        && getAuthUser().getId().equals(paidHoliday.getCreator().getId());
   }
 
   private boolean hasPermissionOfUserEmergencyContact(

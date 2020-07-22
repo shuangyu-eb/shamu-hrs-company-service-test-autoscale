@@ -76,7 +76,7 @@ public class PaidHolidayRestController extends BaseRestController {
   }
 
   @PatchMapping(value = "paid-holidays/select")
-  @PreAuthorize("hasPermission(#paidHolidayDtos, 'COMPANY_PAID_HOLIDAY', 'EDIT_PAID_HOLIDAY')")
+  @PreAuthorize("hasPermission(#paidHolidayDtos, 'PAID_HOLIDAY', 'SELECT_PAID_HOLIDAY')")
   public HttpEntity updateHolidaySelects(@RequestBody final List<PaidHolidayDto> paidHolidayDtos) {
     paidHolidayService.updateHolidaySelects(paidHolidayDtos);
     return new ResponseEntity<>(HttpStatus.OK);

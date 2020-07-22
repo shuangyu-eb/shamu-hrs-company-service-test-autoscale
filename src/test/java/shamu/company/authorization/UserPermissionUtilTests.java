@@ -33,11 +33,8 @@ import shamu.company.job.entity.Job;
 import shamu.company.redis.AuthUserCacheManager;
 import shamu.company.server.dto.AuthUser;
 import shamu.company.tests.utils.JwtUtil;
-import shamu.company.timeoff.entity.CompanyPaidHoliday;
-import shamu.company.timeoff.entity.PaidHoliday;
 import shamu.company.timeoff.entity.TimeOffPolicyUser;
 import shamu.company.timeoff.entity.TimeOffRequest;
-import shamu.company.timeoff.service.CompanyPaidHolidayService;
 import shamu.company.timeoff.service.PaidHolidayService;
 import shamu.company.timeoff.service.TimeOffPolicyService;
 import shamu.company.timeoff.service.TimeOffPolicyUserService;
@@ -59,7 +56,6 @@ class UserPermissionUtilTests {
   @Mock private TimeOffPolicyUserService timeOffPolicyUserService;
   @Mock private TimeOffPolicyService timeOffPolicyService;
   @Mock private PaidHolidayService paidHolidayService;
-  @Mock private CompanyPaidHolidayService companyPaidHolidayService;
   @Mock private AuthUserCacheManager cacheManager;
   @Mock private UserEmergencyContactService userEmergencyContactService;
   @InjectMocks private UserPermissionUtils userPermissionUtils;
@@ -472,92 +468,6 @@ class UserPermissionUtilTests {
 
       final Name permission = Name.VIEW_USER_EMERGENCY_CONTACT;
       final Type permissionType = Type.USER_EMERGENCY_CONTACT;
-      assertThat(
-              userPermissionUtils.hasPermission(
-                  getAuthentication(),
-                  RandomStringUtils.randomAlphabetic(16),
-                  permissionType,
-                  permission))
-          .isFalse();
-    }
-  }
-
-  @Nested
-  class HasPermissionOfCompanyPaidHoliday {
-
-    Name permission;
-    Type permissionType;
-    PaidHoliday paidHoliday;
-    CompanyPaidHoliday companyPaidHoliday;
-
-    @BeforeEach
-    void setUp() {
-      permission = Name.VIEW_USER_EMERGENCY_CONTACT;
-      permissionType = Type.COMPANY_PAID_HOLIDAY;
-    }
-
-    @Test
-    void whenCompanyHolidayIsNull_thenShouldReturnFalse() {
-
-      assertThat(
-              userPermissionUtils.hasPermission(
-                  getAuthentication(),
-                  RandomStringUtils.randomAlphabetic(16),
-                  permissionType,
-                  permission))
-          .isFalse();
-    }
-
-    @Test
-    void whenHasCompanyPaidHolidayPermissionAndEntityNull_thenShouldReturnTrue() {
-      paidHoliday = new PaidHoliday();
-      companyPaidHoliday = new CompanyPaidHoliday();
-      companyPaidHoliday.setPaidHoliday(paidHoliday);
-      Mockito.when(
-              companyPaidHolidayService.findCompanyPaidHolidayByPaidHolidayIdAndCompanyId(
-                  Mockito.anyString(), Mockito.anyString()))
-          .thenReturn(companyPaidHoliday);
-      initAuthenticationWithPermission(Collections.singletonList(permission.name()));
-      assertThat(
-              userPermissionUtils.hasPermission(
-                  getAuthentication(),
-                  RandomStringUtils.randomAlphabetic(16),
-                  permissionType,
-                  permission))
-          .isTrue();
-    }
-
-    @Test
-    void whenHasPermissionAndEntityNullPaidHolidayNotEmpty_thenShouldReturnFalse() {
-      final User creator = new User();
-      creator.setId("1");
-      paidHoliday = new PaidHoliday();
-      paidHoliday.setCreator(creator);
-      companyPaidHoliday = new CompanyPaidHoliday();
-      companyPaidHoliday.setPaidHoliday(paidHoliday);
-      Mockito.when(
-              companyPaidHolidayService.findCompanyPaidHolidayByPaidHolidayIdAndCompanyId(
-                  Mockito.anyString(), Mockito.anyString()))
-          .thenReturn(companyPaidHoliday);
-      initAuthenticationWithPermission(Collections.singletonList(permission.name()));
-      assertThat(
-              userPermissionUtils.hasPermission(
-                  getAuthentication(),
-                  RandomStringUtils.randomAlphabetic(16),
-                  permissionType,
-                  permission))
-          .isFalse();
-    }
-
-    @Test
-    void whenNoCompanyPaidHolidayPermissionAndEntityNull_thenShouldReturnFalse() {
-      paidHoliday = new PaidHoliday();
-      companyPaidHoliday = new CompanyPaidHoliday();
-      companyPaidHoliday.setPaidHoliday(paidHoliday);
-      Mockito.when(
-              companyPaidHolidayService.findCompanyPaidHolidayByPaidHolidayIdAndCompanyId(
-                  Mockito.anyString(), Mockito.anyString()))
-          .thenReturn(companyPaidHoliday);
       assertThat(
               userPermissionUtils.hasPermission(
                   getAuthentication(),

@@ -37,7 +37,6 @@ import shamu.company.server.dto.AuthUser;
 import shamu.company.server.service.CompanyEmailService;
 import shamu.company.server.service.CompanyUserService;
 import shamu.company.tests.utils.JwtUtil;
-import shamu.company.timeoff.service.CompanyPaidHolidayService;
 import shamu.company.timeoff.service.PaidHolidayService;
 import shamu.company.timeoff.service.TimeOffPolicyService;
 import shamu.company.timeoff.service.TimeOffPolicyUserService;
@@ -78,7 +77,6 @@ public class WebControllerBaseTests {
   @MockBean protected TimeOffPolicyUserService timeOffPolicyUserService;
   @MockBean protected TimeOffPolicyService timeOffPolicyService;
   @MockBean protected PaidHolidayService paidHolidayService;
-  @MockBean protected CompanyPaidHolidayService companyPaidHolidayService;
   @MockBean protected JobService jobService;
   @MockBean protected UserEmergencyContactService userEmergencyContactService;
   @MockBean protected BenefitPlanTypeService benefitPlanTypeService;
