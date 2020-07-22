@@ -20,14 +20,44 @@ public class AttendanceSettingsControllerTests extends WebControllerBaseTests {
   private MockMvc mockMvc;
 
   @Test
-  void testFindSettings() throws Exception {
+  void testFindCompanySettings() throws Exception {
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
 
     final MvcResult response =
         mockMvc
             .perform(
-                MockMvcRequestBuilders.get("/company/time-and-attendance/settings")
+                MockMvcRequestBuilders.get("/company/time-and-attendance/companySettings")
+                    .headers(httpHeaders))
+            .andReturn();
+
+    assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+  }
+
+  @Test
+  void testFindEmployeeSettings() throws Exception {
+    final HttpHeaders httpHeaders = new HttpHeaders();
+    httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.get("/company/time-and-attendance/employeeSettings/1")
+                    .headers(httpHeaders))
+            .andReturn();
+
+    assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+  }
+
+  @Test
+  void testFindAllTimezones() throws Exception {
+    final HttpHeaders httpHeaders = new HttpHeaders();
+    httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.get("/company/time-and-attendance/static-timezones")
                     .headers(httpHeaders))
             .andReturn();
 

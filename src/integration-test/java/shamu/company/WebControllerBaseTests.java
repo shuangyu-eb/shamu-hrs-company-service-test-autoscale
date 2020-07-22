@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.context.SecurityContextHolder;
 import shamu.company.attendance.entity.mapper.CompanyTaSettingsMapper;
+import shamu.company.attendance.entity.mapper.EmployeesTaSettingsMapper;
 import shamu.company.attendance.service.AttendanceMyHoursService;
 import shamu.company.attendance.service.AttendanceSetUpService;
 import shamu.company.attendance.service.AttendanceSettingsService;
@@ -86,6 +87,7 @@ public class WebControllerBaseTests {
   @MockBean protected AttendanceMyHoursService attendanceMyHoursService;
   @MockBean protected AttendanceSettingsService attendanceSettingsService;
   @MockBean protected CompanyTaSettingsMapper companyTaSettingsMapper;
+  @MockBean protected EmployeesTaSettingsMapper employeesTaSettingsMapper;
 
   protected HttpHeaders httpHeaders;
 

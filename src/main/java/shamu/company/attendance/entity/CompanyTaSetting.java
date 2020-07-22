@@ -31,6 +31,10 @@ public class CompanyTaSetting extends BaseEntity {
 
   private String startOfWeek;
 
+  private int messagingOn;
+
+  private int overtimeAlert;
+
   public CompanyTaSetting(
       final Company company,
       final StaticCompanyPayFrequencyType payFrequencyType,

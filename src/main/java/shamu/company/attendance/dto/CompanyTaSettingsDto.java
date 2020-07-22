@@ -19,4 +19,8 @@ public class CompanyTaSettingsDto {
   private Timestamp lastPayrollPayday;
 
   private String startOfWeek;
+
+  private int messagingOn;
+
+  private int overtimeAlert;
 }
