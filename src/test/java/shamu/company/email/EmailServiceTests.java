@@ -9,12 +9,14 @@ import org.mockito.MockitoAnnotations;
 import org.powermock.reflect.Whitebox;
 import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.Context;
+import shamu.company.common.service.TenantService;
 import shamu.company.company.entity.Company;
 import shamu.company.company.service.CompanyService;
 import shamu.company.email.entity.Email;
 import shamu.company.email.event.EmailEvent;
 import shamu.company.email.event.EmailStatus;
 import shamu.company.email.repository.EmailRepository;
+import shamu.company.email.repository.EmailTaskRepository;
 import shamu.company.email.service.EmailService;
 import shamu.company.helpers.s3.AwsHelper;
 import shamu.company.scheduler.QuartzJobScheduler;
@@ -56,6 +58,10 @@ class EmailServiceTests {
 
   @Mock private CompanyService companyService;
 
+  @Mock private EmailTaskRepository emailTaskRepository;
+
+  @Mock private TenantService tenantService;
+
   @BeforeEach
   void init() {
     MockitoAnnotations.initMocks(this);
@@ -68,7 +74,9 @@ class EmailServiceTests {
             userService,
             awsHelper,
             quartzJobScheduler,
-            companyService);
+            companyService,
+            emailTaskRepository,
+            tenantService);
     email = new Email();
   }
 

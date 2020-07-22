@@ -30,6 +30,7 @@ import shamu.company.client.PactsafeCompanyDto;
 import shamu.company.common.exception.errormapping.AlreadyExistsException;
 import shamu.company.common.exception.errormapping.EmailAlreadyVerifiedException;
 import shamu.company.common.exception.errormapping.ResourceNotFoundException;
+import shamu.company.common.multitenant.TenantContext;
 import shamu.company.company.entity.Company;
 import shamu.company.company.entity.CompanyBenefitsSetting;
 import shamu.company.company.repository.CompanyRepository;
@@ -504,6 +505,7 @@ public class UserService {
       final Map<String, Object> jobParameter = new HashMap<>();
       jobParameter.put("UserStatusUpdateDto", userStatusUpdateDto);
       jobParameter.put("User", user);
+      jobParameter.put("companyId", TenantContext.getCurrentTenant());
       quartzJobScheduler.addOrUpdateJobSchedule(
           DeactivateUserJob.class,
           user.getId(),

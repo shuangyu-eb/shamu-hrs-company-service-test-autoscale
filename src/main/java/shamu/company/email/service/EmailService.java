@@ -11,11 +11,15 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.Context;
 import shamu.company.common.exception.errormapping.ResourceNotFoundException;
+import shamu.company.common.multitenant.TenantContext;
+import shamu.company.common.service.TenantService;
 import shamu.company.company.service.CompanyService;
 import shamu.company.email.entity.Email;
 import shamu.company.email.event.EmailEvent;
 import shamu.company.email.event.EmailStatus;
 import shamu.company.email.repository.EmailRepository;
+import shamu.company.email.repository.EmailTaskRepository;
+import shamu.company.helpers.EmailHelper;
 import shamu.company.helpers.s3.AwsHelper;
 import shamu.company.scheduler.QuartzJobScheduler;
 import shamu.company.scheduler.job.SendEmailJob;
@@ -115,9 +119,15 @@ public class EmailService {
 
   private final QuartzJobScheduler quartzJobScheduler;
 
+  private final EmailTaskRepository emailTaskRepository;
+
+  private final TenantService tenantService;
+
   private static final String CURRENT_YEAR = "currentYear";
 
   private static final String AMERICA_MANAGUA = "America/Managua";
+
+  private static final String COMPANY_ID = "companyId";
 
   @Autowired
   public EmailService(
@@ -127,7 +137,9 @@ public class EmailService {
       @Lazy final UserService userService,
       final AwsHelper awsHelper,
       final QuartzJobScheduler quartzJobScheduler,
-      final CompanyService companyService) {
+      final CompanyService companyService,
+      final EmailTaskRepository emailTaskRepository,
+      final TenantService tenantService) {
     this.emailRepository = emailRepository;
     this.emailRetryLimit = emailRetryLimit;
     this.templateEngine = templateEngine;
@@ -135,6 +147,8 @@ public class EmailService {
     this.awsHelper = awsHelper;
     this.quartzJobScheduler = quartzJobScheduler;
     this.companyService = companyService;
+    this.emailTaskRepository = emailTaskRepository;
+    this.tenantService = tenantService;
   }
 
   public Email save(final Email email) {
@@ -155,13 +169,23 @@ public class EmailService {
   }
 
   public List<Email> findAllUnfinishedTasks() {
-    return emailRepository.findAllUnfinishedTasks(emailRetryLimit);
+    final Set<String> schemas = tenantService.findAllSchemaNames();
+    final List<Email> tasks = new ArrayList<>();
+    schemas.forEach(
+        schema -> {
+          final List<Email> emails =
+              emailTaskRepository.findAllUnfinishedTasks(schema, emailRetryLimit);
+          tasks.addAll(emails);
+        });
+
+    return tasks;
   }
 
   private void scheduleEmail(final Email email) {
     final Timestamp sendDate = email.getSendDate();
     final Map<String, Object> jobParameter = new HashMap<>();
     jobParameter.put("emailId", email.getId());
+    jobParameter.put(COMPANY_ID, TenantContext.getCurrentTenant());
     quartzJobScheduler.addOrUpdateJobSchedule(
         SendEmailJob.class,
         email.getId(),
@@ -288,6 +312,15 @@ public class EmailService {
     return context;
   }
 
+  private String getEncodedCompanyId() {
+    final String companyId = TenantContext.getCurrentTenant();
+    if (StringUtils.isEmpty(companyId)) {
+      return "";
+    }
+    final byte[] reverseCompanyId = StringUtils.reverse(companyId).getBytes();
+    return Base64.getEncoder().encodeToString(reverseCompanyId);
+  }
+
   public String getEncodedEmailAddress(final String emailAddress) {
     if (Strings.isBlank(emailAddress) || !Pattern.matches("^[a-zA-Z0-9@.+]*$", emailAddress)) {
       return "";
@@ -309,6 +342,7 @@ public class EmailService {
     context.setVariable("toEmailAddress", getEncodedEmailAddress(toEmail));
     context.setVariable(
         "passwordResetAddress", String.format("account/reset-password/%s", passwordRestToken));
+    context.setVariable(COMPANY_ID, getEncodedCompanyId());
     return templateEngine.process("password_reset_email.html", context);
   }
 
@@ -323,6 +357,7 @@ public class EmailService {
             zonedDateTime.withZoneSameInstant(ZoneId.of(AMERICA_MANAGUA)).toLocalDateTime(),
             "YYYY");
     context.setVariable(CURRENT_YEAR, currentYear);
+    context.setVariable(COMPANY_ID, getEncodedCompanyId());
     return templateEngine.process("verify_change_work_email.html", context);
   }
 
