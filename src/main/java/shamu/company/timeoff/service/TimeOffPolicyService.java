@@ -210,8 +210,7 @@ public class TimeOffPolicyService {
       final String companyId,
       final Integer existNumber) {
     final Integer existSamePolicyName =
-        timeOffPolicyRepository.findByPolicyNameAndCompanyId(
-            timeOffPolicyFrontendDto.getPolicyName(), companyId);
+        timeOffPolicyRepository.countByName(timeOffPolicyFrontendDto.getPolicyName());
     if (existSamePolicyName > existNumber) {
       throw new AlreadyExistsException(
           "Time Off policy name already exists", "time off policy name");
@@ -350,7 +349,7 @@ public class TimeOffPolicyService {
 
   public void addUserToAutoEnrolledPolicy(final String userId, final String companyId) {
     final List<TimeOffPolicy> timeOffPolicyList =
-        timeOffPolicyRepository.findByCompanyIdAndIsAutoEnrollEnabledIsTrue(companyId);
+        timeOffPolicyRepository.findByIsAutoEnrollEnabledIsTrue();
     final Company company = companyService.findById(companyId);
 
     final List<TimeOffPolicyUser> timeOffPolicyUserList =
@@ -545,9 +544,8 @@ public class TimeOffPolicyService {
     return timeOffPolicyAccrualScheduleRepository.findByTimeOffPolicy(timeOffPolicy);
   }
 
-  public List<TimeOffPolicyListDto> getAllPolicies(final String companyId) {
-    final List<TimeOffPolicyListPojo> timeOffPolicies =
-        timeOffPolicyRepository.getAllPolicies(companyId);
+  public List<TimeOffPolicyListDto> getAllPolicies() {
+    final List<TimeOffPolicyListPojo> timeOffPolicies = timeOffPolicyRepository.getAllPolicies();
     final Iterator<TimeOffPolicyListPojo> timeOffPolicyIterator = timeOffPolicies.iterator();
 
     final List<TimeOffPolicyListDto> timeOffPolicyListDtoList = new ArrayList<>();

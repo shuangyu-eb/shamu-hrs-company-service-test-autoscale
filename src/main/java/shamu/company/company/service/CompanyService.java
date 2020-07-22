@@ -189,14 +189,14 @@ public class CompanyService {
 
   public CompanyBenefitsSettingDto findCompanyBenefitsSetting(final String companyId) {
     final CompanyBenefitsSetting benefitsSetting =
-        companyBenefitsSettingService.findByCompanyId(companyId);
+        companyBenefitsSettingService.getCompanyBenefitsSetting();
     return companyBenefitsSettingMapper.convertCompanyBenefitsSettingDto(benefitsSetting);
   }
 
   public void updateBenefitSettingAutomaticRollover(
       final String companyId, final Boolean isTurnOn) {
     final CompanyBenefitsSetting benefitsSetting =
-        companyBenefitsSettingService.findByCompanyId(companyId);
+        companyBenefitsSettingService.getCompanyBenefitsSetting();
     benefitsSetting.setIsAutomaticRollover(isTurnOn);
     companyBenefitsSettingService.save(benefitsSetting);
   }
@@ -204,7 +204,7 @@ public class CompanyService {
   public void updateEnrollmentPeriod(
       final String companyId, final CompanyBenefitsSettingDto companyBenefitsSettingDto) {
     final CompanyBenefitsSetting benefitsSetting =
-        companyBenefitsSettingService.findByCompanyId(companyId);
+        companyBenefitsSettingService.getCompanyBenefitsSetting();
     benefitsSetting.setStartDate(companyBenefitsSettingDto.getStartDate());
     benefitsSetting.setEndDate(companyBenefitsSettingDto.getEndDate());
     companyBenefitsSettingService.save(benefitsSetting);

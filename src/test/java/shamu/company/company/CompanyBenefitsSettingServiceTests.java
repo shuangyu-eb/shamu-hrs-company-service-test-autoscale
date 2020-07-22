@@ -24,7 +24,7 @@ public class CompanyBenefitsSettingServiceTests {
 
   @Test
   void testFindByCompanyId() {
-    assertThatCode(() -> companyBenefitsSettingService.findByCompanyId("1"))
+    assertThatCode(() -> companyBenefitsSettingService.getCompanyBenefitsSetting())
         .doesNotThrowAnyException();
   }
 

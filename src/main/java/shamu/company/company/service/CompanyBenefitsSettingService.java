@@ -9,18 +9,18 @@ import shamu.company.company.repository.CompanyBenefitsSettingRepository;
 @Transactional
 public class CompanyBenefitsSettingService {
 
-  private CompanyBenefitsSettingRepository companyBenefitsSettingRepository;
+  private final CompanyBenefitsSettingRepository companyBenefitsSettingRepository;
 
   public CompanyBenefitsSettingService(
       final CompanyBenefitsSettingRepository companyBenefitsSettingRepository) {
     this.companyBenefitsSettingRepository = companyBenefitsSettingRepository;
   }
 
-  public CompanyBenefitsSetting findByCompanyId(String id) {
-    return companyBenefitsSettingRepository.findCompanyBenefitsSettingByCompanyId(id);
+  public CompanyBenefitsSetting getCompanyBenefitsSetting() {
+    return companyBenefitsSettingRepository.findAll().get(0);
   }
 
-  public CompanyBenefitsSetting save(CompanyBenefitsSetting benefitsSetting) {
+  public CompanyBenefitsSetting save(final CompanyBenefitsSetting benefitsSetting) {
     return companyBenefitsSettingRepository.save(benefitsSetting);
   }
 }

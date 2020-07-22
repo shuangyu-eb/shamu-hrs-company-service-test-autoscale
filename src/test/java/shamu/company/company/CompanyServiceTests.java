@@ -158,14 +158,14 @@ public class CompanyServiceTests {
 
   @Test
   void testFindCompanyBenefitsSetting() {
-    Mockito.when(companyBenefitsSettingService.findByCompanyId(Mockito.anyString()))
+    Mockito.when(companyBenefitsSettingService.getCompanyBenefitsSetting())
         .thenReturn(benefitsSetting);
     assertThatCode(() -> companyService.findCompanyBenefitsSetting("1")).doesNotThrowAnyException();
   }
 
   @Test
   void testUpdateBenefitSettingAutomaticRollover() {
-    Mockito.when(companyBenefitsSettingService.findByCompanyId(Mockito.anyString()))
+    Mockito.when(companyBenefitsSettingService.getCompanyBenefitsSetting())
         .thenReturn(benefitsSetting);
     assertThatCode(() -> companyService.updateBenefitSettingAutomaticRollover("1", true))
         .doesNotThrowAnyException();
@@ -176,7 +176,7 @@ public class CompanyServiceTests {
     final CompanyBenefitsSettingDto companyBenefitsSettingDto = new CompanyBenefitsSettingDto();
     companyBenefitsSettingDto.setStartDate(new Date(36000));
     companyBenefitsSettingDto.setEndDate(new Date(360000));
-    Mockito.when(companyBenefitsSettingService.findByCompanyId(Mockito.anyString()))
+    Mockito.when(companyBenefitsSettingService.getCompanyBenefitsSetting())
         .thenReturn(benefitsSetting);
     assertThatCode(() -> companyService.updateEnrollmentPeriod("1", companyBenefitsSettingDto))
         .doesNotThrowAnyException();

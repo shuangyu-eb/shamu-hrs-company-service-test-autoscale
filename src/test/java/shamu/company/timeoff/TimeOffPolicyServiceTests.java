@@ -430,9 +430,8 @@ public class TimeOffPolicyServiceTests {
         };
     timeOffPolicies.add(timeOffPolicyListPojo);
 
-    Mockito.when(timeOffPolicyRepository.getAllPolicies(Mockito.any())).thenReturn(timeOffPolicies);
-    Assertions.assertDoesNotThrow(
-        () -> timeOffPolicyService.getAllPolicies(new Company("1").getId()));
+    Mockito.when(timeOffPolicyRepository.getAllPolicies()).thenReturn(timeOffPolicies);
+    Assertions.assertDoesNotThrow(() -> timeOffPolicyService.getAllPolicies());
   }
 
   @Test
@@ -643,7 +642,7 @@ public class TimeOffPolicyServiceTests {
     final List<TimeOffPolicy> timeOffPolicyList = new ArrayList<>();
     timeOffPolicyList.add(timeOffPolicy);
     Mockito.when(companyService.findById(Mockito.anyString())).thenReturn(company);
-    Mockito.when(timeOffPolicyRepository.findByCompanyIdAndIsAutoEnrollEnabledIsTrue(Mockito.any()))
+    Mockito.when(timeOffPolicyRepository.findByIsAutoEnrollEnabledIsTrue())
         .thenReturn(timeOffPolicyList);
 
     Assertions.assertDoesNotThrow(() -> timeOffPolicyService.addUserToAutoEnrolledPolicy("1", "1"));
@@ -724,9 +723,7 @@ public class TimeOffPolicyServiceTests {
     @Test
     void whenExistSamePolicyNameMoreThanZero_thenShouldSuccess() {
 
-      Mockito.when(
-              timeOffPolicyRepository.findByPolicyNameAndCompanyId(
-                  timeOffPolicy.getPolicyName(), company.getId()))
+      Mockito.when(timeOffPolicyRepository.countByName(timeOffPolicy.getPolicyName()))
           .thenReturn(0);
 
       Assertions.assertDoesNotThrow(
@@ -739,9 +736,7 @@ public class TimeOffPolicyServiceTests {
     @Test
     void whenExistSamePolicyNameLessThanZero_thenShouldThrow() {
 
-      Mockito.when(
-              timeOffPolicyRepository.findByPolicyNameAndCompanyId(
-                  timeOffPolicy.getPolicyName(), company.getId()))
+      Mockito.when(timeOffPolicyRepository.countByName(timeOffPolicy.getPolicyName()))
           .thenReturn(1);
 
       assertThatExceptionOfType(AlreadyExistsException.class)

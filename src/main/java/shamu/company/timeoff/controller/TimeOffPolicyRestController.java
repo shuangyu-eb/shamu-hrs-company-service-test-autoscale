@@ -138,7 +138,7 @@ public class TimeOffPolicyRestController extends BaseRestController {
 
   @GetMapping("time-off-policies")
   public List<TimeOffPolicyListDto> getAllPolicies() {
-    return timeOffPolicyService.getAllPolicies(findCompanyId());
+    return timeOffPolicyService.getAllPolicies();
   }
 
   @GetMapping("time-off-balances/{policyUserId}/breakdown")

@@ -451,9 +451,9 @@ public class BenefitPlanService {
     benefitPlanRepository.save(benefitPlan);
   }
 
-  public List<BenefitPlanTypeWithoutExpiredDto> getBenefitPlanTypesAndNum(final String companyId) {
+  public List<BenefitPlanTypeWithoutExpiredDto> getBenefitPlanTypesAndNum() {
     final List<BenefitPlanTypeDto> benefitPlanTypes =
-        benefitPlanRepository.findPlanTypeAndNumByCompanyIdOrderByTypeId(companyId);
+        benefitPlanRepository.findPlanTypeAndNumByCompanyIdOrderByTypeId();
 
     final Map<String, List<BenefitPlanTypeDto>> categoryMap = new HashMap<>();
     for (final BenefitPlanTypeDto benefitPlanTypeDto : benefitPlanTypes) {
@@ -497,11 +497,9 @@ public class BenefitPlanService {
     return new ArrayList<>();
   }
 
-  public List<BenefitPlanPreviewDto> getBenefitPlanPreview(
-      final String companyId, final String planTypeId) {
+  public List<BenefitPlanPreviewDto> getBenefitPlanPreview(final String planTypeId) {
     final List<BenefitPlan> benefitPlans =
-        benefitPlanRepository.findByBenefitPlanTypeIdAndCompanyIdOrderByNameAsc(
-            planTypeId, companyId);
+        benefitPlanRepository.findByBenefitPlanTypeIdOrderByNameAsc(planTypeId);
 
     final List<BenefitPlanPreviewDto> benefitPlanPreviewDtos = new LinkedList<>();
 
@@ -643,8 +641,7 @@ public class BenefitPlanService {
   private void clearBenefitPlansEnrollmentInfoByPlanType(
       final BenefitPlanType benefitPlanType, final String companyId, final String userId) {
     final List<BenefitPlan> benefitPlans =
-        benefitPlanRepository.findByBenefitPlanTypeIdAndCompanyIdOrderByNameAsc(
-            benefitPlanType.getId(), companyId);
+        benefitPlanRepository.findByBenefitPlanTypeIdOrderByNameAsc(benefitPlanType.getId());
 
     benefitPlans.forEach(
         benefitPlan -> {
@@ -688,11 +685,10 @@ public class BenefitPlanService {
       final String companyId,
       final String userId) {
     benefitPlanRepository
-        .findByBenefitPlanTypeIdAndCompanyIdOrderByNameAsc(
+        .findByBenefitPlanTypeIdOrderByNameAsc(
             benefitPlanTypeRepository
                 .findByName(selectedEnrollmentInfoDto.getBenefitPlanType())
-                .getId(),
-            companyId)
+                .getId())
         .forEach(
             benefitPlan -> {
               if (benefitPlan.getId().equals(selectedEnrollmentInfoDto.getPlanId())) {
@@ -920,16 +916,14 @@ public class BenefitPlanService {
   }
 
   public BenefitPlanReportDto findBenefitPlanReport(
-      final String typeName,
-      final BenefitReportParamDto benefitReportParamDto,
-      final String companyId) {
+      final String typeName, final BenefitReportParamDto benefitReportParamDto) {
     final String coverageId = benefitReportParamDto.getCoverageId();
     List<String> benefitPlanIds = new ArrayList<>();
     List<EnrollmentBreakdownDto> enrollmentBreakdownDtos = new ArrayList<>();
 
     final BenefitPlanTypeEnum typeEnum =
         BenefitPlanTypeEnum.getEnumByDesc(benefitReportParamDto.getPlanId());
-    benefitPlanIds = getSearchBenefitPlanIds(typeEnum, benefitPlanIds, typeName, companyId);
+    benefitPlanIds = getSearchBenefitPlanIds(typeEnum, benefitPlanIds, typeName);
 
     if (BenefitPlanTypeEnum.OTHER.equals(typeEnum)) {
       benefitPlanIds = Collections.singletonList(benefitReportParamDto.getPlanId());
@@ -938,8 +932,7 @@ public class BenefitPlanService {
     }
 
     if (!CollectionUtils.isEmpty(benefitPlanIds) && !BenefitPlanTypeEnum.OTHER.equals(typeEnum)) {
-      enrollmentBreakdownDtos =
-          getEnrollmentBreakdownDtosByCoverage(coverageId, benefitPlanIds, companyId);
+      enrollmentBreakdownDtos = getEnrollmentBreakdownDtosByCoverage(coverageId, benefitPlanIds);
 
       int i = 1;
       for (final EnrollmentBreakdownDto enrollmentBreakdownDto : enrollmentBreakdownDtos) {
@@ -951,7 +944,7 @@ public class BenefitPlanService {
     final List<BenefitPlanReportSummaryDto> benefitPlanReportSummaryDtos =
         findBenefitPlanReportSummary(benefitReportParamDto, benefitPlanIds);
     final List<BenefitReportPlansDto> benefitReportPlansDtos =
-        findBenefitPlansByPlanTypeName(typeName, companyId);
+        findBenefitPlansByPlanTypeName(typeName);
     final List<BenefitReportCoveragesDto> benefitReportCoveragesDtos =
         findBenefitCoveragesByPlanIds(benefitPlanIds);
     return BenefitPlanReportDto.builder()
@@ -963,7 +956,7 @@ public class BenefitPlanService {
   }
 
   private List<EnrollmentBreakdownDto> getEnrollmentBreakdownDtosByCoverage(
-      final String coverageId, final List<String> benefitPlanIds, final String companyId) {
+      final String coverageId, final List<String> benefitPlanIds) {
     final List<EnrollmentBreakdownDto> enrollmentBreakdownDtos;
 
     if (StringUtils.isNotEmpty(coverageId) && !DEFAULT_ID.equals(coverageId)) {
@@ -980,25 +973,22 @@ public class BenefitPlanService {
       }
     } else {
       enrollmentBreakdownDtos =
-          benefitPlanRepository.getEnrollmentBreakdownWhenPlanIdIsEmpty(benefitPlanIds, companyId);
+          benefitPlanRepository.getEnrollmentBreakdownWhenPlanIdIsEmpty(benefitPlanIds);
     }
     return enrollmentBreakdownDtos;
   }
 
   private List<String> getSearchBenefitPlanIds(
-      final BenefitPlanTypeEnum typeEnum,
-      List<String> benefitPlanIds,
-      final String typeName,
-      final String companyId) {
+      final BenefitPlanTypeEnum typeEnum, List<String> benefitPlanIds, final String typeName) {
     switch (typeEnum) {
       case ACTIVE:
-        benefitPlanIds = benefitPlanRepository.getActiveBenefitPlanIds(typeName, companyId);
+        benefitPlanIds = benefitPlanRepository.getActiveBenefitPlanIds(typeName);
         break;
       case EXPIRED:
-        benefitPlanIds = benefitPlanRepository.getExpiredBenefitPlanIds(typeName, companyId);
+        benefitPlanIds = benefitPlanRepository.getExpiredBenefitPlanIds(typeName);
         break;
       case STARTING:
-        benefitPlanIds = benefitPlanRepository.getStartingBenefitPlanIds(typeName, companyId);
+        benefitPlanIds = benefitPlanRepository.getStartingBenefitPlanIds(typeName);
         break;
       default:
         break;
@@ -1055,11 +1045,10 @@ public class BenefitPlanService {
     return benefitPlanReportSummaryDtos;
   }
 
-  public List<BenefitReportPlansDto> findBenefitPlansByPlanTypeName(
-      final String typeName, final String companyId) {
+  public List<BenefitReportPlansDto> findBenefitPlansByPlanTypeName(final String typeName) {
     final List<BenefitReportPlansDto> benefitReportPlansDtos = new ArrayList<>();
     final List<BenefitReportPlansPojo> benefitReportPlansPojos =
-        benefitPlanRepository.getBenefitPlans(typeName, companyId);
+        benefitPlanRepository.getBenefitPlans(typeName);
     for (final BenefitReportPlansPojo benefitReportPlansPojo : benefitReportPlansPojos) {
       final BenefitReportPlansDto benefitReportPlansDto = new BenefitReportPlansDto();
       BeanUtils.copyProperties(benefitReportPlansPojo, benefitReportPlansDto);
@@ -1110,30 +1099,25 @@ public class BenefitPlanService {
   public Page<EnrollmentBreakdownDto> findEnrollmentBreakdown(
       final EnrollmentBreakdownSearchCondition enrollmentBreakdownSearchCondition,
       final String planTypeName,
-      final BenefitReportParamDto benefitReportParamDto,
-      final String companyId) {
+      final BenefitReportParamDto benefitReportParamDto) {
     final String coverageId = enrollmentBreakdownSearchCondition.getCoverageId();
     List<String> benefitPlanIds = new ArrayList<>();
     final Pageable paramPageable = getPageable(enrollmentBreakdownSearchCondition);
 
     final BenefitPlanTypeEnum typeEnum =
         BenefitPlanTypeEnum.getEnumByDesc(benefitReportParamDto.getPlanId());
-    benefitPlanIds = getSearchBenefitPlanIds(typeEnum, benefitPlanIds, planTypeName, companyId);
+    benefitPlanIds = getSearchBenefitPlanIds(typeEnum, benefitPlanIds, planTypeName);
 
     if (typeEnum.equals(BenefitPlanTypeEnum.OTHER)) {
       benefitPlanIds = Collections.singletonList(benefitReportParamDto.getPlanId());
       return findEnrollmentBreakdownByCondition(
           paramPageable, benefitReportParamDto, benefitPlanIds);
     }
-    return getEnrollmentBreakdownPageByCoverage(
-        benefitPlanIds, paramPageable, coverageId, companyId);
+    return getEnrollmentBreakdownPageByCoverage(benefitPlanIds, paramPageable, coverageId);
   }
 
   private PageImpl getEnrollmentBreakdownPageByCoverage(
-      final List<String> benefitPlanIds,
-      final Pageable paramPageable,
-      final String coverageId,
-      final String companyId) {
+      final List<String> benefitPlanIds, final Pageable paramPageable, final String coverageId) {
     final Page<EnrollmentBreakdownPojo> enrollmentBreakdownDtoPage;
     List<EnrollmentBreakdownDto> enrollmentBreakdownDtos = new ArrayList<>();
 
@@ -1154,7 +1138,7 @@ public class BenefitPlanService {
       } else {
         enrollmentBreakdownDtoPage =
             benefitPlanRepository.getEnrollmentBreakdownByConditionAndPlanIdIsEmpty(
-                benefitPlanIds, companyId, paramPageable);
+                benefitPlanIds, paramPageable);
       }
       enrollmentBreakdownDtos =
           findEnrollmentBreakdownContent(enrollmentBreakdownDtoPage.getContent());
@@ -1269,18 +1253,16 @@ public class BenefitPlanService {
 
   public Page<BenefitPlanPreviewDto> findBenefitPlans(
       final String planTypeId,
-      final String companyId,
       final boolean expired,
       final BenefitPlanSearchCondition benefitPlanSearchCondition) {
     final Pageable paramPageable = getBenefitPlanPageable(benefitPlanSearchCondition);
     final Page<BenefitPlanPreviewPojo> benefitPlanPreviewDtoPage;
     if (expired) {
       benefitPlanPreviewDtoPage =
-          benefitPlanRepository.getBenefitPlanList(planTypeId, companyId, paramPageable);
+          benefitPlanRepository.getBenefitPlanList(planTypeId, paramPageable);
     } else {
       benefitPlanPreviewDtoPage =
-          benefitPlanRepository.getBenefitPlanListWithOutExpired(
-              planTypeId, companyId, paramPageable);
+          benefitPlanRepository.getBenefitPlanListWithOutExpired(planTypeId, paramPageable);
     }
     final List<BenefitPlanPreviewDto> benefitPlanPreviewDtos =
         findBenefitPlanContent(benefitPlanPreviewDtoPage.getContent());
@@ -1316,8 +1298,8 @@ public class BenefitPlanService {
         sortValue);
   }
 
-  public List<BenefitPlanDto> findAllPlans(final String companyId) {
-    final List<BenefitPlan> benefitPlans = benefitPlanRepository.findAllByCompanyId(companyId);
+  public List<BenefitPlanDto> findAllPlans() {
+    final List<BenefitPlan> benefitPlans = benefitPlanRepository.findAll();
     return benefitPlans.stream()
         .map(benefitPlanMapper::convertToBenefitPlanDto)
         .collect(Collectors.toList());

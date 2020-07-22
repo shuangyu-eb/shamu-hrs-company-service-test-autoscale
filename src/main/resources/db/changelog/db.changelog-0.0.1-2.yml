@@ -186,13 +186,6 @@ databaseChangeLog:
       author: haibo-eb
       changes:
         - sql:
-            sql: create trigger ins_states before insert on states for each row set new.id = unhex(replace(uuid(), '-', ''));
-
-  - changeSet:
-      id: 1594263749216-28
-      author: haibo-eb
-      changes:
-        - sql:
             sql: create trigger ins_time_period before insert on time_period for each row set new.id = unhex(replace(uuid(), '-', ''));
 
   - changeSet:
@@ -553,38 +546,20 @@ databaseChangeLog:
 
   - changeSet:
       id: 1594606148716-26
-      author: haibo-eb
-      changes:
-        - loadUpdateData:
-            columns:
-              - column:
-                  name: name
-                  type: STRING
-            file: db/changelog/data/states.csv
-            primaryKey: id
-            tableName: states
-
-  - changeSet:
-      id: 1594606148716-27
       author: michael-eb
       changes:
         - sql:
             sql: drop trigger ins_benefit_coverages;
 
   - changeSet:
-      id: 1594606148716-28
+      id: 1594606148716-27
       author: haibo-eb
       changes:
         - sql:
             sql: drop trigger ins_paid_holidays
+
   - changeSet:
-      id: 1594606148716-29
-      author: haibo-eb
-      changes:
-        - sql:
-            sql: drop trigger if exists ins_states
-  - changeSet:
-      id: 1594606148716-30
+      id: 1594606148716-28
       author: haibo-eb
       changes:
         - sql:
