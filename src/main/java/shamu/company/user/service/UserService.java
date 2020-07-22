@@ -269,16 +269,13 @@ public class UserService {
   }
 
   public Page<JobUserListItem> findAllEmployees(
-      final String userId, final EmployeeListSearchCondition employeeListSearchCondition) {
+      final EmployeeListSearchCondition employeeListSearchCondition) {
     if (!permissionUtils.hasAuthority(Name.VIEW_DISABLED_USER.name())) {
       employeeListSearchCondition.setIncludeDeactivated(false);
     }
 
-    final User currentUser = findActiveUserById(userId);
-    final String companyId = currentUser.getCompany().getId();
-
     final Pageable paramPageable = getPageable(employeeListSearchCondition);
-    return getAllEmployeesByCompany(employeeListSearchCondition, companyId, paramPageable);
+    return getAllEmployeesByCompany(employeeListSearchCondition, paramPageable);
   }
 
   private Pageable getPageable(final EmployeeListSearchCondition employeeListSearchCondition) {
@@ -293,16 +290,14 @@ public class UserService {
   }
 
   private Page<JobUserListItem> getAllEmployeesByCompany(
-      final EmployeeListSearchCondition employeeListSearchCondition,
-      final String companyId,
-      final Pageable pageable) {
-    return userRepository.getAllByCondition(employeeListSearchCondition, companyId, pageable);
+      final EmployeeListSearchCondition employeeListSearchCondition, final Pageable pageable) {
+    return userRepository.getAllByCondition(employeeListSearchCondition, pageable);
   }
 
   public Page<JobUserListItem> findAllEmployeesByName(
-      final EmployeeListSearchCondition employeeListSearchCondition, final String companyId) {
+      final EmployeeListSearchCondition employeeListSearchCondition) {
     final Pageable pageable = getPageable(employeeListSearchCondition);
-    return userRepository.getAllByName(employeeListSearchCondition, companyId, pageable);
+    return userRepository.getAllByName(employeeListSearchCondition, pageable);
   }
 
   public User save(final User user) {
@@ -314,8 +309,8 @@ public class UserService {
     return save(user);
   }
 
-  public List<JobUserDto> findAllJobUsers(final String companyId) {
-    final List<User> policyEmployees = userRepository.findAllByCompanyId(companyId);
+  public List<JobUserDto> findAllJobUsers() {
+    final List<User> policyEmployees = userRepository.findAllActiveUsers();
 
     return policyEmployees.stream()
         .map(
@@ -327,25 +322,25 @@ public class UserService {
         .collect(Collectors.toList());
   }
 
-  public List<User> findAllUsersByCompany(final String companyId) {
-    return userRepository.findAllByCompanyId(companyId);
+  public List<User> findAllUsersByCompany() {
+    return userRepository.findAllActiveUsers();
   }
 
-  public List<OrgChartDto> getOrgChart(final String userId, final String companyId) {
+  public List<OrgChartDto> getOrgChart(final String userId) {
     final List<OrgChartDto> orgChartDtoList = new ArrayList<>();
     List<OrgChartDto> orgChartManagerItemList = new ArrayList<>();
     if (!StringUtils.isBlank(userId)) {
-      final OrgChartDto manager = userRepository.findOrgChartItemByUserId(userId, companyId);
+      final OrgChartDto manager = userRepository.findOrgChartItemByUserId(userId);
       orgChartManagerItemList.add(manager);
       if (!orgChartManagerItemList.isEmpty()) {
         for (final OrgChartDto managerItem : orgChartManagerItemList) {
 
           final List<OrgChartDto> orgChartUserItemList =
-              userRepository.findOrgChartItemByManagerId(managerItem.getId(), companyId);
+              userRepository.findOrgChartItemByManagerId(managerItem.getId());
           orgChartUserItemList.forEach(
               (orgUser -> {
                 final Integer directReportsCount =
-                    userRepository.findDirectReportsCount(orgUser.getId(), companyId);
+                    userRepository.findDirectReportsCount(orgUser.getId());
                 orgUser.setDirectReportsCount(directReportsCount);
               }));
           managerItem.setDirectReports(orgChartUserItemList);
@@ -355,15 +350,15 @@ public class UserService {
       }
     } else {
       // retrieve company admin from database
-      orgChartManagerItemList = userRepository.findOrgChartItemByManagerId(null, companyId);
-      final Company company = companyRepository.findCompanyById(companyId);
-      final Integer allEmployeesCount = userRepository.findExistingUserCountByCompanyId(companyId);
+      orgChartManagerItemList = userRepository.findOrgChartItemByManagerId(null);
+      final Company company = companyService.getCompany();
+      final Integer allEmployeesCount = userRepository.countExistingUser();
       final OrgChartDto orgChartDto = userMapper.convertOrgChartDto(company);
       orgChartDto.setIsCompany(true);
       orgChartManagerItemList.forEach(
           (orgUser -> {
             final Integer directReportsCount =
-                userRepository.findDirectReportsCount(orgUser.getId(), companyId);
+                userRepository.findDirectReportsCount(orgUser.getId());
             orgUser.setDirectReportsCount(directReportsCount);
           }));
       orgChartDto.setDirectReportsCount(allEmployeesCount);
@@ -589,28 +584,28 @@ public class UserService {
 
     final UserStatus status = userStatusService.findByName(Status.ACTIVE.name());
 
-    User user =
+    final User user =
         User.builder()
             .userStatus(status)
             .userPersonalInformation(userPersonalInformation)
             .userContactInformation(userContactInformation)
-            .company(company)
             .verifiedAt(Timestamp.valueOf(DateUtil.getLocalUtcTime()))
             .userRole(userRoleService.getAdmin())
             .salt(UuidUtil.getUuidString())
             .build();
     user.setId(id);
 
-    user = userRepository.save(user);
+    userRepository.save(user);
 
-    paidHolidayService.initDefaultPaidHolidays(user.getCompany());
+    // TODO: It would be delete in another PR.
+    // paidHolidayService.initDefaultPaidHolidays(user.getCompany());
     overtimeService.createDefaultPolicy(company);
 
-    addTenant(user);
+    addTenant();
   }
 
-  public void addTenant(final User user) {
-    final Company company = user.getCompany();
+  public void addTenant() {
+    final Company company = companyService.getCompany();
     final PactsafeCompanyDto companyDto =
         PactsafeCompanyDto.builder().id(company.getId()).name(company.getName()).build();
 
@@ -626,8 +621,7 @@ public class UserService {
   }
 
   public boolean hasUserAccess(final User currentUser, final String targetUserId) {
-    final User targetUser =
-        userRepository.findByIdAndCompanyId(targetUserId, currentUser.getCompany().getId());
+    final User targetUser = userRepository.findActiveUserById(targetUserId);
     if (targetUser == null) {
       throw new ResourceNotFoundException(
           String.format("User with id %s not found.", targetUserId), targetUserId, "user");
@@ -854,12 +848,12 @@ public class UserService {
     save(user);
   }
 
-  public List<User> findByCompanyId(final String companyId) {
-    return userRepository.findByCompanyId(companyId);
+  public List<User> findAllActiveUsers() {
+    return userRepository.findAllActiveUsers();
   }
 
-  public List<User> findSubordinatesByManagerUserId(final String companyId, final String userId) {
-    return userRepository.findSubordinatesByManagerUserId(companyId, userId);
+  public List<User> findSubordinatesByManagerUserId(final String userId) {
+    return userRepository.findSubordinatesByManagerUserId(userId);
   }
 
   public User findByEmailWork(final String email) {
@@ -868,10 +862,6 @@ public class UserService {
 
   public List<User> findAllById(final List<String> ids) {
     return userRepository.findAllById(ids);
-  }
-
-  public List<User> findAllByCompanyId(final String companyId) {
-    return userRepository.findAllByCompanyId(companyId);
   }
 
   public void resendVerificationEmail(final String email) {
@@ -913,8 +903,8 @@ public class UserService {
     return userRepository.findSuperUser(companyId);
   }
 
-  public List<User> findUsersByCompanyIdAndUserRole(final String companyId, final String userRole) {
-    return userRepository.findUsersByCompanyIdAndUserRole(companyId, userRole);
+  public List<User> findUsersByCompanyIdAndUserRole(final String userRole) {
+    return userRepository.findUsersByUserRole(userRole);
   }
 
   // When the user has the same name in the user list, the user's email address needs to be added
@@ -953,8 +943,8 @@ public class UserService {
         && userAddress.getStreet1() != null;
   }
 
-  public List<User> findRegisteredUsersByCompany(final String companyId) {
-    final List<User> users = userRepository.findAllByCompanyId(companyId);
+  public List<User> findRegisteredUsers() {
+    final List<User> users = userRepository.findAll();
     return users.stream()
         .filter(user -> !user.getUserStatus().getStatus().equals(Status.PENDING_VERIFICATION))
         .collect(Collectors.toList());

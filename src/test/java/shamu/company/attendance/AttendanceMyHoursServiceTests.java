@@ -208,7 +208,6 @@ public class AttendanceMyHoursServiceTests {
     user.setId("1");
     final Company company = new Company();
     company.setId("1");
-    user.setCompany(company);
     timeSheet.setEmployee(user);
     final CompanyTaSetting companyTaSetting = new CompanyTaSetting();
     final StaticTimezone staticTimezone = new StaticTimezone();
@@ -280,7 +279,6 @@ public class AttendanceMyHoursServiceTests {
     final Company company = new Company();
     company.setId("1");
     user.setId("1");
-    user.setCompany(company);
     final TimePeriod timePeriod = new TimePeriod();
     timePeriod.setStartDate(Timestamp.valueOf(LocalDateTime.parse("2020-07-01T01:00:00")));
     timePeriod.setEndDate(Timestamp.valueOf(LocalDateTime.parse("2020-07-08T01:00:00")));

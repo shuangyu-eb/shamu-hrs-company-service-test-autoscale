@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import shamu.company.common.entity.StateProvince;
 import shamu.company.common.exception.errormapping.AlreadyExistsException;
-import shamu.company.common.exception.errormapping.ResourceNotFoundException;
 import shamu.company.common.service.DepartmentService;
 import shamu.company.common.service.OfficeService;
 import shamu.company.common.service.StateProvinceService;
@@ -172,37 +171,24 @@ public class CompanyService {
     return officeService.save(office);
   }
 
-  public Company findById(final String companyId) {
-    return companyRepository
-        .findById(companyId)
-        .orElseThrow(
-            () ->
-                new ResourceNotFoundException(
-                    String.format("Company with id %s not found!", companyId),
-                    companyId,
-                    "company"));
-  }
-
   public Company save(final Company company) {
     return companyRepository.save(company);
   }
 
-  public CompanyBenefitsSettingDto findCompanyBenefitsSetting(final String companyId) {
+  public CompanyBenefitsSettingDto findCompanyBenefitsSetting() {
     final CompanyBenefitsSetting benefitsSetting =
         companyBenefitsSettingService.getCompanyBenefitsSetting();
     return companyBenefitsSettingMapper.convertCompanyBenefitsSettingDto(benefitsSetting);
   }
 
-  public void updateBenefitSettingAutomaticRollover(
-      final String companyId, final Boolean isTurnOn) {
+  public void updateBenefitSettingAutomaticRollover(final Boolean isTurnOn) {
     final CompanyBenefitsSetting benefitsSetting =
         companyBenefitsSettingService.getCompanyBenefitsSetting();
     benefitsSetting.setIsAutomaticRollover(isTurnOn);
     companyBenefitsSettingService.save(benefitsSetting);
   }
 
-  public void updateEnrollmentPeriod(
-      final String companyId, final CompanyBenefitsSettingDto companyBenefitsSettingDto) {
+  public void updateEnrollmentPeriod(final CompanyBenefitsSettingDto companyBenefitsSettingDto) {
     final CompanyBenefitsSetting benefitsSetting =
         companyBenefitsSettingService.getCompanyBenefitsSetting();
     benefitsSetting.setStartDate(companyBenefitsSettingDto.getStartDate());
@@ -210,9 +196,9 @@ public class CompanyService {
     companyBenefitsSettingService.save(benefitsSetting);
   }
 
-  public String updateCompanyName(final String companyName, final String companyId) {
+  public String updateCompanyName(final String companyName) {
     if (!existsByName(companyName)) {
-      final Company company = companyRepository.findCompanyById(companyId);
+      final Company company = getCompany();
       company.setName(companyName);
       companyRepository.save(company);
     } else {
@@ -229,10 +215,13 @@ public class CompanyService {
     return companyRepository.findAllById(ids);
   }
 
-  public void updateIsPaidHolidaysAutoEnrolled(
-      final String companyId, final boolean isAutoEnrolled) {
-    final Company company = companyRepository.findCompanyById(companyId);
+  public void updateIsPaidHolidaysAutoEnrolled(final boolean isAutoEnrolled) {
+    final Company company = getCompany();
     company.setIsPaidHolidaysAutoEnroll(isAutoEnrolled);
     companyRepository.save(company);
+  }
+
+  public Company getCompany() {
+    return companyRepository.findAll().get(0);
   }
 }

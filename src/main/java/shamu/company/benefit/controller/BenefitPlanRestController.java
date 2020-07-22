@@ -211,7 +211,7 @@ public class BenefitPlanRestController extends BaseRestController {
   @PreAuthorize("hasPermission(#benefitPlanId, 'BENEFIT_PLAN', 'MANAGE_BENEFIT_PLAN')")
   public BenefitPlanRelatedUserListDto getEmployeesByBenefitPlanId(
       @PathVariable final String benefitPlanId) {
-    return benefitPlanService.findRelatedUsersByBenefitPlan(benefitPlanId, findCompanyId());
+    return benefitPlanService.findRelatedUsersByBenefitPlan(benefitPlanId);
   }
 
   @GetMapping("benefit-plan/{benefitPlanId}/selectedUsers")

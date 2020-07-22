@@ -46,13 +46,11 @@ public interface UserMapper {
   BenefitPlanUserDto convertToBenefitPlanUserDto(User user);
 
   @Mapping(target = "email", source = "userContactInformation.emailWork")
-  @Mapping(target = "companyId", source = "company.id")
   @Mapping(target = "role", source = "userRole")
   @Mapping(target = "managerId", source = "managerUser.id")
   AuthUser convertToAuthUser(User user);
 
   @Mapping(target = "email", source = "userContactInformation.emailWork")
-  @Mapping(target = "companyId", source = "company.id")
   MockUserDto convertToMockUserDto(User user);
 
   @Mapping(target = "id", source = "user.id")
@@ -61,7 +59,6 @@ public interface UserMapper {
   @Mapping(target = "imageUrl", source = "user.imageUrl")
   BenefitPlanUserDto covertToBenefitPlanUserDto(User user);
 
-  @Mapping(target = "id", source = "company.id")
   @Mapping(target = "firstName", source = "company.name")
   @Mapping(target = "imageUrl", source = "company.imageUrl")
   OrgChartDto convertOrgChartDto(Company company);

@@ -152,7 +152,6 @@ public class CompanyServiceTests {
 
   @Test
   void testSave() {
-
     assertThatCode(() -> companyService.save(new Company())).doesNotThrowAnyException();
   }
 
@@ -160,14 +159,14 @@ public class CompanyServiceTests {
   void testFindCompanyBenefitsSetting() {
     Mockito.when(companyBenefitsSettingService.getCompanyBenefitsSetting())
         .thenReturn(benefitsSetting);
-    assertThatCode(() -> companyService.findCompanyBenefitsSetting("1")).doesNotThrowAnyException();
+    assertThatCode(() -> companyService.findCompanyBenefitsSetting()).doesNotThrowAnyException();
   }
 
   @Test
   void testUpdateBenefitSettingAutomaticRollover() {
     Mockito.when(companyBenefitsSettingService.getCompanyBenefitsSetting())
         .thenReturn(benefitsSetting);
-    assertThatCode(() -> companyService.updateBenefitSettingAutomaticRollover("1", true))
+    assertThatCode(() -> companyService.updateBenefitSettingAutomaticRollover(true))
         .doesNotThrowAnyException();
   }
 
@@ -178,7 +177,7 @@ public class CompanyServiceTests {
     companyBenefitsSettingDto.setEndDate(new Date(360000));
     Mockito.when(companyBenefitsSettingService.getCompanyBenefitsSetting())
         .thenReturn(benefitsSetting);
-    assertThatCode(() -> companyService.updateEnrollmentPeriod("1", companyBenefitsSettingDto))
+    assertThatCode(() -> companyService.updateEnrollmentPeriod(companyBenefitsSettingDto))
         .doesNotThrowAnyException();
   }
 
@@ -189,7 +188,7 @@ public class CompanyServiceTests {
     void whenIdExists_thenShouldNotThrowException() {
       final Optional<Company> optional = Optional.of(new Company());
       Mockito.when(companyRepository.findById(Mockito.anyString())).thenReturn(optional);
-      assertThatCode(() -> companyService.findById("1")).doesNotThrowAnyException();
+      assertThatCode(() -> companyService.getCompany()).doesNotThrowAnyException();
     }
 
     @Test
@@ -197,7 +196,7 @@ public class CompanyServiceTests {
       final Optional optional = Optional.empty();
       Mockito.when(companyRepository.findById(Mockito.anyString())).thenReturn(optional);
       assertThatExceptionOfType(ResourceNotFoundException.class)
-          .isThrownBy(() -> companyService.findById("1"));
+          .isThrownBy(() -> companyService.getCompany());
     }
   }
 
@@ -208,18 +207,17 @@ public class CompanyServiceTests {
     void whenUpdateCompanyName_thenShouldNotThrowException() {
       final Company company = new Company();
       Mockito.when(companyService.existsByName(Mockito.anyString())).thenReturn(false);
-      Mockito.when(companyRepository.findCompanyById(Mockito.anyString())).thenReturn(company);
+      Mockito.when(companyRepository.findAll()).thenReturn(Collections.singletonList(company));
       Mockito.when(companyRepository.save(company)).thenReturn(company);
-      assertThatCode(() -> companyService.updateCompanyName("example", "companyId"))
-          .doesNotThrowAnyException();
-      assertThat(companyService.updateCompanyName("example2", "companyId")).isEqualTo("example2");
+      assertThatCode(() -> companyService.updateCompanyName("example")).doesNotThrowAnyException();
+      assertThat(companyService.updateCompanyName("example2")).isEqualTo("example2");
     }
 
     @Test
     void whenUpdateCompanyName_thenShouldThrowException() {
       Mockito.when(companyService.existsByName(Mockito.anyString())).thenReturn(true);
       assertThatExceptionOfType(AlreadyExistsException.class)
-          .isThrownBy(() -> companyService.updateCompanyName("example", "companyId"));
+          .isThrownBy(() -> companyService.updateCompanyName("example"));
     }
 
     @Test
@@ -253,8 +251,8 @@ public class CompanyServiceTests {
   @Test
   void testUpdateIsPaidHolidaysAutoEnrolled() {
     final Company company = new Company();
-    Mockito.when(companyRepository.findCompanyById(Mockito.anyString())).thenReturn(company);
-    assertThatCode(() -> companyService.updateIsPaidHolidaysAutoEnrolled("1", true))
+    Mockito.when(companyRepository.findAll()).thenReturn(Collections.singletonList(company));
+    assertThatCode(() -> companyService.updateIsPaidHolidaysAutoEnrolled(true))
         .doesNotThrowAnyException();
   }
 }

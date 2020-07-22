@@ -155,8 +155,7 @@ public class TimeOffPolicyService {
     this.userAddressService = userAddressService;
   }
 
-  public void createTimeOffPolicy(
-      final TimeOffPolicyWrapperDto timeOffPolicyWrapperDto, final String companyId) {
+  public void createTimeOffPolicy(final TimeOffPolicyWrapperDto timeOffPolicyWrapperDto) {
 
     final TimeOffPolicyFrontendDto timeOffPolicyFrontendDto =
         timeOffPolicyWrapperDto.getTimeOffPolicy();
@@ -166,28 +165,24 @@ public class TimeOffPolicyService {
         timeOffPolicyWrapperDto.getMilestones();
     final List<TimeOffPolicyUserFrontendDto> timeOffPolicyUserFrontendDtos =
         timeOffPolicyWrapperDto.getUserStartBalances();
-    final Company company = companyService.findById(companyId);
 
     createTimeOffPolicy(
         timeOffPolicyFrontendDto,
         timeOffPolicyAccrualScheduleDto,
         accrualScheduleMilestoneDtoList,
-        timeOffPolicyUserFrontendDtos,
-        company);
+        timeOffPolicyUserFrontendDtos);
   }
 
   private void createTimeOffPolicy(
       final TimeOffPolicyFrontendDto timeOffPolicyFrontendDto,
       final TimeOffPolicyAccrualScheduleDto timeOffPolicyAccrualScheduleDto,
       final List<AccrualScheduleMilestoneDto> accrualScheduleMilestoneDtoList,
-      final List<TimeOffPolicyUserFrontendDto> timeOffPolicyUserFrontendDtos,
-      final Company company) {
+      final List<TimeOffPolicyUserFrontendDto> timeOffPolicyUserFrontendDtos) {
 
-    checkPolicyNameIsExists(timeOffPolicyFrontendDto, company.getId(), 0);
+    checkPolicyNameIsExists(timeOffPolicyFrontendDto, 0);
     final TimeOffPolicy timeOffPolicy =
         timeOffPolicyRepository.save(
-            timeOffPolicyMapper.createFromTimeOffPolicyFrontendDtoAndCompany(
-                timeOffPolicyFrontendDto, company));
+            timeOffPolicyMapper.createFromTimeOffPolicyFrontendDto(timeOffPolicyFrontendDto));
     final String policyId = timeOffPolicy.getId();
     final String timeOffAccrualFrequencyId =
         timeOffPolicyAccrualScheduleDto.getTimeOffAccrualFrequencyId();
@@ -206,9 +201,7 @@ public class TimeOffPolicyService {
   }
 
   private void checkPolicyNameIsExists(
-      final TimeOffPolicyFrontendDto timeOffPolicyFrontendDto,
-      final String companyId,
-      final Integer existNumber) {
+      final TimeOffPolicyFrontendDto timeOffPolicyFrontendDto, final Integer existNumber) {
     final Integer existSamePolicyName =
         timeOffPolicyRepository.countByName(timeOffPolicyFrontendDto.getPolicyName());
     if (existSamePolicyName > existNumber) {
@@ -347,10 +340,10 @@ public class TimeOffPolicyService {
     }
   }
 
-  public void addUserToAutoEnrolledPolicy(final String userId, final String companyId) {
+  public void addUserToAutoEnrolledPolicy(final String userId) {
     final List<TimeOffPolicy> timeOffPolicyList =
         timeOffPolicyRepository.findByIsAutoEnrollEnabledIsTrue();
-    final Company company = companyService.findById(companyId);
+    final Company company = companyService.getCompany();
 
     final List<TimeOffPolicyUser> timeOffPolicyUserList =
         timeOffPolicyList.stream()
@@ -415,14 +408,14 @@ public class TimeOffPolicyService {
   }
 
   public TimeOffPolicyRelatedUserListDto getAllEmployeesByTimeOffPolicyId(
-      final String timeOffPolicyId, final String companyId) {
+      final String timeOffPolicyId) {
 
     final TimeOffPolicy timeOffPolicy = getTimeOffPolicyById(timeOffPolicyId);
 
     final List<TimeOffPolicyUser> timeOffPolicyUsers =
         timeOffPolicyUserRepository.findAllByTimeOffPolicyId(timeOffPolicyId);
 
-    final List<User> selectableTimeOffPolicyUsers = userRepository.findAllByCompanyId(companyId);
+    final List<User> selectableTimeOffPolicyUsers = userRepository.findAllActiveUsers();
 
     final ArrayList<String> selectedUsersIds = new ArrayList<>();
 
@@ -514,13 +507,12 @@ public class TimeOffPolicyService {
             .isEmpty();
   }
 
-  public void updateTimeOffPolicy(
-      final String id, final TimeOffPolicyWrapperDto infoWrapper, final String companyId) {
+  public void updateTimeOffPolicy(final String id, final TimeOffPolicyWrapperDto infoWrapper) {
 
     final TimeOffPolicyFrontendDto timeOffPolicyFrontendDto = infoWrapper.getTimeOffPolicy();
     final TimeOffPolicy origin = getTimeOffPolicyById(id);
 
-    checkPolicyNameIsExists(timeOffPolicyFrontendDto, companyId, 1);
+    checkPolicyNameIsExists(timeOffPolicyFrontendDto, 1);
 
     timeOffPolicyMapper.updateFromTimeOffPolicyFrontendDto(origin, timeOffPolicyFrontendDto);
 

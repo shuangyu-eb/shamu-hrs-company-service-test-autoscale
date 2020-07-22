@@ -176,7 +176,6 @@ public class BenefitPlanRestControllerTests extends WebControllerBaseTests {
     final AuthUser currentUser = getAuthUser();
     final User targetUser = new User();
     final Company company = new Company(currentUser.getCompanyId());
-    targetUser.setCompany(company);
     targetUser.setId(currentUser.getId());
     given(userService.findById(currentUser.getId())).willReturn(targetUser);
     given(benefitPlanService.getBenefitSummary(getAuthUser().getId()))
@@ -198,8 +197,6 @@ public class BenefitPlanRestControllerTests extends WebControllerBaseTests {
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
     final AuthUser currentUser = getAuthUser();
     final User targetUser = new User();
-    final Company company = new Company(currentUser.getCompanyId());
-    targetUser.setCompany(company);
     targetUser.setId(currentUser.getId());
     given(userService.findById(currentUser.getId())).willReturn(targetUser);
     final MvcResult response =
@@ -217,7 +214,6 @@ public class BenefitPlanRestControllerTests extends WebControllerBaseTests {
     setPermission(Permission.Name.VIEW_SELF_BENEFITS.name());
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
-    final AuthUser currentUser = getAuthUser();
     final BenefitPlan benefitPlan = new BenefitPlan();
     given(benefitPlanService.findBenefitPlanById("1")).willReturn(benefitPlan);
     final MvcResult response =
@@ -237,7 +233,6 @@ public class BenefitPlanRestControllerTests extends WebControllerBaseTests {
     final AuthUser currentUser = getAuthUser();
     final User targetUser = new User();
     final Company company = new Company(currentUser.getCompanyId());
-    targetUser.setCompany(company);
     targetUser.setId(currentUser.getId());
     given(userService.findById(currentUser.getId())).willReturn(targetUser);
     final MvcResult response =

@@ -45,8 +45,6 @@ public class JobControllerTests extends WebControllerBaseTests {
     final BasicJobInformationDto basicJobInformationDto = new BasicJobInformationDto();
     final AuthUser currentUser = getAuthUser();
     final User targetUser = new User();
-    final Company company = new Company(currentUser.getCompanyId());
-    targetUser.setCompany(company);
     targetUser.setId(currentUser.getId());
     given(userService.findById(currentUser.getId())).willReturn(targetUser);
     given(jobUserService.findJobMessage(currentUser.getId(), currentUser.getId()))
@@ -72,7 +70,6 @@ public class JobControllerTests extends WebControllerBaseTests {
       @BeforeEach
       void init() {
         targetUser.setId(currentUser.getId());
-        targetUser.setCompany(company);
         setGiven();
       }
 
@@ -106,11 +103,10 @@ public class JobControllerTests extends WebControllerBaseTests {
     }
 
     @Nested
-    class SameCompany {
+    class OtherUser {
 
       @BeforeEach
       void init() {
-        targetUser.setCompany(company);
         targetUser.setId(UuidUtil.getUuidString());
         setGiven();
       }
@@ -126,47 +122,7 @@ public class JobControllerTests extends WebControllerBaseTests {
       void asManager_thenShouldFailed() throws Exception {
         buildAuthUserAsManager();
         final User manager = new User(currentUser.getId());
-        manager.setCompany(company);
         targetUser.setManagerUser(manager);
-        final MvcResult response = getResponse();
-        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
-      }
-
-      @Test
-      void asEmployee_thenShouldFailed() throws Exception {
-        buildAuthUserAsEmployee();
-        final MvcResult response = getResponse();
-        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
-      }
-
-      @Test
-      void asDeactivatedUser_thenShouldFailed() throws Exception {
-        buildAuthUserAsDeactivatedUser();
-        final MvcResult response = getResponse();
-        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
-      }
-    }
-
-    @Nested
-    class DifferentCompany {
-
-      @BeforeEach
-      void init() {
-        targetUser.setId(UuidUtil.getUuidString());
-        targetUser.setCompany(theOtherCompany);
-        setGiven();
-      }
-
-      @Test
-      void asAdmin_thenShouldFailed() throws Exception {
-        buildAuthUserAsAdmin();
-        final MvcResult response = getResponse();
-        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
-      }
-
-      @Test
-      void asManager_thenShouldFailed() throws Exception {
-        buildAuthUserAsManager();
         final MvcResult response = getResponse();
         assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
       }
@@ -249,7 +205,6 @@ public class JobControllerTests extends WebControllerBaseTests {
     final AuthUser currentUser = getAuthUser();
     final User targetUser = new User();
     final Company company = new Company(currentUser.getCompanyId());
-    targetUser.setCompany(company);
     targetUser.setId(currentUser.getId());
     given(userService.findById(currentUser.getId())).willReturn(targetUser);
     given(companyService.findDepartmentsById(departmentId)).willReturn(department);

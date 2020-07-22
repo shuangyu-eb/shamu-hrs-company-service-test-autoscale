@@ -148,7 +148,7 @@ public class AttendanceSetUpServiceTests {
 
     @Test
     void whenEmployeesAreEmpty_shouldSucceed() {
-      Mockito.when(userRepository.findAllByCompanyId(companyId)).thenReturn(unselectedUsers);
+      Mockito.when(userRepository.findAllActiveUsers()).thenReturn(unselectedUsers);
       Mockito.when(employeesTaSettingRepository.findAll()).thenReturn(selectedUsers);
       assertThatCode(() -> attendanceSetUpService.getRelatedUsers(companyId))
           .doesNotThrowAnyException();
@@ -169,7 +169,7 @@ public class AttendanceSetUpServiceTests {
       final User anotherUser = new User();
       anotherUser.setId("another");
       unselectedUsers.add(anotherUser);
-      Mockito.when(userRepository.findAllByCompanyId(companyId)).thenReturn(unselectedUsers);
+      Mockito.when(userRepository.findAllActiveUsers()).thenReturn(unselectedUsers);
       Mockito.when(employeesTaSettingRepository.findAll()).thenReturn(selectedUsers);
       Mockito.when(jobUserRepository.findJobUserByUser(user)).thenReturn(employeeWithJobInfo);
       Mockito.when(

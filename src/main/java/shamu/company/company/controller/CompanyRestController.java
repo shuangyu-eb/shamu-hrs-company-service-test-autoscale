@@ -90,7 +90,7 @@ public class CompanyRestController extends BaseRestController {
   @GetMapping("user-options")
   @PreAuthorize("hasAuthority('VIEW_USER_JOB')")
   public List<SelectFieldInformationDto> findUsers() {
-    final List<User> users = employeeService.findByCompanyId(findCompanyId());
+    final List<User> users = employeeService.findAllActiveUsers();
     return collectUserPersonInformations(users);
   }
 
@@ -99,7 +99,7 @@ public class CompanyRestController extends BaseRestController {
   public List<SelectFieldInformationDto> findUsersFromCompany(@PathVariable final String userId) {
     final List<User> users;
 
-    users = employeeService.findByCompanyId(findCompanyId());
+    users = employeeService.findAllActiveUsers();
 
     final List<SelectFieldInformationDto> selectFieldInformationDtos =
         collectUserPersonInformations(users);
@@ -126,13 +126,13 @@ public class CompanyRestController extends BaseRestController {
 
   @GetMapping("benefits-setting")
   public CompanyBenefitsSettingDto findCompanyBenefitsSetting() {
-    return companyService.findCompanyBenefitsSetting(findCompanyId());
+    return companyService.findCompanyBenefitsSetting();
   }
 
   @PatchMapping("benefits-setting/automatic-rollover")
   @PreAuthorize("hasAuthority('MANAGE_BENEFIT')")
   public HttpEntity updateBenefitSettingAutomaticRollover(@RequestBody final Boolean isTurnOn) {
-    companyService.updateBenefitSettingAutomaticRollover(findCompanyId(), isTurnOn);
+    companyService.updateBenefitSettingAutomaticRollover(isTurnOn);
     return new ResponseEntity(HttpStatus.OK);
   }
 
@@ -140,28 +140,27 @@ public class CompanyRestController extends BaseRestController {
   @PreAuthorize("hasAuthority('MANAGE_BENEFIT')")
   public HttpEntity updateEnrollmentPeriod(
       @RequestBody final CompanyBenefitsSettingDto companyBenefitsSettingDto) {
-    companyService.updateEnrollmentPeriod(findCompanyId(), companyBenefitsSettingDto);
+    companyService.updateEnrollmentPeriod(companyBenefitsSettingDto);
     return new ResponseEntity(HttpStatus.OK);
   }
 
   @PatchMapping("global-setting/company-name")
   @PreAuthorize("hasAuthority('UPDATE_COMPANY_NAME')")
   public String updateCompanyName(@RequestBody final String companyName) {
-    final String companyId = findCompanyId();
-    return companyService.updateCompanyName(companyName, companyId);
+    return companyService.updateCompanyName(companyName);
   }
 
   @GetMapping("paid-holidays-auto-enrolled")
   @PreAuthorize("hasAuthority('EDIT_PAID_HOLIDAY')")
   public boolean getIsPaidHolidayAutoEnrolled() {
-    return companyService.findById(findCompanyId()).getIsPaidHolidaysAutoEnroll();
+    return companyService.getCompany().getIsPaidHolidaysAutoEnroll();
   }
 
   @PatchMapping("global-setting/paid-holidays-auto-enrolled")
   @PreAuthorize("hasAuthority('EDIT_PAID_HOLIDAY')")
   public HttpEntity<String> updateIsPaidHolidayAutoEnrolled(
       @RequestBody final boolean isAutoEnrolled) {
-    companyService.updateIsPaidHolidaysAutoEnrolled(findCompanyId(), isAutoEnrolled);
+    companyService.updateIsPaidHolidaysAutoEnrolled(isAutoEnrolled);
     return new ResponseEntity<>(HttpStatus.OK);
   }
 }

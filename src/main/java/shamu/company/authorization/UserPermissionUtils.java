@@ -21,14 +21,11 @@ import shamu.company.benefit.service.BenefitPlanDependentService;
 import shamu.company.benefit.service.BenefitPlanService;
 import shamu.company.common.config.DefaultJwtAuthenticationToken;
 import shamu.company.common.entity.BaseEntity;
-import shamu.company.common.exception.errormapping.ForbiddenException;
-import shamu.company.company.entity.Company;
 import shamu.company.company.service.CompanyService;
 import shamu.company.employee.dto.EmployeeDto;
 import shamu.company.employee.dto.NewEmployeeJobInformationDto;
 import shamu.company.info.entity.UserEmergencyContact;
 import shamu.company.info.service.UserEmergencyContactService;
-import shamu.company.job.dto.JobUpdateDto;
 import shamu.company.timeoff.dto.PaidHolidayDto;
 import shamu.company.timeoff.dto.UserIdDto;
 import shamu.company.timeoff.entity.CompanyPaidHoliday;
@@ -233,7 +230,7 @@ public class UserPermissionUtils extends BasePermissionUtils {
       final Type type,
       final Permission.Name permission) {
     if (Type.USER_JOB.equals(type)) {
-      return hasPermissionOfUserJob(target);
+      return hasPermission(auth, permission);
     }
 
     if (Type.USER_CREATION.equals(type)) {
@@ -258,23 +255,6 @@ public class UserPermissionUtils extends BasePermissionUtils {
     return hasPermission(auth, permission);
   }
 
-  private void companyEqual(final Company company) {
-    if (!getCompanyId().equals(company.getId())) {
-      throw new ForbiddenException("The target resources is not in the company where you are.");
-    }
-  }
-
-  private boolean hasPermissionOfUserJob(final Object target) {
-    final JobUpdateDto jobUpdateDto = (JobUpdateDto) target;
-    final String managerId = jobUpdateDto.getManagerId();
-
-    if (!StringUtils.isEmpty(managerId)) {
-      final User manager = userService.findById(managerId);
-      companyEqual(manager.getCompany());
-    }
-    return true;
-  }
-
   private boolean hasPermissionOfBenefitPlan(
       final Authentication auth, final String id, final Permission.Name permission) {
     benefitPlanService.findBenefitPlanById(id);
@@ -290,12 +270,6 @@ public class UserPermissionUtils extends BasePermissionUtils {
   private boolean hasPermissionOfJobTitle(
       final Authentication auth, final String id, final Permission.Name permission) {
     companyService.findJobsById(id);
-    return hasPermission(auth, permission);
-  }
-
-  private boolean hasPermissionOfCompany(
-      final Authentication auth, final Company company, final Permission.Name permission) {
-    companyEqual(company);
     return hasPermission(auth, permission);
   }
 
@@ -429,7 +403,6 @@ public class UserPermissionUtils extends BasePermissionUtils {
       final Authentication auth, final String id, final Permission.Name permission) {
     final UserEmergencyContact userEmergencyContact = userEmergencyContactService.findById(id);
     final User targetUser = userEmergencyContact.getUser();
-    companyEqual(targetUser.getCompany());
 
     if (permission.getPermissionType() == PermissionType.SELF_PERMISSION) {
       return getUserId().equals(targetUser.getId());
@@ -449,8 +422,6 @@ public class UserPermissionUtils extends BasePermissionUtils {
       return getAuthUser().getId().equals(targetUser.getId())
           && hasPermission(authorities, permission);
     }
-
-    companyEqual(targetUser.getCompany());
 
     final boolean isCompanyAdmin = hasPermission(authorities, Name.MANAGE_COMPANY_USER);
     final boolean isCompanyManager = hasPermission(authorities, Name.MANAGE_TEAM_USER);

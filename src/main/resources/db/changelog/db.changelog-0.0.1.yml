@@ -4635,3 +4635,10 @@ databaseChangeLog:
             referencedTableName: user_statuses
             validate: true
 
+  - changeSet:
+      id: 1594781353402-254
+      author: whb (generated)
+      changes:
+        - dropColumn:
+            columnName: company_id
+            tableName: jobs_users

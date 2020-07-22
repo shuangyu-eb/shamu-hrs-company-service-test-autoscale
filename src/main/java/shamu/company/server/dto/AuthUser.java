@@ -3,6 +3,7 @@ package shamu.company.server.dto;
 import java.util.List;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import shamu.company.common.multitenant.TenantContext;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
 
@@ -30,7 +31,7 @@ public class AuthUser {
     id = user.getId();
     imageUrl = user.getImageUrl();
     email = user.getUserContactInformation().getEmailWork();
-    companyId = user.getCompany().getId();
+    companyId = TenantContext.getCurrentTenant();
     userId = user.getId();
     role = user.getRole();
 

@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shamu.company.common.exception.errormapping.AlreadyExistsException;
 import shamu.company.common.exception.errormapping.ResourceNotFoundException;
-import shamu.company.company.entity.Company;
 import shamu.company.helpers.FederalHolidayHelper;
 import shamu.company.server.dto.AuthUser;
 import shamu.company.timeoff.dto.PaidHolidayDto;
@@ -77,14 +76,16 @@ public class PaidHolidayService {
     this.timeOffPolicyService = timeOffPolicyService;
   }
 
-  public void initDefaultPaidHolidays(final Company company) {
-    final List<PaidHoliday> defaultPaidHolidays = paidHolidayRepository.findDefaultPaidHolidays();
-    final List<CompanyPaidHoliday> companyPaidHolidays =
-        defaultPaidHolidays.stream()
-            .map(holiday -> new CompanyPaidHoliday(holiday, company, true))
-            .collect(Collectors.toList());
-    companyPaidHolidayRepository.saveAll(companyPaidHolidays);
-  }
+  // TODO: It would be delete in another PR.
+  //  public void initDefaultPaidHolidays(final Company company) {
+  //    final List<PaidHoliday> defaultPaidHolidays =
+  // paidHolidayRepository.findDefaultPaidHolidays();
+  //    final List<CompanyPaidHoliday> companyPaidHolidays =
+  //        defaultPaidHolidays.stream()
+  //            .map(holiday -> new CompanyPaidHoliday(holiday, company, true))
+  //            .collect(Collectors.toList());
+  //    companyPaidHolidayRepository.saveAll(companyPaidHolidays);
+  //  }
 
   private List<PaidHolidayDto> getCurrentYearPaidHolidays(final AuthUser user) {
     final List<CompanyPaidHoliday> companyPaidHolidays;

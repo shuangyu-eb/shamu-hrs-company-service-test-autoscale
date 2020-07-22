@@ -10,6 +10,7 @@ import org.powermock.reflect.Whitebox;
 import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.Context;
 import shamu.company.company.entity.Company;
+import shamu.company.company.service.CompanyService;
 import shamu.company.email.entity.Email;
 import shamu.company.email.event.EmailEvent;
 import shamu.company.email.event.EmailStatus;
@@ -53,6 +54,8 @@ class EmailServiceTests {
 
   @Mock private QuartzJobScheduler quartzJobScheduler;
 
+  @Mock private CompanyService companyService;
+
   @BeforeEach
   void init() {
     MockitoAnnotations.initMocks(this);
@@ -64,7 +67,8 @@ class EmailServiceTests {
             templateEngine,
             userService,
             awsHelper,
-            quartzJobScheduler);
+            quartzJobScheduler,
+            companyService);
     email = new Email();
   }
 
@@ -222,13 +226,12 @@ class EmailServiceTests {
       welcomeEmailPersonalMessage = "a";
       final Company company = new Company();
       company.setName("companyName");
-      currentUser.setCompany(company);
     }
 
     @Test
     void whenFindWelcomeEmailPreviewContext_thenShouldSuccess() {
       final Context context =
-          emailService.findWelcomeEmailPreviewContext(currentUser, welcomeEmailPersonalMessage);
+          emailService.findWelcomeEmailPreviewContext(welcomeEmailPersonalMessage);
       assertThat(context).isNotNull();
     }
   }
@@ -339,10 +342,9 @@ class EmailServiceTests {
     superAdmin.setUserPersonalInformation(superAdminPersonalInfo);
     superAdmins.add(superAdmin);
 
-    Mockito.when(userService.findUsersByCompanyIdAndUserRole(companyId, Role.ADMIN.getValue()))
+    Mockito.when(userService.findUsersByCompanyIdAndUserRole(Role.ADMIN.getValue()))
         .thenReturn(admins);
-    Mockito.when(
-            userService.findUsersByCompanyIdAndUserRole(companyId, Role.SUPER_ADMIN.getValue()))
+    Mockito.when(userService.findUsersByCompanyIdAndUserRole(Role.SUPER_ADMIN.getValue()))
         .thenReturn(superAdmins);
     Whitebox.invokeMethod(
         emailService,

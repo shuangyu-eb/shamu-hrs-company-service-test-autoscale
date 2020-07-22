@@ -1417,7 +1417,7 @@ class BenefitPlanServiceTests {
           .thenReturn(benefitPlanUserDto);
       Mockito.when(benefitPlanUserMapper.convertToBenefitPlanUserDto(benefitPlanUser))
           .thenReturn(benefitPlanUserDto);
-      Mockito.when(userRepository.findAllByCompanyId(companyId)).thenReturn(users);
+      Mockito.when(userRepository.findAllActiveUsers()).thenReturn(users);
       Mockito.when(benefitPlanUserRepository.findAllByBenefitPlanId(benefitPlanId))
           .thenReturn(benefitPlanUsers);
       Mockito.when(jobUserService.findJobUserByUser(user)).thenReturn(jobUser);

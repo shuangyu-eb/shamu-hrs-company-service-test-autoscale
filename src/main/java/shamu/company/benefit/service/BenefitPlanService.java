@@ -846,7 +846,7 @@ public class BenefitPlanService {
 
   public BenefitPlanRelatedUserListDto findAllEmployeesForBenefitPlan(
       final String benefitPlanId, final String companyId) {
-    final List<User> policyEmployees = userRepository.findAllByCompanyId(companyId);
+    final List<User> policyEmployees = userRepository.findAllActiveUsers();
 
     final List<JobUserDto> allJobUsers =
         policyEmployees.stream()
@@ -880,10 +880,9 @@ public class BenefitPlanService {
     return benefitPlanCoverageRepository.getBenefitPlanCoveragesByPlanId(benefitPlanId);
   }
 
-  public BenefitPlanRelatedUserListDto findRelatedUsersByBenefitPlan(
-      final String benefitPlanId, final String companyId) {
+  public BenefitPlanRelatedUserListDto findRelatedUsersByBenefitPlan(final String benefitPlanId) {
     final List<String> selectedUserIds = new ArrayList<>();
-    final List<User> allUsers = userRepository.findAllByCompanyId(companyId);
+    final List<User> allUsers = userRepository.findAllActiveUsers();
     final List<BenefitPlanUser> benefitPlanUserList =
         benefitPlanUserRepository.findAllByBenefitPlanId(benefitPlanId);
 

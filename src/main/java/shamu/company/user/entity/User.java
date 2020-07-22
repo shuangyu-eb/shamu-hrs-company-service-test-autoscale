@@ -47,8 +47,6 @@ public class User implements Serializable {
 
   private String imageUrl;
 
-  @ManyToOne private Company company;
-
   @OneToOne private DeactivationReasons deactivationReason;
 
   @JsonFormat(pattern = "MM/dd/yyyy")

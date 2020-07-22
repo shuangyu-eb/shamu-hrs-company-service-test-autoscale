@@ -171,7 +171,6 @@ class UserPermissionUtilTests {
       @Test
       void asSelf_whenNoManager_thenShouldSuccess() {
         final User targetUser = new User(authUser.getId());
-        targetUser.setCompany(company);
         Mockito.when(userService.findById(targetUser.getId())).thenReturn(targetUser);
         assertThat(
                 userPermissionUtils.hasPermission(
@@ -183,7 +182,6 @@ class UserPermissionUtilTests {
       void notSelf_asAdmin_whenSameCompany_thenShouldSuccess() {
         authUser.setRole(Role.ADMIN);
         final User targetUser = new User(UuidUtil.getUuidString());
-        targetUser.setCompany(company);
         Mockito.when(userService.findById(targetUser.getId())).thenReturn(targetUser);
         assertThat(
                 userPermissionUtils.hasPermission(
@@ -273,7 +271,6 @@ class UserPermissionUtilTests {
       final Company targetCompany = new Company();
       targetCompany.setId(authUser.getCompanyId());
       targetUser.setId(RandomStringUtils.randomAlphabetic(16));
-      targetUser.setCompany(targetCompany);
 
       Mockito.when(userService.findById(Mockito.anyString())).thenReturn(targetUser);
     }
@@ -448,7 +445,6 @@ class UserPermissionUtilTests {
 
       final UserEmergencyContact userEmergencyContact = new UserEmergencyContact();
       final User targetUser = new User();
-      targetUser.setCompany(company);
       userEmergencyContact.setUser(targetUser);
       Mockito.when(userEmergencyContactService.findById(Mockito.anyString()))
           .thenReturn(userEmergencyContact);
@@ -470,7 +466,6 @@ class UserPermissionUtilTests {
 
       final UserEmergencyContact userEmergencyContact = new UserEmergencyContact();
       final User targetUser = new User();
-      targetUser.setCompany(company);
       userEmergencyContact.setUser(targetUser);
       Mockito.when(userEmergencyContactService.findById(Mockito.anyString()))
           .thenReturn(userEmergencyContact);

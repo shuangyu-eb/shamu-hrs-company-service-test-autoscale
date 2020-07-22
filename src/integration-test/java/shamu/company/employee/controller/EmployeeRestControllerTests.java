@@ -53,7 +53,7 @@ class EmployeeRestControllerTests extends WebControllerBaseTests {
   void testFindAllEmployees() throws Exception {
 
     final Page<JobUserListItem> result = new PageImpl<>(Collections.emptyList());
-    given(userService.findAllEmployees(Mockito.any(), Mockito.any())).willReturn(result);
+    given(userService.findAllEmployees(Mockito.any())).willReturn(result);
 
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
@@ -83,7 +83,7 @@ class EmployeeRestControllerTests extends WebControllerBaseTests {
 
   @Test
   void testFindAllPolicyEmployees() throws Exception {
-    given(userService.findAllJobUsers(Mockito.any())).willReturn(Collections.emptyList());
+    given(userService.findAllJobUsers()).willReturn(Collections.emptyList());
     setPermission(Name.CREATE_USER.name());
 
     final HttpHeaders httpHeaders = new HttpHeaders();
@@ -131,60 +131,32 @@ class EmployeeRestControllerTests extends WebControllerBaseTests {
       setGiven();
     }
 
-    private class CommonTests {
-
-      @Test
-      void asManager_thenShouldFailed() throws Exception {
-        buildAuthUserAsManager();
-        final MvcResult response = getResponse();
-        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
-      }
-
-      @Test
-      void asEmployee_thenShouldFailed() throws Exception {
-        buildAuthUserAsEmployee();
-        final MvcResult response = getResponse();
-        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
-      }
-
-      @Test
-      void asDeactivatedUser_thenShouldFailed() throws Exception {
-        buildAuthUserAsDeactivatedUser();
-        final MvcResult response = getResponse();
-        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
-      }
+    @Test
+    void asAdmin_thenShouldSuccess() throws Exception {
+      buildAuthUserAsAdmin();
+      final MvcResult response = getResponse();
+      assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
     }
 
-    @Nested
-    class SameCompany extends CommonTests {
-
-      @BeforeEach
-      void init() {
-        targetUser.setCompany(company);
-      }
-
-      @Test
-      void asAdmin_thenShouldSuccess() throws Exception {
-        buildAuthUserAsAdmin();
-        final MvcResult response = getResponse();
-        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
-      }
+    @Test
+    void asManager_thenShouldFailed() throws Exception {
+      buildAuthUserAsManager();
+      final MvcResult response = getResponse();
+      assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
     }
 
-    @Nested
-    class DifferentCompany extends CommonTests {
+    @Test
+    void asEmployee_thenShouldFailed() throws Exception {
+      buildAuthUserAsEmployee();
+      final MvcResult response = getResponse();
+      assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+    }
 
-      @BeforeEach
-      void init() {
-        targetUser.setCompany(theOtherCompany);
-      }
-
-      @Test
-      void asAdmin_thenShouldFailed() throws Exception {
-        buildAuthUserAsAdmin();
-        final MvcResult response = getResponse();
-        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
-      }
+    @Test
+    void asDeactivatedUser_thenShouldFailed() throws Exception {
+      buildAuthUserAsDeactivatedUser();
+      final MvcResult response = getResponse();
+      assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
     }
 
     private void setGiven() {
@@ -310,7 +282,6 @@ class EmployeeRestControllerTests extends WebControllerBaseTests {
 
     final User targetUser = new User();
     targetUser.setId(getAuthUser().getId());
-    targetUser.setCompany(new Company(getAuthUser().getCompanyId()));
     given(userService.findById(getAuthUser().getId())).willReturn(targetUser);
 
     final HttpHeaders httpHeaders = new HttpHeaders();

@@ -30,12 +30,12 @@ import shamu.company.utils.TupleUtil;
 @Repository
 public class UserCustomRepositoryImpl implements UserCustomRepository {
   static final String ACTIVE_USER_QUERY =
-      "and (u.deactivated_at is null "
+      " (u.deactivated_at is null "
           + "or (u.deactivated_at is not null "
           + "and u.deactivated_at > current_timestamp)) ";
 
   static final String FROM_SQL =
-          "from users u "
+      "from users u "
           + "left join  user_personal_information up on u.user_personal_information_id = up.id "
           + "left join jobs_users ju on u.id = ju.user_id "
           + "left join jobs j on ju.job_id = j.id "
@@ -60,34 +60,30 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
 
   @Override
   public Page<JobUserListItem> getAllByCondition(
-      final EmployeeListSearchCondition employeeListSearchCondition,
-      final String companyId,
-      final Pageable pageable) {
+      final EmployeeListSearchCondition employeeListSearchCondition, final Pageable pageable) {
 
-    final String conditionSql = FROM_SQL
-            + "where u.company_id = unhex(?1) "
-            + "and (concat(up.first_name, ' ', up.last_name) like concat('%', ?2, '%') "
-            + "or concat(up.preferred_name, ' ', up.last_name) like concat('%', ?2, '%') "
-            + "or d.name like concat('%', ?2, '%') or j.title like concat('%', ?2, '%')) ";
+    final String conditionSql =
+        FROM_SQL
+            + "where (concat(up.first_name, ' ', up.last_name) like concat('%', ?1, '%') "
+            + "or concat(up.preferred_name, ' ', up.last_name) like concat('%', ?1, '%') "
+            + "or d.name like concat('%', ?1, '%') or j.title like concat('%', ?1, '%')) ";
 
-    return queryJobUserListItem(companyId, conditionSql, employeeListSearchCondition, pageable);
+    return queryJobUserListItem(conditionSql, employeeListSearchCondition, pageable);
   }
 
   private Page<JobUserListItem> queryJobUserListItem(
-      final String companyId,
       final String conditionSql,
       final EmployeeListSearchCondition employeeListSearchCondition,
       final Pageable pageable) {
     String countAllEmployees = "select count(1) " + conditionSql;
     if (!employeeListSearchCondition.getIncludeDeactivated()) {
-      countAllEmployees += ACTIVE_USER_QUERY;
+      countAllEmployees += " and " + ACTIVE_USER_QUERY;
     }
     final BigInteger employeeCount =
         (BigInteger)
             entityManager
                 .createNativeQuery(countAllEmployees)
-                .setParameter(1, companyId)
-                .setParameter(2, employeeListSearchCondition.getKeyword().trim())
+                .setParameter(1, employeeListSearchCondition.getKeyword().trim())
                 .getSingleResult();
 
     if (employeeCount.longValue() == 0) {
@@ -103,14 +99,13 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
     String resultSql = appendFilterCondition(originalSql, pageable);
 
     if (!employeeListSearchCondition.getIncludeDeactivated()) {
-      resultSql = appendFilterCondition(originalSql + ACTIVE_USER_QUERY, pageable);
+      resultSql = appendFilterCondition(originalSql + " and " + ACTIVE_USER_QUERY, pageable);
     }
 
     final List<?> jobUserList =
         entityManager
             .createNativeQuery(resultSql, Tuple.class)
-            .setParameter(1, companyId)
-            .setParameter(2, employeeListSearchCondition.getKeyword().trim())
+            .setParameter(1, employeeListSearchCondition.getKeyword().trim())
             .getResultList();
 
     final List<JobUserListItem> jobUserItemList =
@@ -142,14 +137,15 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
             + "up.last_name as lastName, up.preferred_name as preferredName, "
             + "d.name as department, j.title as jobTitle, ur.name as roleName ";
 
-    final String queryCondition = FROM_SQL
+    final String queryCondition =
+        FROM_SQL
             + "where "
             + userCondition
+            + " and "
             + ACTIVE_USER_QUERY
-            + " and u.company_id = unhex(?2) "
-            + "and (up.first_name like concat('%', ?3, '%') "
-            + "or up.last_name like concat('%', ?3, '%') "
-            + "or d.name like concat('%', ?3, '%') or j.title like concat('%', ?3, '%')) ";
+            + " (up.first_name like concat('%', ?2, '%') "
+            + "or up.last_name like concat('%', ?2, '%') "
+            + "or d.name like concat('%', ?2, '%') or j.title like concat('%', ?2, '%')) ";
 
     final String countAllTeamMembers = "select count(u.id) as num " + queryCondition;
     final Query queryCount =
@@ -185,9 +181,8 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
     final Query query =
         entityManager
             .createNativeQuery(resultSql, Tuple.class)
-            .setParameter(4, user.getId())
-            .setParameter(2, manager.getCompany().getId())
-            .setParameter(3, employeeListSearchCondition.getKeyword());
+            .setParameter(3, user.getId())
+            .setParameter(2, employeeListSearchCondition.getKeyword());
     if (hasManager) {
       query.setParameter(1, manager.getId());
     }
@@ -196,8 +191,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
   }
 
   @Override
-  public List<OrgChartDto> findOrgChartItemByManagerId(
-      final String managerId, final String companyId) {
+  public List<OrgChartDto> findOrgChartItemByManagerId(final String managerId) {
 
     final StringBuilder findAllOrgChartByCondition =
         new StringBuilder(
@@ -215,7 +209,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
                 + "left join offices o on jobUser.office_id = o.id "
                 + "left join office_addresses a on o.office_address_id = a.id "
                 + "left join states_provinces province on a.state_province_id = province.id "
-                + "where u.company_id = unhex(?2) "
+                + "where "
                 + ACTIVE_USER_QUERY);
 
     if (managerId == null) {
@@ -231,7 +225,6 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
     if (!StringUtils.isEmpty(managerId)) {
       findAllOrgChartByConditionQuery.setParameter(1, managerId);
     }
-    findAllOrgChartByConditionQuery.setParameter(2, companyId);
 
     final List<?> orgChartItemList = findAllOrgChartByConditionQuery.getResultList();
     return orgChartItemList.stream()
@@ -240,7 +233,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
   }
 
   @Override
-  public OrgChartDto findOrgChartItemByUserId(final String id, final String companyId) {
+  public OrgChartDto findOrgChartItemByUserId(final String id) {
 
     final String findAllOrgChartByCondition =
         "select u.id as id, up.first_name as firstName, up.last_name as lastName,"
@@ -255,14 +248,13 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
             + "left join offices o on jobUser.office_id = o.id "
             + "left join office_addresses a on o.office_address_id = a.id "
             + "left join states_provinces province on a.state_province_id = province.id "
-            + "where u.id = unhex(?1) and u.company_id = unhex(?2) "
+            + "where u.id = unhex(?1) and "
             + ACTIVE_USER_QUERY
             + "order by u.created_at asc";
     final Query findAllOrgChartByConditionQuery =
         entityManager
             .createNativeQuery(findAllOrgChartByCondition, Tuple.class)
-            .setParameter(1, id)
-            .setParameter(2, companyId);
+            .setParameter(1, id);
 
     final Object orgChartItem = findAllOrgChartByConditionQuery.getSingleResult();
     return TupleUtil.convertTo((Tuple) orgChartItem, OrgChartDto.class);
@@ -302,16 +294,14 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
 
   @Override
   public Page<JobUserListItem> getAllByName(
-      final EmployeeListSearchCondition employeeListSearchCondition,
-      final String companyId,
-      final Pageable pageable) {
+      final EmployeeListSearchCondition employeeListSearchCondition, final Pageable pageable) {
 
-    final String conditionSql = FROM_SQL
-            + "where u.company_id = unhex(?1) "
-            + "and (concat(up.first_name, ' ', up.last_name) like concat('%', ?2, '%') "
-            + "or concat(up.preferred_name, ' ', up.last_name) like concat('%', ?2, '%'))";
+    final String conditionSql =
+        FROM_SQL
+            + "where (concat(up.first_name, ' ', up.last_name) like concat('%', ?1, '%') "
+            + "or concat(up.preferred_name, ' ', up.last_name) like concat('%', ?1, '%'))";
 
-    return queryJobUserListItem(companyId, conditionSql, employeeListSearchCondition, pageable);
+    return queryJobUserListItem(conditionSql, employeeListSearchCondition, pageable);
   }
 
   private String appendFilterCondition(final String originalSql, final Pageable pageable) {

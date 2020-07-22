@@ -119,66 +119,39 @@ class SuperAdminRestControllerTests extends WebControllerBaseTests {
       targetUser.setId(UuidUtil.getUuidString());
     }
 
-    private class CommonTests {
-      @Test
-      void asManager_thenShouldFailed() throws Exception {
-        buildAuthUserAsManager();
-        final MvcResult response = getResponse();
-        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
-      }
-
-      @Test
-      void asEmployee_thenShouldFailed() throws Exception {
-        buildAuthUserAsEmployee();
-        final MvcResult response = getResponse();
-        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
-      }
-
-      @Test
-      void asDeactivatedUser_thenShouldFailed() throws Exception {
-        buildAuthUserAsDeactivatedUser();
-        final MvcResult response = getResponse();
-        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
-      }
-
-      @Test
-      void asAdminUser_thenShouldFailed() throws Exception {
-        buildAuthUserAsAdmin();
-        final MvcResult response = getResponse();
-        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
-      }
+    @Test
+    void asSuper_Admin_thenShouldSuccess() throws Exception {
+      buildAuthUserAsSuperAdmin();
+      final MvcResult response = getResponse();
+      assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
     }
 
-    @Nested
-    class SameCompany extends CommonTests {
-
-      @BeforeEach
-      void init() {
-        targetUser.setCompany(company);
-      }
-
-      @Test
-      void asSuper_Admin_thenShouldSuccess() throws Exception {
-        buildAuthUserAsSuperAdmin();
-        final MvcResult response = getResponse();
-        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
-      }
+    @Test
+    void asManager_thenShouldFailed() throws Exception {
+      buildAuthUserAsManager();
+      final MvcResult response = getResponse();
+      assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
     }
 
-    @Nested
-    class DifferentCompany extends CommonTests {
+    @Test
+    void asEmployee_thenShouldFailed() throws Exception {
+      buildAuthUserAsEmployee();
+      final MvcResult response = getResponse();
+      assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+    }
 
-      @BeforeEach
-      void init() {
-        targetUser.setCompany(theOtherCompany);
-      }
+    @Test
+    void asDeactivatedUser_thenShouldFailed() throws Exception {
+      buildAuthUserAsDeactivatedUser();
+      final MvcResult response = getResponse();
+      assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+    }
 
-      @Test
-      void asSuper_Admin_thenShouldSuccess() throws Exception {
-        buildAuthUserAsSuperAdmin();
-        final MvcResult response = getResponse();
-        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
-      }
+    @Test
+    void asAdminUser_thenShouldFailed() throws Exception {
+      buildAuthUserAsAdmin();
+      final MvcResult response = getResponse();
+      assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
     }
 
     private MvcResult getResponse() throws Exception {

@@ -197,7 +197,7 @@ public class AttendanceSetUpService {
 
   public TimeAndAttendanceRelatedUserListDto getRelatedUsers(final String companyId) {
     final List<User> selectedUsers = userService.listCompanyAttendanceEnrolledUsers(companyId);
-    final List<User> allUsers = userRepository.findAllByCompanyId(companyId);
+    final List<User> allUsers = userRepository.findAllActiveUsers();
 
     final List<String> selectedUsersIds = new ArrayList<>();
     final List<TimeAndAttendanceRelatedUserDto> selectedEmployees =
@@ -210,9 +210,7 @@ public class AttendanceSetUpService {
             .collect(Collectors.toList());
 
     final List<User> unSelectedUsers =
-        selectedUsersIds.isEmpty()
-            ? allUsers
-            : userRepository.findAllByCompanyIdAndIdNotIn(companyId, selectedUsersIds);
+        selectedUsersIds.isEmpty() ? allUsers : userRepository.findAllByIdNotIn(selectedUsersIds);
     final List<TimeAndAttendanceRelatedUserDto> unSelectedEmployees =
         unSelectedUsers.stream()
             .map(user -> assembleRelatedUsers(user, allUsers))

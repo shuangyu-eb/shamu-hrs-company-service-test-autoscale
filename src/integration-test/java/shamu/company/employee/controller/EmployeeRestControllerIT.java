@@ -72,7 +72,6 @@ class EmployeeRestControllerIT extends BaseIntegrationTest {
     void init() {
       final User managerUser = new User();
       final Company company = new Company(getAuthUser().getCompanyId());
-      managerUser.setCompany(company);
       managerUser.setUserContactInformation(new UserContactInformation());
       managerUser.setId(UuidUtil.getUuidString());
       managerUser.setUserRole(userRoleService.getEmployee());

@@ -78,7 +78,7 @@ public class AddPayPeriodJob extends QuartzJobBean {
     payrollDetailService.savePayrollDetail(payrollDetail);
 
     final List<UserCompensation> userCompensationList =
-        userCompensationService.listNewestEnrolledCompensation(companyId);
+        userCompensationService.listNewestEnrolledCompensation();
     attendanceSetUpService.createTimeSheets(
         nextTimePeriod, TimeSheetStatus.ACTIVE, userCompensationList);
     attendanceSetUpService.scheduleTasks(

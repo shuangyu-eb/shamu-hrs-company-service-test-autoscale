@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
-
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -39,6 +38,7 @@ import shamu.company.company.entity.mapper.OfficeAddressMapperImpl;
 import shamu.company.company.entity.mapper.OfficeMapper;
 import shamu.company.company.entity.mapper.OfficeMapperImpl;
 import shamu.company.company.entity.mapper.StateProvinceMapper;
+import shamu.company.company.service.CompanyService;
 import shamu.company.crypto.EncryptorUtil;
 import shamu.company.email.entity.Email;
 import shamu.company.email.service.EmailService;
@@ -143,6 +143,7 @@ class EmployeeServiceTests {
   @Mock private EmployeeTypesService employeeTypesService;
   @Mock private CompensationOvertimeStatusService compensationOvertimeStatusService;
   @Mock private DepartmentService departmentService;
+  @Mock private CompanyService companyService;
   @Mock private GoogleMapsHelper googleMapsHelper;
   @Mock private StaticTimeZoneRepository staticTimeZoneRepository;
 
@@ -184,18 +185,20 @@ class EmployeeServiceTests {
             employeeTypesService,
             compensationOvertimeStatusService,
             departmentService,
+            companyService,
+            departmentService,
             googleMapsHelper,
             staticTimeZoneRepository);
   }
 
   @Test
   void testFindByCompanyId() {
-    assertThatCode(() -> employeeService.findByCompanyId("1")).doesNotThrowAnyException();
+    assertThatCode(() -> employeeService.findAllActiveUsers()).doesNotThrowAnyException();
   }
 
   @Test
   void testFindSubordinatesByManagerUserId() {
-    assertThatCode(() -> employeeService.findSubordinatesByManagerUserId("1", "1"))
+    assertThatCode(() -> employeeService.findSubordinatesByManagerUserId("1"))
         .doesNotThrowAnyException();
   }
 
@@ -265,7 +268,6 @@ class EmployeeServiceTests {
       final Company company = new Company();
       company.setId("1");
       company.setName(RandomStringUtils.randomAlphabetic(4));
-      currentUser.setCompany(company);
 
       final EmployeeDto employeeDto = new EmployeeDto();
       final NewEmployeeJobInformationDto jobInformationDto = new NewEmployeeJobInformationDto();
@@ -353,7 +355,6 @@ class EmployeeServiceTests {
 
       final Company company = new Company();
       company.setName(RandomStringUtils.randomAlphabetic(4));
-      user.setCompany(company);
 
       Mockito.when(
               emailService.findFirstByToAndSubjectOrderBySendDateDesc(
@@ -373,7 +374,6 @@ class EmployeeServiceTests {
 
       final Company company = new Company();
       company.setName(RandomStringUtils.randomAlphabetic(4));
-      user.setCompany(company);
 
       Mockito.when(
               emailService.findFirstByToAndSubjectOrderBySendDateDesc(
@@ -561,7 +561,6 @@ class EmployeeServiceTests {
       company.setName("a");
       employeeDto.setUserAddress(new UserAddressDto());
       employeeDto.setWelcomeEmail(welcomeEmail);
-      currentUser.setCompany(company);
       currentUser.setResetPasswordToken("a");
       currentUser.setInvitationEmailToken("b");
       currentUser.setInvitedAt(Timestamp.from(Instant.now()));

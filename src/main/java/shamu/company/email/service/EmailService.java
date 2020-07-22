@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.Context;
 import shamu.company.common.exception.errormapping.ResourceNotFoundException;
+import shamu.company.company.service.CompanyService;
 import shamu.company.email.entity.Email;
 import shamu.company.email.event.EmailEvent;
 import shamu.company.email.event.EmailStatus;
@@ -91,6 +92,8 @@ public class EmailService {
 
   private final EmailRepository emailRepository;
 
+  private final CompanyService companyService;
+
   private final Integer emailRetryLimit;
 
   private final ITemplateEngine templateEngine;
@@ -123,13 +126,15 @@ public class EmailService {
       final ITemplateEngine templateEngine,
       @Lazy final UserService userService,
       final AwsHelper awsHelper,
-      final QuartzJobScheduler quartzJobScheduler) {
+      final QuartzJobScheduler quartzJobScheduler,
+      final CompanyService companyService) {
     this.emailRepository = emailRepository;
     this.emailRetryLimit = emailRetryLimit;
     this.templateEngine = templateEngine;
     this.userService = userService;
     this.awsHelper = awsHelper;
     this.quartzJobScheduler = quartzJobScheduler;
+    this.companyService = companyService;
   }
 
   public Email save(final Email email) {
@@ -276,11 +281,10 @@ public class EmailService {
     return context;
   }
 
-  public Context findWelcomeEmailPreviewContext(
-      final User currentUser, final String welcomeEmailPersonalMessage) {
+  public Context findWelcomeEmailPreviewContext(final String welcomeEmailPersonalMessage) {
     final Context context = getWelcomeEmailContext(welcomeEmailPersonalMessage, null, null);
     context.setVariable("createPasswordAddress", "#");
-    context.setVariable("companyName", currentUser.getCompany().getName());
+    context.setVariable("companyName", companyService.getCompany().getName());
     return context;
   }
 
@@ -476,10 +480,9 @@ public class EmailService {
             "YYYY");
     context.setVariable(CURRENT_YEAR, currentYear);
     final String emailContent = templateEngine.process("add_new_admin_email.html", context);
-    final List<User> admins =
-        userService.findUsersByCompanyIdAndUserRole(companyId, Role.ADMIN.getValue());
+    final List<User> admins = userService.findUsersByCompanyIdAndUserRole(Role.ADMIN.getValue());
     final List<User> superAdmins =
-        userService.findUsersByCompanyIdAndUserRole(companyId, Role.SUPER_ADMIN.getValue());
+        userService.findUsersByCompanyIdAndUserRole(Role.SUPER_ADMIN.getValue());
     admins.addAll(superAdmins);
     admins.remove(promotedEmployee);
     final String fromName = systemEmailFirstName + "-" + systemEmailLastName;

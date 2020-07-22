@@ -55,7 +55,6 @@ class EncryptorTests {
     final String companyId = "070C17B3E49A4A3D9576795DC2929299";
 
     testUser = new User(userId);
-    testUser.setCompany(new Company(companyId));
 
     final UserPersonalInformation userPersonalInformation = new UserPersonalInformation();
     userPersonalInformation.setId(userPersonalInformationId);
@@ -73,7 +72,7 @@ class EncryptorTests {
 
   private void initMockBehavior() {
     Mockito.when(auth0Helper.getUserSecret(testUser)).thenReturn(userSecret);
-    Mockito.when(secretHashRepository.getCompanySecretByCompanyId(testUser.getCompany().getId()))
+    Mockito.when(secretHashRepository.getCompanySecretByCompanyId(Mockito.anyString()))
         .thenReturn(companySecret);
     Mockito.when(userService.findActiveUserById(testUser.getId())).thenReturn(testUser);
     Mockito.when(
@@ -105,7 +104,7 @@ class EncryptorTests {
     Whitebox.invokeMethod(encryptor, "getEncryptor", userId);
     Mockito.verify(userService, Mockito.times(1)).findById(userId);
     Mockito.verify(secretHashRepository, Mockito.times(1))
-        .getCompanySecretByCompanyId(testUser.getCompany().getId());
+        .getCompanySecretByCompanyId(Mockito.anyString());
   }
 
   @Test
@@ -115,10 +114,9 @@ class EncryptorTests {
     final User user = new User();
     final Company company = new Company();
     company.setId("1");
-    user.setCompany(company);
     Mockito.when(userService.findById(userId)).thenReturn(user);
     Mockito.when(auth0Helper.getUserSecret(user)).thenReturn("1");
-    Mockito.when(secretHashRepository.getCompanySecretByCompanyId(user.getCompany().getId()))
+    Mockito.when(secretHashRepository.getCompanySecretByCompanyId(Mockito.anyString()))
         .thenReturn("1");
     encryptor.encrypt(userId, value);
     Mockito.verify(userService, Mockito.times(1)).findById(userId);
@@ -130,13 +128,12 @@ class EncryptorTests {
     final User user = new User();
     final Company company = new Company();
     company.setId("1");
-    user.setCompany(company);
     Mockito.when(auth0Helper.getUserSecret(user)).thenReturn("1");
-    Mockito.when(secretHashRepository.getCompanySecretByCompanyId(user.getCompany().getId()))
+    Mockito.when(secretHashRepository.getCompanySecretByCompanyId(Mockito.anyString()))
         .thenReturn("1");
     encryptor.encrypt(user, value);
     Mockito.verify(secretHashRepository, Mockito.times(1))
-        .getCompanySecretByCompanyId(user.getCompany().getId());
+        .getCompanySecretByCompanyId(Mockito.anyString());
   }
 
   @Nested

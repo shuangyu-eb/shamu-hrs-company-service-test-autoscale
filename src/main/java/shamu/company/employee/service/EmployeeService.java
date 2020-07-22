@@ -25,6 +25,7 @@ import shamu.company.common.service.OfficeService;
 import shamu.company.common.service.StateProvinceService;
 import shamu.company.company.entity.Department;
 import shamu.company.company.entity.Office;
+import shamu.company.company.service.CompanyService;
 import shamu.company.crypto.EncryptorUtil;
 import shamu.company.email.entity.Email;
 import shamu.company.email.event.EmailStatus;
@@ -137,6 +138,7 @@ public class EmployeeService {
   private final EmployeeTypesService employeeTypesService;
   private final CompensationOvertimeStatusService compensationOvertimeStatusService;
   private final DepartmentService departmentService;
+  private final CompanyService companyService;
   private final GoogleMapsHelper googleMapsHelper;
   private final StaticTimeZoneRepository staticTimeZoneRepository;
 
@@ -182,6 +184,8 @@ public class EmployeeService {
       final EmployeeTypesService employeeTypesService,
       final CompensationOvertimeStatusService compensationOvertimeStatusService,
       final DepartmentService departmentService,
+      final CompanyService companyService,
+      final DepartmentService departmentService,
       final GoogleMapsHelper googleMapsHelper,
       final StaticTimeZoneRepository staticTimeZoneRepository) {
     this.timeOffPolicyService = timeOffPolicyService;
@@ -215,20 +219,21 @@ public class EmployeeService {
     this.employeeTypesService = employeeTypesService;
     this.compensationOvertimeStatusService = compensationOvertimeStatusService;
     this.departmentService = departmentService;
+    this.companyService = companyService;
     this.googleMapsHelper = googleMapsHelper;
     this.staticTimeZoneRepository = staticTimeZoneRepository;
   }
 
-  public List<User> findByCompanyId(final String companyId) {
-    return userService.findByCompanyId(companyId);
+  public List<User> findAllActiveUsers() {
+    return userService.findAllActiveUsers();
   }
 
-  public List<User> findSubordinatesByManagerUserId(final String companyId, final String userId) {
-    return userService.findSubordinatesByManagerUserId(companyId, userId);
+  public List<User> findSubordinatesByManagerUserId(final String userId) {
+    return userService.findSubordinatesByManagerUserId(userId);
   }
 
   public void addEmployee(final EmployeeDto employeeDto, final User currentUser) {
-    final User employee = saveEmployeeBasicInformation(currentUser, employeeDto);
+    final User employee = saveEmployeeBasicInformation(employeeDto);
 
     saveEmergencyContacts(employee, employeeDto.getUserEmergencyContactDto());
 
@@ -246,8 +251,7 @@ public class EmployeeService {
         .checkPersonalInfoComplete(employee.getId());
 
     if (Boolean.TRUE.equals(isEmployeePersonalInfoComplete)) {
-      timeOffPolicyService.addUserToAutoEnrolledPolicy(
-          employee.getId(), employee.getCompany().getId());
+      timeOffPolicyService.addUserToAutoEnrolledPolicy(employee.getId());
     }
   }
 
@@ -288,7 +292,7 @@ public class EmployeeService {
       userService.save(user);
     }
 
-    final Email emailInfo = findWelcomeEmail(originalEmail, user.getCompany().getName());
+    final Email emailInfo = findWelcomeEmail(originalEmail);
     emailInfo.setSendDate(Timestamp.from(Instant.now()));
     if (StringUtils.isNotEmpty(emailInfo.getContent()) && !originalEmail.equals(email)) {
       final String originalEmailAddress = emailService.getEncodedEmailAddress(originalEmail);
@@ -308,8 +312,9 @@ public class EmployeeService {
     emailService.saveAndScheduleEmail(emailInfo);
   }
 
-  public Email findWelcomeEmail(final String email, final String companyName) {
-    return emailService.findFirstByToAndSubjectOrderBySendDateDesc(email, SUBJECT + companyName);
+  public Email findWelcomeEmail(final String email) {
+    return emailService.findFirstByToAndSubjectOrderBySendDateDesc(
+        email, SUBJECT + companyService.getCompany().getName());
   }
 
   private String saveEmployeePhoto(final String base64EncodedPhoto) {
@@ -331,13 +336,11 @@ public class EmployeeService {
     }
   }
 
-  private User saveEmployeeBasicInformation(final User currentUser, final EmployeeDto employeeDto) {
+  private User saveEmployeeBasicInformation(final EmployeeDto employeeDto) {
     final User employee = new User();
     final String base64EncodedPhoto = employeeDto.getPersonalPhoto();
     final String photoPath = saveEmployeePhoto(base64EncodedPhoto);
     employee.setImageUrl(photoPath);
-
-    employee.setCompany(currentUser.getCompany());
 
     final UserStatus userStatus = userStatusService.findByName(Status.PENDING_VERIFICATION.name());
     employee.setUserStatus(userStatus);
@@ -608,10 +611,11 @@ public class EmployeeService {
     final Context emailContext =
         emailService.getWelcomeEmailContextToEmail(
             content, employee.getResetPasswordToken(), employee.getInvitationEmailToken(), toEmail);
-    emailContext.setVariable("companyName", currentUser.getCompany().getName());
+    final String companyName = companyService.getCompany().getName();
+    emailContext.setVariable("companyName", companyName);
     content = emailService.getWelcomeEmail(emailContext);
     final Timestamp sendDate = welcomeEmailDto.getSendDate();
-    final String fullSubject = SUBJECT + currentUser.getCompany().getName();
+    final String fullSubject = SUBJECT + companyName;
     final Email email =
         new Email(systemEmailAddress, toEmail, fullSubject, content, currentUser, sendDate);
     email.setFromName(systemEmailFirstName + "-" + systemEmailLastName);
@@ -628,7 +632,7 @@ public class EmployeeService {
     Timestamp sendDate = null;
     final Email email;
     if (userStatus == Status.PENDING_VERIFICATION
-        && ((email = findWelcomeEmail(emailAddress, employee.getCompany().getName())) != null)) {
+        && ((email = findWelcomeEmail(emailAddress)) != null)) {
       isInvitationValid =
           email.getStatus() != EmailStatus.BOUNCE && email.getStatus() != EmailStatus.DROPPED;
       sendDate = email.getSendDate();

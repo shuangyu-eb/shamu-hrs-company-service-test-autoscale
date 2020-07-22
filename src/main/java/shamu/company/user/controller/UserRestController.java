@@ -21,6 +21,7 @@ import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.common.exception.errormapping.ForbiddenException;
 import shamu.company.common.validation.constraints.FileValidate;
+import shamu.company.company.service.CompanyService;
 import shamu.company.employee.dto.EmailUpdateDto;
 import shamu.company.user.dto.AccountInfoDto;
 import shamu.company.user.dto.ChangePasswordDto;
@@ -43,11 +44,17 @@ public class UserRestController extends BaseRestController {
 
   private final UserService userService;
 
+  private final CompanyService companyService;
+
   private final UserMapper userMapper;
 
-  public UserRestController(final UserService userService, final UserMapper userMapper) {
+  public UserRestController(
+      final UserService userService,
+      final UserMapper userMapper,
+      final CompanyService companyService) {
     this.userService = userService;
     this.userMapper = userMapper;
+    this.companyService = companyService;
   }
 
   @PostMapping(value = "users")
@@ -141,7 +148,7 @@ public class UserRestController extends BaseRestController {
 
   @GetMapping("users")
   public List<UserDto> getAllUsers() {
-    final List<User> users = userService.findAllUsersByCompany(findCompanyId());
+    final List<User> users = userService.findAllUsersByCompany();
     return userMapper.convertToUserDtos(users);
   }
 
@@ -167,9 +174,8 @@ public class UserRestController extends BaseRestController {
   }
 
   @GetMapping("current/company-name")
-  public String getCompanyName(final HttpServletRequest request) {
-    final User user = userService.findById(findUserId());
-    return user.getCompany().getName();
+  public String getCompanyName() {
+    return companyService.getCompany().getName();
   }
 
   @GetMapping("{userId}/check-personal-info-complete")
@@ -219,7 +225,7 @@ public class UserRestController extends BaseRestController {
 
   @GetMapping("users/registered")
   public List<UserDto> getAllRegisteredUsers() {
-    final List<User> users = userService.findRegisteredUsersByCompany(findCompanyId());
+    final List<User> users = userService.findRegisteredUsers();
     return userMapper.convertToUserDtos(users);
   }
 

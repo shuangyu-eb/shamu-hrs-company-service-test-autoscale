@@ -197,8 +197,7 @@ public class JobUserService {
 
   private void adjustUserLocationInOrganizationRelationship(
       final User user, final String companyId, final String managerId) {
-    final List<User> subordinates =
-        userService.findSubordinatesByManagerUserId(companyId, user.getId());
+    final List<User> subordinates = userService.findSubordinatesByManagerUserId(user.getId());
     if (user.getRole() != Role.ADMIN) {
       subordinates.removeIf(employee -> employee.getId().equals(managerId));
       final UserRole targetUserRole =

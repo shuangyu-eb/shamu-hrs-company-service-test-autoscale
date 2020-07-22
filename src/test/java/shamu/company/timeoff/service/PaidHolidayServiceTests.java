@@ -17,7 +17,6 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import shamu.company.common.exception.errormapping.AlreadyExistsException;
 import shamu.company.common.exception.errormapping.ResourceNotFoundException;
-import shamu.company.company.entity.Company;
 import shamu.company.helpers.FederalHolidayHelper;
 import shamu.company.server.dto.AuthUser;
 import shamu.company.timeoff.dto.PaidHolidayDto;
@@ -59,22 +58,6 @@ class PaidHolidayServiceTests {
             paidHolidayMapper,
             federalHolidayHelper,
             timeOffPolicyService);
-  }
-
-  @Test
-  void initDefaultPaidHolidays() {
-    final List<PaidHoliday> paidHolidayList = new ArrayList<>();
-    final PaidHoliday paidHoliday = new PaidHoliday();
-    paidHolidayList.add(paidHoliday);
-
-    final List<CompanyPaidHoliday> companyPaidHolidayList = new ArrayList<>();
-
-    Mockito.when(paidHolidayRepository.findDefaultPaidHolidays()).thenReturn(paidHolidayList);
-    Mockito.when(companyPaidHolidayRepository.saveAll(Mockito.any()))
-        .thenReturn(companyPaidHolidayList);
-
-    Assertions.assertDoesNotThrow(
-        () -> paidHolidayService.initDefaultPaidHolidays(new Company("1")));
   }
 
   @Test

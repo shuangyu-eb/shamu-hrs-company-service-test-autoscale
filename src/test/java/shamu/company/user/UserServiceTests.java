@@ -1,5 +1,9 @@
 package shamu.company.user;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
 import com.auth0.json.auth.CreatedUser;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.jupiter.api.Assertions;
@@ -159,11 +163,9 @@ class UserServiceTests {
     final EmployeeListSearchCondition employeeListSearchCondition =
         new EmployeeListSearchCondition();
     final User currentUser = new User();
-    currentUser.setCompany(new Company(UUID.randomUUID().toString().replaceAll("-", "")));
     Mockito.when(permissionUtils.hasAuthority(Mockito.anyString())).thenReturn(false);
     Mockito.when(userRepository.findActiveUserById(userId)).thenReturn(currentUser);
-    Assertions.assertDoesNotThrow(
-        () -> userService.findAllEmployees(userId, employeeListSearchCondition));
+    Assertions.assertDoesNotThrow(() -> userService.findAllEmployees(employeeListSearchCondition));
   }
 
   @Test
@@ -287,26 +289,23 @@ class UserServiceTests {
       final List<OrgChartDto> orgChartUserItemList = new ArrayList<>();
       manager.setId(UUID.randomUUID().toString().replaceAll("-", ""));
       orgChartUserItemList.add(manager);
-      Mockito.when(userRepository.findOrgChartItemByUserId(userId, companyId)).thenReturn(manager);
-      Mockito.when(userRepository.findOrgChartItemByManagerId(manager.getId(), companyId))
+      Mockito.when(userRepository.findOrgChartItemByUserId(userId)).thenReturn(manager);
+      Mockito.when(userRepository.findOrgChartItemByManagerId(manager.getId()))
           .thenReturn(orgChartUserItemList);
-      Assertions.assertDoesNotThrow(() -> userService.getOrgChart(userId, companyId));
+      Assertions.assertDoesNotThrow(() -> userService.getOrgChart(userId));
     }
 
     @Test
     void whenUserIdIsNull_thenShouldCall() {
       userId = null;
-      final Company company = new Company(companyId);
       final OrgChartDto orgChartDto = new OrgChartDto();
       orgChartDto.setId(companyId);
 
-      Mockito.when(companyRepository.findCompanyById(Mockito.any())).thenReturn(company);
-      Mockito.when(userRepository.findOrgChartItemByManagerId(null, companyId))
-          .thenReturn(new ArrayList<>());
+      Mockito.when(userRepository.findOrgChartItemByManagerId(null)).thenReturn(new ArrayList<>());
       Mockito.when(userMapper.convertOrgChartDto(Mockito.any())).thenReturn(orgChartDto);
-      Mockito.when(userRepository.findExistingUserCountByCompanyId(Mockito.any())).thenReturn(100);
-      userService.getOrgChart(userId, companyId);
-      Mockito.verify(userRepository, Mockito.times(1)).findOrgChartItemByManagerId(null, companyId);
+      Mockito.when(userRepository.countExistingUser()).thenReturn(100);
+      userService.getOrgChart(userId);
+      Mockito.verify(userRepository, Mockito.times(1)).findOrgChartItemByManagerId(null);
     }
   }
 
@@ -650,7 +649,6 @@ class UserServiceTests {
           .thenReturn(new UserStatus(Status.ACTIVE.name()));
 
       final User persistedUser = new User();
-      persistedUser.setCompany(company);
       persistedUser.setUserContactInformation(new UserContactInformation());
       persistedUser.getUserContactInformation().setEmailWork("example@example.com");
       persistedUser.setUserPersonalInformation(new UserPersonalInformation());
@@ -687,19 +685,16 @@ class UserServiceTests {
 
       final Company company = new Company();
       company.setId("1");
-      currentUser.setCompany(company);
       this.currentUser = currentUser;
       targetUserId = "2";
       final User targetUser = new User();
       targetUser.setId(targetUserId);
-      Mockito.when(userRepository.findByIdAndCompanyId(Mockito.anyString(), Mockito.anyString()))
-          .thenReturn(targetUser);
+      Mockito.when(userRepository.findActiveUserById(Mockito.anyString())).thenReturn(targetUser);
     }
 
     @Test
     void whenIsAdmin_thenShouldReturnTrue() {
-      Mockito.when(userRepository.findByIdAndCompanyId(Mockito.anyString(), Mockito.anyString()))
-          .thenReturn(new User());
+      Mockito.when(userRepository.findActiveUserById(Mockito.anyString())).thenReturn(new User());
       final UserRole userRole = new UserRole();
       userRole.setName(Role.ADMIN.name());
       currentUser.setUserRole(userRole);
@@ -711,8 +706,7 @@ class UserServiceTests {
     void whenIsManager_thenShouldReturnTrue() {
       final User targetUser = new User();
       targetUser.setManagerUser(currentUser);
-      Mockito.when(userRepository.findByIdAndCompanyId(Mockito.anyString(), Mockito.anyString()))
-          .thenReturn(targetUser);
+      Mockito.when(userRepository.findActiveUserById(Mockito.anyString())).thenReturn(targetUser);
       final UserRole userRole = new UserRole();
       userRole.setName(Role.MANAGER.name());
       currentUser.setUserRole(userRole);
@@ -730,8 +724,7 @@ class UserServiceTests {
 
     @Test
     void whenTargetUserIsNull_thenShouldThrow() {
-      Mockito.when(userRepository.findByIdAndCompanyId(Mockito.anyString(), Mockito.anyString()))
-          .thenReturn(null);
+      Mockito.when(userRepository.findActiveUserById(Mockito.anyString())).thenReturn(null);
       assertThatExceptionOfType(ResourceNotFoundException.class)
           .isThrownBy(() -> userService.hasUserAccess(currentUser, targetUserId));
     }
@@ -992,8 +985,8 @@ class UserServiceTests {
     final UserStatus userStatus = new UserStatus(Status.PENDING_VERIFICATION.name());
     user.setUserStatus(userStatus);
     final List<User> mockedUsers = Collections.singletonList(user);
-    Mockito.when(userRepository.findAllByCompanyId(Mockito.anyString())).thenReturn(mockedUsers);
-    final List<User> users = userService.findRegisteredUsersByCompany("1");
+    Mockito.when(userRepository.findAllActiveUsers()).thenReturn(mockedUsers);
+    final List<User> users = userService.findRegisteredUsers();
     assertThat(users).isEmpty();
   }
 
