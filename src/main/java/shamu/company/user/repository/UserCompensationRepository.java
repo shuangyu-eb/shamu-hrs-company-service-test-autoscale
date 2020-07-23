@@ -9,6 +9,11 @@ import java.util.List;
 public interface UserCompensationRepository extends BaseRepository<UserCompensation, String> {
   Boolean existsByUserId(String userId);
 
+  @Query(
+      value =
+          "select * from user_compensations "
+              + "where user_id = unhex(?1) order by created_at desc limit 1 ",
+      nativeQuery = true)
   UserCompensation findByUserId(String userId);
 
   @Query(
