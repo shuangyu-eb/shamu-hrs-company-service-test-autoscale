@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
+import shamu.company.common.entity.Tenant;
 import shamu.company.common.exception.errormapping.AlreadyExistsException;
 import shamu.company.common.exception.errormapping.ForbiddenException;
 import shamu.company.common.multitenant.TenantContext;
@@ -44,6 +45,7 @@ import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
 import shamu.company.user.entity.mapper.UserMapper;
 import shamu.company.user.service.UserService;
+import shamu.company.utils.Base64Utils;
 
 @RestApiController
 @Validated
@@ -125,13 +127,18 @@ public class UserRestController extends BaseRestController {
 
   @PostMapping(value = "users/password-reset/{email}")
   public HttpEntity sendResetPasswordEmail(@PathVariable final String email) {
+    final Tenant tenant = tenantService.findTenantByUserEmailWork(email);
+    TenantContext.setCurrentTenant(tenant.getCompanyId());
     userService.sendResetPasswordEmail(email);
+    TenantContext.clear();
     return new ResponseEntity(HttpStatus.OK);
   }
 
   @PatchMapping("users/password-reset")
   public boolean resetPassword(@RequestBody @Valid final UpdatePasswordDto updatePasswordDto) {
+    TenantContext.setCurrentTenant(Base64Utils.decodeCompanyId(updatePasswordDto.getCompanyId()));
     userService.resetPassword(updatePasswordDto);
+    TenantContext.clear();
     return true;
   }
 

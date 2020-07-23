@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.Context;
 import shamu.company.common.exception.errormapping.ResourceNotFoundException;
+import shamu.company.common.entity.Tenant;
 import shamu.company.common.multitenant.TenantContext;
 import shamu.company.common.service.TenantService;
 import shamu.company.company.service.CompanyService;
@@ -388,6 +389,8 @@ public class EmailService {
   public void updateEmailStatus(final List<EmailEvent> emailEvent) {
     emailEvent.forEach(
         emailEventItem -> {
+          final Tenant tenant = tenantService.findTenantByUserEmailWork(emailEventItem.getEmail());
+          TenantContext.setCurrentTenant(tenant.getCompanyId());
           if (StringUtils.isEmpty(emailEventItem.getMessageId())
               || emailEventItem.getEvent() == EmailStatus.INVALID) {
             logger.warn("Invalid email status update request.");
@@ -416,6 +419,7 @@ public class EmailService {
           }
           targetEmail.setStatus(emailEventItem.getEvent());
           emailRepository.save(targetEmail);
+          TenantContext.clear();
         });
   }
 

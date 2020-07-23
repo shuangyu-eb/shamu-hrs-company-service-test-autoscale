@@ -1,9 +1,6 @@
 package shamu.company.account.controller;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import javax.validation.Valid;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
@@ -20,6 +17,7 @@ import shamu.company.helpers.auth0.Auth0Helper;
 import shamu.company.user.dto.CreatePasswordDto;
 import shamu.company.user.dto.UserLoginDto;
 import shamu.company.user.service.UserService;
+import shamu.company.utils.Base64Utils;
 
 @RestApiController
 public class AccountRestController {
@@ -40,8 +38,10 @@ public class AccountRestController {
     this.accountService = accountService;
   }
 
-  @GetMapping("account/password/{token}")
-  public Boolean createPasswordTokenExist(@PathVariable final String token) {
+  @GetMapping("account/password/{token}/{companyId}")
+  public Boolean createPasswordTokenExist(
+      @PathVariable final String token, @PathVariable final String companyId) {
+    TenantContext.setCurrentTenant(Base64Utils.decodeCompanyId(companyId));
     return userService.createPasswordTokenExist(token);
   }
 
@@ -53,15 +53,12 @@ public class AccountRestController {
     return new ResponseEntity<>(HttpStatus.OK);
   }
 
-  @GetMapping("account/password/{passwordToken}/{invitationToken}")
+  @GetMapping("account/password/{passwordToken}/{invitationToken}/{companyId}")
   public boolean createPasswordAndInvitationTokenExist(
       @PathVariable("passwordToken") final String passwordToken,
       @PathVariable("invitationToken") final String invitationToken,
       @PathVariable final String companyId) {
-    final String decodedCompanyId =
-        StringUtils.reverse(
-            new String(Base64.getDecoder().decode(companyId), StandardCharsets.UTF_8));
-    TenantContext.setCurrentTenant(decodedCompanyId);
+    TenantContext.setCurrentTenant(Base64Utils.decodeCompanyId(companyId));
     return accountService.createPasswordAndInvitationTokenExist(passwordToken, invitationToken);
   }
 
@@ -71,8 +68,10 @@ public class AccountRestController {
     return new ResponseEntity<>(HttpStatus.OK);
   }
 
-  @PatchMapping("account/change-work-email/{token}")
-  public boolean validateChangeWorkEmail(@PathVariable final String token) {
+  @PatchMapping("account/change-work-email/{token}/{companyId}")
+  public boolean validateChangeWorkEmail(
+      @PathVariable final String token, @PathVariable final String companyId) {
+    TenantContext.setCurrentTenant(Base64Utils.decodeCompanyId(companyId));
     return userService.changeWorkEmailTokenExist(token);
   }
 
