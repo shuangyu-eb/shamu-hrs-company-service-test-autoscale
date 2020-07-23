@@ -14,4 +14,6 @@ public class UpdatePasswordDto {
   private String newPassword;
 
   @NotNull private String resetPasswordToken;
+
+  @NotNull private String companyId;
 }

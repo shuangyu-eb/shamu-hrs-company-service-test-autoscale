@@ -247,7 +247,7 @@ public class CompanyServiceTests {
           };
       Mockito.when(companyRepository.findCompanyDtoByUserId(Mockito.anyString()))
           .thenReturn(companyDtoProjection);
-      assertThatCode(() -> companyService.findCompanyDtoByUserId("1")).doesNotThrowAnyException();
+      assertThatCode(() -> companyService.findCompanyDto()).doesNotThrowAnyException();
     }
 
     @Test

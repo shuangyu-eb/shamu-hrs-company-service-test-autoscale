@@ -125,11 +125,11 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
     final String roleName = user.getUserRole().getName();
     final boolean isEmployee = StringUtils.equals(Role.EMPLOYEE.getValue(), roleName);
     final boolean hasManager = user.getManagerUser() != null;
-    String userCondition = "u.manager_user_id= unhex(?4)";
+    String userCondition = "u.manager_user_id= unhex(?3)";
     if (hasManager) {
       userCondition = userCondition + " or u.id= unhex(?1)";
       if (isEmployee) {
-        userCondition = "u.id=unhex(?1) or (u.manager_user_id= unhex(?1) and u.id!=unhex(?4))";
+        userCondition = "u.id=unhex(?1) or (u.manager_user_id= unhex(?1) and u.id!=unhex(?3))";
       }
     }
     final String queryColumns =

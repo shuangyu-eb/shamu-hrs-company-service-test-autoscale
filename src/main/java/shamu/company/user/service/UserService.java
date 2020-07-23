@@ -59,7 +59,6 @@ import shamu.company.server.dto.AuthUser;
 import shamu.company.timeoff.service.PaidHolidayService;
 import shamu.company.user.dto.AccountInfoDto;
 import shamu.company.user.dto.ChangePasswordDto;
-import shamu.company.user.dto.CreatePasswordDto;
 import shamu.company.user.dto.CurrentUserDto;
 import shamu.company.user.dto.UpdatePasswordDto;
 import shamu.company.user.dto.UserContactInformationDto;
@@ -418,35 +417,6 @@ public class UserService {
     }
 
     return userRepository.existsByResetPasswordToken(passwordToken);
-  }
-
-  public void createPassword(final CreatePasswordDto createPasswordDto) {
-    final String userWorkEmail = createPasswordDto.getEmailWork();
-    final User user = userRepository.findByEmailWork(userWorkEmail);
-
-    if (user == null
-        || !createPasswordDto.getResetPasswordToken().equals(user.getResetPasswordToken())) {
-      throw new ResourceNotFoundException(
-          String.format("User with email %s not found!", userWorkEmail), userWorkEmail, "user");
-    }
-
-    final com.auth0.json.mgmt.users.User authUser;
-
-    try {
-      authUser = auth0Helper.getAuth0UserByIdWithByEmailFailover(user.getId(), userWorkEmail);
-    } catch (final ResourceNotFoundException e) {
-      throw new UserNotFoundByEmailException(
-          String.format("User with email %s not found.", createPasswordDto.getEmailWork()),
-          createPasswordDto.getEmailWork());
-    }
-
-    auth0Helper.updatePassword(authUser, createPasswordDto.getNewPassword());
-    auth0Helper.updateVerified(authUser, true);
-
-    final UserStatus userStatus = userStatusService.findByName(Status.ACTIVE.name());
-    user.setUserStatus(userStatus);
-    user.setResetPasswordToken(null);
-    userRepository.save(user);
   }
 
   public Page<JobUserListItem> getMyTeam(
@@ -934,6 +904,12 @@ public class UserService {
     return users.stream()
         .filter(user -> !user.getUserStatus().getStatus().equals(Status.PENDING_VERIFICATION))
         .collect(Collectors.toList());
+  }
+
+  public User findByInvitationEmailTokenAndResetPasswordToken(
+      final String emailToken, final String passwordToken) {
+    return userRepository.findByInvitationEmailTokenAndResetPasswordToken(
+        emailToken, passwordToken);
   }
 
   public List<User> listCompanyAttendanceEnrolledUsers(final String companyId) {

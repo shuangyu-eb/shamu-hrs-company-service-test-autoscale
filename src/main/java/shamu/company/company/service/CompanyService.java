@@ -236,12 +236,20 @@ public class CompanyService {
     return companyName;
   }
 
-  public CompanyDtoProjection findCompanyDtoByUserId(final String id) {
-    return companyRepository.findCompanyDtoByUserId(id);
+  public CompanyDtoProjection findCompanyDto() {
+    final Company company = getCompany();
+    return CompanyDtoProjection.builder().id(company.getId()).name(company.getName()).build();
   }
 
   public List<Company> findAllById(final List<String> ids) {
-    return companyRepository.findAllById(ids);
+    return tenantService.findAllByCompanyId(ids).stream()
+        .map(
+            tenant -> {
+              Company company = companyMapper.convertToCompany(tenant);
+              company.setId(tenant.getCompanyId());
+              return company;
+            })
+        .collect(Collectors.toList());
   }
 
   public void updateIsPaidHolidaysAutoEnrolled(final boolean isAutoEnrolled) {

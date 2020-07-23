@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -107,6 +108,9 @@ public class PaidHolidayService {
   private List<PaidHolidayDto> getCurrentYearUserPaidHolidays(
       final AuthUser user, final String userId) {
     final PaidHolidayUser paidHolidayUser = paidHolidayUserRepository.findByUserId(userId);
+    if (paidHolidayUser == null) {
+      return Collections.emptyList();
+    }
     final List<PaidHoliday> paidHolidays =
         paidHolidayUser.isSelected() ? paidHolidayRepository.findAll() : new ArrayList<>();
     return getPaidHolidays(user, paidHolidays);

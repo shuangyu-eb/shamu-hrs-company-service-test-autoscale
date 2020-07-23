@@ -50,7 +50,6 @@ import shamu.company.scheduler.QuartzJobScheduler;
 import shamu.company.server.dto.AuthUser;
 import shamu.company.timeoff.service.PaidHolidayService;
 import shamu.company.user.dto.ChangePasswordDto;
-import shamu.company.user.dto.CreatePasswordDto;
 import shamu.company.user.dto.CurrentUserDto;
 import shamu.company.user.dto.UpdatePasswordDto;
 import shamu.company.user.dto.UserRoleUpdateDto;
@@ -725,79 +724,6 @@ class UserServiceTests {
       Mockito.when(userRepository.findActiveUserById(Mockito.anyString())).thenReturn(null);
       assertThatExceptionOfType(ResourceNotFoundException.class)
           .isThrownBy(() -> userService.hasUserAccess(currentUser, targetUserId));
-    }
-  }
-
-  @Nested
-  class CreatePassword {
-
-    private CreatePasswordDto createPasswordDto;
-
-    private com.auth0.json.mgmt.users.User user;
-
-    @BeforeEach
-    void setUp() {
-      createPasswordDto = new CreatePasswordDto();
-      createPasswordDto.setEmailWork("example@indeed.com");
-      final String password =
-          RandomStringUtils.randomAlphabetic(4).toUpperCase()
-              + RandomStringUtils.randomAlphabetic(4).toLowerCase()
-              + RandomStringUtils.randomNumeric(4);
-      final String resetPasswordToken = UUID.randomUUID().toString().replaceAll("-", "");
-      createPasswordDto.setNewPassword(password);
-      createPasswordDto.setResetPasswordToken(resetPasswordToken);
-      user = new com.auth0.json.mgmt.users.User();
-    }
-
-    @Test
-    void whenPasswordTokenNotMatch_thenShouldThrow() {
-      final User targetUser = new User();
-      targetUser.setResetPasswordToken(RandomStringUtils.randomAlphabetic(10));
-      Mockito.when(userRepository.findByEmailWork(Mockito.anyString())).thenReturn(targetUser);
-      assertThatExceptionOfType(ResourceNotFoundException.class)
-          .isThrownBy(() -> userService.createPassword(createPasswordDto));
-    }
-
-    @Test
-    void whenNoSuchUserInAuth0_thenShouldNotThrow() {
-      final User targetUser = new User();
-      targetUser.setResetPasswordToken(createPasswordDto.getResetPasswordToken());
-      Mockito.when(userRepository.findByEmailWork(Mockito.anyString())).thenReturn(targetUser);
-      Mockito.when(auth0Helper.getUserByUserIdFromAuth0(Mockito.any()))
-          .thenReturn(new com.auth0.json.mgmt.users.User());
-      Assertions.assertDoesNotThrow(() -> userService.createPassword(createPasswordDto));
-    }
-
-    @Test
-    void whenNoSuchUserInDatabase_thenShouldThrow() {
-      final User targetUser = new User();
-      targetUser.setResetPasswordToken(createPasswordDto.getResetPasswordToken());
-      Mockito.when(userRepository.findByEmailWork(Mockito.anyString())).thenReturn(null);
-      assertThatExceptionOfType(ResourceNotFoundException.class)
-          .isThrownBy(() -> userService.createPassword(createPasswordDto));
-    }
-
-    @Test
-    void whenResetTokenNotEqual_thenShouldThrow() {
-      Mockito.when(auth0Helper.getUserByUserIdFromAuth0(Mockito.any())).thenReturn(user);
-      final User targetUser = new User();
-      targetUser.setResetPasswordToken(RandomStringUtils.randomAlphabetic(10));
-      Mockito.when(userRepository.findByEmailWork(Mockito.any())).thenReturn(targetUser);
-      assertThatExceptionOfType(ResourceNotFoundException.class)
-          .isThrownBy(() -> userService.createPassword(createPasswordDto));
-    }
-
-    @Test
-    void whenNoError_thenShouldSuccess() {
-      final User targetUser = new User();
-      targetUser.setResetPasswordToken(createPasswordDto.getResetPasswordToken());
-      Mockito.when(userRepository.findByEmailWork(Mockito.anyString())).thenReturn(targetUser);
-      Mockito.when(auth0Helper.getUserByUserIdFromAuth0(Mockito.any())).thenReturn(user);
-      final UserStatus targetStatus = new UserStatus();
-      targetStatus.setName(Status.ACTIVE.name());
-      Mockito.when(userStatusService.findByName(Mockito.any())).thenReturn(targetStatus);
-
-      Assertions.assertDoesNotThrow(() -> userService.createPassword(createPasswordDto));
     }
   }
 

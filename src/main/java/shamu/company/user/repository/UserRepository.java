@@ -133,6 +133,8 @@ public interface UserRepository extends JpaRepository<User, String>, UserCustomR
   @Query(value = FIND_BY_PERIOD_AND_TIME_SHEET_STATUS, nativeQuery = true)
   List<User> findUsersByPeriodIdAndTimeSheetStatus(String periodId, String timeSheetStatus);
 
+  User findByInvitationEmailTokenAndResetPasswordToken(String emailToken, String passwordToken);
+
   @Query(
       value =
           FIND_BY_PERIOD_AND_TIME_SHEET_STATUS

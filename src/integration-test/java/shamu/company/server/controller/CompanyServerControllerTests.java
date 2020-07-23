@@ -205,15 +205,12 @@ public class CompanyServerControllerTests extends WebControllerBaseTests {
           }
         };
 
-    Mockito.when(companyUserService.findCompanyDtoByUserId(userId))
-        .thenReturn(companyDtoProjection);
+    Mockito.when(companyUserService.findCompanyDto()).thenReturn(companyDtoProjection);
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
     final MvcResult response =
         mockMvc
-            .perform(
-                MockMvcRequestBuilders.get("/server/company/users/" + userId + "/company")
-                    .headers(httpHeaders))
+            .perform(MockMvcRequestBuilders.get("/server/company/current").headers(httpHeaders))
             .andReturn();
 
     final String responseString = response.getResponse().getContentAsString();

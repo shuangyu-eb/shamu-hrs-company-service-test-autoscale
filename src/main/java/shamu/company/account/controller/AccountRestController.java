@@ -1,6 +1,9 @@
 package shamu.company.account.controller;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import javax.validation.Valid;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
@@ -10,7 +13,9 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import shamu.company.account.service.AccountService;
 import shamu.company.common.config.annotations.RestApiController;
+import shamu.company.common.multitenant.TenantContext;
 import shamu.company.helpers.auth0.Auth0Helper;
 import shamu.company.user.dto.CreatePasswordDto;
 import shamu.company.user.dto.UserLoginDto;
@@ -23,10 +28,16 @@ public class AccountRestController {
 
   private final Auth0Helper auth0Helper;
 
+  private final AccountService accountService;
+
   @Autowired
-  public AccountRestController(final UserService userService, final Auth0Helper auth0Helper) {
+  public AccountRestController(
+      final UserService userService,
+      final Auth0Helper auth0Helper,
+      final AccountService accountService) {
     this.userService = userService;
     this.auth0Helper = auth0Helper;
+    this.accountService = accountService;
   }
 
   @GetMapping("account/password/{token}")
@@ -37,15 +48,21 @@ public class AccountRestController {
   @PatchMapping("account/password")
   public HttpEntity<String> createPassword(
       @RequestBody @Valid final CreatePasswordDto createPasswordDto) {
-    userService.createPassword(createPasswordDto);
+    TenantContext.setCurrentTenant(createPasswordDto.getCompanyId());
+    accountService.createPassword(createPasswordDto);
     return new ResponseEntity<>(HttpStatus.OK);
   }
 
   @GetMapping("account/password/{passwordToken}/{invitationToken}")
   public boolean createPasswordAndInvitationTokenExist(
       @PathVariable("passwordToken") final String passwordToken,
-      @PathVariable("invitationToken") final String invitationToken) {
-    return userService.createPasswordAndInvitationTokenExist(passwordToken, invitationToken);
+      @PathVariable("invitationToken") final String invitationToken,
+      @PathVariable final String companyId) {
+    final String decodedCompanyId =
+        StringUtils.reverse(
+            new String(Base64.getDecoder().decode(companyId), StandardCharsets.UTF_8));
+    TenantContext.setCurrentTenant(decodedCompanyId);
+    return accountService.createPasswordAndInvitationTokenExist(passwordToken, invitationToken);
   }
 
   @PatchMapping("account/unlock")

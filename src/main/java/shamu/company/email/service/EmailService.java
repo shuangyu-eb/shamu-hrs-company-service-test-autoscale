@@ -299,6 +299,8 @@ public class EmailService {
     if (!"".equals(emailAddress)) {
       targetLink += "/" + emailAddress;
     }
+
+    targetLink += "/" + getEncodedCompanyId();
     context.setVariable("createPasswordAddress", targetLink);
     welcomeMessage = getFilteredWelcomeMessage(welcomeMessage);
     context.setVariable("welcomeMessage", welcomeMessage);

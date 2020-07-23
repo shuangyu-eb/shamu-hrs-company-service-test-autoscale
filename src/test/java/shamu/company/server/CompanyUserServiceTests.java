@@ -103,9 +103,9 @@ class CompanyUserServiceTests {
             return null;
           }
         };
-    Mockito.when(companyService.findCompanyDtoByUserId(userId)).thenReturn(companyDto);
+    Mockito.when(companyService.findCompanyDto()).thenReturn(companyDto);
 
-    final CompanyDtoProjection result = companyUserService.findCompanyDtoByUserId(userId);
+    final CompanyDtoProjection result = companyUserService.findCompanyDto();
     Assertions.assertEquals(companyDto.getId(), result.getId());
   }
 

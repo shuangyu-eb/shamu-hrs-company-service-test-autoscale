@@ -60,8 +60,8 @@ public class CompanyUserService {
     return userService.findById(userId);
   }
 
-  public CompanyDtoProjection findCompanyDtoByUserId(final String id) {
-    return companyService.findCompanyDtoByUserId(id);
+  public CompanyDtoProjection findCompanyDto() {
+    return companyService.findCompanyDto();
   }
 
   public List<CompanyDto> findCompaniesByIds(final List<String> ids) {
