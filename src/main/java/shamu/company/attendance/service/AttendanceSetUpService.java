@@ -425,11 +425,14 @@ public class AttendanceSetUpService {
   }
 
   public TimePeriod findNextPeriodByUser(final String userId) {
-    final TimePeriod timePeriod = timePeriodService.findUserLatestPeriod(userId);
+    final Optional<TimePeriod> timePeriod = timePeriodService.findUserLatestPeriod(userId);
+    if (!timePeriod.isPresent()) {
+      return null;
+    }
     final User user = userService.findById(userId);
     final Optional<StaticCompanyPayFrequencyType> payFrequencyType =
         payPeriodFrequencyService.findByCompany(user.getCompany().getId());
-    return payFrequencyType.map(staticCompanyPayFrequencyType -> getNextPeriod(timePeriod,
+    return payFrequencyType.map(staticCompanyPayFrequencyType -> getNextPeriod(timePeriod.get(),
         staticCompanyPayFrequencyType.getName())).orElse(null);
   }
 }

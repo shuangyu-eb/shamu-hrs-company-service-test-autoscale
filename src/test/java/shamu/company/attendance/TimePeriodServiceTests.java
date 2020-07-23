@@ -19,9 +19,12 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
 public class TimePeriodServiceTests {
-  @InjectMocks TimePeriodService timePeriodService;
 
-  @Mock private TimePeriodRepository timePeriodRepository;
+  @InjectMocks
+  TimePeriodService timePeriodService;
+
+  @Mock
+  private TimePeriodRepository timePeriodRepository;
 
   @BeforeEach
   void init() {
@@ -30,6 +33,7 @@ public class TimePeriodServiceTests {
 
   @Nested
   class get {
+
     String userId;
     String companyId;
     List<TimeSheetPeriodPojo> timePeriodList;
@@ -68,6 +72,7 @@ public class TimePeriodServiceTests {
 
   @Nested
   class save {
+
     TimePeriod timePeriod;
 
     @BeforeEach
