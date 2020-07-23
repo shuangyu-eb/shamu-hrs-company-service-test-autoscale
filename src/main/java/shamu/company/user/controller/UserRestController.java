@@ -1,6 +1,8 @@
 package shamu.company.user.controller;
 
+import com.auth0.json.auth.CreatedUser;
 import java.util.List;
+import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import org.apache.logging.log4j.util.Strings;
@@ -19,10 +21,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
+import shamu.company.common.exception.errormapping.AlreadyExistsException;
 import shamu.company.common.exception.errormapping.ForbiddenException;
+import shamu.company.common.multitenant.TenantContext;
+import shamu.company.common.service.TenantService;
 import shamu.company.common.validation.constraints.FileValidate;
 import shamu.company.company.service.CompanyService;
 import shamu.company.employee.dto.EmailUpdateDto;
+import shamu.company.helpers.auth0.Auth0Helper;
+import shamu.company.helpers.auth0.exception.SignUpFailedException;
 import shamu.company.user.dto.AccountInfoDto;
 import shamu.company.user.dto.ChangePasswordDto;
 import shamu.company.user.dto.CurrentUserDto;
@@ -46,20 +53,47 @@ public class UserRestController extends BaseRestController {
 
   private final CompanyService companyService;
 
+  private final TenantService tenantService;
+
   private final UserMapper userMapper;
+
+  private final Auth0Helper auth0Helper;
 
   public UserRestController(
       final UserService userService,
       final UserMapper userMapper,
-      final CompanyService companyService) {
+      final CompanyService companyService,
+      final TenantService tenantService,
+      final Auth0Helper auth0Helper) {
     this.userService = userService;
     this.userMapper = userMapper;
     this.companyService = companyService;
+    this.tenantService = tenantService;
+    this.auth0Helper = auth0Helper;
   }
 
   @PostMapping(value = "users")
   public HttpEntity signUp(@RequestBody final UserSignUpDto signUpDto) {
-    userService.signUp(signUpDto);
+    if (tenantService.isCompanyExists(signUpDto.getCompanyName())) {
+      throw new AlreadyExistsException("Company name already exists.", "company name");
+    }
+
+    final CreatedUser user = auth0Helper.signUp(signUpDto.getWorkEmail(), signUpDto.getPassword());
+    final com.auth0.json.mgmt.users.User auth0User =
+        auth0Helper.updateAuthUserAppMetaData(user.getUserId(), signUpDto.getWorkEmail());
+    final Map<String, Object> appMetaData = auth0User.getAppMetadata();
+    final String companyId = (String) appMetaData.get(Auth0Helper.COMPANY_ID);
+    final String userId = (String) appMetaData.get(Auth0Helper.USER_ID);
+    try {
+      tenantService.createTenant(companyId, signUpDto.getCompanyName());
+      TenantContext.setCurrentTenant(companyId);
+      userService.signUp(signUpDto, userId);
+      TenantContext.clear();
+    } catch (final RuntimeException e) {
+      tenantService.deleteTenant(companyId);
+      auth0Helper.deleteUser(auth0User.getId());
+      throw new SignUpFailedException("Sign up failed.", e);
+    }
     return new ResponseEntity(HttpStatus.OK);
   }
 

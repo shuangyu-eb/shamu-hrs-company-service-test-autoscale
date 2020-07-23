@@ -1,6 +1,5 @@
 package shamu.company.user.service;
 
-import com.auth0.json.auth.CreatedUser;
 import io.micrometer.core.instrument.util.StringUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.logging.log4j.util.Strings;
@@ -555,19 +554,7 @@ public class UserService {
     }
   }
 
-  public void signUp(final UserSignUpDto signUpDto) {
-
-    if (companyService.existsByName(signUpDto.getCompanyName())) {
-      throw new AlreadyExistsException("Company name already exists.", "company name");
-    }
-
-    final String uuid = UuidUtil.getUuidString();
-    addSignUpInformation(signUpDto, uuid);
-    final CreatedUser user = auth0Helper.signUp(signUpDto.getWorkEmail(), signUpDto.getPassword());
-    auth0Helper.updateAuthUserAppMetaData(user.getUserId(), signUpDto.getWorkEmail(), uuid);
-  }
-
-  public void addSignUpInformation(final UserSignUpDto signUpDto, final String id) {
+  public void signUp(final UserSignUpDto signUpDto, final String userId) {
     final UserPersonalInformation userPersonalInformation =
         UserPersonalInformation.builder()
             .firstName(signUpDto.getFirstName())
@@ -578,9 +565,7 @@ public class UserService {
     final UserContactInformation userContactInformation =
         UserContactInformation.builder().emailWork(emailAddress).build();
 
-    Company company = Company.builder().name(signUpDto.getCompanyName()).build();
-    company = companyService.save(company);
-    secretHashRepository.generateCompanySecretByCompanyId(company.getId());
+    secretHashRepository.generateCompanySecretByCompanyId(TenantContext.getCurrentTenant());
 
     saveCompanyBenefitsSetting();
 
@@ -595,8 +580,7 @@ public class UserService {
             .userRole(userRoleService.getAdmin())
             .salt(UuidUtil.getUuidString())
             .build();
-    user.setId(id);
-
+    user.setId(userId);
     userRepository.save(user);
 
     // TODO: It would be delete in another PR.

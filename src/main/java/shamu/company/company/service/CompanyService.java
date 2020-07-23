@@ -3,12 +3,18 @@ package shamu.company.company.service;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 import shamu.company.common.entity.StateProvince;
+import shamu.company.common.entity.Tenant;
+import shamu.company.common.events.TenantCreatedEvent;
 import shamu.company.common.exception.errormapping.AlreadyExistsException;
 import shamu.company.common.service.DepartmentService;
 import shamu.company.common.service.OfficeService;
 import shamu.company.common.service.StateProvinceService;
+import shamu.company.common.service.TenantService;
 import shamu.company.company.dto.CompanyBenefitsSettingDto;
 import shamu.company.company.dto.OfficeSizeDto;
 import shamu.company.company.entity.Company;
@@ -17,6 +23,7 @@ import shamu.company.company.entity.Department;
 import shamu.company.company.entity.Office;
 import shamu.company.company.entity.OfficeAddress;
 import shamu.company.company.entity.mapper.CompanyBenefitsSettingMapper;
+import shamu.company.company.entity.mapper.CompanyMapper;
 import shamu.company.company.entity.mapper.OfficeAddressMapper;
 import shamu.company.company.repository.CompanyRepository;
 import shamu.company.employee.dto.SelectFieldSizeDto;
@@ -41,13 +48,19 @@ public class CompanyService {
 
   private final OfficeService officeService;
 
+  private final TenantService tenantService;
+
   private final OfficeAddressMapper officeAddressMapper;
 
   private final StateProvinceService stateProvinceService;
 
   private final CompanyBenefitsSettingMapper companyBenefitsSettingMapper;
 
+  private final CompanyMapper companyMapper;
+
   private final CompanyBenefitsSettingService companyBenefitsSettingService;
+
+  private final ApplicationEventPublisher eventPublisher;
 
   private final GoogleMapsHelper googleMapsHelper;
 
@@ -62,6 +75,10 @@ public class CompanyService {
       final StateProvinceService stateProvinceService,
       final CompanyBenefitsSettingMapper companyBenefitsSettingMapper,
       final CompanyBenefitsSettingService companyBenefitsSettingService,
+      final CompanyMapper companyMapper,
+      final ApplicationEventPublisher eventPublisher,
+      final TenantService tenantService,
+      final CompanyBenefitsSettingService companyBenefitsSettingService,
       final GoogleMapsHelper googleMapsHelper) {
     this.companyRepository = companyRepository;
     this.departmentService = departmentService;
@@ -72,6 +89,9 @@ public class CompanyService {
     this.stateProvinceService = stateProvinceService;
     this.companyBenefitsSettingMapper = companyBenefitsSettingMapper;
     this.companyBenefitsSettingService = companyBenefitsSettingService;
+    this.companyMapper = companyMapper;
+    this.eventPublisher = eventPublisher;
+    this.tenantService = tenantService;
     this.googleMapsHelper = googleMapsHelper;
   }
 
@@ -172,7 +192,16 @@ public class CompanyService {
   }
 
   public Company save(final Company company) {
-    return companyRepository.save(company);
+    companyRepository.save(company);
+    final Tenant tenant = companyMapper.convertToTenant(company);
+    eventPublisher.publishEvent(new TenantCreatedEvent(tenant));
+    return company;
+  }
+
+  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMPLETION)
+  @SuppressWarnings("unused")
+  public void saveOrUpdateRecordForDefaultDatabase(final TenantCreatedEvent event) {
+    tenantService.save(event.getTenant());
   }
 
   public CompanyBenefitsSettingDto findCompanyBenefitsSetting() {

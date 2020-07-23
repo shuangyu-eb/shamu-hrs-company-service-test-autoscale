@@ -633,7 +633,7 @@ class UserServiceTests {
     void whenCompanyNameExists_thenShouldThrow() {
       Mockito.when(companyService.existsByName(Mockito.anyString())).thenReturn(true);
       assertThatExceptionOfType(AlreadyExistsException.class)
-          .isThrownBy(() -> userService.signUp(userSignUpDto));
+          .isThrownBy(() -> userService.signUp(userSignUpDto, Mockito.anyString()));
     }
 
     @Test
@@ -659,11 +659,9 @@ class UserServiceTests {
       final com.auth0.json.mgmt.users.User user = new com.auth0.json.mgmt.users.User();
       final CreatedUser createdUser = new CreatedUser();
       Mockito.when(auth0Helper.signUp(Mockito.any(), Mockito.any())).thenReturn(createdUser);
-      Mockito.when(
-              auth0Helper.updateAuthUserAppMetaData(
-                  Mockito.anyString(), Mockito.any(), Mockito.anyString()))
+      Mockito.when(auth0Helper.updateAuthUserAppMetaData(Mockito.anyString(), Mockito.any()))
           .thenReturn(user);
-      userService.signUp(userSignUpDto);
+      userService.signUp(userSignUpDto, Mockito.anyString());
       Mockito.verify(userRepository, Mockito.times(1)).save(Mockito.any());
     }
   }

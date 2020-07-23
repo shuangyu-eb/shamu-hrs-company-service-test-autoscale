@@ -15,12 +15,14 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.springframework.context.ApplicationEventPublisher;
 import shamu.company.common.entity.StateProvince;
 import shamu.company.common.exception.errormapping.AlreadyExistsException;
 import shamu.company.common.exception.errormapping.ResourceNotFoundException;
 import shamu.company.common.service.DepartmentService;
 import shamu.company.common.service.OfficeService;
 import shamu.company.common.service.StateProvinceService;
+import shamu.company.common.service.TenantService;
 import shamu.company.company.dto.CompanyBenefitsSettingDto;
 import shamu.company.company.entity.Company;
 import shamu.company.company.entity.CompanyBenefitsSetting;
@@ -28,6 +30,7 @@ import shamu.company.company.entity.Department;
 import shamu.company.company.entity.Office;
 import shamu.company.company.entity.OfficeAddress;
 import shamu.company.company.entity.mapper.CompanyBenefitsSettingMapper;
+import shamu.company.company.entity.mapper.CompanyMapper;
 import shamu.company.company.entity.mapper.OfficeAddressMapper;
 import shamu.company.company.repository.CompanyRepository;
 import shamu.company.company.service.CompanyBenefitsSettingService;
@@ -53,6 +56,10 @@ public class CompanyServiceTests {
   @Mock private StateProvinceService stateProvinceService;
   @Mock private CompanyBenefitsSettingMapper companyBenefitsSettingMapper;
   @Mock private CompanyBenefitsSettingService companyBenefitsSettingService;
+  @Mock private CompanyMapper companyMapper;
+  @Mock private ApplicationEventPublisher eventPublisher;
+  @Mock private TenantService tenantService;
+  @Mock private CompanyService companyService;
   @Mock private GoogleMapsHelper googleMapsHelper;
   private CompanyService companyService;
 
@@ -69,6 +76,10 @@ public class CompanyServiceTests {
             officeAddressMapper,
             stateProvinceService,
             companyBenefitsSettingMapper,
+            companyBenefitsSettingService,
+            companyMapper,
+            eventPublisher,
+            tenantService,
             companyBenefitsSettingService,
             googleMapsHelper);
     department.setId("1");

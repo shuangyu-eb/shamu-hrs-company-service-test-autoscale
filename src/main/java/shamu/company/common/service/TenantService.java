@@ -3,9 +3,11 @@ package shamu.company.common.service;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shamu.company.common.database.DataSourceConfig;
+import shamu.company.common.database.LiquibaseManager;
 import shamu.company.common.entity.Tenant;
 import shamu.company.common.exception.errormapping.ResourceNotFoundException;
 import shamu.company.common.repository.TenantRepository;
@@ -18,10 +20,15 @@ public class TenantService {
 
   private final DataSourceConfig dataSourceConfig;
 
+  private final LiquibaseManager liquibaseManager;
+
   public TenantService(
-      final TenantRepository tenantRepository, final DataSourceConfig dataSourceConfig) {
+      final TenantRepository tenantRepository,
+      final DataSourceConfig dataSourceConfig,
+      @Lazy final LiquibaseManager liquibaseManager) {
     this.tenantRepository = tenantRepository;
     this.dataSourceConfig = dataSourceConfig;
+    this.liquibaseManager = liquibaseManager;
   }
 
   public void save(final Tenant tenant) {
@@ -68,5 +75,9 @@ public class TenantService {
 
   public void deleteTenant(final String companyId) {
     tenantRepository.delete(companyId);
+  }
+
+  public void createTenant(final String companyId, final String companyName) {
+    liquibaseManager.addSchema(companyId, companyName);
   }
 }

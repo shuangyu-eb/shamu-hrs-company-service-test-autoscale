@@ -13,6 +13,8 @@ import shamu.company.common.entity.Tenant;
 import shamu.company.common.exception.CustomLiquibaseException;
 import shamu.company.common.multitenant.TenantContext;
 import shamu.company.common.service.TenantService;
+import shamu.company.company.entity.Company;
+import shamu.company.company.service.CompanyService;
 
 @Component
 public class LiquibaseManager {
@@ -27,6 +29,8 @@ public class LiquibaseManager {
 
   private final TenantService tenantService;
 
+  private final CompanyService companyService;
+
   private final StatesProvincesInitializer statesProvincesInitializer;
 
   public LiquibaseManager(
@@ -35,13 +39,15 @@ public class LiquibaseManager {
       final LiquibaseProperties companyLiquibaseProperties,
       final ResourceLoader resourceLoader,
       final TenantService tenantService,
-      final StatesProvincesInitializer statesProvincesInitializer) {
+      final StatesProvincesInitializer statesProvincesInitializer,
+      final CompanyService companyService) {
     this.dataSourceConfig = dataSourceConfig;
     this.tenantLiquibaseProperties = tenantLiquibaseProperties;
     this.companyLiquibaseProperties = companyLiquibaseProperties;
     this.resourceLoader = resourceLoader;
     this.tenantService = tenantService;
     this.statesProvincesInitializer = statesProvincesInitializer;
+    this.companyService = companyService;
   }
 
   @PostConstruct
@@ -83,6 +89,16 @@ public class LiquibaseManager {
             dataSourceConfig.getDataSource(schema), schema, liquibaseProperties);
     liquibase.setResourceLoader(resourceLoader);
     return liquibase;
+  }
+
+  public void addSchema(final String companyId, final String companyName) {
+    TenantContext.setCurrentTenant(companyId);
+    final Company company = new Company(companyId);
+
+    company.setName(companyName);
+    initSchema(Tenant.builder().companyId(companyId).build());
+    companyService.save(company);
+    TenantContext.clear();
   }
 
   private void initSchema(final Tenant tenant) {

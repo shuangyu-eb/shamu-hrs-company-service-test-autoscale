@@ -46,6 +46,7 @@ import shamu.company.helpers.auth0.exception.PermissionGetFailedException;
 import shamu.company.helpers.auth0.exception.SignUpFailedException;
 import shamu.company.helpers.auth0.exception.errormapping.VerificationEmailSendFailedException;
 import shamu.company.sentry.SentryLogger;
+import shamu.company.utils.UuidUtil;
 
 @Component
 public class Auth0Helper {
@@ -62,6 +63,8 @@ public class Auth0Helper {
   private final Auth0Manager auth0Manager;
   private final OkHttpClient httpClient = new Builder().build();
   private static final String USER_SECRET = "userSecret";
+  public static final String COMPANY_ID = "companyId";
+  public static final String USER_ID = "id";
 
   @Autowired
   public Auth0Helper(final Auth0Manager auth0Manager, final Auth0Config auth0Config) {
@@ -307,19 +310,21 @@ public class Auth0Helper {
     if (appMetadata == null || appMetadata.size() == 0) {
       return null;
     }
-    return (String) appMetadata.get("id");
+    return (String) appMetadata.get(USER_ID);
   }
 
-  public User updateAuthUserAppMetaData(
-      final String userId, final String email, final String uuid) {
+  public User updateAuthUserAppMetaData(final String userId, final String email) {
     final String newUserId = "auth0|" + userId;
     final User user = new User();
     user.setEmail(email);
-    final String userSecret = generateUserSecret(uuid);
+
+    final String userIdInDatabase = UuidUtil.getUuidString().toUpperCase();
+    final String userSecret = generateUserSecret(userIdInDatabase);
     final Map<String, Object> appMetaData = new HashMap<>();
-    appMetaData.put("id", uuid);
+    appMetaData.put(USER_ID, userIdInDatabase);
     appMetaData.put("idVerified", true);
     appMetaData.put(USER_SECRET, userSecret);
+    appMetaData.put(COMPANY_ID, UuidUtil.getUuidString().toUpperCase());
     user.setAppMetadata(appMetaData);
     final ManagementAPI manager = auth0Manager.getManagementApi();
     final Request<User> request = manager.users().update(newUserId, user);
@@ -353,7 +358,7 @@ public class Auth0Helper {
     final Map<String, Object> appMetaData = new HashMap<>();
     final String userId = UUID.randomUUID().toString().replace("-", "");
     final String userSecret = generateUserSecret(userId);
-    appMetaData.put("id", userId);
+    appMetaData.put(USER_ID, userId);
     appMetaData.put("idVerified", true);
     appMetaData.put("role", roleName);
     appMetaData.put(USER_SECRET, userSecret);
