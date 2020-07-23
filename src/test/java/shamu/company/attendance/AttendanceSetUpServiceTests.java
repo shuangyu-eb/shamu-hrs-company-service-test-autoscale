@@ -239,7 +239,7 @@ public class AttendanceSetUpServiceTests {
       Mockito.when(timePeriodService.findUserLatestPeriod(userId)).thenReturn(timePeriod);
       Mockito.when(userService.findById(userId)).thenReturn(user);
       Mockito.when(payPeriodFrequencyService.findByCompany(Mockito.any()))
-          .thenReturn(staticCompanyPayFrequencyType);
+          .thenReturn(Optional.ofNullable(staticCompanyPayFrequencyType));
       assertThatCode(() -> attendanceSetUpService.findNextPeriodByUser(userId))
           .doesNotThrowAnyException();
     }

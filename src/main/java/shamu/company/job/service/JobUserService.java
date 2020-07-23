@@ -437,7 +437,7 @@ public class JobUserService {
 
     final JobUser jobUser = findJobUserByUser(user);
 
-    if (jobUser.getStartDate() == null) {
+    if (jobUser == null || jobUser.getStartDate() == null) {
       return new JobUserHireDateCheckDto(true);
     }
 

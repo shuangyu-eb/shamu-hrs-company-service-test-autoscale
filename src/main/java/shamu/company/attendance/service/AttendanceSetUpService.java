@@ -1,5 +1,6 @@
 package shamu.company.attendance.service;
 
+import java.util.Optional;
 import org.apache.commons.lang.time.DateUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -426,8 +427,9 @@ public class AttendanceSetUpService {
   public TimePeriod findNextPeriodByUser(final String userId) {
     final TimePeriod timePeriod = timePeriodService.findUserLatestPeriod(userId);
     final User user = userService.findById(userId);
-    final StaticCompanyPayFrequencyType payFrequencyType =
+    final Optional<StaticCompanyPayFrequencyType> payFrequencyType =
         payPeriodFrequencyService.findByCompany(user.getCompany().getId());
-    return getNextPeriod(timePeriod, payFrequencyType.getName());
+    return payFrequencyType.map(staticCompanyPayFrequencyType -> getNextPeriod(timePeriod,
+        staticCompanyPayFrequencyType.getName())).orElse(null);
   }
 }
