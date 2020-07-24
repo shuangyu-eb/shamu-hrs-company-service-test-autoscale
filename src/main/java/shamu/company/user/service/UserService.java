@@ -658,7 +658,7 @@ public class UserService {
     final String emailContent = templateEngine.process("password_change_email.html", context);
     final Timestamp sendDate = Timestamp.valueOf(LocalDateTime.now());
     final Email notificationEmail =
-        new Email(systemEmailAddress, emailAddress, "Password Changed.", emailContent, sendDate);
+        new Email(systemEmailAddress, emailAddress, "Password Changed", emailContent, sendDate);
     emailService.saveAndScheduleEmail(notificationEmail);
   }
 
