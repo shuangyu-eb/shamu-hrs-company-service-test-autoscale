@@ -1,8 +1,13 @@
 package shamu.company.attendance.controller;
 
 import java.util.List;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import shamu.company.attendance.dto.CompanyTaSettingsDto;
 import shamu.company.attendance.dto.EmployeesTaSettingDto;
 import shamu.company.attendance.dto.StaticTimezoneDto;
@@ -48,5 +53,20 @@ public class AttendanceSettingsController extends BaseRestController {
   public List<StaticTimezoneDto> findAllTimeZones() {
     final List<StaticTimezone> staticTimezones = attendanceSettingsService.findAllStaticTimeZones();
     return ReflectionUtil.convertTo(staticTimezones, StaticTimezoneDto.class);
+  }
+
+  @PatchMapping("time-and-attendance/companySettings")
+  public HttpEntity<String> updateCompanySettings(
+      @RequestBody final CompanyTaSettingsDto companyTaSettingsDto) {
+    attendanceSettingsService.updateCompanySettings(companyTaSettingsDto, findCompanyId());
+    return new ResponseEntity<>(HttpStatus.OK);
+  }
+
+  @PatchMapping("time-and-attendance/{employeeId}/employeeSettings")
+  public HttpEntity<String> updateEmployeeSettings(
+      @PathVariable final String employeeId,
+      @RequestBody final EmployeesTaSettingDto employeesTaSettingDto) {
+    attendanceSettingsService.updateEmployeeSettings(employeeId, employeesTaSettingDto);
+    return new ResponseEntity<>(HttpStatus.OK);
   }
 }
