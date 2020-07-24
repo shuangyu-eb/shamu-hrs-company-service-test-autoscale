@@ -100,8 +100,6 @@ public class AttendanceSetUpService {
 
   private final JobUserMapper jobUserMapper;
 
-  private final StaticCompanyPayFrequencyTypeRepository payFrequencyTypeRepository;
-
   private final CompensationFrequencyRepository compensationFrequencyRepository;
 
   private final UserCompensationService userCompensationService;
@@ -145,7 +143,6 @@ public class AttendanceSetUpService {
       final UserRepository userRepository,
       final JobUserRepository jobUserRepository,
       final JobUserMapper jobUserMapper,
-      final CompanyRepository companyRepository,
       final CompensationFrequencyRepository compensationFrequencyRepository,
       final UserCompensationService userCompensationService,
       final UserService userService,
@@ -169,7 +166,6 @@ public class AttendanceSetUpService {
     this.userRepository = userRepository;
     this.jobUserRepository = jobUserRepository;
     this.jobUserMapper = jobUserMapper;
-    this.payFrequencyTypeRepository = payFrequencyTypeRepository;
     this.compensationFrequencyRepository = compensationFrequencyRepository;
     this.userCompensationService = userCompensationService;
     this.userService = userService;
@@ -730,9 +726,8 @@ public class AttendanceSetUpService {
     if (!timePeriod.isPresent()) {
       return null;
     }
-    final User user = userService.findById(userId);
     final Optional<StaticCompanyPayFrequencyType> payFrequencyType =
-        payPeriodFrequencyService.findByCompany(user.getCompany().getId());
+        payPeriodFrequencyService.findSetting();
     return payFrequencyType
         .map(
             staticCompanyPayFrequencyType ->

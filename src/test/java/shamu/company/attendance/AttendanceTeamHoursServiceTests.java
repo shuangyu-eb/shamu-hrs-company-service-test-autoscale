@@ -125,7 +125,7 @@ class AttendanceTeamHoursServiceTests {
               timeSheetService.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
                   timesheetId, companyId, status, "1", pageable))
           .thenReturn(page);
-      Mockito.when(attendanceSettingsService.findCompanySettings(companyId))
+      Mockito.when(attendanceSettingsService.findCompanySetting())
           .thenReturn(companyTaSetting);
       Mockito.when(attendanceMyHoursService.findAllRelevantTimelogs(timeSheet, companyTaSetting))
           .thenReturn(workedMinutes);
@@ -231,7 +231,7 @@ class AttendanceTeamHoursServiceTests {
       compensationFrequency.setName("Per Hour");
       userCompensation.setCompensationFrequency(compensationFrequency);
       timeSheet.setUserCompensation(userCompensation);
-      Mockito.when(attendanceSettingsService.findCompanySettings(Mockito.anyString()))
+      Mockito.when(attendanceSettingsService.findCompanySettings())
           .thenReturn(companyTaSetting);
       Mockito.when(
               timeOffRequestService.findTimeOffHoursBetweenWorkPeriod(

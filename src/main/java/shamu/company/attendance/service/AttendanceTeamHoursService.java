@@ -171,7 +171,7 @@ public class AttendanceTeamHoursService {
               timePeriodId, companyId, timeSheetStatus, userId, pageable);
     }
     final CompanyTaSetting companyTaSetting =
-        attendanceSettingsService.findCompanySettings(companyId);
+        attendanceSettingsService.findCompanySetting();
 
     final List<AttendanceTeamHoursDto> teamHoursDtos =
         timeSheetPage.getContent().stream()
@@ -229,7 +229,7 @@ public class AttendanceTeamHoursService {
                   StaticTimesheetStatus.TimeSheetStatus.APPROVED.name()));
     }
     final CompanyTaSetting companyTaSetting =
-        attendanceSettingsService.findCompanySettings(companyId);
+        attendanceSettingsService.findCompanySetting();
     int totalTimeOffHours = 0;
     int totalOvertimeMin = 0;
     int totalRegularMin = 0;

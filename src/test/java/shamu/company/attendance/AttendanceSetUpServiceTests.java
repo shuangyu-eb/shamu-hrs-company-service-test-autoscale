@@ -129,8 +129,8 @@ public class AttendanceSetUpServiceTests {
   @Test
   void findIsAttendanceSetUp() {
     Mockito.when(attendanceSettingsService.exists()).thenReturn(true);
-    attendanceSetUpService.findIsAttendanceSetUp("1");
-    assertThatCode(() -> attendanceSetUpService.findIsAttendanceSetUp("1"))
+    attendanceSetUpService.findIsAttendanceSetUp();
+    assertThatCode(() -> attendanceSetUpService.findIsAttendanceSetUp())
         .doesNotThrowAnyException();
   }
 
@@ -150,7 +150,7 @@ public class AttendanceSetUpServiceTests {
     void whenEmployeesAreEmpty_shouldSucceed() {
       Mockito.when(userRepository.findAllActiveUsers()).thenReturn(unselectedUsers);
       Mockito.when(employeesTaSettingRepository.findAll()).thenReturn(selectedUsers);
-      assertThatCode(() -> attendanceSetUpService.getRelatedUsers(companyId))
+      assertThatCode(() -> attendanceSetUpService.getRelatedUsers())
           .doesNotThrowAnyException();
     }
 
@@ -179,7 +179,7 @@ public class AttendanceSetUpServiceTests {
               jobUserMapper.convertToTimeAndAttendanceRelatedUserDto(
                   user, employeeWithJobInfo, "123"))
           .thenReturn(relatedUserDto);
-      assertThatCode(() -> attendanceSetUpService.getRelatedUsers(companyId))
+      assertThatCode(() -> attendanceSetUpService.getRelatedUsers())
           .doesNotThrowAnyException();
     }
   }
@@ -350,14 +350,13 @@ public class AttendanceSetUpServiceTests {
       userId = "test_user_id";
       final User user = new User();
       user.setId(userId);
-      user.setCompany(new Company());
       final StaticCompanyPayFrequencyType staticCompanyPayFrequencyType =
           new StaticCompanyPayFrequencyType();
       staticCompanyPayFrequencyType.setName(payPeriodFrequency);
       Mockito.when(timePeriodService.findUserCurrentPeriod(userId))
           .thenReturn(Optional.ofNullable(timePeriod));
       Mockito.when(userService.findById(userId)).thenReturn(user);
-      Mockito.when(payPeriodFrequencyService.findByCompany(Mockito.any()))
+      Mockito.when(payPeriodFrequencyService.findSetting())
           .thenReturn(Optional.ofNullable(staticCompanyPayFrequencyType));
       Mockito.when(attendanceSettingsService.findCompanySettings(company.getId()))
           .thenReturn(companyTaSetting);

@@ -41,7 +41,7 @@ public class AttendanceSetUpControllerTests extends WebControllerBaseTests {
     targetUser.setId(currentUser.getId());
 
     given(userService.findById(currentUser.getId())).willReturn(targetUser);
-    given(attendanceSetUpService.findIsAttendanceSetUp(Mockito.anyString())).willReturn(false);
+    given(attendanceSetUpService.findIsAttendanceSetUp()).willReturn(false);
     final MvcResult response =
         mockMvc
             .perform(
@@ -53,7 +53,7 @@ public class AttendanceSetUpControllerTests extends WebControllerBaseTests {
             .andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
     Mockito.verify(attendanceSetUpService, Mockito.times(1))
-        .findIsAttendanceSetUp(Mockito.anyString());
+        .findIsAttendanceSetUp();
   }
 
   @Test

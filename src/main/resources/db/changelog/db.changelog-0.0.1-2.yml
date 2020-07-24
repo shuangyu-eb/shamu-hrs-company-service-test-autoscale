@@ -629,3 +629,34 @@ databaseChangeLog:
                   name: start_of_week
                   type: VARCHAR(10)
             tableName: company_ta_settings
+
+  - changeSet:
+      id: 1595324122903
+      author: lei-eb
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: messaging_on
+                  type: tinyint(1)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: overtime_alert
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+            tableName: company_ta_settings
+
+  - changeSet:
+      id: 1595475847000
+      author: michael-eb
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: status_id
+            baseTableName: timesheets
+            constraintName: fk_timesheets_status_id
+            onDelete: RESTRICT
+            onUpdate: RESTRICT
+            referencedColumnNames: id
+            referencedTableName: static_timesheet_status

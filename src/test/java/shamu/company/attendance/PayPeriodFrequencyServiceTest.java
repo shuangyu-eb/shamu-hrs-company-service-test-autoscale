@@ -83,12 +83,12 @@ public class PayPeriodFrequencyServiceTest {
       final CompanyTaSetting companyTaSetting = new CompanyTaSetting();
       final PayrollDetail payrollDetail = new PayrollDetail();
       payrollDetail.setPayFrequencyType(new StaticCompanyPayFrequencyType());
-      Mockito.when(attendanceSettingsService.findCompanySettings(companyId))
+      Mockito.when(attendanceSettingsService.findCompanySetting())
           .thenReturn(companyTaSetting);
       Mockito.when(payrollDetailService.findByCompanyId(companyId)).thenReturn(payrollDetail);
       assertThatCode(
               () -> {
-                payPeriodFrequencyService.findByCompany(companyId);
+                payPeriodFrequencyService.findSetting();
               })
           .doesNotThrowAnyException();
     }

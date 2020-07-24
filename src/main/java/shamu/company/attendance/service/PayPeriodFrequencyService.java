@@ -44,9 +44,9 @@ public class PayPeriodFrequencyService {
                 "payFrequencyType"));
   }
 
-  public Optional<StaticCompanyPayFrequencyType> findByCompany(final String companyId) {
-    final Optional<PayrollDetail> payrollDetail =
-        Optional.of(payrollDetailService.findByCompanyId(companyId));
-    return payrollDetail.map(PayrollDetail::getPayFrequencyType);
+  public Optional<StaticCompanyPayFrequencyType> findSetting() {
+    Optional<CompanyTaSetting> companySetting = Optional
+        .ofNullable(attendanceSettingsService.findCompanySetting());
+    return companySetting.map(CompanyTaSetting::getPayFrequencyType);
   }
 }
