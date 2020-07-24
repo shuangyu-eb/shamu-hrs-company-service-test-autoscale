@@ -1,4 +1,4 @@
-package shamu.company.timeoff;
+package shamu.company.timeoff.service;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
@@ -56,8 +56,6 @@ import shamu.company.timeoff.repository.TimeOffPolicyAccrualScheduleRepository;
 import shamu.company.timeoff.repository.TimeOffPolicyRepository;
 import shamu.company.timeoff.repository.TimeOffPolicyUserRepository;
 import shamu.company.timeoff.repository.TimeOffRequestRepository;
-import shamu.company.timeoff.service.TimeOffDetailService;
-import shamu.company.timeoff.service.TimeOffPolicyService;
 import shamu.company.user.entity.EmployeeType;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserAddress;
@@ -625,14 +623,15 @@ public class TimeOffPolicyServiceTests {
 
   @Test
   void testAddUserToAutoEnrolledPolicy() {
-    final Company company = new Company();
+    final Company companyInfo = new Company();
     final TimeOffPolicy timeOffPolicy = new TimeOffPolicy();
     timeOffPolicy.setId("1");
     timeOffPolicy.setIsLimited(true);
-    company.setIsPaidHolidaysAutoEnroll(true);
-    company.setId("1");
+    companyInfo.setIsPaidHolidaysAutoEnroll(true);
+    companyInfo.setId("1");
     final List<TimeOffPolicy> timeOffPolicyList = new ArrayList<>();
     timeOffPolicyList.add(timeOffPolicy);
+    Mockito.when(companyService.getCompany()).thenReturn(companyInfo);
     Mockito.when(timeOffPolicyRepository.findByIsAutoEnrollEnabledIsTrue())
         .thenReturn(timeOffPolicyList);
 
@@ -720,7 +719,7 @@ public class TimeOffPolicyServiceTests {
       Assertions.assertDoesNotThrow(
           () -> {
             Whitebox.invokeMethod(
-                timeOffPolicyService, "checkPolicyNameIsExists", timeOffPolicy, company.getId(), 0);
+                timeOffPolicyService, "checkPolicyNameIsExists", timeOffPolicy, 0);
           });
     }
 
@@ -734,11 +733,7 @@ public class TimeOffPolicyServiceTests {
           .isThrownBy(
               () ->
                   Whitebox.invokeMethod(
-                      timeOffPolicyService,
-                      "checkPolicyNameIsExists",
-                      timeOffPolicy,
-                      company.getId(),
-                      0));
+                      timeOffPolicyService, "checkPolicyNameIsExists", timeOffPolicy, 0));
     }
   }
 

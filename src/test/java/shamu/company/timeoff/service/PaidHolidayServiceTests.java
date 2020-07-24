@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
@@ -139,11 +140,22 @@ class PaidHolidayServiceTests {
 
     @Test
     void whenDateDuplicate_thenShouldThrowException() {
+      final PaidHoliday paidHoliday = new PaidHoliday();
+      paidHoliday.setId("2");
+      paidHoliday.setName("007");
+      paidHoliday.setDate(Timestamp.valueOf(LocalDateTime.now()));
+      paidHoliday.setFederal(true);
+
       final PaidHolidayDto newPaidHolidayDto = new PaidHolidayDto();
-      newPaidHolidayDto.setId("2");
-      newPaidHolidayDto.setName("007");
-      newPaidHolidayDto.setFederal(true);
-      newPaidHolidayDto.setDate(Timestamp.valueOf(LocalDateTime.now()));
+      newPaidHolidayDto.setId(paidHoliday.getId());
+      newPaidHolidayDto.setName(paidHoliday.getName());
+      newPaidHolidayDto.setDate(paidHoliday.getDate());
+      newPaidHolidayDto.setFederal(paidHoliday.getFederal());
+
+      final List<PaidHoliday> paidHolidays = Collections.singletonList(paidHoliday);
+      Mockito.when(paidHolidayRepository.findAll()).thenReturn(paidHolidays);
+      Mockito.when(paidHolidayMapper.convertToPaidHolidayDto(paidHoliday, authUser))
+          .thenReturn(paidHolidayDto);
 
       assertThatExceptionOfType(AlreadyExistsException.class)
           .isThrownBy(() -> paidHolidayService.updatePaidHoliday(newPaidHolidayDto, authUser));

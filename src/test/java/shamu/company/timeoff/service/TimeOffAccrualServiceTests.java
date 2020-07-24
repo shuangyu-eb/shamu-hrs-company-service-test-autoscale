@@ -1,4 +1,4 @@
-package shamu.company.timeoff;
+package shamu.company.timeoff.service;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -29,7 +29,6 @@ import shamu.company.timeoff.entity.TimeOffPolicyUser;
 import shamu.company.timeoff.exception.NotFoundException;
 import shamu.company.timeoff.pojo.TimeOffBalancePojo;
 import shamu.company.timeoff.pojo.TimeOffBreakdownCalculatePojo;
-import shamu.company.timeoff.service.TimeOffAccrualService;
 import shamu.company.utils.DateUtil;
 
 class TimeOffAccrualServiceTests {
