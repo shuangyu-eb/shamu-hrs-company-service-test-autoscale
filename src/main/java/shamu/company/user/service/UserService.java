@@ -537,7 +537,7 @@ public class UserService {
 
     secretHashRepository.generateCompanySecretByCompanyId(TenantContext.getCurrentTenant());
 
-    saveCompanyBenefitsSetting();
+    // saveCompanyBenefitsSetting();
 
     final UserStatus status = userStatusService.findByName(Status.ACTIVE.name());
 
@@ -845,7 +845,7 @@ public class UserService {
       final SystemAnnouncement systemAnnouncement = systemAnnouncementsService.findById(id);
       final DismissedAt dismissedAt = new DismissedAt();
       dismissedAt.setUser(user);
-      dismissedAt.setSystemAnnouncement(systemAnnouncement);
+      dismissedAt.setSystemAnnouncementId(id);
       dismissedAtService.save(dismissedAt);
     }
   }

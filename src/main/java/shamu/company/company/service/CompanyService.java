@@ -5,11 +5,8 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.event.TransactionPhase;
-import org.springframework.transaction.event.TransactionalEventListener;
 import shamu.company.common.entity.StateProvince;
 import shamu.company.common.entity.Tenant;
-import shamu.company.common.events.TenantCreatedEvent;
 import shamu.company.common.exception.errormapping.AlreadyExistsException;
 import shamu.company.common.service.DepartmentService;
 import shamu.company.common.service.OfficeService;
@@ -191,17 +188,13 @@ public class CompanyService {
     return officeService.save(office);
   }
 
+  // Please don't use companyRepository.save() directly
+  // because tenants table need to be updated when the company is updated.
   public Company save(final Company company) {
     companyRepository.save(company);
     final Tenant tenant = companyMapper.convertToTenant(company);
-    eventPublisher.publishEvent(new TenantCreatedEvent(tenant));
+    tenantService.save(tenant);
     return company;
-  }
-
-  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMPLETION)
-  @SuppressWarnings("unused")
-  public void saveOrUpdateRecordForDefaultDatabase(final TenantCreatedEvent event) {
-    tenantService.save(event.getTenant());
   }
 
   public CompanyBenefitsSettingDto findCompanyBenefitsSetting() {
@@ -229,7 +222,7 @@ public class CompanyService {
     if (!existsByName(companyName)) {
       final Company company = getCompany();
       company.setName(companyName);
-      companyRepository.save(company);
+      save(company);
     } else {
       throw new AlreadyExistsException("Company name already exists.", "company name");
     }
@@ -255,7 +248,7 @@ public class CompanyService {
   public void updateIsPaidHolidaysAutoEnrolled(final boolean isAutoEnrolled) {
     final Company company = getCompany();
     company.setIsPaidHolidaysAutoEnroll(isAutoEnrolled);
-    companyRepository.save(company);
+    save(company);
   }
 
   public Company getCompany() {

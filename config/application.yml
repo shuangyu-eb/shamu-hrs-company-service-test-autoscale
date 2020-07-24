@@ -86,3 +86,14 @@ user:
 timeOff:
   requestRateLimiting:
     maxPerHour: 30
+
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 50000
+        readTimeout: 50000
+        loggerLevel: basic
+        requestInterceptors:
+          shamu.company.common.config.FeignAuthInterceptor
+

@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.persistence.NoResultException;
 import javax.sql.DataSource;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
@@ -20,6 +21,7 @@ import shamu.company.helpers.DatabaseSessionHelper;
 import shamu.company.utils.UuidUtil;
 
 @Repository
+@Slf4j
 public class TenantRepository {
 
   private final DatabaseSessionHelper sessionHelper;
@@ -134,8 +136,9 @@ public class TenantRepository {
         deleteSchema(companyId);
         transaction.commit();
       } catch (final NoResultException e) {
-        throw new CustomLiquibaseException("Error while dropping database", e);
+        log.error(String.format("Tenant with id: %s is not exists.", companyId), e);
       }
+      deleteSchema(companyId);
     }
   }
 

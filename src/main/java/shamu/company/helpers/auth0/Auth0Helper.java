@@ -37,6 +37,7 @@ import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Component;
 import shamu.company.common.exception.errormapping.AlreadyExistsException;
 import shamu.company.common.exception.errormapping.ResourceNotFoundException;
+import shamu.company.common.multitenant.TenantContext;
 import shamu.company.common.exception.errormapping.TooManyRequestException;
 import shamu.company.helpers.auth0.exception.EmailUpdateFailedException;
 import shamu.company.helpers.auth0.exception.GeneralAuth0Exception;
@@ -318,7 +319,7 @@ public class Auth0Helper {
     final User user = new User();
     user.setEmail(email);
 
-    final String userIdInDatabase = UuidUtil.getUuidString().toUpperCase();
+    final String userIdInDatabase = UuidUtil.getUuidString();
     final String userSecret = generateUserSecret(userIdInDatabase);
     final Map<String, Object> appMetaData = new HashMap<>();
     appMetaData.put(USER_ID, userIdInDatabase);
@@ -356,12 +357,13 @@ public class Auth0Helper {
     auth0User.setEmailVerified(false);
 
     final Map<String, Object> appMetaData = new HashMap<>();
-    final String userId = UUID.randomUUID().toString().replace("-", "");
+    final String userId = UuidUtil.getUuidString();
     final String userSecret = generateUserSecret(userId);
     appMetaData.put(USER_ID, userId);
     appMetaData.put("idVerified", true);
     appMetaData.put("role", roleName);
     appMetaData.put(USER_SECRET, userSecret);
+    appMetaData.put(COMPANY_ID, TenantContext.getCurrentTenant());
     auth0User.setAppMetadata(appMetaData);
 
     auth0User.setEmailVerified(true);
@@ -378,16 +380,28 @@ public class Auth0Helper {
 
   public shamu.company.user.entity.User.Role getUserRole(
       final shamu.company.user.entity.User user) {
-    try {
-      final String userWorkEmail = user.getUserContactInformation().getEmailWork();
-      final User auth0User = getAuth0UserByIdWithByEmailFailover(user.getId(), userWorkEmail);
-      if (auth0User == null) {
-        throw new ResourceNotFoundException(
-            String.format("Auth0 user with id %s not found", user.getId()),
-            user.getId(),
-            "auth0 user");
-      }
+    final String userWorkEmail = user.getUserContactInformation().getEmailWork();
+    final User auth0User = getAuth0UserByIdWithByEmailFailover(user.getId(), userWorkEmail);
+    if (auth0User == null) {
+      throw new ResourceNotFoundException(
+          String.format("Auth0 user with id %s not found", user.getId()),
+          user.getId(),
+          "auth0 user");
+    }
+    return getUserRole(auth0User);
+  }
 
+  public shamu.company.user.entity.User.Role getUserRoleByUserId(final String id) {
+    final User auth0User = getUserByUserIdFromAuth0(id);
+    if (auth0User == null) {
+      throw new ResourceNotFoundException(
+          String.format("Auth0 user with id %s not found", id), id, "auth0 user");
+    }
+    return getUserRole(auth0User);
+  }
+
+  private shamu.company.user.entity.User.Role getUserRole(final User auth0User) {
+    try {
       final ManagementAPI manager = auth0Manager.getManagementApi();
       final Request<RolesPage> userRoleRequest = manager.users().listRoles(auth0User.getId(), null);
       final RolesPage rolePages = userRoleRequest.execute();

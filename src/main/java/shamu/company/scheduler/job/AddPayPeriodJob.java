@@ -10,6 +10,7 @@ import shamu.company.attendance.service.AttendanceSetUpService;
 import shamu.company.attendance.service.AttendanceSettingsService;
 import shamu.company.attendance.service.PayPeriodFrequencyService;
 import shamu.company.attendance.service.TimePeriodService;
+import shamu.company.common.multitenant.TenantContext;
 import shamu.company.common.entity.PayrollDetail;
 import shamu.company.common.service.PayrollDetailService;
 import shamu.company.company.entity.Company;
@@ -57,6 +58,7 @@ public class AddPayPeriodJob extends QuartzJobBean {
   public void executeInternal(final JobExecutionContext jobExecutionContext) {
     final String companyId =
         QuartzUtil.getParameter(jobExecutionContext, "companyId", String.class);
+    TenantContext.setCurrentTenant(companyId);
     final TimePeriod currentTimePeriod = timePeriodService.findCompanyCurrentPeriod(companyId);
 
     final CompanyTaSetting companyTaSetting =

@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
+import shamu.company.common.database.LiquibaseManager;
 import shamu.company.common.entity.Tenant;
 import shamu.company.common.exception.errormapping.AlreadyExistsException;
 import shamu.company.common.exception.errormapping.ForbiddenException;
@@ -61,17 +62,21 @@ public class UserRestController extends BaseRestController {
 
   private final Auth0Helper auth0Helper;
 
+  private final LiquibaseManager liquibaseManager;
+
   public UserRestController(
       final UserService userService,
       final UserMapper userMapper,
       final CompanyService companyService,
       final TenantService tenantService,
-      final Auth0Helper auth0Helper) {
+      final Auth0Helper auth0Helper,
+      final LiquibaseManager liquibaseManager) {
     this.userService = userService;
     this.userMapper = userMapper;
     this.companyService = companyService;
     this.tenantService = tenantService;
     this.auth0Helper = auth0Helper;
+    this.liquibaseManager = liquibaseManager;
   }
 
   @PostMapping(value = "users")
@@ -87,10 +92,9 @@ public class UserRestController extends BaseRestController {
     final String companyId = (String) appMetaData.get(Auth0Helper.COMPANY_ID);
     final String userId = (String) appMetaData.get(Auth0Helper.USER_ID);
     try {
-      tenantService.createTenant(companyId, signUpDto.getCompanyName());
+      liquibaseManager.addSchema(companyId, signUpDto.getCompanyName());
       TenantContext.setCurrentTenant(companyId);
       userService.signUp(signUpDto, userId);
-      TenantContext.clear();
     } catch (final RuntimeException e) {
       tenantService.deleteTenant(companyId);
       auth0Helper.deleteUser(auth0User.getId());
@@ -202,12 +206,11 @@ public class UserRestController extends BaseRestController {
       userService.cacheUser(findToken(), userDto.getId());
       return userDto;
     }
-    final User user = userService.findActiveUserById(findAuthentication().getUserId());
-
-    final Role role = user.getRole();
+    final String currentUserId = findAuthentication().getUserId();
+    final Role role = auth0Helper.getUserRoleByUserId(currentUserId);
     if (role != Role.SUPER_ADMIN) {
       throw new ForbiddenException(
-          String.format("User with id %s is not super admin.", user.getId()));
+          String.format("User with id %s is not super admin.", currentUserId));
     }
 
     userService.cacheUser(findToken(), mockId);

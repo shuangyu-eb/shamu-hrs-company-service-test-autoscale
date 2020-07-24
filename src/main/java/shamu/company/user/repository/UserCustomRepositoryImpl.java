@@ -143,7 +143,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
             + userCondition
             + " and "
             + ACTIVE_USER_QUERY
-            + " (up.first_name like concat('%', ?2, '%') "
+            + " and (up.first_name like concat('%', ?2, '%') "
             + "or up.last_name like concat('%', ?2, '%') "
             + "or d.name like concat('%', ?2, '%') or j.title like concat('%', ?2, '%')) ";
 

@@ -1,12 +1,17 @@
 package shamu.company.admin.dto;
 
+import javax.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class PageRequestDto {
 
   private int page = 0;
@@ -18,6 +23,8 @@ public class PageRequestDto {
   private Sort.Direction direction = Direction.ASC;
 
   private Field field = Field.NAME;
+
+  @NotNull private String companyId;
 
   public Pageable getPageable() {
     return PageRequest.of(page, size, direction, field.getValue());
