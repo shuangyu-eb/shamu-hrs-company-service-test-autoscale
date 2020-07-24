@@ -73,9 +73,9 @@ public class JobController extends BaseRestController {
     return jobUserService.findJobsByCompanyId(findCompanyId());
   }
 
-  @GetMapping("current/check-job-info-complete")
-  public boolean checkJobInfoComplete() {
-    return jobUserService.checkJobInfoComplete(findUserId());
+  @GetMapping("{userId}/check-job-info-complete")
+  public boolean checkJobInfoComplete(@PathVariable final String userId) {
+    return jobUserService.checkJobInfoComplete(userId);
   }
 
   @GetMapping("job/{userId}/hireDate")

@@ -172,9 +172,9 @@ public class UserRestController extends BaseRestController {
     return user.getCompany().getName();
   }
 
-  @GetMapping("current/check-personal-info-complete")
-  public Boolean checkPersonalInfoComplete() {
-    return userService.checkPersonalInfoComplete(findUserId());
+  @GetMapping("{userId}/check-personal-info-complete")
+  public Boolean checkPersonalInfoComplete(@PathVariable final String userId) {
+    return userService.checkPersonalInfoComplete(userId);
   }
 
   @GetMapping("/users/check-password/{password}")
