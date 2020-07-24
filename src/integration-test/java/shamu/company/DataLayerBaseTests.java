@@ -4,6 +4,8 @@ import org.springframework.boot.autoconfigure.liquibase.LiquibaseAutoConfigurati
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
+import shamu.company.common.repository.TenantRepository;
+import shamu.company.helpers.DatabaseSessionHelper;
 import shamu.company.helpers.auth0.Auth0Helper;
 
 @DataJpaTest(excludeAutoConfiguration = LiquibaseAutoConfiguration.class)
@@ -11,4 +13,8 @@ import shamu.company.helpers.auth0.Auth0Helper;
 public class DataLayerBaseTests {
 
   @MockBean protected Auth0Helper auth0Helper;
+
+  @MockBean protected TenantRepository tenantRepository;
+
+  @MockBean protected DatabaseSessionHelper sessionHelper;
 }

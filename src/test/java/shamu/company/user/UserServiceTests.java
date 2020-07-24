@@ -70,6 +70,7 @@ import shamu.company.user.entity.mapper.UserMapper;
 import shamu.company.user.entity.mapper.UserPersonalInformationMapper;
 import shamu.company.user.exception.errormapping.AuthenticationFailedException;
 import shamu.company.user.exception.errormapping.EmailExpiredException;
+import shamu.company.user.exception.errormapping.PasswordDuplicatedException;
 import shamu.company.user.exception.errormapping.UserNotFoundByEmailException;
 import shamu.company.user.exception.errormapping.UserNotFoundByInvitationTokenException;
 import shamu.company.user.exception.errormapping.WorkEmailDuplicatedException;
@@ -230,27 +231,78 @@ class UserServiceTests {
     }
   }
 
-  @Test
-  void testResetPassword() {
-    final UpdatePasswordDto updatePasswordDto = new UpdatePasswordDto();
-    updatePasswordDto.setNewPassword(RandomStringUtils.randomAlphabetic(10));
-    updatePasswordDto.setResetPasswordToken(RandomStringUtils.randomAlphabetic(10));
+  @Nested
+  class TestResetPassword {
 
-    final User databaseUser = new User();
-    final UserContactInformation userContactInformation = new UserContactInformation();
-    userContactInformation.setEmailWork("example@indeed.com");
-    databaseUser.setUserContactInformation(userContactInformation);
-    final UserStatus targetStatus = new UserStatus();
-    targetStatus.setName(Status.PENDING_VERIFICATION.name());
+    private UpdatePasswordDto updatePasswordDto;
 
-    final com.auth0.json.mgmt.users.User authUser = new com.auth0.json.mgmt.users.User();
+    @BeforeEach
+    void init() {
+      updatePasswordDto = new UpdatePasswordDto();
+      updatePasswordDto.setNewPassword(RandomStringUtils.randomAlphabetic(10));
+      updatePasswordDto.setResetPasswordToken(RandomStringUtils.randomAlphabetic(10));
+    }
 
-    Mockito.when(userRepository.findByResetPasswordToken(updatePasswordDto.getResetPasswordToken()))
-        .thenReturn(databaseUser);
-    Mockito.when(auth0Helper.getUserByUserIdFromAuth0(Mockito.any())).thenReturn(authUser);
-    Mockito.when(userStatusService.findByName(Mockito.any())).thenReturn(targetStatus);
+    @Test
+    void whenUserNotExist_thenShouldThrow() {
+      Mockito.when(
+              userRepository.findByResetPasswordToken(updatePasswordDto.getResetPasswordToken()))
+          .thenReturn(null);
+      assertThatExceptionOfType(UserNotFoundByInvitationTokenException.class)
+          .isThrownBy(() -> userService.resetPassword(updatePasswordDto));
+    }
 
-    Assertions.assertDoesNotThrow(() -> userService.resetPassword(updatePasswordDto));
+    @Test
+    void whenAuthUserNotExist_thenShouldThrow() {
+      Mockito.when(
+              userRepository.findByResetPasswordToken(updatePasswordDto.getResetPasswordToken()))
+          .thenReturn(new User());
+      Mockito.when(auth0Helper.getUserByUserIdFromAuth0(Mockito.anyString())).thenReturn(null);
+      assertThatExceptionOfType(ResourceNotFoundException.class)
+          .isThrownBy(() -> userService.resetPassword(updatePasswordDto));
+    }
+
+    @Test
+    void whenPasswordIsInvalid_thenShouldThrow() {
+      final User user = new User();
+      user.setId(UuidUtil.getUuidString());
+      final UserContactInformation userContactInformation = new UserContactInformation();
+      userContactInformation.setEmailWork("example@indeed.com");
+      user.setUserContactInformation(userContactInformation);
+      Mockito.when(
+              userRepository.findByResetPasswordToken(updatePasswordDto.getResetPasswordToken()))
+          .thenReturn(user);
+      Mockito.when(auth0Helper.getUserByUserIdFromAuth0(user.getId()))
+          .thenReturn(new com.auth0.json.mgmt.users.User());
+      Mockito.when(
+              auth0Helper.isPasswordValid(
+                  user.getUserContactInformation().getEmailWork(),
+                  updatePasswordDto.getNewPassword()))
+          .thenReturn(Boolean.TRUE);
+      assertThatExceptionOfType(PasswordDuplicatedException.class)
+          .isThrownBy(() -> userService.resetPassword(updatePasswordDto));
+    }
+
+    @Test
+    void whenUserExist_passwordValid_thenShouldSuccess() {
+      final User databaseUser = new User();
+      final UserContactInformation userContactInformation = new UserContactInformation();
+      userContactInformation.setEmailWork("example@indeed.com");
+      databaseUser.setUserContactInformation(userContactInformation);
+      final UserStatus targetStatus = new UserStatus();
+      targetStatus.setName(Status.PENDING_VERIFICATION.name());
+      databaseUser.setUserStatus(targetStatus);
+
+      final com.auth0.json.mgmt.users.User authUser = new com.auth0.json.mgmt.users.User();
+
+      Mockito.when(
+              userRepository.findByResetPasswordToken(updatePasswordDto.getResetPasswordToken()))
+          .thenReturn(databaseUser);
+      Mockito.when(auth0Helper.getUserByUserIdFromAuth0(Mockito.any())).thenReturn(authUser);
+      Mockito.when(userStatusService.findByName(Mockito.any())).thenReturn(targetStatus);
+
+      Assertions.assertDoesNotThrow(() -> userService.resetPassword(updatePasswordDto));
+    }
   }
 
   @Test
@@ -629,21 +681,15 @@ class UserServiceTests {
     }
 
     @Test
-    void whenCompanyNameExists_thenShouldThrow() {
-      Mockito.when(companyService.existsByName(Mockito.anyString())).thenReturn(true);
-      assertThatExceptionOfType(AlreadyExistsException.class)
-          .isThrownBy(() -> userService.signUp(userSignUpDto, Mockito.anyString()));
-    }
-
-    @Test
     void whenCanFindEmail_thenShouldSuccess() {
       final com.auth0.json.mgmt.users.User auth0User = new com.auth0.json.mgmt.users.User();
       auth0User.setEmail("example@mail.com");
       Mockito.when(auth0Helper.getUserByUserIdFromAuth0(userId)).thenReturn(auth0User);
       final Company company = new Company();
       company.setId(RandomStringUtils.randomAlphabetic(16));
-      company.setName("company");
+      company.setName("companyInfo");
       Mockito.when(companyService.save(Mockito.any())).thenReturn(company);
+      Mockito.when(companyService.getCompany()).thenReturn(company);
       Mockito.when(userStatusService.findByName(Mockito.any()))
           .thenReturn(new UserStatus(Status.ACTIVE.name()));
 
@@ -660,7 +706,7 @@ class UserServiceTests {
       Mockito.when(auth0Helper.signUp(Mockito.any(), Mockito.any())).thenReturn(createdUser);
       Mockito.when(auth0Helper.updateAuthUserAppMetaData(Mockito.anyString(), Mockito.any()))
           .thenReturn(user);
-      userService.signUp(userSignUpDto, Mockito.anyString());
+      userService.signUp(userSignUpDto, "123");
       Mockito.verify(userRepository, Mockito.times(1)).save(Mockito.any());
     }
   }
@@ -898,8 +944,56 @@ class UserServiceTests {
 
     users.add(user);
 
+    final User newUser = new User();
+    newUser.setId(UuidUtil.getUuidString());
+    newUser.setUserContactInformation(userContactInformation);
+    newUser.setUserPersonalInformation(userPersonalInformation);
+
+    users.add(newUser);
+
     final String name = userService.getUserNameInUsers(user, users);
-    assertThat(name).isEqualTo(user.getUserPersonalInformation().getName());
+    assertThat(name)
+        .isEqualTo(
+            user.getUserPersonalInformation().getName()
+                + " ("
+                + userContactInformation.getEmailWork()
+                + ")");
+  }
+
+  @Nested
+  class TestSendResetPasswordEmail {
+    String email = "qwe@asd.zxc";
+
+    @Test
+    void whenUserNotExist_thenShouldThrow() {
+      Mockito.when(userRepository.findByEmailWork(email)).thenReturn(null);
+      assertThatExceptionOfType(UserNotFoundByEmailException.class)
+          .isThrownBy(() -> userService.sendResetPasswordEmail(email));
+    }
+
+    @Test
+    void whenAuth0UserNotExist_thenShouldThrow() {
+      final User user = new User();
+      user.setId(UuidUtil.getUuidString());
+      Mockito.when(userRepository.findByEmailWork(email)).thenReturn(user);
+      Mockito.when(auth0Helper.getUserByUserIdFromAuth0(user.getId())).thenReturn(null);
+      assertThatExceptionOfType(ResourceNotFoundException.class)
+          .isThrownBy(() -> userService.sendResetPasswordEmail(email));
+    }
+
+    @Test
+    void whenUserExist_auth0UserExist_thenShouldSuccess() {
+      final User user = new User();
+      user.setId(UuidUtil.getUuidString());
+      Mockito.when(userRepository.findByEmailWork(email)).thenReturn(user);
+
+      final com.auth0.json.mgmt.users.User auth0User = new com.auth0.json.mgmt.users.User();
+      Mockito.when(auth0Helper.getUserByUserIdFromAuth0(user.getId())).thenReturn(auth0User);
+
+      Mockito.when(emailService.getResetPasswordEmail(Mockito.anyString(), Mockito.anyString()))
+          .thenReturn("");
+      assertThatCode(() -> userService.sendResetPasswordEmail(email)).doesNotThrowAnyException();
+    }
   }
 
   @Test
