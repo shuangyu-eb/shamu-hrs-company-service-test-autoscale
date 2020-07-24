@@ -271,6 +271,10 @@ class EmailServiceTests {
 
     @Test
     void whenHandleEmail_thenShouldSuccess() {
+      final UserPersonalInformation information = new UserPersonalInformation();
+      information.setFirstName("firstName");
+      information.setLastName("lastName");
+      user.setUserPersonalInformation(information);
       final String token = emailService.handleEmail(user);
       assertThat(token).isNotNull();
     }
@@ -325,15 +329,23 @@ class EmailServiceTests {
     final List<User> admins = new ArrayList<>();
     final User admin = new User();
     final UserContactInformation adminContactInfo = new UserContactInformation();
+    final UserPersonalInformation adminPersonalInfo = new UserPersonalInformation();
     adminContactInfo.setEmailWork("mock-admin@mock.com");
+    adminPersonalInfo.setFirstName("first");
+    adminPersonalInfo.setLastName("last");
     admin.setUserContactInformation(adminContactInfo);
+    admin.setUserPersonalInformation(adminPersonalInfo);
     admins.add(admin);
 
     final List<User> superAdmins = new ArrayList<>();
     final User superAdmin = new User();
     final UserContactInformation superAdminContactInfo = new UserContactInformation();
+    final UserPersonalInformation superAdminPersonalInfo = new UserPersonalInformation();
     superAdminContactInfo.setEmailWork("mock-super-admin@mock.com");
+    superAdminPersonalInfo.setFirstName("first");
+    superAdminPersonalInfo.setLastName("last");
     superAdmin.setUserContactInformation(superAdminContactInfo);
+    superAdmin.setUserPersonalInformation(superAdminPersonalInfo);
     superAdmins.add(superAdmin);
 
     Mockito.when(userService.findUsersByCompanyIdAndUserRole(companyId, Role.ADMIN.getValue()))

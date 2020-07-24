@@ -152,6 +152,12 @@ public class UserService {
   @Value("${application.frontEndAddress}")
   private String frontEndAddress;
 
+  @Value("${application.systemEmailFirstName}")
+  private String systemEmailFirstName;
+
+  @Value("${application.systemEmailLastName}")
+  private String systemEmailLastName;
+
   @Autowired
   public UserService(
       final ITemplateEngine templateEngine,
@@ -641,6 +647,7 @@ public class UserService {
     final com.auth0.json.mgmt.users.User user = auth0Helper.getUserByUserIdFromAuth0(userId);
 
     final String emailAddress = user.getEmail();
+    final String fromName = systemEmailFirstName + "-" + systemEmailLastName;
     checkPassword(emailAddress, changePasswordDto.getPassword());
     if (changePasswordDto.getPassword().equals(changePasswordDto.getNewPassword())) {
       throw new PasswordDuplicatedException("New password cannot be the same as the old one.");
@@ -658,7 +665,9 @@ public class UserService {
     final String emailContent = templateEngine.process("password_change_email.html", context);
     final Timestamp sendDate = Timestamp.valueOf(LocalDateTime.now());
     final Email notificationEmail =
-        new Email(systemEmailAddress, emailAddress, "Password Changed", emailContent, sendDate);
+        new Email(systemEmailAddress, fromName, emailAddress, user.getName(), "Password Changed");
+    notificationEmail.setSendDate(sendDate);
+    notificationEmail.setContent(emailContent);
     emailService.saveAndScheduleEmail(notificationEmail);
   }
 
@@ -763,8 +772,11 @@ public class UserService {
     final String passwordRestToken = UUID.randomUUID().toString();
     final String emailContent = emailService.getResetPasswordEmail(passwordRestToken, email);
     final Timestamp sendDate = Timestamp.valueOf(LocalDateTime.now());
+    final String fromName = systemEmailFirstName + "-" + systemEmailLastName;
     final Email verifyEmail =
-        new Email(systemEmailAddress, email, "Password Reset", emailContent, sendDate);
+        new Email(systemEmailAddress, fromName, email, user.getName(), "Password Reset");
+    verifyEmail.setSendDate(sendDate);
+    verifyEmail.setContent(emailContent);
     emailService.saveAndScheduleEmail(verifyEmail);
     targetUser.setResetPasswordToken(passwordRestToken);
     userRepository.save(targetUser);

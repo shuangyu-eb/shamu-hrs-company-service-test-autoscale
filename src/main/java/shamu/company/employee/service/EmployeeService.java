@@ -138,6 +138,12 @@ public class EmployeeService {
   @Value("${application.systemEmailAddress}")
   private String systemEmailAddress;
 
+  @Value("${application.systemEmailFirstName}")
+  private String systemEmailFirstName;
+
+  @Value("${application.systemEmailLastName}")
+  private String systemEmailLastName;
+
   @Autowired
   public EmployeeService(
       final TimeOffPolicyService timeOffPolicyService,
@@ -465,7 +471,7 @@ public class EmployeeService {
       final NewEmployeeJobInformationDto jobInformation) {
 
     UserCompensation userCompensation = new UserCompensation();
-    BigDecimal compensationWageCents = BigDecimal.valueOf(jobInformation.getCompensation() * 100);
+    final BigDecimal compensationWageCents = BigDecimal.valueOf(jobInformation.getCompensation() * 100);
     userCompensation.setWageCents(compensationWageCents.toBigIntegerExact());
     final String compensationFrequencyId = jobInformation.getCompensationFrequencyId();
     final CompensationFrequency compensationFrequency =
@@ -573,6 +579,7 @@ public class EmployeeService {
     final String fullSubject = SUBJECT + currentUser.getCompany().getName();
     final Email email =
         new Email(systemEmailAddress, toEmail, fullSubject, content, currentUser, sendDate);
+    email.setFromName(systemEmailFirstName + "-" + systemEmailLastName);
     emailService.saveAndScheduleEmail(email);
   }
 

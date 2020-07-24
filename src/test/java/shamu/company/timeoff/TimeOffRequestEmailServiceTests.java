@@ -130,6 +130,7 @@ public class TimeOffRequestEmailServiceTests {
       approvePersonalInformation.setLastName("Example");
       approveComment.getUser().setUserPersonalInformation(approvePersonalInformation);
       timeOffRequest.setComments(Collections.asSet(requestComment, approveComment));
+      Mockito.when(applicationConfig.getSystemEmailAddress()).thenReturn("no-reply@emailAddress");
     }
 
     @Test
@@ -254,6 +255,7 @@ public class TimeOffRequestEmailServiceTests {
 
       timeOffBreakdownDto = new TimeOffBreakdownDto();
       timeOffBreakdownDto.setBalance(1);
+      Mockito.when(applicationConfig.getSystemEmailAddress()).thenReturn("no-reply@emailAddress");
     }
 
     @Test

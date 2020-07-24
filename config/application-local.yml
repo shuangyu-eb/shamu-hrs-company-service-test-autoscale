@@ -31,6 +31,8 @@ application:
   systemEmailAddress: no-reply@interviewed-qa.com
   frontEndAddress: http://localhost:3000/
   helpUrl: http://localhost:3000/
+  systemEmailFirstName: SimplyHired
+  systemEmailLastName: local
 
 cloud:
   aws:

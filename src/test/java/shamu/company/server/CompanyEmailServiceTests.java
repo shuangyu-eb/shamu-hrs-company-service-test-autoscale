@@ -128,7 +128,7 @@ public class CompanyEmailServiceTests {
       recipient.setUserContactInformation(contactInformation);
 
       Mockito.when(userService.findById(recipientUserId)).thenReturn(recipient);
-      Mockito.when(applicationConfig.getSystemEmailAddress()).thenReturn("emailAddress");
+      Mockito.when(applicationConfig.getSystemEmailAddress()).thenReturn("no-reply@emailAddress");
     }
 
     @Test

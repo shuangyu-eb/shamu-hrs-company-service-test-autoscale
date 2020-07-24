@@ -61,6 +61,12 @@ public class EmailService {
   @Value("${application.frontEndAddress}")
   private String frontEndAddress;
 
+  @Value("${application.systemEmailFirstName}")
+  private String systemEmailFirstName;
+
+  @Value("${application.systemEmailLastName}")
+  private String systemEmailLastName;
+
   private final QuartzJobScheduler quartzJobScheduler;
 
   private static final String CURRENT_YEAR = "currentYear";
@@ -214,11 +220,14 @@ public class EmailService {
     final Email verifyChangeWorkEmail =
         new Email(
             systemEmailAddress,
+            systemEmailFirstName + "-" + systemEmailLastName,
             user.getChangeWorkEmail(),
-            "Verify New Work Email",
-            emailContent,
-            sendDate);
+            user.getUserPersonalInformation().getName(),
+            "Verify New Work Email"
+        );
 
+    verifyChangeWorkEmail.setContent(emailContent);
+    verifyChangeWorkEmail.setSendDate(sendDate);
     saveAndScheduleEmail(verifyChangeWorkEmail);
     return newEmailToken;
   }
@@ -296,7 +305,14 @@ public class EmailService {
             "Invitation Email Could Not Be Delivered - %s", targetPersonalInformation.getName());
     final Email email =
         new Email(
-            systemEmailAddress, targetEmail, subject, emailContent, DateUtil.getCurrentTime());
+            systemEmailAddress,
+            systemEmailFirstName + "-" + systemEmailLastName,
+            targetEmail,
+            targetUser.getUserPersonalInformation().getName(),
+            subject
+        );
+    email.setContent(emailContent);
+    email.setSendDate(DateUtil.getCurrentTime());
     scheduleEmail(email);
   }
 
@@ -323,6 +339,7 @@ public class EmailService {
     final List<User> superAdmins =
         userService.findUsersByCompanyIdAndUserRole(companyId, Role.SUPER_ADMIN.getValue());
     admins.addAll(superAdmins);
+    final String fromName = systemEmailFirstName + "-" + systemEmailLastName;
 
     admins.forEach(
         admin -> {
@@ -330,10 +347,13 @@ public class EmailService {
           final Email email =
               new Email(
                   systemEmailAddress,
+                  fromName,
                   adminEmailWork,
-                  NEW_ADMIN_ADDED_TO_HRIS,
-                  emailContent,
-                  DateUtil.getCurrentTime());
+                  admin.getUserPersonalInformation().getName(),
+                  NEW_ADMIN_ADDED_TO_HRIS
+                  );
+          email.setContent(emailContent);
+          email.setSendDate(Timestamp.valueOf(LocalDateTime.now()));
           scheduleEmail(email);
         });
   }
