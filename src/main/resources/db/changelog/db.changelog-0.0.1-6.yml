@@ -1722,3 +1722,16 @@ databaseChangeLog:
                   constraints:
                     nullable: false
             tableName: company_ta_settings
+
+  - changeSet:
+      id: 1595475847000
+      author: michael-eb
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: status_id
+            baseTableName: timesheets
+            constraintName: fk_timesheets_status_id
+            onDelete: RESTRICT
+            onUpdate: RESTRICT
+            referencedColumnNames: id
+            referencedTableName: static_timesheet_status

@@ -42,9 +42,17 @@ public class TimeSheetService {
   }
 
   public Page<TimeSheet> findTeamTimeSheetsByIdAndCompanyIdAndStatus(
-      final String timesheetId, final String companyId, final TimeSheetStatus timeSheetStatus, final
-      Pageable pageable) {
+      final String timesheetId,
+      final String companyId,
+      final TimeSheetStatus timeSheetStatus,
+      final Pageable pageable) {
     return timeSheetRepository.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
         timesheetId, companyId, timeSheetStatus.getValue(), pageable);
+  }
+
+  public List<TimeSheet> findTimeSheetsByIdAndCompanyIdAndStatus(
+      final String timesheetId, final String companyId, final List<String> timeSheetStatus) {
+    return timeSheetRepository.findTimeSheetsByIdAndCompanyIdAndStatus(
+        timesheetId, companyId, timeSheetStatus);
   }
 }

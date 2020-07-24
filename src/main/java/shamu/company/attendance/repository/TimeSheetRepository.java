@@ -15,7 +15,7 @@ public interface TimeSheetRepository extends BaseRepository<TimeSheet, String> {
           + " where "
           + "t.time_period_id = (select time_period_id from timesheets where id = unhex(?1)) "
           + " and u.company_id = unhex(?2) "
-          + " and sts.name = ?3 order by t.updated_at desc ";
+          + " and sts.name in (?3) order by t.updated_at desc ";
 
   @Query(
       value =
@@ -30,7 +30,10 @@ public interface TimeSheetRepository extends BaseRepository<TimeSheet, String> {
       nativeQuery = true)
   Page<TimeSheet> findTeamTimeSheetsByIdAndCompanyIdAndStatus(
       String timesheetId, String companyId, String status, Pageable pageable);
-  
-  boolean existsByEmployeeId(String employeeId);
 
+  @Query(value = QUERY_TEAM_TIMESHEETS_SQL, nativeQuery = true)
+  List<TimeSheet> findTimeSheetsByIdAndCompanyIdAndStatus(
+      String timesheetId, String companyId, List<String> status);
+
+  boolean existsByEmployeeId(String employeeId);
 }

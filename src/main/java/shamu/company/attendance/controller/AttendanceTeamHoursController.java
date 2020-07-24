@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
+import shamu.company.attendance.dto.AttendanceSummaryDto;
 import shamu.company.attendance.dto.TeamHoursPageInfoDto;
 import shamu.company.attendance.entity.StaticTimesheetStatus.TimeSheetStatus;
 import shamu.company.attendance.service.AttendanceTeamHoursService;
@@ -24,8 +25,8 @@ public class AttendanceTeamHoursController extends BaseRestController {
   @GetMapping("time-and-attendance/team-hours/pending-hours/{timesheetId}")
   public TeamHoursPageInfoDto findAttendanceTeamPendingHours(
       @PathVariable final String timesheetId,
-      @RequestParam(value = "page") Integer page,
-      @RequestParam(value = "size", defaultValue = "5") Integer size) {
+      @RequestParam(value = "page") final Integer page,
+      @RequestParam(value = "size", defaultValue = "5") final Integer size) {
     final Pageable pageable = PageRequest.of(page - 1, size);
 
     return attendanceTeamHoursService.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
@@ -35,11 +36,16 @@ public class AttendanceTeamHoursController extends BaseRestController {
   @GetMapping("time-and-attendance/team-hours/approved-hours/{timesheetId}")
   public TeamHoursPageInfoDto findAttendanceTeamApprovedHours(
       @PathVariable final String timesheetId,
-      @RequestParam(value = "page") Integer page,
-      @RequestParam(value = "size", defaultValue = "20") Integer size) {
+      @RequestParam(value = "page") final Integer page,
+      @RequestParam(value = "size", defaultValue = "20") final Integer size) {
     final Pageable pageable = PageRequest.of(page - 1, size);
 
     return attendanceTeamHoursService.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
         timesheetId, findCompanyId(), TimeSheetStatus.APPROVED, pageable);
+  }
+
+  @GetMapping("time-and-attendance/team-hours/total-time-off/{timesheetId}")
+  public AttendanceSummaryDto findTeamHoursSummary(@PathVariable final String timesheetId) {
+    return attendanceTeamHoursService.findTeamHoursSummary(timesheetId, findCompanyId());
   }
 }

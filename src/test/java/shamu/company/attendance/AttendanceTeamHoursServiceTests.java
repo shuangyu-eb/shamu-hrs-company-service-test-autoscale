@@ -1,8 +1,10 @@
-package shamu.company.attendance.service;
+package shamu.company.attendance;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 
-
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,12 +20,22 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import shamu.company.attendance.dto.AttendanceSummaryDto;
 import shamu.company.attendance.dto.AttendanceTeamHoursDto;
 import shamu.company.attendance.entity.CompanyTaSetting;
 import shamu.company.attendance.entity.EmployeeTimeLog;
 import shamu.company.attendance.entity.StaticTimesheetStatus.TimeSheetStatus;
+import shamu.company.attendance.entity.TimePeriod;
 import shamu.company.attendance.entity.TimeSheet;
+import shamu.company.attendance.service.AttendanceMyHoursService;
+import shamu.company.attendance.service.AttendanceSettingsService;
+import shamu.company.attendance.service.AttendanceTeamHoursService;
+import shamu.company.attendance.service.OvertimeService;
+import shamu.company.attendance.service.TimeSheetService;
+import shamu.company.job.entity.CompensationFrequency;
+import shamu.company.timeoff.service.TimeOffRequestService;
 import shamu.company.user.entity.User;
+import shamu.company.user.entity.UserCompensation;
 import shamu.company.user.entity.UserPersonalInformation;
 import shamu.company.utils.UuidUtil;
 
@@ -38,6 +50,8 @@ class AttendanceTeamHoursServiceTests {
   @Mock private AttendanceSettingsService attendanceSettingsService;
 
   @Mock private OvertimeService overtimeService;
+
+  @Mock private TimeOffRequestService timeOffRequestService;
 
   @BeforeEach
   void init() {
@@ -105,14 +119,18 @@ class AttendanceTeamHoursServiceTests {
 
       assertThat(
               attendanceTeamHoursService
-                  .findTeamTimeSheetsByIdAndCompanyIdAndStatus(timesheetId, companyId, status, pageable)
-                  .getContent().get(0)
+                  .findTeamTimeSheetsByIdAndCompanyIdAndStatus(
+                      timesheetId, companyId, status, pageable)
+                  .getContent()
+                  .get(0)
                   .getWorkedMinutes())
           .isEqualTo(workedMin);
       assertThat(
               attendanceTeamHoursService
-                  .findTeamTimeSheetsByIdAndCompanyIdAndStatus(timesheetId, companyId, status, pageable)
-                  .getContent().get(0)
+                  .findTeamTimeSheetsByIdAndCompanyIdAndStatus(
+                      timesheetId, companyId, status, pageable)
+                  .getContent()
+                  .get(0)
                   .getOverTimeMinutes())
           .isEqualTo(overtimeMinutes.get(1.2));
       assertThatCode(
@@ -121,5 +139,56 @@ class AttendanceTeamHoursServiceTests {
                       timesheetId, companyId, status, pageable))
           .doesNotThrowAnyException();
     }
+  }
+
+  @Test
+  void testFindTeamHoursSummary() {
+    final List<TimeSheet> timeSheets = new ArrayList<>();
+    final TimeSheet timeSheet = new TimeSheet();
+    final User user = new User();
+    final TimePeriod timePeriod = new TimePeriod();
+    timePeriod.setStartDate(Timestamp.valueOf(LocalDateTime.parse("2020-07-01T01:00:00")));
+    timePeriod.setEndDate(Timestamp.valueOf(LocalDateTime.parse("2020-07-08T01:00:00")));
+    timeSheet.setEmployee(user);
+    timeSheet.setTimePeriod(timePeriod);
+    timeSheets.add(timeSheet);
+    final CompanyTaSetting companyTaSetting = new CompanyTaSetting();
+    final List<EmployeeTimeLog> employeeTimeLogs = new ArrayList<>();
+
+    final UserCompensation userCompensation = new UserCompensation();
+    final CompensationFrequency compensationFrequency = new CompensationFrequency();
+    compensationFrequency.setName("Per Hour");
+    userCompensation.setCompensationFrequency(compensationFrequency);
+    timeSheet.setUserCompensation(userCompensation);
+
+    Mockito.when(
+            timeSheetService.findTimeSheetsByIdAndCompanyIdAndStatus(
+                Mockito.anyString(), Mockito.anyString(), Mockito.anyList()))
+        .thenReturn(timeSheets);
+    Mockito.when(attendanceSettingsService.findCompanySettings(Mockito.anyString()))
+        .thenReturn(companyTaSetting);
+    Mockito.when(
+            timeOffRequestService.findTimeOffHoursBetweenWorkPeriod(
+                user, timePeriod.getStartDate().getTime(), timePeriod.getEndDate().getTime()))
+        .thenReturn(20);
+    Mockito.when(attendanceMyHoursService.findAllRelevantTimelogs(Mockito.any(), Mockito.any()))
+        .thenReturn(employeeTimeLogs);
+
+    Mockito.when(
+            attendanceMyHoursService.getTotalNumberOfWorkedMinutes(
+                Mockito.anyList(), Mockito.any()))
+        .thenReturn(200);
+
+    final Map<Double, Integer> overtimeMinutes = new HashMap<>();
+    overtimeMinutes.put(1.5, 60);
+    overtimeMinutes.put(2.0, 120);
+    Mockito.when(
+            overtimeService.findAllOvertimeHours(Mockito.anyList(), Mockito.any(), Mockito.any()))
+        .thenReturn(overtimeMinutes);
+    final AttendanceSummaryDto attendanceSummaryDto =
+        attendanceTeamHoursService.findTeamHoursSummary("1", "1");
+    assertThat(attendanceSummaryDto.getOverTimeMinutes()).isEqualTo(180);
+    assertThat(attendanceSummaryDto.getWorkedMinutes()).isEqualTo(20);
+    assertThat(attendanceSummaryDto.getTotalPtoMinutes()).isEqualTo(1200);
   }
 }

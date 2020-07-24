@@ -3,7 +3,6 @@ package shamu.company.attendance.controller;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 
-
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Nested;
@@ -44,7 +43,7 @@ class AttendanceTeamHoursControllerTests extends WebControllerBaseTests {
       final AttendanceTeamHoursDto attendanceTeamHoursDto = new AttendanceTeamHoursDto();
       attendanceTeamHoursDto.setId(UuidUtil.getUuidString());
       teamHoursDtos.add(attendanceTeamHoursDto);
-      TeamHoursPageInfoDto teamHoursPageInfoDto = new TeamHoursPageInfoDto();
+      final TeamHoursPageInfoDto teamHoursPageInfoDto = new TeamHoursPageInfoDto();
       given(
               attendanceTeamHoursService.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
                   Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
@@ -75,7 +74,7 @@ class AttendanceTeamHoursControllerTests extends WebControllerBaseTests {
       final AttendanceTeamHoursDto attendanceTeamHoursDto = new AttendanceTeamHoursDto();
       attendanceTeamHoursDto.setId(UuidUtil.getUuidString());
       teamHoursDtos.add(attendanceTeamHoursDto);
-      TeamHoursPageInfoDto teamHoursPageInfoDto = new TeamHoursPageInfoDto();
+      final TeamHoursPageInfoDto teamHoursPageInfoDto = new TeamHoursPageInfoDto();
       given(
               attendanceTeamHoursService.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
                   Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
@@ -92,5 +91,21 @@ class AttendanceTeamHoursControllerTests extends WebControllerBaseTests {
 
       assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
     }
+  }
+
+  @Test
+  void testFindTeamHoursSummary() throws Exception {
+    final HttpHeaders httpHeaders = new HttpHeaders();
+    httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.get(
+                        "/company/time-and-attendance/team-hours/total-time-off/1")
+                    .headers(httpHeaders))
+            .andReturn();
+
+    assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
 }
