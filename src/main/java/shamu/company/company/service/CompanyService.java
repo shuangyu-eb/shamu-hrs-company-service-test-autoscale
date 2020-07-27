@@ -3,7 +3,6 @@ package shamu.company.company.service;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import shamu.company.common.entity.StateProvince;
 import shamu.company.common.entity.Tenant;
@@ -73,6 +72,7 @@ public class CompanyService {
       final CompanyBenefitsSettingMapper companyBenefitsSettingMapper,
       final CompanyBenefitsSettingService companyBenefitsSettingService,
       final CompanyMapper companyMapper,
+      final TenantService tenantService,
       final ApplicationEventPublisher eventPublisher,
       final TenantService tenantService,
       final CompanyBenefitsSettingService companyBenefitsSettingService,
@@ -87,7 +87,6 @@ public class CompanyService {
     this.companyBenefitsSettingMapper = companyBenefitsSettingMapper;
     this.companyBenefitsSettingService = companyBenefitsSettingService;
     this.companyMapper = companyMapper;
-    this.eventPublisher = eventPublisher;
     this.tenantService = tenantService;
     this.googleMapsHelper = googleMapsHelper;
   }

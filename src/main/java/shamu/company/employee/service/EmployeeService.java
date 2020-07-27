@@ -241,7 +241,7 @@ public class EmployeeService {
 
     if (jobInformation != null) {
       saveManagerUser(employee, jobInformation);
-      saveEmployeeJob(employee, currentUser, jobInformation);
+      saveEmployeeJob(employee, jobInformation);
     }
 
     saveEmployeeAddress(employee, employeeDto);
@@ -501,7 +501,6 @@ public class EmployeeService {
 
   private void saveEmployeeJob(
       final User employee,
-      final User currentUser,
       final NewEmployeeJobInformationDto jobInformation) {
     final UserCompensation userCompensation =
         saveEmployeeCompensation(jobInformation, employee.getId());

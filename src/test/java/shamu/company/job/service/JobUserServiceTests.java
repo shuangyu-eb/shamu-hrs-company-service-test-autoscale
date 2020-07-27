@@ -206,7 +206,7 @@ class JobUserServiceTests {
       Mockito.when(jobUserRepository.save(jobUser)).thenReturn(jobUser);
       jobUpdateDto.setManagerId("");
 
-      Assertions.assertDoesNotThrow(() -> jobUserService.updateJobInfo("1", jobUpdateDto, "1"));
+      Assertions.assertDoesNotThrow(() -> jobUserService.updateJobInfo("1", jobUpdateDto));
       Mockito.verify(userService, Mockito.times(0)).findSubordinatesByManagerUserId(Mockito.any());
       Mockito.verify(userService, Mockito.times(0)).save(Mockito.any());
     }
@@ -218,7 +218,7 @@ class JobUserServiceTests {
       Mockito.when(jobUserRepository.save(jobUser)).thenReturn(jobUser);
       jobUpdateDto.setManagerId("");
 
-      Assertions.assertDoesNotThrow(() -> jobUserService.updateJobInfo("1", jobUpdateDto, "1"));
+      Assertions.assertDoesNotThrow(() -> jobUserService.updateJobInfo("1", jobUpdateDto));
       Assertions.assertNull(jobUserService.findJobUserByUser(user));
       Mockito.verify(userService, Mockito.times(0)).findSubordinatesByManagerUserId(Mockito.any());
       Mockito.verify(userService, Mockito.times(0)).save(Mockito.any());
@@ -241,7 +241,7 @@ class JobUserServiceTests {
       Mockito.when(timePeriodService.findUserCurrentPeriod(user.getId()))
           .thenReturn(java.util.Optional.of((new TimePeriod())));
 
-      Assertions.assertDoesNotThrow(() -> jobUserService.updateJobInfo("1", jobUpdateDto, "1"));
+      Assertions.assertDoesNotThrow(() -> jobUserService.updateJobInfo("1", jobUpdateDto));
       Assertions.assertEquals(manager.getUserRole(), user.getManagerUser().getUserRole());
       Mockito.verify(userService, Mockito.times(0)).findSubordinatesByManagerUserId(Mockito.any());
       Mockito.verify(userService, Mockito.times(0)).save(Mockito.any());
@@ -279,7 +279,7 @@ class JobUserServiceTests {
       Mockito.when(userService.save(oldManager)).thenReturn(oldManager);
       Mockito.when(userService.save(user)).thenReturn(user);
 
-      Assertions.assertDoesNotThrow(() -> jobUserService.updateJobInfo("1", jobUpdateDto, "1"));
+      Assertions.assertDoesNotThrow(() -> jobUserService.updateJobInfo("1", jobUpdateDto));
       Assertions.assertEquals(jobUpdateDto.getManagerId(), user.getManagerUser().getId());
       Mockito.verify(userService, Mockito.times(1)).findSubordinatesByManagerUserId(Mockito.any());
       Mockito.verify(userService, Mockito.times(2)).save(Mockito.any());
@@ -324,7 +324,7 @@ class JobUserServiceTests {
       Mockito.when(userService.save(oldManager)).thenReturn(oldManager);
       Mockito.when(userService.save(user)).thenReturn(user);
 
-      Assertions.assertDoesNotThrow(() -> jobUserService.updateJobInfo("1", jobUpdateDto, "1"));
+      Assertions.assertDoesNotThrow(() -> jobUserService.updateJobInfo("1", jobUpdateDto));
       Assertions.assertEquals(jobUpdateDto.getManagerId(), user.getManagerUser().getId());
       Assertions.assertEquals(oldManager.getId(), user.getManagerUser().getManagerUser().getId());
       Mockito.verify(userService, Mockito.times(1)).findSubordinatesByManagerUserId(Mockito.any());
@@ -339,7 +339,7 @@ class JobUserServiceTests {
       Mockito.when(jobUserRepository.findJobUserByUser(jobUser.getUser())).thenReturn(jobUser);
       Mockito.when(jobUserRepository.save(jobUser)).thenReturn(jobUser);
 
-      Assertions.assertDoesNotThrow(() -> jobUserService.updateJobInfo("1", jobUpdateDto, "1"));
+      Assertions.assertDoesNotThrow(() -> jobUserService.updateJobInfo("1", jobUpdateDto));
       Mockito.verify(userService, Mockito.times(0)).findSubordinatesByManagerUserId(Mockito.any());
       Mockito.verify(userService, Mockito.times(1)).save(Mockito.any());
     }

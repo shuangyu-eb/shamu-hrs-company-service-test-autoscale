@@ -21,7 +21,6 @@ import shamu.company.benefit.repository.BenefitCoveragesRepository;
 import shamu.company.benefit.service.BenefitPlanDependentService;
 import shamu.company.benefit.service.BenefitPlanService;
 import shamu.company.common.config.DefaultJwtAuthenticationToken;
-import shamu.company.common.entity.BaseEntity;
 import shamu.company.company.service.CompanyService;
 import shamu.company.employee.dto.EmployeeDto;
 import shamu.company.employee.dto.NewEmployeeJobInformationDto;
@@ -94,8 +93,7 @@ public class UserPermissionUtils extends BasePermissionUtils {
       final Authentication auth,
       final String targetId,
       final Type targetType,
-      final Permission.Name permission,
-      final BaseEntity... entities) {
+      final Permission.Name permission) {
     if (targetId == null) {
       return false;
     }

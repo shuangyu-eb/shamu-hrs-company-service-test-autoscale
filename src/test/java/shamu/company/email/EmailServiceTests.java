@@ -361,11 +361,7 @@ class EmailServiceTests {
     Mockito.when(userService.findUsersByCompanyIdAndUserRole(Role.SUPER_ADMIN.getValue()))
         .thenReturn(superAdmins);
     Whitebox.invokeMethod(
-        emailService,
-        "sendEmailToOtherAdminsWhenNewOneAdded",
-        promotedEmployeeId,
-        currentUserId,
-        companyId);
+        emailService, "sendEmailToOtherAdminsWhenNewOneAdded", promotedEmployeeId, currentUserId);
   }
 
   @Nested

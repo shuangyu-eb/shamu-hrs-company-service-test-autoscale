@@ -6,6 +6,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.context.SecurityContextHolder;
+import shamu.company.account.service.AccountService;
 import shamu.company.attendance.entity.mapper.CompanyTaSettingsMapper;
 import shamu.company.attendance.entity.mapper.EmployeesTaSettingsMapper;
 import shamu.company.attendance.service.AttendanceMyHoursService;
@@ -95,6 +96,7 @@ public class WebControllerBaseTests {
   @MockBean protected LiquibaseManager liquibaseManager;
   @MockBean protected TenantService tenantService;
   @MockBean protected TenantMapper tenantMapper;
+  @MockBean protected AccountService accountService;
   @MockBean protected PayrollDetailService payrollDetailService;
   @MockBean protected OvertimeService overtimeService;
 

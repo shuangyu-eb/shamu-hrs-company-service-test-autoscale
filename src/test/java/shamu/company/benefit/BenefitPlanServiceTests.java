@@ -635,7 +635,7 @@ class BenefitPlanServiceTests {
           .thenReturn(benefitPlanCoverage);
       Mockito.when(benefitCoveragesRepository.findById("coverageId"))
           .thenReturn(Optional.of(benefitCoverages));
-      benefitPlanService.createBenefitPlan(data, companyId);
+      benefitPlanService.createBenefitPlan(data);
       Mockito.verify(benefitPlanMapper, Mockito.times(1)).convertToBenefitPlanDto(Mockito.any());
     }
   }
@@ -1239,11 +1239,7 @@ class BenefitPlanServiceTests {
               benefitPlanDependentRepository.findByBenefitPlansUsersId(benefitPlanUser.getId()))
           .thenReturn(benefitDependentRecords);
       Whitebox.invokeMethod(
-          benefitPlanService,
-          "clearBenefitPlansEnrollmentInfoByPlanType",
-          benefitPlanType,
-          companyId,
-          userId);
+          benefitPlanService, "clearBenefitPlansEnrollmentInfoByPlanType", benefitPlanType, userId);
       Mockito.verify(benefitPlanUserRepository, Mockito.times(1))
           .findByUserIdAndBenefitPlanId(userId, benefitPlan.getId());
     }
@@ -1340,7 +1336,6 @@ class BenefitPlanServiceTests {
           benefitPlanService,
           "updateBenefitPlansEnrollmentInfoByPlanType",
           selectedEnrollmentInfoDto,
-          companyId,
           userId);
       Mockito.verify(benefitPlanUserRepository, Mockito.times(1))
           .findByUserIdAndBenefitPlanId(userId, benefitPlanId);
@@ -1360,7 +1355,6 @@ class BenefitPlanServiceTests {
           benefitPlanService,
           "updateBenefitPlansEnrollmentInfoByPlanType",
           selectedEnrollmentInfoDto,
-          companyId,
           userId);
       Mockito.verify(benefitPlanUserRepository, Mockito.times(1)).save(benefitPlanUser);
     }
@@ -1423,7 +1417,7 @@ class BenefitPlanServiceTests {
       Mockito.when(jobUserService.findJobUserByUser(user)).thenReturn(jobUser);
       Mockito.when(jobUserMapper.covertToBenefitPlanUserDto(jobUserDto))
           .thenReturn(benefitPlanUserDto);
-      benefitPlanService.findAllEmployeesForBenefitPlan(benefitPlanId, companyId);
+      benefitPlanService.findAllEmployeesForBenefitPlan(benefitPlanId);
       Mockito.verify(benefitPlanUserRepository, Mockito.times(1))
           .findAllByBenefitPlanId(benefitPlanId);
     }

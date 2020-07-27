@@ -16,6 +16,7 @@ import org.powermock.reflect.Whitebox;
 import org.springframework.security.crypto.encrypt.BytesEncryptor;
 import org.springframework.security.crypto.encrypt.Encryptors;
 import shamu.company.benefit.entity.BenefitPlanDependent;
+import shamu.company.common.multitenant.TenantContext;
 import shamu.company.company.entity.Company;
 import shamu.company.helpers.auth0.Auth0Helper;
 import shamu.company.user.entity.User;
@@ -43,6 +44,7 @@ class EncryptorTests {
     MockitoAnnotations.initMocks(this);
 
     encryptor = new Encryptor(indeedHash, userService, auth0Helper, secretHashRepository);
+    TenantContext.setCurrentTenant("eastbay");
     initTestUser();
     initMockBehavior();
     initEncryptSsn();

@@ -32,7 +32,6 @@ import shamu.company.common.exception.errormapping.ResourceNotFoundException;
 import shamu.company.common.multitenant.TenantContext;
 import shamu.company.company.entity.Company;
 import shamu.company.company.entity.CompanyBenefitsSetting;
-import shamu.company.company.repository.CompanyRepository;
 import shamu.company.company.service.CompanyBenefitsSettingService;
 import shamu.company.company.service.CompanyService;
 import shamu.company.crypto.SecretHashRepository;
@@ -56,7 +55,6 @@ import shamu.company.scheduler.QuartzJobScheduler;
 import shamu.company.scheduler.job.DeactivateUserJob;
 import shamu.company.sentry.SentryLogger;
 import shamu.company.server.dto.AuthUser;
-import shamu.company.timeoff.service.PaidHolidayService;
 import shamu.company.user.dto.AccountInfoDto;
 import shamu.company.user.dto.ChangePasswordDto;
 import shamu.company.user.dto.CurrentUserDto;
@@ -129,7 +127,6 @@ public class UserService {
 
   private final UserEmergencyContactService userEmergencyContactService;
   private final UserAddressService userAddressService;
-  private final PaidHolidayService paidHolidayService;
   private final EmailService emailService;
   private final UserRoleService userRoleService;
   private final JobUserService jobUserService;
@@ -143,8 +140,6 @@ public class UserService {
   private final UserPersonalInformationMapper userPersonalInformationMapper;
   private final UserMapper userMapper;
   private final CompanyBenefitsSettingService companyBenefitsSettingService;
-  private final CompanyRepository companyRepository;
-  private final SystemAnnouncementsService systemAnnouncementsService;
   private final DismissedAtService dismissedAtService;
   private final OvertimeService overtimeService;
 
@@ -171,7 +166,6 @@ public class UserService {
       final UserPersonalInformationMapper userPersonalInformationMapper,
       final UserEmergencyContactService userEmergencyContactService,
       final UserAddressService userAddressService,
-      @Lazy final PaidHolidayService paidHolidayService,
       final UserContactInformationMapper userContactInformationMapper,
       final UserAddressMapper userAddressMapper,
       final Auth0Helper auth0Helper,
@@ -188,8 +182,6 @@ public class UserService {
       final UserContactInformationService userContactInformationService,
       final CompanyBenefitsSettingService companyBenefitsSettingService,
       final EntityManager entityManager,
-      final CompanyRepository companyRepository,
-      final SystemAnnouncementsService systemAnnouncementsService,
       final DismissedAtService dismissedAtService,
       final DocumentClient documentClient,
       final OvertimeService overtimeService) {
@@ -202,7 +194,6 @@ public class UserService {
     this.userPersonalInformationMapper = userPersonalInformationMapper;
     this.userContactInformationMapper = userContactInformationMapper;
     this.userAddressMapper = userAddressMapper;
-    this.paidHolidayService = paidHolidayService;
     this.auth0Helper = auth0Helper;
     this.userMapper = userMapper;
     this.authUserCacheManager = authUserCacheManager;
@@ -217,8 +208,6 @@ public class UserService {
     this.userContactInformationService = userContactInformationService;
     this.companyBenefitsSettingService = companyBenefitsSettingService;
     this.entityManager = entityManager;
-    this.companyRepository = companyRepository;
-    this.systemAnnouncementsService = systemAnnouncementsService;
     this.dismissedAtService = dismissedAtService;
     this.documentClient = documentClient;
     this.overtimeService = overtimeService;
@@ -553,8 +542,6 @@ public class UserService {
     user.setId(userId);
     userRepository.save(user);
 
-    // TODO: It would be delete in another PR.
-    // paidHolidayService.initDefaultPaidHolidays(user.getCompany());
     overtimeService.createDefaultPolicy(company);
 
     addTenant();
@@ -842,7 +829,6 @@ public class UserService {
         dismissedAtService.findByUserIdAndSystemAnnouncementId(userId, id);
     if (dismissed == null) {
       final User user = findById(userId);
-      final SystemAnnouncement systemAnnouncement = systemAnnouncementsService.findById(id);
       final DismissedAt dismissedAt = new DismissedAt();
       dismissedAt.setUser(user);
       dismissedAt.setSystemAnnouncementId(id);

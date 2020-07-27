@@ -821,8 +821,7 @@ class EmployeeServiceTests {
       jobInformation.setCompensation(1.0);
       jobInformation.setCompensationFrequencyId("a");
       Mockito.when(userCompensationService.save(Mockito.any())).thenReturn(userCompensation);
-      Whitebox.invokeMethod(
-          employeeService, "saveEmployeeJob", employee, currentUser, jobInformation);
+      Whitebox.invokeMethod(employeeService, "saveEmployeeJob", employee, jobInformation);
       Mockito.verify(compensationFrequencyService, Mockito.times(1)).findById(Mockito.anyString());
       Mockito.verify(userCompensationService, Mockito.times(1)).save(Mockito.any());
       Mockito.verify(jobUserService, Mockito.times(1)).save(Mockito.any());
@@ -833,8 +832,7 @@ class EmployeeServiceTests {
       jobInformation.setEmploymentTypeId("a");
       jobInformation.setCompensation(2.0);
       Mockito.when(userCompensationService.save(Mockito.any())).thenReturn(userCompensation);
-      Whitebox.invokeMethod(
-          employeeService, "saveEmployeeJob", employee, currentUser, jobInformation);
+      Whitebox.invokeMethod(employeeService, "saveEmployeeJob", employee, jobInformation);
       Mockito.verify(employmentTypeService, Mockito.times(1)).findById(Mockito.anyString());
       Mockito.verify(jobUserService, Mockito.times(1)).save(Mockito.any());
     }
@@ -844,8 +842,7 @@ class EmployeeServiceTests {
       jobInformation.setOfficeId("a");
       jobInformation.setCompensation(3.0);
       Mockito.when(userCompensationService.save(Mockito.any())).thenReturn(userCompensation);
-      Whitebox.invokeMethod(
-          employeeService, "saveEmployeeJob", employee, currentUser, jobInformation);
+      Whitebox.invokeMethod(employeeService, "saveEmployeeJob", employee, jobInformation);
       Mockito.verify(officeService, Mockito.times(1)).findById(Mockito.anyString());
       Mockito.verify(jobUserService, Mockito.times(1)).save(Mockito.any());
     }

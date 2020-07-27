@@ -504,7 +504,7 @@ public class EmailService {
   }
 
   public void sendEmailToOtherAdminsWhenNewOneAdded(
-      final String promotedEmployeeId, final String currentUserId, final String companyId) {
+      final String promotedEmployeeId, final String currentUserId) {
     final User promotedEmployee = userService.findById(promotedEmployeeId);
     final String promotedEmployeeName = promotedEmployee.getUserPersonalInformation().getName();
     final String currentUserName = userService.getCurrentUserInfo(currentUserId).getName();

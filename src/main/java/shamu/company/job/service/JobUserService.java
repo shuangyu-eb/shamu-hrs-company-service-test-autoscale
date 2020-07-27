@@ -196,7 +196,7 @@ public class JobUserService {
   }
 
   private void adjustUserLocationInOrganizationRelationship(
-      final User user, final String companyId, final String managerId) {
+      final User user, final String managerId) {
     final List<User> subordinates = userService.findSubordinatesByManagerUserId(user.getId());
     if (user.getRole() != Role.ADMIN) {
       subordinates.removeIf(employee -> employee.getId().equals(managerId));
@@ -206,14 +206,13 @@ public class JobUserService {
     }
   }
 
-  private void addOrUpdateUserManager(
-      final User user, final String companyId, final String managerId) {
+  private void addOrUpdateUserManager(final User user, final String managerId) {
     if (null == managerId) {
       user.setManagerUser(null);
       userService.save(user);
     } else if (userHasNoneOrDifferentManager(user, managerId)) {
       adjustManagerLocationInOrganizationRelationship(user, managerId);
-      adjustUserLocationInOrganizationRelationship(user, companyId, managerId);
+      adjustUserLocationInOrganizationRelationship(user, managerId);
       handlePendingRequests(managerId);
       userService.save(user);
     }
@@ -273,10 +272,9 @@ public class JobUserService {
     jobUserRepository.save(jobUser);
   }
 
-  public void updateJobInfo(
-      final String id, final JobUpdateDto jobUpdateDto, final String companyId) {
+  public void updateJobInfo(final String id, final JobUpdateDto jobUpdateDto) {
     final User user = userService.findById(id);
-    addOrUpdateUserManager(user, companyId, jobUpdateDto.getManagerId());
+    addOrUpdateUserManager(user, jobUpdateDto.getManagerId());
     addOrUpdateJobUser(user, jobUpdateDto);
   }
 

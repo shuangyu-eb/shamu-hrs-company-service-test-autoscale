@@ -34,6 +34,8 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
           + "or (u.deactivated_at is not null "
           + "and u.deactivated_at > current_timestamp)) ";
 
+  static final String AND_ACTIVE_USER_QUERY = " and " + ACTIVE_USER_QUERY;
+
   static final String FROM_SQL =
       "from users u "
           + "left join  user_personal_information up on u.user_personal_information_id = up.id "
@@ -77,7 +79,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
       final Pageable pageable) {
     String countAllEmployees = "select count(1) " + conditionSql;
     if (!employeeListSearchCondition.getIncludeDeactivated()) {
-      countAllEmployees += " and " + ACTIVE_USER_QUERY;
+      countAllEmployees += AND_ACTIVE_USER_QUERY;
     }
     final BigInteger employeeCount =
         (BigInteger)
@@ -99,7 +101,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
     String resultSql = appendFilterCondition(originalSql, pageable);
 
     if (!employeeListSearchCondition.getIncludeDeactivated()) {
-      resultSql = appendFilterCondition(originalSql + " and " + ACTIVE_USER_QUERY, pageable);
+      resultSql = appendFilterCondition(originalSql + AND_ACTIVE_USER_QUERY, pageable);
     }
 
     final List<?> jobUserList =
@@ -141,8 +143,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
         FROM_SQL
             + "where "
             + userCondition
-            + " and "
-            + ACTIVE_USER_QUERY
+            + AND_ACTIVE_USER_QUERY
             + " and (up.first_name like concat('%', ?2, '%') "
             + "or up.last_name like concat('%', ?2, '%') "
             + "or d.name like concat('%', ?2, '%') or j.title like concat('%', ?2, '%')) ";

@@ -83,7 +83,7 @@ public class BenefitPlanRestController extends BaseRestController {
   @PreAuthorize(
       "hasPermission(" + "#data.coverages, 'BENEFIT_COVERAGE_CREATION', 'MANAGE_BENEFIT_PLAN')")
   public BenefitPlanDto createBenefitPlan(@RequestBody final NewBenefitPlanWrapperDto data) {
-    return benefitPlanService.createBenefitPlan(data, findCompanyId());
+    return benefitPlanService.createBenefitPlan(data);
   }
 
   @PatchMapping("benefit-plans/{id}")
@@ -173,7 +173,7 @@ public class BenefitPlanRestController extends BaseRestController {
   public void updateSelectedBenefitEnrollmentInfo(
       @RequestBody final List<SelectedEnrollmentInfoDto> selectedInfos) {
     final String userId = findAuthUser().getId();
-    benefitPlanService.updateUserBenefitPlanEnrollmentInfo(userId, selectedInfos, findCompanyId());
+    benefitPlanService.updateUserBenefitPlanEnrollmentInfo(userId, selectedInfos);
   }
 
   @PatchMapping("users/benefit-confirmation")
@@ -218,7 +218,7 @@ public class BenefitPlanRestController extends BaseRestController {
   @PreAuthorize("hasPermission(#benefitPlanId, 'BENEFIT_PLAN', 'MANAGE_BENEFIT_PLAN')")
   public BenefitPlanRelatedUserListDto getAllUsersByBenefitPlanId(
       @PathVariable final String benefitPlanId) {
-    return benefitPlanService.findAllEmployeesForBenefitPlan(benefitPlanId, findCompanyId());
+    return benefitPlanService.findAllEmployeesForBenefitPlan(benefitPlanId);
   }
 
   @GetMapping("benefit-plan/coverages")

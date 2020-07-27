@@ -197,8 +197,7 @@ public class BenefitPlanService {
     return t -> seen.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
   }
 
-  public BenefitPlanDto createBenefitPlan(
-      final NewBenefitPlanWrapperDto data, final String companyId) {
+  public BenefitPlanDto createBenefitPlan(final NewBenefitPlanWrapperDto data) {
     final BenefitPlanCreateDto benefitPlanCreateDto = data.getBenefitPlan();
     final List<BenefitPlanCoverageDto> benefitPlanCoverageDtoList = data.getCoverages();
     final List<BenefitPlanUserCreateDto> benefitPlanUserCreateDtoList = data.getSelectedEmployees();
@@ -600,9 +599,7 @@ public class BenefitPlanService {
   }
 
   public void updateUserBenefitPlanEnrollmentInfo(
-      final String userId,
-      final List<SelectedEnrollmentInfoDto> selectedBenefitPlanInfo,
-      final String companyId) {
+      final String userId, final List<SelectedEnrollmentInfoDto> selectedBenefitPlanInfo) {
     selectedBenefitPlanInfo.forEach(
         s -> {
           if (s.getBenefitPlanType().equals(BenefitPlanType.PlanType.OTHER.getValue())) {
@@ -627,11 +624,11 @@ public class BenefitPlanService {
             final BenefitPlanType benefitPlanType =
                 benefitPlanTypeRepository.findByName(s.getBenefitPlanType());
 
-            clearBenefitPlansEnrollmentInfoByPlanType(benefitPlanType, companyId, userId);
+            clearBenefitPlansEnrollmentInfoByPlanType(benefitPlanType, userId);
 
           } else {
             // selected all this type of benefitPlan of user's company
-            updateBenefitPlansEnrollmentInfoByPlanType(s, companyId, userId);
+            updateBenefitPlansEnrollmentInfoByPlanType(s, userId);
           }
         });
   }
@@ -639,7 +636,7 @@ public class BenefitPlanService {
   // clear all the enrollmentInfo relate to this type of
   // benefit plan when selected enroll planId is null
   private void clearBenefitPlansEnrollmentInfoByPlanType(
-      final BenefitPlanType benefitPlanType, final String companyId, final String userId) {
+      final BenefitPlanType benefitPlanType, final String userId) {
     final List<BenefitPlan> benefitPlans =
         benefitPlanRepository.findByBenefitPlanTypeIdOrderByNameAsc(benefitPlanType.getId());
 
@@ -681,9 +678,7 @@ public class BenefitPlanService {
 
   // update benefit enrollment info based on this benefitPlanDto
   private void updateBenefitPlansEnrollmentInfoByPlanType(
-      final SelectedEnrollmentInfoDto selectedEnrollmentInfoDto,
-      final String companyId,
-      final String userId) {
+      final SelectedEnrollmentInfoDto selectedEnrollmentInfoDto, final String userId) {
     benefitPlanRepository
         .findByBenefitPlanTypeIdOrderByNameAsc(
             benefitPlanTypeRepository
@@ -805,7 +800,7 @@ public class BenefitPlanService {
       final String userId,
       final List<SelectedEnrollmentInfoDto> selectedBenefitPlanInfo,
       final String companyId) {
-    updateUserBenefitPlanEnrollmentInfo(userId, selectedBenefitPlanInfo, companyId);
+    updateUserBenefitPlanEnrollmentInfo(userId, selectedBenefitPlanInfo);
     selectedBenefitPlanInfo.forEach(
         s -> {
           final BenefitPlanUser confirmedBenefitPlanUser =
@@ -844,8 +839,7 @@ public class BenefitPlanService {
             .collect(Collectors.toList()));
   }
 
-  public BenefitPlanRelatedUserListDto findAllEmployeesForBenefitPlan(
-      final String benefitPlanId, final String companyId) {
+  public BenefitPlanRelatedUserListDto findAllEmployeesForBenefitPlan(final String benefitPlanId) {
     final List<User> policyEmployees = userRepository.findAllActiveUsers();
 
     final List<JobUserDto> allJobUsers =

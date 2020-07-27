@@ -44,7 +44,7 @@ public class JobController extends BaseRestController {
           + "and hasPermission(#jobUpdateDto, 'USER_JOB', 'EDIT_USER')")
   public HttpEntity updateJobInfo(
       @PathVariable final String id, @RequestBody final JobUpdateDto jobUpdateDto) {
-    jobUserService.updateJobInfo(id, jobUpdateDto, findCompanyId());
+    jobUserService.updateJobInfo(id, jobUpdateDto);
     return new ResponseEntity(HttpStatus.OK);
   }
 

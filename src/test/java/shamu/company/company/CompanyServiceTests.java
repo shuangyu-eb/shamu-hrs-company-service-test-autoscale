@@ -8,17 +8,15 @@ import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.springframework.context.ApplicationEventPublisher;
 import shamu.company.common.entity.StateProvince;
+import shamu.company.common.entity.Tenant;
 import shamu.company.common.exception.errormapping.AlreadyExistsException;
-import shamu.company.common.exception.errormapping.ResourceNotFoundException;
 import shamu.company.common.service.DepartmentService;
 import shamu.company.common.service.OfficeService;
 import shamu.company.common.service.StateProvinceService;
@@ -39,7 +37,6 @@ import shamu.company.employee.entity.EmploymentType;
 import shamu.company.employee.service.EmploymentTypeService;
 import shamu.company.helpers.googlemaps.GoogleMapsHelper;
 import shamu.company.job.service.JobService;
-import shamu.company.server.dto.CompanyDtoProjection;
 
 public class CompanyServiceTests {
 
@@ -56,9 +53,8 @@ public class CompanyServiceTests {
   @Mock private StateProvinceService stateProvinceService;
   @Mock private CompanyBenefitsSettingMapper companyBenefitsSettingMapper;
   @Mock private CompanyBenefitsSettingService companyBenefitsSettingService;
-  @Mock private CompanyMapper companyMapper;
-  @Mock private ApplicationEventPublisher eventPublisher;
   @Mock private TenantService tenantService;
+  @Mock private CompanyMapper companyMapper;
   @Mock private CompanyService companyService;
   @Mock private GoogleMapsHelper googleMapsHelper;
   private CompanyService companyService;
@@ -78,7 +74,6 @@ public class CompanyServiceTests {
             companyBenefitsSettingMapper,
             companyBenefitsSettingService,
             companyMapper,
-            eventPublisher,
             tenantService,
             companyBenefitsSettingService,
             googleMapsHelper);
@@ -134,7 +129,7 @@ public class CompanyServiceTests {
 
   @Test
   void testSaveJobsByDepartmentId() {
-    assertThatCode(() -> companyService.saveJob("name")).doesNotThrowAnyException();
+    assertThatCode(() -> companyService.saveJob("1")).doesNotThrowAnyException();
   }
 
   @Test
@@ -192,23 +187,10 @@ public class CompanyServiceTests {
         .doesNotThrowAnyException();
   }
 
-  @Nested
-  class testFindById {
-
-    @Test
-    void whenIdExists_thenShouldNotThrowException() {
-      final Optional<Company> optional = Optional.of(new Company());
-      Mockito.when(companyRepository.findById(Mockito.anyString())).thenReturn(optional);
-      assertThatCode(() -> companyService.getCompany()).doesNotThrowAnyException();
-    }
-
-    @Test
-    void whenIdNotExists_thenShoudlThrowException() {
-      final Optional optional = Optional.empty();
-      Mockito.when(companyRepository.findById(Mockito.anyString())).thenReturn(optional);
-      assertThatExceptionOfType(ResourceNotFoundException.class)
-          .isThrownBy(() -> companyService.getCompany());
-    }
+  @Test
+  void testGetCompany() {
+    Mockito.when(companyRepository.findAll()).thenReturn(Collections.singletonList(new Company()));
+    assertThatCode(() -> companyService.getCompany()).doesNotThrowAnyException();
   }
 
   @Nested
@@ -216,10 +198,9 @@ public class CompanyServiceTests {
 
     @Test
     void whenUpdateCompanyName_thenShouldNotThrowException() {
-      final Company company = new Company();
       Mockito.when(companyService.existsByName(Mockito.anyString())).thenReturn(false);
-      Mockito.when(companyRepository.findAll()).thenReturn(Collections.singletonList(company));
-      Mockito.when(companyRepository.save(company)).thenReturn(company);
+      Mockito.when(companyRepository.findAll())
+          .thenReturn(Collections.singletonList(new Company()));
       assertThatCode(() -> companyService.updateCompanyName("example")).doesNotThrowAnyException();
       assertThat(companyService.updateCompanyName("example2")).isEqualTo("example2");
     }
@@ -233,27 +214,16 @@ public class CompanyServiceTests {
 
     @Test
     void findCompanyDtoByUserId() {
-      final CompanyDtoProjection companyDtoProjection =
-          new CompanyDtoProjection() {
-            @Override
-            public String getId() {
-              return null;
-            }
-
-            @Override
-            public String getName() {
-              return null;
-            }
-          };
-      Mockito.when(companyRepository.findCompanyDtoByUserId(Mockito.anyString()))
-          .thenReturn(companyDtoProjection);
+      final Company companyDtoProjection = new Company();
+      Mockito.when(companyRepository.findAll())
+          .thenReturn(Collections.singletonList(companyDtoProjection));
       assertThatCode(() -> companyService.findCompanyDto()).doesNotThrowAnyException();
     }
 
     @Test
     void findAllById() {
-      final List<Company> companies = new ArrayList<>();
-      Mockito.when(companyRepository.findAllById(Mockito.anyList())).thenReturn(companies);
+      final List<Tenant> companies = new ArrayList<>();
+      Mockito.when(tenantService.findAllByCompanyId(Mockito.anyList())).thenReturn(companies);
       assertThatCode(() -> companyService.findAllById(Collections.singletonList("1")))
           .doesNotThrowAnyException();
     }
