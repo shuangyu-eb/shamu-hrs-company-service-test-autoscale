@@ -99,31 +99,12 @@ class SuperAdminRestControllerTests extends WebControllerBaseTests {
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
 
-  @Test
-  void testGetUser() throws Exception {
-    setPermission(Permission.Name.SUPER_PERMISSION.name());
-    final HttpHeaders httpHeaders = new HttpHeaders();
-    httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
-    final MvcResult response =
-        mockMvc
-            .perform(MockMvcRequestBuilders.get("/company/super-admin/users").headers(httpHeaders))
-            .andReturn();
-    assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
-  }
-
   @Nested
   class TestMockUser {
 
     @BeforeEach
     void init() {
       targetUser.setId(UuidUtil.getUuidString());
-    }
-
-    @Test
-    void asSuper_Admin_thenShouldSuccess() throws Exception {
-      buildAuthUserAsSuperAdmin();
-      final MvcResult response = getResponse();
-      assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
     }
 
     @Test
@@ -154,10 +135,18 @@ class SuperAdminRestControllerTests extends WebControllerBaseTests {
       assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
     }
 
+    @Test
+    void asSuper_Admin_thenShouldSuccess() throws Exception {
+      buildAuthUserAsSuperAdmin();
+      final MvcResult response = getResponse();
+      assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+    }
+
     private MvcResult getResponse() throws Exception {
       return mockMvc
           .perform(
-              MockMvcRequestBuilders.post("/company/super-admin/mock/users/" + targetUser.getId())
+              MockMvcRequestBuilders.post(
+                      "/company/super-admin/mock/companies/123/users/" + targetUser.getId())
                   .contentType(MediaType.APPLICATION_JSON)
                   .headers(httpHeaders))
           .andReturn();
