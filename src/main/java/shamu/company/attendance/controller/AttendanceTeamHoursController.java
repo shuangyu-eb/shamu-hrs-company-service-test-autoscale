@@ -30,7 +30,7 @@ public class AttendanceTeamHoursController extends BaseRestController {
     final Pageable pageable = PageRequest.of(page - 1, size);
 
     return attendanceTeamHoursService.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
-        timesheetId, findCompanyId(), TimeSheetStatus.SUBMITTED, pageable);
+        timesheetId, findCompanyId(), TimeSheetStatus.SUBMITTED, findUserId(), pageable);
   }
 
   @GetMapping("time-and-attendance/team-hours/approved-hours/{timesheetId}")
@@ -41,11 +41,12 @@ public class AttendanceTeamHoursController extends BaseRestController {
     final Pageable pageable = PageRequest.of(page - 1, size);
 
     return attendanceTeamHoursService.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
-        timesheetId, findCompanyId(), TimeSheetStatus.APPROVED, pageable);
+        timesheetId, findCompanyId(), TimeSheetStatus.APPROVED, findUserId(), pageable);
   }
 
   @GetMapping("time-and-attendance/team-hours/total-time-off/{timesheetId}")
   public AttendanceSummaryDto findTeamHoursSummary(@PathVariable final String timesheetId) {
-    return attendanceTeamHoursService.findTeamHoursSummary(timesheetId, findCompanyId());
+    return attendanceTeamHoursService.findTeamHoursSummary(
+        timesheetId, findCompanyId(), findUserId());
   }
 }

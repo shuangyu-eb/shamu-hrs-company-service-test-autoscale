@@ -22,10 +22,12 @@ import shamu.company.attendance.entity.EmployeeTimeEntry;
 import shamu.company.attendance.entity.EmployeeTimeLog;
 import shamu.company.attendance.entity.EmployeesTaSetting;
 import shamu.company.attendance.entity.StaticEmployeesTaTimeType;
+import shamu.company.attendance.entity.StaticTimesheetStatus;
 import shamu.company.attendance.entity.TimeSheet;
 import shamu.company.attendance.entity.mapper.EmployeeTimeLogMapper;
 import shamu.company.attendance.repository.EmployeeTimeLogRepository;
 import shamu.company.attendance.repository.StaticEmployeesTaTimeTypeRepository;
+import shamu.company.attendance.repository.StaticTimesheetStatusRepository;
 import shamu.company.attendance.utils.TimeEntryUtils;
 import shamu.company.employee.dto.CompensationDto;
 import shamu.company.timeoff.service.TimeOffRequestService;
@@ -73,6 +75,8 @@ public class AttendanceMyHoursService {
 
   private final GenericHoursService genericHoursService;
 
+  private final StaticTimesheetStatusRepository staticTimesheetStatusRepository;
+
   public AttendanceMyHoursService(
       final EmployeeTimeEntryService employeeTimeEntryService,
       final EmployeeTimeLogRepository employeeTimeLogRepository,
@@ -85,7 +89,8 @@ public class AttendanceMyHoursService {
       final TimeOffRequestService timeOffRequestService,
       final EmployeesTaSettingService employeesTaSettingService,
       final OvertimeService overtimeService,
-      final GenericHoursService genericHoursService) {
+      final GenericHoursService genericHoursService,
+      final StaticTimesheetStatusRepository staticTimesheetStatusRepository) {
     this.employeeTimeEntryService = employeeTimeEntryService;
     this.employeeTimeLogRepository = employeeTimeLogRepository;
     this.timeSheetService = timeSheetService;
@@ -98,6 +103,7 @@ public class AttendanceMyHoursService {
     this.employeesTaSettingService = employeesTaSettingService;
     this.overtimeService = overtimeService;
     this.genericHoursService = genericHoursService;
+    this.staticTimesheetStatusRepository = staticTimesheetStatusRepository;
   }
 
   public void saveTimeEntry(final String userId, final TimeEntryDto timeEntryDto) {
@@ -381,5 +387,16 @@ public class AttendanceMyHoursService {
         .minutesWorked(totalWorkMin % 60)
         .breakTimeLogs(breakTimeLogDtos)
         .build();
+  }
+
+  public void submitHoursForApproval(final String timesheetId) {
+    final StaticTimesheetStatus staticTimesheetStatus =
+        staticTimesheetStatusRepository.findByName(
+            StaticTimesheetStatus.TimeSheetStatus.SUBMITTED.name());
+    timeSheetService.updateTimesheetStatus(staticTimesheetStatus.getId(), timesheetId);
+  }
+
+  public String findTimesheetStatus(final String timesheetId) {
+    return timeSheetService.findTimeSheetById(timesheetId).getStatus().getName();
   }
 }

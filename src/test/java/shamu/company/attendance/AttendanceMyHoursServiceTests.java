@@ -32,6 +32,7 @@ import shamu.company.attendance.entity.EmployeeTimeEntry;
 import shamu.company.attendance.entity.EmployeeTimeLog;
 import shamu.company.attendance.entity.EmployeesTaSetting;
 import shamu.company.attendance.entity.StaticEmployeesTaTimeType;
+import shamu.company.attendance.entity.StaticTimesheetStatus;
 import shamu.company.attendance.entity.StaticTimezone;
 import shamu.company.attendance.entity.TimePeriod;
 import shamu.company.attendance.entity.TimeSheet;
@@ -39,6 +40,7 @@ import shamu.company.attendance.entity.mapper.EmployeeTimeLogMapper;
 import shamu.company.attendance.repository.EmployeeTimeEntryRepository;
 import shamu.company.attendance.repository.EmployeeTimeLogRepository;
 import shamu.company.attendance.repository.StaticEmployeesTaTimeTypeRepository;
+import shamu.company.attendance.repository.StaticTimesheetStatusRepository;
 import shamu.company.attendance.service.AttendanceMyHoursService;
 import shamu.company.attendance.service.AttendanceSettingsService;
 import shamu.company.attendance.service.EmployeeTimeEntryService;
@@ -86,6 +88,8 @@ public class AttendanceMyHoursServiceTests {
 
   @Mock private GenericHoursService genericHoursService;
 
+  @Mock private StaticTimesheetStatusRepository staticTimesheetStatusRepository;
+
   private AttendanceMyHoursService attendanceMyHoursService;
 
   @BeforeEach
@@ -104,7 +108,8 @@ public class AttendanceMyHoursServiceTests {
             timeOffRequestService,
             employeesTaSettingService,
             overtimeService,
-            genericHoursService);
+            genericHoursService,
+            staticTimesheetStatusRepository);
   }
 
   @Nested
@@ -330,5 +335,26 @@ public class AttendanceMyHoursServiceTests {
     Mockito.when(employeeTimeLogRepository.findAllByEntryId("1")).thenReturn(employeeTimeLogs);
     final TimeEntryDto timeEntryDto = attendanceMyHoursService.findMyHourEntry("1");
     assertThat(timeEntryDto.getHoursWorked()).isEqualTo(1);
+  }
+
+  @Test
+  void submitHoursForApproval() {
+    final StaticTimesheetStatus staticTimesheetStatus = new StaticTimesheetStatus();
+    staticTimesheetStatus.setId("1");
+    Mockito.when(staticTimesheetStatusRepository.findByName(Mockito.anyString()))
+        .thenReturn(staticTimesheetStatus);
+    assertThatCode(() -> attendanceMyHoursService.submitHoursForApproval("1"))
+        .doesNotThrowAnyException();
+  }
+
+  @Test
+  void findTimesheetStatus() {
+    final TimeSheet timeSheet = new TimeSheet();
+    final StaticTimesheetStatus staticTimesheetStatus = new StaticTimesheetStatus();
+    staticTimesheetStatus.setName("ACTIVE");
+    timeSheet.setStatus(staticTimesheetStatus);
+    Mockito.when(timeSheetService.findTimeSheetById(Mockito.anyString())).thenReturn(timeSheet);
+    assertThatCode(() -> attendanceMyHoursService.findTimesheetStatus("1"))
+        .doesNotThrowAnyException();
   }
 }

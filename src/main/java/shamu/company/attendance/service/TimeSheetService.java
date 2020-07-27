@@ -45,14 +45,22 @@ public class TimeSheetService {
       final String timesheetId,
       final String companyId,
       final TimeSheetStatus timeSheetStatus,
+      final String userId,
       final Pageable pageable) {
     return timeSheetRepository.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
-        timesheetId, companyId, timeSheetStatus.getValue(), pageable);
+        timesheetId, companyId, timeSheetStatus.getValue(), userId, pageable);
   }
 
   public List<TimeSheet> findTimeSheetsByIdAndCompanyIdAndStatus(
-      final String timesheetId, final String companyId, final List<String> timeSheetStatus) {
+      final String userId,
+      final String timesheetId,
+      final String companyId,
+      final List<String> timeSheetStatus) {
     return timeSheetRepository.findTimeSheetsByIdAndCompanyIdAndStatus(
-        timesheetId, companyId, timeSheetStatus);
+        timesheetId, companyId, timeSheetStatus, userId);
+  }
+
+  public void updateTimesheetStatus(final String statusId, final String timesheetId) {
+    timeSheetRepository.updateTimesheetStatus(statusId, timesheetId);
   }
 }

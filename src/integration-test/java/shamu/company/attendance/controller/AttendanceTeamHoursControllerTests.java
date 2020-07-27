@@ -46,7 +46,7 @@ class AttendanceTeamHoursControllerTests extends WebControllerBaseTests {
       final TeamHoursPageInfoDto teamHoursPageInfoDto = new TeamHoursPageInfoDto();
       given(
               attendanceTeamHoursService.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
-                  Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+                  Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
           .willReturn(teamHoursPageInfoDto);
 
       final MvcResult response =
@@ -77,7 +77,7 @@ class AttendanceTeamHoursControllerTests extends WebControllerBaseTests {
       final TeamHoursPageInfoDto teamHoursPageInfoDto = new TeamHoursPageInfoDto();
       given(
               attendanceTeamHoursService.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
-                  Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+                  Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
           .willReturn(teamHoursPageInfoDto);
 
       final MvcResult response =

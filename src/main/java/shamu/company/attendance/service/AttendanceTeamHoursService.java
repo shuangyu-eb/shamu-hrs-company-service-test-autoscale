@@ -49,10 +49,11 @@ public class AttendanceTeamHoursService {
       final String timesheetId,
       final String companyId,
       final TimeSheetStatus timeSheetStatus,
+      final String userId,
       final Pageable pageable) {
     final Page<TimeSheet> timeSheetPage =
         timeSheetService.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
-            timesheetId, companyId, timeSheetStatus, pageable);
+            timesheetId, companyId, timeSheetStatus, userId, pageable);
     final CompanyTaSetting companyTaSetting =
         attendanceSettingsService.findCompanySettings(companyId);
 
@@ -86,9 +87,10 @@ public class AttendanceTeamHoursService {
   }
 
   public AttendanceSummaryDto findTeamHoursSummary(
-      final String timesheetId, final String companyId) {
+      final String timesheetId, final String companyId, final String userId) {
     final List<TimeSheet> timeSheets =
         timeSheetService.findTimeSheetsByIdAndCompanyIdAndStatus(
+            userId,
             timesheetId,
             companyId,
             Arrays.asList(

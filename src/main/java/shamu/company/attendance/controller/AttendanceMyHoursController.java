@@ -1,6 +1,8 @@
 package shamu.company.attendance.controller;
 
+import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,8 +17,6 @@ import shamu.company.attendance.service.TimePeriodService;
 import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.employee.dto.CompensationDto;
-
-import java.util.List;
 
 @RestApiController
 public class AttendanceMyHoursController extends BaseRestController {
@@ -78,5 +78,15 @@ public class AttendanceMyHoursController extends BaseRestController {
   @GetMapping("time-and-attendance/entry/{entryId}")
   public TimeEntryDto findMyHourEntry(@PathVariable final String entryId) {
     return attendanceMyHoursService.findMyHourEntry(entryId);
+  }
+
+  @PatchMapping("time-and-attendance/my-hours/submit-for-approval/{timesheetId}")
+  public void submitHoursForApproval(@PathVariable final String timesheetId) {
+    attendanceMyHoursService.submitHoursForApproval(timesheetId);
+  }
+
+  @GetMapping("time-and-attendance/my-hours/timesheet-status/{timesheetId}")
+  public String findTimesheetStatus(@PathVariable final String timesheetId) {
+    return attendanceMyHoursService.findTimesheetStatus(timesheetId);
   }
 }

@@ -1,5 +1,7 @@
 package shamu.company.attendance.controller;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +18,6 @@ import shamu.company.attendance.dto.TimeEntryDto;
 import shamu.company.attendance.service.TimePeriodService;
 import shamu.company.tests.utils.JwtUtil;
 import shamu.company.utils.JsonUtil;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 @WebMvcTest(controllers = AttendanceMyHoursController.class)
 public class AttendanceMyHoursControllerTests extends WebControllerBaseTests {
@@ -102,6 +102,38 @@ public class AttendanceMyHoursControllerTests extends WebControllerBaseTests {
         mockMvc
             .perform(
                 MockMvcRequestBuilders.get("/company/time-and-attendance/entry/1")
+                    .headers(httpHeaders))
+            .andReturn();
+
+    assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+  }
+
+  @Test
+  void testSubmitHoursForApproval() throws Exception {
+    final HttpHeaders httpHeaders = new HttpHeaders();
+    httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.patch(
+                        "/company/time-and-attendance/my-hours/submit-for-approval/1")
+                    .headers(httpHeaders))
+            .andReturn();
+
+    assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+  }
+
+  @Test
+  void testFindTimesheetStatus() throws Exception {
+    final HttpHeaders httpHeaders = new HttpHeaders();
+    httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.get(
+                        "/company/time-and-attendance/my-hours/timesheet-status/1")
                     .headers(httpHeaders))
             .andReturn();
 

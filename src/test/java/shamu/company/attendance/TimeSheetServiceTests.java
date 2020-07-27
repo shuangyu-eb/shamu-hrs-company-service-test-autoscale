@@ -98,12 +98,12 @@ public class TimeSheetServiceTests {
     void whenNormal_thenShouldSuccess() {
       Mockito.when(
               timeSheetRepository.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
-                  timesheetId, companyId, status.getValue(), pageable))
+                  timesheetId, companyId, status.getValue(), "1", pageable))
           .thenReturn(page);
       assertThatCode(
               () ->
                   timeSheetService.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
-                      timesheetId, companyId, status, pageable))
+                      timesheetId, companyId, status, "1", pageable))
           .doesNotThrowAnyException();
     }
   }
