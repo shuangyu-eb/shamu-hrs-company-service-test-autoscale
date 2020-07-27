@@ -9,6 +9,7 @@ import org.mockito.MockitoAnnotations;
 import org.powermock.reflect.Whitebox;
 import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.Context;
+import shamu.company.common.entity.Tenant;
 import shamu.company.common.service.TenantService;
 import shamu.company.company.entity.Company;
 import shamu.company.company.service.CompanyService;
@@ -34,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -111,6 +113,9 @@ class EmailServiceTests {
       targetEmail.setMessageId(UuidUtil.getUuidString());
       targetEmail.setSentAt(DateUtil.getCurrentTime());
       Mockito.when(emailRepository.findByMessageId(Mockito.anyString())).thenReturn(targetEmail);
+
+      final Tenant tenant = new Tenant();
+      Mockito.when(tenantService.findTenantByUserEmailWork(Mockito.any())).thenReturn(tenant);
     }
 
     @Test
@@ -234,6 +239,7 @@ class EmailServiceTests {
       welcomeEmailPersonalMessage = "a";
       final Company company = new Company();
       company.setName("companyName");
+      Mockito.when(companyService.getCompany()).thenReturn(company);
     }
 
     @Test
@@ -366,8 +372,13 @@ class EmailServiceTests {
   class findAllUnfinishedTasks {
     @Test
     void whenFindAllUnfinishedTasks_thenShouldSuccess() {
+      final Set<String> schemas = new LinkedHashSet<>();
+      schemas.add("mockSchema");
+      Mockito.when(tenantService.findAllSchemaNames()).thenReturn(schemas);
+
       emailService.findAllUnfinishedTasks();
-      Mockito.verify(emailRepository, Mockito.times(1)).findAllUnfinishedTasks(Mockito.any());
+      Mockito.verify(emailTaskRepository, Mockito.times(1))
+          .findAllUnfinishedTasks(Mockito.anyString(), Mockito.anyInt());
     }
   }
 

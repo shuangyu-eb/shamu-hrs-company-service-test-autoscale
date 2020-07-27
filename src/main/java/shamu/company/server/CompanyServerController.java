@@ -12,9 +12,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import shamu.company.common.BaseRestController;
-import shamu.company.common.entity.Tenant;
-import shamu.company.common.entity.mapper.TenantMapper;
-import shamu.company.common.service.TenantService;
 import shamu.company.employee.dto.EmployeeListSearchCondition;
 import shamu.company.job.entity.JobUserListItem;
 import shamu.company.server.dto.AuthUser;
@@ -33,20 +30,11 @@ public class CompanyServerController extends BaseRestController {
 
   private final CompanyEmailService companyEmailService;
 
-  private final TenantService tenantService;
-
-  private final TenantMapper tenantMapper;
-
   @Autowired
   public CompanyServerController(
-      final CompanyUserService companyUserService,
-      final CompanyEmailService companyEmailService,
-      final TenantService tenantService,
-      final TenantMapper tenantMapper) {
+      final CompanyUserService companyUserService, final CompanyEmailService companyEmailService) {
     this.companyUserService = companyUserService;
     this.companyEmailService = companyEmailService;
-    this.tenantService = tenantService;
-    this.tenantMapper = tenantMapper;
   }
 
   @GetMapping("/users/current")

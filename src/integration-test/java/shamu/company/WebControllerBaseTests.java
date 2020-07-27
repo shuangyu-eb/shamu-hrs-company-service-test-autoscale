@@ -25,6 +25,7 @@ import shamu.company.benefit.service.BenefitPlanTypeService;
 import shamu.company.common.config.DefaultAuthenticationEntryPoint;
 import shamu.company.common.config.DefaultJwtAuthenticationToken;
 import shamu.company.common.database.LiquibaseManager;
+import shamu.company.common.entity.mapper.TenantMapper;
 import shamu.company.common.service.TenantService;
 import shamu.company.common.service.PayrollDetailService;
 import shamu.company.company.entity.Company;
@@ -93,6 +94,7 @@ public class WebControllerBaseTests {
   @MockBean protected EmployeesTaSettingsMapper employeesTaSettingsMapper;
   @MockBean protected LiquibaseManager liquibaseManager;
   @MockBean protected TenantService tenantService;
+  @MockBean protected TenantMapper tenantMapper;
   @MockBean protected PayrollDetailService payrollDetailService;
   @MockBean protected OvertimeService overtimeService;
 

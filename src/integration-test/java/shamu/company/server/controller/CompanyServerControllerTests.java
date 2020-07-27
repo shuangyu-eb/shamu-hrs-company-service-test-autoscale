@@ -26,7 +26,6 @@ import shamu.company.employee.dto.EmployeeListSearchCondition;
 import shamu.company.job.entity.JobUserListItem;
 import shamu.company.server.CompanyServerController;
 import shamu.company.server.dto.CompanyDto;
-import shamu.company.server.dto.CompanyDtoProjection;
 import shamu.company.server.dto.CompanyUser;
 import shamu.company.server.dto.DocumentRequestEmailDto;
 import shamu.company.tests.utils.JwtUtil;
@@ -186,38 +185,6 @@ public class CompanyServerControllerTests extends WebControllerBaseTests {
     Assertions.assertFalse(resultCompanyDtos.isEmpty());
     Assertions.assertEquals(resultCompanyDtos.get(0).getId(), mockCompany.getId());
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
-  }
-
-  @Test
-  void testFindCompanyByUserId() throws Exception {
-    final String userId = RandomStringUtils.randomAlphabetic(16);
-
-    final CompanyDtoProjection companyDtoProjection =
-        new CompanyDtoProjection() {
-          @Override
-          public String getId() {
-            return userId;
-          }
-
-          @Override
-          public String getName() {
-            return null;
-          }
-        };
-
-    Mockito.when(companyUserService.findCompanyDto()).thenReturn(companyDtoProjection);
-    final HttpHeaders httpHeaders = new HttpHeaders();
-    httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
-    final MvcResult response =
-        mockMvc
-            .perform(MockMvcRequestBuilders.get("/server/company/current").headers(httpHeaders))
-            .andReturn();
-
-    final String responseString = response.getResponse().getContentAsString();
-    final CompanyDto companyDto = JsonUtil.deserialize(responseString, CompanyDto.class);
-    Assertions.assertNotNull(companyDto);
-    Assertions.assertEquals(userId, companyDto.getId());
-    Assertions.assertEquals(HttpStatus.OK.value(), response.getResponse().getStatus());
   }
 
   @Test
