@@ -299,7 +299,7 @@ class EmployeeServiceTests {
       Mockito.when(officeService.findById("officeId")).thenReturn(office);
       Mockito.when(googleMapsHelper.findTimezoneByPostalCode(Mockito.anyString())).thenReturn("timezone");
       Whitebox.invokeMethod(
-          employeeService, "saveEmployeeBasicInformation", currentUser, employeeDto);
+          employeeService, "saveEmployeeBasicInformation", employeeDto);
       Mockito.verify(userService, Mockito.times(1)).createNewEmployee(Mockito.any());
     }
   }
@@ -355,6 +355,7 @@ class EmployeeServiceTests {
 
       final Company company = new Company();
       company.setName(RandomStringUtils.randomAlphabetic(4));
+      Mockito.when(companyService.getCompany()).thenReturn(company);
 
       Mockito.when(
               emailService.findFirstByToAndSubjectOrderBySendDateDesc(
@@ -370,10 +371,12 @@ class EmployeeServiceTests {
       final String newEmail = "email@example.com";
       emailResendDto.setEmail(newEmail);
       email.setContent("welcome");
+      user.setInvitationEmailToken("123");
       Mockito.when(userService.findByEmailWork(Mockito.anyString())).thenReturn(null);
 
       final Company company = new Company();
       company.setName(RandomStringUtils.randomAlphabetic(4));
+      Mockito.when(companyService.getCompany()).thenReturn(company);
 
       Mockito.when(
               emailService.findFirstByToAndSubjectOrderBySendDateDesc(
@@ -572,6 +575,7 @@ class EmployeeServiceTests {
               emailService.getWelcomeEmailContextToEmail(
                   Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
           .thenReturn(emailContext);
+      Mockito.when(companyService.getCompany()).thenReturn(company);
     }
 
     @Test
