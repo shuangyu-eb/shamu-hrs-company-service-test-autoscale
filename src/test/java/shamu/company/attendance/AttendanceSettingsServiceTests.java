@@ -18,6 +18,7 @@ import shamu.company.attendance.repository.EmployeesTaSettingRepository;
 import shamu.company.attendance.repository.PayPeriodFrequencyRepository;
 import shamu.company.attendance.repository.StaticTimeZoneRepository;
 import shamu.company.attendance.service.AttendanceSettingsService;
+import shamu.company.attendance.service.TimeSheetService;
 import shamu.company.user.repository.UserRepository;
 
 public class AttendanceSettingsServiceTests {
@@ -37,6 +38,8 @@ public class AttendanceSettingsServiceTests {
   @Mock private UserRepository userRepository;
 
   @Mock private EmployeesTaSettingsMapper employeesTaSettingsMapper;
+
+  @Mock private TimeSheetService timeSheetService;
 
   @BeforeEach
   void init() {
@@ -76,6 +79,12 @@ public class AttendanceSettingsServiceTests {
             () ->
                 attendanceSettingsService.updateEmployeeSettings(
                     "employeeId", new EmployeesTaSettingDto()))
+        .doesNotThrowAnyException();
+  }
+
+  @Test
+  void findEmployeeIsAttendanceSetUp() {
+    assertThatCode(() -> attendanceSettingsService.findEmployeeIsAttendanceSetUp("employeeId"))
         .doesNotThrowAnyException();
   }
 }

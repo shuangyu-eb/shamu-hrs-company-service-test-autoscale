@@ -69,4 +69,9 @@ public class AttendanceSettingsController extends BaseRestController {
     attendanceSettingsService.updateEmployeeSettings(employeeId, employeesTaSettingDto);
     return new ResponseEntity<>(HttpStatus.OK);
   }
+
+  @GetMapping("time-and-attendance/{employeeId}/IsInAttendance")
+  public boolean isInAttendance(@PathVariable final String employeeId) {
+    return attendanceSettingsService.findEmployeeIsAttendanceSetUp(employeeId);
+  }
 }

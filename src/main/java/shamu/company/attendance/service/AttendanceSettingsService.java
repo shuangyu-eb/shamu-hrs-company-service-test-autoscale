@@ -14,6 +14,7 @@ import shamu.company.attendance.repository.CompanyTaSettingRepository;
 import shamu.company.attendance.repository.EmployeesTaSettingRepository;
 import shamu.company.attendance.repository.PayPeriodFrequencyRepository;
 import shamu.company.attendance.repository.StaticTimeZoneRepository;
+import shamu.company.company.entity.Company;
 import shamu.company.user.entity.User;
 import shamu.company.user.repository.UserRepository;
 
@@ -34,6 +35,8 @@ public class AttendanceSettingsService {
 
   private final UserRepository userRepository;
 
+  private final TimeSheetService timeSheetService;
+
   public AttendanceSettingsService(
       final CompanyTaSettingRepository companyTaSettingRepository,
       final EmployeesTaSettingRepository employeesTaSettingRepository,
@@ -41,7 +44,8 @@ public class AttendanceSettingsService {
       final CompanyTaSettingsMapper companyTaSettingsMapper,
       final PayPeriodFrequencyRepository payPeriodFrequencyRepository,
       final EmployeesTaSettingsMapper employeesTaSettingsMapper,
-      final UserRepository userRepository) {
+      final UserRepository userRepository,
+      final TimeSheetService timeSheetService) {
     this.companyTaSettingRepository = companyTaSettingRepository;
     this.employeesTaSettingRepository = employeesTaSettingRepository;
     this.staticTimeZoneRepository = staticTimeZoneRepository;
@@ -49,6 +53,7 @@ public class AttendanceSettingsService {
     this.payPeriodFrequencyRepository = payPeriodFrequencyRepository;
     this.employeesTaSettingsMapper = employeesTaSettingsMapper;
     this.userRepository = userRepository;
+    this.timeSheetService = timeSheetService;
   }
 
   public CompanyTaSetting findCompanySettings(final String companyId) {
@@ -63,6 +68,11 @@ public class AttendanceSettingsService {
     return companyTaSettingRepository.existsByCompanyId(companyId);
   }
 
+
+  public Boolean findEmployeeIsAttendanceSetUp(final String employeeId) {
+    return timeSheetService.existByUser(employeeId);
+  }
+
   public CompanyTaSetting saveCompanyTaSetting(final CompanyTaSetting companyTaSetting) {
     return companyTaSettingRepository.save(companyTaSetting);
   }
@@ -73,11 +83,15 @@ public class AttendanceSettingsService {
 
   public void updateCompanySettings(
       final CompanyTaSettingsDto companyTaSettingsDto, final String companyId) {
-    final CompanyTaSetting companyTaSetting = companyTaSettingRepository.findByCompanyId(companyId);
+    CompanyTaSetting companyTaSetting = companyTaSettingRepository.findByCompanyId(companyId);
     final String payPeriodFrequencyId =
         payPeriodFrequencyRepository
             .findByName(companyTaSettingsDto.getPayFrequencyType().getId())
             .getId();
+    if (companyTaSetting == null) {
+      companyTaSetting = new CompanyTaSetting();
+      companyTaSetting.setCompany(new Company(companyId));
+    }
     companyTaSettingsMapper.updateFromCompanyTaSettingsDto(
         companyTaSetting, companyTaSettingsDto, payPeriodFrequencyId);
     companyTaSettingRepository.save(companyTaSetting);
