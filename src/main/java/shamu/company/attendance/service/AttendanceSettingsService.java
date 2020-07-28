@@ -84,7 +84,11 @@ public class AttendanceSettingsService {
   }
 
   public CompanyTaSetting findCompanySetting() {
-    return companyTaSettingRepository.findAll().get(0);
+    final List<CompanyTaSetting> results = companyTaSettingRepository.findAll();
+    if (CollectionUtils.isEmpty(results)) {
+      return null;
+    }
+    return results.get(0);
   }
 
   public EmployeesTaSettingDto findEmployeesSettings(final String employeeId) {
@@ -111,16 +115,16 @@ public class AttendanceSettingsService {
   }
 
   public void updateCompanySettings(
-      final CompanyTaSettingsDto companyTaSettingsDto, final String companyId) {
-    CompanyTaSetting companyTaSetting = companyTaSettingRepository.findByCompanyId(companyId);
-    final PayrollDetail payrollDetail = payrollDetailService.findByCompanyId(companyId);
+      final CompanyTaSettingsDto companyTaSettingsDto) {
+    final List<CompanyTaSetting> taSettings = companyTaSettingRepository.findAll();
+    CompanyTaSetting companyTaSetting =
+        CollectionUtils.isEmpty(taSettings) ? null : taSettings.get(0);
     final String payPeriodFrequencyId =
         payPeriodFrequencyRepository
             .findByName(companyTaSettingsDto.getPayFrequencyType().getId())
             .getId();
     if (companyTaSetting == null) {
       companyTaSetting = new CompanyTaSetting();
-      companyTaSetting.setCompany(new Company(companyId));
     }
     companyTaSettingsMapper.updateFromCompanyTaSettingsDto(companyTaSetting, companyTaSettingsDto);
     payrollDetailMapper.updateFromCompanyTaSettingsDto(

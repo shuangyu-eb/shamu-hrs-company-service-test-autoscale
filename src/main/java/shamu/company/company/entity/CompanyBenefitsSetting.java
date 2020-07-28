@@ -12,12 +12,13 @@ import shamu.company.common.entity.BaseEntity;
 
 @Data
 @Entity
-@Table(name = "company_benefits_setting")
+@Table(name = "benefits_setting")
 @AllArgsConstructor
 @NoArgsConstructor
 public class CompanyBenefitsSetting extends BaseEntity {
 
   private static final long serialVersionUID = 1557515580283237947L;
+
   @Column(name = "automatic_rollover")
   private Boolean isAutomaticRollover;
 

@@ -41,7 +41,7 @@ public interface PaidHolidayUserRepository extends BaseRepository<PaidHolidayUse
           "SELECT phu.* FROM paid_holidays_users phu "
               + "LEFT JOIN users u "
               + "ON phu.user_id = u.id "
-              + "WHERE phu.user_id = unhex(?2) "
+              + "WHERE phu.user_id = unhex(?1) "
               + AND_ACTIVE_USER_QUERY,
       nativeQuery = true)
   PaidHolidayUser findByUserId(String userId);

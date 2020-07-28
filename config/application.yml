@@ -55,6 +55,10 @@ spring:
   http:
     encoding:
       enabled: true
+  datasource:
+    tenant-prefix: tenant_
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    maximum-pool-size: 20
 
 cloud:
   aws:

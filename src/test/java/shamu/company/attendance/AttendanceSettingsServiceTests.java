@@ -86,9 +86,7 @@ public class AttendanceSettingsServiceTests {
     staticCompanyPayFrequencyType.setId("frequencyType");
     Mockito.when(payPeriodFrequencyRepository.findByName(Mockito.any()))
         .thenReturn(staticCompanyPayFrequencyType);
-    assertThatCode(
-            () ->
-                attendanceSettingsService.updateCompanySettings(companyTaSettingsDto, "companyId"))
+    assertThatCode(() -> attendanceSettingsService.updateCompanySettings(companyTaSettingsDto))
         .doesNotThrowAnyException();
   }
 

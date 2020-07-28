@@ -1,7 +1,9 @@
 package shamu.company.company.service;
 
+import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import shamu.company.company.entity.CompanyBenefitsSetting;
 import shamu.company.company.repository.CompanyBenefitsSettingRepository;
 
@@ -17,7 +19,11 @@ public class CompanyBenefitsSettingService {
   }
 
   public CompanyBenefitsSetting getCompanyBenefitsSetting() {
-    return companyBenefitsSettingRepository.findAll().get(0);
+    final List<CompanyBenefitsSetting> results = companyBenefitsSettingRepository.findAll();
+    if (CollectionUtils.isEmpty(results)) {
+      return null;
+    }
+    return results.get(0);
   }
 
   public CompanyBenefitsSetting save(final CompanyBenefitsSetting benefitsSetting) {

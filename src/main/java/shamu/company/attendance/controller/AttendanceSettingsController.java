@@ -74,7 +74,7 @@ public class AttendanceSettingsController extends BaseRestController {
   @PatchMapping("time-and-attendance/companySettings")
   public HttpEntity<String> updateCompanySettings(
       @RequestBody final CompanyTaSettingsDto companyTaSettingsDto) {
-    attendanceSettingsService.updateCompanySettings(companyTaSettingsDto, findCompanyId());
+    attendanceSettingsService.updateCompanySettings(companyTaSettingsDto);
     return new ResponseEntity<>(HttpStatus.OK);
   }
 

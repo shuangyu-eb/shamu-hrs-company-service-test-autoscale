@@ -15,8 +15,6 @@ public class DataSourceConfig {
 
   private String tenantPrefix;
 
-  private String jdbcUrl;
-
   private String templateUrl;
 
   private String username;
