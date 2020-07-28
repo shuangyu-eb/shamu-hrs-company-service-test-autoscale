@@ -1,6 +1,5 @@
 package shamu.company.attendance.service;
 
-import java.util.Optional;
 import org.apache.commons.lang.time.DateUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -9,13 +8,11 @@ import shamu.company.attendance.dto.TimeAndAttendanceDetailsDto;
 import shamu.company.attendance.dto.TimeAndAttendanceRelatedUserDto;
 import shamu.company.attendance.dto.TimeAndAttendanceRelatedUserListDto;
 import shamu.company.attendance.entity.CompanyTaSetting;
-import shamu.company.attendance.entity.EmployeesTaSetting;
 import shamu.company.attendance.entity.StaticCompanyPayFrequencyType;
 import shamu.company.attendance.entity.StaticCompanyPayFrequencyType.PayFrequencyType;
 import shamu.company.attendance.entity.StaticTimesheetStatus;
 import shamu.company.attendance.entity.TimePeriod;
 import shamu.company.attendance.entity.TimeSheet;
-import shamu.company.attendance.repository.EmployeesTaSettingRepository;
 import shamu.company.attendance.repository.StaticTimesheetStatusRepository;
 import shamu.company.company.entity.Company;
 import shamu.company.company.repository.CompanyRepository;
@@ -46,6 +43,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static shamu.company.attendance.entity.StaticTimesheetStatus.TimeSheetStatus;
@@ -63,8 +61,6 @@ public class AttendanceSetUpService {
   private static final long MS_OF_ONE_DAY = 24 * 60 * 60 * 1000l;
 
   private final AttendanceSettingsService attendanceSettingsService;
-
-  private final EmployeesTaSettingRepository employeesTaSettingRepository;
 
   private final UserRepository userRepository;
 
@@ -98,7 +94,6 @@ public class AttendanceSetUpService {
 
   public AttendanceSetUpService(
       final AttendanceSettingsService attendanceSettingsService,
-      final EmployeesTaSettingRepository employeesTaSettingRepository,
       final UserRepository userRepository,
       final JobUserRepository jobUserRepository,
       final JobUserMapper jobUserMapper,
@@ -115,7 +110,6 @@ public class AttendanceSetUpService {
       final UserCompensationMapper userCompensationMapper,
       final PayPeriodFrequencyService payPeriodFrequencyService) {
     this.attendanceSettingsService = attendanceSettingsService;
-    this.employeesTaSettingRepository = employeesTaSettingRepository;
     this.userRepository = userRepository;
     this.jobUserRepository = jobUserRepository;
     this.jobUserMapper = jobUserMapper;
@@ -138,22 +132,16 @@ public class AttendanceSetUpService {
   }
 
   public TimeAndAttendanceRelatedUserListDto getRelatedUsers(final String companyId) {
-    // The logic of unSelectedUsers should be modified.
-    final List<EmployeesTaSetting> timeAndAttendanceUsers = employeesTaSettingRepository.findAll();
+    final List<User> selectedUsers = userService.listCompanyAttendanceEnrolledUsers(companyId);
     final List<User> allUsers = userRepository.findAllByCompanyId(companyId);
 
     final List<String> selectedUsersIds = new ArrayList<>();
     final List<TimeAndAttendanceRelatedUserDto> selectedEmployees =
-        timeAndAttendanceUsers.stream()
+        selectedUsers.stream()
             .map(
-                timeAndAttendanceUser -> {
-                  final User user = timeAndAttendanceUser.getEmployee();
-                  final JobUser employeeWithJobInfo = jobUserRepository.findJobUserByUser(user);
+                user -> {
                   selectedUsersIds.add(user.getId());
-                  final String userNameOrUserNameWithEmailAddress =
-                      userService.getUserNameInUsers(user, allUsers);
-                  return jobUserMapper.convertToTimeAndAttendanceRelatedUserDto(
-                      user, employeeWithJobInfo, userNameOrUserNameWithEmailAddress);
+                  return assembleRelatedUsers(user, allUsers);
                 })
             .collect(Collectors.toList());
 
@@ -163,17 +151,19 @@ public class AttendanceSetUpService {
             : userRepository.findAllByCompanyIdAndIdNotIn(companyId, selectedUsersIds);
     final List<TimeAndAttendanceRelatedUserDto> unSelectedEmployees =
         unSelectedUsers.stream()
-            .map(
-                user -> {
-                  final JobUser employeeWithJobInfo = jobUserRepository.findJobUserByUser(user);
-                  final String userNameOrUserNameWithEmailAddress =
-                      userService.getUserNameInUsers(user, allUsers);
-                  return jobUserMapper.convertToTimeAndAttendanceRelatedUserDto(
-                      user, employeeWithJobInfo, userNameOrUserNameWithEmailAddress);
-                })
+            .map(user -> assembleRelatedUsers(user, allUsers))
             .collect(Collectors.toList());
 
     return new TimeAndAttendanceRelatedUserListDto(selectedEmployees, unSelectedEmployees);
+  }
+
+  private TimeAndAttendanceRelatedUserDto assembleRelatedUsers(
+      final User user, final List<User> allUsers) {
+    final JobUser employeeWithJobInfo = jobUserRepository.findJobUserByUser(user);
+    final String userNameOrUserNameWithEmailAddress =
+        userService.getUserNameInUsers(user, allUsers);
+    return jobUserMapper.convertToTimeAndAttendanceRelatedUserDto(
+        user, employeeWithJobInfo, userNameOrUserNameWithEmailAddress);
   }
 
   @Transactional
@@ -432,7 +422,10 @@ public class AttendanceSetUpService {
     final User user = userService.findById(userId);
     final Optional<StaticCompanyPayFrequencyType> payFrequencyType =
         payPeriodFrequencyService.findByCompany(user.getCompany().getId());
-    return payFrequencyType.map(staticCompanyPayFrequencyType -> getNextPeriod(timePeriod.get(),
-        staticCompanyPayFrequencyType.getName())).orElse(null);
+    return payFrequencyType
+        .map(
+            staticCompanyPayFrequencyType ->
+                getNextPeriod(timePeriod.get(), staticCompanyPayFrequencyType.getName()))
+        .orElse(null);
   }
 }
