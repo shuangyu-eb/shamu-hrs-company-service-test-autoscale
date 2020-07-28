@@ -27,5 +27,6 @@ public interface UserCompensationRepository extends BaseRepository<UserCompensat
               + "JOIN user_compensations ucb "
               + "ON ucb.user_id = temp.user_id AND ucb.created_at = temp.created_at",
       nativeQuery = true)
-  List<UserCompensation> listNewestEnrolledUserByCompanyId(String companyId, String overtimeStatus);
+  List<UserCompensation> listNewestEnrolledUserCompensationByCompanyId(
+      String companyId, String overtimeStatus);
 }

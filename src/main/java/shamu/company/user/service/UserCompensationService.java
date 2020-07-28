@@ -49,7 +49,7 @@ public class UserCompensationService {
   }
 
   public List<UserCompensation> listNewestEnrolledCompensation(final String companyId) {
-    return userCompensationRepository.listNewestEnrolledUserByCompanyId(
+    return userCompensationRepository.listNewestEnrolledUserCompensationByCompanyId(
         companyId, CompensationOvertimeStatus.OvertimeStatus.NOT_ELIGIBLE.getValue());
   }
 
