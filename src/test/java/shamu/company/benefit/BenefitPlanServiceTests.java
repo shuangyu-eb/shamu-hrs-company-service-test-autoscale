@@ -786,7 +786,7 @@ class BenefitPlanServiceTests {
           .thenReturn(Optional.of(new BenefitPlanUser()));
       Mockito.when(benefitPlanRepository.findBenefitPlanById("planId"))
           .thenReturn(new BenefitPlan("planId"));
-      benefitPlanService.confirmBenefitPlanEnrollment(userId, selectedBenefitPlanInfo, companyId);
+      benefitPlanService.confirmBenefitPlanEnrollment(userId, selectedBenefitPlanInfo);
       Mockito.verify(benefitPlanUserRepository, Mockito.times(2)).save(Mockito.any());
     }
   }

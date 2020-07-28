@@ -51,46 +51,42 @@ public class TimeSheetService {
     return timeSheetRepository.saveAll(timeSheets);
   }
 
-  public List<TimeSheet> listByCompany(final String companyId) {
-    return timeSheetRepository.listByCompanyId(companyId);
+  public List<TimeSheet> findAll() {
+    return timeSheetRepository.findAll();
   }
 
   public Page<TimeSheet> findTeamTimeSheetsByIdAndCompanyIdAndStatus(
       final String timePeriodId,
-      final String companyId,
       final TimeSheetStatus timeSheetStatus,
       final String userId,
       final Pageable pageable) {
-    return timeSheetRepository.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
-        timePeriodId, companyId, timeSheetStatus.getValue(), userId, pageable);
+    return timeSheetRepository.findTeamTimeSheetsByIdAndStatus(
+        timePeriodId, timeSheetStatus.getValue(), userId, pageable);
   }
 
   public Page<TimeSheet> findCompanyTimeSheetsByIdAndCompanyIdAndStatus(
       final String timePeriodId,
-      final String companyId,
       final TimeSheetStatus timeSheetStatus,
       final String userId,
       final Pageable pageable) {
     return timeSheetRepository.findCompanyTimeSheetsByIdAndCompanyIdAndStatus(
-        timePeriodId, companyId, timeSheetStatus.getValue(), userId, pageable);
+        timePeriodId, timeSheetStatus.getValue(), userId, pageable);
   }
 
   public List<TimeSheet> findTeamTimeSheetsByIdAndCompanyIdAndStatus(
       final String userId,
       final String timePeriodId,
-      final String companyId,
       final List<String> timeSheetStatus) {
     return timeSheetRepository.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
-        timePeriodId, companyId, timeSheetStatus, userId);
+        timePeriodId, timeSheetStatus, userId);
   }
 
   public List<TimeSheet> findCompanyTimeSheetsByIdAndCompanyIdAndStatus(
       final String userId,
       final String timePeriodId,
-      final String companyId,
       final List<String> timeSheetStatus) {
     return timeSheetRepository.findCompanyTimeSheetsByIdAndCompanyIdAndStatus(
-        timePeriodId, companyId, timeSheetStatus, userId);
+        timePeriodId, timeSheetStatus, userId);
   }
 
   public void updateTimesheetStatus(final String statusId, final String timesheetId) {

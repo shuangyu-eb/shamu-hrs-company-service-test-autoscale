@@ -68,7 +68,7 @@ public class AttendanceTeamHoursController extends BaseRestController {
     final Pageable pageable = PageRequest.of(page - 1, size);
 
     return attendanceTeamHoursService.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
-        timePeriodId, hourType, findCompanyId(), TimeSheetStatus.SUBMITTED, findUserId(), pageable);
+        timePeriodId, hourType, TimeSheetStatus.SUBMITTED, findUserId(), pageable);
   }
 
   @GetMapping("time-and-attendance/team-hours/{timePeriodId}/{hourType}")
@@ -87,20 +87,20 @@ public class AttendanceTeamHoursController extends BaseRestController {
     final Pageable pageable = PageRequest.of(page - 1, size);
 
     return attendanceTeamHoursService.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
-        timePeriodId, hourType, findCompanyId(), TimeSheetStatus.APPROVED, findUserId(), pageable);
+        timePeriodId, hourType, TimeSheetStatus.APPROVED, findUserId(), pageable);
   }
 
   @GetMapping("time-and-attendance/team-hours-summary/{timePeriodId}/{hourType}")
   public AttendanceSummaryDto findTeamHoursSummary(
       @PathVariable final String timePeriodId, @PathVariable final String hourType) {
     return attendanceTeamHoursService.findTeamHoursSummary(
-        timePeriodId, findCompanyId(), findUserId(), hourType);
+        timePeriodId, findUserId(), hourType);
   }
 
   @GetMapping("time-and-attendance/time-periods")
   public List<TimeSheetPeriodDto> findTimePeriodsByCompany() {
     return ReflectionUtil.convertTo(
-        timePeriodService.listByCompany(findCompanyId()), TimeSheetPeriodDto.class);
+        timePeriodService.findAll(), TimeSheetPeriodDto.class);
   }
 
   @PatchMapping("time-and-attendance/team-hours/pending-hours/approved")

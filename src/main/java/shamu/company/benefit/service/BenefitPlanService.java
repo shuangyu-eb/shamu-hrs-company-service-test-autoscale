@@ -797,9 +797,7 @@ public class BenefitPlanService {
   }
 
   public void confirmBenefitPlanEnrollment(
-      final String userId,
-      final List<SelectedEnrollmentInfoDto> selectedBenefitPlanInfo,
-      final String companyId) {
+      final String userId, final List<SelectedEnrollmentInfoDto> selectedBenefitPlanInfo) {
     updateUserBenefitPlanEnrollmentInfo(userId, selectedBenefitPlanInfo);
     selectedBenefitPlanInfo.forEach(
         s -> {

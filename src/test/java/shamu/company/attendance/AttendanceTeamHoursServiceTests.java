@@ -123,10 +123,9 @@ class AttendanceTeamHoursServiceTests {
 
       Mockito.when(
               timeSheetService.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
-                  timesheetId, companyId, status, "1", pageable))
+                  timesheetId, status, "1", pageable))
           .thenReturn(page);
-      Mockito.when(attendanceSettingsService.findCompanySetting())
-          .thenReturn(companyTaSetting);
+      Mockito.when(attendanceSettingsService.findCompanySetting()).thenReturn(companyTaSetting);
       Mockito.when(attendanceMyHoursService.findAllRelevantTimelogs(timeSheet, companyTaSetting))
           .thenReturn(workedMinutes);
       Mockito.when(attendanceMyHoursService.getTotalNumberOfWorkedMinutes(workedMinutes, timeSheet))
@@ -137,7 +136,7 @@ class AttendanceTeamHoursServiceTests {
       assertThat(
               attendanceTeamHoursService
                   .findTeamTimeSheetsByIdAndCompanyIdAndStatus(
-                      timesheetId, "team_hours", companyId, status, "1", pageable)
+                      timesheetId, "team_hours", status, "1", pageable)
                   .getContent()
                   .get(0)
                   .getWorkedMinutes())
@@ -145,7 +144,7 @@ class AttendanceTeamHoursServiceTests {
       assertThat(
               attendanceTeamHoursService
                   .findTeamTimeSheetsByIdAndCompanyIdAndStatus(
-                      timesheetId, "team_hours", companyId, status, "1", pageable)
+                      timesheetId, "team_hours", status, "1", pageable)
                   .getContent()
                   .get(0)
                   .getOverTimeMinutes())
@@ -153,7 +152,7 @@ class AttendanceTeamHoursServiceTests {
       assertThatCode(
               () ->
                   attendanceTeamHoursService.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
-                      timesheetId, "team_hours", companyId, status, "1", pageable))
+                      timesheetId, "team_hours", status, "1", pageable))
           .doesNotThrowAnyException();
     }
 
@@ -163,9 +162,9 @@ class AttendanceTeamHoursServiceTests {
 
       Mockito.when(
               timeSheetService.findCompanyTimeSheetsByIdAndCompanyIdAndStatus(
-                  timesheetId, companyId, status, "1", pageable))
+                  timesheetId, status, "1", pageable))
           .thenReturn(page);
-      Mockito.when(attendanceSettingsService.findCompanySettings(companyId))
+      Mockito.when(attendanceSettingsService.findCompanySettings())
           .thenReturn(companyTaSetting);
       Mockito.when(attendanceMyHoursService.findAllRelevantTimelogs(timeSheet, companyTaSetting))
           .thenReturn(workedMinutes);
@@ -177,7 +176,7 @@ class AttendanceTeamHoursServiceTests {
       assertThat(
               attendanceTeamHoursService
                   .findTeamTimeSheetsByIdAndCompanyIdAndStatus(
-                      timesheetId, "company_hours", companyId, status, "1", pageable)
+                      timesheetId, "company_hours", status, "1", pageable)
                   .getContent()
                   .get(0)
                   .getWorkedMinutes())
@@ -185,7 +184,7 @@ class AttendanceTeamHoursServiceTests {
       assertThat(
               attendanceTeamHoursService
                   .findTeamTimeSheetsByIdAndCompanyIdAndStatus(
-                      timesheetId, "company_hours", companyId, status, "1", pageable)
+                      timesheetId, "company_hours", status, "1", pageable)
                   .getContent()
                   .get(0)
                   .getOverTimeMinutes())
@@ -193,7 +192,7 @@ class AttendanceTeamHoursServiceTests {
       assertThatCode(
               () ->
                   attendanceTeamHoursService.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
-                      timesheetId, "company_hours", companyId, status, "1", pageable))
+                      timesheetId, "company_hours", status, "1", pageable))
           .doesNotThrowAnyException();
     }
   }
@@ -253,7 +252,7 @@ class AttendanceTeamHoursServiceTests {
     void whenIsTeamHourType() {
       Mockito.when(
               timeSheetService.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
-                  Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyList()))
+                  Mockito.anyString(), Mockito.anyString(), Mockito.anyList()))
           .thenReturn(timeSheets);
       final AttendanceSummaryDto attendanceSummaryDto =
           attendanceTeamHoursService.findTeamHoursSummary("1", "1", "1", "team_hours");
@@ -266,7 +265,7 @@ class AttendanceTeamHoursServiceTests {
     void whenIsCompanyHourType() {
       Mockito.when(
               timeSheetService.findCompanyTimeSheetsByIdAndCompanyIdAndStatus(
-                  Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyList()))
+                  Mockito.anyString(), Mockito.anyString(), Mockito.anyList()))
           .thenReturn(timeSheets);
       final AttendanceSummaryDto attendanceSummaryDto =
           attendanceTeamHoursService.findTeamHoursSummary("1", "1", "1", "company_hours");

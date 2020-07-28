@@ -1,5 +1,11 @@
 package shamu.company.attendance.service;
 
+import java.sql.Timestamp;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -155,7 +161,6 @@ public class AttendanceTeamHoursService {
   public TeamHoursPageInfoDto findTeamTimeSheetsByIdAndCompanyIdAndStatus(
       final String timePeriodId,
       final String hourType,
-      final String companyId,
       final TimeSheetStatus timeSheetStatus,
       final String userId,
       final Pageable pageable) {
@@ -163,12 +168,12 @@ public class AttendanceTeamHoursService {
     if (hourType.equals(TEAM_HOURS_TYPE)) {
       timeSheetPage =
           timeSheetService.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
-              timePeriodId, companyId, timeSheetStatus, userId, pageable);
+              timePeriodId, timeSheetStatus, userId, pageable);
     }
     if (hourType.equals(COMPANY_HOURS_TYPE)) {
       timeSheetPage =
           timeSheetService.findCompanyTimeSheetsByIdAndCompanyIdAndStatus(
-              timePeriodId, companyId, timeSheetStatus, userId, pageable);
+              timePeriodId, timeSheetStatus, userId, pageable);
     }
     final CompanyTaSetting companyTaSetting =
         attendanceSettingsService.findCompanySetting();
@@ -204,7 +209,6 @@ public class AttendanceTeamHoursService {
 
   public AttendanceSummaryDto findTeamHoursSummary(
       final String timePeriodId,
-      final String companyId,
       final String userId,
       final String hourType) {
     List<TimeSheet> timeSheets = new ArrayList<>();
@@ -213,7 +217,6 @@ public class AttendanceTeamHoursService {
           timeSheetService.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
               userId,
               timePeriodId,
-              companyId,
               Arrays.asList(
                   StaticTimesheetStatus.TimeSheetStatus.SUBMITTED.name(),
                   StaticTimesheetStatus.TimeSheetStatus.APPROVED.name()));
@@ -223,7 +226,6 @@ public class AttendanceTeamHoursService {
           timeSheetService.findCompanyTimeSheetsByIdAndCompanyIdAndStatus(
               userId,
               timePeriodId,
-              companyId,
               Arrays.asList(
                   StaticTimesheetStatus.TimeSheetStatus.SUBMITTED.name(),
                   StaticTimesheetStatus.TimeSheetStatus.APPROVED.name()));

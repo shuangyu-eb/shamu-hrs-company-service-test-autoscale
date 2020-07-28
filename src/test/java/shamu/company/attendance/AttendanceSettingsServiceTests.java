@@ -3,6 +3,7 @@ package shamu.company.attendance;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -10,6 +11,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import shamu.company.attendance.dto.CompanyTaSettingsDto;
 import shamu.company.attendance.dto.EmployeesTaSettingDto;
+import shamu.company.attendance.entity.CompanyTaSetting;
 import shamu.company.attendance.entity.StaticCompanyPayFrequencyType;
 import shamu.company.attendance.entity.mapper.CompanyTaSettingsMapper;
 import shamu.company.attendance.entity.mapper.EmployeesTaSettingsMapper;
@@ -103,6 +105,23 @@ public class AttendanceSettingsServiceTests {
   void findEmployeeIsAttendanceSetUp() {
     assertThatCode(() -> attendanceSettingsService.findEmployeeIsAttendanceSetUp("employeeId"))
         .doesNotThrowAnyException();
+  }
+
+  @Nested
+  class TestFindCompanySetting {
+
+    @Test
+    void whenSettingIsNeverSaved_thenRuturnNull() {
+      Assertions.assertThat(attendanceSettingsService.findCompanySetting()).isNull();
+    }
+
+    @Test
+    void whenSettingIsSaved_thenReturnSetting() {
+      final List<CompanyTaSetting> companyTaSettings = Collections.singletonList(new CompanyTaSetting());
+      Mockito.when(companyTaSettingRepository.findAll()).thenReturn(companyTaSettings);
+      Assertions.assertThat(attendanceSettingsService.findCompanySetting())
+          .isEqualTo(companyTaSettings.get(0));
+    }
   }
 
   @Test

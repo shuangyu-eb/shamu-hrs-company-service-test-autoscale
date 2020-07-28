@@ -181,7 +181,7 @@ public class BenefitPlanRestController extends BaseRestController {
   public HttpEntity confirmBenefitEnrollmentInfo(
       @RequestBody final List<SelectedEnrollmentInfoDto> selectedInfos) {
     final String userId = findAuthUser().getId();
-    benefitPlanService.confirmBenefitPlanEnrollment(userId, selectedInfos, findCompanyId());
+    benefitPlanService.confirmBenefitPlanEnrollment(userId, selectedInfos);
     return new ResponseEntity(HttpStatus.OK);
   }
 

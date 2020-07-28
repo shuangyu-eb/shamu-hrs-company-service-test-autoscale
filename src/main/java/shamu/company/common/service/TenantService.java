@@ -32,15 +32,6 @@ public class TenantService {
     return tenantRepository.isCompanyExists(id);
   }
 
-  public Tenant findByCompanyId(final String id) {
-    return tenantRepository
-        .findByCompanyId(id)
-        .orElseThrow(
-            () ->
-                new ResourceNotFoundException(
-                    String.format("Company record with id %s not fond: id", id), id, "company"));
-  }
-
   public List<Tenant> findAll() {
     return tenantRepository.findAll();
   }

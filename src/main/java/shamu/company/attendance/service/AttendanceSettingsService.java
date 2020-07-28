@@ -99,7 +99,7 @@ public class AttendanceSettingsService {
   }
 
   public boolean exists() {
-    return CollectionUtils.isEmpty(companyTaSettingRepository.findAll());
+    return !CollectionUtils.isEmpty(companyTaSettingRepository.findAll());
   }
 
   public Boolean findEmployeeIsAttendanceSetUp(final String employeeId) {

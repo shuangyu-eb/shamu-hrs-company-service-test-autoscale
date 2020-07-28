@@ -16,6 +16,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.powermock.reflect.Whitebox;
+import org.springframework.util.CollectionUtils;
 import shamu.company.common.exception.errormapping.AlreadyExistsException;
 import shamu.company.common.exception.errormapping.ResourceNotFoundException;
 import shamu.company.helpers.FederalHolidayHelper;
@@ -30,6 +32,7 @@ import shamu.company.timeoff.repository.PaidHolidayRepository;
 import shamu.company.timeoff.repository.PaidHolidayUserRepository;
 import shamu.company.user.entity.User;
 import shamu.company.user.service.UserService;
+import shamu.company.utils.UuidUtil;
 
 class PaidHolidayServiceTests {
 
@@ -307,6 +310,57 @@ class PaidHolidayServiceTests {
     void whenYearValid_shouldSucceed() {
       assertThatCode(() -> paidHolidayService.getFederalHolidaysByYear(year))
           .doesNotThrowAnyException();
+    }
+  }
+
+  @Test
+  void testGetNewPaidHolidayDto() throws Exception {
+    final PaidHolidayDto paidHolidayDto = new PaidHolidayDto();
+    paidHolidayDto.setName("123");
+    final int year = 2020;
+    Mockito.when(federalHolidayHelper.timestampOf(paidHolidayDto.getName(), year))
+        .thenReturn(Timestamp.valueOf(LocalDateTime.now()));
+    final PaidHolidayDto newPaidHolidayDto =
+        Whitebox.invokeMethod(paidHolidayService, "getNewPaidHolidayDto", paidHolidayDto, year);
+
+    Assertions.assertNotNull(newPaidHolidayDto);
+    Assertions.assertEquals(paidHolidayDto.getName(), newPaidHolidayDto.getName());
+  }
+
+  @Test
+  void testFindAll() {
+    assertThatCode(() -> paidHolidayService.findAll()).doesNotThrowAnyException();
+  }
+
+  @Nested
+  class TestGetCurrentYearUserPaidHolidays {
+
+    private AuthUser authUser;
+
+    private final String userId = UuidUtil.getUuidString();
+
+    @BeforeEach
+    void init() {
+      authUser = Mockito.mock(AuthUser.class);
+    }
+
+    @Test
+    void whenUserIsSelected_thenReturnEmptyList() throws Exception {
+      final List<PaidHolidayDto> paidHolidayDtos =
+          Whitebox.invokeMethod(
+              paidHolidayService, "getCurrentYearUserPaidHolidays", authUser, userId);
+      Assertions.assertTrue(CollectionUtils.isEmpty(paidHolidayDtos));
+    }
+
+    @Test
+    void whenUserCreatedHolidays_thenShouldSuccess() throws Exception {
+      final PaidHolidayUser paidHolidayUser = new PaidHolidayUser();
+      paidHolidayUser.setSelected(false);
+      Mockito.when(paidHolidayUserRepository.findByUserId(userId)).thenReturn(paidHolidayUser);
+      final List<PaidHolidayDto> paidHolidayDtos =
+          Whitebox.invokeMethod(
+              paidHolidayService, "getCurrentYearUserPaidHolidays", authUser, userId);
+      Assertions.assertTrue(CollectionUtils.isEmpty(paidHolidayDtos));
     }
   }
 }

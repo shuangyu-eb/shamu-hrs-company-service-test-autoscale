@@ -23,9 +23,11 @@ import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserStatus;
 import shamu.company.user.entity.UserStatus.Status;
 import shamu.company.user.exception.errormapping.EmailExpiredException;
+import shamu.company.user.exception.errormapping.UserNotFoundByEmailException;
 import shamu.company.user.exception.errormapping.UserNotFoundByInvitationTokenException;
 import shamu.company.user.service.UserService;
 import shamu.company.user.service.UserStatusService;
+import shamu.company.utils.UuidUtil;
 
 class AccountServiceTests {
 
@@ -112,6 +114,26 @@ class AccountServiceTests {
       Mockito.when(userStatusService.findByName(Mockito.any())).thenReturn(targetStatus);
 
       Assertions.assertDoesNotThrow(() -> accountService.createPassword(createPasswordDto));
+    }
+
+    @Test
+    void whenNoAuthUser_thenShouldThrow() {
+      final User targetUser = new User();
+      targetUser.setId(UuidUtil.getUuidString());
+      targetUser.setResetPasswordToken(createPasswordDto.getResetPasswordToken());
+      Mockito.when(userService.findByEmailWork(Mockito.anyString())).thenReturn(targetUser);
+      Mockito.when(auth0Helper.getUserByUserIdFromAuth0(Mockito.any())).thenReturn(user);
+      final UserStatus targetStatus = new UserStatus();
+      targetStatus.setName(Status.ACTIVE.name());
+      Mockito.when(userStatusService.findByName(Mockito.any())).thenReturn(targetStatus);
+      Mockito.when(
+              auth0Helper.getAuth0UserByIdWithByEmailFailover(
+                  Mockito.anyString(), Mockito.anyString()))
+          .thenThrow(new ResourceNotFoundException("", "", ""));
+
+      Assertions.assertThrows(
+          UserNotFoundByEmailException.class,
+          () -> accountService.createPassword(createPasswordDto));
     }
   }
 

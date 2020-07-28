@@ -106,16 +106,26 @@ public class TimeSheetServiceTests {
     @Test
     void whenNormal_thenShouldSuccess() {
       Mockito.when(
-              timeSheetRepository.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
-                  timesheetId, companyId, status.getValue(), "1", pageable))
+              timeSheetRepository.findTeamTimeSheetsByIdAndStatus(
+                  timesheetId, status.getValue(), "1", pageable))
           .thenReturn(page);
       assertThatCode(
               () ->
                   timeSheetService.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
-                      timesheetId, companyId, status, "1", pageable))
+                      timesheetId, status, "1", pageable))
           .doesNotThrowAnyException();
     }
   }
+
+  @Test
+  void testFindTimeSheetsByIdAndCompanyIdAndStatus() {
+    Assertions.assertThatCode(
+            () ->
+                timeSheetService.findTimeSheetsByIdAndCompanyIdAndStatus(
+                    Mockito.anyString(), Mockito.anyString(), Mockito.anyList()))
+        .doesNotThrowAnyException();
+  }
+
 
   @Test
   void findCompanyTimeSheetsByIdAndCompanyIdAndStatus() {
