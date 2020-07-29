@@ -59,7 +59,7 @@ public class AddPayPeriodJob extends QuartzJobBean {
     final String companyId =
         QuartzUtil.getParameter(jobExecutionContext, "companyId", String.class);
     TenantContext.setCurrentTenant(companyId);
-    final TimePeriod currentTimePeriod = timePeriodService.findCompanyCurrentPeriod(companyId);
+    final TimePeriod currentTimePeriod = timePeriodService.findCompanyCurrentPeriod();
 
     final CompanyTaSetting companyTaSetting =
         attendanceSettingsService.findCompanySetting();

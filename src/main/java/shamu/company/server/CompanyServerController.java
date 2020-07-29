@@ -85,7 +85,7 @@ public class CompanyServerController extends BaseRestController {
     return companyUserService.findCompaniesByIds(ids);
   }
 
-  @GetMapping(value = "/company/current")
+  @GetMapping(value = "/companies/current")
   public CompanyDtoProjection findCurrentCompany() {
     return companyUserService.findCompanyDto();
   }

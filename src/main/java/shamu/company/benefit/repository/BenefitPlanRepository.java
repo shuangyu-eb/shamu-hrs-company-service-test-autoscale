@@ -153,7 +153,7 @@ public interface BenefitPlanRepository extends BaseRepository<BenefitPlan, Strin
               + "on bpc.benefit_coverage_id = bc.id "
               + "left join user_personal_information upi "
               + "on upi.id = u.user_personal_information_id ",
-      countQuery = "select count(1) from users u where u.company_id = unhex(?2)",
+      countQuery = "select count(1) from users",
       nativeQuery = true)
   Page<EnrollmentBreakdownPojo> getEnrollmentBreakdownByConditionAndPlanIdIsEmpty(
       List<String> ids, Pageable pageRequest);

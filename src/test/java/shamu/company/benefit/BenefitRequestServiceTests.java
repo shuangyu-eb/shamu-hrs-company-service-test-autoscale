@@ -36,18 +36,15 @@ public class BenefitRequestServiceTests {
     final PageRequest pageRequest = Mockito.mock(PageRequest.class);
     final List<String> list = new ArrayList<>();
     final Page<BenefitRequest> benefitRequests = Mockito.mock(Page.class);
-    Mockito.when(
-            benefitRequestRepository.findAllByStatusAndCompanyId(
-                Mockito.anyList(), Mockito.anyString(), Mockito.any()))
+    Mockito.when(benefitRequestRepository.findAllByStatus(Mockito.anyList(), Mockito.any()))
         .thenReturn(benefitRequests);
-    assertThatCode(
-            () -> benefitRequestService.findRequestsByStatusAndCompanyId(pageRequest, list, "1"))
+    assertThatCode(() -> benefitRequestService.findRequestsByStatus(pageRequest, list))
         .doesNotThrowAnyException();
   }
 
   @Test
   void testFindRequestsCountByStatusAndCompanyId() {
-    assertThatCode(() -> benefitRequestService.findRequestsCountByStatusAndCompanyId("1", "1"))
+    assertThatCode(() -> benefitRequestService.findRequestsCountByStatus("1"))
         .doesNotThrowAnyException();
   }
 }

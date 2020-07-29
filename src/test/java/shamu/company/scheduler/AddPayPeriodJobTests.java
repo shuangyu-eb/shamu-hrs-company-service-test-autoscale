@@ -92,7 +92,7 @@ public class AddPayPeriodJobTests {
       jobParameter.put("companyId", JsonUtil.formatToString(companyId));
       Mockito.when(jobExecutionContext.getMergedJobDataMap())
           .thenReturn(new JobDataMap(jobParameter));
-      Mockito.when(timePeriodService.findCompanyCurrentPeriod(companyId)).thenReturn(timePeriod);
+      Mockito.when(timePeriodService.findCompanyCurrentPeriod()).thenReturn(timePeriod);
       Mockito.when(attendanceSettingsService.findCompanySetting()).thenReturn(companyTaSetting);
       Mockito.when(payPeriodFrequencyService.findById("id")).thenReturn(payFrequencyType);
       Mockito.when(attendanceSetUpService.getNextPeriod(timePeriod, "WEEKLY", company))

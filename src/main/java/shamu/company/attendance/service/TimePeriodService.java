@@ -40,8 +40,12 @@ public class TimePeriodService {
     return Optional.ofNullable(timePeriodRepository.findLatestPeriodByUser(userId));
   }
 
-  public TimePeriod findCompanyCurrentPeriod(final String companyId) {
-    return timePeriodRepository.findCompanyNumberNPeriod(companyId, 0);
+  public TimePeriod findCompanyCurrentPeriod() {
+    return timePeriodRepository.findCompanyNumberNPeriod(0);
+  }
+
+  public TimePeriod findCompanyLastPeriod() {
+    return timePeriodRepository.findCompanyNumberNPeriod(1);
   }
 
   public TimePeriod save(final TimePeriod timePeriod) {
