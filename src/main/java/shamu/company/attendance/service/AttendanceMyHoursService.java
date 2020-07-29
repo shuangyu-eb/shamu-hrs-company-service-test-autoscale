@@ -162,14 +162,16 @@ public class AttendanceMyHoursService {
       }
       final Timestamp workEnd = timeEntryDto.getEndTime();
       final long workMin = (workEnd.getTime() - currentWorkStart.getTime()) / (CONVERT_MIN_TO_MS);
-      final EmployeeTimeLog workTimeLog =
-          EmployeeTimeLog.builder()
-              .start(currentWorkStart)
-              .timeType(workType)
-              .durationMin((int) workMin)
-              .entry(savedEntry)
-              .build();
-      employeeTimeLogs.add(workTimeLog);
+      if (workMin > 0) {
+        final EmployeeTimeLog workTimeLog =
+            EmployeeTimeLog.builder()
+                .start(currentWorkStart)
+                .timeType(workType)
+                .durationMin((int) workMin)
+                .entry(savedEntry)
+                .build();
+        employeeTimeLogs.add(workTimeLog);
+      }
     }
 
     // do not have break
@@ -398,5 +400,9 @@ public class AttendanceMyHoursService {
 
   public String findTimesheetStatus(final String timesheetId) {
     return timeSheetService.findTimeSheetById(timesheetId).getStatus().getName();
+  }
+
+  public void deleteMyHourEntry(final String entryId) {
+    employeeTimeEntryService.deleteMyHourEntry(entryId);
   }
 }

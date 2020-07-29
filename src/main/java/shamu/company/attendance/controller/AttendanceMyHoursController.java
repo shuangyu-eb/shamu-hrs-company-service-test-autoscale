@@ -1,6 +1,7 @@
 package shamu.company.attendance.controller;
 
 import java.util.List;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -88,5 +89,10 @@ public class AttendanceMyHoursController extends BaseRestController {
   @GetMapping("time-and-attendance/my-hours/timesheet-status/{timesheetId}")
   public String findTimesheetStatus(@PathVariable final String timesheetId) {
     return attendanceMyHoursService.findTimesheetStatus(timesheetId);
+  }
+
+  @DeleteMapping("time-and-attendance/my-hours/time-entry/{entryId}")
+  public void deleteMyHourEntry(@PathVariable final String entryId) {
+    attendanceMyHoursService.deleteMyHourEntry(entryId);
   }
 }

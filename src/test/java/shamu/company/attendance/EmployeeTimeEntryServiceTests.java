@@ -50,4 +50,10 @@ public class EmployeeTimeEntryServiceTests {
           .isThrownBy(() -> employeeTimeEntryService.findById("1"));
     }
   }
+
+  @Test
+  void deleteMyHourEntry() {
+    assertThatCode(() -> employeeTimeEntryService.deleteMyHourEntry("1"))
+        .doesNotThrowAnyException();
+  }
 }

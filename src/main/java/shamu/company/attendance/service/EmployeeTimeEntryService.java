@@ -26,4 +26,8 @@ public class EmployeeTimeEntryService {
                 new ResourceNotFoundException(
                     String.format("Entry with id %s not found!", entryId), entryId, "entry"));
   }
+
+  public void deleteMyHourEntry(final String entryId) {
+    employeeTimeEntryRepository.delete(entryId);
+  }
 }

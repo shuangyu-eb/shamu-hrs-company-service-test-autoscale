@@ -134,9 +134,9 @@ public class AttendanceMyHoursServiceTests {
       breakType.setName(StaticEmployeesTaTimeType.TimeType.BREAK.name());
       workType.setName(StaticEmployeesTaTimeType.TimeType.WORK.name());
       breakTimeLogDto.setBreakStart(new Timestamp(new Date().getTime()));
-      breakTimeLogDto.setBreakMin(30);
       breakTimeLogDto.setTimeType("BREAK");
       timeEntryDto.setStartTime(new Timestamp(new Date().getTime()));
+      timeEntryDto.setEndTime(new Timestamp(new Date().getTime() + 30 * 60 * 1000));
       timeEntryDto.setHoursWorked(1);
       timeEntryDto.setMinutesWorked(1);
       Mockito.when(userService.findById("1")).thenReturn(user);
@@ -153,6 +153,8 @@ public class AttendanceMyHoursServiceTests {
 
     @Test
     void whenNoBreak_thenShouldSuccess() {
+      timeEntryDto.setHoursWorked(1);
+      timeEntryDto.setMinutesWorked(1);
       timeEntryDto.setBreakTimeLogs(breakTimeLogDtos);
       assertThatCode(() -> attendanceMyHoursService.saveTimeEntry("1", timeEntryDto))
           .doesNotThrowAnyException();
@@ -160,7 +162,20 @@ public class AttendanceMyHoursServiceTests {
 
     @Test
     void whenHasBreakButHasEndTime_thenShouldSuccess() {
-      timeEntryDto.setEndTime(new Timestamp(new Date().getTime()));
+      timeEntryDto.setHoursWorked(1);
+      timeEntryDto.setMinutesWorked(1);
+      breakTimeLogDto.setBreakMin(30);
+      breakTimeLogDtos.add(breakTimeLogDto);
+      timeEntryDto.setBreakTimeLogs(breakTimeLogDtos);
+      assertThatCode(() -> attendanceMyHoursService.saveTimeEntry("1", timeEntryDto))
+          .doesNotThrowAnyException();
+    }
+
+    @Test
+    void whenHasBreakButBreakEndTimeEqualsEndTime_thenShouldSuccess() {
+      timeEntryDto.setHoursWorked(0);
+      timeEntryDto.setMinutesWorked(0);
+      breakTimeLogDto.setBreakMin(20);
       breakTimeLogDtos.add(breakTimeLogDto);
       timeEntryDto.setBreakTimeLogs(breakTimeLogDtos);
       assertThatCode(() -> attendanceMyHoursService.saveTimeEntry("1", timeEntryDto))
@@ -355,6 +370,12 @@ public class AttendanceMyHoursServiceTests {
     timeSheet.setStatus(staticTimesheetStatus);
     Mockito.when(timeSheetService.findTimeSheetById(Mockito.anyString())).thenReturn(timeSheet);
     assertThatCode(() -> attendanceMyHoursService.findTimesheetStatus("1"))
+        .doesNotThrowAnyException();
+  }
+
+  @Test
+  void deleteMyHourEntry() {
+    assertThatCode(() -> attendanceMyHoursService.deleteMyHourEntry("1"))
         .doesNotThrowAnyException();
   }
 }

@@ -7,7 +7,6 @@ import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -98,7 +97,7 @@ public abstract class DateUtil {
   }
 
   public static Timestamp longToTimestamp(final long date) {
-    return Timestamp.valueOf(LocalDateTime.ofInstant(Instant.ofEpochMilli(date), ZoneId.of("UTC")));
+    return new Timestamp(date);
   }
 
   // Get current UTC time
