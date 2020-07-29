@@ -233,6 +233,7 @@ public class UserService {
   public void cacheUser(final String token, final String userId) {
     final User user = findById(userId);
     final AuthUser authUser = userMapper.convertToAuthUser(user);
+    authUser.setCompanyId(TenantContext.getCurrentTenant());
     final List<String> permissions = auth0Helper.getPermissionBy(user);
     authUser.setPermissions(permissions);
     authUserCacheManager.cacheAuthUser(token, authUser);
