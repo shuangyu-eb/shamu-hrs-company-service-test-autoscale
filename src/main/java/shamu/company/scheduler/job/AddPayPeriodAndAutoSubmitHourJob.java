@@ -16,6 +16,8 @@ import shamu.company.attendance.service.AttendanceSettingsService;
 import shamu.company.attendance.service.PayPeriodFrequencyService;
 import shamu.company.attendance.service.TimePeriodService;
 import shamu.company.attendance.service.TimeSheetService;
+import shamu.company.company.entity.Company;
+import shamu.company.company.service.CompanyService;
 import shamu.company.user.entity.UserCompensation;
 import shamu.company.user.service.UserCompensationService;
 import shamu.company.utils.JsonUtil;
@@ -27,6 +29,7 @@ public class AddPayPeriodAndAutoSubmitHourJob extends QuartzJobBean {
   private final PayPeriodFrequencyService payPeriodFrequencyService;
   private final UserCompensationService userCompensationService;
   private final TimeSheetService timeSheetService;
+  private final CompanyService companyService;
 
   @Autowired
   public AddPayPeriodAndAutoSubmitHourJob(
@@ -35,13 +38,15 @@ public class AddPayPeriodAndAutoSubmitHourJob extends QuartzJobBean {
       final AttendanceSettingsService attendanceSettingsService,
       final PayPeriodFrequencyService payPeriodFrequencyService,
       final UserCompensationService userCompensationService,
-      final TimeSheetService timeSheetService) {
+      final TimeSheetService timeSheetService,
+      final CompanyService companyService) {
     this.attendanceSetUpService = attendanceSetUpService;
     this.timePeriodService = timePeriodService;
     this.attendanceSettingsService = attendanceSettingsService;
     this.payPeriodFrequencyService = payPeriodFrequencyService;
     this.userCompensationService = userCompensationService;
     this.timeSheetService = timeSheetService;
+    this.companyService = companyService;
   }
 
   @Override
@@ -52,6 +57,7 @@ public class AddPayPeriodAndAutoSubmitHourJob extends QuartzJobBean {
     final String companyId = JsonUtil.deserialize(companyIdJson, String.class);
     final TimePeriod currentTimePeriod = timePeriodService.findCompanyCurrentPeriod(companyId);
 
+    final Company company = companyService.findById(companyId);
     final CompanyTaSetting companyTaSetting =
         attendanceSettingsService.findCompanySettings(companyId);
     final String payFrequencyTypeId = companyTaSetting.getPayFrequencyType().getId();
@@ -70,7 +76,7 @@ public class AddPayPeriodAndAutoSubmitHourJob extends QuartzJobBean {
 
     final TimePeriod nextTimePeriod =
         attendanceSetUpService.getNextPeriod(
-            currentTimePeriod, staticCompanyPayFrequencyType.getName());
+            currentTimePeriod, staticCompanyPayFrequencyType.getName(), company);
 
     final List<UserCompensation> userCompensationList =
         userCompensationService.listNewestEnrolledCompensation(companyId);

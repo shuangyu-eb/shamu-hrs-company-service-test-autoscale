@@ -1,5 +1,11 @@
 package shamu.company.attendance;
 
+import static org.assertj.core.api.Assertions.assertThatCode;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -23,6 +29,7 @@ import shamu.company.attendance.service.TimePeriodService;
 import shamu.company.attendance.service.TimeSheetService;
 import shamu.company.company.entity.Company;
 import shamu.company.company.repository.CompanyRepository;
+import shamu.company.company.service.CompanyService;
 import shamu.company.job.entity.CompensationFrequency;
 import shamu.company.job.entity.JobUser;
 import shamu.company.job.entity.mapper.JobUserMapper;
@@ -40,13 +47,6 @@ import shamu.company.user.repository.CompensationOvertimeStatusRepository;
 import shamu.company.user.repository.UserRepository;
 import shamu.company.user.service.UserCompensationService;
 import shamu.company.user.service.UserService;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThatCode;
 
 public class AttendanceSetUpServiceTests {
 
@@ -85,6 +85,8 @@ public class AttendanceSetUpServiceTests {
   @Mock private UserCompensationMapper userCompensationMapper;
 
   @Mock private PayPeriodFrequencyService payPeriodFrequencyService;
+
+  @Mock private CompanyService companyService;
 
   @BeforeEach
   void init() {
@@ -157,13 +159,16 @@ public class AttendanceSetUpServiceTests {
     StaticCompanyPayFrequencyType staticCompanyPayFrequencyType =
         new StaticCompanyPayFrequencyType();
     List<EmployeeOvertimeDetailsDto> details = new ArrayList();
+    Company company;
 
     @BeforeEach
     void init() {
+      company = new Company();
       timeAndAttendanceDetailsDto.setPayDate(new Date());
       timeAndAttendanceDetailsDto.setOvertimeDetails(details);
       timeAndAttendanceDetailsDto.setPeriodStartDate(new Date());
       timeAndAttendanceDetailsDto.setPeriodEndDate(new Date());
+      Mockito.when(companyService.findById(Mockito.anyString())).thenReturn(company);
     }
 
     @Test
@@ -195,8 +200,6 @@ public class AttendanceSetUpServiceTests {
       Mockito.when(compensationOvertimeStatusRepository.findById(Mockito.any()))
           .thenReturn(Optional.of(new CompensationOvertimeStatus()));
       Mockito.when(jobUserRepository.findByUserId(Mockito.any())).thenReturn(new JobUser());
-      Mockito.when(timePeriodService.createIfNotExist(Mockito.any()))
-          .thenReturn(new TimePeriod(new Date(), new Date()));
       Mockito.when(timeSheetService.saveAll(Mockito.any())).thenReturn(Mockito.any());
       assertThatCode(
               () ->
@@ -211,18 +214,22 @@ public class AttendanceSetUpServiceTests {
     TimePeriod timePeriod;
     String payPeriodFrequency;
     String userId;
+    Company company;
 
     @BeforeEach
     void init() {
+      company = new Company();
       payPeriodFrequency = "WEEKLY";
-      timePeriod = new TimePeriod(new Date(), new Date());
+      timePeriod = new TimePeriod(new Date(), new Date(), company);
     }
 
     @Test
     void frequencyIsValid_shouldSucceed() {
       for (final PayFrequencyType payPeriodFrequency : PayFrequencyType.values()) {
         assertThatCode(
-                () -> attendanceSetUpService.getNextPeriod(timePeriod, payPeriodFrequency.name()))
+                () ->
+                    attendanceSetUpService.getNextPeriod(
+                        timePeriod, payPeriodFrequency.name(), company))
             .doesNotThrowAnyException();
       }
     }

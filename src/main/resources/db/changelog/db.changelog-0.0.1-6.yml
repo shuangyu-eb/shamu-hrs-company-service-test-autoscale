@@ -1723,3 +1723,14 @@ databaseChangeLog:
                     nullable: false
             tableName: company_ta_settings
 
+  - changeSet:
+      id: 1596093490000
+      author: michael-eb
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: company_id
+                  type: binary(16)
+            tableName: time_period
+

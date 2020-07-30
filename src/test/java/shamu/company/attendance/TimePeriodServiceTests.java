@@ -1,5 +1,9 @@
 package shamu.company.attendance;
 
+import static org.assertj.core.api.Assertions.assertThatCode;
+
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -12,19 +16,11 @@ import shamu.company.attendance.entity.TimeSheetPeriodPojo;
 import shamu.company.attendance.repository.TimePeriodRepository;
 import shamu.company.attendance.service.TimePeriodService;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThatCode;
-
 public class TimePeriodServiceTests {
 
-  @InjectMocks
-  TimePeriodService timePeriodService;
+  @InjectMocks TimePeriodService timePeriodService;
 
-  @Mock
-  private TimePeriodRepository timePeriodRepository;
+  @Mock private TimePeriodRepository timePeriodRepository;
 
   @BeforeEach
   void init() {
@@ -66,24 +62,6 @@ public class TimePeriodServiceTests {
     void whenCompanyIdValid_shouldSucceed() {
       Mockito.when(timePeriodRepository.findCompanyNewestPeriod(companyId)).thenReturn(timePeriod);
       assertThatCode(() -> timePeriodService.findCompanyCurrentPeriod(companyId))
-          .doesNotThrowAnyException();
-    }
-  }
-
-  @Nested
-  class save {
-
-    TimePeriod timePeriod;
-
-    @BeforeEach
-    void init() {
-      timePeriod = new TimePeriod(new Date(), new Date());
-    }
-
-    @Test
-    void whenTimePeriodValid_shouldSucceed() {
-      Mockito.when(timePeriodRepository.save(timePeriod)).thenReturn(timePeriod);
-      assertThatCode(() -> timePeriodService.createIfNotExist(timePeriod))
           .doesNotThrowAnyException();
     }
   }

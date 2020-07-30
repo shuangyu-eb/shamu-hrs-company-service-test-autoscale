@@ -1,5 +1,7 @@
 package shamu.company.attendance.service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -7,9 +9,6 @@ import shamu.company.attendance.dto.TimeSheetPeriodDto;
 import shamu.company.attendance.entity.TimePeriod;
 import shamu.company.attendance.entity.TimeSheetPeriodPojo;
 import shamu.company.attendance.repository.TimePeriodRepository;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 public class TimePeriodService {
@@ -34,16 +33,6 @@ public class TimePeriodService {
 
   public Optional<TimePeriod> findUserLatestPeriod(final String userId) {
     return Optional.ofNullable(timePeriodRepository.findLatestPeriodByUser(userId));
-  }
-
-  public TimePeriod createIfNotExist(final TimePeriod timePeriod) {
-    final TimePeriod existedPeriod =
-        timePeriodRepository.findByStartDateAndEndDate(
-            timePeriod.getStartDate(), timePeriod.getEndDate());
-    if (existedPeriod == null) {
-      return timePeriodRepository.save(timePeriod);
-    }
-    return existedPeriod;
   }
 
   public TimePeriod findCompanyCurrentPeriod(final String companyId) {

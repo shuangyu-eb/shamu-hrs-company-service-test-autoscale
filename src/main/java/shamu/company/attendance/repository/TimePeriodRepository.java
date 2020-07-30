@@ -1,12 +1,10 @@
 package shamu.company.attendance.repository;
 
+import java.util.List;
 import org.springframework.data.jpa.repository.Query;
 import shamu.company.attendance.entity.TimePeriod;
 import shamu.company.attendance.entity.TimeSheetPeriodPojo;
 import shamu.company.common.repository.BaseRepository;
-
-import java.sql.Timestamp;
-import java.util.List;
 
 public interface TimePeriodRepository extends BaseRepository<TimePeriod, String> {
   String TIME_SHEET_PERIOD_QUERY =
@@ -35,6 +33,4 @@ public interface TimePeriodRepository extends BaseRepository<TimePeriod, String>
               + "order by start_date desc limit 1",
       nativeQuery = true)
   TimePeriod findCompanyNewestPeriod(String companyId);
-
-  TimePeriod findByStartDateAndEndDate(Timestamp startDate, Timestamp endDate);
 }

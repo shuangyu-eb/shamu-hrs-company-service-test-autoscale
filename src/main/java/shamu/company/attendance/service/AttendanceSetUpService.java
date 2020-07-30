@@ -28,6 +28,7 @@ import shamu.company.attendance.entity.TimeSheet;
 import shamu.company.attendance.repository.StaticTimesheetStatusRepository;
 import shamu.company.company.entity.Company;
 import shamu.company.company.repository.CompanyRepository;
+import shamu.company.company.service.CompanyService;
 import shamu.company.job.entity.CompensationFrequency;
 import shamu.company.job.entity.JobUser;
 import shamu.company.job.entity.mapper.JobUserMapper;
@@ -91,6 +92,8 @@ public class AttendanceSetUpService {
 
   private final PayPeriodFrequencyService payPeriodFrequencyService;
 
+  private final CompanyService companyService;
+
   public AttendanceSetUpService(
       final AttendanceSettingsService attendanceSettingsService,
       final UserRepository userRepository,
@@ -107,7 +110,8 @@ public class AttendanceSetUpService {
       final QuartzJobScheduler quartzJobScheduler,
       final StaticTimesheetStatusRepository staticTimesheetStatusRepository,
       final UserCompensationMapper userCompensationMapper,
-      final PayPeriodFrequencyService payPeriodFrequencyService) {
+      final PayPeriodFrequencyService payPeriodFrequencyService,
+      final CompanyService companyService) {
     this.attendanceSettingsService = attendanceSettingsService;
     this.userRepository = userRepository;
     this.jobUserRepository = jobUserRepository;
@@ -124,6 +128,7 @@ public class AttendanceSetUpService {
     this.staticTimesheetStatusRepository = staticTimesheetStatusRepository;
     this.userCompensationMapper = userCompensationMapper;
     this.payPeriodFrequencyService = payPeriodFrequencyService;
+    this.companyService = companyService;
   }
 
   public Boolean findIsAttendanceSetUp(final String companyId) {
@@ -170,6 +175,8 @@ public class AttendanceSetUpService {
       final TimeAndAttendanceDetailsDto timeAndAttendanceDetailsDto, final String companyId) {
     saveCompanyTaSetting(timeAndAttendanceDetailsDto, companyId);
 
+    final Company company = companyService.findById(companyId);
+
     final List<EmployeeOvertimeDetailsDto> overtimeDetailsDtoList =
         timeAndAttendanceDetailsDto.getOvertimeDetails();
 
@@ -180,7 +187,7 @@ public class AttendanceSetUpService {
     final Date periodStartDate = getStartOfDay(timeAndAttendanceDetailsDto.getPeriodStartDate());
     final Date periodEndDate = timeAndAttendanceDetailsDto.getPeriodEndDate();
 
-    final TimePeriod firstTimePeriod = new TimePeriod(periodStartDate, periodEndDate);
+    final TimePeriod firstTimePeriod = new TimePeriod(periodStartDate, periodEndDate, company);
 
     final TimeSheetStatus timeSheetStatus;
     if (periodStartDate.after(getEndOfDay(new Date()))) {
@@ -307,11 +314,10 @@ public class AttendanceSetUpService {
     final List<TimeSheet> timeSheets = new ArrayList<>();
     final StaticTimesheetStatus timesheetStatus =
         staticTimesheetStatusRepository.findByName(timeSheetStatus.getValue());
-    final TimePeriod timePeriod = timePeriodService.createIfNotExist(newTimePeriod);
     userCompensationList.forEach(
         userCompensation -> {
           final TimeSheet timeSheet = new TimeSheet();
-          timeSheet.setTimePeriod(timePeriod);
+          timeSheet.setTimePeriod(newTimePeriod);
           timeSheet.setUserCompensation(userCompensation);
           timeSheet.setEmployee(new User(userCompensation.getUserId()));
           timeSheet.setStatus(timesheetStatus);
@@ -322,7 +328,7 @@ public class AttendanceSetUpService {
   }
 
   public TimePeriod getNextPeriod(
-      final TimePeriod currentTimePeriod, final String payPeriodFrequency) {
+      final TimePeriod currentTimePeriod, final String payPeriodFrequency, final Company company) {
     final Calendar currentEndDayOfPeriod = Calendar.getInstance();
     currentEndDayOfPeriod.setTimeInMillis(currentTimePeriod.getEndDate().getTime());
 
@@ -335,7 +341,7 @@ public class AttendanceSetUpService {
     nextPayDate.add(Calendar.DAY_OF_YEAR, -1 * PAY_DATE_AFTER_PERIOD_DAYS);
     final Timestamp periodEndDate = new Timestamp(nextPayDate.getTimeInMillis());
 
-    return new TimePeriod(periodStartDate, periodEndDate);
+    return new TimePeriod(periodStartDate, periodEndDate, company);
   }
 
   private Calendar copyCalendar(final Calendar calendar) {
@@ -424,7 +430,8 @@ public class AttendanceSetUpService {
     return payFrequencyType
         .map(
             staticCompanyPayFrequencyType ->
-                getNextPeriod(timePeriod.get(), staticCompanyPayFrequencyType.getName()))
+                getNextPeriod(
+                    timePeriod.get(), staticCompanyPayFrequencyType.getName(), user.getCompany()))
         .orElse(null);
   }
 }

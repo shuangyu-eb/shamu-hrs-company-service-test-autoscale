@@ -20,6 +20,8 @@ import shamu.company.attendance.service.AttendanceSettingsService;
 import shamu.company.attendance.service.PayPeriodFrequencyService;
 import shamu.company.attendance.service.TimePeriodService;
 import shamu.company.attendance.service.TimeSheetService;
+import shamu.company.company.entity.Company;
+import shamu.company.company.service.CompanyService;
 import shamu.company.scheduler.job.AddPayPeriodAndAutoSubmitHourJob;
 import shamu.company.user.service.UserCompensationService;
 import shamu.company.utils.JsonUtil;
@@ -34,6 +36,7 @@ public class AddPayPeriodAndAutoSubmitHourJobTests {
   @Mock private JobExecutionContext jobExecutionContext;
   @Mock private UserCompensationService userCompensationService;
   @Mock private TimeSheetService timeSheetService;
+  @Mock private CompanyService companyService;
 
   @BeforeEach
   void init() {
@@ -45,7 +48,8 @@ public class AddPayPeriodAndAutoSubmitHourJobTests {
             attendanceSettingsService,
             payPeriodFrequencyService,
             userCompensationService,
-            timeSheetService);
+            timeSheetService,
+            companyService);
   }
 
   @Nested
@@ -54,17 +58,20 @@ public class AddPayPeriodAndAutoSubmitHourJobTests {
     CompanyTaSetting companyTaSetting;
     TimePeriod timePeriod;
     StaticCompanyPayFrequencyType payFrequencyType;
+    Company company;
 
     @BeforeEach
     void setUp() {
       companyId = "test_company_id";
       companyTaSetting = new CompanyTaSetting();
       timePeriod = new TimePeriod();
+      company = new Company();
 
       payFrequencyType = new StaticCompanyPayFrequencyType();
       payFrequencyType.setName("WEEKLY");
       payFrequencyType.setId("id");
       companyTaSetting.setPayFrequencyType(payFrequencyType);
+      Mockito.when(companyService.findById(Mockito.anyString())).thenReturn(company);
     }
 
     @Test
@@ -77,7 +84,7 @@ public class AddPayPeriodAndAutoSubmitHourJobTests {
       Mockito.when(attendanceSettingsService.findCompanySettings(companyId))
           .thenReturn(companyTaSetting);
       Mockito.when(payPeriodFrequencyService.findById("id")).thenReturn(payFrequencyType);
-      Mockito.when(attendanceSetUpService.getNextPeriod(timePeriod, "WEEKLY"))
+      Mockito.when(attendanceSetUpService.getNextPeriod(timePeriod, "WEEKLY", company))
           .thenReturn(timePeriod);
       assertThatCode(() -> addPayPeriodAndAutoSubmitHourJob.executeInternal(jobExecutionContext))
           .doesNotThrowAnyException();
