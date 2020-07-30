@@ -56,8 +56,9 @@ public class AddPayPeriodJob extends QuartzJobBean {
 
   @Override
   public void executeInternal(final JobExecutionContext jobExecutionContext) {
-    final String companyId =
+    String companyId =
         QuartzUtil.getParameter(jobExecutionContext, "companyId", String.class);
+    companyId = JsonUtil.deserialize(companyIdJson, String.class).replace("\"", "");
     TenantContext.setCurrentTenant(companyId);
     final TimePeriod currentTimePeriod = timePeriodService.findCompanyCurrentPeriod();
 
