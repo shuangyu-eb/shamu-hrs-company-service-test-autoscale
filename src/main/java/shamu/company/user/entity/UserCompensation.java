@@ -7,7 +7,6 @@ import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import javax.validation.constraints.Max;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Type;
@@ -21,9 +20,7 @@ import shamu.company.job.entity.CompensationFrequency;
 @NoArgsConstructor
 public class UserCompensation extends BaseEntity {
   private static final long serialVersionUID = -7026686695745173051L;
-  private static final int MAX_WAGE = 2147483647;
 
-  @Max(MAX_WAGE)
   private BigInteger wageCents;
 
   private Timestamp startDate;
