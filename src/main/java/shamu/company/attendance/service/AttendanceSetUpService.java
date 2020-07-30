@@ -1,5 +1,17 @@
 package shamu.company.attendance.service;
 
+import static shamu.company.attendance.entity.StaticTimesheetStatus.TimeSheetStatus;
+
+import java.math.BigInteger;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import org.apache.commons.lang.time.DateUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,7 +34,7 @@ import shamu.company.job.entity.mapper.JobUserMapper;
 import shamu.company.job.repository.JobUserRepository;
 import shamu.company.scheduler.QuartzJobScheduler;
 import shamu.company.scheduler.job.ActivateTimeSheetJob;
-import shamu.company.scheduler.job.AddPayPeriodJob;
+import shamu.company.scheduler.job.AddPayPeriodAndAutoSubmitHourJob;
 import shamu.company.timeoff.dto.PaidHolidayDto;
 import shamu.company.timeoff.service.PaidHolidayService;
 import shamu.company.user.entity.CompensationOvertimeStatus;
@@ -34,19 +46,6 @@ import shamu.company.user.repository.CompensationOvertimeStatusRepository;
 import shamu.company.user.repository.UserRepository;
 import shamu.company.user.service.UserCompensationService;
 import shamu.company.user.service.UserService;
-
-import java.math.BigInteger;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import static shamu.company.attendance.entity.StaticTimesheetStatus.TimeSheetStatus;
 
 @Service
 public class AttendanceSetUpService {
@@ -200,7 +199,7 @@ public class AttendanceSetUpService {
     final Date executeDate = getEndOfDay(currentPeriodEndDate);
     final Map<String, Object> jobParameter = assembleCompanyIdParameter(companyId);
     quartzJobScheduler.addOrUpdateJobSchedule(
-        AddPayPeriodJob.class,
+        AddPayPeriodAndAutoSubmitHourJob.class,
         "new_period_" + companyId + "_" + executeDate.getTime(),
         jobParameter,
         executeDate);

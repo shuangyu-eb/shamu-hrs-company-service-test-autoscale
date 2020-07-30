@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,8 +18,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import shamu.company.attendance.entity.StaticTimesheetStatus;
 import shamu.company.attendance.entity.StaticTimesheetStatus.TimeSheetStatus;
 import shamu.company.attendance.entity.TimeSheet;
+import shamu.company.attendance.repository.StaticTimesheetStatusRepository;
 import shamu.company.attendance.repository.TimeSheetRepository;
 import shamu.company.attendance.service.TimeSheetService;
 import shamu.company.common.exception.errormapping.ResourceNotFoundException;
@@ -29,6 +32,8 @@ public class TimeSheetServiceTests {
   @InjectMocks TimeSheetService timeSheetService;
 
   @Mock private TimeSheetRepository timeSheetRepository;
+
+  @Mock private StaticTimesheetStatusRepository staticTimesheetStatusRepository;
 
   @BeforeEach
   void init() {
@@ -106,5 +111,17 @@ public class TimeSheetServiceTests {
                       timesheetId, companyId, status, "1", pageable))
           .doesNotThrowAnyException();
     }
+  }
+
+  @Test
+  void whenNormal_thenShouldSuccess() {
+    final StaticTimesheetStatus submitStatus = new StaticTimesheetStatus();
+    submitStatus.setName(TimeSheetStatus.SUBMITTED.name());
+    Mockito.when(staticTimesheetStatusRepository.findByName(Mockito.anyString()))
+        .thenReturn(submitStatus);
+    final TimeSheet timeSheet = new TimeSheet();
+    assertThatCode(
+            () -> timeSheetService.updateAllTimesheetStatus(Collections.singletonList(timeSheet)))
+        .doesNotThrowAnyException();
   }
 }

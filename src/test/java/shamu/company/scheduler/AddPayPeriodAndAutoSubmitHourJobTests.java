@@ -1,5 +1,9 @@
 package shamu.company.scheduler;
 
+import static org.assertj.core.api.Assertions.assertThatCode;
+
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -15,17 +19,13 @@ import shamu.company.attendance.service.AttendanceSetUpService;
 import shamu.company.attendance.service.AttendanceSettingsService;
 import shamu.company.attendance.service.PayPeriodFrequencyService;
 import shamu.company.attendance.service.TimePeriodService;
-import shamu.company.scheduler.job.AddPayPeriodJob;
+import shamu.company.attendance.service.TimeSheetService;
+import shamu.company.scheduler.job.AddPayPeriodAndAutoSubmitHourJob;
 import shamu.company.user.service.UserCompensationService;
 import shamu.company.utils.JsonUtil;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.assertj.core.api.Assertions.assertThatCode;
-
-public class AddPayPeriodJobTests {
-  private static AddPayPeriodJob addPayPeriodJob;
+public class AddPayPeriodAndAutoSubmitHourJobTests {
+  private static AddPayPeriodAndAutoSubmitHourJob addPayPeriodAndAutoSubmitHourJob;
 
   @Mock private AttendanceSetUpService attendanceSetUpService;
   @Mock private TimePeriodService timePeriodService;
@@ -33,17 +33,19 @@ public class AddPayPeriodJobTests {
   @Mock private PayPeriodFrequencyService payPeriodFrequencyService;
   @Mock private JobExecutionContext jobExecutionContext;
   @Mock private UserCompensationService userCompensationService;
+  @Mock private TimeSheetService timeSheetService;
 
   @BeforeEach
   void init() {
     MockitoAnnotations.initMocks(this);
-    addPayPeriodJob =
-        new AddPayPeriodJob(
+    addPayPeriodAndAutoSubmitHourJob =
+        new AddPayPeriodAndAutoSubmitHourJob(
             attendanceSetUpService,
             timePeriodService,
             attendanceSettingsService,
             payPeriodFrequencyService,
-            userCompensationService);
+            userCompensationService,
+            timeSheetService);
   }
 
   @Nested
@@ -77,7 +79,7 @@ public class AddPayPeriodJobTests {
       Mockito.when(payPeriodFrequencyService.findById("id")).thenReturn(payFrequencyType);
       Mockito.when(attendanceSetUpService.getNextPeriod(timePeriod, "WEEKLY"))
           .thenReturn(timePeriod);
-      assertThatCode(() -> addPayPeriodJob.executeInternal(jobExecutionContext))
+      assertThatCode(() -> addPayPeriodAndAutoSubmitHourJob.executeInternal(jobExecutionContext))
           .doesNotThrowAnyException();
     }
   }

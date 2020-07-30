@@ -1,42 +1,47 @@
 package shamu.company.scheduler.job;
 
+import static shamu.company.attendance.entity.StaticTimesheetStatus.TimeSheetStatus;
+
+import java.util.List;
+import java.util.stream.Collectors;
 import org.quartz.JobExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 import shamu.company.attendance.entity.CompanyTaSetting;
 import shamu.company.attendance.entity.StaticCompanyPayFrequencyType;
 import shamu.company.attendance.entity.TimePeriod;
+import shamu.company.attendance.entity.TimeSheet;
 import shamu.company.attendance.service.AttendanceSetUpService;
 import shamu.company.attendance.service.AttendanceSettingsService;
 import shamu.company.attendance.service.PayPeriodFrequencyService;
 import shamu.company.attendance.service.TimePeriodService;
+import shamu.company.attendance.service.TimeSheetService;
 import shamu.company.user.entity.UserCompensation;
 import shamu.company.user.service.UserCompensationService;
 import shamu.company.utils.JsonUtil;
 
-import java.util.List;
-
-import static shamu.company.attendance.entity.StaticTimesheetStatus.TimeSheetStatus;
-
-public class AddPayPeriodJob extends QuartzJobBean {
+public class AddPayPeriodAndAutoSubmitHourJob extends QuartzJobBean {
   private final AttendanceSetUpService attendanceSetUpService;
   private final TimePeriodService timePeriodService;
   private final AttendanceSettingsService attendanceSettingsService;
   private final PayPeriodFrequencyService payPeriodFrequencyService;
   private final UserCompensationService userCompensationService;
+  private final TimeSheetService timeSheetService;
 
   @Autowired
-  public AddPayPeriodJob(
+  public AddPayPeriodAndAutoSubmitHourJob(
       final AttendanceSetUpService attendanceSetUpService,
       final TimePeriodService timePeriodService,
       final AttendanceSettingsService attendanceSettingsService,
       final PayPeriodFrequencyService payPeriodFrequencyService,
-      final UserCompensationService userCompensationService) {
+      final UserCompensationService userCompensationService,
+      final TimeSheetService timeSheetService) {
     this.attendanceSetUpService = attendanceSetUpService;
     this.timePeriodService = timePeriodService;
     this.attendanceSettingsService = attendanceSettingsService;
     this.payPeriodFrequencyService = payPeriodFrequencyService;
     this.userCompensationService = userCompensationService;
+    this.timeSheetService = timeSheetService;
   }
 
   @Override
@@ -52,6 +57,16 @@ public class AddPayPeriodJob extends QuartzJobBean {
     final String payFrequencyTypeId = companyTaSetting.getPayFrequencyType().getId();
     final StaticCompanyPayFrequencyType staticCompanyPayFrequencyType =
         payPeriodFrequencyService.findById(payFrequencyTypeId);
+
+    final TimePeriod lastTimePeriod = timePeriodService.findCompanyCurrentPeriod(companyId);
+    final List<TimeSheet> timeSheetsToSubmit =
+        timeSheetService.findAllByPeriodId(lastTimePeriod.getId()).stream()
+            .filter(
+                timeSheet ->
+                    (timeSheet.getStatus().getName().equals(TimeSheetStatus.ACTIVE.name())))
+            .collect(Collectors.toList());
+
+    timeSheetService.updateAllTimesheetStatus(timeSheetsToSubmit);
 
     final TimePeriod nextTimePeriod =
         attendanceSetUpService.getNextPeriod(
