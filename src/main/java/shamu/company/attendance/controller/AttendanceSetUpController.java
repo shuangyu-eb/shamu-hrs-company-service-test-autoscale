@@ -58,7 +58,8 @@ public class AttendanceSetUpController extends BaseRestController {
   public HttpEntity createAttendanceDetails(
       @Valid @RequestBody final TimeAndAttendanceDetailsDto timeAndAttendanceDetailsDto) {
     final String companyId = findCompanyId();
-    attendanceSetUpService.saveAttendanceDetails(timeAndAttendanceDetailsDto, companyId);
+    final String employeeId = findUserId();
+    attendanceSetUpService.saveAttendanceDetails(timeAndAttendanceDetailsDto, companyId, employeeId);
     return new ResponseEntity(HttpStatus.OK);
   }
 }

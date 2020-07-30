@@ -8,4 +8,6 @@ public interface StaticTimeZoneRepository extends BaseRepository<StaticTimezone,
   @Override
   List<StaticTimezone> findAll();
 
+  StaticTimezone findByName(String name);
+
 }

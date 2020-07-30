@@ -1,16 +1,20 @@
 package shamu.company.attendance.service;
 
+import static java.time.DayOfWeek.SATURDAY;
 import static shamu.company.attendance.entity.StaticTimesheetStatus.TimeSheetStatus;
 
 import java.math.BigInteger;
 import java.sql.Timestamp;
+import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang.time.DateUtils;
 import org.springframework.stereotype.Service;
@@ -20,15 +24,24 @@ import shamu.company.attendance.dto.TimeAndAttendanceDetailsDto;
 import shamu.company.attendance.dto.TimeAndAttendanceRelatedUserDto;
 import shamu.company.attendance.dto.TimeAndAttendanceRelatedUserListDto;
 import shamu.company.attendance.entity.CompanyTaSetting;
+import shamu.company.attendance.entity.EmailNotificationStatus;
+import shamu.company.attendance.entity.EmployeesTaSetting;
 import shamu.company.attendance.entity.StaticCompanyPayFrequencyType;
 import shamu.company.attendance.entity.StaticCompanyPayFrequencyType.PayFrequencyType;
 import shamu.company.attendance.entity.StaticTimesheetStatus;
+import shamu.company.attendance.entity.StaticTimezone;
 import shamu.company.attendance.entity.TimePeriod;
 import shamu.company.attendance.entity.TimeSheet;
+import shamu.company.attendance.entity.mapper.CompanyTaSettingsMapper;
+import shamu.company.attendance.entity.mapper.EmployeesTaSettingsMapper;
+import shamu.company.attendance.repository.EmployeesTaSettingRepository;
+import shamu.company.attendance.repository.StaticTimeZoneRepository;
 import shamu.company.attendance.repository.StaticTimesheetStatusRepository;
 import shamu.company.company.entity.Company;
+import shamu.company.company.entity.Office;
 import shamu.company.company.repository.CompanyRepository;
 import shamu.company.company.service.CompanyService;
+import shamu.company.helpers.googlemaps.GoogleMapsHelper;
 import shamu.company.job.entity.CompensationFrequency;
 import shamu.company.job.entity.JobUser;
 import shamu.company.job.entity.mapper.JobUserMapper;
@@ -58,7 +71,9 @@ public class AttendanceSetUpService {
   private static final int WEEKS_OF_BIWEEKLY = 2;
   private static final int MID_DAY_OF_MONTH = 15;
   private static final int PAY_DATE_AFTER_PERIOD_DAYS = 7;
+  private static final int DEFAULT_APPROVAL_DAYS_BEFORE_PAYROLL = 2;
   private static final long MS_OF_ONE_DAY = 24 * 60 * 60 * 1000l;
+  private static final String COMPANY_POSTAL_CODE = "companyPostalCode";
 
   private final AttendanceSettingsService attendanceSettingsService;
 
@@ -88,11 +103,21 @@ public class AttendanceSetUpService {
 
   private final StaticTimesheetStatusRepository staticTimesheetStatusRepository;
 
+  private final StaticTimeZoneRepository staticTimeZoneRepository;
+
+  private final EmployeesTaSettingRepository employeesTaSettingRepository;
+
   private final UserCompensationMapper userCompensationMapper;
 
   private final PayPeriodFrequencyService payPeriodFrequencyService;
 
   private final CompanyService companyService;
+
+  private final GoogleMapsHelper googleMapsHelper;
+
+  private final EmployeesTaSettingsMapper employeesTaSettingsMapper;
+
+  private final CompanyTaSettingsMapper companyTaSettingsMapper;
 
   public AttendanceSetUpService(
       final AttendanceSettingsService attendanceSettingsService,
@@ -109,9 +134,14 @@ public class AttendanceSetUpService {
       final TimeSheetService timeSheetService,
       final QuartzJobScheduler quartzJobScheduler,
       final StaticTimesheetStatusRepository staticTimesheetStatusRepository,
+      final StaticTimeZoneRepository staticTimeZoneRepository,
+      final EmployeesTaSettingRepository employeesTaSettingRepository,
       final UserCompensationMapper userCompensationMapper,
       final PayPeriodFrequencyService payPeriodFrequencyService,
-      final CompanyService companyService) {
+      final CompanyService companyService,
+      final GoogleMapsHelper googleMapsHelper,
+      final EmployeesTaSettingsMapper employeesTaSettingsMapper,
+      final CompanyTaSettingsMapper companyTaSettingsMapper) {
     this.attendanceSettingsService = attendanceSettingsService;
     this.userRepository = userRepository;
     this.jobUserRepository = jobUserRepository;
@@ -126,9 +156,14 @@ public class AttendanceSetUpService {
     this.timeSheetService = timeSheetService;
     this.quartzJobScheduler = quartzJobScheduler;
     this.staticTimesheetStatusRepository = staticTimesheetStatusRepository;
+    this.staticTimeZoneRepository = staticTimeZoneRepository;
+    this.employeesTaSettingRepository = employeesTaSettingRepository;
     this.userCompensationMapper = userCompensationMapper;
     this.payPeriodFrequencyService = payPeriodFrequencyService;
     this.companyService = companyService;
+    this.googleMapsHelper = googleMapsHelper;
+    this.employeesTaSettingsMapper = employeesTaSettingsMapper;
+    this.companyTaSettingsMapper = companyTaSettingsMapper;
   }
 
   public Boolean findIsAttendanceSetUp(final String companyId) {
@@ -172,8 +207,10 @@ public class AttendanceSetUpService {
 
   @Transactional
   public void saveAttendanceDetails(
-      final TimeAndAttendanceDetailsDto timeAndAttendanceDetailsDto, final String companyId) {
-    saveCompanyTaSetting(timeAndAttendanceDetailsDto, companyId);
+      final TimeAndAttendanceDetailsDto timeAndAttendanceDetailsDto,
+      final String companyId,
+      final String employeeId) {
+    saveAttendanceSettings(timeAndAttendanceDetailsDto, companyId, employeeId);
 
     final Company company = companyService.findById(companyId);
 
@@ -237,8 +274,63 @@ public class AttendanceSetUpService {
     return new Date(time);
   }
 
+  public void saveAttendanceSettings(
+      final TimeAndAttendanceDetailsDto timeAndAttendanceDetailsDto,
+      final String companyId,
+      final String employeeId) {
+    final String adminOfficePostalCode =
+        jobUserRepository
+            .findByUserId(employeeId)
+            .getOffice()
+            .getOfficeAddress()
+            .getPostalCode();
+    final Set<String> allPostalCodes = findAllPostalCodes(timeAndAttendanceDetailsDto, adminOfficePostalCode);
+    final Map<String, String> companyPostalCodes = googleMapsHelper.findTimezoneByPostalCode(allPostalCodes);
+    final Map<String, StaticTimezone> allTimezones =
+        findTimezonesByPostalCode(companyPostalCodes, adminOfficePostalCode);
+    saveCompanyTaSetting(timeAndAttendanceDetailsDto, companyId, allTimezones);
+    saveEmployeeTaSettings(timeAndAttendanceDetailsDto, allTimezones);
+  }
+
+  private Map<String, StaticTimezone> findTimezonesByPostalCode(
+      final Map<String, String> staticTimezones, final String companyPostalCode) {
+    final Map<String, StaticTimezone> allTimezones = new HashMap<>();
+    staticTimezones.keySet().stream()
+        .forEach(
+            postalCode ->
+                allTimezones.put(
+                    postalCode,
+                    staticTimeZoneRepository.findByName(staticTimezones.get(postalCode))));
+    allTimezones.put(COMPANY_POSTAL_CODE, allTimezones.get(companyPostalCode));
+    return allTimezones;
+  }
+
+  private Set<String> findAllPostalCodes(
+      final TimeAndAttendanceDetailsDto timeAndAttendanceDetailsDto,
+      final String adminPostalCode) {
+
+    final Set<String> allPostalCodes =
+        timeAndAttendanceDetailsDto.getOvertimeDetails().stream()
+            .map(
+                employeeOvertimeDetailsDto -> {
+                  final Office office =
+                      jobUserRepository
+                          .findByUserId(employeeOvertimeDetailsDto.getEmployeeId())
+                          .getOffice();
+                  if (office != null && office.getOfficeAddress() != null) {
+                    return office.getOfficeAddress().getPostalCode();
+                  }
+                  return adminPostalCode;
+                })
+            .collect(Collectors.toSet());
+    allPostalCodes.add(adminPostalCode);
+    return allPostalCodes;
+  }
+
   private void saveCompanyTaSetting(
-      final TimeAndAttendanceDetailsDto timeAndAttendanceDetailsDto, final String companyId) {
+      final TimeAndAttendanceDetailsDto timeAndAttendanceDetailsDto,
+      final String companyId,
+      final Map<String, StaticTimezone> allTimezones) {
     final CompanyTaSetting existCompanyTaSetting =
         attendanceSettingsService.findCompanySettings(companyId);
     final StaticCompanyPayFrequencyType staticCompanyPayFrequencyType =
@@ -248,10 +340,43 @@ public class AttendanceSetUpService {
     final Timestamp payDay = new Timestamp(payDate.getTime());
     final CompanyTaSetting companyTaSetting =
         new CompanyTaSetting(company, staticCompanyPayFrequencyType, payDay);
+    companyTaSettingsMapper.updateFromCompanyTaSettings(
+        companyTaSetting,
+        allTimezones.get(COMPANY_POSTAL_CODE),
+        EmailNotificationStatus.ON.getValue(),
+        DEFAULT_APPROVAL_DAYS_BEFORE_PAYROLL,
+        SATURDAY.getDisplayName(TextStyle.FULL, Locale.ENGLISH));
     if (null != existCompanyTaSetting) {
       companyTaSetting.setId(existCompanyTaSetting.getId());
     }
     attendanceSettingsService.saveCompanyTaSetting(companyTaSetting);
+  }
+
+  private void saveEmployeeTaSettings(
+      final TimeAndAttendanceDetailsDto timeAndAttendanceDetailsDto,
+      final Map<String, StaticTimezone> allTimezones) {
+    final List<EmployeesTaSetting> employeesTaSettings =
+        timeAndAttendanceDetailsDto.getOvertimeDetails().stream()
+            .map(
+                employeeOvertimeDetailsDto -> {
+                  final String employeeId = employeeOvertimeDetailsDto.getEmployeeId();
+                  final int defaultMessagingOn = EmailNotificationStatus.ON.getValue();
+                  final Office office =
+                      jobUserRepository
+                          .findByUserId(employeeOvertimeDetailsDto.getEmployeeId())
+                          .getOffice();
+                  if (office != null && office.getOfficeAddress() != null) {
+                    return employeesTaSettingsMapper.convertToEmployeeTaSettings(
+                        allTimezones.get(office.getOfficeAddress().getPostalCode()),
+                        employeeId,
+                        defaultMessagingOn);
+                  } else {
+                    return employeesTaSettingsMapper.convertToEmployeeTaSettings(
+                        allTimezones.get(COMPANY_POSTAL_CODE), employeeId, defaultMessagingOn);
+                  }
+                })
+            .collect(Collectors.toList());
+    employeesTaSettingRepository.saveAll(employeesTaSettings);
   }
 
   private List<UserCompensation> saveUserCompensations(

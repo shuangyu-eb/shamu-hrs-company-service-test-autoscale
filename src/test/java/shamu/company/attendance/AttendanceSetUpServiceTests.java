@@ -20,6 +20,8 @@ import shamu.company.attendance.entity.EmployeesTaSetting;
 import shamu.company.attendance.entity.StaticCompanyPayFrequencyType;
 import shamu.company.attendance.entity.StaticCompanyPayFrequencyType.PayFrequencyType;
 import shamu.company.attendance.entity.TimePeriod;
+import shamu.company.attendance.entity.mapper.CompanyTaSettingsMapper;
+import shamu.company.attendance.entity.mapper.EmployeesTaSettingsMapper;
 import shamu.company.attendance.repository.EmployeesTaSettingRepository;
 import shamu.company.attendance.repository.StaticTimesheetStatusRepository;
 import shamu.company.attendance.service.AttendanceSetUpService;
@@ -28,8 +30,11 @@ import shamu.company.attendance.service.PayPeriodFrequencyService;
 import shamu.company.attendance.service.TimePeriodService;
 import shamu.company.attendance.service.TimeSheetService;
 import shamu.company.company.entity.Company;
+import shamu.company.company.entity.Office;
+import shamu.company.company.entity.OfficeAddress;
 import shamu.company.company.repository.CompanyRepository;
 import shamu.company.company.service.CompanyService;
+import shamu.company.helpers.googlemaps.GoogleMapsHelper;
 import shamu.company.job.entity.CompensationFrequency;
 import shamu.company.job.entity.JobUser;
 import shamu.company.job.entity.mapper.JobUserMapper;
@@ -87,6 +92,12 @@ public class AttendanceSetUpServiceTests {
   @Mock private PayPeriodFrequencyService payPeriodFrequencyService;
 
   @Mock private CompanyService companyService;
+
+  @Mock private GoogleMapsHelper googleMapsHelper;
+
+  @Mock private CompanyTaSettingsMapper companyTaSettingsMapper;
+
+  @Mock private EmployeesTaSettingsMapper employeesTaSettingsMapper;
 
   @BeforeEach
   void init() {
@@ -156,6 +167,10 @@ public class AttendanceSetUpServiceTests {
     TimeAndAttendanceDetailsDto timeAndAttendanceDetailsDto = new TimeAndAttendanceDetailsDto();
     String companyId = "testCompanyId";
     String userId = "testUserId";
+    String employeeId = "employeeId";
+    JobUser jobUser = new JobUser();
+    Office office = new Office();
+    OfficeAddress officeAddress = new OfficeAddress();
     StaticCompanyPayFrequencyType staticCompanyPayFrequencyType =
         new StaticCompanyPayFrequencyType();
     List<EmployeeOvertimeDetailsDto> details = new ArrayList();
@@ -169,19 +184,24 @@ public class AttendanceSetUpServiceTests {
       timeAndAttendanceDetailsDto.setPeriodStartDate(new Date());
       timeAndAttendanceDetailsDto.setPeriodEndDate(new Date());
       Mockito.when(companyService.findById(Mockito.anyString())).thenReturn(company);
+      officeAddress.setPostalCode("postalCode");
+      office.setOfficeAddress(officeAddress);
+      jobUser.setOffice(office);
     }
 
     @Test
     void whenDetailsIsEmpty_shouldSucceed() {
       Mockito.when(payPeriodFrequencyService.findByName(Mockito.any()))
           .thenReturn(staticCompanyPayFrequencyType);
+      Mockito.when(jobUserRepository.findByUserId(employeeId))
+          .thenReturn(jobUser);
       Mockito.when(companyRepository.findCompanyById(companyId)).thenReturn(new Company());
       Mockito.when(attendanceSettingsService.saveCompanyTaSetting(Mockito.any()))
           .thenReturn(Mockito.any());
       assertThatCode(
               () ->
                   attendanceSetUpService.saveAttendanceDetails(
-                      timeAndAttendanceDetailsDto, companyId))
+                      timeAndAttendanceDetailsDto, companyId, employeeId))
           .doesNotThrowAnyException();
     }
 
@@ -199,12 +219,12 @@ public class AttendanceSetUpServiceTests {
           .thenReturn(Optional.of(new CompensationFrequency()));
       Mockito.when(compensationOvertimeStatusRepository.findById(Mockito.any()))
           .thenReturn(Optional.of(new CompensationOvertimeStatus()));
-      Mockito.when(jobUserRepository.findByUserId(Mockito.any())).thenReturn(new JobUser());
+      Mockito.when(jobUserRepository.findByUserId(Mockito.any())).thenReturn(jobUser);
       Mockito.when(timeSheetService.saveAll(Mockito.any())).thenReturn(Mockito.any());
       assertThatCode(
               () ->
                   attendanceSetUpService.saveAttendanceDetails(
-                      timeAndAttendanceDetailsDto, companyId))
+                      timeAndAttendanceDetailsDto, companyId, employeeId))
           .doesNotThrowAnyException();
     }
   }
