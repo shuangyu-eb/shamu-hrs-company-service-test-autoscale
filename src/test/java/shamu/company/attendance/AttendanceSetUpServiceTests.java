@@ -1,7 +1,5 @@
 package shamu.company.attendance;
 
-import static org.assertj.core.api.Assertions.assertThatCode;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -24,6 +22,7 @@ import shamu.company.attendance.entity.mapper.CompanyTaSettingsMapper;
 import shamu.company.attendance.entity.mapper.EmployeesTaSettingsMapper;
 import shamu.company.attendance.repository.EmployeesTaSettingRepository;
 import shamu.company.attendance.repository.StaticTimesheetStatusRepository;
+import shamu.company.attendance.repository.TimePeriodRepository;
 import shamu.company.attendance.service.AttendanceSetUpService;
 import shamu.company.attendance.service.AttendanceSettingsService;
 import shamu.company.attendance.service.PayPeriodFrequencyService;
@@ -52,6 +51,8 @@ import shamu.company.user.repository.CompensationOvertimeStatusRepository;
 import shamu.company.user.repository.UserRepository;
 import shamu.company.user.service.UserCompensationService;
 import shamu.company.user.service.UserService;
+
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 public class AttendanceSetUpServiceTests {
 
@@ -98,6 +99,8 @@ public class AttendanceSetUpServiceTests {
   @Mock private CompanyTaSettingsMapper companyTaSettingsMapper;
 
   @Mock private EmployeesTaSettingsMapper employeesTaSettingsMapper;
+
+  @Mock private TimePeriodRepository timePeriodRepository;
 
   @BeforeEach
   void init() {
@@ -193,8 +196,7 @@ public class AttendanceSetUpServiceTests {
     void whenDetailsIsEmpty_shouldSucceed() {
       Mockito.when(payPeriodFrequencyService.findByName(Mockito.any()))
           .thenReturn(staticCompanyPayFrequencyType);
-      Mockito.when(jobUserRepository.findByUserId(employeeId))
-          .thenReturn(jobUser);
+      Mockito.when(jobUserRepository.findByUserId(employeeId)).thenReturn(jobUser);
       Mockito.when(companyRepository.findCompanyById(companyId)).thenReturn(new Company());
       Mockito.when(attendanceSettingsService.saveCompanyTaSetting(Mockito.any()))
           .thenReturn(Mockito.any());

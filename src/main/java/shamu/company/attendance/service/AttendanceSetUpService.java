@@ -21,6 +21,7 @@ import shamu.company.attendance.entity.mapper.EmployeesTaSettingsMapper;
 import shamu.company.attendance.repository.EmployeesTaSettingRepository;
 import shamu.company.attendance.repository.StaticTimeZoneRepository;
 import shamu.company.attendance.repository.StaticTimesheetStatusRepository;
+import shamu.company.attendance.repository.TimePeriodRepository;
 import shamu.company.company.entity.Company;
 import shamu.company.company.entity.Office;
 import shamu.company.company.repository.CompanyRepository;
@@ -120,6 +121,8 @@ public class AttendanceSetUpService {
 
   private final CompanyTaSettingsMapper companyTaSettingsMapper;
 
+  private final TimePeriodRepository timePeriodRepository;
+
   public AttendanceSetUpService(
       final AttendanceSettingsService attendanceSettingsService,
       final UserRepository userRepository,
@@ -142,7 +145,8 @@ public class AttendanceSetUpService {
       final CompanyService companyService,
       final GoogleMapsHelper googleMapsHelper,
       final EmployeesTaSettingsMapper employeesTaSettingsMapper,
-      final CompanyTaSettingsMapper companyTaSettingsMapper) {
+      final CompanyTaSettingsMapper companyTaSettingsMapper,
+      final TimePeriodRepository timePeriodRepository) {
     this.attendanceSettingsService = attendanceSettingsService;
     this.userRepository = userRepository;
     this.jobUserRepository = jobUserRepository;
@@ -165,6 +169,7 @@ public class AttendanceSetUpService {
     this.googleMapsHelper = googleMapsHelper;
     this.employeesTaSettingsMapper = employeesTaSettingsMapper;
     this.companyTaSettingsMapper = companyTaSettingsMapper;
+    this.timePeriodRepository = timePeriodRepository;
   }
 
   public Boolean findIsAttendanceSetUp(final String companyId) {
@@ -444,10 +449,11 @@ public class AttendanceSetUpService {
     final List<TimeSheet> timeSheets = new ArrayList<>();
     final StaticTimesheetStatus timesheetStatus =
         staticTimesheetStatusRepository.findByName(timeSheetStatus.getValue());
+    final TimePeriod savedTimePeriod = timePeriodRepository.save(newTimePeriod);
     userCompensationList.forEach(
         userCompensation -> {
           final TimeSheet timeSheet = new TimeSheet();
-          timeSheet.setTimePeriod(newTimePeriod);
+          timeSheet.setTimePeriod(savedTimePeriod);
           timeSheet.setUserCompensation(userCompensation);
           timeSheet.setEmployee(new User(userCompensation.getUserId()));
           timeSheet.setStatus(timesheetStatus);
