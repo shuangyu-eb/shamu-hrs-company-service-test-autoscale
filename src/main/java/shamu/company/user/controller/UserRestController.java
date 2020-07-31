@@ -220,4 +220,10 @@ public class UserRestController extends BaseRestController {
     final List<User> users = userService.findRegisteredUsersByCompany(findCompanyId());
     return userMapper.convertToUserDtos(users);
   }
+
+  @PatchMapping("current/cache/{id}")
+  public HttpEntity cacheTokenAndAuthUser(@PathVariable final String id) {
+     userService.cacheUser(findToken(),id);
+     return new ResponseEntity<>(HttpStatus.OK);
+  }
 }
