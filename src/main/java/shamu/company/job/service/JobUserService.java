@@ -5,7 +5,8 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import shamu.company.attendance.service.TimeSheetService;
+import shamu.company.attendance.entity.TimePeriod;
+import shamu.company.attendance.service.TimePeriodService;
 import shamu.company.common.exception.errormapping.AlreadyExistsException;
 import shamu.company.common.service.DepartmentService;
 import shamu.company.common.service.OfficeAddressService;
@@ -51,6 +52,7 @@ import shamu.company.user.entity.mapper.UserCompensationMapper;
 import shamu.company.user.entity.mapper.UserMapper;
 import shamu.company.user.repository.UserAddressRepository;
 import shamu.company.user.service.CompensationOvertimeStatusService;
+import shamu.company.user.service.UserCompensationService;
 import shamu.company.user.service.UserRoleService;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.DateUtil;
@@ -58,6 +60,7 @@ import shamu.company.utils.DateUtil;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -102,7 +105,9 @@ public class JobUserService {
 
   private final CompensationOvertimeStatusService compensationOvertimeStatusService;
 
-  private final TimeSheetService timeSheetService;
+  private final TimePeriodService timePeriodService;
+
+  private final UserCompensationService userCompensationService;
 
   public JobUserService(
       final JobUserRepository jobUserRepository,
@@ -124,7 +129,8 @@ public class JobUserService {
       final UserAddressMapper userAddressMapper,
       final TimeOffPolicyService timeOffPolicyService,
       final CompensationOvertimeStatusService compensationOvertimeStatusService,
-      final TimeSheetService timeSheetService) {
+      final TimePeriodService timePeriodService,
+      final UserCompensationService userCompensationService) {
     this.jobUserRepository = jobUserRepository;
     this.userService = userService;
     this.userCompensationMapper = userCompensationMapper;
@@ -144,7 +150,8 @@ public class JobUserService {
     this.userAddressRepository = userAddressRepository;
     this.userAddressMapper = userAddressMapper;
     this.compensationOvertimeStatusService = compensationOvertimeStatusService;
-    this.timeSheetService = timeSheetService;
+    this.timePeriodService = timePeriodService;
+    this.userCompensationService = userCompensationService;
   }
 
   public JobUser save(final JobUser jobUser) {
@@ -209,11 +216,19 @@ public class JobUserService {
       final String userId, final JobUpdateDto jobUpdateDto, final JobUser jobUser) {
     if (jobUserCompensationUpdated(jobUpdateDto) || jobUpdateDto.getPayTypeName() != null) {
       UserCompensation userCompensation = jobUser.getUserCompensation();
-      if (userCompensation == null || timeSheetService.existByUser(userId)) {
+      final Optional<TimePeriod> userCurrentPeriod = timePeriodService.findUserLatestPeriod(userId);
+      if (userCompensation == null) {
         userCompensation = new UserCompensation();
-      } else {
-        userCompensation.setId(jobUpdateDto.getUserCompensationId());
+      } else if (userCurrentPeriod.isPresent()) {
+        final TimePeriod currentTimePeriod = userCurrentPeriod.get();
+        if (userCompensation.getStartDate() != currentTimePeriod.getEndDate()) {
+          userCompensation.setEndDate(currentTimePeriod.getEndDate());
+          userCompensationService.save(userCompensation);
+          userCompensation = new UserCompensation();
+          userCompensation.setStartDate(currentTimePeriod.getEndDate());
+        }
       }
+
       if (jobUserCompensationUpdated(jobUpdateDto)) {
         userCompensationMapper.updateFromJobUpdateDto(userCompensation, jobUpdateDto);
       }

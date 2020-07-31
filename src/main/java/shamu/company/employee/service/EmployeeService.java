@@ -1,15 +1,5 @@
 package shamu.company.employee.service;
 
-import java.io.File;
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.sql.Timestamp;
-import java.time.Instant;
-import java.util.Base64;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.BeanUtils;
@@ -97,6 +87,17 @@ import shamu.company.user.service.UserStatusService;
 import shamu.company.utils.DateUtil;
 import shamu.company.utils.FileValidateUtils;
 import shamu.company.utils.FileValidateUtils.FileFormat;
+
+import java.io.File;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.util.Base64;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -469,26 +470,11 @@ public class EmployeeService {
       final User employee,
       final User currentUser,
       final NewEmployeeJobInformationDto jobInformation) {
-
-    UserCompensation userCompensation = new UserCompensation();
-    final BigDecimal compensationWageCents = BigDecimal.valueOf(jobInformation.getCompensation() * 100);
-    userCompensation.setWageCents(compensationWageCents.toBigIntegerExact());
-    final String compensationFrequencyId = jobInformation.getCompensationFrequencyId();
-    final CompensationFrequency compensationFrequency =
-        compensationFrequencyService.findById(compensationFrequencyId);
-    userCompensation.setCompensationFrequency(compensationFrequency);
-    userCompensation.setUserId(employee.getId());
-    final CompensationOvertimeStatus compensationOvertimeStatus =
-        compensationOvertimeStatusService.findByName(jobInformation.getPayTypeName());
-    if (compensationOvertimeStatus != null) {
-      userCompensation.setOvertimeStatus(compensationOvertimeStatus);
-    }
-    userCompensation = userCompensationService.save(userCompensation);
+    final UserCompensation userCompensation =
+        saveEmployeeCompensation(jobInformation, employee.getId());
 
     final JobUser jobUser = new JobUser();
-    if (StringUtils.isNotEmpty(userCompensation.getId())) {
-      jobUser.setUserCompensation(userCompensation);
-    }
+    jobUser.setUserCompensation(userCompensation);
 
     final String jobId = jobInformation.getJobId();
     if (StringUtils.isNotEmpty(jobId)) {
@@ -524,6 +510,26 @@ public class EmployeeService {
     }
 
     jobUserService.save(jobUser);
+  }
+
+  private UserCompensation saveEmployeeCompensation(
+      final NewEmployeeJobInformationDto jobInformation, final String userId) {
+    final UserCompensation userCompensation = new UserCompensation();
+    final BigDecimal compensationWageCents =
+        BigDecimal.valueOf(jobInformation.getCompensation() * 100);
+    userCompensation.setWageCents(compensationWageCents.toBigIntegerExact());
+    final String compensationFrequencyId = jobInformation.getCompensationFrequencyId();
+    final CompensationFrequency compensationFrequency =
+        compensationFrequencyService.findById(compensationFrequencyId);
+    userCompensation.setCompensationFrequency(compensationFrequency);
+    userCompensation.setUserId(userId);
+    final CompensationOvertimeStatus compensationOvertimeStatus =
+        compensationOvertimeStatusService.findByName(jobInformation.getPayTypeName());
+    if (compensationOvertimeStatus != null) {
+      userCompensation.setOvertimeStatus(compensationOvertimeStatus);
+    }
+
+    return userCompensationService.save(userCompensation);
   }
 
   private void saveEmployeeAddress(final User employee, final EmployeeDto employeeDto) {

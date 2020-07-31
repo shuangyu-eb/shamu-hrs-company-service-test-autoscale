@@ -1,21 +1,5 @@
 package shamu.company.attendance.service;
 
-import static java.time.DayOfWeek.SATURDAY;
-import static shamu.company.attendance.entity.StaticTimesheetStatus.TimeSheetStatus;
-
-import java.math.BigInteger;
-import java.sql.Timestamp;
-import java.time.format.TextStyle;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 import org.apache.commons.lang.time.DateUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -60,6 +44,23 @@ import shamu.company.user.repository.CompensationOvertimeStatusRepository;
 import shamu.company.user.repository.UserRepository;
 import shamu.company.user.service.UserCompensationService;
 import shamu.company.user.service.UserService;
+
+import java.math.BigInteger;
+import java.sql.Timestamp;
+import java.time.format.TextStyle;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static java.time.DayOfWeek.SATURDAY;
+import static shamu.company.attendance.entity.StaticTimesheetStatus.TimeSheetStatus;
 
 @Service
 public class AttendanceSetUpService {
@@ -217,11 +218,12 @@ public class AttendanceSetUpService {
     final List<EmployeeOvertimeDetailsDto> overtimeDetailsDtoList =
         timeAndAttendanceDetailsDto.getOvertimeDetails();
 
+    final Date periodStartDate = getStartOfDay(timeAndAttendanceDetailsDto.getPeriodStartDate());
+
     final List<UserCompensation> userCompensationList =
-        saveUserCompensations(overtimeDetailsDtoList);
+        saveUserCompensations(overtimeDetailsDtoList, periodStartDate);
     saveJobUsers(overtimeDetailsDtoList);
 
-    final Date periodStartDate = getStartOfDay(timeAndAttendanceDetailsDto.getPeriodStartDate());
     final Date periodEndDate = timeAndAttendanceDetailsDto.getPeriodEndDate();
 
     final TimePeriod firstTimePeriod = new TimePeriod(periodStartDate, periodEndDate, company);
@@ -279,13 +281,11 @@ public class AttendanceSetUpService {
       final String companyId,
       final String employeeId) {
     final String adminOfficePostalCode =
-        jobUserRepository
-            .findByUserId(employeeId)
-            .getOffice()
-            .getOfficeAddress()
-            .getPostalCode();
-    final Set<String> allPostalCodes = findAllPostalCodes(timeAndAttendanceDetailsDto, adminOfficePostalCode);
-    final Map<String, String> companyPostalCodes = googleMapsHelper.findTimezoneByPostalCode(allPostalCodes);
+        jobUserRepository.findByUserId(employeeId).getOffice().getOfficeAddress().getPostalCode();
+    final Set<String> allPostalCodes =
+        findAllPostalCodes(timeAndAttendanceDetailsDto, adminOfficePostalCode);
+    final Map<String, String> companyPostalCodes =
+        googleMapsHelper.findTimezoneByPostalCode(allPostalCodes);
     final Map<String, StaticTimezone> allTimezones =
         findTimezonesByPostalCode(companyPostalCodes, adminOfficePostalCode);
     saveCompanyTaSetting(timeAndAttendanceDetailsDto, companyId, allTimezones);
@@ -306,8 +306,7 @@ public class AttendanceSetUpService {
   }
 
   private Set<String> findAllPostalCodes(
-      final TimeAndAttendanceDetailsDto timeAndAttendanceDetailsDto,
-      final String adminPostalCode) {
+      final TimeAndAttendanceDetailsDto timeAndAttendanceDetailsDto, final String adminPostalCode) {
 
     final Set<String> allPostalCodes =
         timeAndAttendanceDetailsDto.getOvertimeDetails().stream()
@@ -380,7 +379,7 @@ public class AttendanceSetUpService {
   }
 
   private List<UserCompensation> saveUserCompensations(
-      final List<EmployeeOvertimeDetailsDto> overtimeDetailsDtoList) {
+      final List<EmployeeOvertimeDetailsDto> overtimeDetailsDtoList, final Date startDate) {
     final List<UserCompensation> userCompensations =
         overtimeDetailsDtoList.stream()
             .map(
@@ -397,16 +396,22 @@ public class AttendanceSetUpService {
                       compensationOvertimeStatusRepository
                           .findById(employeeOvertimeDetailsDto.getOvertimeLaw())
                           .get();
+                  Timestamp startDateTimeStamp = new Timestamp(startDate.getTime());
                   if (userCompensationService.existsByUserId(userId)) {
                     final UserCompensation userCompensation =
                         userCompensationService.findByUserId(userId);
                     userCompensation.setCompensationFrequency(compensationFrequency);
                     userCompensation.setOvertimeStatus(compensationOvertimeStatus);
                     userCompensation.setWageCents(wageCents);
+                    userCompensation.setStartDate(startDateTimeStamp);
                     return userCompensation;
                   } else {
                     return new UserCompensation(
-                        userId, wageCents, compensationOvertimeStatus, compensationFrequency);
+                        userId,
+                        wageCents,
+                        compensationOvertimeStatus,
+                        compensationFrequency,
+                        startDateTimeStamp);
                   }
                 })
             .collect(Collectors.toList());

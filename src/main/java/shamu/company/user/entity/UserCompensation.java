@@ -1,18 +1,19 @@
 package shamu.company.user.entity;
 
-import java.math.BigInteger;
-import java.sql.Timestamp;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Type;
 import shamu.company.attendance.entity.Currency;
 import shamu.company.common.entity.BaseEntity;
 import shamu.company.job.entity.CompensationFrequency;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
+import java.math.BigInteger;
+import java.sql.Timestamp;
 
 @Data
 @Entity
@@ -43,11 +44,16 @@ public class UserCompensation extends BaseEntity {
 
   @OneToOne private Currency currency;
 
-  public UserCompensation(String userId, BigInteger wageCents,
-                   CompensationOvertimeStatus overtimeStatus, CompensationFrequency compensationFrequency) {
+  public UserCompensation(
+      final String userId,
+      final BigInteger wageCents,
+      final CompensationOvertimeStatus overtimeStatus,
+      final CompensationFrequency compensationFrequency,
+      final Timestamp startDate) {
     this.userId = userId;
     this.wageCents = wageCents;
     this.overtimeStatus = overtimeStatus;
     this.compensationFrequency = compensationFrequency;
+    setStartDate(startDate);
   }
 }

@@ -19,6 +19,7 @@ public interface UserCompensationMapper {
       target = "wageCents",
       expression = "java(updateCompensationCents(jobUpdateDto.getCompensationWage()))")
   @Mapping(target = "compensationFrequency", source = "compensationFrequencyId")
+  @Mapping(target = "startDate", ignore = true)
   void updateFromJobUpdateDto(
       @MappingTarget UserCompensation userCompensation, JobUpdateDto jobUpdateDto);
 

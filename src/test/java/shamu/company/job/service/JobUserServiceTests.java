@@ -9,7 +9,8 @@ import org.mapstruct.factory.Mappers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import shamu.company.attendance.service.TimeSheetService;
+import shamu.company.attendance.entity.TimePeriod;
+import shamu.company.attendance.service.TimePeriodService;
 import shamu.company.common.service.DepartmentService;
 import shamu.company.common.service.OfficeAddressService;
 import shamu.company.common.service.OfficeService;
@@ -52,6 +53,7 @@ import shamu.company.user.entity.mapper.UserCompensationMapper;
 import shamu.company.user.entity.mapper.UserMapper;
 import shamu.company.user.repository.UserAddressRepository;
 import shamu.company.user.service.CompensationOvertimeStatusService;
+import shamu.company.user.service.UserCompensationService;
 import shamu.company.user.service.UserRoleService;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.DateUtil;
@@ -60,6 +62,7 @@ import shamu.company.utils.UuidUtil;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -82,12 +85,13 @@ class JobUserServiceTests {
   @Mock private TimeOffPolicyService timeOffPolicyService;
   @Mock private UserAddressRepository userAddressRepository;
   @Mock private UserAddressMapper userAddressMapper;
-  @Mock private TimeSheetService timeSheetService;
+  @Mock private TimePeriodService timePeriodService;
   private final OfficeMapper officeMapper = new OfficeMapperImpl(officeAddressMapper);
   private final JobUserMapper jobUserMapper =
       new JobUserMapperImpl(officeMapper, userCompensationMapper);
   private JobUserService jobUserService;
   private CompensationOvertimeStatusService compensationOvertimeStatusService;
+  @Mock private UserCompensationService userCompensationService;
 
   @BeforeEach
   void setUp() {
@@ -113,7 +117,8 @@ class JobUserServiceTests {
             userAddressMapper,
             timeOffPolicyService,
             compensationOvertimeStatusService,
-            timeSheetService);
+            timePeriodService,
+            userCompensationService);
   }
 
   @Test
@@ -213,6 +218,9 @@ class JobUserServiceTests {
 
     @Test
     void WhenManagerIsNotChanged_thenShouldSuccess() {
+      final UserCompensation userCompensation = new UserCompensation();
+      userCompensation.setStartDate(new Timestamp(new Date().getTime()));
+      jobUser.setUserCompensation(userCompensation);
 
       Mockito.when(userService.findById(user.getId())).thenReturn(user);
       Mockito.when(jobUserRepository.findJobUserByUser(jobUser.getUser())).thenReturn(jobUser);
@@ -222,6 +230,8 @@ class JobUserServiceTests {
       Mockito.when(jobUserRepository.save(jobUser)).thenReturn(jobUser);
       Mockito.when(userService.save(manager)).thenReturn(manager);
       Mockito.when(userService.save(user)).thenReturn(user);
+      Mockito.when(timePeriodService.findUserLatestPeriod(user.getId()))
+          .thenReturn(java.util.Optional.of((new TimePeriod())));
 
       Assertions.assertDoesNotThrow(() -> jobUserService.updateJobInfo("1", jobUpdateDto, "1"));
       Assertions.assertEquals(manager.getUserRole(), user.getManagerUser().getUserRole());
