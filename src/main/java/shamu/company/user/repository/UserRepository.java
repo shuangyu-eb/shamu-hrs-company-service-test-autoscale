@@ -125,10 +125,9 @@ public interface UserRepository extends JpaRepository<User, String>, UserCustomR
 
   @Query(
       value =
-          "select distinct u.* from users u join employees_ta_settings t on u.id = t.employee_id "
-              + "and u.company_id = unhex(?1)",
+          "select distinct u.* from users u join employees_ta_settings t on u.id = t.employee_id ",
       nativeQuery = true)
-  List<User> findAttendanceEnrolledUsersByCompanyId(String companyId);
+  List<User> findAttendanceEnrolledUsers();
 
   @Query(value = FIND_BY_PERIOD_AND_TIME_SHEET_STATUS, nativeQuery = true)
   List<User> findUsersByPeriodIdAndTimeSheetStatus(String periodId, String timeSheetStatus);

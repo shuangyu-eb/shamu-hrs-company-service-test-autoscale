@@ -72,7 +72,6 @@ public class AddPayPeriodJobTests {
       companyTaSetting = new CompanyTaSetting();
       timePeriod = new TimePeriod();
       timePeriod.setEndDate(new Timestamp(new Date().getTime()));
-      company = new Company();
       payrollDetail = new PayrollDetail();
 
       payFrequencyType = new StaticCompanyPayFrequencyType();
@@ -95,7 +94,7 @@ public class AddPayPeriodJobTests {
       Mockito.when(timePeriodService.findCompanyCurrentPeriod()).thenReturn(timePeriod);
       Mockito.when(attendanceSettingsService.findCompanySetting()).thenReturn(companyTaSetting);
       Mockito.when(payPeriodFrequencyService.findById("id")).thenReturn(payFrequencyType);
-      Mockito.when(attendanceSetUpService.getNextPeriod(timePeriod, "WEEKLY", company))
+      Mockito.when(attendanceSetUpService.getNextPeriod(timePeriod, "WEEKLY"))
           .thenReturn(timePeriod);
       Mockito.when(timePeriodService.save(timePeriod)).thenReturn(timePeriod);
       assertThatCode(() -> addPayPeriodJob.executeInternal(jobExecutionContext))

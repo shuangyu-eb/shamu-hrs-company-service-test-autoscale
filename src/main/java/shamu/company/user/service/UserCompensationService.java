@@ -46,8 +46,8 @@ public class UserCompensationService {
         userCompensationRepository.findByUserId(userId));
   }
 
-  public List<UserCompensation> listNewestEnrolledCompensation(final String companyId) {
-    return userCompensationRepository.listNewestEnrolledUserCompensationByCompanyId(companyId);
+  public List<UserCompensation> listNewestEnrolledCompensation() {
+    return userCompensationRepository.listNewestEnrolledUserCompensationByCompanyId();
   }
 
   public boolean existsByUserId(final String userId) {

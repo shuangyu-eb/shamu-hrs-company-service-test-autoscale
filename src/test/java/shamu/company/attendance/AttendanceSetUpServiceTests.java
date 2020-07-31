@@ -199,7 +199,6 @@ public class AttendanceSetUpServiceTests {
     StaticCompanyPayFrequencyType staticCompanyPayFrequencyType =
         new StaticCompanyPayFrequencyType();
     List<EmployeeOvertimeDetailsDto> details = new ArrayList();
-    Company company;
     final StaticTimezone staticTimezone = new StaticTimezone();
     CompanyTaSetting companyTaSetting = new CompanyTaSetting();
     Map<String, String> timezones = new HashMap();
@@ -207,7 +206,6 @@ public class AttendanceSetUpServiceTests {
 
     @BeforeEach
     void init() {
-      company = new Company();
       timeAndAttendanceDetailsDto.setPayDate(new Date());
       timeAndAttendanceDetailsDto.setOvertimeDetails(details);
       timeAndAttendanceDetailsDto.setPeriodStartDate("01/01/2020");
@@ -232,7 +230,6 @@ public class AttendanceSetUpServiceTests {
       Mockito.when(payPeriodFrequencyService.findByName(Mockito.any()))
           .thenReturn(staticCompanyPayFrequencyType);
       Mockito.when(jobUserRepository.findByUserId(employeeId)).thenReturn(jobUser);
-      Mockito.when(companyRepository.findCompanyById(companyId)).thenReturn(new Company());
       Mockito.when(attendanceSettingsService.saveCompanyTaSetting(Mockito.any()))
           .thenReturn(companyTaSetting);
       Mockito.when(attendanceSettingsService.findCompanySettings(companyId))
@@ -265,7 +262,15 @@ public class AttendanceSetUpServiceTests {
           .thenReturn(companyTaSetting);
       Mockito.when(compensationOvertimeStatusRepository.findById(Mockito.any()))
           .thenReturn(Optional.of(new CompensationOvertimeStatus()));
-      Mockito.when(jobUserRepository.findByUserId(Mockito.any())).thenReturn(jobUser);
+
+      final JobUser jobUser = new JobUser();
+      final Office office = new Office();
+      final OfficeAddress officeAddress = new OfficeAddress();
+      officeAddress.setPostalCode("123");
+      office.setOfficeAddress(officeAddress);
+      jobUser.setOffice(office);
+
+      Mockito.when(jobUserRepository.findByUserId(Mockito.anyString())).thenReturn(jobUser);
       Mockito.when(timeSheetService.saveAll(Mockito.any())).thenReturn(Mockito.any());
       Mockito.when(googleMapsHelper.findTimezoneByPostalCode(set)).thenReturn(timezones);
       Mockito.when(staticTimeZoneRepository.findByName("timezone")).thenReturn(staticTimezone);
@@ -317,14 +322,12 @@ public class AttendanceSetUpServiceTests {
     TimePeriod timePeriod;
     String payPeriodFrequency;
     String userId;
-    Company company;
     CompanyTaSetting companyTaSetting;
 
     @BeforeEach
     void init() {
-      company = new Company();
       payPeriodFrequency = "WEEKLY";
-      timePeriod = new TimePeriod(new Date(), new Date(), company);
+      timePeriod = new TimePeriod(new Date(), new Date());
       final StaticTimezone staticTimezone = new StaticTimezone();
       staticTimezone.setName("US/Samoa");
       companyTaSetting = new CompanyTaSetting();
@@ -338,9 +341,7 @@ public class AttendanceSetUpServiceTests {
           .thenReturn(companyTaSetting);
       for (final PayFrequencyType payPeriodFrequency : PayFrequencyType.values()) {
         assertThatCode(
-                () ->
-                    attendanceSetUpService.getNextPeriod(
-                        timePeriod, payPeriodFrequency.name(), company))
+                () -> attendanceSetUpService.getNextPeriod(timePeriod, payPeriodFrequency.name()))
             .doesNotThrowAnyException();
       }
     }
@@ -358,7 +359,7 @@ public class AttendanceSetUpServiceTests {
       Mockito.when(userService.findById(userId)).thenReturn(user);
       Mockito.when(payPeriodFrequencyService.findSetting())
           .thenReturn(Optional.ofNullable(staticCompanyPayFrequencyType));
-      Mockito.when(attendanceSettingsService.findCompanySettings(company.getId()))
+      Mockito.when(attendanceSettingsService.findCompanySettings())
           .thenReturn(companyTaSetting);
       assertThatCode(() -> attendanceSetUpService.findNextPeriodByUser(userId))
           .doesNotThrowAnyException();

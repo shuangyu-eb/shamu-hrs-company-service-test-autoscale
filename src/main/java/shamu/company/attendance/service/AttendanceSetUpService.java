@@ -124,8 +124,6 @@ public class AttendanceSetUpService {
 
   private final PayPeriodFrequencyService payPeriodFrequencyService;
 
-  private final CompanyService companyService;
-
   private final GoogleMapsHelper googleMapsHelper;
 
   private final EmployeesTaSettingsMapper employeesTaSettingsMapper;
@@ -155,7 +153,6 @@ public class AttendanceSetUpService {
       final EmployeesTaSettingRepository employeesTaSettingRepository,
       final UserCompensationMapper userCompensationMapper,
       final PayPeriodFrequencyService payPeriodFrequencyService,
-      final CompanyService companyService,
       final GoogleMapsHelper googleMapsHelper,
       final EmployeesTaSettingsMapper employeesTaSettingsMapper,
       final CompanyTaSettingsMapper companyTaSettingsMapper,
@@ -178,7 +175,6 @@ public class AttendanceSetUpService {
     this.employeesTaSettingRepository = employeesTaSettingRepository;
     this.userCompensationMapper = userCompensationMapper;
     this.payPeriodFrequencyService = payPeriodFrequencyService;
-    this.companyService = companyService;
     this.googleMapsHelper = googleMapsHelper;
     this.employeesTaSettingsMapper = employeesTaSettingsMapper;
     this.companyTaSettingsMapper = companyTaSettingsMapper;
@@ -191,8 +187,8 @@ public class AttendanceSetUpService {
     return attendanceSettingsService.exists();
   }
 
-  public TimeAndAttendanceRelatedUserListDto getRelatedUsers(final String companyId) {
-    final List<User> selectedUsers = userService.listCompanyAttendanceEnrolledUsers(companyId);
+  public TimeAndAttendanceRelatedUserListDto getRelatedUsers() {
+    final List<User> selectedUsers = userService.listCompanyAttendanceEnrolledUsers();
     final List<User> allUsers = userRepository.findAllActiveUsers();
 
     final List<String> selectedUsersIds = new ArrayList<>();
@@ -618,9 +614,9 @@ public class AttendanceSetUpService {
   }
 
   public TimePeriod getNextPeriod(
-      final TimePeriod currentTimePeriod, final String payPeriodFrequency, final Company company) {
+      final TimePeriod currentTimePeriod, final String payPeriodFrequency) {
     final StaticTimezone staticTimezone =
-        attendanceSettingsService.findCompanySettings(company.getId()).getTimeZone();
+        attendanceSettingsService.findCompanySetting().getTimeZone();
     final Calendar currentEndDayOfPeriod =
         getCalendarInstance(currentTimePeriod.getEndDate().getTime(), staticTimezone.getName());
 
@@ -633,7 +629,7 @@ public class AttendanceSetUpService {
     nextPayDate.add(Calendar.DAY_OF_YEAR, -DAYS_PAY_DATE_AFTER_PERIOD);
     final Timestamp periodEndDate = new Timestamp(nextPayDate.getTimeInMillis());
 
-    return new TimePeriod(periodStartDate, periodEndDate, company);
+    return new TimePeriod(periodStartDate, periodEndDate);
   }
 
   private Calendar getCalendarInstance(final long unixTimeStamp, final String timeZoneName) {
@@ -731,8 +727,7 @@ public class AttendanceSetUpService {
     return payFrequencyType
         .map(
             staticCompanyPayFrequencyType ->
-                getNextPeriod(
-                    timePeriod.get(), staticCompanyPayFrequencyType.getName(), user.getCompany()))
+                getNextPeriod(timePeriod.get(), staticCompanyPayFrequencyType.getName()))
         .orElse(null);
   }
 }
