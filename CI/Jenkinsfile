@@ -63,7 +63,7 @@ pipeline {
                 echo '---------------------------------\n' +
                         '      Create artifact         ' +
                         '\n---------------------------------'
-                sh "ansible-playbook shamu-hrs/auto-deploy/ansible/create-project-config-files.yml -e 'workspace=${WORKSPACE} stack_prefix=simplyhired-hrs-eastbay env=dev service_name=company'"
+                sh "ansible-playbook shamu-hrs/auto-deploy/ansible/create-project-config-files.yml -e 'workspace=${WORKSPACE} stack_prefix=simplyhired-hrs-eastbay env=dev service_name=company' --vault-password-file ansible-vault-file"
                 sh "CI/build -e simplyhired-hrs-eastbay-dev -r master"
             }
         }
