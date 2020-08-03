@@ -1,7 +1,5 @@
 package shamu.company.scheduler.job;
 
-import static shamu.company.attendance.entity.StaticTimesheetStatus.TimeSheetStatus;
-
 import java.util.List;
 import java.util.stream.Collectors;
 import org.quartz.JobExecutionContext;
@@ -22,7 +20,9 @@ import shamu.company.user.entity.UserCompensation;
 import shamu.company.user.service.UserCompensationService;
 import shamu.company.utils.JsonUtil;
 
-public class AddPayPeriodAndAutoSubmitHourJob extends QuartzJobBean {
+import static shamu.company.attendance.entity.StaticTimesheetStatus.TimeSheetStatus;
+
+public class AddPayPeriodJob extends QuartzJobBean {
   private final AttendanceSetUpService attendanceSetUpService;
   private final TimePeriodService timePeriodService;
   private final AttendanceSettingsService attendanceSettingsService;
@@ -32,7 +32,7 @@ public class AddPayPeriodAndAutoSubmitHourJob extends QuartzJobBean {
   private final CompanyService companyService;
 
   @Autowired
-  public AddPayPeriodAndAutoSubmitHourJob(
+  public AddPayPeriodJob(
       final AttendanceSetUpService attendanceSetUpService,
       final TimePeriodService timePeriodService,
       final AttendanceSettingsService attendanceSettingsService,

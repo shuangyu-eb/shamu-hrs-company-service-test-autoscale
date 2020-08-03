@@ -33,7 +33,7 @@ import shamu.company.job.entity.mapper.JobUserMapper;
 import shamu.company.job.repository.JobUserRepository;
 import shamu.company.scheduler.QuartzJobScheduler;
 import shamu.company.scheduler.job.ActivateTimeSheetJob;
-import shamu.company.scheduler.job.AddPayPeriodAndAutoSubmitHourJob;
+import shamu.company.scheduler.job.AddPayPeriodJob;
 import shamu.company.timeoff.dto.PaidHolidayDto;
 import shamu.company.timeoff.service.PaidHolidayService;
 import shamu.company.user.entity.CompensationOvertimeStatus;
@@ -250,7 +250,7 @@ public class AttendanceSetUpService {
     final Date executeDate = getEndOfDay(currentPeriodEndDate);
     final Map<String, Object> jobParameter = assembleCompanyIdParameter(companyId);
     quartzJobScheduler.addOrUpdateJobSchedule(
-        AddPayPeriodAndAutoSubmitHourJob.class,
+        AddPayPeriodJob.class,
         "new_period_" + companyId + "_" + executeDate.getTime(),
         jobParameter,
         executeDate);

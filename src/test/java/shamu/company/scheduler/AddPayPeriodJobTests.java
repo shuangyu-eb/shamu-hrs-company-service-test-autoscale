@@ -1,7 +1,5 @@
 package shamu.company.scheduler;
 
-import static org.assertj.core.api.Assertions.assertThatCode;
-
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,12 +20,14 @@ import shamu.company.attendance.service.TimePeriodService;
 import shamu.company.attendance.service.TimeSheetService;
 import shamu.company.company.entity.Company;
 import shamu.company.company.service.CompanyService;
-import shamu.company.scheduler.job.AddPayPeriodAndAutoSubmitHourJob;
+import shamu.company.scheduler.job.AddPayPeriodJob;
 import shamu.company.user.service.UserCompensationService;
 import shamu.company.utils.JsonUtil;
 
-public class AddPayPeriodAndAutoSubmitHourJobTests {
-  private static AddPayPeriodAndAutoSubmitHourJob addPayPeriodAndAutoSubmitHourJob;
+import static org.assertj.core.api.Assertions.assertThatCode;
+
+public class AddPayPeriodJobTests {
+  private static AddPayPeriodJob addPayPeriodJob;
 
   @Mock private AttendanceSetUpService attendanceSetUpService;
   @Mock private TimePeriodService timePeriodService;
@@ -41,8 +41,8 @@ public class AddPayPeriodAndAutoSubmitHourJobTests {
   @BeforeEach
   void init() {
     MockitoAnnotations.initMocks(this);
-    addPayPeriodAndAutoSubmitHourJob =
-        new AddPayPeriodAndAutoSubmitHourJob(
+    addPayPeriodJob =
+        new AddPayPeriodJob(
             attendanceSetUpService,
             timePeriodService,
             attendanceSettingsService,
@@ -86,7 +86,7 @@ public class AddPayPeriodAndAutoSubmitHourJobTests {
       Mockito.when(payPeriodFrequencyService.findById("id")).thenReturn(payFrequencyType);
       Mockito.when(attendanceSetUpService.getNextPeriod(timePeriod, "WEEKLY", company))
           .thenReturn(timePeriod);
-      assertThatCode(() -> addPayPeriodAndAutoSubmitHourJob.executeInternal(jobExecutionContext))
+      assertThatCode(() -> addPayPeriodJob.executeInternal(jobExecutionContext))
           .doesNotThrowAnyException();
     }
   }
