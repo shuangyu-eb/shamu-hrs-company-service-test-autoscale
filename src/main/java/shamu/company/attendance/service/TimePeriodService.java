@@ -1,14 +1,12 @@
 package shamu.company.attendance.service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
-import shamu.company.attendance.dto.TimeSheetPeriodDto;
 import shamu.company.attendance.entity.TimePeriod;
 import shamu.company.attendance.entity.TimeSheetPeriodPojo;
 import shamu.company.attendance.repository.TimePeriodRepository;
+
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class TimePeriodService {
@@ -18,17 +16,12 @@ public class TimePeriodService {
     this.timePeriodRepository = timePeriodRepository;
   }
 
-  public List<TimeSheetPeriodDto> listByUser(final String userId) {
-    final List<TimeSheetPeriodPojo> timePeriods =
-        timePeriodRepository.listTimeSheetPeriodsByUser(userId);
-    final List<TimeSheetPeriodDto> timeSheetPeriodDtoList = new ArrayList<>();
-    timePeriods.forEach(
-        timePeriod -> {
-          final TimeSheetPeriodDto timeSheetPeriodDto = new TimeSheetPeriodDto();
-          BeanUtils.copyProperties(timePeriod, timeSheetPeriodDto);
-          timeSheetPeriodDtoList.add(timeSheetPeriodDto);
-        });
-    return timeSheetPeriodDtoList;
+  public List<TimeSheetPeriodPojo> listByUser(final String userId) {
+    return timePeriodRepository.listTimeSheetPeriodsByUser(userId);
+  }
+
+  public List<TimePeriod> listByCompany(final String companyId) {
+    return timePeriodRepository.findByCompanyId(companyId);
   }
 
   public Optional<TimePeriod> findUserLatestPeriod(final String userId) {

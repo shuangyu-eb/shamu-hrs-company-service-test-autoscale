@@ -1,9 +1,5 @@
 package shamu.company.attendance;
 
-import static org.assertj.core.api.Assertions.assertThatCode;
-
-import java.util.ArrayList;
-import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -15,6 +11,11 @@ import shamu.company.attendance.entity.TimePeriod;
 import shamu.company.attendance.entity.TimeSheetPeriodPojo;
 import shamu.company.attendance.repository.TimePeriodRepository;
 import shamu.company.attendance.service.TimePeriodService;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 public class TimePeriodServiceTests {
 
@@ -32,13 +33,14 @@ public class TimePeriodServiceTests {
 
     String userId;
     String companyId;
-    List<TimeSheetPeriodPojo> timePeriodList;
+    List<TimeSheetPeriodPojo> timeSheetPeriodPojos;
+    List<TimePeriod> timePeriodList;
     TimePeriod timePeriod;
 
     @BeforeEach
     void init() {
       userId = "test_user_id";
-      timePeriodList = new ArrayList<>();
+      timeSheetPeriodPojos = new ArrayList<>();
       companyId = "test_company_id";
       timePeriod = new TimePeriod();
     }
@@ -46,8 +48,14 @@ public class TimePeriodServiceTests {
     @Test
     void whenUserIdValid_shouldSucceed() {
       Mockito.when(timePeriodRepository.listTimeSheetPeriodsByUser(userId))
-          .thenReturn(timePeriodList);
+          .thenReturn(timeSheetPeriodPojos);
       assertThatCode(() -> timePeriodService.listByUser(userId)).doesNotThrowAnyException();
+    }
+
+    @Test
+    void whenCompanyIdValid_shouldSucceed() {
+      Mockito.when(timePeriodRepository.findByCompanyId(companyId)).thenReturn(timePeriodList);
+      assertThatCode(() -> timePeriodService.listByCompany(companyId)).doesNotThrowAnyException();
     }
 
     @Test
@@ -59,7 +67,7 @@ public class TimePeriodServiceTests {
     }
 
     @Test
-    void whenCompanyIdValid_shouldSucceed() {
+    void whenCompanyIdValid_findCurrentPeriod_shouldSucceed() {
       Mockito.when(timePeriodRepository.findCompanyNewestPeriod(companyId)).thenReturn(timePeriod);
       assertThatCode(() -> timePeriodService.findCompanyCurrentPeriod(companyId))
           .doesNotThrowAnyException();

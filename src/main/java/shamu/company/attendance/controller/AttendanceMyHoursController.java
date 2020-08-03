@@ -1,6 +1,5 @@
 package shamu.company.attendance.controller;
 
-import java.util.List;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -18,6 +17,9 @@ import shamu.company.attendance.service.TimePeriodService;
 import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.employee.dto.CompensationDto;
+import shamu.company.utils.ReflectionUtil;
+
+import java.util.List;
 
 @RestApiController
 public class AttendanceMyHoursController extends BaseRestController {
@@ -63,7 +65,13 @@ public class AttendanceMyHoursController extends BaseRestController {
 
   @GetMapping("time-and-attendance/time-periods/{userId}")
   public List<TimeSheetPeriodDto> findTimePeriodsByUser(@PathVariable final String userId) {
-    return timePeriodService.listByUser(userId);
+    return ReflectionUtil.convertTo(timePeriodService.listByUser(userId), TimeSheetPeriodDto.class);
+  }
+
+  @GetMapping("time-and-attendance/time-periods")
+  public List<TimeSheetPeriodDto> findTimePeriodsByCompany() {
+    return ReflectionUtil.convertTo(
+        timePeriodService.listByCompany(findCompanyId()), TimeSheetPeriodDto.class);
   }
 
   @GetMapping("time-and-attendance/{userId}/next-time-period")
