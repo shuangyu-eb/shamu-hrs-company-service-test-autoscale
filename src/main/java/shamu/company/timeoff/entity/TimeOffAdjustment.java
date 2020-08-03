@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
+import shamu.company.common.entity.BaseEntity;
 import shamu.company.company.entity.Company;
 import shamu.company.user.entity.User;
 
@@ -23,7 +24,7 @@ import shamu.company.user.entity.User;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor
-public class TimeOffAdjustment {
+public class TimeOffAdjustment extends BaseEntity {
 
   @Id
   @GeneratedValue(generator = "UUID")
