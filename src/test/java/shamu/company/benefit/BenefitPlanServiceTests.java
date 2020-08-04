@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -30,6 +31,8 @@ import shamu.company.benefit.dto.BenefitPlanDependentUserDto;
 import shamu.company.benefit.dto.BenefitPlanDto;
 import shamu.company.benefit.dto.BenefitPlanReportDto;
 import shamu.company.benefit.dto.BenefitPlanSearchCondition;
+import shamu.company.benefit.dto.BenefitPlanTypeDto;
+import shamu.company.benefit.dto.BenefitPlanTypeWithoutExpiredDto;
 import shamu.company.benefit.dto.BenefitPlanUpdateDto;
 import shamu.company.benefit.dto.BenefitPlanUserCreateDto;
 import shamu.company.benefit.dto.BenefitPlanUserDto;
@@ -275,6 +278,36 @@ class BenefitPlanServiceTests {
       benefitPlanService.findEnrollmentBreakdownToExport(benefitReportParamDto, planIds);
       Mockito.verify(benefitPlanRepository, Mockito.times(1))
           .getEnrollmentBreakdown(Mockito.anyList(), Mockito.anyList());
+    }
+  }
+
+  @Nested
+  class getBenefitPlanTypesAndNum {
+
+    @Test
+    void getBenefitPlanTypesAndNum() {
+      final String companyId = "123";
+      final List<BenefitPlanTypeDto> benefitPlanTypeDto = new ArrayList<>();
+      final BenefitPlanTypeDto benefitPlanTypeDto1 =
+          new BenefitPlanTypeDto("Medical", "Medical", new Date());
+      final BenefitPlanTypeDto benefitPlanTypeDto2 =
+          new BenefitPlanTypeDto("Vision", "Vision", new Date());
+      final BenefitPlanTypeDto benefitPlanTypeDto3 =
+          new BenefitPlanTypeDto("Dental", "Dental", new Date());
+      final BenefitPlanTypeDto benefitPlanTypeDto4 =
+          new BenefitPlanTypeDto("Retirement", "Retirement", new Date());
+      final BenefitPlanTypeDto benefitPlanTypeDto5 =
+          new BenefitPlanTypeDto("Other", "Other", new Date());
+      benefitPlanTypeDto.add(benefitPlanTypeDto1);
+      benefitPlanTypeDto.add(benefitPlanTypeDto2);
+      benefitPlanTypeDto.add(benefitPlanTypeDto3);
+      benefitPlanTypeDto.add(benefitPlanTypeDto4);
+      benefitPlanTypeDto.add(benefitPlanTypeDto5);
+      Mockito.when(benefitPlanRepository.findPlanTypeAndNumByCompanyIdOrderByTypeId(companyId))
+          .thenReturn(benefitPlanTypeDto);
+      final List<BenefitPlanTypeWithoutExpiredDto> results =
+          benefitPlanService.getBenefitPlanTypesAndNum(companyId);
+      assertThat(results.size()).isEqualTo(5);
     }
   }
 
@@ -1393,7 +1426,8 @@ class BenefitPlanServiceTests {
 
     @Test
     void whenFindAllEmployees_thenShouldSuccess() {
-      Mockito.when(userMapper.covertToBenefitPlanUserDto(Mockito.any())).thenReturn(benefitPlanUserDto);
+      Mockito.when(userMapper.covertToBenefitPlanUserDto(Mockito.any()))
+          .thenReturn(benefitPlanUserDto);
       Mockito.when(benefitPlanUserMapper.convertToBenefitPlanUserDto(benefitPlanUser))
           .thenReturn(benefitPlanUserDto);
       Mockito.when(userRepository.findAllByCompanyId(companyId)).thenReturn(users);
@@ -1483,9 +1517,11 @@ class BenefitPlanServiceTests {
 
     @Test
     void findPlansWhenPlanIdIsNull_thenShouldSuccess() {
-      Mockito.when(benefitCoveragesRepository.findAllByBenefitPlanIdIsNullOrderByRefIdAsc()).thenReturn(coverages);
+      Mockito.when(benefitCoveragesRepository.findAllByBenefitPlanIdIsNullOrderByRefIdAsc())
+          .thenReturn(coverages);
       benefitPlanService.findAllByBenefitPlanIdIsNullOrderByRefIdAsc();
-      Mockito.verify(benefitCoveragesRepository, Mockito.times(1)).findAllByBenefitPlanIdIsNullOrderByRefIdAsc();
+      Mockito.verify(benefitCoveragesRepository, Mockito.times(1))
+          .findAllByBenefitPlanIdIsNullOrderByRefIdAsc();
     }
   }
 }

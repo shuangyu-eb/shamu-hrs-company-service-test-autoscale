@@ -23,7 +23,7 @@ import shamu.company.benefit.dto.BenefitPlanPreviewDto;
 import shamu.company.benefit.dto.BenefitPlanRelatedUserListDto;
 import shamu.company.benefit.dto.BenefitPlanReportDto;
 import shamu.company.benefit.dto.BenefitPlanSearchCondition;
-import shamu.company.benefit.dto.BenefitPlanTypeDto;
+import shamu.company.benefit.dto.BenefitPlanTypeWithoutExpiredDto;
 import shamu.company.benefit.dto.BenefitPlanUpdateDto;
 import shamu.company.benefit.dto.BenefitPlanUserCreateDto;
 import shamu.company.benefit.dto.BenefitReportParamDto;
@@ -108,7 +108,7 @@ public class BenefitPlanRestController extends BaseRestController {
 
   @GetMapping("benefit-plan-types")
   @PreAuthorize("hasAuthority('MANAGE_BENEFIT_PLAN')")
-  public List<BenefitPlanTypeDto> getBenefitPlanTypes() {
+  public List<BenefitPlanTypeWithoutExpiredDto> getBenefitPlanTypes() {
     return benefitPlanService.getBenefitPlanTypesAndNum(findCompanyId());
   }
 
@@ -194,7 +194,7 @@ public class BenefitPlanRestController extends BaseRestController {
 
   @GetMapping("users/benefit-plans/{employeeId}/has-confirmation")
   @PreAuthorize("hasAuthority('MANAGE_BENEFIT_PLAN')")
-  public boolean hasConfirmation(@PathVariable String employeeId) {
+  public boolean hasConfirmation(@PathVariable final String employeeId) {
     return benefitPlanService.isConfirmed(employeeId);
   }
 

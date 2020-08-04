@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +38,7 @@ import shamu.company.benefit.dto.BenefitPlanReportSummaryDto;
 import shamu.company.benefit.dto.BenefitPlanSearchCondition;
 import shamu.company.benefit.dto.BenefitPlanTypeDto;
 import shamu.company.benefit.dto.BenefitPlanTypeEnum;
+import shamu.company.benefit.dto.BenefitPlanTypeWithoutExpiredDto;
 import shamu.company.benefit.dto.BenefitPlanUpdateDto;
 import shamu.company.benefit.dto.BenefitPlanUserCreateDto;
 import shamu.company.benefit.dto.BenefitPlanUserDto;
@@ -57,6 +59,7 @@ import shamu.company.benefit.entity.BenefitPlanDependent;
 import shamu.company.benefit.entity.BenefitPlanDocument;
 import shamu.company.benefit.entity.BenefitPlanPreviewPojo;
 import shamu.company.benefit.entity.BenefitPlanType;
+import shamu.company.benefit.entity.BenefitPlanType.PlanType;
 import shamu.company.benefit.entity.BenefitPlanUser;
 import shamu.company.benefit.entity.BenefitReportPlansPojo;
 import shamu.company.benefit.entity.EnrollmentBreakdownPojo;
@@ -90,6 +93,7 @@ import shamu.company.user.entity.mapper.UserMapper;
 import shamu.company.user.repository.UserRepository;
 import shamu.company.user.service.UserBenefitsSettingService;
 import shamu.company.user.service.UserService;
+import shamu.company.utils.DateUtil;
 
 @Service
 public class BenefitPlanService {
@@ -449,8 +453,50 @@ public class BenefitPlanService {
     benefitPlanRepository.save(benefitPlan);
   }
 
-  public List<BenefitPlanTypeDto> getBenefitPlanTypesAndNum(final String companyId) {
-    return benefitPlanRepository.findPlanTypeAndNumByCompanyIdOrderByTypeId(companyId);
+  public List<BenefitPlanTypeWithoutExpiredDto> getBenefitPlanTypesAndNum(final String companyId) {
+    final List<BenefitPlanTypeDto> benefitPlanTypes =
+        benefitPlanRepository.findPlanTypeAndNumByCompanyIdOrderByTypeId(companyId);
+
+    final Map<String, List<BenefitPlanTypeDto>> categoryMap = new HashMap<>();
+    for (final BenefitPlanTypeDto benefitPlanTypeDto : benefitPlanTypes) {
+      categoryMap
+          .computeIfAbsent(benefitPlanTypeDto.getBenefitPlanType(), k -> generateList())
+          .add(benefitPlanTypeDto);
+    }
+
+    final List<BenefitPlanTypeWithoutExpiredDto> result = new ArrayList<>();
+
+    final List<String> orderKey = new ArrayList<>();
+    orderKey.add(PlanType.MEDICAL.getValue());
+    orderKey.add(PlanType.DENTAL.getValue());
+    orderKey.add(PlanType.VISION.getValue());
+    orderKey.add(PlanType.RETIREMENT.getValue());
+    orderKey.add(PlanType.MEDICAL.getValue());
+
+    for (final String key : orderKey) {
+      int excludedNumber = 0;
+      String benefitPlanTypeId = null;
+      for (final BenefitPlanTypeDto benefitPlanTypeDto : categoryMap.get(key)) {
+        benefitPlanTypeId = benefitPlanTypeDto.getBenefitPlanTypeId();
+        if (benefitPlanTypeDto.getBenefitPlanEndDate() == null
+            || DateUtil.toLocalDateTime(benefitPlanTypeDto.getBenefitPlanEndDate())
+                    .compareTo(DateUtil.getLocalUtcTime().minusDays(1))
+                <= 0) {
+          excludedNumber++;
+        }
+      }
+
+      if (benefitPlanTypeId != null) {
+        result.add(
+            new BenefitPlanTypeWithoutExpiredDto(
+                benefitPlanTypeId, key, categoryMap.get(key).size() - excludedNumber));
+      }
+    }
+    return result;
+  }
+
+  private List<BenefitPlanTypeDto> generateList() {
+    return new ArrayList<>();
   }
 
   public List<BenefitPlanPreviewDto> getBenefitPlanPreview(
