@@ -1,4 +1,4 @@
-package shamu.company.common.multitenant;
+package shamu.company.common.config;
 
 import java.lang.reflect.Field;
 import java.util.Map;

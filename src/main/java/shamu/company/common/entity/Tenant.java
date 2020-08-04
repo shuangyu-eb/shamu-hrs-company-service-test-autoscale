@@ -20,8 +20,6 @@ import org.hibernate.validator.constraints.Length;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Tenant extends BaseEntity {
 
-  private static final long serialVersionUID = -2712937581770881563L;
-
   @Length(max = 244)
   private String name;
 
@@ -36,4 +34,6 @@ public class Tenant extends BaseEntity {
 
   @Type(type = "shamu.company.common.PrimaryKeyTypeDescriptor")
   private String companyId;
+
+  private static final long serialVersionUID = -2712937581770881563L;
 }

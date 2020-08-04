@@ -5,7 +5,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import shamu.company.common.database.DataSourceConfig;
+import shamu.company.common.config.DataSourceConfig;
 import shamu.company.common.entity.Tenant;
 import shamu.company.common.exception.errormapping.ResourceNotFoundException;
 import shamu.company.common.repository.TenantRepository;

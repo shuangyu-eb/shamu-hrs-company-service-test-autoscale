@@ -1,4 +1,4 @@
-package shamu.company.common.database;
+package shamu.company.common.config;
 
 import com.zaxxer.hikari.HikariDataSource;
 import javax.sql.DataSource;
@@ -6,6 +6,10 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * Make 'spring.datasource' configuration dynamic in order to support schema switch to the relevant
+ * tenant.
+ */
 @ConfigurationProperties(prefix = "spring.datasource")
 @Configuration
 @Data

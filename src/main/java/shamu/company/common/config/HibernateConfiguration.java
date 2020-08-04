@@ -1,4 +1,4 @@
-package shamu.company.common.multitenant;
+package shamu.company.common.config;
 
 import static org.hibernate.cfg.AvailableSettings.DIALECT;
 import static org.hibernate.cfg.AvailableSettings.IMPLICIT_NAMING_STRATEGY;
@@ -24,6 +24,13 @@ import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 
+/**
+ * Set the MultiTenancyStrategy as SCHEMA and override the connection provider and Tenant Identifier
+ * Resolver.
+ *
+ * <p>We're adapting the "Shared Database, Separate Schema" strategy mentioned here:
+ * https://medium.com/swlh/multi-tenancy-implementation-using-spring-boot-hibernate-6a8e3ecb251a
+ */
 @Configuration
 public class HibernateConfiguration {
 

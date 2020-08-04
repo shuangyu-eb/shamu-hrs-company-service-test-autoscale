@@ -20,6 +20,8 @@ public class TenantInterceptor extends HandlerInterceptorAdapter {
 
   private final TenantService tenantService;
 
+  private static final String AUTH_HEADER = "Authorization";
+
   public TenantInterceptor(
       final JwtDecoder decoder,
       final @Value("${auth0.customNamespace}") String customNamespace,
@@ -32,19 +34,13 @@ public class TenantInterceptor extends HandlerInterceptorAdapter {
   @Override
   public boolean preHandle(
       final HttpServletRequest request, final HttpServletResponse response, final Object handler) {
-    String bearerToken = request.getHeader("Authorization");
+    final String bearerToken = request.getHeader(AUTH_HEADER);
 
     if (StringUtils.isBlank(bearerToken)) {
       return true;
     }
 
-    String companyId = request.getHeader("X-Mock-Company");
-
-    bearerToken = bearerToken.replace("Bearer", "").replace(" ", "");
-
-    if (StringUtils.isEmpty(companyId)) {
-      companyId = getCompanyIdFromToken(bearerToken).toUpperCase();
-    }
+    final String companyId = getCompanyIdFromRequest(request);
 
     if (StringUtils.isEmpty(companyId) || !tenantService.isCompanyExists(companyId)) {
       return false;
@@ -52,6 +48,16 @@ public class TenantInterceptor extends HandlerInterceptorAdapter {
 
     TenantContext.setCurrentTenant(companyId);
     return true;
+  }
+
+  private String getCompanyIdFromRequest(final HttpServletRequest request) {
+    String bearerToken = request.getHeader(AUTH_HEADER);
+    String companyId = request.getHeader("X-Mock-Company");
+    bearerToken = bearerToken.replace("Bearer", "").replace(" ", "");
+    if (StringUtils.isEmpty(companyId)) {
+      companyId = getCompanyIdFromToken(bearerToken).toUpperCase();
+    }
+    return companyId;
   }
 
   @Override

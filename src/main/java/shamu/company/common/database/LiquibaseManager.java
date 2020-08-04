@@ -9,8 +9,9 @@ import liquibase.integration.spring.SpringLiquibase;
 import org.springframework.boot.autoconfigure.liquibase.LiquibaseProperties;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
+import shamu.company.common.config.DataSourceConfig;
 import shamu.company.common.entity.Tenant;
-import shamu.company.common.exception.CustomLiquibaseException;
+import shamu.company.common.exception.LiquibaseExecuteFailedException;
 import shamu.company.common.multitenant.TenantContext;
 import shamu.company.common.service.TenantService;
 import shamu.company.company.entity.Company;
@@ -56,9 +57,9 @@ public class LiquibaseManager {
       setUpDefaultSchema();
       setUpTenantsSchemas();
     } catch (final LiquibaseException e) {
-      throw new CustomLiquibaseException("Error while running liquibase scripts.", e);
+      throw new LiquibaseExecuteFailedException("Error while running liquibase scripts.", e);
     } catch (final SQLException e) {
-      throw new CustomLiquibaseException("Error while closing datasource.", e);
+      throw new LiquibaseExecuteFailedException("Error while closing datasource.", e);
     }
   }
 
@@ -110,7 +111,7 @@ public class LiquibaseManager {
       liquibase.getDataSource().unwrap(HikariDataSource.class).close();
       statesProvincesInitializer.run();
     } catch (final LiquibaseException | SQLException e) {
-      throw new CustomLiquibaseException("Error while running liquibase scripts.", e);
+      throw new LiquibaseExecuteFailedException("Error while running liquibase scripts.", e);
     }
   }
 }

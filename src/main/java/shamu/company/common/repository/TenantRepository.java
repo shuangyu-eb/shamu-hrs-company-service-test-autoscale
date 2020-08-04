@@ -14,9 +14,9 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 import org.springframework.stereotype.Repository;
-import shamu.company.common.database.DataSourceConfig;
+import shamu.company.common.config.DataSourceConfig;
 import shamu.company.common.entity.Tenant;
-import shamu.company.common.exception.CustomLiquibaseException;
+import shamu.company.common.exception.LiquibaseExecuteFailedException;
 import shamu.company.helpers.DatabaseSessionHelper;
 import shamu.company.utils.UuidUtil;
 
@@ -150,7 +150,7 @@ public class TenantRepository {
         statement.execute(sql);
       }
     } catch (final SQLException e) {
-      throw new CustomLiquibaseException("Error while dropping database", e);
+      throw new LiquibaseExecuteFailedException("Error while dropping database", e);
     }
   }
 }

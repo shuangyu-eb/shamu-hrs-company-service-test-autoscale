@@ -6,16 +6,16 @@ import javax.sql.DataSource;
 import org.hibernate.engine.jdbc.connections.spi.MultiTenantConnectionProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import shamu.company.common.database.DataSourceConfig;
+import shamu.company.common.config.DataSourceConfig;
 
 @Component
 public class TenantConnectionProvider implements MultiTenantConnectionProvider {
 
-  private static final long serialVersionUID = 7629057995597724761L;
-
   private final transient DataSource defaultDataSource;
 
   private final transient DataSourceConfig dataSourceConfig;
+
+  private static final long serialVersionUID = 7629057995597724761L;
 
   @Autowired
   public TenantConnectionProvider(

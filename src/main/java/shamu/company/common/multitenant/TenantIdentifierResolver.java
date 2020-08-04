@@ -3,7 +3,7 @@ package shamu.company.common.multitenant;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.context.spi.CurrentTenantIdentifierResolver;
 import org.springframework.stereotype.Component;
-import shamu.company.common.database.DataSourceConfig;
+import shamu.company.common.config.DataSourceConfig;
 
 @Component
 public class TenantIdentifierResolver implements CurrentTenantIdentifierResolver {

@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import shamu.company.common.database.DataSourceConfig;
+import shamu.company.common.config.DataSourceConfig;
 import shamu.company.common.entity.Tenant;
 import shamu.company.common.exception.errormapping.ResourceNotFoundException;
 import shamu.company.common.repository.TenantRepository;

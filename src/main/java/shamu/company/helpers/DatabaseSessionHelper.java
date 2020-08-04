@@ -4,7 +4,7 @@ import javax.persistence.EntityManagerFactory;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Component;
-import shamu.company.common.database.DataSourceConfig;
+import shamu.company.common.config.DataSourceConfig;
 
 @Component
 public class DatabaseSessionHelper {

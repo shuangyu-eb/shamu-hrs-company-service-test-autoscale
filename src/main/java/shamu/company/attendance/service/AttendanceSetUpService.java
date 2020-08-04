@@ -26,6 +26,7 @@ import shamu.company.attendance.exception.ParseDateException;
 import shamu.company.attendance.repository.EmployeesTaSettingRepository;
 import shamu.company.attendance.repository.StaticTimeZoneRepository;
 import shamu.company.attendance.repository.StaticTimesheetStatusRepository;
+import shamu.company.attendance.repository.TimePeriodRepository;
 import shamu.company.common.entity.PayrollDetail;
 import shamu.company.common.service.PayrollDetailService;
 import shamu.company.company.entity.Company;

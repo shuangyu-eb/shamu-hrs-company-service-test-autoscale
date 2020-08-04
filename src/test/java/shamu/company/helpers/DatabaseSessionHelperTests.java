@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import shamu.company.common.database.DataSourceConfig;
+import shamu.company.common.config.DataSourceConfig;
 import shamu.company.utils.UuidUtil;
 
 public class DatabaseSessionHelperTests {

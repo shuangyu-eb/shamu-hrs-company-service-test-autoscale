@@ -10,6 +10,7 @@ import org.mockito.MockitoAnnotations;
 import org.powermock.reflect.Whitebox;
 import org.springframework.boot.autoconfigure.liquibase.LiquibaseProperties;
 import org.springframework.core.io.ResourceLoader;
+import shamu.company.common.config.DataSourceConfig;
 import shamu.company.common.entity.Tenant;
 import shamu.company.common.service.TenantService;
 import shamu.company.company.service.CompanyService;
