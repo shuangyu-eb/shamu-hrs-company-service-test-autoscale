@@ -318,8 +318,9 @@ public class EmailService {
 
   public void sendEmailToOtherAdminsWhenNewOneAdded(
       final String promotedEmployeeId, final String currentUserId, final String companyId) {
+    final User promotedEmployee = userService.findById(promotedEmployeeId);
     final String promotedEmployeeName =
-        userService.findById(promotedEmployeeId).getUserPersonalInformation().getName();
+        promotedEmployee.getUserPersonalInformation().getName();
     final String currentUserName = userService.getCurrentUserInfo(currentUserId).getName();
 
     final Context context = new Context();
@@ -339,6 +340,7 @@ public class EmailService {
     final List<User> superAdmins =
         userService.findUsersByCompanyIdAndUserRole(companyId, Role.SUPER_ADMIN.getValue());
     admins.addAll(superAdmins);
+    admins.remove(promotedEmployee);
     final String fromName = systemEmailFirstName + "-" + systemEmailLastName;
 
     admins.forEach(
