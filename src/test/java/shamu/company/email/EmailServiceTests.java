@@ -17,7 +17,6 @@ import shamu.company.email.entity.Email;
 import shamu.company.email.event.EmailEvent;
 import shamu.company.email.event.EmailStatus;
 import shamu.company.email.repository.EmailRepository;
-import shamu.company.email.repository.EmailTaskRepository;
 import shamu.company.email.service.EmailService;
 import shamu.company.helpers.s3.AwsHelper;
 import shamu.company.scheduler.QuartzJobScheduler;
@@ -60,8 +59,6 @@ class EmailServiceTests {
 
   @Mock private CompanyService companyService;
 
-  @Mock private EmailTaskRepository emailTaskRepository;
-
   @Mock private TenantService tenantService;
 
   @BeforeEach
@@ -77,7 +74,6 @@ class EmailServiceTests {
             awsHelper,
             quartzJobScheduler,
             companyService,
-            emailTaskRepository,
             tenantService);
     email = new Email();
   }
@@ -362,20 +358,6 @@ class EmailServiceTests {
         .thenReturn(superAdmins);
     Whitebox.invokeMethod(
         emailService, "sendEmailToOtherAdminsWhenNewOneAdded", promotedEmployeeId, currentUserId);
-  }
-
-  @Nested
-  class findAllUnfinishedTasks {
-    @Test
-    void whenFindAllUnfinishedTasks_thenShouldSuccess() {
-      final Set<String> schemas = new LinkedHashSet<>();
-      schemas.add("mockSchema");
-      Mockito.when(tenantService.findAllSchemaNames()).thenReturn(schemas);
-
-      emailService.findAllUnfinishedTasks();
-      Mockito.verify(emailTaskRepository, Mockito.times(1))
-          .findAllUnfinishedTasks(Mockito.anyString(), Mockito.anyInt());
-    }
   }
 
   @Nested

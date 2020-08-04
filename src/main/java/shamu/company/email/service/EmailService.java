@@ -120,8 +120,6 @@ public class EmailService {
 
   private final QuartzJobScheduler quartzJobScheduler;
 
-  private final EmailTaskRepository emailTaskRepository;
-
   private final TenantService tenantService;
 
   private static final String CURRENT_YEAR = "currentYear";
@@ -139,7 +137,6 @@ public class EmailService {
       final AwsHelper awsHelper,
       final QuartzJobScheduler quartzJobScheduler,
       final CompanyService companyService,
-      final EmailTaskRepository emailTaskRepository,
       final TenantService tenantService) {
     this.emailRepository = emailRepository;
     this.emailRetryLimit = emailRetryLimit;
@@ -148,7 +145,6 @@ public class EmailService {
     this.awsHelper = awsHelper;
     this.quartzJobScheduler = quartzJobScheduler;
     this.companyService = companyService;
-    this.emailTaskRepository = emailTaskRepository;
     this.tenantService = tenantService;
   }
 
@@ -169,21 +165,13 @@ public class EmailService {
                     String.format("Email with id %s not found!", emailId), emailId, "email"));
   }
 
-  public List<Email> findAllUnfinishedTasks() {
-    final Set<String> schemas = tenantService.findAllSchemaNames();
-    final List<Email> tasks = new ArrayList<>();
-    schemas.forEach(
-        schema -> {
-          final List<Email> emails =
-              emailTaskRepository.findAllUnfinishedTasks(schema, emailRetryLimit);
-          tasks.addAll(emails);
-        });
-
-    return tasks;
-  }
-
   private void scheduleEmail(final Email email) {
-    final Timestamp sendDate = email.getSendDate();
+    Timestamp sendDate = email.getSendDate();
+    if (sendDate == null) {
+      sendDate = Timestamp.valueOf(LocalDateTime.now());
+    }
+    final String messageId = UuidUtil.getUuidString();
+    email.setMessageId(messageId);
     final Map<String, Object> jobParameter = new HashMap<>();
     jobParameter.put("emailId", email.getId());
     jobParameter.put(COMPANY_ID, TenantContext.getCurrentTenant());
