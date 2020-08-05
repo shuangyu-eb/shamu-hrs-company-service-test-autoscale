@@ -647,3 +647,14 @@ databaseChangeLog:
                   constraints:
                     nullable: false
             tableName: company_ta_settings
+
+  - changeSet:
+      id: 1596442248317
+      author: jiansheng-eb
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: update_at
+                  type: datetime
+            tableName: time_off_adjustments

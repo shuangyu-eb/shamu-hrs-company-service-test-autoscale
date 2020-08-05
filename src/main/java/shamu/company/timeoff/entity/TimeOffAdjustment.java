@@ -15,7 +15,6 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 import shamu.company.common.entity.BaseEntity;
-import shamu.company.company.entity.Company;
 import shamu.company.user.entity.User;
 
 @Data
@@ -45,11 +44,13 @@ public class TimeOffAdjustment extends BaseEntity {
 
   private String comment;
 
+  private static final long serialVersionUID = -4788343620604284956L;
+
   public TimeOffAdjustment(
       final TimeOffPolicyUser user, final TimeOffPolicy enrollPolicy, final User currentUser) {
     this.user = user.getUser();
-    this.timeOffPolicy = enrollPolicy;
-    this.adjusterUserId = currentUser.getId();
-    this.amount = user.getInitialBalance();
+    timeOffPolicy = enrollPolicy;
+    adjusterUserId = currentUser.getId();
+    amount = user.getInitialBalance();
   }
 }

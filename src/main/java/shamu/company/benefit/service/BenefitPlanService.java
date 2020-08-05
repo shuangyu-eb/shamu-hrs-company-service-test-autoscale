@@ -452,7 +452,7 @@ public class BenefitPlanService {
 
   public List<BenefitPlanTypeWithoutExpiredDto> getBenefitPlanTypesAndNum() {
     final List<BenefitPlanTypeDto> benefitPlanTypes =
-        benefitPlanRepository.findPlanTypeAndNumByCompanyIdOrderByTypeId();
+        benefitPlanRepository.findPlanTypeAndNumOrderByTypeId();
 
     final Map<String, List<BenefitPlanTypeDto>> categoryMap = new HashMap<>();
     for (final BenefitPlanTypeDto benefitPlanTypeDto : benefitPlanTypes) {

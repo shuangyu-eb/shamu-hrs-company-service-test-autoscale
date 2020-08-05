@@ -302,10 +302,10 @@ class BenefitPlanServiceTests {
       benefitPlanTypeDto.add(benefitPlanTypeDto3);
       benefitPlanTypeDto.add(benefitPlanTypeDto4);
       benefitPlanTypeDto.add(benefitPlanTypeDto5);
-      Mockito.when(benefitPlanRepository.findPlanTypeAndNumByCompanyIdOrderByTypeId(companyId))
+      Mockito.when(benefitPlanRepository.findPlanTypeAndNumOrderByTypeId())
           .thenReturn(benefitPlanTypeDto);
       final List<BenefitPlanTypeWithoutExpiredDto> results =
-          benefitPlanService.getBenefitPlanTypesAndNum(companyId);
+          benefitPlanService.getBenefitPlanTypesAndNum();
       assertThat(results.size()).isEqualTo(5);
     }
   }
