@@ -1,10 +1,5 @@
 package shamu.company.attendance.controller;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.BDDMockito.given;
-
-import java.util.ArrayList;
-import java.util.List;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -21,8 +16,15 @@ import shamu.company.WebControllerBaseTests;
 import shamu.company.attendance.dto.AttendanceTeamHoursDto;
 import shamu.company.attendance.dto.TeamHoursPageInfoDto;
 import shamu.company.attendance.service.AttendanceTeamHoursService;
+import shamu.company.attendance.service.TimePeriodService;
 import shamu.company.tests.utils.JwtUtil;
 import shamu.company.utils.UuidUtil;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
 
 @WebMvcTest(controllers = AttendanceTeamHoursController.class)
 class AttendanceTeamHoursControllerTests extends WebControllerBaseTests {
@@ -30,6 +32,8 @@ class AttendanceTeamHoursControllerTests extends WebControllerBaseTests {
   @Autowired private MockMvc mockMvc;
 
   @MockBean private AttendanceTeamHoursService attendanceTeamHoursService;
+
+  @MockBean private TimePeriodService timePeriodService;
 
   @Nested
   class findAttendanceTeamPendingHours {
@@ -103,6 +107,21 @@ class AttendanceTeamHoursControllerTests extends WebControllerBaseTests {
             .perform(
                 MockMvcRequestBuilders.get(
                         "/company/time-and-attendance/team-hours/total-time-off/1")
+                    .headers(httpHeaders))
+            .andReturn();
+
+    assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+  }
+
+  @Test
+  void testFindTimePeriodsByCompany() throws Exception {
+    final HttpHeaders httpHeaders = new HttpHeaders();
+    httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.get("/company/time-and-attendance/time-periods")
                     .headers(httpHeaders))
             .andReturn();
 

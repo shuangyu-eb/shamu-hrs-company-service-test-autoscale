@@ -68,12 +68,6 @@ public class AttendanceMyHoursController extends BaseRestController {
     return ReflectionUtil.convertTo(timePeriodService.listByUser(userId), TimeSheetPeriodDto.class);
   }
 
-  @GetMapping("time-and-attendance/time-periods")
-  public List<TimeSheetPeriodDto> findTimePeriodsByCompany() {
-    return ReflectionUtil.convertTo(
-        timePeriodService.listByCompany(findCompanyId()), TimeSheetPeriodDto.class);
-  }
-
   @GetMapping("time-and-attendance/{userId}/next-time-period")
   public TimePeriod findNextTimePeriodByUser(@PathVariable final String userId) {
     return attendanceSetUpService.findNextPeriodByUser(userId);

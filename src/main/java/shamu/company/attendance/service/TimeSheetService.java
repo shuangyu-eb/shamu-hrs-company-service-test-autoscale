@@ -1,6 +1,5 @@
 package shamu.company.attendance.service;
 
-import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -10,6 +9,8 @@ import shamu.company.attendance.entity.TimeSheet;
 import shamu.company.attendance.repository.StaticTimesheetStatusRepository;
 import shamu.company.attendance.repository.TimeSheetRepository;
 import shamu.company.common.exception.errormapping.ResourceNotFoundException;
+
+import java.util.List;
 
 @Service
 public class TimeSheetService {
@@ -48,22 +49,22 @@ public class TimeSheetService {
   }
 
   public Page<TimeSheet> findTeamTimeSheetsByIdAndCompanyIdAndStatus(
-      final String timesheetId,
+      final String timePeriodId,
       final String companyId,
       final TimeSheetStatus timeSheetStatus,
       final String userId,
       final Pageable pageable) {
     return timeSheetRepository.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
-        timesheetId, companyId, timeSheetStatus.getValue(), userId, pageable);
+        timePeriodId, companyId, timeSheetStatus.getValue(), userId, pageable);
   }
 
   public List<TimeSheet> findTimeSheetsByIdAndCompanyIdAndStatus(
       final String userId,
-      final String timesheetId,
+      final String timePeriodId,
       final String companyId,
       final List<String> timeSheetStatus) {
     return timeSheetRepository.findTimeSheetsByIdAndCompanyIdAndStatus(
-        timesheetId, companyId, timeSheetStatus, userId);
+        timePeriodId, companyId, timeSheetStatus, userId);
   }
 
   public void updateTimesheetStatus(final String statusId, final String timesheetId) {
