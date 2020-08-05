@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import net.minidev.json.JSONArray;
 import org.apache.commons.lang.RandomStringUtils;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,6 +17,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+import shamu.company.authorization.Permission;
 import shamu.company.common.service.TenantService;
 import shamu.company.utils.UuidUtil;
 
@@ -59,6 +61,10 @@ public class TenantInterceptorTests {
       final Map<String, Object> bodyMap = new HashMap<>();
       bodyMap.put(customNamespace + "id", userId);
       bodyMap.put(customNamespace + "companyId", companyId);
+
+      final JSONArray jsonArray = new JSONArray();
+      jsonArray.appendElement(Permission.Name.SUPER_PERMISSION.name());
+      bodyMap.put("permissions", jsonArray);
       final Jwt jwt =
           new Jwt(bearerToken, Instant.now(), Instant.now().plusSeconds(30L), headerMap, bodyMap);
       Mockito.when(jwtDecoder.decode(bearerToken)).thenReturn(jwt);

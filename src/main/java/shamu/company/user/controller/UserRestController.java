@@ -275,7 +275,7 @@ public class UserRestController extends BaseRestController {
 
   @PatchMapping("current/cache/{id}")
   public HttpEntity cacheTokenAndAuthUser(@PathVariable final String id) {
-    userService.cacheUser(findToken(), id);
+    userService.cacheUser(findToken(), id.toUpperCase());
     return new ResponseEntity<>(HttpStatus.OK);
   }
 

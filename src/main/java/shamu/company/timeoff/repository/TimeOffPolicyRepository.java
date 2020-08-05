@@ -18,6 +18,9 @@ public interface TimeOffPolicyRepository extends BaseRepository<TimeOffPolicy, S
       nativeQuery = true)
   List<TimeOffPolicyListPojo> getAllPolicies();
 
+  @Query(
+      value = "SELECT count(1) FROM time_off_policies top" + " WHERE binary top.name = ?1 ",
+      nativeQuery = true)
   Integer countByName(String policyName);
 
   List<TimeOffPolicy> findByIsAutoEnrollEnabledIsTrue();

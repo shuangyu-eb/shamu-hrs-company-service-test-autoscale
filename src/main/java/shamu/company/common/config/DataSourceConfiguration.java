@@ -30,9 +30,9 @@ public class DataSourceConfiguration {
   }
 
   @Bean
-  @ConfigurationProperties(prefix = "spring.liquibase.company")
-  @Qualifier("companyLiquibaseProperties")
-  public LiquibaseProperties companyLiquibaseProperties() {
+  @ConfigurationProperties(prefix = "spring.liquibase.default")
+  @Qualifier("defaultLiquibaseProperties")
+  public LiquibaseProperties defaultLiquibaseProperties() {
     return new LiquibaseProperties();
   }
 

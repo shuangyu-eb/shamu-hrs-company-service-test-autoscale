@@ -22,7 +22,7 @@ public class LiquibaseManagerTests {
 
   @Mock private LiquibaseProperties tenantLiquibaseProperties;
 
-  @Mock private LiquibaseProperties companyLiquibaseProperties;
+  @Mock private LiquibaseProperties defaultLiquibaseProperties;
 
   @Mock private ResourceLoader resourceLoader;
 
@@ -52,7 +52,7 @@ public class LiquibaseManagerTests {
         new LiquibaseManager(
             dataSourceConfig,
             tenantLiquibaseProperties,
-            companyLiquibaseProperties,
+            defaultLiquibaseProperties,
             resourceLoader,
             tenantService,
             statesProvincesInitializer,

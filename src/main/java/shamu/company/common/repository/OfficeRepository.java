@@ -7,7 +7,7 @@ import shamu.company.company.entity.Office;
 public interface OfficeRepository extends BaseRepository<Office, String> {
 
   @Query(
-      value = "SELECT count(1) FROM jobs_users ju" + " WHERE ju.office_id = unhex(?1) ",
+      value = "SELECT count(1) FROM jobs_users ju WHERE ju.office_id = unhex(?1) ",
       nativeQuery = true)
   Integer findCountByOffice(String officeId);
 

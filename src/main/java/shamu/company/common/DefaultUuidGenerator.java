@@ -1,11 +1,11 @@
 package shamu.company.common;
 
 import java.io.Serializable;
-import java.util.UUID;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.id.IdentifierGenerator;
 import shamu.company.common.entity.BaseEntity;
+import shamu.company.utils.UuidUtil;
 
 public class DefaultUuidGenerator implements IdentifierGenerator {
 
@@ -18,6 +18,6 @@ public class DefaultUuidGenerator implements IdentifierGenerator {
         return entity.getId();
       }
     }
-    return UUID.randomUUID().toString().toUpperCase().replace("-", "");
+    return UuidUtil.getUuidString().toUpperCase();
   }
 }
