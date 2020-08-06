@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
@@ -63,6 +64,8 @@ public class UserRestController extends BaseRestController {
   private final Auth0Helper auth0Helper;
 
   private final LiquibaseManager liquibaseManager;
+
+  private static final String MOCK_USER_HEADER = "X-Mock-To";
 
   public UserRestController(
       final UserService userService,
@@ -199,13 +202,18 @@ public class UserRestController extends BaseRestController {
 
   @GetMapping("current/user-info")
   public CurrentUserDto getUserInfo(final HttpServletRequest request) {
-    final String mockId = request.getHeader("X-Mock-To");
+    final String mockId = request.getHeader(MOCK_USER_HEADER);
     if (Strings.isBlank(mockId)) {
       final CurrentUserDto userDto =
           userService.getCurrentUserInfo(findAuthentication().getUserId());
       userService.cacheUser(findToken(), userDto.getId());
       return userDto;
     }
+    handleSuperAdminCacheProcess(mockId);
+    return userService.getMockUserInfo(mockId);
+  }
+
+  private void handleSuperAdminCacheProcess(final String mockUserId) {
     final String currentUserId = findAuthentication().getUserId();
     final Role role = auth0Helper.getUserRoleByUserId(currentUserId);
     if (role != Role.SUPER_ADMIN) {
@@ -213,8 +221,7 @@ public class UserRestController extends BaseRestController {
           String.format("User with id %s is not super admin.", currentUserId));
     }
 
-    userService.cacheUser(findToken(), mockId);
-    return userService.getMockUserInfo(mockId);
+    userService.cacheUser(findToken(), mockUserId);
   }
 
   @GetMapping("current/company-name")
@@ -274,8 +281,15 @@ public class UserRestController extends BaseRestController {
   }
 
   @PatchMapping("current/cache/{id}")
-  public HttpEntity cacheTokenAndAuthUser(@PathVariable final String id) {
-    userService.cacheUser(findToken(), id.toUpperCase());
+  public HttpEntity cacheTokenAndAuthUser(
+      @PathVariable final String id, final HttpServletRequest request) {
+    final String mockId = request.getHeader(MOCK_USER_HEADER);
+    if (StringUtils.isBlank(mockId)) {
+      userService.cacheUser(findToken(), id.toUpperCase());
+    } else {
+      handleSuperAdminCacheProcess(mockId);
+    }
+
     return new ResponseEntity<>(HttpStatus.OK);
   }
 
