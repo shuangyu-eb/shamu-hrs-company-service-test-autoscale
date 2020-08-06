@@ -7,8 +7,10 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -24,6 +26,7 @@ import shamu.company.attendance.dto.AttendanceSummaryDto;
 import shamu.company.attendance.dto.AttendanceTeamHoursDto;
 import shamu.company.attendance.entity.CompanyTaSetting;
 import shamu.company.attendance.entity.EmployeeTimeLog;
+import shamu.company.attendance.entity.StaticTimesheetStatus;
 import shamu.company.attendance.entity.StaticTimesheetStatus.TimeSheetStatus;
 import shamu.company.attendance.entity.TimePeriod;
 import shamu.company.attendance.entity.TimeSheet;
@@ -31,6 +34,7 @@ import shamu.company.attendance.service.AttendanceMyHoursService;
 import shamu.company.attendance.service.AttendanceSettingsService;
 import shamu.company.attendance.service.AttendanceTeamHoursService;
 import shamu.company.attendance.service.OvertimeService;
+import shamu.company.attendance.service.StaticTimesheetStatusService;
 import shamu.company.attendance.service.TimeSheetService;
 import shamu.company.job.entity.CompensationFrequency;
 import shamu.company.timeoff.service.TimeOffRequestService;
@@ -52,6 +56,8 @@ class AttendanceTeamHoursServiceTests {
   @Mock private OvertimeService overtimeService;
 
   @Mock private TimeOffRequestService timeOffRequestService;
+
+  @Mock private StaticTimesheetStatusService staticTimesheetStatusService;
 
   @BeforeEach
   void init() {
@@ -190,5 +196,26 @@ class AttendanceTeamHoursServiceTests {
     assertThat(attendanceSummaryDto.getOverTimeMinutes()).isEqualTo(180);
     assertThat(attendanceSummaryDto.getWorkedMinutes()).isEqualTo(20);
     assertThat(attendanceSummaryDto.getTotalPtoMinutes()).isEqualTo(1200);
+  }
+
+  @Test
+  void approvePendingHours() {
+    Set<String> selectedTimesheetIds = new HashSet<>();
+    final String timesheetId = UuidUtil.getUuidString();
+    selectedTimesheetIds.add(timesheetId);
+    final StaticTimesheetStatus staticTimesheetStatus = new StaticTimesheetStatus();
+    staticTimesheetStatus.setName(TimeSheetStatus.APPROVED.name());
+    final TimeSheet timeSheet = new TimeSheet();
+    timeSheet.setId(timesheetId);
+    final List<TimeSheet> timeSheets = new ArrayList<>();
+    timeSheets.add(timeSheet);
+
+    Mockito.when(staticTimesheetStatusService.findByName(TimeSheetStatus.APPROVED.name()))
+        .thenReturn(staticTimesheetStatus);
+    Mockito.when(timeSheetService.findTimeSheetById(Mockito.anyString())).thenReturn(timeSheet);
+    Mockito.when(timeSheetService.findAllById(selectedTimesheetIds)).thenReturn(timeSheets);
+
+    assertThatCode(() -> attendanceTeamHoursService.approvePendingHours(selectedTimesheetIds))
+        .doesNotThrowAnyException();
   }
 }

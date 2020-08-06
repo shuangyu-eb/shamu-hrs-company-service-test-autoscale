@@ -1,5 +1,6 @@
 package shamu.company.attendance.repository;
 
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
@@ -7,8 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 import shamu.company.attendance.entity.TimeSheet;
 import shamu.company.common.repository.BaseRepository;
-
-import java.util.List;
 
 public interface TimeSheetRepository extends BaseRepository<TimeSheet, String> {
   String QUERY_TEAM_TIMESHEETS_SQL =
@@ -18,7 +17,7 @@ public interface TimeSheetRepository extends BaseRepository<TimeSheet, String> {
           + " where "
           + "t.time_period_id = unhex(?1) "
           + " and u.company_id = unhex(?2) "
-          + " and u.manager_user_id = unhex(?4)"
+          + " and u.manager_user_id = unhex(?4) "
           + " and sts.name in (?3) order by t.updated_at desc ";
 
   @Query(

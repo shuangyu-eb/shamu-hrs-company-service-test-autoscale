@@ -1,5 +1,11 @@
 package shamu.company.attendance.service;
 
+import java.sql.Timestamp;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -15,12 +21,6 @@ import shamu.company.attendance.entity.TimeSheet;
 import shamu.company.timeoff.service.TimeOffRequestService;
 import shamu.company.user.entity.User;
 
-import java.sql.Timestamp;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 @Transactional
 @Service
 public class AttendanceTeamHoursService {
@@ -32,18 +32,21 @@ public class AttendanceTeamHoursService {
   private final AttendanceSettingsService attendanceSettingsService;
   private final OvertimeService overtimeService;
   private final TimeOffRequestService timeOffRequestService;
+  private final StaticTimesheetStatusService staticTimesheetStatusService;
 
   public AttendanceTeamHoursService(
       final TimeSheetService timeSheetService,
       final AttendanceMyHoursService attendanceMyHoursService,
       final AttendanceSettingsService attendanceSettingsService,
       final OvertimeService overtimeService,
-      final TimeOffRequestService timeOffRequestService) {
+      final TimeOffRequestService timeOffRequestService,
+      final StaticTimesheetStatusService statusService) {
     this.timeSheetService = timeSheetService;
     this.attendanceMyHoursService = attendanceMyHoursService;
     this.attendanceSettingsService = attendanceSettingsService;
     this.overtimeService = overtimeService;
     this.timeOffRequestService = timeOffRequestService;
+    this.staticTimesheetStatusService = statusService;
   }
 
   public TeamHoursPageInfoDto findTeamTimeSheetsByIdAndCompanyIdAndStatus(
@@ -136,5 +139,13 @@ public class AttendanceTeamHoursService {
         .overTimeMinutes(totalOvertimeMin)
         .totalPtoMinutes(totalTimeOffHours * CONVERT_HOUR_TO_MIN)
         .build();
+  }
+
+  public void approvePendingHours(final Set<String> selectedTimesheets) {
+    final StaticTimesheetStatus timesheetApproveStatus =
+        staticTimesheetStatusService.findByName(TimeSheetStatus.APPROVED.name());
+    final List<TimeSheet> timeSheets = timeSheetService.findAllById(selectedTimesheets);
+    timeSheets.forEach(timeSheet -> timeSheet.setStatus(timesheetApproveStatus));
+    timeSheetService.saveAll(timeSheets);
   }
 }
