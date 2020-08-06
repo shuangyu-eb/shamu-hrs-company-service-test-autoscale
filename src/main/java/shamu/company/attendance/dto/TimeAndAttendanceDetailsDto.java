@@ -21,5 +21,7 @@ public class TimeAndAttendanceDetailsDto {
   @JsonFormat(pattern = DATE_FORMAT)
   private Date periodEndDate;
 
+  private String frontendTimezone;
+
   private List<EmployeeOvertimeDetailsDto> overtimeDetails;
 }

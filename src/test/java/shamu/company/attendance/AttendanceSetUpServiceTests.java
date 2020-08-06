@@ -21,6 +21,7 @@ import shamu.company.attendance.entity.TimePeriod;
 import shamu.company.attendance.entity.mapper.CompanyTaSettingsMapper;
 import shamu.company.attendance.entity.mapper.EmployeesTaSettingsMapper;
 import shamu.company.attendance.repository.EmployeesTaSettingRepository;
+import shamu.company.attendance.repository.StaticTimeZoneRepository;
 import shamu.company.attendance.repository.StaticTimesheetStatusRepository;
 import shamu.company.attendance.repository.TimePeriodRepository;
 import shamu.company.attendance.service.AttendanceSetUpService;
@@ -101,6 +102,8 @@ public class AttendanceSetUpServiceTests {
   @Mock private EmployeesTaSettingsMapper employeesTaSettingsMapper;
 
   @Mock private TimePeriodRepository timePeriodRepository;
+
+  @Mock private StaticTimeZoneRepository staticTimeZoneRepository;
 
   @BeforeEach
   void init() {

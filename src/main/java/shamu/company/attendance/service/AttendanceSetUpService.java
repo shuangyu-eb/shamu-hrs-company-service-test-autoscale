@@ -292,13 +292,18 @@ public class AttendanceSetUpService {
     final Map<String, String> companyPostalCodes =
         googleMapsHelper.findTimezoneByPostalCode(allPostalCodes);
     final Map<String, StaticTimezone> allTimezones =
-        findTimezonesByPostalCode(companyPostalCodes, adminOfficePostalCode);
+        findTimezonesByPostalCode(
+            companyPostalCodes,
+            adminOfficePostalCode,
+            timeAndAttendanceDetailsDto.getFrontendTimezone());
     saveCompanyTaSetting(timeAndAttendanceDetailsDto, companyId, allTimezones);
     saveEmployeeTaSettings(timeAndAttendanceDetailsDto, allTimezones);
   }
 
   private Map<String, StaticTimezone> findTimezonesByPostalCode(
-      final Map<String, String> staticTimezones, final String companyPostalCode) {
+      final Map<String, String> staticTimezones,
+      final String companyPostalCode,
+      final String frontendTimezone) {
     final Map<String, StaticTimezone> allTimezones = new HashMap<>();
     staticTimezones.keySet().stream()
         .forEach(
@@ -306,7 +311,11 @@ public class AttendanceSetUpService {
                 allTimezones.put(
                     postalCode,
                     staticTimeZoneRepository.findByName(staticTimezones.get(postalCode))));
-    allTimezones.put(COMPANY_POSTAL_CODE, allTimezones.get(companyPostalCode));
+    if (allTimezones.containsKey(COMPANY_POSTAL_CODE)) {
+      allTimezones.put(COMPANY_POSTAL_CODE, allTimezones.get(companyPostalCode));
+    } else {
+      allTimezones.put(COMPANY_POSTAL_CODE, staticTimeZoneRepository.findByName(frontendTimezone));
+    }
     return allTimezones;
   }
 
@@ -369,7 +378,9 @@ public class AttendanceSetUpService {
                       jobUserRepository
                           .findByUserId(employeeOvertimeDetailsDto.getEmployeeId())
                           .getOffice();
-                  if (office != null && office.getOfficeAddress() != null) {
+                  if (office != null
+                      && office.getOfficeAddress() != null
+                      && allTimezones.containsKey(office.getOfficeAddress().getPostalCode())) {
                     return employeesTaSettingsMapper.convertToEmployeeTaSettings(
                         allTimezones.get(office.getOfficeAddress().getPostalCode()),
                         employeeId,
@@ -401,7 +412,7 @@ public class AttendanceSetUpService {
                       compensationOvertimeStatusRepository
                           .findById(employeeOvertimeDetailsDto.getOvertimeLaw())
                           .get();
-                  Timestamp startDateTimeStamp = new Timestamp(startDate.getTime());
+                  final Timestamp startDateTimeStamp = new Timestamp(startDate.getTime());
                   if (userCompensationService.existsByUserId(userId)) {
                     final UserCompensation userCompensation =
                         userCompensationService.findByUserId(userId);
