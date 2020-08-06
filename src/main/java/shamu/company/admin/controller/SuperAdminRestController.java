@@ -73,7 +73,7 @@ class SuperAdminRestController extends BaseRestController {
 
   @GetMapping("/super-admin/system-active-announcement")
   public SystemAnnouncementDto getSystemActiveAnnouncement() {
-    TenantContext.setCurrentTenant("");
+    TenantContext.clear();
     return superAdminService.getSystemActiveAnnouncement();
   }
 
@@ -81,7 +81,7 @@ class SuperAdminRestController extends BaseRestController {
   @PreAuthorize("hasAuthority('SUPER_PERMISSION')")
   public HttpEntity publishSystemAnnouncement(
       @RequestBody final SystemAnnouncementDto systemAnnouncementDto) {
-    TenantContext.setCurrentTenant("");
+    TenantContext.clear();
     superAdminService.publishSystemAnnouncement(findUserId(), systemAnnouncementDto);
     return new ResponseEntity(HttpStatus.OK);
   }
@@ -89,7 +89,7 @@ class SuperAdminRestController extends BaseRestController {
   @PatchMapping("/super-admin/system-active-announcement/{id}")
   @PreAuthorize("hasAuthority('SUPER_PERMISSION')")
   public HttpEntity updateSystemActiveAnnouncement(@PathVariable final String id) {
-    TenantContext.setCurrentTenant("");
+    TenantContext.clear();
     superAdminService.updateSystemActiveAnnouncement(id);
     return new ResponseEntity(HttpStatus.OK);
   }
@@ -99,7 +99,7 @@ class SuperAdminRestController extends BaseRestController {
   public Page<SystemAnnouncementDto> getSystemPastAnnouncements(
       @RequestParam(value = "page") final Integer page,
       @RequestParam(value = "size", defaultValue = "10") final Integer size) {
-    TenantContext.setCurrentTenant("");
+    TenantContext.clear();
     final Pageable pageable = PageRequest.of(page - 1, size);
     return superAdminService.getSystemPastAnnouncements(pageable);
   }
