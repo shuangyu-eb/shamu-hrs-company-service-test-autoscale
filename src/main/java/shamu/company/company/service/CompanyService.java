@@ -187,8 +187,6 @@ public class CompanyService {
     return officeService.save(office);
   }
 
-  // Please don't use companyRepository.save() directly
-  // because tenants table need to be updated when the company is updated.
   public Company save(final Company company) {
     companyRepository.save(company);
     final Tenant tenant = companyMapper.convertToTenant(company);
