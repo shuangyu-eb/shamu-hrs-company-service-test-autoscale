@@ -11,7 +11,7 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
 import shamu.company.common.config.DataSourceConfig;
 import shamu.company.common.entity.Tenant;
-import shamu.company.common.exception.LiquibaseExecuteFailedException;
+import shamu.company.common.exception.errormapping.LiquibaseExecuteFailedException;
 import shamu.company.common.multitenant.TenantContext;
 import shamu.company.common.service.TenantService;
 import shamu.company.company.entity.Company;

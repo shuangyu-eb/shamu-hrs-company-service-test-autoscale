@@ -16,7 +16,7 @@ import org.hibernate.query.Query;
 import org.springframework.stereotype.Repository;
 import shamu.company.common.config.DataSourceConfig;
 import shamu.company.common.entity.Tenant;
-import shamu.company.common.exception.LiquibaseExecuteFailedException;
+import shamu.company.common.exception.errormapping.LiquibaseExecuteFailedException;
 import shamu.company.helpers.DatabaseSessionHelper;
 import shamu.company.utils.UuidUtil;
 
@@ -133,12 +133,12 @@ public class TenantRepository {
         final Tenant tenant = query.getSingleResult();
         final Transaction transaction = session.beginTransaction();
         session.delete(tenant);
-        deleteSchema(companyId);
         transaction.commit();
       } catch (final NoResultException e) {
         log.error(String.format("Tenant with id: %s is not exists.", companyId), e);
+      } finally{
+        deleteSchema(companyId);
       }
-      deleteSchema(companyId);
     }
   }
 
