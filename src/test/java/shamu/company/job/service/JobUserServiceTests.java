@@ -47,6 +47,7 @@ import shamu.company.user.entity.EmployeeType;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
 import shamu.company.user.entity.UserCompensation;
+import shamu.company.user.entity.UserPersonalInformation;
 import shamu.company.user.entity.UserRole;
 import shamu.company.user.entity.mapper.UserAddressMapper;
 import shamu.company.user.entity.mapper.UserCompensationMapper;
@@ -65,6 +66,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 class JobUserServiceTests {
 
@@ -740,5 +743,23 @@ class JobUserServiceTests {
           jobUserHireDateCheckDto.getHireDateDeletable(),
           jobUserService.checkUserHireDateDeletable("1").getHireDateDeletable());
     }
+  }
+
+  @Test
+  void findEmployeeInfo() {
+    final JobUser jobUser = new JobUser();
+    final Job job = new Job();
+    job.setTitle("1");
+    final User user = new User();
+    user.setImageUrl("1");
+    final UserPersonalInformation userPersonalInformation = new UserPersonalInformation();
+    userPersonalInformation.setFirstName("1");
+    userPersonalInformation.setLastName("1");
+    user.setUserPersonalInformation(userPersonalInformation);
+    jobUser.setUser(user);
+    jobUser.setJob(job);
+
+    Mockito.when(jobUserRepository.findByUserId("1")).thenReturn(jobUser);
+    assertThatCode(() -> jobUserService.findEmployeeInfo("1")).doesNotThrowAnyException();
   }
 }

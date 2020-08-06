@@ -1,12 +1,5 @@
 package shamu.company.attendance.controller;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.BDDMockito.given;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -27,6 +20,14 @@ import shamu.company.attendance.service.TimePeriodService;
 import shamu.company.tests.utils.JwtUtil;
 import shamu.company.utils.JsonUtil;
 import shamu.company.utils.UuidUtil;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
 
 @WebMvcTest(controllers = AttendanceTeamHoursController.class)
 class AttendanceTeamHoursControllerTests extends WebControllerBaseTests {
@@ -134,7 +135,7 @@ class AttendanceTeamHoursControllerTests extends WebControllerBaseTests {
   void approvePendingHours() throws Exception {
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
-    Set<String> selectedTimesheetIds = new HashSet<>();
+    final Set<String> selectedTimesheetIds = new HashSet<>();
     selectedTimesheetIds.add(UuidUtil.getUuidString());
 
     final MvcResult response =
@@ -144,6 +145,22 @@ class AttendanceTeamHoursControllerTests extends WebControllerBaseTests {
                         "/company/time-and-attendance/team-hours/pending-hours/approved")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(JsonUtil.formatToString(selectedTimesheetIds))
+                    .headers(httpHeaders))
+            .andReturn();
+
+    assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+  }
+
+  @Test
+  void findEmployeeInfo() throws Exception {
+    final HttpHeaders httpHeaders = new HttpHeaders();
+    httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.get(
+                        "/company/time-and-attendance/team-hours/employee-info/1")
                     .headers(httpHeaders))
             .andReturn();
 

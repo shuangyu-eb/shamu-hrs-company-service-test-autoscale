@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import shamu.company.attendance.dto.AttendanceSummaryDto;
+import shamu.company.attendance.dto.EmployeeInfoDto;
 import shamu.company.attendance.dto.TeamHoursPageInfoDto;
 import shamu.company.attendance.dto.TimeSheetPeriodDto;
 import shamu.company.attendance.entity.StaticTimesheetStatus.TimeSheetStatus;
@@ -20,6 +21,7 @@ import shamu.company.attendance.service.AttendanceTeamHoursService;
 import shamu.company.attendance.service.TimePeriodService;
 import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
+import shamu.company.job.service.JobUserService;
 import shamu.company.utils.ReflectionUtil;
 
 @RestApiController
@@ -29,11 +31,15 @@ public class AttendanceTeamHoursController extends BaseRestController {
 
   private final TimePeriodService timePeriodService;
 
+  private final JobUserService jobUserService;
+
   public AttendanceTeamHoursController(
       final AttendanceTeamHoursService attendanceTeamHoursService,
-      final TimePeriodService timePeriodService) {
+      final TimePeriodService timePeriodService,
+      final JobUserService jobUserService) {
     this.attendanceTeamHoursService = attendanceTeamHoursService;
     this.timePeriodService = timePeriodService;
+    this.jobUserService = jobUserService;
   }
 
   @GetMapping("time-and-attendance/team-hours/pending-hours/{timePeriodId}")
@@ -74,5 +80,10 @@ public class AttendanceTeamHoursController extends BaseRestController {
   public HttpEntity<String> approvePendingHours(@RequestBody final Set<String> selectedTimesheets) {
     attendanceTeamHoursService.approvePendingHours(selectedTimesheets);
     return new ResponseEntity<>(HttpStatus.OK);
+  }
+
+  @GetMapping("time-and-attendance/team-hours/employee-info/{userId}")
+  public EmployeeInfoDto findEmployeeInfo(@PathVariable final String userId) {
+    return jobUserService.findEmployeeInfo(userId);
   }
 }

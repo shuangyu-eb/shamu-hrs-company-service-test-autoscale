@@ -5,6 +5,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import shamu.company.attendance.dto.EmployeeInfoDto;
 import shamu.company.attendance.entity.TimePeriod;
 import shamu.company.attendance.service.TimePeriodService;
 import shamu.company.common.exception.errormapping.AlreadyExistsException;
@@ -512,5 +513,18 @@ public class JobUserService {
         && employeeWithJobInfo.getStartDate() != null
         && employeeWithJobInfo.getOffice() != null
         && employeeWithJobInfo.getUserCompensation() != null;
+  }
+
+  public EmployeeInfoDto findEmployeeInfo(final String userId) {
+    final JobUser jobUser = getJobUserByUserId(userId);
+    String jobTitle = "";
+    if (jobUser.getJob() != null && jobUser.getJob().getTitle() != null) {
+      jobTitle = jobUser.getJob().getTitle();
+    }
+    return EmployeeInfoDto.builder()
+        .name(jobUser.getUser().getUserPersonalInformation().getName())
+        .imageUrl(jobUser.getUser().getImageUrl())
+        .jobTitle(jobTitle)
+        .build();
   }
 }
