@@ -471,7 +471,7 @@ public class BenefitPlanService {
     orderKey.add(PlanType.DENTAL.getValue());
     orderKey.add(PlanType.VISION.getValue());
     orderKey.add(PlanType.RETIREMENT.getValue());
-    orderKey.add(PlanType.MEDICAL.getValue());
+    orderKey.add(PlanType.OTHER.getValue());
 
     for (final String key : orderKey) {
       int excludedNumber = 0;
