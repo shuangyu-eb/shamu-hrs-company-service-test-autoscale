@@ -1,5 +1,7 @@
 package shamu.company.scheduler.job;
 
+import java.sql.Timestamp;
+import java.util.Date;
 import org.quartz.JobExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.quartz.QuartzJobBean;
@@ -29,14 +31,16 @@ public class SendEmailJob extends QuartzJobBean {
     final Email email = emailService.get(emailId);
     String companyId = QuartzUtil.getParameter(jobExecutionContext, "companyId", String.class);
     companyId = companyId.replace("\"", "");
-    TenantContext.setCurrentTenant(companyId);
-    try {
-      emailHelper.send(email);
-      email.setSendDate(new Timestamp(new Date().getTime()));
-      emailService.save(email);
-    } catch (final Exception e) {
-      emailService.rescheduleFailedEmails(Arrays.asList(email));
-    }
-    TenantContext.clear();
+    TenantContext.withInTenant(
+        companyId,
+        () -> {
+          try {
+            emailHelper.send(email);
+            email.setSendDate(new Timestamp(new Date().getTime()));
+            emailService.save(email);
+          } catch (final Exception e) {
+            emailService.rescheduleFailedEmails(Arrays.asList(email));
+          }
+        });
   }
 }

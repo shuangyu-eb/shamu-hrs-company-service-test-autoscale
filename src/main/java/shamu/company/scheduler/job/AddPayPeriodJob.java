@@ -59,32 +59,33 @@ public class AddPayPeriodJob extends QuartzJobBean {
     String companyId =
         QuartzUtil.getParameter(jobExecutionContext, "companyId", String.class);
     companyId = JsonUtil.deserialize(companyIdJson, String.class).replace("\"", "");
-    TenantContext.setCurrentTenant(companyId);
-    final TimePeriod currentTimePeriod = timePeriodService.findCompanyCurrentPeriod();
+    TenantContext.withInTenant(
+        companyId,
+        () -> {
+          final CompanyTaSetting companyTaSetting =
+              attendanceSettingsService.findCompanySetting();
+          final PayrollDetail payrollDetail = payrollDetailService.findByCompanyId(companyId);
+          final String payFrequencyTypeId = payrollDetail.getPayFrequencyType().getId();
+          final StaticCompanyPayFrequencyType staticCompanyPayFrequencyType =
+              payPeriodFrequencyService.findById(payFrequencyTypeId);
 
-    final CompanyTaSetting companyTaSetting =
-        attendanceSettingsService.findCompanySetting();
-    final PayrollDetail payrollDetail = payrollDetailService.findByCompanyId(companyId);
-    final String payFrequencyTypeId = payrollDetail.getPayFrequencyType().getId();
-    final StaticCompanyPayFrequencyType staticCompanyPayFrequencyType =
-        payPeriodFrequencyService.findById(payFrequencyTypeId);
+          final TimePeriod nextTimePeriod =
+              timePeriodService.save(
+                  attendanceSetUpService.getNextPeriod(
+                      currentTimePeriod, staticCompanyPayFrequencyType.getName(), company));
+          final Timestamp nextPeriodEndDate = nextTimePeriod.getEndDate();
+          final Timestamp nextPayDate =
+              new Timestamp(nextPeriodEndDate.getTime() + DAYS_PAY_DATE_AFTER_PERIOD * MS_OF_ONE_DAY);
+          payrollDetail.setLastPayrollPayday(nextPayDate);
+          attendanceSettingsService.saveCompanyTaSetting(companyTaSetting);
+          payrollDetailService.savePayrollDetail(payrollDetail);
 
-    final TimePeriod nextTimePeriod =
-        timePeriodService.save(
-            attendanceSetUpService.getNextPeriod(
-                currentTimePeriod, staticCompanyPayFrequencyType.getName(), company));
-    final Timestamp nextPeriodEndDate = nextTimePeriod.getEndDate();
-    final Timestamp nextPayDate =
-        new Timestamp(nextPeriodEndDate.getTime() + DAYS_PAY_DATE_AFTER_PERIOD * MS_OF_ONE_DAY);
-    payrollDetail.setLastPayrollPayday(nextPayDate);
-    attendanceSettingsService.saveCompanyTaSetting(companyTaSetting);
-    payrollDetailService.savePayrollDetail(payrollDetail);
-
-    final List<UserCompensation> userCompensationList =
-        userCompensationService.listNewestEnrolledCompensation();
-    attendanceSetUpService.createTimeSheets(
-        nextTimePeriod, TimeSheetStatus.ACTIVE, userCompensationList);
-    attendanceSetUpService.scheduleTasks(
-        companyId, nextTimePeriod, companyTaSetting.getTimeZone().getName());
+          final List<UserCompensation> userCompensationList =
+              userCompensationService.listNewestEnrolledCompensation();
+          attendanceSetUpService.createTimeSheets(
+              nextTimePeriod, TimeSheetStatus.ACTIVE, userCompensationList);
+          attendanceSetUpService.scheduleTasks(
+              companyId, nextTimePeriod, companyTaSetting.getTimeZone().getName());
+        });
   }
 }

@@ -1,5 +1,7 @@
 package shamu.company.common.multitenant;
 
+import shamu.company.common.Hook;
+
 public class TenantContext {
 
   private TenantContext() {}
@@ -16,5 +18,12 @@ public class TenantContext {
 
   public static void clear() {
     currentTenant.remove();
+  }
+
+  public static void withInTenant(final String tenant, final Hook hook) {
+    final String lastTenant = getCurrentTenant();
+    setCurrentTenant(tenant);
+    hook.callback();
+    setCurrentTenant(lastTenant);
   }
 }

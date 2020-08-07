@@ -83,9 +83,7 @@ public class LiquibaseManager {
   }
 
   private void updateSchema(final Tenant tenant) {
-    TenantContext.setCurrentTenant(tenant.getCompanyId());
-    initSchema(tenant);
-    TenantContext.clear();
+    TenantContext.withInTenant(tenant.getCompanyId(), () -> initSchema(tenant));
   }
 
   private SpringLiquibase getSpringLiquibase(
@@ -98,13 +96,15 @@ public class LiquibaseManager {
   }
 
   public void addSchema(final String companyId, final String companyName) {
-    TenantContext.setCurrentTenant(companyId);
-    final Company company = new Company(companyId);
+    TenantContext.withInTenant(
+        companyId,
+        () -> {
+          final Company company = new Company(companyId);
 
-    company.setName(companyName);
-    initSchema(Tenant.builder().companyId(companyId).build());
-    companyService.save(company);
-    TenantContext.clear();
+          company.setName(companyName);
+          initSchema(Tenant.builder().companyId(companyId).build());
+          companyService.save(company);
+        });
   }
 
   private void initSchema(final Tenant tenant) {

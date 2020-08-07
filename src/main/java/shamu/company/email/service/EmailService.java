@@ -378,7 +378,14 @@ public class EmailService {
     emailEvent.forEach(
         emailEventItem -> {
           final Tenant tenant = tenantService.findTenantByUserEmailWork(emailEventItem.getEmail());
-          TenantContext.setCurrentTenant(tenant.getCompanyId());
+          handleEmailStatus(emailEventItem, tenant);
+        });
+  }
+
+  private void handleEmailStatus(final EmailEvent emailEventItem, final Tenant tenant) {
+    TenantContext.withInTenant(
+        tenant.getCompanyId(),
+        () -> {
           if (StringUtils.isEmpty(emailEventItem.getMessageId())
               || emailEventItem.getEvent() == EmailStatus.INVALID) {
             logger.warn("Invalid email status update request.");
@@ -407,7 +414,6 @@ public class EmailService {
           }
           targetEmail.setStatus(emailEventItem.getEvent());
           emailRepository.save(targetEmail);
-          TenantContext.clear();
         });
   }
 

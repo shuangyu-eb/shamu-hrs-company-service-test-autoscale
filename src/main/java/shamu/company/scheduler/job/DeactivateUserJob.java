@@ -28,8 +28,8 @@ public class DeactivateUserJob extends QuartzJobBean {
     final User user = QuartzUtil.getParameter(jobExecutionContext, "User", User.class);
     String companyId = QuartzUtil.getParameter(jobExecutionContext, "companyId", String.class).replace("\"", "");;
 
-    TenantContext.setCurrentTenant(companyId);
-    userService.deactivateUser(userStatusUpdateDto, user);
-    TenantContext.clear();
+    TenantContext.withInTenant(
+        companyId,
+        () -> userService.deactivateUser(userStatusUpdateDto, user));
   }
 }

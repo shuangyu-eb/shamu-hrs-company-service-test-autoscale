@@ -96,8 +96,7 @@ public class UserRestController extends BaseRestController {
     final String userId = (String) appMetaData.get(Auth0Helper.USER_ID);
     try {
       liquibaseManager.addSchema(companyId, signUpDto.getCompanyName());
-      TenantContext.setCurrentTenant(companyId);
-      userService.signUp(signUpDto, userId);
+      TenantContext.withInTenant(companyId, () -> userService.signUp(signUpDto, userId));
     } catch (final RuntimeException e) {
       tenantService.deleteTenant(companyId);
       auth0Helper.deleteUser(auth0User.getId());
@@ -137,7 +136,6 @@ public class UserRestController extends BaseRestController {
     final Tenant tenant = tenantService.findTenantByUserEmailWork(email);
     TenantContext.setCurrentTenant(tenant.getCompanyId());
     userService.sendResetPasswordEmail(email);
-    TenantContext.clear();
     return new ResponseEntity(HttpStatus.OK);
   }
 
@@ -145,7 +143,6 @@ public class UserRestController extends BaseRestController {
   public boolean resetPassword(@RequestBody @Valid final UpdatePasswordDto updatePasswordDto) {
     TenantContext.setCurrentTenant(Base64Utils.decodeCompanyId(updatePasswordDto.getCompanyId()));
     userService.resetPassword(updatePasswordDto);
-    TenantContext.clear();
     return true;
   }
 
