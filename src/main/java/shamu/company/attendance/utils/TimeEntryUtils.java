@@ -1,15 +1,17 @@
 package shamu.company.attendance.utils;
 
+import shamu.company.attendance.dto.BreakTimeLogDto;
+import shamu.company.attendance.dto.LocalDateEntryDto;
+import shamu.company.attendance.entity.EmployeeTimeLog;
+import shamu.company.attendance.entity.StaticTimezone;
+import shamu.company.utils.DateUtil;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import shamu.company.attendance.dto.LocalDateEntryDto;
-import shamu.company.attendance.entity.EmployeeTimeLog;
-import shamu.company.attendance.entity.StaticTimezone;
-import shamu.company.utils.DateUtil;
 
 /** @author mshumaker */
 public abstract class TimeEntryUtils {
@@ -21,6 +23,9 @@ public abstract class TimeEntryUtils {
 
   public static final Comparator<EmployeeTimeLog> compareByLogStartDate =
       Comparator.comparing(EmployeeTimeLog::getStart);
+
+  public static final Comparator<BreakTimeLogDto> compareByBreakStart =
+      Comparator.comparing(BreakTimeLogDto::getBreakStart);
 
   public static List<LocalDateEntryDto> transformTimeLogsToLocalDate(
       final List<EmployeeTimeLog> allEmployeeEntries, final StaticTimezone timezone) {

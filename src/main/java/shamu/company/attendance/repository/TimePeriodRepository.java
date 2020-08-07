@@ -35,5 +35,6 @@ public interface TimePeriodRepository extends BaseRepository<TimePeriod, String>
       nativeQuery = true)
   TimePeriod findCompanyNewestPeriod(String companyId);
 
+  @Query(value = "select tp from TimePeriod tp where tp.company.id = ?1 order by tp.startDate desc")
   List<TimePeriod> findByCompanyId(String companyId);
 }
