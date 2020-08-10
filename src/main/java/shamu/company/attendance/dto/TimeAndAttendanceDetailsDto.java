@@ -15,11 +15,9 @@ public class TimeAndAttendanceDetailsDto {
 
   private String payPeriodFrequency;
 
-  @JsonFormat(pattern = DATE_FORMAT)
-  private Date periodStartDate;
+  private String periodStartDate;
 
-  @JsonFormat(pattern = DATE_FORMAT)
-  private Date periodEndDate;
+  private String periodEndDate;
 
   private String frontendTimezone;
 

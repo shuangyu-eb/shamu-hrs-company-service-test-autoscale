@@ -1,7 +1,5 @@
 package shamu.company.attendance;
 
-import static org.assertj.core.api.Assertions.assertThatCode;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -20,6 +18,8 @@ import shamu.company.attendance.repository.StaticTimeZoneRepository;
 import shamu.company.attendance.service.AttendanceSettingsService;
 import shamu.company.attendance.service.TimeSheetService;
 import shamu.company.user.repository.UserRepository;
+
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 public class AttendanceSettingsServiceTests {
 

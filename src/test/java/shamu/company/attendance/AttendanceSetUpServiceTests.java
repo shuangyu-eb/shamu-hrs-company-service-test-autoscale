@@ -1,9 +1,5 @@
 package shamu.company.attendance;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -14,9 +10,11 @@ import org.mockito.MockitoAnnotations;
 import shamu.company.attendance.dto.EmployeeOvertimeDetailsDto;
 import shamu.company.attendance.dto.TimeAndAttendanceDetailsDto;
 import shamu.company.attendance.dto.TimeAndAttendanceRelatedUserDto;
+import shamu.company.attendance.entity.CompanyTaSetting;
 import shamu.company.attendance.entity.EmployeesTaSetting;
 import shamu.company.attendance.entity.StaticCompanyPayFrequencyType;
 import shamu.company.attendance.entity.StaticCompanyPayFrequencyType.PayFrequencyType;
+import shamu.company.attendance.entity.StaticTimezone;
 import shamu.company.attendance.entity.TimePeriod;
 import shamu.company.attendance.entity.mapper.CompanyTaSettingsMapper;
 import shamu.company.attendance.entity.mapper.EmployeesTaSettingsMapper;
@@ -52,6 +50,11 @@ import shamu.company.user.repository.CompensationOvertimeStatusRepository;
 import shamu.company.user.repository.UserRepository;
 import shamu.company.user.service.UserCompensationService;
 import shamu.company.user.service.UserService;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
 
@@ -181,18 +184,21 @@ public class AttendanceSetUpServiceTests {
         new StaticCompanyPayFrequencyType();
     List<EmployeeOvertimeDetailsDto> details = new ArrayList();
     Company company;
+    final StaticTimezone staticTimezone = new StaticTimezone();
 
     @BeforeEach
     void init() {
       company = new Company();
       timeAndAttendanceDetailsDto.setPayDate(new Date());
       timeAndAttendanceDetailsDto.setOvertimeDetails(details);
-      timeAndAttendanceDetailsDto.setPeriodStartDate(new Date());
-      timeAndAttendanceDetailsDto.setPeriodEndDate(new Date());
+      timeAndAttendanceDetailsDto.setPeriodStartDate("01/01/2020");
+      timeAndAttendanceDetailsDto.setPeriodEndDate("01/03/2020");
+      timeAndAttendanceDetailsDto.setFrontendTimezone("front-end-timezone");
       Mockito.when(companyService.findById(Mockito.anyString())).thenReturn(company);
       officeAddress.setPostalCode("postalCode");
       office.setOfficeAddress(officeAddress);
       jobUser.setOffice(office);
+      staticTimezone.setName("Hongkong");
     }
 
     @Test
@@ -203,6 +209,8 @@ public class AttendanceSetUpServiceTests {
       Mockito.when(companyRepository.findCompanyById(companyId)).thenReturn(new Company());
       Mockito.when(attendanceSettingsService.saveCompanyTaSetting(Mockito.any()))
           .thenReturn(Mockito.any());
+      Mockito.when(staticTimeZoneRepository.findByName("front-end-timezone"))
+          .thenReturn(staticTimezone);
       assertThatCode(
               () ->
                   attendanceSetUpService.saveAttendanceDetails(
@@ -226,6 +234,8 @@ public class AttendanceSetUpServiceTests {
           .thenReturn(Optional.of(new CompensationOvertimeStatus()));
       Mockito.when(jobUserRepository.findByUserId(Mockito.any())).thenReturn(jobUser);
       Mockito.when(timeSheetService.saveAll(Mockito.any())).thenReturn(Mockito.any());
+      Mockito.when(staticTimeZoneRepository.findByName("front-end-timezone"))
+          .thenReturn(staticTimezone);
       assertThatCode(
               () ->
                   attendanceSetUpService.saveAttendanceDetails(
@@ -240,16 +250,24 @@ public class AttendanceSetUpServiceTests {
     String payPeriodFrequency;
     String userId;
     Company company;
+    CompanyTaSetting companyTaSetting;
 
     @BeforeEach
     void init() {
       company = new Company();
       payPeriodFrequency = "WEEKLY";
       timePeriod = new TimePeriod(new Date(), new Date(), company);
+      final StaticTimezone staticTimezone = new StaticTimezone();
+      staticTimezone.setName("US/Samoa");
+      companyTaSetting = new CompanyTaSetting();
+      companyTaSetting.setTimeZone(staticTimezone);
     }
 
     @Test
     void frequencyIsValid_shouldSucceed() {
+
+      Mockito.when(attendanceSettingsService.findCompanySettings(company.getId()))
+          .thenReturn(companyTaSetting);
       for (final PayFrequencyType payPeriodFrequency : PayFrequencyType.values()) {
         assertThatCode(
                 () ->
@@ -273,6 +291,8 @@ public class AttendanceSetUpServiceTests {
       Mockito.when(userService.findById(userId)).thenReturn(user);
       Mockito.when(payPeriodFrequencyService.findByCompany(Mockito.any()))
           .thenReturn(Optional.ofNullable(staticCompanyPayFrequencyType));
+      Mockito.when(attendanceSettingsService.findCompanySettings(company.getId()))
+          .thenReturn(companyTaSetting);
       assertThatCode(() -> attendanceSetUpService.findNextPeriodByUser(userId))
           .doesNotThrowAnyException();
     }
