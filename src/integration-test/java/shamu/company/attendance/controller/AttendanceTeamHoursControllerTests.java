@@ -53,14 +53,19 @@ class AttendanceTeamHoursControllerTests extends WebControllerBaseTests {
       final TeamHoursPageInfoDto teamHoursPageInfoDto = new TeamHoursPageInfoDto();
       given(
               attendanceTeamHoursService.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
-                  Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+                  Mockito.any(),
+                  Mockito.any(),
+                  Mockito.any(),
+                  Mockito.any(),
+                  Mockito.any(),
+                  Mockito.any()))
           .willReturn(teamHoursPageInfoDto);
 
       final MvcResult response =
           mockMvc
               .perform(
                   MockMvcRequestBuilders.get(
-                          "/company/time-and-attendance/team-hours/pending-hours/1?page=1")
+                          "/company/time-and-attendance/team-hours/pending-hours/1/team_hours?page=1")
                       .contentType(MediaType.APPLICATION_JSON)
                       .headers(httpHeaders))
               .andReturn();
@@ -84,14 +89,19 @@ class AttendanceTeamHoursControllerTests extends WebControllerBaseTests {
       final TeamHoursPageInfoDto teamHoursPageInfoDto = new TeamHoursPageInfoDto();
       given(
               attendanceTeamHoursService.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
-                  Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+                  Mockito.any(),
+                  Mockito.any(),
+                  Mockito.any(),
+                  Mockito.any(),
+                  Mockito.any(),
+                  Mockito.any()))
           .willReturn(teamHoursPageInfoDto);
 
       final MvcResult response =
           mockMvc
               .perform(
                   MockMvcRequestBuilders.get(
-                          "/company/time-and-attendance/team-hours/approved-hours/1?page=1")
+                          "/company/time-and-attendance/team-hours/approved-hours/1/team_hours?page=1")
                       .contentType(MediaType.APPLICATION_JSON)
                       .headers(httpHeaders))
               .andReturn();
@@ -109,7 +119,7 @@ class AttendanceTeamHoursControllerTests extends WebControllerBaseTests {
         mockMvc
             .perform(
                 MockMvcRequestBuilders.get(
-                        "/company/time-and-attendance/team-hours/total-time-off/1")
+                        "/company/time-and-attendance/team-hours-summary/1/team_hours")
                     .headers(httpHeaders))
             .andReturn();
 
@@ -161,6 +171,22 @@ class AttendanceTeamHoursControllerTests extends WebControllerBaseTests {
             .perform(
                 MockMvcRequestBuilders.get(
                         "/company/time-and-attendance/team-hours/employee-info/1")
+                    .headers(httpHeaders))
+            .andReturn();
+
+    assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+  }
+
+  @Test
+  void findApprovalDaysBeforePayroll() throws Exception {
+    final HttpHeaders httpHeaders = new HttpHeaders();
+    httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.get(
+                        "/company/time-and-attendance/approval-days-before-payroll/1")
                     .headers(httpHeaders))
             .andReturn();
 

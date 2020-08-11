@@ -1,12 +1,5 @@
 package shamu.company.attendance;
 
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -26,6 +19,14 @@ import shamu.company.attendance.repository.TimeSheetRepository;
 import shamu.company.attendance.service.TimeSheetService;
 import shamu.company.common.exception.errormapping.ResourceNotFoundException;
 import shamu.company.utils.UuidUtil;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 public class TimeSheetServiceTests {
 
@@ -122,6 +123,50 @@ public class TimeSheetServiceTests {
     final TimeSheet timeSheet = new TimeSheet();
     assertThatCode(
             () -> timeSheetService.updateAllTimesheetStatus(Collections.singletonList(timeSheet)))
+        .doesNotThrowAnyException();
+  }
+
+  @Test
+  void findCompanyTimeSheetsByIdAndCompanyIdAndStatus() {
+    final TimeSheetStatus timeSheetStatus = TimeSheetStatus.SUBMITTED;
+    final Pageable pageable = PageRequest.of(0, 2);
+    final Page<TimeSheet> page = new PageImpl<>(Collections.emptyList());
+    Mockito.when(
+            timeSheetRepository.findCompanyTimeSheetsByIdAndCompanyIdAndStatus(
+                "1", "1", timeSheetStatus.getValue(), "1", pageable))
+        .thenReturn(page);
+    assertThatCode(
+            () ->
+                timeSheetService.findCompanyTimeSheetsByIdAndCompanyIdAndStatus(
+                    "1", "1", timeSheetStatus, "1", pageable))
+        .doesNotThrowAnyException();
+  }
+
+  @Test
+  void findTeamTimeSheetsByIdAndCompanyIdAndStatus() {
+    final List<TimeSheet> timeSheets = new ArrayList<>();
+    Mockito.when(
+            timeSheetRepository.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
+                Mockito.anyString(), Mockito.any(), Mockito.anyList(), Mockito.any()))
+        .thenReturn(timeSheets);
+    assertThatCode(
+            () ->
+                timeSheetService.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
+                    Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.anyList()))
+        .doesNotThrowAnyException();
+  }
+
+  @Test
+  void findCompanyTimeSheetsByCompanyIdAndStatus() {
+    final List<TimeSheet> timeSheets = new ArrayList<>();
+    Mockito.when(
+            timeSheetRepository.findCompanyTimeSheetsByIdAndCompanyIdAndStatus(
+                Mockito.anyString(), Mockito.any(), Mockito.anyList(), Mockito.any()))
+        .thenReturn(timeSheets);
+    assertThatCode(
+            () ->
+                timeSheetService.findCompanyTimeSheetsByIdAndCompanyIdAndStatus(
+                    Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.anyList()))
         .doesNotThrowAnyException();
   }
 }

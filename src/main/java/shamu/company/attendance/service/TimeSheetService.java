@@ -1,6 +1,5 @@
 package shamu.company.attendance.service;
 
-import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -10,6 +9,8 @@ import shamu.company.attendance.entity.TimeSheet;
 import shamu.company.attendance.repository.StaticTimesheetStatusRepository;
 import shamu.company.attendance.repository.TimeSheetRepository;
 import shamu.company.common.exception.errormapping.ResourceNotFoundException;
+
+import java.util.List;
 
 @Service
 public class TimeSheetService {
@@ -57,12 +58,31 @@ public class TimeSheetService {
         timePeriodId, companyId, timeSheetStatus.getValue(), userId, pageable);
   }
 
-  public List<TimeSheet> findTimeSheetsByIdAndCompanyIdAndStatus(
+  public Page<TimeSheet> findCompanyTimeSheetsByIdAndCompanyIdAndStatus(
+      final String timePeriodId,
+      final String companyId,
+      final TimeSheetStatus timeSheetStatus,
+      final String userId,
+      final Pageable pageable) {
+    return timeSheetRepository.findCompanyTimeSheetsByIdAndCompanyIdAndStatus(
+        timePeriodId, companyId, timeSheetStatus.getValue(), userId, pageable);
+  }
+
+  public List<TimeSheet> findTeamTimeSheetsByIdAndCompanyIdAndStatus(
       final String userId,
       final String timePeriodId,
       final String companyId,
       final List<String> timeSheetStatus) {
-    return timeSheetRepository.findTimeSheetsByIdAndCompanyIdAndStatus(
+    return timeSheetRepository.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
+        timePeriodId, companyId, timeSheetStatus, userId);
+  }
+
+  public List<TimeSheet> findCompanyTimeSheetsByIdAndCompanyIdAndStatus(
+      final String userId,
+      final String timePeriodId,
+      final String companyId,
+      final List<String> timeSheetStatus) {
+    return timeSheetRepository.findCompanyTimeSheetsByIdAndCompanyIdAndStatus(
         timePeriodId, companyId, timeSheetStatus, userId);
   }
 
@@ -83,7 +103,7 @@ public class TimeSheetService {
     timeSheetRepository.saveAll(timeSheets);
   }
 
-  public List<TimeSheet> findAllById(Iterable<String> iterable) {
+  public List<TimeSheet> findAllById(final Iterable<String> iterable) {
     return timeSheetRepository.findAllById(iterable);
   }
 }

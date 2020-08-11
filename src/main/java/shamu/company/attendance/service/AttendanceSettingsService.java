@@ -1,7 +1,5 @@
 package shamu.company.attendance.service;
 
-import java.util.List;
-import java.util.Optional;
 import org.springframework.stereotype.Service;
 import shamu.company.attendance.dto.CompanyTaSettingsDto;
 import shamu.company.attendance.dto.EmployeesTaSettingDto;
@@ -17,6 +15,9 @@ import shamu.company.attendance.repository.StaticTimeZoneRepository;
 import shamu.company.company.entity.Company;
 import shamu.company.user.entity.User;
 import shamu.company.user.repository.UserRepository;
+
+import java.util.List;
+import java.util.Optional;
 
 /** @author mshumaker */
 @Service
@@ -68,7 +69,6 @@ public class AttendanceSettingsService {
     return companyTaSettingRepository.existsByCompanyId(companyId);
   }
 
-
   public Boolean findEmployeeIsAttendanceSetUp(final String employeeId) {
     return timeSheetService.existByUser(employeeId);
   }
@@ -109,5 +109,9 @@ public class AttendanceSettingsService {
     employeesTaSettingsMapper.updateFromEmployeeTaSettingsDto(
         employeesTaSetting, employeesTaSettingDto);
     employeesTaSettingRepository.save(employeesTaSetting);
+  }
+
+  public int findApprovalDaysBeforePayroll(final String userId) {
+    return companyTaSettingRepository.findApprovalDaysBeforePayroll(userId);
   }
 }

@@ -1,7 +1,5 @@
 package shamu.company.attendance.controller;
 
-import java.util.List;
-import java.util.Set;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpEntity;
@@ -17,12 +15,16 @@ import shamu.company.attendance.dto.EmployeeInfoDto;
 import shamu.company.attendance.dto.TeamHoursPageInfoDto;
 import shamu.company.attendance.dto.TimeSheetPeriodDto;
 import shamu.company.attendance.entity.StaticTimesheetStatus.TimeSheetStatus;
+import shamu.company.attendance.service.AttendanceSettingsService;
 import shamu.company.attendance.service.AttendanceTeamHoursService;
 import shamu.company.attendance.service.TimePeriodService;
 import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.job.service.JobUserService;
 import shamu.company.utils.ReflectionUtil;
+
+import java.util.List;
+import java.util.Set;
 
 @RestApiController
 public class AttendanceTeamHoursController extends BaseRestController {
@@ -33,41 +35,48 @@ public class AttendanceTeamHoursController extends BaseRestController {
 
   private final JobUserService jobUserService;
 
+  private final AttendanceSettingsService attendanceSettingsService;
+
   public AttendanceTeamHoursController(
       final AttendanceTeamHoursService attendanceTeamHoursService,
       final TimePeriodService timePeriodService,
-      final JobUserService jobUserService) {
+      final JobUserService jobUserService,
+      final AttendanceSettingsService attendanceSettingsService) {
     this.attendanceTeamHoursService = attendanceTeamHoursService;
     this.timePeriodService = timePeriodService;
     this.jobUserService = jobUserService;
+    this.attendanceSettingsService = attendanceSettingsService;
   }
 
-  @GetMapping("time-and-attendance/team-hours/pending-hours/{timePeriodId}")
+  @GetMapping("time-and-attendance/team-hours/pending-hours/{timePeriodId}/{hourType}")
   public TeamHoursPageInfoDto findAttendanceTeamPendingHours(
       @PathVariable final String timePeriodId,
+      @PathVariable final String hourType,
       @RequestParam(value = "page") final Integer page,
       @RequestParam(value = "size", defaultValue = "5") final Integer size) {
     final Pageable pageable = PageRequest.of(page - 1, size);
 
     return attendanceTeamHoursService.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
-        timePeriodId, findCompanyId(), TimeSheetStatus.SUBMITTED, findUserId(), pageable);
+        timePeriodId, hourType, findCompanyId(), TimeSheetStatus.SUBMITTED, findUserId(), pageable);
   }
 
-  @GetMapping("time-and-attendance/team-hours/approved-hours/{timePeriodId}")
+  @GetMapping("time-and-attendance/team-hours/approved-hours/{timePeriodId}/{hourType}")
   public TeamHoursPageInfoDto findAttendanceTeamApprovedHours(
       @PathVariable final String timePeriodId,
+      @PathVariable final String hourType,
       @RequestParam(value = "page") final Integer page,
       @RequestParam(value = "size", defaultValue = "20") final Integer size) {
     final Pageable pageable = PageRequest.of(page - 1, size);
 
     return attendanceTeamHoursService.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
-        timePeriodId, findCompanyId(), TimeSheetStatus.APPROVED, findUserId(), pageable);
+        timePeriodId, hourType, findCompanyId(), TimeSheetStatus.APPROVED, findUserId(), pageable);
   }
 
-  @GetMapping("time-and-attendance/team-hours/total-time-off/{timePeriodId}")
-  public AttendanceSummaryDto findTeamHoursSummary(@PathVariable final String timePeriodId) {
+  @GetMapping("time-and-attendance/team-hours-summary/{timePeriodId}/{hourType}")
+  public AttendanceSummaryDto findTeamHoursSummary(
+      @PathVariable final String timePeriodId, @PathVariable final String hourType) {
     return attendanceTeamHoursService.findTeamHoursSummary(
-        timePeriodId, findCompanyId(), findUserId());
+        timePeriodId, findCompanyId(), findUserId(), hourType);
   }
 
   @GetMapping("time-and-attendance/time-periods")
@@ -85,5 +94,10 @@ public class AttendanceTeamHoursController extends BaseRestController {
   @GetMapping("time-and-attendance/team-hours/employee-info/{userId}")
   public EmployeeInfoDto findEmployeeInfo(@PathVariable final String userId) {
     return jobUserService.findEmployeeInfo(userId);
+  }
+
+  @GetMapping("time-and-attendance/approval-days-before-payroll/{userId}")
+  public int findApprovalDaysBeforePayroll(@PathVariable final String userId) {
+    return attendanceSettingsService.findApprovalDaysBeforePayroll(userId);
   }
 }

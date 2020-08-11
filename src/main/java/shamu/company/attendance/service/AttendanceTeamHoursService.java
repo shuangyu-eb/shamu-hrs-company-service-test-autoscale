@@ -1,12 +1,7 @@
 package shamu.company.attendance.service;
 
-import java.sql.Timestamp;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,11 +16,22 @@ import shamu.company.attendance.entity.TimeSheet;
 import shamu.company.timeoff.service.TimeOffRequestService;
 import shamu.company.user.entity.User;
 
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 @Transactional
 @Service
 public class AttendanceTeamHoursService {
   private static final int CONVERT_HOUR_TO_MIN = 60;
   private static final String HOUR_TYPE = "Per Hour";
+  private static final String TEAM_HOURS_TYPE = "team_hours";
+  private static final String COMPANY_HOURS_TYPE = "company_hours";
 
   private final TimeSheetService timeSheetService;
   private final AttendanceMyHoursService attendanceMyHoursService;
@@ -46,18 +52,27 @@ public class AttendanceTeamHoursService {
     this.attendanceSettingsService = attendanceSettingsService;
     this.overtimeService = overtimeService;
     this.timeOffRequestService = timeOffRequestService;
-    this.staticTimesheetStatusService = statusService;
+    staticTimesheetStatusService = statusService;
   }
 
   public TeamHoursPageInfoDto findTeamTimeSheetsByIdAndCompanyIdAndStatus(
       final String timePeriodId,
+      final String hourType,
       final String companyId,
       final TimeSheetStatus timeSheetStatus,
       final String userId,
       final Pageable pageable) {
-    final Page<TimeSheet> timeSheetPage =
-        timeSheetService.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
-            timePeriodId, companyId, timeSheetStatus, userId, pageable);
+    Page<TimeSheet> timeSheetPage = new PageImpl<>(Collections.emptyList());
+    if (hourType.equals(TEAM_HOURS_TYPE)) {
+      timeSheetPage =
+          timeSheetService.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
+              timePeriodId, companyId, timeSheetStatus, userId, pageable);
+    }
+    if (hourType.equals(COMPANY_HOURS_TYPE)) {
+      timeSheetPage =
+          timeSheetService.findCompanyTimeSheetsByIdAndCompanyIdAndStatus(
+              timePeriodId, companyId, timeSheetStatus, userId, pageable);
+    }
     final CompanyTaSetting companyTaSetting =
         attendanceSettingsService.findCompanySettings(companyId);
 
@@ -91,15 +106,31 @@ public class AttendanceTeamHoursService {
   }
 
   public AttendanceSummaryDto findTeamHoursSummary(
-      final String timePeriodId, final String companyId, final String userId) {
-    final List<TimeSheet> timeSheets =
-        timeSheetService.findTimeSheetsByIdAndCompanyIdAndStatus(
-            userId,
-            timePeriodId,
-            companyId,
-            Arrays.asList(
-                StaticTimesheetStatus.TimeSheetStatus.SUBMITTED.name(),
-                StaticTimesheetStatus.TimeSheetStatus.APPROVED.name()));
+      final String timePeriodId,
+      final String companyId,
+      final String userId,
+      final String hourType) {
+    List<TimeSheet> timeSheets = new ArrayList<>();
+    if (hourType.equals(TEAM_HOURS_TYPE)) {
+      timeSheets =
+          timeSheetService.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
+              userId,
+              timePeriodId,
+              companyId,
+              Arrays.asList(
+                  StaticTimesheetStatus.TimeSheetStatus.SUBMITTED.name(),
+                  StaticTimesheetStatus.TimeSheetStatus.APPROVED.name()));
+    }
+    if (hourType.equals(COMPANY_HOURS_TYPE)) {
+      timeSheets =
+          timeSheetService.findCompanyTimeSheetsByIdAndCompanyIdAndStatus(
+              userId,
+              timePeriodId,
+              companyId,
+              Arrays.asList(
+                  StaticTimesheetStatus.TimeSheetStatus.SUBMITTED.name(),
+                  StaticTimesheetStatus.TimeSheetStatus.APPROVED.name()));
+    }
     final CompanyTaSetting companyTaSetting =
         attendanceSettingsService.findCompanySettings(companyId);
     int totalTimeOffHours = 0;
