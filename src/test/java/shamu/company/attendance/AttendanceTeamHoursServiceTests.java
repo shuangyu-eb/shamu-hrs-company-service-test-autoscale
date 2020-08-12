@@ -160,12 +160,9 @@ class AttendanceTeamHoursServiceTests {
     void whenExistTimeSheetAndIsCompanyHourType_thenShouldReturnDtos() {
       timeSheet.setId(UuidUtil.getUuidString());
 
-      Mockito.when(
-              timeSheetService.findCompanyTimeSheetsByIdAndCompanyIdAndStatus(
-                  timesheetId, status, "1", pageable))
+      Mockito.when(timeSheetService.findTimeSheetsByIdAndStatus(timesheetId, status, "1", pageable))
           .thenReturn(page);
-      Mockito.when(attendanceSettingsService.findCompanySettings())
-          .thenReturn(companyTaSetting);
+      Mockito.when(attendanceSettingsService.findCompanySetting()).thenReturn(companyTaSetting);
       Mockito.when(attendanceMyHoursService.findAllRelevantTimelogs(timeSheet, companyTaSetting))
           .thenReturn(workedMinutes);
       Mockito.when(attendanceMyHoursService.getTotalNumberOfWorkedMinutes(workedMinutes, timeSheet))
@@ -230,8 +227,7 @@ class AttendanceTeamHoursServiceTests {
       compensationFrequency.setName("Per Hour");
       userCompensation.setCompensationFrequency(compensationFrequency);
       timeSheet.setUserCompensation(userCompensation);
-      Mockito.when(attendanceSettingsService.findCompanySettings())
-          .thenReturn(companyTaSetting);
+      Mockito.when(attendanceSettingsService.findCompanySetting()).thenReturn(companyTaSetting);
       Mockito.when(
               timeOffRequestService.findTimeOffHoursBetweenWorkPeriod(
                   user, timePeriod.getStartDate().getTime(), timePeriod.getEndDate().getTime()))
@@ -255,7 +251,7 @@ class AttendanceTeamHoursServiceTests {
                   Mockito.anyString(), Mockito.anyString(), Mockito.anyList()))
           .thenReturn(timeSheets);
       final AttendanceSummaryDto attendanceSummaryDto =
-          attendanceTeamHoursService.findTeamHoursSummary("1", "1", "1", "team_hours");
+          attendanceTeamHoursService.findTeamHoursSummary("1", "1", "team_hours");
       assertThat(attendanceSummaryDto.getOverTimeMinutes()).isEqualTo(180);
       assertThat(attendanceSummaryDto.getWorkedMinutes()).isEqualTo(20);
       assertThat(attendanceSummaryDto.getTotalPtoMinutes()).isEqualTo(1200);
@@ -264,11 +260,11 @@ class AttendanceTeamHoursServiceTests {
     @Test
     void whenIsCompanyHourType() {
       Mockito.when(
-              timeSheetService.findCompanyTimeSheetsByIdAndCompanyIdAndStatus(
+              timeSheetService.findTimeSheetsByIdAndStatus(
                   Mockito.anyString(), Mockito.anyString(), Mockito.anyList()))
           .thenReturn(timeSheets);
       final AttendanceSummaryDto attendanceSummaryDto =
-          attendanceTeamHoursService.findTeamHoursSummary("1", "1", "1", "company_hours");
+          attendanceTeamHoursService.findTeamHoursSummary("1", "1", "company_hours");
       assertThat(attendanceSummaryDto.getOverTimeMinutes()).isEqualTo(180);
       assertThat(attendanceSummaryDto.getWorkedMinutes()).isEqualTo(20);
       assertThat(attendanceSummaryDto.getTotalPtoMinutes()).isEqualTo(1200);

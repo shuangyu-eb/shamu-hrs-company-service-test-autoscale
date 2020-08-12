@@ -259,6 +259,10 @@ public class AttendanceSetUpService {
                     timeAndAttendanceDetailsDto.getPeriodEndDate(), companyTimezone.getName())
                 .get());
 
+    saveCompanyTaSetting(
+        timeAndAttendanceDetailsDto.getPayPeriodFrequency(),
+        timeAndAttendanceDetailsDto.getPayDate(),
+        companyTimezone);
     saveEmployeeTaSettings(timeAndAttendanceDetailsDto, allTimezones);
 
     final List<UserCompensation> userCompensationList =
@@ -453,8 +457,7 @@ public class AttendanceSetUpService {
       final String periodFrequency,
       final Date payDate,
       final StaticTimezone companyTimezone) {
-    final CompanyTaSetting existCompanyTaSetting =
-        attendanceSettingsService.findCompanySettings();
+    final CompanyTaSetting existCompanyTaSetting = attendanceSettingsService.findCompanySetting();
     final StaticCompanyPayFrequencyType staticCompanyPayFrequencyType =
         payPeriodFrequencyService.findByName(periodFrequency);
     final PayrollDetail payrollDetail =

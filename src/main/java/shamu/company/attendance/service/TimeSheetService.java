@@ -64,29 +64,24 @@ public class TimeSheetService {
         timePeriodId, timeSheetStatus.getValue(), userId, pageable);
   }
 
-  public Page<TimeSheet> findCompanyTimeSheetsByIdAndCompanyIdAndStatus(
+  public Page<TimeSheet> findTimeSheetsByIdAndStatus(
       final String timePeriodId,
       final TimeSheetStatus timeSheetStatus,
       final String userId,
       final Pageable pageable) {
-    return timeSheetRepository.findCompanyTimeSheetsByIdAndCompanyIdAndStatus(
+    return timeSheetRepository.findTimeSheetsByIdAndStatus(
         timePeriodId, timeSheetStatus.getValue(), userId, pageable);
   }
 
   public List<TimeSheet> findTeamTimeSheetsByIdAndCompanyIdAndStatus(
-      final String userId,
-      final String timePeriodId,
-      final List<String> timeSheetStatus) {
-    return timeSheetRepository.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
+      final String userId, final String timePeriodId, final List<String> timeSheetStatus) {
+    return timeSheetRepository.findTeamTimeSheetsByIdAndStatus(
         timePeriodId, timeSheetStatus, userId);
   }
 
-  public List<TimeSheet> findCompanyTimeSheetsByIdAndCompanyIdAndStatus(
-      final String userId,
-      final String timePeriodId,
-      final List<String> timeSheetStatus) {
-    return timeSheetRepository.findCompanyTimeSheetsByIdAndCompanyIdAndStatus(
-        timePeriodId, timeSheetStatus, userId);
+  public List<TimeSheet> findTimeSheetsByIdAndStatus(
+      final String userId, final String timePeriodId, final List<String> timeSheetStatus) {
+    return timeSheetRepository.findTimeSheetsByIdAndStatus(timePeriodId, timeSheetStatus, userId);
   }
 
   public void updateTimesheetStatus(final String statusId, final String timesheetId) {

@@ -9,8 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 import shamu.company.attendance.entity.TimeSheet;
 import shamu.company.common.repository.BaseRepository;
 
-import java.util.List;
-
 public interface TimeSheetRepository extends BaseRepository<TimeSheet, String> {
   String QUERY_TEAM_TIMESHEETS_SQL =
       "select t.* from timesheets t "
@@ -30,13 +28,6 @@ public interface TimeSheetRepository extends BaseRepository<TimeSheet, String> {
           + " and sts.name in (?2) order by t.updated_at desc ";
 
   @Query(
-      value =
-          "select t.* from timesheets t join users u  "
-              + "on u.id = t.employee_id and u.company_id = unhex(?1)",
-      nativeQuery = true)
-  List<TimeSheet> listByCompanyId(String companyId);
-
-  @Query(
       value = QUERY_TEAM_TIMESHEETS_SQL,
       countQuery = QUERY_TEAM_TIMESHEETS_SQL,
       nativeQuery = true)
@@ -47,11 +38,11 @@ public interface TimeSheetRepository extends BaseRepository<TimeSheet, String> {
       value = QUERY_COMPANY_TIMESHEETS_SQL,
       countQuery = QUERY_COMPANY_TIMESHEETS_SQL,
       nativeQuery = true)
-  Page<TimeSheet> findCompanyTimeSheetsByIdAndCompanyIdAndStatus(
-      String timePeriodId, String companyId, String status, String userId, Pageable pageable);
+  Page<TimeSheet> findTimeSheetsByIdAndStatus(
+      String timePeriodId, String status, String userId, Pageable pageable);
 
   @Query(value = QUERY_TEAM_TIMESHEETS_SQL, nativeQuery = true)
-  List<TimeSheet> findTeamTimeSheetsByIdAndCompanyIdAndStatus(
+  List<TimeSheet> findTeamTimeSheetsByIdAndStatus(
       String timePeriodId, List<String> status, String userId);
 
   @Query(value = QUERY_COMPANY_TIMESHEETS_SQL, nativeQuery = true)

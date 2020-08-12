@@ -1,7 +1,9 @@
 package shamu.company.attendance.service;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -172,11 +174,10 @@ public class AttendanceTeamHoursService {
     }
     if (hourType.equals(COMPANY_HOURS_TYPE)) {
       timeSheetPage =
-          timeSheetService.findCompanyTimeSheetsByIdAndCompanyIdAndStatus(
+          timeSheetService.findTimeSheetsByIdAndStatus(
               timePeriodId, timeSheetStatus, userId, pageable);
     }
-    final CompanyTaSetting companyTaSetting =
-        attendanceSettingsService.findCompanySetting();
+    final CompanyTaSetting companyTaSetting = attendanceSettingsService.findCompanySetting();
 
     final List<AttendanceTeamHoursDto> teamHoursDtos =
         timeSheetPage.getContent().stream()
@@ -208,9 +209,7 @@ public class AttendanceTeamHoursService {
   }
 
   public AttendanceSummaryDto findTeamHoursSummary(
-      final String timePeriodId,
-      final String userId,
-      final String hourType) {
+      final String timePeriodId, final String userId, final String hourType) {
     List<TimeSheet> timeSheets = new ArrayList<>();
     if (hourType.equals(TEAM_HOURS_TYPE)) {
       timeSheets =
@@ -223,15 +222,14 @@ public class AttendanceTeamHoursService {
     }
     if (hourType.equals(COMPANY_HOURS_TYPE)) {
       timeSheets =
-          timeSheetService.findCompanyTimeSheetsByIdAndCompanyIdAndStatus(
+          timeSheetService.findTimeSheetsByIdAndStatus(
               userId,
               timePeriodId,
               Arrays.asList(
                   StaticTimesheetStatus.TimeSheetStatus.SUBMITTED.name(),
                   StaticTimesheetStatus.TimeSheetStatus.APPROVED.name()));
     }
-    final CompanyTaSetting companyTaSetting =
-        attendanceSettingsService.findCompanySetting();
+    final CompanyTaSetting companyTaSetting = attendanceSettingsService.findCompanySetting();
     int totalTimeOffHours = 0;
     int totalOvertimeMin = 0;
     int totalRegularMin = 0;
