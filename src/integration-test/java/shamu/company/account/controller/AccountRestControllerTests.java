@@ -44,6 +44,8 @@ public class AccountRestControllerTests extends WebControllerBaseTests {
     createPasswordDto.setNewPassword("856723Xy");
     createPasswordDto.setResetPasswordToken("1");
     createPasswordDto.setCompanyId("asdzxc");
+
+    Mockito.when(tenantService.isCompanyExists(createPasswordDto.getCompanyId())).thenReturn(true);
     final MvcResult response =
         mockMvc
             .perform(

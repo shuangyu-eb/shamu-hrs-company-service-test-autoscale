@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import shamu.company.account.service.AccountService;
 import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.common.multitenant.TenantContext;
+import shamu.company.common.service.TenantService;
 import shamu.company.helpers.auth0.Auth0Helper;
 import shamu.company.user.dto.CreatePasswordDto;
 import shamu.company.user.dto.UserLoginDto;
@@ -28,26 +29,40 @@ public class AccountRestController {
 
   private final AccountService accountService;
 
+  private final TenantService tenantService;
+
   @Autowired
   public AccountRestController(
       final UserService userService,
       final Auth0Helper auth0Helper,
-      final AccountService accountService) {
+      final AccountService accountService,
+      final TenantService tenantService) {
     this.userService = userService;
     this.auth0Helper = auth0Helper;
     this.accountService = accountService;
+    this.tenantService = tenantService;
   }
 
   @GetMapping("account/password/{token}/{companyId}")
   public Boolean createPasswordTokenExist(
       @PathVariable final String token, @PathVariable final String companyId) {
-    TenantContext.setCurrentTenant(Base64Utils.decodeCompanyId(companyId));
+    final String decodeCompanyId = Base64Utils.decodeCompanyId(companyId);
+    final boolean isExists = tenantService.isCompanyExists(decodeCompanyId);
+    if (!isExists) {
+      return false;
+    }
+    TenantContext.setCurrentTenant(decodeCompanyId);
     return userService.createPasswordTokenExist(token);
   }
 
   @PatchMapping("account/password")
   public HttpEntity<String> createPassword(
       @RequestBody @Valid final CreatePasswordDto createPasswordDto) {
+    final String companyId = createPasswordDto.getCompanyId();
+    final boolean isExists = tenantService.isCompanyExists(companyId);
+    if (!isExists) {
+      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
     TenantContext.setCurrentTenant(createPasswordDto.getCompanyId());
     accountService.createPassword(createPasswordDto);
     return new ResponseEntity<>(HttpStatus.OK);
@@ -58,6 +73,10 @@ public class AccountRestController {
       @PathVariable("passwordToken") final String passwordToken,
       @PathVariable("invitationToken") final String invitationToken,
       @PathVariable final String companyId) {
+    final boolean isExists = tenantService.isCompanyExists(companyId);
+    if (!isExists) {
+      return false;
+    }
     TenantContext.setCurrentTenant(Base64Utils.decodeCompanyId(companyId));
     return accountService.createPasswordAndInvitationTokenExist(passwordToken, invitationToken);
   }
@@ -71,6 +90,10 @@ public class AccountRestController {
   @PatchMapping("account/change-work-email/{token}/{companyId}")
   public boolean validateChangeWorkEmail(
       @PathVariable final String token, @PathVariable final String companyId) {
+    final boolean isExists = tenantService.isCompanyExists(companyId);
+    if (!isExists) {
+      return false;
+    }
     TenantContext.setCurrentTenant(Base64Utils.decodeCompanyId(companyId));
     return userService.changeWorkEmailTokenExist(token);
   }
