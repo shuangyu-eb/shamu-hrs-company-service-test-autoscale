@@ -111,7 +111,7 @@ public class AttendanceSettingsService {
     employeesTaSettingRepository.save(employeesTaSetting);
   }
 
-  public int findApprovalDaysBeforePayroll(final String userId) {
-    return companyTaSettingRepository.findApprovalDaysBeforePayroll(userId);
+  public int findApprovalDaysBeforePayroll(final String companyId) {
+    return companyTaSettingRepository.findApprovalDaysBeforePayroll(companyId);
   }
 }

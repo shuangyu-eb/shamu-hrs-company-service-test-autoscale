@@ -186,7 +186,7 @@ class AttendanceTeamHoursControllerTests extends WebControllerBaseTests {
         mockMvc
             .perform(
                 MockMvcRequestBuilders.get(
-                        "/company/time-and-attendance/approval-days-before-payroll/1")
+                        "/company/time-and-attendance/approval-days-before-payroll")
                     .headers(httpHeaders))
             .andReturn();
 

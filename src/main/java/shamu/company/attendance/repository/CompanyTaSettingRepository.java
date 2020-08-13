@@ -11,8 +11,7 @@ public interface CompanyTaSettingRepository extends BaseRepository<CompanyTaSett
 
   @Query(
       value =
-          "select approval_days_before_payroll from company_ta_settings cts join users u "
-              + "on cts.company_id = u.company_id where u.id = unhex(?1)",
+          "select approval_days_before_payroll from company_ta_settings where company_id = unhex(?1)",
       nativeQuery = true)
-  int findApprovalDaysBeforePayroll(final String userId);
+  int findApprovalDaysBeforePayroll(final String companyId);
 }

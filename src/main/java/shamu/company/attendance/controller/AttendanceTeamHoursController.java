@@ -96,8 +96,8 @@ public class AttendanceTeamHoursController extends BaseRestController {
     return jobUserService.findEmployeeInfo(userId);
   }
 
-  @GetMapping("time-and-attendance/approval-days-before-payroll/{userId}")
-  public int findApprovalDaysBeforePayroll(@PathVariable final String userId) {
-    return attendanceSettingsService.findApprovalDaysBeforePayroll(userId);
+  @GetMapping("time-and-attendance/approval-days-before-payroll")
+  public int findApprovalDaysBeforePayroll() {
+    return attendanceSettingsService.findApprovalDaysBeforePayroll(findCompanyId());
   }
 }
