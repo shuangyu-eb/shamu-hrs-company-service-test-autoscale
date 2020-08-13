@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import shamu.company.attendance.dto.AttendanceSummaryDto;
+import shamu.company.attendance.dto.EmployeeAttendanceSummaryDto;
 import shamu.company.attendance.dto.EmployeeInfoDto;
 import shamu.company.attendance.dto.TeamHoursPageInfoDto;
 import shamu.company.attendance.dto.TimeSheetPeriodDto;
@@ -58,6 +59,13 @@ public class AttendanceTeamHoursController extends BaseRestController {
 
     return attendanceTeamHoursService.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
         timePeriodId, hourType, findCompanyId(), TimeSheetStatus.SUBMITTED, findUserId(), pageable);
+  }
+
+  @GetMapping("time-and-attendance/team-hours/{timePeriodId}/{hourType}")
+  public List<EmployeeAttendanceSummaryDto> findTeamEmployeesHours(
+      @PathVariable final String timePeriodId, @PathVariable final String hourType) {
+    return attendanceTeamHoursService.findEmployeeAttendanceSummary(
+        timePeriodId, findCompanyId(), findUserId(), hourType);
   }
 
   @GetMapping("time-and-attendance/team-hours/approved-hours/{timePeriodId}/{hourType}")

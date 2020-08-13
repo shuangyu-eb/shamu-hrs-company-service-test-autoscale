@@ -115,9 +115,13 @@ public abstract class DateUtil {
     }
   }
 
-  public static long getFirstHourOfWeek(final Timestamp timestamp, final String timezone) {
+  public static LocalDate toLocalDateWithTimeZone(
+      final Timestamp timestamp, final String timezone) {
+    return timestamp.toInstant().atZone(ZoneId.of(timezone)).toLocalDate();
+  }
 
-    final LocalDate currentDate = timestamp.toInstant().atZone(ZoneId.of(timezone)).toLocalDate();
+  public static long getFirstHourOfWeek(final Timestamp timestamp, final String timezone) {
+    final LocalDate currentDate = toLocalDateWithTimeZone(timestamp, timezone);
     final LocalDateTime firstDatimeOfWeek =
         currentDate.with(previousOrSame(DayOfWeek.SATURDAY)).atStartOfDay();
     return firstDatimeOfWeek.atZone(ZoneId.of(timezone)).toEpochSecond();

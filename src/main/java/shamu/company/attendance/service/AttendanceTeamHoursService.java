@@ -7,11 +7,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shamu.company.attendance.dto.AttendanceSummaryDto;
 import shamu.company.attendance.dto.AttendanceTeamHoursDto;
+import shamu.company.attendance.dto.EmployeeAttendanceSummaryDto;
 import shamu.company.attendance.dto.TeamHoursPageInfoDto;
 import shamu.company.attendance.entity.CompanyTaSetting;
 import shamu.company.attendance.entity.EmployeeTimeLog;
 import shamu.company.attendance.entity.StaticTimesheetStatus;
 import shamu.company.attendance.entity.StaticTimesheetStatus.TimeSheetStatus;
+import shamu.company.attendance.entity.TimePeriod;
 import shamu.company.attendance.entity.TimeSheet;
 import shamu.company.timeoff.service.TimeOffRequestService;
 import shamu.company.user.entity.User;
@@ -32,6 +34,8 @@ public class AttendanceTeamHoursService {
   private static final String HOUR_TYPE = "Per Hour";
   private static final String TEAM_HOURS_TYPE = "team_hours";
   private static final String COMPANY_HOURS_TYPE = "company_hours";
+  private static final double ONE_POINT_FIVE_RATE = 1.5;
+  private static final double TWO_RATE = 2;
 
   private final TimeSheetService timeSheetService;
   private final AttendanceMyHoursService attendanceMyHoursService;
@@ -53,6 +57,84 @@ public class AttendanceTeamHoursService {
     this.overtimeService = overtimeService;
     this.timeOffRequestService = timeOffRequestService;
     staticTimesheetStatusService = statusService;
+  }
+
+  public List<EmployeeAttendanceSummaryDto> findEmployeeAttendanceSummary(
+      final String timePeriodId,
+      final String companyId,
+      final String userId,
+      final String hourType) {
+    final CompanyTaSetting companyTaSetting =
+        attendanceSettingsService.findCompanySettings(companyId);
+    final List<EmployeeAttendanceSummaryDto> employeeAttendanceSummaryDtoList = new ArrayList<>();
+
+    final List<TimeSheet> timeSheets =
+        findTimeSheetsByIdAndCompanyIdAndStatusAndType(
+            userId,
+            timePeriodId,
+            companyId,
+            Arrays.asList(
+                StaticTimesheetStatus.TimeSheetStatus.SUBMITTED.name(),
+                StaticTimesheetStatus.TimeSheetStatus.APPROVED.name()),
+            hourType);
+    timeSheets.forEach(
+        timeSheet -> {
+          final User user = timeSheet.getEmployee();
+
+          final List<EmployeeTimeLog> workedMinutes =
+              attendanceMyHoursService.findAllRelevantTimelogs(timeSheet, companyTaSetting);
+          final Map<Double, Integer> overtimeMinutes =
+              overtimeService.findAllOvertimeHours(workedMinutes, timeSheet, companyTaSetting);
+
+          int totalOvertimeMin = 0;
+          int totalOvertime15Min = 0;
+          int totalOvertime2Min = 0;
+          for (final Map.Entry<Double, Integer> overtimeMinute : overtimeMinutes.entrySet()) {
+            totalOvertimeMin += overtimeMinute.getValue();
+            if (overtimeMinute.getKey() == ONE_POINT_FIVE_RATE) {
+              totalOvertime15Min += overtimeMinute.getValue();
+            } else if (overtimeMinute.getKey() == TWO_RATE) {
+              totalOvertime2Min += overtimeMinute.getValue();
+            }
+          }
+
+          final int workedMin =
+              attendanceMyHoursService.getTotalNumberOfWorkedMinutes(workedMinutes, timeSheet);
+
+          final TimePeriod timePeriod = timeSheet.getTimePeriod();
+
+          employeeAttendanceSummaryDtoList.add(
+              EmployeeAttendanceSummaryDto.builder()
+                  .firstName(user.getUserPersonalInformation().getFirstName())
+                  .lastName(user.getUserPersonalInformation().getLastName())
+                  .totalMinutes(workedMin)
+                  .regularMinutes(workedMin - totalOvertimeMin)
+                  .overtime15Minutes(totalOvertime15Min)
+                  .overtime2Minutes(totalOvertime2Min)
+                  .periodStartTime(timePeriod.getStartDate())
+                  .periodEndTime(timePeriod.getEndDate())
+                  .approved(
+                      timeSheet
+                          .getStatus()
+                          .getName()
+                          .equals(StaticTimesheetStatus.TimeSheetStatus.APPROVED.name()))
+                  .build());
+        });
+    return employeeAttendanceSummaryDtoList;
+  }
+
+  private List<TimeSheet> findTimeSheetsByIdAndCompanyIdAndStatusAndType(
+      final String userId,
+      final String timePeriodId,
+      final String companyId,
+      final List<String> timeSheetStatus,
+      final String hourType) {
+    if (hourType.equals(TEAM_HOURS_TYPE)) {
+      return timeSheetService.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
+          userId, timePeriodId, companyId, timeSheetStatus);
+    }
+    return timeSheetService.findCompanyTimeSheetsByIdAndCompanyIdAndStatus(
+        userId, timePeriodId, companyId, timeSheetStatus);
   }
 
   public TeamHoursPageInfoDto findTeamTimeSheetsByIdAndCompanyIdAndStatus(

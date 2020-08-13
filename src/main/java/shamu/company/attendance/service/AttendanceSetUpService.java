@@ -231,14 +231,10 @@ public class AttendanceSetUpService {
     saveEmployeeTaSettings(timeAndAttendanceDetailsDto, allTimezones);
 
     final Date periodStartDate =
-        parseDateWithZone(
-                timeAndAttendanceDetailsDto.getPeriodStartDate(), companyTimezone.getName())
-            .get();
+        parseDateWithZone(timeAndAttendanceDetailsDto.getPeriodStartDate(), "Hongkong").get();
     final Date periodEndDate =
         addOneDayTime(
-            parseDateWithZone(
-                    timeAndAttendanceDetailsDto.getPeriodEndDate(), companyTimezone.getName())
-                .get());
+            parseDateWithZone(timeAndAttendanceDetailsDto.getPeriodEndDate(), "Hongkong").get());
 
     final List<UserCompensation> userCompensationList =
         saveUserCompensations(overtimeDetailsDtoList, periodStartDate);
