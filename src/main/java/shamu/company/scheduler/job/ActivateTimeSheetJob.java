@@ -8,7 +8,7 @@ import shamu.company.attendance.entity.StaticTimesheetStatus.TimeSheetStatus;
 import shamu.company.attendance.entity.TimeSheet;
 import shamu.company.attendance.repository.StaticTimesheetStatusRepository;
 import shamu.company.attendance.service.TimeSheetService;
-import shamu.company.utils.JsonUtil;
+import shamu.company.scheduler.QuartzUtil;
 
 import java.util.List;
 
@@ -26,9 +26,8 @@ public class ActivateTimeSheetJob extends QuartzJobBean {
 
   @Override
   public void executeInternal(final JobExecutionContext jobExecutionContext) {
-    final String companyIdJson =
-        String.valueOf(jobExecutionContext.getMergedJobDataMap().get("companyId"));
-    final String companyId = JsonUtil.deserialize(companyIdJson, String.class);
+    final String companyId =
+        QuartzUtil.getParameter(jobExecutionContext, "companyId", String.class);
     final List<TimeSheet> timeSheets = timeSheetService.listByCompany(companyId);
     final StaticTimesheetStatus staticTimesheetStatus =
         staticTimesheetStatusRepository.findByName(TimeSheetStatus.ACTIVE.getValue());

@@ -1,7 +1,5 @@
 package shamu.company.scheduler;
 
-import java.util.HashMap;
-import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -17,12 +15,14 @@ import shamu.company.attendance.service.AttendanceSetUpService;
 import shamu.company.attendance.service.AttendanceSettingsService;
 import shamu.company.attendance.service.PayPeriodFrequencyService;
 import shamu.company.attendance.service.TimePeriodService;
-import shamu.company.attendance.service.TimeSheetService;
 import shamu.company.company.entity.Company;
 import shamu.company.company.service.CompanyService;
 import shamu.company.scheduler.job.AddPayPeriodJob;
 import shamu.company.user.service.UserCompensationService;
 import shamu.company.utils.JsonUtil;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
 
@@ -35,7 +35,6 @@ public class AddPayPeriodJobTests {
   @Mock private PayPeriodFrequencyService payPeriodFrequencyService;
   @Mock private JobExecutionContext jobExecutionContext;
   @Mock private UserCompensationService userCompensationService;
-  @Mock private TimeSheetService timeSheetService;
   @Mock private CompanyService companyService;
 
   @BeforeEach
@@ -48,7 +47,6 @@ public class AddPayPeriodJobTests {
             attendanceSettingsService,
             payPeriodFrequencyService,
             userCompensationService,
-            timeSheetService,
             companyService);
   }
 

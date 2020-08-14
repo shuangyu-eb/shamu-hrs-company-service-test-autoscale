@@ -6,7 +6,7 @@ import org.springframework.scheduling.quartz.QuartzJobBean;
 import shamu.company.email.entity.Email;
 import shamu.company.email.service.EmailService;
 import shamu.company.helpers.EmailHelper;
-import shamu.company.utils.JsonUtil;
+import shamu.company.scheduler.QuartzUtil;
 
 import java.sql.Timestamp;
 import java.util.Date;
@@ -23,8 +23,7 @@ public class SendEmailJob extends QuartzJobBean {
 
   @Override
   public void executeInternal(final JobExecutionContext jobExecutionContext) {
-    final String emailJson = String.valueOf(jobExecutionContext.getMergedJobDataMap().get("email"));
-    final Email email = JsonUtil.deserialize(emailJson, Email.class);
+    final Email email = QuartzUtil.getParameter(jobExecutionContext, "email", Email.class);
     try {
       emailHelper.send(email);
       email.setSendDate(new Timestamp(new Date().getTime()));

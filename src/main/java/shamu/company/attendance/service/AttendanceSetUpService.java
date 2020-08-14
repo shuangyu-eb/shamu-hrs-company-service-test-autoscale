@@ -35,6 +35,7 @@ import shamu.company.job.repository.JobUserRepository;
 import shamu.company.scheduler.QuartzJobScheduler;
 import shamu.company.scheduler.job.ActivateTimeSheetJob;
 import shamu.company.scheduler.job.AddPayPeriodJob;
+import shamu.company.scheduler.job.AutoSubmitTimeSheetsJob;
 import shamu.company.timeoff.dto.PaidHolidayDto;
 import shamu.company.timeoff.service.PaidHolidayService;
 import shamu.company.user.entity.CompensationOvertimeStatus;
@@ -80,6 +81,7 @@ public class AttendanceSetUpService {
   private static final int DEFAULT_APPROVAL_DAYS_BEFORE_PAYROLL = 2;
   private static final long MS_OF_ONE_DAY = 24 * 60 * 60 * 1000l;
   private static final String COMPANY_POSTAL_CODE = "companyPostalCode";
+  private static final String DATE_FORMAT = "MM/dd/yyyy";
 
   private final AttendanceSettingsService attendanceSettingsService;
 
@@ -231,10 +233,14 @@ public class AttendanceSetUpService {
     saveEmployeeTaSettings(timeAndAttendanceDetailsDto, allTimezones);
 
     final Date periodStartDate =
-        parseDateWithZone(timeAndAttendanceDetailsDto.getPeriodStartDate(), "Hongkong").get();
+        parseDateWithZone(
+                timeAndAttendanceDetailsDto.getPeriodStartDate(), companyTimezone.getName())
+            .get();
     final Date periodEndDate =
         addOneDayTime(
-            parseDateWithZone(timeAndAttendanceDetailsDto.getPeriodEndDate(), "Hongkong").get());
+            parseDateWithZone(
+                    timeAndAttendanceDetailsDto.getPeriodEndDate(), companyTimezone.getName())
+                .get());
 
     final List<UserCompensation> userCompensationList =
         saveUserCompensations(overtimeDetailsDtoList, periodStartDate);
@@ -257,7 +263,7 @@ public class AttendanceSetUpService {
   }
 
   private Optional<Date> parseDateWithZone(final String date, final String timezone) {
-    final SimpleDateFormat isoFormat = new SimpleDateFormat("MM/dd/yyyy");
+    final SimpleDateFormat isoFormat = new SimpleDateFormat(DATE_FORMAT);
     isoFormat.setTimeZone(TimeZone.getTimeZone(timezone));
     try {
       return Optional.ofNullable(isoFormat.parse(date));
@@ -268,11 +274,20 @@ public class AttendanceSetUpService {
 
   public void scheduleCreateNextPeriod(final String companyId, final Date currentPeriodEndDate) {
     final Map<String, Object> jobParameter = assembleCompanyIdParameter(companyId);
+    final SimpleDateFormat formatter = new SimpleDateFormat(DATE_FORMAT);
+
     quartzJobScheduler.addOrUpdateJobSchedule(
         AddPayPeriodJob.class,
-        "new_period_" + companyId + "_" + currentPeriodEndDate.getTime(),
+        "newPeriod_" + companyId + "_" + (formatter.format(currentPeriodEndDate)),
         jobParameter,
         currentPeriodEndDate);
+
+    final Date autoSubmitDate = addOneDayTime(currentPeriodEndDate);
+    quartzJobScheduler.addOrUpdateJobSchedule(
+        AutoSubmitTimeSheetsJob.class,
+        "submitTimeSheet_" + companyId + "_" + (formatter.format(autoSubmitDate)),
+        jobParameter,
+        autoSubmitDate);
   }
 
   private void scheduleActivateTimeSheet(final String companyId, final Date periodStartDate) {
