@@ -1,17 +1,5 @@
 package shamu.company.email.service;
 
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.UUID;
-import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.slf4j.Logger;
@@ -39,6 +27,19 @@ import shamu.company.utils.AvatarUtil;
 import shamu.company.utils.DateUtil;
 import shamu.company.utils.HtmlUtils;
 import shamu.company.utils.UuidUtil;
+
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
+import java.util.regex.Pattern;
 
 @Service
 public class EmailService {
@@ -109,7 +110,7 @@ public class EmailService {
     final Map<String, Object> jobParameter = new HashMap<>();
     jobParameter.put("email", email);
     quartzJobScheduler.addOrUpdateJobSchedule(
-        SendEmailJob.class, "send_email_" + messageId, jobParameter, sendDate);
+        SendEmailJob.class, "sendEmail_" + messageId, jobParameter, sendDate);
   }
 
   public void saveAndScheduleEmail(final Email email) {
@@ -223,8 +224,7 @@ public class EmailService {
             systemEmailFirstName + "-" + systemEmailLastName,
             user.getChangeWorkEmail(),
             user.getUserPersonalInformation().getName(),
-            "Verify New Work Email"
-        );
+            "Verify New Work Email");
 
     verifyChangeWorkEmail.setContent(emailContent);
     verifyChangeWorkEmail.setSendDate(sendDate);
@@ -309,8 +309,7 @@ public class EmailService {
             systemEmailFirstName + "-" + systemEmailLastName,
             targetEmail,
             targetUser.getUserPersonalInformation().getName(),
-            subject
-        );
+            subject);
     email.setContent(emailContent);
     email.setSendDate(DateUtil.getCurrentTime());
     scheduleEmail(email);
@@ -319,8 +318,7 @@ public class EmailService {
   public void sendEmailToOtherAdminsWhenNewOneAdded(
       final String promotedEmployeeId, final String currentUserId, final String companyId) {
     final User promotedEmployee = userService.findById(promotedEmployeeId);
-    final String promotedEmployeeName =
-        promotedEmployee.getUserPersonalInformation().getName();
+    final String promotedEmployeeName = promotedEmployee.getUserPersonalInformation().getName();
     final String currentUserName = userService.getCurrentUserInfo(currentUserId).getName();
 
     final Context context = new Context();
@@ -352,8 +350,7 @@ public class EmailService {
                   fromName,
                   adminEmailWork,
                   admin.getUserPersonalInformation().getName(),
-                  NEW_ADMIN_ADDED_TO_HRIS
-                  );
+                  NEW_ADMIN_ADDED_TO_HRIS);
           email.setContent(emailContent);
           email.setSendDate(Timestamp.valueOf(LocalDateTime.now()));
           scheduleEmail(email);

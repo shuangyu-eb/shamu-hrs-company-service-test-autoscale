@@ -62,13 +62,14 @@ public class TimePeriodServiceTests {
     void whenUserIdValid_findLatestPeriod_shouldSucceed() {
       Mockito.when(timePeriodRepository.findLatestPeriodByUser(userId))
           .thenReturn(new TimePeriod());
-      assertThatCode(() -> timePeriodService.findUserLatestPeriod(userId))
+      assertThatCode(() -> timePeriodService.findUserCurrentPeriod(userId))
           .doesNotThrowAnyException();
     }
 
     @Test
     void whenCompanyIdValid_findCurrentPeriod_shouldSucceed() {
-      Mockito.when(timePeriodRepository.findCompanyNewestPeriod(companyId)).thenReturn(timePeriod);
+      Mockito.when(timePeriodRepository.findCompanyNumberNPeriod(companyId, 0))
+          .thenReturn(timePeriod);
       assertThatCode(() -> timePeriodService.findCompanyCurrentPeriod(companyId))
           .doesNotThrowAnyException();
     }

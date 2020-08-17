@@ -31,9 +31,9 @@ public interface TimePeriodRepository extends BaseRepository<TimePeriod, String>
               + "on tp.id = t. time_period_id "
               + "join users u "
               + "on u.company_id = unhex(?1) and t.employee_id = u.id "
-              + "order by start_date desc limit 1",
+              + "order by start_date desc limit (?2), 1",
       nativeQuery = true)
-  TimePeriod findCompanyNewestPeriod(String companyId);
+  TimePeriod findCompanyNumberNPeriod(String companyId, int number);
 
   @Query(value = "select tp from TimePeriod tp where tp.company.id = ?1 order by tp.startDate desc")
   List<TimePeriod> findByCompanyId(String companyId);

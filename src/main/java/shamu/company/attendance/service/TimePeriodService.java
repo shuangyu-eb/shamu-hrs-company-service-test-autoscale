@@ -24,11 +24,15 @@ public class TimePeriodService {
     return timePeriodRepository.findByCompanyId(companyId);
   }
 
-  public Optional<TimePeriod> findUserLatestPeriod(final String userId) {
+  public Optional<TimePeriod> findUserCurrentPeriod(final String userId) {
     return Optional.ofNullable(timePeriodRepository.findLatestPeriodByUser(userId));
   }
 
   public TimePeriod findCompanyCurrentPeriod(final String companyId) {
-    return timePeriodRepository.findCompanyNewestPeriod(companyId);
+    return timePeriodRepository.findCompanyNumberNPeriod(companyId, 0);
+  }
+
+  public TimePeriod findCompanyLastPeriod(final String companyId) {
+    return timePeriodRepository.findCompanyNumberNPeriod(companyId, 1);
   }
 }

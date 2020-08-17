@@ -1,7 +1,7 @@
 package shamu.company.scheduler;
 
-import org.quartz.JobDetail;
 import org.quartz.JobDataMap;
+import org.quartz.JobDetail;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.SimpleTrigger;
@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import shamu.company.scheduler.exception.QuartzException;
 import shamu.company.utils.JsonUtil;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,6 +26,7 @@ public class QuartzJobScheduler {
   private final Scheduler scheduler;
   private static final String ONCE_TIME_JOB_GROUP = "ONCE_TIME_JOB_GROUP";
   private static final String ONCE_TIME_TRIGGER_GROUP = "ONCE_TIME_TRIGGER_GROUP";
+  private static final String DATE_FORMAT = "MM/dd/yyyy";
 
   @Autowired
   QuartzJobScheduler(final Scheduler scheduler) {
@@ -37,9 +39,12 @@ public class QuartzJobScheduler {
    */
   public void addOrUpdateJobSchedule(
       final Class<? extends QuartzJobBean> jobClass,
-      final String jobName,
+      String jobName,
       final Map<String, Object> jobParameter,
       final Date startDate) {
+    final SimpleDateFormat formatter = new SimpleDateFormat(DATE_FORMAT);
+    jobName += "_" + formatter.format(startDate);
+
     final String triggerName = jobName;
 
     final JobDetail jobDetail =

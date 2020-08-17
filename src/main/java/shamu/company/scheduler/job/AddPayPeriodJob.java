@@ -16,11 +16,15 @@ import shamu.company.scheduler.QuartzUtil;
 import shamu.company.user.entity.UserCompensation;
 import shamu.company.user.service.UserCompensationService;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 import static shamu.company.attendance.entity.StaticTimesheetStatus.TimeSheetStatus;
 
 public class AddPayPeriodJob extends QuartzJobBean {
+  private static final long MS_OF_ONE_DAY = 24 * 60 * 60 * 1000L;
+  private static final int DAYS_PAY_DATE_AFTER_PERIOD = 6;
+
   private final AttendanceSetUpService attendanceSetUpService;
   private final TimePeriodService timePeriodService;
   private final AttendanceSettingsService attendanceSettingsService;
@@ -60,11 +64,16 @@ public class AddPayPeriodJob extends QuartzJobBean {
     final TimePeriod nextTimePeriod =
         attendanceSetUpService.getNextPeriod(
             currentTimePeriod, staticCompanyPayFrequencyType.getName(), company);
+    final Timestamp nextPeriodEndDate = nextTimePeriod.getEndDate();
+    final Timestamp nextPayDate =
+        new Timestamp(nextPeriodEndDate.getTime() + DAYS_PAY_DATE_AFTER_PERIOD * MS_OF_ONE_DAY);
+    companyTaSetting.setLastPayrollPayday(nextPayDate);
+    attendanceSettingsService.saveCompanyTaSetting(companyTaSetting);
 
     final List<UserCompensation> userCompensationList =
         userCompensationService.listNewestEnrolledCompensation(companyId);
     attendanceSetUpService.createTimeSheetsAndPeriod(
         nextTimePeriod, TimeSheetStatus.ACTIVE, userCompensationList);
-    attendanceSetUpService.scheduleCreateNextPeriod(companyId, nextTimePeriod.getEndDate());
+    attendanceSetUpService.scheduleCreateNextPeriod(companyId, nextPeriodEndDate);
   }
 }

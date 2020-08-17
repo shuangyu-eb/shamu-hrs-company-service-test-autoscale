@@ -233,7 +233,7 @@ class JobUserServiceTests {
       Mockito.when(jobUserRepository.save(jobUser)).thenReturn(jobUser);
       Mockito.when(userService.save(manager)).thenReturn(manager);
       Mockito.when(userService.save(user)).thenReturn(user);
-      Mockito.when(timePeriodService.findUserLatestPeriod(user.getId()))
+      Mockito.when(timePeriodService.findUserCurrentPeriod(user.getId()))
           .thenReturn(java.util.Optional.of((new TimePeriod())));
 
       Assertions.assertDoesNotThrow(() -> jobUserService.updateJobInfo("1", jobUpdateDto, "1"));

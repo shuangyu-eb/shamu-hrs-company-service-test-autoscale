@@ -286,7 +286,7 @@ public class AttendanceSetUpServiceTests {
       final StaticCompanyPayFrequencyType staticCompanyPayFrequencyType =
           new StaticCompanyPayFrequencyType();
       staticCompanyPayFrequencyType.setName(payPeriodFrequency);
-      Mockito.when(timePeriodService.findUserLatestPeriod(userId))
+      Mockito.when(timePeriodService.findUserCurrentPeriod(userId))
           .thenReturn(Optional.ofNullable(timePeriod));
       Mockito.when(userService.findById(userId)).thenReturn(user);
       Mockito.when(payPeriodFrequencyService.findByCompany(Mockito.any()))

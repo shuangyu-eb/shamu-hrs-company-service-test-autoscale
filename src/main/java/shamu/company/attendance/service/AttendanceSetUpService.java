@@ -35,6 +35,7 @@ import shamu.company.job.repository.JobUserRepository;
 import shamu.company.scheduler.QuartzJobScheduler;
 import shamu.company.scheduler.job.ActivateTimeSheetJob;
 import shamu.company.scheduler.job.AddPayPeriodJob;
+import shamu.company.scheduler.job.AutoApproveTimeSheetsJob;
 import shamu.company.scheduler.job.AutoSubmitTimeSheetsJob;
 import shamu.company.timeoff.dto.PaidHolidayDto;
 import shamu.company.timeoff.service.PaidHolidayService;
@@ -77,9 +78,9 @@ public class AttendanceSetUpService {
   private static final int WEEKS_OF_WEEKLY = 1;
   private static final int WEEKS_OF_BIWEEKLY = 2;
   private static final int MID_DAY_OF_MONTH = 15;
-  private static final int PAY_DATE_AFTER_PERIOD_DAYS = 7;
+  private static final int DAYS_PAY_DATE_AFTER_PERIOD = 6;
   private static final int DEFAULT_APPROVAL_DAYS_BEFORE_PAYROLL = 2;
-  private static final long MS_OF_ONE_DAY = 24 * 60 * 60 * 1000l;
+  private static final long MS_OF_ONE_DAY = 24 * 60 * 60 * 1000L;
   private static final String COMPANY_POSTAL_CODE = "companyPostalCode";
   private static final String DATE_FORMAT = "MM/dd/yyyy";
 
@@ -229,8 +230,6 @@ public class AttendanceSetUpService {
         findTimezonesByPostalCode(
             overtimeDetailsDtoList, employeeId, timeAndAttendanceDetailsDto.getFrontendTimezone());
     final StaticTimezone companyTimezone = allTimezones.get(COMPANY_POSTAL_CODE);
-    saveCompanyTaSetting(timeAndAttendanceDetailsDto, companyId, companyTimezone);
-    saveEmployeeTaSettings(timeAndAttendanceDetailsDto, allTimezones);
 
     final Date periodStartDate =
         parseDateWithZone(
@@ -241,6 +240,13 @@ public class AttendanceSetUpService {
             parseDateWithZone(
                     timeAndAttendanceDetailsDto.getPeriodEndDate(), companyTimezone.getName())
                 .get());
+
+    saveCompanyTaSetting(
+        timeAndAttendanceDetailsDto.getPayPeriodFrequency(),
+        timeAndAttendanceDetailsDto.getPayDate(),
+        companyId,
+        companyTimezone);
+    saveEmployeeTaSettings(timeAndAttendanceDetailsDto, allTimezones);
 
     final List<UserCompensation> userCompensationList =
         saveUserCompensations(overtimeDetailsDtoList, periodStartDate);
@@ -260,6 +266,11 @@ public class AttendanceSetUpService {
     createTimeSheetsAndPeriod(firstTimePeriod, timeSheetStatus, userCompensationList);
 
     scheduleCreateNextPeriod(companyId, new Date(periodEndDate.getTime()));
+    scheduleAutoSubmitTimeSheets(companyId, new Date(periodEndDate.getTime()));
+
+    final Date autoApproveDate =
+        getAutoApproveDate(companyId, periodEndDate, companyTimezone.getName());
+    scheduleAutoApproveTimeSheets(companyId, autoApproveDate);
   }
 
   private Optional<Date> parseDateWithZone(final String date, final String timezone) {
@@ -274,18 +285,19 @@ public class AttendanceSetUpService {
 
   public void scheduleCreateNextPeriod(final String companyId, final Date currentPeriodEndDate) {
     final Map<String, Object> jobParameter = assembleCompanyIdParameter(companyId);
-    final SimpleDateFormat formatter = new SimpleDateFormat(DATE_FORMAT);
 
     quartzJobScheduler.addOrUpdateJobSchedule(
-        AddPayPeriodJob.class,
-        "newPeriod_" + companyId + "_" + (formatter.format(currentPeriodEndDate)),
-        jobParameter,
-        currentPeriodEndDate);
+        AddPayPeriodJob.class, "newPeriod_" + companyId, jobParameter, currentPeriodEndDate);
+  }
+
+  public void scheduleAutoSubmitTimeSheets(
+      final String companyId, final Date currentPeriodEndDate) {
+    final Map<String, Object> jobParameter = assembleCompanyIdParameter(companyId);
 
     final Date autoSubmitDate = addOneDayTime(currentPeriodEndDate);
     quartzJobScheduler.addOrUpdateJobSchedule(
         AutoSubmitTimeSheetsJob.class,
-        "submitTimeSheet_" + companyId + "_" + (formatter.format(autoSubmitDate)),
+        "submitTimeSheet_" + companyId,
         jobParameter,
         autoSubmitDate);
   }
@@ -294,7 +306,7 @@ public class AttendanceSetUpService {
     final Map<String, Object> jobParameter = assembleCompanyIdParameter(companyId);
     quartzJobScheduler.addOrUpdateJobSchedule(
         ActivateTimeSheetJob.class,
-        "activate_time_sheet" + companyId,
+        "activateTimeSheet_" + companyId,
         jobParameter,
         periodStartDate);
   }
@@ -323,7 +335,8 @@ public class AttendanceSetUpService {
         googleMapsHelper.findTimezoneByPostalCode(allPostalCodes);
 
     final Map<String, StaticTimezone> postalCodeToStaticTimezone = new HashMap<>();
-    postalCodeToTimezone.keySet().stream()
+    postalCodeToTimezone
+        .keySet()
         .forEach(
             postalCode ->
                 postalCodeToStaticTimezone.put(
@@ -361,18 +374,17 @@ public class AttendanceSetUpService {
   }
 
   private void saveCompanyTaSetting(
-      final TimeAndAttendanceDetailsDto timeAndAttendanceDetailsDto,
+      final String periodFrequency,
+      final Date payDate,
       final String companyId,
       final StaticTimezone companyTimezone) {
     final CompanyTaSetting existCompanyTaSetting =
         attendanceSettingsService.findCompanySettings(companyId);
     final StaticCompanyPayFrequencyType staticCompanyPayFrequencyType =
-        payPeriodFrequencyService.findByName(timeAndAttendanceDetailsDto.getPayPeriodFrequency());
+        payPeriodFrequencyService.findByName(periodFrequency);
     final Company company = companyRepository.findCompanyById(companyId);
-    final Date payDate = timeAndAttendanceDetailsDto.getPayDate();
-    final Timestamp payDay = new Timestamp(payDate.getTime());
     final CompanyTaSetting companyTaSetting =
-        new CompanyTaSetting(company, staticCompanyPayFrequencyType, payDay);
+        new CompanyTaSetting(company, staticCompanyPayFrequencyType, payDate);
     companyTaSettingsMapper.updateFromCompanyTaSettings(
         companyTaSetting,
         companyTimezone,
@@ -383,6 +395,32 @@ public class AttendanceSetUpService {
       companyTaSetting.setId(existCompanyTaSetting.getId());
     }
     attendanceSettingsService.saveCompanyTaSetting(companyTaSetting);
+  }
+
+  public Date getAutoApproveDate(
+      final String companyId, final Date currentPeriodEndDate, final String companyTimeZone) {
+    final CompanyTaSetting companyTaSetting =
+        attendanceSettingsService.findCompanySettings(companyId);
+    final int approvalDaysBeforePayroll =
+        companyTaSetting == null
+            ? DEFAULT_APPROVAL_DAYS_BEFORE_PAYROLL
+            : companyTaSetting.getApprovalDaysBeforePayroll();
+
+    final Calendar autoApproveDate =
+        getCalendarInstance(
+            currentPeriodEndDate.getTime() + approvalDaysBeforePayroll * MS_OF_ONE_DAY,
+            companyTimeZone);
+    getClosestWeekDay(autoApproveDate, 1);
+    return new Date(autoApproveDate.getTimeInMillis());
+  }
+
+  public void scheduleAutoApproveTimeSheets(final String companyId, final Date autoApproveDate) {
+    final Map<String, Object> jobParameter = assembleCompanyIdParameter(companyId);
+    quartzJobScheduler.addOrUpdateJobSchedule(
+        AutoApproveTimeSheetsJob.class,
+        "activateTimeSheet" + companyId,
+        jobParameter,
+        autoApproveDate);
   }
 
   private void saveEmployeeTaSettings(
@@ -494,24 +532,30 @@ public class AttendanceSetUpService {
 
   public TimePeriod getNextPeriod(
       final TimePeriod currentTimePeriod, final String payPeriodFrequency, final Company company) {
-    final Calendar currentEndDayOfPeriod = Calendar.getInstance();
-    currentEndDayOfPeriod.setTimeInMillis(currentTimePeriod.getEndDate().getTime() - MS_OF_ONE_DAY);
-
     final StaticTimezone staticTimezone =
         attendanceSettingsService.findCompanySettings(company.getId()).getTimeZone();
-    final TimeZone timeZone = TimeZone.getTimeZone(staticTimezone.getName());
-    currentEndDayOfPeriod.setTimeZone(timeZone);
+    final Calendar currentEndDayOfPeriod =
+        getCalendarInstance(currentTimePeriod.getEndDate().getTime(), staticTimezone.getName());
 
     final Calendar currentPayDate = copyCalendar(currentEndDayOfPeriod);
-    currentPayDate.add(Calendar.DAY_OF_YEAR, PAY_DATE_AFTER_PERIOD_DAYS);
+    currentPayDate.add(Calendar.DAY_OF_YEAR, DAYS_PAY_DATE_AFTER_PERIOD);
     final Calendar nextPayDate = getNextPayDate(currentPayDate, payPeriodFrequency);
 
     currentEndDayOfPeriod.add(Calendar.DAY_OF_YEAR, 1);
     final Timestamp periodStartDate = new Timestamp(currentEndDayOfPeriod.getTimeInMillis());
-    nextPayDate.add(Calendar.DAY_OF_YEAR, -1 * PAY_DATE_AFTER_PERIOD_DAYS);
+    nextPayDate.add(Calendar.DAY_OF_YEAR, -DAYS_PAY_DATE_AFTER_PERIOD);
     final Timestamp periodEndDate = new Timestamp(nextPayDate.getTimeInMillis());
 
     return new TimePeriod(periodStartDate, periodEndDate, company);
+  }
+
+  private Calendar getCalendarInstance(final long unixTimeStamp, final String timeZoneName) {
+    final Calendar calendar = Calendar.getInstance();
+    calendar.setTimeInMillis(unixTimeStamp);
+    final TimeZone timeZone = TimeZone.getTimeZone(timeZoneName);
+    calendar.setTimeZone(timeZone);
+
+    return calendar;
   }
 
   private Calendar copyCalendar(final Calendar calendar) {
@@ -544,12 +588,12 @@ public class AttendanceSetUpService {
       default:
         break;
     }
-    return getClosestWeekDay(nextPayDate);
+    return getClosestWeekDay(nextPayDate, -1);
   }
 
-  private Calendar getClosestWeekDay(final Calendar date) {
+  private Calendar getClosestWeekDay(final Calendar date, final int offset) {
     while (!isWeekDay(date)) {
-      date.add(Calendar.DAY_OF_YEAR, -1);
+      date.add(Calendar.DAY_OF_YEAR, offset);
     }
     return date;
   }
@@ -591,7 +635,7 @@ public class AttendanceSetUpService {
   }
 
   public TimePeriod findNextPeriodByUser(final String userId) {
-    final Optional<TimePeriod> timePeriod = timePeriodService.findUserLatestPeriod(userId);
+    final Optional<TimePeriod> timePeriod = timePeriodService.findUserCurrentPeriod(userId);
     if (!timePeriod.isPresent()) {
       return null;
     }

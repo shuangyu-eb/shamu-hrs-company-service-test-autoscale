@@ -21,6 +21,8 @@ import shamu.company.scheduler.job.AddPayPeriodJob;
 import shamu.company.user.service.UserCompensationService;
 import shamu.company.utils.JsonUtil;
 
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -63,6 +65,7 @@ public class AddPayPeriodJobTests {
       companyId = "test_company_id";
       companyTaSetting = new CompanyTaSetting();
       timePeriod = new TimePeriod();
+      timePeriod.setEndDate(new Timestamp(new Date().getTime()));
       company = new Company();
 
       payFrequencyType = new StaticCompanyPayFrequencyType();

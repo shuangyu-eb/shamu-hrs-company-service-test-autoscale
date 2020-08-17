@@ -217,7 +217,8 @@ public class JobUserService {
       final String userId, final JobUpdateDto jobUpdateDto, final JobUser jobUser) {
     if (jobUserCompensationUpdated(jobUpdateDto) || jobUpdateDto.getPayTypeName() != null) {
       UserCompensation userCompensation = jobUser.getUserCompensation();
-      final Optional<TimePeriod> userCurrentPeriod = timePeriodService.findUserLatestPeriod(userId);
+      final Optional<TimePeriod> userCurrentPeriod =
+          timePeriodService.findUserCurrentPeriod(userId);
       if (userCompensation == null) {
         userCompensation = new UserCompensation();
       } else if (userCurrentPeriod.isPresent()) {

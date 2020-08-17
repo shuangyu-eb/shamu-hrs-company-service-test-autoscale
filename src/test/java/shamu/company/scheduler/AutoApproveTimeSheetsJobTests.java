@@ -9,48 +9,53 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
-import shamu.company.attendance.entity.StaticTimesheetStatus;
+import shamu.company.attendance.entity.CompanyTaSetting;
+import shamu.company.attendance.entity.StaticTimezone;
 import shamu.company.attendance.entity.TimePeriod;
-import shamu.company.attendance.entity.TimeSheet;
 import shamu.company.attendance.service.AttendanceSetUpService;
+import shamu.company.attendance.service.AttendanceSettingsService;
 import shamu.company.attendance.service.TimePeriodService;
 import shamu.company.attendance.service.TimeSheetService;
-import shamu.company.scheduler.job.AutoSubmitTimeSheetsJob;
+import shamu.company.scheduler.job.AutoApproveTimeSheetsJob;
 import shamu.company.utils.JsonUtil;
 
-import java.util.ArrayList;
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-public class AutoSubmitTimeSheetsJobTests {
-  private static AutoSubmitTimeSheetsJob autoSubmitTimeSheetsJob;
+public class AutoApproveTimeSheetsJobTests {
+  private static AutoApproveTimeSheetsJob autoApproveTimeSheetsJob;
   @Mock private AttendanceSetUpService attendanceSetUpService;
   @Mock private TimePeriodService timePeriodService;
+  @Mock private AttendanceSettingsService attendanceSettingsService;
   @Mock private TimeSheetService timeSheetService;
   @Mock private JobExecutionContext jobExecutionContext;
 
   @BeforeEach
   void init() {
     MockitoAnnotations.initMocks(this);
-    autoSubmitTimeSheetsJob =
-        new AutoSubmitTimeSheetsJob(attendanceSetUpService, timePeriodService, timeSheetService);
+    autoApproveTimeSheetsJob =
+        new AutoApproveTimeSheetsJob(
+            attendanceSetUpService, timePeriodService, attendanceSettingsService, timeSheetService);
   }
 
   @Nested
   class executeJob {
     String companyId;
+    CompanyTaSetting companyTaSetting = new CompanyTaSetting();
     TimePeriod timePeriod = new TimePeriod();
-    String timePeriodId = "period_id";
-    StaticTimesheetStatus timeSheetStatus = new StaticTimesheetStatus();
-    TimeSheet timeSheet = new TimeSheet();
+    Timestamp endDate = new Timestamp(new Date().getTime());
+    Date runPayrollDdl = new Date();
+    StaticTimezone timezone = new StaticTimezone();
+    String timeZoneName = "Hongkong";
 
     @BeforeEach
     void init() {
       companyId = "test_company_id";
-      timePeriod.setId(timePeriodId);
-      timeSheetStatus.setName("status_name");
-      timeSheet.setStatus(timeSheetStatus);
+      timePeriod.setEndDate(endDate);
+      timezone.setName(timeZoneName);
+      companyTaSetting.setTimeZone(timezone);
     }
 
     @Test
@@ -60,12 +65,14 @@ public class AutoSubmitTimeSheetsJobTests {
       Mockito.when(jobExecutionContext.getMergedJobDataMap())
           .thenReturn(new JobDataMap(jobParameter));
 
+      Mockito.when(attendanceSettingsService.findCompanySettings(companyId))
+          .thenReturn(companyTaSetting);
       Mockito.when(timePeriodService.findCompanyCurrentPeriod(companyId)).thenReturn(timePeriod);
-      final List<TimeSheet> timeSheetList = new ArrayList<>();
-      timeSheetList.add(timeSheet);
-      Mockito.when(timeSheetService.findAllByPeriodId(timePeriodId)).thenReturn(timeSheetList);
+      Mockito.when(attendanceSetUpService.getAutoApproveDate(companyId, endDate, timeZoneName))
+          .thenReturn(runPayrollDdl);
+
       Assertions.assertDoesNotThrow(
-          () -> autoSubmitTimeSheetsJob.executeInternal(jobExecutionContext));
+          () -> autoApproveTimeSheetsJob.executeInternal(jobExecutionContext));
     }
   }
 }
