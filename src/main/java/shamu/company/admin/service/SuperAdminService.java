@@ -1,5 +1,7 @@
 package shamu.company.admin.service;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -67,9 +69,23 @@ public class SuperAdminService {
     final AuthUser authUser = userMapper.convertToAuthUser(user);
     final MockUserDto mockUserDto = userMapper.convertToMockUserDto(user);
     final List<String> permissions = auth0Helper.getPermissionBy(user);
-    authUser.setPermissions(permissions);
+
+    String[] writePermissions = {"CREATE_AND_APPROVED_TIME_OFF_REQUEST", "CREATE_DEPARTMENT",
+        "CREATE_DOCUMENT_REQUEST", "CREATE_EMPLOYEE_TYPE", "CREATE_JOB", "CREATE_OFFICE", "CREATE_USER",
+        "DEACTIVATE_USER", "DELETE_PAID_HOLIDAY", "DELETE_USER", "DENY_DOCUMENT_REQUEST", "EDIT_PAID_HOLIDAY",
+        "EDIT_SELF", "EDIT_USER", "UPDATE_COMPANY_NAME"};
+
+    final List<String> permissionsFiltered = new ArrayList<>(permissions);
+
+    for(String permission:permissions){
+      if(Arrays.asList(writePermissions).contains(permission)){
+        permissionsFiltered.remove(permission);
+      }
+    }
+
+    authUser.setPermissions(permissionsFiltered);
     authUserCacheManager.cacheAuthUser(token, authUser);
-    mockUserDto.setPermissions(permissions);
+    mockUserDto.setPermissions(permissionsFiltered);
     return mockUserDto;
   }
 
