@@ -23,6 +23,8 @@ public class SuperAdminUserDto {
 
   private String email;
 
+  private Boolean verified;
+
   @ToString.Exclude private String auth0UserId;
 
   public SuperAdminUserDto(final User user) {
@@ -35,5 +37,6 @@ public class SuperAdminUserDto {
     company = user.getCompany().getName();
     auth0UserId = user.getId();
     role = user.getRole().getValue();
+    verified = user.getVerifiedAt() != null;
   }
 }
