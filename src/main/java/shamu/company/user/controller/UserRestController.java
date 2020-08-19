@@ -184,7 +184,9 @@ public class UserRestController extends BaseRestController {
   }
 
   @PatchMapping("/users/work-email")
-  @PreAuthorize("hasAuthority('EDIT_SELF')")
+  @PreAuthorize(
+      "hasPermission(#emailUpdateDto.userId, 'USER', 'EDIT_SELF')"
+          + "or hasPermission(#emailUpdateDto.userId, 'USER', 'EDIT_USER')")
   public HttpEntity updateWorkEmail(@RequestBody @Valid final EmailUpdateDto emailUpdateDto) {
     userService.updateWorkEmail(emailUpdateDto, findAuthUser().getEmail());
     return new ResponseEntity(HttpStatus.OK);
@@ -223,7 +225,7 @@ public class UserRestController extends BaseRestController {
 
   @PatchMapping("current/cache/{id}")
   public HttpEntity cacheTokenAndAuthUser(@PathVariable final String id) {
-     userService.cacheUser(findToken(),id);
-     return new ResponseEntity<>(HttpStatus.OK);
+    userService.cacheUser(findToken(), id);
+    return new ResponseEntity<>(HttpStatus.OK);
   }
 }
