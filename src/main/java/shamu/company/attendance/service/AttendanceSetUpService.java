@@ -454,9 +454,7 @@ public class AttendanceSetUpService {
   }
 
   private void saveCompanyTaSetting(
-      final String periodFrequency,
-      final Date payDate,
-      final StaticTimezone companyTimezone) {
+      final String periodFrequency, final Date payDate, final StaticTimezone companyTimezone) {
     final CompanyTaSetting existCompanyTaSetting = attendanceSettingsService.findCompanySetting();
     final StaticCompanyPayFrequencyType staticCompanyPayFrequencyType =
         payPeriodFrequencyService.findByName(periodFrequency);
@@ -476,10 +474,9 @@ public class AttendanceSetUpService {
     attendanceSettingsService.saveCompanyTaSetting(companyTaSetting);
   }
 
-  public Date getRunPayrollDdl(
-      final String companyId, final Date currentPeriodEndDate, final String companyTimeZone) {
+  public Date getRunPayrollDdl(final Date currentPeriodEndDate, final String companyTimeZone) {
     final CompanyTaSetting companyTaSetting =
-        attendanceSettingsService.findCompanySettings(companyId);
+        attendanceSettingsService.findCompanySetting();
     final int approvalDaysBeforePayroll =
         companyTaSetting == null
             ? DEFAULT_APPROVAL_DAYS_BEFORE_PAYROLL

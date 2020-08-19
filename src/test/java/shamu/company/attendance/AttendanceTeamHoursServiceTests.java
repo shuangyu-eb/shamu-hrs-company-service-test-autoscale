@@ -1,5 +1,18 @@
 package shamu.company.attendance;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -35,20 +48,6 @@ import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserCompensation;
 import shamu.company.user.entity.UserPersonalInformation;
 import shamu.company.utils.UuidUtil;
-
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
 
 class AttendanceTeamHoursServiceTests {
 
@@ -160,7 +159,9 @@ class AttendanceTeamHoursServiceTests {
     void whenExistTimeSheetAndIsCompanyHourType_thenShouldReturnDtos() {
       timeSheet.setId(UuidUtil.getUuidString());
 
-      Mockito.when(timeSheetService.findTimeSheetsByIdAndStatus(timesheetId, status, "1", pageable))
+      Mockito.when(
+              timeSheetService.findCompanyTimeSheetsByIdAndStatus(
+                  timesheetId, status, "1", pageable))
           .thenReturn(page);
       Mockito.when(attendanceSettingsService.findCompanySetting()).thenReturn(companyTaSetting);
       Mockito.when(attendanceMyHoursService.findAllRelevantTimelogs(timeSheet, companyTaSetting))
@@ -260,7 +261,7 @@ class AttendanceTeamHoursServiceTests {
     @Test
     void whenIsCompanyHourType() {
       Mockito.when(
-              timeSheetService.findTimeSheetsByIdAndStatus(
+              timeSheetService.findCompanyTimeSheetsByIdAndStatus(
                   Mockito.anyString(), Mockito.anyString(), Mockito.anyList()))
           .thenReturn(timeSheets);
       final AttendanceSummaryDto attendanceSummaryDto =
@@ -334,11 +335,10 @@ class AttendanceTeamHoursServiceTests {
 
     @Test
     void whenValidCompany_shouldSucceed() {
-      Mockito.when(attendanceSettingsService.findCompanySettings(companyId))
-          .thenReturn(companyTaSetting);
+      Mockito.when(attendanceSettingsService.findCompanySetting()).thenReturn(companyTaSetting);
       Mockito.when(
               timeSheetService.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
-                  userId, timePeriodId, companyId, statusList))
+                  userId, timePeriodId, statusList))
           .thenReturn(timeSheets);
 
       final List<EmployeeTimeLog> workedMinutes = new ArrayList<>();
@@ -351,7 +351,7 @@ class AttendanceTeamHoursServiceTests {
       assertThatCode(
               () ->
                   attendanceTeamHoursService.findEmployeeAttendanceSummary(
-                      timePeriodId, companyId, userId, hourType))
+                      timePeriodId, userId, hourType))
           .doesNotThrowAnyException();
     }
   }

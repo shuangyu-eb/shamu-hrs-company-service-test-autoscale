@@ -21,7 +21,7 @@ public class TimePeriodService {
   }
 
   public List<TimePeriod> findAll() {
-    return timePeriodRepository.findAll();
+    return timePeriodRepository.findAllOrderByStartDateDesc();
   }
 
   public TimePeriod findById(final String timePeriodId) {

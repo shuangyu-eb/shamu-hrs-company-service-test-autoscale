@@ -48,7 +48,7 @@ public class SendEmailJobTests {
     void whenJobExecutionContextIsValid_thenShouldSuccess() {
       final Map<String, Object> jobParameter = new HashMap<>();
       jobParameter.put("email", JsonUtil.formatToString(email));
-      jobParameter.put("companyId", UuidUtil.getUuidString());
+      jobParameter.put("companyId", JsonUtil.formatToString(UuidUtil.getUuidString()));
       Mockito.when(jobExecutionContext.getMergedJobDataMap())
           .thenReturn(new JobDataMap(jobParameter));
       assertThatCode(() -> sendEmailJob.executeInternal(jobExecutionContext))

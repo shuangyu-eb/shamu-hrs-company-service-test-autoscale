@@ -38,7 +38,7 @@ public interface TimeSheetRepository extends BaseRepository<TimeSheet, String> {
       value = QUERY_COMPANY_TIMESHEETS_SQL,
       countQuery = QUERY_COMPANY_TIMESHEETS_SQL,
       nativeQuery = true)
-  Page<TimeSheet> findTimeSheetsByIdAndStatus(
+  Page<TimeSheet> findCompanyTimeSheetsByIdAndStatus(
       String timePeriodId, String status, String userId, Pageable pageable);
 
   @Query(value = QUERY_TEAM_TIMESHEETS_SQL, nativeQuery = true)
@@ -46,7 +46,7 @@ public interface TimeSheetRepository extends BaseRepository<TimeSheet, String> {
       String timePeriodId, List<String> status, String userId);
 
   @Query(value = QUERY_COMPANY_TIMESHEETS_SQL, nativeQuery = true)
-  List<TimeSheet> findTimeSheetsByIdAndStatus(
+  List<TimeSheet> findCompanyTimeSheetsByIdAndStatus(
       String timePeriodId, List<String> status, String userId);
 
   boolean existsByEmployeeId(String employeeId);

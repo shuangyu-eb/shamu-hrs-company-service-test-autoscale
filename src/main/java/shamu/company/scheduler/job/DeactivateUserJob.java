@@ -9,7 +9,6 @@ import shamu.company.scheduler.QuartzUtil;
 import shamu.company.user.dto.UserStatusUpdateDto;
 import shamu.company.user.entity.User;
 import shamu.company.user.service.UserService;
-import shamu.company.utils.JsonUtil;
 
 @Component
 public class DeactivateUserJob extends QuartzJobBean {
@@ -26,10 +25,10 @@ public class DeactivateUserJob extends QuartzJobBean {
         QuartzUtil.getParameter(
             jobExecutionContext, "UserStatusUpdateDto", UserStatusUpdateDto.class);
     final User user = QuartzUtil.getParameter(jobExecutionContext, "User", User.class);
-    String companyId = QuartzUtil.getParameter(jobExecutionContext, "companyId", String.class).replace("\"", "");;
+    final String companyId =
+        QuartzUtil.getParameter(jobExecutionContext, "companyId", String.class).replace("\"", "");
 
     TenantContext.withInTenant(
-        companyId,
-        () -> userService.deactivateUser(userStatusUpdateDto, user));
+        companyId, () -> userService.deactivateUser(userStatusUpdateDto, user));
   }
 }

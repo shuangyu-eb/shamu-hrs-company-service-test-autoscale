@@ -83,19 +83,14 @@ public class AttendanceTeamHoursService {
   }
 
   public List<EmployeeAttendanceSummaryDto> findEmployeeAttendanceSummary(
-      final String timePeriodId,
-      final String companyId,
-      final String userId,
-      final String hourType) {
-    final CompanyTaSetting companyTaSetting =
-        attendanceSettingsService.findCompanySettings(companyId);
+      final String timePeriodId, final String userId, final String hourType) {
+    final CompanyTaSetting companyTaSetting = attendanceSettingsService.findCompanySetting();
     final List<EmployeeAttendanceSummaryDto> employeeAttendanceSummaryDtoList = new ArrayList<>();
 
     final List<TimeSheet> timeSheets =
         findTimeSheetsByIdAndCompanyIdAndStatusAndType(
             userId,
             timePeriodId,
-            companyId,
             Arrays.asList(
                 StaticTimesheetStatus.TimeSheetStatus.SUBMITTED.name(),
                 StaticTimesheetStatus.TimeSheetStatus.APPROVED.name()),
@@ -149,15 +144,14 @@ public class AttendanceTeamHoursService {
   private List<TimeSheet> findTimeSheetsByIdAndCompanyIdAndStatusAndType(
       final String userId,
       final String timePeriodId,
-      final String companyId,
       final List<String> timeSheetStatus,
       final String hourType) {
     if (hourType.equals(TEAM_HOURS_TYPE)) {
       return timeSheetService.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
-          userId, timePeriodId, companyId, timeSheetStatus);
+          userId, timePeriodId, timeSheetStatus);
     }
-    return timeSheetService.findCompanyTimeSheetsByIdAndCompanyIdAndStatus(
-        userId, timePeriodId, companyId, timeSheetStatus);
+    return timeSheetService.findCompanyTimeSheetsByIdAndStatus(
+        userId, timePeriodId, timeSheetStatus);
   }
 
   public TeamHoursPageInfoDto findTeamTimeSheetsByIdAndCompanyIdAndStatus(
@@ -174,7 +168,7 @@ public class AttendanceTeamHoursService {
     }
     if (hourType.equals(COMPANY_HOURS_TYPE)) {
       timeSheetPage =
-          timeSheetService.findTimeSheetsByIdAndStatus(
+          timeSheetService.findCompanyTimeSheetsByIdAndStatus(
               timePeriodId, timeSheetStatus, userId, pageable);
     }
     final CompanyTaSetting companyTaSetting = attendanceSettingsService.findCompanySetting();
@@ -222,7 +216,7 @@ public class AttendanceTeamHoursService {
     }
     if (hourType.equals(COMPANY_HOURS_TYPE)) {
       timeSheets =
-          timeSheetService.findTimeSheetsByIdAndStatus(
+          timeSheetService.findCompanyTimeSheetsByIdAndStatus(
               userId,
               timePeriodId,
               Arrays.asList(

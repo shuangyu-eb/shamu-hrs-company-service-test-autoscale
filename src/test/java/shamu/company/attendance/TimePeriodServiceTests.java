@@ -53,8 +53,8 @@ public class TimePeriodServiceTests {
 
     @Test
     void whenCompanyIdValid_shouldSucceed() {
-      Mockito.when(timePeriodRepository.findAllOrderbyStartDateDesc()).thenReturn(timePeriodList);
-      assertThatCode(() -> timePeriodService.findAllOrderbyStartDateDesc()).doesNotThrowAnyException();
+      Mockito.when(timePeriodRepository.findAllOrderByStartDateDesc()).thenReturn(timePeriodList);
+      assertThatCode(() -> timePeriodService.findAll()).doesNotThrowAnyException();
     }
 
     @Test
@@ -67,10 +67,8 @@ public class TimePeriodServiceTests {
 
     @Test
     void whenCompanyIdValid_findCurrentPeriod_shouldSucceed() {
-      Mockito.when(timePeriodRepository.findCompanyNumberNPeriod(0))
-          .thenReturn(timePeriod);
-      assertThatCode(() -> timePeriodService.findCompanyCurrentPeriod())
-          .doesNotThrowAnyException();
+      Mockito.when(timePeriodRepository.findCompanyNumberNPeriod(0)).thenReturn(timePeriod);
+      assertThatCode(() -> timePeriodService.findCompanyCurrentPeriod()).doesNotThrowAnyException();
     }
 
     @Test

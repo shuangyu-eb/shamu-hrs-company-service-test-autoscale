@@ -75,7 +75,7 @@ public class AttendanceTeamHoursController extends BaseRestController {
   public List<EmployeeAttendanceSummaryDto> findTeamEmployeesHours(
       @PathVariable final String timePeriodId, @PathVariable final String hourType) {
     return attendanceTeamHoursService.findEmployeeAttendanceSummary(
-        timePeriodId, findCompanyId(), findUserId(), hourType);
+        timePeriodId, findUserId(), hourType);
   }
 
   @GetMapping("time-and-attendance/team-hours/approved-hours/{timePeriodId}/{hourType}")
@@ -93,14 +93,12 @@ public class AttendanceTeamHoursController extends BaseRestController {
   @GetMapping("time-and-attendance/team-hours-summary/{timePeriodId}/{hourType}")
   public AttendanceSummaryDto findTeamHoursSummary(
       @PathVariable final String timePeriodId, @PathVariable final String hourType) {
-    return attendanceTeamHoursService.findTeamHoursSummary(
-        timePeriodId, findUserId(), hourType);
+    return attendanceTeamHoursService.findTeamHoursSummary(timePeriodId, findUserId(), hourType);
   }
 
   @GetMapping("time-and-attendance/time-periods")
   public List<TimeSheetPeriodDto> findTimePeriodsByCompany() {
-    return ReflectionUtil.convertTo(
-        timePeriodService.findAll(), TimeSheetPeriodDto.class);
+    return ReflectionUtil.convertTo(timePeriodService.findAll(), TimeSheetPeriodDto.class);
   }
 
   @PatchMapping("time-and-attendance/team-hours/pending-hours/approved")
@@ -116,7 +114,7 @@ public class AttendanceTeamHoursController extends BaseRestController {
 
   @GetMapping("time-and-attendance/approval-days-before-payroll")
   public int findApprovalDaysBeforePayroll() {
-    return attendanceSettingsService.findApprovalDaysBeforePayroll(findCompanyId());
+    return attendanceSettingsService.findApprovalDaysBeforePayroll();
   }
 
   @GetMapping("time-and-attendance/attendance-details")

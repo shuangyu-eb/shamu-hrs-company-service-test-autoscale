@@ -1,5 +1,7 @@
 package shamu.company.attendance.service;
 
+import java.util.List;
+import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import shamu.company.attendance.dto.CompanyTaSettingsDto;
@@ -22,9 +24,6 @@ import shamu.company.job.entity.JobUser;
 import shamu.company.job.repository.JobUserRepository;
 import shamu.company.user.entity.User;
 import shamu.company.user.repository.UserRepository;
-
-import java.util.List;
-import java.util.Optional;
 
 /** @author mshumaker */
 @Service
@@ -151,8 +150,8 @@ public class AttendanceSettingsService {
     }
   }
 
-  public int findApprovalDaysBeforePayroll(final String companyId) {
-    return companyTaSettingRepository.findApprovalDaysBeforePayroll(companyId);
+  public int findApprovalDaysBeforePayroll() {
+    return companyTaSettingRepository.findApprovalDaysBeforePayroll();
   }
 
   public void initialTimezoneForOldDatas() {

@@ -53,7 +53,6 @@ public class AddPayPeriodJobTests {
             attendanceSettingsService,
             payPeriodFrequencyService,
             userCompensationService,
-            companyService,
             payrollDetailService);
   }
 

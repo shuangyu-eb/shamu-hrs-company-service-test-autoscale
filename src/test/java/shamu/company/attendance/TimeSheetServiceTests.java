@@ -115,16 +115,6 @@ public class TimeSheetServiceTests {
                       timesheetId, status, "1", pageable))
           .doesNotThrowAnyException();
     }
-  }
-
-  @Test
-  void testFindTimeSheetsByIdAndCompanyIdAndStatus() {
-    Assertions.assertThatCode(
-            () ->
-                timeSheetService.findTimeSheetsByIdAndStatus(
-                    Mockito.anyString(), Mockito.anyString(), Mockito.anyList()))
-        .doesNotThrowAnyException();
-  }
 
 
   @Test
@@ -133,11 +123,13 @@ public class TimeSheetServiceTests {
     final Pageable pageable = PageRequest.of(0, 2);
     final Page<TimeSheet> page = new PageImpl<>(Collections.emptyList());
     Mockito.when(
-            timeSheetRepository.findTimeSheetsByIdAndStatus(
+            timeSheetRepository.findCompanyTimeSheetsByIdAndStatus(
                 "1", timeSheetStatus.getValue(), "1", pageable))
         .thenReturn(page);
     assertThatCode(
-            () -> timeSheetService.findTimeSheetsByIdAndStatus("1", timeSheetStatus, "1", pageable))
+            () ->
+                timeSheetService.findCompanyTimeSheetsByIdAndStatus(
+                    "1", timeSheetStatus, "1", pageable))
         .doesNotThrowAnyException();
   }
 
@@ -159,12 +151,12 @@ public class TimeSheetServiceTests {
   void findCompanyTimeSheetsByCompanyIdAndStatus() {
     final List<TimeSheet> timeSheets = new ArrayList<>();
     Mockito.when(
-            timeSheetRepository.findTimeSheetsByIdAndStatus(
+            timeSheetRepository.findCompanyTimeSheetsByIdAndStatus(
                 Mockito.anyString(), Mockito.anyList(), Mockito.any()))
         .thenReturn(timeSheets);
     assertThatCode(
             () ->
-                timeSheetService.findTimeSheetsByIdAndStatus(
+                timeSheetService.findCompanyTimeSheetsByIdAndStatus(
                     Mockito.anyString(), Mockito.any(), Mockito.anyList()))
         .doesNotThrowAnyException();
   }

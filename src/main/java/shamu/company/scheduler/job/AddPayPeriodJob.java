@@ -1,5 +1,9 @@
 package shamu.company.scheduler.job;
 
+import static shamu.company.attendance.entity.StaticTimesheetStatus.TimeSheetStatus;
+
+import java.sql.Timestamp;
+import java.util.List;
 import org.quartz.JobExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.quartz.QuartzJobBean;
@@ -18,11 +22,6 @@ import shamu.company.company.service.CompanyService;
 import shamu.company.scheduler.QuartzUtil;
 import shamu.company.user.entity.UserCompensation;
 import shamu.company.user.service.UserCompensationService;
-
-import java.sql.Timestamp;
-import java.util.List;
-
-import static shamu.company.attendance.entity.StaticTimesheetStatus.TimeSheetStatus;
 
 public class AddPayPeriodJob extends QuartzJobBean {
   private static final long MS_OF_ONE_DAY = 24 * 60 * 60 * 1000L;
@@ -50,15 +49,13 @@ public class AddPayPeriodJob extends QuartzJobBean {
     this.attendanceSettingsService = attendanceSettingsService;
     this.payPeriodFrequencyService = payPeriodFrequencyService;
     this.userCompensationService = userCompensationService;
-    this.companyService = companyService;
     this.payrollDetailService = payrollDetailService;
   }
 
   @Override
   public void executeInternal(final JobExecutionContext jobExecutionContext) {
-    String companyId =
-        QuartzUtil.getParameter(jobExecutionContext, "companyId", String.class);
-    companyId = JsonUtil.deserialize(companyIdJson, String.class).replace("\"", "");
+    final String companyId =
+        QuartzUtil.getParameter(jobExecutionContext, "companyId", String.class).replace("\"", "");
     TenantContext.withInTenant(
         companyId,
         () -> {

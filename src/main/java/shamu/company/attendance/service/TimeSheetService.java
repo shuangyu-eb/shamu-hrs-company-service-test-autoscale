@@ -64,12 +64,12 @@ public class TimeSheetService {
         timePeriodId, timeSheetStatus.getValue(), userId, pageable);
   }
 
-  public Page<TimeSheet> findTimeSheetsByIdAndStatus(
+  public Page<TimeSheet> findCompanyTimeSheetsByIdAndStatus(
       final String timePeriodId,
       final TimeSheetStatus timeSheetStatus,
       final String userId,
       final Pageable pageable) {
-    return timeSheetRepository.findTimeSheetsByIdAndStatus(
+    return timeSheetRepository.findCompanyTimeSheetsByIdAndStatus(
         timePeriodId, timeSheetStatus.getValue(), userId, pageable);
   }
 
@@ -79,9 +79,10 @@ public class TimeSheetService {
         timePeriodId, timeSheetStatus, userId);
   }
 
-  public List<TimeSheet> findTimeSheetsByIdAndStatus(
+  public List<TimeSheet> findCompanyTimeSheetsByIdAndStatus(
       final String userId, final String timePeriodId, final List<String> timeSheetStatus) {
-    return timeSheetRepository.findTimeSheetsByIdAndStatus(timePeriodId, timeSheetStatus, userId);
+    return timeSheetRepository.findCompanyTimeSheetsByIdAndStatus(
+        timePeriodId, timeSheetStatus, userId);
   }
 
   public void updateTimesheetStatus(final String statusId, final String timesheetId) {
