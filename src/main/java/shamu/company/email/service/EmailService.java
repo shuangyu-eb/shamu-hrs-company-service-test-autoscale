@@ -19,6 +19,7 @@ import shamu.company.helpers.EmailHelper;
 import shamu.company.helpers.s3.AwsHelper;
 import shamu.company.scheduler.QuartzJobScheduler;
 import shamu.company.scheduler.job.SendEmailJob;
+import shamu.company.scheduler.job.SendEmailsJob;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
 import shamu.company.user.entity.UserPersonalInformation;
@@ -33,6 +34,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
@@ -40,6 +42,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Service
 public class EmailService {
@@ -96,21 +99,25 @@ public class EmailService {
     return emailRepository.save(email);
   }
 
+  public List<Email> saveAll(final List<Email> emails) {
+    return emailRepository.saveAll(emails);
+  }
+
   public List<Email> findAllUnfinishedTasks() {
     return emailRepository.findAllUnfinishedTasks(emailRetryLimit);
   }
 
   public void scheduleEmail(final Email email) {
-    Timestamp sendDate = email.getSendDate();
-    if (sendDate == null) {
-      sendDate = Timestamp.valueOf(LocalDateTime.now());
-    }
+    final Timestamp sendDate = email.getSendDate();
     final String messageId = UuidUtil.getUuidString();
     email.setMessageId(messageId);
     final Map<String, Object> jobParameter = new HashMap<>();
     jobParameter.put("email", email);
     quartzJobScheduler.addOrUpdateJobSchedule(
-        SendEmailJob.class, "sendEmail_" + messageId, jobParameter, sendDate);
+        SendEmailJob.class,
+        "sendEmail_" + messageId,
+        jobParameter,
+        sendDate == null ? Timestamp.valueOf(LocalDateTime.now()) : sendDate);
   }
 
   public void saveAndScheduleEmail(final Email email) {
@@ -118,18 +125,72 @@ public class EmailService {
     scheduleEmail(email);
   }
 
-  public void rescheduleFailedEmail(final Email email) {
-    final Integer currentRetryCount = email.getRetryCount() == null ? 0 : email.getRetryCount() + 1;
-    email.setRetryCount(currentRetryCount);
-    save(email);
+  public void saveAndScheduleSendEmails(final List<Email> emails) {
+    saveAll(emails);
+    scheduleSendEmails(emails);
+  }
 
-    if (email.getRetryCount() >= emailRetryLimit) {
+  private void scheduleSendEmails(final List<Email> emails) {
+    if (emails.size() == 0) {
+      return;
+    }
+    final Timestamp sendDate = emails.get(0).getSendDate();
+    final List<String> messageIdList = new ArrayList<>();
+    emails.forEach(email -> messageIdList.add(email.getMessageId()));
+    final Map<String, Object> jobParameter = new HashMap<>();
+    jobParameter.put("messageIdList", messageIdList);
+    quartzJobScheduler.addOrUpdateJobSchedule(
+        SendEmailsJob.class,
+        "sendEmails",
+        jobParameter,
+        sendDate == null ? Timestamp.valueOf(LocalDateTime.now()) : sendDate);
+  }
+
+  public List<Email> getFromSystemEmails(
+      final List<User> users,
+      final String subject,
+      final String content,
+      final Timestamp sendDate) {
+    return users.stream()
+        .map(
+            user -> {
+              Email email =
+                  new Email(
+                      systemEmailAddress,
+                      systemEmailFirstName + "-" + systemEmailLastName,
+                      user.getUserContactInformation().getEmailWork(),
+                      user.getUserPersonalInformation().getName(),
+                      subject);
+              email.setContent(content);
+              email.setSendDate(sendDate);
+              email.setMessageId(UuidUtil.getUuidString());
+              return email;
+            })
+        .collect(Collectors.toList());
+  }
+
+  public void rescheduleFailedEmails(final List<Email> emails) {
+    if (emails.isEmpty()) {
+      return;
+    }
+    final Email email = emails.get(0);
+    final Integer currentRetryCount = getRetryCount(email);
+
+    if (currentRetryCount > emailRetryLimit) {
       return;
     }
 
     final LocalDateTime afterOneHour = LocalDateTime.now().plusHours(1);
-    email.setSendDate(Timestamp.valueOf(afterOneHour));
-    saveAndScheduleEmail(email);
+    emails.forEach(
+        email1 -> {
+          email.setRetryCount(currentRetryCount);
+          email.setSendDate(Timestamp.valueOf(afterOneHour));
+        });
+    saveAndScheduleSendEmails(emails);
+  }
+
+  private int getRetryCount(final Email email) {
+    return email.getRetryCount() == null ? 1 : email.getRetryCount() + 1;
   }
 
   public Email findFirstByToAndSubjectOrderBySendDateDesc(final String email, final String s) {
@@ -315,6 +376,12 @@ public class EmailService {
     scheduleEmail(email);
   }
 
+  public String getAttendanceSubmitNotificationEmailContent() {
+    final Context context = new Context();
+    context.setVariable(FRONT_END_ADDRESS, frontEndAddress);
+    return templateEngine.process("attendance_submit_notification.html", context);
+  }
+
   public void sendEmailToOtherAdminsWhenNewOneAdded(
       final String promotedEmployeeId, final String currentUserId, final String companyId) {
     final User promotedEmployee = userService.findById(promotedEmployeeId);
@@ -355,5 +422,9 @@ public class EmailService {
           email.setSendDate(Timestamp.valueOf(LocalDateTime.now()));
           scheduleEmail(email);
         });
+  }
+
+  public List<Email> listByMessageIds(final List<String> messageIds) {
+    return emailRepository.findByMessageIdIn(messageIds);
   }
 }

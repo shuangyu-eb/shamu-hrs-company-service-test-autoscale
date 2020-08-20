@@ -12,9 +12,6 @@ import org.quartz.JobExecutionContext;
 import shamu.company.attendance.entity.CompanyTaSetting;
 import shamu.company.attendance.entity.StaticTimezone;
 import shamu.company.attendance.entity.TimePeriod;
-import shamu.company.attendance.service.AttendanceSetUpService;
-import shamu.company.attendance.service.AttendanceSettingsService;
-import shamu.company.attendance.service.TimePeriodService;
 import shamu.company.attendance.service.TimeSheetService;
 import shamu.company.scheduler.job.AutoApproveTimeSheetsJob;
 import shamu.company.utils.JsonUtil;
@@ -26,18 +23,13 @@ import java.util.Map;
 
 public class AutoApproveTimeSheetsJobTests {
   private static AutoApproveTimeSheetsJob autoApproveTimeSheetsJob;
-  @Mock private AttendanceSetUpService attendanceSetUpService;
-  @Mock private TimePeriodService timePeriodService;
-  @Mock private AttendanceSettingsService attendanceSettingsService;
   @Mock private TimeSheetService timeSheetService;
   @Mock private JobExecutionContext jobExecutionContext;
 
   @BeforeEach
   void init() {
     MockitoAnnotations.initMocks(this);
-    autoApproveTimeSheetsJob =
-        new AutoApproveTimeSheetsJob(
-            attendanceSetUpService, timePeriodService, attendanceSettingsService, timeSheetService);
+    autoApproveTimeSheetsJob = new AutoApproveTimeSheetsJob(timeSheetService);
   }
 
   @Nested
@@ -64,12 +56,6 @@ public class AutoApproveTimeSheetsJobTests {
       jobParameter.put("companyId", JsonUtil.formatToString(companyId));
       Mockito.when(jobExecutionContext.getMergedJobDataMap())
           .thenReturn(new JobDataMap(jobParameter));
-
-      Mockito.when(attendanceSettingsService.findCompanySettings(companyId))
-          .thenReturn(companyTaSetting);
-      Mockito.when(timePeriodService.findCompanyCurrentPeriod(companyId)).thenReturn(timePeriod);
-      Mockito.when(attendanceSetUpService.getAutoApproveDate(companyId, endDate, timeZoneName))
-          .thenReturn(runPayrollDdl);
 
       Assertions.assertDoesNotThrow(
           () -> autoApproveTimeSheetsJob.executeInternal(jobExecutionContext));

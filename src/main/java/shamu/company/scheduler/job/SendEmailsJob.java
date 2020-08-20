@@ -9,28 +9,31 @@ import shamu.company.helpers.EmailHelper;
 import shamu.company.scheduler.QuartzUtil;
 
 import java.sql.Timestamp;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
-public class SendEmailJob extends QuartzJobBean {
+public class SendEmailsJob extends QuartzJobBean {
   private final EmailHelper emailHelper;
   private final EmailService emailService;
 
   @Autowired
-  public SendEmailJob(final EmailHelper emailHelper, final EmailService emailService) {
+  public SendEmailsJob(final EmailHelper emailHelper, final EmailService emailService) {
     this.emailHelper = emailHelper;
     this.emailService = emailService;
   }
 
   @Override
   public void executeInternal(final JobExecutionContext jobExecutionContext) {
-    final Email email = QuartzUtil.getParameter(jobExecutionContext, "email", Email.class);
+    final List<String> messageIdList =
+        QuartzUtil.getParameter(jobExecutionContext, "messageIdList", ArrayList.class);
+    final List<Email> emails = emailService.listByMessageIds(messageIdList);
     try {
-      emailHelper.send(email);
-      email.setSendDate(new Timestamp(new Date().getTime()));
-      emailService.save(email);
+      emailHelper.send(emails);
+      emails.forEach(email -> email.setSendDate(new Timestamp(new Date().getTime())));
+      emailService.saveAll(emails);
     } catch (final Exception e) {
-      emailService.rescheduleFailedEmails(Arrays.asList(email));
+      emailService.rescheduleFailedEmails(emails);
     }
   }
 }

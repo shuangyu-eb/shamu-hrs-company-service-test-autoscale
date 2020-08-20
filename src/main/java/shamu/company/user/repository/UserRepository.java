@@ -17,6 +17,8 @@ public interface UserRepository extends JpaRepository<User, String>, UserCustomR
   @Override
   Optional<User> findById(String id);
 
+  List<User> findByIdIn(List<String> idList);
+
   @Query(
       value = "select * from users u" + " where u.id = unhex(?1) " + ACTIVE_USER_QUERY,
       nativeQuery = true)

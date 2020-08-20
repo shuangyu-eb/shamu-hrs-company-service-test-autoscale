@@ -12,7 +12,6 @@ import org.quartz.JobExecutionContext;
 import shamu.company.attendance.entity.StaticTimesheetStatus;
 import shamu.company.attendance.entity.TimePeriod;
 import shamu.company.attendance.entity.TimeSheet;
-import shamu.company.attendance.service.AttendanceSetUpService;
 import shamu.company.attendance.service.TimePeriodService;
 import shamu.company.attendance.service.TimeSheetService;
 import shamu.company.scheduler.job.AutoSubmitTimeSheetsJob;
@@ -25,7 +24,6 @@ import java.util.Map;
 
 public class AutoSubmitTimeSheetsJobTests {
   private static AutoSubmitTimeSheetsJob autoSubmitTimeSheetsJob;
-  @Mock private AttendanceSetUpService attendanceSetUpService;
   @Mock private TimePeriodService timePeriodService;
   @Mock private TimeSheetService timeSheetService;
   @Mock private JobExecutionContext jobExecutionContext;
@@ -33,8 +31,7 @@ public class AutoSubmitTimeSheetsJobTests {
   @BeforeEach
   void init() {
     MockitoAnnotations.initMocks(this);
-    autoSubmitTimeSheetsJob =
-        new AutoSubmitTimeSheetsJob(attendanceSetUpService, timePeriodService, timeSheetService);
+    autoSubmitTimeSheetsJob = new AutoSubmitTimeSheetsJob(timeSheetService);
   }
 
   @Nested

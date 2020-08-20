@@ -27,6 +27,8 @@ import shamu.company.company.entity.Company;
 import shamu.company.company.entity.Office;
 import shamu.company.company.repository.CompanyRepository;
 import shamu.company.company.service.CompanyService;
+import shamu.company.email.entity.Email;
+import shamu.company.email.service.EmailService;
 import shamu.company.helpers.googlemaps.GoogleMapsHelper;
 import shamu.company.job.entity.CompensationFrequency;
 import shamu.company.job.entity.JobUser;
@@ -79,8 +81,10 @@ public class AttendanceSetUpService {
   private static final int WEEKS_OF_BIWEEKLY = 2;
   private static final int MID_DAY_OF_MONTH = 15;
   private static final int DAYS_PAY_DATE_AFTER_PERIOD = 6;
+  private static final int HOURS_EMAIL_NOTIFICATION_BEFORE_SUBMIT = 8;
   private static final int DEFAULT_APPROVAL_DAYS_BEFORE_PAYROLL = 2;
-  private static final long MS_OF_ONE_DAY = 24 * 60 * 60 * 1000L;
+  private static final long MS_OF_ONE_HOUR = 24 * 60 * 60 * 1000L;
+  private static final long MS_OF_ONE_DAY = 24 * MS_OF_ONE_HOUR;
   private static final String COMPANY_POSTAL_CODE = "companyPostalCode";
   private static final String DATE_FORMAT = "MM/dd/yyyy";
 
@@ -130,6 +134,8 @@ public class AttendanceSetUpService {
 
   private final TimePeriodRepository timePeriodRepository;
 
+  private final EmailService emailService;
+
   public AttendanceSetUpService(
       final AttendanceSettingsService attendanceSettingsService,
       final UserRepository userRepository,
@@ -153,7 +159,8 @@ public class AttendanceSetUpService {
       final GoogleMapsHelper googleMapsHelper,
       final EmployeesTaSettingsMapper employeesTaSettingsMapper,
       final CompanyTaSettingsMapper companyTaSettingsMapper,
-      final TimePeriodRepository timePeriodRepository) {
+      final TimePeriodRepository timePeriodRepository,
+      final EmailService emailService) {
     this.attendanceSettingsService = attendanceSettingsService;
     this.userRepository = userRepository;
     this.jobUserRepository = jobUserRepository;
@@ -177,6 +184,7 @@ public class AttendanceSetUpService {
     this.employeesTaSettingsMapper = employeesTaSettingsMapper;
     this.companyTaSettingsMapper = companyTaSettingsMapper;
     this.timePeriodRepository = timePeriodRepository;
+    this.emailService = emailService;
   }
 
   public Boolean findIsAttendanceSetUp(final String companyId) {
@@ -265,12 +273,8 @@ public class AttendanceSetUpService {
 
     createTimeSheetsAndPeriod(firstTimePeriod, timeSheetStatus, userCompensationList);
 
-    scheduleCreateNextPeriod(companyId, new Date(periodEndDate.getTime()));
-    scheduleAutoSubmitTimeSheets(companyId, new Date(periodEndDate.getTime()));
-
-    final Date autoApproveDate =
-        getAutoApproveDate(companyId, periodEndDate, companyTimezone.getName());
-    scheduleAutoApproveTimeSheets(companyId, autoApproveDate);
+    scheduleTasksForNextPeriod(
+        companyId, new Date(periodEndDate.getTime()), companyTimezone.getName());
   }
 
   private Optional<Date> parseDateWithZone(final String date, final String timezone) {
@@ -283,16 +287,12 @@ public class AttendanceSetUpService {
     }
   }
 
-  public void scheduleCreateNextPeriod(final String companyId, final Date currentPeriodEndDate) {
+  public void scheduleTasksForNextPeriod(
+      final String companyId, final Date currentPeriodEndDate, final String companyTimeZone) {
     final Map<String, Object> jobParameter = assembleCompanyIdParameter(companyId);
 
     quartzJobScheduler.addOrUpdateJobSchedule(
         AddPayPeriodJob.class, "newPeriod_" + companyId, jobParameter, currentPeriodEndDate);
-  }
-
-  public void scheduleAutoSubmitTimeSheets(
-      final String companyId, final Date currentPeriodEndDate) {
-    final Map<String, Object> jobParameter = assembleCompanyIdParameter(companyId);
 
     final Date autoSubmitDate = addOneDayTime(currentPeriodEndDate);
     quartzJobScheduler.addOrUpdateJobSchedule(
@@ -300,6 +300,31 @@ public class AttendanceSetUpService {
         "submitTimeSheet_" + companyId,
         jobParameter,
         autoSubmitDate);
+
+    final Date autoApproveDate =
+        getAutoApproveDate(companyId, currentPeriodEndDate, companyTimeZone);
+    quartzJobScheduler.addOrUpdateJobSchedule(
+        AutoApproveTimeSheetsJob.class,
+        "activateTimeSheet" + companyId,
+        jobParameter,
+        autoApproveDate);
+
+    final Timestamp emailNotificationDate =
+        new Timestamp(
+            autoSubmitDate.getTime() - HOURS_EMAIL_NOTIFICATION_BEFORE_SUBMIT * MS_OF_ONE_HOUR);
+    scheduleEmailSubmitNotification(companyId, emailNotificationDate);
+  }
+
+  private void scheduleEmailSubmitNotification(
+      final String companyId, final Timestamp executeDate) {
+    final List<User> users = userService.listCompanyAttendanceEnrolledUsers(companyId);
+    final List<Email> emails =
+        emailService.getFromSystemEmails(
+            users,
+            "You have hours pending approval",
+            emailService.getAttendanceSubmitNotificationEmailContent(),
+            executeDate);
+    emailService.saveAndScheduleSendEmails(emails);
   }
 
   private void scheduleActivateTimeSheet(final String companyId, final Date periodStartDate) {
@@ -412,15 +437,6 @@ public class AttendanceSetUpService {
             companyTimeZone);
     getClosestWeekDay(autoApproveDate, 1);
     return new Date(autoApproveDate.getTimeInMillis());
-  }
-
-  public void scheduleAutoApproveTimeSheets(final String companyId, final Date autoApproveDate) {
-    final Map<String, Object> jobParameter = assembleCompanyIdParameter(companyId);
-    quartzJobScheduler.addOrUpdateJobSchedule(
-        AutoApproveTimeSheetsJob.class,
-        "activateTimeSheet" + companyId,
-        jobParameter,
-        autoApproveDate);
   }
 
   private void saveEmployeeTaSettings(

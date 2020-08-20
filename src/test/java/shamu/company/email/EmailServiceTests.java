@@ -30,6 +30,7 @@ import shamu.company.utils.UuidUtil;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -84,16 +85,10 @@ class EmailServiceTests {
 
     @Test
     void whenRetryLimitOutOfRange_thenReturn() throws Exception {
+      final List<Email> emails = Arrays.asList(email);
       email.setRetryCount(emailRetryLimit - 1);
-      Whitebox.invokeMethod(emailService, "rescheduleFailedEmail", email);
-      Mockito.verify(emailRepository, Mockito.times(1)).save(email);
-    }
-
-    @Test
-    void whenRetryLimitIntheRange_thenContinue() throws Exception {
-      email.setRetryCount(emailRetryLimit - 2);
-      Whitebox.invokeMethod(emailService, "rescheduleFailedEmail", email);
-      Mockito.verify(emailRepository, Mockito.times(2)).save(email);
+      Whitebox.invokeMethod(emailService, "rescheduleFailedEmails", emails);
+      Mockito.verify(emailRepository, Mockito.times(1)).saveAll(emails);
     }
   }
 

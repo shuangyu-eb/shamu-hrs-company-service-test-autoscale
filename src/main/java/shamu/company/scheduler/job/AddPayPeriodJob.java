@@ -74,6 +74,7 @@ public class AddPayPeriodJob extends QuartzJobBean {
         userCompensationService.listNewestEnrolledCompensation(companyId);
     attendanceSetUpService.createTimeSheetsAndPeriod(
         nextTimePeriod, TimeSheetStatus.ACTIVE, userCompensationList);
-    attendanceSetUpService.scheduleCreateNextPeriod(companyId, nextPeriodEndDate);
+    attendanceSetUpService.scheduleTasksForNextPeriod(
+        companyId, nextPeriodEndDate, companyTaSetting.getTimeZone().getName());
   }
 }

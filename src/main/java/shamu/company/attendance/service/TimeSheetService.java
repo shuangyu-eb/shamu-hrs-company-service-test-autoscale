@@ -110,12 +110,12 @@ public class TimeSheetService {
   public void updateCompanyLastPeriodTimeSheetsStatus(
       final String companyId, final String fromStatus, final String toStatus) {
     final TimePeriod lastTimePeriod = timePeriodService.findCompanyLastPeriod(companyId);
-    final List<TimeSheet> timeSheetsToSubmit =
+    final List<TimeSheet> timeSheets =
         findAllByPeriodId(lastTimePeriod.getId()).stream()
             .filter(timeSheet -> (timeSheet.getStatus().getName().equals(fromStatus)))
             .collect(Collectors.toList());
 
-    updateAllTimesheetStatus(timeSheetsToSubmit, toStatus);
+    updateAllTimesheetStatus(timeSheets, toStatus);
   }
 
   public List<TimeSheet> findAllById(final Iterable<String> iterable) {

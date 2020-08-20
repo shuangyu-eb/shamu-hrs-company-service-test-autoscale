@@ -32,6 +32,7 @@ import shamu.company.company.entity.Office;
 import shamu.company.company.entity.OfficeAddress;
 import shamu.company.company.repository.CompanyRepository;
 import shamu.company.company.service.CompanyService;
+import shamu.company.email.service.EmailService;
 import shamu.company.helpers.googlemaps.GoogleMapsHelper;
 import shamu.company.job.entity.CompensationFrequency;
 import shamu.company.job.entity.JobUser;
@@ -107,6 +108,8 @@ public class AttendanceSetUpServiceTests {
   @Mock private TimePeriodRepository timePeriodRepository;
 
   @Mock private StaticTimeZoneRepository staticTimeZoneRepository;
+
+  @Mock private EmailService emailService;
 
   @BeforeEach
   void init() {
@@ -185,6 +188,7 @@ public class AttendanceSetUpServiceTests {
     List<EmployeeOvertimeDetailsDto> details = new ArrayList();
     Company company;
     final StaticTimezone staticTimezone = new StaticTimezone();
+    CompanyTaSetting companyTaSetting = new CompanyTaSetting();
 
     @BeforeEach
     void init() {
@@ -199,6 +203,7 @@ public class AttendanceSetUpServiceTests {
       office.setOfficeAddress(officeAddress);
       jobUser.setOffice(office);
       staticTimezone.setName("Hongkong");
+      companyTaSetting.setTimeZone(staticTimezone);
     }
 
     @Test
@@ -208,7 +213,9 @@ public class AttendanceSetUpServiceTests {
       Mockito.when(jobUserRepository.findByUserId(employeeId)).thenReturn(jobUser);
       Mockito.when(companyRepository.findCompanyById(companyId)).thenReturn(new Company());
       Mockito.when(attendanceSettingsService.saveCompanyTaSetting(Mockito.any()))
-          .thenReturn(Mockito.any());
+          .thenReturn(companyTaSetting);
+      Mockito.when(attendanceSettingsService.findCompanySettings(companyId))
+          .thenReturn(companyTaSetting);
       Mockito.when(staticTimeZoneRepository.findByName("front-end-timezone"))
           .thenReturn(staticTimezone);
       assertThatCode(
@@ -230,6 +237,8 @@ public class AttendanceSetUpServiceTests {
           .thenReturn(new UserCompensation());
       Mockito.when(compensationFrequencyRepository.findById(Mockito.any()))
           .thenReturn(Optional.of(new CompensationFrequency()));
+      Mockito.when(attendanceSettingsService.findCompanySettings(companyId))
+          .thenReturn(companyTaSetting);
       Mockito.when(compensationOvertimeStatusRepository.findById(Mockito.any()))
           .thenReturn(Optional.of(new CompensationOvertimeStatus()));
       Mockito.when(jobUserRepository.findByUserId(Mockito.any())).thenReturn(jobUser);

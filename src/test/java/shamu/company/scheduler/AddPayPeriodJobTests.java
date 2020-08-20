@@ -10,6 +10,7 @@ import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import shamu.company.attendance.entity.CompanyTaSetting;
 import shamu.company.attendance.entity.StaticCompanyPayFrequencyType;
+import shamu.company.attendance.entity.StaticTimezone;
 import shamu.company.attendance.entity.TimePeriod;
 import shamu.company.attendance.service.AttendanceSetUpService;
 import shamu.company.attendance.service.AttendanceSettingsService;
@@ -72,6 +73,9 @@ public class AddPayPeriodJobTests {
       payFrequencyType.setName("WEEKLY");
       payFrequencyType.setId("id");
       companyTaSetting.setPayFrequencyType(payFrequencyType);
+      final StaticTimezone timezone = new StaticTimezone();
+      timezone.setName("Hongkong");
+      companyTaSetting.setTimeZone(timezone);
       Mockito.when(companyService.findById(Mockito.anyString())).thenReturn(company);
     }
 
