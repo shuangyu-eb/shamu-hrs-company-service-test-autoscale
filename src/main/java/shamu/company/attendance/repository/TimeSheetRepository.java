@@ -74,7 +74,7 @@ public interface TimeSheetRepository extends BaseRepository<TimeSheet, String> {
   @Transactional
   @Query(
       value =
-          "delete from timesheets ts where hex(ts.employee_id) in (?1) and ts.status_id = "
+          "delete from timesheets where hex(employee_id) in (?1) and status_id = "
               + "(select id from static_timesheet_status where name = ?2)",
       nativeQuery = true)
   void removeAllByEmployeeAndStatus(List<String> userIds, String statusName);
