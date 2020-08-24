@@ -1,6 +1,7 @@
 package shamu.company.attendance.service;
 
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -271,7 +272,7 @@ public class AttendanceTeamHoursService {
     timeSheetService.saveAll(timeSheets);
   }
 
-  public AttendanceDetailDto findAttendanceDetails(final String companyId) {
+  public AttendanceDetailDto findAttendanceDetails() {
     final PayrollDetail payrollDetail = payrollDetailService.findByCompanyId(companyId);
     final TimePeriod timePeriod = timePeriodService.findCompanyCurrentPeriod(companyId);
     final SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);

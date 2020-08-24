@@ -1,6 +1,7 @@
 package shamu.company.scheduler.job;
 
 import java.sql.Timestamp;
+import java.util.Arrays;
 import java.util.Date;
 import org.quartz.JobExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,10 +11,6 @@ import shamu.company.email.entity.Email;
 import shamu.company.email.service.EmailService;
 import shamu.company.helpers.EmailHelper;
 import shamu.company.scheduler.QuartzUtil;
-
-import java.sql.Timestamp;
-import java.util.Arrays;
-import java.util.Date;
 
 public class SendEmailJob extends QuartzJobBean {
   private final EmailHelper emailHelper;

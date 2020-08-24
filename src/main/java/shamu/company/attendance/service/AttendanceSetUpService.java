@@ -31,8 +31,6 @@ import shamu.company.common.entity.PayrollDetail;
 import shamu.company.common.service.PayrollDetailService;
 import shamu.company.company.entity.Company;
 import shamu.company.company.entity.Office;
-import shamu.company.company.repository.CompanyRepository;
-import shamu.company.company.service.CompanyService;
 import shamu.company.email.entity.Email;
 import shamu.company.email.service.EmailService;
 import shamu.company.email.service.EmailService.EmailNotification;
@@ -295,7 +293,6 @@ public class AttendanceSetUpService {
       saveCompanyTaSetting(
           timeAndAttendanceDetailsDto.getPayPeriodFrequency(),
           timeAndAttendanceDetailsDto.getPayDate(),
-          companyId,
           companyTimezone);
       scheduleTasks(companyId, firstTimePeriod, companyTimezone.getName());
     }

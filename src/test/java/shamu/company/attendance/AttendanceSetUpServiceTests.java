@@ -229,7 +229,7 @@ public class AttendanceSetUpServiceTests {
       Mockito.when(jobUserRepository.findByUserId(employeeId)).thenReturn(jobUser);
       Mockito.when(attendanceSettingsService.saveCompanyTaSetting(Mockito.any()))
           .thenReturn(companyTaSetting);
-      Mockito.when(attendanceSettingsService.findCompanySettings(companyId))
+      Mockito.when(attendanceSettingsService.findCompanySetting())
           .thenReturn(companyTaSetting);
       Mockito.when(googleMapsHelper.findTimezoneByPostalCode(set)).thenReturn(timezones);
       Mockito.when(timePeriodService.save(Mockito.any())).thenReturn(timePeriod);
@@ -255,8 +255,7 @@ public class AttendanceSetUpServiceTests {
           .thenReturn(new UserCompensation());
       Mockito.when(compensationFrequencyRepository.findById(Mockito.any()))
           .thenReturn(Optional.of(new CompensationFrequency()));
-      Mockito.when(attendanceSettingsService.findCompanySettings(companyId))
-          .thenReturn(companyTaSetting);
+      Mockito.when(attendanceSettingsService.findCompanySetting()).thenReturn(companyTaSetting);
       Mockito.when(compensationOvertimeStatusRepository.findById(Mockito.any()))
           .thenReturn(Optional.of(new CompensationOvertimeStatus()));
 
@@ -298,8 +297,7 @@ public class AttendanceSetUpServiceTests {
       Mockito.when(userCompensationService.saveAll(Mockito.any())).thenReturn(userCompensations);
       Mockito.when(compensationFrequencyRepository.findById(Mockito.any()))
           .thenReturn(Optional.of(new CompensationFrequency()));
-      Mockito.when(attendanceSettingsService.findCompanySettings(companyId))
-          .thenReturn(companyTaSetting);
+      Mockito.when(attendanceSettingsService.findCompanySetting()).thenReturn(companyTaSetting);
       Mockito.when(compensationOvertimeStatusRepository.findById(Mockito.any()))
           .thenReturn(Optional.of(new CompensationOvertimeStatus()));
       Mockito.when(jobUserRepository.findByUserId(Mockito.any())).thenReturn(jobUser);
