@@ -121,4 +121,8 @@ public class TimeSheetService {
   public List<TimeSheet> findAllById(final Iterable<String> iterable) {
     return timeSheetRepository.findAllById(iterable);
   }
+
+  public void removeEmployees(final List<String> userIds) {
+    timeSheetRepository.removeAllByEmployeeAndStatus(userIds, TimeSheetStatus.ACTIVE.name());
+  }
 }

@@ -5,6 +5,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import shamu.company.attendance.dto.AttendanceDetailDto;
 import shamu.company.attendance.dto.AttendanceSummaryDto;
 import shamu.company.attendance.dto.AttendanceTeamHoursDto;
 import shamu.company.attendance.dto.EmployeeAttendanceSummaryDto;
@@ -19,6 +20,7 @@ import shamu.company.timeoff.service.TimeOffRequestService;
 import shamu.company.user.entity.User;
 
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -36,6 +38,7 @@ public class AttendanceTeamHoursService {
   private static final String COMPANY_HOURS_TYPE = "company_hours";
   private static final double ONE_POINT_FIVE_RATE = 1.5;
   private static final double TWO_RATE = 2;
+  private static final String DATE_FORMAT = "MM/dd/yyyy";
 
   private final TimeSheetService timeSheetService;
   private final AttendanceMyHoursService attendanceMyHoursService;
@@ -43,6 +46,8 @@ public class AttendanceTeamHoursService {
   private final OvertimeService overtimeService;
   private final TimeOffRequestService timeOffRequestService;
   private final StaticTimesheetStatusService staticTimesheetStatusService;
+  private final TimePeriodService timePeriodService;
+  private final EmployeesTaSettingService employeesTaSettingService;
 
   public AttendanceTeamHoursService(
       final TimeSheetService timeSheetService,
@@ -50,13 +55,17 @@ public class AttendanceTeamHoursService {
       final AttendanceSettingsService attendanceSettingsService,
       final OvertimeService overtimeService,
       final TimeOffRequestService timeOffRequestService,
-      final StaticTimesheetStatusService statusService) {
+      final StaticTimesheetStatusService statusService,
+      final TimePeriodService timePeriodService,
+      final EmployeesTaSettingService employeesTaSettingService) {
     this.timeSheetService = timeSheetService;
     this.attendanceMyHoursService = attendanceMyHoursService;
     this.attendanceSettingsService = attendanceSettingsService;
     this.overtimeService = overtimeService;
     this.timeOffRequestService = timeOffRequestService;
     staticTimesheetStatusService = statusService;
+    this.timePeriodService = timePeriodService;
+    this.employeesTaSettingService = employeesTaSettingService;
   }
 
   public List<EmployeeAttendanceSummaryDto> findEmployeeAttendanceSummary(
@@ -260,5 +269,26 @@ public class AttendanceTeamHoursService {
     final List<TimeSheet> timeSheets = timeSheetService.findAllById(selectedTimesheets);
     timeSheets.forEach(timeSheet -> timeSheet.setStatus(timesheetApproveStatus));
     timeSheetService.saveAll(timeSheets);
+  }
+
+  public AttendanceDetailDto findAttendanceDetails(final String companyId) {
+    final CompanyTaSetting companyTaSetting =
+        attendanceSettingsService.findCompanySettings(companyId);
+    final TimePeriod timePeriod = timePeriodService.findCompanyCurrentPeriod(companyId);
+    final SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
+    final String payDate = sdf.format(companyTaSetting.getLastPayrollPayday());
+    final String periodStartDate = sdf.format(timePeriod.getStartDate());
+    final String periodEndDate = sdf.format(timePeriod.getEndDate());
+    return AttendanceDetailDto.builder()
+        .payDate(payDate)
+        .payPeriodFrequency(companyTaSetting.getPayFrequencyType().getName())
+        .periodStartDate(periodStartDate)
+        .periodEndDate(periodEndDate)
+        .build();
+  }
+
+  public void removeAttendanceDetails(final List<String> userIds) {
+    employeesTaSettingService.removeEmployees(userIds);
+    timeSheetService.removeEmployees(userIds);
   }
 }

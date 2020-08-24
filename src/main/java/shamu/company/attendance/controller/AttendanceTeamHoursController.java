@@ -10,12 +10,15 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import shamu.company.attendance.dto.AttendanceDetailDto;
 import shamu.company.attendance.dto.AttendanceSummaryDto;
 import shamu.company.attendance.dto.EmployeeAttendanceSummaryDto;
 import shamu.company.attendance.dto.EmployeeInfoDto;
 import shamu.company.attendance.dto.TeamHoursPageInfoDto;
+import shamu.company.attendance.dto.TimeAndAttendanceDetailsDto;
 import shamu.company.attendance.dto.TimeSheetPeriodDto;
 import shamu.company.attendance.entity.StaticTimesheetStatus.TimeSheetStatus;
+import shamu.company.attendance.service.AttendanceSetUpService;
 import shamu.company.attendance.service.AttendanceSettingsService;
 import shamu.company.attendance.service.AttendanceTeamHoursService;
 import shamu.company.attendance.service.TimePeriodService;
@@ -24,6 +27,7 @@ import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.job.service.JobUserService;
 import shamu.company.utils.ReflectionUtil;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Set;
 
@@ -38,15 +42,19 @@ public class AttendanceTeamHoursController extends BaseRestController {
 
   private final AttendanceSettingsService attendanceSettingsService;
 
+  private final AttendanceSetUpService attendanceSetUpService;
+
   public AttendanceTeamHoursController(
       final AttendanceTeamHoursService attendanceTeamHoursService,
       final TimePeriodService timePeriodService,
       final JobUserService jobUserService,
-      final AttendanceSettingsService attendanceSettingsService) {
+      final AttendanceSettingsService attendanceSettingsService,
+      final AttendanceSetUpService attendanceSetUpService) {
     this.attendanceTeamHoursService = attendanceTeamHoursService;
     this.timePeriodService = timePeriodService;
     this.jobUserService = jobUserService;
     this.attendanceSettingsService = attendanceSettingsService;
+    this.attendanceSetUpService = attendanceSetUpService;
   }
 
   @GetMapping("time-and-attendance/team-hours/pending-hours/{timePeriodId}/{hourType}")
@@ -107,5 +115,26 @@ public class AttendanceTeamHoursController extends BaseRestController {
   @GetMapping("time-and-attendance/approval-days-before-payroll")
   public int findApprovalDaysBeforePayroll() {
     return attendanceSettingsService.findApprovalDaysBeforePayroll(findCompanyId());
+  }
+
+  @GetMapping("time-and-attendance/attendance-details")
+  public AttendanceDetailDto findAttendanceDetails() {
+    return attendanceTeamHoursService.findAttendanceDetails(findCompanyId());
+  }
+
+  @PatchMapping("time-and-attendance/details")
+  public HttpEntity updateAttendanceDetails(
+      @Valid @RequestBody final TimeAndAttendanceDetailsDto timeAndAttendanceDetailsDto) {
+    final String companyId = findCompanyId();
+    final String employeeId = findUserId();
+    if (!timeAndAttendanceDetailsDto.getOvertimeDetails().isEmpty()) {
+      attendanceSetUpService.saveAttendanceDetails(
+          timeAndAttendanceDetailsDto, companyId, employeeId);
+    }
+    if (timeAndAttendanceDetailsDto.getRemovedUserIds().isEmpty()) {
+      attendanceTeamHoursService.removeAttendanceDetails(
+          timeAndAttendanceDetailsDto.getRemovedUserIds());
+    }
+    return new ResponseEntity(HttpStatus.OK);
   }
 }

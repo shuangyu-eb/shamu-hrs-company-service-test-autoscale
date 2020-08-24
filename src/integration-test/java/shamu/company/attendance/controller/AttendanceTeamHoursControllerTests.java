@@ -14,7 +14,9 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import shamu.company.WebControllerBaseTests;
 import shamu.company.attendance.dto.AttendanceTeamHoursDto;
+import shamu.company.attendance.dto.EmployeeOvertimeDetailsDto;
 import shamu.company.attendance.dto.TeamHoursPageInfoDto;
+import shamu.company.attendance.dto.TimeAndAttendanceDetailsDto;
 import shamu.company.attendance.service.AttendanceTeamHoursService;
 import shamu.company.attendance.service.TimePeriodService;
 import shamu.company.tests.utils.JwtUtil;
@@ -187,6 +189,46 @@ class AttendanceTeamHoursControllerTests extends WebControllerBaseTests {
             .perform(
                 MockMvcRequestBuilders.get(
                         "/company/time-and-attendance/approval-days-before-payroll")
+                    .headers(httpHeaders))
+            .andReturn();
+
+    assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+  }
+
+  @Test
+  void findAttendanceDetails() throws Exception {
+    final HttpHeaders httpHeaders = new HttpHeaders();
+    httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.get("/company/time-and-attendance/attendance-details")
+                    .headers(httpHeaders))
+            .andReturn();
+
+    assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+  }
+
+  @Test
+  void updateAttendanceDetails() throws Exception {
+    final HttpHeaders httpHeaders = new HttpHeaders();
+    httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+    final TimeAndAttendanceDetailsDto timeAndAttendanceDetailsDto =
+        new TimeAndAttendanceDetailsDto();
+    final List<EmployeeOvertimeDetailsDto> overtimeDetails = new ArrayList<>();
+    final EmployeeOvertimeDetailsDto employeeOvertimeDetailsDto = new EmployeeOvertimeDetailsDto();
+    overtimeDetails.add(employeeOvertimeDetailsDto);
+    final List<String> userIds = new ArrayList<>();
+    userIds.add("1");
+    timeAndAttendanceDetailsDto.setOvertimeDetails(overtimeDetails);
+    timeAndAttendanceDetailsDto.setRemovedUserIds(userIds);
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.patch("/company/time-and-attendance/details")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(JsonUtil.formatToString(timeAndAttendanceDetailsDto))
                     .headers(httpHeaders))
             .andReturn();
 

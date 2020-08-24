@@ -234,6 +234,8 @@ public class AttendanceSetUpService {
     final List<EmployeeOvertimeDetailsDto> overtimeDetailsDtoList =
         timeAndAttendanceDetailsDto.getOvertimeDetails();
 
+    final Boolean isAddOrRemoveEmployee = timeAndAttendanceDetailsDto.getIsAddOrRemove();
+
     final Map<String, StaticTimezone> allTimezones =
         findTimezonesByPostalCode(
             overtimeDetailsDtoList, employeeId, timeAndAttendanceDetailsDto.getFrontendTimezone());
@@ -249,11 +251,6 @@ public class AttendanceSetUpService {
                     timeAndAttendanceDetailsDto.getPeriodEndDate(), companyTimezone.getName())
                 .get());
 
-    saveCompanyTaSetting(
-        timeAndAttendanceDetailsDto.getPayPeriodFrequency(),
-        timeAndAttendanceDetailsDto.getPayDate(),
-        companyId,
-        companyTimezone);
     saveEmployeeTaSettings(timeAndAttendanceDetailsDto, allTimezones);
 
     final List<UserCompensation> userCompensationList =
@@ -266,15 +263,46 @@ public class AttendanceSetUpService {
     final TimeSheetStatus timeSheetStatus;
     if (periodStartDate.after(new Date())) {
       timeSheetStatus = TimeSheetStatus.NOT_YET_START;
-      scheduleActivateTimeSheet(companyId, periodStartDate);
+      if (Boolean.FALSE.equals(isAddOrRemoveEmployee)) {
+        scheduleActivateTimeSheet(companyId, periodStartDate);
+      }
     } else {
       timeSheetStatus = TimeSheetStatus.ACTIVE;
     }
 
-    createTimeSheetsAndPeriod(firstTimePeriod, timeSheetStatus, userCompensationList);
+    if (Boolean.TRUE.equals(isAddOrRemoveEmployee)) {
+      final TimePeriod currentPeriod = timePeriodService.findCompanyCurrentPeriod(companyId);
+      createTimeSheetsFromLatestPeriod(currentPeriod, timeSheetStatus, userCompensationList);
+    } else {
+      createTimeSheetsAndPeriod(firstTimePeriod, timeSheetStatus, userCompensationList);
+      saveCompanyTaSetting(
+          timeAndAttendanceDetailsDto.getPayPeriodFrequency(),
+          timeAndAttendanceDetailsDto.getPayDate(),
+          companyId,
+          companyTimezone);
+      scheduleTasksForNextPeriod(
+          companyId, new Date(periodEndDate.getTime()), companyTimezone.getName());
+    }
+  }
 
-    scheduleTasksForNextPeriod(
-        companyId, new Date(periodEndDate.getTime()), companyTimezone.getName());
+  public void createTimeSheetsFromLatestPeriod(
+      final TimePeriod currentPeriod,
+      final TimeSheetStatus timeSheetStatus,
+      final List<UserCompensation> userCompensationList) {
+    final List<TimeSheet> timeSheets = new ArrayList<>();
+    final StaticTimesheetStatus timesheetStatus =
+        staticTimesheetStatusRepository.findByName(timeSheetStatus.getValue());
+    userCompensationList.forEach(
+        userCompensation -> {
+          final TimeSheet timeSheet = new TimeSheet();
+          timeSheet.setTimePeriod(currentPeriod);
+          timeSheet.setUserCompensation(userCompensation);
+          timeSheet.setEmployee(new User(userCompensation.getUserId()));
+          timeSheet.setStatus(timesheetStatus);
+          timeSheets.add(timeSheet);
+        });
+
+    timeSheetService.saveAll(timeSheets);
   }
 
   private Optional<Date> parseDateWithZone(final String date, final String timezone) {

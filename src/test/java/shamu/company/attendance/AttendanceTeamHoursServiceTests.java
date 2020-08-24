@@ -15,6 +15,7 @@ import shamu.company.attendance.dto.AttendanceSummaryDto;
 import shamu.company.attendance.dto.AttendanceTeamHoursDto;
 import shamu.company.attendance.entity.CompanyTaSetting;
 import shamu.company.attendance.entity.EmployeeTimeLog;
+import shamu.company.attendance.entity.StaticCompanyPayFrequencyType;
 import shamu.company.attendance.entity.StaticTimesheetStatus;
 import shamu.company.attendance.entity.StaticTimesheetStatus.TimeSheetStatus;
 import shamu.company.attendance.entity.TimePeriod;
@@ -24,6 +25,7 @@ import shamu.company.attendance.service.AttendanceSettingsService;
 import shamu.company.attendance.service.AttendanceTeamHoursService;
 import shamu.company.attendance.service.OvertimeService;
 import shamu.company.attendance.service.StaticTimesheetStatusService;
+import shamu.company.attendance.service.TimePeriodService;
 import shamu.company.attendance.service.TimeSheetService;
 import shamu.company.job.entity.CompensationFrequency;
 import shamu.company.timeoff.service.TimeOffRequestService;
@@ -61,6 +63,8 @@ class AttendanceTeamHoursServiceTests {
   @Mock private TimeOffRequestService timeOffRequestService;
 
   @Mock private StaticTimesheetStatusService staticTimesheetStatusService;
+
+  @Mock private TimePeriodService timePeriodService;
 
   @BeforeEach
   void init() {
@@ -351,5 +355,23 @@ class AttendanceTeamHoursServiceTests {
                       timePeriodId, companyId, userId, hourType))
           .doesNotThrowAnyException();
     }
+  }
+
+  @Test
+  void findAttendanceDetails() {
+    final CompanyTaSetting companyTaSetting = new CompanyTaSetting();
+    final StaticCompanyPayFrequencyType payFrequencyType = new StaticCompanyPayFrequencyType();
+    payFrequencyType.setName(StaticCompanyPayFrequencyType.PayFrequencyType.MONTHLY.name());
+    companyTaSetting.setPayFrequencyType(payFrequencyType);
+    companyTaSetting.setLastPayrollPayday(
+        Timestamp.valueOf(LocalDateTime.parse("2020-07-07T00:00:00")));
+    final TimePeriod timePeriod = new TimePeriod();
+    timePeriod.setStartDate(Timestamp.valueOf(LocalDateTime.parse("2020-07-01T00:00:00")));
+    timePeriod.setEndDate(Timestamp.valueOf(LocalDateTime.parse("2020-07-07T00:00:00")));
+
+    Mockito.when(attendanceSettingsService.findCompanySettings("1")).thenReturn(companyTaSetting);
+    Mockito.when(timePeriodService.findCompanyCurrentPeriod("1")).thenReturn(timePeriod);
+    assertThatCode(() -> attendanceTeamHoursService.findAttendanceDetails("1"))
+        .doesNotThrowAnyException();
   }
 }

@@ -135,7 +135,8 @@ public interface UserRepository extends JpaRepository<User, String>, UserCustomR
 
   @Query(
       value =
-          "select distinct u.* from users u join timesheets t on u.id = t.employee_id and u.company_id = unhex(?1)",
+          "select distinct u.* from users u join employees_ta_settings t on u.id = t.employee_id "
+              + "and u.company_id = unhex(?1)",
       nativeQuery = true)
   List<User> findAttendanceEnrolledUsersByCompanyId(String companyId);
 }

@@ -208,6 +208,7 @@ public class AttendanceSetUpServiceTests {
 
     @Test
     void whenDetailsIsEmpty_shouldSucceed() {
+      timeAndAttendanceDetailsDto.setIsAddOrRemove(false);
       Mockito.when(payPeriodFrequencyService.findByName(Mockito.any()))
           .thenReturn(staticCompanyPayFrequencyType);
       Mockito.when(jobUserRepository.findByUserId(employeeId)).thenReturn(jobUser);
@@ -227,6 +228,7 @@ public class AttendanceSetUpServiceTests {
 
     @Test
     void whenDetailsIsNotEmpty_shouldSucceed() {
+      timeAndAttendanceDetailsDto.setIsAddOrRemove(false);
       final EmployeeOvertimeDetailsDto detailsDto = new EmployeeOvertimeDetailsDto();
       detailsDto.setEmployeeId(userId);
       detailsDto.setRegularPay(7.1d);
@@ -235,6 +237,39 @@ public class AttendanceSetUpServiceTests {
       Mockito.when(userCompensationService.existsByUserId(Mockito.any())).thenReturn(true);
       Mockito.when(userCompensationService.findByUserId(Mockito.any()))
           .thenReturn(new UserCompensation());
+      Mockito.when(compensationFrequencyRepository.findById(Mockito.any()))
+          .thenReturn(Optional.of(new CompensationFrequency()));
+      Mockito.when(attendanceSettingsService.findCompanySettings(companyId))
+          .thenReturn(companyTaSetting);
+      Mockito.when(compensationOvertimeStatusRepository.findById(Mockito.any()))
+          .thenReturn(Optional.of(new CompensationOvertimeStatus()));
+      Mockito.when(jobUserRepository.findByUserId(Mockito.any())).thenReturn(jobUser);
+      Mockito.when(timeSheetService.saveAll(Mockito.any())).thenReturn(Mockito.any());
+      Mockito.when(staticTimeZoneRepository.findByName("front-end-timezone"))
+          .thenReturn(staticTimezone);
+      assertThatCode(
+              () ->
+                  attendanceSetUpService.saveAttendanceDetails(
+                      timeAndAttendanceDetailsDto, companyId, employeeId))
+          .doesNotThrowAnyException();
+    }
+
+    @Test
+    void whenDetailsIsNotEmptyAndIsAddOrRemove_shouldSucceed() {
+      timeAndAttendanceDetailsDto.setIsAddOrRemove(true);
+      final List<UserCompensation> userCompensations = new ArrayList<>();
+      final UserCompensation userCompensation = new UserCompensation();
+      userCompensation.setUserId("1");
+      userCompensations.add(userCompensation);
+      final EmployeeOvertimeDetailsDto detailsDto = new EmployeeOvertimeDetailsDto();
+      detailsDto.setEmployeeId(userId);
+      detailsDto.setRegularPay(7.1d);
+      detailsDto.setHireDate(new Date());
+      details.add(detailsDto);
+      Mockito.when(userCompensationService.existsByUserId(Mockito.any())).thenReturn(true);
+      Mockito.when(userCompensationService.findByUserId(Mockito.any()))
+          .thenReturn(new UserCompensation());
+      Mockito.when(userCompensationService.saveAll(Mockito.any())).thenReturn(userCompensations);
       Mockito.when(compensationFrequencyRepository.findById(Mockito.any()))
           .thenReturn(Optional.of(new CompensationFrequency()));
       Mockito.when(attendanceSettingsService.findCompanySettings(companyId))

@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shamu.company.common.exception.errormapping.ResourceNotFoundException;
 import shamu.company.employee.dto.CompensationDto;
-import shamu.company.user.entity.CompensationOvertimeStatus;
 import shamu.company.user.entity.UserCompensation;
 import shamu.company.user.entity.mapper.UserCompensationMapper;
 import shamu.company.user.repository.UserCompensationRepository;
@@ -49,8 +48,7 @@ public class UserCompensationService {
   }
 
   public List<UserCompensation> listNewestEnrolledCompensation(final String companyId) {
-    return userCompensationRepository.listNewestEnrolledUserCompensationByCompanyId(
-        companyId, CompensationOvertimeStatus.OvertimeStatus.NOT_ELIGIBLE.getValue());
+    return userCompensationRepository.listNewestEnrolledUserCompensationByCompanyId(companyId);
   }
 
   public boolean existsByUserId(final String userId) {

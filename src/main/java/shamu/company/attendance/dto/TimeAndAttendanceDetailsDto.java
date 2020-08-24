@@ -21,5 +21,9 @@ public class TimeAndAttendanceDetailsDto {
 
   private String frontendTimezone;
 
+  private Boolean isAddOrRemove;
+
+  private List<String> removedUserIds;
+
   private List<EmployeeOvertimeDetailsDto> overtimeDetails;
 }
