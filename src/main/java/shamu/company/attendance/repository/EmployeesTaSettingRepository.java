@@ -18,7 +18,7 @@ public interface EmployeesTaSettingRepository extends BaseRepository<EmployeesTa
   @Transactional
   @Modifying
   @Query(
-      value = "delete from employees_ta_settings ets where hex(ets.employee_id) in (?1) ",
+      value = "delete from employees_ta_settings where hex(employee_id) in (?1) ",
       nativeQuery = true)
   void deleteAllByUserId(List<String> ids);
 }
