@@ -131,7 +131,7 @@ public class AttendanceTeamHoursController extends BaseRestController {
       attendanceSetUpService.saveAttendanceDetails(
           timeAndAttendanceDetailsDto, companyId, employeeId);
     }
-    if (timeAndAttendanceDetailsDto.getRemovedUserIds().isEmpty()) {
+    if (!timeAndAttendanceDetailsDto.getRemovedUserIds().isEmpty()) {
       attendanceTeamHoursService.removeAttendanceDetails(
           timeAndAttendanceDetailsDto.getRemovedUserIds());
     }
