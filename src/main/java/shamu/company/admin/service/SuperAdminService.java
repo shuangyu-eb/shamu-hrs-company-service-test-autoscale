@@ -36,7 +36,7 @@ public class SuperAdminService {
 
   private final SystemAnnouncementsService systemAnnouncementsService;
 
-  private SystemAnnouncementsMapper systemAnnouncementsMapper;
+  private final SystemAnnouncementsMapper systemAnnouncementsMapper;
 
   @Autowired
   public SuperAdminService(
@@ -59,7 +59,10 @@ public class SuperAdminService {
   public Page<SuperAdminUserDto> getUsersByKeywordAndPageable(
       final String keyword, final Pageable pageable) {
     final String[] userStatus = {
-      Status.ACTIVE.name(), Status.CHANGING_EMAIL_VERIFICATION.name(), Status.DISABLED.name()
+      Status.ACTIVE.name(),
+      Status.CHANGING_EMAIL_VERIFICATION.name(),
+      Status.PENDING_VERIFICATION.name(),
+      Status.DISABLED.name()
     };
     return superAdminRepository.getUsersByKeywordAndPageable(keyword, userStatus, pageable);
   }
@@ -70,15 +73,29 @@ public class SuperAdminService {
     final MockUserDto mockUserDto = userMapper.convertToMockUserDto(user);
     final List<String> permissions = auth0Helper.getPermissionBy(user);
 
-    String[] writePermissions = {"CREATE_AND_APPROVED_TIME_OFF_REQUEST", "CREATE_DEPARTMENT",
-        "CREATE_DOCUMENT_REQUEST", "CREATE_EMPLOYEE_TYPE", "CREATE_JOB", "CREATE_OFFICE", "CREATE_USER",
-        "DEACTIVATE_USER", "DELETE_PAID_HOLIDAY", "DELETE_USER", "DENY_DOCUMENT_REQUEST", "EDIT_PAID_HOLIDAY",
-        "EDIT_SELF", "EDIT_USER", "UPDATE_COMPANY_NAME"};
+
+    final String[] writePermissions = {
+      "CREATE_AND_APPROVED_TIME_OFF_REQUEST",
+      "CREATE_DEPARTMENT",
+      "CREATE_DOCUMENT_REQUEST",
+      "CREATE_EMPLOYEE_TYPE",
+      "CREATE_JOB",
+      "CREATE_OFFICE",
+      "CREATE_USER",
+      "DEACTIVATE_USER",
+      "DELETE_PAID_HOLIDAY",
+      "DELETE_USER",
+      "DENY_DOCUMENT_REQUEST",
+      "EDIT_PAID_HOLIDAY",
+      "EDIT_SELF",
+      "EDIT_USER",
+      "UPDATE_COMPANY_NAME"
+    };
 
     final List<String> permissionsFiltered = new ArrayList<>(permissions);
 
-    for(String permission:permissions){
-      if(Arrays.asList(writePermissions).contains(permission)){
+    for (final String permission : permissions) {
+      if (Arrays.asList(writePermissions).contains(permission)) {
         permissionsFiltered.remove(permission);
       }
     }
