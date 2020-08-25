@@ -1,6 +1,5 @@
 package shamu.company.attendance.controller;
 
-import java.util.List;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +16,10 @@ import shamu.company.attendance.entity.mapper.EmployeesTaSettingsMapper;
 import shamu.company.attendance.service.AttendanceSettingsService;
 import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
+import shamu.company.common.service.PayrollDetailService;
 import shamu.company.utils.ReflectionUtil;
+
+import java.util.List;
 
 @RestApiController
 public class AttendanceSettingsController extends BaseRestController {
@@ -28,19 +30,24 @@ public class AttendanceSettingsController extends BaseRestController {
 
   final EmployeesTaSettingsMapper employeesTaSettingsMapper;
 
+  final PayrollDetailService payrollDetailService;
+
   public AttendanceSettingsController(
       final AttendanceSettingsService attendanceSettingsService,
       final CompanyTaSettingsMapper companyTaSettingsMapper,
-      final EmployeesTaSettingsMapper employeesTaSettingsMapper) {
+      final EmployeesTaSettingsMapper employeesTaSettingsMapper,
+      final PayrollDetailService payrollDetailService) {
     this.attendanceSettingsService = attendanceSettingsService;
     this.companyTaSettingsMapper = companyTaSettingsMapper;
     this.employeesTaSettingsMapper = employeesTaSettingsMapper;
+    this.payrollDetailService = payrollDetailService;
   }
 
   @GetMapping("time-and-attendance/companySettings")
   public CompanyTaSettingsDto findCompanySettings() {
     return companyTaSettingsMapper.convertToCompanyTaSettingsDto(
-        attendanceSettingsService.findCompanySettings(findCompanyId()));
+        attendanceSettingsService.findCompanySettings(findCompanyId()),
+        payrollDetailService.findByCompanyId(findCompanyId()));
   }
 
   @GetMapping("time-and-attendance/employeeSettings/{employeeId}")

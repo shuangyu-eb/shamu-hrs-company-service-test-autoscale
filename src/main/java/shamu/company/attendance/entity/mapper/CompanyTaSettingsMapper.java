@@ -6,12 +6,15 @@ import org.mapstruct.MappingTarget;
 import shamu.company.attendance.dto.CompanyTaSettingsDto;
 import shamu.company.attendance.entity.CompanyTaSetting;
 import shamu.company.attendance.entity.StaticTimezone;
+import shamu.company.common.entity.PayrollDetail;
 import shamu.company.common.mapper.Config;
 
 @Mapper(config = Config.class)
 public interface CompanyTaSettingsMapper {
 
-  CompanyTaSettingsDto convertToCompanyTaSettingsDto(CompanyTaSetting companyTaSetting);
+  @Mapping(target = "company", source = "companyTaSetting.company")
+  CompanyTaSettingsDto convertToCompanyTaSettingsDto(
+      CompanyTaSetting companyTaSetting, PayrollDetail payrollDetail);
 
   void updateFromCompanyTaSettingsDto(
       @MappingTarget CompanyTaSetting companyTaSetting, CompanyTaSettingsDto companyTaSettingsDto);
