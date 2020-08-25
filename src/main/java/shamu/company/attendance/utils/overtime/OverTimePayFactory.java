@@ -16,7 +16,7 @@ public class OverTimePayFactory {
     final String overTimeLaw = userCompensation.getOvertimeStatus().getName();
     switch (overTimeLaw) {
       case NOT_ELIGIBLE:
-        return null;
+        return new NoOverTimePay();
       case CALIFORNIA_POLICY:
         return new CaliforniaOvertimePay();
       case ALASKA_POLICY:
