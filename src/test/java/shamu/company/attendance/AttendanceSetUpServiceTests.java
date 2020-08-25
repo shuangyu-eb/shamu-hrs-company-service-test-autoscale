@@ -28,6 +28,7 @@ import shamu.company.attendance.service.PayPeriodFrequencyService;
 import shamu.company.attendance.service.TimePeriodService;
 import shamu.company.attendance.service.TimeSheetService;
 import shamu.company.common.service.PayrollDetailService;
+import shamu.company.common.validation.YesterdayOrLaterValidatorTests;
 import shamu.company.company.entity.Company;
 import shamu.company.company.entity.Office;
 import shamu.company.company.entity.OfficeAddress;
@@ -237,6 +238,7 @@ public class AttendanceSetUpServiceTests {
       detailsDto.setRegularPay(7.1d);
       detailsDto.setHireDate(new Date());
       details.add(detailsDto);
+      Mockito.when(userService.findById(Mockito.anyString())).thenReturn(new User());
       Mockito.when(userCompensationService.existsByUserId(Mockito.any())).thenReturn(true);
       Mockito.when(userCompensationService.findByUserId(Mockito.any()))
           .thenReturn(new UserCompensation());
@@ -269,6 +271,7 @@ public class AttendanceSetUpServiceTests {
       detailsDto.setRegularPay(7.1d);
       detailsDto.setHireDate(new Date());
       details.add(detailsDto);
+      Mockito.when(userService.findById(Mockito.anyString())).thenReturn(new User());
       Mockito.when(userCompensationService.existsByUserId(Mockito.any())).thenReturn(true);
       Mockito.when(userCompensationService.findByUserId(Mockito.any()))
           .thenReturn(new UserCompensation());

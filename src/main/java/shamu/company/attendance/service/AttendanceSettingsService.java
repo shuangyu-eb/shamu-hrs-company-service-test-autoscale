@@ -72,8 +72,11 @@ public class AttendanceSettingsService {
     return companyTaSettingRepository.findByCompanyId(companyId);
   }
 
-  public EmployeesTaSetting findEmployeesSettings(final String employeeId) {
-    return employeesTaSettingRepository.findByEmployeeId(employeeId);
+  public EmployeesTaSettingDto findEmployeesSettings(final String employeeId) {
+    final Optional<User> user = userRepository.findById(employeeId);
+    return employeesTaSettingsMapper.covertToEmployeesTaSettingsDto(
+        employeesTaSettingRepository.findByEmployeeId(employeeId),
+        user.map(User::getTimeZone).orElse(null));
   }
 
   public boolean existsByCompanyId(final String companyId) {

@@ -106,7 +106,6 @@ public class AttendanceMyHoursServiceTests {
             employeeTimeLogMapper,
             attendanceSettingsService,
             timeOffRequestService,
-            employeesTaSettingService,
             overtimeService,
             genericHoursService,
             staticTimesheetStatusRepository);
@@ -249,10 +248,10 @@ public class AttendanceMyHoursServiceTests {
     timeSheet.setEmployee(user);
     final EmployeesTaSetting employeesTaSetting = new EmployeesTaSetting();
     final StaticTimezone staticTimezone = new StaticTimezone();
-    employeesTaSetting.setTimeZone(staticTimezone);
-    employeesTaSetting.getTimeZone().setName("Africa/Abidjan");
+    user.setTimeZone(staticTimezone);
+    user.getTimeZone().setName("Africa/Abidjan");
     Mockito.when(timeSheetService.findTimeSheetById("1")).thenReturn(timeSheet);
-    Mockito.when(employeesTaSettingService.findByUserId("1")).thenReturn(employeesTaSetting);
+    Mockito.when(userService.findById("1")).thenReturn(user);
     final String timeZone = attendanceMyHoursService.findUserTimeZone("1");
     assertThat(timeZone).isEqualTo("Africa/Abidjan");
   }

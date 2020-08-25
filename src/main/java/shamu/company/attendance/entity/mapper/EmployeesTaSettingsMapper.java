@@ -10,16 +10,17 @@ import shamu.company.common.mapper.Config;
 
 @Mapper(config = Config.class)
 public interface EmployeesTaSettingsMapper {
-  EmployeesTaSettingDto covertToEmployeesTaSettingsDto(EmployeesTaSetting employeesTaSetting);
+
+  @Mapping(target = "timeZone", source = "staticTimezone")
+  EmployeesTaSettingDto covertToEmployeesTaSettingsDto(
+      EmployeesTaSetting employeesTaSetting, StaticTimezone staticTimezone);
 
   void updateFromEmployeeTaSettingsDto(
       @MappingTarget EmployeesTaSetting employeesTaSetting,
       EmployeesTaSettingDto employeesTaSettingDto);
 
-  @Mapping(target = "timeZone", source = "staticTimezone")
   @Mapping(target = "employee.id", source = "employeeId")
   @Mapping(target = "createdAt", ignore = true)
   @Mapping(target = "updatedAt", ignore = true)
-  EmployeesTaSetting convertToEmployeeTaSettings(
-      StaticTimezone staticTimezone, String employeeId, int messagingOn);
+  EmployeesTaSetting convertToEmployeeTaSettings(String employeeId, int messagingOn);
 }

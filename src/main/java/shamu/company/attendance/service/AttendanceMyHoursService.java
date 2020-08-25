@@ -12,7 +12,6 @@ import shamu.company.attendance.dto.TimeEntryDto;
 import shamu.company.attendance.entity.CompanyTaSetting;
 import shamu.company.attendance.entity.EmployeeTimeEntry;
 import shamu.company.attendance.entity.EmployeeTimeLog;
-import shamu.company.attendance.entity.EmployeesTaSetting;
 import shamu.company.attendance.entity.StaticEmployeesTaTimeType;
 import shamu.company.attendance.entity.StaticTimesheetStatus;
 import shamu.company.attendance.entity.TimeSheet;
@@ -70,8 +69,6 @@ public class AttendanceMyHoursService {
 
   private final TimeOffRequestService timeOffRequestService;
 
-  private final EmployeesTaSettingService employeesTaSettingService;
-
   private final OvertimeService overtimeService;
 
   private final GenericHoursService genericHoursService;
@@ -88,7 +85,6 @@ public class AttendanceMyHoursService {
       final EmployeeTimeLogMapper employeeTimeLogMapper,
       final AttendanceSettingsService attendanceSettingsService,
       final TimeOffRequestService timeOffRequestService,
-      final EmployeesTaSettingService employeesTaSettingService,
       final OvertimeService overtimeService,
       final GenericHoursService genericHoursService,
       final StaticTimesheetStatusRepository staticTimesheetStatusRepository) {
@@ -101,7 +97,6 @@ public class AttendanceMyHoursService {
     this.employeeTimeLogMapper = employeeTimeLogMapper;
     this.attendanceSettingsService = attendanceSettingsService;
     this.timeOffRequestService = timeOffRequestService;
-    this.employeesTaSettingService = employeesTaSettingService;
     this.overtimeService = overtimeService;
     this.genericHoursService = genericHoursService;
     this.staticTimesheetStatusRepository = staticTimesheetStatusRepository;
@@ -348,8 +343,8 @@ public class AttendanceMyHoursService {
   }
 
   public String findUserTimeZone(final String userId) {
-    final EmployeesTaSetting employeesTaSetting = employeesTaSettingService.findByUserId(userId);
-    return employeesTaSetting.getTimeZone().getName();
+    final User user = userService.findById(userId);
+    return user.getTimeZone().getName();
   }
 
   public String findCompensationFrequency(final String timesheetId) {

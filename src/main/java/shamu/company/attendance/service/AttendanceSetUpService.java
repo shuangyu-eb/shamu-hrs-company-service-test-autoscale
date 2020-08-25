@@ -479,27 +479,33 @@ public class AttendanceSetUpService {
   private void saveEmployeeTaSettings(
       final TimeAndAttendanceDetailsDto timeAndAttendanceDetailsDto,
       final Map<String, StaticTimezone> allTimezones) {
-    final List<EmployeesTaSetting> employeesTaSettings =
-        timeAndAttendanceDetailsDto.getOvertimeDetails().stream()
-            .map(
-                employeeOvertimeDetailsDto -> {
-                  final String employeeId = employeeOvertimeDetailsDto.getEmployeeId();
-                  final int defaultMessagingOn = EmailNotificationStatus.ON.getValue();
-                  final Office office =
-                      jobUserRepository
-                          .findByUserId(employeeOvertimeDetailsDto.getEmployeeId())
-                          .getOffice();
-                  if (office != null && office.getOfficeAddress() != null) {
-                    return employeesTaSettingsMapper.convertToEmployeeTaSettings(
-                        allTimezones.get(office.getOfficeAddress().getPostalCode()),
-                        employeeId,
-                        defaultMessagingOn);
-                  } else {
-                    return employeesTaSettingsMapper.convertToEmployeeTaSettings(
-                        allTimezones.get(COMPANY_POSTAL_CODE), employeeId, defaultMessagingOn);
-                  }
-                })
-            .collect(Collectors.toList());
+    final List<EmployeesTaSetting> employeesTaSettings = new ArrayList<>();
+    timeAndAttendanceDetailsDto
+        .getOvertimeDetails()
+        .forEach(
+            employeeOvertimeDetailsDto -> {
+              final String employeeId = employeeOvertimeDetailsDto.getEmployeeId();
+              final User user = userService.findById(employeeId);
+              final int defaultMessagingOn = EmailNotificationStatus.ON.getValue();
+              final Office office =
+                  jobUserRepository
+                      .findByUserId(employeeOvertimeDetailsDto.getEmployeeId())
+                      .getOffice();
+              employeesTaSettings.add(
+                  employeesTaSettingsMapper.convertToEmployeeTaSettings(
+                      employeeId, defaultMessagingOn));
+              if (user.getTimeZone() != null) {
+                return;
+              }
+              if (office != null
+                  && office.getOfficeAddress() != null
+                  && allTimezones.containsKey(office.getOfficeAddress().getPostalCode())) {
+                user.setTimeZone(allTimezones.get(office.getOfficeAddress().getPostalCode()));
+              } else {
+                user.setTimeZone(allTimezones.get(COMPANY_POSTAL_CODE));
+              }
+              userRepository.save(user);
+            });
     employeesTaSettingRepository.saveAll(employeesTaSettings);
   }
 
@@ -521,7 +527,7 @@ public class AttendanceSetUpService {
                       compensationOvertimeStatusRepository
                           .findById(employeeOvertimeDetailsDto.getOvertimeLaw())
                           .get();
-                  Timestamp startDateTimeStamp = new Timestamp(startDate.getTime());
+                  final Timestamp startDateTimeStamp = new Timestamp(startDate.getTime());
                   if (userCompensationService.existsByUserId(userId)) {
                     final UserCompensation userCompensation =
                         userCompensationService.findByUserId(userId);

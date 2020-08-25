@@ -52,8 +52,7 @@ public class AttendanceSettingsController extends BaseRestController {
 
   @GetMapping("time-and-attendance/employeeSettings/{employeeId}")
   public EmployeesTaSettingDto findEmployeeSettings(@PathVariable final String employeeId) {
-    return employeesTaSettingsMapper.covertToEmployeesTaSettingsDto(
-        attendanceSettingsService.findEmployeesSettings(employeeId));
+    return attendanceSettingsService.findEmployeesSettings(employeeId);
   }
 
   @GetMapping("time-and-attendance/static-timezones")
