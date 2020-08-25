@@ -60,6 +60,16 @@ databaseChangeLog:
   - changeSet:
       id: 1598321529000-4
       author: michael-eb
+      preConditions:
+        onFail: WARN
+      changes:
+        - dropForeignKeyConstraint:
+            baseTableName: company_ta_settings
+            constraintName: fk_company_ta_settings_pay_frequency_type_id
+
+  - changeSet:
+      id: 1598321529000-5
+      author: michael-eb
       changes:
         - dropColumn:
             columnName: pay_frequency_type_id
