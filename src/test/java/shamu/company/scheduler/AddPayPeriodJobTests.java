@@ -16,6 +16,8 @@ import shamu.company.attendance.service.AttendanceSetUpService;
 import shamu.company.attendance.service.AttendanceSettingsService;
 import shamu.company.attendance.service.PayPeriodFrequencyService;
 import shamu.company.attendance.service.TimePeriodService;
+import shamu.company.common.entity.PayrollDetail;
+import shamu.company.common.service.PayrollDetailService;
 import shamu.company.company.entity.Company;
 import shamu.company.company.service.CompanyService;
 import shamu.company.scheduler.job.AddPayPeriodJob;
@@ -39,6 +41,7 @@ public class AddPayPeriodJobTests {
   @Mock private JobExecutionContext jobExecutionContext;
   @Mock private UserCompensationService userCompensationService;
   @Mock private CompanyService companyService;
+  @Mock private PayrollDetailService payrollDetailService;
 
   @BeforeEach
   void init() {
@@ -50,7 +53,8 @@ public class AddPayPeriodJobTests {
             attendanceSettingsService,
             payPeriodFrequencyService,
             userCompensationService,
-            companyService);
+            companyService,
+            payrollDetailService);
   }
 
   @Nested
@@ -60,6 +64,7 @@ public class AddPayPeriodJobTests {
     TimePeriod timePeriod;
     StaticCompanyPayFrequencyType payFrequencyType;
     Company company;
+    PayrollDetail payrollDetail;
 
     @BeforeEach
     void setUp() {
@@ -68,15 +73,17 @@ public class AddPayPeriodJobTests {
       timePeriod = new TimePeriod();
       timePeriod.setEndDate(new Timestamp(new Date().getTime()));
       company = new Company();
+      payrollDetail = new PayrollDetail();
 
       payFrequencyType = new StaticCompanyPayFrequencyType();
       payFrequencyType.setName("WEEKLY");
       payFrequencyType.setId("id");
-      companyTaSetting.setPayFrequencyType(payFrequencyType);
+      payrollDetail.setPayFrequencyType(payFrequencyType);
       final StaticTimezone timezone = new StaticTimezone();
       timezone.setName("Hongkong");
       companyTaSetting.setTimeZone(timezone);
       Mockito.when(companyService.findById(Mockito.anyString())).thenReturn(company);
+      Mockito.when(payrollDetailService.findByCompanyId(companyId)).thenReturn(payrollDetail);
     }
 
     @Test

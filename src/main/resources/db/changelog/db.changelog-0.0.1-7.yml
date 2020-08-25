@@ -1,0 +1,69 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1598321529000-1
+      author: michael-eb
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  name: id
+                  type: binary(16)
+              - column:
+                  name: pay_frequency_type_id
+                  type: binary(16)
+              - column:
+                  name: company_id
+                  type: binary(16)
+              - column:
+                  name: last_payroll_payday
+                  type: datetime
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: payroll_details
+
+  - changeSet:
+      id: 1598321529000-2
+      author: michael-eb
+      preConditions:
+        onFail: WARN
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: company_id
+            baseTableName: payroll_details
+            constraintName: fk_payroll_details_company_id
+            onDelete: CASCADE
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: companies
+        - addForeignKeyConstraint:
+            baseColumnNames: pay_frequency_type_id
+            baseTableName: payroll_details
+            constraintName: fk_payroll_details_frequency_type_id
+            onDelete: SET NULL
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: static_company_pay_frequency_types
+
+  - changeSet:
+      id: 1598321529000-3
+      author: michael-eb
+      preConditions:
+        onFail: WARN
+      changes:
+        - sql:
+            sql: insert into payroll_details select unhex(replace(uuid(), '-', '')), pay_frequency_type_id, company_id, last_payroll_payday, created_at, updated_at from company_ta_settings;
+
+  - changeSet:
+      id: 1598321529000-4
+      author: michael-eb
+      changes:
+        - dropColumn:
+            columnName: pay_frequency_type_id
+            tableName: company_ta_settings
+        - dropColumn:
+            columnName: last_payroll_payday
+            tableName: company_ta_settings

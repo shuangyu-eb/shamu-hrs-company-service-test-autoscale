@@ -13,12 +13,8 @@ public interface CompanyTaSettingsMapper {
 
   CompanyTaSettingsDto convertToCompanyTaSettingsDto(CompanyTaSetting companyTaSetting);
 
-  @Mapping(target = "payFrequencyType.id", source = "payPeriodFrequencyId")
-  @Mapping(target = "lastPayrollPayday", ignore = true)
   void updateFromCompanyTaSettingsDto(
-      @MappingTarget CompanyTaSetting companyTaSetting,
-      CompanyTaSettingsDto companyTaSettingsDto,
-      String payPeriodFrequencyId);
+      @MappingTarget CompanyTaSetting companyTaSetting, CompanyTaSettingsDto companyTaSettingsDto);
 
   @Mapping(target = "timeZone", source = "staticTimezone")
   @Mapping(target = "id", ignore = true)
@@ -30,5 +26,4 @@ public interface CompanyTaSettingsMapper {
       int messagingOn,
       int approvalDaysBeforePayroll,
       String startOfWeek);
-
 }

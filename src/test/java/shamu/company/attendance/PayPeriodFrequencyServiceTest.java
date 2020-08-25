@@ -12,6 +12,8 @@ import shamu.company.attendance.entity.StaticCompanyPayFrequencyType;
 import shamu.company.attendance.repository.PayPeriodFrequencyRepository;
 import shamu.company.attendance.service.AttendanceSettingsService;
 import shamu.company.attendance.service.PayPeriodFrequencyService;
+import shamu.company.common.entity.PayrollDetail;
+import shamu.company.common.service.PayrollDetailService;
 
 import java.util.Optional;
 
@@ -24,6 +26,8 @@ public class PayPeriodFrequencyServiceTest {
   @Mock private PayPeriodFrequencyRepository payPeriodFrequencyRepository;
 
   @Mock private AttendanceSettingsService attendanceSettingsService;
+
+  @Mock private PayrollDetailService payrollDetailService;
 
   @BeforeEach
   void init() {
@@ -77,9 +81,11 @@ public class PayPeriodFrequencyServiceTest {
     @Test
     void findByCompanyShouldSucceed() {
       final CompanyTaSetting companyTaSetting = new CompanyTaSetting();
-      companyTaSetting.setPayFrequencyType(new StaticCompanyPayFrequencyType());
+      final PayrollDetail payrollDetail = new PayrollDetail();
+      payrollDetail.setPayFrequencyType(new StaticCompanyPayFrequencyType());
       Mockito.when(attendanceSettingsService.findCompanySettings(companyId))
           .thenReturn(companyTaSetting);
+      Mockito.when(payrollDetailService.findByCompanyId(companyId)).thenReturn(payrollDetail);
       assertThatCode(
               () -> {
                 payPeriodFrequencyService.findByCompany(companyId);

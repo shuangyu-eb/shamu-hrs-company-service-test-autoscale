@@ -27,6 +27,8 @@ import shamu.company.attendance.service.OvertimeService;
 import shamu.company.attendance.service.StaticTimesheetStatusService;
 import shamu.company.attendance.service.TimePeriodService;
 import shamu.company.attendance.service.TimeSheetService;
+import shamu.company.common.entity.PayrollDetail;
+import shamu.company.common.service.PayrollDetailService;
 import shamu.company.job.entity.CompensationFrequency;
 import shamu.company.timeoff.service.TimeOffRequestService;
 import shamu.company.user.entity.User;
@@ -65,6 +67,8 @@ class AttendanceTeamHoursServiceTests {
   @Mock private StaticTimesheetStatusService staticTimesheetStatusService;
 
   @Mock private TimePeriodService timePeriodService;
+
+  @Mock private PayrollDetailService payrollDetailService;
 
   @BeforeEach
   void init() {
@@ -360,16 +364,18 @@ class AttendanceTeamHoursServiceTests {
   @Test
   void findAttendanceDetails() {
     final CompanyTaSetting companyTaSetting = new CompanyTaSetting();
+    final PayrollDetail payrollDetail = new PayrollDetail();
     final StaticCompanyPayFrequencyType payFrequencyType = new StaticCompanyPayFrequencyType();
     payFrequencyType.setName(StaticCompanyPayFrequencyType.PayFrequencyType.MONTHLY.name());
-    companyTaSetting.setPayFrequencyType(payFrequencyType);
-    companyTaSetting.setLastPayrollPayday(
+    payrollDetail.setPayFrequencyType(payFrequencyType);
+    payrollDetail.setLastPayrollPayday(
         Timestamp.valueOf(LocalDateTime.parse("2020-07-07T00:00:00")));
     final TimePeriod timePeriod = new TimePeriod();
     timePeriod.setStartDate(Timestamp.valueOf(LocalDateTime.parse("2020-07-01T00:00:00")));
     timePeriod.setEndDate(Timestamp.valueOf(LocalDateTime.parse("2020-07-07T00:00:00")));
 
     Mockito.when(attendanceSettingsService.findCompanySettings("1")).thenReturn(companyTaSetting);
+    Mockito.when(payrollDetailService.findByCompanyId("1")).thenReturn(payrollDetail);
     Mockito.when(timePeriodService.findCompanyCurrentPeriod("1")).thenReturn(timePeriod);
     assertThatCode(() -> attendanceTeamHoursService.findAttendanceDetails("1"))
         .doesNotThrowAnyException();

@@ -27,6 +27,7 @@ import shamu.company.attendance.service.AttendanceSettingsService;
 import shamu.company.attendance.service.PayPeriodFrequencyService;
 import shamu.company.attendance.service.TimePeriodService;
 import shamu.company.attendance.service.TimeSheetService;
+import shamu.company.common.service.PayrollDetailService;
 import shamu.company.company.entity.Company;
 import shamu.company.company.entity.Office;
 import shamu.company.company.entity.OfficeAddress;
@@ -110,6 +111,8 @@ public class AttendanceSetUpServiceTests {
   @Mock private StaticTimeZoneRepository staticTimeZoneRepository;
 
   @Mock private EmailService emailService;
+
+  @Mock private PayrollDetailService payrollDetailService;
 
   @BeforeEach
   void init() {

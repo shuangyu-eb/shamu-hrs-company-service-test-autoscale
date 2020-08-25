@@ -12,6 +12,9 @@ import shamu.company.attendance.repository.CompanyTaSettingRepository;
 import shamu.company.attendance.repository.EmployeesTaSettingRepository;
 import shamu.company.attendance.repository.PayPeriodFrequencyRepository;
 import shamu.company.attendance.repository.StaticTimeZoneRepository;
+import shamu.company.common.entity.PayrollDetail;
+import shamu.company.common.entity.mapper.PayrollDetailMapper;
+import shamu.company.common.service.PayrollDetailService;
 import shamu.company.company.entity.Company;
 import shamu.company.user.entity.User;
 import shamu.company.user.repository.UserRepository;
@@ -38,6 +41,10 @@ public class AttendanceSettingsService {
 
   private final TimeSheetService timeSheetService;
 
+  private final PayrollDetailMapper payrollDetailMapper;
+
+  private final PayrollDetailService payrollDetailService;
+
   public AttendanceSettingsService(
       final CompanyTaSettingRepository companyTaSettingRepository,
       final EmployeesTaSettingRepository employeesTaSettingRepository,
@@ -46,7 +53,9 @@ public class AttendanceSettingsService {
       final PayPeriodFrequencyRepository payPeriodFrequencyRepository,
       final EmployeesTaSettingsMapper employeesTaSettingsMapper,
       final UserRepository userRepository,
-      final TimeSheetService timeSheetService) {
+      final TimeSheetService timeSheetService,
+      final PayrollDetailMapper payrollDetailMapper,
+      final PayrollDetailService payrollDetailService) {
     this.companyTaSettingRepository = companyTaSettingRepository;
     this.employeesTaSettingRepository = employeesTaSettingRepository;
     this.staticTimeZoneRepository = staticTimeZoneRepository;
@@ -55,6 +64,8 @@ public class AttendanceSettingsService {
     this.employeesTaSettingsMapper = employeesTaSettingsMapper;
     this.userRepository = userRepository;
     this.timeSheetService = timeSheetService;
+    this.payrollDetailMapper = payrollDetailMapper;
+    this.payrollDetailService = payrollDetailService;
   }
 
   public CompanyTaSetting findCompanySettings(final String companyId) {
@@ -84,6 +95,7 @@ public class AttendanceSettingsService {
   public void updateCompanySettings(
       final CompanyTaSettingsDto companyTaSettingsDto, final String companyId) {
     CompanyTaSetting companyTaSetting = companyTaSettingRepository.findByCompanyId(companyId);
+    final PayrollDetail payrollDetail = payrollDetailService.findByCompanyId(companyId);
     final String payPeriodFrequencyId =
         payPeriodFrequencyRepository
             .findByName(companyTaSettingsDto.getPayFrequencyType().getId())
@@ -92,9 +104,11 @@ public class AttendanceSettingsService {
       companyTaSetting = new CompanyTaSetting();
       companyTaSetting.setCompany(new Company(companyId));
     }
-    companyTaSettingsMapper.updateFromCompanyTaSettingsDto(
-        companyTaSetting, companyTaSettingsDto, payPeriodFrequencyId);
+    companyTaSettingsMapper.updateFromCompanyTaSettingsDto(companyTaSetting, companyTaSettingsDto);
+    payrollDetailMapper.updateFromCompanyTaSettingsDto(
+        payrollDetail, companyTaSettingsDto, payPeriodFrequencyId);
     companyTaSettingRepository.save(companyTaSetting);
+    payrollDetailService.savePayrollDetail(payrollDetail);
   }
 
   public void updateEmployeeSettings(

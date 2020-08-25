@@ -16,6 +16,8 @@ import shamu.company.attendance.entity.StaticTimesheetStatus;
 import shamu.company.attendance.entity.StaticTimesheetStatus.TimeSheetStatus;
 import shamu.company.attendance.entity.TimePeriod;
 import shamu.company.attendance.entity.TimeSheet;
+import shamu.company.common.entity.PayrollDetail;
+import shamu.company.common.service.PayrollDetailService;
 import shamu.company.timeoff.service.TimeOffRequestService;
 import shamu.company.user.entity.User;
 
@@ -48,6 +50,7 @@ public class AttendanceTeamHoursService {
   private final StaticTimesheetStatusService staticTimesheetStatusService;
   private final TimePeriodService timePeriodService;
   private final EmployeesTaSettingService employeesTaSettingService;
+  private final PayrollDetailService payrollDetailService;
 
   public AttendanceTeamHoursService(
       final TimeSheetService timeSheetService,
@@ -57,7 +60,8 @@ public class AttendanceTeamHoursService {
       final TimeOffRequestService timeOffRequestService,
       final StaticTimesheetStatusService statusService,
       final TimePeriodService timePeriodService,
-      final EmployeesTaSettingService employeesTaSettingService) {
+      final EmployeesTaSettingService employeesTaSettingService,
+      final PayrollDetailService payrollDetailService) {
     this.timeSheetService = timeSheetService;
     this.attendanceMyHoursService = attendanceMyHoursService;
     this.attendanceSettingsService = attendanceSettingsService;
@@ -66,6 +70,7 @@ public class AttendanceTeamHoursService {
     staticTimesheetStatusService = statusService;
     this.timePeriodService = timePeriodService;
     this.employeesTaSettingService = employeesTaSettingService;
+    this.payrollDetailService = payrollDetailService;
   }
 
   public List<EmployeeAttendanceSummaryDto> findEmployeeAttendanceSummary(
@@ -272,16 +277,15 @@ public class AttendanceTeamHoursService {
   }
 
   public AttendanceDetailDto findAttendanceDetails(final String companyId) {
-    final CompanyTaSetting companyTaSetting =
-        attendanceSettingsService.findCompanySettings(companyId);
+    final PayrollDetail payrollDetail = payrollDetailService.findByCompanyId(companyId);
     final TimePeriod timePeriod = timePeriodService.findCompanyCurrentPeriod(companyId);
     final SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
-    final String payDate = sdf.format(companyTaSetting.getLastPayrollPayday());
+    final String payDate = sdf.format(payrollDetail.getLastPayrollPayday());
     final String periodStartDate = sdf.format(timePeriod.getStartDate());
     final String periodEndDate = sdf.format(timePeriod.getEndDate());
     return AttendanceDetailDto.builder()
         .payDate(payDate)
-        .payPeriodFrequency(companyTaSetting.getPayFrequencyType().getName())
+        .payPeriodFrequency(payrollDetail.getPayFrequencyType().getName())
         .periodStartDate(periodStartDate)
         .periodEndDate(periodEndDate)
         .build();

@@ -17,6 +17,8 @@ import shamu.company.attendance.repository.PayPeriodFrequencyRepository;
 import shamu.company.attendance.repository.StaticTimeZoneRepository;
 import shamu.company.attendance.service.AttendanceSettingsService;
 import shamu.company.attendance.service.TimeSheetService;
+import shamu.company.common.entity.mapper.PayrollDetailMapper;
+import shamu.company.common.service.PayrollDetailService;
 import shamu.company.user.repository.UserRepository;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -40,6 +42,10 @@ public class AttendanceSettingsServiceTests {
   @Mock private EmployeesTaSettingsMapper employeesTaSettingsMapper;
 
   @Mock private TimeSheetService timeSheetService;
+
+  @Mock private PayrollDetailService payrollDetailService;
+
+  @Mock private PayrollDetailMapper payrollDetailMapper;
 
   @BeforeEach
   void init() {

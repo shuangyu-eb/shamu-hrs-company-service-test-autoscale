@@ -10,6 +10,8 @@ import shamu.company.attendance.service.AttendanceSetUpService;
 import shamu.company.attendance.service.AttendanceSettingsService;
 import shamu.company.attendance.service.PayPeriodFrequencyService;
 import shamu.company.attendance.service.TimePeriodService;
+import shamu.company.common.entity.PayrollDetail;
+import shamu.company.common.service.PayrollDetailService;
 import shamu.company.company.entity.Company;
 import shamu.company.company.service.CompanyService;
 import shamu.company.scheduler.QuartzUtil;
@@ -31,6 +33,7 @@ public class AddPayPeriodJob extends QuartzJobBean {
   private final PayPeriodFrequencyService payPeriodFrequencyService;
   private final UserCompensationService userCompensationService;
   private final CompanyService companyService;
+  private final PayrollDetailService payrollDetailService;
 
   @Autowired
   public AddPayPeriodJob(
@@ -39,13 +42,15 @@ public class AddPayPeriodJob extends QuartzJobBean {
       final AttendanceSettingsService attendanceSettingsService,
       final PayPeriodFrequencyService payPeriodFrequencyService,
       final UserCompensationService userCompensationService,
-      final CompanyService companyService) {
+      final CompanyService companyService,
+      final PayrollDetailService payrollDetailService) {
     this.attendanceSetUpService = attendanceSetUpService;
     this.timePeriodService = timePeriodService;
     this.attendanceSettingsService = attendanceSettingsService;
     this.payPeriodFrequencyService = payPeriodFrequencyService;
     this.userCompensationService = userCompensationService;
     this.companyService = companyService;
+    this.payrollDetailService = payrollDetailService;
   }
 
   @Override
@@ -57,7 +62,8 @@ public class AddPayPeriodJob extends QuartzJobBean {
     final Company company = companyService.findById(companyId);
     final CompanyTaSetting companyTaSetting =
         attendanceSettingsService.findCompanySettings(companyId);
-    final String payFrequencyTypeId = companyTaSetting.getPayFrequencyType().getId();
+    final PayrollDetail payrollDetail = payrollDetailService.findByCompanyId(companyId);
+    final String payFrequencyTypeId = payrollDetail.getPayFrequencyType().getId();
     final StaticCompanyPayFrequencyType staticCompanyPayFrequencyType =
         payPeriodFrequencyService.findById(payFrequencyTypeId);
 
@@ -67,8 +73,9 @@ public class AddPayPeriodJob extends QuartzJobBean {
     final Timestamp nextPeriodEndDate = nextTimePeriod.getEndDate();
     final Timestamp nextPayDate =
         new Timestamp(nextPeriodEndDate.getTime() + DAYS_PAY_DATE_AFTER_PERIOD * MS_OF_ONE_DAY);
-    companyTaSetting.setLastPayrollPayday(nextPayDate);
+    payrollDetail.setLastPayrollPayday(nextPayDate);
     attendanceSettingsService.saveCompanyTaSetting(companyTaSetting);
+    payrollDetailService.savePayrollDetail(payrollDetail);
 
     final List<UserCompensation> userCompensationList =
         userCompensationService.listNewestEnrolledCompensation(companyId);
