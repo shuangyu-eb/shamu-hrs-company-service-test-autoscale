@@ -1,6 +1,7 @@
 package shamu.company.utils;
 
-import shamu.company.attendance.exception.ParseDateException;
+import static java.time.temporal.TemporalAdjusters.firstDayOfYear;
+import static java.time.temporal.TemporalAdjusters.previousOrSame;
 
 import java.sql.Timestamp;
 import java.text.ParseException;
@@ -14,9 +15,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
 import java.util.Date;
 import java.util.Locale;
-
-import static java.time.temporal.TemporalAdjusters.firstDayOfYear;
-import static java.time.temporal.TemporalAdjusters.previousOrSame;
+import shamu.company.attendance.exception.ParseDateException;
 
 public abstract class DateUtil {
 
@@ -75,6 +74,10 @@ public abstract class DateUtil {
 
   public static Timestamp getDayOfNextYear(final Timestamp timestamp) {
     return fromLocalDate(getDayOfNextYear(fromTimestamp(timestamp)));
+  }
+
+  public static Timestamp getDayOfNext24Hours(final Timestamp timestamp) {
+    return Timestamp.valueOf(toLocalDateTime(timestamp).plusDays(1));
   }
 
   public static LocalDate fromTimestamp(final Timestamp timestamp) {

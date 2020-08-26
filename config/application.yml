@@ -76,3 +76,6 @@ auth0:
 user:
   cached:
     expiration: 36000
+  invitationRateLimiting:
+    maxPerMinute: 3
+    maxPerDay: 200

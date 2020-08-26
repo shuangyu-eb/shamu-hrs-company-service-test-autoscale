@@ -228,4 +228,10 @@ public class UserRestController extends BaseRestController {
     userService.cacheUser(findToken(), id);
     return new ResponseEntity<>(HttpStatus.OK);
   }
+
+  @GetMapping("users/is-user-invitation-capability-frozen")
+  @PreAuthorize("hasAuthority('CREATE_USER')")
+  public Boolean isUserInvitationAbilityFrozen() {
+    return userService.isUserInvitationCapabilityFrozen(findUserId());
+  }
 }

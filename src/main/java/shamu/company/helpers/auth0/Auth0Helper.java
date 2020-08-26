@@ -35,15 +35,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Component;
+import shamu.company.common.exception.errormapping.AlreadyExistsException;
 import shamu.company.common.exception.errormapping.ResourceNotFoundException;
+import shamu.company.common.exception.errormapping.TooManyRequestException;
 import shamu.company.helpers.auth0.exception.EmailUpdateFailedException;
 import shamu.company.helpers.auth0.exception.GeneralAuth0Exception;
-import shamu.company.common.exception.errormapping.AlreadyExistsException;
 import shamu.company.helpers.auth0.exception.LoginFailedException;
 import shamu.company.helpers.auth0.exception.NonUniqueAuth0ResourceException;
 import shamu.company.helpers.auth0.exception.PermissionGetFailedException;
 import shamu.company.helpers.auth0.exception.SignUpFailedException;
-import shamu.company.helpers.auth0.exception.TooManyRequestException;
 import shamu.company.helpers.auth0.exception.errormapping.VerificationEmailSendFailedException;
 import shamu.company.sentry.SentryLogger;
 
@@ -110,8 +110,7 @@ public class Auth0Helper {
   }
 
   public CreatedUser signUp(final String email, final String password) {
-    final SignUpRequest request =
-        getAuthApi().signUp(email, password, auth0Config.getDatabase());
+    final SignUpRequest request = getAuthApi().signUp(email, password, auth0Config.getDatabase());
     try {
       return request.execute();
     } catch (final APIException apiException) {
@@ -119,9 +118,9 @@ public class Auth0Helper {
         throw new AlreadyExistsException("The email already exists.", email);
       }
       throw handleAuth0Exception(apiException, AUTH_API);
-    }  catch (Auth0Exception exception) {
+    } catch (final Auth0Exception exception) {
       throw handleAuth0Exception(exception, AUTH_API);
-    } catch (Exception e) {
+    } catch (final Exception e) {
       throw new SignUpFailedException("SignUpFailedException:" + e.getMessage(), e);
     }
   }
@@ -311,8 +310,9 @@ public class Auth0Helper {
     return (String) appMetadata.get("id");
   }
 
-  public User updateAuthUserAppMetaData(final String userId, final String email, final String uuid) {
-    String newUserId = "auth0|" + userId;
+  public User updateAuthUserAppMetaData(
+      final String userId, final String email, final String uuid) {
+    final String newUserId = "auth0|" + userId;
     final User user = new User();
     user.setEmail(email);
     final String userSecret = generateUserSecret(uuid);

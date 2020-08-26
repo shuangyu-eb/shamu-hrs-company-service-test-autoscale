@@ -35,7 +35,6 @@ import shamu.company.utils.UuidUtil;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class User implements Serializable {
 
-  private static final long serialVersionUID = -7563505904022101053L;
   @Id
   @Type(type = "shamu.company.common.PrimaryKeyTypeDescriptor")
   private String id;
@@ -90,7 +89,11 @@ public class User implements Serializable {
 
   @UpdateTimestamp private Timestamp updatedAt;
 
+  private Timestamp invitationCapabilityFrozenAt;
+
   private String salt;
+
+  private static final long serialVersionUID = 111073632285737978L;
 
   public User(final String id) {
     setId(id);
@@ -107,7 +110,8 @@ public class User implements Serializable {
       return;
     }
     if (StringUtils.isEmpty(managerUser.getId())) {
-      throw new SetManagerFailedException("Please save this manager before setting this user's manager.");
+      throw new SetManagerFailedException(
+          "Please save this manager before setting this user's manager.");
     }
     if (managerUser.getId().equals(getId())) {
       throw new SetManagerFailedException("Users cannot set themselves to be their manager.");

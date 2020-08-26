@@ -1788,3 +1788,14 @@ databaseChangeLog:
         - dropColumn:
             columnName: time_zone_id
             tableName: employees_ta_settings
+
+  - changeSet:
+      id: 1597734408824
+      author: haibo-eb
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: invitation_capability_frozen_at
+                  type: datetime
+            tableName: users

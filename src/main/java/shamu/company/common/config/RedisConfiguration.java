@@ -3,8 +3,8 @@ package shamu.company.common.config;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.redisson.config.Config;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
@@ -16,7 +16,6 @@ import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
-@ConditionalOnProperty("spring.redis")
 public class RedisConfiguration {
   @Value("${spring.redis.host}")
   private String redisHostname;
@@ -55,5 +54,12 @@ public class RedisConfiguration {
     redisTemplate.setValueSerializer(jackson2JsonRedisSerializer);
     redisTemplate.setConnectionFactory(jedisConnectionFactory());
     return redisTemplate;
+  }
+
+  @Bean
+  public Config redissonConfig() {
+    final Config config = new Config();
+    config.useSingleServer().setAddress(String.format("redis://%s:%s", redisHostname, redisPort));
+    return config;
   }
 }
