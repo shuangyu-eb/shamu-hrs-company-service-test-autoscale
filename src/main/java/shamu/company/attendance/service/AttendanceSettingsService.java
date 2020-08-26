@@ -122,6 +122,11 @@ public class AttendanceSettingsService {
     if (employeesTaSetting == null) {
       employeesTaSetting = new EmployeesTaSetting();
     }
+    if (employeesTaSettingDto.getTimeZone() != null && employee.isPresent()) {
+      final User user = employee.get();
+      user.setTimeZone(employeesTaSettingDto.getTimeZone());
+      userRepository.save(user);
+    }
     employeesTaSettingDto.setEmployee(employee.orElseGet(User::new));
     employeesTaSettingsMapper.updateFromEmployeeTaSettingsDto(
         employeesTaSetting, employeesTaSettingDto);
