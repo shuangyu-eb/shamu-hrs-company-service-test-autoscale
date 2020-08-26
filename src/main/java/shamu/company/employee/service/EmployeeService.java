@@ -233,15 +233,29 @@ public class EmployeeService {
 
     saveEmployeeAddress(employee, employeeDto);
     saveEmailTasks(employeeDto.getWelcomeEmail(), employee, currentUser);
-    timeOffPolicyService.addUserToAutoEnrolledPolicy(
-        employee.getId(), employee.getCompany().getId());
+
+    Boolean isEmployeePersonalInfoComplete = userService
+        .checkPersonalInfoComplete(employee.getId());
+
+    if (Boolean.TRUE.equals(isEmployeePersonalInfoComplete)) {
+      timeOffPolicyService.addUserToAutoEnrolledPolicy(
+          employee.getId(), employee.getCompany().getId());
+    }
   }
 
   public void updateEmployee(final EmployeeDto employeeDto, final User employee) {
 
+    Boolean isEmployeePersonalInfoComplete = userService
+        .checkPersonalInfoComplete(employee.getId());
+    if (Boolean.FALSE.equals(isEmployeePersonalInfoComplete)) {
+      timeOffPolicyService.addUserToAutoEnrolledPolicy(
+          employee.getId(), employee.getCompany().getId());
+    }
+
     updateEmployeeBasicInformation(employee, employeeDto);
     updateEmergencyContacts(employee, employeeDto.getUserEmergencyContactDto());
     updateEmployeeAddress(employee, employeeDto);
+
   }
 
   public void resendEmail(final EmailResendDto emailResendDto) {
