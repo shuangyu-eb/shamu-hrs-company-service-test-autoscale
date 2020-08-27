@@ -23,6 +23,7 @@ import org.mockito.MockitoAnnotations;
 import org.powermock.reflect.Whitebox;
 import org.springframework.context.ApplicationEventPublisher;
 import org.thymeleaf.context.Context;
+import shamu.company.attendance.repository.StaticTimeZoneRepository;
 import shamu.company.common.entity.StateProvince;
 import shamu.company.common.exception.errormapping.AlreadyExistsException;
 import shamu.company.common.exception.errormapping.ForbiddenException;
@@ -31,6 +32,8 @@ import shamu.company.common.service.DepartmentService;
 import shamu.company.common.service.OfficeService;
 import shamu.company.common.service.StateProvinceService;
 import shamu.company.company.entity.Company;
+import shamu.company.company.entity.Office;
+import shamu.company.company.entity.OfficeAddress;
 import shamu.company.company.entity.mapper.OfficeAddressMapper;
 import shamu.company.company.entity.mapper.OfficeAddressMapperImpl;
 import shamu.company.company.entity.mapper.OfficeMapper;
@@ -43,6 +46,7 @@ import shamu.company.employee.dto.EmailResendDto;
 import shamu.company.employee.dto.EmployeeContactInformationDto;
 import shamu.company.employee.dto.EmployeeDto;
 import shamu.company.employee.dto.EmployeePersonalInformationDto;
+import shamu.company.employee.dto.JobInformationDto;
 import shamu.company.employee.dto.NewEmployeeJobInformationDto;
 import shamu.company.employee.dto.UserPersonalInformationForManagerDto;
 import shamu.company.employee.dto.WelcomeEmailDto;
@@ -50,6 +54,7 @@ import shamu.company.employee.event.Auth0UserCreatedEvent;
 import shamu.company.employee.service.EmployeeService;
 import shamu.company.employee.service.EmploymentTypeService;
 import shamu.company.helpers.auth0.Auth0Helper;
+import shamu.company.helpers.googlemaps.GoogleMapsHelper;
 import shamu.company.helpers.s3.AwsHelper;
 import shamu.company.info.dto.UserEmergencyContactDto;
 import shamu.company.info.entity.mapper.UserEmergencyContactMapper;
@@ -138,6 +143,8 @@ class EmployeeServiceTests {
   @Mock private EmployeeTypesService employeeTypesService;
   @Mock private CompensationOvertimeStatusService compensationOvertimeStatusService;
   @Mock private DepartmentService departmentService;
+  @Mock private GoogleMapsHelper googleMapsHelper;
+  @Mock private StaticTimeZoneRepository staticTimeZoneRepository;
 
   private EmployeeService employeeService;
 
@@ -176,7 +183,9 @@ class EmployeeServiceTests {
             encryptorUtil,
             employeeTypesService,
             compensationOvertimeStatusService,
-            departmentService);
+            departmentService,
+            googleMapsHelper,
+            staticTimeZoneRepository);
   }
 
   @Test
@@ -259,7 +268,15 @@ class EmployeeServiceTests {
       currentUser.setCompany(company);
 
       final EmployeeDto employeeDto = new EmployeeDto();
+      final NewEmployeeJobInformationDto jobInformationDto = new NewEmployeeJobInformationDto();
+      jobInformationDto.setOfficeId("officeId");
+      employeeDto.setJobInformation(jobInformationDto);
       employeeDto.setEmailWork("example@indeed.com");
+
+      final Office office = new Office();
+      final OfficeAddress officeAddress = new OfficeAddress();
+      officeAddress.setPostalCode("02114");
+      office.setOfficeAddress(officeAddress);
 
       final String originalHexString = FileFormat.PNG.getSignature();
       final byte[] imageBytes = Hex.decodeHex(originalHexString);
@@ -277,6 +294,8 @@ class EmployeeServiceTests {
       final UserContactInformationDto userContactInformationDto = new UserContactInformationDto();
       employeeDto.setUserContactInformationDto(userContactInformationDto);
 
+      Mockito.when(officeService.findById("officeId")).thenReturn(office);
+      Mockito.when(googleMapsHelper.findTimezoneByPostalCode(Mockito.anyString())).thenReturn("timezone");
       Whitebox.invokeMethod(
           employeeService, "saveEmployeeBasicInformation", currentUser, employeeDto);
       Mockito.verify(userService, Mockito.times(1)).createNewEmployee(Mockito.any());
@@ -517,6 +536,8 @@ class EmployeeServiceTests {
     EmployeeDto employeeDto;
     Company company;
     Context emailContext;
+    Office office;
+    OfficeAddress officeAddress;
 
     @BeforeEach
     void init() {
@@ -528,6 +549,13 @@ class EmployeeServiceTests {
       welcomeEmail.setSendTo("a");
       currentUser = new User();
       employeeDto = new EmployeeDto();
+      office = new Office();
+      officeAddress = new OfficeAddress();
+      officeAddress.setPostalCode("02114");
+      jobInformation.setCompensation(1d);
+      office.setOfficeAddress(officeAddress);
+
+      employeeDto.setJobInformation(jobInformation);
       employeeDto.setUserEmergencyContactDto(userEmergencyContactDto);
       company = new Company();
       company.setName("a");
@@ -539,6 +567,8 @@ class EmployeeServiceTests {
       currentUser.setInvitedAt(Timestamp.from(Instant.now()));
       Mockito.when(userService.save(Mockito.any())).thenReturn(currentUser);
       Mockito.when(userService.createNewEmployee(Mockito.any())).thenReturn(currentUser);
+      Mockito.when(officeService.findById(Mockito.any())).thenReturn(office);
+      Mockito.when(googleMapsHelper.findTimezoneByPostalCode(Mockito.anyString())).thenReturn("timezone");
       Mockito.when(
               emailService.getWelcomeEmailContextToEmail(
                   Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
@@ -548,7 +578,7 @@ class EmployeeServiceTests {
     @Test
     void whenJobInformationIsNull_thenShouldSuccess() {
       employeeService.addEmployee(employeeDto, currentUser);
-      Mockito.verify(jobUserService, Mockito.times(0)).save(Mockito.any());
+      Mockito.verify(jobUserService, Mockito.times(1)).save(Mockito.any());
     }
   }
 

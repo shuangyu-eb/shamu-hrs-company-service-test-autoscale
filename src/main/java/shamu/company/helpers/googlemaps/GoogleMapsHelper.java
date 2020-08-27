@@ -26,6 +26,22 @@ public class GoogleMapsHelper {
   @Value("${application.googleMapApiKey}")
   private String googleMapApiKey;
 
+  public String findTimezoneByPostalCode(final String postalCode) {
+    String timezone = "";
+    try {
+      final LatLng latLng;
+      final Optional<LatLng> location = findLocationByPostalCode(postalCode);
+      if (location.isPresent()) {
+        latLng = location.get();
+        timezone = findTimezoneByLocation(latLng);
+      }
+    } catch (final InterruptedException | ApiException | IOException e) {
+      Thread.currentThread().interrupt();
+      throw new GoogleMapApiException("Error ZipCode.", e);
+    }
+    return timezone;
+  }
+
   public Map<String, String> findTimezoneByPostalCode(final Set<String> postalCodes) {
     final Map<String, String> postalTimezone = new HashMap<>();
     postalCodes.forEach(
@@ -66,5 +82,4 @@ public class GoogleMapsHelper {
     mapApiContext.shutdown();
     return tz.getID();
   }
-
 }

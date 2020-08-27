@@ -23,7 +23,9 @@ import shamu.company.company.repository.CompanyRepository;
 import shamu.company.employee.dto.SelectFieldSizeDto;
 import shamu.company.employee.entity.EmploymentType;
 import shamu.company.employee.service.EmploymentTypeService;
+import shamu.company.helpers.googlemaps.GoogleMapsHelper;
 import shamu.company.job.entity.Job;
+import shamu.company.common.exception.errormapping.ZipCodeNotExistException;
 import shamu.company.job.service.JobService;
 import shamu.company.server.dto.CompanyDtoProjection;
 
@@ -48,6 +50,8 @@ public class CompanyService {
 
   private final CompanyBenefitsSettingService companyBenefitsSettingService;
 
+  private final GoogleMapsHelper googleMapsHelper;
+
   @Autowired
   public CompanyService(
       final CompanyRepository companyRepository,
@@ -58,7 +62,8 @@ public class CompanyService {
       final OfficeAddressMapper officeAddressMapper,
       final StateProvinceService stateProvinceService,
       final CompanyBenefitsSettingMapper companyBenefitsSettingMapper,
-      final CompanyBenefitsSettingService companyBenefitsSettingService) {
+      final CompanyBenefitsSettingService companyBenefitsSettingService,
+      final GoogleMapsHelper googleMapsHelper) {
     this.companyRepository = companyRepository;
     this.departmentService = departmentService;
     this.employmentTypeService = employmentTypeService;
@@ -68,6 +73,7 @@ public class CompanyService {
     this.stateProvinceService = stateProvinceService;
     this.companyBenefitsSettingMapper = companyBenefitsSettingMapper;
     this.companyBenefitsSettingService = companyBenefitsSettingService;
+    this.googleMapsHelper = googleMapsHelper;
   }
 
   public Boolean existsByName(final String companyName) {
@@ -149,12 +155,16 @@ public class CompanyService {
   }
 
   public Office saveOffice(final Office office) {
-    List<Office> oldOffices =
+    final List<Office> oldOffices =
         officeService.findByNameAndCompanyId(office.getName(), office.getCompany().getId());
     if (!oldOffices.isEmpty()) {
       throw new AlreadyExistsException("Office already exists.", "office");
     }
     final OfficeAddress officeAddress = office.getOfficeAddress();
+    final String timezone = googleMapsHelper.findTimezoneByPostalCode(officeAddress.getPostalCode());
+    if (timezone.isEmpty()) {
+      throw new ZipCodeNotExistException("Office zipCode is error.");
+    }
     final StateProvince stateProvince = officeAddress.getStateProvince();
     if (stateProvince != null && stateProvince.getId() != null) {
       final StateProvince stateProvinceReturned =

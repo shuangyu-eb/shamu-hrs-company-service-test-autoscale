@@ -21,6 +21,7 @@ import shamu.company.company.entity.mapper.OfficeAddressMapper;
 import shamu.company.company.entity.mapper.OfficeMapper;
 import shamu.company.employee.dto.BasicJobInformationDto;
 import shamu.company.employee.dto.SelectFieldSizeDto;
+import shamu.company.helpers.googlemaps.GoogleMapsHelper;
 import shamu.company.job.dto.JobSelectOptionUpdateDto;
 import shamu.company.job.dto.JobUpdateDto;
 import shamu.company.job.dto.JobUserHireDateCheckDto;
@@ -28,6 +29,7 @@ import shamu.company.job.entity.Job;
 import shamu.company.job.entity.JobUser;
 import shamu.company.job.entity.mapper.JobUserMapper;
 import shamu.company.job.exception.errormapping.DeletionFailedCausedByCascadeException;
+import shamu.company.common.exception.errormapping.ZipCodeNotExistException;
 import shamu.company.job.repository.JobUserRepository;
 import shamu.company.server.dto.AuthUser;
 import shamu.company.timeoff.dto.MyTimeOffDto;
@@ -110,6 +112,8 @@ public class JobUserService {
 
   private final UserCompensationService userCompensationService;
 
+  private final GoogleMapsHelper googleMapsHelper;
+
   public JobUserService(
       final JobUserRepository jobUserRepository,
       final UserService userService,
@@ -131,7 +135,8 @@ public class JobUserService {
       final TimeOffPolicyService timeOffPolicyService,
       final CompensationOvertimeStatusService compensationOvertimeStatusService,
       final TimePeriodService timePeriodService,
-      final UserCompensationService userCompensationService) {
+      final UserCompensationService userCompensationService,
+      final GoogleMapsHelper googleMapsHelper) {
     this.jobUserRepository = jobUserRepository;
     this.userService = userService;
     this.userCompensationMapper = userCompensationMapper;
@@ -153,6 +158,7 @@ public class JobUserService {
     this.compensationOvertimeStatusService = compensationOvertimeStatusService;
     this.timePeriodService = timePeriodService;
     this.userCompensationService = userCompensationService;
+    this.googleMapsHelper = googleMapsHelper;
   }
 
   public JobUser save(final JobUser jobUser) {
@@ -343,6 +349,10 @@ public class JobUserService {
             officeCreateDto.getOfficeName(), office.getCompany().getId());
     if (!oldOffices.isEmpty()) {
       throw new AlreadyExistsException("Office already exists.", "office");
+    }
+    final String timezone = googleMapsHelper.findTimezoneByPostalCode(officeCreateDto.getPostalCode());
+    if (timezone.isEmpty()) {
+      throw new ZipCodeNotExistException("Office zipCode is error.");
     }
     office.setName(officeCreateDto.getOfficeName());
 

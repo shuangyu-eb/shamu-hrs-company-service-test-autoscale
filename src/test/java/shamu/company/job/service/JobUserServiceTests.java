@@ -24,6 +24,7 @@ import shamu.company.company.entity.mapper.OfficeMapper;
 import shamu.company.company.entity.mapper.OfficeMapperImpl;
 import shamu.company.employee.dto.BasicJobInformationDto;
 import shamu.company.employee.dto.JobInformationDto;
+import shamu.company.helpers.googlemaps.GoogleMapsHelper;
 import shamu.company.job.dto.JobSelectOptionUpdateDto;
 import shamu.company.job.dto.JobSelectOptionUpdateField;
 import shamu.company.job.dto.JobUpdateDto;
@@ -95,6 +96,7 @@ class JobUserServiceTests {
   private JobUserService jobUserService;
   private CompensationOvertimeStatusService compensationOvertimeStatusService;
   @Mock private UserCompensationService userCompensationService;
+  @Mock private GoogleMapsHelper googleMapsHelper;
 
   @BeforeEach
   void setUp() {
@@ -121,7 +123,8 @@ class JobUserServiceTests {
             timeOffPolicyService,
             compensationOvertimeStatusService,
             timePeriodService,
-            userCompensationService);
+            userCompensationService,
+            googleMapsHelper);
   }
 
   @Test
@@ -530,6 +533,7 @@ class JobUserServiceTests {
                   officeCreateDto.getOfficeName(), office.getCompany().getId()))
           .thenReturn(Collections.emptyList());
       Mockito.when(officeService.save(newOffice)).thenReturn(newOffice);
+      Mockito.when(googleMapsHelper.findTimezoneByPostalCode(Mockito.anyString())).thenReturn("timezone");
       Assertions.assertDoesNotThrow(
           () -> jobUserService.updateJobSelectOption(jobSelectOptionUpdateDto));
       Mockito.verify(officeService, Mockito.times(1)).save(Mockito.any());

@@ -34,6 +34,7 @@ import shamu.company.company.service.CompanyBenefitsSettingService;
 import shamu.company.company.service.CompanyService;
 import shamu.company.employee.entity.EmploymentType;
 import shamu.company.employee.service.EmploymentTypeService;
+import shamu.company.helpers.googlemaps.GoogleMapsHelper;
 import shamu.company.job.service.JobService;
 import shamu.company.server.dto.CompanyDtoProjection;
 import shamu.company.utils.UuidUtil;
@@ -53,6 +54,7 @@ public class CompanyServiceTests {
   @Mock private StateProvinceService stateProvinceService;
   @Mock private CompanyBenefitsSettingMapper companyBenefitsSettingMapper;
   @Mock private CompanyBenefitsSettingService companyBenefitsSettingService;
+  @Mock private GoogleMapsHelper googleMapsHelper;
   private CompanyService companyService;
 
   @BeforeEach
@@ -68,7 +70,8 @@ public class CompanyServiceTests {
             officeAddressMapper,
             stateProvinceService,
             companyBenefitsSettingMapper,
-            companyBenefitsSettingService);
+            companyBenefitsSettingService,
+            googleMapsHelper);
     department.setId("1");
     department.setName("name");
     office.setId("1");
@@ -140,11 +143,13 @@ public class CompanyServiceTests {
     final StateProvince stateProvince = new StateProvince();
     stateProvince.setId("1");
     officeAddress.setStateProvince(stateProvince);
+    officeAddress.setPostalCode("02114");
     office.setOfficeAddress(officeAddress);
     office.setCompany(new Company(UuidUtil.getUuidString()));
     Mockito.when(stateProvinceService.findById(Mockito.anyString())).thenReturn(stateProvince);
     Mockito.when(officeService.findByNameAndCompanyId(Mockito.anyString(), Mockito.anyString()))
         .thenReturn(Collections.EMPTY_LIST);
+    Mockito.when(googleMapsHelper.findTimezoneByPostalCode("02114")).thenReturn("timezone");
     assertThatCode(() -> companyService.saveOffice(office)).doesNotThrowAnyException();
   }
 

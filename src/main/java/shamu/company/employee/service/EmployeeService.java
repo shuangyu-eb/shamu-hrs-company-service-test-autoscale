@@ -14,6 +14,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.FileCopyUtils;
 import org.thymeleaf.context.Context;
+import shamu.company.attendance.repository.StaticTimeZoneRepository;
 import shamu.company.common.entity.Country;
 import shamu.company.common.entity.StateProvince;
 import shamu.company.common.exception.errormapping.AlreadyExistsException;
@@ -37,6 +38,7 @@ import shamu.company.employee.entity.EmploymentType;
 import shamu.company.employee.event.Auth0UserCreatedEvent;
 import shamu.company.helpers.auth0.Auth0Helper;
 import shamu.company.helpers.exception.errormapping.FileUploadFailedException;
+import shamu.company.helpers.googlemaps.GoogleMapsHelper;
 import shamu.company.helpers.s3.AwsHelper;
 import shamu.company.helpers.s3.Type;
 import shamu.company.info.dto.UserEmergencyContactDto;
@@ -135,6 +137,8 @@ public class EmployeeService {
   private final EmployeeTypesService employeeTypesService;
   private final CompensationOvertimeStatusService compensationOvertimeStatusService;
   private final DepartmentService departmentService;
+  private final GoogleMapsHelper googleMapsHelper;
+  private final StaticTimeZoneRepository staticTimeZoneRepository;
 
   @Value("${application.systemEmailAddress}")
   private String systemEmailAddress;
@@ -177,7 +181,9 @@ public class EmployeeService {
       final EncryptorUtil encryptorUtil,
       final EmployeeTypesService employeeTypesService,
       final CompensationOvertimeStatusService compensationOvertimeStatusService,
-      final DepartmentService departmentService) {
+      final DepartmentService departmentService,
+      final GoogleMapsHelper googleMapsHelper,
+      final StaticTimeZoneRepository staticTimeZoneRepository) {
     this.timeOffPolicyService = timeOffPolicyService;
     this.userAddressService = userAddressService;
     this.employmentTypeService = employmentTypeService;
@@ -209,6 +215,8 @@ public class EmployeeService {
     this.employeeTypesService = employeeTypesService;
     this.compensationOvertimeStatusService = compensationOvertimeStatusService;
     this.departmentService = departmentService;
+    this.googleMapsHelper = googleMapsHelper;
+    this.staticTimeZoneRepository = staticTimeZoneRepository;
   }
 
   public List<User> findByCompanyId(final String companyId) {
@@ -339,6 +347,14 @@ public class EmployeeService {
     employee.setInvitationEmailToken(UUID.randomUUID().toString());
 
     employee.setInvitedAt(new Timestamp(new Date().getTime()));
+
+    final Office office = officeService.findById(employeeDto.getJobInformation().getOfficeId());
+
+    final String timezoneName =
+        googleMapsHelper.findTimezoneByPostalCode(office.getOfficeAddress().getPostalCode());
+    if (!timezoneName.isEmpty()) {
+      employee.setTimeZone(staticTimeZoneRepository.findByName(timezoneName));
+    }
 
     final com.auth0.json.mgmt.users.User user =
         auth0Helper.addUser(employeeDto.getEmailWork(), null, Role.EMPLOYEE.getValue());
