@@ -115,7 +115,8 @@ public class EmailService {
     jobParameter.put("email", email);
     quartzJobScheduler.addOrUpdateJobSchedule(
         SendEmailJob.class,
-        "sendEmail_" + messageId,
+        messageId,
+        "sendEmail",
         jobParameter,
         sendDate == null ? Timestamp.valueOf(LocalDateTime.now()) : sendDate);
   }
@@ -141,6 +142,7 @@ public class EmailService {
     jobParameter.put("messageIdList", messageIdList);
     quartzJobScheduler.addOrUpdateJobSchedule(
         SendEmailsJob.class,
+        "",
         "sendEmails",
         jobParameter,
         sendDate == null ? Timestamp.valueOf(LocalDateTime.now()) : sendDate);

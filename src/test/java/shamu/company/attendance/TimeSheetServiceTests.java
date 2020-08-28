@@ -11,9 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import shamu.company.attendance.entity.StaticTimesheetStatus;
 import shamu.company.attendance.entity.StaticTimesheetStatus.TimeSheetStatus;
-import shamu.company.attendance.entity.TimePeriod;
 import shamu.company.attendance.entity.TimeSheet;
 import shamu.company.attendance.repository.StaticTimesheetStatusRepository;
 import shamu.company.attendance.repository.TimeSheetRepository;
@@ -114,23 +112,6 @@ public class TimeSheetServiceTests {
               () ->
                   timeSheetService.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
                       timesheetId, companyId, status, "1", pageable))
-          .doesNotThrowAnyException();
-    }
-
-    @Test
-    void whenCompanyIdValid_thenShouldSuccess() {
-      final StaticTimesheetStatus submitStatus = new StaticTimesheetStatus();
-      final TimePeriod timePeriod = new TimePeriod();
-      timePeriod.setId("test_period_id");
-      submitStatus.setName(TimeSheetStatus.SUBMITTED.name());
-      Mockito.when(timePeriodService.findCompanyLastPeriod(companyId)).thenReturn(timePeriod);
-      Mockito.when(staticTimesheetStatusRepository.findByName(Mockito.anyString()))
-          .thenReturn(submitStatus);
-      final TimeSheet timeSheet = new TimeSheet();
-      assertThatCode(
-              () ->
-                  timeSheetService.updateCompanyLastPeriodTimeSheetsStatus(
-                      companyId, TimeSheetStatus.SUBMITTED.name(), TimeSheetStatus.APPROVED.name()))
           .doesNotThrowAnyException();
     }
   }

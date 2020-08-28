@@ -14,7 +14,7 @@ import shamu.company.attendance.entity.TimePeriod;
 import shamu.company.attendance.entity.TimeSheet;
 import shamu.company.attendance.service.TimePeriodService;
 import shamu.company.attendance.service.TimeSheetService;
-import shamu.company.scheduler.job.AutoSubmitTimeSheetsJob;
+import shamu.company.scheduler.job.ChangeTimeSheetsStatusJob;
 import shamu.company.utils.JsonUtil;
 
 import java.util.ArrayList;
@@ -22,8 +22,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class AutoSubmitTimeSheetsJobTests {
-  private static AutoSubmitTimeSheetsJob autoSubmitTimeSheetsJob;
+public class ChangeTimeSheetsStatusJobTests {
+  private static ChangeTimeSheetsStatusJob changeTimeSheetsStatusJob;
   @Mock private TimePeriodService timePeriodService;
   @Mock private TimeSheetService timeSheetService;
   @Mock private JobExecutionContext jobExecutionContext;
@@ -31,12 +31,11 @@ public class AutoSubmitTimeSheetsJobTests {
   @BeforeEach
   void init() {
     MockitoAnnotations.initMocks(this);
-    autoSubmitTimeSheetsJob = new AutoSubmitTimeSheetsJob(timeSheetService);
+    changeTimeSheetsStatusJob = new ChangeTimeSheetsStatusJob(timeSheetService);
   }
 
   @Nested
   class executeJob {
-    String companyId;
     TimePeriod timePeriod = new TimePeriod();
     String timePeriodId = "period_id";
     StaticTimesheetStatus timeSheetStatus = new StaticTimesheetStatus();
@@ -44,7 +43,6 @@ public class AutoSubmitTimeSheetsJobTests {
 
     @BeforeEach
     void init() {
-      companyId = "test_company_id";
       timePeriod.setId(timePeriodId);
       timeSheetStatus.setName("status_name");
       timeSheet.setStatus(timeSheetStatus);
@@ -53,16 +51,22 @@ public class AutoSubmitTimeSheetsJobTests {
     @Test
     void whenJobExecutionContextIsValid_thenShouldSuccess() {
       final Map<String, Object> jobParameter = new HashMap<>();
-      jobParameter.put("companyId", JsonUtil.formatToString(companyId));
+      jobParameter.put("timePeriodId", JsonUtil.formatToString(timePeriodId));
+      jobParameter.put(
+          "fromStatus",
+          JsonUtil.formatToString(StaticTimesheetStatus.TimeSheetStatus.NOT_YET_START.name()));
+      jobParameter.put(
+          "toStatus", JsonUtil.formatToString(StaticTimesheetStatus.TimeSheetStatus.ACTIVE.name()));
       Mockito.when(jobExecutionContext.getMergedJobDataMap())
           .thenReturn(new JobDataMap(jobParameter));
 
-      Mockito.when(timePeriodService.findCompanyCurrentPeriod(companyId)).thenReturn(timePeriod);
+      Mockito.when(timePeriodService.findById(timePeriodId))
+          .thenReturn(java.util.Optional.ofNullable(timePeriod));
       final List<TimeSheet> timeSheetList = new ArrayList<>();
       timeSheetList.add(timeSheet);
       Mockito.when(timeSheetService.findAllByPeriodId(timePeriodId)).thenReturn(timeSheetList);
       Assertions.assertDoesNotThrow(
-          () -> autoSubmitTimeSheetsJob.executeInternal(jobExecutionContext));
+          () -> changeTimeSheetsStatusJob.executeInternal(jobExecutionContext));
     }
   }
 }

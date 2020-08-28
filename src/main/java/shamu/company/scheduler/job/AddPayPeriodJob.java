@@ -68,8 +68,9 @@ public class AddPayPeriodJob extends QuartzJobBean {
         payPeriodFrequencyService.findById(payFrequencyTypeId);
 
     final TimePeriod nextTimePeriod =
-        attendanceSetUpService.getNextPeriod(
-            currentTimePeriod, staticCompanyPayFrequencyType.getName(), company);
+        timePeriodService.save(
+            attendanceSetUpService.getNextPeriod(
+                currentTimePeriod, staticCompanyPayFrequencyType.getName(), company));
     final Timestamp nextPeriodEndDate = nextTimePeriod.getEndDate();
     final Timestamp nextPayDate =
         new Timestamp(nextPeriodEndDate.getTime() + DAYS_PAY_DATE_AFTER_PERIOD * MS_OF_ONE_DAY);
@@ -79,9 +80,9 @@ public class AddPayPeriodJob extends QuartzJobBean {
 
     final List<UserCompensation> userCompensationList =
         userCompensationService.listNewestEnrolledCompensation(companyId);
-    attendanceSetUpService.createTimeSheetsAndPeriod(
+    attendanceSetUpService.createTimeSheets(
         nextTimePeriod, TimeSheetStatus.ACTIVE, userCompensationList);
-    attendanceSetUpService.scheduleTasksForNextPeriod(
-        companyId, nextPeriodEndDate, companyTaSetting.getTimeZone().getName());
+    attendanceSetUpService.scheduleTasks(
+        companyId, nextTimePeriod, companyTaSetting.getTimeZone().getName());
   }
 }

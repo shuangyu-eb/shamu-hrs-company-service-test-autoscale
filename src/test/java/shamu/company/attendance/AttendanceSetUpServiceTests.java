@@ -28,7 +28,6 @@ import shamu.company.attendance.service.PayPeriodFrequencyService;
 import shamu.company.attendance.service.TimePeriodService;
 import shamu.company.attendance.service.TimeSheetService;
 import shamu.company.common.service.PayrollDetailService;
-import shamu.company.common.validation.YesterdayOrLaterValidatorTests;
 import shamu.company.company.entity.Company;
 import shamu.company.company.entity.Office;
 import shamu.company.company.entity.OfficeAddress;
@@ -54,6 +53,7 @@ import shamu.company.user.repository.UserRepository;
 import shamu.company.user.service.UserCompensationService;
 import shamu.company.user.service.UserService;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -180,6 +180,7 @@ public class AttendanceSetUpServiceTests {
 
   @Nested
   class saveAttendanceDetails {
+    TimePeriod timePeriod = new TimePeriod();
     TimeAndAttendanceDetailsDto timeAndAttendanceDetailsDto = new TimeAndAttendanceDetailsDto();
     String companyId = "testCompanyId";
     String userId = "testUserId";
@@ -208,6 +209,7 @@ public class AttendanceSetUpServiceTests {
       jobUser.setOffice(office);
       staticTimezone.setName("Hongkong");
       companyTaSetting.setTimeZone(staticTimezone);
+      timePeriod.setEndDate(new Timestamp(new Date().getTime()));
     }
 
     @Test
@@ -223,6 +225,7 @@ public class AttendanceSetUpServiceTests {
           .thenReturn(companyTaSetting);
       Mockito.when(staticTimeZoneRepository.findByName("front-end-timezone"))
           .thenReturn(staticTimezone);
+      Mockito.when(timePeriodService.save(Mockito.any())).thenReturn(timePeriod);
       assertThatCode(
               () ->
                   attendanceSetUpService.saveAttendanceDetails(
@@ -252,6 +255,7 @@ public class AttendanceSetUpServiceTests {
       Mockito.when(timeSheetService.saveAll(Mockito.any())).thenReturn(Mockito.any());
       Mockito.when(staticTimeZoneRepository.findByName("front-end-timezone"))
           .thenReturn(staticTimezone);
+      Mockito.when(timePeriodService.save(Mockito.any())).thenReturn(timePeriod);
       assertThatCode(
               () ->
                   attendanceSetUpService.saveAttendanceDetails(

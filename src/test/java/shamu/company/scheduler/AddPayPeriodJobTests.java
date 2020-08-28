@@ -98,6 +98,7 @@ public class AddPayPeriodJobTests {
       Mockito.when(payPeriodFrequencyService.findById("id")).thenReturn(payFrequencyType);
       Mockito.when(attendanceSetUpService.getNextPeriod(timePeriod, "WEEKLY", company))
           .thenReturn(timePeriod);
+      Mockito.when(timePeriodService.save(timePeriod)).thenReturn(timePeriod);
       assertThatCode(() -> addPayPeriodJob.executeInternal(jobExecutionContext))
           .doesNotThrowAnyException();
     }

@@ -6,6 +6,7 @@ import shamu.company.attendance.entity.TimeSheetPeriodPojo;
 import shamu.company.common.repository.BaseRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface TimePeriodRepository extends BaseRepository<TimePeriod, String> {
   String TIME_SHEET_PERIOD_QUERY =
@@ -37,4 +38,7 @@ public interface TimePeriodRepository extends BaseRepository<TimePeriod, String>
 
   @Query(value = "select tp from TimePeriod tp where tp.company.id = ?1 order by tp.startDate desc")
   List<TimePeriod> findByCompanyId(String companyId);
+
+  @Override
+  Optional<TimePeriod> findById(String id);
 }

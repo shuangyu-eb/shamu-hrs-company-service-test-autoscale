@@ -1,22 +1,6 @@
 package shamu.company.user;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-
-
 import com.auth0.json.auth.CreatedUser;
-import java.sql.Date;
-import java.sql.Timestamp;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import javax.persistence.EntityManager;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,7 +10,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.powermock.reflect.Whitebox;
 import org.springframework.web.multipart.MultipartFile;
 import org.thymeleaf.ITemplateEngine;
 import shamu.company.admin.entity.SystemAnnouncement;
@@ -96,6 +79,22 @@ import shamu.company.user.service.UserRoleService;
 import shamu.company.user.service.UserService;
 import shamu.company.user.service.UserStatusService;
 import shamu.company.utils.UuidUtil;
+
+import javax.persistence.EntityManager;
+import java.sql.Date;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 class UserServiceTests {
 
@@ -389,7 +388,11 @@ class UserServiceTests {
       Mockito.verify(userRepository, Mockito.times(1)).save(user);
       Mockito.verify(quartzJobScheduler, Mockito.times(1))
           .addOrUpdateJobSchedule(
-              Mockito.any(), Mockito.anyString(), Mockito.anyMap(), Mockito.any());
+              Mockito.any(),
+              Mockito.anyString(),
+              Mockito.anyString(),
+              Mockito.anyMap(),
+              Mockito.any());
     }
   }
 
@@ -460,17 +463,16 @@ class UserServiceTests {
       userPersonalInformation.setSsn("1111");
       userPersonalInformation.setBirthDate(new Date(123));
       user.setUserPersonalInformation(userPersonalInformation);
-      UserAddress userAddress = new UserAddress();
+      final UserAddress userAddress = new UserAddress();
       userAddress.setCity("112");
       userAddress.setCountry(new Country());
       userAddress.setStateProvince(new StateProvince());
       userAddress.setStreet1("123");
       Mockito.when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-      Mockito.when(userAddressService.findUserAddressByUserId(user.getId())).thenReturn(userAddress);
+      Mockito.when(userAddressService.findUserAddressByUserId(user.getId()))
+          .thenReturn(userAddress);
       Assertions.assertTrue(userService.checkPersonalInfoComplete(userId));
     }
-
-
   }
 
   @Nested
@@ -652,10 +654,13 @@ class UserServiceTests {
       persistedUser.getUserPersonalInformation().setLastName("L");
       Mockito.when(userRepository.save(Mockito.any())).thenReturn(persistedUser);
       Mockito.doNothing().when(secretHashRepository).generateCompanySecretByCompanyId("companyId");
-      com.auth0.json.mgmt.users.User user = new com.auth0.json.mgmt.users.User();
-      CreatedUser createdUser = new CreatedUser();
+      final com.auth0.json.mgmt.users.User user = new com.auth0.json.mgmt.users.User();
+      final CreatedUser createdUser = new CreatedUser();
       Mockito.when(auth0Helper.signUp(Mockito.any(), Mockito.any())).thenReturn(createdUser);
-      Mockito.when(auth0Helper.updateAuthUserAppMetaData(Mockito.anyString(), Mockito.any(), Mockito.anyString())).thenReturn(user);
+      Mockito.when(
+              auth0Helper.updateAuthUserAppMetaData(
+                  Mockito.anyString(), Mockito.any(), Mockito.anyString()))
+          .thenReturn(user);
       userService.signUp(userSignUpDto);
       Mockito.verify(userRepository, Mockito.times(1)).save(Mockito.any());
     }

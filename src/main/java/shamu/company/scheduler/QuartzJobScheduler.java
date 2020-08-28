@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 import shamu.company.scheduler.exception.QuartzException;
 import shamu.company.utils.JsonUtil;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,9 +23,6 @@ import static org.quartz.TriggerBuilder.newTrigger;
 public class QuartzJobScheduler {
 
   private final Scheduler scheduler;
-  private static final String ONCE_TIME_JOB_GROUP = "ONCE_TIME_JOB_GROUP";
-  private static final String ONCE_TIME_TRIGGER_GROUP = "ONCE_TIME_TRIGGER_GROUP";
-  private static final String DATE_FORMAT = "MM/dd/yyyy";
 
   @Autowired
   QuartzJobScheduler(final Scheduler scheduler) {
@@ -40,23 +36,21 @@ public class QuartzJobScheduler {
   public void addOrUpdateJobSchedule(
       final Class<? extends QuartzJobBean> jobClass,
       String jobName,
+      final String groupName,
       final Map<String, Object> jobParameter,
       final Date startDate) {
-    final SimpleDateFormat formatter = new SimpleDateFormat(DATE_FORMAT);
-    jobName += "_" + formatter.format(startDate);
+    jobName += "_" + startDate.getTime();
 
     final String triggerName = jobName;
+    final SimpleTrigger trigger = assembleSimpleTrigger(jobName, groupName, triggerName, startDate);
+    final TriggerKey triggerKey = new TriggerKey(triggerName, groupName);
 
-    final JobDetail jobDetail =
-        assembleJobDetail(jobClass, jobName, formatValuesToString(jobParameter));
-
-    final SimpleTrigger trigger = assembleSimpleTrigger(jobName, triggerName, startDate);
-
-    final TriggerKey triggerKey = new TriggerKey(triggerName, ONCE_TIME_TRIGGER_GROUP);
     try {
       if (scheduler.checkExists(triggerKey)) {
         scheduler.rescheduleJob(triggerKey, trigger);
       } else {
+        final JobDetail jobDetail =
+            assembleJobDetail(jobClass, jobName, groupName, formatValuesToString(jobParameter));
         scheduler.scheduleJob(jobDetail, trigger);
       }
     } catch (final SchedulerException e) {
@@ -67,20 +61,24 @@ public class QuartzJobScheduler {
   private JobDetail assembleJobDetail(
       final Class<? extends QuartzJobBean> jobClass,
       final String jobName,
+      final String groupName,
       final Map<String, String> jobParameter) {
     return newJob(jobClass)
-        .withIdentity(jobName, ONCE_TIME_JOB_GROUP)
+        .withIdentity(jobName, groupName)
         .usingJobData(new JobDataMap(jobParameter))
         .build();
   }
 
   private SimpleTrigger assembleSimpleTrigger(
-      final String jobName, final String triggerName, final Date startDate) {
+      final String jobName,
+      final String groupName,
+      final String triggerName,
+      final Date startDate) {
     return (SimpleTrigger)
         newTrigger()
-            .withIdentity(triggerName, ONCE_TIME_TRIGGER_GROUP)
+            .withIdentity(triggerName, groupName)
             .startAt(startDate)
-            .forJob(jobName, ONCE_TIME_JOB_GROUP)
+            .forJob(jobName, groupName)
             .build();
   }
 

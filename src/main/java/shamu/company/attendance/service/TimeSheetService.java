@@ -107,11 +107,11 @@ public class TimeSheetService {
     timeSheetRepository.saveAll(timeSheets);
   }
 
-  public void updateCompanyLastPeriodTimeSheetsStatus(
-      final String companyId, final String fromStatus, final String toStatus) {
-    final TimePeriod lastTimePeriod = timePeriodService.findCompanyLastPeriod(companyId);
+  public void updateCompanyTimeSheetsStatus(
+      final String fromStatus, final String toStatus, final String timePeriodId) {
+    final TimePeriod timePeriod = timePeriodService.findById(timePeriodId).get();
     final List<TimeSheet> timeSheets =
-        findAllByPeriodId(lastTimePeriod.getId()).stream()
+        findAllByPeriodId(timePeriod.getId()).stream()
             .filter(timeSheet -> (timeSheet.getStatus().getName().equals(fromStatus)))
             .collect(Collectors.toList());
 
