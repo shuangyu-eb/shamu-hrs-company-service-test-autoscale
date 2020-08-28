@@ -77,3 +77,14 @@ databaseChangeLog:
         - dropColumn:
             columnName: last_payroll_payday
             tableName: company_ta_settings
+
+  - changeSet:
+      id: 1598493445000-1
+      author: michael-eb
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: removed_at
+                  type: datetime
+            tableName: timesheets

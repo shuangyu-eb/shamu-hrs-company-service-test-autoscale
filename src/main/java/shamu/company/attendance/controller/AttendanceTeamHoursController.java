@@ -133,7 +133,7 @@ public class AttendanceTeamHoursController extends BaseRestController {
     }
     if (!timeAndAttendanceDetailsDto.getRemovedUserIds().isEmpty()) {
       attendanceTeamHoursService.removeAttendanceDetails(
-          timeAndAttendanceDetailsDto.getRemovedUserIds());
+          timeAndAttendanceDetailsDto.getRemovedUserIds(), findCompanyId());
     }
     return new ResponseEntity(HttpStatus.OK);
   }

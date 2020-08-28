@@ -70,12 +70,13 @@ public interface TimeSheetRepository extends BaseRepository<TimeSheet, String> {
 
   List<TimeSheet> findAllByTimePeriodId(String timePeriodId);
 
-  @Modifying
-  @Transactional
+  TimeSheet findByTimePeriodIdAndEmployeeId(String periodId, String employeeId);
+
   @Query(
       value =
-          "delete from timesheets where hex(employee_id) in (?1) and status_id = "
-              + "(select id from static_timesheet_status where name = ?2)",
+          "select t.* from timesheets t "
+              + "join users u on u.id = t.employee_id "
+              + "where t.time_period_id = unhex(?1) and hex(u.id) in (?2)",
       nativeQuery = true)
-  void removeAllByEmployeeAndStatus(List<String> userIds, String statusName);
+  List<TimeSheet> findAllByTimePeriodIdAndEmployeeId(String periodId, List<String> employeeIds);
 }

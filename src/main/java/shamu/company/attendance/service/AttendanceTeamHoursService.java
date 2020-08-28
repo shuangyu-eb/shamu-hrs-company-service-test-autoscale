@@ -291,8 +291,9 @@ public class AttendanceTeamHoursService {
         .build();
   }
 
-  public void removeAttendanceDetails(final List<String> userIds) {
+  @Transactional
+  public void removeAttendanceDetails(final List<String> userIds, final String companyId) {
     employeesTaSettingService.removeEmployees(userIds);
-    timeSheetService.removeEmployees(userIds);
+    timeSheetService.removeUserFromAttendance(userIds, companyId);
   }
 }

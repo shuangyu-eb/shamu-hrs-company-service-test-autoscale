@@ -10,6 +10,7 @@ import shamu.company.attendance.dto.AllTimeEntryDto;
 import shamu.company.attendance.dto.AttendanceSummaryDto;
 import shamu.company.attendance.dto.TimeEntryDto;
 import shamu.company.attendance.dto.TimeSheetPeriodDto;
+import shamu.company.attendance.dto.UserAttendanceEnrollInfoDto;
 import shamu.company.attendance.entity.TimePeriod;
 import shamu.company.attendance.service.AttendanceMyHoursService;
 import shamu.company.attendance.service.AttendanceSetUpService;
@@ -96,5 +97,11 @@ public class AttendanceMyHoursController extends BaseRestController {
   @DeleteMapping("time-and-attendance/my-hours/time-entry/{entryId}")
   public void deleteMyHourEntry(@PathVariable final String entryId) {
     attendanceMyHoursService.deleteMyHourEntry(entryId);
+  }
+
+  @GetMapping("time-and-attendance/user-in-attendance/{userId}")
+  public UserAttendanceEnrollInfoDto findUserAttendanceEnrollInfo(
+      @PathVariable final String userId) {
+    return attendanceMyHoursService.findUserAttendanceEnrollInfo(userId, findCompanyId());
   }
 }

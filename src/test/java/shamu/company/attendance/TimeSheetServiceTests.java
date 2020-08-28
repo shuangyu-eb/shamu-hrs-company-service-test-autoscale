@@ -12,6 +12,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import shamu.company.attendance.entity.StaticTimesheetStatus.TimeSheetStatus;
+import shamu.company.attendance.entity.TimePeriod;
 import shamu.company.attendance.entity.TimeSheet;
 import shamu.company.attendance.repository.StaticTimesheetStatusRepository;
 import shamu.company.attendance.repository.TimeSheetRepository;
@@ -157,6 +158,22 @@ public class TimeSheetServiceTests {
             () ->
                 timeSheetService.findCompanyTimeSheetsByIdAndCompanyIdAndStatus(
                     Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.anyList()))
+        .doesNotThrowAnyException();
+  }
+
+  @Test
+  void removeUserFromAttendance() {
+    final List<String> userIds = new ArrayList<>();
+    userIds.add("1");
+    final TimePeriod timePeriod = new TimePeriod();
+    timePeriod.setId("1");
+    final List<TimeSheet> timeSheets = new ArrayList<>();
+    final TimeSheet timeSheet = new TimeSheet();
+    timeSheets.add(timeSheet);
+    Mockito.when(timePeriodService.findCompanyCurrentPeriod("1")).thenReturn(timePeriod);
+    Mockito.when(timeSheetRepository.findAllByTimePeriodIdAndEmployeeId("1", userIds))
+        .thenReturn(timeSheets);
+    assertThatCode(() -> timeSheetService.removeUserFromAttendance(userIds, "1"))
         .doesNotThrowAnyException();
   }
 }

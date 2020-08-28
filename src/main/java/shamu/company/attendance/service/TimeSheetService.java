@@ -10,7 +10,9 @@ import shamu.company.attendance.entity.TimeSheet;
 import shamu.company.attendance.repository.StaticTimesheetStatusRepository;
 import shamu.company.attendance.repository.TimeSheetRepository;
 import shamu.company.common.exception.errormapping.ResourceNotFoundException;
+import shamu.company.utils.DateUtil;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -122,7 +124,16 @@ public class TimeSheetService {
     return timeSheetRepository.findAllById(iterable);
   }
 
-  public void removeEmployees(final List<String> userIds) {
-    timeSheetRepository.removeAllByEmployeeAndStatus(userIds, TimeSheetStatus.ACTIVE.name());
+  public TimeSheet findTimeSheetByPeriodAndUser(final String periodId, final String userId) {
+    return timeSheetRepository.findByTimePeriodIdAndEmployeeId(periodId, userId);
+  }
+
+  public void removeUserFromAttendance(final List<String> userIds, final String companyId) {
+    final TimePeriod timePeriod = timePeriodService.findCompanyCurrentPeriod(companyId);
+    final Timestamp currentTime = DateUtil.getCurrentTime();
+    final List<TimeSheet> timeSheets =
+        timeSheetRepository.findAllByTimePeriodIdAndEmployeeId(timePeriod.getId(), userIds);
+    timeSheets.forEach(timeSheet -> timeSheet.setRemovedAt(currentTime));
+    timeSheetRepository.saveAll(timeSheets);
   }
 }

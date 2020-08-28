@@ -154,4 +154,15 @@ public class AttendanceMyHoursControllerTests extends WebControllerBaseTests {
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
+
+  @Test
+  void findUserAttendanceEnrollInfo() throws Exception {
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.get("/company/time-and-attendance/user-in-attendance/1")
+                    .headers(httpHeaders))
+            .andReturn();
+    assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+  }
 }

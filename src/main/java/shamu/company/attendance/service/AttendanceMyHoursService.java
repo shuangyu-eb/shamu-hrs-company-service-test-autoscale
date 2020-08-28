@@ -9,11 +9,14 @@ import shamu.company.attendance.dto.BreakTimeLogDto;
 import shamu.company.attendance.dto.LocalDateEntryDto;
 import shamu.company.attendance.dto.OvertimeDetailDto;
 import shamu.company.attendance.dto.TimeEntryDto;
+import shamu.company.attendance.dto.UserAttendanceEnrollInfoDto;
 import shamu.company.attendance.entity.CompanyTaSetting;
 import shamu.company.attendance.entity.EmployeeTimeEntry;
 import shamu.company.attendance.entity.EmployeeTimeLog;
+import shamu.company.attendance.entity.EmployeesTaSetting;
 import shamu.company.attendance.entity.StaticEmployeesTaTimeType;
 import shamu.company.attendance.entity.StaticTimesheetStatus;
+import shamu.company.attendance.entity.TimePeriod;
 import shamu.company.attendance.entity.TimeSheet;
 import shamu.company.attendance.entity.mapper.EmployeeTimeLogMapper;
 import shamu.company.attendance.repository.EmployeeTimeLogRepository;
@@ -75,6 +78,10 @@ public class AttendanceMyHoursService {
 
   private final StaticTimesheetStatusRepository staticTimesheetStatusRepository;
 
+  private final EmployeesTaSettingService employeesTaSettingService;
+
+  private final TimePeriodService timePeriodService;
+
   public AttendanceMyHoursService(
       final EmployeeTimeEntryService employeeTimeEntryService,
       final EmployeeTimeLogRepository employeeTimeLogRepository,
@@ -87,7 +94,9 @@ public class AttendanceMyHoursService {
       final TimeOffRequestService timeOffRequestService,
       final OvertimeService overtimeService,
       final GenericHoursService genericHoursService,
-      final StaticTimesheetStatusRepository staticTimesheetStatusRepository) {
+      final StaticTimesheetStatusRepository staticTimesheetStatusRepository,
+      final EmployeesTaSettingService employeesTaSettingService,
+      final TimePeriodService timePeriodService) {
     this.employeeTimeEntryService = employeeTimeEntryService;
     this.employeeTimeLogRepository = employeeTimeLogRepository;
     this.timeSheetService = timeSheetService;
@@ -100,6 +109,8 @@ public class AttendanceMyHoursService {
     this.overtimeService = overtimeService;
     this.genericHoursService = genericHoursService;
     this.staticTimesheetStatusRepository = staticTimesheetStatusRepository;
+    this.employeesTaSettingService = employeesTaSettingService;
+    this.timePeriodService = timePeriodService;
   }
 
   public void saveTimeEntry(final String userId, final TimeEntryDto timeEntryDto) {
@@ -402,5 +413,17 @@ public class AttendanceMyHoursService {
 
   public void deleteMyHourEntry(final String entryId) {
     employeeTimeEntryService.deleteMyHourEntry(entryId);
+  }
+
+  public UserAttendanceEnrollInfoDto findUserAttendanceEnrollInfo(
+      final String userId, final String companyId) {
+    final EmployeesTaSetting employeesTaSetting = employeesTaSettingService.findByUserId(userId);
+    final TimePeriod timePeriod = timePeriodService.findCompanyCurrentPeriod(companyId);
+    final TimeSheet timeSheet =
+        timeSheetService.findTimeSheetByPeriodAndUser(timePeriod.getId(), userId);
+    return UserAttendanceEnrollInfoDto.builder()
+        .isEnrolled(null != employeesTaSetting)
+        .deactivatedAt(timeSheet.getRemovedAt())
+        .build();
   }
 }

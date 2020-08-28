@@ -1,18 +1,5 @@
 package shamu.company.attendance;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
-
-import java.math.BigInteger;
-import java.sql.Timestamp;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -47,6 +34,7 @@ import shamu.company.attendance.service.EmployeeTimeEntryService;
 import shamu.company.attendance.service.EmployeesTaSettingService;
 import shamu.company.attendance.service.GenericHoursService;
 import shamu.company.attendance.service.OvertimeService;
+import shamu.company.attendance.service.TimePeriodService;
 import shamu.company.attendance.service.TimeSheetService;
 import shamu.company.company.entity.Company;
 import shamu.company.job.entity.CompensationFrequency;
@@ -57,6 +45,20 @@ import shamu.company.user.entity.UserCompensation;
 import shamu.company.user.service.UserCompensationService;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.DateUtil;
+
+import java.math.BigInteger;
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 public class AttendanceMyHoursServiceTests {
 
@@ -88,6 +90,8 @@ public class AttendanceMyHoursServiceTests {
 
   @Mock private GenericHoursService genericHoursService;
 
+  @Mock private TimePeriodService timePeriodService;
+
   @Mock private StaticTimesheetStatusRepository staticTimesheetStatusRepository;
 
   private AttendanceMyHoursService attendanceMyHoursService;
@@ -108,7 +112,9 @@ public class AttendanceMyHoursServiceTests {
             timeOffRequestService,
             overtimeService,
             genericHoursService,
-            staticTimesheetStatusRepository);
+            staticTimesheetStatusRepository,
+            employeesTaSettingService,
+            timePeriodService);
   }
 
   @Nested
@@ -375,6 +381,20 @@ public class AttendanceMyHoursServiceTests {
   @Test
   void deleteMyHourEntry() {
     assertThatCode(() -> attendanceMyHoursService.deleteMyHourEntry("1"))
+        .doesNotThrowAnyException();
+  }
+
+  @Test
+  void findUserAttendanceEnrollInfo() {
+    final EmployeesTaSetting employeesTaSetting = new EmployeesTaSetting();
+    final TimePeriod timePeriod = new TimePeriod();
+    timePeriod.setId("1");
+    final TimeSheet timeSheet = new TimeSheet();
+    timeSheet.setRemovedAt(Timestamp.valueOf(LocalDateTime.parse("2020-07-03T09:00:00")));
+    Mockito.when(employeesTaSettingService.findByUserId("1")).thenReturn(employeesTaSetting);
+    Mockito.when(timePeriodService.findCompanyCurrentPeriod("1")).thenReturn(timePeriod);
+    Mockito.when(timeSheetService.findTimeSheetByPeriodAndUser("1", "1")).thenReturn(timeSheet);
+    assertThatCode(() -> attendanceMyHoursService.findUserAttendanceEnrollInfo("1", "1"))
         .doesNotThrowAnyException();
   }
 }

@@ -1,13 +1,14 @@
 package shamu.company.attendance.entity;
 
-import java.sql.Timestamp;
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
 import lombok.Data;
 import shamu.company.common.entity.BaseEntity;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserCompensation;
+
+import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import java.sql.Timestamp;
 
 @Data
 @Entity
@@ -26,4 +27,6 @@ public class TimeSheet extends BaseEntity {
   @ManyToOne private UserCompensation userCompensation;
 
   @ManyToOne private TimePeriod timePeriod;
+
+  private Timestamp removedAt;
 }
