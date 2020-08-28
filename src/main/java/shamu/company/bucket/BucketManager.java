@@ -45,6 +45,12 @@ public class BucketManager {
     return buckets.getProxy(key, bucketConfiguration);
   }
 
+  public BucketConfiguration buildBucketConfiguration(final Bandwidth bandwidth) {
+    final ConfigurationBuilder configurationBuilder = Bucket4j.configurationBuilder();
+    return configurationBuilder.addLimit(bandwidth).build();
+  }
+
+
   public BucketConfiguration buildBucketConfiguration(final List<Bandwidth> bandwidths) {
     final ConfigurationBuilder configurationBuilder = Bucket4j.configurationBuilder();
     bandwidths.forEach(configurationBuilder::addLimit);

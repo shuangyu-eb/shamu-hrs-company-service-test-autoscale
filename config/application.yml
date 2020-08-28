@@ -79,3 +79,7 @@ user:
   invitationRateLimiting:
     maxPerMinute: 3
     maxPerDay: 200
+
+timeOff:
+  requestRateLimiting:
+    maxPerHour: 30
