@@ -466,6 +466,11 @@ public class AttendanceSetUpService {
         .forEach(
             employeeOvertimeDetailsDto -> {
               final String employeeId = employeeOvertimeDetailsDto.getEmployeeId();
+              final EmployeesTaSetting employeesTaSetting =
+                  employeesTaSettingRepository.findByEmployeeId(employeeId);
+              if (employeesTaSetting != null) {
+                return;
+              }
               final User user = userService.findById(employeeId);
               final int defaultMessagingOn = EmailNotificationStatus.ON.getValue();
               final Office office =
