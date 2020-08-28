@@ -33,7 +33,7 @@ import shamu.company.employee.interceptor.UserInvitationRateLimitingInterceptor;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.UuidUtil;
 
-class UserInvitationRateLimitingInterceptorTest {
+class UserInvitationRateLimitingInterceptorTests {
 
   @Mock private JwtDecoder decoder;
 
