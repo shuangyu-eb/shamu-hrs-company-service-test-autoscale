@@ -117,20 +117,19 @@ public class AttendanceSettingsService {
   public void updateEmployeeSettings(
       final String employeeId, final EmployeesTaSettingDto employeesTaSettingDto) {
     final Optional<User> employee = userRepository.findById(employeeId);
-    EmployeesTaSetting employeesTaSetting =
+    final EmployeesTaSetting employeesTaSetting =
         employeesTaSettingRepository.findByEmployeeId(employeeId);
-    if (employeesTaSetting == null) {
-      employeesTaSetting = new EmployeesTaSetting();
-    }
     if (employeesTaSettingDto.getTimeZone() != null && employee.isPresent()) {
       final User user = employee.get();
       user.setTimeZone(employeesTaSettingDto.getTimeZone());
       userRepository.save(user);
     }
-    employeesTaSettingDto.setEmployee(employee.orElseGet(User::new));
-    employeesTaSettingsMapper.updateFromEmployeeTaSettingsDto(
-        employeesTaSetting, employeesTaSettingDto);
-    employeesTaSettingRepository.save(employeesTaSetting);
+    if (employeesTaSetting != null) {
+      employeesTaSettingDto.setEmployee(employee.orElseGet(User::new));
+      employeesTaSettingsMapper.updateFromEmployeeTaSettingsDto(
+          employeesTaSetting, employeesTaSettingDto);
+      employeesTaSettingRepository.save(employeesTaSetting);
+    }
   }
 
   public int findApprovalDaysBeforePayroll(final String companyId) {
