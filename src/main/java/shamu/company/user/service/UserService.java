@@ -40,9 +40,7 @@ import shamu.company.attendance.entity.StaticTimesheetStatus.TimeSheetStatus;
 import shamu.company.attendance.service.OvertimeService;
 import shamu.company.authorization.Permission.Name;
 import shamu.company.authorization.PermissionUtils;
-import shamu.company.client.AddTenantDto;
 import shamu.company.client.DocumentClient;
-import shamu.company.client.PactsafeCompanyDto;
 import shamu.company.common.exception.errormapping.AlreadyExistsException;
 import shamu.company.common.exception.errormapping.EmailAlreadyVerifiedException;
 import shamu.company.common.exception.errormapping.ResourceNotFoundException;
@@ -543,18 +541,6 @@ public class UserService {
     userRepository.save(user);
 
     overtimeService.createDefaultPolicy(company);
-
-    addTenant();
-  }
-
-  public void addTenant() {
-    final Company company = companyService.getCompany();
-    final PactsafeCompanyDto companyDto =
-        PactsafeCompanyDto.builder().id(company.getId()).name(company.getName()).build();
-
-    final AddTenantDto tenantDto = AddTenantDto.builder().company(companyDto).build();
-
-    documentClient.addTenant(tenantDto);
   }
 
   private void saveCompanyBenefitsSetting() {
