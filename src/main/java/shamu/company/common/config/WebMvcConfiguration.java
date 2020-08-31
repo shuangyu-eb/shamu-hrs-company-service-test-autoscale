@@ -59,7 +59,7 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
     registry.addInterceptor(userInvitingRateLimitInterceptor).addPathPatterns("/company/employees");
     registry
         .addInterceptor(timeOffRequestRateLimitingInterceptor)
-        .addPathPatterns("/company/users/**/time-off-requests")
-        .addPathPatterns("/company/users/**/time-off-requests/approved");
+        .addPathPatterns("/company/users/*/time-off-requests")
+        .addPathPatterns("/company/users/*/time-off-requests/approved");
   }
 }
