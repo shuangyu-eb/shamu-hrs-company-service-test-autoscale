@@ -1,14 +1,15 @@
 package shamu.company.attendance.entity;
 
-import java.sql.Timestamp;
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import shamu.company.common.entity.BaseEntity;
+
+import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import java.sql.Timestamp;
 
 @Data
 @Entity
@@ -21,7 +22,7 @@ public class EmployeeTimeLog extends BaseEntity {
   private static final long serialVersionUID = 3098750609517123957L;
   private Timestamp start;
 
-  private int durationMin;
+  private Integer durationMin;
 
   @ManyToOne private StaticEmployeesTaTimeType timeType;
 

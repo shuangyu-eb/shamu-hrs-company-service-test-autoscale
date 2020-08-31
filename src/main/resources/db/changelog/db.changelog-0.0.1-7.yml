@@ -115,3 +115,161 @@ databaseChangeLog:
       changes:
         - sql:
             sql: delete from QRTZ_JOB_DETAILS where JOB_GROUP = 'ONCE_TIME_JOB_GROUP';
+
+  - changeSet:
+      id: 1598604559000-1
+      author: michael-eb
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  name: id
+                  type: binary(16)
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: policy_name
+                  type: varchar(32)
+              - column:
+                  name: company_id
+                  type: binary(16)
+              - column:
+                  name: universal
+                  type: TINYINT
+              - column:
+                  name: default_policy
+                  type: TINYINT
+              - column:
+                  name: active
+                  type: TINYINT
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: overtime_policies
+
+  - changeSet:
+      id: 1598604559000-2
+      author: michael-eb
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  name: id
+                  type: binary(16)
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: start
+                  type: int
+                  constraints:
+                    nullable:  false
+              - column:
+                  name: overtime_type_id
+                  type: binary(16)
+              - column:
+                  name: rate
+                  type: Decimal(3,2)
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: policy_details
+
+  - changeSet:
+      id: 1598604559000-3
+      author: michael-eb
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  name: id
+                  type: binary(16)
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+              - column:
+                  name: ref_id
+                  type: INT
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: static_overtime_types
+
+  - changeSet:
+      id: 1598604559000-4
+      author: michael-eb
+      preConditions:
+        onFail: WARN
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: overtime_policy_id
+                  type: binary(16)
+            tableName: user_compensations
+
+  - changeSet:
+      id: 1598604559000-5
+      author: michael-eb
+      changes:
+        - sql:
+            sql: create trigger ins_static_overtime_type before insert on static_overtime_types for each row set new.id = unhex(replace(uuid(), '-', ''));
+
+  - changeSet:
+      id: 1598604559000-6
+      author: michael-eb
+      runOnChange: true
+      changes:
+        - loadUpdateData:
+            columns:
+              - column:
+                  name: name
+                  type: STRING
+            file: db/changelog/data/static-overtime-type.csv
+            primaryKey: id
+            tableName: static_overtime_types
+
+
+  - changeSet:
+      id: 1598604559000-7
+      author: michael-eb
+      preConditions:
+        onFail: WARN
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: company_id
+            baseTableName: overtime_policies
+            constraintName: fk_overtime_policies_company_id
+            onDelete: CASCADE
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: companies
+        - addForeignKeyConstraint:
+            baseColumnNames: overtime_type_id
+            baseTableName: policy_details
+            constraintName: fk_policy_details_overtime_type_id
+            onDelete: SET NULL
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: static_overtime_types
+        - addForeignKeyConstraint:
+            baseColumnNames: overtime_policy_id
+            baseTableName: user_compensations
+            constraintName: fk_user_compensations_overtime_policy_id
+            onDelete: SET NULL
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: overtime_policies
+        - dropForeignKeyConstraint:
+            baseTableName: user_compensations
+            constraintName: fk_user_compensations_overtime_status
