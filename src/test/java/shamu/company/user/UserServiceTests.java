@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.thymeleaf.ITemplateEngine;
 import shamu.company.admin.entity.SystemAnnouncement;
 import shamu.company.admin.service.SystemAnnouncementsService;
+import shamu.company.attendance.entity.StaticTimesheetStatus;
 import shamu.company.authorization.PermissionUtils;
 import shamu.company.client.DocumentClient;
 import shamu.company.common.entity.Country;
@@ -87,6 +88,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -991,5 +993,41 @@ class UserServiceTests {
     Mockito.when(userRepository.findAllByCompanyId(Mockito.anyString())).thenReturn(mockedUsers);
     final List<User> users = userService.findRegisteredUsersByCompany("1");
     assertThat(users).isEmpty();
+  }
+
+  @Nested
+  class AttendanceUser {
+    String periodId = "test_period_id";
+    User notApprovedUser = new User();
+    Company company = new Company();
+    String companyId = "test_company_id";
+
+    @Test
+    void whenPeriodIdValid_listNotSubmitTimeSheetUser_shouldSucceed() {
+      Mockito.when(
+              userRepository.findUsersByPeriodIdAndTimeSheetStatus(
+                  periodId, StaticTimesheetStatus.TimeSheetStatus.ACTIVE.name()))
+          .thenReturn(new ArrayList<>());
+      assertThatCode(() -> userService.listNotSubmitTimeSheetsUsers(periodId))
+          .doesNotThrowAnyException();
+    }
+
+    @Test
+    void whenPeriodIdValid_listHasPendingTimeSheetsManagerAndAdmin_shouldSucceed() {
+      company.setId(companyId);
+      notApprovedUser.setCompany(company);
+      Mockito.when(
+              userRepository.findUsersByPeriodIdAndTimeSheetStatus(
+                  periodId, StaticTimesheetStatus.TimeSheetStatus.SUBMITTED.name()))
+          .thenReturn(Arrays.asList(notApprovedUser));
+      Mockito.when(
+              userRepository.findManagersByPeriodIdAndTimeSheetStatus(
+                  periodId, StaticTimesheetStatus.TimeSheetStatus.SUBMITTED.name()))
+          .thenReturn(new ArrayList<>());
+      Mockito.when(userRepository.findUsersByCompanyIdAndUserRole(companyId, Role.ADMIN.name()))
+          .thenReturn(new ArrayList<>());
+      assertThatCode(() -> userService.listHasPendingTimeSheetsManagerAndAdmin(periodId))
+          .doesNotThrowAnyException();
+    }
   }
 }

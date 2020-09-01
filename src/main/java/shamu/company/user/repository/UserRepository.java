@@ -139,4 +139,23 @@ public interface UserRepository extends JpaRepository<User, String>, UserCustomR
               + "and u.company_id = unhex(?1)",
       nativeQuery = true)
   List<User> findAttendanceEnrolledUsersByCompanyId(String companyId);
+
+  @Query(
+      value =
+          "select u.* from users u join timesheets t "
+              + "on u.id = t.employee_id and t.time_period_id = unhex(?1) "
+              + "join static_timesheet_status sts "
+              + "on sts.name = (?2) and t.status_id = sts.id",
+      nativeQuery = true)
+  List<User> findUsersByPeriodIdAndTimeSheetStatus(String periodId, String timeSheetStatus);
+
+  @Query(
+      value =
+          "select u1.* from users u1 where u1.id in "
+              + "(select distinct u2.manager_user_id as manager_id from users u2 join timesheets t "
+              + "on u2.id = t.employee_id and t.time_period_id = unhex(?1) "
+              + "join static_timesheet_status sts "
+              + "on sts.name = (?2) and t.status_id = sts.id) ",
+      nativeQuery = true)
+  List<User> findManagersByPeriodIdAndTimeSheetStatus(String periodId, String timeSheetStatus);
 }

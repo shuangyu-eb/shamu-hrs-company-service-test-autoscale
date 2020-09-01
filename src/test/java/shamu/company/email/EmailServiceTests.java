@@ -31,9 +31,11 @@ import shamu.company.utils.UuidUtil;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 class EmailServiceTests {
 
@@ -400,6 +402,30 @@ class EmailServiceTests {
       email = "123@example.com";
       final String result = emailService.getEncodedEmailAddress(email);
       assertThat(result).isNotEqualTo("");
+    }
+  }
+
+  @Nested
+  class AttendanceEmail {
+    String periodId = "test_period_id";
+    Timestamp sendDate = new Timestamp(new Date().getTime());
+
+    @Test
+    void caseSubmit_shouldSucceed() {
+      assertThatCode(
+              () ->
+                  emailService.getAttendanceNotificationEmails(
+                      periodId, EmailService.EmailNotification.SUBMIT_TIME_SHEET, sendDate))
+          .doesNotThrowAnyException();
+    }
+
+    @Test
+    void casePayRoll_shouldSucceed() {
+      assertThatCode(
+              () ->
+                  emailService.getAttendanceNotificationEmails(
+                      periodId, EmailService.EmailNotification.RUN_PAYROLL, sendDate))
+          .doesNotThrowAnyException();
     }
   }
 }

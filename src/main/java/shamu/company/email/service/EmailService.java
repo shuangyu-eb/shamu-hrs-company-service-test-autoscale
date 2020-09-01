@@ -47,6 +47,46 @@ import java.util.stream.Collectors;
 @Service
 public class EmailService {
   private static final String FRONT_END_ADDRESS = "frontEndAddress";
+  private static final String SUBJECT_TEXT = "subjectText";
+  private static final String CONTENT_TEXT = "contentText";
+  private static final String BUTTON_TEXT = "buttonText";
+
+  public enum EmailNotification {
+    SUBMIT_TIME_SHEET(
+        "You have hours pending approval",
+        "Your company attendance hours need to be approved and submitted within the next 8 hours.",
+        "Review Attendance Hours"),
+    RUN_PAYROLL(
+        "Hours Pending Approval",
+        "There are attendance hours pending your approval that are due in 8 hours.",
+        "Approve Hours"),
+    RUN_PAYROLL_TIME_OUT(
+        "Hours Past Due",
+        "There are attendance hours pending your approval that are past due.",
+        "Approve Hours");
+    private final String subjectContext;
+    private final String contentContext;
+    private final String buttonContext;
+
+    EmailNotification(
+        final String subjectContext, final String contentContext, final String buttonContext) {
+      this.subjectContext = subjectContext;
+      this.contentContext = contentContext;
+      this.buttonContext = buttonContext;
+    }
+
+    public String getSubjectContext() {
+      return subjectContext;
+    }
+
+    public String getContentContext() {
+      return contentContext;
+    }
+
+    public String getButtonText() {
+      return buttonContext;
+    }
+  }
 
   private static final String NEW_ADMIN_ADDED_TO_HRIS = "New Admin Added to HRIS";
 
@@ -148,7 +188,7 @@ public class EmailService {
         sendDate == null ? Timestamp.valueOf(LocalDateTime.now()) : sendDate);
   }
 
-  public List<Email> getFromSystemEmails(
+  private List<Email> getFromSystemEmails(
       final List<User> users,
       final String subject,
       final String content,
@@ -378,10 +418,35 @@ public class EmailService {
     scheduleEmail(email);
   }
 
-  public String getAttendanceSubmitNotificationEmailContent() {
+  public List<Email> getAttendanceNotificationEmails(
+      final String periodId, final EmailNotification emailNotification, final Timestamp sendDate) {
+    List<User> users = new ArrayList<>();
+    switch (emailNotification) {
+      case SUBMIT_TIME_SHEET:
+        users = userService.listNotSubmitTimeSheetsUsers(periodId);
+        break;
+      case RUN_PAYROLL:
+      case RUN_PAYROLL_TIME_OUT:
+        users = userService.listHasPendingTimeSheetsManagerAndAdmin(periodId);
+        break;
+      default:
+        break;
+    }
+
+    return getFromSystemEmails(
+        users,
+        emailNotification.getSubjectContext(),
+        getAttendanceNotificationEmailContent(emailNotification),
+        sendDate);
+  }
+
+  private String getAttendanceNotificationEmailContent(final EmailNotification emailNotification) {
     final Context context = new Context();
     context.setVariable(FRONT_END_ADDRESS, frontEndAddress);
-    return templateEngine.process("attendance_submit_notification.html", context);
+    context.setVariable(SUBJECT_TEXT, emailNotification.getSubjectContext());
+    context.setVariable(CONTENT_TEXT, emailNotification.getContentContext());
+    context.setVariable(BUTTON_TEXT, emailNotification.getButtonText());
+    return templateEngine.process("attendance_notification.html", context);
   }
 
   public void sendEmailToOtherAdminsWhenNewOneAdded(

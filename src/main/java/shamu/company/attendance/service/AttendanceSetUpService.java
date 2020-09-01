@@ -30,6 +30,7 @@ import shamu.company.company.repository.CompanyRepository;
 import shamu.company.company.service.CompanyService;
 import shamu.company.email.entity.Email;
 import shamu.company.email.service.EmailService;
+import shamu.company.email.service.EmailService.EmailNotification;
 import shamu.company.helpers.googlemaps.GoogleMapsHelper;
 import shamu.company.job.entity.CompensationFrequency;
 import shamu.company.job.entity.JobUser;
@@ -37,6 +38,7 @@ import shamu.company.job.entity.mapper.JobUserMapper;
 import shamu.company.job.repository.JobUserRepository;
 import shamu.company.scheduler.QuartzJobScheduler;
 import shamu.company.scheduler.job.AddPayPeriodJob;
+import shamu.company.scheduler.job.AttendanceEmailNotificationJob;
 import shamu.company.scheduler.job.ChangeTimeSheetsStatusJob;
 import shamu.company.timeoff.dto.PaidHolidayDto;
 import shamu.company.timeoff.service.PaidHolidayService;
@@ -328,27 +330,50 @@ public class AttendanceSetUpService {
     scheduleChangeTimeSheetsStatus(
         currentPeriod, TimeSheetStatus.ACTIVE, TimeSheetStatus.SUBMITTED, autoSubmitDate);
 
-    final Date autoApproveDate =
-        getAutoApproveDate(companyId, currentPeriodEndDate, companyTimeZone);
-    scheduleChangeTimeSheetsStatus(
-        currentPeriod, TimeSheetStatus.SUBMITTED, TimeSheetStatus.APPROVED, autoApproveDate);
+    final String currentPeriodId = currentPeriod.getId();
+    scheduleEmailNotification(
+        currentPeriodId,
+        EmailNotification.SUBMIT_TIME_SHEET,
+        getPreNotificationDate(autoSubmitDate));
 
-    final Timestamp emailNotificationDate =
-        new Timestamp(
-            autoSubmitDate.getTime() - HOURS_EMAIL_NOTIFICATION_BEFORE_SUBMIT * MS_OF_ONE_HOUR);
-    scheduleEmailSubmitNotification(companyId, emailNotificationDate);
+    final Date runPayrollDdl = getRunPayrollDdl(companyId, currentPeriodEndDate, companyTimeZone);
+    scheduleEmailNotification(
+        currentPeriodId, EmailNotification.RUN_PAYROLL, getPreNotificationDate(runPayrollDdl));
+    scheduleEmailNotification(
+        currentPeriodId, EmailNotification.RUN_PAYROLL_TIME_OUT, runPayrollDdl);
   }
 
-  private void scheduleEmailSubmitNotification(
-      final String companyId, final Timestamp executeDate) {
-    final List<User> users = userService.listCompanyAttendanceEnrolledUsers(companyId);
+  private void scheduleEmailNotification(
+      final String periodId, final EmailNotification emailNotification, final Date sendDate) {
+    final Map<String, Object> parameter =
+        assembleEmailParameter(periodId, emailNotification, sendDate);
+    quartzJobScheduler.addOrUpdateJobSchedule(
+        AttendanceEmailNotificationJob.class,
+        periodId,
+        emailNotification.name() + "_emails",
+        parameter,
+        sendDate);
+  }
+
+  private Date getPreNotificationDate(final Date ddl) {
+    return new Date(ddl.getTime() - HOURS_EMAIL_NOTIFICATION_BEFORE_SUBMIT * MS_OF_ONE_HOUR);
+  }
+
+  public void sendEmailNotification(
+      final String periodId, final EmailNotification emailNotification, final Date sendDate) {
     final List<Email> emails =
-        emailService.getFromSystemEmails(
-            users,
-            "You have hours pending approval",
-            emailService.getAttendanceSubmitNotificationEmailContent(),
-            executeDate);
+        emailService.getAttendanceNotificationEmails(
+            periodId, emailNotification, new Timestamp(sendDate.getTime()));
     emailService.saveAndScheduleSendEmails(emails);
+  }
+
+  private Map<String, Object> assembleEmailParameter(
+      final String periodId, final EmailNotification emailNotification, final Date sendDate) {
+    final Map<String, Object> jobParameter = new HashMap<>();
+    jobParameter.put("periodId", periodId);
+    jobParameter.put("emailNotification", emailNotification);
+    jobParameter.put("sendDate", sendDate);
+    return jobParameter;
   }
 
   private Map<String, Object> assembleCompanyIdParameter(final String companyId) {
@@ -440,7 +465,7 @@ public class AttendanceSetUpService {
     attendanceSettingsService.saveCompanyTaSetting(companyTaSetting);
   }
 
-  public Date getAutoApproveDate(
+  public Date getRunPayrollDdl(
       final String companyId, final Date currentPeriodEndDate, final String companyTimeZone) {
     final CompanyTaSetting companyTaSetting =
         attendanceSettingsService.findCompanySettings(companyId);

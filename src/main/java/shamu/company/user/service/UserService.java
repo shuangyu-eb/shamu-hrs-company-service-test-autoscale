@@ -19,6 +19,7 @@ import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.Context;
 import shamu.company.admin.entity.SystemAnnouncement;
 import shamu.company.admin.service.SystemAnnouncementsService;
+import shamu.company.attendance.entity.StaticTimesheetStatus.TimeSheetStatus;
 import shamu.company.authorization.Permission.Name;
 import shamu.company.authorization.PermissionUtils;
 import shamu.company.client.AddTenantDto;
@@ -956,6 +957,45 @@ public class UserService {
 
   public List<User> listCompanyAttendanceEnrolledUsers(final String companyId) {
     return userRepository.findAttendanceEnrolledUsersByCompanyId(companyId);
+  }
+
+  public List<User> listNotSubmitTimeSheetsUsers(final String periodId) {
+    return userRepository.findUsersByPeriodIdAndTimeSheetStatus(
+        periodId, TimeSheetStatus.ACTIVE.name());
+  }
+
+  public List<User> listHasPendingTimeSheetsManagerAndAdmin(final String periodId) {
+    final List<User> notApprovedUsers =
+        userRepository.findUsersByPeriodIdAndTimeSheetStatus(
+            periodId, TimeSheetStatus.SUBMITTED.name());
+    if (CollectionUtils.isEmpty(notApprovedUsers)) {
+      return new ArrayList<>();
+    }
+
+    final List<User> managers =
+        userRepository.findManagersByPeriodIdAndTimeSheetStatus(
+            periodId, TimeSheetStatus.SUBMITTED.name());
+    final List<User> admins =
+        userRepository.findUsersByCompanyIdAndUserRole(
+            notApprovedUsers.get(0).getCompany().getId(), Role.ADMIN.name());
+    final boolean managersIsEmpty = CollectionUtils.isEmpty(managers);
+    final boolean adminsIsEmpty = CollectionUtils.isEmpty(admins);
+    if (managersIsEmpty && adminsIsEmpty) {
+      return new ArrayList<>();
+    }
+    if (managersIsEmpty) {
+      return admins;
+    }
+    if (adminsIsEmpty) {
+      return managers;
+    }
+    admins.forEach(
+        admin -> {
+          if (!managers.contains(admin)) {
+            managers.add(admin);
+          }
+        });
+    return managers;
   }
 
   public boolean isUserInvitationCapabilityFrozen(final String userId) {
