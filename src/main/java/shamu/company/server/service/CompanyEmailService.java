@@ -1,18 +1,5 @@
 package shamu.company.server.service;
 
-import static shamu.company.server.dto.DocumentRequestEmailDto.DocumentRequestType.ACKNOWLEDGE;
-import static shamu.company.server.dto.DocumentRequestEmailDto.DocumentRequestType.SIGN;
-import static shamu.company.server.dto.DocumentRequestEmailDto.DocumentRequestType.VIEW;
-
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,6 +16,21 @@ import shamu.company.user.entity.UserPersonalInformation;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.AvatarUtil;
 import shamu.company.utils.DateUtil;
+
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
+import static shamu.company.server.dto.DocumentRequestEmailDto.DocumentRequestType.ACKNOWLEDGE;
+import static shamu.company.server.dto.DocumentRequestEmailDto.DocumentRequestType.SIGN;
+import static shamu.company.server.dto.DocumentRequestEmailDto.DocumentRequestType.VIEW;
 
 @Service
 public class CompanyEmailService {
@@ -123,55 +125,51 @@ public class CompanyEmailService {
       variables.put("message", "\"" + message + "\"");
     }
 
-    final ZonedDateTime zonedDateTime =
-        ZonedDateTime.of(
-            LocalDateTime.now(), ZoneId.of("UTC"));
-    final String currentYear =  DateUtil.formatDateTo(
-        zonedDateTime.withZoneSameInstant(ZoneId.of("America/Managua")).toLocalDateTime(),
-        "YYYY");
+    final ZonedDateTime zonedDateTime = ZonedDateTime.of(LocalDateTime.now(), ZoneId.of("UTC"));
+    final String currentYear =
+        DateUtil.formatDateTo(
+            zonedDateTime.withZoneSameInstant(ZoneId.of("America/Managua")).toLocalDateTime(),
+            "YYYY");
 
-    variables.put("currentYear",currentYear);
+    variables.put("currentYear", currentYear);
 
     final DocumentRequestType type = documentRequestEmailDto.getType();
     final List<String> recipientUserIds = documentRequestEmailDto.getRecipientUserIds();
+    String template = "";
+    String subject = "";
+    if (SIGN.equals(type)) {
+      template = "document_request_signature.html";
+      subject = "Signature Request";
+    } else if (ACKNOWLEDGE.equals(type)) {
+      template = "document_request_acknowledge.html";
+      subject = "Acknowledgement Request";
+    } else if (VIEW.equals(type)) {
+      final UserPersonalInformation personalInformation = sender.getUserPersonalInformation();
+      final String firstName = personalInformation.getFirstName();
+      final String preferredName = personalInformation.getPreferredName();
+      template = "document_request_no_action.html";
+      subject =
+          (StringUtils.isEmpty(preferredName) ? firstName : preferredName) + " Sent You a Document";
+    }
+
+    final String emailContent =
+        templateEngine.process(template, new Context(Locale.ENGLISH, variables));
+    final String finalSubject = subject;
+    final List<Email> emails = new ArrayList<>();
     recipientUserIds.forEach(
         recipientUserId -> {
           final User recipient = userService.findById(recipientUserId);
-          String template = "";
-          String subject = "";
-          if (SIGN.equals(type)) {
-            template = "document_request_signature.html";
-            subject = "Signature Request";
-          } else if (ACKNOWLEDGE.equals(type)) {
-            template = "document_request_acknowledge.html";
-            subject = "Acknowledgement Request";
-          } else if (VIEW.equals(type)) {
-            final UserPersonalInformation personalInformation = sender.getUserPersonalInformation();
-            final String firstName = personalInformation.getFirstName();
-            final String preferredName = personalInformation.getPreferredName();
-            template = "document_request_no_action.html";
-            subject =
-                (StringUtils.isEmpty(preferredName) ? firstName : preferredName)
-                    + " Sent You a Document";
-          }
           final Email email =
               new Email(
                   applicationConfig.getSystemEmailAddress(),
                   sender.getUserPersonalInformation().getName(),
                   recipient.getUserContactInformation().getEmailWork(),
                   recipient.getUserPersonalInformation().getName(),
-                  subject);
-          sendEmail(variables, template, email);
+                  finalSubject);
+          email.setSendDate(new Timestamp(new Date().getTime()));
+          email.setContent(emailContent);
+          emails.add(email);
         });
-  }
-
-  private void sendEmail(
-      final Map<String, Object> variables, final String template, final Email email) {
-    final String emailContent =
-        templateEngine.process(template, new Context(Locale.ENGLISH, variables));
-    email.setSendDate(new Timestamp(new Date().getTime()));
-    email.setContent(emailContent);
-
-    emailService.saveAndScheduleEmail(email);
+    emailService.saveAndScheduleEmails(emails);
   }
 }

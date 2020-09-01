@@ -7,7 +7,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.powermock.reflect.Whitebox;
-import org.springframework.scheduling.TaskScheduler;
 import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.Context;
 import shamu.company.company.entity.Company;
@@ -16,7 +15,6 @@ import shamu.company.email.event.EmailEvent;
 import shamu.company.email.event.EmailStatus;
 import shamu.company.email.repository.EmailRepository;
 import shamu.company.email.service.EmailService;
-import shamu.company.helpers.EmailHelper;
 import shamu.company.helpers.s3.AwsHelper;
 import shamu.company.scheduler.QuartzJobScheduler;
 import shamu.company.user.dto.CurrentUserDto;
@@ -41,10 +39,6 @@ class EmailServiceTests {
 
   @Mock private EmailRepository emailRepository;
 
-  @Mock private TaskScheduler taskScheduler;
-
-  @Mock private EmailHelper emailHelper;
-
   @Mock private ITemplateEngine templateEngine;
 
   @Mock private UserService userService;
@@ -66,8 +60,6 @@ class EmailServiceTests {
     emailService =
         new EmailService(
             emailRepository,
-            taskScheduler,
-            emailHelper,
             emailRetryLimit,
             templateEngine,
             userService,
@@ -198,6 +190,7 @@ class EmailServiceTests {
 
     @Test
     void whenSaveAndScheduleEmail_thenShouldSuccess() {
+      Mockito.when(emailRepository.save(Mockito.any())).thenReturn(new Email());
       emailService.saveAndScheduleEmail(email);
       Mockito.verify(emailRepository, Mockito.times(1)).save(Mockito.any());
     }
@@ -272,6 +265,7 @@ class EmailServiceTests {
       information.setFirstName("firstName");
       information.setLastName("lastName");
       user.setUserPersonalInformation(information);
+      Mockito.when(emailRepository.save(Mockito.any())).thenReturn(new Email());
       final String token = emailService.handleEmail(user);
       assertThat(token).isNotNull();
     }

@@ -24,7 +24,8 @@ public class SendEmailJob extends QuartzJobBean {
 
   @Override
   public void executeInternal(final JobExecutionContext jobExecutionContext) {
-    final Email email = QuartzUtil.getParameter(jobExecutionContext, "email", Email.class);
+    final String emailId = QuartzUtil.getParameter(jobExecutionContext, "emailId", String.class);
+    final Email email = emailService.get(emailId);
     try {
       emailHelper.send(email);
       email.setSendDate(new Timestamp(new Date().getTime()));

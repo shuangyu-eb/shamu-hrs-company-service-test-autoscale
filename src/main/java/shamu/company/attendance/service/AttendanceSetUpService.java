@@ -364,7 +364,7 @@ public class AttendanceSetUpService {
     final List<Email> emails =
         emailService.getAttendanceNotificationEmails(
             periodId, emailNotification, new Timestamp(sendDate.getTime()));
-    emailService.saveAndScheduleSendEmails(emails);
+    emailService.saveAndScheduleEmails(emails);
   }
 
   private Map<String, Object> assembleEmailParameter(

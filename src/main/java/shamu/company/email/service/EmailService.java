@@ -7,15 +7,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.Context;
+import shamu.company.common.exception.errormapping.ResourceNotFoundException;
 import shamu.company.email.entity.Email;
 import shamu.company.email.event.EmailEvent;
 import shamu.company.email.event.EmailStatus;
 import shamu.company.email.repository.EmailRepository;
-import shamu.company.helpers.EmailHelper;
 import shamu.company.helpers.s3.AwsHelper;
 import shamu.company.scheduler.QuartzJobScheduler;
 import shamu.company.scheduler.job.SendEmailJob;
@@ -120,8 +119,6 @@ public class EmailService {
   @Autowired
   public EmailService(
       final EmailRepository emailRepository,
-      final TaskScheduler taskScheduler,
-      final EmailHelper emailHelper,
       @Value("${email.retryLimit}") final Integer emailRetryLimit,
       final ITemplateEngine templateEngine,
       @Lazy final UserService userService,
@@ -143,32 +140,45 @@ public class EmailService {
     return emailRepository.saveAll(emails);
   }
 
+  public Email get(final String emailId) {
+    return emailRepository
+        .findById(emailId)
+        .orElseThrow(
+            () ->
+                new ResourceNotFoundException(
+                    String.format("Email with id %s not found!", emailId), emailId, "email"));
+  }
+
   public List<Email> findAllUnfinishedTasks() {
     return emailRepository.findAllUnfinishedTasks(emailRetryLimit);
   }
 
-  public void scheduleEmail(final Email email) {
+  private void scheduleEmail(final Email email) {
     final Timestamp sendDate = email.getSendDate();
-    final String messageId = UuidUtil.getUuidString();
-    email.setMessageId(messageId);
     final Map<String, Object> jobParameter = new HashMap<>();
-    jobParameter.put("email", email);
+    jobParameter.put("emailId", email.getId());
     quartzJobScheduler.addOrUpdateJobSchedule(
         SendEmailJob.class,
-        messageId,
+        email.getId(),
         "sendEmail",
         jobParameter,
         sendDate == null ? Timestamp.valueOf(LocalDateTime.now()) : sendDate);
   }
 
-  public void saveAndScheduleEmail(final Email email) {
-    save(email);
+  public Email saveAndScheduleEmail(Email email) {
+    email.setMessageId(UuidUtil.getUuidString());
+    email = save(email);
     scheduleEmail(email);
+    return email;
   }
 
-  public void saveAndScheduleSendEmails(final List<Email> emails) {
-    saveAll(emails);
+  // If send to emails like a+1@gmail.com and a+2@gmail.com...
+  // only one email will be accepted
+  public List<Email> saveAndScheduleEmails(List<Email> emails) {
+    emails.forEach(email -> email.setMessageId(UuidUtil.getUuidString()));
+    emails = saveAll(emails);
     scheduleSendEmails(emails);
+    return emails;
   }
 
   private void scheduleSendEmails(final List<Email> emails) {
@@ -205,7 +215,6 @@ public class EmailService {
                       subject);
               email.setContent(content);
               email.setSendDate(sendDate);
-              email.setMessageId(UuidUtil.getUuidString());
               return email;
             })
         .collect(Collectors.toList());
@@ -228,7 +237,7 @@ public class EmailService {
           email.setRetryCount(currentRetryCount);
           email.setSendDate(Timestamp.valueOf(afterOneHour));
         });
-    saveAndScheduleSendEmails(emails);
+    saveAndScheduleEmails(emails);
   }
 
   private int getRetryCount(final Email email) {
@@ -475,6 +484,7 @@ public class EmailService {
     admins.remove(promotedEmployee);
     final String fromName = systemEmailFirstName + "-" + systemEmailLastName;
 
+    final List<Email> emailList = new ArrayList<>();
     admins.forEach(
         admin -> {
           final String adminEmailWork = admin.getUserContactInformation().getEmailWork();
@@ -487,8 +497,9 @@ public class EmailService {
                   NEW_ADMIN_ADDED_TO_HRIS);
           email.setContent(emailContent);
           email.setSendDate(Timestamp.valueOf(LocalDateTime.now()));
-          scheduleEmail(email);
+          emailList.add(email);
         });
+    saveAndScheduleEmails(emailList);
   }
 
   public List<Email> listByMessageIds(final List<String> messageIds) {
