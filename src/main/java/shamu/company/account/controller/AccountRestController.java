@@ -47,12 +47,16 @@ public class AccountRestController {
   public Boolean createPasswordTokenExist(
       @PathVariable final String token, @PathVariable final String companyId) {
     final String decodeCompanyId = Base64Utils.decodeCompanyId(companyId);
-    final boolean isExists = tenantService.isCompanyExists(decodeCompanyId);
+    return isCompanyExists(decodeCompanyId) && userService.createPasswordTokenExist(token);
+  }
+
+  private boolean isCompanyExists(final String companyId) {
+    final boolean isExists = tenantService.isCompanyExists(companyId);
     if (!isExists) {
       return false;
     }
-    TenantContext.setCurrentTenant(decodeCompanyId);
-    return userService.createPasswordTokenExist(token);
+    TenantContext.setCurrentTenant(companyId);
+    return true;
   }
 
   @PatchMapping("account/password")
@@ -73,12 +77,9 @@ public class AccountRestController {
       @PathVariable("passwordToken") final String passwordToken,
       @PathVariable("invitationToken") final String invitationToken,
       @PathVariable final String companyId) {
-    final boolean isExists = tenantService.isCompanyExists(companyId);
-    if (!isExists) {
-      return false;
-    }
-    TenantContext.setCurrentTenant(Base64Utils.decodeCompanyId(companyId));
-    return accountService.createPasswordAndInvitationTokenExist(passwordToken, invitationToken);
+    final String decodeCompanyId = Base64Utils.decodeCompanyId(companyId);
+    return isCompanyExists(decodeCompanyId)
+        && accountService.createPasswordAndInvitationTokenExist(passwordToken, invitationToken);
   }
 
   @PatchMapping("account/unlock")
@@ -90,12 +91,8 @@ public class AccountRestController {
   @PatchMapping("account/change-work-email/{token}/{companyId}")
   public boolean validateChangeWorkEmail(
       @PathVariable final String token, @PathVariable final String companyId) {
-    final boolean isExists = tenantService.isCompanyExists(companyId);
-    if (!isExists) {
-      return false;
-    }
-    TenantContext.setCurrentTenant(Base64Utils.decodeCompanyId(companyId));
-    return userService.changeWorkEmailTokenExist(token);
+    final String decodeCompanyId = Base64Utils.decodeCompanyId(companyId);
+    return isCompanyExists(decodeCompanyId) && userService.changeWorkEmailTokenExist(token);
   }
 
   @PostMapping("account/{email}/verification-email")

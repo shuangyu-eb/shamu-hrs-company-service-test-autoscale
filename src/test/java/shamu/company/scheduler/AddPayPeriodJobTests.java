@@ -1,5 +1,11 @@
 package shamu.company.scheduler;
 
+import static org.assertj.core.api.Assertions.assertThatCode;
+
+import java.sql.Timestamp;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -23,13 +29,6 @@ import shamu.company.company.service.CompanyService;
 import shamu.company.scheduler.job.AddPayPeriodJob;
 import shamu.company.user.service.UserCompensationService;
 import shamu.company.utils.JsonUtil;
-
-import java.sql.Timestamp;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.assertj.core.api.Assertions.assertThatCode;
 
 public class AddPayPeriodJobTests {
   private static AddPayPeriodJob addPayPeriodJob;
@@ -80,8 +79,7 @@ public class AddPayPeriodJobTests {
       final StaticTimezone timezone = new StaticTimezone();
       timezone.setName("Hongkong");
       companyTaSetting.setTimeZone(timezone);
-      Mockito.when(companyService.findById(Mockito.anyString())).thenReturn(company);
-      Mockito.when(payrollDetailService.findByCompanyId(companyId)).thenReturn(payrollDetail);
+      Mockito.when(payrollDetailService.find()).thenReturn(payrollDetail);
     }
 
     @Test

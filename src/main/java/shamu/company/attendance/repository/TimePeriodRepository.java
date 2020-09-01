@@ -1,5 +1,6 @@
 package shamu.company.attendance.repository;
 
+import java.util.List;
 import org.springframework.data.jpa.repository.Query;
 import shamu.company.attendance.entity.TimePeriod;
 import shamu.company.attendance.entity.TimeSheetPeriodPojo;
@@ -30,7 +31,7 @@ public interface TimePeriodRepository extends BaseRepository<TimePeriod, String>
               + "join timesheets t "
               + "on tp.id = t. time_period_id "
               + "join users u "
-              + "t.employee_id = u.id "
+              + "on t.employee_id = u.id "
               + "order by start_date desc limit ?1, 1",
       nativeQuery = true)
   TimePeriod findCompanyNumberNPeriod(int number);

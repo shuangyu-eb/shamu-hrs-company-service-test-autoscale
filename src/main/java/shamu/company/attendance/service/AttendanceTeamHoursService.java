@@ -31,16 +31,6 @@ import shamu.company.common.service.PayrollDetailService;
 import shamu.company.timeoff.service.TimeOffRequestService;
 import shamu.company.user.entity.User;
 
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 @Transactional
 @Service
 public class AttendanceTeamHoursService {
@@ -273,8 +263,8 @@ public class AttendanceTeamHoursService {
   }
 
   public AttendanceDetailDto findAttendanceDetails() {
-    final PayrollDetail payrollDetail = payrollDetailService.findByCompanyId(companyId);
-    final TimePeriod timePeriod = timePeriodService.findCompanyCurrentPeriod(companyId);
+    final PayrollDetail payrollDetail = payrollDetailService.find();
+    final TimePeriod timePeriod = timePeriodService.findCompanyCurrentPeriod();
     final SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
     final String payDate = sdf.format(payrollDetail.getLastPayrollPayday());
     final String periodStartDate = sdf.format(timePeriod.getStartDate());
@@ -290,7 +280,7 @@ public class AttendanceTeamHoursService {
   @Transactional
   public void removeAttendanceDetails(final List<String> userIds, final String companyId) {
     employeesTaSettingService.removeEmployees(userIds);
-    timeSheetService.removeUserFromAttendance(userIds, companyId);
+    timeSheetService.removeUserFromAttendance(userIds);
   }
 
   public PendingCountDto findAttendancePendingCount(final String userId, final String companyId) {

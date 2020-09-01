@@ -370,9 +370,9 @@ class AttendanceTeamHoursServiceTests {
     timePeriod.setEndDate(Timestamp.valueOf(LocalDateTime.parse("2020-07-07T00:00:00")));
 
     Mockito.when(attendanceSettingsService.findCompanySetting()).thenReturn(companyTaSetting);
-    Mockito.when(payrollDetailService.findByCompanyId()).thenReturn(payrollDetail);
-    Mockito.when(timePeriodService.findCompanyCurrentPeriod("1")).thenReturn(timePeriod);
-    assertThatCode(() -> attendanceTeamHoursService.findAttendanceDetails("1"))
+    Mockito.when(payrollDetailService.find()).thenReturn(payrollDetail);
+    Mockito.when(timePeriodService.findCompanyCurrentPeriod()).thenReturn(timePeriod);
+    assertThatCode(() -> attendanceTeamHoursService.findAttendanceDetails())
         .doesNotThrowAnyException();
   }
 

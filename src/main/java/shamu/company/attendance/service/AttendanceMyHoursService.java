@@ -1,5 +1,13 @@
 package shamu.company.attendance.service;
 
+import java.math.BigInteger;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shamu.company.attendance.dto.AllTimeDto;
@@ -30,15 +38,6 @@ import shamu.company.user.entity.UserCompensation;
 import shamu.company.user.service.UserCompensationService;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.DateUtil;
-
-import java.math.BigInteger;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 
 @Service
 @Transactional
@@ -413,10 +412,9 @@ public class AttendanceMyHoursService {
     employeeTimeEntryService.deleteMyHourEntry(entryId);
   }
 
-  public UserAttendanceEnrollInfoDto findUserAttendanceEnrollInfo(
-      final String userId, final String companyId) {
+  public UserAttendanceEnrollInfoDto findUserAttendanceEnrollInfo(final String userId) {
     final EmployeesTaSetting employeesTaSetting = employeesTaSettingService.findByUserId(userId);
-    final TimePeriod timePeriod = timePeriodService.findCompanyCurrentPeriod(companyId);
+    final TimePeriod timePeriod = timePeriodService.findCompanyCurrentPeriod();
     final TimeSheet timeSheet =
         timeSheetService.findTimeSheetByPeriodAndUser(timePeriod.getId(), userId);
     return UserAttendanceEnrollInfoDto.builder()

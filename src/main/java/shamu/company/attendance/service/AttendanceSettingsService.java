@@ -18,7 +18,6 @@ import shamu.company.attendance.repository.StaticTimeZoneRepository;
 import shamu.company.common.entity.PayrollDetail;
 import shamu.company.common.entity.mapper.PayrollDetailMapper;
 import shamu.company.common.service.PayrollDetailService;
-import shamu.company.company.entity.Company;
 import shamu.company.helpers.googlemaps.GoogleMapsHelper;
 import shamu.company.job.entity.JobUser;
 import shamu.company.job.repository.JobUserRepository;
@@ -113,8 +112,7 @@ public class AttendanceSettingsService {
     return staticTimeZoneRepository.findAll();
   }
 
-  public void updateCompanySettings(
-      final CompanyTaSettingsDto companyTaSettingsDto) {
+  public void updateCompanySettings(final CompanyTaSettingsDto companyTaSettingsDto) {
     final List<CompanyTaSetting> taSettings = companyTaSettingRepository.findAll();
     CompanyTaSetting companyTaSetting =
         CollectionUtils.isEmpty(taSettings) ? null : taSettings.get(0);
@@ -126,6 +124,7 @@ public class AttendanceSettingsService {
       companyTaSetting = new CompanyTaSetting();
     }
     companyTaSettingsMapper.updateFromCompanyTaSettingsDto(companyTaSetting, companyTaSettingsDto);
+    final PayrollDetail payrollDetail = payrollDetailService.find();
     payrollDetailMapper.updateFromCompanyTaSettingsDto(
         payrollDetail, companyTaSettingsDto, payPeriodFrequencyId);
     companyTaSettingRepository.save(companyTaSetting);

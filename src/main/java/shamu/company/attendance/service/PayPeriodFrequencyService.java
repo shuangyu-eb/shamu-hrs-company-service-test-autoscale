@@ -1,5 +1,7 @@
 package shamu.company.attendance.service;
 
+import java.util.List;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import shamu.company.attendance.entity.StaticCompanyPayFrequencyType;
@@ -7,9 +9,6 @@ import shamu.company.attendance.repository.PayPeriodFrequencyRepository;
 import shamu.company.common.entity.PayrollDetail;
 import shamu.company.common.exception.errormapping.ResourceNotFoundException;
 import shamu.company.common.service.PayrollDetailService;
-
-import java.util.List;
-import java.util.Optional;
 
 @Service
 public class PayPeriodFrequencyService {
@@ -44,9 +43,8 @@ public class PayPeriodFrequencyService {
                 "payFrequencyType"));
   }
 
-  public Optional<StaticCompanyPayFrequencyType> findSetting() {
-    Optional<CompanyTaSetting> companySetting = Optional
-        .ofNullable(attendanceSettingsService.findCompanySetting());
-    return companySetting.map(CompanyTaSetting::getPayFrequencyType);
+  public Optional<StaticCompanyPayFrequencyType> find() {
+    final Optional<PayrollDetail> payrollDetail = Optional.of(payrollDetailService.find());
+    return payrollDetail.map(PayrollDetail::getPayFrequencyType);
   }
 }

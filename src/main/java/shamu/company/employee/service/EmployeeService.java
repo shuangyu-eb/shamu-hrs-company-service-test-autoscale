@@ -1,5 +1,15 @@
 package shamu.company.employee.service;
 
+import java.io.File;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.util.Base64;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.BeanUtils;
@@ -91,17 +101,6 @@ import shamu.company.utils.DateUtil;
 import shamu.company.utils.FileValidateUtils;
 import shamu.company.utils.FileValidateUtils.FileFormat;
 
-import java.io.File;
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.sql.Timestamp;
-import java.time.Instant;
-import java.util.Base64;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
 @Service
 @Transactional
 public class EmployeeService {
@@ -183,7 +182,6 @@ public class EmployeeService {
       final EncryptorUtil encryptorUtil,
       final EmployeeTypesService employeeTypesService,
       final CompensationOvertimeStatusService compensationOvertimeStatusService,
-      final DepartmentService departmentService,
       final CompanyService companyService,
       final DepartmentService departmentService,
       final GoogleMapsHelper googleMapsHelper,
@@ -247,8 +245,8 @@ public class EmployeeService {
     saveEmployeeAddress(employee, employeeDto);
     saveEmailTasks(employeeDto.getWelcomeEmail(), employee, currentUser);
 
-    Boolean isEmployeePersonalInfoComplete = userService
-        .checkPersonalInfoComplete(employee.getId());
+    final Boolean isEmployeePersonalInfoComplete =
+        userService.checkPersonalInfoComplete(employee.getId());
 
     if (Boolean.TRUE.equals(isEmployeePersonalInfoComplete)) {
       timeOffPolicyService.addUserToAutoEnrolledPolicy(employee.getId());
@@ -257,17 +255,15 @@ public class EmployeeService {
 
   public void updateEmployee(final EmployeeDto employeeDto, final User employee) {
 
-    Boolean isEmployeePersonalInfoComplete = userService
-        .checkPersonalInfoComplete(employee.getId());
+    final Boolean isEmployeePersonalInfoComplete =
+        userService.checkPersonalInfoComplete(employee.getId());
     if (Boolean.FALSE.equals(isEmployeePersonalInfoComplete)) {
-      timeOffPolicyService.addUserToAutoEnrolledPolicy(
-          employee.getId(), employee.getCompany().getId());
+      timeOffPolicyService.addUserToAutoEnrolledPolicy(employee.getId());
     }
 
     updateEmployeeBasicInformation(employee, employeeDto);
     updateEmergencyContacts(employee, employeeDto.getUserEmergencyContactDto());
     updateEmployeeAddress(employee, employeeDto);
-
   }
 
   public void resendEmail(final EmailResendDto emailResendDto) {
@@ -500,8 +496,7 @@ public class EmployeeService {
   }
 
   private void saveEmployeeJob(
-      final User employee,
-      final NewEmployeeJobInformationDto jobInformation) {
+      final User employee, final NewEmployeeJobInformationDto jobInformation) {
     final UserCompensation userCompensation =
         saveEmployeeCompensation(jobInformation, employee.getId());
 

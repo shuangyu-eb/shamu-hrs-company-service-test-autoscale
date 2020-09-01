@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import shamu.company.common.entity.StateProvince;
 import shamu.company.common.entity.Tenant;
 import shamu.company.common.exception.errormapping.AlreadyExistsException;
+import shamu.company.common.exception.errormapping.ZipCodeNotExistException;
 import shamu.company.common.service.DepartmentService;
 import shamu.company.common.service.OfficeService;
 import shamu.company.common.service.StateProvinceService;
@@ -27,7 +28,6 @@ import shamu.company.employee.entity.EmploymentType;
 import shamu.company.employee.service.EmploymentTypeService;
 import shamu.company.helpers.googlemaps.GoogleMapsHelper;
 import shamu.company.job.entity.Job;
-import shamu.company.common.exception.errormapping.ZipCodeNotExistException;
 import shamu.company.job.service.JobService;
 import shamu.company.server.dto.CompanyDtoProjection;
 
@@ -56,8 +56,6 @@ public class CompanyService {
 
   private final CompanyBenefitsSettingService companyBenefitsSettingService;
 
-  private final ApplicationEventPublisher eventPublisher;
-
   private final GoogleMapsHelper googleMapsHelper;
 
   @Autowired
@@ -73,9 +71,6 @@ public class CompanyService {
       final CompanyBenefitsSettingService companyBenefitsSettingService,
       final CompanyMapper companyMapper,
       final TenantService tenantService,
-      final ApplicationEventPublisher eventPublisher,
-      final TenantService tenantService,
-      final CompanyBenefitsSettingService companyBenefitsSettingService,
       final GoogleMapsHelper googleMapsHelper) {
     this.companyRepository = companyRepository;
     this.departmentService = departmentService;
@@ -171,7 +166,8 @@ public class CompanyService {
       throw new AlreadyExistsException("Office already exists.", "office");
     }
     final OfficeAddress officeAddress = office.getOfficeAddress();
-    final String timezone = googleMapsHelper.findTimezoneByPostalCode(officeAddress.getPostalCode());
+    final String timezone =
+        googleMapsHelper.findTimezoneByPostalCode(officeAddress.getPostalCode());
     if (timezone.isEmpty()) {
       throw new ZipCodeNotExistException("Office zipCode is error.");
     }

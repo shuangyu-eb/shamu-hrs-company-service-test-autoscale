@@ -55,7 +55,6 @@ public class CompanyServiceTests {
   @Mock private CompanyBenefitsSettingService companyBenefitsSettingService;
   @Mock private TenantService tenantService;
   @Mock private CompanyMapper companyMapper;
-  @Mock private CompanyService companyService;
   @Mock private GoogleMapsHelper googleMapsHelper;
   private CompanyService companyService;
 
@@ -75,7 +74,6 @@ public class CompanyServiceTests {
             companyBenefitsSettingService,
             companyMapper,
             tenantService,
-            companyBenefitsSettingService,
             googleMapsHelper);
     department.setId("1");
     department.setName("name");
@@ -150,8 +148,7 @@ public class CompanyServiceTests {
     officeAddress.setPostalCode("02114");
     office.setOfficeAddress(officeAddress);
     Mockito.when(stateProvinceService.findById(Mockito.anyString())).thenReturn(stateProvince);
-    Mockito.when(officeService.findByName(Mockito.anyString()))
-        .thenReturn(Collections.EMPTY_LIST);
+    Mockito.when(officeService.findByName(Mockito.anyString())).thenReturn(Collections.EMPTY_LIST);
     Mockito.when(googleMapsHelper.findTimezoneByPostalCode("02114")).thenReturn("timezone");
     assertThatCode(() -> companyService.saveOffice(office)).doesNotThrowAnyException();
   }

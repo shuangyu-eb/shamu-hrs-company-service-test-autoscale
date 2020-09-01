@@ -1,6 +1,8 @@
 package shamu.company.common.service;
 
+import java.util.List;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import shamu.company.common.entity.PayrollDetail;
 import shamu.company.common.repository.PayrollDetailRepository;
 
@@ -17,7 +19,11 @@ public class PayrollDetailService {
     payrollDetailRepository.save(payrollDetail);
   }
 
-  public PayrollDetail findByCompanyId(final String companyId) {
-    return payrollDetailRepository.findByCompanyId(companyId);
+  public PayrollDetail find() {
+    final List<PayrollDetail> results = payrollDetailRepository.findAll();
+    if (CollectionUtils.isEmpty(results)) {
+      return null;
+    }
+    return payrollDetailRepository.findAll().get(0);
   }
 }

@@ -46,7 +46,6 @@ import shamu.company.employee.dto.EmailResendDto;
 import shamu.company.employee.dto.EmployeeContactInformationDto;
 import shamu.company.employee.dto.EmployeeDto;
 import shamu.company.employee.dto.EmployeePersonalInformationDto;
-import shamu.company.employee.dto.JobInformationDto;
 import shamu.company.employee.dto.NewEmployeeJobInformationDto;
 import shamu.company.employee.dto.UserPersonalInformationForManagerDto;
 import shamu.company.employee.dto.WelcomeEmailDto;
@@ -184,7 +183,6 @@ class EmployeeServiceTests {
             encryptorUtil,
             employeeTypesService,
             compensationOvertimeStatusService,
-            departmentService,
             companyService,
             departmentService,
             googleMapsHelper,
@@ -297,9 +295,9 @@ class EmployeeServiceTests {
       employeeDto.setUserContactInformationDto(userContactInformationDto);
 
       Mockito.when(officeService.findById("officeId")).thenReturn(office);
-      Mockito.when(googleMapsHelper.findTimezoneByPostalCode(Mockito.anyString())).thenReturn("timezone");
-      Whitebox.invokeMethod(
-          employeeService, "saveEmployeeBasicInformation", employeeDto);
+      Mockito.when(googleMapsHelper.findTimezoneByPostalCode(Mockito.anyString()))
+          .thenReturn("timezone");
+      Whitebox.invokeMethod(employeeService, "saveEmployeeBasicInformation", employeeDto);
       Mockito.verify(userService, Mockito.times(1)).createNewEmployee(Mockito.any());
     }
   }
@@ -570,7 +568,8 @@ class EmployeeServiceTests {
       Mockito.when(userService.save(Mockito.any())).thenReturn(currentUser);
       Mockito.when(userService.createNewEmployee(Mockito.any())).thenReturn(currentUser);
       Mockito.when(officeService.findById(Mockito.any())).thenReturn(office);
-      Mockito.when(googleMapsHelper.findTimezoneByPostalCode(Mockito.anyString())).thenReturn("timezone");
+      Mockito.when(googleMapsHelper.findTimezoneByPostalCode(Mockito.anyString()))
+          .thenReturn("timezone");
       Mockito.when(
               emailService.getWelcomeEmailContextToEmail(
                   Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))

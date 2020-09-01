@@ -23,7 +23,6 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
 import shamu.company.attendance.entity.StaticTimezone;
-import shamu.company.company.entity.Company;
 import shamu.company.user.entity.exception.SetManagerFailedException;
 import shamu.company.utils.UuidUtil;
 
@@ -60,8 +59,7 @@ public class User implements Serializable {
   @OneToOne(cascade = CascadeType.ALL)
   private UserContactInformation userContactInformation;
 
-  @ManyToOne
-  private StaticTimezone timeZone;
+  @ManyToOne private StaticTimezone timeZone;
 
   private String invitationEmailToken;
 

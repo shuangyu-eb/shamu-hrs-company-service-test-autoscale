@@ -1,5 +1,6 @@
 package shamu.company.attendance.controller;
 
+import java.util.List;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,8 +25,6 @@ import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.common.service.PayrollDetailService;
 import shamu.company.utils.ReflectionUtil;
-
-import java.util.List;
 
 @RestApiController
 public class AttendanceSettingsController extends BaseRestController {
@@ -56,8 +55,7 @@ public class AttendanceSettingsController extends BaseRestController {
   @GetMapping("time-and-attendance/companySettings")
   public CompanyTaSettingsDto findCompanySettings() {
     return companyTaSettingsMapper.convertToCompanyTaSettingsDto(
-        attendanceSettingsService.findCompanySettings(findCompanyId()),
-        payrollDetailService.findByCompanyId());
+        attendanceSettingsService.findCompanySetting(), payrollDetailService.find());
   }
 
   @GetMapping("time-and-attendance/employeeSettings/{employeeId}")

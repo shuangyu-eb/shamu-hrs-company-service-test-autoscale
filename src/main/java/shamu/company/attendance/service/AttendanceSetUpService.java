@@ -26,10 +26,8 @@ import shamu.company.attendance.exception.ParseDateException;
 import shamu.company.attendance.repository.EmployeesTaSettingRepository;
 import shamu.company.attendance.repository.StaticTimeZoneRepository;
 import shamu.company.attendance.repository.StaticTimesheetStatusRepository;
-import shamu.company.attendance.repository.TimePeriodRepository;
 import shamu.company.common.entity.PayrollDetail;
 import shamu.company.common.service.PayrollDetailService;
-import shamu.company.company.entity.Company;
 import shamu.company.company.entity.Office;
 import shamu.company.email.entity.Email;
 import shamu.company.email.service.EmailService;
@@ -269,7 +267,7 @@ public class AttendanceSetUpService {
 
     final TimePeriod firstTimePeriod =
         Boolean.FALSE.equals(isAddOrRemoveEmployee)
-            ? timePeriodService.save(new TimePeriod(periodStartDate, periodEndDate, company))
+            ? timePeriodService.save(new TimePeriod(periodStartDate, periodEndDate))
             : new TimePeriod();
     final TimeSheetStatus timeSheetStatus;
     if (periodStartDate.after(new Date())) {
@@ -286,7 +284,7 @@ public class AttendanceSetUpService {
     }
 
     if (Boolean.TRUE.equals(isAddOrRemoveEmployee)) {
-      final TimePeriod currentPeriod = timePeriodService.findCompanyCurrentPeriod(companyId);
+      final TimePeriod currentPeriod = timePeriodService.findCompanyCurrentPeriod();
       createTimeSheets(currentPeriod, timeSheetStatus, userCompensationList);
     } else {
       createTimeSheets(firstTimePeriod, timeSheetStatus, userCompensationList);
@@ -455,8 +453,7 @@ public class AttendanceSetUpService {
     final CompanyTaSetting existCompanyTaSetting = attendanceSettingsService.findCompanySetting();
     final StaticCompanyPayFrequencyType staticCompanyPayFrequencyType =
         payPeriodFrequencyService.findByName(periodFrequency);
-    final PayrollDetail payrollDetail =
-        new PayrollDetail(company, staticCompanyPayFrequencyType, payDate);
+    final PayrollDetail payrollDetail = new PayrollDetail(staticCompanyPayFrequencyType, payDate);
     final CompanyTaSetting companyTaSetting = new CompanyTaSetting();
     companyTaSettingsMapper.updateFromCompanyTaSettings(
         companyTaSetting,
@@ -721,7 +718,7 @@ public class AttendanceSetUpService {
       return null;
     }
     final Optional<StaticCompanyPayFrequencyType> payFrequencyType =
-        payPeriodFrequencyService.findSetting();
+        payPeriodFrequencyService.find();
     return payFrequencyType
         .map(
             staticCompanyPayFrequencyType ->

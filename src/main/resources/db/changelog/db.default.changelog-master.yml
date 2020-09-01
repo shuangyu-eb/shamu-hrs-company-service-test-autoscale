@@ -663,3 +663,30 @@ databaseChangeLog:
             onUpdate: RESTRICT
             referencedColumnNames: SCHED_NAME,JOB_NAME,JOB_GROUP
             referencedTableName: QRTZ_JOB_DETAILS
+
+  - changeSet:
+      id: 1598842335588-0
+      author: qian-eb
+      preConditions:
+        onFail: WARN
+      changes:
+        - sql:
+            sql: delete from QRTZ_SIMPLE_TRIGGERS where TRIGGER_GROUP = 'ONCE_TIME_TRIGGER_GROUP';
+
+  - changeSet:
+      id: 1598842335588-1
+      author: qian-eb
+      preConditions:
+        onFail: WARN
+      changes:
+        - sql:
+            sql: delete from QRTZ_TRIGGERS where TRIGGER_GROUP = 'ONCE_TIME_TRIGGER_GROUP';
+
+  - changeSet:
+      id: 1598842335588-2
+      author: qian-eb
+      preConditions:
+        onFail: WARN
+      changes:
+        - sql:
+            sql: delete from QRTZ_JOB_DETAILS where JOB_GROUP = 'ONCE_TIME_JOB_GROUP';

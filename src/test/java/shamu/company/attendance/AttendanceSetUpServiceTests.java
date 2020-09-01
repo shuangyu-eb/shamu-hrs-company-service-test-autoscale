@@ -30,7 +30,6 @@ import shamu.company.attendance.service.PayPeriodFrequencyService;
 import shamu.company.attendance.service.TimePeriodService;
 import shamu.company.attendance.service.TimeSheetService;
 import shamu.company.common.service.PayrollDetailService;
-import shamu.company.company.entity.Company;
 import shamu.company.company.entity.Office;
 import shamu.company.company.entity.OfficeAddress;
 import shamu.company.company.repository.CompanyRepository;
@@ -351,7 +350,7 @@ public class AttendanceSetUpServiceTests {
       Mockito.when(timePeriodService.findUserCurrentPeriod(userId))
           .thenReturn(Optional.ofNullable(timePeriod));
       Mockito.when(userService.findById(userId)).thenReturn(user);
-      Mockito.when(payPeriodFrequencyService.findSetting())
+      Mockito.when(payPeriodFrequencyService.find())
           .thenReturn(Optional.ofNullable(staticCompanyPayFrequencyType));
       Mockito.when(attendanceSettingsService.findCompanySetting()).thenReturn(companyTaSetting);
       assertThatCode(() -> attendanceSetUpService.findNextPeriodByUser(userId))
