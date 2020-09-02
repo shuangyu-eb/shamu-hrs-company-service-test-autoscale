@@ -93,9 +93,6 @@ databaseChangeLog:
                   name: policy_name
                   type: varchar(32)
               - column:
-                  name: company_id
-                  type: binary(16)
-              - column:
                   name: universal
                   type: TINYINT
               - column:
@@ -208,14 +205,6 @@ databaseChangeLog:
       preConditions:
         onFail: WARN
       changes:
-        - addForeignKeyConstraint:
-            baseColumnNames: company_id
-            baseTableName: overtime_policies
-            constraintName: fk_overtime_policies_company_id
-            onDelete: CASCADE
-            onUpdate: CASCADE
-            referencedColumnNames: id
-            referencedTableName: companies
         - addForeignKeyConstraint:
             baseColumnNames: overtime_type_id
             baseTableName: policy_details

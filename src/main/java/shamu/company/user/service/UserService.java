@@ -904,9 +904,7 @@ public class UserService {
     final List<User> managers =
         userRepository.findManagersByPeriodIdAndTimeSheetStatus(
             periodId, TimeSheetStatus.SUBMITTED.name());
-    final List<User> admins =
-        userRepository.findUsersByCompanyIdAndUserRole(
-            notApprovedUsers.get(0).getCompany().getId(), Role.ADMIN.name());
+    final List<User> admins = userRepository.findUsersByUserRole(Role.ADMIN.name());
     final boolean managersIsEmpty = CollectionUtils.isEmpty(managers);
     final boolean adminsIsEmpty = CollectionUtils.isEmpty(admins);
     if (managersIsEmpty && adminsIsEmpty) {

@@ -5,6 +5,18 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import com.auth0.json.auth.CreatedUser;
+import java.sql.Date;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import javax.persistence.EntityManager;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -85,23 +97,6 @@ import shamu.company.user.service.UserRoleService;
 import shamu.company.user.service.UserService;
 import shamu.company.user.service.UserStatusService;
 import shamu.company.utils.UuidUtil;
-
-import javax.persistence.EntityManager;
-import java.sql.Date;
-import java.sql.Timestamp;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 class UserServiceTests {
 
@@ -1028,7 +1023,6 @@ class UserServiceTests {
     @Test
     void whenPeriodIdValid_listHasPendingTimeSheetsManagerAndAdmin_shouldSucceed() {
       company.setId(companyId);
-      notApprovedUser.setCompany(company);
       Mockito.when(
               userRepository.findUsersByPeriodIdAndTimeSheetStatus(
                   periodId, StaticTimesheetStatus.TimeSheetStatus.SUBMITTED.name()))
@@ -1037,7 +1031,7 @@ class UserServiceTests {
               userRepository.findManagersByPeriodIdAndTimeSheetStatus(
                   periodId, StaticTimesheetStatus.TimeSheetStatus.SUBMITTED.name()))
           .thenReturn(new ArrayList<>());
-      Mockito.when(userRepository.findUsersByCompanyIdAndUserRole(companyId, Role.ADMIN.name()))
+      Mockito.when(userRepository.findUsersByUserRole(Role.ADMIN.name()))
           .thenReturn(new ArrayList<>());
       assertThatCode(() -> userService.listHasPendingTimeSheetsManagerAndAdmin(periodId))
           .doesNotThrowAnyException();

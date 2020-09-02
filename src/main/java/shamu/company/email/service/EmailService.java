@@ -1,5 +1,19 @@
 package shamu.company.email.service;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.slf4j.Logger;
@@ -10,8 +24,8 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.Context;
-import shamu.company.common.exception.errormapping.ResourceNotFoundException;
 import shamu.company.common.entity.Tenant;
+import shamu.company.common.exception.errormapping.ResourceNotFoundException;
 import shamu.company.common.multitenant.TenantContext;
 import shamu.company.common.service.TenantService;
 import shamu.company.company.service.CompanyService;
@@ -31,21 +45,6 @@ import shamu.company.utils.AvatarUtil;
 import shamu.company.utils.DateUtil;
 import shamu.company.utils.HtmlUtils;
 import shamu.company.utils.UuidUtil;
-
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.UUID;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 @Service
 public class EmailService {
@@ -206,6 +205,7 @@ public class EmailService {
     emails.forEach(email -> messageIdList.add(email.getMessageId()));
     final Map<String, Object> jobParameter = new HashMap<>();
     jobParameter.put("messageIdList", messageIdList);
+    jobParameter.put(COMPANY_ID, TenantContext.getCurrentTenant());
     quartzJobScheduler.addOrUpdateJobSchedule(
         SendEmailsJob.class,
         "",

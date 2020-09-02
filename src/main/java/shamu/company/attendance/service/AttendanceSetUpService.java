@@ -1,5 +1,24 @@
 package shamu.company.attendance.service;
 
+import static java.time.DayOfWeek.SATURDAY;
+import static shamu.company.attendance.entity.StaticTimesheetStatus.TimeSheetStatus;
+
+import java.math.BigInteger;
+import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.format.TextStyle;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TimeZone;
+import java.util.stream.Collectors;
 import org.apache.commons.lang.time.DateUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,26 +69,6 @@ import shamu.company.user.repository.CompensationFrequencyRepository;
 import shamu.company.user.repository.UserRepository;
 import shamu.company.user.service.UserCompensationService;
 import shamu.company.user.service.UserService;
-
-import java.math.BigInteger;
-import java.sql.Timestamp;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.format.TextStyle;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TimeZone;
-import java.util.stream.Collectors;
-
-import static java.time.DayOfWeek.SATURDAY;
-import static shamu.company.attendance.entity.StaticTimesheetStatus.TimeSheetStatus;
 
 @Service
 public class AttendanceSetUpService {
@@ -343,7 +342,7 @@ public class AttendanceSetUpService {
         EmailNotification.SUBMIT_TIME_SHEET,
         getPreNotificationDate(autoSubmitDate));
 
-    final Date runPayrollDdl = getRunPayrollDdl(companyId, currentPeriodEndDate, companyTimeZone);
+    final Date runPayrollDdl = getRunPayrollDdl(currentPeriodEndDate, companyTimeZone);
     scheduleEmailNotification(
         currentPeriodId, EmailNotification.RUN_PAYROLL, getPreNotificationDate(runPayrollDdl));
     scheduleEmailNotification(
@@ -469,8 +468,7 @@ public class AttendanceSetUpService {
   }
 
   public Date getRunPayrollDdl(final Date currentPeriodEndDate, final String companyTimeZone) {
-    final CompanyTaSetting companyTaSetting =
-        attendanceSettingsService.findCompanySetting();
+    final CompanyTaSetting companyTaSetting = attendanceSettingsService.findCompanySetting();
     final int approvalDaysBeforePayroll =
         companyTaSetting == null
             ? DEFAULT_APPROVAL_DAYS_BEFORE_PAYROLL
