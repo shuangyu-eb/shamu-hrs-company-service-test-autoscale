@@ -1,29 +1,51 @@
 package shamu.company.attendance;
 
-import static org.assertj.core.api.Assertions.assertThatCode;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
+import shamu.company.attendance.dto.OvertimePolicyDetailDto;
+import shamu.company.attendance.dto.OvertimePolicyDto;
+import shamu.company.attendance.entity.CompanyTaSetting;
+import shamu.company.attendance.entity.EmployeeTimeLog;
+import shamu.company.attendance.entity.PolicyDetail;
+import shamu.company.attendance.entity.StaticEmployeesTaTimeType;
+import shamu.company.attendance.entity.StaticOvertimeType;
+import shamu.company.attendance.entity.StaticTimezone;
+import shamu.company.attendance.entity.TimePeriod;
+import shamu.company.attendance.entity.TimeSheet;
+import shamu.company.attendance.entity.mapper.OvertimePolicyMapper;
+import shamu.company.attendance.entity.mapper.PolicyDetailMapper;
+import shamu.company.attendance.repository.OvertimePolicyRepository;
+import shamu.company.attendance.repository.PolicyDetailRepository;
+import shamu.company.attendance.repository.StaticOvertimeTypeRepository;
+import shamu.company.attendance.service.OvertimeService;
+import shamu.company.job.entity.CompensationFrequency;
+import shamu.company.user.entity.CompensationOvertimeStatus;
+import shamu.company.user.entity.UserCompensation;
 
 import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.MockitoAnnotations;
-import shamu.company.attendance.entity.CompanyTaSetting;
-import shamu.company.attendance.entity.EmployeeTimeLog;
-import shamu.company.attendance.entity.StaticEmployeesTaTimeType;
-import shamu.company.attendance.entity.StaticTimezone;
-import shamu.company.attendance.entity.TimePeriod;
-import shamu.company.attendance.entity.TimeSheet;
-import shamu.company.attendance.service.OvertimeService;
-import shamu.company.job.entity.CompensationFrequency;
-import shamu.company.user.entity.CompensationOvertimeStatus;
-import shamu.company.user.entity.UserCompensation;
+
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 public class OvertimeServiceTests {
   @InjectMocks OvertimeService overtimeService;
+
+  @Mock StaticOvertimeTypeRepository staticOvertimeTypeRepository;
+
+  @Mock OvertimePolicyMapper overtimePolicyMapper;
+
+  @Mock PolicyDetailMapper policyDetailMapper;
+
+  @Mock OvertimePolicyRepository overtimePolicyRepository;
+
+  @Mock PolicyDetailRepository policyDetailRepository;
 
   @BeforeEach
   void init() {
@@ -63,6 +85,28 @@ public class OvertimeServiceTests {
     assertThatCode(
             () ->
                 overtimeService.findAllOvertimeHours(employeeTimeLogs, timeSheet, companyTaSetting))
+        .doesNotThrowAnyException();
+  }
+
+  @Test
+  void saveNewOvertimePolicy() {
+    final StaticOvertimeType staticOvertimeType = new StaticOvertimeType();
+    staticOvertimeType.setName("DAILY");
+    final OvertimePolicyDto overtimePolicyDto = new OvertimePolicyDto();
+    final List<OvertimePolicyDetailDto> policyDetailDtos = new ArrayList<>();
+    final OvertimePolicyDetailDto overtimePolicyDetailDto = new OvertimePolicyDetailDto();
+    final PolicyDetail policyDetail = new PolicyDetail();
+    policyDetail.setStaticOvertimeType(staticOvertimeType);
+    overtimePolicyDetailDto.setStartMin(480);
+    overtimePolicyDetailDto.setOvertimeRate(1.5);
+    overtimePolicyDetailDto.setOvertimeType(StaticOvertimeType.OvertimeType.DAILY);
+    policyDetailDtos.add(overtimePolicyDetailDto);
+    overtimePolicyDto.setPolicyDetails(policyDetailDtos);
+    Mockito.when(staticOvertimeTypeRepository.findByName(Mockito.any()))
+        .thenReturn(staticOvertimeType);
+    Mockito.when(policyDetailMapper.convertToPolicyDetail(Mockito.any(), Mockito.any()))
+        .thenReturn(policyDetail);
+    assertThatCode(() -> overtimeService.saveNewOvertimePolicy(overtimePolicyDto, "1"))
         .doesNotThrowAnyException();
   }
 }

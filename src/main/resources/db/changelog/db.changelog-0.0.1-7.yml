@@ -288,8 +288,30 @@ databaseChangeLog:
       preConditions:
         onFail: WARN
       changes:
-      - renameColumn:
+        - renameColumn:
             columnDataType: datetime
             newColumnName: updated_at
             oldColumnName: update_at
             tableName: time_off_adjustments
+
+  - changeSet:
+      id: 1598604559000-8
+      author: mshumaker
+      preConditions:
+        onFail: WARN
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: overtime_policy_id
+                  type: binary(16)
+            tableName: policy_details
+        - addForeignKeyConstraint:
+            baseColumnNames: overtime_policy_id
+            baseTableName: policy_details
+            constraintName: fk_overime_policy_details_overtime_policy_id
+            onDelete: SET NULL
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: overtime_policies
+

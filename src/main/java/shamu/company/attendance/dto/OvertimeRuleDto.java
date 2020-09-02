@@ -9,8 +9,4 @@ public class OvertimeRuleDto extends BaseEntity {
   private Integer start;
 
   private Double rate;
-
-  public void setStart(final Integer start) {
-    this.start = start * 60;
-  }
 }

@@ -11,6 +11,7 @@ import shamu.company.attendance.entity.mapper.EmployeesTaSettingsMapper;
 import shamu.company.attendance.service.AttendanceMyHoursService;
 import shamu.company.attendance.service.AttendanceSetUpService;
 import shamu.company.attendance.service.AttendanceSettingsService;
+import shamu.company.attendance.service.OvertimeService;
 import shamu.company.authorization.MethodPermissionEvaluator;
 import shamu.company.authorization.Permission;
 import shamu.company.authorization.Permission.Name;
@@ -91,6 +92,7 @@ public class WebControllerBaseTests {
   @MockBean protected CompanyTaSettingsMapper companyTaSettingsMapper;
   @MockBean protected EmployeesTaSettingsMapper employeesTaSettingsMapper;
   @MockBean protected PayrollDetailService payrollDetailService;
+  @MockBean protected OvertimeService overtimeService;
 
   protected HttpHeaders httpHeaders;
 

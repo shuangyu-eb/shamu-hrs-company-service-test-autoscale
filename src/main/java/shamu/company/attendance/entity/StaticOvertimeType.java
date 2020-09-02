@@ -12,4 +12,10 @@ import javax.persistence.Table;
 public class StaticOvertimeType extends BaseEntity {
   private static final long serialVersionUID = -4308417667177950169L;
   private String name;
+
+  public enum OvertimeType {
+    DAILY,
+    WEEKLY
+  }
+
 }

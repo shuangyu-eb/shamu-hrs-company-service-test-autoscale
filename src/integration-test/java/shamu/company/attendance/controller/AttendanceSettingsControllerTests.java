@@ -1,7 +1,5 @@
 package shamu.company.attendance.controller;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -14,14 +12,16 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import shamu.company.WebControllerBaseTests;
 import shamu.company.attendance.dto.CompanyTaSettingsDto;
 import shamu.company.attendance.dto.EmployeesTaSettingDto;
+import shamu.company.attendance.dto.OvertimePolicyDto;
 import shamu.company.tests.utils.JwtUtil;
 import shamu.company.utils.JsonUtil;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @WebMvcTest(controllers = AttendanceSettingsController.class)
 public class AttendanceSettingsControllerTests extends WebControllerBaseTests {
 
-  @Autowired
-  private MockMvc mockMvc;
+  @Autowired private MockMvc mockMvc;
 
   @Test
   void testFindCompanySettings() throws Exception {
@@ -111,6 +111,39 @@ public class AttendanceSettingsControllerTests extends WebControllerBaseTests {
         mockMvc
             .perform(
                 MockMvcRequestBuilders.get("/company/time-and-attendance/1/IsInAttendance")
+                    .headers(httpHeaders))
+            .andReturn();
+
+    assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+  }
+
+  @Test
+  void createOvertimePolicy() throws Exception {
+    final HttpHeaders httpHeaders = new HttpHeaders();
+    httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.post("/company/time-and-attendance/create-overtime-policy")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(JsonUtil.formatToString(new OvertimePolicyDto()))
+                    .headers(httpHeaders))
+            .andReturn();
+
+    assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+  }
+
+  @Test
+  void deleteOvertimePolicy() throws Exception {
+    final HttpHeaders httpHeaders = new HttpHeaders();
+    httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.delete(
+                        "/company/time-and-attendance/delete-overtime-policy/1")
                     .headers(httpHeaders))
             .andReturn();
 
