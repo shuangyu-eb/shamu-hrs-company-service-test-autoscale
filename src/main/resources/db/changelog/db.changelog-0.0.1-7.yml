@@ -274,6 +274,13 @@ databaseChangeLog:
             baseTableName: user_compensations
             constraintName: fk_user_compensations_overtime_status
 
+  - changeSet:
+      id: 1598945440000-1
+      author: michael-eb
+      changes:
+        - dropColumn:
+            columnName: universal
+            tableName: overtime_policies
 
   - changeSet:
       id: 1599012561845-0

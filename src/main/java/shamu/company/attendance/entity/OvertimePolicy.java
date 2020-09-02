@@ -17,8 +17,6 @@ public class OvertimePolicy extends BaseEntity {
 
   @ManyToOne private Company company;
 
-  private Integer universal;
-
   private Integer defaultPolicy;
 
   private Integer active;
