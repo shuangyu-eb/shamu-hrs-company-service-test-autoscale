@@ -273,3 +273,16 @@ databaseChangeLog:
         - dropForeignKeyConstraint:
             baseTableName: user_compensations
             constraintName: fk_user_compensations_overtime_status
+
+
+  - changeSet:
+      id: 1599012561845-0
+      author: jiansheng-eb
+      preConditions:
+        onFail: WARN
+      changes:
+      - renameColumn:
+            columnDataType: datetime
+            newColumnName: updated_at
+            oldColumnName: update_at
+            tableName: time_off_adjustments
