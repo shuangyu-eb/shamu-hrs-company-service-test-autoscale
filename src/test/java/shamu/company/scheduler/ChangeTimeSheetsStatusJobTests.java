@@ -60,8 +60,7 @@ public class ChangeTimeSheetsStatusJobTests {
       Mockito.when(jobExecutionContext.getMergedJobDataMap())
           .thenReturn(new JobDataMap(jobParameter));
 
-      Mockito.when(timePeriodService.findById(timePeriodId))
-          .thenReturn(java.util.Optional.ofNullable(timePeriod));
+      Mockito.when(timePeriodService.findById(timePeriodId)).thenReturn(timePeriod);
       final List<TimeSheet> timeSheetList = new ArrayList<>();
       timeSheetList.add(timeSheet);
       Mockito.when(timeSheetService.findAllByPeriodId(timePeriodId)).thenReturn(timeSheetList);

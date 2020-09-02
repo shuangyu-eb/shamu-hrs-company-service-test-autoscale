@@ -30,4 +30,19 @@ public class CompanyTaSetting extends BaseEntity {
   private int messagingOn;
 
   private int overtimeAlert;
+
+  public enum MessagingON {
+    ON(1),
+    OFF(0);
+
+    int value;
+
+    private MessagingON(final int value) {
+      this.value = value;
+    }
+
+    public int getValue() {
+      return value;
+    }
+  }
 }

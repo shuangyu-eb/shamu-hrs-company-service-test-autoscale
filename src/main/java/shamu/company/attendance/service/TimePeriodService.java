@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import shamu.company.attendance.entity.TimePeriod;
 import shamu.company.attendance.entity.TimeSheetPeriodPojo;
 import shamu.company.attendance.repository.TimePeriodRepository;
+import shamu.company.common.exception.errormapping.ResourceNotFoundException;
 
 import java.util.List;
 import java.util.Optional;
@@ -24,8 +25,15 @@ public class TimePeriodService {
     return timePeriodRepository.findByCompanyId(companyId);
   }
 
-  public Optional<TimePeriod> findById(final String timePeriodId) {
-    return timePeriodRepository.findById(timePeriodId);
+  public TimePeriod findById(final String timePeriodId) {
+    return timePeriodRepository
+        .findById(timePeriodId)
+        .orElseThrow(
+            () ->
+                new ResourceNotFoundException(
+                    String.format("Time period with id %s not found!", timePeriodId),
+                    timePeriodId,
+                    "time period"));
   }
 
   public Optional<TimePeriod> findUserCurrentPeriod(final String userId) {
@@ -34,10 +42,6 @@ public class TimePeriodService {
 
   public TimePeriod findCompanyCurrentPeriod(final String companyId) {
     return timePeriodRepository.findCompanyNumberNPeriod(companyId, 0);
-  }
-
-  public TimePeriod findCompanyLastPeriod(final String companyId) {
-    return timePeriodRepository.findCompanyNumberNPeriod(companyId, 1);
   }
 
   public TimePeriod save(final TimePeriod timePeriod) {

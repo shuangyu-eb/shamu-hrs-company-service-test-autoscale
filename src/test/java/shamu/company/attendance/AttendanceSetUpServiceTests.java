@@ -351,4 +351,45 @@ public class AttendanceSetUpServiceTests {
           .doesNotThrowAnyException();
     }
   }
+
+  @Nested
+  class EmailNotification {
+    String periodId = "test_period_id";
+    TimePeriod timePeriod = new TimePeriod();
+    String companyId = "company_id";
+    Company company = new Company();
+    CompanyTaSetting companyTaSetting = new CompanyTaSetting();
+
+    @BeforeEach
+    void init() {
+      timePeriod.setCompany(company);
+      company.setId(companyId);
+    }
+
+    @Test
+    void whenCompanyMessageOff_thenNotSendRunPayRollEmail() {
+      Mockito.when(timePeriodService.findById(periodId)).thenReturn(timePeriod);
+      companyTaSetting.setMessagingOn(0);
+      Mockito.when(attendanceSettingsService.findCompanySettings(companyId))
+          .thenReturn(companyTaSetting);
+      assertThatCode(
+              () ->
+                  attendanceSetUpService.sendEmailNotification(
+                      periodId, EmailService.EmailNotification.RUN_PAYROLL, new Date()))
+          .doesNotThrowAnyException();
+    }
+
+    @Test
+    void whenCompanyMessageOn_thenNotSendRunPayRollEmail() {
+      Mockito.when(timePeriodService.findById(periodId)).thenReturn(timePeriod);
+      companyTaSetting.setMessagingOn(1);
+      Mockito.when(attendanceSettingsService.findCompanySettings(companyId))
+          .thenReturn(companyTaSetting);
+      assertThatCode(
+              () ->
+                  attendanceSetUpService.sendEmailNotification(
+                      periodId, EmailService.EmailNotification.RUN_PAYROLL_TIME_OUT, new Date()))
+          .doesNotThrowAnyException();
+    }
+  }
 }

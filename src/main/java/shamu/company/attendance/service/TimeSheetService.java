@@ -111,7 +111,7 @@ public class TimeSheetService {
 
   public void updateCompanyTimeSheetsStatus(
       final String fromStatus, final String toStatus, final String timePeriodId) {
-    final TimePeriod timePeriod = timePeriodService.findById(timePeriodId).get();
+    final TimePeriod timePeriod = timePeriodService.findById(timePeriodId);
     final List<TimeSheet> timeSheets =
         findAllByPeriodId(timePeriod.getId()).stream()
             .filter(timeSheet -> (timeSheet.getStatus().getName().equals(fromStatus)))

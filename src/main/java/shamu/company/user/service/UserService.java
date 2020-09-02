@@ -19,6 +19,7 @@ import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.Context;
 import shamu.company.admin.entity.SystemAnnouncement;
 import shamu.company.admin.service.SystemAnnouncementsService;
+import shamu.company.attendance.entity.CompanyTaSetting.MessagingON;
 import shamu.company.attendance.entity.StaticTimesheetStatus.TimeSheetStatus;
 import shamu.company.authorization.Permission.Name;
 import shamu.company.authorization.PermissionUtils;
@@ -959,9 +960,9 @@ public class UserService {
     return userRepository.findAttendanceEnrolledUsersByCompanyId(companyId);
   }
 
-  public List<User> listNotSubmitTimeSheetsUsers(final String periodId) {
-    return userRepository.findUsersByPeriodIdAndTimeSheetStatus(
-        periodId, TimeSheetStatus.ACTIVE.name());
+  public List<User> listMessageOnNotSubmitTimeSheetUsers(final String periodId) {
+    return userRepository.findUsersByPeriodIdAndTimeSheetStatusAndMessageOn(
+        periodId, TimeSheetStatus.ACTIVE.name(), MessagingON.ON.getValue());
   }
 
   public List<User> listHasPendingTimeSheetsManagerAndAdmin(final String periodId) {

@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 public class TimePeriodServiceTests {
 
@@ -30,18 +31,16 @@ public class TimePeriodServiceTests {
 
   @Nested
   class get {
-
-    String userId;
-    String companyId;
+    String periodId = "test_period_id";
+    String userId = "test_user_id";
+    String companyId = "test_company_id";
     List<TimeSheetPeriodPojo> timeSheetPeriodPojos;
     List<TimePeriod> timePeriodList;
     TimePeriod timePeriod;
 
     @BeforeEach
     void init() {
-      userId = "test_user_id";
       timeSheetPeriodPojos = new ArrayList<>();
-      companyId = "test_company_id";
       timePeriod = new TimePeriod();
     }
 
@@ -72,6 +71,20 @@ public class TimePeriodServiceTests {
           .thenReturn(timePeriod);
       assertThatCode(() -> timePeriodService.findCompanyCurrentPeriod(companyId))
           .doesNotThrowAnyException();
+    }
+
+    @Test
+    void whenPeriodIdValid_getPeriodShouldSucceed() {
+      Mockito.when(timePeriodRepository.findById(periodId))
+          .thenReturn(java.util.Optional.ofNullable(timePeriod));
+      assertThatCode(() -> timePeriodService.findById(periodId)).doesNotThrowAnyException();
+    }
+
+    @Test
+    void whenPeriodIdNotValid_getPeriodShouldSucceed() {
+      Mockito.when(timePeriodRepository.findById(periodId)).thenReturn(null);
+      assertThatExceptionOfType(NullPointerException.class)
+          .isThrownBy(() -> timePeriodService.findById(periodId));
     }
   }
 }

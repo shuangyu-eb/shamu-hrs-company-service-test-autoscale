@@ -1008,7 +1008,7 @@ class UserServiceTests {
               userRepository.findUsersByPeriodIdAndTimeSheetStatus(
                   periodId, StaticTimesheetStatus.TimeSheetStatus.ACTIVE.name()))
           .thenReturn(new ArrayList<>());
-      assertThatCode(() -> userService.listNotSubmitTimeSheetsUsers(periodId))
+      assertThatCode(() -> userService.listMessageOnNotSubmitTimeSheetUsers(periodId))
           .doesNotThrowAnyException();
     }
 

@@ -14,6 +14,12 @@ public interface UserRepository extends JpaRepository<User, String>, UserCustomR
           + "or (u.deactivated_at is not null "
           + "and u.deactivated_at > current_timestamp)) ";
 
+  String FIND_BY_PERIOD_AND_TIME_SHEET_STATUS =
+      "select u.* from users u join timesheets t "
+          + "on u.id = t.employee_id and t.time_period_id = unhex(?1) "
+          + "join static_timesheet_status sts "
+          + "on sts.name = (?2) and t.status_id = sts.id ";
+
   @Override
   Optional<User> findById(String id);
 
@@ -140,14 +146,17 @@ public interface UserRepository extends JpaRepository<User, String>, UserCustomR
       nativeQuery = true)
   List<User> findAttendanceEnrolledUsersByCompanyId(String companyId);
 
+  @Query(value = FIND_BY_PERIOD_AND_TIME_SHEET_STATUS, nativeQuery = true)
+  List<User> findUsersByPeriodIdAndTimeSheetStatus(String periodId, String timeSheetStatus);
+
   @Query(
       value =
-          "select u.* from users u join timesheets t "
-              + "on u.id = t.employee_id and t.time_period_id = unhex(?1) "
-              + "join static_timesheet_status sts "
-              + "on sts.name = (?2) and t.status_id = sts.id",
+          FIND_BY_PERIOD_AND_TIME_SHEET_STATUS
+              + "join employees_ta_settings ets "
+              + "on u.id = ets.employee_id and messaging_on = (?3) ",
       nativeQuery = true)
-  List<User> findUsersByPeriodIdAndTimeSheetStatus(String periodId, String timeSheetStatus);
+  List<User> findUsersByPeriodIdAndTimeSheetStatusAndMessageOn(
+      String periodId, String timeSheetStatus, int messageOn);
 
   @Query(
       value =

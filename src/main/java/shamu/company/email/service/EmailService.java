@@ -432,7 +432,7 @@ public class EmailService {
     List<User> users = new ArrayList<>();
     switch (emailNotification) {
       case SUBMIT_TIME_SHEET:
-        users = userService.listNotSubmitTimeSheetsUsers(periodId);
+        users = userService.listMessageOnNotSubmitTimeSheetUsers(periodId);
         break;
       case RUN_PAYROLL:
       case RUN_PAYROLL_TIME_OUT:

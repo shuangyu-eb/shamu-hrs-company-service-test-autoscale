@@ -8,6 +8,7 @@ import shamu.company.attendance.dto.TimeAndAttendanceDetailsDto;
 import shamu.company.attendance.dto.TimeAndAttendanceRelatedUserDto;
 import shamu.company.attendance.dto.TimeAndAttendanceRelatedUserListDto;
 import shamu.company.attendance.entity.CompanyTaSetting;
+import shamu.company.attendance.entity.CompanyTaSetting.MessagingON;
 import shamu.company.attendance.entity.EmailNotificationStatus;
 import shamu.company.attendance.entity.EmployeesTaSetting;
 import shamu.company.attendance.entity.StaticCompanyPayFrequencyType;
@@ -361,6 +362,16 @@ public class AttendanceSetUpService {
 
   public void sendEmailNotification(
       final String periodId, final EmailNotification emailNotification, final Date sendDate) {
+    if (emailNotification.equals(EmailNotification.RUN_PAYROLL)
+        || emailNotification.equals(EmailNotification.RUN_PAYROLL_TIME_OUT)) {
+      final Company company = timePeriodService.findById(periodId).getCompany();
+      final CompanyTaSetting companyTaSetting =
+          attendanceSettingsService.findCompanySettings(company.getId());
+      if (companyTaSetting.getMessagingOn() == MessagingON.OFF.getValue()) {
+        return;
+      }
+    }
+
     final List<Email> emails =
         emailService.getAttendanceNotificationEmails(
             periodId, emailNotification, new Timestamp(sendDate.getTime()));
