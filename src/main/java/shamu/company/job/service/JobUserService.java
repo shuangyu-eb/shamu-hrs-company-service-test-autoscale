@@ -6,9 +6,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shamu.company.attendance.dto.EmployeeInfoDto;
+import shamu.company.attendance.entity.OvertimePolicy;
 import shamu.company.attendance.entity.TimePeriod;
+import shamu.company.attendance.service.OvertimeService;
 import shamu.company.attendance.service.TimePeriodService;
 import shamu.company.common.exception.errormapping.AlreadyExistsException;
+import shamu.company.common.exception.errormapping.ZipCodeNotExistException;
 import shamu.company.common.service.DepartmentService;
 import shamu.company.common.service.OfficeAddressService;
 import shamu.company.common.service.OfficeService;
@@ -29,7 +32,6 @@ import shamu.company.job.entity.Job;
 import shamu.company.job.entity.JobUser;
 import shamu.company.job.entity.mapper.JobUserMapper;
 import shamu.company.job.exception.errormapping.DeletionFailedCausedByCascadeException;
-import shamu.company.common.exception.errormapping.ZipCodeNotExistException;
 import shamu.company.job.repository.JobUserRepository;
 import shamu.company.server.dto.AuthUser;
 import shamu.company.timeoff.dto.MyTimeOffDto;
@@ -114,6 +116,8 @@ public class JobUserService {
 
   private final GoogleMapsHelper googleMapsHelper;
 
+  private final OvertimeService overtimeService;
+
   public JobUserService(
       final JobUserRepository jobUserRepository,
       final UserService userService,
@@ -136,7 +140,8 @@ public class JobUserService {
       final CompensationOvertimeStatusService compensationOvertimeStatusService,
       final TimePeriodService timePeriodService,
       final UserCompensationService userCompensationService,
-      final GoogleMapsHelper googleMapsHelper) {
+      final GoogleMapsHelper googleMapsHelper,
+      final OvertimeService overtimeService) {
     this.jobUserRepository = jobUserRepository;
     this.userService = userService;
     this.userCompensationMapper = userCompensationMapper;
@@ -159,6 +164,7 @@ public class JobUserService {
     this.timePeriodService = timePeriodService;
     this.userCompensationService = userCompensationService;
     this.googleMapsHelper = googleMapsHelper;
+    this.overtimeService = overtimeService;
   }
 
   public JobUser save(final JobUser jobUser) {
@@ -240,10 +246,16 @@ public class JobUserService {
       if (jobUserCompensationUpdated(jobUpdateDto)) {
         userCompensationMapper.updateFromJobUpdateDto(userCompensation, jobUpdateDto);
       }
-      if (jobUpdateDto.getPayTypeName() != null) {
+      final String payTypeName = jobUpdateDto.getPayTypeName();
+      if (payTypeName != null) {
         final CompensationOvertimeStatus compensationOvertimeStatus =
-            compensationOvertimeStatusService.findByName(jobUpdateDto.getPayTypeName());
+            compensationOvertimeStatusService.findByName(payTypeName);
         userCompensation.setOvertimeStatus(compensationOvertimeStatus);
+        if (!payTypeName.equals(
+            CompensationOvertimeStatus.OvertimeStatus.NOT_ELIGIBLE.getValue())) {
+          final OvertimePolicy overtimePolicy = overtimeService.findDefaultPolicy();
+          userCompensation.setOvertimePolicy(overtimePolicy);
+        }
       }
       userCompensation.setUserId(userId);
       jobUser.setUserCompensation(userCompensation);
@@ -350,7 +362,8 @@ public class JobUserService {
     if (!oldOffices.isEmpty()) {
       throw new AlreadyExistsException("Office already exists.", "office");
     }
-    final String timezone = googleMapsHelper.findTimezoneByPostalCode(officeCreateDto.getPostalCode());
+    final String timezone =
+        googleMapsHelper.findTimezoneByPostalCode(officeCreateDto.getPostalCode());
     if (timezone.isEmpty()) {
       throw new ZipCodeNotExistException("Office zipCode is error.");
     }

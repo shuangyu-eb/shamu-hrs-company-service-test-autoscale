@@ -1,6 +1,7 @@
 package shamu.company.attendance;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -10,6 +11,7 @@ import shamu.company.attendance.dto.OvertimePolicyDetailDto;
 import shamu.company.attendance.dto.OvertimePolicyDto;
 import shamu.company.attendance.entity.CompanyTaSetting;
 import shamu.company.attendance.entity.EmployeeTimeLog;
+import shamu.company.attendance.entity.OvertimePolicy;
 import shamu.company.attendance.entity.PolicyDetail;
 import shamu.company.attendance.entity.StaticEmployeesTaTimeType;
 import shamu.company.attendance.entity.StaticOvertimeType;
@@ -22,6 +24,7 @@ import shamu.company.attendance.repository.OvertimePolicyRepository;
 import shamu.company.attendance.repository.PolicyDetailRepository;
 import shamu.company.attendance.repository.StaticOvertimeTypeRepository;
 import shamu.company.attendance.service.OvertimeService;
+import shamu.company.company.entity.Company;
 import shamu.company.job.entity.CompensationFrequency;
 import shamu.company.user.entity.CompensationOvertimeStatus;
 import shamu.company.user.entity.UserCompensation;
@@ -108,5 +111,30 @@ public class OvertimeServiceTests {
         .thenReturn(policyDetail);
     assertThatCode(() -> overtimeService.saveNewOvertimePolicy(overtimePolicyDto, "1"))
         .doesNotThrowAnyException();
+  }
+
+  @Nested
+  class policy {
+    Company company = new Company();
+
+    @Test
+    void whenCompanyValid_createDefaultPolicy_shouldSucceed() {
+      Mockito.when(overtimePolicyRepository.save(Mockito.any())).thenReturn(new OvertimePolicy());
+      assertThatCode(() -> overtimeService.createDefaultPolicy(company)).doesNotThrowAnyException();
+    }
+
+    @Test
+    void findDefaultPolicy_shouldSucceed() {
+      Mockito.when(overtimePolicyRepository.findByDefaultPolicy(true))
+          .thenReturn(new OvertimePolicy());
+      assertThatCode(() -> overtimeService.findDefaultPolicy()).doesNotThrowAnyException();
+    }
+
+    @Test
+    void softDeletePolicy_shouldSucceed() {
+      final String overtimeId = "test_overtime_id";
+      assertThatCode(() -> overtimeService.softDeleteOvertimePolicy(overtimeId))
+          .doesNotThrowAnyException();
+    }
   }
 }

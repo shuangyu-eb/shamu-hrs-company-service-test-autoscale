@@ -9,7 +9,9 @@ import org.mapstruct.factory.Mappers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import shamu.company.attendance.entity.OvertimePolicy;
 import shamu.company.attendance.entity.TimePeriod;
+import shamu.company.attendance.service.OvertimeService;
 import shamu.company.attendance.service.TimePeriodService;
 import shamu.company.common.service.DepartmentService;
 import shamu.company.common.service.OfficeAddressService;
@@ -44,6 +46,7 @@ import shamu.company.timeoff.repository.TimeOffPolicyAccrualScheduleRepository;
 import shamu.company.timeoff.repository.TimeOffPolicyUserRepository;
 import shamu.company.timeoff.service.TimeOffPolicyService;
 import shamu.company.timeoff.service.TimeOffRequestService;
+import shamu.company.user.entity.CompensationOvertimeStatus;
 import shamu.company.user.entity.EmployeeType;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
@@ -94,9 +97,10 @@ class JobUserServiceTests {
   private final JobUserMapper jobUserMapper =
       new JobUserMapperImpl(officeMapper, userCompensationMapper);
   private JobUserService jobUserService;
-  private CompensationOvertimeStatusService compensationOvertimeStatusService;
+  @Mock private CompensationOvertimeStatusService compensationOvertimeStatusService;
   @Mock private UserCompensationService userCompensationService;
   @Mock private GoogleMapsHelper googleMapsHelper;
+  @Mock private OvertimeService overtimeService;
 
   @BeforeEach
   void setUp() {
@@ -124,7 +128,8 @@ class JobUserServiceTests {
             compensationOvertimeStatusService,
             timePeriodService,
             userCompensationService,
-            googleMapsHelper);
+            googleMapsHelper,
+            overtimeService);
   }
 
   @Test
@@ -345,6 +350,21 @@ class JobUserServiceTests {
           .findSubordinatesByManagerUserId(Mockito.any(), Mockito.any());
       Mockito.verify(userService, Mockito.times(1)).save(Mockito.any());
     }
+
+    @Test
+    void whenJobUpdateDtoValid_shouldSucceed() {
+      jobUpdateDto.setManagerId(null);
+      jobUpdateDto.setPayTypeName(CompensationOvertimeStatus.OvertimeStatus.FEDERAL.getValue());
+      Mockito.when(userService.findById(user.getId())).thenReturn(user);
+      Mockito.when(jobUserRepository.findJobUserByUser(jobUser.getUser())).thenReturn(jobUser);
+      Mockito.when(jobUserRepository.save(jobUser)).thenReturn(jobUser);
+      Mockito.when(
+              compensationOvertimeStatusService.findByName(
+                  CompensationOvertimeStatus.OvertimeStatus.FEDERAL.getValue()))
+          .thenReturn(new CompensationOvertimeStatus());
+      Mockito.when(overtimeService.findDefaultPolicy()).thenReturn(new OvertimePolicy());
+      Assertions.assertDoesNotThrow(() -> jobUserService.updateJobInfo("1", jobUpdateDto, "1"));
+    }
   }
 
   @Nested
@@ -533,7 +553,8 @@ class JobUserServiceTests {
                   officeCreateDto.getOfficeName(), office.getCompany().getId()))
           .thenReturn(Collections.emptyList());
       Mockito.when(officeService.save(newOffice)).thenReturn(newOffice);
-      Mockito.when(googleMapsHelper.findTimezoneByPostalCode(Mockito.anyString())).thenReturn("timezone");
+      Mockito.when(googleMapsHelper.findTimezoneByPostalCode(Mockito.anyString()))
+          .thenReturn("timezone");
       Assertions.assertDoesNotThrow(
           () -> jobUserService.updateJobSelectOption(jobSelectOptionUpdateDto));
       Mockito.verify(officeService, Mockito.times(1)).save(Mockito.any());

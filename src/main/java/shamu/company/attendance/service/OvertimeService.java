@@ -1,16 +1,18 @@
 package shamu.company.attendance.service;
 
-import java.sql.Timestamp;
-import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import shamu.company.attendance.dto.*;
-import shamu.company.attendance.entity.*;
+import shamu.company.attendance.dto.LocalDateEntryDto;
+import shamu.company.attendance.dto.OverTimeMinutesDto;
+import shamu.company.attendance.dto.OvertimeDetailDto;
+import shamu.company.attendance.dto.OvertimePolicyDetailDto;
+import shamu.company.attendance.dto.OvertimePolicyDto;
+import shamu.company.attendance.entity.CompanyTaSetting;
+import shamu.company.attendance.entity.EmployeeTimeLog;
+import shamu.company.attendance.entity.OvertimePolicy;
+import shamu.company.attendance.entity.PolicyDetail;
+import shamu.company.attendance.entity.StaticTimezone;
+import shamu.company.attendance.entity.TimeSheet;
 import shamu.company.attendance.entity.mapper.OvertimePolicyMapper;
 import shamu.company.attendance.entity.mapper.PolicyDetailMapper;
 import shamu.company.attendance.repository.OvertimePolicyRepository;
@@ -18,13 +20,23 @@ import shamu.company.attendance.repository.PolicyDetailRepository;
 import shamu.company.attendance.repository.StaticOvertimeTypeRepository;
 import shamu.company.attendance.utils.TimeEntryUtils;
 import shamu.company.attendance.utils.overtime.OverTimePayFactory;
+import shamu.company.company.entity.Company;
 import shamu.company.utils.DateUtil;
+
+import java.sql.Timestamp;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /** @author mshumaker */
 @Service
 public class OvertimeService {
 
   private static final int CONVERT_SECOND_TO_MS = 1000;
+  private static final String DEFAULT_OVERTIME_POLICY_NAME = "default_overtime_policy";
 
   private final GenericHoursService genericHoursService;
   private final OvertimePolicyRepository overtimePolicyRepository;
@@ -33,10 +45,13 @@ public class OvertimeService {
   private final PolicyDetailRepository policyDetailRepository;
   private final StaticOvertimeTypeRepository staticOvertimeTypeRepository;
 
-  public OvertimeService(final GenericHoursService genericHoursService,
-                         final OvertimePolicyRepository overtimePolicyRepository,
-                         final OvertimePolicyMapper overtimePolicyMapper,
-                         final PolicyDetailMapper policyDetailMapper, PolicyDetailRepository policyDetailRepository, StaticOvertimeTypeRepository staticOvertimeTypeRepository) {
+  public OvertimeService(
+      final GenericHoursService genericHoursService,
+      final OvertimePolicyRepository overtimePolicyRepository,
+      final OvertimePolicyMapper overtimePolicyMapper,
+      final PolicyDetailMapper policyDetailMapper,
+      final PolicyDetailRepository policyDetailRepository,
+      final StaticOvertimeTypeRepository staticOvertimeTypeRepository) {
     this.genericHoursService = genericHoursService;
     this.overtimePolicyRepository = overtimePolicyRepository;
     this.overtimePolicyMapper = overtimePolicyMapper;
@@ -134,24 +149,44 @@ public class OvertimeService {
     return rateToMin;
   }
 
-  public void saveNewOvertimePolicy(final OvertimePolicyDto overtimePolicyDto, final String companyId){
+  public void saveNewOvertimePolicy(
+      final OvertimePolicyDto overtimePolicyDto, final String companyId) {
     final List<OvertimePolicyDetailDto> policyDetailDtos = overtimePolicyDto.getPolicyDetails();
-    final OvertimePolicy newOvertimePolicy = overtimePolicyMapper.
-            convertToOvertimePolicy(new OvertimePolicy(), overtimePolicyDto,companyId);
-    final List<PolicyDetail> policyDetails = policyDetailDtos.stream()
-            .map((OvertimePolicyDetailDto overtimePolicyDto1) ->
-                    policyDetailMapper.convertToPolicyDetail(overtimePolicyDto1,newOvertimePolicy))
+    final OvertimePolicy newOvertimePolicy =
+        overtimePolicyMapper.convertToOvertimePolicy(
+            new OvertimePolicy(), overtimePolicyDto, companyId);
+    final List<PolicyDetail> policyDetails =
+        policyDetailDtos.stream()
+            .map(
+                (OvertimePolicyDetailDto overtimePolicyDto1) ->
+                    policyDetailMapper.convertToPolicyDetail(overtimePolicyDto1, newOvertimePolicy))
             .collect(Collectors.toList());
-    policyDetails.stream().forEach(policyDetail -> policyDetail.setStaticOvertimeType(
-            staticOvertimeTypeRepository.findByName(policyDetail.getStaticOvertimeType().getName())));
+    policyDetails.stream()
+        .forEach(
+            policyDetail ->
+                policyDetail.setStaticOvertimeType(
+                    staticOvertimeTypeRepository.findByName(
+                        policyDetail.getStaticOvertimeType().getName())));
     overtimePolicyRepository.save(newOvertimePolicy);
     policyDetailRepository.saveAll(policyDetails);
   }
 
-
-  @Transactional
-  public void softDeleteOvertimePolicy(final String policyId){
-    overtimePolicyRepository.softDeleteOvertimePolicy(policyId);
+  public void createDefaultPolicy(final Company company) {
+    final OvertimePolicy overtimePolicy =
+        OvertimePolicy.builder()
+            .policyName(DEFAULT_OVERTIME_POLICY_NAME)
+            .company(company)
+            .defaultPolicy(true)
+            .build();
+    overtimePolicyRepository.save(overtimePolicy);
   }
 
+  public OvertimePolicy findDefaultPolicy() {
+    return overtimePolicyRepository.findByDefaultPolicy(true);
+  }
+
+  @Transactional
+  public void softDeleteOvertimePolicy(final String policyId) {
+    overtimePolicyRepository.softDeleteOvertimePolicy(policyId);
+  }
 }

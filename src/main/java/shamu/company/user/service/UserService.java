@@ -21,6 +21,7 @@ import shamu.company.admin.entity.SystemAnnouncement;
 import shamu.company.admin.service.SystemAnnouncementsService;
 import shamu.company.attendance.entity.CompanyTaSetting.MessagingON;
 import shamu.company.attendance.entity.StaticTimesheetStatus.TimeSheetStatus;
+import shamu.company.attendance.service.OvertimeService;
 import shamu.company.authorization.Permission.Name;
 import shamu.company.authorization.PermissionUtils;
 import shamu.company.client.AddTenantDto;
@@ -146,6 +147,7 @@ public class UserService {
   private final CompanyRepository companyRepository;
   private final SystemAnnouncementsService systemAnnouncementsService;
   private final DismissedAtService dismissedAtService;
+  private final OvertimeService overtimeService;
 
   private final DocumentClient documentClient;
 
@@ -190,7 +192,8 @@ public class UserService {
       final CompanyRepository companyRepository,
       final SystemAnnouncementsService systemAnnouncementsService,
       final DismissedAtService dismissedAtService,
-      final DocumentClient documentClient) {
+      final DocumentClient documentClient,
+      final OvertimeService overtimeService) {
     this.templateEngine = templateEngine;
     this.userRepository = userRepository;
     this.secretHashRepository = secretHashRepository;
@@ -219,6 +222,7 @@ public class UserService {
     this.systemAnnouncementsService = systemAnnouncementsService;
     this.dismissedAtService = dismissedAtService;
     this.documentClient = documentClient;
+    this.overtimeService = overtimeService;
   }
 
   public User findById(final String id) {
@@ -600,6 +604,7 @@ public class UserService {
     user = userRepository.save(user);
 
     paidHolidayService.initDefaultPaidHolidays(user.getCompany());
+    overtimeService.createDefaultPolicy(company);
 
     addTenant(user);
   }

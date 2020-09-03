@@ -15,6 +15,7 @@ import org.thymeleaf.ITemplateEngine;
 import shamu.company.admin.entity.SystemAnnouncement;
 import shamu.company.admin.service.SystemAnnouncementsService;
 import shamu.company.attendance.entity.StaticTimesheetStatus;
+import shamu.company.attendance.service.OvertimeService;
 import shamu.company.authorization.PermissionUtils;
 import shamu.company.client.DocumentClient;
 import shamu.company.common.entity.Country;
@@ -135,6 +136,7 @@ class UserServiceTests {
   @Mock private SystemAnnouncementsService systemAnnouncementsService;
   @Mock private DismissedAtService dismissedAtService;
   @Mock private DocumentClient documentClient;
+  @Mock private OvertimeService overtimeService;
 
   @BeforeEach
   void init() {

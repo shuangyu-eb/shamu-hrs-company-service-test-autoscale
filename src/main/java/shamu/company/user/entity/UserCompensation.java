@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Type;
 import shamu.company.attendance.entity.Currency;
+import shamu.company.attendance.entity.OvertimePolicy;
 import shamu.company.common.entity.BaseEntity;
 import shamu.company.job.entity.CompensationFrequency;
 
@@ -29,6 +30,8 @@ public class UserCompensation extends BaseEntity {
   private Timestamp endDate;
 
   @ManyToOne private CompensationOvertimeStatus overtimeStatus;
+
+  @ManyToOne private OvertimePolicy overtimePolicy;
 
   @Column(name = "user_id")
   @Type(type = "shamu.company.common.PrimaryKeyTypeDescriptor")
