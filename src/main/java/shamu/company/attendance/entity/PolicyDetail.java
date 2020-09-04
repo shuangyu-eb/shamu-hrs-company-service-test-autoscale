@@ -3,7 +3,10 @@ package shamu.company.attendance.entity;
 import lombok.Data;
 import shamu.company.common.entity.BaseEntity;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import java.math.BigDecimal;
 
 @Data
@@ -12,8 +15,7 @@ import java.math.BigDecimal;
 public class PolicyDetail extends BaseEntity {
   private static final long serialVersionUID = -7274691433537975032L;
 
-  @ManyToOne
-  private OvertimePolicy overtimePolicy;
+  @ManyToOne private OvertimePolicy overtimePolicy;
 
   private int start;
 

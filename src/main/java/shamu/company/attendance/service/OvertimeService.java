@@ -7,6 +7,7 @@ import shamu.company.attendance.dto.OverTimeMinutesDto;
 import shamu.company.attendance.dto.OvertimeDetailDto;
 import shamu.company.attendance.dto.OvertimePolicyDetailDto;
 import shamu.company.attendance.dto.OvertimePolicyDto;
+import shamu.company.attendance.dto.OvertimeRuleDto;
 import shamu.company.attendance.entity.CompanyTaSetting;
 import shamu.company.attendance.entity.EmployeeTimeLog;
 import shamu.company.attendance.entity.OvertimePolicy;
@@ -81,12 +82,15 @@ public class OvertimeService {
       final List<LocalDateEntryDto> localDateEntries,
       final TimeSheet timeSheet,
       final CompanyTaSetting companyTaSetting) {
-
     final Timestamp timeSheetStart = timeSheet.getTimePeriod().getStartDate();
     final Timestamp timesheetEnd = timeSheet.getTimePeriod().getEndDate();
     final List<OvertimeDetailDto> overtimeDetailDtos =
         OverTimePayFactory.getOverTimePay(timeSheet.getUserCompensation())
             .getOvertimePay(localDateEntries);
+    // TODO use this function when frontend code is complete
+    //        final Map<String, List<OvertimeRuleDto>> overtimeRules = getOvertimeRules(timeSheet);
+    //        final List<OvertimeDetailDto> overtimeDetailDtos =
+    //            new OvertimeCalculator().getOvertimePay(localDateEntries, overtimeRules);
     return filterOvertimeEntries(
         overtimeDetailDtos,
         timeSheetStart.getTime(),
@@ -188,5 +192,26 @@ public class OvertimeService {
   @Transactional
   public void softDeleteOvertimePolicy(final String policyId) {
     overtimePolicyRepository.softDeleteOvertimePolicy(policyId);
+  }
+
+  public Map<String, List<OvertimeRuleDto>> getOvertimeRules(final TimeSheet timeSheet) {
+    final OvertimePolicy overtimePolicy = timeSheet.getUserCompensation().getOvertimePolicy();
+    final List<PolicyDetail> policyDetails =
+        policyDetailRepository.findAllByOvertimePolicyId(overtimePolicy.getId());
+    final Map<String, List<OvertimeRuleDto>> otRules = new HashMap<>();
+    policyDetails.forEach(
+        policyDetail -> {
+          final OvertimeRuleDto overtimeRuleDto =
+              OvertimeRuleDto.builder()
+                  .start(policyDetail.getStart())
+                  .rate(policyDetail.getRate().doubleValue())
+                  .build();
+          otRules.putIfAbsent(policyDetail.getStaticOvertimeType().getName(), new ArrayList<>());
+          otRules.get(policyDetail.getStaticOvertimeType().getName()).add(overtimeRuleDto);
+        });
+    for (final Map.Entry<String, List<OvertimeRuleDto>> otRule : otRules.entrySet()) {
+      otRule.getValue().sort(TimeEntryUtils.compareByOvertimeStart);
+    }
+    return otRules;
   }
 }

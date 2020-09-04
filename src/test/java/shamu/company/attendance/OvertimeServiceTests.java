@@ -29,6 +29,7 @@ import shamu.company.job.entity.CompensationFrequency;
 import shamu.company.user.entity.CompensationOvertimeStatus;
 import shamu.company.user.entity.UserCompensation;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -113,6 +114,27 @@ public class OvertimeServiceTests {
         .doesNotThrowAnyException();
   }
 
+  @Test
+  void getOvertimeRules() {
+    final OvertimePolicy overtimePolicy = new OvertimePolicy();
+    overtimePolicy.setId("1");
+    final UserCompensation userCompensation = new UserCompensation();
+    userCompensation.setOvertimePolicy(overtimePolicy);
+    final TimeSheet timeSheet = new TimeSheet();
+    timeSheet.setUserCompensation(userCompensation);
+    final List<PolicyDetail> policyDetails = new ArrayList<>();
+    final PolicyDetail policyDetail = new PolicyDetail();
+    policyDetail.setStart(8);
+    policyDetail.setRate(BigDecimal.valueOf(1.5));
+    final StaticOvertimeType staticOvertimeType = new StaticOvertimeType();
+    staticOvertimeType.setName("DAILY");
+    policyDetail.setStaticOvertimeType(staticOvertimeType);
+    policyDetails.add(policyDetail);
+    Mockito.when(policyDetailRepository.findAllByOvertimePolicyId(overtimePolicy.getId()))
+        .thenReturn(policyDetails);
+    assertThatCode(() -> overtimeService.getOvertimeRules(timeSheet)).doesNotThrowAnyException();
+  }
+
   @Nested
   class policy {
     Company company = new Company();
@@ -133,6 +155,7 @@ public class OvertimeServiceTests {
     @Test
     void softDeletePolicy_shouldSucceed() {
       final String overtimeId = "test_overtime_id";
+
       assertThatCode(() -> overtimeService.softDeleteOvertimePolicy(overtimeId))
           .doesNotThrowAnyException();
     }

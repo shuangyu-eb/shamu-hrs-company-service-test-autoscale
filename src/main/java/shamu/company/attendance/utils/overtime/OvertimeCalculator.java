@@ -29,7 +29,7 @@ public class OvertimeCalculator {
 
   public void calculateDailyOvertime(
       final List<LocalDateEntryDto> myHours, final Map<String, List<OvertimeRuleDto>> otRules) {
-    if (!otRules.get(OVERTIME_TYPE_DAILY).isEmpty()) {
+    if (otRules.get(OVERTIME_TYPE_DAILY) != null) {
       if (otRules.get(OVERTIME_TYPE_DAILY).size() == 1) {
         oneRateInOneDay(myHours, otRules);
       } else if (otRules.get(OVERTIME_TYPE_DAILY).size() == 2) {
@@ -89,7 +89,7 @@ public class OvertimeCalculator {
 
   public void calculateWeeklyOvertime(
       final List<LocalDateEntryDto> myHours, final Map<String, List<OvertimeRuleDto>> otRules) {
-    if (!otRules.get(OVERTIME_TYPE_WEEKLY).isEmpty()) {
+    if (otRules.get(OVERTIME_TYPE_WEEKLY) != null) {
       if (otRules.get(OVERTIME_TYPE_WEEKLY).size() == 1) {
         oneRateInOneWeek(myHours, otRules);
       } else if (otRules.get(OVERTIME_TYPE_WEEKLY).size() == 2) {

@@ -2,6 +2,7 @@ package shamu.company.attendance.utils;
 
 import shamu.company.attendance.dto.BreakTimeLogDto;
 import shamu.company.attendance.dto.LocalDateEntryDto;
+import shamu.company.attendance.dto.OvertimeRuleDto;
 import shamu.company.attendance.entity.EmployeeTimeLog;
 import shamu.company.attendance.entity.StaticTimezone;
 import shamu.company.utils.DateUtil;
@@ -26,6 +27,9 @@ public abstract class TimeEntryUtils {
 
   public static final Comparator<BreakTimeLogDto> compareByBreakStart =
       Comparator.comparing(BreakTimeLogDto::getBreakStart);
+
+  public static final Comparator<OvertimeRuleDto> compareByOvertimeStart =
+      Comparator.comparing(OvertimeRuleDto::getStart);
 
   public static List<LocalDateEntryDto> transformTimeLogsToLocalDate(
       final List<EmployeeTimeLog> allEmployeeEntries, final StaticTimezone timezone) {
