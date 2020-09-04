@@ -1,5 +1,7 @@
 package shamu.company.attendance;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -19,6 +21,13 @@ import shamu.company.attendance.service.AttendanceSettingsService;
 import shamu.company.attendance.service.TimeSheetService;
 import shamu.company.common.entity.mapper.PayrollDetailMapper;
 import shamu.company.common.service.PayrollDetailService;
+import shamu.company.company.entity.Company;
+import shamu.company.company.entity.Office;
+import shamu.company.company.entity.OfficeAddress;
+import shamu.company.helpers.googlemaps.GoogleMapsHelper;
+import shamu.company.job.entity.JobUser;
+import shamu.company.job.repository.JobUserRepository;
+import shamu.company.user.entity.User;
 import shamu.company.user.repository.UserRepository;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -46,6 +55,10 @@ public class AttendanceSettingsServiceTests {
   @Mock private PayrollDetailService payrollDetailService;
 
   @Mock private PayrollDetailMapper payrollDetailMapper;
+
+  @Mock private JobUserRepository jobUserRepository;
+
+  @Mock private GoogleMapsHelper googleMapsHelper;
 
   @BeforeEach
   void init() {
@@ -91,6 +104,27 @@ public class AttendanceSettingsServiceTests {
   @Test
   void findEmployeeIsAttendanceSetUp() {
     assertThatCode(() -> attendanceSettingsService.findEmployeeIsAttendanceSetUp("employeeId"))
+        .doesNotThrowAnyException();
+  }
+
+  @Test
+  void initialTimezoneForOldDatas() {
+    final List<User> userList = new ArrayList<>();
+    final User user = new User();
+    final Company company = new Company();
+    company.setId("companyId");
+    user.setId("userId");
+    user.setCompany(company);
+    userList.add(user);
+    final JobUser jobUser = new JobUser();
+    final Office office = new Office();
+    final OfficeAddress officeAddress = new OfficeAddress();
+    officeAddress.setPostalCode("02114");
+    office.setOfficeAddress(officeAddress);
+    jobUser.setOffice(office);
+    Mockito.when(jobUserRepository.findJobUserByUser(user)).thenReturn(jobUser);
+    Mockito.when(userRepository.findAllByTimeZoneIsNull()).thenReturn(userList);
+    assertThatCode(() -> attendanceSettingsService.initialTimezoneForOldDatas())
         .doesNotThrowAnyException();
   }
 }

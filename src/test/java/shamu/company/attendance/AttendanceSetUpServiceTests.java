@@ -1,5 +1,9 @@
 package shamu.company.attendance;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -194,6 +198,8 @@ public class AttendanceSetUpServiceTests {
     Company company;
     final StaticTimezone staticTimezone = new StaticTimezone();
     CompanyTaSetting companyTaSetting = new CompanyTaSetting();
+    Map<String, String> timezones = new HashMap();
+    Set<String> set = new HashSet();
 
     @BeforeEach
     void init() {
@@ -202,14 +208,15 @@ public class AttendanceSetUpServiceTests {
       timeAndAttendanceDetailsDto.setOvertimeDetails(details);
       timeAndAttendanceDetailsDto.setPeriodStartDate("01/01/2020");
       timeAndAttendanceDetailsDto.setPeriodEndDate("01/03/2020");
-      timeAndAttendanceDetailsDto.setFrontendTimezone("front-end-timezone");
       Mockito.when(companyService.findById(Mockito.anyString())).thenReturn(company);
       officeAddress.setPostalCode("postalCode");
       office.setOfficeAddress(officeAddress);
       jobUser.setOffice(office);
-      staticTimezone.setName("Hongkong");
+      staticTimezone.setName("America/Chicago");
       companyTaSetting.setTimeZone(staticTimezone);
       timePeriod.setEndDate(new Timestamp(new Date().getTime()));
+      timezones.put("postalCode", "timezone");
+      set.add("postalCode");
     }
 
     @Test
@@ -223,9 +230,10 @@ public class AttendanceSetUpServiceTests {
           .thenReturn(companyTaSetting);
       Mockito.when(attendanceSettingsService.findCompanySettings(companyId))
           .thenReturn(companyTaSetting);
-      Mockito.when(staticTimeZoneRepository.findByName("front-end-timezone"))
-          .thenReturn(staticTimezone);
+      Mockito.when(googleMapsHelper.findTimezoneByPostalCode(set))
+          .thenReturn(timezones);
       Mockito.when(timePeriodService.save(Mockito.any())).thenReturn(timePeriod);
+      Mockito.when(staticTimeZoneRepository.findByName("timezone")).thenReturn(staticTimezone);
       assertThatCode(
               () ->
                   attendanceSetUpService.saveAttendanceDetails(
@@ -253,8 +261,9 @@ public class AttendanceSetUpServiceTests {
           .thenReturn(Optional.of(new CompensationOvertimeStatus()));
       Mockito.when(jobUserRepository.findByUserId(Mockito.any())).thenReturn(jobUser);
       Mockito.when(timeSheetService.saveAll(Mockito.any())).thenReturn(Mockito.any());
-      Mockito.when(staticTimeZoneRepository.findByName("front-end-timezone"))
-          .thenReturn(staticTimezone);
+      Mockito.when(googleMapsHelper.findTimezoneByPostalCode(set))
+          .thenReturn(timezones);
+      Mockito.when(staticTimeZoneRepository.findByName("timezone")).thenReturn(staticTimezone);
       Mockito.when(timePeriodService.save(Mockito.any())).thenReturn(timePeriod);
       assertThatCode(
               () ->
@@ -288,8 +297,9 @@ public class AttendanceSetUpServiceTests {
           .thenReturn(Optional.of(new CompensationOvertimeStatus()));
       Mockito.when(jobUserRepository.findByUserId(Mockito.any())).thenReturn(jobUser);
       Mockito.when(timeSheetService.saveAll(Mockito.any())).thenReturn(Mockito.any());
-      Mockito.when(staticTimeZoneRepository.findByName("front-end-timezone"))
-          .thenReturn(staticTimezone);
+      Mockito.when(googleMapsHelper.findTimezoneByPostalCode(set))
+          .thenReturn(timezones);
+      Mockito.when(staticTimeZoneRepository.findByName("timezone")).thenReturn(staticTimezone);
       assertThatCode(
               () ->
                   attendanceSetUpService.saveAttendanceDetails(

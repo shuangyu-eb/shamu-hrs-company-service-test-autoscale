@@ -239,8 +239,7 @@ public class AttendanceSetUpService {
     final Boolean isAddOrRemoveEmployee = timeAndAttendanceDetailsDto.getIsAddOrRemove();
 
     final Map<String, StaticTimezone> allTimezones =
-        findTimezonesByPostalCode(
-            overtimeDetailsDtoList, employeeId, timeAndAttendanceDetailsDto.getFrontendTimezone());
+        findTimezonesByPostalCode(overtimeDetailsDtoList, employeeId);
     final StaticTimezone companyTimezone = allTimezones.get(COMPANY_POSTAL_CODE);
 
     final Date periodStartDate =
@@ -401,9 +400,7 @@ public class AttendanceSetUpService {
 
   // return a map containing company's timezone and all employees' timezones
   private Map<String, StaticTimezone> findTimezonesByPostalCode(
-      final List<EmployeeOvertimeDetailsDto> overtimeDetails,
-      final String adminUserId,
-      final String frontendTimezone) {
+      final List<EmployeeOvertimeDetailsDto> overtimeDetails, final String adminUserId) {
     final String companyPostalCode =
         jobUserRepository.findByUserId(adminUserId).getOffice().getOfficeAddress().getPostalCode();
     final Set<String> allPostalCodes = findAllPostalCodes(overtimeDetails, companyPostalCode);
@@ -418,13 +415,8 @@ public class AttendanceSetUpService {
                 postalCodeToStaticTimezone.put(
                     postalCode,
                     staticTimeZoneRepository.findByName(postalCodeToTimezone.get(postalCode))));
-    if (postalCodeToStaticTimezone.containsKey(COMPANY_POSTAL_CODE)) {
-      postalCodeToStaticTimezone.put(
-          COMPANY_POSTAL_CODE, postalCodeToStaticTimezone.get(companyPostalCode));
-    } else {
-      postalCodeToStaticTimezone.put(
-          COMPANY_POSTAL_CODE, staticTimeZoneRepository.findByName(frontendTimezone));
-    }
+    postalCodeToStaticTimezone.put(
+        COMPANY_POSTAL_CODE, postalCodeToStaticTimezone.get(companyPostalCode));
     return postalCodeToStaticTimezone;
   }
 

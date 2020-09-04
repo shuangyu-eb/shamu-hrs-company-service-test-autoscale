@@ -19,8 +19,6 @@ public class TimeAndAttendanceDetailsDto {
 
   private String periodEndDate;
 
-  private String frontendTimezone;
-
   private Boolean isAddOrRemove;
 
   private List<String> removedUserIds;

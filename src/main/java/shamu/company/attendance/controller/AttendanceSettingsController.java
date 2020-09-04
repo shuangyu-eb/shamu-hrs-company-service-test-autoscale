@@ -96,4 +96,10 @@ public class AttendanceSettingsController extends BaseRestController {
     overtimeService.softDeleteOvertimePolicy(policyId);
     return new ResponseEntity<>(HttpStatus.OK);
   }
+
+  @GetMapping("time-and-attendance/initialize-default-timezone")
+  public HttpEntity<String> initializeTimezones() {
+    attendanceSettingsService.initialTimezoneForOldDatas();
+    return new ResponseEntity<>(HttpStatus.OK);
+  }
 }

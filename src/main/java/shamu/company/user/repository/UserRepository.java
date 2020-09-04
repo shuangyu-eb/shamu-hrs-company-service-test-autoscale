@@ -167,4 +167,6 @@ public interface UserRepository extends JpaRepository<User, String>, UserCustomR
               + "on sts.name = (?2) and t.status_id = sts.id) ",
       nativeQuery = true)
   List<User> findManagersByPeriodIdAndTimeSheetStatus(String periodId, String timeSheetStatus);
+
+  List<User> findAllByTimeZoneIsNull();
 }

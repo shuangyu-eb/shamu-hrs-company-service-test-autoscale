@@ -22,5 +22,5 @@ public interface EmployeesTaSettingsMapper {
   @Mapping(target = "employee.id", source = "employeeId")
   @Mapping(target = "createdAt", ignore = true)
   @Mapping(target = "updatedAt", ignore = true)
-  EmployeesTaSetting convertToEmployeeTaSettings(String employeeId, int messagingOn);
+  EmployeesTaSetting convertToEmployeeTaSettings(String employeeId, Integer messagingOn);
 }

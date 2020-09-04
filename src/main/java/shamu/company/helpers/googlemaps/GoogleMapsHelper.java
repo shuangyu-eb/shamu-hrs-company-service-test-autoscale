@@ -37,7 +37,7 @@ public class GoogleMapsHelper {
       }
     } catch (final InterruptedException | ApiException | IOException e) {
       Thread.currentThread().interrupt();
-      throw new GoogleMapApiException("Error ZipCode.", e);
+      throw new GoogleMapApiException("Error while getting time zone.", e);
     }
     return timezone;
   }
