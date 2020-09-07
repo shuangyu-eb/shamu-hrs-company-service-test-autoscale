@@ -79,4 +79,27 @@ public interface TimeSheetRepository extends BaseRepository<TimeSheet, String> {
               + "where t.time_period_id = unhex(?1) and hex(u.id) in (?2)",
       nativeQuery = true)
   List<TimeSheet> findAllByTimePeriodIdAndEmployeeId(String periodId, List<String> employeeIds);
+
+  @Query(
+      value =
+          "select count(1) from timesheets t "
+              + " join users u on u.id = t.employee_id"
+              + " join static_timesheet_status sts on sts.id = t.status_id"
+              + " where "
+              + "t.time_period_id = unhex(?1) "
+              + " and u.manager_user_id = unhex(?3) "
+              + " and sts.name = ?2",
+      nativeQuery = true)
+  int findTeamHoursPendingCount(String timePeriodId, String status, String userId);
+
+  @Query(
+      value =
+          "select count(1) from timesheets t "
+              + " join users u on u.id = t.employee_id"
+              + " join static_timesheet_status sts on sts.id = t.status_id"
+              + " where "
+              + "t.time_period_id = unhex(?1) "
+              + " and sts.name = ?2",
+      nativeQuery = true)
+  int findCompanyHoursPendingCount(String timePeriodId, String status);
 }

@@ -136,4 +136,14 @@ public class TimeSheetService {
     timeSheets.forEach(timeSheet -> timeSheet.setRemovedAt(currentTime));
     timeSheetRepository.saveAll(timeSheets);
   }
+
+  public int findTeamHoursPendingCount(final String userId, final String periodId) {
+    return timeSheetRepository.findTeamHoursPendingCount(
+        periodId, TimeSheetStatus.SUBMITTED.name(), userId);
+  }
+
+  public int findCompanyHoursPendingCount(final String periodId) {
+    return timeSheetRepository.findCompanyHoursPendingCount(
+        periodId, TimeSheetStatus.SUBMITTED.name());
+  }
 }

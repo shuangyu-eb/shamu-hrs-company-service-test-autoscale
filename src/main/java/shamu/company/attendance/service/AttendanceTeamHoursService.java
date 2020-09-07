@@ -9,6 +9,7 @@ import shamu.company.attendance.dto.AttendanceDetailDto;
 import shamu.company.attendance.dto.AttendanceSummaryDto;
 import shamu.company.attendance.dto.AttendanceTeamHoursDto;
 import shamu.company.attendance.dto.EmployeeAttendanceSummaryDto;
+import shamu.company.attendance.dto.PendingCountDto;
 import shamu.company.attendance.dto.TeamHoursPageInfoDto;
 import shamu.company.attendance.entity.CompanyTaSetting;
 import shamu.company.attendance.entity.EmployeeTimeLog;
@@ -295,5 +296,17 @@ public class AttendanceTeamHoursService {
   public void removeAttendanceDetails(final List<String> userIds, final String companyId) {
     employeesTaSettingService.removeEmployees(userIds);
     timeSheetService.removeUserFromAttendance(userIds, companyId);
+  }
+
+  public PendingCountDto findAttendancePendingCount(final String userId, final String companyId) {
+    final TimePeriod timePeriod = timePeriodService.findCompanyCurrentPeriod(companyId);
+    final int teamHoursPendingCount =
+        timeSheetService.findTeamHoursPendingCount(userId, timePeriod.getId());
+    final int companyHoursPendingCount =
+        timeSheetService.findCompanyHoursPendingCount(timePeriod.getId());
+    return PendingCountDto.builder()
+        .teamHoursPendingCount(teamHoursPendingCount)
+        .companyHoursPendingCount(companyHoursPendingCount)
+        .build();
   }
 }

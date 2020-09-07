@@ -1,18 +1,5 @@
 package shamu.company.timeoff.service;
 
-import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.TimeOffApprovalStatus.APPROVED;
-import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.TimeOffApprovalStatus.AWAITING_REVIEW;
-import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.TimeOffApprovalStatus.DENIED;
-
-import java.sql.Timestamp;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
@@ -46,6 +33,20 @@ import shamu.company.user.entity.User.Role;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.DateUtil;
 import shamu.company.utils.UuidUtil;
+
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.TimeOffApprovalStatus.APPROVED;
+import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.TimeOffApprovalStatus.AWAITING_REVIEW;
+import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.TimeOffApprovalStatus.DENIED;
 
 @Service
 public class TimeOffRequestService {
@@ -104,10 +105,9 @@ public class TimeOffRequestService {
         id, statuses, pageRequest);
   }
 
-  public Integer getPendingRequestsCount(final User approver) {
+  public Integer getPendingRequestsCount(final String approverId) {
     final String status = AWAITING_REVIEW.name();
-    return timeOffRequestRepository.countByApproverIdAndTimeOffApprovalStatus(
-        approver.getId(), status);
+    return timeOffRequestRepository.countByApproverIdAndTimeOffApprovalStatus(approverId, status);
   }
 
   public TimeOffRequest getById(final String timeOffRequestId) {

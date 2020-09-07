@@ -14,6 +14,7 @@ import shamu.company.attendance.dto.AttendanceDetailDto;
 import shamu.company.attendance.dto.AttendanceSummaryDto;
 import shamu.company.attendance.dto.EmployeeAttendanceSummaryDto;
 import shamu.company.attendance.dto.EmployeeInfoDto;
+import shamu.company.attendance.dto.PendingCountDto;
 import shamu.company.attendance.dto.TeamHoursPageInfoDto;
 import shamu.company.attendance.dto.TimeAndAttendanceDetailsDto;
 import shamu.company.attendance.dto.TimeSheetPeriodDto;
@@ -136,5 +137,11 @@ public class AttendanceTeamHoursController extends BaseRestController {
           timeAndAttendanceDetailsDto.getRemovedUserIds(), findCompanyId());
     }
     return new ResponseEntity(HttpStatus.OK);
+  }
+
+  @GetMapping("time-and-attendance/pending-count")
+  public PendingCountDto findAttendancePendingCount() {
+    return attendanceTeamHoursService.findAttendancePendingCount(
+        findAuthUser().getId(), findCompanyId());
   }
 }

@@ -1,19 +1,5 @@
 package shamu.company.timeoff;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -60,6 +46,21 @@ import shamu.company.user.entity.UserRole;
 import shamu.company.user.repository.UserRepository;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.UuidUtil;
+
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
 public class TimeOffRequestServiceTests {
 
@@ -128,8 +129,7 @@ public class TimeOffRequestServiceTests {
                 Mockito.any(), Mockito.any()))
         .thenReturn(1);
 
-    Assertions.assertDoesNotThrow(
-        () -> timeOffRequestService.getPendingRequestsCount(new User("1")));
+    Assertions.assertDoesNotThrow(() -> timeOffRequestService.getPendingRequestsCount("1"));
   }
 
   @Test

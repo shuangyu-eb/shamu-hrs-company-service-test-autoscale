@@ -380,4 +380,16 @@ class AttendanceTeamHoursServiceTests {
     assertThatCode(() -> attendanceTeamHoursService.findAttendanceDetails("1"))
         .doesNotThrowAnyException();
   }
+
+  @Test
+  void findAttendancePendingCount() {
+    final TimePeriod timePeriod = new TimePeriod();
+    timePeriod.setId("1");
+    Mockito.when(timePeriodService.findCompanyCurrentPeriod("1")).thenReturn(timePeriod);
+    Mockito.when(timeSheetService.findTeamHoursPendingCount(Mockito.any(), Mockito.anyString()))
+        .thenReturn(1);
+    Mockito.when(timeSheetService.findCompanyHoursPendingCount(Mockito.any())).thenReturn(1);
+    assertThatCode(() -> attendanceTeamHoursService.findAttendancePendingCount("1", "1"))
+        .doesNotThrowAnyException();
+  }
 }

@@ -1,8 +1,5 @@
 package shamu.company.timeoff.controller;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.BDDMockito.given;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -28,6 +25,9 @@ import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserRole;
 import shamu.company.utils.JsonUtil;
 import shamu.company.utils.UuidUtil;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
 
 @WebMvcTest(controllers = TimeOffRequestRestController.class)
 class TimeOffRequestRestControllerTests extends WebControllerBaseTests {
@@ -337,7 +337,7 @@ class TimeOffRequestRestControllerTests extends WebControllerBaseTests {
         mockMvc
             .perform(
                 MockMvcRequestBuilders.get(
-                        "/company/time-off_requests/approver/status/pending/count")
+                        "/company/time-off-requests/approver/status/pending/count")
                     .contentType(MediaType.APPLICATION_JSON)
                     .headers(httpHeaders))
             .andReturn();

@@ -1,14 +1,5 @@
 package shamu.company.timeoff.controller;
 
-import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.TimeOffApprovalStatus.APPROVED;
-import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.TimeOffApprovalStatus.AWAITING_REVIEW;
-import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.TimeOffApprovalStatus.DENIED;
-
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.Date;
-import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -40,6 +31,16 @@ import shamu.company.timeoff.service.TimeOffRequestService.SortFields;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
 import shamu.company.user.service.UserService;
+
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.Date;
+import java.util.List;
+
+import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.TimeOffApprovalStatus.APPROVED;
+import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.TimeOffApprovalStatus.AWAITING_REVIEW;
+import static shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.TimeOffApprovalStatus.DENIED;
 
 @RestApiController
 public class TimeOffRequestRestController extends BaseRestController {
@@ -89,11 +90,11 @@ public class TimeOffRequestRestController extends BaseRestController {
     return new ResponseEntity<>(HttpStatus.OK);
   }
 
-  @GetMapping("time-off_requests/approver/status/pending/count")
+  @GetMapping("time-off-requests/approver/status/pending/count")
   @PreAuthorize("hasAuthority('MANAGE_TIME_OFF_REQUEST')")
   public Integer getPendingTimeOffRequestsCount() {
 
-    return timeOffRequestService.getPendingRequestsCount(new User(findAuthUser().getId()));
+    return timeOffRequestService.getPendingRequestsCount(findAuthUser().getId());
   }
 
   @GetMapping("users/{id}/time-off-requests")
