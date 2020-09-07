@@ -260,7 +260,9 @@ public class AttendanceSetUpService {
 
     final Company company = companyService.findById(companyId);
     final TimePeriod firstTimePeriod =
-        timePeriodService.save(new TimePeriod(periodStartDate, periodEndDate, company));
+        Boolean.FALSE.equals(isAddOrRemoveEmployee)
+            ? timePeriodService.save(new TimePeriod(periodStartDate, periodEndDate, company))
+            : new TimePeriod();
     final TimeSheetStatus timeSheetStatus;
     if (periodStartDate.after(new Date())) {
       timeSheetStatus = TimeSheetStatus.NOT_YET_START;
