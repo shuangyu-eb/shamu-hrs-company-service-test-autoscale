@@ -355,6 +355,11 @@ class JobUserServiceTests {
     void whenJobUpdateDtoValid_shouldSucceed() {
       jobUpdateDto.setManagerId(null);
       jobUpdateDto.setPayTypeName(CompensationOvertimeStatus.OvertimeStatus.FEDERAL.getValue());
+      final Company company = new Company();
+      final String companyId = "test_company_id";
+      user.setCompany(company);
+      jobUser.setUser(user);
+      company.setId(companyId);
       Mockito.when(userService.findById(user.getId())).thenReturn(user);
       Mockito.when(jobUserRepository.findJobUserByUser(jobUser.getUser())).thenReturn(jobUser);
       Mockito.when(jobUserRepository.save(jobUser)).thenReturn(jobUser);
@@ -362,7 +367,7 @@ class JobUserServiceTests {
               compensationOvertimeStatusService.findByName(
                   CompensationOvertimeStatus.OvertimeStatus.FEDERAL.getValue()))
           .thenReturn(new CompensationOvertimeStatus());
-      Mockito.when(overtimeService.findDefaultPolicy()).thenReturn(new OvertimePolicy());
+      Mockito.when(overtimeService.findDefaultPolicy(companyId)).thenReturn(new OvertimePolicy());
       Assertions.assertDoesNotThrow(() -> jobUserService.updateJobInfo("1", jobUpdateDto, "1"));
     }
   }

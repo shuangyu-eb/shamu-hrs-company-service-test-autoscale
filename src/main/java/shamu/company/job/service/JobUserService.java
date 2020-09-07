@@ -253,7 +253,8 @@ public class JobUserService {
         userCompensation.setOvertimeStatus(compensationOvertimeStatus);
         if (!payTypeName.equals(
             CompensationOvertimeStatus.OvertimeStatus.NOT_ELIGIBLE.getValue())) {
-          final OvertimePolicy overtimePolicy = overtimeService.findDefaultPolicy();
+          final OvertimePolicy overtimePolicy =
+              overtimeService.findDefaultPolicy(jobUser.getUser().getCompany().getId());
           userCompensation.setOvertimePolicy(overtimePolicy);
         }
       }

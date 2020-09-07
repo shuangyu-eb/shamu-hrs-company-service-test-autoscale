@@ -185,8 +185,8 @@ public class OvertimeService {
     overtimePolicyRepository.save(overtimePolicy);
   }
 
-  public OvertimePolicy findDefaultPolicy() {
-    return overtimePolicyRepository.findByDefaultPolicy(true);
+  public OvertimePolicy findDefaultPolicy(final String companyId) {
+    return overtimePolicyRepository.findByCompanyIdAndDefaultPolicyIsTrue(companyId);
   }
 
   @Transactional

@@ -147,9 +147,10 @@ public class OvertimeServiceTests {
 
     @Test
     void findDefaultPolicy_shouldSucceed() {
-      Mockito.when(overtimePolicyRepository.findByDefaultPolicy(true))
+      final String companyId = "test_company_id";
+      Mockito.when(overtimePolicyRepository.findByCompanyIdAndDefaultPolicyIsTrue(companyId))
           .thenReturn(new OvertimePolicy());
-      assertThatCode(() -> overtimeService.findDefaultPolicy()).doesNotThrowAnyException();
+      assertThatCode(() -> overtimeService.findDefaultPolicy(companyId)).doesNotThrowAnyException();
     }
 
     @Test
