@@ -423,7 +423,7 @@ public class AttendanceMyHoursService {
         timeSheetService.findTimeSheetByPeriodAndUser(timePeriod.getId(), userId);
     return UserAttendanceEnrollInfoDto.builder()
         .isEnrolled(null != employeesTaSetting)
-        .deactivatedAt(timeSheet.getRemovedAt())
+        .deactivatedAt(timeSheet == null ? null : timeSheet.getRemovedAt())
         .build();
   }
 }
