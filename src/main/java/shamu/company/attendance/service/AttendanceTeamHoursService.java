@@ -278,13 +278,13 @@ public class AttendanceTeamHoursService {
   }
 
   @Transactional
-  public void removeAttendanceDetails(final List<String> userIds, final String companyId) {
+  public void removeAttendanceDetails(final List<String> userIds) {
     employeesTaSettingService.removeEmployees(userIds);
     timeSheetService.removeUserFromAttendance(userIds);
   }
 
-  public PendingCountDto findAttendancePendingCount(final String userId, final String companyId) {
-    final TimePeriod timePeriod = timePeriodService.findCompanyCurrentPeriod(companyId);
+  public PendingCountDto findAttendancePendingCount(final String userId) {
+    final TimePeriod timePeriod = timePeriodService.findCompanyCurrentPeriod();
     final int teamHoursPendingCount =
         timeSheetService.findTeamHoursPendingCount(userId, timePeriod.getId());
     final int companyHoursPendingCount =

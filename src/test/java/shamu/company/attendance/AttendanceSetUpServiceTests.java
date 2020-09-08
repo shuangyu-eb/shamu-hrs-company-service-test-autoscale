@@ -1,5 +1,16 @@
 package shamu.company.attendance;
 
+import static org.assertj.core.api.Assertions.assertThatCode;
+
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -53,18 +64,6 @@ import shamu.company.user.repository.CompensationOvertimeStatusRepository;
 import shamu.company.user.repository.UserRepository;
 import shamu.company.user.service.UserCompensationService;
 import shamu.company.user.service.UserService;
-
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-
-import static org.assertj.core.api.Assertions.assertThatCode;
 
 public class AttendanceSetUpServiceTests {
 
@@ -206,7 +205,6 @@ public class AttendanceSetUpServiceTests {
       timeAndAttendanceDetailsDto.setOvertimeDetails(details);
       timeAndAttendanceDetailsDto.setPeriodStartDate("01/01/2020");
       timeAndAttendanceDetailsDto.setPeriodEndDate("01/03/2020");
-      timeAndAttendanceDetailsDto.setFrontendTimezone("front-end-timezone");
       officeAddress.setPostalCode("postalCode");
       office.setOfficeAddress(officeAddress);
       jobUser.setOffice(office);
@@ -228,8 +226,7 @@ public class AttendanceSetUpServiceTests {
       Mockito.when(jobUserRepository.findByUserId(employeeId)).thenReturn(jobUser);
       Mockito.when(attendanceSettingsService.saveCompanyTaSetting(Mockito.any()))
           .thenReturn(companyTaSetting);
-      Mockito.when(attendanceSettingsService.findCompanySetting())
-          .thenReturn(companyTaSetting);
+      Mockito.when(attendanceSettingsService.findCompanySetting()).thenReturn(companyTaSetting);
       Mockito.when(googleMapsHelper.findTimezoneByPostalCode(set)).thenReturn(timezones);
       Mockito.when(timePeriodService.save(Mockito.any())).thenReturn(timePeriod);
       Mockito.when(staticTimeZoneRepository.findByName("timezone")).thenReturn(staticTimezone);
@@ -261,7 +258,7 @@ public class AttendanceSetUpServiceTests {
       final JobUser jobUser = new JobUser();
       final Office office = new Office();
       final OfficeAddress officeAddress = new OfficeAddress();
-      officeAddress.setPostalCode("123");
+      officeAddress.setPostalCode("postalCode");
       office.setOfficeAddress(officeAddress);
       jobUser.setOffice(office);
 
@@ -362,22 +359,13 @@ public class AttendanceSetUpServiceTests {
   class EmailNotification {
     String periodId = "test_period_id";
     TimePeriod timePeriod = new TimePeriod();
-    String companyId = "company_id";
-    Company company = new Company();
     CompanyTaSetting companyTaSetting = new CompanyTaSetting();
-
-    @BeforeEach
-    void init() {
-      timePeriod.setCompany(company);
-      company.setId(companyId);
-    }
 
     @Test
     void whenCompanyMessageOff_thenNotSendRunPayRollEmail() {
       Mockito.when(timePeriodService.findById(periodId)).thenReturn(timePeriod);
       companyTaSetting.setMessagingOn(0);
-      Mockito.when(attendanceSettingsService.findCompanySettings(companyId))
-          .thenReturn(companyTaSetting);
+      Mockito.when(attendanceSettingsService.findCompanySetting()).thenReturn(companyTaSetting);
       assertThatCode(
               () ->
                   attendanceSetUpService.sendEmailNotification(
@@ -389,8 +377,7 @@ public class AttendanceSetUpServiceTests {
     void whenCompanyMessageOn_thenNotSendRunPayRollEmail() {
       Mockito.when(timePeriodService.findById(periodId)).thenReturn(timePeriod);
       companyTaSetting.setMessagingOn(1);
-      Mockito.when(attendanceSettingsService.findCompanySettings(companyId))
-          .thenReturn(companyTaSetting);
+      Mockito.when(attendanceSettingsService.findCompanySetting()).thenReturn(companyTaSetting);
       assertThatCode(
               () ->
                   attendanceSetUpService.sendEmailNotification(

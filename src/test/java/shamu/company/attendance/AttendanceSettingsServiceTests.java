@@ -1,7 +1,11 @@
 package shamu.company.attendance;
 
+import static org.assertj.core.api.Assertions.assertThatCode;
+
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -31,8 +35,6 @@ import shamu.company.job.entity.JobUser;
 import shamu.company.job.repository.JobUserRepository;
 import shamu.company.user.entity.User;
 import shamu.company.user.repository.UserRepository;
-
-import static org.assertj.core.api.Assertions.assertThatCode;
 
 public class AttendanceSettingsServiceTests {
 
@@ -117,7 +119,8 @@ public class AttendanceSettingsServiceTests {
 
     @Test
     void whenSettingIsSaved_thenReturnSetting() {
-      final List<CompanyTaSetting> companyTaSettings = Collections.singletonList(new CompanyTaSetting());
+      final List<CompanyTaSetting> companyTaSettings =
+          Collections.singletonList(new CompanyTaSetting());
       Mockito.when(companyTaSettingRepository.findAll()).thenReturn(companyTaSettings);
       Assertions.assertThat(attendanceSettingsService.findCompanySetting())
           .isEqualTo(companyTaSettings.get(0));
@@ -131,7 +134,6 @@ public class AttendanceSettingsServiceTests {
     final Company company = new Company();
     company.setId("companyId");
     user.setId("userId");
-    user.setCompany(company);
     userList.add(user);
     final JobUser jobUser = new JobUser();
     final Office office = new Office();

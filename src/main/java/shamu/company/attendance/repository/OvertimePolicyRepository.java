@@ -14,9 +14,7 @@ public interface OvertimePolicyRepository extends BaseRepository<OvertimePolicy,
   @Query("update OvertimePolicy op set op.active = 0 where op.id =?1")
   void softDeleteOvertimePolicy(String overtimeId);
 
-  OvertimePolicy findByCompanyIdAndDefaultPolicyIsTrue(String companyId);
-
-  List<OvertimePolicy> findByCompanyId(String companyId);
+  OvertimePolicy findByDefaultPolicyIsTrue();
 
   @Query(
       value =
@@ -26,15 +24,14 @@ public interface OvertimePolicyRepository extends BaseRepository<OvertimePolicy,
               + "left join "
               + "user_compensations c "
               + "on op.id=c.overtime_policy_id "
-              + "where hex(op.company_id) = ?1 AND op.active = 1 "
+              + "op.active = 1 "
               + "GROUP BY id, policyName, defaultPolicy",
       nativeQuery = true)
-  List<OvertimePolicyOverviewPojo> findOvertimeOverview(String companyId);
+  List<OvertimePolicyOverviewPojo> findOvertimeOverview();
 
   @Query(
       value =
-          "select policy_name from overtime_policies where company_id = unhex(?1) and "
-              + "active = 1",
+          "select policy_name from overtime_policies where and active = 1",
       nativeQuery = true)
-  List<String> findAllPolicyNames(String companyId);
+  List<String> findAllPolicyNames();
 }

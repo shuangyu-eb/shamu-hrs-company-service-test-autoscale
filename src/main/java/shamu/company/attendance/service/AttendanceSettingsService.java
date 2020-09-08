@@ -159,8 +159,7 @@ public class AttendanceSettingsService {
     lackTimezoneUsers.forEach(
         user -> {
           final JobUser jobUser = jobUserRepository.findJobUserByUser(user);
-          final CompanyTaSetting companyTaSetting =
-              companyTaSettingRepository.findByCompanyId(user.getCompany().getId());
+          final CompanyTaSetting companyTaSetting = findCompanySetting();
           String timezoneName = "";
           if (jobUser != null
               && jobUser.getOffice() != null
@@ -170,7 +169,7 @@ public class AttendanceSettingsService {
                     jobUser.getOffice().getOfficeAddress().getPostalCode());
           }
 
-          if (timezoneName !=null && !timezoneName.isEmpty()) {
+          if (timezoneName != null && !timezoneName.isEmpty()) {
             user.setTimeZone(staticTimeZoneRepository.findByName(timezoneName));
           } else if (companyTaSetting != null) {
             user.setTimeZone(companyTaSetting.getTimeZone());

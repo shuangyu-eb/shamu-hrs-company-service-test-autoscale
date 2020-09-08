@@ -157,12 +157,12 @@ public class OvertimeService {
   }
 
   public OvertimePolicy saveNewOvertimePolicy(
-      final NewOvertimePolicyDto newOvertimePolicyDto, final String companyId) {
+      final NewOvertimePolicyDto newOvertimePolicyDto) {
     final List<NewOvertimePolicyDetailDto> policyDetailDtos =
         newOvertimePolicyDto.getPolicyDetails();
     final OvertimePolicy newOvertimePolicy =
         overtimePolicyMapper.convertToOvertimePolicy(
-            new OvertimePolicy(), newOvertimePolicyDto, companyId);
+            new OvertimePolicy(), newOvertimePolicyDto);
     final List<PolicyDetail> policyDetails =
         policyDetailDtos.stream()
             .map(
@@ -179,20 +179,19 @@ public class OvertimeService {
     return overtimePolicyRepository.save(newOvertimePolicy);
   }
 
-  public void createDefaultPolicy(final Company company) {
+  public void createDefaultPolicy() {
     final OvertimePolicy overtimePolicy =
         OvertimePolicy.builder()
             .policyName(DEFAULT_OVERTIME_POLICY_NAME)
-            .company(company)
             .defaultPolicy(true)
             .active(true)
             .build();
     overtimePolicyRepository.save(overtimePolicy);
   }
 
-  public List<OvertimePolicyOverviewDto> findAllOvertimePolicies(final String companyId) {
+  public List<OvertimePolicyOverviewDto> findAllOvertimePolicies() {
     final List<OvertimePolicyOverviewPojo> overtimePolicyOverviewPojoList =
-        overtimePolicyRepository.findOvertimeOverview(companyId);
+        overtimePolicyRepository.findOvertimeOverview();
     final List<OvertimePolicyOverviewDto> overtimePolicyOverviewDtoList = new ArrayList<>();
     overtimePolicyOverviewPojoList.forEach(
         overtimePolicyOverviewPojo -> {
@@ -204,8 +203,8 @@ public class OvertimeService {
     return overtimePolicyOverviewDtoList;
   }
 
-  public OvertimePolicy findDefaultPolicy(final String companyId) {
-    return overtimePolicyRepository.findByCompanyIdAndDefaultPolicyIsTrue(companyId);
+  public OvertimePolicy findDefaultPolicy() {
+    return overtimePolicyRepository.findByDefaultPolicyIsTrue();
   }
 
   @Transactional
@@ -250,7 +249,7 @@ public class OvertimeService {
     }
   }
 
-  public List<String> findAllPolicyNames(final String companyId) {
-    return overtimePolicyRepository.findAllPolicyNames(companyId);
+  public List<String> findAllPolicyNames() {
+    return overtimePolicyRepository.findAllPolicyNames();
   }
 }

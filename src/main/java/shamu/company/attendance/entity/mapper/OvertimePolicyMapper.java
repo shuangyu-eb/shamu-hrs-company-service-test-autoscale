@@ -1,7 +1,6 @@
 package shamu.company.attendance.entity.mapper;
 
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import shamu.company.attendance.dto.NewOvertimePolicyDto;
 import shamu.company.attendance.dto.OvertimePolicyDetailDto;
@@ -14,10 +13,9 @@ import java.util.List;
 
 @Mapper(config = Config.class)
 public interface OvertimePolicyMapper {
-    @Mapping(target = "company.id", source = "companyId")
     OvertimePolicy convertToOvertimePolicy(
             @MappingTarget OvertimePolicy overtimePolicy,
-            NewOvertimePolicyDto newOvertimePolicyDto, String companyId);
+            NewOvertimePolicyDto newOvertimePolicyDto);
 
     @Mapping(target="policyDetails", source="policyDetailDtos")
     OvertimePolicyDto convertToOvertimePolicyDto(

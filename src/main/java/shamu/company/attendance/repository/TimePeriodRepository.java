@@ -6,8 +6,6 @@ import shamu.company.attendance.entity.TimePeriod;
 import shamu.company.attendance.entity.TimeSheetPeriodPojo;
 import shamu.company.common.repository.BaseRepository;
 
-import java.util.List;
-
 public interface TimePeriodRepository extends BaseRepository<TimePeriod, String> {
   String TIME_SHEET_PERIOD_QUERY =
       "from timesheets t "

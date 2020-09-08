@@ -1,5 +1,10 @@
 package shamu.company.job.service;
 
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.data.domain.PageRequest;
@@ -61,12 +66,6 @@ import shamu.company.user.service.UserCompensationService;
 import shamu.company.user.service.UserRoleService;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.DateUtil;
-
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -251,8 +250,7 @@ public class JobUserService {
         userCompensation.setOvertimeStatus(compensationOvertimeStatus);
         if (!payTypeName.equals(
             CompensationOvertimeStatus.OvertimeStatus.NOT_ELIGIBLE.getValue())) {
-          final OvertimePolicy overtimePolicy =
-              overtimeService.findDefaultPolicy(jobUser.getUser().getCompany().getId());
+          final OvertimePolicy overtimePolicy = overtimeService.findDefaultPolicy();
           userCompensation.setOvertimePolicy(overtimePolicy);
         }
       }

@@ -92,7 +92,7 @@ public class AttendanceSettingsController extends BaseRestController {
   @PostMapping("time-and-attendance/create-overtime-policy")
   public HttpEntity<String> createOvertimePolicy(
       @RequestBody final NewOvertimePolicyDto overtimePolicy) {
-    overtimeService.saveNewOvertimePolicy(overtimePolicy, findCompanyId());
+    overtimeService.saveNewOvertimePolicy(overtimePolicy);
     return new ResponseEntity<>(HttpStatus.OK);
   }
 

@@ -33,8 +33,6 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.Context;
-import shamu.company.admin.entity.SystemAnnouncement;
-import shamu.company.admin.service.SystemAnnouncementsService;
 import shamu.company.attendance.entity.CompanyTaSetting.MessagingON;
 import shamu.company.attendance.entity.StaticTimesheetStatus.TimeSheetStatus;
 import shamu.company.attendance.service.OvertimeService;
@@ -540,7 +538,7 @@ public class UserService {
     user.setId(userId);
     userRepository.save(user);
 
-    overtimeService.createDefaultPolicy(company);
+    overtimeService.createDefaultPolicy();
   }
 
   private void saveCompanyBenefitsSetting() {

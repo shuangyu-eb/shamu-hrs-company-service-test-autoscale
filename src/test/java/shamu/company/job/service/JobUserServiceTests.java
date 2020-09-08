@@ -1,5 +1,13 @@
 package shamu.company.job.service;
 
+import static org.assertj.core.api.Assertions.assertThatCode;
+
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -62,15 +70,6 @@ import shamu.company.user.service.UserRoleService;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.DateUtil;
 import shamu.company.utils.UuidUtil;
-
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThatCode;
 
 class JobUserServiceTests {
 
@@ -348,11 +347,8 @@ class JobUserServiceTests {
     void whenJobUpdateDtoValid_shouldSucceed() {
       jobUpdateDto.setManagerId(null);
       jobUpdateDto.setPayTypeName(CompensationOvertimeStatus.OvertimeStatus.FEDERAL.getValue());
-      final Company company = new Company();
       final String companyId = "test_company_id";
-      user.setCompany(company);
       jobUser.setUser(user);
-      company.setId(companyId);
       Mockito.when(userService.findById(user.getId())).thenReturn(user);
       Mockito.when(jobUserRepository.findJobUserByUser(jobUser.getUser())).thenReturn(jobUser);
       Mockito.when(jobUserRepository.save(jobUser)).thenReturn(jobUser);
@@ -360,8 +356,8 @@ class JobUserServiceTests {
               compensationOvertimeStatusService.findByName(
                   CompensationOvertimeStatus.OvertimeStatus.FEDERAL.getValue()))
           .thenReturn(new CompensationOvertimeStatus());
-      Mockito.when(overtimeService.findDefaultPolicy(companyId)).thenReturn(new OvertimePolicy());
-      Assertions.assertDoesNotThrow(() -> jobUserService.updateJobInfo("1", jobUpdateDto, "1"));
+      Mockito.when(overtimeService.findDefaultPolicy()).thenReturn(new OvertimePolicy());
+      Assertions.assertDoesNotThrow(() -> jobUserService.updateJobInfo("1", jobUpdateDto));
     }
   }
 

@@ -369,9 +369,7 @@ public class AttendanceSetUpService {
       final String periodId, final EmailNotification emailNotification, final Date sendDate) {
     if (emailNotification.equals(EmailNotification.RUN_PAYROLL)
         || emailNotification.equals(EmailNotification.RUN_PAYROLL_TIME_OUT)) {
-      final Company company = timePeriodService.findById(periodId).getCompany();
-      final CompanyTaSetting companyTaSetting =
-          attendanceSettingsService.findCompanySettings(company.getId());
+      final CompanyTaSetting companyTaSetting = attendanceSettingsService.findCompanySetting();
       if (companyTaSetting.getMessagingOn() == MessagingON.OFF.getValue()) {
         return;
       }

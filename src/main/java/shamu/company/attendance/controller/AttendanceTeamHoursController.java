@@ -134,14 +134,13 @@ public class AttendanceTeamHoursController extends BaseRestController {
     }
     if (!timeAndAttendanceDetailsDto.getRemovedUserIds().isEmpty()) {
       attendanceTeamHoursService.removeAttendanceDetails(
-          timeAndAttendanceDetailsDto.getRemovedUserIds(), findCompanyId());
+          timeAndAttendanceDetailsDto.getRemovedUserIds());
     }
     return new ResponseEntity(HttpStatus.OK);
   }
 
   @GetMapping("time-and-attendance/pending-count")
   public PendingCountDto findAttendancePendingCount() {
-    return attendanceTeamHoursService.findAttendancePendingCount(
-        findAuthUser().getId(), findCompanyId());
+    return attendanceTeamHoursService.findAttendancePendingCount(findAuthUser().getId());
   }
 }
