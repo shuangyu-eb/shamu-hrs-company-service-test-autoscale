@@ -3,10 +3,13 @@ package shamu.company.attendance.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shamu.company.attendance.dto.LocalDateEntryDto;
+import shamu.company.attendance.dto.NewOvertimePolicyDetailDto;
+import shamu.company.attendance.dto.NewOvertimePolicyDto;
 import shamu.company.attendance.dto.OverTimeMinutesDto;
 import shamu.company.attendance.dto.OvertimeDetailDto;
 import shamu.company.attendance.dto.OvertimePolicyDetailDto;
 import shamu.company.attendance.dto.OvertimePolicyDto;
+import shamu.company.attendance.dto.OvertimePolicyOverviewDto;
 import shamu.company.attendance.dto.OvertimeRuleDto;
 import shamu.company.attendance.entity.CompanyTaSetting;
 import shamu.company.attendance.entity.EmployeeTimeLog;
@@ -22,6 +25,7 @@ import shamu.company.attendance.repository.StaticOvertimeTypeRepository;
 import shamu.company.attendance.utils.TimeEntryUtils;
 import shamu.company.attendance.utils.overtime.OverTimePayFactory;
 import shamu.company.company.entity.Company;
+import shamu.company.timeoff.exception.NotFoundException;
 import shamu.company.utils.DateUtil;
 
 import java.sql.Timestamp;
@@ -30,6 +34,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /** @author mshumaker */
@@ -154,15 +159,16 @@ public class OvertimeService {
   }
 
   public void saveNewOvertimePolicy(
-      final OvertimePolicyDto overtimePolicyDto, final String companyId) {
-    final List<OvertimePolicyDetailDto> policyDetailDtos = overtimePolicyDto.getPolicyDetails();
+      final NewOvertimePolicyDto newOvertimePolicyDto, final String companyId) {
+    final List<NewOvertimePolicyDetailDto> policyDetailDtos =
+        newOvertimePolicyDto.getPolicyDetails();
     final OvertimePolicy newOvertimePolicy =
         overtimePolicyMapper.convertToOvertimePolicy(
-            new OvertimePolicy(), overtimePolicyDto, companyId);
+            new OvertimePolicy(), newOvertimePolicyDto, companyId);
     final List<PolicyDetail> policyDetails =
         policyDetailDtos.stream()
             .map(
-                (OvertimePolicyDetailDto overtimePolicyDto1) ->
+                (NewOvertimePolicyDetailDto overtimePolicyDto1) ->
                     policyDetailMapper.convertToPolicyDetail(overtimePolicyDto1, newOvertimePolicy))
             .collect(Collectors.toList());
     policyDetails.stream()
@@ -183,6 +189,10 @@ public class OvertimeService {
             .defaultPolicy(true)
             .build();
     overtimePolicyRepository.save(overtimePolicy);
+  }
+
+  public List<OvertimePolicyOverviewDto> findAllOvertimePolicies(final String companyId) {
+    return overtimePolicyRepository.findOvertimeOverview(companyId);
   }
 
   public OvertimePolicy findDefaultPolicy(final String companyId) {
@@ -213,5 +223,21 @@ public class OvertimeService {
       otRule.getValue().sort(TimeEntryUtils.compareByOvertimeStart);
     }
     return otRules;
+  }
+
+  public OvertimePolicyDto findOvertimePolicyDetails(final String policyId) {
+    final Optional<OvertimePolicy> overtimePolicy = overtimePolicyRepository.findById(policyId);
+    final List<PolicyDetail> policyDetails =
+        policyDetailRepository.findAllByOvertimePolicyId(policyId);
+    if (overtimePolicy.isPresent()) {
+      final List<OvertimePolicyDetailDto> policyDetailDtos =
+          policyDetails.stream()
+              .map(policyDetailMapper::convertToOvertimePolicyDetailDto)
+              .collect(Collectors.toList());
+      return overtimePolicyMapper.convertToOvertimePolicyDto(
+          overtimePolicy.get(), policyDetailDtos);
+    } else {
+      throw new NotFoundException("OVERTIME POLICY NOT FOUND", "OT POLICY EXCEPTION");
+    }
   }
 }

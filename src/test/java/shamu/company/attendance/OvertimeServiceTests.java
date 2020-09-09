@@ -7,8 +7,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import shamu.company.attendance.dto.OvertimePolicyDetailDto;
-import shamu.company.attendance.dto.OvertimePolicyDto;
+import shamu.company.attendance.dto.NewOvertimePolicyDetailDto;
+import shamu.company.attendance.dto.NewOvertimePolicyDto;
 import shamu.company.attendance.entity.CompanyTaSetting;
 import shamu.company.attendance.entity.EmployeeTimeLog;
 import shamu.company.attendance.entity.OvertimePolicy;
@@ -96,9 +96,9 @@ public class OvertimeServiceTests {
   void saveNewOvertimePolicy() {
     final StaticOvertimeType staticOvertimeType = new StaticOvertimeType();
     staticOvertimeType.setName("DAILY");
-    final OvertimePolicyDto overtimePolicyDto = new OvertimePolicyDto();
-    final List<OvertimePolicyDetailDto> policyDetailDtos = new ArrayList<>();
-    final OvertimePolicyDetailDto overtimePolicyDetailDto = new OvertimePolicyDetailDto();
+    final NewOvertimePolicyDto overtimePolicyDto = new NewOvertimePolicyDto();
+    final List<NewOvertimePolicyDetailDto> policyDetailDtos = new ArrayList<>();
+    final NewOvertimePolicyDetailDto overtimePolicyDetailDto = new NewOvertimePolicyDetailDto();
     final PolicyDetail policyDetail = new PolicyDetail();
     policyDetail.setStaticOvertimeType(staticOvertimeType);
     overtimePolicyDetailDto.setStartMin(480);
@@ -160,5 +160,17 @@ public class OvertimeServiceTests {
       assertThatCode(() -> overtimeService.softDeleteOvertimePolicy(overtimeId))
           .doesNotThrowAnyException();
     }
+  }
+
+  @Test
+  void findOvertimePolicyDetails() {
+    final OvertimePolicy overtimePolicy = new OvertimePolicy();
+    final PolicyDetail policyDetail = new PolicyDetail();
+    final List<PolicyDetail> policyDetails = new ArrayList<>();
+    policyDetails.add(policyDetail);
+    Mockito.when(overtimePolicyRepository.findById("1"))
+        .thenReturn(java.util.Optional.of(overtimePolicy));
+    Mockito.when(policyDetailRepository.findAllByOvertimePolicyId("1")).thenReturn(policyDetails);
+    assertThatCode(() -> overtimeService.findOvertimePolicyDetails("1")).doesNotThrowAnyException();
   }
 }

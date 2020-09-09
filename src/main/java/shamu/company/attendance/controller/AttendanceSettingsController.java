@@ -3,10 +3,17 @@ package shamu.company.attendance.controller;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import shamu.company.attendance.dto.CompanyTaSettingsDto;
 import shamu.company.attendance.dto.EmployeesTaSettingDto;
+import shamu.company.attendance.dto.NewOvertimePolicyDto;
 import shamu.company.attendance.dto.OvertimePolicyDto;
+import shamu.company.attendance.dto.OvertimePolicyOverviewDto;
 import shamu.company.attendance.dto.StaticTimezoneDto;
 import shamu.company.attendance.entity.StaticTimezone;
 import shamu.company.attendance.entity.mapper.CompanyTaSettingsMapper;
@@ -38,13 +45,12 @@ public class AttendanceSettingsController extends BaseRestController {
       final CompanyTaSettingsMapper companyTaSettingsMapper,
       final EmployeesTaSettingsMapper employeesTaSettingsMapper,
       final PayrollDetailService payrollDetailService,
-      final OvertimeService overtimeService){
+      final OvertimeService overtimeService) {
     this.attendanceSettingsService = attendanceSettingsService;
     this.companyTaSettingsMapper = companyTaSettingsMapper;
     this.employeesTaSettingsMapper = employeesTaSettingsMapper;
     this.payrollDetailService = payrollDetailService;
     this.overtimeService = overtimeService;
-
   }
 
   @GetMapping("time-and-attendance/companySettings")
@@ -86,13 +92,24 @@ public class AttendanceSettingsController extends BaseRestController {
   }
 
   @PostMapping("time-and-attendance/create-overtime-policy")
-  public HttpEntity<String> createOvertimePolicy(@RequestBody final OvertimePolicyDto overtimePolicy){
-    overtimeService.saveNewOvertimePolicy(overtimePolicy,findCompanyId());
+  public HttpEntity<String> createOvertimePolicy(
+      @RequestBody final NewOvertimePolicyDto overtimePolicy) {
+    overtimeService.saveNewOvertimePolicy(overtimePolicy, findCompanyId());
     return new ResponseEntity<>(HttpStatus.OK);
   }
 
+  @GetMapping("time-and-attendance/overtime-policies")
+  public List<OvertimePolicyOverviewDto> getOvertimePolicies() {
+    return overtimeService.findAllOvertimePolicies(findCompanyId());
+  }
+
+  @GetMapping("time-and-attendance/overtime-policies/{policyId}")
+  public OvertimePolicyDto getOvertimePolicyDetail(@PathVariable final String policyId) {
+    return overtimeService.findOvertimePolicyDetails(policyId);
+  }
+
   @DeleteMapping("time-and-attendance/delete-overtime-policy/{policyId}")
-  public HttpEntity<String> deleteOvertimePolicy(@PathVariable final String policyId){
+  public HttpEntity<String> deleteOvertimePolicy(@PathVariable final String policyId) {
     overtimeService.softDeleteOvertimePolicy(policyId);
     return new ResponseEntity<>(HttpStatus.OK);
   }

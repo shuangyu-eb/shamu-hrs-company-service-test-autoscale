@@ -1,16 +1,24 @@
 package shamu.company.attendance.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class OvertimePolicyDto {
-  private String policyName;
+    private String id;
 
-  private Boolean defaultPolicy;
+    private String policyName;
 
-  private List<OvertimePolicyDetailDto> policyDetails;
+    private Boolean defaultPolicy;
 
-  private Boolean active;
+    private List<OvertimePolicyDetailDto> policyDetails;
+
+    private Boolean active;
 }

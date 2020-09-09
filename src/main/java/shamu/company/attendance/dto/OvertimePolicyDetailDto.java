@@ -1,16 +1,21 @@
 package shamu.company.attendance.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import shamu.company.attendance.entity.StaticOvertimeType.OvertimeType;
+import lombok.NoArgsConstructor;
+import shamu.company.attendance.entity.StaticOvertimeType;
 
-/**
- * @author mshumaker
- */
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class OvertimePolicyDetailDto {
+    private String id;
+
     private Integer startMin;
 
-    private OvertimeType overtimeType;
+    private StaticOvertimeType.OvertimeType overtimeType;
 
     private Double overtimeRate;
 }
