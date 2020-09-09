@@ -1,5 +1,8 @@
 package shamu.company.attendance.controller;
 
+import java.util.List;
+import java.util.Set;
+import javax.validation.Valid;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpEntity;
@@ -27,10 +30,6 @@ import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.job.service.JobUserService;
 import shamu.company.utils.ReflectionUtil;
-
-import javax.validation.Valid;
-import java.util.List;
-import java.util.Set;
 
 @RestApiController
 public class AttendanceTeamHoursController extends BaseRestController {
@@ -67,14 +66,14 @@ public class AttendanceTeamHoursController extends BaseRestController {
     final Pageable pageable = PageRequest.of(page - 1, size);
 
     return attendanceTeamHoursService.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
-        timePeriodId, hourType, findCompanyId(), TimeSheetStatus.SUBMITTED, findUserId(), pageable);
+        timePeriodId, hourType, TimeSheetStatus.SUBMITTED, findUserId(), pageable);
   }
 
   @GetMapping("time-and-attendance/team-hours/{timePeriodId}/{hourType}")
   public List<EmployeeAttendanceSummaryDto> findTeamEmployeesHours(
       @PathVariable final String timePeriodId, @PathVariable final String hourType) {
     return attendanceTeamHoursService.findEmployeeAttendanceSummary(
-        timePeriodId, findCompanyId(), findUserId(), hourType);
+        timePeriodId, findUserId(), hourType);
   }
 
   @GetMapping("time-and-attendance/team-hours/approved-hours/{timePeriodId}/{hourType}")
@@ -86,20 +85,18 @@ public class AttendanceTeamHoursController extends BaseRestController {
     final Pageable pageable = PageRequest.of(page - 1, size);
 
     return attendanceTeamHoursService.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
-        timePeriodId, hourType, findCompanyId(), TimeSheetStatus.APPROVED, findUserId(), pageable);
+        timePeriodId, hourType, TimeSheetStatus.APPROVED, findUserId(), pageable);
   }
 
   @GetMapping("time-and-attendance/team-hours-summary/{timePeriodId}/{hourType}")
   public AttendanceSummaryDto findTeamHoursSummary(
       @PathVariable final String timePeriodId, @PathVariable final String hourType) {
-    return attendanceTeamHoursService.findTeamHoursSummary(
-        timePeriodId, findCompanyId(), findUserId(), hourType);
+    return attendanceTeamHoursService.findTeamHoursSummary(timePeriodId, findUserId(), hourType);
   }
 
   @GetMapping("time-and-attendance/time-periods")
   public List<TimeSheetPeriodDto> findTimePeriodsByCompany() {
-    return ReflectionUtil.convertTo(
-        timePeriodService.listByCompany(findCompanyId()), TimeSheetPeriodDto.class);
+    return ReflectionUtil.convertTo(timePeriodService.findAll(), TimeSheetPeriodDto.class);
   }
 
   @PatchMapping("time-and-attendance/team-hours/pending-hours/approved")
@@ -115,12 +112,12 @@ public class AttendanceTeamHoursController extends BaseRestController {
 
   @GetMapping("time-and-attendance/approval-days-before-payroll")
   public int findApprovalDaysBeforePayroll() {
-    return attendanceSettingsService.findApprovalDaysBeforePayroll(findCompanyId());
+    return attendanceSettingsService.findApprovalDaysBeforePayroll();
   }
 
   @GetMapping("time-and-attendance/attendance-details")
   public AttendanceDetailDto findAttendanceDetails() {
-    return attendanceTeamHoursService.findAttendanceDetails(findCompanyId());
+    return attendanceTeamHoursService.findAttendanceDetails();
   }
 
   @PatchMapping("time-and-attendance/details")
@@ -134,14 +131,13 @@ public class AttendanceTeamHoursController extends BaseRestController {
     }
     if (!timeAndAttendanceDetailsDto.getRemovedUserIds().isEmpty()) {
       attendanceTeamHoursService.removeAttendanceDetails(
-          timeAndAttendanceDetailsDto.getRemovedUserIds(), findCompanyId());
+          timeAndAttendanceDetailsDto.getRemovedUserIds());
     }
     return new ResponseEntity(HttpStatus.OK);
   }
 
   @GetMapping("time-and-attendance/pending-count")
   public PendingCountDto findAttendancePendingCount() {
-    return attendanceTeamHoursService.findAttendancePendingCount(
-        findAuthUser().getId(), findCompanyId());
+    return attendanceTeamHoursService.findAttendancePendingCount(findAuthUser().getId());
   }
 }

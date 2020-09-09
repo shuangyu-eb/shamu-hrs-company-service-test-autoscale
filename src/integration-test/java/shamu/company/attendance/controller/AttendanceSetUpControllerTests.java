@@ -1,5 +1,8 @@
 package shamu.company.attendance.controller;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
+
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,14 +18,10 @@ import shamu.company.WebControllerBaseTests;
 import shamu.company.attendance.dto.TimeEntryDto;
 import shamu.company.attendance.service.PayPeriodFrequencyService;
 import shamu.company.authorization.Permission;
-import shamu.company.company.entity.Company;
 import shamu.company.server.dto.AuthUser;
 import shamu.company.tests.utils.JwtUtil;
 import shamu.company.user.entity.User;
 import shamu.company.utils.JsonUtil;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.BDDMockito.given;
 
 @WebMvcTest(controllers = AttendanceSetUpController.class)
 public class AttendanceSetUpControllerTests extends WebControllerBaseTests {
@@ -39,12 +38,10 @@ public class AttendanceSetUpControllerTests extends WebControllerBaseTests {
 
     final AuthUser currentUser = getAuthUser();
     final User targetUser = new User();
-    final Company company = new Company(currentUser.getCompanyId());
-    targetUser.setCompany(company);
     targetUser.setId(currentUser.getId());
 
     given(userService.findById(currentUser.getId())).willReturn(targetUser);
-    given(attendanceSetUpService.findIsAttendanceSetUp(Mockito.anyString())).willReturn(false);
+    given(attendanceSetUpService.findIsAttendanceSetUp()).willReturn(false);
     final MvcResult response =
         mockMvc
             .perform(
@@ -56,7 +53,7 @@ public class AttendanceSetUpControllerTests extends WebControllerBaseTests {
             .andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
     Mockito.verify(attendanceSetUpService, Mockito.times(1))
-        .findIsAttendanceSetUp(Mockito.anyString());
+        .findIsAttendanceSetUp();
   }
 
   @Test

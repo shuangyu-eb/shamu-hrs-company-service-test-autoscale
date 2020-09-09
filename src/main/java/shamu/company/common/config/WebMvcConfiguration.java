@@ -12,19 +12,24 @@ import org.springframework.web.servlet.config.annotation.ContentNegotiationConfi
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
+import shamu.company.common.multitenant.TenantInterceptor;
 import shamu.company.employee.interceptor.UserInvitationRateLimitingInterceptor;
 import shamu.company.timeoff.interceptor.TimeOffRequestRateLimitingInterceptor;
 
 @Configuration
 public class WebMvcConfiguration extends WebMvcConfigurationSupport {
 
+  private final TenantInterceptor tenantInterceptor;
+
   private final UserInvitationRateLimitingInterceptor userInvitingRateLimitInterceptor;
 
   private final TimeOffRequestRateLimitingInterceptor timeOffRequestRateLimitingInterceptor;
 
   public WebMvcConfiguration(
+      @Lazy final TenantInterceptor tenantInterceptor,
       @Lazy final UserInvitationRateLimitingInterceptor userInvitingRateLimitInterceptor,
       @Lazy final TimeOffRequestRateLimitingInterceptor timeOffRequestRateLimitingInterceptor) {
+    this.tenantInterceptor = tenantInterceptor;
     this.userInvitingRateLimitInterceptor = userInvitingRateLimitInterceptor;
     this.timeOffRequestRateLimitingInterceptor = timeOffRequestRateLimitingInterceptor;
   }
@@ -56,6 +61,7 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
 
   @Override
   protected void addInterceptors(final InterceptorRegistry registry) {
+    registry.addInterceptor(tenantInterceptor).order(0);
     registry.addInterceptor(userInvitingRateLimitInterceptor).addPathPatterns("/company/employees");
     registry
         .addInterceptor(timeOffRequestRateLimitingInterceptor)

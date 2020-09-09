@@ -62,7 +62,6 @@ class UserAddressRestControllerTests extends WebControllerBaseTests {
     final AuthUser currentUser = getAuthUser();
     final User targetUser = new User();
     final Company company = new Company(currentUser.getCompanyId());
-    targetUser.setCompany(company);
     targetUser.setId(currentUser.getId());
 
     given(userService.findById(currentUser.getId())).willReturn(targetUser);
@@ -88,8 +87,6 @@ class UserAddressRestControllerTests extends WebControllerBaseTests {
 
     final AuthUser currentUser = getAuthUser();
     final User targetUser = new User();
-    final Company company = new Company(currentUser.getCompanyId());
-    targetUser.setCompany(company);
     targetUser.setId(currentUser.getId());
 
     given(userService.findById(currentUser.getId())).willReturn(targetUser);

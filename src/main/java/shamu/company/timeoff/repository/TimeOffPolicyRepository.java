@@ -14,18 +14,14 @@ public interface TimeOffPolicyRepository extends BaseRepository<TimeOffPolicy, S
               + "p.is_limited as isLimited from time_off_policies p "
               + "left join time_off_policies_users pu on "
               + "p.id = pu.time_off_policy_id "
-              + "where p.company_id = unhex(?1) "
               + "group by id, name, isLimited order by name ASC",
       nativeQuery = true)
-  List<TimeOffPolicyListPojo> getAllPolicies(String company);
+  List<TimeOffPolicyListPojo> getAllPolicies();
 
   @Query(
-      value =
-          "SELECT count(1) FROM time_off_policies top"
-              + " WHERE binary top.name = ?1 "
-              + " and top.company_id = unhex(?2)",
+      value = "SELECT count(1) FROM time_off_policies top" + " WHERE binary top.name = ?1 ",
       nativeQuery = true)
-  Integer findByPolicyNameAndCompanyId(String policyName, String companyId);
+  Integer countByName(String policyName);
 
-  List<TimeOffPolicy> findByCompanyIdAndIsAutoEnrollEnabledIsTrue(String companyId);
+  List<TimeOffPolicy> findByIsAutoEnrollEnabledIsTrue();
 }

@@ -7,10 +7,6 @@ import shamu.company.job.entity.Job;
 
 public interface JobRepository extends BaseRepository<Job, String> {
 
-  List<Job> findByCompanyId(String id);
-
-  @Query(
-      value = "SELECT * FROM jobs j" + " WHERE binary j.title = ?1 and j.company_id = unhex(?2) ",
-      nativeQuery = true)
-  List<Job> findByTitleAndCompanyId(String title, String companyId);
+  @Query(value = "SELECT * FROM jobs j WHERE binary j.title = ?1 ", nativeQuery = true)
+  List<Job> findByTitle(String title);
 }

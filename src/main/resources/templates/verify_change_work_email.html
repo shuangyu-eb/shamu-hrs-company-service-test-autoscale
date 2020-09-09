@@ -4,7 +4,8 @@
   <meta content="text/html; charset=UTF-8" http-equiv="Content-Type"/>
 </head>
 <body>
-<div align="center" style="background-color: #f0f2f5; padding-bottom: 119px; padding-top: 58px; width: 100%;">
+<div align="center"
+     style="background-color: #f0f2f5; padding-bottom: 119px; padding-top: 58px; width: 100%;">
   <table style="width: 600px; margin-left: auto; margin-right: auto;">
     <tr>
       <td style="width: 189px; height: 50px; display: block; margin: 10px auto 10px auto;">
@@ -31,7 +32,7 @@
     <tr>
       <td style="display: block; margin: 20px auto 10px auto; width: 100%;">
         <a style="text-decoration: none; padding: 10px 20px; border-radius: 20px; background: #0075DF; border: 1px solid transparent;cursor: pointer; display: block; width: 150px; margin-left: auto; margin-right: auto;font-size: 14px; font-weight: 500; line-height: 1.17; letter-spacing: .2px; color: #ffffff; text-align: center;"
-           th:href="@{${frontEndAddress} + ${changePasswordToken}}">
+           th:href="@{${frontEndAddress} + ${changePasswordToken} + '/' + ${companyId}}">
           Verify email
         </a>
       </td>

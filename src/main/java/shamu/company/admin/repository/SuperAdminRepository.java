@@ -24,7 +24,6 @@ public interface SuperAdminRepository extends JpaRepository<User, String> {
               + "CONCAT(u.userPersonalInformation.preferredName, ' ', "
               + "u.userPersonalInformation.lastName) "
               + "LIKE CONCAT('%',?1,'%') "
-              + "OR u.company.name  LIKE CONCAT('%',?1,'%') "
               + "OR u.userContactInformation.emailWork LIKE CONCAT('%',?1,'%') )")
   Page<SuperAdminUserDto> getUsersByKeywordAndPageable(
       String keyword, String[] userStatus, Pageable pageable);

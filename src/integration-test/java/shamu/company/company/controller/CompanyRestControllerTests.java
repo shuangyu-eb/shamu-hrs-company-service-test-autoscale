@@ -74,10 +74,8 @@ public class CompanyRestControllerTests extends WebControllerBaseTests {
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
     job.setId("1");
     job.setTitle("title");
-    department.setCompany(new Company(getAuthUser().getCompanyId()));
     given(companyService.findDepartmentsById("1")).willReturn(department);
-    given(companyService.saveJobsByCompany(Mockito.anyString(), Mockito.anyString()))
-        .willReturn(job);
+    given(companyService.saveJob(Mockito.anyString())).willReturn(job);
     final MvcResult response =
         mockMvc
             .perform(
@@ -88,7 +86,6 @@ public class CompanyRestControllerTests extends WebControllerBaseTests {
             .andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
-
 
   @Test
   void testFindOffices() throws Exception {
@@ -134,7 +131,7 @@ public class CompanyRestControllerTests extends WebControllerBaseTests {
     setPermission(Permission.Name.VIEW_USER_JOB.name());
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
-    given(employeeService.findByCompanyId(Mockito.anyString())).willReturn(list);
+    given(employeeService.findAllActiveUsers()).willReturn(list);
     final MvcResult response =
         mockMvc
             .perform(MockMvcRequestBuilders.get("/company/user-options").headers(httpHeaders))
@@ -156,12 +153,10 @@ public class CompanyRestControllerTests extends WebControllerBaseTests {
     list.add(user);
 
     final Department department = new Department();
-    department.setCompany(new Company(getAuthUser().getCompanyId()));
-    user.setCompany(new Company(getAuthUser().getCompanyId()));
     given(companyService.findDepartmentsById("1")).willReturn(department);
     given(userService.findById("1")).willReturn(user);
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
-    given(employeeService.findByCompanyId(Mockito.anyString())).willReturn(list);
+    given(employeeService.findAllActiveUsers()).willReturn(list);
     final MvcResult response =
         mockMvc
             .perform(
@@ -222,7 +217,7 @@ public class CompanyRestControllerTests extends WebControllerBaseTests {
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
     final Company company = new Company();
     company.setIsPaidHolidaysAutoEnroll(true);
-    given(companyService.findById(Mockito.anyString())).willReturn(company);
+    given(companyService.getCompany()).willReturn(company);
     final MvcResult response =
         mockMvc
             .perform(

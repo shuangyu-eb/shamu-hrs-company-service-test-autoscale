@@ -1,7 +1,23 @@
 package shamu.company.user.service;
 
-import com.auth0.json.auth.CreatedUser;
 import io.micrometer.core.instrument.util.StringUtils;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceException;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,22 +33,18 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.Context;
-import shamu.company.admin.entity.SystemAnnouncement;
-import shamu.company.admin.service.SystemAnnouncementsService;
 import shamu.company.attendance.entity.CompanyTaSetting.MessagingON;
 import shamu.company.attendance.entity.StaticTimesheetStatus.TimeSheetStatus;
 import shamu.company.attendance.service.OvertimeService;
 import shamu.company.authorization.Permission.Name;
 import shamu.company.authorization.PermissionUtils;
-import shamu.company.client.AddTenantDto;
 import shamu.company.client.DocumentClient;
-import shamu.company.client.PactsafeCompanyDto;
 import shamu.company.common.exception.errormapping.AlreadyExistsException;
 import shamu.company.common.exception.errormapping.EmailAlreadyVerifiedException;
 import shamu.company.common.exception.errormapping.ResourceNotFoundException;
+import shamu.company.common.multitenant.TenantContext;
 import shamu.company.company.entity.Company;
 import shamu.company.company.entity.CompanyBenefitsSetting;
-import shamu.company.company.repository.CompanyRepository;
 import shamu.company.company.service.CompanyBenefitsSettingService;
 import shamu.company.company.service.CompanyService;
 import shamu.company.crypto.SecretHashRepository;
@@ -56,10 +68,8 @@ import shamu.company.scheduler.QuartzJobScheduler;
 import shamu.company.scheduler.job.DeactivateUserJob;
 import shamu.company.sentry.SentryLogger;
 import shamu.company.server.dto.AuthUser;
-import shamu.company.timeoff.service.PaidHolidayService;
 import shamu.company.user.dto.AccountInfoDto;
 import shamu.company.user.dto.ChangePasswordDto;
-import shamu.company.user.dto.CreatePasswordDto;
 import shamu.company.user.dto.CurrentUserDto;
 import shamu.company.user.dto.UpdatePasswordDto;
 import shamu.company.user.dto.UserContactInformationDto;
@@ -93,24 +103,6 @@ import shamu.company.user.repository.UserRepository;
 import shamu.company.utils.DateUtil;
 import shamu.company.utils.UuidUtil;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceException;
-import java.sql.Timestamp;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
 @Service
 @Transactional
 public class UserService {
@@ -130,7 +122,6 @@ public class UserService {
 
   private final UserEmergencyContactService userEmergencyContactService;
   private final UserAddressService userAddressService;
-  private final PaidHolidayService paidHolidayService;
   private final EmailService emailService;
   private final UserRoleService userRoleService;
   private final JobUserService jobUserService;
@@ -144,8 +135,6 @@ public class UserService {
   private final UserPersonalInformationMapper userPersonalInformationMapper;
   private final UserMapper userMapper;
   private final CompanyBenefitsSettingService companyBenefitsSettingService;
-  private final CompanyRepository companyRepository;
-  private final SystemAnnouncementsService systemAnnouncementsService;
   private final DismissedAtService dismissedAtService;
   private final OvertimeService overtimeService;
 
@@ -172,7 +161,6 @@ public class UserService {
       final UserPersonalInformationMapper userPersonalInformationMapper,
       final UserEmergencyContactService userEmergencyContactService,
       final UserAddressService userAddressService,
-      @Lazy final PaidHolidayService paidHolidayService,
       final UserContactInformationMapper userContactInformationMapper,
       final UserAddressMapper userAddressMapper,
       final Auth0Helper auth0Helper,
@@ -189,8 +177,6 @@ public class UserService {
       final UserContactInformationService userContactInformationService,
       final CompanyBenefitsSettingService companyBenefitsSettingService,
       final EntityManager entityManager,
-      final CompanyRepository companyRepository,
-      final SystemAnnouncementsService systemAnnouncementsService,
       final DismissedAtService dismissedAtService,
       final DocumentClient documentClient,
       final OvertimeService overtimeService) {
@@ -203,7 +189,6 @@ public class UserService {
     this.userPersonalInformationMapper = userPersonalInformationMapper;
     this.userContactInformationMapper = userContactInformationMapper;
     this.userAddressMapper = userAddressMapper;
-    this.paidHolidayService = paidHolidayService;
     this.auth0Helper = auth0Helper;
     this.userMapper = userMapper;
     this.authUserCacheManager = authUserCacheManager;
@@ -218,8 +203,6 @@ public class UserService {
     this.userContactInformationService = userContactInformationService;
     this.companyBenefitsSettingService = companyBenefitsSettingService;
     this.entityManager = entityManager;
-    this.companyRepository = companyRepository;
-    this.systemAnnouncementsService = systemAnnouncementsService;
     this.dismissedAtService = dismissedAtService;
     this.documentClient = documentClient;
     this.overtimeService = overtimeService;
@@ -245,6 +228,7 @@ public class UserService {
   public void cacheUser(final String token, final String userId) {
     final User user = findById(userId);
     final AuthUser authUser = userMapper.convertToAuthUser(user);
+    authUser.setCompanyId(TenantContext.getCurrentTenant());
     final List<String> permissions = auth0Helper.getPermissionBy(user);
     authUser.setPermissions(permissions);
     authUserCacheManager.cacheAuthUser(token, authUser);
@@ -269,16 +253,13 @@ public class UserService {
   }
 
   public Page<JobUserListItem> findAllEmployees(
-      final String userId, final EmployeeListSearchCondition employeeListSearchCondition) {
+      final EmployeeListSearchCondition employeeListSearchCondition) {
     if (!permissionUtils.hasAuthority(Name.VIEW_DISABLED_USER.name())) {
       employeeListSearchCondition.setIncludeDeactivated(false);
     }
 
-    final User currentUser = findActiveUserById(userId);
-    final String companyId = currentUser.getCompany().getId();
-
     final Pageable paramPageable = getPageable(employeeListSearchCondition);
-    return getAllEmployeesByCompany(employeeListSearchCondition, companyId, paramPageable);
+    return getAllEmployeesByCompany(employeeListSearchCondition, paramPageable);
   }
 
   private Pageable getPageable(final EmployeeListSearchCondition employeeListSearchCondition) {
@@ -293,16 +274,14 @@ public class UserService {
   }
 
   private Page<JobUserListItem> getAllEmployeesByCompany(
-      final EmployeeListSearchCondition employeeListSearchCondition,
-      final String companyId,
-      final Pageable pageable) {
-    return userRepository.getAllByCondition(employeeListSearchCondition, companyId, pageable);
+      final EmployeeListSearchCondition employeeListSearchCondition, final Pageable pageable) {
+    return userRepository.getAllByCondition(employeeListSearchCondition, pageable);
   }
 
   public Page<JobUserListItem> findAllEmployeesByName(
-      final EmployeeListSearchCondition employeeListSearchCondition, final String companyId) {
+      final EmployeeListSearchCondition employeeListSearchCondition) {
     final Pageable pageable = getPageable(employeeListSearchCondition);
-    return userRepository.getAllByName(employeeListSearchCondition, companyId, pageable);
+    return userRepository.getAllByName(employeeListSearchCondition, pageable);
   }
 
   public User save(final User user) {
@@ -314,8 +293,8 @@ public class UserService {
     return save(user);
   }
 
-  public List<JobUserDto> findAllJobUsers(final String companyId) {
-    final List<User> policyEmployees = userRepository.findAllByCompanyId(companyId);
+  public List<JobUserDto> findAllJobUsers() {
+    final List<User> policyEmployees = userRepository.findAllActiveUsers();
 
     return policyEmployees.stream()
         .map(
@@ -327,25 +306,25 @@ public class UserService {
         .collect(Collectors.toList());
   }
 
-  public List<User> findAllUsersByCompany(final String companyId) {
-    return userRepository.findAllByCompanyId(companyId);
+  public List<User> findAllUsersByCompany() {
+    return userRepository.findAllActiveUsers();
   }
 
-  public List<OrgChartDto> getOrgChart(final String userId, final String companyId) {
+  public List<OrgChartDto> getOrgChart(final String userId) {
     final List<OrgChartDto> orgChartDtoList = new ArrayList<>();
     List<OrgChartDto> orgChartManagerItemList = new ArrayList<>();
     if (!StringUtils.isBlank(userId)) {
-      final OrgChartDto manager = userRepository.findOrgChartItemByUserId(userId, companyId);
+      final OrgChartDto manager = userRepository.findOrgChartItemByUserId(userId);
       orgChartManagerItemList.add(manager);
       if (!orgChartManagerItemList.isEmpty()) {
         for (final OrgChartDto managerItem : orgChartManagerItemList) {
 
           final List<OrgChartDto> orgChartUserItemList =
-              userRepository.findOrgChartItemByManagerId(managerItem.getId(), companyId);
+              userRepository.findOrgChartItemByManagerId(managerItem.getId());
           orgChartUserItemList.forEach(
               (orgUser -> {
                 final Integer directReportsCount =
-                    userRepository.findDirectReportsCount(orgUser.getId(), companyId);
+                    userRepository.findDirectReportsCount(orgUser.getId());
                 orgUser.setDirectReportsCount(directReportsCount);
               }));
           managerItem.setDirectReports(orgChartUserItemList);
@@ -355,15 +334,15 @@ public class UserService {
       }
     } else {
       // retrieve company admin from database
-      orgChartManagerItemList = userRepository.findOrgChartItemByManagerId(null, companyId);
-      final Company company = companyRepository.findCompanyById(companyId);
-      final Integer allEmployeesCount = userRepository.findExistingUserCountByCompanyId(companyId);
+      orgChartManagerItemList = userRepository.findOrgChartItemByManagerId(null);
+      final Company company = companyService.getCompany();
+      final Integer allEmployeesCount = userRepository.countExistingUser();
       final OrgChartDto orgChartDto = userMapper.convertOrgChartDto(company);
       orgChartDto.setIsCompany(true);
       orgChartManagerItemList.forEach(
           (orgUser -> {
             final Integer directReportsCount =
-                userRepository.findDirectReportsCount(orgUser.getId(), companyId);
+                userRepository.findDirectReportsCount(orgUser.getId());
             orgUser.setDirectReportsCount(directReportsCount);
           }));
       orgChartDto.setDirectReportsCount(allEmployeesCount);
@@ -425,35 +404,6 @@ public class UserService {
     return userRepository.existsByResetPasswordToken(passwordToken);
   }
 
-  public void createPassword(final CreatePasswordDto createPasswordDto) {
-    final String userWorkEmail = createPasswordDto.getEmailWork();
-    final User user = userRepository.findByEmailWork(userWorkEmail);
-
-    if (user == null
-        || !createPasswordDto.getResetPasswordToken().equals(user.getResetPasswordToken())) {
-      throw new ResourceNotFoundException(
-          String.format("User with email %s not found!", userWorkEmail), userWorkEmail, "user");
-    }
-
-    final com.auth0.json.mgmt.users.User authUser;
-
-    try {
-      authUser = auth0Helper.getAuth0UserByIdWithByEmailFailover(user.getId(), userWorkEmail);
-    } catch (final ResourceNotFoundException e) {
-      throw new UserNotFoundByEmailException(
-          String.format("User with email %s not found.", createPasswordDto.getEmailWork()),
-          createPasswordDto.getEmailWork());
-    }
-
-    auth0Helper.updatePassword(authUser, createPasswordDto.getNewPassword());
-    auth0Helper.updateVerified(authUser, true);
-
-    final UserStatus userStatus = userStatusService.findByName(Status.ACTIVE.name());
-    user.setUserStatus(userStatus);
-    user.setResetPasswordToken(null);
-    userRepository.save(user);
-  }
-
   public Page<JobUserListItem> getMyTeam(
       final EmployeeListSearchCondition employeeListSearchCondition, final String id) {
     final Pageable paramPageable = getPageable(employeeListSearchCondition);
@@ -509,6 +459,7 @@ public class UserService {
       final Map<String, Object> jobParameter = new HashMap<>();
       jobParameter.put("UserStatusUpdateDto", userStatusUpdateDto);
       jobParameter.put("User", user);
+      jobParameter.put("companyId", TenantContext.getCurrentTenant());
       quartzJobScheduler.addOrUpdateJobSchedule(
           DeactivateUserJob.class,
           user.getId(),
@@ -558,19 +509,7 @@ public class UserService {
     }
   }
 
-  public void signUp(final UserSignUpDto signUpDto) {
-
-    if (companyService.existsByName(signUpDto.getCompanyName())) {
-      throw new AlreadyExistsException("Company name already exists.", "company name");
-    }
-
-    final String uuid = UuidUtil.getUuidString();
-    addSignUpInformation(signUpDto, uuid);
-    final CreatedUser user = auth0Helper.signUp(signUpDto.getWorkEmail(), signUpDto.getPassword());
-    auth0Helper.updateAuthUserAppMetaData(user.getUserId(), signUpDto.getWorkEmail(), uuid);
-  }
-
-  public void addSignUpInformation(final UserSignUpDto signUpDto, final String id) {
+  public void signUp(final UserSignUpDto signUpDto, final String userId) {
     final UserPersonalInformation userPersonalInformation =
         UserPersonalInformation.builder()
             .firstName(signUpDto.getFirstName())
@@ -581,54 +520,35 @@ public class UserService {
     final UserContactInformation userContactInformation =
         UserContactInformation.builder().emailWork(emailAddress).build();
 
-    Company company = Company.builder().name(signUpDto.getCompanyName()).build();
-    company = companyService.save(company);
-    secretHashRepository.generateCompanySecretByCompanyId(company.getId());
+    secretHashRepository.generateCompanySecretByCompanyId(TenantContext.getCurrentTenant());
 
-    saveCompanyBenefitsSetting(company);
+    // saveCompanyBenefitsSetting();
 
     final UserStatus status = userStatusService.findByName(Status.ACTIVE.name());
 
-    User user =
+    final User user =
         User.builder()
             .userStatus(status)
             .userPersonalInformation(userPersonalInformation)
             .userContactInformation(userContactInformation)
-            .company(company)
             .verifiedAt(Timestamp.valueOf(DateUtil.getLocalUtcTime()))
             .userRole(userRoleService.getAdmin())
             .salt(UuidUtil.getUuidString())
             .build();
-    user.setId(id);
+    user.setId(userId);
+    userRepository.save(user);
 
-    user = userRepository.save(user);
-
-    paidHolidayService.initDefaultPaidHolidays(user.getCompany());
-    overtimeService.createDefaultPolicy(company);
-
-    addTenant(user);
+    overtimeService.createDefaultPolicy();
   }
 
-  public void addTenant(final User user) {
-    final Company company = user.getCompany();
-    final PactsafeCompanyDto companyDto =
-        PactsafeCompanyDto.builder().id(company.getId()).name(company.getName()).build();
-
-    final AddTenantDto tenantDto = AddTenantDto.builder().company(companyDto).build();
-
-    documentClient.addTenant(tenantDto);
-  }
-
-  private void saveCompanyBenefitsSetting(final Company company) {
+  private void saveCompanyBenefitsSetting() {
     final CompanyBenefitsSetting benefitsSetting = new CompanyBenefitsSetting();
-    benefitsSetting.setCompany(company);
     benefitsSetting.setIsAutomaticRollover(true);
     companyBenefitsSettingService.save(benefitsSetting);
   }
 
   public boolean hasUserAccess(final User currentUser, final String targetUserId) {
-    final User targetUser =
-        userRepository.findByIdAndCompanyId(targetUserId, currentUser.getCompany().getId());
+    final User targetUser = userRepository.findActiveUserById(targetUserId);
     if (targetUser == null) {
       throw new ResourceNotFoundException(
           String.format("User with id %s not found.", targetUserId), targetUserId, "user");
@@ -855,12 +775,12 @@ public class UserService {
     save(user);
   }
 
-  public List<User> findByCompanyId(final String companyId) {
-    return userRepository.findByCompanyId(companyId);
+  public List<User> findAllActiveUsers() {
+    return userRepository.findAllActiveUsers();
   }
 
-  public List<User> findSubordinatesByManagerUserId(final String companyId, final String userId) {
-    return userRepository.findSubordinatesByManagerUserId(companyId, userId);
+  public List<User> findSubordinatesByManagerUserId(final String userId) {
+    return userRepository.findSubordinatesByManagerUserId(userId);
   }
 
   public User findByEmailWork(final String email) {
@@ -869,10 +789,6 @@ public class UserService {
 
   public List<User> findAllById(final List<String> ids) {
     return userRepository.findAllById(ids);
-  }
-
-  public List<User> findAllByCompanyId(final String companyId) {
-    return userRepository.findAllByCompanyId(companyId);
   }
 
   public void resendVerificationEmail(final String email) {
@@ -897,10 +813,9 @@ public class UserService {
         dismissedAtService.findByUserIdAndSystemAnnouncementId(userId, id);
     if (dismissed == null) {
       final User user = findById(userId);
-      final SystemAnnouncement systemAnnouncement = systemAnnouncementsService.findById(id);
       final DismissedAt dismissedAt = new DismissedAt();
       dismissedAt.setUser(user);
-      dismissedAt.setSystemAnnouncement(systemAnnouncement);
+      dismissedAt.setSystemAnnouncementId(id);
       dismissedAtService.save(dismissedAt);
     }
   }
@@ -914,8 +829,8 @@ public class UserService {
     return userRepository.findSuperUser(companyId);
   }
 
-  public List<User> findUsersByCompanyIdAndUserRole(final String companyId, final String userRole) {
-    return userRepository.findUsersByCompanyIdAndUserRole(companyId, userRole);
+  public List<User> findUsersByCompanyIdAndUserRole(final String userRole) {
+    return userRepository.findUsersByUserRole(userRole);
   }
 
   // When the user has the same name in the user list, the user's email address needs to be added
@@ -954,15 +869,21 @@ public class UserService {
         && userAddress.getStreet1() != null;
   }
 
-  public List<User> findRegisteredUsersByCompany(final String companyId) {
-    final List<User> users = userRepository.findAllByCompanyId(companyId);
+  public List<User> findRegisteredUsers() {
+    final List<User> users = userRepository.findAll();
     return users.stream()
         .filter(user -> !user.getUserStatus().getStatus().equals(Status.PENDING_VERIFICATION))
         .collect(Collectors.toList());
   }
 
-  public List<User> listCompanyAttendanceEnrolledUsers(final String companyId) {
-    return userRepository.findAttendanceEnrolledUsersByCompanyId(companyId);
+  public User findByInvitationEmailTokenAndResetPasswordToken(
+      final String emailToken, final String passwordToken) {
+    return userRepository.findByInvitationEmailTokenAndResetPasswordToken(
+        emailToken, passwordToken);
+  }
+
+  public List<User> listCompanyAttendanceEnrolledUsers() {
+    return userRepository.findAttendanceEnrolledUsers();
   }
 
   public List<User> listMessageOnNotSubmitTimeSheetUsers(final String periodId) {
@@ -981,9 +902,7 @@ public class UserService {
     final List<User> managers =
         userRepository.findManagersByPeriodIdAndTimeSheetStatus(
             periodId, TimeSheetStatus.SUBMITTED.name());
-    final List<User> admins =
-        userRepository.findUsersByCompanyIdAndUserRole(
-            notApprovedUsers.get(0).getCompany().getId(), Role.ADMIN.name());
+    final List<User> admins = userRepository.findUsersByUserRole(Role.ADMIN.name());
     final boolean managersIsEmpty = CollectionUtils.isEmpty(managers);
     final boolean adminsIsEmpty = CollectionUtils.isEmpty(admins);
     if (managersIsEmpty && adminsIsEmpty) {

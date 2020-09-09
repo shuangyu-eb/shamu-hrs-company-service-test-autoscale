@@ -15,8 +15,7 @@ import shamu.company.common.entity.BaseEntity;
 @AllArgsConstructor
 public class PaidHolidayUser extends BaseEntity {
 
-  @Type(type = "shamu.company.common.PrimaryKeyTypeDescriptor")
-  private String companyId;
+  private static final long serialVersionUID = 5566794448110573459L;
 
   @Type(type = "shamu.company.common.PrimaryKeyTypeDescriptor")
   private String userId;

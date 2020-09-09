@@ -13,7 +13,7 @@ import shamu.company.common.entity.Country;
 
 @Data
 @Entity
-@Table(name = "companies")
+@Table(name = "company")
 @NoArgsConstructor
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)

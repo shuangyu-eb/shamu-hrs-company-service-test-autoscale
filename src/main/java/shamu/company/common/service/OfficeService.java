@@ -28,8 +28,8 @@ public class OfficeService {
                     String.format("Office with id %s not found!", id), id, "office"));
   }
 
-  public List<Office> findByCompanyId(final String companyId) {
-    return officeRepository.findByCompanyId(companyId);
+  public List<Office> findAll() {
+    return officeRepository.findAll();
   }
 
   public Integer findCountByOffice(final String officeId) {
@@ -44,7 +44,7 @@ public class OfficeService {
     officeRepository.delete(id);
   }
 
-  public List<Office> findByNameAndCompanyId(final String name, final String companyId) {
-    return officeRepository.findByNameAndCompanyId(name, companyId);
+  public List<Office> findByName(final String name) {
+    return officeRepository.findByName(name);
   }
 }

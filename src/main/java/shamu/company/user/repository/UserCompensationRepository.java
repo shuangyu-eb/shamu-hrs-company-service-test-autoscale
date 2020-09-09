@@ -20,12 +20,12 @@ public interface UserCompensationRepository extends BaseRepository<UserCompensat
       value =
           "SELECT ucb.* FROM (SELECT max(uca.created_at) as created_at, uca.user_id as user_id "
               + "FROM user_compensations uca JOIN users u ON "
-              + "u.company_id = unhex(?1) AND u.id = uca.user_id "
+              + "u.id = uca.user_id "
               + "JOIN employees_ta_settings ets ON "
               + "uca.user_id = ets.employee_id "
               + "GROUP BY uca.user_id) as temp "
               + "JOIN user_compensations ucb "
               + "ON ucb.user_id = temp.user_id AND ucb.created_at = temp.created_at",
       nativeQuery = true)
-  List<UserCompensation> listNewestEnrolledUserCompensationByCompanyId(String companyId);
+  List<UserCompensation> listNewestEnrolledUserCompensationByCompanyId();
 }

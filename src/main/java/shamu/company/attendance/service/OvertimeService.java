@@ -1,5 +1,12 @@
 package shamu.company.attendance.service;
 
+import java.sql.Timestamp;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shamu.company.attendance.dto.LocalDateEntryDto;
@@ -21,16 +28,7 @@ import shamu.company.attendance.repository.PolicyDetailRepository;
 import shamu.company.attendance.repository.StaticOvertimeTypeRepository;
 import shamu.company.attendance.utils.TimeEntryUtils;
 import shamu.company.attendance.utils.overtime.OverTimePayFactory;
-import shamu.company.company.entity.Company;
 import shamu.company.utils.DateUtil;
-
-import java.sql.Timestamp;
-import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /** @author mshumaker */
 @Service
@@ -153,12 +151,10 @@ public class OvertimeService {
     return rateToMin;
   }
 
-  public void saveNewOvertimePolicy(
-      final OvertimePolicyDto overtimePolicyDto, final String companyId) {
+  public void saveNewOvertimePolicy(final OvertimePolicyDto overtimePolicyDto) {
     final List<OvertimePolicyDetailDto> policyDetailDtos = overtimePolicyDto.getPolicyDetails();
     final OvertimePolicy newOvertimePolicy =
-        overtimePolicyMapper.convertToOvertimePolicy(
-            new OvertimePolicy(), overtimePolicyDto, companyId);
+        overtimePolicyMapper.convertToOvertimePolicy(new OvertimePolicy(), overtimePolicyDto);
     final List<PolicyDetail> policyDetails =
         policyDetailDtos.stream()
             .map(
@@ -175,18 +171,17 @@ public class OvertimeService {
     policyDetailRepository.saveAll(policyDetails);
   }
 
-  public void createDefaultPolicy(final Company company) {
+  public void createDefaultPolicy() {
     final OvertimePolicy overtimePolicy =
         OvertimePolicy.builder()
             .policyName(DEFAULT_OVERTIME_POLICY_NAME)
-            .company(company)
             .defaultPolicy(true)
             .build();
     overtimePolicyRepository.save(overtimePolicy);
   }
 
-  public OvertimePolicy findDefaultPolicy(final String companyId) {
-    return overtimePolicyRepository.findByCompanyIdAndDefaultPolicyIsTrue(companyId);
+  public OvertimePolicy findDefaultPolicy() {
+    return overtimePolicyRepository.findByDefaultPolicyIsTrue();
   }
 
   @Transactional

@@ -1,5 +1,16 @@
 package shamu.company.attendance;
 
+import static org.assertj.core.api.Assertions.assertThatCode;
+
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -28,7 +39,6 @@ import shamu.company.attendance.service.PayPeriodFrequencyService;
 import shamu.company.attendance.service.TimePeriodService;
 import shamu.company.attendance.service.TimeSheetService;
 import shamu.company.common.service.PayrollDetailService;
-import shamu.company.company.entity.Company;
 import shamu.company.company.entity.Office;
 import shamu.company.company.entity.OfficeAddress;
 import shamu.company.company.repository.CompanyRepository;
@@ -52,18 +62,6 @@ import shamu.company.user.repository.CompensationOvertimeStatusRepository;
 import shamu.company.user.repository.UserRepository;
 import shamu.company.user.service.UserCompensationService;
 import shamu.company.user.service.UserService;
-
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-
-import static org.assertj.core.api.Assertions.assertThatCode;
 
 public class AttendanceSetUpServiceTests {
 
@@ -126,10 +124,9 @@ public class AttendanceSetUpServiceTests {
 
   @Test
   void findIsAttendanceSetUp() {
-    Mockito.when(attendanceSettingsService.existsByCompanyId("1")).thenReturn(true);
-    attendanceSetUpService.findIsAttendanceSetUp("1");
-    assertThatCode(() -> attendanceSetUpService.findIsAttendanceSetUp("1"))
-        .doesNotThrowAnyException();
+    Mockito.when(attendanceSettingsService.exists()).thenReturn(true);
+    attendanceSetUpService.findIsAttendanceSetUp();
+    assertThatCode(() -> attendanceSetUpService.findIsAttendanceSetUp()).doesNotThrowAnyException();
   }
 
   @Nested
@@ -146,10 +143,9 @@ public class AttendanceSetUpServiceTests {
 
     @Test
     void whenEmployeesAreEmpty_shouldSucceed() {
-      Mockito.when(userRepository.findAllByCompanyId(companyId)).thenReturn(unselectedUsers);
+      Mockito.when(userRepository.findAllActiveUsers()).thenReturn(unselectedUsers);
       Mockito.when(employeesTaSettingRepository.findAll()).thenReturn(selectedUsers);
-      assertThatCode(() -> attendanceSetUpService.getRelatedUsers(companyId))
-          .doesNotThrowAnyException();
+      assertThatCode(() -> attendanceSetUpService.getRelatedUsers()).doesNotThrowAnyException();
     }
 
     @Test
@@ -167,7 +163,7 @@ public class AttendanceSetUpServiceTests {
       final User anotherUser = new User();
       anotherUser.setId("another");
       unselectedUsers.add(anotherUser);
-      Mockito.when(userRepository.findAllByCompanyId(companyId)).thenReturn(unselectedUsers);
+      Mockito.when(userRepository.findAllActiveUsers()).thenReturn(unselectedUsers);
       Mockito.when(employeesTaSettingRepository.findAll()).thenReturn(selectedUsers);
       Mockito.when(jobUserRepository.findJobUserByUser(user)).thenReturn(employeeWithJobInfo);
       Mockito.when(
@@ -177,8 +173,7 @@ public class AttendanceSetUpServiceTests {
               jobUserMapper.convertToTimeAndAttendanceRelatedUserDto(
                   user, employeeWithJobInfo, "123"))
           .thenReturn(relatedUserDto);
-      assertThatCode(() -> attendanceSetUpService.getRelatedUsers(companyId))
-          .doesNotThrowAnyException();
+      assertThatCode(() -> attendanceSetUpService.getRelatedUsers()).doesNotThrowAnyException();
     }
   }
 
@@ -195,7 +190,6 @@ public class AttendanceSetUpServiceTests {
     StaticCompanyPayFrequencyType staticCompanyPayFrequencyType =
         new StaticCompanyPayFrequencyType();
     List<EmployeeOvertimeDetailsDto> details = new ArrayList();
-    Company company;
     final StaticTimezone staticTimezone = new StaticTimezone();
     CompanyTaSetting companyTaSetting = new CompanyTaSetting();
     Map<String, String> timezones = new HashMap();
@@ -203,12 +197,10 @@ public class AttendanceSetUpServiceTests {
 
     @BeforeEach
     void init() {
-      company = new Company();
       timeAndAttendanceDetailsDto.setPayDate(new Date());
       timeAndAttendanceDetailsDto.setOvertimeDetails(details);
       timeAndAttendanceDetailsDto.setPeriodStartDate("01/01/2020");
       timeAndAttendanceDetailsDto.setPeriodEndDate("01/03/2020");
-      Mockito.when(companyService.findById(Mockito.anyString())).thenReturn(company);
       officeAddress.setPostalCode("postalCode");
       office.setOfficeAddress(officeAddress);
       jobUser.setOffice(office);
@@ -226,11 +218,9 @@ public class AttendanceSetUpServiceTests {
       Mockito.when(payPeriodFrequencyService.findByName(Mockito.any()))
           .thenReturn(staticCompanyPayFrequencyType);
       Mockito.when(jobUserRepository.findByUserId(employeeId)).thenReturn(jobUser);
-      Mockito.when(companyRepository.findCompanyById(companyId)).thenReturn(new Company());
       Mockito.when(attendanceSettingsService.saveCompanyTaSetting(Mockito.any()))
           .thenReturn(companyTaSetting);
-      Mockito.when(attendanceSettingsService.findCompanySettings(companyId))
-          .thenReturn(companyTaSetting);
+      Mockito.when(attendanceSettingsService.findCompanySetting()).thenReturn(companyTaSetting);
       Mockito.when(googleMapsHelper.findTimezoneByPostalCode(set)).thenReturn(timezones);
       Mockito.when(timePeriodService.save(Mockito.any())).thenReturn(timePeriod);
       Mockito.when(staticTimeZoneRepository.findByName("timezone")).thenReturn(staticTimezone);
@@ -255,11 +245,18 @@ public class AttendanceSetUpServiceTests {
           .thenReturn(new UserCompensation());
       Mockito.when(compensationFrequencyRepository.findById(Mockito.any()))
           .thenReturn(Optional.of(new CompensationFrequency()));
-      Mockito.when(attendanceSettingsService.findCompanySettings(companyId))
-          .thenReturn(companyTaSetting);
+      Mockito.when(attendanceSettingsService.findCompanySetting()).thenReturn(companyTaSetting);
       Mockito.when(compensationOvertimeStatusRepository.findById(Mockito.any()))
           .thenReturn(Optional.of(new CompensationOvertimeStatus()));
-      Mockito.when(jobUserRepository.findByUserId(Mockito.any())).thenReturn(jobUser);
+
+      final JobUser jobUser = new JobUser();
+      final Office office = new Office();
+      final OfficeAddress officeAddress = new OfficeAddress();
+      officeAddress.setPostalCode("postalCode");
+      office.setOfficeAddress(officeAddress);
+      jobUser.setOffice(office);
+
+      Mockito.when(jobUserRepository.findByUserId(Mockito.anyString())).thenReturn(jobUser);
       Mockito.when(timeSheetService.saveAll(Mockito.any())).thenReturn(Mockito.any());
       Mockito.when(googleMapsHelper.findTimezoneByPostalCode(set)).thenReturn(timezones);
       Mockito.when(staticTimeZoneRepository.findByName("timezone")).thenReturn(staticTimezone);
@@ -290,8 +287,7 @@ public class AttendanceSetUpServiceTests {
       Mockito.when(userCompensationService.saveAll(Mockito.any())).thenReturn(userCompensations);
       Mockito.when(compensationFrequencyRepository.findById(Mockito.any()))
           .thenReturn(Optional.of(new CompensationFrequency()));
-      Mockito.when(attendanceSettingsService.findCompanySettings(companyId))
-          .thenReturn(companyTaSetting);
+      Mockito.when(attendanceSettingsService.findCompanySetting()).thenReturn(companyTaSetting);
       Mockito.when(compensationOvertimeStatusRepository.findById(Mockito.any()))
           .thenReturn(Optional.of(new CompensationOvertimeStatus()));
       Mockito.when(jobUserRepository.findByUserId(Mockito.any())).thenReturn(jobUser);
@@ -311,14 +307,12 @@ public class AttendanceSetUpServiceTests {
     TimePeriod timePeriod;
     String payPeriodFrequency;
     String userId;
-    Company company;
     CompanyTaSetting companyTaSetting;
 
     @BeforeEach
     void init() {
-      company = new Company();
       payPeriodFrequency = "WEEKLY";
-      timePeriod = new TimePeriod(new Date(), new Date(), company);
+      timePeriod = new TimePeriod(new Date(), new Date());
       final StaticTimezone staticTimezone = new StaticTimezone();
       staticTimezone.setName("US/Samoa");
       companyTaSetting = new CompanyTaSetting();
@@ -328,13 +322,10 @@ public class AttendanceSetUpServiceTests {
     @Test
     void frequencyIsValid_shouldSucceed() {
 
-      Mockito.when(attendanceSettingsService.findCompanySettings(company.getId()))
-          .thenReturn(companyTaSetting);
+      Mockito.when(attendanceSettingsService.findCompanySetting()).thenReturn(companyTaSetting);
       for (final PayFrequencyType payPeriodFrequency : PayFrequencyType.values()) {
         assertThatCode(
-                () ->
-                    attendanceSetUpService.getNextPeriod(
-                        timePeriod, payPeriodFrequency.name(), company))
+                () -> attendanceSetUpService.getNextPeriod(timePeriod, payPeriodFrequency.name()))
             .doesNotThrowAnyException();
       }
     }
@@ -344,17 +335,15 @@ public class AttendanceSetUpServiceTests {
       userId = "test_user_id";
       final User user = new User();
       user.setId(userId);
-      user.setCompany(new Company());
       final StaticCompanyPayFrequencyType staticCompanyPayFrequencyType =
           new StaticCompanyPayFrequencyType();
       staticCompanyPayFrequencyType.setName(payPeriodFrequency);
       Mockito.when(timePeriodService.findUserCurrentPeriod(userId))
           .thenReturn(Optional.ofNullable(timePeriod));
       Mockito.when(userService.findById(userId)).thenReturn(user);
-      Mockito.when(payPeriodFrequencyService.findByCompany(Mockito.any()))
+      Mockito.when(payPeriodFrequencyService.find())
           .thenReturn(Optional.ofNullable(staticCompanyPayFrequencyType));
-      Mockito.when(attendanceSettingsService.findCompanySettings(company.getId()))
-          .thenReturn(companyTaSetting);
+      Mockito.when(attendanceSettingsService.findCompanySetting()).thenReturn(companyTaSetting);
       assertThatCode(() -> attendanceSetUpService.findNextPeriodByUser(userId))
           .doesNotThrowAnyException();
     }
@@ -364,22 +353,13 @@ public class AttendanceSetUpServiceTests {
   class EmailNotification {
     String periodId = "test_period_id";
     TimePeriod timePeriod = new TimePeriod();
-    String companyId = "company_id";
-    Company company = new Company();
     CompanyTaSetting companyTaSetting = new CompanyTaSetting();
-
-    @BeforeEach
-    void init() {
-      timePeriod.setCompany(company);
-      company.setId(companyId);
-    }
 
     @Test
     void whenCompanyMessageOff_thenNotSendRunPayRollEmail() {
       Mockito.when(timePeriodService.findById(periodId)).thenReturn(timePeriod);
       companyTaSetting.setMessagingOn(0);
-      Mockito.when(attendanceSettingsService.findCompanySettings(companyId))
-          .thenReturn(companyTaSetting);
+      Mockito.when(attendanceSettingsService.findCompanySetting()).thenReturn(companyTaSetting);
       assertThatCode(
               () ->
                   attendanceSetUpService.sendEmailNotification(
@@ -391,8 +371,7 @@ public class AttendanceSetUpServiceTests {
     void whenCompanyMessageOn_thenNotSendRunPayRollEmail() {
       Mockito.when(timePeriodService.findById(periodId)).thenReturn(timePeriod);
       companyTaSetting.setMessagingOn(1);
-      Mockito.when(attendanceSettingsService.findCompanySettings(companyId))
-          .thenReturn(companyTaSetting);
+      Mockito.when(attendanceSettingsService.findCompanySetting()).thenReturn(companyTaSetting);
       assertThatCode(
               () ->
                   attendanceSetUpService.sendEmailNotification(

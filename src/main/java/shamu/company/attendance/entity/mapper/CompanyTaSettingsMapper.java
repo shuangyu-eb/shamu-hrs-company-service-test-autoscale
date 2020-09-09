@@ -12,7 +12,6 @@ import shamu.company.common.mapper.Config;
 @Mapper(config = Config.class)
 public interface CompanyTaSettingsMapper {
 
-  @Mapping(target = "company", source = "companyTaSetting.company")
   CompanyTaSettingsDto convertToCompanyTaSettingsDto(
       CompanyTaSetting companyTaSetting, PayrollDetail payrollDetail);
 

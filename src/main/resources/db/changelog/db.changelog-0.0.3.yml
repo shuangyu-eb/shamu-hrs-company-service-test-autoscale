@@ -12,9 +12,6 @@ databaseChangeLog:
                   name: pay_frequency_type_id
                   type: binary(16)
               - column:
-                  name: company_id
-                  type: binary(16)
-              - column:
                   name: last_payroll_payday
                   type: datetime
               - column:
@@ -32,14 +29,6 @@ databaseChangeLog:
         onFail: WARN
       changes:
         - addForeignKeyConstraint:
-            baseColumnNames: company_id
-            baseTableName: payroll_details
-            constraintName: fk_payroll_details_company_id
-            onDelete: CASCADE
-            onUpdate: CASCADE
-            referencedColumnNames: id
-            referencedTableName: companies
-        - addForeignKeyConstraint:
             baseColumnNames: pay_frequency_type_id
             baseTableName: payroll_details
             constraintName: fk_payroll_details_frequency_type_id
@@ -55,7 +44,7 @@ databaseChangeLog:
         onFail: WARN
       changes:
         - sql:
-            sql: insert into payroll_details select unhex(replace(uuid(), '-', '')), pay_frequency_type_id, company_id, last_payroll_payday, created_at, updated_at from company_ta_settings;
+            sql: insert into payroll_details select unhex(replace(uuid(), '-', '')), pay_frequency_type_id, last_payroll_payday, created_at, updated_at from company_ta_settings;
 
   - changeSet:
       id: 1598321529000-4
@@ -90,33 +79,6 @@ databaseChangeLog:
             tableName: timesheets
 
   - changeSet:
-      id: 1598842335588-0
-      author: qian-eb
-      preConditions:
-        onFail: WARN
-      changes:
-        - sql:
-            sql: delete from QRTZ_SIMPLE_TRIGGERS where TRIGGER_GROUP = 'ONCE_TIME_TRIGGER_GROUP';
-
-  - changeSet:
-      id: 1598842335588-1
-      author: qian-eb
-      preConditions:
-        onFail: WARN
-      changes:
-        - sql:
-            sql: delete from QRTZ_TRIGGERS where TRIGGER_GROUP = 'ONCE_TIME_TRIGGER_GROUP';
-
-  - changeSet:
-      id: 1598842335588-2
-      author: qian-eb
-      preConditions:
-        onFail: WARN
-      changes:
-        - sql:
-            sql: delete from QRTZ_JOB_DETAILS where JOB_GROUP = 'ONCE_TIME_JOB_GROUP';
-
-  - changeSet:
       id: 1598604559000-1
       author: michael-eb
       changes:
@@ -130,9 +92,6 @@ databaseChangeLog:
               - column:
                   name: policy_name
                   type: varchar(32)
-              - column:
-                  name: company_id
-                  type: binary(16)
               - column:
                   name: universal
                   type: TINYINT
@@ -246,14 +205,6 @@ databaseChangeLog:
       preConditions:
         onFail: WARN
       changes:
-        - addForeignKeyConstraint:
-            baseColumnNames: company_id
-            baseTableName: overtime_policies
-            constraintName: fk_overtime_policies_company_id
-            onDelete: CASCADE
-            onUpdate: CASCADE
-            referencedColumnNames: id
-            referencedTableName: companies
         - addForeignKeyConstraint:
             baseColumnNames: overtime_type_id
             baseTableName: policy_details

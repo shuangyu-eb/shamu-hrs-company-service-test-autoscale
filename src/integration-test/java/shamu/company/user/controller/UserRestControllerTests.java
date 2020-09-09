@@ -3,7 +3,9 @@ package shamu.company.user.controller;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 
+import com.auth0.json.auth.CreatedUser;
 import java.io.FileInputStream;
+import java.util.HashMap;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +20,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import shamu.company.WebControllerBaseTests;
 import shamu.company.authorization.Permission;
+import shamu.company.common.entity.Tenant;
 import shamu.company.company.entity.Company;
 import shamu.company.employee.dto.EmailUpdateDto;
 import shamu.company.server.dto.AuthUser;
@@ -32,6 +35,7 @@ import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserRole;
 import shamu.company.user.entity.mapper.UserMapper;
 import shamu.company.utils.JsonUtil;
+import shamu.company.utils.UuidUtil;
 
 @WebMvcTest(controllers = UserRestController.class)
 public class UserRestControllerTests extends WebControllerBaseTests {
@@ -44,6 +48,17 @@ public class UserRestControllerTests extends WebControllerBaseTests {
   void testSignUp() throws Exception {
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+    final UserSignUpDto userSignUpDto = new UserSignUpDto();
+    userSignUpDto.setCompanyName("123");
+    userSignUpDto.setWorkEmail("qwe");
+    userSignUpDto.setPassword("zxc");
+    given(auth0Helper.signUp(userSignUpDto.getWorkEmail(), userSignUpDto.getPassword()))
+        .willReturn(new CreatedUser());
+
+    final com.auth0.json.mgmt.users.User auth0User = new com.auth0.json.mgmt.users.User();
+    auth0User.setAppMetadata(new HashMap<>());
+    given(auth0Helper.updateAuthUserAppMetaData(Mockito.any(), Mockito.any()))
+        .willReturn(auth0User);
 
     final MvcResult response =
         mockMvc
@@ -51,7 +66,7 @@ public class UserRestControllerTests extends WebControllerBaseTests {
                 MockMvcRequestBuilders.post("/company/users/")
                     .contentType(MediaType.APPLICATION_JSON)
                     .headers(httpHeaders)
-                    .content(JsonUtil.formatToString(new UserSignUpDto())))
+                    .content(JsonUtil.formatToString(userSignUpDto)))
             .andReturn();
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
@@ -81,8 +96,6 @@ public class UserRestControllerTests extends WebControllerBaseTests {
 
     final AuthUser currentUser = getAuthUser();
     final User targetUser = new User();
-    final Company company = new Company(currentUser.getCompanyId());
-    targetUser.setCompany(company);
     targetUser.setId(currentUser.getId());
 
     given(userService.findById(currentUser.getId())).willReturn(targetUser);
@@ -107,8 +120,6 @@ public class UserRestControllerTests extends WebControllerBaseTests {
 
     final AuthUser currentUser = getAuthUser();
     final User targetUser = new User();
-    final Company company = new Company(currentUser.getCompanyId());
-    targetUser.setCompany(company);
     targetUser.setId(currentUser.getId());
 
     given(userService.findById(currentUser.getId())).willReturn(targetUser);
@@ -133,6 +144,12 @@ public class UserRestControllerTests extends WebControllerBaseTests {
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
 
+    final Tenant tenant = new Tenant();
+    tenant.setId(UuidUtil.getUuidString());
+    tenant.setCompanyId(UuidUtil.getUuidString());
+
+    given(tenantService.findTenantByUserEmailWork(Mockito.anyString())).willReturn(tenant);
+
     final MvcResult response =
         mockMvc
             .perform(
@@ -151,6 +168,7 @@ public class UserRestControllerTests extends WebControllerBaseTests {
     final UpdatePasswordDto updatePasswordDto = new UpdatePasswordDto();
     updatePasswordDto.setNewPassword("Eb123456");
     updatePasswordDto.setResetPasswordToken("token");
+    updatePasswordDto.setCompanyId("eastbay");
 
     final MvcResult response =
         mockMvc
@@ -194,7 +212,6 @@ public class UserRestControllerTests extends WebControllerBaseTests {
     final AuthUser currentUser = getAuthUser();
     final User targetUser = new User();
     final Company company = new Company(currentUser.getCompanyId());
-    targetUser.setCompany(company);
     targetUser.setId(currentUser.getId());
 
     given(userService.findById(currentUser.getId())).willReturn(targetUser);
@@ -219,7 +236,6 @@ public class UserRestControllerTests extends WebControllerBaseTests {
     final AuthUser currentUser = getAuthUser();
     final User targetUser = new User();
     final Company company = new Company(currentUser.getCompanyId());
-    targetUser.setCompany(company);
     targetUser.setId(currentUser.getId());
 
     given(userService.findById(currentUser.getId())).willReturn(targetUser);
@@ -242,8 +258,6 @@ public class UserRestControllerTests extends WebControllerBaseTests {
 
     final AuthUser currentUser = getAuthUser();
     final User targetUser = new User();
-    final Company company = new Company(currentUser.getCompanyId());
-    targetUser.setCompany(company);
     targetUser.setId(currentUser.getId());
 
     given(userService.findById(currentUser.getId())).willReturn(targetUser);
@@ -268,8 +282,6 @@ public class UserRestControllerTests extends WebControllerBaseTests {
 
     final AuthUser currentUser = getAuthUser();
     final User targetUser = new User();
-    final Company company = new Company(currentUser.getCompanyId());
-    targetUser.setCompany(company);
     targetUser.setId(currentUser.getId());
 
     given(userService.findById(currentUser.getId())).willReturn(targetUser);
@@ -295,8 +307,6 @@ public class UserRestControllerTests extends WebControllerBaseTests {
 
     final AuthUser currentUser = getAuthUser();
     final User targetUser = new User();
-    final Company company = new Company(currentUser.getCompanyId());
-    targetUser.setCompany(company);
     targetUser.setId(currentUser.getId());
 
     given(userService.findById(currentUser.getId())).willReturn(targetUser);
@@ -333,6 +343,7 @@ public class UserRestControllerTests extends WebControllerBaseTests {
     final UserRole userRole = new UserRole();
     userRole.setName(User.Role.SUPER_ADMIN.name());
     user.setUserRole(userRole);
+    given(auth0Helper.getUserRoleByUserId(Mockito.anyString())).willReturn(User.Role.SUPER_ADMIN);
 
     given(userService.findActiveUserById(Mockito.anyString())).willReturn(user);
 

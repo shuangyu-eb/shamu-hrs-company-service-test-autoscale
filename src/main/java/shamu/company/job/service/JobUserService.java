@@ -1,5 +1,10 @@
 package shamu.company.job.service;
 
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.data.domain.PageRequest;
@@ -61,12 +66,6 @@ import shamu.company.user.service.UserCompensationService;
 import shamu.company.user.service.UserRoleService;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.DateUtil;
-
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -196,9 +195,8 @@ public class JobUserService {
   }
 
   private void adjustUserLocationInOrganizationRelationship(
-      final User user, final String companyId, final String managerId) {
-    final List<User> subordinates =
-        userService.findSubordinatesByManagerUserId(companyId, user.getId());
+      final User user, final String managerId) {
+    final List<User> subordinates = userService.findSubordinatesByManagerUserId(user.getId());
     if (user.getRole() != Role.ADMIN) {
       subordinates.removeIf(employee -> employee.getId().equals(managerId));
       final UserRole targetUserRole =
@@ -207,14 +205,13 @@ public class JobUserService {
     }
   }
 
-  private void addOrUpdateUserManager(
-      final User user, final String companyId, final String managerId) {
+  private void addOrUpdateUserManager(final User user, final String managerId) {
     if (null == managerId) {
       user.setManagerUser(null);
       userService.save(user);
     } else if (userHasNoneOrDifferentManager(user, managerId)) {
       adjustManagerLocationInOrganizationRelationship(user, managerId);
-      adjustUserLocationInOrganizationRelationship(user, companyId, managerId);
+      adjustUserLocationInOrganizationRelationship(user, managerId);
       handlePendingRequests(managerId);
       userService.save(user);
     }
@@ -253,8 +250,7 @@ public class JobUserService {
         userCompensation.setOvertimeStatus(compensationOvertimeStatus);
         if (!payTypeName.equals(
             CompensationOvertimeStatus.OvertimeStatus.NOT_ELIGIBLE.getValue())) {
-          final OvertimePolicy overtimePolicy =
-              overtimeService.findDefaultPolicy(jobUser.getUser().getCompany().getId());
+          final OvertimePolicy overtimePolicy = overtimeService.findDefaultPolicy();
           userCompensation.setOvertimePolicy(overtimePolicy);
         }
       }
@@ -274,10 +270,9 @@ public class JobUserService {
     jobUserRepository.save(jobUser);
   }
 
-  public void updateJobInfo(
-      final String id, final JobUpdateDto jobUpdateDto, final String companyId) {
+  public void updateJobInfo(final String id, final JobUpdateDto jobUpdateDto) {
     final User user = userService.findById(id);
-    addOrUpdateUserManager(user, companyId, jobUpdateDto.getManagerId());
+    addOrUpdateUserManager(user, jobUpdateDto.getManagerId());
     addOrUpdateJobUser(user, jobUpdateDto);
   }
 
@@ -336,8 +331,7 @@ public class JobUserService {
 
   private void updateDepartmentName(final String id, final String name) {
     final Department department = departmentService.findById(id);
-    final List<Department> oldDepartments =
-        departmentService.findByNameAndCompanyId(name, department.getCompany().getId());
+    final List<Department> oldDepartments = departmentService.findByName(name);
     if (!oldDepartments.isEmpty()) {
       throw new AlreadyExistsException("Department already exists.", "department");
     }
@@ -347,7 +341,7 @@ public class JobUserService {
 
   private void updateJobTitleName(final String id, final String name) {
     final Job job = jobService.findById(id);
-    final List<Job> oldJobs = jobService.findByTitleAndCompanyId(name, job.getCompany().getId());
+    final List<Job> oldJobs = jobService.findByTitle(name);
     if (!oldJobs.isEmpty()) {
       throw new AlreadyExistsException("Job title already exists.", "job title");
     }
@@ -357,9 +351,7 @@ public class JobUserService {
 
   private void updateOfficeContent(final String id, final OfficeCreateDto officeCreateDto) {
     final Office office = officeService.findById(id);
-    final List<Office> oldOffices =
-        officeService.findByNameAndCompanyId(
-            officeCreateDto.getOfficeName(), office.getCompany().getId());
+    final List<Office> oldOffices = officeService.findByName(officeCreateDto.getOfficeName());
     if (!oldOffices.isEmpty()) {
       throw new AlreadyExistsException("Office already exists.", "office");
     }
@@ -429,8 +421,8 @@ public class JobUserService {
     return jobUserRepository.getCountByJobId(jobId);
   }
 
-  public List<SelectFieldSizeDto> findJobsByCompanyId(final String companyId) {
-    final List<Job> jobs = jobService.findAllByCompanyId(companyId);
+  public List<SelectFieldSizeDto> findJobs() {
+    final List<Job> jobs = jobService.findAll();
     return jobs.stream()
         .map(
             job -> {

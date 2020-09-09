@@ -1,17 +1,17 @@
 package shamu.company.scheduler.job;
 
-import org.quartz.JobExecutionContext;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.quartz.QuartzJobBean;
-import shamu.company.email.entity.Email;
-import shamu.company.email.service.EmailService;
-import shamu.company.helpers.EmailHelper;
-import shamu.company.scheduler.QuartzUtil;
-
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import org.quartz.JobExecutionContext;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.quartz.QuartzJobBean;
+import shamu.company.common.multitenant.TenantContext;
+import shamu.company.email.entity.Email;
+import shamu.company.email.service.EmailService;
+import shamu.company.helpers.EmailHelper;
+import shamu.company.scheduler.QuartzUtil;
 
 public class SendEmailsJob extends QuartzJobBean {
   private final EmailHelper emailHelper;
@@ -27,13 +27,19 @@ public class SendEmailsJob extends QuartzJobBean {
   public void executeInternal(final JobExecutionContext jobExecutionContext) {
     final List<String> messageIdList =
         QuartzUtil.getParameter(jobExecutionContext, "messageIdList", ArrayList.class);
-    final List<Email> emails = emailService.listByMessageIds(messageIdList);
-    try {
-      emailHelper.send(emails);
-      emails.forEach(email -> email.setSendDate(new Timestamp(new Date().getTime())));
-      emailService.saveAll(emails);
-    } catch (final Exception e) {
-      emailService.rescheduleFailedEmails(emails);
-    }
+    String companyId = QuartzUtil.getParameter(jobExecutionContext, "companyId", String.class);
+    companyId = companyId.replace("\"", "");
+    TenantContext.withInTenant(
+        companyId,
+        () -> {
+          final List<Email> emails = emailService.listByMessageIds(messageIdList);
+          try {
+            emailHelper.send(emails);
+            emails.forEach(email -> email.setSendDate(new Timestamp(new Date().getTime())));
+            emailService.saveAll(emails);
+          } catch (final Exception e) {
+            emailService.rescheduleFailedEmails(emails);
+          }
+        });
   }
 }

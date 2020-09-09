@@ -44,7 +44,7 @@ public class JobController extends BaseRestController {
           + "and hasPermission(#jobUpdateDto, 'USER_JOB', 'EDIT_USER')")
   public HttpEntity updateJobInfo(
       @PathVariable final String id, @RequestBody final JobUpdateDto jobUpdateDto) {
-    jobUserService.updateJobInfo(id, jobUpdateDto, findCompanyId());
+    jobUserService.updateJobInfo(id, jobUpdateDto);
     return new ResponseEntity(HttpStatus.OK);
   }
 
@@ -70,7 +70,7 @@ public class JobController extends BaseRestController {
 
   @GetMapping("jobs")
   public List<SelectFieldSizeDto> findJobsByDepartment() {
-    return jobUserService.findJobsByCompanyId(findCompanyId());
+    return jobUserService.findJobs();
   }
 
   @GetMapping("{userId}/check-job-info-complete")

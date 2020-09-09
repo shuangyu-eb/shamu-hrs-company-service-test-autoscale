@@ -68,7 +68,6 @@ import shamu.company.benefit.repository.BenefitPlanUserRepository;
 import shamu.company.benefit.repository.RetirementPlanTypeRepository;
 import shamu.company.benefit.service.BenefitPlanService;
 import shamu.company.common.exception.errormapping.ResourceNotFoundException;
-import shamu.company.company.entity.Company;
 import shamu.company.helpers.s3.AwsHelper;
 import shamu.company.job.dto.JobUserDto;
 import shamu.company.job.entity.Job;
@@ -303,10 +302,10 @@ class BenefitPlanServiceTests {
       benefitPlanTypeDto.add(benefitPlanTypeDto3);
       benefitPlanTypeDto.add(benefitPlanTypeDto4);
       benefitPlanTypeDto.add(benefitPlanTypeDto5);
-      Mockito.when(benefitPlanRepository.findPlanTypeAndNumByCompanyIdOrderByTypeId(companyId))
+      Mockito.when(benefitPlanRepository.findPlanTypeAndNumOrderByTypeId())
           .thenReturn(benefitPlanTypeDto);
       final List<BenefitPlanTypeWithoutExpiredDto> results =
-          benefitPlanService.getBenefitPlanTypesAndNum(companyId);
+          benefitPlanService.getBenefitPlanTypesAndNum();
       assertThat(results.size()).isEqualTo(5);
     }
   }
@@ -434,7 +433,7 @@ class BenefitPlanServiceTests {
       enrollmentBreakdownSearchCondition.setCoverageId("coverageId");
       enrollmentBreakdownDtoPage = new PageImpl<>(enrollmentBreakdownPojos, paramPageable, 0);
 
-      Mockito.when(benefitPlanRepository.getActiveBenefitPlanIds(planTypeName, companyId))
+      Mockito.when(benefitPlanRepository.getActiveBenefitPlanIds(planTypeName))
           .thenReturn(benefitPlanIds);
       Mockito.when(benefitCoveragesRepository.findById("coverageId"))
           .thenReturn(Optional.of(benefitCoverages));
@@ -447,12 +446,12 @@ class BenefitPlanServiceTests {
 
       Mockito.when(
               benefitPlanRepository.getEnrollmentBreakdownByConditionAndPlanIdIsEmpty(
-                  benefitPlanIds, companyId, paramPageable))
+                  benefitPlanIds, paramPageable))
           .thenReturn(enrollmentBreakdownDtoPage);
-      Mockito.when(benefitPlanRepository.getActiveBenefitPlanIds(planTypeName, companyId))
+      Mockito.when(benefitPlanRepository.getActiveBenefitPlanIds(planTypeName))
           .thenReturn(benefitPlanIds);
       benefitPlanService.findEnrollmentBreakdown(
-          enrollmentBreakdownSearchCondition, planTypeName, benefitReportParamDto, companyId);
+          enrollmentBreakdownSearchCondition, planTypeName, benefitReportParamDto);
       Mockito.verify(benefitPlanRepository, Mockito.times(1))
           .getEnrollmentBreakdownByConditionAndCoverageId(
               benefitPlanIds, coverageIds, paramPageable);
@@ -469,9 +468,8 @@ class BenefitPlanServiceTests {
                   benefitPlanIds, paramPageable))
           .thenReturn(enrollmentBreakdownDtoPage);
       benefitPlanService.findEnrollmentBreakdown(
-          enrollmentBreakdownSearchCondition, planTypeName, benefitReportParamDto, companyId);
-      Mockito.verify(benefitPlanRepository, Mockito.times(1))
-          .getActiveBenefitPlanIds(planTypeName, companyId);
+          enrollmentBreakdownSearchCondition, planTypeName, benefitReportParamDto);
+      Mockito.verify(benefitPlanRepository, Mockito.times(1)).getActiveBenefitPlanIds(planTypeName);
     }
 
     @Test
@@ -485,9 +483,9 @@ class BenefitPlanServiceTests {
                   benefitPlanIds, paramPageable))
           .thenReturn(enrollmentBreakdownDtoPage);
       benefitPlanService.findEnrollmentBreakdown(
-          enrollmentBreakdownSearchCondition, planTypeName, benefitReportParamDto, companyId);
+          enrollmentBreakdownSearchCondition, planTypeName, benefitReportParamDto);
       Mockito.verify(benefitPlanRepository, Mockito.times(1))
-          .getExpiredBenefitPlanIds(planTypeName, companyId);
+          .getExpiredBenefitPlanIds(planTypeName);
     }
 
     @Test
@@ -501,9 +499,9 @@ class BenefitPlanServiceTests {
                   benefitPlanIds, paramPageable))
           .thenReturn(enrollmentBreakdownDtoPage);
       benefitPlanService.findEnrollmentBreakdown(
-          enrollmentBreakdownSearchCondition, planTypeName, benefitReportParamDto, companyId);
+          enrollmentBreakdownSearchCondition, planTypeName, benefitReportParamDto);
       Mockito.verify(benefitPlanRepository, Mockito.times(1))
-          .getStartingBenefitPlanIds(planTypeName, companyId);
+          .getStartingBenefitPlanIds(planTypeName);
     }
 
     @Test
@@ -516,7 +514,7 @@ class BenefitPlanServiceTests {
                   benefitPlanIds, paramPageable))
           .thenReturn(enrollmentBreakdownDtoPage);
       benefitPlanService.findEnrollmentBreakdown(
-          enrollmentBreakdownSearchCondition, planTypeName, benefitReportParamDto, companyId);
+          enrollmentBreakdownSearchCondition, planTypeName, benefitReportParamDto);
       Mockito.verify(benefitPlanRepository, Mockito.times(1))
           .getEnrollmentBreakdownByCondition(benefitPlanIds, paramPageable);
     }
@@ -637,7 +635,7 @@ class BenefitPlanServiceTests {
           .thenReturn(benefitPlanCoverage);
       Mockito.when(benefitCoveragesRepository.findById("coverageId"))
           .thenReturn(Optional.of(benefitCoverages));
-      benefitPlanService.createBenefitPlan(data, companyId);
+      benefitPlanService.createBenefitPlan(data);
       Mockito.verify(benefitPlanMapper, Mockito.times(1)).convertToBenefitPlanDto(Mockito.any());
     }
   }
@@ -754,15 +752,13 @@ class BenefitPlanServiceTests {
       benefitPlan.setId(benefitPlanId);
       benefitPlan.setBenefitPlanType(new BenefitPlanType(planTypeId));
       benefitPlans.add(benefitPlan);
-      Mockito.when(
-              benefitPlanRepository.findByBenefitPlanTypeIdAndCompanyIdOrderByNameAsc(
-                  planTypeId, companyId))
+      Mockito.when(benefitPlanRepository.findByBenefitPlanTypeIdOrderByNameAsc(planTypeId))
           .thenReturn(benefitPlans);
       Mockito.when(benefitPlanUserRepository.getEligibleEmployeeNumber(benefitPlanId))
           .thenReturn((long) 1);
       Mockito.when(benefitPlanUserRepository.countByBenefitPlanIdAndConfirmedIsTrue(benefitPlanId))
           .thenReturn((long) 1);
-      benefitPlanService.getBenefitPlanPreview(companyId, planTypeId);
+      benefitPlanService.getBenefitPlanPreview(planTypeId);
       Mockito.verify(benefitPlanUserRepository, Mockito.times(1))
           .countByBenefitPlanIdAndConfirmedIsTrue(Mockito.any());
     }
@@ -790,7 +786,7 @@ class BenefitPlanServiceTests {
           .thenReturn(Optional.of(new BenefitPlanUser()));
       Mockito.when(benefitPlanRepository.findBenefitPlanById("planId"))
           .thenReturn(new BenefitPlan("planId"));
-      benefitPlanService.confirmBenefitPlanEnrollment(userId, selectedBenefitPlanInfo, companyId);
+      benefitPlanService.confirmBenefitPlanEnrollment(userId, selectedBenefitPlanInfo);
       Mockito.verify(benefitPlanUserRepository, Mockito.times(2)).save(Mockito.any());
     }
   }
@@ -989,10 +985,10 @@ class BenefitPlanServiceTests {
 
       benefitReportPlansPojos.add(benefitReportPlansPojo);
 
-      Mockito.when(benefitPlanRepository.getBenefitPlans(typeName, companyId))
+      Mockito.when(benefitPlanRepository.getBenefitPlans(typeName))
           .thenReturn(benefitReportPlansPojos);
 
-      Mockito.when(benefitPlanRepository.getActiveBenefitPlanIds(typeName, companyId))
+      Mockito.when(benefitPlanRepository.getActiveBenefitPlanIds(typeName))
           .thenReturn(benefitPlanIds);
       Mockito.when(benefitCoveragesRepository.findById("coverageId"))
           .thenReturn(Optional.of(benefitCoverages));
@@ -1004,7 +1000,7 @@ class BenefitPlanServiceTests {
           .thenReturn(enrollmentBreakdownDtos);
 
       final BenefitPlanReportDto benefitPlanReportDto =
-          benefitPlanService.findBenefitPlanReport(typeName, benefitReportParamDto, companyId);
+          benefitPlanService.findBenefitPlanReport(typeName, benefitReportParamDto);
       final String plan = benefitPlanReportDto.getEnrollmentBreakdownDtos().get(0).getPlan();
       assertThat(plan).isEqualTo(originPlan);
     }
@@ -1019,7 +1015,7 @@ class BenefitPlanServiceTests {
       enrollmentBreakdownDto.setPlan(originPlan);
       enrollmentBreakdownDtos.add(enrollmentBreakdownDto);
 
-      Mockito.when(benefitPlanRepository.getExpiredBenefitPlanIds(typeName, companyId))
+      Mockito.when(benefitPlanRepository.getExpiredBenefitPlanIds(typeName))
           .thenReturn(benefitPlanIds);
       Mockito.when(benefitCoveragesRepository.findById("coverageId"))
           .thenReturn(Optional.of(benefitCoverages));
@@ -1031,7 +1027,7 @@ class BenefitPlanServiceTests {
           .thenReturn(enrollmentBreakdownDtos);
 
       final BenefitPlanReportDto benefitPlanReportDto =
-          benefitPlanService.findBenefitPlanReport(typeName, benefitReportParamDto, companyId);
+          benefitPlanService.findBenefitPlanReport(typeName, benefitReportParamDto);
       final String plan = benefitPlanReportDto.getEnrollmentBreakdownDtos().get(0).getPlan();
       assertThat(plan).isEqualTo(originPlan);
     }
@@ -1046,7 +1042,7 @@ class BenefitPlanServiceTests {
       enrollmentBreakdownDto.setPlan(originPlan);
       enrollmentBreakdownDtos.add(enrollmentBreakdownDto);
 
-      Mockito.when(benefitPlanRepository.getStartingBenefitPlanIds(typeName, companyId))
+      Mockito.when(benefitPlanRepository.getStartingBenefitPlanIds(typeName))
           .thenReturn(benefitPlanIds);
       Mockito.when(benefitCoveragesRepository.findById("coverageId"))
           .thenReturn(Optional.of(benefitCoverages));
@@ -1058,7 +1054,7 @@ class BenefitPlanServiceTests {
           .thenReturn(enrollmentBreakdownDtos);
 
       final BenefitPlanReportDto benefitPlanReportDto =
-          benefitPlanService.findBenefitPlanReport(typeName, benefitReportParamDto, companyId);
+          benefitPlanService.findBenefitPlanReport(typeName, benefitReportParamDto);
       final String plan = benefitPlanReportDto.getEnrollmentBreakdownDtos().get(0).getPlan();
       assertThat(plan).isEqualTo(originPlan);
     }
@@ -1072,7 +1068,7 @@ class BenefitPlanServiceTests {
       final EnrollmentBreakdownDto enrollmentBreakdownDto = new EnrollmentBreakdownDto();
       enrollmentBreakdownDto.setPlan(originPlan);
       enrollmentBreakdownDtos.add(enrollmentBreakdownDto);
-      Mockito.when(benefitPlanRepository.getActiveBenefitPlanIds(typeName, companyId))
+      Mockito.when(benefitPlanRepository.getActiveBenefitPlanIds(typeName))
           .thenReturn(benefitPlanIds);
 
       Mockito.when(benefitPlanCoverageRepository.getBenefitReportCoverages(benefitPlanIds))
@@ -1082,7 +1078,7 @@ class BenefitPlanServiceTests {
                   benefitPlanIds, Collections.singletonList("coverageId")))
           .thenReturn(enrollmentBreakdownDtos);
       final BenefitPlanReportDto benefitPlanReportDto =
-          benefitPlanService.findBenefitPlanReport(typeName, benefitReportParamDto, companyId);
+          benefitPlanService.findBenefitPlanReport(typeName, benefitReportParamDto);
       final String plan = benefitPlanReportDto.getEnrollmentBreakdownDtos().get(0).getPlan();
       assertThat(plan).isEqualTo(originPlan);
     }
@@ -1161,25 +1157,22 @@ class BenefitPlanServiceTests {
     void whenExpiredIsFalseGetList_thenShouldSuccess() {
       benefitPlanPreviewDtoPage = new PageImpl<>(benefitPlanPreviewPojos, pageable, 0);
       Mockito.when(
-              benefitPlanRepository.getBenefitPlanListWithOutExpired(
-                  benefitPlanTypeId, companyId, pageable))
+              benefitPlanRepository.getBenefitPlanListWithOutExpired(benefitPlanTypeId, pageable))
           .thenReturn(benefitPlanPreviewDtoPage);
-      benefitPlanService.findBenefitPlans(
-          benefitPlanTypeId, companyId, expired, benefitPlanSearchCondition);
+      benefitPlanService.findBenefitPlans(benefitPlanTypeId, expired, benefitPlanSearchCondition);
       Mockito.verify(benefitPlanRepository, Mockito.times(1))
-          .getBenefitPlanListWithOutExpired(benefitPlanTypeId, companyId, pageable);
+          .getBenefitPlanListWithOutExpired(benefitPlanTypeId, pageable);
     }
 
     @Test
     void whenExpiredIsTrueGetList_thenShouldSuccess() {
       expired = true;
       benefitPlanPreviewDtoPage = new PageImpl<>(benefitPlanPreviewPojos, pageable, 0);
-      Mockito.when(benefitPlanRepository.getBenefitPlanList(benefitPlanTypeId, companyId, pageable))
+      Mockito.when(benefitPlanRepository.getBenefitPlanList(benefitPlanTypeId, pageable))
           .thenReturn(benefitPlanPreviewDtoPage);
-      benefitPlanService.findBenefitPlans(
-          benefitPlanTypeId, companyId, expired, benefitPlanSearchCondition);
+      benefitPlanService.findBenefitPlans(benefitPlanTypeId, expired, benefitPlanSearchCondition);
       Mockito.verify(benefitPlanRepository, Mockito.times(1))
-          .getBenefitPlanList(benefitPlanTypeId, companyId, pageable);
+          .getBenefitPlanList(benefitPlanTypeId, pageable);
     }
   }
 
@@ -1237,8 +1230,7 @@ class BenefitPlanServiceTests {
     @Test
     void clearBenefitPlansEnrollmentInfoByPlanType_thenShouldSuccess() throws Exception {
       Mockito.when(
-              benefitPlanRepository.findByBenefitPlanTypeIdAndCompanyIdOrderByNameAsc(
-                  benefitPlanType.getId(), companyId))
+              benefitPlanRepository.findByBenefitPlanTypeIdOrderByNameAsc(benefitPlanType.getId()))
           .thenReturn(benefitPlans);
       Mockito.when(
               benefitPlanUserRepository.findByUserIdAndBenefitPlanId(userId, benefitPlan.getId()))
@@ -1247,11 +1239,7 @@ class BenefitPlanServiceTests {
               benefitPlanDependentRepository.findByBenefitPlansUsersId(benefitPlanUser.getId()))
           .thenReturn(benefitDependentRecords);
       Whitebox.invokeMethod(
-          benefitPlanService,
-          "clearBenefitPlansEnrollmentInfoByPlanType",
-          benefitPlanType,
-          companyId,
-          userId);
+          benefitPlanService, "clearBenefitPlansEnrollmentInfoByPlanType", benefitPlanType, userId);
       Mockito.verify(benefitPlanUserRepository, Mockito.times(1))
           .findByUserIdAndBenefitPlanId(userId, benefitPlan.getId());
     }
@@ -1342,15 +1330,12 @@ class BenefitPlanServiceTests {
       Mockito.when(benefitPlanUserRepository.findByUserIdAndBenefitPlanId(userId, benefitPlanId))
           .thenReturn(Optional.ofNullable(benefitPlanUser));
       Mockito.when(benefitPlanTypeRepository.findByName("a")).thenReturn(benefitPlanType);
-      Mockito.when(
-              benefitPlanRepository.findByBenefitPlanTypeIdAndCompanyIdOrderByNameAsc(
-                  "a", companyId))
+      Mockito.when(benefitPlanRepository.findByBenefitPlanTypeIdOrderByNameAsc("a"))
           .thenReturn(benefitPlans);
       Whitebox.invokeMethod(
           benefitPlanService,
           "updateBenefitPlansEnrollmentInfoByPlanType",
           selectedEnrollmentInfoDto,
-          companyId,
           userId);
       Mockito.verify(benefitPlanUserRepository, Mockito.times(1))
           .findByUserIdAndBenefitPlanId(userId, benefitPlanId);
@@ -1364,15 +1349,12 @@ class BenefitPlanServiceTests {
       benefitPlanUser.setEnrolled(false);
       benefitPlanUser.setBenefitPlanCoverage(null);
       Mockito.when(benefitPlanTypeRepository.findByName("a")).thenReturn(benefitPlanType);
-      Mockito.when(
-              benefitPlanRepository.findByBenefitPlanTypeIdAndCompanyIdOrderByNameAsc(
-                  "a", companyId))
+      Mockito.when(benefitPlanRepository.findByBenefitPlanTypeIdOrderByNameAsc("a"))
           .thenReturn(benefitPlans);
       Whitebox.invokeMethod(
           benefitPlanService,
           "updateBenefitPlansEnrollmentInfoByPlanType",
           selectedEnrollmentInfoDto,
-          companyId,
           userId);
       Mockito.verify(benefitPlanUserRepository, Mockito.times(1)).save(benefitPlanUser);
     }
@@ -1420,7 +1402,6 @@ class BenefitPlanServiceTests {
       jobUserDto.setJobTitle("jobTitle");
       job = new Job();
       job.setTitle("jobTitle");
-      job.setCompany(new Company());
       jobUser.setJob(job);
     }
 
@@ -1430,13 +1411,13 @@ class BenefitPlanServiceTests {
           .thenReturn(benefitPlanUserDto);
       Mockito.when(benefitPlanUserMapper.convertToBenefitPlanUserDto(benefitPlanUser))
           .thenReturn(benefitPlanUserDto);
-      Mockito.when(userRepository.findAllByCompanyId(companyId)).thenReturn(users);
+      Mockito.when(userRepository.findAllActiveUsers()).thenReturn(users);
       Mockito.when(benefitPlanUserRepository.findAllByBenefitPlanId(benefitPlanId))
           .thenReturn(benefitPlanUsers);
       Mockito.when(jobUserService.findJobUserByUser(user)).thenReturn(jobUser);
       Mockito.when(jobUserMapper.covertToBenefitPlanUserDto(jobUserDto))
           .thenReturn(benefitPlanUserDto);
-      benefitPlanService.findAllEmployeesForBenefitPlan(benefitPlanId, companyId);
+      benefitPlanService.findAllEmployeesForBenefitPlan(benefitPlanId);
       Mockito.verify(benefitPlanUserRepository, Mockito.times(1))
           .findAllByBenefitPlanId(benefitPlanId);
     }
@@ -1503,10 +1484,10 @@ class BenefitPlanServiceTests {
 
     @Test
     void whenFindAllPlans_thenShouldSuccess() {
-      Mockito.when(benefitPlanRepository.findAllByCompanyId(companyId)).thenReturn(benefitPlans);
+      Mockito.when(benefitPlanRepository.findAll()).thenReturn(benefitPlans);
       Mockito.when(benefitPlanMapper.convertToBenefitPlanDto(benefitPlan))
           .thenReturn(new BenefitPlanDto());
-      benefitPlanService.findAllPlans(companyId);
+      benefitPlanService.findAllPlans();
       Mockito.verify(benefitPlanMapper, Mockito.times(1)).convertToBenefitPlanDto(benefitPlan);
     }
   }

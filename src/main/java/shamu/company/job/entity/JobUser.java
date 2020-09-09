@@ -1,18 +1,20 @@
 package shamu.company.job.entity;
 
+import java.sql.Timestamp;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import shamu.company.common.entity.BaseEntity;
-import shamu.company.company.entity.Company;
 import shamu.company.company.entity.Department;
 import shamu.company.company.entity.Office;
 import shamu.company.employee.entity.EmploymentType;
 import shamu.company.user.entity.EmployeeType;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserCompensation;
-
-import javax.persistence.*;
-import java.sql.Timestamp;
 
 @Entity
 @Table(name = "jobs_users")
@@ -37,8 +39,6 @@ public class JobUser extends BaseEntity {
   private Timestamp endDate;
 
   @ManyToOne private Office office;
-
-  @ManyToOne private Company company;
 
   @OneToOne(cascade = CascadeType.ALL)
   private UserCompensation userCompensation;

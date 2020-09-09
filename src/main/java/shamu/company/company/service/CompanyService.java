@@ -5,11 +5,13 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import shamu.company.common.entity.StateProvince;
+import shamu.company.common.entity.Tenant;
 import shamu.company.common.exception.errormapping.AlreadyExistsException;
-import shamu.company.common.exception.errormapping.ResourceNotFoundException;
+import shamu.company.common.exception.errormapping.ZipCodeNotExistException;
 import shamu.company.common.service.DepartmentService;
 import shamu.company.common.service.OfficeService;
 import shamu.company.common.service.StateProvinceService;
+import shamu.company.common.service.TenantService;
 import shamu.company.company.dto.CompanyBenefitsSettingDto;
 import shamu.company.company.dto.OfficeSizeDto;
 import shamu.company.company.entity.Company;
@@ -18,6 +20,7 @@ import shamu.company.company.entity.Department;
 import shamu.company.company.entity.Office;
 import shamu.company.company.entity.OfficeAddress;
 import shamu.company.company.entity.mapper.CompanyBenefitsSettingMapper;
+import shamu.company.company.entity.mapper.CompanyMapper;
 import shamu.company.company.entity.mapper.OfficeAddressMapper;
 import shamu.company.company.repository.CompanyRepository;
 import shamu.company.employee.dto.SelectFieldSizeDto;
@@ -25,7 +28,6 @@ import shamu.company.employee.entity.EmploymentType;
 import shamu.company.employee.service.EmploymentTypeService;
 import shamu.company.helpers.googlemaps.GoogleMapsHelper;
 import shamu.company.job.entity.Job;
-import shamu.company.common.exception.errormapping.ZipCodeNotExistException;
 import shamu.company.job.service.JobService;
 import shamu.company.server.dto.CompanyDtoProjection;
 
@@ -42,11 +44,15 @@ public class CompanyService {
 
   private final OfficeService officeService;
 
+  private final TenantService tenantService;
+
   private final OfficeAddressMapper officeAddressMapper;
 
   private final StateProvinceService stateProvinceService;
 
   private final CompanyBenefitsSettingMapper companyBenefitsSettingMapper;
+
+  private final CompanyMapper companyMapper;
 
   private final CompanyBenefitsSettingService companyBenefitsSettingService;
 
@@ -63,6 +69,8 @@ public class CompanyService {
       final StateProvinceService stateProvinceService,
       final CompanyBenefitsSettingMapper companyBenefitsSettingMapper,
       final CompanyBenefitsSettingService companyBenefitsSettingService,
+      final CompanyMapper companyMapper,
+      final TenantService tenantService,
       final GoogleMapsHelper googleMapsHelper) {
     this.companyRepository = companyRepository;
     this.departmentService = departmentService;
@@ -73,6 +81,8 @@ public class CompanyService {
     this.stateProvinceService = stateProvinceService;
     this.companyBenefitsSettingMapper = companyBenefitsSettingMapper;
     this.companyBenefitsSettingService = companyBenefitsSettingService;
+    this.companyMapper = companyMapper;
+    this.tenantService = tenantService;
     this.googleMapsHelper = googleMapsHelper;
   }
 
@@ -80,8 +90,8 @@ public class CompanyService {
     return companyRepository.existsByName(companyName);
   }
 
-  public List<SelectFieldSizeDto> findDepartmentsByCompanyId(final String companyId) {
-    final List<Department> departments = departmentService.findAllByCompanyId(companyId);
+  public List<SelectFieldSizeDto> findDepartments() {
+    final List<Department> departments = departmentService.findAll();
 
     return departments.stream()
         .map(
@@ -112,33 +122,29 @@ public class CompanyService {
     return officeService.findById(id);
   }
 
-  public Department saveDepartmentsByCompany(final String name, final String companyId) {
-    final List<Department> oldDepartments =
-        departmentService.findByNameAndCompanyId(name, companyId);
+  public Department saveDepartment(final String name) {
+    final List<Department> oldDepartments = departmentService.findByName(name);
     if (!oldDepartments.isEmpty()) {
       throw new AlreadyExistsException("Department already exists.", "department");
     }
     final Department department = new Department();
     department.setName(name);
-    department.setCompany(new Company(companyId));
     return departmentService.save(department);
   }
 
-  public Job saveJobsByCompany(final String name, final String companyId) {
-    final List<Job> oldJob = jobService.findByTitleAndCompanyId(name, companyId);
+  public Job saveJob(final String name) {
+    final List<Job> oldJob = jobService.findByTitle(name);
     if (!oldJob.isEmpty()) {
       throw new AlreadyExistsException("Job title already exists.", "job title");
     }
+
     final Job job = new Job();
-
-    job.setCompany(new Company(companyId));
     job.setTitle(name);
-
     return jobService.save(job);
   }
 
-  public List<OfficeSizeDto> findOfficesByCompany(final String companyId) {
-    final List<Office> offices = officeService.findByCompanyId(companyId);
+  public List<OfficeSizeDto> findOffices() {
+    final List<Office> offices = officeService.findAll();
     return offices.stream()
         .map(
             office -> {
@@ -155,13 +161,13 @@ public class CompanyService {
   }
 
   public Office saveOffice(final Office office) {
-    final List<Office> oldOffices =
-        officeService.findByNameAndCompanyId(office.getName(), office.getCompany().getId());
+    final List<Office> oldOffices = officeService.findByName(office.getName());
     if (!oldOffices.isEmpty()) {
       throw new AlreadyExistsException("Office already exists.", "office");
     }
     final OfficeAddress officeAddress = office.getOfficeAddress();
-    final String timezone = googleMapsHelper.findTimezoneByPostalCode(officeAddress.getPostalCode());
+    final String timezone =
+        googleMapsHelper.findTimezoneByPostalCode(officeAddress.getPostalCode());
     if (timezone.isEmpty()) {
       throw new ZipCodeNotExistException("Office zipCode is error.");
     }
@@ -177,67 +183,68 @@ public class CompanyService {
     return officeService.save(office);
   }
 
-  public Company findById(final String companyId) {
-    return companyRepository
-        .findById(companyId)
-        .orElseThrow(
-            () ->
-                new ResourceNotFoundException(
-                    String.format("Company with id %s not found!", companyId),
-                    companyId,
-                    "company"));
-  }
-
   public Company save(final Company company) {
-    return companyRepository.save(company);
+    companyRepository.save(company);
+    final Tenant tenant = companyMapper.convertToTenant(company);
+    tenantService.save(tenant);
+    return company;
   }
 
-  public CompanyBenefitsSettingDto findCompanyBenefitsSetting(final String companyId) {
+  public CompanyBenefitsSettingDto findCompanyBenefitsSetting() {
     final CompanyBenefitsSetting benefitsSetting =
-        companyBenefitsSettingService.findByCompanyId(companyId);
+        companyBenefitsSettingService.getCompanyBenefitsSetting();
     return companyBenefitsSettingMapper.convertCompanyBenefitsSettingDto(benefitsSetting);
   }
 
-  public void updateBenefitSettingAutomaticRollover(
-      final String companyId, final Boolean isTurnOn) {
+  public void updateBenefitSettingAutomaticRollover(final Boolean isTurnOn) {
     final CompanyBenefitsSetting benefitsSetting =
-        companyBenefitsSettingService.findByCompanyId(companyId);
+        companyBenefitsSettingService.getCompanyBenefitsSetting();
     benefitsSetting.setIsAutomaticRollover(isTurnOn);
     companyBenefitsSettingService.save(benefitsSetting);
   }
 
-  public void updateEnrollmentPeriod(
-      final String companyId, final CompanyBenefitsSettingDto companyBenefitsSettingDto) {
+  public void updateEnrollmentPeriod(final CompanyBenefitsSettingDto companyBenefitsSettingDto) {
     final CompanyBenefitsSetting benefitsSetting =
-        companyBenefitsSettingService.findByCompanyId(companyId);
+        companyBenefitsSettingService.getCompanyBenefitsSetting();
     benefitsSetting.setStartDate(companyBenefitsSettingDto.getStartDate());
     benefitsSetting.setEndDate(companyBenefitsSettingDto.getEndDate());
     companyBenefitsSettingService.save(benefitsSetting);
   }
 
-  public String updateCompanyName(final String companyName, final String companyId) {
+  public String updateCompanyName(final String companyName) {
     if (!existsByName(companyName)) {
-      final Company company = companyRepository.findCompanyById(companyId);
+      final Company company = getCompany();
       company.setName(companyName);
-      companyRepository.save(company);
+      save(company);
     } else {
       throw new AlreadyExistsException("Company name already exists.", "company name");
     }
     return companyName;
   }
 
-  public CompanyDtoProjection findCompanyDtoByUserId(final String id) {
-    return companyRepository.findCompanyDtoByUserId(id);
+  public CompanyDtoProjection findCompanyDto() {
+    final Company company = getCompany();
+    return CompanyDtoProjection.builder().id(company.getId()).name(company.getName()).build();
   }
 
   public List<Company> findAllById(final List<String> ids) {
-    return companyRepository.findAllById(ids);
+    return tenantService.findAllByCompanyId(ids).stream()
+        .map(
+            tenant -> {
+              Company company = companyMapper.convertToCompany(tenant);
+              company.setId(tenant.getCompanyId());
+              return company;
+            })
+        .collect(Collectors.toList());
   }
 
-  public void updateIsPaidHolidaysAutoEnrolled(
-      final String companyId, final boolean isAutoEnrolled) {
-    final Company company = companyRepository.findCompanyById(companyId);
+  public void updateIsPaidHolidaysAutoEnrolled(final boolean isAutoEnrolled) {
+    final Company company = getCompany();
     company.setIsPaidHolidaysAutoEnroll(isAutoEnrolled);
-    companyRepository.save(company);
+    save(company);
+  }
+
+  public Company getCompany() {
+    return companyRepository.findAll().get(0);
   }
 }

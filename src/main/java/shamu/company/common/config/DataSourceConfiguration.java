@@ -10,35 +10,37 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 @Configuration
 public class DataSourceConfiguration {
 
-  @Bean(name = "companyDataSource")
-  @Qualifier("companyDataSource")
-  @Primary
-  @ConfigurationProperties(prefix = "spring.datasource")
-  public DataSource companyDataSource() {
-    return DataSourceBuilder.create().build();
-  }
+  private final DataSourceConfig dataSourceConfig;
 
-  @Bean(name = "companyJdbcTemplate")
-  public JdbcTemplate companyJdbcTemplate(
-      @Qualifier("companyDataSource") final DataSource dataSource) {
-    return new JdbcTemplate(dataSource);
+  public DataSourceConfiguration(@Lazy final DataSourceConfig dataSourceConfig) {
+    this.dataSourceConfig = dataSourceConfig;
   }
 
   @Bean
-  @ConfigurationProperties(prefix = "spring.liquibase")
-  public LiquibaseProperties companyLiquibaseProperties() {
+  @Primary
+  public DataSource companyDataSource() {
+    return dataSourceConfig.getDataSource("");
+  }
+
+  @Bean
+  @ConfigurationProperties(prefix = "spring.liquibase.default")
+  @Qualifier("defaultLiquibaseProperties")
+  public LiquibaseProperties defaultLiquibaseProperties() {
     return new LiquibaseProperties();
   }
 
-  @Bean(name = "liquibase")
-  public SpringLiquibase companyLiquibase() {
-    return getSpringLiquibase(companyDataSource(), companyLiquibaseProperties());
+  @Bean
+  @ConfigurationProperties(prefix = "spring.liquibase.tenant")
+  @Qualifier("tenantLiquibaseProperties")
+  public LiquibaseProperties tenantLiquibaseProperties() {
+    return new LiquibaseProperties();
   }
 
   @Bean(name = "secretDataSource")
@@ -61,13 +63,14 @@ public class DataSourceConfiguration {
   }
 
   @Bean
-  @ConfigurationProperties(prefix = "spring.secret.liquibase")
+  @ConfigurationProperties(prefix = "spring.liquibase.secret")
   @ConditionalOnBean(name = "secretDataSource")
+  @Qualifier("secretLiquibaseProperties")
   public LiquibaseProperties secretLiquibaseProperties() {
     return new LiquibaseProperties();
   }
 
-  @Bean
+  @Bean(name = "liquibase")
   @ConditionalOnBean(name = "secretDataSource")
   public SpringLiquibase secretLiquibase() {
     return getSpringLiquibase(secretDataSource(), secretLiquibaseProperties());

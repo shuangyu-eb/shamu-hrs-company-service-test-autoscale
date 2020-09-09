@@ -11,7 +11,6 @@ import shamu.company.company.entity.Company;
 import shamu.company.company.service.CompanyService;
 import shamu.company.employee.dto.EmployeeListSearchCondition;
 import shamu.company.job.entity.JobUserListItem;
-import shamu.company.server.dto.AuthUser;
 import shamu.company.server.dto.CompanyDto;
 import shamu.company.server.dto.CompanyDtoProjection;
 import shamu.company.server.dto.CompanyUser;
@@ -28,7 +27,9 @@ public class CompanyUserService {
   private final PermissionUtils permissionUtils;
 
   @Autowired
-  public CompanyUserService(final CompanyService companyService, final UserService userService,
+  public CompanyUserService(
+      final CompanyService companyService,
+      final UserService userService,
       final PermissionUtils permissionUtils) {
     this.companyService = companyService;
     this.userService = userService;
@@ -43,25 +44,24 @@ public class CompanyUserService {
     return userService.findById(id);
   }
 
-  public List<User> findAllUsers(final String companyId) {
-    final Company company = companyService.findById(companyId);
-    return userService.findAllByCompanyId(company.getId());
+  public List<User> findAllUsers() {
+    return userService.findAllActiveUsers();
   }
 
-  public Page<JobUserListItem> findAllEmployees(final AuthUser user,
+  public Page<JobUserListItem> findAllEmployees(
       final EmployeeListSearchCondition employeeListSearchCondition) {
     if (permissionUtils.hasAuthority(Permission.Name.VIEW_DISABLED_USER.name())) {
       employeeListSearchCondition.setIncludeDeactivated(true);
     }
-    return userService.findAllEmployeesByName(employeeListSearchCondition, user.getCompanyId());
+    return userService.findAllEmployeesByName(employeeListSearchCondition);
   }
 
   public User findUserByUserId(final String userId) {
     return userService.findById(userId);
   }
 
-  public CompanyDtoProjection findCompanyDtoByUserId(final String id) {
-    return companyService.findCompanyDtoByUserId(id);
+  public CompanyDtoProjection findCompanyDto() {
+    return companyService.findCompanyDto();
   }
 
   public List<CompanyDto> findCompaniesByIds(final List<String> ids) {
@@ -76,8 +76,7 @@ public class CompanyUserService {
     return new CompanyUser(user);
   }
 
-  public List<User> findAllRegisteredUsers(final String companyId) {
-    final Company company = companyService.findById(companyId);
-    return userService.findRegisteredUsersByCompany(company.getId());
+  public List<User> findAllRegisteredUsers() {
+    return userService.findRegisteredUsers();
   }
 }

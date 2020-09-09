@@ -9,7 +9,6 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.HttpHeaders;
@@ -25,7 +24,6 @@ import shamu.company.timeoff.dto.PaidHolidayDto;
 import shamu.company.timeoff.dto.PaidHolidayEmployeeDto;
 import shamu.company.timeoff.dto.PaidHolidayRelatedUserListDto;
 import shamu.company.timeoff.dto.TimeOffPolicyRelatedUserDto;
-import shamu.company.timeoff.entity.CompanyPaidHoliday;
 import shamu.company.timeoff.entity.PaidHoliday;
 import shamu.company.user.entity.User;
 import shamu.company.utils.JsonUtil;
@@ -85,8 +83,7 @@ class PaidHolidayRestControllerTests extends WebControllerBaseTests {
         new PaidHolidayRelatedUserListDto();
     final List<TimeOffPolicyRelatedUserDto> timeOffPolicyRelatedUserDtos = new ArrayList<>();
     paidHolidayRelatedUserListDto.setPaidHolidaySelectedEmployees(timeOffPolicyRelatedUserDtos);
-    given(paidHolidayService.getPaidHolidayEmployees(Mockito.any()))
-        .willReturn(paidHolidayRelatedUserListDto);
+    given(paidHolidayService.getPaidHolidayEmployees()).willReturn(paidHolidayRelatedUserListDto);
 
     final MvcResult response =
         mockMvc
@@ -113,60 +110,32 @@ class PaidHolidayRestControllerTests extends WebControllerBaseTests {
       setGiven();
     }
 
-    private class CommonTests {
-
-      @Test
-      void asManager_thenShouldFailed() throws Exception {
-        buildAuthUserAsManager();
-        final MvcResult response = getResponse();
-        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
-      }
-
-      @Test
-      void asEmployee_thenShouldFailed() throws Exception {
-        buildAuthUserAsEmployee();
-        final MvcResult response = getResponse();
-        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
-      }
-
-      @Test
-      void asDeactivatedUser_thenShouldFailed() throws Exception {
-        buildAuthUserAsDeactivatedUser();
-        final MvcResult response = getResponse();
-        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
-      }
+    @Test
+    void asAdmin_thenShouldSuccess() throws Exception {
+      buildAuthUserAsAdmin();
+      final MvcResult response = getResponse();
+      assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
     }
 
-    @Nested
-    class SameCompany extends CommonTests {
-
-      @BeforeEach
-      void init() {
-        targetUser.setCompany(company);
-      }
-
-      @Test
-      void asAdmin_thenShouldSuccess() throws Exception {
-        buildAuthUserAsAdmin();
-        final MvcResult response = getResponse();
-        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
-      }
+    @Test
+    void asManager_thenShouldFailed() throws Exception {
+      buildAuthUserAsManager();
+      final MvcResult response = getResponse();
+      assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
     }
 
-    @Nested
-    class DifferentCompany extends CommonTests {
+    @Test
+    void asEmployee_thenShouldFailed() throws Exception {
+      buildAuthUserAsEmployee();
+      final MvcResult response = getResponse();
+      assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+    }
 
-      @BeforeEach
-      void init() {
-        targetUser.setCompany(theOtherCompany);
-      }
-
-      @Test
-      void asAdmin_thenShouldFailed() throws Exception {
-        buildAuthUserAsAdmin();
-        final MvcResult response = getResponse();
-        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
-      }
+    @Test
+    void asDeactivatedUser_thenShouldFailed() throws Exception {
+      buildAuthUserAsDeactivatedUser();
+      final MvcResult response = getResponse();
+      assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
     }
 
     private void setGiven() {
@@ -205,87 +174,42 @@ class PaidHolidayRestControllerTests extends WebControllerBaseTests {
 
     private PaidHoliday paidHoliday;
 
-    private CompanyPaidHoliday companyPaidHoliday;
-
     @BeforeEach
     void init() {
       paidHoliday = new PaidHoliday();
       paidHoliday.setId(UuidUtil.getUuidString());
-
-      companyPaidHoliday = new CompanyPaidHoliday();
-      companyPaidHoliday.setId(UuidUtil.getUuidString());
-      companyPaidHoliday.setPaidHoliday(paidHoliday);
 
       final PaidHolidayDto paidHolidayDto = new PaidHolidayDto();
       paidHolidayDto.setId(paidHoliday.getId());
       paidHolidayDtos = Collections.singletonList(paidHolidayDto);
     }
 
-    private class CommonTests {
-
-      @Test
-      void asManager_thenShouldFailed() throws Exception {
-        buildAuthUserAsManager();
-        final MvcResult response = getResponse();
-        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
-      }
-
-      @Test
-      void asEmployee_thenShouldFailed() throws Exception {
-        buildAuthUserAsEmployee();
-        final MvcResult response = getResponse();
-        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
-      }
-
-      @Test
-      void asDeactivatedUser_thenShouldFailed() throws Exception {
-        buildAuthUserAsDeactivatedUser();
-        final MvcResult response = getResponse();
-        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
-      }
+    @Test
+    void asAdmin_thenShouldSuccess() throws Exception {
+      buildAuthUserAsAdmin();
+      final MvcResult response = getResponse();
+      assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
     }
 
-    @Nested
-    class SameCompany extends CommonTests {
-
-      @BeforeEach
-      void init() {
-        companyPaidHoliday.setCompany(company);
-        setGiven();
-      }
-
-      @Test
-      void asAdmin_thenShouldSuccess() throws Exception {
-        buildAuthUserAsAdmin();
-        final MvcResult response = getResponse();
-        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
-      }
+    @Test
+    void asManager_thenShouldFailed() throws Exception {
+      buildAuthUserAsManager();
+      final MvcResult response = getResponse();
+      assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
     }
 
-    @Nested
-    class DifferentCompany extends CommonTests {
-
-      @BeforeEach
-      void init() {
-        companyPaidHoliday.setCompany(theOtherCompany);
-      }
-
-      @Test
-      void asAdmin_thenShouldFailed() throws Exception {
-        buildAuthUserAsAdmin();
-        final MvcResult response = getResponse();
-        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
-      }
+    @Test
+    void asEmployee_thenShouldFailed() throws Exception {
+      buildAuthUserAsEmployee();
+      final MvcResult response = getResponse();
+      assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
     }
 
-    private void setGiven() {
-      given(
-              companyPaidHolidayService.findCompanyPaidHolidayByPaidHolidayIdAndCompanyId(
-                  companyPaidHoliday.getPaidHoliday().getId(),
-                  companyPaidHoliday.getCompany().getId()))
-          .willReturn(companyPaidHoliday);
-      given(companyPaidHolidayService.findAllByCompanyId(companyPaidHoliday.getCompany().getId()))
-          .willReturn(Collections.singletonList(companyPaidHoliday));
+    @Test
+    void asDeactivatedUser_thenShouldFailed() throws Exception {
+      buildAuthUserAsDeactivatedUser();
+      final MvcResult response = getResponse();
+      assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
     }
 
     private MvcResult getResponse() throws Exception {
@@ -368,7 +292,6 @@ class PaidHolidayRestControllerTests extends WebControllerBaseTests {
 
       @BeforeEach
       void init() {
-        paidHoliday.setCompany(company);
         paidHoliday.setCreator(new User(currentUser.getId()));
       }
 
@@ -385,17 +308,6 @@ class PaidHolidayRestControllerTests extends WebControllerBaseTests {
 
       @BeforeEach
       void init() {
-        paidHoliday.setCompany(company);
-        paidHoliday.setCreator(new User(UuidUtil.getUuidString()));
-      }
-    }
-
-    @Nested
-    class DifferentCompany extends DefaultPaidHoliday {
-
-      @BeforeEach
-      void init() {
-        paidHoliday.setCompany(theOtherCompany);
         paidHoliday.setCreator(new User(UuidUtil.getUuidString()));
       }
     }

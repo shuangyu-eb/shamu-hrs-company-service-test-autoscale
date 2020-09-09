@@ -11,19 +11,19 @@ import shamu.company.user.entity.User;
 public interface UserCustomRepository {
 
   Page<JobUserListItem> getAllByCondition(
-      EmployeeListSearchCondition employeeListSearchCondition, String companyId, Pageable pageable);
+      EmployeeListSearchCondition employeeListSearchCondition, Pageable pageable);
 
   Page<JobUserListItem> getMyTeamByManager(
       EmployeeListSearchCondition employeeListSearchCondition, User user, Pageable paramPageable);
 
-  List<OrgChartDto> findOrgChartItemByManagerId(String managerId, String companyId);
+  List<OrgChartDto> findOrgChartItemByManagerId(String managerId);
 
-  OrgChartDto findOrgChartItemByUserId(String id, String companyId);
+  OrgChartDto findOrgChartItemByUserId(String id);
 
   User saveUser(User user);
 
   List<User> saveAllUsers(final Iterable<User> users);
 
   Page<JobUserListItem> getAllByName(
-      EmployeeListSearchCondition employeeListSearchCondition, String companyId, Pageable pageable);
+      EmployeeListSearchCondition employeeListSearchCondition, Pageable pageable);
 }

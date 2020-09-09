@@ -16,6 +16,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import shamu.company.common.config.DefaultJwtAuthenticationToken;
+import shamu.company.common.multitenant.TenantContext;
 import shamu.company.redis.AuthUserCacheManager;
 import shamu.company.server.dto.AuthUser;
 import shamu.company.tests.utils.JwtUtil;
@@ -57,7 +58,9 @@ class BaseRestControllerTests {
     final BaseRestController baseRestController = PowerMockito.spy(new BaseRestController());
     Whitebox.setInternalState(baseRestController, "authUserCacheManager", mockedCacheManager);
 
+    TenantContext.setCurrentTenant("123");
     assertThat(baseRestController.findCompanyId()).isNotNull();
+    TenantContext.clear();
   }
 
   @Test

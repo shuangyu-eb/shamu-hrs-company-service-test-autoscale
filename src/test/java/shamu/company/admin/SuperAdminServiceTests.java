@@ -88,7 +88,7 @@ class SuperAdminServiceTests {
     final SystemAnnouncement systemAnnouncement = new SystemAnnouncement();
     final SystemAnnouncementDto systemAnnouncementDto = new SystemAnnouncementDto();
 
-    systemAnnouncement.setUser(user);
+    systemAnnouncement.setUserId(user.getId());
     systemAnnouncementDto.setContent("test public system announcement content.");
 
     Mockito.when(userService.findById(Mockito.any())).thenReturn(user);
@@ -107,7 +107,8 @@ class SuperAdminServiceTests {
     Mockito.when(systemAnnouncementsService.findById(Mockito.any())).thenReturn(systemAnnouncement);
     Mockito.when(systemAnnouncementsService.save(Mockito.any())).thenReturn(systemAnnouncement);
 
-    assertThatCode(() -> superAdminService.updateSystemActiveAnnouncement("1")).doesNotThrowAnyException();
+    assertThatCode(() -> superAdminService.updateSystemActiveAnnouncement("1"))
+        .doesNotThrowAnyException();
   }
 
   @Test
@@ -115,7 +116,8 @@ class SuperAdminServiceTests {
     Mockito.when(systemAnnouncementsService.getSystemPastAnnouncements(Mockito.any()))
         .thenReturn(Page.empty());
 
-    assertThatCode(() -> superAdminService.getSystemPastAnnouncements(Mockito.any())).doesNotThrowAnyException();
+    assertThatCode(() -> superAdminService.getSystemPastAnnouncements(Mockito.any()))
+        .doesNotThrowAnyException();
   }
 
   @Nested
@@ -132,10 +134,11 @@ class SuperAdminServiceTests {
                   Mockito.any(), Mockito.any(), Mockito.any()))
           .thenReturn(Page.empty());
 
-      assertThatCode(() ->
-          superAdminService.getUsersByKeywordAndPageable(
-              "", PageRequest.of(1, 10, Direction.ASC, Field.NAME.getValue())))
-              .doesNotThrowAnyException();
+      assertThatCode(
+              () ->
+                  superAdminService.getUsersByKeywordAndPageable(
+                      "", PageRequest.of(1, 10, Direction.ASC, Field.NAME.getValue())))
+          .doesNotThrowAnyException();
     }
   }
 }

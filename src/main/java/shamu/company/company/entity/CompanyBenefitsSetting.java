@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import java.sql.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,12 +12,12 @@ import shamu.company.common.entity.BaseEntity;
 
 @Data
 @Entity
-@Table(name = "company_benefits_setting")
+@Table(name = "benefits_setting")
 @AllArgsConstructor
 @NoArgsConstructor
 public class CompanyBenefitsSetting extends BaseEntity {
 
-  @OneToOne private Company company;
+  private static final long serialVersionUID = 1557515580283237947L;
 
   @Column(name = "automatic_rollover")
   private Boolean isAutomaticRollover;

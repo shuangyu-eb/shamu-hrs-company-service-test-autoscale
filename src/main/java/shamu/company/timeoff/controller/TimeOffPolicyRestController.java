@@ -54,7 +54,7 @@ public class TimeOffPolicyRestController extends BaseRestController {
           + "'TIME_OFF_USER', 'MANAGE_TIME_OFF_POLICY')")
   public ResponseEntity createTimeOffPolicy(
       @Valid @RequestBody final TimeOffPolicyWrapperDto timeOffPolicyWrapperDto) {
-    timeOffPolicyService.createTimeOffPolicy(timeOffPolicyWrapperDto, findCompanyId());
+    timeOffPolicyService.createTimeOffPolicy(timeOffPolicyWrapperDto);
     return new ResponseEntity(HttpStatus.OK);
   }
 
@@ -66,7 +66,7 @@ public class TimeOffPolicyRestController extends BaseRestController {
       @Valid @PathVariable final String id,
       @Valid @RequestBody final TimeOffPolicyWrapperDto infoWrapper) {
 
-    timeOffPolicyService.updateTimeOffPolicy(id, infoWrapper, findCompanyId());
+    timeOffPolicyService.updateTimeOffPolicy(id, infoWrapper);
   }
 
   @PatchMapping("time-off-policies/employees/{policyId}")
@@ -109,13 +109,13 @@ public class TimeOffPolicyRestController extends BaseRestController {
   @PreAuthorize("hasPermission(#policyId, 'TIME_OFF_POLICY', 'MANAGE_TIME_OFF_POLICY')")
   public TimeOffPolicyRelatedUserListDto getEmployeesByTimeOffPolicyId(
       @PathVariable final String policyId) {
-    return timeOffPolicyService.getAllEmployeesByTimeOffPolicyId(policyId, findCompanyId());
+    return timeOffPolicyService.getAllEmployeesByTimeOffPolicyId(policyId);
   }
 
   @GetMapping("new-time-off-policy/users")
   @PreAuthorize("hasAnyAuthority('TIME_OFF_POLICY', 'MANAGE_TIME_OFF_POLICY')")
   public List<TimeOffPolicyRelatedUserDto> getEmployeesOfNewPolicyOrPaidHoliday() {
-    return timeOffPolicyService.getEmployeesOfNewPolicyOrPaidHoliday(findCompanyId());
+    return timeOffPolicyService.getEmployeesOfNewPolicyOrPaidHoliday();
   }
 
   @DeleteMapping("time-off-policies/{policyId}")
@@ -138,7 +138,7 @@ public class TimeOffPolicyRestController extends BaseRestController {
 
   @GetMapping("time-off-policies")
   public List<TimeOffPolicyListDto> getAllPolicies() {
-    return timeOffPolicyService.getAllPolicies(findCompanyId());
+    return timeOffPolicyService.getAllPolicies();
   }
 
   @GetMapping("time-off-balances/{policyUserId}/breakdown")

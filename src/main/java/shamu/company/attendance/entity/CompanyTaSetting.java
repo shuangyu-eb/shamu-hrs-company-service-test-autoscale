@@ -1,15 +1,12 @@
 package shamu.company.attendance.entity;
 
+import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import shamu.company.common.entity.BaseEntity;
-import shamu.company.company.entity.Company;
-
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
 
 @Data
 @Entity
@@ -19,7 +16,6 @@ import javax.persistence.Table;
 public class CompanyTaSetting extends BaseEntity {
 
   private static final long serialVersionUID = -8716988981910506553L;
-  @OneToOne private Company company;
 
   @ManyToOne private StaticTimezone timeZone;
 

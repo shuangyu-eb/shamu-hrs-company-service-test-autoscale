@@ -1,5 +1,14 @@
 package shamu.company.attendance.service;
 
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -21,16 +30,6 @@ import shamu.company.common.entity.PayrollDetail;
 import shamu.company.common.service.PayrollDetailService;
 import shamu.company.timeoff.service.TimeOffRequestService;
 import shamu.company.user.entity.User;
-
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Transactional
 @Service
@@ -75,19 +74,14 @@ public class AttendanceTeamHoursService {
   }
 
   public List<EmployeeAttendanceSummaryDto> findEmployeeAttendanceSummary(
-      final String timePeriodId,
-      final String companyId,
-      final String userId,
-      final String hourType) {
-    final CompanyTaSetting companyTaSetting =
-        attendanceSettingsService.findCompanySettings(companyId);
+      final String timePeriodId, final String userId, final String hourType) {
+    final CompanyTaSetting companyTaSetting = attendanceSettingsService.findCompanySetting();
     final List<EmployeeAttendanceSummaryDto> employeeAttendanceSummaryDtoList = new ArrayList<>();
 
     final List<TimeSheet> timeSheets =
         findTimeSheetsByIdAndCompanyIdAndStatusAndType(
             userId,
             timePeriodId,
-            companyId,
             Arrays.asList(
                 StaticTimesheetStatus.TimeSheetStatus.SUBMITTED.name(),
                 StaticTimesheetStatus.TimeSheetStatus.APPROVED.name()),
@@ -141,21 +135,19 @@ public class AttendanceTeamHoursService {
   private List<TimeSheet> findTimeSheetsByIdAndCompanyIdAndStatusAndType(
       final String userId,
       final String timePeriodId,
-      final String companyId,
       final List<String> timeSheetStatus,
       final String hourType) {
     if (hourType.equals(TEAM_HOURS_TYPE)) {
       return timeSheetService.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
-          userId, timePeriodId, companyId, timeSheetStatus);
+          userId, timePeriodId, timeSheetStatus);
     }
-    return timeSheetService.findCompanyTimeSheetsByIdAndCompanyIdAndStatus(
-        userId, timePeriodId, companyId, timeSheetStatus);
+    return timeSheetService.findCompanyTimeSheetsByIdAndStatus(
+        userId, timePeriodId, timeSheetStatus);
   }
 
   public TeamHoursPageInfoDto findTeamTimeSheetsByIdAndCompanyIdAndStatus(
       final String timePeriodId,
       final String hourType,
-      final String companyId,
       final TimeSheetStatus timeSheetStatus,
       final String userId,
       final Pageable pageable) {
@@ -163,15 +155,14 @@ public class AttendanceTeamHoursService {
     if (hourType.equals(TEAM_HOURS_TYPE)) {
       timeSheetPage =
           timeSheetService.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
-              timePeriodId, companyId, timeSheetStatus, userId, pageable);
+              timePeriodId, timeSheetStatus, userId, pageable);
     }
     if (hourType.equals(COMPANY_HOURS_TYPE)) {
       timeSheetPage =
-          timeSheetService.findCompanyTimeSheetsByIdAndCompanyIdAndStatus(
-              timePeriodId, companyId, timeSheetStatus, userId, pageable);
+          timeSheetService.findCompanyTimeSheetsByIdAndStatus(
+              timePeriodId, timeSheetStatus, userId, pageable);
     }
-    final CompanyTaSetting companyTaSetting =
-        attendanceSettingsService.findCompanySettings(companyId);
+    final CompanyTaSetting companyTaSetting = attendanceSettingsService.findCompanySetting();
 
     final List<AttendanceTeamHoursDto> teamHoursDtos =
         timeSheetPage.getContent().stream()
@@ -203,33 +194,27 @@ public class AttendanceTeamHoursService {
   }
 
   public AttendanceSummaryDto findTeamHoursSummary(
-      final String timePeriodId,
-      final String companyId,
-      final String userId,
-      final String hourType) {
+      final String timePeriodId, final String userId, final String hourType) {
     List<TimeSheet> timeSheets = new ArrayList<>();
     if (hourType.equals(TEAM_HOURS_TYPE)) {
       timeSheets =
           timeSheetService.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
               userId,
               timePeriodId,
-              companyId,
               Arrays.asList(
                   StaticTimesheetStatus.TimeSheetStatus.SUBMITTED.name(),
                   StaticTimesheetStatus.TimeSheetStatus.APPROVED.name()));
     }
     if (hourType.equals(COMPANY_HOURS_TYPE)) {
       timeSheets =
-          timeSheetService.findCompanyTimeSheetsByIdAndCompanyIdAndStatus(
+          timeSheetService.findCompanyTimeSheetsByIdAndStatus(
               userId,
               timePeriodId,
-              companyId,
               Arrays.asList(
                   StaticTimesheetStatus.TimeSheetStatus.SUBMITTED.name(),
                   StaticTimesheetStatus.TimeSheetStatus.APPROVED.name()));
     }
-    final CompanyTaSetting companyTaSetting =
-        attendanceSettingsService.findCompanySettings(companyId);
+    final CompanyTaSetting companyTaSetting = attendanceSettingsService.findCompanySetting();
     int totalTimeOffHours = 0;
     int totalOvertimeMin = 0;
     int totalRegularMin = 0;
@@ -277,9 +262,9 @@ public class AttendanceTeamHoursService {
     timeSheetService.saveAll(timeSheets);
   }
 
-  public AttendanceDetailDto findAttendanceDetails(final String companyId) {
-    final PayrollDetail payrollDetail = payrollDetailService.findByCompanyId(companyId);
-    final TimePeriod timePeriod = timePeriodService.findCompanyCurrentPeriod(companyId);
+  public AttendanceDetailDto findAttendanceDetails() {
+    final PayrollDetail payrollDetail = payrollDetailService.find();
+    final TimePeriod timePeriod = timePeriodService.findCompanyCurrentPeriod();
     final SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
     final String payDate = sdf.format(payrollDetail.getLastPayrollPayday());
     final String periodStartDate = sdf.format(timePeriod.getStartDate());
@@ -293,13 +278,13 @@ public class AttendanceTeamHoursService {
   }
 
   @Transactional
-  public void removeAttendanceDetails(final List<String> userIds, final String companyId) {
+  public void removeAttendanceDetails(final List<String> userIds) {
     employeesTaSettingService.removeEmployees(userIds);
-    timeSheetService.removeUserFromAttendance(userIds, companyId);
+    timeSheetService.removeUserFromAttendance(userIds);
   }
 
-  public PendingCountDto findAttendancePendingCount(final String userId, final String companyId) {
-    final TimePeriod timePeriod = timePeriodService.findCompanyCurrentPeriod(companyId);
+  public PendingCountDto findAttendancePendingCount(final String userId) {
+    final TimePeriod timePeriod = timePeriodService.findCompanyCurrentPeriod();
     final int teamHoursPendingCount =
         timeSheetService.findTeamHoursPendingCount(userId, timePeriod.getId());
     final int companyHoursPendingCount =

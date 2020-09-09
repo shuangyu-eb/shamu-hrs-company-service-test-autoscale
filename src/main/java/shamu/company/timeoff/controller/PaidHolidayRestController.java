@@ -1,5 +1,6 @@
 package shamu.company.timeoff.controller;
 
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
@@ -19,8 +20,6 @@ import shamu.company.timeoff.dto.PaidHolidayEmployeeDto;
 import shamu.company.timeoff.dto.PaidHolidayRelatedUserListDto;
 import shamu.company.timeoff.dto.PaidHolidayRelatedUserListMobileDto;
 import shamu.company.timeoff.service.PaidHolidayService;
-
-import java.util.List;
 
 @RestApiController
 public class PaidHolidayRestController extends BaseRestController {
@@ -44,27 +43,24 @@ public class PaidHolidayRestController extends BaseRestController {
 
   @GetMapping(value = "paid-holidays/employees")
   public PaidHolidayRelatedUserListDto getPaidHolidays() {
-    return paidHolidayService.getPaidHolidayEmployees(findCompanyId());
+    return paidHolidayService.getPaidHolidayEmployees();
   }
 
   @GetMapping(value = "paid-holidays/mobile/employees")
   public PaidHolidayRelatedUserListMobileDto getPaidHolidaysOnMobile() {
-    return paidHolidayService.getPaidHolidayEmployeesOnMobile(findCompanyId());
+    return paidHolidayService.getPaidHolidayEmployeesOnMobile();
   }
 
   @GetMapping(value = "paid-holidays/employees/count")
   public Integer getPaidHolidaysEmployeesCount() {
-    return paidHolidayService
-        .getPaidHolidayEmployees(findCompanyId())
-        .getPaidHolidaySelectedEmployees()
-        .size();
+    return paidHolidayService.getPaidHolidayEmployees().getPaidHolidaySelectedEmployees().size();
   }
 
   @PatchMapping(value = "paid-holidays/employees")
   @PreAuthorize("hasPermission(#updatePaidHolidayEmployees, 'PAID_HOLIDAY_USER', 'EDIT_USER')")
   public HttpEntity updatePaidHolidayEmployees(
       @RequestBody final List<PaidHolidayEmployeeDto> updatePaidHolidayEmployees) {
-    paidHolidayService.updatePaidHolidayEmployees(updatePaidHolidayEmployees, findCompanyId());
+    paidHolidayService.updatePaidHolidayEmployees(updatePaidHolidayEmployees);
     return new ResponseEntity<>(HttpStatus.OK);
   }
 
@@ -80,7 +76,7 @@ public class PaidHolidayRestController extends BaseRestController {
   }
 
   @PatchMapping(value = "paid-holidays/select")
-  @PreAuthorize("hasPermission(#paidHolidayDtos, 'COMPANY_PAID_HOLIDAY', 'EDIT_PAID_HOLIDAY')")
+  @PreAuthorize("hasPermission(#paidHolidayDtos, 'PAID_HOLIDAY', 'SELECT_PAID_HOLIDAY')")
   public HttpEntity updateHolidaySelects(@RequestBody final List<PaidHolidayDto> paidHolidayDtos) {
     paidHolidayService.updateHolidaySelects(paidHolidayDtos);
     return new ResponseEntity<>(HttpStatus.OK);

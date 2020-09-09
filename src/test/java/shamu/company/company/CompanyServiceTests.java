@@ -8,7 +8,6 @@ import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -16,11 +15,12 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import shamu.company.common.entity.StateProvince;
+import shamu.company.common.entity.Tenant;
 import shamu.company.common.exception.errormapping.AlreadyExistsException;
-import shamu.company.common.exception.errormapping.ResourceNotFoundException;
 import shamu.company.common.service.DepartmentService;
 import shamu.company.common.service.OfficeService;
 import shamu.company.common.service.StateProvinceService;
+import shamu.company.common.service.TenantService;
 import shamu.company.company.dto.CompanyBenefitsSettingDto;
 import shamu.company.company.entity.Company;
 import shamu.company.company.entity.CompanyBenefitsSetting;
@@ -28,6 +28,7 @@ import shamu.company.company.entity.Department;
 import shamu.company.company.entity.Office;
 import shamu.company.company.entity.OfficeAddress;
 import shamu.company.company.entity.mapper.CompanyBenefitsSettingMapper;
+import shamu.company.company.entity.mapper.CompanyMapper;
 import shamu.company.company.entity.mapper.OfficeAddressMapper;
 import shamu.company.company.repository.CompanyRepository;
 import shamu.company.company.service.CompanyBenefitsSettingService;
@@ -36,8 +37,6 @@ import shamu.company.employee.entity.EmploymentType;
 import shamu.company.employee.service.EmploymentTypeService;
 import shamu.company.helpers.googlemaps.GoogleMapsHelper;
 import shamu.company.job.service.JobService;
-import shamu.company.server.dto.CompanyDtoProjection;
-import shamu.company.utils.UuidUtil;
 
 public class CompanyServiceTests {
 
@@ -54,6 +53,8 @@ public class CompanyServiceTests {
   @Mock private StateProvinceService stateProvinceService;
   @Mock private CompanyBenefitsSettingMapper companyBenefitsSettingMapper;
   @Mock private CompanyBenefitsSettingService companyBenefitsSettingService;
+  @Mock private TenantService tenantService;
+  @Mock private CompanyMapper companyMapper;
   @Mock private GoogleMapsHelper googleMapsHelper;
   private CompanyService companyService;
 
@@ -71,6 +72,8 @@ public class CompanyServiceTests {
             stateProvinceService,
             companyBenefitsSettingMapper,
             companyBenefitsSettingService,
+            companyMapper,
+            tenantService,
             googleMapsHelper);
     department.setId("1");
     department.setName("name");
@@ -90,9 +93,9 @@ public class CompanyServiceTests {
   void testFindDepartmentsByCompanyId() {
     final List<Department> list = new ArrayList<>();
     list.add(department);
-    Mockito.when(departmentService.findAllByCompanyId(Mockito.anyString())).thenReturn(list);
+    Mockito.when(departmentService.findAll()).thenReturn(list);
     Mockito.when(departmentService.findCountByDepartment(Mockito.anyString())).thenReturn(1);
-    assertThatCode(() -> companyService.findDepartmentsByCompanyId("1")).doesNotThrowAnyException();
+    assertThatCode(() -> companyService.findDepartments()).doesNotThrowAnyException();
   }
 
   @Test
@@ -119,22 +122,21 @@ public class CompanyServiceTests {
 
   @Test
   void testSaveDepartmentsByCompany() {
-    assertThatCode(() -> companyService.saveDepartmentsByCompany("name", "1"))
-        .doesNotThrowAnyException();
+    assertThatCode(() -> companyService.saveDepartment("name")).doesNotThrowAnyException();
   }
 
   @Test
   void testSaveJobsByDepartmentId() {
-    assertThatCode(() -> companyService.saveJobsByCompany("1", "name")).doesNotThrowAnyException();
+    assertThatCode(() -> companyService.saveJob("1")).doesNotThrowAnyException();
   }
 
   @Test
   void testFindOfficesByCompany() {
     final List<Office> list = new ArrayList<>();
     list.add(office);
-    Mockito.when(officeService.findByCompanyId(Mockito.anyString())).thenReturn(list);
+    Mockito.when(officeService.findAll()).thenReturn(list);
     Mockito.when(officeService.findCountByOffice(Mockito.anyString())).thenReturn(1);
-    assertThatCode(() -> companyService.findOfficesByCompany("1")).doesNotThrowAnyException();
+    assertThatCode(() -> companyService.findOffices()).doesNotThrowAnyException();
   }
 
   @Test
@@ -145,32 +147,29 @@ public class CompanyServiceTests {
     officeAddress.setStateProvince(stateProvince);
     officeAddress.setPostalCode("02114");
     office.setOfficeAddress(officeAddress);
-    office.setCompany(new Company(UuidUtil.getUuidString()));
     Mockito.when(stateProvinceService.findById(Mockito.anyString())).thenReturn(stateProvince);
-    Mockito.when(officeService.findByNameAndCompanyId(Mockito.anyString(), Mockito.anyString()))
-        .thenReturn(Collections.EMPTY_LIST);
+    Mockito.when(officeService.findByName(Mockito.anyString())).thenReturn(Collections.EMPTY_LIST);
     Mockito.when(googleMapsHelper.findTimezoneByPostalCode("02114")).thenReturn("timezone");
     assertThatCode(() -> companyService.saveOffice(office)).doesNotThrowAnyException();
   }
 
   @Test
   void testSave() {
-
     assertThatCode(() -> companyService.save(new Company())).doesNotThrowAnyException();
   }
 
   @Test
   void testFindCompanyBenefitsSetting() {
-    Mockito.when(companyBenefitsSettingService.findByCompanyId(Mockito.anyString()))
+    Mockito.when(companyBenefitsSettingService.getCompanyBenefitsSetting())
         .thenReturn(benefitsSetting);
-    assertThatCode(() -> companyService.findCompanyBenefitsSetting("1")).doesNotThrowAnyException();
+    assertThatCode(() -> companyService.findCompanyBenefitsSetting()).doesNotThrowAnyException();
   }
 
   @Test
   void testUpdateBenefitSettingAutomaticRollover() {
-    Mockito.when(companyBenefitsSettingService.findByCompanyId(Mockito.anyString()))
+    Mockito.when(companyBenefitsSettingService.getCompanyBenefitsSetting())
         .thenReturn(benefitsSetting);
-    assertThatCode(() -> companyService.updateBenefitSettingAutomaticRollover("1", true))
+    assertThatCode(() -> companyService.updateBenefitSettingAutomaticRollover(true))
         .doesNotThrowAnyException();
   }
 
@@ -179,29 +178,16 @@ public class CompanyServiceTests {
     final CompanyBenefitsSettingDto companyBenefitsSettingDto = new CompanyBenefitsSettingDto();
     companyBenefitsSettingDto.setStartDate(new Date(36000));
     companyBenefitsSettingDto.setEndDate(new Date(360000));
-    Mockito.when(companyBenefitsSettingService.findByCompanyId(Mockito.anyString()))
+    Mockito.when(companyBenefitsSettingService.getCompanyBenefitsSetting())
         .thenReturn(benefitsSetting);
-    assertThatCode(() -> companyService.updateEnrollmentPeriod("1", companyBenefitsSettingDto))
+    assertThatCode(() -> companyService.updateEnrollmentPeriod(companyBenefitsSettingDto))
         .doesNotThrowAnyException();
   }
 
-  @Nested
-  class testFindById {
-
-    @Test
-    void whenIdExists_thenShouldNotThrowException() {
-      final Optional<Company> optional = Optional.of(new Company());
-      Mockito.when(companyRepository.findById(Mockito.anyString())).thenReturn(optional);
-      assertThatCode(() -> companyService.findById("1")).doesNotThrowAnyException();
-    }
-
-    @Test
-    void whenIdNotExists_thenShoudlThrowException() {
-      final Optional optional = Optional.empty();
-      Mockito.when(companyRepository.findById(Mockito.anyString())).thenReturn(optional);
-      assertThatExceptionOfType(ResourceNotFoundException.class)
-          .isThrownBy(() -> companyService.findById("1"));
-    }
+  @Test
+  void testGetCompany() {
+    Mockito.when(companyRepository.findAll()).thenReturn(Collections.singletonList(new Company()));
+    assertThatCode(() -> companyService.getCompany()).doesNotThrowAnyException();
   }
 
   @Nested
@@ -209,45 +195,32 @@ public class CompanyServiceTests {
 
     @Test
     void whenUpdateCompanyName_thenShouldNotThrowException() {
-      final Company company = new Company();
       Mockito.when(companyService.existsByName(Mockito.anyString())).thenReturn(false);
-      Mockito.when(companyRepository.findCompanyById(Mockito.anyString())).thenReturn(company);
-      Mockito.when(companyRepository.save(company)).thenReturn(company);
-      assertThatCode(() -> companyService.updateCompanyName("example", "companyId"))
-          .doesNotThrowAnyException();
-      assertThat(companyService.updateCompanyName("example2", "companyId")).isEqualTo("example2");
+      Mockito.when(companyRepository.findAll())
+          .thenReturn(Collections.singletonList(new Company()));
+      assertThatCode(() -> companyService.updateCompanyName("example")).doesNotThrowAnyException();
+      assertThat(companyService.updateCompanyName("example2")).isEqualTo("example2");
     }
 
     @Test
     void whenUpdateCompanyName_thenShouldThrowException() {
       Mockito.when(companyService.existsByName(Mockito.anyString())).thenReturn(true);
       assertThatExceptionOfType(AlreadyExistsException.class)
-          .isThrownBy(() -> companyService.updateCompanyName("example", "companyId"));
+          .isThrownBy(() -> companyService.updateCompanyName("example"));
     }
 
     @Test
     void findCompanyDtoByUserId() {
-      final CompanyDtoProjection companyDtoProjection =
-          new CompanyDtoProjection() {
-            @Override
-            public String getId() {
-              return null;
-            }
-
-            @Override
-            public String getName() {
-              return null;
-            }
-          };
-      Mockito.when(companyRepository.findCompanyDtoByUserId(Mockito.anyString()))
-          .thenReturn(companyDtoProjection);
-      assertThatCode(() -> companyService.findCompanyDtoByUserId("1")).doesNotThrowAnyException();
+      final Company companyDtoProjection = new Company();
+      Mockito.when(companyRepository.findAll())
+          .thenReturn(Collections.singletonList(companyDtoProjection));
+      assertThatCode(() -> companyService.findCompanyDto()).doesNotThrowAnyException();
     }
 
     @Test
     void findAllById() {
-      final List<Company> companies = new ArrayList<>();
-      Mockito.when(companyRepository.findAllById(Mockito.anyList())).thenReturn(companies);
+      final List<Tenant> companies = new ArrayList<>();
+      Mockito.when(tenantService.findAllByCompanyId(Mockito.anyList())).thenReturn(companies);
       assertThatCode(() -> companyService.findAllById(Collections.singletonList("1")))
           .doesNotThrowAnyException();
     }
@@ -256,8 +229,8 @@ public class CompanyServiceTests {
   @Test
   void testUpdateIsPaidHolidaysAutoEnrolled() {
     final Company company = new Company();
-    Mockito.when(companyRepository.findCompanyById(Mockito.anyString())).thenReturn(company);
-    assertThatCode(() -> companyService.updateIsPaidHolidaysAutoEnrolled("1", true))
+    Mockito.when(companyRepository.findAll()).thenReturn(Collections.singletonList(company));
+    assertThatCode(() -> companyService.updateIsPaidHolidaysAutoEnrolled(true))
         .doesNotThrowAnyException();
   }
 }

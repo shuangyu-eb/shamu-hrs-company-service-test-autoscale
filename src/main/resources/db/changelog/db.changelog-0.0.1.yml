@@ -1,1849 +1,4644 @@
 databaseChangeLog:
-- changeSet:
-    id: 1550646329776-1
-    author: Max-Zhao
-    changes:
-    - createTable:
-        columns:
-        - column:
-            name: id
-            type: bigint
-            autoIncrement: true
-            constraints:
-              primaryKey: true
-        - column:
-            name: employee_number
-            type: varchar(255)
-        - column:
-            name: email_work
-            type: varchar(255)
-        - column:
-            name: password
-            type: varchar(255)
-        - column:
-            name: latest_login
-            type: datetime
-        - column:
-            name: user_status_id
-            type: bigint
-        - column:
-            name: image_url
-            type: text
-        - column:
-            name: company_id
-            type: bigint
-        - column:
-            name: manager_user_id
-            type: bigint
-        - column:
-            name: user_personal_information_id
-            type: bigint
-        - column:
-            name: user_contact_information_id
-            type: bigint
-        - column:
-            name: user_compensation_id
-            type: bigint
-        - column:
-            name: user_role_id
-            type: bigint
-        - column:
-            name: invitation_email_token
-            type: varchar(255)
-        - column:
-            name: invited_at
-            type: datetime
-        - column:
-            name: reset_password_sent_at
-            type: datetime
-        - column:
-            name: reset_password_token
-            type: varchar(255)
-        - column:
-            name: verification_token
-            type: varchar(255)
-        - column:
-            name: verified_at
-            type: datetime
-        - column:
-            name: created_at
-            type: datetime
-        - column:
-            name: updated_at
-            type: datetime
-        - column:
-            name: deleted_at
-            type: datetime
-        tableName: users
-- changeSet:
-    id: 1550646329776-2
-    author: Max-Zhao
-    changes:
-    - createTable:
-        columns:
-        - column:
-            name: id
-            type: BIGINT
-            autoIncrement: true
-            constraints:
-              primaryKey: true
-        - column:
-            name: name
-            type: varchar(32)
-        - column:
-            name: created_at
-            type: datetime
-        - column:
-            name: updated_at
-            type: datetime
-        - column:
-            name: deleted_at
-            type: datetime
-        tableName: user_statuses
-- changeSet:
-    id: 1550646329776-3
-    author: Max-Zhao
-    changes:
-    - createTable:
-        columns:
-        - column:
-            name: id
-            type: BIGINT
-            autoIncrement: true
-            constraints:
-              primaryKey: true
-        - column:
-            name: name
-            type: varchar(32)
-        - column:
-            name: created_at
-            type: datetime
-        - column:
-            name: updated_at
-            type: datetime
-        - column:
-            name: deleted_at
-            type: datetime
-        tableName: user_roles
-- changeSet:
-    id: 1550646329776-4
-    author: Max-Zhao
-    changes:
-    - createTable:
-        columns:
-        - column:
-            name: id
-            type: BIGINT
-            autoIncrement: true
-            constraints:
-              primaryKey: true
-        - column:
-            name: name
-            type: varchar(32)
-        - column:
-            name: created_at
-            type: datetime
-        - column:
-            name: updated_at
-            type: datetime
-        - column:
-            name: deleted_at
-            type: datetime
-        tableName: genders
-- changeSet:
-    id: 1550646329776-5
-    author: Max-Zhao
-    changes:
-    - createTable:
-        columns:
-        - column:
-            name: id
-            type: BIGINT
-            autoIncrement: true
-            constraints:
-              primaryKey: true
-        - column:
-            name: name
-            type: varchar(32)
-        - column:
-            name: created_at
-            type: datetime
-        - column:
-            name: updated_at
-            type: datetime
-        - column:
-            name: deleted_at
-            type: datetime
-        tableName: ethnicities
-- changeSet:
-    id: 1550646329776-6
-    author: Max-Zhao
-    changes:
-    - createTable:
-        columns:
-        - column:
-            name: id
-            type: BIGINT
-            autoIncrement: true
-            constraints:
-              primaryKey: true
-        - column:
-            name: name
-            type: varchar(32)
-        - column:
-            name: created_at
-            type: datetime
-        - column:
-            name: updated_at
-            type: datetime
-        - column:
-            name: deleted_at
-            type: datetime
-        tableName: martial_status
-- changeSet:
-    id: 1550646329776-7
-    author: Max-Zhao
-    changes:
-    - createTable:
-        columns:
-        - column:
-            name: id
-            type: BIGINT
-            autoIncrement: true
-            constraints:
-              primaryKey: true
-        - column:
-            name: name
-            type: varchar(32)
-        - column:
-            name: created_at
-            type: datetime
-        - column:
-            name: updated_at
-            type: datetime
-        - column:
-            name: deleted_at
-            type: datetime
-        tableName: citizenship_statuses
-- changeSet:
-    id: 1550646329776-8
-    author: Max-Zhao
-    changes:
-    - createTable:
-        columns:
-        - column:
-            name: id
-            type: BIGINT
-            autoIncrement: true
-            constraints:
-              primaryKey: true
-        - column:
-            name: name
-            type: varchar(32)
-        - column:
-            name: created_at
-            type: datetime
-        - column:
-            name: updated_at
-            type: datetime
-        - column:
-            name: deleted_at
-            type: datetime
-        tableName: countries
-- changeSet:
-    id: 1550646329776-9
-    author: Max-Zhao
-    changes:
-    - createTable:
-        columns:
-        - column:
-            name: id
-            type: BIGINT
-            autoIncrement: true
-            constraints:
-              primaryKey: true
-        - column:
-            name: name
-            type: varchar(32)
-        - column:
-            name: created_at
-            type: datetime
-        - column:
-            name: updated_at
-            type: datetime
-        - column:
-            name: deleted_at
-            type: datetime
-        tableName: employment_types
-- changeSet:
-    id: 1550646329776-10
-    author: Max-Zhao
-    changes:
-    - createTable:
-        columns:
-        - column:
-            name: id
-            type: BIGINT
-            autoIncrement: true
-            constraints:
-              primaryKey: true
-        - column:
-            name: first_name
-            type: varchar(255)
-        - column:
-            name: middle_name
-            type: varchar(255)
-        - column:
-            name: last_name
-            type: varchar(255)
-        - column:
-            name: preferred_name
-            type: varchar(255)
-        - column:
-            name: birth_date
-            type: DATETIME
-        - column:
-            name: ssn
-            type: varchar(255)
-        - column:
-            name: gender_id
-            type: INT
-        - column:
-            name: marital_status_id
-            type: BIGINT
-        - column:
-            name: ethnicity_id
-            type: BIGINT
-        - column:
-            name: citizenship_status_id
-            type: BIGINT
-        - column:
-            name: created_at
-            type: datetime
-        - column:
-            name: updated_at
-            type: datetime
-        - column:
-            name: deleted_at
-            type: datetime
-        tableName: user_personal_information
-- changeSet:
-    id: 1550646329776-11
-    author: Max-Zhao
-    changes:
-    - createTable:
-        columns:
-        - column:
-            name: id
-            type: BIGINT
-            autoIncrement: true
-            constraints:
-              primaryKey: true
-        - column:
-            name: phone_work
-            type: varchar(64)
-        - column:
-            name: phone_work_extension
-            type: varchar(64)
-        - column:
-            name: phone_mobile
-            type: varchar(64)
-        - column:
-            name: phone_home
-            type: varchar(64)
-        - column:
-            name: email_work
-            type: varchar(255)
-        - column:
-            name: email_home
-            type: varchar(255)
-        - column:
-            name: created_at
-            type: datetime
-        - column:
-            name: updated_at
-            type: datetime
-        - column:
-            name: deleted_at
-            type: datetime
-        tableName: user_contact_information
-- changeSet:
-    id: 1550646329776-12
-    author: Max-Zhao
-    changes:
-    - createTable:
-        columns:
-        - column:
-            name: id
-            type: BIGINT
-            autoIncrement: true
-            constraints:
-              primaryKey: true
-        - column:
-            name: user_id
-            type: BIGINT
-        - column:
-            name: job_id
-            type: BIGINT
-        - column:
-            name: employment_type_id
-            type: BIGINT
-        - column:
-            name: start_date
-            type: DATETIME
-        - column:
-            name: end_date
-            type: DATETIME
-        - column:
-            name: office_id
-            type: BIGINT
-        - column:
-            name: department_id
-            type: BIGINT
-        - column:
-            name: company_id
-            type: BIGINT
-        - column:
-            name: created_at
-            type: datetime
-        - column:
-            name: updated_at
-            type: datetime
-        - column:
-            name: deleted_at
-            type: datetime
-        tableName: jobs_users
-- changeSet:
-    id: 1550646329776-13
-    author: Max-Zhao
-    changes:
-    - createTable:
-        columns:
-        - column:
-            name: id
-            type: BIGINT
-            autoIncrement: true
-            constraints:
-              primaryKey: true
-        - column:
-            name: title
-            type: varchar(255)
-        - column:
-            name: department_id
-            type: BIGINT
-        - column:
-            name: created_at
-            type: datetime
-        - column:
-            name: updated_at
-            type: datetime
-        - column:
-            name: deleted_at
-            type: datetime
-        tableName: jobs
-- changeSet:
-    id: 1550646329776-14
-    author: Max-Zhao
-    changes:
-    - createTable:
-        columns:
-        - column:
-            name: id
-            type: BIGINT
-            autoIncrement: true
-            constraints:
-              primaryKey: true
-        - column:
-            name: user_id
-            type: BIGINT
-        - column:
-            name: wage
-            type: INT
-        - column:
-            name: compensation_frequency_id
-            type: BIGINT
-        - column:
-            name: compensation_type_id
-            type: BIGINT
-        - column:
-            name: start_date
-            type: DATETIME
-        - column:
-            name: end_date
-            type: DATETIME
-        - column:
-            name: overtime_status
-            type: varchar(255)
-        - column:
-            name: compensation_change_reason_id
-            type: BIGINT
-        - column:
-            name: comment
-            type: TEXT
-        - column:
-            name: created_at
-            type: datetime
-        - column:
-            name: updated_at
-            type: datetime
-        - column:
-            name: deleted_at
-            type: datetime
-        tableName: user_compensations
-- changeSet:
-    id: 1550646329776-15
-    author: Max-Zhao
-    changes:
-    - createTable:
-        columns:
-        - column:
-            name: id
-            type: BIGINT
-            autoIncrement: true
-            constraints:
-              primaryKey: true
-        - column:
-            name: name
-            type: varchar(32)
-        - column:
-            name: created_at
-            type: datetime
-        - column:
-            name: updated_at
-            type: datetime
-        - column:
-            name: deleted_at
-            type: datetime
-        tableName: compensation_overtime_statuses
-- changeSet:
-    id: 1550646329776-16
-    author: Max-Zhao
-    changes:
-    - createTable:
-        columns:
-        - column:
-            name: id
-            type: BIGINT
-            autoIncrement: true
-            constraints:
-              primaryKey: true
-        - column:
-            name: company_id
-            type: BIGINT
-        - column:
-            name: name
-            type: varchar(32)
-        - column:
-            name: created_at
-            type: datetime
-        - column:
-            name: updated_at
-            type: datetime
-        - column:
-            name: deleted_at
-            type: datetime
-        tableName: compensation_types
-- changeSet:
-    id: 1550646329776-17
-    author: Max-Zhao
-    changes:
-    - createTable:
-        columns:
-        - column:
-            name: id
-            type: BIGINT
-            autoIncrement: true
-            constraints:
-              primaryKey: true
-        - column:
-            name: company_id
-            type: BIGINT
-        - column:
-            name: name
-            type: varchar(32)
-        - column:
-            name: created_at
-            type: datetime
-        - column:
-            name: updated_at
-            type: datetime
-        - column:
-            name: deleted_at
-            type: datetime
-        tableName: compensation_frequency
-- changeSet:
-    id: 1550646329776-18
-    author: Max-Zhao
-    changes:
-    - createTable:
-        columns:
-        - column:
-            name: id
-            type: BIGINT
-            autoIncrement: true
-            constraints:
-              primaryKey: true
-        - column:
-            name: company_id
-            type: BIGINT
-        - column:
-            name: name
-            type: varchar(32)
-        - column:
-            name: created_at
-            type: datetime
-        - column:
-            name: updated_at
-            type: datetime
-        - column:
-            name: deleted_at
-            type: datetime
-        tableName: compensation_change_reasons
-- changeSet:
-    id: 1550646329776-19
-    author: Max-Zhao
-    changes:
-    - createTable:
-        columns:
-        - column:
-            name: id
-            type: BIGINT
-            autoIncrement: true
-            constraints:
-              primaryKey: true
-        - column:
-            name: effective_date
-            type: DATETIME
-        - column:
-            name: user_employment_status_type_id
-            type: BIGINT
-        - column:
-            name: comment
-            type: TEXT
-        - column:
-            name: user_id
-            type: BIGINT
-        - column:
-            name: created_at
-            type: datetime
-        - column:
-            name: updated_at
-            type: datetime
-        - column:
-            name: deleted_at
-            type: datetime
-        tableName: user_employment_statuses
-- changeSet:
-    id: 1550646329776-20
-    author: Max-Zhao
-    changes:
-    - createTable:
-        columns:
-        - column:
-            name: id
-            type: BIGINT
-            autoIncrement: true
-            constraints:
-              primaryKey: true
-        - column:
-            name: name
-            type: varchar(255)
-        - column:
-            name: created_at
-            type: datetime
-        - column:
-            name: updated_at
-            type: datetime
-        - column:
-            name: deleted_at
-            type: datetime
-        tableName: user_employment_status_types
-- changeSet:
-    id: 1550646329776-21
-    author: Max-Zhao
-    changes:
-    - createTable:
-        columns:
-        - column:
-            name: id
-            type: BIGINT
-            autoIncrement: true
-            constraints:
-              primaryKey: true
-        - column:
-            name: user_id
-            type: BIGINT
-        - column:
-            name: school
-            type: varchar(255)
-        - column:
-            name: degree
-            type: varchar(255)
-        - column:
-            name: major
-            type: varchar(255)
-        - column:
-            name: gpa
-            type: varchar(255)
-        - column:
-            name: start_date
-            type: DATETIME
-        - column:
-            name: end_date
-            type: DATETIME
-        - column:
-            name: created_at
-            type: datetime
-        - column:
-            name: updated_at
-            type: datetime
-        - column:
-            name: deleted_at
-            type: datetime
-        tableName: user_educations
-- changeSet:
-    id: 1550646329776-22
-    author: Max-Zhao
-    changes:
-    - createTable:
-        columns:
-        - column:
-            name: id
-            type: BIGINT
-            autoIncrement: true
-            constraints:
-              primaryKey: true
-        - column:
-            name: user_id
-            type: BIGINT
-        - column:
-            name: relationship_id
-            type: BIGINT
-        - column:
-            name: is_primary
-            type: TINYINT(1)
-        - column:
-            name: phone_work
-            type: varchar(64)
-        - column:
-            name: phone_home
-            type: varchar(64)
-        - column:
-            name: phone_mobile
-            type: varchar(64)
-        - column:
-            name: email
-            type: varchar(255)
-        - column:
-            name: street_1
-            type: varchar(255)
-        - column:
-            name: street_2
-            type: varchar(255)
-        - column:
-            name: city_id
-            type: BIGINT
-        - column:
-            name: state_province_id
-            type: BIGINT
-        - column:
-            name: country_id
-            type: BIGINT
-        - column:
-            name: postal_code
-            type: varchar(64)
-        - column:
-            name: created_at
-            type: datetime
-        - column:
-            name: updated_at
-            type: datetime
-        - column:
-            name: deleted_at
-            type: datetime
-        tableName: user_emergency_contacts
-- changeSet:
-    id: 1550646329776-23
-    author: Max-Zhao
-    changes:
-    - createTable:
-        columns:
-        - column:
-            name: id
-            type: BIGINT
-            autoIncrement: true
-            constraints:
-              primaryKey: true
-        - column:
-            name: name
-            type: varchar(255)
-        - column:
-            name: created_at
-            type: datetime
-        - column:
-            name: updated_at
-            type: datetime
-        - column:
-            name: deleted_at
-            type: datetime
-        tableName: user_emergency_contact_relationships
-- changeSet:
-    id: 1550646329776-24
-    author: Max-Zhao
-    changes:
-    - createTable:
-        columns:
-        - column:
-            name: id
-            type: BIGINT
-            autoIncrement: true
-            constraints:
-              primaryKey: true
-        - column:
-            name: user_id
-            type: BIGINT
-        - column:
-            name: street_1
-            type: varchar(255)
-        - column:
-            name: street_2
-            type: varchar(255)
-        - column:
-            name: city_id
-            type: BIGINT
-        - column:
-            name: state_province_id
-            type: BIGINT
-        - column:
-            name: country_id
-            type: BIGINT
-        - column:
-            name: postal_code
-            type: varchar(64)
-        - column:
-            name: created_at
-            type: datetime
-        - column:
-            name: updated_at
-            type: datetime
-        - column:
-            name: deleted_at
-            type: datetime
-        tableName: user_addresses
-- changeSet:
-    id: 1550646329776-25
-    author: Max-Zhao
-    changes:
-    - createTable:
-        columns:
-        - column:
-            name: id
-            type: BIGINT
-            autoIncrement: true
-            constraints:
-              primaryKey: true
-        - column:
-            name: organization_id
-            type: BIGINT
-        - column:
-            name: office_id
-            type: BIGINT
-        - column:
-            name: name
-            type: varchar(255)
-        - column:
-            name: phone
-            type: varchar(64)
-        - column:
-            name: email
-            type: varchar(255)
-        - column:
-            name: office_address_id
-            type: BIGINT
-        - column:
-            name: company_id
-            type: BIGINT
-        - column:
-            name: created_at
-            type: datetime
-        - column:
-            name: updated_at
-            type: datetime
-        - column:
-            name: deleted_at
-            type: datetime
-        tableName: offices
-- changeSet:
-    id: 1550646329776-26
-    author: Max-Zhao
-    changes:
-    - createTable:
-        columns:
-        - column:
-            name: id
-            type: BIGINT
-            autoIncrement: true
-            constraints:
-              primaryKey: true
-        - column:
-            name: office_id
-            type: BIGINT
-        - column:
-            name: street_1
-            type: varchar(255)
-        - column:
-            name: street_2
-            type: varchar(255)
-        - column:
-            name: city
-            type: varchar(255)
-        - column:
-            name: state_province_id
-            type: BIGINT
-        - column:
-            name: country_id
-            type: BIGINT
-        - column:
-            name: postal_code
-            type: varchar(64)
-        - column:
-            name: created_at
-            type: datetime
-        - column:
-            name: updated_at
-            type: datetime
-        - column:
-            name: deleted_at
-            type: datetime
-        tableName: office_addresses
-- changeSet:
-    id: 1550646329776-27
-    author: Max-Zhao
-    changes:
-    - createTable:
-        columns:
-        - column:
-            name: id
-            type: BIGINT
-            autoIncrement: true
-            constraints:
-              primaryKey: true
-        - column:
-            name: country_id
-            type: BIGINT
-        - column:
-            name: name
-            type: varchar(255)
-        - column:
-            name: created_at
-            type: datetime
-        - column:
-            name: updated_at
-            type: datetime
-        - column:
-            name: deleted_at
-            type: datetime
-        tableName: states_provinces
-- changeSet:
-    id: 1550646329776-28
-    author: Max-Zhao
-    changes:
-    - createTable:
-        columns:
-        - column:
-            name: id
-            type: BIGINT
-            autoIncrement: true
-            constraints:
-              primaryKey: true
-        - column:
-            name: company_id
-            type: BIGINT
-        - column:
-            name: name
-            type: varchar(255)
-        - column:
-            name: created_at
-            type: datetime
-        - column:
-            name: updated_at
-            type: datetime
-        - column:
-            name: deleted_at
-            type: datetime
-        tableName: departments
-- changeSet:
-    id: 1550646329776-29
-    author: Max-Zhao
-    changes:
-    - createTable:
-        columns:
-        - column:
-            name: id
-            type: BIGINT
-            autoIncrement: true
-            constraints:
-              primaryKey: true
-        - column:
-            name: name
-            type: varchar(32)
-        - column:
-            name: created_at
-            type: datetime
-        - column:
-            name: updated_at
-            type: datetime
-        - column:
-            name: deleted_at
-            type: datetime
-        tableName: company_sizes
-- changeSet:
-    id: 1550646329776-30
-    author: Max-Zhao
-    changes:
-    - createTable:
-        columns:
-        - column:
-            name: id
-            type: BIGINT
-            autoIncrement: true
-            constraints:
-              primaryKey: true
-        - column:
-            name: name
-            type: varchar(255)
-        - column:
-            name: image_url
-            type: TEXT
-        - column:
-            name: EIN
-            type: varchar(255)
-        - column:
-            name: company_size_id
-            type: BIGINT
-        - column:
-            name: country_id
-            type: BIGINT
-        - column:
-            name: subdomain_name
-            type: varchar(255)
-        - column:
-            name: created_at
-            type: datetime
-        - column:
-            name: updated_at
-            type: datetime
-        - column:
-            name: deleted_at
-            type: datetime
-        tableName: companies
-- changeSet:
-    id: 1550646329776-31
-    author: Max-Zhao
-    changes:
-    - createTable:
-        columns:
-        - column:
-            name: id
-            type: BIGINT
-            autoIncrement: true
-            constraints:
-              primaryKey: true
-        - column:
-            name: time_off_type_id
-            type: BIGINT
-        - column:
-            name: is_limited
-            type: tinyint(1)
-        - column:
-            name: created_at
-            type: datetime
-        - column:
-            name: updated_at
-            type: datetime
-        - column:
-            name: deleted_at
-            type: datetime
-        tableName: time_off_policies
-- changeSet:
-    id: 1550646329776-32
-    author: Max-Zhao
-    changes:
-    - createTable:
-        columns:
-        - column:
-            name: id
-            type: BIGINT
-            autoIncrement: true
-            constraints:
-              primaryKey: true
-        - column:
-            name: time_off_policy_id
-            type: BIGINT
-        - column:
-            name: start_date_value
-            type: varchar(64)
-        - column:
-            name: start_date_unit
-            type: varchar(64)
-        - column:
-            name: accrual_hours
-            type: INT
-        - column:
-            name: accrual_interval
-            type: INT
-        - column:
-            name: accrual_frequency_details
-            type: TEXT
-        - column:
-            name: max_accrual
-            type: INT
-        - column:
-            name: max_carryover_hours_per_year
-            type: INT
-        - column:
-            name: has_carryover_amount
-            type: INT
-        - column:
-            name: next_time_off_policy_accrual_schedule_id
-            type: BIGINT
-        - column:
-            name: created_at
-            type: datetime
-        - column:
-            name: updated_at
-            type: datetime
-        - column:
-            name: deleted_at
-            type: datetime
-        tableName: time_off_policy_accrual_schedules
-- changeSet:
-    id: 1550646329776-33
-    author: Max-Zhao
-    changes:
-    - createTable:
-        columns:
-        - column:
-            name: id
-            type: BIGINT
-            autoIncrement: true
-            constraints:
-              primaryKey: true
-        - column:
-            name: is_first_accrual_prorated
-            type: TINYINT(1)
-        - column:
-            name: does_carryover_at_start_of_year
-            type: TINYINT(1)
-        - column:
-            name: time_off_policy_accrual_happenings_id
-            type: BIGINT
-        - column:
-            name: created_at
-            type: datetime
-        - column:
-            name: updated_at
-            type: datetime
-        - column:
-            name: deleted_at
-            type: datetime
-        tableName: time_off_policy_accrual_options
-- changeSet:
-    id: 1550646329776-34
-    author: Max-Zhao
-    changes:
-    - createTable:
-        columns:
-        - column:
-            name: id
-            type: BIGINT
-            autoIncrement: true
-            constraints:
-              primaryKey: true
-        - column:
-            name: name
-            type: varchar(255)
-        - column:
-            name: created_at
-            type: datetime
-        - column:
-            name: updated_at
-            type: datetime
-        - column:
-            name: deleted_at
-            type: datetime
-        tableName: time_off_policy_accrual_happenings
-- changeSet:
-    id: 1550646329776-35
-    author: Max-Zhao
-    changes:
-    - createTable:
-        columns:
-        - column:
-            name: id
-            type: BIGINT
-            autoIncrement: true
-            constraints:
-              primaryKey: true
-        - column:
-            name: company_id
-            type: BIGINT
-        - column:
-            name: name
-            type: varchar(32)
-        - column:
-            name: created_at
-            type: datetime
-        - column:
-            name: updated_at
-            type: datetime
-        - column:
-            name: deleted_at
-            type: datetime
-        tableName: time_off_types
-- changeSet:
-    id: 1550646329776-36
-    author: Max-Zhao
-    changes:
-    - createTable:
-        columns:
-        - column:
-            name: id
-            type: BIGINT
-            autoIncrement: true
-            constraints:
-              primaryKey: true
-        - column:
-            name: requester_user_id
-            type: BIGINT
-        - column:
-            name: approver_user_id
-            type: BIGINT
-        - column:
-            name: time_off_type_id
-            type: BIGINT
-        - column:
-            name: approval_status
-            type: varchar(32)
-        - column:
-            name: approved_date
-            type: DATETIME
-        - column:
-            name: time_off_policy_id
-            type: BIGINT
-        - column:
-            name: expires_at
-            type: DATETIME
-        - column:
-            name: created_at
-            type: datetime
-        - column:
-            name: updated_at
-            type: datetime
-        - column:
-            name: deleted_at
-            type: datetime
-        tableName: time_off_requests
-- changeSet:
-    id: 1550646329776-37
-    author: Max-Zhao
-    changes:
-    - createTable:
-        columns:
-        - column:
-            name: id
-            type: BIGINT
-            autoIncrement: true
-            constraints:
-              primaryKey: true
-        - column:
-            name: time_off_request_id
-            type: BIGINT
-        - column:
-            name: date
-            type: DATETIME
-        - column:
-            name: hours
-            type: INT
-        - column:
-            name: created_at
-            type: datetime
-        - column:
-            name: updated_at
-            type: datetime
-        - column:
-            name: deleted_at
-            type: datetime
-        tableName: time_off_request_dates
-- changeSet:
-    id: 1550646329776-38
-    author: Max-Zhao
-    changes:
-    - createTable:
-        columns:
-        - column:
-            name: id
-            type: BIGINT
-            autoIncrement: true
-            constraints:
-              primaryKey: true
-        - column:
-            name: employee_id
-            type: BIGINT
-        - column:
-            name: benefit_plan_id
-            type: BIGINT
-        - column:
-            name: created_at
-            type: datetime
-        - column:
-            name: updated_at
-            type: datetime
-        - column:
-            name: deleted_at
-            type: datetime
-        tableName: employee_benefit_plans
-- changeSet:
-    id: 1550646329776-39
-    author: Max-Zhao
-    changes:
-    - createTable:
-        columns:
-        - column:
-            name: id
-            type: BIGINT
-            autoIncrement: true
-            constraints:
-              primaryKey: true
-        - column:
-            name: name
-            type: varchar(32)
-        - column:
-            name: company_id
-            type: BIGINT
-        - column:
-            name: created_at
-            type: datetime
-        - column:
-            name: updated_at
-            type: datetime
-        - column:
-            name: deleted_at
-            type: datetime
-        tableName: benefit_plan_types
-- changeSet:
-    id: 1550646329776-40
-    author: Max-Zhao
-    changes:
-    - createTable:
-        columns:
-        - column:
-            name: id
-            type: BIGINT
-            autoIncrement: true
-            constraints:
-              primaryKey: true
-        - column:
-            name: name
-            type: varchar(255)
-        - column:
-            name: image_url
-            type: TEXT
-        - column:
-            name: policy_id
-            type: BIGINT
-        - column:
-            name: website
-            type: TEXT
-        - column:
-            name: benefit_plan_type_id
-            type: BIGINT
-        - column:
-            name: created_at
-            type: datetime
-        - column:
-            name: updated_at
-            type: datetime
-        - column:
-            name: deleted_at
-            type: datetime
-        tableName: benefit_plans
-- changeSet:
-    id: 1550646329776-41
-    author: Max-Zhao
-    changes:
-    - createTable:
-        columns:
-        - column:
-            name: id
-            type: BIGINT
-            autoIncrement: true
-            constraints:
-              primaryKey: true
-        - column:
-            name: benefit_plan_id
-            type: BIGINT
-        - column:
-            name: created_at
-            type: datetime
-        - column:
-            name: updated_at
-            type: datetime
-        - column:
-            name: deleted_at
-            type: datetime
-        tableName: benefit_plan_coverages
-- changeSet:
-    id: 1550646329776-42
-    author: Max-Zhao
-    changes:
-    - createTable:
-        columns:
-        - column:
-            name: id
-            type: BIGINT
-            autoIncrement: true
-            constraints:
-              primaryKey: true
-        - column:
-            name: employee_id
-            type: BIGINT
-        - column:
-            name: first_name
-            type: varchar(255)
-        - column:
-            name: last_name
-            type: varchar(255)
-        - column:
-            name: dependent_relationship_id
-            type: BIGINT
-        - column:
-            name: phone_home
-            type: varchar(64)
-        - column:
-            name: phone_work
-            type: varchar(64)
-        - column:
-            name: phone_mobile
-            type: varchar(64)
-        - column:
-            name: email
-            type: varchar(255)
-        - column:
-            name: created_at
-            type: datetime
-        - column:
-            name: updated_at
-            type: datetime
-        - column:
-            name: deleted_at
-            type: datetime
-        tableName: benefit_plan_dependents
-- changeSet:
-    id: 1550646329776-43
-    author: Max-Zhao
-    changes:
-    - createTable:
-        columns:
-        - column:
-            name: id
-            type: BIGINT
-            autoIncrement: true
-            constraints:
-              primaryKey: true
-        - column:
-            name: name
-            type: varchar(32)
-        - column:
-            name: created_at
-            type: datetime
-        - column:
-            name: updated_at
-            type: datetime
-        - column:
-            name: deleted_at
-            type: datetime
-        tableName: benefit_plan_dependent_relationships
-- changeSet:
-    id: 1550646329776-44
-    author: Max-Zhao
-    changes:
-    - createTable:
-        columns:
-        - column:
-            name: id
-            type: BIGINT
-            autoIncrement: true
-            constraints:
-              primaryKey: true
-        - column:
-            name: benefit_plan_id
-            type: BIGINT
-        - column:
-            name: user_id
-            type: BIGINT
-        - column:
-            name: created_at
-            type: datetime
-        - column:
-            name: updated_at
-            type: datetime
-        - column:
-            name: deleted_at
-            type: datetime
-        tableName: benefit_plans_users
-- changeSet:
-    id: 1550646329776-45
-    author: Max-Zhao
-    changes:
-    - createTable:
-        columns:
-        - column:
-            name: id
-            type: BIGINT
-            autoIncrement: true
-            constraints:
-              primaryKey: true
-        - column:
-            name: name
-            type: varchar(32)
-        - column:
-            name: created_at
-            type: datetime
-        - column:
-            name: updated_at
-            type: datetime
-        - column:
-            name: deleted_at
-            type: datetime
-        tableName: cities
-- changeSet:
-    id: 1550646329776-46
-    author: Max-Zhao
-    changes:
-    - dropColumn:
-        columnName: city
-        tableName: office_addresses
-- changeSet:
-    id: 1550646329776-47
-    author: Max-Zhao
-    changes:
-    - addColumn:
-        columns:
-        - column:
-            name: city_id
-            type: BIGINT
-        tableName: office_addresses
-- changeSet:
-    id: 1550646329776-48
-    author: Max-Zhao
-    changes:
-    - dropColumn:
-        columnName: organization_id
-        tableName: offices
-- changeSet:
-    id: 1550646329776-49
-    author: Max-Zhao
-    changes:
-    - modifyDataType:
-        columnName: is_primary
-        newDataType: boolean
-        tableName: user_emergency_contacts
-- changeSet:
-    id: 1550646329776-50
-    author: Max-Zhao
-    changes:
-    - modifyDataType:
-        columnName: is_limited
-        newDataType: boolean
-        tableName: time_off_policies
-- changeSet:
-    id: 1550646329776-51
-    author: Max-Zhao
-    changes:
-    - modifyDataType:
-        columnName: does_carryover_at_start_of_year
-        newDataType: boolean
-        tableName: time_off_policy_accrual_options
-- changeSet:
-    id: 1550646329776-52
-    author: Max-Zhao
-    changes:
-    - modifyDataType:
-        columnName: is_first_accrual_prorated
-        newDataType: boolean
-        tableName: time_off_policy_accrual_options
-- changeSet:
-    id: 1554171434000-1
-    author: rex-eb
-    changes:
-    - dropTable:
-        tableName: user_emergency_contacts
-    - dropTable:
-        tableName: user_emergency_contact_relationships
-- changeSet:
-    id: 1554171434000-2
-    author: rex-eb
-    changes:
-    - createTable:
-        columns:
-        - column:
-            name: id
-            type: BIGINT
-            autoIncrement: true
-            constraints:
-              primaryKey: true
-        - column:
-            name: name
-            type: varchar(225)
-        - column:
-            name: created_at
-            type: datetime
-        - column:
-            name: updated_at
-            type: datetime
-        - column:
-            name: deleted_at
-            type: datetime
-        tableName: states
-- changeSet:
-    id: 1554171434000-3
-    author: rex-eb
-    changes:
-    - createTable:
-        columns:
-        - column:
-            name: id
-            type: BIGINT
-            autoIncrement: true
-            constraints:
-              primaryKey: true
-        - column:
-            name: user_id
-            type: BIGINT
-        - column:
-            name: first_name
-            type: varchar(255)
-        - column:
-            name: last_name
-            type: varchar(255)
-        - column:
-            name: relationship
-            type: varchar(255)
-        - column:
-            name: phone
-            type: varchar(255)
-        - column:
-            name: email
-            type: varchar(255)
-        - column:
-            name: street_1
-            type: varchar(255)
-        - column:
-            name: street_2
-            type: varchar(255)
-        - column:
-            name: city
-            type: varchar(255)
-        - column:
-            name: state_id
-            type: varchar(255)
-        - column:
-            name: postal_code
-            type: varchar(255)
-        - column:
-            name: is_primary
-            type: BOOLEAN
-        - column:
-            name: created_at
-            type: datetime
-        - column:
-            name: updated_at
-            type: datetime
-        - column:
-            name: deleted_at
-            type: datetime
-        tableName: user_emergency_contacts
-- changeSet:
-    id: 1555666271658-1
-    author: Ying-Li
-    changes:
-    - addColumn:
-        columns:
-        - column:
-            name: company_id
-            type: BIGINT
-        tableName: employment_types
-- changeSet:
-    id: 1555895637815-1
-    author: zhaojian
-    changes:
-    - createTable:
-        columns:
-        - column:
-            name: id
-            type: BIGINT
-            autoIncrement: true
-            constraints:
-              primaryKey: true
-        - column:
-            name: user_id
-            type: BIGINT
-            constraints:
-              foreignKeyName: email_user_id
-              references: users(id)
-        - column:
-            name: from
-            type: varchar(255)
-        - column:
-            name: to
-            type: varchar(255)
-        - column:
-            name: subject
-            type: varchar(255)
-        - column:
-            name: content
-            type: TEXT
-        - column:
-            name: send_date
-            type: datetime
-        - column:
-            name: sent_at
-            type: datetime
-        - column:
-            name: created_at
-            type: datetime
-        - column:
-            name: updated_at
-            type: datetime
-        - column:
-            name: deleted_at
-            type: datetime
-        tableName: emails
-- changeSet:
-    id: 1554370439764-1
-    author: Qi-Jia
-    changes:
-    - createTable:
-        columns:
-        - column:
-            name: id
-            type: BIGINT
-            autoIncrement: true
-            constraints:
-              primaryKey: true
-        - column:
-            name: name
-            type: VARCHAR(255)
-        tableName: permission_types
+  - changeSet:
+      id: 1594781353402-1
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  name: name
+                  type: VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: benefit_plan_id
+                  type: BINARY(16)
+              - column:
+                  name: ref_id
+                  type: INT
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: benefit_coverages
+  - changeSet:
+      id: 1594781353402-2
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  name: name
+                  type: VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: ref_id
+                  type: INT
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: benefit_life_event_types
+  - changeSet:
+      id: 1594781353402-3
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  name: benefit_plan_id
+                  type: BINARY(16)
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+              - column:
+                  name: employer_cost
+                  type: DECIMAL(18, 2)
+              - column:
+                  name: employee_cost
+                  type: DECIMAL(18, 2)
+              - column:
+                  name: benefit_coverage_id
+                  type: BINARY(16)
+            tableName: benefit_plan_coverages
+  - changeSet:
+      id: 1594781353402-4
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  constraints:
+                    unique: true
+                  name: name
+                  type: VARCHAR(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+              - column:
+                  constraints:
+                    unique: true
+                  name: ref_id
+                  type: INT
+            tableName: benefit_plan_dependent_relationships
+  - changeSet:
+      id: 1594781353402-5
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  name: benefit_plans_users_id
+                  type: BINARY(16)
+              - column:
+                  name: user_dependents_id
+                  type: BINARY(16)
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: benefit_plan_dependents
+  - changeSet:
+      id: 1594781353402-6
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  name: title
+                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: url
+                  type: VARCHAR(255)
+              - column:
+                  name: benefit_plan_id
+                  type: BINARY(16)
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: benefit_plan_documents
+  - changeSet:
+      id: 1594781353402-7
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  constraints:
+                    unique: true
+                  name: name
+                  type: VARCHAR(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+              - column:
+                  constraints:
+                    unique: true
+                  name: ref_id
+                  type: INT
+            tableName: benefit_plan_types
+  - changeSet:
+      id: 1594781353402-8
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  name: name
+                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: image_url
+                  type: TEXT
+              - column:
+                  name: website
+                  type: TEXT
+              - column:
+                  name: benefit_plan_type_id
+                  type: BINARY(16)
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+              - column:
+                  name: plan_id
+                  type: VARCHAR(255)
+              - column:
+                  name: start_date
+                  type: datetime
+              - column:
+                  name: end_date
+                  type: datetime
+              - column:
+                  name: description
+                  type: TEXT
+            tableName: benefit_plans
+  - changeSet:
+      id: 1594781353402-9
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  name: benefit_plan_id
+                  type: BINARY(16)
+              - column:
+                  name: user_id
+                  type: BINARY(16)
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+              - column:
+                  name: enrolled
+                  type: BIT(1)
+              - column:
+                  name: coverage_id
+                  type: BINARY(16)
+              - column:
+                  name: dependent_id
+                  type: BINARY(16)
+              - column:
+                  defaultValueBoolean: false
+                  name: confirmed
+                  type: BIT(1)
+            tableName: benefit_plans_users
+  - changeSet:
+      id: 1594781353402-10
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  name: name
+                  type: VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: ref_id
+                  type: INT
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: benefit_request_status
+  - changeSet:
+      id: 1594781353402-11
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  name: benefit_plan_request_id
+                  type: BINARY(16)
+              - column:
+                  name: user_id
+                  type: BINARY(16)
+              - column:
+                  name: comment
+                  type: TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: benefits_request_comments
+  - changeSet:
+      id: 1594781353402-12
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  name: title
+                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: request_id
+                  type: BINARY(16)
+              - column:
+                  name: url
+                  type: VARCHAR(255)
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: benefits_request_documents
+  - changeSet:
+      id: 1594781353402-13
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  name: request_user_id
+                  type: BINARY(16)
+              - column:
+                  name: approver_user_id
+                  type: BINARY(16)
+              - column:
+                  name: life_event_type_id
+                  type: BINARY(16)
+              - column:
+                  name: life_event_date
+                  type: datetime
+              - column:
+                  name: prev_enrollment_id
+                  type: BINARY(16)
+              - column:
+                  name: next_enrollment_id
+                  type: BINARY(16)
+              - column:
+                  name: effective_date
+                  type: datetime
+              - column:
+                  name: request_status_id
+                  type: BINARY(16)
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: benefits_requests
+  - changeSet:
+      id: 1594781353402-14
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  defaultValueBoolean: true
+                  name: automatic_rollover
+                  type: BIT(1)
+              - column:
+                  name: period_start_date
+                  type: datetime
+              - column:
+                  name: period_end_date
+                  type: datetime
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: benefits_setting
+  - changeSet:
+      id: 1594781353402-15
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  name: name
+                  type: VARCHAR(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: citizenship_statuses
+  - changeSet:
+      id: 1594781353402-16
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  name: name
+                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: image_url
+                  type: TEXT
+              - column:
+                  name: EIN
+                  type: VARCHAR(255)
+              - column:
+                  name: country_id
+                  type: BINARY(16)
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+              - column:
+                  defaultValueBoolean: false
+                  name: is_paid_holidays_auto_enroll
+                  type: BIT(1)
+            tableName: company
+  - changeSet:
+      id: 1594781353402-17
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  constraints:
+                    unique: true
+                  name: name
+                  type: VARCHAR(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+              - column:
+                  constraints:
+                    unique: true
+                  name: ref_id
+                  type: INT
+            tableName: company_sizes
+  - changeSet:
+      id: 1594781353402-18
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  name: time_zone_id
+                  type: BINARY(16)
+              - column:
+                  name: pay_frequency_type_id
+                  type: BINARY(16)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: approval_days_before_payroll
+                  type: INT
+              - column:
+                  name: last_payroll_payday
+                  type: datetime
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: company_ta_settings
+  - changeSet:
+      id: 1594781353402-19
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  name: name
+                  type: VARCHAR(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: compensation_change_reasons
+  - changeSet:
+      id: 1594781353402-20
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  constraints:
+                    unique: true
+                  name: name
+                  type: VARCHAR(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+              - column:
+                  constraints:
+                    unique: true
+                  name: ref_id
+                  type: INT
+            tableName: compensation_frequency
+  - changeSet:
+      id: 1594781353402-21
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  name: name
+                  type: VARCHAR(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: compensation_overtime_statuses
+  - changeSet:
+      id: 1594781353402-22
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  name: name
+                  type: VARCHAR(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: compensation_types
+  - changeSet:
+      id: 1594781353402-23
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  constraints:
+                    unique: true
+                  name: name
+                  type: VARCHAR(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+              - column:
+                  constraints:
+                    unique: true
+                  name: ref_id
+                  type: INT
+            tableName: countries
+  - changeSet:
+      id: 1594781353402-24
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: name
+                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: abbreviation
+                  type: VARCHAR(10)
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: currencies
+  - changeSet:
+      id: 1594781353402-25
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  constraints:
+                    unique: true
+                  name: name
+                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+              - column:
+                  constraints:
+                    unique: true
+                  name: ref_id
+                  type: INT
+            tableName: deactivation_reasons
+  - changeSet:
+      id: 1594781353402-26
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  name: name
+                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: departments
+  - changeSet:
+      id: 1594781353402-27
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  name: user_id
+                  type: BINARY(16)
+              - column:
+                  name: system_announcement_id
+                  type: BINARY(16)
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: dismissed_at
+  - changeSet:
+      id: 1594781353402-28
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  name: user_id
+                  type: BINARY(16)
+              - column:
+                  name: from
+                  type: VARCHAR(255)
+              - column:
+                  name: to
+                  type: VARCHAR(255)
+              - column:
+                  name: subject
+                  type: VARCHAR(255)
+              - column:
+                  name: content
+                  type: TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: send_date
+                  type: datetime
+              - column:
+                  name: sent_at
+                  type: datetime
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+              - column:
+                  name: retry_count
+                  type: TINYINT(3)
+              - column:
+                  name: from_name
+                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: to_name
+                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: message_id
+                  type: VARCHAR(32)
+              - column:
+                  name: status
+                  type: VARCHAR(16)
+            tableName: emails
+  - changeSet:
+      id: 1594781353402-29
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BIGINT
+              - column:
+                  name: employee_id
+                  type: BIGINT
+              - column:
+                  name: benefit_plan_id
+                  type: BIGINT
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+              - column:
+                  name: deleted_at
+                  type: datetime
+            tableName: employee_benefit_plans
+  - changeSet:
+      id: 1594781353402-30
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  name: comment
+                  type: TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: timesheet_id
+                  type: BINARY(16)
+              - column:
+                  name: employee_id
+                  type: BINARY(16)
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: employee_time_entries
+  - changeSet:
+      id: 1594781353402-31
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: start
+                  type: datetime
+              - column:
+                  name: duration_min
+                  type: INT
+              - column:
+                  name: time_type_id
+                  type: BINARY(16)
+              - column:
+                  name: entry_id
+                  type: BINARY(16)
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: employee_time_logs
+  - changeSet:
+      id: 1594781353402-32
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: name
+                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: employee_types
+  - changeSet:
+      id: 1594781353402-33
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  name: employee_id
+                  type: BINARY(16)
+              - column:
+                  name: time_zone_id
+                  type: BINARY(16)
+              - column:
+                  name: messaging_on
+                  type: TINYINT(3)
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: employees_ta_settings
+  - changeSet:
+      id: 1594781353402-34
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: name
+                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: employment_types
+  - changeSet:
+      id: 1594781353402-35
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  constraints:
+                    unique: true
+                  name: name
+                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+              - column:
+                  constraints:
+                    unique: true
+                  name: ref_id
+                  type: INT
+            tableName: ethnicities
+  - changeSet:
+      id: 1594781353402-36
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  constraints:
+                    unique: true
+                  name: name
+                  type: VARCHAR(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+              - column:
+                  constraints:
+                    unique: true
+                  name: ref_id
+                  type: INT
+            tableName: genders
+  - changeSet:
+      id: 1594781353402-37
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  name: title
+                  type: VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: jobs
+  - changeSet:
+      id: 1594781353402-38
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  name: user_id
+                  type: BINARY(16)
+              - column:
+                  name: job_id
+                  type: BINARY(16)
+              - column:
+                  name: employment_type_id
+                  type: BINARY(16)
+              - column:
+                  name: start_date
+                  type: datetime
+              - column:
+                  name: end_date
+                  type: datetime
+              - column:
+                  name: office_id
+                  type: BINARY(16)
+              - column:
+                  name: company_id
+                  type: BINARY(16)
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+              - column:
+                  name: user_compensation_id
+                  type: BINARY(16)
+              - column:
+                  name: employee_type_id
+                  type: BINARY(16)
+              - column:
+                  name: department_id
+                  type: BINARY(16)
+            tableName: jobs_users
+  - changeSet:
+      id: 1594781353402-39
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  constraints:
+                    unique: true
+                  name: name
+                  type: VARCHAR(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+              - column:
+                  constraints:
+                    unique: true
+                  name: ref_id
+                  type: INT
+            tableName: marital_status
+  - changeSet:
+      id: 1594781353402-40
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  name: street_1
+                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: street_2
+                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: state_province_id
+                  type: BINARY(16)
+              - column:
+                  name: postal_code
+                  type: VARCHAR(64)
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+              - column:
+                  name: city
+                  type: VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: office_addresses
+  - changeSet:
+      id: 1594781353402-41
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  name: office_id
+                  type: BIGINT
+              - column:
+                  name: name
+                  type: VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: phone
+                  type: VARCHAR(64)
+              - column:
+                  name: email
+                  type: VARCHAR(255)
+              - column:
+                  name: office_address_id
+                  type: BINARY(16)
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: offices
+  - changeSet:
+      id: 1594781353402-42
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  name: country_id
+                  type: BINARY(16)
+              - column:
+                  name: name
+                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+              - column:
+                  name: date
+                  type: date
+              - column:
+                  name: name_show
+                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: federal
+                  type: BIT(1)
+              - column:
+                  name: creator_id
+                  type: BINARY(16)
+              - column:
+                  name: is_selected
+                  type: BIT(1)
+            tableName: paid_holidays
+  - changeSet:
+      id: 1594781353402-43
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  name: user_id
+                  type: BINARY(16)
+              - column:
+                  name: is_selected
+                  type: BIT(1)
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: paid_holidays_users
+  - changeSet:
+      id: 1594781353402-44
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  name: benefit_plan_id
+                  type: BINARY(16)
+              - column:
+                  name: retirement_type_id
+                  type: BINARY(16)
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: retirement_plans_types
+  - changeSet:
+      id: 1594781353402-45
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  constraints:
+                    unique: true
+                  name: name
+                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+              - column:
+                  constraints:
+                    unique: true
+                  name: ref_id
+                  type: INT
+            tableName: retirement_types
+  - changeSet:
+      id: 1594781353402-46
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  name: country_id
+                  type: BINARY(16)
+              - column:
+                  name: name
+                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: states_provinces
+  - changeSet:
+      id: 1594781353402-47
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: name
+                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+              - column:
+                  name: ref_id
+                  type: INT
+            tableName: static_company_pay_frequency_types
+  - changeSet:
+      id: 1594781353402-48
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: name
+                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+              - column:
+                  name: ref_id
+                  type: INT
+            tableName: static_employees_ta_time_types
+  - changeSet:
+      id: 1594781353402-49
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: name
+                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+              - column:
+                  name: ref_id
+                  type: INT
+            tableName: static_timesheet_status
+  - changeSet:
+      id: 1594781353402-50
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  name: name
+                  type: VARCHAR(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: abbreviation
+                  type: VARCHAR(10)
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+              - column:
+                  name: ref_id
+                  type: INT
+            tableName: static_timezones
+  - changeSet:
+      id: 1594781353402-51
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  constraints:
+                    unique: true
+                  name: name
+                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+              - column:
+                  constraints:
+                    unique: true
+                  name: ref_id
+                  type: INT
+            tableName: time_off_accrual_frequencies
+  - changeSet:
+      id: 1594781353402-52
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  name: user_id
+                  type: BINARY(16)
+              - column:
+                  name: adjuster_user_id
+                  type: BINARY(16)
+              - column:
+                  name: amount
+                  type: INT
+              - column:
+                  name: time_off_policy_id
+                  type: BINARY(16)
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: comment
+                  type: TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: time_off_adjustments
+  - changeSet:
+      id: 1594781353402-53
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  name: is_limited
+                  type: BIT(1)
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+              - column:
+                  name: name
+                  type: VARCHAR(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  defaultValueBoolean: false
+                  name: is_auto_enroll_enabled
+                  type: BIT(1)
+            tableName: time_off_policies
+  - changeSet:
+      id: 1594781353402-54
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  name: user_id
+                  type: BINARY(16)
+              - column:
+                  name: time_off_policy_id
+                  type: BINARY(16)
+              - column:
+                  name: initial_balance
+                  type: INT
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: time_off_policies_users
+  - changeSet:
+      id: 1594781353402-55
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  name: anniversary_year
+                  type: INT
+              - column:
+                  name: time_off_policy_accrual_schedule_id
+                  type: BINARY(16)
+              - column:
+                  name: accrual_hours
+                  type: INT
+              - column:
+                  name: accrual_interval
+                  type: INT
+              - column:
+                  name: carryover_limit
+                  type: INT
+              - column:
+                  name: max_balance
+                  type: INT
+              - column:
+                  name: name
+                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+              - column:
+                  name: expired_at
+                  type: datetime
+            tableName: time_off_policy_accrual_schedule_milestones
+  - changeSet:
+      id: 1594781353402-56
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  name: time_off_policy_id
+                  type: BINARY(16)
+              - column:
+                  name: accrual_hours
+                  type: INT
+              - column:
+                  name: max_balance
+                  type: INT
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+              - column:
+                  name: days_before_accrual_starts
+                  type: INT
+              - column:
+                  name: carryover_limit
+                  type: INT
+              - column:
+                  name: time_off_accrual_frequency_id
+                  type: BINARY(16)
+              - column:
+                  name: expired_at
+                  type: datetime
+            tableName: time_off_policy_accrual_schedules
+  - changeSet:
+      id: 1594781353402-57
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  constraints:
+                    unique: true
+                  name: name
+                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+              - column:
+                  constraints:
+                    unique: true
+                  name: ref_id
+                  type: INT
+            tableName: time_off_request_approval_statuses
+  - changeSet:
+      id: 1594781353402-58
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  name: time_off_request_id
+                  type: BINARY(16)
+              - column:
+                  name: user_id
+                  type: BINARY(16)
+              - column:
+                  name: comment
+                  type: TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: time_off_request_comments
+  - changeSet:
+      id: 1594781353402-59
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  name: time_off_request_id
+                  type: BINARY(16)
+              - column:
+                  name: date
+                  type: datetime
+              - column:
+                  name: hours
+                  type: INT
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: time_off_request_dates
+  - changeSet:
+      id: 1594781353402-60
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  name: requester_user_id
+                  type: BINARY(16)
+              - column:
+                  name: approver_user_id
+                  type: BINARY(16)
+              - column:
+                  name: approved_date
+                  type: datetime
+              - column:
+                  name: time_off_policy_id
+                  type: BINARY(16)
+              - column:
+                  name: expires_at
+                  type: datetime
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+              - column:
+                  name: time_off_request_approval_status_id
+                  type: BINARY(16)
+              - column:
+                  name: balance
+                  type: INT
+            tableName: time_off_requests
+  - changeSet:
+      id: 1594781353402-61
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  name: start_date
+                  type: datetime
+              - column:
+                  name: end_date
+                  type: datetime
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: time_period
+  - changeSet:
+      id: 1594781353402-62
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  name: employee_id
+                  type: BINARY(16)
+              - column:
+                  name: status_id
+                  type: BINARY(16)
+              - column:
+                  name: approver_employee_id
+                  type: BINARY(16)
+              - column:
+                  name: approved_timestamp
+                  type: datetime
+              - column:
+                  name: user_compensation_id
+                  type: BINARY(16)
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+              - column:
+                  name: time_period_id
+                  type: BINARY(16)
+            tableName: timesheets
+  - changeSet:
+      id: 1594781353402-63
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  name: user_id
+                  type: BINARY(16)
+              - column:
+                  name: original_role
+                  type: VARCHAR(255)
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: user_access_level_events
+  - changeSet:
+      id: 1594781353402-64
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  name: user_id
+                  type: BINARY(16)
+              - column:
+                  name: street_1
+                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: street_2
+                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: state_province_id
+                  type: BINARY(16)
+              - column:
+                  name: country_id
+                  type: BINARY(16)
+              - column:
+                  name: postal_code
+                  type: VARCHAR(64)
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+              - column:
+                  name: city
+                  type: VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: user_addresses
+  - changeSet:
+      id: 1594781353402-65
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  name: user_id
+                  type: BINARY(16)
+              - column:
+                  name: effect_year
+                  type: VARCHAR(4)
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: user_benefits_setting
+  - changeSet:
+      id: 1594781353402-66
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  name: user_id
+                  type: BINARY(16)
+              - column:
+                  name: wage_cents
+                  type: BIGINT
+              - column:
+                  name: compensation_frequency_id
+                  type: BINARY(16)
+              - column:
+                  name: compensation_type_id
+                  type: BINARY(16)
+              - column:
+                  name: start_date
+                  type: datetime
+              - column:
+                  name: end_date
+                  type: datetime
+              - column:
+                  name: overtime_status_id
+                  type: BINARY(16)
+              - column:
+                  name: compensation_change_reason_id
+                  type: BINARY(16)
+              - column:
+                  name: comment
+                  type: TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+              - column:
+                  name: currency_id
+                  type: BINARY(16)
+            tableName: user_compensations
+  - changeSet:
+      id: 1594781353402-67
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  name: phone_work
+                  type: VARCHAR(64)
+              - column:
+                  name: phone_work_extension
+                  type: VARCHAR(64)
+              - column:
+                  name: phone_mobile
+                  type: VARCHAR(64)
+              - column:
+                  name: phone_home
+                  type: VARCHAR(64)
+              - column:
+                  name: email_work
+                  type: VARCHAR(255)
+              - column:
+                  name: email_home
+                  type: VARCHAR(255)
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: user_contact_information
+  - changeSet:
+      id: 1594781353402-68
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  name: employee_id
+                  type: BINARY(16)
+              - column:
+                  name: first_name
+                  type: VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: last_name
+                  type: VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: dependent_relationship_id
+                  type: BINARY(16)
+              - column:
+                  name: phone_home
+                  type: VARCHAR(64)
+              - column:
+                  name: phone_work
+                  type: VARCHAR(64)
+              - column:
+                  name: phone_mobile
+                  type: VARCHAR(64)
+              - column:
+                  name: email
+                  type: VARCHAR(255)
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+              - column:
+                  name: postal_code
+                  type: VARCHAR(255)
+              - column:
+                  name: city
+                  type: VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: middle_name
+                  type: VARCHAR(100)
+              - column:
+                  name: street_1
+                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: street_2
+                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: birth_date
+                  type: datetime
+              - column:
+                  name: ssn
+                  type: VARCHAR(255)
+              - column:
+                  name: gender_id
+                  type: BINARY(16)
+              - column:
+                  name: state_id
+                  type: BINARY(16)
+            tableName: user_dependents
+  - changeSet:
+      id: 1594781353402-69
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  name: user_id
+                  type: BINARY(16)
+              - column:
+                  name: school
+                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: degree
+                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: major
+                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: gpa
+                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: start_date
+                  type: datetime
+              - column:
+                  name: end_date
+                  type: datetime
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: user_educations
+  - changeSet:
+      id: 1594781353402-70
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  name: user_id
+                  type: BINARY(16)
+              - column:
+                  name: first_name
+                  type: VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: last_name
+                  type: VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: relationship
+                  type: VARCHAR(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: phone
+                  type: VARCHAR(50)
+              - column:
+                  name: email
+                  type: VARCHAR(255)
+              - column:
+                  name: street_1
+                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: street_2
+                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: city
+                  type: VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: state_id
+                  type: BINARY(16)
+              - column:
+                  name: postal_code
+                  type: VARCHAR(30)
+              - column:
+                  name: is_primary
+                  type: BIT(1)
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+              - column:
+                  name: country_id
+                  type: BINARY(16)
+            tableName: user_emergency_contacts
+  - changeSet:
+      id: 1594781353402-71
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  name: name
+                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: user_employment_status_types
+  - changeSet:
+      id: 1594781353402-72
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  name: effective_date
+                  type: datetime
+              - column:
+                  name: user_employment_status_type_id
+                  type: BINARY(16)
+              - column:
+                  name: comment
+                  type: TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: user_id
+                  type: BINARY(16)
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: user_employment_statuses
+  - changeSet:
+      id: 1594781353402-73
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  name: first_name
+                  type: VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: middle_name
+                  type: VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: last_name
+                  type: VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: preferred_name
+                  type: VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: birth_date
+                  type: datetime
+              - column:
+                  name: ssn
+                  type: VARCHAR(255)
+              - column:
+                  name: gender_id
+                  type: BINARY(16)
+              - column:
+                  name: marital_status_id
+                  type: BINARY(16)
+              - column:
+                  name: ethnicity_id
+                  type: BINARY(16)
+              - column:
+                  name: citizenship_status_id
+                  type: BINARY(16)
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: user_personal_information
+  - changeSet:
+      id: 1594781353402-74
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  constraints:
+                    unique: true
+                  name: name
+                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+              - column:
+                  constraints:
+                    unique: true
+                  name: ref_id
+                  type: INT
+            tableName: user_roles
+  - changeSet:
+      id: 1594781353402-75
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  constraints:
+                    unique: true
+                  name: name
+                  type: VARCHAR(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+              - column:
+                  constraints:
+                    unique: true
+                  name: ref_id
+                  type: INT
+            tableName: user_statuses
+  - changeSet:
+      id: 1594781353402-76
+      author: whb (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                  name: id
+                  type: BINARY(16)
+              - column:
+                  name: latest_login
+                  type: datetime
+              - column:
+                  name: user_status_id
+                  type: BINARY(16)
+              - column:
+                  name: image_url
+                  type: TEXT
+              - column:
+                  name: manager_user_id
+                  type: BINARY(16)
+              - column:
+                  name: user_personal_information_id
+                  type: BINARY(16)
+              - column:
+                  name: user_contact_information_id
+                  type: BINARY(16)
+              - column:
+                  name: invitation_email_token
+                  type: VARCHAR(255)
+              - column:
+                  name: invited_at
+                  type: datetime
+              - column:
+                  name: reset_password_sent_at
+                  type: datetime
+              - column:
+                  name: reset_password_token
+                  type: VARCHAR(255)
+              - column:
+                  name: verification_token
+                  type: VARCHAR(255)
+              - column:
+                  name: verified_at
+                  type: datetime
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+              - column:
+                  name: deactivation_reason_id
+                  type: BINARY(16)
+              - column:
+                  name: deactivated_at
+                  type: datetime
+              - column:
+                  name: change_work_email
+                  type: VARCHAR(255)
+              - column:
+                  name: change_work_email_token
+                  type: VARCHAR(255)
+              - column:
+                  name: verify_change_work_email_at
+                  type: datetime
+              - column:
+                  name: user_role_id
+                  type: BINARY(16)
+              - column:
+                  name: salt
+                  type: VARCHAR(255)
+            tableName: users
+  - changeSet:
+      id: 1594781353402-77
+      author: whb (generated)
+      changes:
+        - addUniqueConstraint:
+            columnNames: country_id, name
+            constraintName: uq_states_provinces
+            tableName: states_provinces
+  - changeSet:
+      id: 1594781353402-78
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: benefit_coverage_id
+            indexName: fk_benefit_plan_coverages_benefit_coverages
+            tableName: benefit_plan_coverages
+  - changeSet:
+      id: 1594781353402-79
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: coverage_id
+            indexName: fk_benefit_plan_coverages_id
+            tableName: benefit_plans_users
+  - changeSet:
+      id: 1594781353402-80
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: benefit_plan_id
+            indexName: fk_benefit_plan_coverages_plans
+            tableName: benefit_plan_coverages
+  - changeSet:
+      id: 1594781353402-81
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: benefit_plans_users_id
+            indexName: fk_benefit_plan_dependent_plans_users_id
+            tableName: benefit_plan_dependents
+  - changeSet:
+      id: 1594781353402-82
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: benefit_plan_id
+            indexName: fk_benefit_plan_documents_benefit_plans
+            tableName: benefit_plan_documents
+  - changeSet:
+      id: 1594781353402-83
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: dependent_id
+            indexName: fk_benefit_plan_user_dependent_id
+            tableName: benefit_plans_users
+  - changeSet:
+      id: 1594781353402-84
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: user_dependents_id
+            indexName: fk_benefit_plan_user_dependents_id
+            tableName: benefit_plan_dependents
+  - changeSet:
+      id: 1594781353402-85
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: benefit_plan_type_id
+            indexName: fk_benefit_plans_benefit_types
+            tableName: benefit_plans
+  - changeSet:
+      id: 1594781353402-86
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: benefit_plan_id
+            indexName: fk_benefit_plans_users_benefit_plans
+            tableName: benefit_plans_users
+  - changeSet:
+      id: 1594781353402-87
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: user_id
+            indexName: fk_benefit_plans_users_users
+            tableName: benefit_plans_users
+  - changeSet:
+      id: 1594781353402-88
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: approver_user_id
+            indexName: fk_benefits_requests_approver_user_users
+            tableName: benefits_requests
+  - changeSet:
+      id: 1594781353402-89
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: request_status_id
+            indexName: fk_benefits_requests_benfit_request_status
+            tableName: benefits_requests
+  - changeSet:
+      id: 1594781353402-90
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: life_event_type_id
+            indexName: fk_benefits_requests_life_event_types
+            tableName: benefits_requests
+  - changeSet:
+      id: 1594781353402-91
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: next_enrollment_id
+            indexName: fk_benefits_requests_next_enrollment_benefit_plans_users
+            tableName: benefits_requests
+  - changeSet:
+      id: 1594781353402-92
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: prev_enrollment_id
+            indexName: fk_benefits_requests_prev_enrollment_benefit_plans_users
+            tableName: benefits_requests
+  - changeSet:
+      id: 1594781353402-93
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: request_user_id
+            indexName: fk_benefits_requests_request_user_users
+            tableName: benefits_requests
+  - changeSet:
+      id: 1594781353402-94
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: pay_frequency_type_id
+            indexName: fk_company_ta_settings_pay_frequency_type_id
+            tableName: company_ta_settings
+  - changeSet:
+      id: 1594781353402-95
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: time_zone_id
+            indexName: fk_company_ta_settings_time_zone_id
+            tableName: company_ta_settings
+  - changeSet:
+      id: 1594781353402-96
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: user_id
+            indexName: fk_emails_users
+            tableName: emails
+  - changeSet:
+      id: 1594781353402-97
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: country_id
+            indexName: fk_emergency_contacts_countries
+            tableName: user_emergency_contacts
+  - changeSet:
+      id: 1594781353402-98
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: state_id
+            indexName: fk_emergency_contacts_states_provinces
+            tableName: user_emergency_contacts
+  - changeSet:
+      id: 1594781353402-99
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: user_id
+            indexName: fk_emergency_contacts_users
+            tableName: user_emergency_contacts
+  - changeSet:
+      id: 1594781353402-100
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: employee_id
+            indexName: fk_employee_time_entries_employee_id
+            tableName: employee_time_entries
+  - changeSet:
+      id: 1594781353402-101
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: timesheet_id
+            indexName: fk_employee_time_entries_timesheet_id
+            tableName: employee_time_entries
+  - changeSet:
+      id: 1594781353402-102
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: entry_id
+            indexName: fk_employee_time_logs_time_entry_id
+            tableName: employee_time_logs
+  - changeSet:
+      id: 1594781353402-103
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: time_type_id
+            indexName: fk_employee_time_logs_time_type_id
+            tableName: employee_time_logs
+  - changeSet:
+      id: 1594781353402-104
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: employee_type_id
+            indexName: fk_employee_types_id
+            tableName: jobs_users
+  - changeSet:
+      id: 1594781353402-105
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: employee_id
+            indexName: fk_employees_ta_settings_employee_id
+            tableName: employees_ta_settings
+  - changeSet:
+      id: 1594781353402-106
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: time_zone_id
+            indexName: fk_employees_ta_settings_time_zone_id
+            tableName: employees_ta_settings
+  - changeSet:
+      id: 1594781353402-107
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: user_employment_status_type_id
+            indexName: fk_employment_status_status_type
+            tableName: user_employment_statuses
+  - changeSet:
+      id: 1594781353402-108
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: user_id
+            indexName: fk_employment_status_user
+            tableName: user_employment_statuses
+  - changeSet:
+      id: 1594781353402-109
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: user_compensation_id
+            indexName: fk_job_user_compensation_id
+            tableName: jobs_users
+  - changeSet:
+      id: 1594781353402-110
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: company_id
+            indexName: fk_jobs_users_companies
+            tableName: jobs_users
+  - changeSet:
+      id: 1594781353402-111
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: employment_type_id
+            indexName: fk_jobs_users_employment_type
+            tableName: jobs_users
+  - changeSet:
+      id: 1594781353402-112
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: job_id
+            indexName: fk_jobs_users_jobs
+            tableName: jobs_users
+  - changeSet:
+      id: 1594781353402-113
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: office_id
+            indexName: fk_jobs_users_offices
+            tableName: jobs_users
+  - changeSet:
+      id: 1594781353402-114
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: user_id
+            indexName: fk_jobs_users_users
+            tableName: jobs_users
+  - changeSet:
+      id: 1594781353402-115
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: office_address_id
+            indexName: fk_offices_addresses
+            tableName: offices
+  - changeSet:
+      id: 1594781353402-116
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: state_province_id
+            indexName: fk_offices_addresses_state
+            tableName: office_addresses
+  - changeSet:
+      id: 1594781353402-117
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: country_id
+            indexName: fk_paid_holidays_countries
+            tableName: paid_holidays
+  - changeSet:
+      id: 1594781353402-118
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: creator_id
+            indexName: fk_paid_holidays_creator
+            tableName: paid_holidays
+  - changeSet:
+      id: 1594781353402-119
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: user_id
+            indexName: fk_paid_holidays_users_user
+            tableName: paid_holidays_users
+  - changeSet:
+      id: 1594781353402-120
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: citizenship_status_id
+            indexName: fk_personal_information_citizenship
+            tableName: user_personal_information
+  - changeSet:
+      id: 1594781353402-121
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: ethnicity_id
+            indexName: fk_personal_information_ethnicity
+            tableName: user_personal_information
+  - changeSet:
+      id: 1594781353402-122
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: gender_id
+            indexName: fk_personal_information_gender
+            tableName: user_personal_information
+  - changeSet:
+      id: 1594781353402-123
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: marital_status_id
+            indexName: fk_personal_information_marital_status
+            tableName: user_personal_information
+  - changeSet:
+      id: 1594781353402-124
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: benefit_plan_id
+            indexName: fk_retirement_plans_types_plans
+            tableName: retirement_plans_types
+  - changeSet:
+      id: 1594781353402-125
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: retirement_type_id
+            indexName: fk_retirement_plans_types_retirement_type
+            tableName: retirement_plans_types
+  - changeSet:
+      id: 1594781353402-126
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: time_off_accrual_frequency_id
+            indexName: fk_time_off_accrual_schedules_frequency
+            tableName: time_off_policy_accrual_schedules
+  - changeSet:
+      id: 1594781353402-127
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: adjuster_user_id
+            indexName: fk_time_off_adjustments_adjuster
+            tableName: time_off_adjustments
+  - changeSet:
+      id: 1594781353402-128
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: time_off_policy_id
+            indexName: fk_time_off_adjustments_policies
+            tableName: time_off_adjustments
+  - changeSet:
+      id: 1594781353402-129
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: user_id
+            indexName: fk_time_off_adjustments_users
+            tableName: time_off_adjustments
+  - changeSet:
+      id: 1594781353402-130
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: time_off_policy_id
+            indexName: fk_time_off_policies_users_policy
+            tableName: time_off_policies_users
+  - changeSet:
+      id: 1594781353402-131
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: user_id
+            indexName: fk_time_off_policies_users_user
+            tableName: time_off_policies_users
+  - changeSet:
+      id: 1594781353402-132
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: time_off_policy_accrual_schedule_id
+            indexName: fk_time_off_policy_accrual_schedule_milestones_schedule
+            tableName: time_off_policy_accrual_schedule_milestones
+  - changeSet:
+      id: 1594781353402-133
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: time_off_policy_id
+            indexName: fk_time_off_policy_accrual_schedules_policies
+            tableName: time_off_policy_accrual_schedules
+  - changeSet:
+      id: 1594781353402-134
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: time_off_request_id
+            indexName: fk_time_off_request_comments_request
+            tableName: time_off_request_comments
+  - changeSet:
+      id: 1594781353402-135
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: user_id
+            indexName: fk_time_off_request_comments_users
+            tableName: time_off_request_comments
+  - changeSet:
+      id: 1594781353402-136
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: time_off_request_id
+            indexName: fk_time_off_request_date_request
+            tableName: time_off_request_dates
+  - changeSet:
+      id: 1594781353402-137
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: time_off_request_approval_status_id
+            indexName: fk_time_off_requests_approval_status
+            tableName: time_off_requests
+  - changeSet:
+      id: 1594781353402-138
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: approver_user_id
+            indexName: fk_time_off_requests_approver_user
+            tableName: time_off_requests
+  - changeSet:
+      id: 1594781353402-139
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: time_off_policy_id
+            indexName: fk_time_off_requests_policy_id
+            tableName: time_off_requests
+  - changeSet:
+      id: 1594781353402-140
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: requester_user_id
+            indexName: fk_time_off_requests_requester_user
+            tableName: time_off_requests
+  - changeSet:
+      id: 1594781353402-141
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: approver_employee_id
+            indexName: fk_timesheets_approver_employee_id
+            tableName: timesheets
+  - changeSet:
+      id: 1594781353402-142
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: employee_id
+            indexName: fk_timesheets_employee_id
+            tableName: timesheets
+  - changeSet:
+      id: 1594781353402-143
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: status_id
+            indexName: fk_timesheets_status_id
+            tableName: timesheets
+  - changeSet:
+      id: 1594781353402-144
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: time_period_id
+            indexName: fk_timesheets_time_period_id
+            tableName: timesheets
+  - changeSet:
+      id: 1594781353402-145
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: user_compensation_id
+            indexName: fk_timesheets_user_compensation_id
+            tableName: timesheets
+  - changeSet:
+      id: 1594781353402-146
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: user_id
+            indexName: fk_user_access_level_events_users
+            tableName: user_access_level_events
+  - changeSet:
+      id: 1594781353402-147
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: country_id
+            indexName: fk_user_address_countries
+            tableName: user_addresses
+  - changeSet:
+      id: 1594781353402-148
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: state_province_id
+            indexName: fk_user_addresses_state_province
+            tableName: user_addresses
+  - changeSet:
+      id: 1594781353402-149
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: user_id
+            indexName: fk_user_addresses_users
+            tableName: user_addresses
+  - changeSet:
+      id: 1594781353402-150
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: user_id
+            indexName: fk_user_benefits_setting_users
+            tableName: user_benefits_setting
+  - changeSet:
+      id: 1594781353402-151
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: compensation_change_reason_id
+            indexName: fk_user_compensations_change_reason
+            tableName: user_compensations
+  - changeSet:
+      id: 1594781353402-152
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: compensation_type_id
+            indexName: fk_user_compensations_compensation_type
+            tableName: user_compensations
+  - changeSet:
+      id: 1594781353402-153
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: currency_id
+            indexName: fk_user_compensations_currency_id
+            tableName: user_compensations
+  - changeSet:
+      id: 1594781353402-154
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: compensation_frequency_id
+            indexName: fk_user_compensations_frequency
+            tableName: user_compensations
+  - changeSet:
+      id: 1594781353402-155
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: overtime_status_id
+            indexName: fk_user_compensations_overtime_status
+            tableName: user_compensations
+  - changeSet:
+      id: 1594781353402-156
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: user_id
+            indexName: fk_user_compensations_users
+            tableName: user_compensations
+  - changeSet:
+      id: 1594781353402-157
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: deactivation_reason_id
+            indexName: fk_user_deactivation_reason
+            tableName: users
+  - changeSet:
+      id: 1594781353402-158
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: employee_id
+            indexName: fk_user_dependents_employee
+            tableName: user_dependents
+  - changeSet:
+      id: 1594781353402-159
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: gender_id
+            indexName: fk_user_dependents_gender
+            tableName: user_dependents
+  - changeSet:
+      id: 1594781353402-160
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: dependent_relationship_id
+            indexName: fk_user_dependents_relationship
+            tableName: user_dependents
+  - changeSet:
+      id: 1594781353402-161
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: state_id
+            indexName: fk_user_dependents_state_provinces
+            tableName: user_dependents
+  - changeSet:
+      id: 1594781353402-162
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: user_id
+            indexName: fk_user_educations_users
+            tableName: user_educations
+  - changeSet:
+      id: 1594781353402-163
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: manager_user_id
+            indexName: fk_user_manager_user
+            tableName: users
+  - changeSet:
+      id: 1594781353402-164
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: user_contact_information_id
+            indexName: fk_user_user_contact_information
+            tableName: users
+  - changeSet:
+      id: 1594781353402-165
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: user_personal_information_id
+            indexName: fk_user_user_personal_information
+            tableName: users
+  - changeSet:
+      id: 1594781353402-166
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: user_role_id
+            indexName: fk_user_user_role
+            tableName: users
+  - changeSet:
+      id: 1594781353402-167
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: department_id
+            indexName: fk_users_department_id
+            tableName: jobs_users
+  - changeSet:
+      id: 1594781353402-168
+      author: whb (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: user_status_id
+            indexName: fk_users_user_statuses_status
+            tableName: users
+  - changeSet:
+      id: 1594781353402-169
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: benefit_coverage_id
+            baseTableName: benefit_plan_coverages
+            constraintName: fk_benefit_plan_coverages_benefit_coverages
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: RESTRICT
+            onUpdate: RESTRICT
+            referencedColumnNames: id
+            referencedTableName: benefit_coverages
+            validate: true
+  - changeSet:
+      id: 1594781353402-170
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: coverage_id
+            baseTableName: benefit_plans_users
+            constraintName: fk_benefit_plan_coverages_id
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: benefit_plan_coverages
+            validate: true
+  - changeSet:
+      id: 1594781353402-171
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: benefit_plan_id
+            baseTableName: benefit_plan_coverages
+            constraintName: fk_benefit_plan_coverages_plans
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: benefit_plans
+            validate: true
+  - changeSet:
+      id: 1594781353402-172
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: benefit_plans_users_id
+            baseTableName: benefit_plan_dependents
+            constraintName: fk_benefit_plan_dependent_plans_users_id
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: benefit_plans_users
+            validate: true
+  - changeSet:
+      id: 1594781353402-173
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: benefit_plan_id
+            baseTableName: benefit_plan_documents
+            constraintName: fk_benefit_plan_documents_benefit_plans
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: benefit_plans
+            validate: true
+  - changeSet:
+      id: 1594781353402-174
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: user_dependents_id
+            baseTableName: benefit_plan_dependents
+            constraintName: fk_benefit_plan_user_dependents_id
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: RESTRICT
+            onUpdate: RESTRICT
+            referencedColumnNames: id
+            referencedTableName: user_dependents
+            validate: true
+  - changeSet:
+      id: 1594781353402-175
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: benefit_plan_type_id
+            baseTableName: benefit_plans
+            constraintName: fk_benefit_plans_benefit_types
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: RESTRICT
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: benefit_plan_types
+            validate: true
+  - changeSet:
+      id: 1594781353402-176
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: benefit_plan_id
+            baseTableName: benefit_plans_users
+            constraintName: fk_benefit_plans_users_benefit_plans
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: benefit_plans
+            validate: true
+  - changeSet:
+      id: 1594781353402-177
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: user_id
+            baseTableName: benefit_plans_users
+            constraintName: fk_benefit_plans_users_users
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: users
+            validate: true
+  - changeSet:
+      id: 1594781353402-178
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: approver_user_id
+            baseTableName: benefits_requests
+            constraintName: fk_benefits_requests_approver_user_users
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: users
+            validate: true
+  - changeSet:
+      id: 1594781353402-179
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: request_status_id
+            baseTableName: benefits_requests
+            constraintName: fk_benefits_requests_benfit_request_status
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: RESTRICT
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: benefit_request_status
+            validate: true
+  - changeSet:
+      id: 1594781353402-180
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: life_event_type_id
+            baseTableName: benefits_requests
+            constraintName: fk_benefits_requests_life_event_types
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: benefit_life_event_types
+            validate: true
+  - changeSet:
+      id: 1594781353402-181
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: next_enrollment_id
+            baseTableName: benefits_requests
+            constraintName: fk_benefits_requests_next_enrollment_benefit_plans_users
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: benefit_plans_users
+            validate: true
+  - changeSet:
+      id: 1594781353402-182
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: prev_enrollment_id
+            baseTableName: benefits_requests
+            constraintName: fk_benefits_requests_prev_enrollment_benefit_plans_users
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: benefit_plans_users
+            validate: true
+  - changeSet:
+      id: 1594781353402-183
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: request_user_id
+            baseTableName: benefits_requests
+            constraintName: fk_benefits_requests_request_user_users
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: users
+            validate: true
+  - changeSet:
+      id: 1594781353402-184
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: pay_frequency_type_id
+            baseTableName: company_ta_settings
+            constraintName: fk_company_ta_settings_pay_frequency_type_id
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: SET NULL
+            onUpdate: RESTRICT
+            referencedColumnNames: id
+            referencedTableName: static_company_pay_frequency_types
+            validate: true
+  - changeSet:
+      id: 1594781353402-185
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: time_zone_id
+            baseTableName: company_ta_settings
+            constraintName: fk_company_ta_settings_time_zone_id
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: SET NULL
+            onUpdate: RESTRICT
+            referencedColumnNames: id
+            referencedTableName: static_timezones
+            validate: true
+  - changeSet:
+      id: 1594781353402-186
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: user_id
+            baseTableName: emails
+            constraintName: fk_emails_users
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: users
+            validate: true
+  - changeSet:
+      id: 1594781353402-187
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: country_id
+            baseTableName: user_emergency_contacts
+            constraintName: fk_emergency_contacts_countries
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: SET NULL
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: countries
+            validate: true
+  - changeSet:
+      id: 1594781353402-188
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: state_id
+            baseTableName: user_emergency_contacts
+            constraintName: fk_emergency_contacts_states_provinces
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: SET NULL
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: states_provinces
+            validate: true
+  - changeSet:
+      id: 1594781353402-189
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: user_id
+            baseTableName: user_emergency_contacts
+            constraintName: fk_emergency_contacts_users
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: users
+            validate: true
+  - changeSet:
+      id: 1594781353402-190
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: employee_id
+            baseTableName: employee_time_entries
+            constraintName: fk_employee_time_entries_employee_id
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: SET NULL
+            onUpdate: RESTRICT
+            referencedColumnNames: id
+            referencedTableName: users
+            validate: true
+  - changeSet:
+      id: 1594781353402-191
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: timesheet_id
+            baseTableName: employee_time_entries
+            constraintName: fk_employee_time_entries_timesheet_id
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: RESTRICT
+            referencedColumnNames: id
+            referencedTableName: timesheets
+            validate: true
+  - changeSet:
+      id: 1594781353402-192
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: entry_id
+            baseTableName: employee_time_logs
+            constraintName: fk_employee_time_logs_time_entry_id
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: SET NULL
+            onUpdate: RESTRICT
+            referencedColumnNames: id
+            referencedTableName: employee_time_entries
+            validate: true
+  - changeSet:
+      id: 1594781353402-193
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: time_type_id
+            baseTableName: employee_time_logs
+            constraintName: fk_employee_time_logs_time_type_id
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: SET NULL
+            onUpdate: RESTRICT
+            referencedColumnNames: id
+            referencedTableName: static_employees_ta_time_types
+            validate: true
+  - changeSet:
+      id: 1594781353402-194
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: employee_id
+            baseTableName: employees_ta_settings
+            constraintName: fk_employees_ta_settings_employee_id
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: SET NULL
+            onUpdate: RESTRICT
+            referencedColumnNames: id
+            referencedTableName: users
+            validate: true
+  - changeSet:
+      id: 1594781353402-195
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: time_zone_id
+            baseTableName: employees_ta_settings
+            constraintName: fk_employees_ta_settings_time_zone_id
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: SET NULL
+            onUpdate: RESTRICT
+            referencedColumnNames: id
+            referencedTableName: static_timezones
+            validate: true
+  - changeSet:
+      id: 1594781353402-196
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: user_employment_status_type_id
+            baseTableName: user_employment_statuses
+            constraintName: fk_employment_status_status_type
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: SET NULL
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: user_employment_status_types
+            validate: true
+  - changeSet:
+      id: 1594781353402-197
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: user_id
+            baseTableName: user_employment_statuses
+            constraintName: fk_employment_status_user
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: users
+            validate: true
+  - changeSet:
+      id: 1594781353402-198
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: employment_type_id
+            baseTableName: jobs_users
+            constraintName: fk_jobs_users_employment_type
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: SET NULL
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: employment_types
+            validate: true
+  - changeSet:
+      id: 1594781353402-199
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: office_address_id
+            baseTableName: offices
+            constraintName: fk_offices_addresses
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: RESTRICT
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: office_addresses
+            validate: true
+  - changeSet:
+      id: 1594781353402-200
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: state_province_id
+            baseTableName: office_addresses
+            constraintName: fk_offices_addresses_state
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: SET NULL
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: states_provinces
+            validate: true
+  - changeSet:
+      id: 1594781353402-201
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: country_id
+            baseTableName: paid_holidays
+            constraintName: fk_paid_holidays_countries
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: SET NULL
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: countries
+            validate: true
+  - changeSet:
+      id: 1594781353402-202
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: creator_id
+            baseTableName: paid_holidays
+            constraintName: fk_paid_holidays_creator
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: SET NULL
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: users
+            validate: true
+  - changeSet:
+      id: 1594781353402-203
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: user_id
+            baseTableName: paid_holidays_users
+            constraintName: fk_paid_holidays_users_user
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: users
+            validate: true
+  - changeSet:
+      id: 1594781353402-204
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: citizenship_status_id
+            baseTableName: user_personal_information
+            constraintName: fk_personal_information_citizenship
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: SET NULL
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: citizenship_statuses
+            validate: true
+  - changeSet:
+      id: 1594781353402-205
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: ethnicity_id
+            baseTableName: user_personal_information
+            constraintName: fk_personal_information_ethnicity
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: SET NULL
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: ethnicities
+            validate: true
+  - changeSet:
+      id: 1594781353402-206
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: gender_id
+            baseTableName: user_personal_information
+            constraintName: fk_personal_information_gender
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: SET NULL
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: genders
+            validate: true
+  - changeSet:
+      id: 1594781353402-207
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: marital_status_id
+            baseTableName: user_personal_information
+            constraintName: fk_personal_information_marital_status
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: SET NULL
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: marital_status
+            validate: true
+  - changeSet:
+      id: 1594781353402-208
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: benefit_plan_id
+            baseTableName: retirement_plans_types
+            constraintName: fk_retirement_plans_types_plans
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: benefit_plans
+            validate: true
+  - changeSet:
+      id: 1594781353402-209
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: retirement_type_id
+            baseTableName: retirement_plans_types
+            constraintName: fk_retirement_plans_types_retirement_type
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: retirement_types
+            validate: true
+  - changeSet:
+      id: 1594781353402-210
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: country_id
+            baseTableName: states_provinces
+            constraintName: fk_states_provinces_users
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: countries
+            validate: true
+  - changeSet:
+      id: 1594781353402-211
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: time_off_accrual_frequency_id
+            baseTableName: time_off_policy_accrual_schedules
+            constraintName: fk_time_off_accrual_schedules_frequency
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: RESTRICT
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: time_off_accrual_frequencies
+            validate: true
+  - changeSet:
+      id: 1594781353402-212
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: adjuster_user_id
+            baseTableName: time_off_adjustments
+            constraintName: fk_time_off_adjustments_adjuster
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: SET NULL
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: users
+            validate: true
+  - changeSet:
+      id: 1594781353402-213
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: time_off_policy_id
+            baseTableName: time_off_adjustments
+            constraintName: fk_time_off_adjustments_policies
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: time_off_policies
+            validate: true
+  - changeSet:
+      id: 1594781353402-214
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: user_id
+            baseTableName: time_off_adjustments
+            constraintName: fk_time_off_adjustments_users
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: users
+            validate: true
+  - changeSet:
+      id: 1594781353402-215
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: time_off_policy_id
+            baseTableName: time_off_policies_users
+            constraintName: fk_time_off_policies_users_policy
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: time_off_policies
+            validate: true
+  - changeSet:
+      id: 1594781353402-216
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: user_id
+            baseTableName: time_off_policies_users
+            constraintName: fk_time_off_policies_users_user
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: users
+            validate: true
+  - changeSet:
+      id: 1594781353402-217
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: time_off_policy_accrual_schedule_id
+            baseTableName: time_off_policy_accrual_schedule_milestones
+            constraintName: fk_time_off_policy_accrual_schedule_milestones_schedule
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: time_off_policy_accrual_schedules
+            validate: true
+  - changeSet:
+      id: 1594781353402-218
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: time_off_policy_id
+            baseTableName: time_off_policy_accrual_schedules
+            constraintName: fk_time_off_policy_accrual_schedules_policies
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: time_off_policies
+            validate: true
+  - changeSet:
+      id: 1594781353402-219
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: time_off_request_id
+            baseTableName: time_off_request_comments
+            constraintName: fk_time_off_request_comments_request
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: time_off_requests
+            validate: true
+  - changeSet:
+      id: 1594781353402-220
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: user_id
+            baseTableName: time_off_request_comments
+            constraintName: fk_time_off_request_comments_users
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: users
+            validate: true
+  - changeSet:
+      id: 1594781353402-221
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: time_off_request_id
+            baseTableName: time_off_request_dates
+            constraintName: fk_time_off_request_date_request
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: time_off_requests
+            validate: true
+  - changeSet:
+      id: 1594781353402-222
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: time_off_request_approval_status_id
+            baseTableName: time_off_requests
+            constraintName: fk_time_off_requests_approval_status
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: RESTRICT
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: time_off_request_approval_statuses
+            validate: true
+  - changeSet:
+      id: 1594781353402-223
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: approver_user_id
+            baseTableName: time_off_requests
+            constraintName: fk_time_off_requests_approver_user
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: SET NULL
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: users
+            validate: true
+  - changeSet:
+      id: 1594781353402-224
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: time_off_policy_id
+            baseTableName: time_off_requests
+            constraintName: fk_time_off_requests_policy_id
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: time_off_policies
+            validate: true
+  - changeSet:
+      id: 1594781353402-225
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: requester_user_id
+            baseTableName: time_off_requests
+            constraintName: fk_time_off_requests_requester_user
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: users
+            validate: true
+  - changeSet:
+      id: 1594781353402-226
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: approver_employee_id
+            baseTableName: timesheets
+            constraintName: fk_timesheets_approver_employee_id
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: SET NULL
+            onUpdate: RESTRICT
+            referencedColumnNames: id
+            referencedTableName: users
+            validate: true
+  - changeSet:
+      id: 1594781353402-227
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: employee_id
+            baseTableName: timesheets
+            constraintName: fk_timesheets_employee_id
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: SET NULL
+            onUpdate: RESTRICT
+            referencedColumnNames: id
+            referencedTableName: users
+            validate: true
+  - changeSet:
+      id: 1594781353402-228
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: status_id
+            baseTableName: timesheets
+            constraintName: fk_timesheets_status_id
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: SET NULL
+            onUpdate: RESTRICT
+            referencedColumnNames: id
+            referencedTableName: static_timesheet_status
+            validate: true
+  - changeSet:
+      id: 1594781353402-229
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: time_period_id
+            baseTableName: timesheets
+            constraintName: fk_timesheets_time_period_id
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: SET NULL
+            onUpdate: RESTRICT
+            referencedColumnNames: id
+            referencedTableName: time_period
+            validate: true
+  - changeSet:
+      id: 1594781353402-230
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: user_compensation_id
+            baseTableName: timesheets
+            constraintName: fk_timesheets_user_compensation_id
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: SET NULL
+            onUpdate: RESTRICT
+            referencedColumnNames: id
+            referencedTableName: user_compensations
+            validate: true
+  - changeSet:
+      id: 1594781353402-231
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: user_id
+            baseTableName: user_access_level_events
+            constraintName: fk_user_access_level_events_users
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: users
+            validate: true
+  - changeSet:
+      id: 1594781353402-232
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: country_id
+            baseTableName: user_addresses
+            constraintName: fk_user_address_countries
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: SET NULL
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: countries
+            validate: true
+  - changeSet:
+      id: 1594781353402-233
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: state_province_id
+            baseTableName: user_addresses
+            constraintName: fk_user_addresses_state_province
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: SET NULL
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: states_provinces
+            validate: true
+  - changeSet:
+      id: 1594781353402-234
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: user_id
+            baseTableName: user_addresses
+            constraintName: fk_user_addresses_users
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: users
+            validate: true
+  - changeSet:
+      id: 1594781353402-235
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: user_id
+            baseTableName: user_benefits_setting
+            constraintName: fk_user_benefits_setting_users
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: users
+            validate: true
+  - changeSet:
+      id: 1594781353402-236
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: compensation_change_reason_id
+            baseTableName: user_compensations
+            constraintName: fk_user_compensations_change_reason
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: SET NULL
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: compensation_change_reasons
+            validate: true
+  - changeSet:
+      id: 1594781353402-237
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: compensation_type_id
+            baseTableName: user_compensations
+            constraintName: fk_user_compensations_compensation_type
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: RESTRICT
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: compensation_types
+            validate: true
+  - changeSet:
+      id: 1594781353402-238
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: currency_id
+            baseTableName: user_compensations
+            constraintName: fk_user_compensations_currency_id
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: SET NULL
+            onUpdate: RESTRICT
+            referencedColumnNames: id
+            referencedTableName: currencies
+            validate: true
+  - changeSet:
+      id: 1594781353402-239
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: compensation_frequency_id
+            baseTableName: user_compensations
+            constraintName: fk_user_compensations_frequency
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: RESTRICT
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: compensation_frequency
+            validate: true
+  - changeSet:
+      id: 1594781353402-240
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: overtime_status_id
+            baseTableName: user_compensations
+            constraintName: fk_user_compensations_overtime_status
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: SET NULL
+            onUpdate: RESTRICT
+            referencedColumnNames: id
+            referencedTableName: compensation_overtime_statuses
+            validate: true
+  - changeSet:
+      id: 1594781353402-241
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: user_id
+            baseTableName: user_compensations
+            constraintName: fk_user_compensations_users
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: users
+            validate: true
+  - changeSet:
+      id: 1594781353402-242
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: deactivation_reason_id
+            baseTableName: users
+            constraintName: fk_user_deactivation_reason
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: SET NULL
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: deactivation_reasons
+            validate: true
+  - changeSet:
+      id: 1594781353402-243
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: employee_id
+            baseTableName: user_dependents
+            constraintName: fk_user_dependents_employee
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: users
+            validate: true
+  - changeSet:
+      id: 1594781353402-244
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: gender_id
+            baseTableName: user_dependents
+            constraintName: fk_user_dependents_gender
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: SET NULL
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: genders
+            validate: true
+  - changeSet:
+      id: 1594781353402-245
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: dependent_relationship_id
+            baseTableName: user_dependents
+            constraintName: fk_user_dependents_relationship
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: benefit_plan_dependent_relationships
+            validate: true
+  - changeSet:
+      id: 1594781353402-246
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: state_id
+            baseTableName: user_dependents
+            constraintName: fk_user_dependents_state_provinces
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: SET NULL
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: states_provinces
+            validate: true
+  - changeSet:
+      id: 1594781353402-247
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: user_id
+            baseTableName: user_educations
+            constraintName: fk_user_educations_users
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: users
+            validate: true
+  - changeSet:
+      id: 1594781353402-248
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: manager_user_id
+            baseTableName: users
+            constraintName: fk_user_manager_user
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: SET NULL
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: users
+            validate: true
+  - changeSet:
+      id: 1594781353402-249
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: user_contact_information_id
+            baseTableName: users
+            constraintName: fk_user_user_contact_information
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: RESTRICT
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: user_contact_information
+            validate: true
+  - changeSet:
+      id: 1594781353402-250
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: user_personal_information_id
+            baseTableName: users
+            constraintName: fk_user_user_personal_information
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: user_personal_information
+            validate: true
+  - changeSet:
+      id: 1594781353402-251
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: user_role_id
+            baseTableName: users
+            constraintName: fk_user_user_role
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: RESTRICT
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: user_roles
+            validate: true
+  - changeSet:
+      id: 1594781353402-252
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: department_id
+            baseTableName: jobs_users
+            constraintName: fk_users_department_id
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: RESTRICT
+            onUpdate: RESTRICT
+            referencedColumnNames: id
+            referencedTableName: departments
+            validate: true
+  - changeSet:
+      id: 1594781353402-253
+      author: whb (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: user_status_id
+            baseTableName: users
+            constraintName: fk_users_user_statuses_status
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: RESTRICT
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: user_statuses
+            validate: true
 
-- changeSet:
-    id: 1554370439764-2
-    author: Qi-Jia
-    changes:
-    - createTable:
-        columns:
-        - column:
-            name: id
-            type: BIGINT
-            autoIncrement: true
-            constraints:
-              primaryKey: true
-        - column:
-            name: name
-            type: VARCHAR(255)
-        - column:
-            name: permission_type_id
-            type: BIGINT
-        - column:
-            name: created_at
-            type: DATETIME
-        - column:
-            name: updated_at
-            type: DATETIME
-        - column:
-            name: deleted_at
-            type: DATETIME
-        tableName: permissions
-
-- changeSet:
-    id: 1554370439764-3
-    author: Qi-Jia
-    changes:
-    - createTable:
-        columns:
-        - column:
-            name: id
-            type: BIGINT
-            autoIncrement: true
-            constraints:
-              primaryKey: true
-        - column:
-            name: user_role_id
-            type: BIGINT
-        - column:
-            name: permission_type_id
-            type: BIGINT
-        - column:
-            name: created_at
-            type: DATETIME
-        - column:
-            name: updated_at
-            type: DATETIME
-        - column:
-            name: deleted_at
-            type: datetime
-        tableName: permission_types_user_roles
-
-- changeSet:
-    id: 1556008104087-1
-    author: Qi-Jia
-    changes:
-    - renameTable:
-        newTableName: marital_status
-        oldTableName: martial_status
-
-- changeSet:
-      id: 1556008104087-2
-      author: wenhao-eb
+  - changeSet:
+      id: 1594781353402-254
+      author: whb (generated)
       changes:
         - dropColumn:
-            columnName: city_id
-            tableName: user_addresses
-- changeSet:
-      id: 1556008164280-3
-      author: wenhao-eb
-      changes:
-      - addColumn:
-          columns:
-          - column:
-              name: city
-              type: varchar(255)
-          tableName: user_addresses
-
-- changeSet:
-    id: 1556008104087-9
-    author: Qi-Jia
-    changes:
-    - insert:
-        columns:
-        - column:
-            name: id
-            type: BIGINT
-            value: 1
-        - column:
-            name: name
-            type: VARCHAR(255)
-            value: USA
-        tableName: countries
-
-- changeSet:
-    id: 1555666271658-1
-    author: Ying-Li
-    changes:
-    - addColumn:
-        columns:
-        - column:
-            name: company_id
-            type: BIGINT
-        tableName: employment_types
+            columnName: company_id
+            tableName: jobs_users

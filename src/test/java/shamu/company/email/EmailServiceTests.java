@@ -9,7 +9,10 @@ import org.mockito.MockitoAnnotations;
 import org.powermock.reflect.Whitebox;
 import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.Context;
+import shamu.company.common.entity.Tenant;
+import shamu.company.common.service.TenantService;
 import shamu.company.company.entity.Company;
+import shamu.company.company.service.CompanyService;
 import shamu.company.email.entity.Email;
 import shamu.company.email.event.EmailEvent;
 import shamu.company.email.event.EmailStatus;
@@ -31,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -53,6 +57,10 @@ class EmailServiceTests {
 
   @Mock private QuartzJobScheduler quartzJobScheduler;
 
+  @Mock private CompanyService companyService;
+
+  @Mock private TenantService tenantService;
+
   @BeforeEach
   void init() {
     MockitoAnnotations.initMocks(this);
@@ -64,7 +72,9 @@ class EmailServiceTests {
             templateEngine,
             userService,
             awsHelper,
-            quartzJobScheduler);
+            quartzJobScheduler,
+            companyService,
+            tenantService);
     email = new Email();
   }
 
@@ -99,6 +109,9 @@ class EmailServiceTests {
       targetEmail.setMessageId(UuidUtil.getUuidString());
       targetEmail.setSentAt(DateUtil.getCurrentTime());
       Mockito.when(emailRepository.findByMessageId(Mockito.anyString())).thenReturn(targetEmail);
+
+      final Tenant tenant = new Tenant();
+      Mockito.when(tenantService.findTenantByUserEmailWork(Mockito.any())).thenReturn(tenant);
     }
 
     @Test
@@ -222,13 +235,13 @@ class EmailServiceTests {
       welcomeEmailPersonalMessage = "a";
       final Company company = new Company();
       company.setName("companyName");
-      currentUser.setCompany(company);
+      Mockito.when(companyService.getCompany()).thenReturn(company);
     }
 
     @Test
     void whenFindWelcomeEmailPreviewContext_thenShouldSuccess() {
       final Context context =
-          emailService.findWelcomeEmailPreviewContext(currentUser, welcomeEmailPersonalMessage);
+          emailService.findWelcomeEmailPreviewContext(welcomeEmailPersonalMessage);
       assertThat(context).isNotNull();
     }
   }
@@ -339,26 +352,12 @@ class EmailServiceTests {
     superAdmin.setUserPersonalInformation(superAdminPersonalInfo);
     superAdmins.add(superAdmin);
 
-    Mockito.when(userService.findUsersByCompanyIdAndUserRole(companyId, Role.ADMIN.getValue()))
+    Mockito.when(userService.findUsersByCompanyIdAndUserRole(Role.ADMIN.getValue()))
         .thenReturn(admins);
-    Mockito.when(
-            userService.findUsersByCompanyIdAndUserRole(companyId, Role.SUPER_ADMIN.getValue()))
+    Mockito.when(userService.findUsersByCompanyIdAndUserRole(Role.SUPER_ADMIN.getValue()))
         .thenReturn(superAdmins);
     Whitebox.invokeMethod(
-        emailService,
-        "sendEmailToOtherAdminsWhenNewOneAdded",
-        promotedEmployeeId,
-        currentUserId,
-        companyId);
-  }
-
-  @Nested
-  class findAllUnfinishedTasks {
-    @Test
-    void whenFindAllUnfinishedTasks_thenShouldSuccess() {
-      emailService.findAllUnfinishedTasks();
-      Mockito.verify(emailRepository, Mockito.times(1)).findAllUnfinishedTasks(Mockito.any());
-    }
+        emailService, "sendEmailToOtherAdminsWhenNewOneAdded", promotedEmployeeId, currentUserId);
   }
 
   @Nested

@@ -1,5 +1,7 @@
 package shamu.company.admin.controller;
 
+import java.util.List;
+import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,35 +20,60 @@ import shamu.company.admin.dto.MockUserDto;
 import shamu.company.admin.dto.PageRequestDto;
 import shamu.company.admin.dto.SuperAdminUserDto;
 import shamu.company.admin.dto.SystemAnnouncementDto;
+import shamu.company.admin.dto.TenantDto;
 import shamu.company.admin.service.SuperAdminService;
 import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
+import shamu.company.common.entity.Tenant;
+import shamu.company.common.entity.mapper.TenantMapper;
+import shamu.company.common.multitenant.TenantContext;
+import shamu.company.common.service.TenantService;
 
 @RestApiController
 class SuperAdminRestController extends BaseRestController {
 
   private final SuperAdminService superAdminService;
 
+  private final TenantService tenantService;
+
+  private final TenantMapper tenantMapper;
+
   @Autowired
-  SuperAdminRestController(final SuperAdminService superAdminService) {
+  SuperAdminRestController(
+      final SuperAdminService superAdminService,
+      final TenantService tenantService,
+      final TenantMapper tenantMapper) {
     this.superAdminService = superAdminService;
+    this.tenantService = tenantService;
+    this.tenantMapper = tenantMapper;
   }
 
   @GetMapping("/super-admin/users")
   @PreAuthorize("hasAuthority('SUPER_PERMISSION')")
-  public Page<SuperAdminUserDto> getUsers(final PageRequestDto pageRequestDto) {
+  public Page<SuperAdminUserDto> getUsers(@Valid final PageRequestDto pageRequestDto) {
+    TenantContext.setCurrentTenant(pageRequestDto.getCompanyId());
     return superAdminService.getUsersByKeywordAndPageable(
         pageRequestDto.getKeyword(), pageRequestDto.getPageable());
   }
 
-  @PostMapping("/super-admin/mock/users/{id}")
+  @GetMapping("/super-admin/companies")
   @PreAuthorize("hasAuthority('SUPER_PERMISSION')")
-  public MockUserDto mockUser(@PathVariable final String id) {
-    return superAdminService.mockUser(id, findToken());
+  public List<TenantDto> getCompanies() {
+    final List<Tenant> tenants = tenantService.findAll();
+    return tenantMapper.convertToTenantDtos(tenants);
+  }
+
+  @PostMapping("/super-admin/mock/companies/{companyId}/users/{userId}")
+  @PreAuthorize("hasAuthority('SUPER_PERMISSION')")
+  public MockUserDto mockUser(
+      @PathVariable final String userId, @PathVariable final String companyId) {
+    TenantContext.setCurrentTenant(companyId);
+    return superAdminService.mockUser(userId, findToken());
   }
 
   @GetMapping("/super-admin/system-active-announcement")
   public SystemAnnouncementDto getSystemActiveAnnouncement() {
+    TenantContext.clear();
     return superAdminService.getSystemActiveAnnouncement();
   }
 
@@ -54,13 +81,15 @@ class SuperAdminRestController extends BaseRestController {
   @PreAuthorize("hasAuthority('SUPER_PERMISSION')")
   public HttpEntity publishSystemAnnouncement(
       @RequestBody final SystemAnnouncementDto systemAnnouncementDto) {
+    TenantContext.clear();
     superAdminService.publishSystemAnnouncement(findUserId(), systemAnnouncementDto);
     return new ResponseEntity(HttpStatus.OK);
   }
 
   @PatchMapping("/super-admin/system-active-announcement/{id}")
   @PreAuthorize("hasAuthority('SUPER_PERMISSION')")
-  public HttpEntity updateSystemActiveAnnouncement(@PathVariable String id) {
+  public HttpEntity updateSystemActiveAnnouncement(@PathVariable final String id) {
+    TenantContext.clear();
     superAdminService.updateSystemActiveAnnouncement(id);
     return new ResponseEntity(HttpStatus.OK);
   }
@@ -68,8 +97,9 @@ class SuperAdminRestController extends BaseRestController {
   @GetMapping("/super-admin/system-past-announcements")
   @PreAuthorize("hasAuthority('SUPER_PERMISSION')")
   public Page<SystemAnnouncementDto> getSystemPastAnnouncements(
-      @RequestParam(value = "page") Integer page,
-      @RequestParam(value = "size", defaultValue = "10") Integer size) {
+      @RequestParam(value = "page") final Integer page,
+      @RequestParam(value = "size", defaultValue = "10") final Integer size) {
+    TenantContext.clear();
     final Pageable pageable = PageRequest.of(page - 1, size);
     return superAdminService.getSystemPastAnnouncements(pageable);
   }

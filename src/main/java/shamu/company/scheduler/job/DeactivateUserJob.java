@@ -4,6 +4,7 @@ import org.quartz.JobExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 import org.springframework.stereotype.Component;
+import shamu.company.common.multitenant.TenantContext;
 import shamu.company.scheduler.QuartzUtil;
 import shamu.company.user.dto.UserStatusUpdateDto;
 import shamu.company.user.entity.User;
@@ -24,7 +25,10 @@ public class DeactivateUserJob extends QuartzJobBean {
         QuartzUtil.getParameter(
             jobExecutionContext, "UserStatusUpdateDto", UserStatusUpdateDto.class);
     final User user = QuartzUtil.getParameter(jobExecutionContext, "User", User.class);
+    final String companyId =
+        QuartzUtil.getParameter(jobExecutionContext, "companyId", String.class).replace("\"", "");
 
-    userService.deactivateUser(userStatusUpdateDto, user);
+    TenantContext.withInTenant(
+        companyId, () -> userService.deactivateUser(userStatusUpdateDto, user));
   }
 }

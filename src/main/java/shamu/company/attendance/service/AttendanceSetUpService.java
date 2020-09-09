@@ -1,5 +1,24 @@
 package shamu.company.attendance.service;
 
+import static java.time.DayOfWeek.SATURDAY;
+import static shamu.company.attendance.entity.StaticTimesheetStatus.TimeSheetStatus;
+
+import java.math.BigInteger;
+import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.format.TextStyle;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TimeZone;
+import java.util.stream.Collectors;
 import org.apache.commons.lang.time.DateUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,10 +44,7 @@ import shamu.company.attendance.repository.StaticTimeZoneRepository;
 import shamu.company.attendance.repository.StaticTimesheetStatusRepository;
 import shamu.company.common.entity.PayrollDetail;
 import shamu.company.common.service.PayrollDetailService;
-import shamu.company.company.entity.Company;
 import shamu.company.company.entity.Office;
-import shamu.company.company.repository.CompanyRepository;
-import shamu.company.company.service.CompanyService;
 import shamu.company.email.entity.Email;
 import shamu.company.email.service.EmailService;
 import shamu.company.email.service.EmailService.EmailNotification;
@@ -52,26 +68,6 @@ import shamu.company.user.repository.CompensationOvertimeStatusRepository;
 import shamu.company.user.repository.UserRepository;
 import shamu.company.user.service.UserCompensationService;
 import shamu.company.user.service.UserService;
-
-import java.math.BigInteger;
-import java.sql.Timestamp;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.format.TextStyle;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TimeZone;
-import java.util.stream.Collectors;
-
-import static java.time.DayOfWeek.SATURDAY;
-import static shamu.company.attendance.entity.StaticTimesheetStatus.TimeSheetStatus;
 
 @Service
 public class AttendanceSetUpService {
@@ -97,8 +93,6 @@ public class AttendanceSetUpService {
   private final JobUserRepository jobUserRepository;
 
   private final JobUserMapper jobUserMapper;
-
-  private final CompanyRepository companyRepository;
 
   private final CompensationFrequencyRepository compensationFrequencyRepository;
 
@@ -126,8 +120,6 @@ public class AttendanceSetUpService {
 
   private final PayPeriodFrequencyService payPeriodFrequencyService;
 
-  private final CompanyService companyService;
-
   private final GoogleMapsHelper googleMapsHelper;
 
   private final EmployeesTaSettingsMapper employeesTaSettingsMapper;
@@ -143,7 +135,6 @@ public class AttendanceSetUpService {
       final UserRepository userRepository,
       final JobUserRepository jobUserRepository,
       final JobUserMapper jobUserMapper,
-      final CompanyRepository companyRepository,
       final CompensationFrequencyRepository compensationFrequencyRepository,
       final CompensationOvertimeStatusRepository compensationOvertimeStatusRepository,
       final UserCompensationService userCompensationService,
@@ -157,7 +148,6 @@ public class AttendanceSetUpService {
       final EmployeesTaSettingRepository employeesTaSettingRepository,
       final UserCompensationMapper userCompensationMapper,
       final PayPeriodFrequencyService payPeriodFrequencyService,
-      final CompanyService companyService,
       final GoogleMapsHelper googleMapsHelper,
       final EmployeesTaSettingsMapper employeesTaSettingsMapper,
       final CompanyTaSettingsMapper companyTaSettingsMapper,
@@ -167,7 +157,6 @@ public class AttendanceSetUpService {
     this.userRepository = userRepository;
     this.jobUserRepository = jobUserRepository;
     this.jobUserMapper = jobUserMapper;
-    this.companyRepository = companyRepository;
     this.compensationFrequencyRepository = compensationFrequencyRepository;
     this.compensationOvertimeStatusRepository = compensationOvertimeStatusRepository;
     this.userCompensationService = userCompensationService;
@@ -181,7 +170,6 @@ public class AttendanceSetUpService {
     this.employeesTaSettingRepository = employeesTaSettingRepository;
     this.userCompensationMapper = userCompensationMapper;
     this.payPeriodFrequencyService = payPeriodFrequencyService;
-    this.companyService = companyService;
     this.googleMapsHelper = googleMapsHelper;
     this.employeesTaSettingsMapper = employeesTaSettingsMapper;
     this.companyTaSettingsMapper = companyTaSettingsMapper;
@@ -189,13 +177,13 @@ public class AttendanceSetUpService {
     this.payrollDetailService = payrollDetailService;
   }
 
-  public Boolean findIsAttendanceSetUp(final String companyId) {
-    return attendanceSettingsService.existsByCompanyId(companyId);
+  public Boolean findIsAttendanceSetUp() {
+    return attendanceSettingsService.exists();
   }
 
-  public TimeAndAttendanceRelatedUserListDto getRelatedUsers(final String companyId) {
-    final List<User> selectedUsers = userService.listCompanyAttendanceEnrolledUsers(companyId);
-    final List<User> allUsers = userRepository.findAllByCompanyId(companyId);
+  public TimeAndAttendanceRelatedUserListDto getRelatedUsers() {
+    final List<User> selectedUsers = userService.listCompanyAttendanceEnrolledUsers();
+    final List<User> allUsers = userRepository.findAllActiveUsers();
 
     final List<String> selectedUsersIds = new ArrayList<>();
     final List<TimeAndAttendanceRelatedUserDto> selectedEmployees =
@@ -208,9 +196,7 @@ public class AttendanceSetUpService {
             .collect(Collectors.toList());
 
     final List<User> unSelectedUsers =
-        selectedUsersIds.isEmpty()
-            ? allUsers
-            : userRepository.findAllByCompanyIdAndIdNotIn(companyId, selectedUsersIds);
+        selectedUsersIds.isEmpty() ? allUsers : userRepository.findAllByIdNotIn(selectedUsersIds);
     final List<TimeAndAttendanceRelatedUserDto> unSelectedEmployees =
         unSelectedUsers.stream()
             .map(user -> assembleRelatedUsers(user, allUsers))
@@ -252,16 +238,19 @@ public class AttendanceSetUpService {
                     timeAndAttendanceDetailsDto.getPeriodEndDate(), companyTimezone.getName())
                 .get());
 
+    saveCompanyTaSetting(
+        timeAndAttendanceDetailsDto.getPayPeriodFrequency(),
+        timeAndAttendanceDetailsDto.getPayDate(),
+        companyTimezone);
     saveEmployeeTaSettings(timeAndAttendanceDetailsDto, allTimezones);
 
     final List<UserCompensation> userCompensationList =
         saveUserCompensations(overtimeDetailsDtoList, periodStartDate);
     saveJobUsers(overtimeDetailsDtoList);
 
-    final Company company = companyService.findById(companyId);
     final TimePeriod firstTimePeriod =
         Boolean.FALSE.equals(isAddOrRemoveEmployee)
-            ? timePeriodService.save(new TimePeriod(periodStartDate, periodEndDate, company))
+            ? timePeriodService.save(new TimePeriod(periodStartDate, periodEndDate))
             : new TimePeriod();
     final TimeSheetStatus timeSheetStatus;
     if (periodStartDate.after(new Date())) {
@@ -278,14 +267,13 @@ public class AttendanceSetUpService {
     }
 
     if (Boolean.TRUE.equals(isAddOrRemoveEmployee)) {
-      final TimePeriod currentPeriod = timePeriodService.findCompanyCurrentPeriod(companyId);
+      final TimePeriod currentPeriod = timePeriodService.findCompanyCurrentPeriod();
       createTimeSheets(currentPeriod, timeSheetStatus, userCompensationList);
     } else {
       createTimeSheets(firstTimePeriod, timeSheetStatus, userCompensationList);
       saveCompanyTaSetting(
           timeAndAttendanceDetailsDto.getPayPeriodFrequency(),
           timeAndAttendanceDetailsDto.getPayDate(),
-          companyId,
           companyTimezone);
       scheduleTasks(companyId, firstTimePeriod, companyTimezone.getName());
     }
@@ -338,7 +326,7 @@ public class AttendanceSetUpService {
         EmailNotification.SUBMIT_TIME_SHEET,
         getPreNotificationDate(autoSubmitDate));
 
-    final Date runPayrollDdl = getRunPayrollDdl(companyId, currentPeriodEndDate, companyTimeZone);
+    final Date runPayrollDdl = getRunPayrollDdl(currentPeriodEndDate, companyTimeZone);
     scheduleEmailNotification(
         currentPeriodId, EmailNotification.RUN_PAYROLL, getPreNotificationDate(runPayrollDdl));
     scheduleEmailNotification(
@@ -365,9 +353,7 @@ public class AttendanceSetUpService {
       final String periodId, final EmailNotification emailNotification, final Date sendDate) {
     if (emailNotification.equals(EmailNotification.RUN_PAYROLL)
         || emailNotification.equals(EmailNotification.RUN_PAYROLL_TIME_OUT)) {
-      final Company company = timePeriodService.findById(periodId).getCompany();
-      final CompanyTaSetting companyTaSetting =
-          attendanceSettingsService.findCompanySettings(company.getId());
+      final CompanyTaSetting companyTaSetting = attendanceSettingsService.findCompanySetting();
       if (companyTaSetting.getMessagingOn() == MessagingON.OFF.getValue()) {
         return;
       }
@@ -444,19 +430,12 @@ public class AttendanceSetUpService {
   }
 
   private void saveCompanyTaSetting(
-      final String periodFrequency,
-      final Date payDate,
-      final String companyId,
-      final StaticTimezone companyTimezone) {
-    final CompanyTaSetting existCompanyTaSetting =
-        attendanceSettingsService.findCompanySettings(companyId);
+      final String periodFrequency, final Date payDate, final StaticTimezone companyTimezone) {
+    final CompanyTaSetting existCompanyTaSetting = attendanceSettingsService.findCompanySetting();
     final StaticCompanyPayFrequencyType staticCompanyPayFrequencyType =
         payPeriodFrequencyService.findByName(periodFrequency);
-    final Company company = companyRepository.findCompanyById(companyId);
-    final PayrollDetail payrollDetail =
-        new PayrollDetail(company, staticCompanyPayFrequencyType, payDate);
+    final PayrollDetail payrollDetail = new PayrollDetail(staticCompanyPayFrequencyType, payDate);
     final CompanyTaSetting companyTaSetting = new CompanyTaSetting();
-    companyTaSetting.setCompany(company);
     companyTaSettingsMapper.updateFromCompanyTaSettings(
         companyTaSetting,
         companyTimezone,
@@ -470,10 +449,8 @@ public class AttendanceSetUpService {
     attendanceSettingsService.saveCompanyTaSetting(companyTaSetting);
   }
 
-  public Date getRunPayrollDdl(
-      final String companyId, final Date currentPeriodEndDate, final String companyTimeZone) {
-    final CompanyTaSetting companyTaSetting =
-        attendanceSettingsService.findCompanySettings(companyId);
+  public Date getRunPayrollDdl(final Date currentPeriodEndDate, final String companyTimeZone) {
+    final CompanyTaSetting companyTaSetting = attendanceSettingsService.findCompanySetting();
     final int approvalDaysBeforePayroll =
         companyTaSetting == null
             ? DEFAULT_APPROVAL_DAYS_BEFORE_PAYROLL
@@ -606,9 +583,9 @@ public class AttendanceSetUpService {
   }
 
   public TimePeriod getNextPeriod(
-      final TimePeriod currentTimePeriod, final String payPeriodFrequency, final Company company) {
+      final TimePeriod currentTimePeriod, final String payPeriodFrequency) {
     final StaticTimezone staticTimezone =
-        attendanceSettingsService.findCompanySettings(company.getId()).getTimeZone();
+        attendanceSettingsService.findCompanySetting().getTimeZone();
     final Calendar currentEndDayOfPeriod =
         getCalendarInstance(currentTimePeriod.getEndDate().getTime(), staticTimezone.getName());
 
@@ -621,7 +598,7 @@ public class AttendanceSetUpService {
     nextPayDate.add(Calendar.DAY_OF_YEAR, -DAYS_PAY_DATE_AFTER_PERIOD);
     final Timestamp periodEndDate = new Timestamp(nextPayDate.getTimeInMillis());
 
-    return new TimePeriod(periodStartDate, periodEndDate, company);
+    return new TimePeriod(periodStartDate, periodEndDate);
   }
 
   private Calendar getCalendarInstance(final long unixTimeStamp, final String timeZoneName) {
@@ -714,14 +691,12 @@ public class AttendanceSetUpService {
     if (!timePeriod.isPresent()) {
       return null;
     }
-    final User user = userService.findById(userId);
     final Optional<StaticCompanyPayFrequencyType> payFrequencyType =
-        payPeriodFrequencyService.findByCompany(user.getCompany().getId());
+        payPeriodFrequencyService.find();
     return payFrequencyType
         .map(
             staticCompanyPayFrequencyType ->
-                getNextPeriod(
-                    timePeriod.get(), staticCompanyPayFrequencyType.getName(), user.getCompany()))
+                getNextPeriod(timePeriod.get(), staticCompanyPayFrequencyType.getName()))
         .orElse(null);
   }
 }

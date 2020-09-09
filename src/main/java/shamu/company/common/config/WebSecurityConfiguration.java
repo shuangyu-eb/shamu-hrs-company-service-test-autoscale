@@ -58,17 +58,11 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         .antMatchers("/actuator/**")
         .permitAll()
         .antMatchers(
-            "/company/user/verify",
-            "/company/paid-holidays",
-            "/company/user/check/**",
-            "/company/users/email-check/**",
             "/company/account/password",
             "/company/account/password/**",
-            "/company/users/password-reset",
             "/company/users/password-reset/**",
             "/company/users",
-            "/company/account/change-work-email/*",
-            "/company/company-sizes",
+            "/company/account/change-work-email/{token}/{companyId}",
             "/company/account/*/verification-email",
             "/company/account/unlock",
             "/company/account/email/*",

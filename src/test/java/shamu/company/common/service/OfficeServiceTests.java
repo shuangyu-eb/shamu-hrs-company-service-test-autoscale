@@ -49,8 +49,8 @@ public class OfficeServiceTests {
 
     @Test
     void testFindByCompanyId() {
-      officeService.findByCompanyId("1");
-      Mockito.verify(officeRepository, Mockito.times(1)).findByCompanyId(Mockito.anyString());
+      officeService.findAll();
+      Mockito.verify(officeRepository, Mockito.times(1)).findAll();
     }
 
     @Test
@@ -81,8 +81,8 @@ public class OfficeServiceTests {
 
     offices.add(office);
 
-    Mockito.when(officeRepository.findByNameAndCompanyId("123", "123")).thenReturn(offices);
+    Mockito.when(officeRepository.findByName("123")).thenReturn(offices);
 
-    assertThat(officeService.findByNameAndCompanyId("123", "123")).isEqualTo(offices);
+    assertThat(officeService.findByName("123")).isEqualTo(offices);
   }
 }

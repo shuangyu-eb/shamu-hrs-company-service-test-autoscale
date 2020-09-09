@@ -1,4 +1,4 @@
-package shamu.company.timeoff;
+package shamu.company.timeoff.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -30,10 +30,6 @@ import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus;
 import shamu.company.timeoff.entity.TimeOffRequestApprovalStatus.TimeOffApprovalStatus;
 import shamu.company.timeoff.entity.TimeOffRequestComment;
 import shamu.company.timeoff.entity.TimeOffRequestDate;
-import shamu.company.timeoff.service.TimeOffDetailService;
-import shamu.company.timeoff.service.TimeOffPolicyUserService;
-import shamu.company.timeoff.service.TimeOffRequestEmailService;
-import shamu.company.timeoff.service.TimeOffRequestService;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserContactInformation;
 import shamu.company.user.entity.UserPersonalInformation;

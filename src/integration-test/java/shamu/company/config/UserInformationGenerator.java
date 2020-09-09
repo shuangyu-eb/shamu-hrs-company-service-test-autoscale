@@ -55,9 +55,6 @@ public class UserInformationGenerator implements CommandLineRunner {
     userContactInformation.setEmailWork("example@example.com");
     user.setUserContactInformation(userContactInformation);
 
-    final Company company = new Company(companyId);
-    user.setCompany(company);
-
     final UserRole userRole = userRoleService.getAdmin();
     user.setUserRole(userRole);
     userService.save(user);

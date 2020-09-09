@@ -1,6 +1,9 @@
 package shamu.company.attendance.service;
 
+import java.util.List;
+import java.util.Optional;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import shamu.company.attendance.dto.CompanyTaSettingsDto;
 import shamu.company.attendance.dto.EmployeesTaSettingDto;
 import shamu.company.attendance.entity.CompanyTaSetting;
@@ -15,15 +18,11 @@ import shamu.company.attendance.repository.StaticTimeZoneRepository;
 import shamu.company.common.entity.PayrollDetail;
 import shamu.company.common.entity.mapper.PayrollDetailMapper;
 import shamu.company.common.service.PayrollDetailService;
-import shamu.company.company.entity.Company;
 import shamu.company.helpers.googlemaps.GoogleMapsHelper;
 import shamu.company.job.entity.JobUser;
 import shamu.company.job.repository.JobUserRepository;
 import shamu.company.user.entity.User;
 import shamu.company.user.repository.UserRepository;
-
-import java.util.List;
-import java.util.Optional;
 
 /** @author mshumaker */
 @Service
@@ -82,8 +81,12 @@ public class AttendanceSettingsService {
     this.googleMapsHelper = googleMapsHelper;
   }
 
-  public CompanyTaSetting findCompanySettings(final String companyId) {
-    return companyTaSettingRepository.findByCompanyId(companyId);
+  public CompanyTaSetting findCompanySetting() {
+    final List<CompanyTaSetting> results = companyTaSettingRepository.findAll();
+    if (CollectionUtils.isEmpty(results)) {
+      return null;
+    }
+    return results.get(0);
   }
 
   public EmployeesTaSettingDto findEmployeesSettings(final String employeeId) {
@@ -93,8 +96,8 @@ public class AttendanceSettingsService {
         user.map(User::getTimeZone).orElse(null));
   }
 
-  public boolean existsByCompanyId(final String companyId) {
-    return companyTaSettingRepository.existsByCompanyId(companyId);
+  public boolean exists() {
+    return !CollectionUtils.isEmpty(companyTaSettingRepository.findAll());
   }
 
   public Boolean findEmployeeIsAttendanceSetUp(final String employeeId) {
@@ -109,19 +112,19 @@ public class AttendanceSettingsService {
     return staticTimeZoneRepository.findAll();
   }
 
-  public void updateCompanySettings(
-      final CompanyTaSettingsDto companyTaSettingsDto, final String companyId) {
-    CompanyTaSetting companyTaSetting = companyTaSettingRepository.findByCompanyId(companyId);
-    final PayrollDetail payrollDetail = payrollDetailService.findByCompanyId(companyId);
+  public void updateCompanySettings(final CompanyTaSettingsDto companyTaSettingsDto) {
+    final List<CompanyTaSetting> taSettings = companyTaSettingRepository.findAll();
+    CompanyTaSetting companyTaSetting =
+        CollectionUtils.isEmpty(taSettings) ? null : taSettings.get(0);
     final String payPeriodFrequencyId =
         payPeriodFrequencyRepository
             .findByName(companyTaSettingsDto.getPayFrequencyType().getId())
             .getId();
     if (companyTaSetting == null) {
       companyTaSetting = new CompanyTaSetting();
-      companyTaSetting.setCompany(new Company(companyId));
     }
     companyTaSettingsMapper.updateFromCompanyTaSettingsDto(companyTaSetting, companyTaSettingsDto);
+    final PayrollDetail payrollDetail = payrollDetailService.find();
     payrollDetailMapper.updateFromCompanyTaSettingsDto(
         payrollDetail, companyTaSettingsDto, payPeriodFrequencyId);
     companyTaSettingRepository.save(companyTaSetting);
@@ -146,8 +149,8 @@ public class AttendanceSettingsService {
     }
   }
 
-  public int findApprovalDaysBeforePayroll(final String companyId) {
-    return companyTaSettingRepository.findApprovalDaysBeforePayroll(companyId);
+  public int findApprovalDaysBeforePayroll() {
+    return companyTaSettingRepository.findApprovalDaysBeforePayroll();
   }
 
   public void initialTimezoneForOldDatas() {
@@ -156,8 +159,7 @@ public class AttendanceSettingsService {
     lackTimezoneUsers.forEach(
         user -> {
           final JobUser jobUser = jobUserRepository.findJobUserByUser(user);
-          final CompanyTaSetting companyTaSetting =
-              companyTaSettingRepository.findByCompanyId(user.getCompany().getId());
+          final CompanyTaSetting companyTaSetting = findCompanySetting();
           String timezoneName = "";
           if (jobUser != null
               && jobUser.getOffice() != null
@@ -167,7 +169,7 @@ public class AttendanceSettingsService {
                     jobUser.getOffice().getOfficeAddress().getPostalCode());
           }
 
-          if (timezoneName !=null && !timezoneName.isEmpty()) {
+          if (timezoneName != null && !timezoneName.isEmpty()) {
             user.setTimeZone(staticTimeZoneRepository.findByName(timezoneName));
           } else if (companyTaSetting != null) {
             user.setTimeZone(companyTaSetting.getTimeZone());

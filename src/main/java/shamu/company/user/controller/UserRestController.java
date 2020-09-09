@@ -1,8 +1,11 @@
 package shamu.company.user.controller;
 
+import com.auth0.json.auth.CreatedUser;
 import java.util.List;
+import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
@@ -19,9 +22,17 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
+import shamu.company.common.database.LiquibaseManager;
+import shamu.company.common.entity.Tenant;
+import shamu.company.common.exception.errormapping.AlreadyExistsException;
 import shamu.company.common.exception.errormapping.ForbiddenException;
+import shamu.company.common.multitenant.TenantContext;
+import shamu.company.common.service.TenantService;
 import shamu.company.common.validation.constraints.FileValidate;
+import shamu.company.company.service.CompanyService;
 import shamu.company.employee.dto.EmailUpdateDto;
+import shamu.company.helpers.auth0.Auth0Helper;
+import shamu.company.helpers.auth0.exception.SignUpFailedException;
 import shamu.company.user.dto.AccountInfoDto;
 import shamu.company.user.dto.ChangePasswordDto;
 import shamu.company.user.dto.CurrentUserDto;
@@ -36,6 +47,7 @@ import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
 import shamu.company.user.entity.mapper.UserMapper;
 import shamu.company.user.service.UserService;
+import shamu.company.utils.Base64Utils;
 
 @RestApiController
 @Validated
@@ -43,16 +55,53 @@ public class UserRestController extends BaseRestController {
 
   private final UserService userService;
 
+  private final CompanyService companyService;
+
+  private final TenantService tenantService;
+
   private final UserMapper userMapper;
 
-  public UserRestController(final UserService userService, final UserMapper userMapper) {
+  private final Auth0Helper auth0Helper;
+
+  private final LiquibaseManager liquibaseManager;
+
+  private static final String MOCK_USER_HEADER = "X-Mock-To";
+
+  public UserRestController(
+      final UserService userService,
+      final UserMapper userMapper,
+      final CompanyService companyService,
+      final TenantService tenantService,
+      final Auth0Helper auth0Helper,
+      final LiquibaseManager liquibaseManager) {
     this.userService = userService;
     this.userMapper = userMapper;
+    this.companyService = companyService;
+    this.tenantService = tenantService;
+    this.auth0Helper = auth0Helper;
+    this.liquibaseManager = liquibaseManager;
   }
 
   @PostMapping(value = "users")
   public HttpEntity signUp(@RequestBody final UserSignUpDto signUpDto) {
-    userService.signUp(signUpDto);
+    if (tenantService.isCompanyExists(signUpDto.getCompanyName())) {
+      throw new AlreadyExistsException("Company name already exists.", "company name");
+    }
+
+    final CreatedUser user = auth0Helper.signUp(signUpDto.getWorkEmail(), signUpDto.getPassword());
+    final com.auth0.json.mgmt.users.User auth0User =
+        auth0Helper.updateAuthUserAppMetaData(user.getUserId(), signUpDto.getWorkEmail());
+    final Map<String, Object> appMetaData = auth0User.getAppMetadata();
+    final String companyId = (String) appMetaData.get(Auth0Helper.COMPANY_ID);
+    final String userId = (String) appMetaData.get(Auth0Helper.USER_ID);
+    try {
+      liquibaseManager.addSchema(companyId, signUpDto.getCompanyName());
+      TenantContext.withInTenant(companyId, () -> userService.signUp(signUpDto, userId));
+    } catch (final Exception e) {
+      tenantService.deleteTenant(companyId);
+      auth0Helper.deleteUser(auth0User.getId());
+      throw new SignUpFailedException("Sign up failed.", e);
+    }
     return new ResponseEntity(HttpStatus.OK);
   }
 
@@ -84,12 +133,15 @@ public class UserRestController extends BaseRestController {
 
   @PostMapping(value = "users/password-reset/{email}")
   public HttpEntity sendResetPasswordEmail(@PathVariable final String email) {
+    final Tenant tenant = tenantService.findTenantByUserEmailWork(email);
+    TenantContext.setCurrentTenant(tenant.getCompanyId());
     userService.sendResetPasswordEmail(email);
     return new ResponseEntity(HttpStatus.OK);
   }
 
   @PatchMapping("users/password-reset")
   public boolean resetPassword(@RequestBody @Valid final UpdatePasswordDto updatePasswordDto) {
+    TenantContext.setCurrentTenant(Base64Utils.decodeCompanyId(updatePasswordDto.getCompanyId()));
     userService.resetPassword(updatePasswordDto);
     return true;
   }
@@ -141,35 +193,37 @@ public class UserRestController extends BaseRestController {
 
   @GetMapping("users")
   public List<UserDto> getAllUsers() {
-    final List<User> users = userService.findAllUsersByCompany(findCompanyId());
+    final List<User> users = userService.findAllUsersByCompany();
     return userMapper.convertToUserDtos(users);
   }
 
   @GetMapping("current/user-info")
   public CurrentUserDto getUserInfo(final HttpServletRequest request) {
-    final String mockId = request.getHeader("X-Mock-To");
+    final String mockId = request.getHeader(MOCK_USER_HEADER);
     if (Strings.isBlank(mockId)) {
       final CurrentUserDto userDto =
           userService.getCurrentUserInfo(findAuthentication().getUserId());
       userService.cacheUser(findToken(), userDto.getId());
       return userDto;
     }
-    final User user = userService.findActiveUserById(findAuthentication().getUserId());
-
-    final Role role = user.getRole();
-    if (role != Role.SUPER_ADMIN) {
-      throw new ForbiddenException(
-          String.format("User with id %s is not super admin.", user.getId()));
-    }
-
-    userService.cacheUser(findToken(), mockId);
+    handleSuperAdminCacheProcess(mockId);
     return userService.getMockUserInfo(mockId);
   }
 
+  private void handleSuperAdminCacheProcess(final String mockUserId) {
+    final String currentUserId = findAuthentication().getUserId();
+    final Role role = auth0Helper.getUserRoleByUserId(currentUserId);
+    if (role != Role.SUPER_ADMIN) {
+      throw new ForbiddenException(
+          String.format("User with id %s is not super admin.", currentUserId));
+    }
+
+    userService.cacheUser(findToken(), mockUserId);
+  }
+
   @GetMapping("current/company-name")
-  public String getCompanyName(final HttpServletRequest request) {
-    final User user = userService.findById(findUserId());
-    return user.getCompany().getName();
+  public String getCompanyName() {
+    return companyService.getCompany().getName();
   }
 
   @GetMapping("{userId}/check-personal-info-complete")
@@ -219,13 +273,20 @@ public class UserRestController extends BaseRestController {
 
   @GetMapping("users/registered")
   public List<UserDto> getAllRegisteredUsers() {
-    final List<User> users = userService.findRegisteredUsersByCompany(findCompanyId());
+    final List<User> users = userService.findRegisteredUsers();
     return userMapper.convertToUserDtos(users);
   }
 
   @PatchMapping("current/cache/{id}")
-  public HttpEntity cacheTokenAndAuthUser(@PathVariable final String id) {
-    userService.cacheUser(findToken(), id);
+  public HttpEntity cacheTokenAndAuthUser(
+      @PathVariable final String id, final HttpServletRequest request) {
+    final String mockId = request.getHeader(MOCK_USER_HEADER);
+    if (StringUtils.isBlank(mockId)) {
+      userService.cacheUser(findToken(), id.toUpperCase());
+    } else {
+      handleSuperAdminCacheProcess(mockId);
+    }
+
     return new ResponseEntity<>(HttpStatus.OK);
   }
 

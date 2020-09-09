@@ -1,0 +1,715 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1594263749216-1
+      author: haibo-eb
+      changes:
+        - sql:
+            sql: create trigger ins_benefit_life_event_types before insert on benefit_life_event_types for each row set new.id = unhex(replace(uuid(), '-', ''));
+
+  - changeSet:
+      id: 1594263749216-2
+      author: haibo-eb
+      changes:
+        - sql:
+            sql: create trigger ins_benefit_plan_dependent_relationships before insert on benefit_plan_dependent_relationships for each row set new.id = unhex(replace(uuid(), '-', ''));
+
+  - changeSet:
+      id: 1594263749216-3
+      author: haibo-eb
+      changes:
+        - sql:
+            sql: create trigger ins_benefit_plan_types before insert on benefit_plan_types for each row set new.id = unhex(replace(uuid(), '-', ''));
+
+  - changeSet:
+      id: 1594263749216-4
+      author: haibo-eb
+      changes:
+        - sql:
+            sql: create trigger ins_benefit_request_status before insert on benefit_request_status for each row set new.id = unhex(replace(uuid(), '-', ''));
+
+  - changeSet:
+      id: 1594263749216-5
+      author: haibo-eb
+      changes:
+        - sql:
+            sql: create trigger ins_company_sizes before insert on company_sizes for each row set new.id = unhex(replace(uuid(), '-', ''));
+
+  - changeSet:
+      id: 1594263749216-6
+      author: haibo-eb
+      changes:
+        - sql:
+            sql: create trigger ins_compensation_frequency before insert on compensation_frequency for each row set new.id = unhex(replace(uuid(), '-', ''));
+
+  - changeSet:
+      id: 1594263749216-7
+      author: haibo-eb
+      changes:
+        - sql:
+            sql: create trigger ins_compensation_overtime_statuses before insert on compensation_overtime_statuses for each row set new.id = unhex(replace(uuid(), '-', ''));
+
+  - changeSet:
+      id: 1594263749216-8
+      author: haibo-eb
+      changes:
+        - sql:
+            sql: create trigger ins_countries before insert on countries for each row set new.id = unhex(replace(uuid(), '-', ''));
+
+  - changeSet:
+      id: 1594263749216-9
+      author: haibo-eb
+      changes:
+        - sql:
+            sql: create trigger ins_deactivation_reasons before insert on deactivation_reasons for each row set new.id = unhex(replace(uuid(), '-', ''));
+
+  - changeSet:
+      id: 1594263749216-10
+      author: haibo-eb
+      changes:
+        - sql:
+            sql: create trigger ins_employee_types before insert on employee_types for each row set new.id = unhex(replace(uuid(), '-', ''));
+
+  - changeSet:
+      id: 1594263749216-11
+      author: haibo-eb
+      changes:
+        - sql:
+            sql: create trigger ins_employment_types before insert on employment_types for each row set new.id = unhex(replace(uuid(), '-', ''));
+
+  - changeSet:
+      id: 1594263749216-12
+      author: haibo-eb
+      changes:
+        - sql:
+            sql: create trigger ins_ethnicities before insert on ethnicities for each row set new.id = unhex(replace(uuid(), '-', ''));
+
+  - changeSet:
+      id: 1594263749216-13
+      author: haibo-eb
+      changes:
+        - sql:
+            sql: create trigger ins_genders before insert on genders for each row set new.id = unhex(replace(uuid(), '-', ''));
+
+  - changeSet:
+      id: 1594263749216-14
+      author: haibo-eb
+      changes:
+        - sql:
+            sql: create trigger ins_marital_status before insert on marital_status for each row set new.id = unhex(replace(uuid(), '-', ''));
+
+  - changeSet:
+      id: 1594263749216-15
+      author: haibo-eb
+      changes:
+        - sql:
+            sql: create trigger ins_retirement_types before insert on retirement_types for each row set new.id = unhex(replace(uuid(), '-', ''));
+
+  - changeSet:
+      id: 1594263749216-16
+      author: haibo-eb
+      changes:
+        - sql:
+            sql: create trigger ins_states_provinces before insert on states_provinces for each row set new.id = unhex(replace(uuid(), '-', ''));
+
+  - changeSet:
+      id: 1594263749216-17
+      author: haibo-eb
+      changes:
+        - sql:
+            sql: create trigger ins_static_company_pay_frequency_types before insert on static_company_pay_frequency_types for each row set new.id = unhex(replace(uuid(), '-', ''));
+
+  - changeSet:
+      id: 1594263749216-18
+      author: haibo-eb
+      changes:
+        - sql:
+            sql: create trigger ins_static_employees_ta_time_types before insert on static_employees_ta_time_types for each row set new.id = unhex(replace(uuid(), '-', ''));
+
+  - changeSet:
+      id: 1594263749216-19
+      author: haibo-eb
+      changes:
+        - sql:
+            sql: create trigger ins_static_timesheet_status before insert on static_timesheet_status for each row set new.id = unhex(replace(uuid(), '-', ''));
+
+  - changeSet:
+      id: 1594263749216-20
+      author: haibo-eb
+      changes:
+        - sql:
+            sql: create trigger ins_static_timezones before insert on static_timezones for each row set new.id = unhex(replace(uuid(), '-', ''));
+
+  - changeSet:
+      id: 1594263749216-21
+      author: haibo-eb
+      changes:
+        - sql:
+            sql: create trigger ins_time_off_accrual_frequencies before insert on time_off_accrual_frequencies for each row set new.id = unhex(replace(uuid(), '-', ''));
+
+  - changeSet:
+      id: 1594263749216-22
+      author: haibo-eb
+      changes:
+        - sql:
+            sql: create trigger ins_time_off_request_approval_statuses before insert on time_off_request_approval_statuses for each row set new.id = unhex(replace(uuid(), '-', ''));
+
+  - changeSet:
+      id: 1594263749216-23
+      author: haibo-eb
+      changes:
+        - sql:
+            sql: create trigger ins_user_roles before insert on user_roles for each row set new.id = unhex(replace(uuid(), '-', ''));
+
+  - changeSet:
+      id: 1594263749216-24
+      author: haibo-eb
+      changes:
+        - sql:
+            sql: create trigger ins_user_statuses before insert on user_statuses for each row set new.id = unhex(replace(uuid(), '-', ''));
+
+  - changeSet:
+      id: 1594263749216-25
+      author: haibo-eb
+      changes:
+        - sql:
+            sql: create trigger ins_benefit_coverages before insert on benefit_coverages for each row set new.id = unhex(replace(uuid(), '-', ''));
+
+  - changeSet:
+      id: 1594263749216-26
+      author: haibo-eb
+      changes:
+        - sql:
+            sql: create trigger ins_paid_holidays before insert on paid_holidays for each row set new.id = unhex(replace(uuid(), '-', ''));
+
+  - changeSet:
+      id: 1594263749216-27
+      author: haibo-eb
+      changes:
+        - sql:
+            sql: create trigger ins_time_period before insert on time_period for each row set new.id = unhex(replace(uuid(), '-', ''));
+
+  - changeSet:
+      id: 1594606148716-1
+      author: haibo-eb
+      runOnChange: true
+      changes:
+        - loadUpdateData:
+            columns:
+              - column:
+                  name: name
+                  type: STRING
+            file: db/changelog/data/life-event-types.csv
+            primaryKey: id
+            tableName: benefit_life_event_types
+
+  - changeSet:
+      id: 1594606148716-2
+      author: haibo-eb
+      runOnChange: true
+      changes:
+        - loadUpdateData:
+            columns:
+              - column:
+                  name: name
+                  type: STRING
+            file: db/changelog/data/benefit-plan-dependent-relationships.csv
+            primaryKey: id
+            tableName: benefit_plan_dependent_relationships
+
+  - changeSet:
+      id: 1594606148716-3
+      author: haibo-eb
+      runOnChange: true
+      changes:
+        - loadUpdateData:
+            columns:
+              - column:
+                  name: name
+                  type: STRING
+            file: db/changelog/data/benefit-plan-types.csv
+            primaryKey: id
+            tableName: benefit_plan_types
+
+  - changeSet:
+      id: 1594606148716-4
+      author: haibo-eb
+      runOnChange: true
+      changes:
+        - loadUpdateData:
+            columns:
+              - column:
+                  name: name
+                  type: STRING
+            file: db/changelog/data/request-approval-statuses.csv
+            primaryKey: id
+            tableName: benefit_request_status
+
+  - changeSet:
+      id: 1594606148716-5
+      author: haibo-eb
+      runOnChange: true
+      changes:
+        - loadUpdateData:
+            columns:
+              - column:
+                  name: name
+                  type: STRING
+            file: db/changelog/data/company-sizes.csv
+            primaryKey: id
+            tableName: company_sizes
+
+  - changeSet:
+      id: 1594606148716-6
+      author: haibo-eb
+      runOnChange: true
+      changes:
+        - loadUpdateData:
+            columns:
+              - column:
+                  name: name
+                  type: STRING
+            file: db/changelog/data/compensation-frequency.csv
+            primaryKey: id
+            tableName: compensation_frequency
+
+  - changeSet:
+      id: 1594606148716-7
+      author: haibo-eb
+      runOnChange: true
+      changes:
+        - loadUpdateData:
+            columns:
+              - column:
+                  name: name
+                  type: STRING
+            file: db/changelog/data/compensation_overtime_statuses.csv
+            primaryKey: id
+            tableName: compensation_overtime_statuses
+
+  - changeSet:
+      id: 1594606148716-8
+      author: haibo-eb
+      runOnChange: true
+      changes:
+        - loadUpdateData:
+            columns:
+              - column:
+                  name: name
+                  type: STRING
+            file: db/changelog/data/countries.csv
+            primaryKey: id
+            tableName: countries
+
+  - changeSet:
+      id: 1594606148716-9
+      author: haibo-eb
+      runOnChange: true
+      changes:
+        - loadUpdateData:
+            columns:
+              - column:
+                  name: name
+                  type: STRING
+            file: db/changelog/data/user-status-deactivation-reasons.csv
+            primaryKey: id
+            tableName: deactivation_reasons
+
+  - changeSet:
+      id: 1594606148716-10
+      author: haibo-eb
+      runOnChange: true
+      changes:
+        - loadUpdateData:
+            columns:
+              - column:
+                  name: name
+                  type: STRING
+            file: db/changelog/data/employee-types.csv
+            primaryKey: id
+            tableName: employee_types
+
+  - changeSet:
+      id: 1594606148716-11
+      author: haibo-eb
+      runOnChange: true
+      changes:
+        - loadUpdateData:
+            columns:
+              - column:
+                  name: name
+                  type: STRING
+            file: db/changelog/data/employment-types.csv
+            primaryKey: id
+            tableName: employment_types
+
+  - changeSet:
+      id: 1594606148716-12
+      author: haibo-eb
+      runOnChange: true
+      changes:
+        - loadUpdateData:
+            columns:
+              - column:
+                  name: name
+                  type: STRING
+            file: db/changelog/data/ethnicities.csv
+            primaryKey: id
+            tableName: ethnicities
+
+  - changeSet:
+      id: 1594606148716-13
+      author: haibo-eb
+      runOnChange: true
+      changes:
+        - loadUpdateData:
+            columns:
+              - column:
+                  name: name
+                  type: STRING
+            file: db/changelog/data/genders.csv
+            primaryKey: id
+            tableName: genders
+
+  - changeSet:
+      id: 1594606148716-14
+      author: haibo-eb
+      runOnChange: true
+      changes:
+        - loadUpdateData:
+            columns:
+              - column:
+                  name: name
+                  type: STRING
+            file: db/changelog/data/marital-status.csv
+            primaryKey: id
+            tableName: marital_status
+
+  - changeSet:
+      id: 1594606148716-15
+      author: haibo-eb
+      runOnChange: true
+      changes:
+        - loadUpdateData:
+            columns:
+              - column:
+                  name: name
+                  type: STRING
+            file: db/changelog/data/retirement-types.csv
+            primaryKey: id
+            tableName: retirement_types
+
+  - changeSet:
+      id: 1594606148716-16
+      author: haibo-eb
+      runOnChange: true
+      changes:
+        - loadUpdateData:
+            columns:
+              - column:
+                  name: name
+                  type: STRING
+            file: db/changelog/data/static_company_pay_frequency_types.csv
+            primaryKey: id
+            tableName: static_company_pay_frequency_types
+
+  - changeSet:
+      id: 1594606148716-17
+      author: haibo-eb
+      runOnChange: true
+      changes:
+        - loadUpdateData:
+            columns:
+              - column:
+                  name: name
+                  type: STRING
+            file: db/changelog/data/static_employees_ta_time_types.csv
+            primaryKey: id
+            tableName: static_employees_ta_time_types
+
+  - changeSet:
+      id: 1594606148716-18
+      author: haibo-eb
+      runOnChange: true
+      changes:
+        - loadUpdateData:
+            columns:
+              - column:
+                  name: name
+                  type: STRING
+            file: db/changelog/data/static_timesheet_status.csv
+            primaryKey: id
+            tableName: static_timesheet_status
+
+  - changeSet:
+      id: 1594606148716-19
+      author: haibo-eb
+      runOnChange: true
+      changes:
+        - loadUpdateData:
+            columns:
+              - column:
+                  name: name
+                  type: STRING
+            file: db/changelog/data/static_timezones.csv
+            primaryKey: id
+            tableName: static_timezones
+
+  - changeSet:
+      id: 1594606148716-20
+      author: haibo-eb
+      runOnChange: true
+      changes:
+        - loadUpdateData:
+            columns:
+              - column:
+                  name: name
+                  type: STRING
+            file: db/changelog/data/time-off-accrual-frequencies.csv
+            primaryKey: id
+            tableName: time_off_accrual_frequencies
+
+  - changeSet:
+      id: 1594606148716-21
+      author: haibo-eb
+      runOnChange: true
+      changes:
+        - loadUpdateData:
+            columns:
+              - column:
+                  name: name
+                  type: STRING
+            file: db/changelog/data/request-approval-statuses.csv
+            primaryKey: id
+            tableName: time_off_request_approval_statuses
+
+  - changeSet:
+      id: 1594606148716-22
+      author: haibo-eb
+      runOnChange: true
+      changes:
+        - loadUpdateData:
+            columns:
+              - column:
+                  name: name
+                  type: STRING
+            file: db/changelog/data/user-roles.csv
+            primaryKey: id
+            tableName: user_roles
+
+  - changeSet:
+      id: 1594606148716-23
+      author: haibo-eb
+      runOnChange: true
+      changes:
+        - loadUpdateData:
+            columns:
+              - column:
+                  name: name
+                  type: STRING
+            file: db/changelog/data/user-statuses.csv
+            primaryKey: id
+            tableName: user_statuses
+
+  - changeSet:
+      id: 1594606148716-24
+      author: haibo-eb
+      runOnChange: true
+      changes:
+        - loadUpdateData:
+            columns:
+              - column:
+                  name: name
+                  type: STRING
+            file: db/changelog/data/benefit_coverages.csv
+            primaryKey: id
+            tableName: benefit_coverages
+
+  - changeSet:
+      id: 1594606148716-25
+      author: haibo-eb
+      runOnChange: true
+      changes:
+        - loadUpdateData:
+            columns:
+              - column:
+                  name: name
+                  type: STRING
+              - column:
+                  name: name_show
+                  type: STRING
+              - column:
+                  name: federal
+                  type: BOOLEAN
+            file: db/changelog/data/paid-holidays.csv
+            primaryKey: id
+            tableName: paid_holidays
+
+  - changeSet:
+      id: 1594606148716-26
+      author: haibo-eb
+      changes:
+        - sql:
+            sql: drop trigger if exists ins_benefit_coverages;
+
+  - changeSet:
+      id: 1594606148716-27
+      author: haibo-eb
+      changes:
+        - sql:
+            sql: drop trigger if exists ins_paid_holidays
+
+  - changeSet:
+      id: 1594606148716-28
+      author: haibo-eb
+      changes:
+        - sql:
+            sql: drop trigger if exists ins_time_period;
+
+  - changeSet:
+      id: 1594015822000-1
+      author: michael-eb
+      changes:
+        - sql:
+            sql: create trigger ins_time_period before insert on time_period for each row set new.id = unhex(replace(uuid(), '-', ''));
+
+  - changeSet:
+      id: 1594200120000-1
+      author: michael-eb
+      changes:
+        - dropForeignKeyConstraint:
+            baseTableName: employee_time_entries
+            constraintName: fk_employee_time_entries_timesheet_id
+
+  - changeSet:
+      id: 1594200120000-2
+      author: michael-eb
+      changes:
+        - dropColumn:
+            columnName: timesheet_id
+            tableName: employee_time_entries
+
+  - changeSet:
+      id: 1593658305099-3
+      author: qian-eb
+      changes:
+        - sql:
+            sql: alter table static_timesheet_status modify ref_id binary(16);
+
+  - changeSet:
+      id: 1593658305099-4
+      author: qian-eb
+      changes:
+        - sql:
+            sql: alter table static_timesheet_status modify name varchar(60);
+
+  - changeSet:
+      id: 1593658305099-1
+      author: qian-eb
+      changes:
+        - sql:
+            sql: drop trigger if exists ins_time_period;
+
+  - changeSet:
+      id: 1593658305099-2
+      author: qian-eb
+      runOnChange: true
+      changes:
+        - addUniqueConstraint:
+            columnNames: ref_id, name
+            constraintName: uq_static_timesheet_status
+            tableName: static_timesheet_status
+
+  - changeSet:
+      id: 1594367513853
+      author: lei-eb
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: start_of_week
+                  type: VARCHAR(10)
+            tableName: company_ta_settings
+
+  - changeSet:
+      id: 1595324122903
+      author: lei-eb
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: messaging_on
+                  type: tinyint(1)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: overtime_alert
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+            tableName: company_ta_settings
+
+  - changeSet:
+      id: 1596442248317
+      author: jiansheng-eb
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: update_at
+                  type: datetime
+            tableName: time_off_adjustments
+
+  - changeSet:
+      id: 1598322679998-1
+      author: lei-eb
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: time_zone_id
+                  type: binary(16)
+            tableName: users
+        - addForeignKeyConstraint:
+            baseColumnNames: time_zone_id
+            baseTableName: users
+            constraintName: fk_users_time_zone_id
+            onDelete: SET NULL
+            onUpdate: RESTRICT
+            referencedColumnNames: id
+            referencedTableName: static_timezones
+
+  - changeSet:
+      id: 1598322679998-2
+      author: lei-eb
+      preConditions:
+        onFail: WARN
+      changes:
+        - sql:
+            sql: UPDATE users set time_zone_id = (select time_zone_id from employees_ta_settings where users.id = employees_ta_settings.employee_id)
+
+  - changeSet:
+      id: 1594200120000-3
+      author: lei-eb
+      changes:
+        - dropForeignKeyConstraint:
+            baseTableName: employees_ta_settings
+            constraintName: fk_employees_ta_settings_time_zone_id
+
+  - changeSet:
+      id: 1598322679998-4
+      author: lei-eb
+      changes:
+        - dropColumn:
+            columnName: time_zone_id
+            tableName: employees_ta_settings
+
+  - changeSet:
+      id: 1597734408824
+      author: haibo-eb
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: invitation_capability_frozen_at
+                  type: datetime
+            tableName: users

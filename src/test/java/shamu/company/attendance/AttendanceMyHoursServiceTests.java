@@ -1,5 +1,18 @@
 package shamu.company.attendance;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+
+import java.math.BigInteger;
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -45,20 +58,6 @@ import shamu.company.user.entity.UserCompensation;
 import shamu.company.user.service.UserCompensationService;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.DateUtil;
-
-import java.math.BigInteger;
-import java.sql.Timestamp;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
 
 public class AttendanceMyHoursServiceTests {
 
@@ -208,7 +207,6 @@ public class AttendanceMyHoursServiceTests {
     user.setId("1");
     final Company company = new Company();
     company.setId("1");
-    user.setCompany(company);
     timeSheet.setEmployee(user);
     final CompanyTaSetting companyTaSetting = new CompanyTaSetting();
     final StaticTimezone staticTimezone = new StaticTimezone();
@@ -228,8 +226,7 @@ public class AttendanceMyHoursServiceTests {
             timeSheet.getTimePeriod().getStartDate(), companyTaSetting.getTimeZone().getName());
     final Timestamp timesheetEnd = timeSheet.getTimePeriod().getEndDate();
     Mockito.when(timeSheetService.findTimeSheetById("1")).thenReturn(timeSheet);
-    Mockito.when(attendanceSettingsService.findCompanySettings(user.getCompany().getId()))
-        .thenReturn(companyTaSetting);
+    Mockito.when(attendanceSettingsService.findCompanySetting()).thenReturn(companyTaSetting);
     Mockito.when(
             timeOffRequestService.findTimeOffHoursBetweenWorkPeriod(
                 user, timePeriod.getStartDate().getTime(), timePeriod.getEndDate().getTime()))
@@ -281,7 +278,6 @@ public class AttendanceMyHoursServiceTests {
     final Company company = new Company();
     company.setId("1");
     user.setId("1");
-    user.setCompany(company);
     final TimePeriod timePeriod = new TimePeriod();
     timePeriod.setStartDate(Timestamp.valueOf(LocalDateTime.parse("2020-07-01T01:00:00")));
     timePeriod.setEndDate(Timestamp.valueOf(LocalDateTime.parse("2020-07-08T01:00:00")));
@@ -314,10 +310,7 @@ public class AttendanceMyHoursServiceTests {
     localDateEntryDto.setWeek(week);
 
     Mockito.when(timeSheetService.findTimeSheetById("1")).thenReturn(timeSheet);
-    Mockito.when(
-            attendanceSettingsService.findCompanySettings(
-                timeSheet.getEmployee().getCompany().getId()))
-        .thenReturn(companyTaSetting);
+    Mockito.when(attendanceSettingsService.findCompanySetting()).thenReturn(companyTaSetting);
     Mockito.when(
             genericHoursService.findEntriesBetweenDates(
                 timePeriod.getStartDate().getTime(), timePeriod.getEndDate().getTime(), "1", false))
@@ -392,9 +385,9 @@ public class AttendanceMyHoursServiceTests {
     final TimeSheet timeSheet = new TimeSheet();
     timeSheet.setRemovedAt(Timestamp.valueOf(LocalDateTime.parse("2020-07-03T09:00:00")));
     Mockito.when(employeesTaSettingService.findByUserId("1")).thenReturn(employeesTaSetting);
-    Mockito.when(timePeriodService.findCompanyCurrentPeriod("1")).thenReturn(timePeriod);
+    Mockito.when(timePeriodService.findCompanyCurrentPeriod()).thenReturn(timePeriod);
     Mockito.when(timeSheetService.findTimeSheetByPeriodAndUser("1", "1")).thenReturn(timeSheet);
-    assertThatCode(() -> attendanceMyHoursService.findUserAttendanceEnrollInfo("1", "1"))
+    assertThatCode(() -> attendanceMyHoursService.findUserAttendanceEnrollInfo("1"))
         .doesNotThrowAnyException();
   }
 }

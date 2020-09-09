@@ -1,12 +1,10 @@
 package shamu.company.user.entity;
 
 import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import shamu.company.common.entity.BaseEntity;
-import shamu.company.company.entity.Company;
 
 @Data
 @Entity
@@ -14,8 +12,7 @@ import shamu.company.company.entity.Company;
 @NoArgsConstructor
 public class CompensationType extends BaseEntity {
 
-  @ManyToOne private Company company;
-
+  private static final long serialVersionUID = -4194441952242622443L;
   private String name;
 
   public CompensationType(final String compensationId) {

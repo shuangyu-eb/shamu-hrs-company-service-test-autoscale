@@ -1,9 +1,15 @@
 package shamu.company.attendance.controller;
 
+import java.util.List;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import shamu.company.attendance.dto.CompanyTaSettingsDto;
 import shamu.company.attendance.dto.EmployeesTaSettingDto;
 import shamu.company.attendance.dto.OvertimePolicyDto;
@@ -17,8 +23,6 @@ import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.common.service.PayrollDetailService;
 import shamu.company.utils.ReflectionUtil;
-
-import java.util.List;
 
 @RestApiController
 public class AttendanceSettingsController extends BaseRestController {
@@ -38,20 +42,18 @@ public class AttendanceSettingsController extends BaseRestController {
       final CompanyTaSettingsMapper companyTaSettingsMapper,
       final EmployeesTaSettingsMapper employeesTaSettingsMapper,
       final PayrollDetailService payrollDetailService,
-      final OvertimeService overtimeService){
+      final OvertimeService overtimeService) {
     this.attendanceSettingsService = attendanceSettingsService;
     this.companyTaSettingsMapper = companyTaSettingsMapper;
     this.employeesTaSettingsMapper = employeesTaSettingsMapper;
     this.payrollDetailService = payrollDetailService;
     this.overtimeService = overtimeService;
-
   }
 
   @GetMapping("time-and-attendance/companySettings")
   public CompanyTaSettingsDto findCompanySettings() {
     return companyTaSettingsMapper.convertToCompanyTaSettingsDto(
-        attendanceSettingsService.findCompanySettings(findCompanyId()),
-        payrollDetailService.findByCompanyId(findCompanyId()));
+        attendanceSettingsService.findCompanySetting(), payrollDetailService.find());
   }
 
   @GetMapping("time-and-attendance/employeeSettings/{employeeId}")
@@ -68,7 +70,7 @@ public class AttendanceSettingsController extends BaseRestController {
   @PatchMapping("time-and-attendance/companySettings")
   public HttpEntity<String> updateCompanySettings(
       @RequestBody final CompanyTaSettingsDto companyTaSettingsDto) {
-    attendanceSettingsService.updateCompanySettings(companyTaSettingsDto, findCompanyId());
+    attendanceSettingsService.updateCompanySettings(companyTaSettingsDto);
     return new ResponseEntity<>(HttpStatus.OK);
   }
 
@@ -86,13 +88,14 @@ public class AttendanceSettingsController extends BaseRestController {
   }
 
   @PostMapping("time-and-attendance/create-overtime-policy")
-  public HttpEntity<String> createOvertimePolicy(@RequestBody final OvertimePolicyDto overtimePolicy){
-    overtimeService.saveNewOvertimePolicy(overtimePolicy,findCompanyId());
+  public HttpEntity<String> createOvertimePolicy(
+      @RequestBody final OvertimePolicyDto overtimePolicy) {
+    overtimeService.saveNewOvertimePolicy(overtimePolicy);
     return new ResponseEntity<>(HttpStatus.OK);
   }
 
   @DeleteMapping("time-and-attendance/delete-overtime-policy/{policyId}")
-  public HttpEntity<String> deleteOvertimePolicy(@PathVariable final String policyId){
+  public HttpEntity<String> deleteOvertimePolicy(@PathVariable final String policyId) {
     overtimeService.softDeleteOvertimePolicy(policyId);
     return new ResponseEntity<>(HttpStatus.OK);
   }

@@ -1,5 +1,13 @@
 package shamu.company.attendance;
 
+import static org.assertj.core.api.Assertions.assertThatCode;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -28,15 +36,6 @@ import shamu.company.company.entity.Company;
 import shamu.company.job.entity.CompensationFrequency;
 import shamu.company.user.entity.CompensationOvertimeStatus;
 import shamu.company.user.entity.UserCompensation;
-
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThatCode;
 
 public class OvertimeServiceTests {
   @InjectMocks OvertimeService overtimeService;
@@ -110,7 +109,7 @@ public class OvertimeServiceTests {
         .thenReturn(staticOvertimeType);
     Mockito.when(policyDetailMapper.convertToPolicyDetail(Mockito.any(), Mockito.any()))
         .thenReturn(policyDetail);
-    assertThatCode(() -> overtimeService.saveNewOvertimePolicy(overtimePolicyDto, "1"))
+    assertThatCode(() -> overtimeService.saveNewOvertimePolicy(overtimePolicyDto))
         .doesNotThrowAnyException();
   }
 
@@ -142,15 +141,14 @@ public class OvertimeServiceTests {
     @Test
     void whenCompanyValid_createDefaultPolicy_shouldSucceed() {
       Mockito.when(overtimePolicyRepository.save(Mockito.any())).thenReturn(new OvertimePolicy());
-      assertThatCode(() -> overtimeService.createDefaultPolicy(company)).doesNotThrowAnyException();
+      assertThatCode(() -> overtimeService.createDefaultPolicy()).doesNotThrowAnyException();
     }
 
     @Test
     void findDefaultPolicy_shouldSucceed() {
-      final String companyId = "test_company_id";
-      Mockito.when(overtimePolicyRepository.findByCompanyIdAndDefaultPolicyIsTrue(companyId))
+      Mockito.when(overtimePolicyRepository.findByDefaultPolicyIsTrue())
           .thenReturn(new OvertimePolicy());
-      assertThatCode(() -> overtimeService.findDefaultPolicy(companyId)).doesNotThrowAnyException();
+      assertThatCode(() -> overtimeService.findDefaultPolicy()).doesNotThrowAnyException();
     }
 
     @Test

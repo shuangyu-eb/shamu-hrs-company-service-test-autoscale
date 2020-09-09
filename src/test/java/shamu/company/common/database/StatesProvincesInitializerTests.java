@@ -28,7 +28,7 @@ public class StatesProvincesInitializerTests {
 
   @Test
   void whenListNull_thenShouldSuccess() {
-    assertThatCode(() -> statesProvincesInitializer.run("1", "2")).doesNotThrowAnyException();
+    assertThatCode(() -> statesProvincesInitializer.run()).doesNotThrowAnyException();
   }
 
   @Test
@@ -39,6 +39,6 @@ public class StatesProvincesInitializerTests {
     cities.add("2");
     Mockito.when(countryRepository.findByName(Mockito.anyString())).thenReturn(country);
     Mockito.when(stateProvinceRepository.findAllNameByCountry(country)).thenReturn(cities);
-    assertThatCode(() -> statesProvincesInitializer.run("1", "2")).doesNotThrowAnyException();
+    assertThatCode(() -> statesProvincesInitializer.run()).doesNotThrowAnyException();
   }
 }

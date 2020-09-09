@@ -1,5 +1,9 @@
 package shamu.company.scheduler;
 
+import static org.assertj.core.api.Assertions.assertThatCode;
+
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -14,11 +18,6 @@ import shamu.company.helpers.EmailHelper;
 import shamu.company.scheduler.job.SendEmailJob;
 import shamu.company.utils.JsonUtil;
 import shamu.company.utils.UuidUtil;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.assertj.core.api.Assertions.assertThatCode;
 
 public class SendEmailJobTests {
   private static SendEmailJob sendEmailJob;
@@ -49,6 +48,7 @@ public class SendEmailJobTests {
     void whenJobExecutionContextIsValid_thenShouldSuccess() {
       final Map<String, Object> jobParameter = new HashMap<>();
       jobParameter.put("email", JsonUtil.formatToString(email));
+      jobParameter.put("companyId", JsonUtil.formatToString(UuidUtil.getUuidString()));
       Mockito.when(jobExecutionContext.getMergedJobDataMap())
           .thenReturn(new JobDataMap(jobParameter));
       assertThatCode(() -> sendEmailJob.executeInternal(jobExecutionContext))

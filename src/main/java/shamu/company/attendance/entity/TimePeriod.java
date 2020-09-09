@@ -3,11 +3,9 @@ package shamu.company.attendance.entity;
 import java.sql.Timestamp;
 import java.util.Date;
 import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.Data;
 import shamu.company.common.entity.BaseEntity;
-import shamu.company.company.entity.Company;
 
 @Data
 @Entity
@@ -18,13 +16,10 @@ public class TimePeriod extends BaseEntity {
 
   private Timestamp endDate;
 
-  @ManyToOne private Company company;
-
   public TimePeriod() {}
 
-  public TimePeriod(final Date startDate, final Date endDate, final Company company) {
+  public TimePeriod(final Date startDate, final Date endDate) {
     this.startDate = new Timestamp(startDate.getTime());
     this.endDate = new Timestamp(endDate.getTime());
-    this.company = company;
   }
 }

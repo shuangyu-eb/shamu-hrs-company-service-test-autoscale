@@ -1,5 +1,11 @@
 package shamu.company.scheduler;
 
+import static org.assertj.core.api.Assertions.assertThatCode;
+
+import java.sql.Timestamp;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -24,13 +30,6 @@ import shamu.company.scheduler.job.AddPayPeriodJob;
 import shamu.company.user.service.UserCompensationService;
 import shamu.company.utils.JsonUtil;
 
-import java.sql.Timestamp;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.assertj.core.api.Assertions.assertThatCode;
-
 public class AddPayPeriodJobTests {
   private static AddPayPeriodJob addPayPeriodJob;
 
@@ -53,7 +52,6 @@ public class AddPayPeriodJobTests {
             attendanceSettingsService,
             payPeriodFrequencyService,
             userCompensationService,
-            companyService,
             payrollDetailService);
   }
 
@@ -72,7 +70,6 @@ public class AddPayPeriodJobTests {
       companyTaSetting = new CompanyTaSetting();
       timePeriod = new TimePeriod();
       timePeriod.setEndDate(new Timestamp(new Date().getTime()));
-      company = new Company();
       payrollDetail = new PayrollDetail();
 
       payFrequencyType = new StaticCompanyPayFrequencyType();
@@ -82,8 +79,7 @@ public class AddPayPeriodJobTests {
       final StaticTimezone timezone = new StaticTimezone();
       timezone.setName("Hongkong");
       companyTaSetting.setTimeZone(timezone);
-      Mockito.when(companyService.findById(Mockito.anyString())).thenReturn(company);
-      Mockito.when(payrollDetailService.findByCompanyId(companyId)).thenReturn(payrollDetail);
+      Mockito.when(payrollDetailService.find()).thenReturn(payrollDetail);
     }
 
     @Test
@@ -92,11 +88,10 @@ public class AddPayPeriodJobTests {
       jobParameter.put("companyId", JsonUtil.formatToString(companyId));
       Mockito.when(jobExecutionContext.getMergedJobDataMap())
           .thenReturn(new JobDataMap(jobParameter));
-      Mockito.when(timePeriodService.findCompanyCurrentPeriod(companyId)).thenReturn(timePeriod);
-      Mockito.when(attendanceSettingsService.findCompanySettings(companyId))
-          .thenReturn(companyTaSetting);
+      Mockito.when(timePeriodService.findCompanyCurrentPeriod()).thenReturn(timePeriod);
+      Mockito.when(attendanceSettingsService.findCompanySetting()).thenReturn(companyTaSetting);
       Mockito.when(payPeriodFrequencyService.findById("id")).thenReturn(payFrequencyType);
-      Mockito.when(attendanceSetUpService.getNextPeriod(timePeriod, "WEEKLY", company))
+      Mockito.when(attendanceSetUpService.getNextPeriod(timePeriod, "WEEKLY"))
           .thenReturn(timePeriod);
       Mockito.when(timePeriodService.save(timePeriod)).thenReturn(timePeriod);
       assertThatCode(() -> addPayPeriodJob.executeInternal(jobExecutionContext))
