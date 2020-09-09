@@ -98,7 +98,7 @@ public class AttendanceSettingsController extends BaseRestController {
 
   @GetMapping("time-and-attendance/overtime-policies")
   public List<OvertimePolicyOverviewDto> getOvertimePolicies() {
-    return overtimeService.findAllOvertimePolicies(findCompanyId());
+    return overtimeService.findAllOvertimePolicies();
   }
 
   @GetMapping("time-and-attendance/overtime-policies/{policyId}")
