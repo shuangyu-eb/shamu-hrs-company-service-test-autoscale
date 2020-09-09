@@ -16,13 +16,10 @@ spring:
           time_zone: UTC
     show-sql: false
   liquibase:
-    default:
-      enabled: true
-      change-log: classpath:/db/changelog/db.default.changelog-master.yml
-    tenant:
-      enabled: true
-      change-log: classpath:/db/changelog/db.tenant.changelog-master.yml
-    secret:
+    enabled: true
+    change-log: classpath:/db/changelog/db.changelog-master.yml
+  secret:
+    liquibase:
       enabled: true
       change-log: classpath:/db/changelog/db.secret.changelog-master.yml
   thymeleaf:
@@ -55,10 +52,6 @@ spring:
   http:
     encoding:
       enabled: true
-  datasource:
-    tenant-prefix: tenant_
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    maximum-pool-size: 20
 
 cloud:
   aws:
@@ -90,14 +83,3 @@ user:
 timeOff:
   requestRateLimiting:
     maxPerHour: 30
-
-feign:
-  client:
-    config:
-      default:
-        connectTimeout: 50000
-        readTimeout: 50000
-        loggerLevel: basic
-        requestInterceptors:
-          shamu.company.common.config.FeignAuthInterceptor
-

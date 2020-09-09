@@ -27,15 +27,18 @@ public class BenefitRequestRestController extends BaseRestController {
       final Integer page, final Integer size, final String[] status) {
     final List<String> statues = Arrays.asList(status);
 
+    final String companyId = findCompanyId();
     final PageRequest pageRequest = PageRequest.of(page, size);
-    return benefitRequestService.findRequestsByStatus(pageRequest, statues);
+    return benefitRequestService.findRequestsByStatusAndCompanyId(pageRequest, statues, companyId);
   }
 
   @GetMapping("benefit/pending-requests/count")
   @PreAuthorize("hasAuthority('MANAGE_BENEFIT')")
   public Integer getPendingRequestsCount() {
     final String benefitRequestStatus = BenefitRequestStatus.AWAITING_REVIEW.name();
+    final String companyId = findCompanyId();
 
-    return benefitRequestService.findRequestsCountByStatus(benefitRequestStatus);
+    return benefitRequestService.findRequestsCountByStatusAndCompanyId(
+        benefitRequestStatus, companyId);
   }
 }

@@ -162,20 +162,6 @@ class Auth0HelperTests {
   }
 
   @Test
-  void testUpdateAuthUserAppMetaData() {
-    final Request request = Mockito.mock(Request.class);
-    final ManagementAPI manager = Mockito.mock(ManagementAPI.class);
-    final UsersEntity usersEntity = Mockito.mock(UsersEntity.class);
-
-    Mockito.when(auth0Manager.getManagementApi()).thenReturn(manager);
-    Mockito.when(manager.users()).thenReturn(usersEntity);
-    Mockito.when(usersEntity.update(Mockito.anyString(), Mockito.any())).thenReturn(request);
-
-    assertThatCode(() -> auth0Helper.updateAuthUserAppMetaData("123", "example@email.com"))
-        .doesNotThrowAnyException();
-  }
-
-  @Test
   void testDeleteUser() throws Auth0Exception {
     final Request deleteRequest = Mockito.mock(Request.class);
     Mockito.when(usersEntity.delete(Mockito.anyString())).thenReturn(deleteRequest);

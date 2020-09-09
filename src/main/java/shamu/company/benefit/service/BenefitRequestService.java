@@ -25,16 +25,17 @@ public class BenefitRequestService {
     this.benefitRequestMapper = benefitRequestMapper;
   }
 
-  public Page<BenefitRequestInfoDto> findRequestsByStatus(
-      final PageRequest pageRequest, final List<String> statuses) {
+  public Page<BenefitRequestInfoDto> findRequestsByStatusAndCompanyId(
+      final PageRequest pageRequest, final List<String> statuses, final String companyId) {
 
     final Page<BenefitRequest> benefitRequests =
-        benefitRequestRepository.findAllByStatus(statuses, pageRequest);
+        benefitRequestRepository.findAllByStatusAndCompanyId(statuses, companyId, pageRequest);
 
     return benefitRequests.map(benefitRequestMapper::convertToBenefitRequestInfoDto);
   }
 
-  public Integer findRequestsCountByStatus(final String status) {
-    return benefitRequestRepository.countRequestsByStatus(status);
+  public Integer findRequestsCountByStatusAndCompanyId(
+      final String status, final String companyId) {
+    return benefitRequestRepository.countRequestsByStatusAndCompanyId(status, companyId);
   }
 }

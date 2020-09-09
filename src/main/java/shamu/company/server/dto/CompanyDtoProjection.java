@@ -1,18 +1,8 @@
 package shamu.company.server.dto;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+public interface CompanyDtoProjection {
 
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class CompanyDtoProjection {
+  public String getId();
 
-  private String id;
-
-  private String name;
+  public String getName();
 }

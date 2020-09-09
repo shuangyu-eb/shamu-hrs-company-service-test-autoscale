@@ -10,11 +10,9 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, String>, UserCustomRepository {
 
   String ACTIVE_USER_QUERY =
-      "  (u.deactivated_at is null "
+      " and (u.deactivated_at is null "
           + "or (u.deactivated_at is not null "
           + "and u.deactivated_at > current_timestamp)) ";
-
-  String AND_ACTIVE_USER_QUERY = " and " + ACTIVE_USER_QUERY;
 
   String FIND_BY_PERIOD_AND_TIME_SHEET_STATUS =
       "select u.* from users u join timesheets t "
@@ -28,7 +26,7 @@ public interface UserRepository extends JpaRepository<User, String>, UserCustomR
   List<User> findByIdIn(List<String> idList);
 
   @Query(
-      value = "select * from users u where u.id = unhex(?1) " + AND_ACTIVE_USER_QUERY,
+      value = "select * from users u" + " where u.id = unhex(?1) " + ACTIVE_USER_QUERY,
       nativeQuery = true)
   User findActiveUserById(String userId);
 
@@ -47,7 +45,7 @@ public interface UserRepository extends JpaRepository<User, String>, UserCustomR
           "select u.* from users u "
               + "left join user_contact_information uc on u.user_contact_information_id = uc.id "
               + "where uc.email_work = ?1 "
-              + AND_ACTIVE_USER_QUERY,
+              + ACTIVE_USER_QUERY,
       nativeQuery = true)
   User findByEmailWork(String emailWork);
 
@@ -58,10 +56,18 @@ public interface UserRepository extends JpaRepository<User, String>, UserCustomR
 
   List<User> findByManagerUser(User managerUser);
 
-  @Query(value = "SELECT count(1) FROM users u" + " WHERE " + ACTIVE_USER_QUERY, nativeQuery = true)
-  Integer countExistingUser();
+  @Query(
+      value =
+          "SELECT count(1) FROM users u" + " WHERE u.company_id = unhex(?1) " + ACTIVE_USER_QUERY,
+      nativeQuery = true)
+  Integer findExistingUserCountByCompanyId(String companyId);
 
-  List<User> findAllByIdNotIn(List<String> userIdList);
+  @Query(
+      value = "SELECT * FROM users u" + " WHERE u.company_id = unhex(?1) " + ACTIVE_USER_QUERY,
+      nativeQuery = true)
+  List<User> findAllByCompanyId(String companyId);
+
+  List<User> findAllByCompanyIdAndIdNotIn(String companyId, List<String> userIdList);
 
   Boolean existsByResetPasswordToken(String token);
 
@@ -71,32 +77,42 @@ public interface UserRepository extends JpaRepository<User, String>, UserCustomR
 
   User findByResetPasswordToken(String token);
 
-  @Query(value = "select * from users u where " + ACTIVE_USER_QUERY, nativeQuery = true)
-  List<User> findAllActiveUsers();
+  @Query(
+      value = "select * from users u" + " where u.company_id = unhex(?1) " + ACTIVE_USER_QUERY,
+      nativeQuery = true)
+  List<User> findByCompanyId(String companyId);
 
   @Query(
       value =
           "select * from users u"
               + " join jobs_users ju on u.id = ju.user_id"
-              + " where u.manager_user_id = unhex(?2) "
-              + AND_ACTIVE_USER_QUERY,
+              + " where u.company_id = unhex(?1)"
+              + " and u.manager_user_id = unhex(?2) "
+              + ACTIVE_USER_QUERY,
       nativeQuery = true)
-  List<User> findSubordinatesByManagerUserId(String userId);
+  List<User> findSubordinatesByManagerUserId(String companyId, String userId);
 
   @Query(
       value =
           "select count(1) from users u "
               + "where u.manager_user_id = unhex(?1) "
-              + AND_ACTIVE_USER_QUERY,
+              + "and u.company_id = unhex(?2) "
+              + ACTIVE_USER_QUERY,
       nativeQuery = true)
-  Integer findDirectReportsCount(String orgUserId);
+  Integer findDirectReportsCount(String orgUserId, String companyId);
 
   @Query(
       value =
-          "select hex(u.manager_user_id) from users u where u.id = unhex(?1) "
-              + AND_ACTIVE_USER_QUERY,
+          "select hex(u.manager_user_id) from users u where u.id = unhex(?1) " + ACTIVE_USER_QUERY,
       nativeQuery = true)
   String getManagerUserIdById(String userId);
+
+  @Query(
+      value =
+          "select * from users u where u.id = unhex(?1) and u.company_id = unhex(?2) "
+              + ACTIVE_USER_QUERY,
+      nativeQuery = true)
+  User findByIdAndCompanyId(String userId, String companyId);
 
   User findByChangeWorkEmailToken(String token);
 
@@ -119,20 +135,19 @@ public interface UserRepository extends JpaRepository<User, String>, UserCustomR
 
   @Query(
       value =
-          "select * from users u left join user_roles ur on u.user_role_id = ur.id where ur.name = ?1",
+          "select * from users u left join user_roles ur on u.user_role_id = ur.id where u.company_id = unhex(?1) and ur.name = ?2",
       nativeQuery = true)
-  List<User> findUsersByUserRole(String userRole);
+  List<User> findUsersByCompanyIdAndUserRole(String companyId, String userRole);
 
   @Query(
       value =
-          "select distinct u.* from users u join employees_ta_settings t on u.id = t.employee_id ",
+          "select distinct u.* from users u join employees_ta_settings t on u.id = t.employee_id "
+              + "and u.company_id = unhex(?1)",
       nativeQuery = true)
-  List<User> findAttendanceEnrolledUsers();
+  List<User> findAttendanceEnrolledUsersByCompanyId(String companyId);
 
   @Query(value = FIND_BY_PERIOD_AND_TIME_SHEET_STATUS, nativeQuery = true)
   List<User> findUsersByPeriodIdAndTimeSheetStatus(String periodId, String timeSheetStatus);
-
-  User findByInvitationEmailTokenAndResetPasswordToken(String emailToken, String passwordToken);
 
   @Query(
       value =

@@ -26,6 +26,7 @@ import shamu.company.WebControllerBaseTests;
 import shamu.company.authorization.Permission.Name;
 import shamu.company.common.exception.errormapping.EmailAlreadyVerifiedException;
 import shamu.company.company.entity.Company;
+import shamu.company.company.entity.Department;
 import shamu.company.company.entity.Office;
 import shamu.company.email.service.EmailService;
 import shamu.company.employee.dto.EmailResendDto;
@@ -53,7 +54,7 @@ class EmployeeRestControllerTests extends WebControllerBaseTests {
   void testFindAllEmployees() throws Exception {
 
     final Page<JobUserListItem> result = new PageImpl<>(Collections.emptyList());
-    given(userService.findAllEmployees(Mockito.any())).willReturn(result);
+    given(userService.findAllEmployees(Mockito.any(), Mockito.any())).willReturn(result);
 
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
@@ -83,7 +84,7 @@ class EmployeeRestControllerTests extends WebControllerBaseTests {
 
   @Test
   void testFindAllPolicyEmployees() throws Exception {
-    given(userService.findAllJobUsers()).willReturn(Collections.emptyList());
+    given(userService.findAllJobUsers(Mockito.any())).willReturn(Collections.emptyList());
     setPermission(Name.CREATE_USER.name());
 
     final HttpHeaders httpHeaders = new HttpHeaders();
@@ -131,32 +132,60 @@ class EmployeeRestControllerTests extends WebControllerBaseTests {
       setGiven();
     }
 
-    @Test
-    void asAdmin_thenShouldSuccess() throws Exception {
-      buildAuthUserAsAdmin();
-      final MvcResult response = getResponse();
-      assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+    private class CommonTests {
+
+      @Test
+      void asManager_thenShouldFailed() throws Exception {
+        buildAuthUserAsManager();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+
+      @Test
+      void asEmployee_thenShouldFailed() throws Exception {
+        buildAuthUserAsEmployee();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+
+      @Test
+      void asDeactivatedUser_thenShouldFailed() throws Exception {
+        buildAuthUserAsDeactivatedUser();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
     }
 
-    @Test
-    void asManager_thenShouldFailed() throws Exception {
-      buildAuthUserAsManager();
-      final MvcResult response = getResponse();
-      assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+    @Nested
+    class SameCompany extends CommonTests {
+
+      @BeforeEach
+      void init() {
+        targetUser.setCompany(company);
+      }
+
+      @Test
+      void asAdmin_thenShouldSuccess() throws Exception {
+        buildAuthUserAsAdmin();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+      }
     }
 
-    @Test
-    void asEmployee_thenShouldFailed() throws Exception {
-      buildAuthUserAsEmployee();
-      final MvcResult response = getResponse();
-      assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
-    }
+    @Nested
+    class DifferentCompany extends CommonTests {
 
-    @Test
-    void asDeactivatedUser_thenShouldFailed() throws Exception {
-      buildAuthUserAsDeactivatedUser();
-      final MvcResult response = getResponse();
-      assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      @BeforeEach
+      void init() {
+        targetUser.setCompany(theOtherCompany);
+      }
+
+      @Test
+      void asAdmin_thenShouldFailed() throws Exception {
+        buildAuthUserAsAdmin();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
     }
 
     private void setGiven() {
@@ -193,6 +222,7 @@ class EmployeeRestControllerTests extends WebControllerBaseTests {
       job.setId(UuidUtil.getUuidString());
       final Company company = new Company();
       company.setId(UuidUtil.getUuidString());
+      job.setCompany(company);
 
       employmentType = new EmploymentType();
       employmentType.setId(UuidUtil.getUuidString());
@@ -214,32 +244,109 @@ class EmployeeRestControllerTests extends WebControllerBaseTests {
       setGiven();
     }
 
-    @Test
-    void asAdmin_thenShouldSuccess() throws Exception {
-      buildAuthUserAsAdmin();
-      final MvcResult response = getResponse();
-      assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+    private class CommonTests {
+
+      @Test
+      void asManager_thenShouldFailed() throws Exception {
+        buildAuthUserAsManager();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+
+      @Test
+      void asEmployee_thenShouldFailed() throws Exception {
+        buildAuthUserAsEmployee();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+
+      @Test
+      void asDeactivatedUser_thenShouldFailed() throws Exception {
+        buildAuthUserAsDeactivatedUser();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
     }
 
-    @Test
-    void asManager_thenShouldFailed() throws Exception {
-      buildAuthUserAsManager();
-      final MvcResult response = getResponse();
-      assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+    @Nested
+    class AllInfoBelongToCurrentCompany extends CommonTests {
+
+      @BeforeEach
+      void init() {
+        job.setCompany(company);
+        manager.setCompany(company);
+        office.setCompany(company);
+      }
+
+      @Test
+      void asAdmin_thenShouldSuccess() throws Exception {
+        buildAuthUserAsAdmin();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+      }
     }
 
-    @Test
-    void asEmployee_thenShouldFailed() throws Exception {
-      buildAuthUserAsEmployee();
-      final MvcResult response = getResponse();
-      assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+    @Nested
+    class AllInfoNotBelongToCurrentCompany extends CommonTests {
+
+      @BeforeEach
+      void init() {
+        job.setCompany(theOtherCompany);
+        manager.setCompany(theOtherCompany);
+        office.setCompany(theOtherCompany);
+      }
     }
 
-    @Test
-    void asDeactivatedUser_thenShouldFailed() throws Exception {
-      buildAuthUserAsDeactivatedUser();
-      final MvcResult response = getResponse();
-      assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+    @Nested
+    class SomeInfoNotBelongToCurrentCompany {
+
+      @Nested
+      class JobNotBelongToCurrentCompany extends AllInfoNotBelongToCurrentCompany {
+
+        @Override
+        @BeforeEach
+        void init() {
+          job.setCompany(theOtherCompany);
+          manager.setCompany(company);
+          office.setCompany(company);
+        }
+      }
+
+      @Nested
+      class ManagerNotBelongToCurrentCompany extends AllInfoNotBelongToCurrentCompany {
+
+        @Override
+        @BeforeEach
+        void init() {
+          job.setCompany(company);
+          manager.setCompany(theOtherCompany);
+          office.setCompany(company);
+        }
+      }
+
+      @Nested
+      class OfficeNotBelongToCurrentCompany extends AllInfoNotBelongToCurrentCompany {
+
+        @Override
+        @BeforeEach
+        void init() {
+          job.setCompany(company);
+          manager.setCompany(company);
+          office.setCompany(theOtherCompany);
+        }
+      }
+
+      @Nested
+      class EmploymentTypeNotBelongToCurrentCompany extends AllInfoNotBelongToCurrentCompany {
+
+        @Override
+        @BeforeEach
+        void init() {
+          job.setCompany(company);
+          manager.setCompany(company);
+          office.setCompany(company);
+        }
+      }
     }
 
     private void setGiven() {
@@ -282,6 +389,7 @@ class EmployeeRestControllerTests extends WebControllerBaseTests {
 
     final User targetUser = new User();
     targetUser.setId(getAuthUser().getId());
+    targetUser.setCompany(new Company(getAuthUser().getCompanyId()));
     given(userService.findById(getAuthUser().getId())).willReturn(targetUser);
 
     final HttpHeaders httpHeaders = new HttpHeaders();

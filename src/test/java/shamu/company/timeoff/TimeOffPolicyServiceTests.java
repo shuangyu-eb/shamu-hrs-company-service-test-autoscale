@@ -1,4 +1,4 @@
-package shamu.company.timeoff.service;
+package shamu.company.timeoff;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
@@ -56,6 +56,8 @@ import shamu.company.timeoff.repository.TimeOffPolicyAccrualScheduleRepository;
 import shamu.company.timeoff.repository.TimeOffPolicyRepository;
 import shamu.company.timeoff.repository.TimeOffPolicyUserRepository;
 import shamu.company.timeoff.repository.TimeOffRequestRepository;
+import shamu.company.timeoff.service.TimeOffDetailService;
+import shamu.company.timeoff.service.TimeOffPolicyService;
 import shamu.company.user.entity.EmployeeType;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserAddress;
@@ -268,13 +270,17 @@ public class TimeOffPolicyServiceTests {
     timeOffPolicyUsers.add(timeOffPolicyUser);
     timeOffPolicyUsers.add(timeOffPolicyUser1);
 
+    final TimeOffPolicyAccrualSchedule timeOffPolicyAccrualSchedule =
+        new TimeOffPolicyAccrualSchedule();
+    final TimeOffAccrualFrequency timeOffAccrualFrequency = new TimeOffAccrualFrequency();
     final TimeOffPolicyRelatedUserDto timeOffPolicyRelatedUserDto =
         new TimeOffPolicyRelatedUserDto();
     Mockito.when(timeOffPolicyRepository.findById(Mockito.any()))
         .thenReturn(Optional.of(timeOffPolicy));
     Mockito.when(timeOffPolicyUserRepository.findAllByTimeOffPolicyId(Mockito.any()))
         .thenReturn(timeOffPolicyUsers);
-    Mockito.when(userRepository.findAllActiveUsers()).thenReturn(selectableTimeOffPolicyUsers);
+    Mockito.when(userRepository.findAllByCompanyId(Mockito.any()))
+        .thenReturn(selectableTimeOffPolicyUsers);
     Mockito.when(jobUserRepository.findJobUserByUser(Mockito.any())).thenReturn(jobUser, jobUser2);
     Mockito.when(
             jobUserMapper.convertToTimeOffPolicyRelatedUserDto(
@@ -291,7 +297,9 @@ public class TimeOffPolicyServiceTests {
         .thenReturn(userAddress, userAddress2);
 
     Assertions.assertDoesNotThrow(
-        () -> timeOffPolicyService.getAllEmployeesByTimeOffPolicyId(timeOffPolicy.getId()));
+        () ->
+            timeOffPolicyService.getAllEmployeesByTimeOffPolicyId(
+                timeOffPolicy.getId(), new Company("1").getId()));
   }
 
   @Test
@@ -315,7 +323,7 @@ public class TimeOffPolicyServiceTests {
 
     final TimeOffPolicyRelatedUserDto timeOffPolicyRelatedUserDto =
         new TimeOffPolicyRelatedUserDto();
-    Mockito.when(userRepository.findAllActiveUsers()).thenReturn(allUsers);
+    Mockito.when(userRepository.findAllByCompanyId(Mockito.any())).thenReturn(allUsers);
     Mockito.when(jobUserRepository.findJobUserByUser(Mockito.any())).thenReturn(jobUser, jobUser2);
     Mockito.when(
             jobUserMapper.convertToTimeOffPolicyRelatedUserDto(
@@ -323,7 +331,7 @@ public class TimeOffPolicyServiceTests {
         .thenReturn(timeOffPolicyRelatedUserDto);
 
     Assertions.assertDoesNotThrow(
-        () -> timeOffPolicyService.getEmployeesOfNewPolicyOrPaidHoliday());
+        () -> timeOffPolicyService.getEmployeesOfNewPolicyOrPaidHoliday(Mockito.any()));
   }
 
   @Test
@@ -422,8 +430,9 @@ public class TimeOffPolicyServiceTests {
         };
     timeOffPolicies.add(timeOffPolicyListPojo);
 
-    Mockito.when(timeOffPolicyRepository.getAllPolicies()).thenReturn(timeOffPolicies);
-    Assertions.assertDoesNotThrow(() -> timeOffPolicyService.getAllPolicies());
+    Mockito.when(timeOffPolicyRepository.getAllPolicies(Mockito.any())).thenReturn(timeOffPolicies);
+    Assertions.assertDoesNotThrow(
+        () -> timeOffPolicyService.getAllPolicies(new Company("1").getId()));
   }
 
   @Test
@@ -494,6 +503,7 @@ public class TimeOffPolicyServiceTests {
     personalInformation.setLastName("007");
     final User user = new User();
     user.setId("1");
+    user.setCompany(new Company("1"));
     user.setUserPersonalInformation(personalInformation);
     final TimeOffAdjustmentCheckDto checkResult = new TimeOffAdjustmentCheckDto();
     checkResult.setExceed(false);
@@ -567,6 +577,7 @@ public class TimeOffPolicyServiceTests {
 
     final User user = new User();
     user.setId("1");
+    user.setCompany(new Company("1"));
     timeOffPolicyUser.setUser(user);
     timeOffPolicyUser.setTimeOffPolicy(timeOffPolicy);
 
@@ -623,19 +634,19 @@ public class TimeOffPolicyServiceTests {
 
   @Test
   void testAddUserToAutoEnrolledPolicy() {
-    final Company companyInfo = new Company();
+    final Company company = new Company();
     final TimeOffPolicy timeOffPolicy = new TimeOffPolicy();
     timeOffPolicy.setId("1");
     timeOffPolicy.setIsLimited(true);
-    companyInfo.setIsPaidHolidaysAutoEnroll(true);
-    companyInfo.setId("1");
+    company.setIsPaidHolidaysAutoEnroll(true);
+    company.setId("1");
     final List<TimeOffPolicy> timeOffPolicyList = new ArrayList<>();
     timeOffPolicyList.add(timeOffPolicy);
-    Mockito.when(companyService.getCompany()).thenReturn(companyInfo);
-    Mockito.when(timeOffPolicyRepository.findByIsAutoEnrollEnabledIsTrue())
+    Mockito.when(companyService.findById(Mockito.anyString())).thenReturn(company);
+    Mockito.when(timeOffPolicyRepository.findByCompanyIdAndIsAutoEnrollEnabledIsTrue(Mockito.any()))
         .thenReturn(timeOffPolicyList);
 
-    Assertions.assertDoesNotThrow(() -> timeOffPolicyService.addUserToAutoEnrolledPolicy("1"));
+    Assertions.assertDoesNotThrow(() -> timeOffPolicyService.addUserToAutoEnrolledPolicy("1", "1"));
   }
 
   @Nested
@@ -668,7 +679,7 @@ public class TimeOffPolicyServiceTests {
       company.setId("1");
       timeOffPolicy = new TimeOffPolicy();
       Mockito.when(timeOffPolicyRepository.save(Mockito.any())).thenReturn(timeOffPolicy);
-      Mockito.when(companyService.getCompany()).thenReturn(company);
+      Mockito.when(companyService.findById(Mockito.any())).thenReturn(company);
     }
 
     @Test
@@ -676,7 +687,7 @@ public class TimeOffPolicyServiceTests {
       timeOffPolicyFrontendDto.setIsLimited(false);
 
       Assertions.assertDoesNotThrow(
-          () -> timeOffPolicyService.createTimeOffPolicy(timeOffPolicyWrapperDto));
+          () -> timeOffPolicyService.createTimeOffPolicy(timeOffPolicyWrapperDto, company.getId()));
     }
 
     @Test
@@ -690,7 +701,7 @@ public class TimeOffPolicyServiceTests {
           .thenReturn(timeOffPolicyAccrualSchedule);
 
       Assertions.assertDoesNotThrow(
-          () -> timeOffPolicyService.createTimeOffPolicy(timeOffPolicyWrapperDto));
+          () -> timeOffPolicyService.createTimeOffPolicy(timeOffPolicyWrapperDto, company.getId()));
     }
   }
 
@@ -713,27 +724,35 @@ public class TimeOffPolicyServiceTests {
     @Test
     void whenExistSamePolicyNameMoreThanZero_thenShouldSuccess() {
 
-      Mockito.when(timeOffPolicyRepository.countByName(timeOffPolicy.getPolicyName()))
+      Mockito.when(
+              timeOffPolicyRepository.findByPolicyNameAndCompanyId(
+                  timeOffPolicy.getPolicyName(), company.getId()))
           .thenReturn(0);
 
       Assertions.assertDoesNotThrow(
           () -> {
             Whitebox.invokeMethod(
-                timeOffPolicyService, "checkPolicyNameIsExists", timeOffPolicy, 0);
+                timeOffPolicyService, "checkPolicyNameIsExists", timeOffPolicy, company.getId(), 0);
           });
     }
 
     @Test
     void whenExistSamePolicyNameLessThanZero_thenShouldThrow() {
 
-      Mockito.when(timeOffPolicyRepository.countByName(timeOffPolicy.getPolicyName()))
+      Mockito.when(
+              timeOffPolicyRepository.findByPolicyNameAndCompanyId(
+                  timeOffPolicy.getPolicyName(), company.getId()))
           .thenReturn(1);
 
       assertThatExceptionOfType(AlreadyExistsException.class)
           .isThrownBy(
               () ->
                   Whitebox.invokeMethod(
-                      timeOffPolicyService, "checkPolicyNameIsExists", timeOffPolicy, 0));
+                      timeOffPolicyService,
+                      "checkPolicyNameIsExists",
+                      timeOffPolicy,
+                      company.getId(),
+                      0));
     }
   }
 
@@ -851,7 +870,8 @@ public class TimeOffPolicyServiceTests {
       Mockito.when(timeOffPolicyAccrualScheduleRepository.save(Mockito.any()))
           .thenReturn(timeOffPolicyAccrualSchedule1);
       Assertions.assertDoesNotThrow(
-          () -> timeOffPolicyService.updateTimeOffPolicy("1", infoWrapper));
+          () ->
+              timeOffPolicyService.updateTimeOffPolicy("1", infoWrapper, new Company("1").getId()));
     }
 
     @Test
@@ -898,7 +918,8 @@ public class TimeOffPolicyServiceTests {
               new TimeOffAccrualFrequency(AccrualFrequencyType.FREQUENCY_TYPE_TWO.getValue()));
       System.out.println(infoWrapper);
       Assertions.assertDoesNotThrow(
-          () -> timeOffPolicyService.updateTimeOffPolicy("1", infoWrapper));
+          () ->
+              timeOffPolicyService.updateTimeOffPolicy("1", infoWrapper, new Company("1").getId()));
     }
   }
 

@@ -1,12 +1,5 @@
 package shamu.company.attendance;
 
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -27,6 +20,14 @@ import shamu.company.attendance.service.TimePeriodService;
 import shamu.company.attendance.service.TimeSheetService;
 import shamu.company.common.exception.errormapping.ResourceNotFoundException;
 import shamu.company.utils.UuidUtil;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 public class TimeSheetServiceTests {
 
@@ -105,74 +106,74 @@ public class TimeSheetServiceTests {
     @Test
     void whenNormal_thenShouldSuccess() {
       Mockito.when(
-              timeSheetRepository.findTeamTimeSheetsByIdAndStatus(
-                  timesheetId, status.getValue(), "1", pageable))
+              timeSheetRepository.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
+                  timesheetId, companyId, status.getValue(), "1", pageable))
           .thenReturn(page);
       assertThatCode(
               () ->
                   timeSheetService.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
-                      timesheetId, status, "1", pageable))
+                      timesheetId, companyId, status, "1", pageable))
           .doesNotThrowAnyException();
     }
+  }
 
-    @Test
-    void findCompanyTimeSheetsByIdAndCompanyIdAndStatus() {
-      final TimeSheetStatus timeSheetStatus = TimeSheetStatus.SUBMITTED;
-      final Pageable pageable = PageRequest.of(0, 2);
-      final Page<TimeSheet> page = new PageImpl<>(Collections.emptyList());
-      Mockito.when(
-              timeSheetRepository.findCompanyTimeSheetsByIdAndStatus(
-                  "1", timeSheetStatus.getValue(), "1", pageable))
-          .thenReturn(page);
-      assertThatCode(
-              () ->
-                  timeSheetService.findCompanyTimeSheetsByIdAndStatus(
-                      "1", timeSheetStatus, "1", pageable))
-          .doesNotThrowAnyException();
-    }
+  @Test
+  void findCompanyTimeSheetsByIdAndCompanyIdAndStatus() {
+    final TimeSheetStatus timeSheetStatus = TimeSheetStatus.SUBMITTED;
+    final Pageable pageable = PageRequest.of(0, 2);
+    final Page<TimeSheet> page = new PageImpl<>(Collections.emptyList());
+    Mockito.when(
+            timeSheetRepository.findCompanyTimeSheetsByIdAndCompanyIdAndStatus(
+                "1", "1", timeSheetStatus.getValue(), "1", pageable))
+        .thenReturn(page);
+    assertThatCode(
+            () ->
+                timeSheetService.findCompanyTimeSheetsByIdAndCompanyIdAndStatus(
+                    "1", "1", timeSheetStatus, "1", pageable))
+        .doesNotThrowAnyException();
+  }
 
-    @Test
-    void findTeamTimeSheetsByIdAndCompanyIdAndStatus() {
-      final List<TimeSheet> timeSheets = new ArrayList<>();
-      Mockito.when(
-              timeSheetRepository.findTeamTimeSheetsByIdAndStatus(
-                  Mockito.anyString(), Mockito.anyList(), Mockito.any()))
-          .thenReturn(timeSheets);
-      assertThatCode(
-              () ->
-                  timeSheetService.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
-                      Mockito.anyString(), Mockito.any(), Mockito.anyList()))
-          .doesNotThrowAnyException();
-    }
+  @Test
+  void findTeamTimeSheetsByIdAndCompanyIdAndStatus() {
+    final List<TimeSheet> timeSheets = new ArrayList<>();
+    Mockito.when(
+            timeSheetRepository.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
+                Mockito.anyString(), Mockito.any(), Mockito.anyList(), Mockito.any()))
+        .thenReturn(timeSheets);
+    assertThatCode(
+            () ->
+                timeSheetService.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
+                    Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.anyList()))
+        .doesNotThrowAnyException();
+  }
 
-    @Test
-    void findCompanyTimeSheetsByCompanyIdAndStatus() {
-      final List<TimeSheet> timeSheets = new ArrayList<>();
-      Mockito.when(
-              timeSheetRepository.findCompanyTimeSheetsByIdAndStatus(
-                  Mockito.anyString(), Mockito.anyList(), Mockito.any()))
-          .thenReturn(timeSheets);
-      assertThatCode(
-              () ->
-                  timeSheetService.findCompanyTimeSheetsByIdAndStatus(
-                      Mockito.anyString(), Mockito.any(), Mockito.anyList()))
-          .doesNotThrowAnyException();
-    }
+  @Test
+  void findCompanyTimeSheetsByCompanyIdAndStatus() {
+    final List<TimeSheet> timeSheets = new ArrayList<>();
+    Mockito.when(
+            timeSheetRepository.findCompanyTimeSheetsByIdAndCompanyIdAndStatus(
+                Mockito.anyString(), Mockito.any(), Mockito.anyList(), Mockito.any()))
+        .thenReturn(timeSheets);
+    assertThatCode(
+            () ->
+                timeSheetService.findCompanyTimeSheetsByIdAndCompanyIdAndStatus(
+                    Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.anyList()))
+        .doesNotThrowAnyException();
+  }
 
-    @Test
-    void removeUserFromAttendance() {
-      final List<String> userIds = new ArrayList<>();
-      userIds.add("1");
-      final TimePeriod timePeriod = new TimePeriod();
-      timePeriod.setId("1");
-      final List<TimeSheet> timeSheets = new ArrayList<>();
-      final TimeSheet timeSheet = new TimeSheet();
-      timeSheets.add(timeSheet);
-      Mockito.when(timePeriodService.findCompanyCurrentPeriod()).thenReturn(timePeriod);
-      Mockito.when(timeSheetRepository.findAllByTimePeriodIdAndEmployeeId("1", userIds))
-          .thenReturn(timeSheets);
-      assertThatCode(() -> timeSheetService.removeUserFromAttendance(userIds))
-          .doesNotThrowAnyException();
-    }
+  @Test
+  void removeUserFromAttendance() {
+    final List<String> userIds = new ArrayList<>();
+    userIds.add("1");
+    final TimePeriod timePeriod = new TimePeriod();
+    timePeriod.setId("1");
+    final List<TimeSheet> timeSheets = new ArrayList<>();
+    final TimeSheet timeSheet = new TimeSheet();
+    timeSheets.add(timeSheet);
+    Mockito.when(timePeriodService.findCompanyCurrentPeriod("1")).thenReturn(timePeriod);
+    Mockito.when(timeSheetRepository.findAllByTimePeriodIdAndEmployeeId("1", userIds))
+        .thenReturn(timeSheets);
+    assertThatCode(() -> timeSheetService.removeUserFromAttendance(userIds, "1"))
+        .doesNotThrowAnyException();
   }
 }

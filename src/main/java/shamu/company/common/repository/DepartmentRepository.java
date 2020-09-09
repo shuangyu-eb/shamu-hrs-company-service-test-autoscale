@@ -7,6 +7,11 @@ import shamu.company.company.entity.Department;
 public interface DepartmentRepository extends BaseRepository<Department, String> {
 
   @Query(
+      value = "select * from departments d " + " where d.company_id = unhex(?1) ",
+      nativeQuery = true)
+  List<Department> findAllByCompanyId(String companyId);
+
+  @Query(
       value =
           "SELECT count(1) FROM jobs_users ju"
               + " join jobs j on ju.job_id = j.id"
@@ -14,6 +19,9 @@ public interface DepartmentRepository extends BaseRepository<Department, String>
       nativeQuery = true)
   Integer findCountByDepartment(String departmentId);
 
-  @Query(value = "SELECT * FROM departments d WHERE binary d.name = ?1 ", nativeQuery = true)
-  List<Department> findByName(String name);
+  @Query(
+      value =
+          "SELECT * FROM departments d" + " WHERE binary d.name = ?1 and d.company_id = unhex(?2) ",
+      nativeQuery = true)
+  List<Department> findByNameAndCompanyId(String name, String companyId);
 }

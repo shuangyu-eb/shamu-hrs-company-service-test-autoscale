@@ -1,15 +1,5 @@
 package shamu.company.employee.service;
 
-import java.io.File;
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.sql.Timestamp;
-import java.time.Instant;
-import java.util.Base64;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.BeanUtils;
@@ -35,7 +25,6 @@ import shamu.company.common.service.OfficeService;
 import shamu.company.common.service.StateProvinceService;
 import shamu.company.company.entity.Department;
 import shamu.company.company.entity.Office;
-import shamu.company.company.service.CompanyService;
 import shamu.company.crypto.EncryptorUtil;
 import shamu.company.email.entity.Email;
 import shamu.company.email.event.EmailStatus;
@@ -101,6 +90,17 @@ import shamu.company.utils.DateUtil;
 import shamu.company.utils.FileValidateUtils;
 import shamu.company.utils.FileValidateUtils.FileFormat;
 
+import java.io.File;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.util.Base64;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
 @Service
 @Transactional
 public class EmployeeService {
@@ -137,7 +137,6 @@ public class EmployeeService {
   private final EmployeeTypesService employeeTypesService;
   private final CompensationOvertimeStatusService compensationOvertimeStatusService;
   private final DepartmentService departmentService;
-  private final CompanyService companyService;
   private final GoogleMapsHelper googleMapsHelper;
   private final StaticTimeZoneRepository staticTimeZoneRepository;
 
@@ -182,7 +181,6 @@ public class EmployeeService {
       final EncryptorUtil encryptorUtil,
       final EmployeeTypesService employeeTypesService,
       final CompensationOvertimeStatusService compensationOvertimeStatusService,
-      final CompanyService companyService,
       final DepartmentService departmentService,
       final GoogleMapsHelper googleMapsHelper,
       final StaticTimeZoneRepository staticTimeZoneRepository) {
@@ -217,21 +215,20 @@ public class EmployeeService {
     this.employeeTypesService = employeeTypesService;
     this.compensationOvertimeStatusService = compensationOvertimeStatusService;
     this.departmentService = departmentService;
-    this.companyService = companyService;
     this.googleMapsHelper = googleMapsHelper;
     this.staticTimeZoneRepository = staticTimeZoneRepository;
   }
 
-  public List<User> findAllActiveUsers() {
-    return userService.findAllActiveUsers();
+  public List<User> findByCompanyId(final String companyId) {
+    return userService.findByCompanyId(companyId);
   }
 
-  public List<User> findSubordinatesByManagerUserId(final String userId) {
-    return userService.findSubordinatesByManagerUserId(userId);
+  public List<User> findSubordinatesByManagerUserId(final String companyId, final String userId) {
+    return userService.findSubordinatesByManagerUserId(companyId, userId);
   }
 
   public void addEmployee(final EmployeeDto employeeDto, final User currentUser) {
-    final User employee = saveEmployeeBasicInformation(employeeDto);
+    final User employee = saveEmployeeBasicInformation(currentUser, employeeDto);
 
     saveEmergencyContacts(employee, employeeDto.getUserEmergencyContactDto());
 
@@ -239,31 +236,34 @@ public class EmployeeService {
 
     if (jobInformation != null) {
       saveManagerUser(employee, jobInformation);
-      saveEmployeeJob(employee, jobInformation);
+      saveEmployeeJob(employee, currentUser, jobInformation);
     }
 
     saveEmployeeAddress(employee, employeeDto);
     saveEmailTasks(employeeDto.getWelcomeEmail(), employee, currentUser);
 
-    final Boolean isEmployeePersonalInfoComplete =
-        userService.checkPersonalInfoComplete(employee.getId());
+    Boolean isEmployeePersonalInfoComplete = userService
+        .checkPersonalInfoComplete(employee.getId());
 
     if (Boolean.TRUE.equals(isEmployeePersonalInfoComplete)) {
-      timeOffPolicyService.addUserToAutoEnrolledPolicy(employee.getId());
+      timeOffPolicyService.addUserToAutoEnrolledPolicy(
+          employee.getId(), employee.getCompany().getId());
     }
   }
 
   public void updateEmployee(final EmployeeDto employeeDto, final User employee) {
 
-    final Boolean isEmployeePersonalInfoComplete =
-        userService.checkPersonalInfoComplete(employee.getId());
+    Boolean isEmployeePersonalInfoComplete = userService
+        .checkPersonalInfoComplete(employee.getId());
     if (Boolean.FALSE.equals(isEmployeePersonalInfoComplete)) {
-      timeOffPolicyService.addUserToAutoEnrolledPolicy(employee.getId());
+      timeOffPolicyService.addUserToAutoEnrolledPolicy(
+          employee.getId(), employee.getCompany().getId());
     }
 
     updateEmployeeBasicInformation(employee, employeeDto);
     updateEmergencyContacts(employee, employeeDto.getUserEmergencyContactDto());
     updateEmployeeAddress(employee, employeeDto);
+
   }
 
   public void resendEmail(final EmailResendDto emailResendDto) {
@@ -288,7 +288,7 @@ public class EmployeeService {
       userService.save(user);
     }
 
-    final Email emailInfo = findWelcomeEmail(originalEmail);
+    final Email emailInfo = findWelcomeEmail(originalEmail, user.getCompany().getName());
     emailInfo.setSendDate(Timestamp.from(Instant.now()));
     if (StringUtils.isNotEmpty(emailInfo.getContent()) && !originalEmail.equals(email)) {
       final String originalEmailAddress = emailService.getEncodedEmailAddress(originalEmail);
@@ -308,9 +308,8 @@ public class EmployeeService {
     emailService.saveAndScheduleEmail(emailInfo);
   }
 
-  public Email findWelcomeEmail(final String email) {
-    return emailService.findFirstByToAndSubjectOrderBySendDateDesc(
-        email, SUBJECT + companyService.getCompany().getName());
+  public Email findWelcomeEmail(final String email, final String companyName) {
+    return emailService.findFirstByToAndSubjectOrderBySendDateDesc(email, SUBJECT + companyName);
   }
 
   private String saveEmployeePhoto(final String base64EncodedPhoto) {
@@ -332,11 +331,13 @@ public class EmployeeService {
     }
   }
 
-  private User saveEmployeeBasicInformation(final EmployeeDto employeeDto) {
+  private User saveEmployeeBasicInformation(final User currentUser, final EmployeeDto employeeDto) {
     final User employee = new User();
     final String base64EncodedPhoto = employeeDto.getPersonalPhoto();
     final String photoPath = saveEmployeePhoto(base64EncodedPhoto);
     employee.setImageUrl(photoPath);
+
+    employee.setCompany(currentUser.getCompany());
 
     final UserStatus userStatus = userStatusService.findByName(Status.PENDING_VERIFICATION.name());
     employee.setUserStatus(userStatus);
@@ -496,7 +497,9 @@ public class EmployeeService {
   }
 
   private void saveEmployeeJob(
-      final User employee, final NewEmployeeJobInformationDto jobInformation) {
+      final User employee,
+      final User currentUser,
+      final NewEmployeeJobInformationDto jobInformation) {
     final UserCompensation userCompensation =
         saveEmployeeCompensation(jobInformation, employee.getId());
 
@@ -508,6 +511,7 @@ public class EmployeeService {
       final Job job = jobService.findById(jobInformation.getJobId());
       jobUser.setJob(job);
     }
+    jobUser.setCompany(currentUser.getCompany());
     jobUser.setUser(employee);
 
     final String employmentTypeId = jobInformation.getEmploymentTypeId();
@@ -605,11 +609,10 @@ public class EmployeeService {
     final Context emailContext =
         emailService.getWelcomeEmailContextToEmail(
             content, employee.getResetPasswordToken(), employee.getInvitationEmailToken(), toEmail);
-    final String companyName = companyService.getCompany().getName();
-    emailContext.setVariable("companyName", companyName);
+    emailContext.setVariable("companyName", currentUser.getCompany().getName());
     content = emailService.getWelcomeEmail(emailContext);
     final Timestamp sendDate = welcomeEmailDto.getSendDate();
-    final String fullSubject = SUBJECT + companyName;
+    final String fullSubject = SUBJECT + currentUser.getCompany().getName();
     final Email email =
         new Email(systemEmailAddress, toEmail, fullSubject, content, currentUser, sendDate);
     email.setFromName(systemEmailFirstName + "-" + systemEmailLastName);
@@ -626,7 +629,7 @@ public class EmployeeService {
     Timestamp sendDate = null;
     final Email email;
     if (userStatus == Status.PENDING_VERIFICATION
-        && ((email = findWelcomeEmail(emailAddress)) != null)) {
+        && ((email = findWelcomeEmail(emailAddress, employee.getCompany().getName())) != null)) {
       isInvitationValid =
           email.getStatus() != EmailStatus.BOUNCE && email.getStatus() != EmailStatus.DROPPED;
       sendDate = email.getSendDate();

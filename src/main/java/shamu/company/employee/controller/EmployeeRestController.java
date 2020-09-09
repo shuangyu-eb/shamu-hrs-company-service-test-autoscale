@@ -51,7 +51,7 @@ public class EmployeeRestController extends BaseRestController {
   @GetMapping("employees")
   public Page<JobUserListItem> findAllEmployees(
       final EmployeeListSearchCondition employeeListSearchCondition) {
-    return userService.findAllEmployees(employeeListSearchCondition);
+    return userService.findAllEmployees(findUserId(), employeeListSearchCondition);
   }
 
   @GetMapping("employees/my-team")
@@ -64,7 +64,7 @@ public class EmployeeRestController extends BaseRestController {
   @GetMapping("employees/jobs-users")
   @PreAuthorize("hasAuthority('CREATE_USER')")
   public List<JobUserDto> findAllPolicyEmployees() {
-    return userService.findAllJobUsers();
+    return userService.findAllJobUsers(findCompanyId());
   }
 
   @PostMapping("employees/welcome-email")
@@ -73,7 +73,8 @@ public class EmployeeRestController extends BaseRestController {
       @RequestBody(required = false) final String welcomeEmailPersonalMessage) {
 
     final Context context =
-        emailService.findWelcomeEmailPreviewContext(welcomeEmailPersonalMessage);
+        emailService.findWelcomeEmailPreviewContext(
+            userService.findById(findUserId()), welcomeEmailPersonalMessage);
     return emailService.getWelcomeEmail(context);
   }
 
@@ -109,7 +110,7 @@ public class EmployeeRestController extends BaseRestController {
   @GetMapping("employees/org-chart")
   public List<OrgChartDto> findOrgChart(
       @RequestParam(value = "userId", required = false) final String userId) {
-    return userService.getOrgChart(userId);
+    return userService.getOrgChart(userId, findCompanyId());
   }
 
   @GetMapping("/employees/{id}/info")

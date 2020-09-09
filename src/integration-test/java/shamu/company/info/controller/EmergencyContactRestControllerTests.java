@@ -18,6 +18,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import shamu.company.WebControllerBaseTests;
 import shamu.company.authorization.Permission;
+import shamu.company.company.entity.Company;
 import shamu.company.info.dto.UserEmergencyContactDto;
 import shamu.company.info.entity.UserEmergencyContact;
 import shamu.company.tests.utils.JwtUtil;
@@ -38,6 +39,7 @@ public class EmergencyContactRestControllerTests extends WebControllerBaseTests 
     final User user = new User();
     role.setName("ADMIN");
     user.setUserRole(role);
+    user.setCompany(new Company(getAuthUser().getCompanyId()));
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
     given(userService.findById("1")).willReturn(user);
     given(userEmergencyContactService.findUserEmergencyContacts("1")).willReturn(new ArrayList<>());
@@ -60,16 +62,18 @@ public class EmergencyContactRestControllerTests extends WebControllerBaseTests 
     void asSelf_thenShouldSuccess() throws Exception {
       buildAuthUserAsDeactivatedUser();
       targetUser.setId(currentUser.getId());
+      targetUser.setCompany(company);
       setGiven();
       final MvcResult response = getResponse();
       assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
     }
 
     @Nested
-    class OtherUser {
+    class SameCompany {
 
       @BeforeEach
       void init() {
+        targetUser.setCompany(company);
         targetUser.setId(UuidUtil.getUuidString());
         setGiven();
       }
@@ -85,7 +89,47 @@ public class EmergencyContactRestControllerTests extends WebControllerBaseTests 
       void asManager_thenShouldFailed() throws Exception {
         buildAuthUserAsManager();
         final User manager = new User(getAuthUser().getId());
+        manager.setCompany(company);
         targetUser.setManagerUser(manager);
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+
+      @Test
+      void asEmployee_thenShouldFailed() throws Exception {
+        buildAuthUserAsEmployee();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+
+      @Test
+      void asDeactivatedUser_thenShouldFailed() throws Exception {
+        buildAuthUserAsDeactivatedUser();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+    }
+
+    @Nested
+    class DifferentCompany {
+
+      @BeforeEach
+      void init() {
+        targetUser.setCompany(theOtherCompany);
+        targetUser.setId(UuidUtil.getUuidString());
+        setGiven();
+      }
+
+      @Test
+      void asAdmin_thenShouldFailed() throws Exception {
+        buildAuthUserAsAdmin();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+
+      @Test
+      void asManager_thenShouldFailed() throws Exception {
+        buildAuthUserAsManager();
         final MvcResult response = getResponse();
         assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
       }
@@ -140,16 +184,18 @@ public class EmergencyContactRestControllerTests extends WebControllerBaseTests 
     void asSelf_thenShouldSuccess() throws Exception {
       buildAuthUserAsDeactivatedUser();
       targetUser.setId(currentUser.getId());
+      targetUser.setCompany(company);
       setGiven();
       final MvcResult response = getResponse();
       assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
     }
 
     @Nested
-    class OtherUser {
+    class SameCompany {
 
       @BeforeEach
       void init() {
+        targetUser.setCompany(company);
         setGiven();
       }
 
@@ -164,6 +210,7 @@ public class EmergencyContactRestControllerTests extends WebControllerBaseTests 
       void asManager_thenShouldFailed() throws Exception {
         buildAuthUserAsManager();
         final User manager = new User(getAuthUser().getId());
+        manager.setCompany(company);
         targetUser.setManagerUser(manager);
         final MvcResult response = getResponse();
         assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
@@ -171,6 +218,45 @@ public class EmergencyContactRestControllerTests extends WebControllerBaseTests 
 
       @Test
       void asManager_notBelongToTargetUser_thenShouldFailed() throws Exception {
+        buildAuthUserAsManager();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+
+      @Test
+      void asEmployee_thenShouldFailed() throws Exception {
+        buildAuthUserAsEmployee();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+
+      @Test
+      void asDeactivatedUser_thenShouldFailed() throws Exception {
+        buildAuthUserAsDeactivatedUser();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+    }
+
+    @Nested
+    class DifferentCompany {
+
+      @BeforeEach
+      void init() {
+        targetUser.setCompany(theOtherCompany);
+        targetUser.setId(UuidUtil.getUuidString());
+        setGiven();
+      }
+
+      @Test
+      void asAdmin_thenShouldFailed() throws Exception {
+        buildAuthUserAsAdmin();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+
+      @Test
+      void asManager_thenShouldFailed() throws Exception {
         buildAuthUserAsManager();
         final MvcResult response = getResponse();
         assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
@@ -229,16 +315,18 @@ public class EmergencyContactRestControllerTests extends WebControllerBaseTests 
     void asSelf_thenShouldSuccess() throws Exception {
       buildAuthUserAsDeactivatedUser();
       targetUser.setId(currentUser.getId());
+      targetUser.setCompany(company);
       setGiven();
       final MvcResult response = getResponse();
       assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
     }
 
     @Nested
-    class OtherUser {
+    class SameCompany {
 
       @BeforeEach
       void init() {
+        targetUser.setCompany(company);
         setGiven();
       }
 
@@ -253,6 +341,7 @@ public class EmergencyContactRestControllerTests extends WebControllerBaseTests 
       void asManager_thenShouldFailed() throws Exception {
         buildAuthUserAsManager();
         final User manager = new User(getAuthUser().getId());
+        manager.setCompany(company);
         targetUser.setManagerUser(manager);
         final MvcResult response = getResponse();
         assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
@@ -260,6 +349,45 @@ public class EmergencyContactRestControllerTests extends WebControllerBaseTests 
 
       @Test
       void asManager_notBelongToTargetUser_thenShouldFailed() throws Exception {
+        buildAuthUserAsManager();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+
+      @Test
+      void asEmployee_thenShouldFailed() throws Exception {
+        buildAuthUserAsEmployee();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+
+      @Test
+      void asDeactivatedUser_thenShouldFailed() throws Exception {
+        buildAuthUserAsDeactivatedUser();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+    }
+
+    @Nested
+    class DifferentCompany {
+
+      @BeforeEach
+      void init() {
+        targetUser.setCompany(theOtherCompany);
+        targetUser.setId(UuidUtil.getUuidString());
+        setGiven();
+      }
+
+      @Test
+      void asAdmin_thenShouldFailed() throws Exception {
+        buildAuthUserAsAdmin();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+
+      @Test
+      void asManager_thenShouldFailed() throws Exception {
         buildAuthUserAsManager();
         final MvcResult response = getResponse();
         assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());

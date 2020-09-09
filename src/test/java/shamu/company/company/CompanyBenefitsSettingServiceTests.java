@@ -2,11 +2,9 @@ package shamu.company.company;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
 
-import java.util.Collections;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import shamu.company.company.entity.CompanyBenefitsSetting;
 import shamu.company.company.repository.CompanyBenefitsSettingRepository;
@@ -26,9 +24,7 @@ public class CompanyBenefitsSettingServiceTests {
 
   @Test
   void testFindByCompanyId() {
-    Mockito.when(companyBenefitsSettingRepository.findAll())
-        .thenReturn(Collections.singletonList(new CompanyBenefitsSetting()));
-    assertThatCode(() -> companyBenefitsSettingService.getCompanyBenefitsSetting())
+    assertThatCode(() -> companyBenefitsSettingService.findByCompanyId("1"))
         .doesNotThrowAnyException();
   }
 

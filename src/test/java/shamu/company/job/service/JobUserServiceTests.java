@@ -1,13 +1,5 @@
 package shamu.company.job.service;
 
-import static org.assertj.core.api.Assertions.assertThatCode;
-
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,6 +17,7 @@ import shamu.company.common.service.DepartmentService;
 import shamu.company.common.service.OfficeAddressService;
 import shamu.company.common.service.OfficeService;
 import shamu.company.company.dto.OfficeCreateDto;
+import shamu.company.company.entity.Company;
 import shamu.company.company.entity.Department;
 import shamu.company.company.entity.Office;
 import shamu.company.company.entity.OfficeAddress;
@@ -70,6 +63,15 @@ import shamu.company.user.service.UserRoleService;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.DateUtil;
 import shamu.company.utils.UuidUtil;
+
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 class JobUserServiceTests {
 
@@ -146,9 +148,9 @@ class JobUserServiceTests {
     final List<Job> jobs = new LinkedList<>();
     jobs.add(job1);
 
-    Mockito.when(jobService.findAll()).thenReturn(jobs);
+    Mockito.when(jobService.findAllByCompanyId(id)).thenReturn(jobs);
     Mockito.when(jobUserService.getCountByJobId(job1.getId())).thenReturn(2);
-    Assertions.assertDoesNotThrow(() -> jobUserService.findJobs());
+    Assertions.assertDoesNotThrow(() -> jobUserService.findJobsByCompanyId(id));
   }
 
   @Test
@@ -205,8 +207,9 @@ class JobUserServiceTests {
       Mockito.when(jobUserRepository.save(jobUser)).thenReturn(jobUser);
       jobUpdateDto.setManagerId("");
 
-      Assertions.assertDoesNotThrow(() -> jobUserService.updateJobInfo("1", jobUpdateDto));
-      Mockito.verify(userService, Mockito.times(0)).findSubordinatesByManagerUserId(Mockito.any());
+      Assertions.assertDoesNotThrow(() -> jobUserService.updateJobInfo("1", jobUpdateDto, "1"));
+      Mockito.verify(userService, Mockito.times(0))
+          .findSubordinatesByManagerUserId(Mockito.any(), Mockito.any());
       Mockito.verify(userService, Mockito.times(0)).save(Mockito.any());
     }
 
@@ -217,9 +220,10 @@ class JobUserServiceTests {
       Mockito.when(jobUserRepository.save(jobUser)).thenReturn(jobUser);
       jobUpdateDto.setManagerId("");
 
-      Assertions.assertDoesNotThrow(() -> jobUserService.updateJobInfo("1", jobUpdateDto));
+      Assertions.assertDoesNotThrow(() -> jobUserService.updateJobInfo("1", jobUpdateDto, "1"));
       Assertions.assertNull(jobUserService.findJobUserByUser(user));
-      Mockito.verify(userService, Mockito.times(0)).findSubordinatesByManagerUserId(Mockito.any());
+      Mockito.verify(userService, Mockito.times(0))
+          .findSubordinatesByManagerUserId(Mockito.any(), Mockito.any());
       Mockito.verify(userService, Mockito.times(0)).save(Mockito.any());
     }
 
@@ -232,7 +236,7 @@ class JobUserServiceTests {
       Mockito.when(userService.findById(user.getId())).thenReturn(user);
       Mockito.when(jobUserRepository.findJobUserByUser(jobUser.getUser())).thenReturn(jobUser);
       Mockito.when(userService.findById(manager.getId())).thenReturn(manager);
-      Mockito.when(userService.findSubordinatesByManagerUserId(Mockito.any()))
+      Mockito.when(userService.findSubordinatesByManagerUserId(Mockito.any(), Mockito.any()))
           .thenReturn(subordinates);
       Mockito.when(jobUserRepository.save(jobUser)).thenReturn(jobUser);
       Mockito.when(userService.save(manager)).thenReturn(manager);
@@ -240,9 +244,10 @@ class JobUserServiceTests {
       Mockito.when(timePeriodService.findUserCurrentPeriod(user.getId()))
           .thenReturn(java.util.Optional.of((new TimePeriod())));
 
-      Assertions.assertDoesNotThrow(() -> jobUserService.updateJobInfo("1", jobUpdateDto));
+      Assertions.assertDoesNotThrow(() -> jobUserService.updateJobInfo("1", jobUpdateDto, "1"));
       Assertions.assertEquals(manager.getUserRole(), user.getManagerUser().getUserRole());
-      Mockito.verify(userService, Mockito.times(0)).findSubordinatesByManagerUserId(Mockito.any());
+      Mockito.verify(userService, Mockito.times(0))
+          .findSubordinatesByManagerUserId(Mockito.any(), Mockito.any());
       Mockito.verify(userService, Mockito.times(0)).save(Mockito.any());
     }
 
@@ -272,15 +277,16 @@ class JobUserServiceTests {
       Mockito.when(jobUserRepository.findJobUserByUser(jobUser.getUser())).thenReturn(jobUser);
       Mockito.when(userService.findById(oldManager.getId())).thenReturn(oldManager);
       Mockito.when(userService.findById(newManager.getId())).thenReturn(newManager);
-      Mockito.when(userService.findSubordinatesByManagerUserId(Mockito.any()))
+      Mockito.when(userService.findSubordinatesByManagerUserId(Mockito.any(), Mockito.any()))
           .thenReturn(subordinatesList);
       Mockito.when(jobUserRepository.save(jobUser)).thenReturn(jobUser);
       Mockito.when(userService.save(oldManager)).thenReturn(oldManager);
       Mockito.when(userService.save(user)).thenReturn(user);
 
-      Assertions.assertDoesNotThrow(() -> jobUserService.updateJobInfo("1", jobUpdateDto));
+      Assertions.assertDoesNotThrow(() -> jobUserService.updateJobInfo("1", jobUpdateDto, "1"));
       Assertions.assertEquals(jobUpdateDto.getManagerId(), user.getManagerUser().getId());
-      Mockito.verify(userService, Mockito.times(1)).findSubordinatesByManagerUserId(Mockito.any());
+      Mockito.verify(userService, Mockito.times(1))
+          .findSubordinatesByManagerUserId(Mockito.any(), Mockito.any());
       Mockito.verify(userService, Mockito.times(2)).save(Mockito.any());
     }
 
@@ -317,16 +323,17 @@ class JobUserServiceTests {
       Mockito.when(userService.findById(oldManager.getId())).thenReturn(oldManager);
       Mockito.when(userService.findById(newManager.getId())).thenReturn(newManager);
       Mockito.when(userService.findById(subordinate.getId())).thenReturn(subordinate);
-      Mockito.when(userService.findSubordinatesByManagerUserId(Mockito.any()))
+      Mockito.when(userService.findSubordinatesByManagerUserId(Mockito.any(), Mockito.any()))
           .thenReturn(subordinatesList);
       Mockito.when(jobUserRepository.save(jobUser)).thenReturn(jobUser);
       Mockito.when(userService.save(oldManager)).thenReturn(oldManager);
       Mockito.when(userService.save(user)).thenReturn(user);
 
-      Assertions.assertDoesNotThrow(() -> jobUserService.updateJobInfo("1", jobUpdateDto));
+      Assertions.assertDoesNotThrow(() -> jobUserService.updateJobInfo("1", jobUpdateDto, "1"));
       Assertions.assertEquals(jobUpdateDto.getManagerId(), user.getManagerUser().getId());
       Assertions.assertEquals(oldManager.getId(), user.getManagerUser().getManagerUser().getId());
-      Mockito.verify(userService, Mockito.times(1)).findSubordinatesByManagerUserId(Mockito.any());
+      Mockito.verify(userService, Mockito.times(1))
+          .findSubordinatesByManagerUserId(Mockito.any(), Mockito.any());
       Mockito.verify(userService, Mockito.times(2)).save(Mockito.any());
     }
 
@@ -338,8 +345,9 @@ class JobUserServiceTests {
       Mockito.when(jobUserRepository.findJobUserByUser(jobUser.getUser())).thenReturn(jobUser);
       Mockito.when(jobUserRepository.save(jobUser)).thenReturn(jobUser);
 
-      Assertions.assertDoesNotThrow(() -> jobUserService.updateJobInfo("1", jobUpdateDto));
-      Mockito.verify(userService, Mockito.times(0)).findSubordinatesByManagerUserId(Mockito.any());
+      Assertions.assertDoesNotThrow(() -> jobUserService.updateJobInfo("1", jobUpdateDto, "1"));
+      Mockito.verify(userService, Mockito.times(0))
+          .findSubordinatesByManagerUserId(Mockito.any(), Mockito.any());
       Mockito.verify(userService, Mockito.times(1)).save(Mockito.any());
     }
 
@@ -347,8 +355,11 @@ class JobUserServiceTests {
     void whenJobUpdateDtoValid_shouldSucceed() {
       jobUpdateDto.setManagerId(null);
       jobUpdateDto.setPayTypeName(CompensationOvertimeStatus.OvertimeStatus.FEDERAL.getValue());
+      final Company company = new Company();
       final String companyId = "test_company_id";
+      user.setCompany(company);
       jobUser.setUser(user);
+      company.setId(companyId);
       Mockito.when(userService.findById(user.getId())).thenReturn(user);
       Mockito.when(jobUserRepository.findJobUserByUser(jobUser.getUser())).thenReturn(jobUser);
       Mockito.when(jobUserRepository.save(jobUser)).thenReturn(jobUser);
@@ -356,8 +367,8 @@ class JobUserServiceTests {
               compensationOvertimeStatusService.findByName(
                   CompensationOvertimeStatus.OvertimeStatus.FEDERAL.getValue()))
           .thenReturn(new CompensationOvertimeStatus());
-      Mockito.when(overtimeService.findDefaultPolicy()).thenReturn(new OvertimePolicy());
-      Assertions.assertDoesNotThrow(() -> jobUserService.updateJobInfo("1", jobUpdateDto));
+      Mockito.when(overtimeService.findDefaultPolicy(companyId)).thenReturn(new OvertimePolicy());
+      Assertions.assertDoesNotThrow(() -> jobUserService.updateJobInfo("1", jobUpdateDto, "1"));
     }
   }
 
@@ -391,6 +402,7 @@ class JobUserServiceTests {
       final Office office = new Office();
       office.setId("1");
       office.setOfficeAddress(new OfficeAddress());
+      office.setCompany(new Company(UuidUtil.getUuidString()));
       jobUser.setOffice(office);
       final UserCompensation userCompensation = new UserCompensation();
       jobUser.setUserCompensation(userCompensation);
@@ -503,9 +515,12 @@ class JobUserServiceTests {
       jobSelectOptionUpdateDto.setUpdateField(JobSelectOptionUpdateField.JOB_TITLE);
       final Job job = new Job();
       job.setId("1");
+      job.setCompany(new Company(UuidUtil.getUuidString()));
 
       Mockito.when(jobService.findById(job.getId())).thenReturn(job);
-      Mockito.when(jobService.findByTitle(jobSelectOptionUpdateDto.getNewName()))
+      Mockito.when(
+              jobService.findByTitleAndCompanyId(
+                  jobSelectOptionUpdateDto.getNewName(), job.getCompany().getId()))
           .thenReturn(Collections.emptyList());
       Mockito.when(jobService.save(job)).thenReturn(job);
       Assertions.assertDoesNotThrow(
@@ -520,6 +535,7 @@ class JobUserServiceTests {
       final Office office = new Office();
       office.setId("1");
       office.setOfficeAddress(new OfficeAddress());
+      office.setCompany(new Company(UuidUtil.getUuidString()));
 
       final OfficeCreateDto officeCreateDto = new OfficeCreateDto();
       officeCreateDto.setOfficeName("office name");
@@ -537,7 +553,9 @@ class JobUserServiceTests {
 
       Mockito.when(officeService.findById(office.getId())).thenReturn(office);
 
-      Mockito.when(officeService.findByName(officeCreateDto.getOfficeName()))
+      Mockito.when(
+              officeService.findByNameAndCompanyId(
+                  officeCreateDto.getOfficeName(), office.getCompany().getId()))
           .thenReturn(Collections.emptyList());
       Mockito.when(officeService.save(newOffice)).thenReturn(newOffice);
       Mockito.when(googleMapsHelper.findTimezoneByPostalCode(Mockito.anyString()))
@@ -553,9 +571,12 @@ class JobUserServiceTests {
       jobSelectOptionUpdateDto.setUpdateField(JobSelectOptionUpdateField.DEPARTMENT);
       final Department department = new Department();
       department.setId("1");
+      department.setCompany(new Company(UuidUtil.getUuidString()));
 
       Mockito.when(departmentService.findById(department.getId())).thenReturn(department);
-      Mockito.when(departmentService.findByName(jobSelectOptionUpdateDto.getNewName()))
+      Mockito.when(
+              departmentService.findByNameAndCompanyId(
+                  jobSelectOptionUpdateDto.getNewName(), department.getCompany().getId()))
           .thenReturn(Collections.emptyList());
       Mockito.when(departmentService.save(department)).thenReturn(department);
       Assertions.assertDoesNotThrow(
@@ -584,7 +605,7 @@ class JobUserServiceTests {
           DeletionFailedCausedByCascadeException.class,
           () -> jobUserService.deleteJobSelectOption(jobSelectOptionUpdateDto));
       Mockito.verify(departmentService, Mockito.times(0)).delete(Mockito.any());
-      Mockito.verify(jobService, Mockito.times(0)).findAll();
+      Mockito.verify(jobService, Mockito.times(0)).findAllByCompanyId(Mockito.any());
       Mockito.verify(jobService, Mockito.times(0)).deleteInBatch(Mockito.any());
     }
 
@@ -593,7 +614,8 @@ class JobUserServiceTests {
       jobSelectOptionUpdateDto.setUpdateField(JobSelectOptionUpdateField.DEPARTMENT);
       Mockito.when(departmentService.findCountByDepartment(jobSelectOptionUpdateDto.getId()))
           .thenReturn(0);
-      Mockito.when(jobService.findAll()).thenReturn(Collections.emptyList());
+      Mockito.when(jobService.findAllByCompanyId(jobSelectOptionUpdateDto.getId()))
+          .thenReturn(Collections.emptyList());
       Assertions.assertDoesNotThrow(
           () -> jobUserService.deleteJobSelectOption(jobSelectOptionUpdateDto));
       Mockito.verify(departmentService, Mockito.times(1)).delete(Mockito.any());
@@ -609,7 +631,8 @@ class JobUserServiceTests {
 
       Mockito.when(departmentService.findCountByDepartment(jobSelectOptionUpdateDto.getId()))
           .thenReturn(0);
-      Mockito.when(jobService.findAll()).thenReturn(jobs);
+      Mockito.when(jobService.findAllByCompanyId(jobSelectOptionUpdateDto.getId()))
+          .thenReturn(jobs);
       Assertions.assertDoesNotThrow(
           () -> jobUserService.deleteJobSelectOption(jobSelectOptionUpdateDto));
       Mockito.verify(departmentService, Mockito.times(1)).delete(Mockito.any());

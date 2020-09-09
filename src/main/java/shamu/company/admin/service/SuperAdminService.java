@@ -121,8 +121,9 @@ public class SuperAdminService {
       systemAnnouncementsService.save(oldActiveAnnouncement);
     }
     // public new system-active-announcement
+    final User user = userService.findById(userId);
     final SystemAnnouncement systemAnnouncement = new SystemAnnouncement();
-    systemAnnouncement.setUserId(userId);
+    systemAnnouncement.setUser(user);
     systemAnnouncement.setContent(systemAnnouncementDto.getContent());
     systemAnnouncement.setIsPastAnnouncement(false);
     systemAnnouncementsService.save(systemAnnouncement);

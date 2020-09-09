@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.yaml.snakeyaml.Yaml;
@@ -14,7 +15,7 @@ import shamu.company.common.repository.CountryRepository;
 import shamu.company.common.repository.StateProvinceRepository;
 
 @Component
-public class StatesProvincesInitializer {
+public class StatesProvincesInitializer implements CommandLineRunner {
 
   private final StateProvinceRepository stateProvinceRepository;
 
@@ -28,7 +29,9 @@ public class StatesProvincesInitializer {
     this.countryRepository = countryRepository;
   }
 
-  void run() {
+  @Override
+  public void run(final String... args) {
+
     final Yaml yaml = new Yaml(new Constructor(CountryList.class));
     final InputStream inputStream =
         getClass().getClassLoader().getResourceAsStream("db/application/states-provinces.yml");

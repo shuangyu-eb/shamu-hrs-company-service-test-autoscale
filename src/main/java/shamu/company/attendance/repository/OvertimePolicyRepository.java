@@ -11,5 +11,5 @@ public interface OvertimePolicyRepository extends BaseRepository<OvertimePolicy,
   @Query("update OvertimePolicy op set op.active = 0 where op.id =?1")
   void softDeleteOvertimePolicy(String overtimeId);
 
-  OvertimePolicy findByDefaultPolicyIsTrue();
+  OvertimePolicy findByCompanyIdAndDefaultPolicyIsTrue(String companyId);
 }

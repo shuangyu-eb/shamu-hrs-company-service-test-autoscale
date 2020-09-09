@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
+
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -38,7 +39,6 @@ import shamu.company.company.entity.mapper.OfficeAddressMapperImpl;
 import shamu.company.company.entity.mapper.OfficeMapper;
 import shamu.company.company.entity.mapper.OfficeMapperImpl;
 import shamu.company.company.entity.mapper.StateProvinceMapper;
-import shamu.company.company.service.CompanyService;
 import shamu.company.crypto.EncryptorUtil;
 import shamu.company.email.entity.Email;
 import shamu.company.email.service.EmailService;
@@ -46,6 +46,7 @@ import shamu.company.employee.dto.EmailResendDto;
 import shamu.company.employee.dto.EmployeeContactInformationDto;
 import shamu.company.employee.dto.EmployeeDto;
 import shamu.company.employee.dto.EmployeePersonalInformationDto;
+import shamu.company.employee.dto.JobInformationDto;
 import shamu.company.employee.dto.NewEmployeeJobInformationDto;
 import shamu.company.employee.dto.UserPersonalInformationForManagerDto;
 import shamu.company.employee.dto.WelcomeEmailDto;
@@ -142,7 +143,6 @@ class EmployeeServiceTests {
   @Mock private EmployeeTypesService employeeTypesService;
   @Mock private CompensationOvertimeStatusService compensationOvertimeStatusService;
   @Mock private DepartmentService departmentService;
-  @Mock private CompanyService companyService;
   @Mock private GoogleMapsHelper googleMapsHelper;
   @Mock private StaticTimeZoneRepository staticTimeZoneRepository;
 
@@ -183,7 +183,6 @@ class EmployeeServiceTests {
             encryptorUtil,
             employeeTypesService,
             compensationOvertimeStatusService,
-            companyService,
             departmentService,
             googleMapsHelper,
             staticTimeZoneRepository);
@@ -191,12 +190,12 @@ class EmployeeServiceTests {
 
   @Test
   void testFindByCompanyId() {
-    assertThatCode(() -> employeeService.findAllActiveUsers()).doesNotThrowAnyException();
+    assertThatCode(() -> employeeService.findByCompanyId("1")).doesNotThrowAnyException();
   }
 
   @Test
   void testFindSubordinatesByManagerUserId() {
-    assertThatCode(() -> employeeService.findSubordinatesByManagerUserId("1"))
+    assertThatCode(() -> employeeService.findSubordinatesByManagerUserId("1", "1"))
         .doesNotThrowAnyException();
   }
 
@@ -266,6 +265,7 @@ class EmployeeServiceTests {
       final Company company = new Company();
       company.setId("1");
       company.setName(RandomStringUtils.randomAlphabetic(4));
+      currentUser.setCompany(company);
 
       final EmployeeDto employeeDto = new EmployeeDto();
       final NewEmployeeJobInformationDto jobInformationDto = new NewEmployeeJobInformationDto();
@@ -295,9 +295,9 @@ class EmployeeServiceTests {
       employeeDto.setUserContactInformationDto(userContactInformationDto);
 
       Mockito.when(officeService.findById("officeId")).thenReturn(office);
-      Mockito.when(googleMapsHelper.findTimezoneByPostalCode(Mockito.anyString()))
-          .thenReturn("timezone");
-      Whitebox.invokeMethod(employeeService, "saveEmployeeBasicInformation", employeeDto);
+      Mockito.when(googleMapsHelper.findTimezoneByPostalCode(Mockito.anyString())).thenReturn("timezone");
+      Whitebox.invokeMethod(
+          employeeService, "saveEmployeeBasicInformation", currentUser, employeeDto);
       Mockito.verify(userService, Mockito.times(1)).createNewEmployee(Mockito.any());
     }
   }
@@ -353,7 +353,7 @@ class EmployeeServiceTests {
 
       final Company company = new Company();
       company.setName(RandomStringUtils.randomAlphabetic(4));
-      Mockito.when(companyService.getCompany()).thenReturn(company);
+      user.setCompany(company);
 
       Mockito.when(
               emailService.findFirstByToAndSubjectOrderBySendDateDesc(
@@ -369,12 +369,11 @@ class EmployeeServiceTests {
       final String newEmail = "email@example.com";
       emailResendDto.setEmail(newEmail);
       email.setContent("welcome");
-      user.setInvitationEmailToken("123");
       Mockito.when(userService.findByEmailWork(Mockito.anyString())).thenReturn(null);
 
       final Company company = new Company();
       company.setName(RandomStringUtils.randomAlphabetic(4));
-      Mockito.when(companyService.getCompany()).thenReturn(company);
+      user.setCompany(company);
 
       Mockito.when(
               emailService.findFirstByToAndSubjectOrderBySendDateDesc(
@@ -562,19 +561,18 @@ class EmployeeServiceTests {
       company.setName("a");
       employeeDto.setUserAddress(new UserAddressDto());
       employeeDto.setWelcomeEmail(welcomeEmail);
+      currentUser.setCompany(company);
       currentUser.setResetPasswordToken("a");
       currentUser.setInvitationEmailToken("b");
       currentUser.setInvitedAt(Timestamp.from(Instant.now()));
       Mockito.when(userService.save(Mockito.any())).thenReturn(currentUser);
       Mockito.when(userService.createNewEmployee(Mockito.any())).thenReturn(currentUser);
       Mockito.when(officeService.findById(Mockito.any())).thenReturn(office);
-      Mockito.when(googleMapsHelper.findTimezoneByPostalCode(Mockito.anyString()))
-          .thenReturn("timezone");
+      Mockito.when(googleMapsHelper.findTimezoneByPostalCode(Mockito.anyString())).thenReturn("timezone");
       Mockito.when(
               emailService.getWelcomeEmailContextToEmail(
                   Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
           .thenReturn(emailContext);
-      Mockito.when(companyService.getCompany()).thenReturn(company);
     }
 
     @Test
@@ -820,7 +818,8 @@ class EmployeeServiceTests {
       jobInformation.setCompensation(1.0);
       jobInformation.setCompensationFrequencyId("a");
       Mockito.when(userCompensationService.save(Mockito.any())).thenReturn(userCompensation);
-      Whitebox.invokeMethod(employeeService, "saveEmployeeJob", employee, jobInformation);
+      Whitebox.invokeMethod(
+          employeeService, "saveEmployeeJob", employee, currentUser, jobInformation);
       Mockito.verify(compensationFrequencyService, Mockito.times(1)).findById(Mockito.anyString());
       Mockito.verify(userCompensationService, Mockito.times(1)).save(Mockito.any());
       Mockito.verify(jobUserService, Mockito.times(1)).save(Mockito.any());
@@ -831,7 +830,8 @@ class EmployeeServiceTests {
       jobInformation.setEmploymentTypeId("a");
       jobInformation.setCompensation(2.0);
       Mockito.when(userCompensationService.save(Mockito.any())).thenReturn(userCompensation);
-      Whitebox.invokeMethod(employeeService, "saveEmployeeJob", employee, jobInformation);
+      Whitebox.invokeMethod(
+          employeeService, "saveEmployeeJob", employee, currentUser, jobInformation);
       Mockito.verify(employmentTypeService, Mockito.times(1)).findById(Mockito.anyString());
       Mockito.verify(jobUserService, Mockito.times(1)).save(Mockito.any());
     }
@@ -841,7 +841,8 @@ class EmployeeServiceTests {
       jobInformation.setOfficeId("a");
       jobInformation.setCompensation(3.0);
       Mockito.when(userCompensationService.save(Mockito.any())).thenReturn(userCompensation);
-      Whitebox.invokeMethod(employeeService, "saveEmployeeJob", employee, jobInformation);
+      Whitebox.invokeMethod(
+          employeeService, "saveEmployeeJob", employee, currentUser, jobInformation);
       Mockito.verify(officeService, Mockito.times(1)).findById(Mockito.anyString());
       Mockito.verify(jobUserService, Mockito.times(1)).save(Mockito.any());
     }

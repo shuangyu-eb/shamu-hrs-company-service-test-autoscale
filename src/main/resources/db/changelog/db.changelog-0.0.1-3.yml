@@ -1,0 +1,1441 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1563514512549-1
+      author: shuangyu-eb
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: deactivation_reason_id
+                  type: INT
+              - column:
+                  name: deactivated_at
+                  type: DATETIME
+            tableName: users
+
+  - changeSet:
+      id: 1563515652766-2
+      author: shuangyu-eb
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+              - column:
+                  name: created_at
+                  type: DATETIME
+              - column:
+                  name: updated_at
+                  type: DATETIME
+              - column:
+                  name: deleted_at
+                  type: DATETIME
+            tableName: deactivation_reasons
+
+  - changeSet:
+      id: 1563516527365-4
+      author: shuangyu-eb
+      changes:
+        - modifyDataType:
+            columnName: deactivation_reason_id
+            newDataType: BIGINT
+            tableName: users
+
+  - changeSet:
+      id: 1566463012920-1
+      author: bin-eb
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: balance
+                  type: INT
+            tableName: time_off_requests
+
+
+  - changeSet:
+      id: 1565784545670-1
+      author: max-eb
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: user_id
+                  type: varchar(64)
+            tableName: users
+
+  - changeSet:
+        id: 1565786558054-2
+        author: max-eb
+        changes:
+        - dropColumn:
+           columnName: password
+           tableName: users
+
+  - changeSet:
+        id: 1565786558054-3
+        author: max-eb
+        changes:
+        - dropColumn:
+           columnName: subdomain_name
+           tableName: companies
+
+  - changeSet:
+        id: 1565786558054-4
+        author: max-eb
+        changes:
+        - addUniqueConstraint:
+            columnNames: user_id
+            constraintName: uq_ensure_unique_user_id
+            tableName: users
+
+  - changeSet:
+        id: 1567563061830-1
+        author: wenhao-eb
+        preConditions:
+          onFail: MARK_RAN
+          not:
+            tableExists:
+              tableName: user_access_level_events
+        changes:
+          - createTable:
+              columns:
+                - column:
+                    name: id
+                    type: BIGINT
+                    autoIncrement: true
+                    constraints:
+                      primaryKey: true
+                - column:
+                    name: user_id
+                    type: BIGINT
+                    constraints:
+                      foreignKeyName: fk_user_access_levels_users
+                      references: users(id)
+                - column:
+                    name: original_role
+                    type: VARCHAR(255)
+                - column:
+                    name: created_at
+                    type: DATETIME
+                - column:
+                    name: updated_at
+                    type: DATETIME
+                - column:
+                    name: deleted_at
+                    type: DATETIME
+              tableName: user_access_level_events
+
+  - changeSet:
+      id: 1567646375921-1
+      author: bin-eb
+      changes:
+        - modifyDataType:
+            columnName: city
+            newDataType: VARCHAR(100)
+            tableName: user_addresses
+
+  - changeSet:
+      id: 1567646375921-2
+      author: bin-eb
+      changes:
+        - modifyDataType:
+            columnName: name
+            newDataType: VARCHAR(50)
+            tableName: time_off_policies
+
+  - changeSet:
+      id: 1567646375921-3
+      author: bin-eb
+      changes:
+        - modifyDataType:
+            columnName: title
+            newDataType: VARCHAR(100)
+            tableName: jobs
+
+  - changeSet:
+      id: 1567646375921-4
+      author: bin-eb
+      changes:
+        - modifyDataType:
+            columnName: name
+            newDataType: VARCHAR(30)
+            tableName: employment_types
+
+  - changeSet:
+      id: 1567646375921-5
+      author: bin-eb
+      changes:
+        - modifyDataType:
+            columnName: name
+            newDataType: VARCHAR(100)
+            tableName: offices
+
+  - changeSet:
+      id: 1567646375921-6
+      author: bin-eb
+      changes:
+        - modifyDataType:
+            columnName: first_name
+            newDataType: VARCHAR(100)
+            tableName: user_personal_information
+
+  - changeSet:
+      id: 1567646375921-7
+      author: bin-eb
+      changes:
+        - modifyDataType:
+            columnName: middle_name
+            newDataType: VARCHAR(100)
+            tableName: user_personal_information
+
+  - changeSet:
+      id: 1567646375921-8
+      author: bin-eb
+      changes:
+        - modifyDataType:
+            columnName: last_name
+            newDataType: VARCHAR(100)
+            tableName: user_personal_information
+
+  - changeSet:
+      id: 1567646375921-9
+      author: bin-eb
+      changes:
+        - modifyDataType:
+            columnName: preferred_name
+            newDataType: VARCHAR(100)
+            tableName: user_personal_information
+
+  - changeSet:
+      id: 1567646375921-10
+      author: bin-eb
+      changes:
+        - modifyDataType:
+            columnName: first_name
+            newDataType: VARCHAR(100)
+            tableName: user_emergency_contacts
+
+  - changeSet:
+      id: 1567646375921-11
+      author: bin-eb
+      changes:
+        - modifyDataType:
+            columnName: city
+            newDataType: VARCHAR(100)
+            tableName: user_emergency_contacts
+
+  - changeSet:
+      id: 1567646375921-12
+      author: bin-eb
+      changes:
+        - modifyDataType:
+            columnName: last_name
+            newDataType: VARCHAR(100)
+            tableName: user_emergency_contacts
+
+  - changeSet:
+      id: 1567646375921-13
+      author: bin-eb
+      changes:
+        - modifyDataType:
+            columnName: postal_code
+            newDataType: VARCHAR(30)
+            tableName: user_emergency_contacts
+
+  - changeSet:
+      id: 1567646375921-14
+      author: bin-eb
+      changes:
+        - modifyDataType:
+            columnName: relationship
+            newDataType: VARCHAR(30)
+            tableName: user_emergency_contacts
+
+  - changeSet:
+      id: 1567646375921-15
+      author: bin-eb
+      changes:
+        - modifyDataType:
+            columnName: phone
+            newDataType: VARCHAR(50)
+            tableName: user_emergency_contacts
+
+  - changeSet:
+      id: 1567662525081-1
+      author: wenhao-eb
+      preConditions:
+        onFail: MARK_RAN
+        not:
+          columnExists:
+            columnName: federal
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: federal
+                  type: BOOLEAN
+            tableName: paid_holidays
+
+  - changeSet:
+      id: 1568257721736-1
+      author: max-eb
+      changes:
+        - dropTable:
+            tableName: permissions
+
+  - changeSet:
+      id: 1568623658913-1
+      author: haibo-eb
+      changes:
+        - dropColumn:
+            columnName: employee_number
+            tableName: users
+
+  - changeSet:
+      id: 1568257721736-3
+      author: max-eb
+      changes:
+        - dropTable:
+            tableName: permission_types_user_roles
+
+  - changeSet:
+      id: 1568257721736-4
+      author: max-eb
+      changes:
+        - dropTable:
+            tableName: permission_types
+
+  - changeSet:
+      id: 1568257721736-5
+      author: max-eb
+      changes:
+      - dropColumn:
+          columnName: user_role_id
+          tableName: users
+
+  - changeSet:
+      id: 1568257721736-6
+      author: max-eb
+      changes:
+        - dropTable:
+            tableName: user_roles
+
+  - changeSet:
+      id: 1568859094014-6
+      author: shuangyu-eb
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: change_work_email
+                  type: varchar(255)
+            tableName: users
+
+  - changeSet:
+      id: 1568859123573-7
+      author: shuangyu-eb
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: change_work_email_token
+                  type: varchar(255)
+            tableName: users
+
+
+  - changeSet:
+      id: 1568859230088-8
+      author: shuangyu-eb
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: verify_change_work_email_at
+                  type: datetime
+            tableName: users
+
+  - changeSet:
+      id: 1569287995020-1
+      author: haibo-eb
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: creator_id
+                  type: bigint
+            tableName: paid_holidays
+
+  - changeSet:
+      id: 1569724784254-1
+      author: wenhao-eb
+      preConditions:
+        onFail: MARK_RAN
+        not:
+          columnExists:
+            columnName: deactivated
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: deactivated
+                  type: BOOLEAN
+                  defaultValue: false
+            tableName: users
+
+  - changeSet:
+      id: 1569391145505-1
+      author: max-eb
+      changes:
+        - dropColumn:
+            columnName: email_work
+            tableName: users
+
+  - changeSet:
+      id: 1570686208542-1
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: middle_name
+            newDataType: VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: user_personal_information
+
+  - changeSet:
+      id: 1570686208542-2
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: first_name
+            newDataType: VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: user_personal_information
+
+  - changeSet:
+      id: 1570686208542-3
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: last_name
+            newDataType: VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: user_personal_information
+
+  - changeSet:
+      id: 1570686208542-4
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: preferred_name
+            newDataType: VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: user_personal_information
+
+  - changeSet:
+      id: 1570686208542-5
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: first_name
+            newDataType: VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: user_emergency_contacts
+
+  - changeSet:
+      id: 1570686208542-6
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: last_name
+            newDataType: VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: user_emergency_contacts
+
+  - changeSet:
+      id: 1570686208542-7
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: relationship
+            newDataType: VARCHAR(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: user_emergency_contacts
+
+  - changeSet:
+      id: 1570686208542-8
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: street_1
+            newDataType: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: user_emergency_contacts
+
+  - changeSet:
+      id: 1570686208542-9
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: street_2
+            newDataType: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: user_emergency_contacts
+
+  - changeSet:
+      id: 1570686208542-10
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: city
+            newDataType: VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: user_emergency_contacts
+
+  - changeSet:
+      id: 1570686208542-11
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: school
+            newDataType: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: user_educations
+
+  - changeSet:
+      id: 1570686208542-12
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: degree
+            newDataType: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: user_educations
+
+  - changeSet:
+      id: 1570686208542-13
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: major
+            newDataType: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: user_educations
+
+  - changeSet:
+      id: 1570686208542-14
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: comment
+            newDataType: TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: user_compensations
+
+  - changeSet:
+      id: 1570686208542-15
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: street_1
+            newDataType: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: user_addresses
+
+  - changeSet:
+      id: 1570686208542-16
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: street_2
+            newDataType: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: user_addresses
+
+  - changeSet:
+      id: 1570686208542-17
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: city
+            newDataType: VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: user_addresses
+
+  - changeSet:
+      id: 1570686208542-18
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: comment
+            newDataType: TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: time_off_request_comments
+
+  - changeSet:
+      id: 1570686208542-19
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: name
+            newDataType: VARCHAR(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: time_off_policies
+
+  - changeSet:
+      id: 1570686208542-20
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: name
+            newDataType: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: paid_holidays
+
+  - changeSet:
+      id: 1570686208542-21
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: name_show
+            newDataType: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: paid_holidays
+
+  - changeSet:
+      id: 1570686208542-22
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: name
+            newDataType: VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: offices
+
+  - changeSet:
+      id: 1570686208542-23
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: street_1
+            newDataType: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: office_addresses
+
+  - changeSet:
+      id: 1570686208542-24
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: street_2
+            newDataType: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: office_addresses
+
+  - changeSet:
+      id: 1570686208542-25
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: city
+            newDataType: VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: office_addresses
+
+  - changeSet:
+      id: 1570686208542-26
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: title
+            newDataType: VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: jobs
+
+  - changeSet:
+      id: 1570686208542-27
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: name
+            newDataType: VARCHAR(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: employment_types
+
+  - changeSet:
+      id: 1570686208542-28
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: name
+            newDataType: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: departments
+
+  - changeSet:
+      id: 1570686208542-29
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: name
+            newDataType: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: companies
+
+  - changeSet:
+      id: 1570686208542-30
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: name
+            newDataType: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: benefit_plans
+
+  - changeSet:
+      id: 1570686208542-31
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: document_name
+            newDataType: VARCHAR(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: benefit_plans
+
+  - changeSet:
+      id: 1570686208542-32
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: first_name
+            newDataType: VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: benefit_plan_dependents
+
+  - changeSet:
+      id: 1570686208542-33
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: last_name
+            newDataType: VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: benefit_plan_dependents
+
+  - changeSet:
+      id: 1570686208542-34
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: city
+            newDataType: VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: benefit_plan_dependents
+
+  - changeSet:
+      id: 1570686208542-35
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: middle_name
+            newDataType: VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: benefit_plan_dependents
+
+  - changeSet:
+      id: 1570686208542-36
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: street_1
+            newDataType: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: benefit_plan_dependents
+
+  - changeSet:
+      id: 1570686208542-37
+      author: michaelkong-eb
+      changes:
+        - modifyDataType:
+            columnName: street_2
+            newDataType: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+            tableName: benefit_plan_dependents
+
+  - changeSet:
+      id: 1570757658000-1
+      author: max-eb
+      changes:
+      - createTable:
+          columns:
+          - column:
+              name: id
+              type: bigint
+              constraints:
+                primaryKey: true
+          - column:
+              name: name
+              type: varchar(255)
+          - column:
+              name: created_at
+              type: datetime
+          - column:
+              name: updated_at
+              type: datetime
+          - column:
+              name: deleted_at
+              type: datetime
+          tableName: user_roles
+
+  - changeSet:
+      id: 1570757658000-3
+      author: max-eb
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: user_role_id
+                  type: bigint
+                  constraints:
+                    references: user_roles(id)
+                    foreignKeyName: fk_user_role_id
+            tableName: users
+
+  - changeSet:
+      id: 1571365778552-1
+      author: wenhao-eb
+      changes:
+        - dropColumn:
+            columnName: deactivated
+            tableName: users
+
+  - changeSet:
+      id: 1572587818195-1
+      author: max-eb
+      preConditions:
+        tableExists:
+          tableName: time_off_policy_accruals
+      changes:
+      - dropTable:
+          tableName: time_off_policy_accruals
+
+  - changeSet:
+      id: 1572587818195-2
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: benefit_plan_coverages
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: benefit_plan_coverages
+
+  - changeSet:
+      id: 1572587818195-3
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: benefit_plan_dependent_relationships
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: benefit_plan_dependent_relationships
+
+  - changeSet:
+      id: 1572587818195-4
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: benefit_plan_dependents
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: benefit_plan_dependents
+
+  - changeSet:
+      id: 1572587818195-5
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: benefit_plan_types
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: benefit_plan_types
+
+  - changeSet:
+      id: 1572587818195-6
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: benefit_plans
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: benefit_plans
+
+  - changeSet:
+      id: 1572587818195-7
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: benefit_plans_users
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: benefit_plans_users
+
+  - changeSet:
+      id: 1572587818195-8
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: citizenship_statuses
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: citizenship_statuses
+
+  - changeSet:
+      id: 1572587818195-9
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: companies
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: companies
+
+  - changeSet:
+      id: 1572587818195-10
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: companies_paid_holidays
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: companies_paid_holidays
+
+  - changeSet:
+      id: 1572587818195-11
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: company_sizes
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: company_sizes
+
+  - changeSet:
+      id: 1572587818195-12
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: compensation_change_reasons
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: compensation_change_reasons
+
+  - changeSet:
+      id: 1572587818195-13
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: compensation_frequency
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: compensation_frequency
+
+  - changeSet:
+      id: 1572587818195-14
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: compensation_overtime_statuses
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: compensation_overtime_statuses
+
+  - changeSet:
+      id: 1572587818195-15
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: compensation_types
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: compensation_types
+
+  - changeSet:
+      id: 1572587818195-16
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: countries
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: countries
+
+  - changeSet:
+      id: 1572587818195-17
+      author: max-eb
+      preConditions:
+         columnExists:
+           columnName: deleted_at
+           tableName: deactivation_reasons
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: deactivation_reasons
+
+  - changeSet:
+      id: 1572587818195-18
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: departments
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: departments
+
+  - changeSet:
+      id: 1572587818195-24
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: emails
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: emails
+
+  - changeSet:
+      id: 1572587818195-25
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: employment_types
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: employment_types
+
+  - changeSet:
+      id: 1572587818195-26
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: ethnicities
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: ethnicities
+
+  - changeSet:
+      id: 1572587818195-28
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: genders
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: genders
+
+  - changeSet:
+      id: 1572587818195-29
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: jobs
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: jobs
+
+  - changeSet:
+      id: 1572587818195-30
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: jobs_users
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: jobs_users
+
+  - changeSet:
+      id: 1572587818195-31
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: marital_status
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: marital_status
+
+  - changeSet:
+      id: 1572587818195-32
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: office_addresses
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: office_addresses
+
+  - changeSet:
+      id: 1572587818195-33
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: offices
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: offices
+
+  - changeSet:
+      id: 1572587818195-34
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: paid_holidays
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: paid_holidays
+
+  - changeSet:
+      id: 1572587818195-35
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: paid_holidays_users
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: paid_holidays_users
+
+  - changeSet:
+      id: 1572587818195-36
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: retirement_plans_types
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: retirement_plans_types
+
+  - changeSet:
+      id: 1572587818195-37
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: retirement_types
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: retirement_types
+
+  - changeSet:
+      id: 1572587818195-38
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: states
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: states
+
+  - changeSet:
+      id: 1572587818195-39
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: states_provinces
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: states_provinces
+
+  - changeSet:
+      id: 1572587818195-40
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: time_off_accrual_frequencies
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: time_off_accrual_frequencies
+
+  - changeSet:
+      id: 1572587818195-41
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: time_off_policies
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: time_off_policies
+
+  - changeSet:
+      id: 1572587818195-42
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: time_off_policies_users
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: time_off_policies_users
+
+  - changeSet:
+      id: 1572587818195-43
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: time_off_policy_accrual_schedule_milestones
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: time_off_policy_accrual_schedule_milestones
+
+  - changeSet:
+      id: 1572587818195-44
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: time_off_policy_accrual_schedules
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: time_off_policy_accrual_schedules
+
+  - changeSet:
+      id: 1572587818195-45
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: time_off_request_approval_statuses
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: time_off_request_approval_statuses
+
+  - changeSet:
+      id: 1572587818195-46
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: time_off_request_comments
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: time_off_request_comments
+
+  - changeSet:
+      id: 1572587818195-47
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: time_off_request_dates
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: time_off_request_dates
+
+  - changeSet:
+      id: 1572587818195-48
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: time_off_requests
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: time_off_requests
+
+  - changeSet:
+      id: 1572587818195-49
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: user_access_level_events
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: user_access_level_events
+
+  - changeSet:
+      id: 1572587818195-50
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: user_addresses
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: user_addresses
+
+  - changeSet:
+      id: 1572587818195-52
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: user_compensations
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: user_compensations
+
+  - changeSet:
+      id: 1572587818195-53
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: user_contact_information
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: user_contact_information
+
+  - changeSet:
+      id: 1572587818195-54
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: user_educations
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: user_educations
+
+  - changeSet:
+      id: 1572587818195-55
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: user_emergency_contacts
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: user_emergency_contacts
+
+  - changeSet:
+      id: 1572587818195-56
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: user_employment_status_types
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: user_employment_status_types
+
+  - changeSet:
+      id: 1572587818195-57
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: user_employment_statuses
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: user_employment_statuses
+
+  - changeSet:
+      id: 1572587818195-58
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: user_personal_information
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: user_personal_information
+
+  - changeSet:
+      id: 1572587818195-59
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: user_roles
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: user_roles
+
+  - changeSet:
+      id: 1572587818195-60
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: user_statuses
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: user_statuses
+
+  - changeSet:
+      id: 1572587818195-61
+      author: max-eb
+      preConditions:
+        columnExists:
+          columnName: deleted_at
+          tableName: users
+      changes:
+      - dropColumn:
+          columnName: deleted_at
+          tableName: users
+
+  - changeSet:
+      id: 1572847764535-1
+      author: Qi-Jia
+      preconditions:
+        onFail: MARK_RAN
+        columnExist:
+          tableName: time_off_policies_users
+          columnName: balance
+      changes:
+        - renameColumn:
+            columnDataType: INT
+            newColumnName: initial_balance
+            oldColumnName: balance
+            tableName: time_off_policies_users
+

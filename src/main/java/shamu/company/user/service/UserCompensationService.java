@@ -1,6 +1,5 @@
 package shamu.company.user.service;
 
-import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -9,6 +8,8 @@ import shamu.company.employee.dto.CompensationDto;
 import shamu.company.user.entity.UserCompensation;
 import shamu.company.user.entity.mapper.UserCompensationMapper;
 import shamu.company.user.repository.UserCompensationRepository;
+
+import java.util.List;
 
 @Service
 @Transactional
@@ -46,8 +47,8 @@ public class UserCompensationService {
         userCompensationRepository.findByUserId(userId));
   }
 
-  public List<UserCompensation> listNewestEnrolledCompensation() {
-    return userCompensationRepository.listNewestEnrolledUserCompensationByCompanyId();
+  public List<UserCompensation> listNewestEnrolledCompensation(final String companyId) {
+    return userCompensationRepository.listNewestEnrolledUserCompensationByCompanyId(companyId);
   }
 
   public boolean existsByUserId(final String userId) {

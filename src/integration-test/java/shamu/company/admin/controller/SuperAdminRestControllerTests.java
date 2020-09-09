@@ -99,6 +99,18 @@ class SuperAdminRestControllerTests extends WebControllerBaseTests {
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
 
+  @Test
+  void testGetUser() throws Exception {
+    setPermission(Permission.Name.SUPER_PERMISSION.name());
+    final HttpHeaders httpHeaders = new HttpHeaders();
+    httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+    final MvcResult response =
+        mockMvc
+            .perform(MockMvcRequestBuilders.get("/company/super-admin/users").headers(httpHeaders))
+            .andReturn();
+    assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+  }
+
   @Nested
   class TestMockUser {
 
@@ -107,46 +119,72 @@ class SuperAdminRestControllerTests extends WebControllerBaseTests {
       targetUser.setId(UuidUtil.getUuidString());
     }
 
-    @Test
-    void asManager_thenShouldFailed() throws Exception {
-      buildAuthUserAsManager();
-      final MvcResult response = getResponse();
-      assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+    private class CommonTests {
+      @Test
+      void asManager_thenShouldFailed() throws Exception {
+        buildAuthUserAsManager();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+
+      @Test
+      void asEmployee_thenShouldFailed() throws Exception {
+        buildAuthUserAsEmployee();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+
+      @Test
+      void asDeactivatedUser_thenShouldFailed() throws Exception {
+        buildAuthUserAsDeactivatedUser();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+
+      @Test
+      void asAdminUser_thenShouldFailed() throws Exception {
+        buildAuthUserAsAdmin();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
     }
 
-    @Test
-    void asEmployee_thenShouldFailed() throws Exception {
-      buildAuthUserAsEmployee();
-      final MvcResult response = getResponse();
-      assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+    @Nested
+    class SameCompany extends CommonTests {
+
+      @BeforeEach
+      void init() {
+        targetUser.setCompany(company);
+      }
+
+      @Test
+      void asSuper_Admin_thenShouldSuccess() throws Exception {
+        buildAuthUserAsSuperAdmin();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+      }
     }
 
-    @Test
-    void asDeactivatedUser_thenShouldFailed() throws Exception {
-      buildAuthUserAsDeactivatedUser();
-      final MvcResult response = getResponse();
-      assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
-    }
+    @Nested
+    class DifferentCompany extends CommonTests {
 
-    @Test
-    void asAdminUser_thenShouldFailed() throws Exception {
-      buildAuthUserAsAdmin();
-      final MvcResult response = getResponse();
-      assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
-    }
+      @BeforeEach
+      void init() {
+        targetUser.setCompany(theOtherCompany);
+      }
 
-    @Test
-    void asSuper_Admin_thenShouldSuccess() throws Exception {
-      buildAuthUserAsSuperAdmin();
-      final MvcResult response = getResponse();
-      assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+      @Test
+      void asSuper_Admin_thenShouldSuccess() throws Exception {
+        buildAuthUserAsSuperAdmin();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+      }
     }
 
     private MvcResult getResponse() throws Exception {
       return mockMvc
           .perform(
-              MockMvcRequestBuilders.post(
-                      "/company/super-admin/mock/companies/123/users/" + targetUser.getId())
+              MockMvcRequestBuilders.post("/company/super-admin/mock/users/" + targetUser.getId())
                   .contentType(MediaType.APPLICATION_JSON)
                   .headers(httpHeaders))
           .andReturn();

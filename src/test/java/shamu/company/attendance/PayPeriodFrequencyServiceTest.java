@@ -1,8 +1,5 @@
 package shamu.company.attendance;
 
-import static org.assertj.core.api.Assertions.assertThatCode;
-
-import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -17,6 +14,10 @@ import shamu.company.attendance.service.AttendanceSettingsService;
 import shamu.company.attendance.service.PayPeriodFrequencyService;
 import shamu.company.common.entity.PayrollDetail;
 import shamu.company.common.service.PayrollDetailService;
+
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 public class PayPeriodFrequencyServiceTest {
 
@@ -82,11 +83,12 @@ public class PayPeriodFrequencyServiceTest {
       final CompanyTaSetting companyTaSetting = new CompanyTaSetting();
       final PayrollDetail payrollDetail = new PayrollDetail();
       payrollDetail.setPayFrequencyType(new StaticCompanyPayFrequencyType());
-      Mockito.when(attendanceSettingsService.findCompanySetting()).thenReturn(companyTaSetting);
-      Mockito.when(payrollDetailService.find()).thenReturn(payrollDetail);
+      Mockito.when(attendanceSettingsService.findCompanySettings(companyId))
+          .thenReturn(companyTaSetting);
+      Mockito.when(payrollDetailService.findByCompanyId(companyId)).thenReturn(payrollDetail);
       assertThatCode(
               () -> {
-                payPeriodFrequencyService.find();
+                payPeriodFrequencyService.findByCompany(companyId);
               })
           .doesNotThrowAnyException();
     }

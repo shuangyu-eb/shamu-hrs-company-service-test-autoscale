@@ -1,22 +1,6 @@
 package shamu.company.user;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-
 import com.auth0.json.auth.CreatedUser;
-import java.sql.Date;
-import java.sql.Timestamp;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import javax.persistence.EntityManager;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -62,6 +46,7 @@ import shamu.company.scheduler.QuartzJobScheduler;
 import shamu.company.server.dto.AuthUser;
 import shamu.company.timeoff.service.PaidHolidayService;
 import shamu.company.user.dto.ChangePasswordDto;
+import shamu.company.user.dto.CreatePasswordDto;
 import shamu.company.user.dto.CurrentUserDto;
 import shamu.company.user.dto.UpdatePasswordDto;
 import shamu.company.user.dto.UserRoleUpdateDto;
@@ -82,7 +67,6 @@ import shamu.company.user.entity.mapper.UserMapper;
 import shamu.company.user.entity.mapper.UserPersonalInformationMapper;
 import shamu.company.user.exception.errormapping.AuthenticationFailedException;
 import shamu.company.user.exception.errormapping.EmailExpiredException;
-import shamu.company.user.exception.errormapping.PasswordDuplicatedException;
 import shamu.company.user.exception.errormapping.UserNotFoundByEmailException;
 import shamu.company.user.exception.errormapping.UserNotFoundByInvitationTokenException;
 import shamu.company.user.exception.errormapping.WorkEmailDuplicatedException;
@@ -97,6 +81,23 @@ import shamu.company.user.service.UserRoleService;
 import shamu.company.user.service.UserService;
 import shamu.company.user.service.UserStatusService;
 import shamu.company.utils.UuidUtil;
+
+import javax.persistence.EntityManager;
+import java.sql.Date;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 class UserServiceTests {
 
@@ -158,9 +159,11 @@ class UserServiceTests {
     final EmployeeListSearchCondition employeeListSearchCondition =
         new EmployeeListSearchCondition();
     final User currentUser = new User();
+    currentUser.setCompany(new Company(UUID.randomUUID().toString().replaceAll("-", "")));
     Mockito.when(permissionUtils.hasAuthority(Mockito.anyString())).thenReturn(false);
     Mockito.when(userRepository.findActiveUserById(userId)).thenReturn(currentUser);
-    Assertions.assertDoesNotThrow(() -> userService.findAllEmployees(employeeListSearchCondition));
+    Assertions.assertDoesNotThrow(
+        () -> userService.findAllEmployees(userId, employeeListSearchCondition));
   }
 
   @Test
@@ -226,78 +229,27 @@ class UserServiceTests {
     }
   }
 
-  @Nested
-  class TestResetPassword {
+  @Test
+  void testResetPassword() {
+    final UpdatePasswordDto updatePasswordDto = new UpdatePasswordDto();
+    updatePasswordDto.setNewPassword(RandomStringUtils.randomAlphabetic(10));
+    updatePasswordDto.setResetPasswordToken(RandomStringUtils.randomAlphabetic(10));
 
-    private UpdatePasswordDto updatePasswordDto;
+    final User databaseUser = new User();
+    final UserContactInformation userContactInformation = new UserContactInformation();
+    userContactInformation.setEmailWork("example@indeed.com");
+    databaseUser.setUserContactInformation(userContactInformation);
+    final UserStatus targetStatus = new UserStatus();
+    targetStatus.setName(Status.PENDING_VERIFICATION.name());
 
-    @BeforeEach
-    void init() {
-      updatePasswordDto = new UpdatePasswordDto();
-      updatePasswordDto.setNewPassword(RandomStringUtils.randomAlphabetic(10));
-      updatePasswordDto.setResetPasswordToken(RandomStringUtils.randomAlphabetic(10));
-    }
+    final com.auth0.json.mgmt.users.User authUser = new com.auth0.json.mgmt.users.User();
 
-    @Test
-    void whenUserNotExist_thenShouldThrow() {
-      Mockito.when(
-              userRepository.findByResetPasswordToken(updatePasswordDto.getResetPasswordToken()))
-          .thenReturn(null);
-      assertThatExceptionOfType(UserNotFoundByInvitationTokenException.class)
-          .isThrownBy(() -> userService.resetPassword(updatePasswordDto));
-    }
+    Mockito.when(userRepository.findByResetPasswordToken(updatePasswordDto.getResetPasswordToken()))
+        .thenReturn(databaseUser);
+    Mockito.when(auth0Helper.getUserByUserIdFromAuth0(Mockito.any())).thenReturn(authUser);
+    Mockito.when(userStatusService.findByName(Mockito.any())).thenReturn(targetStatus);
 
-    @Test
-    void whenAuthUserNotExist_thenShouldThrow() {
-      Mockito.when(
-              userRepository.findByResetPasswordToken(updatePasswordDto.getResetPasswordToken()))
-          .thenReturn(new User());
-      Mockito.when(auth0Helper.getUserByUserIdFromAuth0(Mockito.anyString())).thenReturn(null);
-      assertThatExceptionOfType(ResourceNotFoundException.class)
-          .isThrownBy(() -> userService.resetPassword(updatePasswordDto));
-    }
-
-    @Test
-    void whenPasswordIsInvalid_thenShouldThrow() {
-      final User user = new User();
-      user.setId(UuidUtil.getUuidString());
-      final UserContactInformation userContactInformation = new UserContactInformation();
-      userContactInformation.setEmailWork("example@indeed.com");
-      user.setUserContactInformation(userContactInformation);
-      Mockito.when(
-              userRepository.findByResetPasswordToken(updatePasswordDto.getResetPasswordToken()))
-          .thenReturn(user);
-      Mockito.when(auth0Helper.getUserByUserIdFromAuth0(user.getId()))
-          .thenReturn(new com.auth0.json.mgmt.users.User());
-      Mockito.when(
-              auth0Helper.isPasswordValid(
-                  user.getUserContactInformation().getEmailWork(),
-                  updatePasswordDto.getNewPassword()))
-          .thenReturn(Boolean.TRUE);
-      assertThatExceptionOfType(PasswordDuplicatedException.class)
-          .isThrownBy(() -> userService.resetPassword(updatePasswordDto));
-    }
-
-    @Test
-    void whenUserExist_passwordValid_thenShouldSuccess() {
-      final User databaseUser = new User();
-      final UserContactInformation userContactInformation = new UserContactInformation();
-      userContactInformation.setEmailWork("example@indeed.com");
-      databaseUser.setUserContactInformation(userContactInformation);
-      final UserStatus targetStatus = new UserStatus();
-      targetStatus.setName(Status.PENDING_VERIFICATION.name());
-      databaseUser.setUserStatus(targetStatus);
-
-      final com.auth0.json.mgmt.users.User authUser = new com.auth0.json.mgmt.users.User();
-
-      Mockito.when(
-              userRepository.findByResetPasswordToken(updatePasswordDto.getResetPasswordToken()))
-          .thenReturn(databaseUser);
-      Mockito.when(auth0Helper.getUserByUserIdFromAuth0(Mockito.any())).thenReturn(authUser);
-      Mockito.when(userStatusService.findByName(Mockito.any())).thenReturn(targetStatus);
-
-      Assertions.assertDoesNotThrow(() -> userService.resetPassword(updatePasswordDto));
-    }
+    Assertions.assertDoesNotThrow(() -> userService.resetPassword(updatePasswordDto));
   }
 
   @Test
@@ -335,23 +287,26 @@ class UserServiceTests {
       final List<OrgChartDto> orgChartUserItemList = new ArrayList<>();
       manager.setId(UUID.randomUUID().toString().replaceAll("-", ""));
       orgChartUserItemList.add(manager);
-      Mockito.when(userRepository.findOrgChartItemByUserId(userId)).thenReturn(manager);
-      Mockito.when(userRepository.findOrgChartItemByManagerId(manager.getId()))
+      Mockito.when(userRepository.findOrgChartItemByUserId(userId, companyId)).thenReturn(manager);
+      Mockito.when(userRepository.findOrgChartItemByManagerId(manager.getId(), companyId))
           .thenReturn(orgChartUserItemList);
-      Assertions.assertDoesNotThrow(() -> userService.getOrgChart(userId));
+      Assertions.assertDoesNotThrow(() -> userService.getOrgChart(userId, companyId));
     }
 
     @Test
     void whenUserIdIsNull_thenShouldCall() {
       userId = null;
+      final Company company = new Company(companyId);
       final OrgChartDto orgChartDto = new OrgChartDto();
       orgChartDto.setId(companyId);
 
-      Mockito.when(userRepository.findOrgChartItemByManagerId(null)).thenReturn(new ArrayList<>());
+      Mockito.when(companyRepository.findCompanyById(Mockito.any())).thenReturn(company);
+      Mockito.when(userRepository.findOrgChartItemByManagerId(null, companyId))
+          .thenReturn(new ArrayList<>());
       Mockito.when(userMapper.convertOrgChartDto(Mockito.any())).thenReturn(orgChartDto);
-      Mockito.when(userRepository.countExistingUser()).thenReturn(100);
-      userService.getOrgChart(userId);
-      Mockito.verify(userRepository, Mockito.times(1)).findOrgChartItemByManagerId(null);
+      Mockito.when(userRepository.findExistingUserCountByCompanyId(Mockito.any())).thenReturn(100);
+      userService.getOrgChart(userId, companyId);
+      Mockito.verify(userRepository, Mockito.times(1)).findOrgChartItemByManagerId(null, companyId);
     }
   }
 
@@ -676,19 +631,26 @@ class UserServiceTests {
     }
 
     @Test
+    void whenCompanyNameExists_thenShouldThrow() {
+      Mockito.when(companyService.existsByName(Mockito.anyString())).thenReturn(true);
+      assertThatExceptionOfType(AlreadyExistsException.class)
+          .isThrownBy(() -> userService.signUp(userSignUpDto));
+    }
+
+    @Test
     void whenCanFindEmail_thenShouldSuccess() {
       final com.auth0.json.mgmt.users.User auth0User = new com.auth0.json.mgmt.users.User();
       auth0User.setEmail("example@mail.com");
       Mockito.when(auth0Helper.getUserByUserIdFromAuth0(userId)).thenReturn(auth0User);
       final Company company = new Company();
       company.setId(RandomStringUtils.randomAlphabetic(16));
-      company.setName("companyInfo");
+      company.setName("company");
       Mockito.when(companyService.save(Mockito.any())).thenReturn(company);
-      Mockito.when(companyService.getCompany()).thenReturn(company);
       Mockito.when(userStatusService.findByName(Mockito.any()))
           .thenReturn(new UserStatus(Status.ACTIVE.name()));
 
       final User persistedUser = new User();
+      persistedUser.setCompany(company);
       persistedUser.setUserContactInformation(new UserContactInformation());
       persistedUser.getUserContactInformation().setEmailWork("example@example.com");
       persistedUser.setUserPersonalInformation(new UserPersonalInformation());
@@ -699,9 +661,11 @@ class UserServiceTests {
       final com.auth0.json.mgmt.users.User user = new com.auth0.json.mgmt.users.User();
       final CreatedUser createdUser = new CreatedUser();
       Mockito.when(auth0Helper.signUp(Mockito.any(), Mockito.any())).thenReturn(createdUser);
-      Mockito.when(auth0Helper.updateAuthUserAppMetaData(Mockito.anyString(), Mockito.any()))
+      Mockito.when(
+              auth0Helper.updateAuthUserAppMetaData(
+                  Mockito.anyString(), Mockito.any(), Mockito.anyString()))
           .thenReturn(user);
-      userService.signUp(userSignUpDto, "123");
+      userService.signUp(userSignUpDto);
       Mockito.verify(userRepository, Mockito.times(1)).save(Mockito.any());
     }
   }
@@ -723,16 +687,19 @@ class UserServiceTests {
 
       final Company company = new Company();
       company.setId("1");
+      currentUser.setCompany(company);
       this.currentUser = currentUser;
       targetUserId = "2";
       final User targetUser = new User();
       targetUser.setId(targetUserId);
-      Mockito.when(userRepository.findActiveUserById(Mockito.anyString())).thenReturn(targetUser);
+      Mockito.when(userRepository.findByIdAndCompanyId(Mockito.anyString(), Mockito.anyString()))
+          .thenReturn(targetUser);
     }
 
     @Test
     void whenIsAdmin_thenShouldReturnTrue() {
-      Mockito.when(userRepository.findActiveUserById(Mockito.anyString())).thenReturn(new User());
+      Mockito.when(userRepository.findByIdAndCompanyId(Mockito.anyString(), Mockito.anyString()))
+          .thenReturn(new User());
       final UserRole userRole = new UserRole();
       userRole.setName(Role.ADMIN.name());
       currentUser.setUserRole(userRole);
@@ -744,7 +711,8 @@ class UserServiceTests {
     void whenIsManager_thenShouldReturnTrue() {
       final User targetUser = new User();
       targetUser.setManagerUser(currentUser);
-      Mockito.when(userRepository.findActiveUserById(Mockito.anyString())).thenReturn(targetUser);
+      Mockito.when(userRepository.findByIdAndCompanyId(Mockito.anyString(), Mockito.anyString()))
+          .thenReturn(targetUser);
       final UserRole userRole = new UserRole();
       userRole.setName(Role.MANAGER.name());
       currentUser.setUserRole(userRole);
@@ -762,9 +730,83 @@ class UserServiceTests {
 
     @Test
     void whenTargetUserIsNull_thenShouldThrow() {
-      Mockito.when(userRepository.findActiveUserById(Mockito.anyString())).thenReturn(null);
+      Mockito.when(userRepository.findByIdAndCompanyId(Mockito.anyString(), Mockito.anyString()))
+          .thenReturn(null);
       assertThatExceptionOfType(ResourceNotFoundException.class)
           .isThrownBy(() -> userService.hasUserAccess(currentUser, targetUserId));
+    }
+  }
+
+  @Nested
+  class CreatePassword {
+
+    private CreatePasswordDto createPasswordDto;
+
+    private com.auth0.json.mgmt.users.User user;
+
+    @BeforeEach
+    void setUp() {
+      createPasswordDto = new CreatePasswordDto();
+      createPasswordDto.setEmailWork("example@indeed.com");
+      final String password =
+          RandomStringUtils.randomAlphabetic(4).toUpperCase()
+              + RandomStringUtils.randomAlphabetic(4).toLowerCase()
+              + RandomStringUtils.randomNumeric(4);
+      final String resetPasswordToken = UUID.randomUUID().toString().replaceAll("-", "");
+      createPasswordDto.setNewPassword(password);
+      createPasswordDto.setResetPasswordToken(resetPasswordToken);
+      user = new com.auth0.json.mgmt.users.User();
+    }
+
+    @Test
+    void whenPasswordTokenNotMatch_thenShouldThrow() {
+      final User targetUser = new User();
+      targetUser.setResetPasswordToken(RandomStringUtils.randomAlphabetic(10));
+      Mockito.when(userRepository.findByEmailWork(Mockito.anyString())).thenReturn(targetUser);
+      assertThatExceptionOfType(ResourceNotFoundException.class)
+          .isThrownBy(() -> userService.createPassword(createPasswordDto));
+    }
+
+    @Test
+    void whenNoSuchUserInAuth0_thenShouldNotThrow() {
+      final User targetUser = new User();
+      targetUser.setResetPasswordToken(createPasswordDto.getResetPasswordToken());
+      Mockito.when(userRepository.findByEmailWork(Mockito.anyString())).thenReturn(targetUser);
+      Mockito.when(auth0Helper.getUserByUserIdFromAuth0(Mockito.any()))
+          .thenReturn(new com.auth0.json.mgmt.users.User());
+      Assertions.assertDoesNotThrow(() -> userService.createPassword(createPasswordDto));
+    }
+
+    @Test
+    void whenNoSuchUserInDatabase_thenShouldThrow() {
+      final User targetUser = new User();
+      targetUser.setResetPasswordToken(createPasswordDto.getResetPasswordToken());
+      Mockito.when(userRepository.findByEmailWork(Mockito.anyString())).thenReturn(null);
+      assertThatExceptionOfType(ResourceNotFoundException.class)
+          .isThrownBy(() -> userService.createPassword(createPasswordDto));
+    }
+
+    @Test
+    void whenResetTokenNotEqual_thenShouldThrow() {
+      Mockito.when(auth0Helper.getUserByUserIdFromAuth0(Mockito.any())).thenReturn(user);
+      final User targetUser = new User();
+      targetUser.setResetPasswordToken(RandomStringUtils.randomAlphabetic(10));
+      Mockito.when(userRepository.findByEmailWork(Mockito.any())).thenReturn(targetUser);
+      assertThatExceptionOfType(ResourceNotFoundException.class)
+          .isThrownBy(() -> userService.createPassword(createPasswordDto));
+    }
+
+    @Test
+    void whenNoError_thenShouldSuccess() {
+      final User targetUser = new User();
+      targetUser.setResetPasswordToken(createPasswordDto.getResetPasswordToken());
+      Mockito.when(userRepository.findByEmailWork(Mockito.anyString())).thenReturn(targetUser);
+      Mockito.when(auth0Helper.getUserByUserIdFromAuth0(Mockito.any())).thenReturn(user);
+      final UserStatus targetStatus = new UserStatus();
+      targetStatus.setName(Status.ACTIVE.name());
+      Mockito.when(userStatusService.findByName(Mockito.any())).thenReturn(targetStatus);
+
+      Assertions.assertDoesNotThrow(() -> userService.createPassword(createPasswordDto));
     }
   }
 
@@ -939,56 +981,8 @@ class UserServiceTests {
 
     users.add(user);
 
-    final User newUser = new User();
-    newUser.setId(UuidUtil.getUuidString());
-    newUser.setUserContactInformation(userContactInformation);
-    newUser.setUserPersonalInformation(userPersonalInformation);
-
-    users.add(newUser);
-
     final String name = userService.getUserNameInUsers(user, users);
-    assertThat(name)
-        .isEqualTo(
-            user.getUserPersonalInformation().getName()
-                + " ("
-                + userContactInformation.getEmailWork()
-                + ")");
-  }
-
-  @Nested
-  class TestSendResetPasswordEmail {
-    String email = "qwe@asd.zxc";
-
-    @Test
-    void whenUserNotExist_thenShouldThrow() {
-      Mockito.when(userRepository.findByEmailWork(email)).thenReturn(null);
-      assertThatExceptionOfType(UserNotFoundByEmailException.class)
-          .isThrownBy(() -> userService.sendResetPasswordEmail(email));
-    }
-
-    @Test
-    void whenAuth0UserNotExist_thenShouldThrow() {
-      final User user = new User();
-      user.setId(UuidUtil.getUuidString());
-      Mockito.when(userRepository.findByEmailWork(email)).thenReturn(user);
-      Mockito.when(auth0Helper.getUserByUserIdFromAuth0(user.getId())).thenReturn(null);
-      assertThatExceptionOfType(ResourceNotFoundException.class)
-          .isThrownBy(() -> userService.sendResetPasswordEmail(email));
-    }
-
-    @Test
-    void whenUserExist_auth0UserExist_thenShouldSuccess() {
-      final User user = new User();
-      user.setId(UuidUtil.getUuidString());
-      Mockito.when(userRepository.findByEmailWork(email)).thenReturn(user);
-
-      final com.auth0.json.mgmt.users.User auth0User = new com.auth0.json.mgmt.users.User();
-      Mockito.when(auth0Helper.getUserByUserIdFromAuth0(user.getId())).thenReturn(auth0User);
-
-      Mockito.when(emailService.getResetPasswordEmail(Mockito.anyString(), Mockito.anyString()))
-          .thenReturn("");
-      assertThatCode(() -> userService.sendResetPasswordEmail(email)).doesNotThrowAnyException();
-    }
+    assertThat(name).isEqualTo(user.getUserPersonalInformation().getName());
   }
 
   @Test
@@ -998,8 +992,8 @@ class UserServiceTests {
     final UserStatus userStatus = new UserStatus(Status.PENDING_VERIFICATION.name());
     user.setUserStatus(userStatus);
     final List<User> mockedUsers = Collections.singletonList(user);
-    Mockito.when(userRepository.findAllActiveUsers()).thenReturn(mockedUsers);
-    final List<User> users = userService.findRegisteredUsers();
+    Mockito.when(userRepository.findAllByCompanyId(Mockito.anyString())).thenReturn(mockedUsers);
+    final List<User> users = userService.findRegisteredUsersByCompany("1");
     assertThat(users).isEmpty();
   }
 
@@ -1023,6 +1017,7 @@ class UserServiceTests {
     @Test
     void whenPeriodIdValid_listHasPendingTimeSheetsManagerAndAdmin_shouldSucceed() {
       company.setId(companyId);
+      notApprovedUser.setCompany(company);
       Mockito.when(
               userRepository.findUsersByPeriodIdAndTimeSheetStatus(
                   periodId, StaticTimesheetStatus.TimeSheetStatus.SUBMITTED.name()))
@@ -1031,7 +1026,7 @@ class UserServiceTests {
               userRepository.findManagersByPeriodIdAndTimeSheetStatus(
                   periodId, StaticTimesheetStatus.TimeSheetStatus.SUBMITTED.name()))
           .thenReturn(new ArrayList<>());
-      Mockito.when(userRepository.findUsersByUserRole(Role.ADMIN.name()))
+      Mockito.when(userRepository.findUsersByCompanyIdAndUserRole(companyId, Role.ADMIN.name()))
           .thenReturn(new ArrayList<>());
       assertThatCode(() -> userService.listHasPendingTimeSheetsManagerAndAdmin(periodId))
           .doesNotThrowAnyException();

@@ -1,13 +1,5 @@
 package shamu.company.attendance.service;
 
-import java.math.BigInteger;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shamu.company.attendance.dto.AllTimeDto;
@@ -38,6 +30,15 @@ import shamu.company.user.entity.UserCompensation;
 import shamu.company.user.service.UserCompensationService;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.DateUtil;
+
+import java.math.BigInteger;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @Transactional
@@ -227,7 +228,8 @@ public class AttendanceMyHoursService {
         timeOffRequestService.findTimeOffHoursBetweenWorkPeriod(
             user, timeSheetStart.getTime(), timesheetEnd.getTime());
 
-    final CompanyTaSetting companyTaSetting = attendanceSettingsService.findCompanySetting();
+    final CompanyTaSetting companyTaSetting =
+        attendanceSettingsService.findCompanySettings(user.getCompany().getId());
     final List<EmployeeTimeLog> workedMinutes =
         findAllRelevantTimelogs(timeSheet, companyTaSetting);
 
@@ -300,7 +302,8 @@ public class AttendanceMyHoursService {
 
   public List<AllTimeEntryDto> findAllHours(final String timesheetId) {
     final TimeSheet timeSheet = timeSheetService.findTimeSheetById(timesheetId);
-    final CompanyTaSetting companyTaSetting = attendanceSettingsService.findCompanySetting();
+    final CompanyTaSetting companyTaSetting =
+        attendanceSettingsService.findCompanySettings(timeSheet.getEmployee().getCompany().getId());
     final List<LocalDateEntryDto> localDateEntries =
         overtimeService.getLocalDateEntries(timeSheet, companyTaSetting);
     final List<OvertimeDetailDto> overtimeDetailDtos =
@@ -412,9 +415,10 @@ public class AttendanceMyHoursService {
     employeeTimeEntryService.deleteMyHourEntry(entryId);
   }
 
-  public UserAttendanceEnrollInfoDto findUserAttendanceEnrollInfo(final String userId) {
+  public UserAttendanceEnrollInfoDto findUserAttendanceEnrollInfo(
+      final String userId, final String companyId) {
     final EmployeesTaSetting employeesTaSetting = employeesTaSettingService.findByUserId(userId);
-    final TimePeriod timePeriod = timePeriodService.findCompanyCurrentPeriod();
+    final TimePeriod timePeriod = timePeriodService.findCompanyCurrentPeriod(companyId);
     final TimeSheet timeSheet =
         timeSheetService.findTimeSheetByPeriodAndUser(timePeriod.getId(), userId);
     return UserAttendanceEnrollInfoDto.builder()

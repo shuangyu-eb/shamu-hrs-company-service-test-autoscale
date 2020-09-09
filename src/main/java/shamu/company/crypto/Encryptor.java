@@ -10,7 +10,6 @@ import org.springframework.security.crypto.encrypt.BytesEncryptor;
 import org.springframework.security.crypto.encrypt.Encryptors;
 import org.springframework.stereotype.Component;
 import shamu.company.benefit.entity.BenefitPlanDependent;
-import shamu.company.common.multitenant.TenantContext;
 import shamu.company.helpers.auth0.Auth0Helper;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserPersonalInformation;
@@ -85,7 +84,7 @@ public class Encryptor {
   }
 
   private int getHashCode(final User user) {
-    final String companyHash = getCompanyHash();
+    final String companyHash = getCompanyHash(user);
     final String userHash = getUserHash(user);
 
     return Objects.hash(indeedHash, companyHash, userHash);
@@ -95,7 +94,7 @@ public class Encryptor {
     return auth0Helper.getUserSecret(user);
   }
 
-  private String getCompanyHash() {
-    return secretHashRepository.getCompanySecretByCompanyId(TenantContext.getCurrentTenant());
+  private String getCompanyHash(final User user) {
+    return secretHashRepository.getCompanySecretByCompanyId(user.getCompany().getId());
   }
 }

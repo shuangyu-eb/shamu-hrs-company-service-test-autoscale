@@ -1,4 +1,4 @@
-package shamu.company.timeoff.service;
+package shamu.company.timeoff;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,6 +33,13 @@ import shamu.company.timeoff.entity.mapper.TimeOffRequestMapper;
 import shamu.company.timeoff.repository.TimeOffPolicyUserRepository;
 import shamu.company.timeoff.repository.TimeOffRequestApprovalStatusRepository;
 import shamu.company.timeoff.repository.TimeOffRequestRepository;
+import shamu.company.timeoff.service.TimeOffDetailService;
+import shamu.company.timeoff.service.TimeOffPolicyService;
+import shamu.company.timeoff.service.TimeOffPolicyUserService;
+import shamu.company.timeoff.service.TimeOffRequestApprovalStatusService;
+import shamu.company.timeoff.service.TimeOffRequestDateService;
+import shamu.company.timeoff.service.TimeOffRequestEmailService;
+import shamu.company.timeoff.service.TimeOffRequestService;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
 import shamu.company.user.entity.UserRole;

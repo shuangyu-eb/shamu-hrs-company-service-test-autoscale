@@ -5,6 +5,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import shamu.company.common.mapper.Config;
+import shamu.company.company.entity.Company;
 import shamu.company.timeoff.dto.TimeOffPolicyDto;
 import shamu.company.timeoff.dto.TimeOffPolicyFrontendDto;
 import shamu.company.timeoff.dto.TimeOffPolicyRelatedInfoDto;
@@ -22,8 +23,8 @@ public interface TimeOffPolicyMapper {
   @Mapping(target = "updatedAt", ignore = true)
   @Mapping(target = "name", source = "timeOffPolicyFrontendDto.policyName")
   @Mapping(target = "isAutoEnrollEnabled", source = "timeOffPolicyFrontendDto.isAutoEnrolled")
-  TimeOffPolicy createFromTimeOffPolicyFrontendDto(
-      TimeOffPolicyFrontendDto timeOffPolicyFrontendDto);
+  TimeOffPolicy createFromTimeOffPolicyFrontendDtoAndCompany(
+      TimeOffPolicyFrontendDto timeOffPolicyFrontendDto, Company company);
 
   @Mapping(target = "name", source = "policyName")
   @Mapping(target = "isAutoEnrollEnabled", source = "isAutoEnrolled")

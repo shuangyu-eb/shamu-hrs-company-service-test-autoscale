@@ -21,6 +21,7 @@ import shamu.company.company.dto.CompanyBenefitsSettingDto;
 import shamu.company.company.dto.OfficeCreateDto;
 import shamu.company.company.dto.OfficeDto;
 import shamu.company.company.dto.OfficeSizeDto;
+import shamu.company.company.entity.Company;
 import shamu.company.company.entity.Department;
 import shamu.company.company.entity.Office;
 import shamu.company.company.entity.mapper.OfficeMapper;
@@ -58,48 +59,50 @@ public class CompanyRestController extends BaseRestController {
 
   @GetMapping("departments")
   public List<SelectFieldSizeDto> findDepartments() {
-    return companyService.findDepartments();
+    return companyService.findDepartmentsByCompanyId(findCompanyId());
   }
 
   @PostMapping("departments")
   @PreAuthorize("hasAuthority('CREATE_DEPARTMENT')")
   public Department createDepartment(@RequestBody final String name) {
-    return companyService.saveDepartment(name);
+    return companyService.saveDepartmentsByCompany(name, findCompanyId());
   }
 
   @PostMapping("jobs")
-  @PreAuthorize("hasAuthority('CREATE_JOB')")
+  @PreAuthorize("hasPermission(#id,'DEPARTMENT','CREATE_JOB')")
   public SelectFieldInformationDto createJob(@RequestBody final String name) {
-    final Job job = companyService.saveJob(name);
+    final Job job = companyService.saveJobsByCompany(name, findCompanyId());
     return new SelectFieldInformationDto(job.getId(), job.getTitle());
   }
 
   @GetMapping("offices")
   @PreAuthorize("hasAuthority('VIEW_USER_JOB')")
   public List<OfficeSizeDto> findOffices() {
-    return companyService.findOffices();
+    return companyService.findOfficesByCompany(findCompanyId());
   }
 
   @PostMapping("offices")
   @PreAuthorize("hasAuthority('CREATE_OFFICE')")
   public OfficeDto saveOffice(@RequestBody final OfficeCreateDto officeCreateDto) {
     final Office office = officeCreateDto.getOffice();
+    office.setCompany(new Company(findCompanyId()));
     return officeMapper.convertToOfficeDto(companyService.saveOffice(office));
   }
 
   @GetMapping("user-options")
   @PreAuthorize("hasAuthority('VIEW_USER_JOB')")
   public List<SelectFieldInformationDto> findUsers() {
-    final List<User> users = employeeService.findAllActiveUsers();
+    final List<User> users = employeeService.findByCompanyId(findCompanyId());
     return collectUserPersonInformations(users);
   }
 
   @GetMapping("manager-candidate/{userId}/users")
   @PreAuthorize("hasPermission(#userId,'USER','VIEW_JOB')")
-  public List<SelectFieldInformationDto> findUsersFromCompany(@PathVariable final String userId) {
+  public List<SelectFieldInformationDto> findUsersFromCompany(
+      @PathVariable final String userId) {
     final List<User> users;
 
-    users = employeeService.findAllActiveUsers();
+    users = employeeService.findByCompanyId(findCompanyId());
 
     final List<SelectFieldInformationDto> selectFieldInformationDtos =
         collectUserPersonInformations(users);
@@ -126,13 +129,13 @@ public class CompanyRestController extends BaseRestController {
 
   @GetMapping("benefits-setting")
   public CompanyBenefitsSettingDto findCompanyBenefitsSetting() {
-    return companyService.findCompanyBenefitsSetting();
+    return companyService.findCompanyBenefitsSetting(findCompanyId());
   }
 
   @PatchMapping("benefits-setting/automatic-rollover")
   @PreAuthorize("hasAuthority('MANAGE_BENEFIT')")
   public HttpEntity updateBenefitSettingAutomaticRollover(@RequestBody final Boolean isTurnOn) {
-    companyService.updateBenefitSettingAutomaticRollover(isTurnOn);
+    companyService.updateBenefitSettingAutomaticRollover(findCompanyId(), isTurnOn);
     return new ResponseEntity(HttpStatus.OK);
   }
 
@@ -140,27 +143,28 @@ public class CompanyRestController extends BaseRestController {
   @PreAuthorize("hasAuthority('MANAGE_BENEFIT')")
   public HttpEntity updateEnrollmentPeriod(
       @RequestBody final CompanyBenefitsSettingDto companyBenefitsSettingDto) {
-    companyService.updateEnrollmentPeriod(companyBenefitsSettingDto);
+    companyService.updateEnrollmentPeriod(findCompanyId(), companyBenefitsSettingDto);
     return new ResponseEntity(HttpStatus.OK);
   }
 
   @PatchMapping("global-setting/company-name")
   @PreAuthorize("hasAuthority('UPDATE_COMPANY_NAME')")
   public String updateCompanyName(@RequestBody final String companyName) {
-    return companyService.updateCompanyName(companyName);
+    final String companyId = findCompanyId();
+    return companyService.updateCompanyName(companyName, companyId);
   }
 
   @GetMapping("paid-holidays-auto-enrolled")
   @PreAuthorize("hasAuthority('EDIT_PAID_HOLIDAY')")
   public boolean getIsPaidHolidayAutoEnrolled() {
-    return companyService.getCompany().getIsPaidHolidaysAutoEnroll();
+    return companyService.findById(findCompanyId()).getIsPaidHolidaysAutoEnroll();
   }
 
   @PatchMapping("global-setting/paid-holidays-auto-enrolled")
   @PreAuthorize("hasAuthority('EDIT_PAID_HOLIDAY')")
   public HttpEntity<String> updateIsPaidHolidayAutoEnrolled(
       @RequestBody final boolean isAutoEnrolled) {
-    companyService.updateIsPaidHolidaysAutoEnrolled(isAutoEnrolled);
+    companyService.updateIsPaidHolidaysAutoEnrolled(findCompanyId(), isAutoEnrolled);
     return new ResponseEntity<>(HttpStatus.OK);
   }
 }

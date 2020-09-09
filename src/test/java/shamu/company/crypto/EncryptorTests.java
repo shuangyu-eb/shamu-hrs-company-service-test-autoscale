@@ -16,7 +16,6 @@ import org.powermock.reflect.Whitebox;
 import org.springframework.security.crypto.encrypt.BytesEncryptor;
 import org.springframework.security.crypto.encrypt.Encryptors;
 import shamu.company.benefit.entity.BenefitPlanDependent;
-import shamu.company.common.multitenant.TenantContext;
 import shamu.company.company.entity.Company;
 import shamu.company.helpers.auth0.Auth0Helper;
 import shamu.company.user.entity.User;
@@ -44,7 +43,6 @@ class EncryptorTests {
     MockitoAnnotations.initMocks(this);
 
     encryptor = new Encryptor(indeedHash, userService, auth0Helper, secretHashRepository);
-    TenantContext.setCurrentTenant("eastbay");
     initTestUser();
     initMockBehavior();
     initEncryptSsn();
@@ -57,6 +55,7 @@ class EncryptorTests {
     final String companyId = "070C17B3E49A4A3D9576795DC2929299";
 
     testUser = new User(userId);
+    testUser.setCompany(new Company(companyId));
 
     final UserPersonalInformation userPersonalInformation = new UserPersonalInformation();
     userPersonalInformation.setId(userPersonalInformationId);
@@ -74,7 +73,7 @@ class EncryptorTests {
 
   private void initMockBehavior() {
     Mockito.when(auth0Helper.getUserSecret(testUser)).thenReturn(userSecret);
-    Mockito.when(secretHashRepository.getCompanySecretByCompanyId(Mockito.anyString()))
+    Mockito.when(secretHashRepository.getCompanySecretByCompanyId(testUser.getCompany().getId()))
         .thenReturn(companySecret);
     Mockito.when(userService.findActiveUserById(testUser.getId())).thenReturn(testUser);
     Mockito.when(
@@ -106,7 +105,7 @@ class EncryptorTests {
     Whitebox.invokeMethod(encryptor, "getEncryptor", userId);
     Mockito.verify(userService, Mockito.times(1)).findById(userId);
     Mockito.verify(secretHashRepository, Mockito.times(1))
-        .getCompanySecretByCompanyId(Mockito.anyString());
+        .getCompanySecretByCompanyId(testUser.getCompany().getId());
   }
 
   @Test
@@ -116,9 +115,10 @@ class EncryptorTests {
     final User user = new User();
     final Company company = new Company();
     company.setId("1");
+    user.setCompany(company);
     Mockito.when(userService.findById(userId)).thenReturn(user);
     Mockito.when(auth0Helper.getUserSecret(user)).thenReturn("1");
-    Mockito.when(secretHashRepository.getCompanySecretByCompanyId(Mockito.anyString()))
+    Mockito.when(secretHashRepository.getCompanySecretByCompanyId(user.getCompany().getId()))
         .thenReturn("1");
     encryptor.encrypt(userId, value);
     Mockito.verify(userService, Mockito.times(1)).findById(userId);
@@ -130,12 +130,13 @@ class EncryptorTests {
     final User user = new User();
     final Company company = new Company();
     company.setId("1");
+    user.setCompany(company);
     Mockito.when(auth0Helper.getUserSecret(user)).thenReturn("1");
-    Mockito.when(secretHashRepository.getCompanySecretByCompanyId(Mockito.anyString()))
+    Mockito.when(secretHashRepository.getCompanySecretByCompanyId(user.getCompany().getId()))
         .thenReturn("1");
     encryptor.encrypt(user, value);
     Mockito.verify(secretHashRepository, Mockito.times(1))
-        .getCompanySecretByCompanyId(Mockito.anyString());
+        .getCompanySecretByCompanyId(user.getCompany().getId());
   }
 
   @Nested

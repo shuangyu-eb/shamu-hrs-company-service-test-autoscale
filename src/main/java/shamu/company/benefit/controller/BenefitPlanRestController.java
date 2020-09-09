@@ -83,7 +83,7 @@ public class BenefitPlanRestController extends BaseRestController {
   @PreAuthorize(
       "hasPermission(" + "#data.coverages, 'BENEFIT_COVERAGE_CREATION', 'MANAGE_BENEFIT_PLAN')")
   public BenefitPlanDto createBenefitPlan(@RequestBody final NewBenefitPlanWrapperDto data) {
-    return benefitPlanService.createBenefitPlan(data);
+    return benefitPlanService.createBenefitPlan(data, findCompanyId());
   }
 
   @PatchMapping("benefit-plans/{id}")
@@ -109,13 +109,13 @@ public class BenefitPlanRestController extends BaseRestController {
   @GetMapping("benefit-plan-types")
   @PreAuthorize("hasAuthority('MANAGE_BENEFIT_PLAN')")
   public List<BenefitPlanTypeWithoutExpiredDto> getBenefitPlanTypes() {
-    return benefitPlanService.getBenefitPlanTypesAndNum();
+    return benefitPlanService.getBenefitPlanTypesAndNum(findCompanyId());
   }
 
   @GetMapping("benefit-plan-types/{planTypeId}/plan-preview")
   @PreAuthorize("hasAuthority('MANAGE_BENEFIT_PLAN')")
   public List<BenefitPlanPreviewDto> getBenefitPlanPreview(@PathVariable final String planTypeId) {
-    return benefitPlanService.getBenefitPlanPreview(planTypeId);
+    return benefitPlanService.getBenefitPlanPreview(findCompanyId(), planTypeId);
   }
 
   @PatchMapping("benefit-plan/{benefitPlanId}/users")
@@ -173,7 +173,7 @@ public class BenefitPlanRestController extends BaseRestController {
   public void updateSelectedBenefitEnrollmentInfo(
       @RequestBody final List<SelectedEnrollmentInfoDto> selectedInfos) {
     final String userId = findAuthUser().getId();
-    benefitPlanService.updateUserBenefitPlanEnrollmentInfo(userId, selectedInfos);
+    benefitPlanService.updateUserBenefitPlanEnrollmentInfo(userId, selectedInfos, findCompanyId());
   }
 
   @PatchMapping("users/benefit-confirmation")
@@ -181,7 +181,7 @@ public class BenefitPlanRestController extends BaseRestController {
   public HttpEntity confirmBenefitEnrollmentInfo(
       @RequestBody final List<SelectedEnrollmentInfoDto> selectedInfos) {
     final String userId = findAuthUser().getId();
-    benefitPlanService.confirmBenefitPlanEnrollment(userId, selectedInfos);
+    benefitPlanService.confirmBenefitPlanEnrollment(userId, selectedInfos, findCompanyId());
     return new ResponseEntity(HttpStatus.OK);
   }
 
@@ -211,14 +211,14 @@ public class BenefitPlanRestController extends BaseRestController {
   @PreAuthorize("hasPermission(#benefitPlanId, 'BENEFIT_PLAN', 'MANAGE_BENEFIT_PLAN')")
   public BenefitPlanRelatedUserListDto getEmployeesByBenefitPlanId(
       @PathVariable final String benefitPlanId) {
-    return benefitPlanService.findRelatedUsersByBenefitPlan(benefitPlanId);
+    return benefitPlanService.findRelatedUsersByBenefitPlan(benefitPlanId, findCompanyId());
   }
 
   @GetMapping("benefit-plan/{benefitPlanId}/selectedUsers")
   @PreAuthorize("hasPermission(#benefitPlanId, 'BENEFIT_PLAN', 'MANAGE_BENEFIT_PLAN')")
   public BenefitPlanRelatedUserListDto getAllUsersByBenefitPlanId(
       @PathVariable final String benefitPlanId) {
-    return benefitPlanService.findAllEmployeesForBenefitPlan(benefitPlanId);
+    return benefitPlanService.findAllEmployeesForBenefitPlan(benefitPlanId, findCompanyId());
   }
 
   @GetMapping("benefit-plan/coverages")
@@ -240,7 +240,8 @@ public class BenefitPlanRestController extends BaseRestController {
       @PathVariable final String planTypeName, final String planId, final String coverageId) {
     final BenefitReportParamDto benefitReportParamDto =
         benefitPlanReportMapper.covertToBenefitReportParamDto(planId, coverageId);
-    return benefitPlanService.findBenefitPlanReport(planTypeName, benefitReportParamDto);
+    return benefitPlanService.findBenefitPlanReport(
+        planTypeName, benefitReportParamDto, findCompanyId());
   }
 
   @GetMapping("benefit-plan/{planTypeName}/enrollment-breakdown")
@@ -253,7 +254,7 @@ public class BenefitPlanRestController extends BaseRestController {
     final BenefitReportParamDto benefitReportParamDto =
         benefitPlanReportMapper.covertToBenefitReportParamDto(planId, coverageId);
     return benefitPlanService.findEnrollmentBreakdown(
-        enrollmentBreakdownSearchCondition, planTypeName, benefitReportParamDto);
+        enrollmentBreakdownSearchCondition, planTypeName, benefitReportParamDto, findCompanyId());
   }
 
   @GetMapping("benefit-plan/{planTypeId}/plans")
@@ -262,12 +263,13 @@ public class BenefitPlanRestController extends BaseRestController {
       @PathVariable final String planTypeId,
       final boolean expired,
       final BenefitPlanSearchCondition benefitPlanSearchCondition) {
-    return benefitPlanService.findBenefitPlans(planTypeId, expired, benefitPlanSearchCondition);
+    return benefitPlanService.findBenefitPlans(
+        planTypeId, findCompanyId(), expired, benefitPlanSearchCondition);
   }
 
   @GetMapping("benefit-plan/all-plans")
   @PreAuthorize("hasAuthority('MANAGE_BENEFIT_PLAN')")
   public List<BenefitPlanDto> getAllPlans() {
-    return benefitPlanService.findAllPlans();
+    return benefitPlanService.findAllPlans(findCompanyId());
   }
 }

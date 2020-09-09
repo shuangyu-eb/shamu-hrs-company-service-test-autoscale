@@ -1,8 +1,5 @@
 package shamu.company.account.controller;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.BDDMockito.given;
-
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -20,6 +17,9 @@ import shamu.company.user.dto.CreatePasswordDto;
 import shamu.company.user.dto.UserLoginDto;
 import shamu.company.utils.JsonUtil;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
+
 @WebMvcTest(controllers = AccountRestController.class)
 public class AccountRestControllerTests extends WebControllerBaseTests {
   @Autowired private MockMvc mockMvc;
@@ -29,9 +29,7 @@ public class AccountRestControllerTests extends WebControllerBaseTests {
     final HttpHeaders httpHeaders = new HttpHeaders();
     final MvcResult response =
         mockMvc
-            .perform(
-                MockMvcRequestBuilders.get("/company/account/password/123/qwe")
-                    .headers(httpHeaders))
+            .perform(MockMvcRequestBuilders.get("/company/account/password/1").headers(httpHeaders))
             .andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
@@ -43,9 +41,6 @@ public class AccountRestControllerTests extends WebControllerBaseTests {
     createPasswordDto.setEmailWork("example@example.com");
     createPasswordDto.setNewPassword("856723Xy");
     createPasswordDto.setResetPasswordToken("1");
-    createPasswordDto.setCompanyId("asdzxc");
-
-    Mockito.when(tenantService.isCompanyExists(createPasswordDto.getCompanyId())).thenReturn(true);
     final MvcResult response =
         mockMvc
             .perform(
@@ -60,11 +55,11 @@ public class AccountRestControllerTests extends WebControllerBaseTests {
   @Test
   void testCreatePasswordAndInvitationTokenExist() throws Exception {
     final HttpHeaders httpHeaders = new HttpHeaders();
-    given(accountService.createPasswordAndInvitationTokenExist("1", "2")).willReturn(true);
+    given(userService.createPasswordAndInvitationTokenExist("1", "2")).willReturn(true);
     final MvcResult response =
         mockMvc
             .perform(
-                MockMvcRequestBuilders.get("/company/account/password/1/qwe").headers(httpHeaders))
+                MockMvcRequestBuilders.get("/company/account/password/1/2").headers(httpHeaders))
             .andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
@@ -94,7 +89,7 @@ public class AccountRestControllerTests extends WebControllerBaseTests {
     final MvcResult response =
         mockMvc
             .perform(
-                MockMvcRequestBuilders.patch("/company/account/change-work-email/1/qwe")
+                MockMvcRequestBuilders.patch("/company/account/change-work-email/1")
                     .headers(httpHeaders))
             .andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());

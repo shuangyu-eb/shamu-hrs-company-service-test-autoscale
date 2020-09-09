@@ -49,6 +49,7 @@ class BenefitPlanDependentControllerTests extends WebControllerBaseTests {
     final AuthUser currentUser = getAuthUser();
     final User targetUser = new User();
     final Company company = new Company(currentUser.getCompanyId());
+    targetUser.setCompany(company);
     targetUser.setId(currentUser.getId());
     final BenefitDependentCreateDto benefitDependentCreateDto = new BenefitDependentCreateDto();
     given(userService.findById(currentUser.getId())).willReturn(targetUser);
@@ -71,6 +72,8 @@ class BenefitPlanDependentControllerTests extends WebControllerBaseTests {
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
     final AuthUser currentUser = getAuthUser();
     final User targetUser = new User();
+    final Company company = new Company(currentUser.getCompanyId());
+    targetUser.setCompany(company);
     targetUser.setId(currentUser.getId());
     given(userService.findById(currentUser.getId())).willReturn(targetUser);
     final List<BenefitPlanDependent> benefitPlanDependents = new ArrayList<>();
@@ -96,6 +99,7 @@ class BenefitPlanDependentControllerTests extends WebControllerBaseTests {
     final AuthUser currentUser = getAuthUser();
     final User targetUser = new User();
     final Company company = new Company(currentUser.getCompanyId());
+    targetUser.setCompany(company);
     targetUser.setId(currentUser.getId());
     given(userService.findById(currentUser.getId())).willReturn(targetUser);
     final BenefitDependentCreateDto benefitDependentCreateDto = new BenefitDependentCreateDto();
@@ -123,6 +127,7 @@ class BenefitPlanDependentControllerTests extends WebControllerBaseTests {
     final AuthUser currentUser = getAuthUser();
     final User targetUser = new User();
     final Company company = new Company(currentUser.getCompanyId());
+    targetUser.setCompany(company);
     targetUser.setId(currentUser.getId());
     final BenefitPlanDependent benefitPlanDependent = new BenefitPlanDependent();
     benefitPlanDependent.setEmployee(targetUser);
@@ -159,6 +164,7 @@ class BenefitPlanDependentControllerTests extends WebControllerBaseTests {
     final AuthUser currentUser = getAuthUser();
     final User targetUser = new User();
     final Company company = new Company(currentUser.getCompanyId());
+    targetUser.setCompany(company);
     targetUser.setId(currentUser.getId());
     given(userService.findById(currentUser.getId())).willReturn(targetUser);
     final MvcResult response =

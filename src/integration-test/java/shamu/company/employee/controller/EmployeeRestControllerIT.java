@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
+
 import java.sql.Timestamp;
 import java.util.Collections;
 import java.util.List;
@@ -72,6 +73,7 @@ class EmployeeRestControllerIT extends BaseIntegrationTest {
     void init() {
       final User managerUser = new User();
       final Company company = new Company(getAuthUser().getCompanyId());
+      managerUser.setCompany(company);
       managerUser.setUserContactInformation(new UserContactInformation());
       managerUser.setId(UuidUtil.getUuidString());
       managerUser.setUserRole(userRoleService.getEmployee());
@@ -90,6 +92,7 @@ class EmployeeRestControllerIT extends BaseIntegrationTest {
 
       final Office newOffice = new Office();
       newOffice.setName(RandomStringUtils.randomAlphabetic(4));
+      newOffice.setCompany(company);
       office = officeService.save(newOffice);
     }
 

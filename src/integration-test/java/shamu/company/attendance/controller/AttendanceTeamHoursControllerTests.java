@@ -59,6 +59,7 @@ class AttendanceTeamHoursControllerTests extends WebControllerBaseTests {
                   Mockito.any(),
                   Mockito.any(),
                   Mockito.any(),
+                  Mockito.any(),
                   Mockito.any()))
           .willReturn(teamHoursPageInfoDto);
 
@@ -90,6 +91,7 @@ class AttendanceTeamHoursControllerTests extends WebControllerBaseTests {
       final TeamHoursPageInfoDto teamHoursPageInfoDto = new TeamHoursPageInfoDto();
       given(
               attendanceTeamHoursService.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
+                  Mockito.any(),
                   Mockito.any(),
                   Mockito.any(),
                   Mockito.any(),

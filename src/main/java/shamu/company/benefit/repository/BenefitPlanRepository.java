@@ -15,7 +15,12 @@ import shamu.company.common.repository.BaseRepository;
 
 public interface BenefitPlanRepository extends BaseRepository<BenefitPlan, String> {
 
-  List<BenefitPlan> findByBenefitPlanTypeIdOrderByNameAsc(String benefitPlanTypeId);
+  List<BenefitPlan> findBenefitPlanByCompanyId(String companyId);
+
+  List<BenefitPlan> findBenefitPlanByIdAndCompanyId(String benefitPlanId, String companyId);
+
+  List<BenefitPlan> findByBenefitPlanTypeIdAndCompanyIdOrderByNameAsc(
+      String benefitPlanTypeId, String companyId);
 
   @Query(
       "select new shamu.company.benefit.dto.BenefitPlanTypeDto("
@@ -23,11 +28,13 @@ public interface BenefitPlanRepository extends BaseRepository<BenefitPlan, Strin
           + " from shamu.company.benefit.entity.BenefitPlanType bpt"
           + " left join BenefitPlan bp"
           + " on bp.benefitPlanType.id = bpt.id"
-          + " group by bpt.id"
+          + " and bp.company.id = ?1"
           + " order by bpt.id")
-  List<BenefitPlanTypeDto> findPlanTypeAndNumOrderByTypeId();
+  List<BenefitPlanTypeDto> findPlanTypeAndNumByCompanyIdOrderByTypeId(String companyId);
 
   BenefitPlan findBenefitPlanById(String planId);
+
+  List<BenefitPlan> findAllByCompanyId(String companyId);
 
   BenefitPlan findBenefitPlanByName(String planName);
 
@@ -36,31 +43,31 @@ public interface BenefitPlanRepository extends BaseRepository<BenefitPlan, Strin
           "select hex(bp.id) from benefit_plan_types bpt "
               + "left join benefit_plans bp "
               + "on bpt.id = bp.benefit_plan_type_id "
-              + "where bpt.name = ?1 "
+              + "where bpt.name = ?1 and bp.company_id = unhex(?2) "
               + "and date_add(end_date,INTERVAL '1' day) > current_timestamp "
               + "and start_date <= current_timestamp",
       nativeQuery = true)
-  List<String> getActiveBenefitPlanIds(String name);
+  List<String> getActiveBenefitPlanIds(String name, String companyId);
 
   @Query(
       value =
           "select hex(bp.id) from benefit_plan_types bpt "
               + "left join benefit_plans bp "
               + "on bpt.id = bp.benefit_plan_type_id "
-              + "where bpt.name = ?1 "
+              + "where bpt.name = ?1 and bp.company_id = unhex(?2) "
               + "and date_add(end_date,INTERVAL '1' day) < current_timestamp",
       nativeQuery = true)
-  List<String> getExpiredBenefitPlanIds(String name);
+  List<String> getExpiredBenefitPlanIds(String name, String companyId);
 
   @Query(
       value =
           "select hex(bp.id) from benefit_plan_types bpt "
               + "left join benefit_plans bp "
               + "on bpt.id = bp.benefit_plan_type_id "
-              + "where bpt.name = ?1 "
+              + "where bpt.name = ?1 and bp.company_id = unhex(?2) "
               + "and start_date > current_timestamp",
       nativeQuery = true)
-  List<String> getStartingBenefitPlanIds(String name);
+  List<String> getStartingBenefitPlanIds(String name, String companyId);
 
   @Query(
       value =
@@ -72,9 +79,9 @@ public interface BenefitPlanRepository extends BaseRepository<BenefitPlan, Strin
               + "from benefit_plan_types bpt "
               + "left join benefit_plans bp "
               + "on bpt.id = bp.benefit_plan_type_id "
-              + "where bpt.name = ?1 ",
+              + "where bpt.name = ?1 and bp.company_id = unhex(?2)",
       nativeQuery = true)
-  List<BenefitReportPlansPojo> getBenefitPlans(String name);
+  List<BenefitReportPlansPojo> getBenefitPlans(String name, String companyId);
 
   @Query(
       value =
@@ -94,10 +101,12 @@ public interface BenefitPlanRepository extends BaseRepository<BenefitPlan, Strin
               + "on bpu.benefitPlanCoverage.id = bpc.id "
               + "left join BenefitCoverages bc "
               + "on bpc.benefitCoverage.id = bc.id "
+              + "where user.company.id = ?2 "
               + "order by bp.name DESC, "
               + "concat(user.userPersonalInformation.lastName,"
               + "user.userPersonalInformation.firstName) ASC")
-  List<EnrollmentBreakdownDto> getEnrollmentBreakdownWhenPlanIdIsEmpty(List<String> benefitPlanIds);
+  List<EnrollmentBreakdownDto> getEnrollmentBreakdownWhenPlanIdIsEmpty(
+      List<String> benefitPlanIds, String companyId);
 
   @Query(
       value =
@@ -152,11 +161,12 @@ public interface BenefitPlanRepository extends BaseRepository<BenefitPlan, Strin
               + "left join benefit_coverages bc "
               + "on bpc.benefit_coverage_id = bc.id "
               + "left join user_personal_information upi "
-              + "on upi.id = u.user_personal_information_id ",
-      countQuery = "select count(1) from users",
+              + "on upi.id = u.user_personal_information_id "
+              + "where u.company_id = unhex(?2)",
+      countQuery = "select count(1) from users u where u.company_id = unhex(?2)",
       nativeQuery = true)
   Page<EnrollmentBreakdownPojo> getEnrollmentBreakdownByConditionAndPlanIdIsEmpty(
-      List<String> ids, Pageable pageRequest);
+      List<String> ids, String companyId, Pageable pageRequest);
 
   @Query(
       value =
@@ -260,13 +270,15 @@ public interface BenefitPlanRepository extends BaseRepository<BenefitPlan, Strin
               + "if(start_date > current_timestamp,'Starting soon','Active') as status "
               + "from benefit_plans "
               + "where benefit_plan_type_id = unhex(?1) "
+              + "and company_id = unhex(?2) "
               + "and date_add(end_date,INTERVAL '1' day) > current_timestamp",
       countQuery =
           "select count(1) from benefit_plans where benefit_plan_type_id = unhex(?1) "
+              + "and company_id = unhex(?2) "
               + "and date_add(end_date,INTERVAL '1' day) > current_timestamp",
       nativeQuery = true)
   Page<BenefitPlanPreviewPojo> getBenefitPlanListWithOutExpired(
-      String planTypeId, Pageable pageRequest);
+      String planTypeId, String companyId, Pageable pageRequest);
 
   @Query(
       value =
@@ -278,8 +290,12 @@ public interface BenefitPlanRepository extends BaseRepository<BenefitPlan, Strin
               + "if(current_timestamp >= "
               + "date_add(end_date,INTERVAL '1' day),'Expired','Active')) as status "
               + "from benefit_plans "
-              + "where benefit_plan_type_id = unhex(?1) ",
-      countQuery = "select count(1) from benefit_plans where benefit_plan_type_id = unhex(?1) ",
+              + "where benefit_plan_type_id = unhex(?1) "
+              + "and company_id = unhex(?2)",
+      countQuery =
+          "select count(1) from benefit_plans where benefit_plan_type_id = unhex(?1) "
+              + "and company_id = unhex(?2)",
       nativeQuery = true)
-  Page<BenefitPlanPreviewPojo> getBenefitPlanList(String planTypeId, Pageable pageRequest);
+  Page<BenefitPlanPreviewPojo> getBenefitPlanList(
+      String planTypeId, String companyId, Pageable pageRequest);
 }

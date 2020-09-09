@@ -1,8 +1,5 @@
 package shamu.company.scheduler;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -20,50 +17,53 @@ import shamu.company.user.entity.UserRole;
 import shamu.company.user.entity.UserStatus;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.JsonUtil;
-import shamu.company.utils.UuidUtil;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 public class DeactivateUserJobTests {
-  private static DeactivateUserJob deactivateUserJob;
+    private static DeactivateUserJob deactivateUserJob;
 
-  @Mock private UserService userService;
+    @Mock private UserService userService;
 
-  @Mock private JobExecutionContext jobExecutionContext;
-
-  @BeforeEach
-  void init() {
-    MockitoAnnotations.initMocks(this);
-    deactivateUserJob = new DeactivateUserJob(userService);
-  }
-
-  @Nested
-  class executeJob {
-    UserStatusUpdateDto userStatusUpdateDto;
-    User user;
-    String userId;
+    @Mock private JobExecutionContext jobExecutionContext;
 
     @BeforeEach
-    void setUp() {
-      userStatusUpdateDto = new UserStatusUpdateDto();
-      userStatusUpdateDto.setUserStatus(UserStatus.Status.ACTIVE);
-      userStatusUpdateDto.setDeactivationReason(new SelectFieldInformationDto("id", "name"));
-      user = new User();
-      final UserRole userRole = new UserRole();
-      userId = UUID.randomUUID().toString().replaceAll("-", "");
-      userRole.setName(User.Role.ADMIN.name());
-      user.setUserRole(userRole);
-      user.setId(userId);
+    void init() {
+        MockitoAnnotations.initMocks(this);
+        deactivateUserJob = new DeactivateUserJob(userService);
     }
 
-    @Test
-    void whenJobExecutionContextIsValid_thenShouldSuccess() {
-      final Map<String, Object> jobParameter = new HashMap<>();
-      jobParameter.put("UserStatusUpdateDto", JsonUtil.formatToString(userStatusUpdateDto));
-      jobParameter.put("User", JsonUtil.formatToString(user));
-      jobParameter.put("companyId", JsonUtil.formatToString(UuidUtil.getUuidString()));
-      Mockito.when(jobExecutionContext.getMergedJobDataMap())
-          .thenReturn(new JobDataMap(jobParameter));
+    @Nested
+    class executeJob {
+        UserStatusUpdateDto userStatusUpdateDto;
+        User user;
+        String userId;
 
-      Assertions.assertDoesNotThrow(() -> deactivateUserJob.executeInternal(jobExecutionContext));
+        @BeforeEach
+        void setUp() {
+            userStatusUpdateDto = new UserStatusUpdateDto();
+            userStatusUpdateDto.setUserStatus(UserStatus.Status.ACTIVE);
+            userStatusUpdateDto.setDeactivationReason(new SelectFieldInformationDto("id", "name"));
+            user = new User();
+            final UserRole userRole = new UserRole();
+            userId = UUID.randomUUID().toString().replaceAll("-", "");
+            userRole.setName(User.Role.ADMIN.name());
+            user.setUserRole(userRole);
+            user.setId(userId);
+        }
+
+        @Test
+        void whenJobExecutionContextIsValid_thenShouldSuccess() {
+            final Map<String, Object> jobParameter = new HashMap<>();
+            jobParameter.put("UserStatusUpdateDto", JsonUtil.formatToString(userStatusUpdateDto));
+            jobParameter.put("User", JsonUtil.formatToString(user));
+            Mockito.when(jobExecutionContext.getMergedJobDataMap())
+                    .thenReturn(new JobDataMap(jobParameter));
+
+            Assertions.assertDoesNotThrow(() -> deactivateUserJob.executeInternal(jobExecutionContext));
+        }
     }
-  }
+
 }

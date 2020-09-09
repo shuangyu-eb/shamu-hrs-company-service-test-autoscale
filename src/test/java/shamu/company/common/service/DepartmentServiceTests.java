@@ -1,7 +1,7 @@
 package shamu.company.common.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import java.util.ArrayList;
@@ -31,8 +31,8 @@ public class DepartmentServiceTests {
 
   @Test
   void testFindAllByCompanyId() {
-    departmentService.findAll();
-    Mockito.verify(departmentRepository, Mockito.times(1)).findAll();
+    departmentService.findAllByCompanyId("1");
+    Mockito.verify(departmentRepository, Mockito.times(1)).findAllByCompanyId(Mockito.anyString());
   }
 
   @Test
@@ -81,8 +81,10 @@ public class DepartmentServiceTests {
 
     departments.add(department);
 
-    Mockito.when(departmentRepository.findByName("123")).thenReturn(departments);
+    Mockito.when(
+            departmentRepository.findByNameAndCompanyId("123", "123"))
+        .thenReturn(departments);
 
-    assertThat(departmentService.findByName("123")).isEqualTo(departments);
+    assertThat(departmentService.findByNameAndCompanyId("123", "123")).isEqualTo(departments);
   }
 }

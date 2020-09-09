@@ -19,8 +19,8 @@ public class DepartmentService {
     this.departmentRepository = departmentRepository;
   }
 
-  public List<Department> findAll() {
-    return departmentRepository.findAll();
+  public List<Department> findAllByCompanyId(final String companyId) {
+    return departmentRepository.findAllByCompanyId(companyId);
   }
 
   public Integer findCountByDepartment(final String departmentId) {
@@ -44,7 +44,7 @@ public class DepartmentService {
     departmentRepository.delete(id);
   }
 
-  public List<Department> findByName(final String name) {
-    return departmentRepository.findByName(name);
+  public List<Department> findByNameAndCompanyId(final String name, final String companyId) {
+    return departmentRepository.findByNameAndCompanyId(name, companyId);
   }
 }

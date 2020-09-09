@@ -1,13 +1,8 @@
 package shamu.company.attendance;
 
-import static org.assertj.core.api.Assertions.assertThatCode;
-
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -15,7 +10,6 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import shamu.company.attendance.dto.CompanyTaSettingsDto;
 import shamu.company.attendance.dto.EmployeesTaSettingDto;
-import shamu.company.attendance.entity.CompanyTaSetting;
 import shamu.company.attendance.entity.StaticCompanyPayFrequencyType;
 import shamu.company.attendance.entity.mapper.CompanyTaSettingsMapper;
 import shamu.company.attendance.entity.mapper.EmployeesTaSettingsMapper;
@@ -35,6 +29,8 @@ import shamu.company.job.entity.JobUser;
 import shamu.company.job.repository.JobUserRepository;
 import shamu.company.user.entity.User;
 import shamu.company.user.repository.UserRepository;
+
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 public class AttendanceSettingsServiceTests {
 
@@ -90,7 +86,9 @@ public class AttendanceSettingsServiceTests {
     staticCompanyPayFrequencyType.setId("frequencyType");
     Mockito.when(payPeriodFrequencyRepository.findByName(Mockito.any()))
         .thenReturn(staticCompanyPayFrequencyType);
-    assertThatCode(() -> attendanceSettingsService.updateCompanySettings(companyTaSettingsDto))
+    assertThatCode(
+            () ->
+                attendanceSettingsService.updateCompanySettings(companyTaSettingsDto, "companyId"))
         .doesNotThrowAnyException();
   }
 
@@ -109,24 +107,6 @@ public class AttendanceSettingsServiceTests {
         .doesNotThrowAnyException();
   }
 
-  @Nested
-  class TestFindCompanySetting {
-
-    @Test
-    void whenSettingIsNeverSaved_thenRuturnNull() {
-      Assertions.assertThat(attendanceSettingsService.findCompanySetting()).isNull();
-    }
-
-    @Test
-    void whenSettingIsSaved_thenReturnSetting() {
-      final List<CompanyTaSetting> companyTaSettings =
-          Collections.singletonList(new CompanyTaSetting());
-      Mockito.when(companyTaSettingRepository.findAll()).thenReturn(companyTaSettings);
-      Assertions.assertThat(attendanceSettingsService.findCompanySetting())
-          .isEqualTo(companyTaSettings.get(0));
-    }
-  }
-
   @Test
   void initialTimezoneForOldDatas() {
     final List<User> userList = new ArrayList<>();
@@ -134,6 +114,7 @@ public class AttendanceSettingsServiceTests {
     final Company company = new Company();
     company.setId("companyId");
     user.setId("userId");
+    user.setCompany(company);
     userList.add(user);
     final JobUser jobUser = new JobUser();
     final Office office = new Office();

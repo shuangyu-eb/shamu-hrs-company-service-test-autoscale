@@ -43,6 +43,7 @@ class TimeOffRequestRestControllerTests extends WebControllerBaseTests {
       @BeforeEach
       void init() {
         targetUser.setId(currentUser.getId());
+        targetUser.setCompany(company);
         setGiven();
       }
 
@@ -100,11 +101,51 @@ class TimeOffRequestRestControllerTests extends WebControllerBaseTests {
     }
 
     @Nested
-    class OtherUser {
+    class SameCompany {
 
       @BeforeEach
       void init() {
         targetUser.setId(UuidUtil.getUuidString());
+        targetUser.setCompany(company);
+        setGiven();
+      }
+
+      @Test
+      void asDeactivatedUser_thenShouldFailed() throws Exception {
+        buildAuthUserAsDeactivatedUser();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+
+      @Test
+      void asEmployee_thenShouldFailed() throws Exception {
+        buildAuthUserAsEmployee();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+
+      @Test
+      void asManager_thenShouldFailed() throws Exception {
+        buildAuthUserAsManager();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+
+      @Test
+      void asAdmin_thenShouldSuccess() throws Exception {
+        buildAuthUserAsAdmin();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+    }
+
+    @Nested
+    class DifferentCompany {
+
+      @BeforeEach
+      void init() {
+        targetUser.setId(UuidUtil.getUuidString());
+        targetUser.setCompany(theOtherCompany);
         setGiven();
       }
 
@@ -162,6 +203,7 @@ class TimeOffRequestRestControllerTests extends WebControllerBaseTests {
       @BeforeEach
       void init() {
         targetUser.setId(currentUser.getId());
+        targetUser.setCompany(company);
         setGiven();
       }
 
@@ -189,11 +231,12 @@ class TimeOffRequestRestControllerTests extends WebControllerBaseTests {
     }
 
     @Nested
-    class OtherUser {
+    class SameCompany {
 
       @BeforeEach
       void init() {
         company = new Company(currentUser.getCompanyId());
+        targetUser.setCompany(company);
         targetUser.setId(UuidUtil.getUuidString());
         setGiven();
       }
@@ -211,6 +254,45 @@ class TimeOffRequestRestControllerTests extends WebControllerBaseTests {
         targetUser.setManagerUser(new User(currentUser.getId()));
         final MvcResult response = getResponse();
         assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+      }
+
+      @Test
+      void asEmployee_thenShouldFailed() throws Exception {
+        buildAuthUserAsEmployee();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+
+      @Test
+      void asDeactivatedUser_thenShouldFailed() throws Exception {
+        buildAuthUserAsDeactivatedUser();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+    }
+
+    @Nested
+    class DifferentCompany {
+
+      @BeforeEach
+      void init() {
+        targetUser.setCompany(theOtherCompany);
+        targetUser.setId(UuidUtil.getUuidString());
+        setGiven();
+      }
+
+      @Test
+      void asAdmin_thenShouldFailed() throws Exception {
+        buildAuthUserAsAdmin();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+
+      @Test
+      void asManager_thenShouldFailed() throws Exception {
+        buildAuthUserAsManager();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
       }
 
       @Test
@@ -271,6 +353,7 @@ class TimeOffRequestRestControllerTests extends WebControllerBaseTests {
 
     final User targetUser = new User();
     targetUser.setId(getAuthUser().getId());
+    targetUser.setCompany(new Company(getAuthUser().getCompanyId()));
     given(userService.findById(Mockito.any())).willReturn(targetUser);
 
     final MvcResult response =
@@ -301,6 +384,7 @@ class TimeOffRequestRestControllerTests extends WebControllerBaseTests {
 
     final User targetUser = new User();
     targetUser.setId(getAuthUser().getId());
+    targetUser.setCompany(new Company(getAuthUser().getCompanyId()));
     final TimeOffRequest timeOffRequest = new TimeOffRequest();
     timeOffRequest.setRequesterUser(targetUser);
     given(userService.findById(Mockito.any())).willReturn(targetUser);
@@ -338,6 +422,7 @@ class TimeOffRequestRestControllerTests extends WebControllerBaseTests {
       @BeforeEach
       void init() {
         targetUser.setId(currentUser.getId());
+        targetUser.setCompany(company);
       }
 
       @Test
@@ -376,6 +461,7 @@ class TimeOffRequestRestControllerTests extends WebControllerBaseTests {
 
       @BeforeEach
       void init() {
+        targetUser.setCompany(company);
         targetUser.setId(UuidUtil.getUuidString());
       }
 
@@ -410,6 +496,44 @@ class TimeOffRequestRestControllerTests extends WebControllerBaseTests {
 
       @Test
       void asDeactivatedUser_thenShouldFailed() throws Exception {
+        buildAuthUserAsDeactivatedUser();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+    }
+
+    @Nested
+    class DifferentCompany {
+
+      @BeforeEach
+      void init() {
+        targetUser.setCompany(theOtherCompany);
+        targetUser.setId(UuidUtil.getUuidString());
+      }
+
+      @Test
+      void asAdmin_thenShouldFailed() throws Exception {
+        buildAuthUserAsAdmin();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+
+      @Test
+      void asManager_thenShouldFailed() throws Exception {
+        buildAuthUserAsManager();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+
+      @Test
+      void asEmployee_thenShouldFailed() throws Exception {
+        buildAuthUserAsEmployee();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+
+      @Test
+      void asDeactivated_thenShouldFailed() throws Exception {
         buildAuthUserAsDeactivatedUser();
         final MvcResult response = getResponse();
         assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
@@ -476,6 +600,7 @@ class TimeOffRequestRestControllerTests extends WebControllerBaseTests {
 
     final User targetUser = new User();
     targetUser.setId(getAuthUser().getId());
+    targetUser.setCompany(new Company(getAuthUser().getCompanyId()));
     given(userService.findById(Mockito.any())).willReturn(targetUser);
 
     final MvcResult response =
@@ -501,6 +626,7 @@ class TimeOffRequestRestControllerTests extends WebControllerBaseTests {
 
     final User targetUser = new User();
     targetUser.setId(getAuthUser().getId());
+    targetUser.setCompany(new Company(getAuthUser().getCompanyId()));
     given(userService.findById(Mockito.any())).willReturn(targetUser);
 
     final MvcResult response =
@@ -526,6 +652,7 @@ class TimeOffRequestRestControllerTests extends WebControllerBaseTests {
 
     final User targetUser = new User();
     targetUser.setId(getAuthUser().getId());
+    targetUser.setCompany(new Company(getAuthUser().getCompanyId()));
     given(userService.findById(Mockito.any())).willReturn(targetUser);
 
     final MvcResult response =
@@ -551,6 +678,7 @@ class TimeOffRequestRestControllerTests extends WebControllerBaseTests {
 
     final User targetUser = new User();
     targetUser.setId(getAuthUser().getId());
+    targetUser.setCompany(new Company(getAuthUser().getCompanyId()));
     given(userService.findById(Mockito.any())).willReturn(targetUser);
     final TimeOffRequest timeOffRequest = new TimeOffRequest();
     timeOffRequest.setRequesterUser(targetUser);
@@ -589,6 +717,7 @@ class TimeOffRequestRestControllerTests extends WebControllerBaseTests {
       @BeforeEach
       void init() {
         targetUser.setId(currentUser.getId());
+        targetUser.setCompany(company);
       }
 
       @Test
@@ -621,10 +750,11 @@ class TimeOffRequestRestControllerTests extends WebControllerBaseTests {
     }
 
     @Nested
-    class OtherUser {
+    class SameCompany {
 
       @BeforeEach
       void init() {
+        targetUser.setCompany(company);
         targetUser.setId(UuidUtil.getUuidString());
       }
 
@@ -639,6 +769,44 @@ class TimeOffRequestRestControllerTests extends WebControllerBaseTests {
       void asManager_thenShouldFailed() throws Exception {
         buildAuthUserAsManager();
         targetUser.setManagerUser(new User(currentUser.getId()));
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+
+      @Test
+      void asEmployee_thenShouldFailed() throws Exception {
+        buildAuthUserAsEmployee();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+
+      @Test
+      void asDeactivated_thenShouldFailed() throws Exception {
+        buildAuthUserAsDeactivatedUser();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+    }
+
+    @Nested
+    class DifferentCompany {
+
+      @BeforeEach
+      void init() {
+        targetUser.setCompany(theOtherCompany);
+        targetUser.setId(UuidUtil.getUuidString());
+      }
+
+      @Test
+      void asAdmin_thenShouldFailed() throws Exception {
+        buildAuthUserAsAdmin();
+        final MvcResult response = getResponse();
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+      }
+
+      @Test
+      void asManager_thenShouldFailed() throws Exception {
+        buildAuthUserAsManager();
         final MvcResult response = getResponse();
         assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
       }
@@ -684,6 +852,7 @@ class TimeOffRequestRestControllerTests extends WebControllerBaseTests {
 
     final User targetUser = new User();
     targetUser.setId(getAuthUser().getId());
+    targetUser.setCompany(new Company(getAuthUser().getCompanyId()));
     final UserRole userRole = new UserRole();
     userRole.setName(User.Role.ADMIN.getValue());
     targetUser.setUserRole(userRole);

@@ -32,7 +32,8 @@ public class EmailRestController extends BaseRestController {
   public HttpStatus sendEmailToOtherAdminsWhenNewOneAdded(
       @PathVariable("id") final String promotedEmployeeId) {
     final AuthUser currentUser = findAuthUser();
-    emailService.sendEmailToOtherAdminsWhenNewOneAdded(promotedEmployeeId, currentUser.getId());
+    emailService.sendEmailToOtherAdminsWhenNewOneAdded(
+        promotedEmployeeId, currentUser.getId(), currentUser.getCompanyId());
     return HttpStatus.OK;
   }
 }

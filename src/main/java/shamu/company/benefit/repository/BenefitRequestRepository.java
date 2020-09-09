@@ -18,9 +18,11 @@ public interface BenefitRequestRepository extends BaseRepository<BenefitRequest,
               + "LEFT JOIN users u ON br.request_user_id = u.id "
               + "LEFT JOIN benefit_request_status brs ON brs.id = br.request_status_id "
               + "WHERE brs.name IN ?1 "
+              + "AND u.company_id = unhex(?2) "
               + "ORDER BY br.created_at ASC ",
       nativeQuery = true)
-  Page<BenefitRequest> findAllByStatus(List<String> statuses, PageRequest pageRequest);
+  Page<BenefitRequest> findAllByStatusAndCompanyId(
+      List<String> statuses, String companyId, PageRequest pageRequest);
 
   @Query(
       value =
@@ -28,7 +30,8 @@ public interface BenefitRequestRepository extends BaseRepository<BenefitRequest,
               + "FROM benefits_requests br "
               + "LEFT JOIN users u ON br.request_user_id = u.id "
               + "LEFT JOIN benefit_request_status brs ON brs.id = br.request_status_id "
-              + "WHERE brs.name = ?1 ",
+              + "WHERE brs.name = ?1 "
+              + "AND u.company_id = unhex(?2) ",
       nativeQuery = true)
-  Integer countRequestsByStatus(String status);
+  Integer countRequestsByStatusAndCompanyId(String status, String companyId);
 }

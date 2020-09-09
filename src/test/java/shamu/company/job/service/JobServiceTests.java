@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -51,9 +52,11 @@ public class JobServiceTests {
   }
 
   @Test
-  void findAll() {
-    Mockito.when(jobRepository.findAll()).thenReturn(Collections.singletonList(new Job()));
-    assertThatCode(() -> jobService.findAll()).doesNotThrowAnyException();
+  void findAllByCompanyId() {
+    final String id = "1";
+    Mockito.when(jobRepository.findByCompanyId(id))
+        .thenReturn(Collections.singletonList(new Job()));
+    assertThatCode(() -> jobService.findAllByCompanyId(id)).doesNotThrowAnyException();
   }
 
   @Test
@@ -86,8 +89,10 @@ public class JobServiceTests {
 
     jobs.add(job);
 
-    Mockito.when(jobRepository.findByTitle("123")).thenReturn(jobs);
+    Mockito.when(
+        jobRepository.findByTitleAndCompanyId("123", "123"))
+        .thenReturn(jobs);
 
-    assertThat(jobService.findByTitle("123")).isEqualTo(jobs);
+    assertThat(jobService.findByTitleAndCompanyId("123", "123")).isEqualTo(jobs);
   }
 }

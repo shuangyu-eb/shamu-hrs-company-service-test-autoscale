@@ -17,6 +17,8 @@ public class SuperAdminUserDto {
 
   private String lastName;
 
+  private String company;
+
   private String role;
 
   private String email;
@@ -32,6 +34,7 @@ public class SuperAdminUserDto {
     lastName = user.getUserPersonalInformation().getLastName();
     preferredName = user.getUserPersonalInformation().getPreferredName();
     email = user.getUserContactInformation().getEmailWork();
+    company = user.getCompany().getName();
     auth0UserId = user.getId();
     role = user.getRole().getValue();
     verified = user.getVerifiedAt() != null;

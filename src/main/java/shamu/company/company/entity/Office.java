@@ -2,6 +2,7 @@ package shamu.company.company.entity;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import lombok.Data;
@@ -15,7 +16,8 @@ import shamu.company.common.entity.BaseEntity;
 @Table(name = "offices")
 public class Office extends BaseEntity {
 
-  private static final long serialVersionUID = 4055344587456808308L;
+  @ManyToOne private Company company;
+
   private String officeId;
 
   @Length(max = 100)
@@ -32,8 +34,9 @@ public class Office extends BaseEntity {
       cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
   private OfficeAddress officeAddress;
 
-  public Office(final String name, final OfficeAddress officeAddress) {
+  public Office(final String name, final OfficeAddress officeAddress, final Company company) {
     this.name = name;
     this.officeAddress = officeAddress;
+    this.company = company;
   }
 }

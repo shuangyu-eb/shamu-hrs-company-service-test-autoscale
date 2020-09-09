@@ -31,8 +31,8 @@ public class CompanyServerController extends BaseRestController {
   private final CompanyEmailService companyEmailService;
 
   @Autowired
-  public CompanyServerController(
-      final CompanyUserService companyUserService, final CompanyEmailService companyEmailService) {
+  public CompanyServerController(final CompanyUserService companyUserService,
+      final CompanyEmailService companyEmailService) {
     this.companyUserService = companyUserService;
     this.companyEmailService = companyEmailService;
   }
@@ -44,10 +44,7 @@ public class CompanyServerController extends BaseRestController {
 
   @GetMapping(value = "/users/id")
   public List<CompanyUser> findUsersById(@RequestParam final List<String> ids) {
-    return companyUserService
-        .findAllById(ids)
-        .parallelStream()
-        .map(CompanyUser::new)
+    return companyUserService.findAllById(ids).parallelStream().map(CompanyUser::new)
         .collect(Collectors.toList());
   }
 
@@ -58,9 +55,8 @@ public class CompanyServerController extends BaseRestController {
 
   @GetMapping(value = "/users")
   public List<CompanyUser> findAllUsers() {
-    return companyUserService.findAllUsers().stream()
-        .map(CompanyUser::new)
-        .collect(Collectors.toList());
+    return companyUserService.findAllUsers(findCurrentUser().getCompanyId()).stream()
+        .map(CompanyUser::new).collect(Collectors.toList());
   }
 
   @PostMapping(value = "/emails")
@@ -72,7 +68,7 @@ public class CompanyServerController extends BaseRestController {
   @GetMapping("/employees")
   public Page<JobUserListItem> findAllEmployeesByName(
       @RequestBody final EmployeeListSearchCondition employeeListSearchCondition) {
-    return companyUserService.findAllEmployees(employeeListSearchCondition);
+    return companyUserService.findAllEmployees(findAuthUser(), employeeListSearchCondition);
   }
 
   @GetMapping(value = "/user/{id}")
@@ -85,9 +81,9 @@ public class CompanyServerController extends BaseRestController {
     return companyUserService.findCompaniesByIds(ids);
   }
 
-  @GetMapping(value = "/companies/current")
-  public CompanyDtoProjection findCurrentCompany() {
-    return companyUserService.findCompanyDto();
+  @GetMapping(value = "users/{id}/company")
+  public CompanyDtoProjection findCompanyByUserId(@PathVariable final String id) {
+    return companyUserService.findCompanyDtoByUserId(id);
   }
 
   @GetMapping(value = "/users/super")
@@ -97,8 +93,7 @@ public class CompanyServerController extends BaseRestController {
 
   @GetMapping(value = "/users/registered")
   public List<CompanyUser> findAllRegisteredUsers() {
-    return companyUserService.findAllRegisteredUsers().stream()
-        .map(CompanyUser::new)
-        .collect(Collectors.toList());
+    return companyUserService.findAllRegisteredUsers(findCurrentUser().getCompanyId()).stream()
+        .map(CompanyUser::new).collect(Collectors.toList());
   }
 }

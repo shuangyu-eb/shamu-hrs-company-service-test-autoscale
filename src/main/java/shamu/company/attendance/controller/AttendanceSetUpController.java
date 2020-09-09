@@ -39,12 +39,12 @@ public class AttendanceSetUpController extends BaseRestController {
   @GetMapping("time-and-attendance/{userId}/is-attendance-set-up")
   @PreAuthorize("hasPermission(#userId, 'USER', 'VIEW_SELF')")
   public Boolean findIsAttendanceSetUp(@PathVariable final String userId) {
-    return attendanceSetUpService.findIsAttendanceSetUp();
+    return attendanceSetUpService.findIsAttendanceSetUp(findCompanyId());
   }
 
   @GetMapping("time-and-attendance/users")
   public TimeAndAttendanceRelatedUserListDto getEmployees() {
-    return attendanceSetUpService.getRelatedUsers();
+    return attendanceSetUpService.getRelatedUsers(findCompanyId());
   }
 
   @GetMapping("time-and-attendance/pay-period-frequency")

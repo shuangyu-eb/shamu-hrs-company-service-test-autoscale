@@ -57,7 +57,8 @@ class CompanyUserServiceTests {
 
   @Test
   void testFindAllUsers() {
-    Assertions.assertDoesNotThrow(() -> companyUserService.findAllUsers());
+    Mockito.when(companyService.findById(Mockito.anyString())).thenReturn(new Company());
+    Assertions.assertDoesNotThrow(() -> companyUserService.findAllUsers("1"));
   }
 
   @Test
@@ -75,7 +76,7 @@ class CompanyUserServiceTests {
     void whenIsAdmin_thenShouldIncludeDeactivated() {
       Mockito.when(permissionUtils.hasAuthority(Permission.Name.VIEW_DISABLED_USER.name()))
           .thenReturn(true);
-      companyUserService.findAllEmployees(condition);
+      companyUserService.findAllEmployees(authUser, condition);
       Assertions.assertEquals(true, condition.getIncludeDeactivated());
     }
 
@@ -83,7 +84,7 @@ class CompanyUserServiceTests {
     void whenIsNotAdmin_thenShouldNotIncludeDeactivated() {
       Mockito.when(permissionUtils.hasAuthority(Permission.Name.VIEW_DISABLED_USER.name()))
           .thenReturn(false);
-      companyUserService.findAllEmployees(condition);
+      companyUserService.findAllEmployees(authUser, condition);
       Assertions.assertEquals(false, condition.getIncludeDeactivated());
     }
   }
@@ -91,21 +92,20 @@ class CompanyUserServiceTests {
   @Test
   void testFindCompanyDtoByUserId() {
     final String userId = RandomStringUtils.randomAlphabetic(16);
-    final CompanyDtoProjection companyDto =
-        new CompanyDtoProjection() {
-          @Override
-          public String getId() {
-            return userId;
-          }
+    final CompanyDtoProjection companyDto = new CompanyDtoProjection() {
+      @Override
+      public String getId() {
+        return userId;
+      }
 
-          @Override
-          public String getName() {
-            return null;
-          }
-        };
-    Mockito.when(companyService.findCompanyDto()).thenReturn(companyDto);
+      @Override
+      public String getName() {
+        return null;
+      }
+    };
+    Mockito.when(companyService.findCompanyDtoByUserId(userId)).thenReturn(companyDto);
 
-    final CompanyDtoProjection result = companyUserService.findCompanyDto();
+    final CompanyDtoProjection result = companyUserService.findCompanyDtoByUserId(userId);
     Assertions.assertEquals(companyDto.getId(), result.getId());
   }
 
@@ -146,8 +146,9 @@ class CompanyUserServiceTests {
   void testFindAllRegisteredUsers() {
     final Company company = new Company();
     company.setId("1");
-    Mockito.when(userService.findRegisteredUsers()).thenReturn(Collections.emptyList());
-    final List<User> users = companyUserService.findAllRegisteredUsers();
+    Mockito.when(companyService.findById(Mockito.anyString())).thenReturn(company);
+    Mockito.when(userService.findRegisteredUsersByCompany(Mockito.anyString())).thenReturn(Collections.emptyList());
+    final List<User> users = companyUserService.findAllRegisteredUsers("1");
     assertThat(users).isEmpty();
   }
 }
