@@ -151,7 +151,7 @@ databaseChangeLog:
                   type: BINARY(16)
               - column:
                   name: title
-                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+                  type: VARCHAR(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
               - column:
                   name: url
                   type: VARCHAR(255)
@@ -208,7 +208,7 @@ databaseChangeLog:
                   type: BINARY(16)
               - column:
                   name: name
-                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+                  type: VARCHAR(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
               - column:
                   name: image_url
                   type: TEXT
@@ -342,7 +342,7 @@ databaseChangeLog:
                   type: BINARY(16)
               - column:
                   name: title
-                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+                  type: VARCHAR(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
               - column:
                   name: request_id
                   type: BINARY(16)
@@ -464,7 +464,7 @@ databaseChangeLog:
                   type: BINARY(16)
               - column:
                   name: name
-                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+                  type: VARCHAR(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
               - column:
                   name: image_url
                   type: TEXT
@@ -687,7 +687,7 @@ databaseChangeLog:
                   constraints:
                     nullable: false
                   name: name
-                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+                  type: VARCHAR(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
               - column:
                   name: abbreviation
                   type: VARCHAR(10)
@@ -714,7 +714,7 @@ databaseChangeLog:
                   constraints:
                     unique: true
                   name: name
-                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+                  type: VARCHAR(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
               - column:
                   name: created_at
                   type: datetime
@@ -741,7 +741,7 @@ databaseChangeLog:
                   type: BINARY(16)
               - column:
                   name: name
-                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+                  type: VARCHAR(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
               - column:
                   name: created_at
                   type: datetime
@@ -818,10 +818,10 @@ databaseChangeLog:
                   type: TINYINT(3)
               - column:
                   name: from_name
-                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+                  type: VARCHAR(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
               - column:
                   name: to_name
-                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+                  type: VARCHAR(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
               - column:
                   name: message_id
                   type: VARCHAR(32)
@@ -935,7 +935,7 @@ databaseChangeLog:
                   constraints:
                     nullable: false
                   name: name
-                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+                  type: VARCHAR(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
               - column:
                   name: created_at
                   type: datetime
@@ -987,7 +987,7 @@ databaseChangeLog:
                   constraints:
                     nullable: false
                   name: name
-                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+                  type: VARCHAR(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
               - column:
                   name: created_at
                   type: datetime
@@ -1011,7 +1011,7 @@ databaseChangeLog:
                   constraints:
                     unique: true
                   name: name
-                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+                  type: VARCHAR(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
               - column:
                   name: created_at
                   type: datetime
@@ -1167,10 +1167,10 @@ databaseChangeLog:
                   type: BINARY(16)
               - column:
                   name: street_1
-                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+                  type: VARCHAR(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
               - column:
                   name: street_2
-                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+                  type: VARCHAR(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
               - column:
                   name: state_province_id
                   type: BINARY(16)
@@ -1238,7 +1238,7 @@ databaseChangeLog:
                   type: BINARY(16)
               - column:
                   name: name
-                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+                  type: VARCHAR(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
               - column:
                   name: created_at
                   type: datetime
@@ -1250,7 +1250,7 @@ databaseChangeLog:
                   type: date
               - column:
                   name: name_show
-                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+                  type: VARCHAR(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
               - column:
                   name: federal
                   type: BIT(1)
@@ -1327,7 +1327,7 @@ databaseChangeLog:
                   constraints:
                     unique: true
                   name: name
-                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+                  type: VARCHAR(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
               - column:
                   name: created_at
                   type: datetime
@@ -1357,7 +1357,7 @@ databaseChangeLog:
                   type: BINARY(16)
               - column:
                   name: name
-                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+                  type: VARCHAR(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
               - column:
                   name: created_at
                   type: datetime
@@ -1381,7 +1381,7 @@ databaseChangeLog:
                   constraints:
                     nullable: false
                   name: name
-                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+                  type: VARCHAR(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
               - column:
                   name: created_at
                   type: datetime
@@ -1408,7 +1408,7 @@ databaseChangeLog:
                   constraints:
                     nullable: false
                   name: name
-                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+                  type: VARCHAR(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
               - column:
                   name: created_at
                   type: datetime
@@ -1435,7 +1435,7 @@ databaseChangeLog:
                   constraints:
                     nullable: false
                   name: name
-                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+                  type: VARCHAR(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
               - column:
                   name: created_at
                   type: datetime
@@ -1490,7 +1490,7 @@ databaseChangeLog:
                   constraints:
                     unique: true
                   name: name
-                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+                  type: VARCHAR(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
               - column:
                   name: created_at
                   type: datetime
@@ -1623,7 +1623,7 @@ databaseChangeLog:
                   type: INT
               - column:
                   name: name
-                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+                  type: VARCHAR(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
               - column:
                   name: created_at
                   type: datetime
@@ -1690,7 +1690,7 @@ databaseChangeLog:
                   constraints:
                     unique: true
                   name: name
-                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+                  type: VARCHAR(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
               - column:
                   name: created_at
                   type: datetime
@@ -1903,10 +1903,10 @@ databaseChangeLog:
                   type: BINARY(16)
               - column:
                   name: street_1
-                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+                  type: VARCHAR(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
               - column:
                   name: street_2
-                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+                  type: VARCHAR(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
               - column:
                   name: state_province_id
                   type: BINARY(16)
@@ -2090,10 +2090,10 @@ databaseChangeLog:
                   type: VARCHAR(100)
               - column:
                   name: street_1
-                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+                  type: VARCHAR(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
               - column:
                   name: street_2
-                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+                  type: VARCHAR(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
               - column:
                   name: birth_date
                   type: datetime
@@ -2124,16 +2124,16 @@ databaseChangeLog:
                   type: BINARY(16)
               - column:
                   name: school
-                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+                  type: VARCHAR(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
               - column:
                   name: degree
-                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+                  type: VARCHAR(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
               - column:
                   name: major
-                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+                  type: VARCHAR(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
               - column:
                   name: gpa
-                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+                  type: VARCHAR(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
               - column:
                   name: start_date
                   type: datetime
@@ -2179,10 +2179,10 @@ databaseChangeLog:
                   type: VARCHAR(255)
               - column:
                   name: street_1
-                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+                  type: VARCHAR(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
               - column:
                   name: street_2
-                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+                  type: VARCHAR(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
               - column:
                   name: city
                   type: VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
@@ -2219,7 +2219,7 @@ databaseChangeLog:
                   type: BINARY(16)
               - column:
                   name: name
-                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+                  type: VARCHAR(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
               - column:
                   name: created_at
                   type: datetime
@@ -2323,7 +2323,7 @@ databaseChangeLog:
                   constraints:
                     unique: true
                   name: name
-                  type: VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+                  type: VARCHAR(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
               - column:
                   name: created_at
                   type: datetime
