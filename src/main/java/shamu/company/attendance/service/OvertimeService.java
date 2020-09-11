@@ -26,7 +26,6 @@ import shamu.company.attendance.repository.PolicyDetailRepository;
 import shamu.company.attendance.repository.StaticOvertimeTypeRepository;
 import shamu.company.attendance.utils.TimeEntryUtils;
 import shamu.company.attendance.utils.overtime.OvertimeCalculator;
-import shamu.company.company.entity.Company;
 import shamu.company.timeoff.exception.NotFoundException;
 import shamu.company.utils.DateUtil;
 
