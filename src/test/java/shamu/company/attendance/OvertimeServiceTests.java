@@ -165,7 +165,6 @@ public class OvertimeServiceTests {
 
     @Test
     void findAllOvertimePolicies_shouldSucceed() {
-      final String companyId = "test_company_id";
       final List<OvertimePolicyOverviewPojo> overtimePolicyOverviewPojoList = new ArrayList<>();
       overtimePolicyOverviewPojoList.add(
           new OvertimePolicyOverviewPojo() {
@@ -189,10 +188,9 @@ public class OvertimeServiceTests {
               return null;
             }
           });
-      Mockito.when(overtimePolicyRepository.findOvertimeOverview(companyId))
+      Mockito.when(overtimePolicyRepository.findOvertimeOverview())
           .thenReturn(overtimePolicyOverviewPojoList);
-      assertThatCode(() -> overtimeService.findAllOvertimePolicies(companyId))
-          .doesNotThrowAnyException();
+      assertThatCode(() -> overtimeService.findAllOvertimePolicies()).doesNotThrowAnyException();
     }
   }
 
