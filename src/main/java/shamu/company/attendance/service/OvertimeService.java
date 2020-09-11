@@ -110,7 +110,7 @@ public class OvertimeService {
           overtimeDetailDto.getOverTimeMinutesDtos().stream()
               .filter(
                   overTimeMinutesDto -> {
-                    long startOfOt =
+                    final long startOfOt =
                         overTimeMinutesDto
                             .getStartTime()
                             .atZone(ZoneId.of(timezone.getName()))
@@ -176,6 +176,23 @@ public class OvertimeService {
                         policyDetail.getStaticOvertimeType().getName())));
     policyDetailRepository.saveAll(policyDetails);
     return overtimePolicyRepository.save(newOvertimePolicy);
+  }
+
+  @Transactional
+  public void updateOvertimePolicy(
+      final OvertimePolicyDto overtimePolicyDto) {
+    final OvertimePolicy newOverPolicy =
+        overtimePolicyRepository.save(
+            overtimePolicyMapper.convertDtoToOvertimePolicy(
+                new OvertimePolicy(), overtimePolicyDto));
+
+    final List<PolicyDetail> policyDetailList =
+        overtimePolicyDto.getPolicyDetails().stream()
+            .map(
+                policyDetail ->
+                    policyDetailMapper.convertDtoToPolicyDetail(policyDetail, newOverPolicy))
+            .collect(Collectors.toList());
+    policyDetailRepository.saveAll(policyDetailList);
   }
 
   public void createDefaultPolicy() {

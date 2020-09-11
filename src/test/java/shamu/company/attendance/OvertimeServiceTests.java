@@ -17,6 +17,8 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import shamu.company.attendance.dto.NewOvertimePolicyDetailDto;
 import shamu.company.attendance.dto.NewOvertimePolicyDto;
+import shamu.company.attendance.dto.OvertimePolicyDetailDto;
+import shamu.company.attendance.dto.OvertimePolicyDto;
 import shamu.company.attendance.entity.CompanyTaSetting;
 import shamu.company.attendance.entity.EmployeeTimeLog;
 import shamu.company.attendance.entity.OvertimePolicy;
@@ -136,6 +138,17 @@ public class OvertimeServiceTests {
     Mockito.when(policyDetailRepository.findAllByOvertimePolicyId(overtimePolicy.getId()))
         .thenReturn(policyDetails);
     assertThatCode(() -> overtimeService.getOvertimeRules(timeSheet)).doesNotThrowAnyException();
+  }
+
+  @Test
+  void updateOvertimePolicy() {
+    final OvertimePolicyDto overtimePolicyDto = new OvertimePolicyDto();
+    overtimePolicyDto.setId("policyId");
+    final List<OvertimePolicyDetailDto> policyDetailDtos = new ArrayList<>();
+    overtimePolicyDto.setPolicyDetails(policyDetailDtos);
+    assertThatCode(
+            () -> overtimeService.updateOvertimePolicy(overtimePolicyDto))
+        .doesNotThrowAnyException();
   }
 
   @Nested

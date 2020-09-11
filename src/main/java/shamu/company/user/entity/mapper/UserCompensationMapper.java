@@ -3,6 +3,7 @@ package shamu.company.user.entity.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import shamu.company.attendance.entity.OvertimePolicy;
 import shamu.company.common.mapper.Config;
 import shamu.company.employee.dto.CompensationDto;
 import shamu.company.job.dto.JobUpdateDto;
@@ -25,6 +26,16 @@ public interface UserCompensationMapper {
 
   @Mapping(target = "wage", expression = "java(updateCompensationDollar(userCompensation))")
   CompensationDto convertToCompensationDto(UserCompensation userCompensation);
+
+  @Mapping(target = "id", ignore = true)
+  @Mapping(target = "startDate", source = "userCompensation.startDate")
+  @Mapping(target = "overtimePolicy", source = "overtimePolicy")
+  @Mapping(target = "createdAt", ignore = true)
+  @Mapping(target = "updatedAt", ignore = true)
+  UserCompensation convertToUserCompensation(
+      @MappingTarget UserCompensation newUserCompensation,
+      UserCompensation userCompensation,
+      OvertimePolicy overtimePolicy);
 
   default CompensationFrequency convertToCompensationFrequency(final String id) {
     final CompensationFrequency compensationFrequency = new CompensationFrequency();

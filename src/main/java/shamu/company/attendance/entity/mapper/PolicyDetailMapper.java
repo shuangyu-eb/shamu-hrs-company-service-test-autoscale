@@ -18,13 +18,21 @@ public interface PolicyDetailMapper {
   PolicyDetail convertToPolicyDetail(
           NewOvertimePolicyDetailDto overtimePolicyDto, OvertimePolicy overtimePolicy);
 
+  @Mapping(target = "id", source = "overtimePolicyDto.id")
+  @Mapping(target = "start", source = "overtimePolicyDto.startMin")
+  @Mapping(target = "staticOvertimeType", source = "overtimePolicyDto.overtimeType")
+  @Mapping(target = "rate", source = "overtimePolicyDto.overtimeRate")
+  @Mapping(target = "overtimePolicy", source = "overtimePolicy")
+  PolicyDetail convertDtoToPolicyDetail(
+      OvertimePolicyDetailDto overtimePolicyDto, OvertimePolicy overtimePolicy);
+
   @Mapping(target = "startMin", source="policyDetail.start")
   @Mapping(target = "overtimeType", source="policyDetail.staticOvertimeType")
   @Mapping(target = "overtimeRate", source="policyDetail.rate")
   OvertimePolicyDetailDto convertToOvertimePolicyDetailDto(
           PolicyDetail policyDetail);
 
-  default StaticOvertimeType.OvertimeType covertByStaticOvertimeType(StaticOvertimeType staticOvertimeType){
+  default StaticOvertimeType.OvertimeType covertByStaticOvertimeType(final StaticOvertimeType staticOvertimeType){
     return StaticOvertimeType.OvertimeType.valueOf(staticOvertimeType.getName());
   }
 

@@ -151,6 +151,23 @@ public class AttendanceSettingsControllerTests extends WebControllerBaseTests {
   }
 
   @Test
+  void updateOvertimePolicy() throws Exception {
+    final HttpHeaders httpHeaders = new HttpHeaders();
+    httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.patch("/company/time-and-attendance/overtime-policy")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(JsonUtil.formatToString(new OvertimePolicyDto()))
+                    .headers(httpHeaders))
+            .andReturn();
+
+    assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+  }
+
+  @Test
   void initializeTimezones() throws Exception {
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());

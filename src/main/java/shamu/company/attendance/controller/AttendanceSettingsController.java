@@ -96,6 +96,13 @@ public class AttendanceSettingsController extends BaseRestController {
     return new ResponseEntity<>(HttpStatus.OK);
   }
 
+  @PatchMapping("time-and-attendance/overtime-policy")
+  public HttpEntity<String> updateOvertimePolicy(
+      @RequestBody final OvertimePolicyDto overtimePolicy) {
+    overtimeService.updateOvertimePolicy(overtimePolicy);
+    return new ResponseEntity<>(HttpStatus.OK);
+  }
+
   @GetMapping("time-and-attendance/overtime-policies")
   public List<OvertimePolicyOverviewDto> getOvertimePolicies() {
     return overtimeService.findAllOvertimePolicies();

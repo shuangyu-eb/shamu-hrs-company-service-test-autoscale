@@ -15,6 +15,10 @@ public interface OvertimePolicyMapper {
   OvertimePolicy convertToOvertimePolicy(
       @MappingTarget OvertimePolicy overtimePolicy, NewOvertimePolicyDto newOvertimePolicyDto);
 
+  @Mapping(target = "id", source = "overtimePolicyDto.id")
+  OvertimePolicy convertDtoToOvertimePolicy(
+      @MappingTarget OvertimePolicy overtimePolicy, OvertimePolicyDto overtimePolicyDto);
+
   @Mapping(target = "policyDetails", source = "policyDetailDtos")
   OvertimePolicyDto convertToOvertimePolicyDto(
       OvertimePolicy overtimePolicy, List<OvertimePolicyDetailDto> policyDetailDtos);
