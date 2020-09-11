@@ -120,6 +120,6 @@ public class AttendanceSettingsController extends BaseRestController {
 
   @GetMapping("time-and-attendance/all-active-policy-name")
   public List<String> findAllPolicyNames() {
-    return overtimeService.findAllPolicyNames(findCompanyId());
+    return overtimeService.findAllPolicyNames();
   }
 }

@@ -208,6 +208,6 @@ public class OvertimeServiceTests {
 
   @Test
   void findAllPolicyNames() {
-    assertThatCode(() -> overtimeService.findAllPolicyNames("1")).doesNotThrowAnyException();
+    assertThatCode(() -> overtimeService.findAllPolicyNames()).doesNotThrowAnyException();
   }
 }

@@ -230,7 +230,7 @@ public class AttendanceSetUpService {
             .map(
                 newOvertimePolicyDto -> {
                   if (!DEFAULT_OVERTIME_POLICY_NAME.equals(newOvertimePolicyDto.getPolicyName())) {
-                    return overtimeService.saveNewOvertimePolicy(newOvertimePolicyDto, companyId);
+                    return overtimeService.saveNewOvertimePolicy(newOvertimePolicyDto);
                   }
                   return null;
                 })
