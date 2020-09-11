@@ -1,5 +1,6 @@
 package shamu.company.attendance.service;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shamu.company.attendance.dto.LocalDateEntryDto;
@@ -19,6 +20,7 @@ import shamu.company.attendance.entity.StaticTimezone;
 import shamu.company.attendance.entity.TimeSheet;
 import shamu.company.attendance.entity.mapper.OvertimePolicyMapper;
 import shamu.company.attendance.entity.mapper.PolicyDetailMapper;
+import shamu.company.attendance.pojo.OvertimePolicyOverviewPojo;
 import shamu.company.attendance.repository.OvertimePolicyRepository;
 import shamu.company.attendance.repository.PolicyDetailRepository;
 import shamu.company.attendance.repository.StaticOvertimeTypeRepository;
@@ -187,12 +189,23 @@ public class OvertimeService {
             .policyName(DEFAULT_OVERTIME_POLICY_NAME)
             .company(company)
             .defaultPolicy(true)
+            .active(true)
             .build();
     overtimePolicyRepository.save(overtimePolicy);
   }
 
   public List<OvertimePolicyOverviewDto> findAllOvertimePolicies(final String companyId) {
-    return overtimePolicyRepository.findOvertimeOverview(companyId);
+    final List<OvertimePolicyOverviewPojo> overtimePolicyOverviewPojoList =
+        overtimePolicyRepository.findOvertimeOverview(companyId);
+    final List<OvertimePolicyOverviewDto> overtimePolicyOverviewDtoList = new ArrayList<>();
+    overtimePolicyOverviewPojoList.forEach(
+        overtimePolicyOverviewPojo -> {
+          final OvertimePolicyOverviewDto overtimePolicyOverviewDto =
+              new OvertimePolicyOverviewDto();
+          BeanUtils.copyProperties(overtimePolicyOverviewPojo, overtimePolicyOverviewDto);
+          overtimePolicyOverviewDtoList.add(overtimePolicyOverviewDto);
+        });
+    return overtimePolicyOverviewDtoList;
   }
 
   public OvertimePolicy findDefaultPolicy(final String companyId) {

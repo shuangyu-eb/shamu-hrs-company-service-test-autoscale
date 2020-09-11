@@ -2,8 +2,8 @@ package shamu.company.attendance.repository;
 
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import shamu.company.attendance.dto.OvertimePolicyOverviewDto;
 import shamu.company.attendance.entity.OvertimePolicy;
+import shamu.company.attendance.pojo.OvertimePolicyOverviewPojo;
 import shamu.company.common.repository.BaseRepository;
 
 import java.util.List;
@@ -18,16 +18,16 @@ public interface OvertimePolicyRepository extends BaseRepository<OvertimePolicy,
 
   List<OvertimePolicy> findByCompanyId(String companyId);
 
-
-  @Query(value = "select hex(op.id) as id, op.policy_name as policyName," +
-          " op.default_policy as defaultPolicy, count(c.id) as numberOfEmployees " +
-          "from overtime_policies op " +
-          "left join " +
-          "user_compensations c " +
-          "on op.id=c.overtime_policy_id " +
-          "where unhex(op.company_id) = ?1 " +
-          "GROUP BY id, policyName, defaultPolicy",
-          nativeQuery=true)
-  List<OvertimePolicyOverviewDto> findOvertimeOverview(String companyId);
+  @Query(
+      value =
+          "select hex(op.id) as id, op.policy_name as policyName,"
+              + " op.default_policy as defaultPolicy, count(c.id) as numberOfEmployees "
+              + "from overtime_policies op "
+              + "left join "
+              + "user_compensations c "
+              + "on op.id=c.overtime_policy_id "
+              + "where hex(op.company_id) = ?1 AND op.active = 1"
+              + "GROUP BY id, policyName, defaultPolicy",
+      nativeQuery = true)
+  List<OvertimePolicyOverviewPojo> findOvertimeOverview(String companyId);
 }
-

@@ -20,6 +20,7 @@ import shamu.company.attendance.entity.TimePeriod;
 import shamu.company.attendance.entity.TimeSheet;
 import shamu.company.attendance.entity.mapper.OvertimePolicyMapper;
 import shamu.company.attendance.entity.mapper.PolicyDetailMapper;
+import shamu.company.attendance.pojo.OvertimePolicyOverviewPojo;
 import shamu.company.attendance.repository.OvertimePolicyRepository;
 import shamu.company.attendance.repository.PolicyDetailRepository;
 import shamu.company.attendance.repository.StaticOvertimeTypeRepository;
@@ -158,6 +159,38 @@ public class OvertimeServiceTests {
       final String overtimeId = "test_overtime_id";
 
       assertThatCode(() -> overtimeService.softDeleteOvertimePolicy(overtimeId))
+          .doesNotThrowAnyException();
+    }
+
+    @Test
+    void findAllOvertimePolicies_shouldSucceed() {
+      final String companyId = "test_company_id";
+      final List<OvertimePolicyOverviewPojo> overtimePolicyOverviewPojoList = new ArrayList<>();
+      overtimePolicyOverviewPojoList.add(
+          new OvertimePolicyOverviewPojo() {
+            @Override
+            public String getId() {
+              return null;
+            }
+
+            @Override
+            public String getPolicyName() {
+              return null;
+            }
+
+            @Override
+            public Integer getDefaultPolicy() {
+              return null;
+            }
+
+            @Override
+            public Integer getNumberOfEmployees() {
+              return null;
+            }
+          });
+      Mockito.when(overtimePolicyRepository.findOvertimeOverview(companyId))
+          .thenReturn(overtimePolicyOverviewPojoList);
+      assertThatCode(() -> overtimeService.findAllOvertimePolicies(companyId))
           .doesNotThrowAnyException();
     }
   }
