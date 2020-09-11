@@ -195,4 +195,19 @@ public class AttendanceSettingsControllerTests extends WebControllerBaseTests {
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
+
+  @Test
+  void findAllPolicyNames() throws Exception {
+    final HttpHeaders httpHeaders = new HttpHeaders();
+    httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.get("/company/time-and-attendance/all-active-policy-name")
+                    .headers(httpHeaders))
+            .andReturn();
+
+    assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+  }
 }

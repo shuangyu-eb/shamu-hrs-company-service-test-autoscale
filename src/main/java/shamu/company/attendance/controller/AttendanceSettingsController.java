@@ -119,4 +119,9 @@ public class AttendanceSettingsController extends BaseRestController {
     attendanceSettingsService.initialTimezoneForOldDatas();
     return new ResponseEntity<>(HttpStatus.OK);
   }
+
+  @GetMapping("time-and-attendance/all-active-policy-name")
+  public List<String> findAllPolicyNames() {
+    return overtimeService.findAllPolicyNames(findCompanyId());
+  }
 }

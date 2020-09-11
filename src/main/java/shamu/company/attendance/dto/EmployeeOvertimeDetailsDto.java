@@ -7,14 +7,16 @@ import java.util.Date;
 
 @Data
 public class EmployeeOvertimeDetailsDto {
-    private String employeeId;
+  private String employeeId;
 
-    private String compensationUnit;
+  private String compensationUnit;
 
-    @JsonFormat(pattern = "MM/dd/yyyy")
-    private Date hireDate;
+  @JsonFormat(pattern = "MM/dd/yyyy")
+  private Date hireDate;
 
-    private String overtimeLaw;
+  private String overtimeLaw;
 
-    private Double regularPay;
+  private String overtimePolicy;
+
+  private Double regularPay;
 }

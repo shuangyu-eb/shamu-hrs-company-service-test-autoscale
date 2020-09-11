@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import shamu.company.attendance.dto.AttendanceDetailDto;
+import shamu.company.attendance.dto.AttendancePolicyAndDetailDto;
 import shamu.company.attendance.dto.AttendanceSummaryDto;
 import shamu.company.attendance.dto.EmployeeAttendanceSummaryDto;
 import shamu.company.attendance.dto.EmployeeInfoDto;
@@ -125,12 +126,14 @@ public class AttendanceTeamHoursController extends BaseRestController {
 
   @PatchMapping("time-and-attendance/details")
   public HttpEntity updateAttendanceDetails(
-      @Valid @RequestBody final TimeAndAttendanceDetailsDto timeAndAttendanceDetailsDto) {
+      @Valid @RequestBody final AttendancePolicyAndDetailDto attendancePolicyAndDetailDto) {
+    final TimeAndAttendanceDetailsDto timeAndAttendanceDetailsDto =
+        attendancePolicyAndDetailDto.getAttendanceDetails();
     final String companyId = findCompanyId();
     final String employeeId = findUserId();
     if (!timeAndAttendanceDetailsDto.getOvertimeDetails().isEmpty()) {
       attendanceSetUpService.saveAttendanceDetails(
-          timeAndAttendanceDetailsDto, companyId, employeeId);
+          attendancePolicyAndDetailDto, companyId, employeeId);
     }
     if (!timeAndAttendanceDetailsDto.getRemovedUserIds().isEmpty()) {
       attendanceTeamHoursService.removeAttendanceDetails(

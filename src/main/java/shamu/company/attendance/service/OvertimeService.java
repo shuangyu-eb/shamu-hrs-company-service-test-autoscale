@@ -25,7 +25,7 @@ import shamu.company.attendance.repository.OvertimePolicyRepository;
 import shamu.company.attendance.repository.PolicyDetailRepository;
 import shamu.company.attendance.repository.StaticOvertimeTypeRepository;
 import shamu.company.attendance.utils.TimeEntryUtils;
-import shamu.company.attendance.utils.overtime.OverTimePayFactory;
+import shamu.company.attendance.utils.overtime.OvertimeCalculator;
 import shamu.company.company.entity.Company;
 import shamu.company.timeoff.exception.NotFoundException;
 import shamu.company.utils.DateUtil;
@@ -44,7 +44,7 @@ import java.util.stream.Collectors;
 public class OvertimeService {
 
   private static final int CONVERT_SECOND_TO_MS = 1000;
-  private static final String DEFAULT_OVERTIME_POLICY_NAME = "default_overtime_policy";
+  private static final String DEFAULT_OVERTIME_POLICY_NAME = "NOT ELIGIBLE";
 
   private final GenericHoursService genericHoursService;
   private final OvertimePolicyRepository overtimePolicyRepository;
@@ -91,13 +91,9 @@ public class OvertimeService {
       final CompanyTaSetting companyTaSetting) {
     final Timestamp timeSheetStart = timeSheet.getTimePeriod().getStartDate();
     final Timestamp timesheetEnd = timeSheet.getTimePeriod().getEndDate();
+    final Map<String, List<OvertimeRuleDto>> overtimeRules = getOvertimeRules(timeSheet);
     final List<OvertimeDetailDto> overtimeDetailDtos =
-        OverTimePayFactory.getOverTimePay(timeSheet.getUserCompensation())
-            .getOvertimePay(localDateEntries);
-    // TODO use this function when frontend code is complete
-    //        final Map<String, List<OvertimeRuleDto>> overtimeRules = getOvertimeRules(timeSheet);
-    //        final List<OvertimeDetailDto> overtimeDetailDtos =
-    //            new OvertimeCalculator().getOvertimePay(localDateEntries, overtimeRules);
+        new OvertimeCalculator().getOvertimePay(localDateEntries, overtimeRules);
     return filterOvertimeEntries(
         overtimeDetailDtos,
         timeSheetStart.getTime(),
@@ -160,7 +156,7 @@ public class OvertimeService {
     return rateToMin;
   }
 
-  public void saveNewOvertimePolicy(
+  public OvertimePolicy saveNewOvertimePolicy(
       final NewOvertimePolicyDto newOvertimePolicyDto, final String companyId) {
     final List<NewOvertimePolicyDetailDto> policyDetailDtos =
         newOvertimePolicyDto.getPolicyDetails();
@@ -179,8 +175,8 @@ public class OvertimeService {
                 policyDetail.setStaticOvertimeType(
                     staticOvertimeTypeRepository.findByName(
                         policyDetail.getStaticOvertimeType().getName())));
-    overtimePolicyRepository.save(newOvertimePolicy);
     policyDetailRepository.saveAll(policyDetails);
+    return overtimePolicyRepository.save(newOvertimePolicy);
   }
 
   public void createDefaultPolicy(final Company company) {
@@ -252,5 +248,9 @@ public class OvertimeService {
     } else {
       throw new NotFoundException("OVERTIME POLICY NOT FOUND", "OT POLICY EXCEPTION");
     }
+  }
+
+  public List<String> findAllPolicyNames(final String companyId) {
+    return overtimePolicyRepository.findAllPolicyNames(companyId);
   }
 }

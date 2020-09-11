@@ -13,6 +13,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import shamu.company.WebControllerBaseTests;
+import shamu.company.attendance.dto.AttendancePolicyAndDetailDto;
 import shamu.company.attendance.dto.AttendanceTeamHoursDto;
 import shamu.company.attendance.dto.EmployeeOvertimeDetailsDto;
 import shamu.company.attendance.dto.TeamHoursPageInfoDto;
@@ -214,6 +215,7 @@ class AttendanceTeamHoursControllerTests extends WebControllerBaseTests {
   void updateAttendanceDetails() throws Exception {
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+    final AttendancePolicyAndDetailDto attendancePolicyAndDetailDto = new AttendancePolicyAndDetailDto();
     final TimeAndAttendanceDetailsDto timeAndAttendanceDetailsDto =
         new TimeAndAttendanceDetailsDto();
     final List<EmployeeOvertimeDetailsDto> overtimeDetails = new ArrayList<>();
@@ -223,12 +225,13 @@ class AttendanceTeamHoursControllerTests extends WebControllerBaseTests {
     userIds.add("1");
     timeAndAttendanceDetailsDto.setOvertimeDetails(overtimeDetails);
     timeAndAttendanceDetailsDto.setRemovedUserIds(userIds);
+    attendancePolicyAndDetailDto.setAttendanceDetails(timeAndAttendanceDetailsDto);
     final MvcResult response =
         mockMvc
             .perform(
                 MockMvcRequestBuilders.patch("/company/time-and-attendance/details")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(JsonUtil.formatToString(timeAndAttendanceDetailsDto))
+                    .content(JsonUtil.formatToString(attendancePolicyAndDetailDto))
                     .headers(httpHeaders))
             .andReturn();
 

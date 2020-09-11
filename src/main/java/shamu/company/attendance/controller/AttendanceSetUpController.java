@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import shamu.company.attendance.dto.TimeAndAttendanceDetailsDto;
+import shamu.company.attendance.dto.AttendancePolicyAndDetailDto;
 import shamu.company.attendance.dto.TimeAndAttendanceRelatedUserListDto;
 import shamu.company.attendance.entity.StaticCompanyPayFrequencyType;
 import shamu.company.attendance.service.AttendanceSetUpService;
@@ -56,10 +56,11 @@ public class AttendanceSetUpController extends BaseRestController {
 
   @PostMapping("time-and-attendance/details")
   public HttpEntity createAttendanceDetails(
-      @Valid @RequestBody final TimeAndAttendanceDetailsDto timeAndAttendanceDetailsDto) {
+      @Valid @RequestBody final AttendancePolicyAndDetailDto attendancePolicyAndDetailDto) {
     final String companyId = findCompanyId();
     final String employeeId = findUserId();
-    attendanceSetUpService.saveAttendanceDetails(timeAndAttendanceDetailsDto, companyId, employeeId);
+    attendanceSetUpService.saveAttendanceDetails(
+        attendancePolicyAndDetailDto, companyId, employeeId);
     return new ResponseEntity(HttpStatus.OK);
   }
 }

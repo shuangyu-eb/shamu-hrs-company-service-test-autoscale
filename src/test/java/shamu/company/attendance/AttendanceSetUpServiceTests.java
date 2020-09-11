@@ -7,7 +7,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import shamu.company.attendance.dto.AttendancePolicyAndDetailDto;
 import shamu.company.attendance.dto.EmployeeOvertimeDetailsDto;
+import shamu.company.attendance.dto.NewOvertimePolicyDto;
 import shamu.company.attendance.dto.TimeAndAttendanceDetailsDto;
 import shamu.company.attendance.dto.TimeAndAttendanceRelatedUserDto;
 import shamu.company.attendance.entity.CompanyTaSetting;
@@ -185,6 +187,8 @@ public class AttendanceSetUpServiceTests {
   @Nested
   class saveAttendanceDetails {
     TimePeriod timePeriod = new TimePeriod();
+    AttendancePolicyAndDetailDto attendancePolicyAndDetailDto = new AttendancePolicyAndDetailDto();
+    List<NewOvertimePolicyDto> newOvertimePolicyDtos = new ArrayList<>();
     TimeAndAttendanceDetailsDto timeAndAttendanceDetailsDto = new TimeAndAttendanceDetailsDto();
     String companyId = "testCompanyId";
     String userId = "testUserId";
@@ -218,6 +222,8 @@ public class AttendanceSetUpServiceTests {
       timePeriod.setEndDate(new Timestamp(new Date().getTime()));
       timezones.put("postalCode", "timezone");
       set.add("postalCode");
+      attendancePolicyAndDetailDto.setAttendanceDetails(timeAndAttendanceDetailsDto);
+      attendancePolicyAndDetailDto.setOvertimePolicyDetails(newOvertimePolicyDtos);
     }
 
     @Test
@@ -237,7 +243,7 @@ public class AttendanceSetUpServiceTests {
       assertThatCode(
               () ->
                   attendanceSetUpService.saveAttendanceDetails(
-                      timeAndAttendanceDetailsDto, companyId, employeeId))
+                      attendancePolicyAndDetailDto, companyId, employeeId))
           .doesNotThrowAnyException();
     }
 
@@ -267,7 +273,7 @@ public class AttendanceSetUpServiceTests {
       assertThatCode(
               () ->
                   attendanceSetUpService.saveAttendanceDetails(
-                      timeAndAttendanceDetailsDto, companyId, employeeId))
+                      attendancePolicyAndDetailDto, companyId, employeeId))
           .doesNotThrowAnyException();
     }
 
@@ -301,7 +307,7 @@ public class AttendanceSetUpServiceTests {
       assertThatCode(
               () ->
                   attendanceSetUpService.saveAttendanceDetails(
-                      timeAndAttendanceDetailsDto, companyId, employeeId))
+                      attendancePolicyAndDetailDto, companyId, employeeId))
           .doesNotThrowAnyException();
     }
   }

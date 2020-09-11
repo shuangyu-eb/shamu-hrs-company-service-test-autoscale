@@ -30,4 +30,11 @@ public interface OvertimePolicyRepository extends BaseRepository<OvertimePolicy,
               + "GROUP BY id, policyName, defaultPolicy",
       nativeQuery = true)
   List<OvertimePolicyOverviewPojo> findOvertimeOverview(String companyId);
+
+  @Query(
+      value =
+          "select policy_name from overtime_policies where company_id = unhex(?1) and "
+              + "active = 1",
+      nativeQuery = true)
+  List<String> findAllPolicyNames(String companyId);
 }

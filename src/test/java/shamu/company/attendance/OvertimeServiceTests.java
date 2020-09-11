@@ -60,6 +60,8 @@ public class OvertimeServiceTests {
   @Test
   void findAllOvertimeHours() {
     final EmployeeTimeLog employeeTimeLog = new EmployeeTimeLog();
+    final OvertimePolicy overtimePolicy = new OvertimePolicy();
+    overtimePolicy.setId("1");
     employeeTimeLog.setId("1");
     employeeTimeLog.setDurationMin(600);
     employeeTimeLog.setStart(Timestamp.valueOf(LocalDateTime.parse("2020-07-03T11:00:00")));
@@ -81,6 +83,7 @@ public class OvertimeServiceTests {
     userCompensation.setOvertimeStatus(compensationOvertimeStatus);
     userCompensation.setCompensationFrequency(compensationFrequency);
     userCompensation.setWageCents(BigInteger.valueOf(10));
+    userCompensation.setOvertimePolicy(overtimePolicy);
     timeSheet.setUserCompensation(userCompensation);
     final StaticTimezone staticTimezone = new StaticTimezone();
     staticTimezone.setName("Asia/Shanghai");
@@ -205,5 +208,10 @@ public class OvertimeServiceTests {
         .thenReturn(java.util.Optional.of(overtimePolicy));
     Mockito.when(policyDetailRepository.findAllByOvertimePolicyId("1")).thenReturn(policyDetails);
     assertThatCode(() -> overtimeService.findOvertimePolicyDetails("1")).doesNotThrowAnyException();
+  }
+
+  @Test
+  void findAllPolicyNames() {
+    assertThatCode(() -> overtimeService.findAllPolicyNames("1")).doesNotThrowAnyException();
   }
 }

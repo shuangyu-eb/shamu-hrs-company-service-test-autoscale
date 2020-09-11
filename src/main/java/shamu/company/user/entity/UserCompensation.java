@@ -15,6 +15,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import java.math.BigInteger;
 import java.sql.Timestamp;
+import java.util.Optional;
 
 @Data
 @Entity
@@ -50,12 +51,12 @@ public class UserCompensation extends BaseEntity {
   public UserCompensation(
       final String userId,
       final BigInteger wageCents,
-      final CompensationOvertimeStatus overtimeStatus,
+      final Optional<OvertimePolicy> overtimePolicy,
       final CompensationFrequency compensationFrequency,
       final Timestamp startDate) {
     this.userId = userId;
     this.wageCents = wageCents;
-    this.overtimeStatus = overtimeStatus;
+    overtimePolicy.ifPresent(policy -> this.overtimePolicy = policy);
     this.compensationFrequency = compensationFrequency;
     setStartDate(startDate);
   }

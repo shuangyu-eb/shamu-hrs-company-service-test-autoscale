@@ -3,7 +3,9 @@ package shamu.company.attendance.service;
 import org.apache.commons.lang.time.DateUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import shamu.company.attendance.dto.AttendancePolicyAndDetailDto;
 import shamu.company.attendance.dto.EmployeeOvertimeDetailsDto;
+import shamu.company.attendance.dto.NewOvertimePolicyDto;
 import shamu.company.attendance.dto.TimeAndAttendanceDetailsDto;
 import shamu.company.attendance.dto.TimeAndAttendanceRelatedUserDto;
 import shamu.company.attendance.dto.TimeAndAttendanceRelatedUserListDto;
@@ -11,6 +13,7 @@ import shamu.company.attendance.entity.CompanyTaSetting;
 import shamu.company.attendance.entity.CompanyTaSetting.MessagingON;
 import shamu.company.attendance.entity.EmailNotificationStatus;
 import shamu.company.attendance.entity.EmployeesTaSetting;
+import shamu.company.attendance.entity.OvertimePolicy;
 import shamu.company.attendance.entity.StaticCompanyPayFrequencyType;
 import shamu.company.attendance.entity.StaticCompanyPayFrequencyType.PayFrequencyType;
 import shamu.company.attendance.entity.StaticTimesheetStatus;
@@ -43,12 +46,10 @@ import shamu.company.scheduler.job.AttendanceEmailNotificationJob;
 import shamu.company.scheduler.job.ChangeTimeSheetsStatusJob;
 import shamu.company.timeoff.dto.PaidHolidayDto;
 import shamu.company.timeoff.service.PaidHolidayService;
-import shamu.company.user.entity.CompensationOvertimeStatus;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserCompensation;
 import shamu.company.user.entity.mapper.UserCompensationMapper;
 import shamu.company.user.repository.CompensationFrequencyRepository;
-import shamu.company.user.repository.CompensationOvertimeStatusRepository;
 import shamu.company.user.repository.UserRepository;
 import shamu.company.user.service.UserCompensationService;
 import shamu.company.user.service.UserService;
@@ -89,6 +90,7 @@ public class AttendanceSetUpService {
   private static final long MS_OF_ONE_DAY = 24 * MS_OF_ONE_HOUR;
   private static final String COMPANY_POSTAL_CODE = "companyPostalCode";
   private static final String DATE_FORMAT = "MM/dd/yyyy";
+  private static final String DEFAULT_OVERTIME_POLICY_NAME = "NOT ELIGIBLE";
 
   private final AttendanceSettingsService attendanceSettingsService;
 
@@ -101,8 +103,6 @@ public class AttendanceSetUpService {
   private final CompanyRepository companyRepository;
 
   private final CompensationFrequencyRepository compensationFrequencyRepository;
-
-  private final CompensationOvertimeStatusRepository compensationOvertimeStatusRepository;
 
   private final UserCompensationService userCompensationService;
 
@@ -138,6 +138,8 @@ public class AttendanceSetUpService {
 
   private final PayrollDetailService payrollDetailService;
 
+  private final OvertimeService overtimeService;
+
   public AttendanceSetUpService(
       final AttendanceSettingsService attendanceSettingsService,
       final UserRepository userRepository,
@@ -145,7 +147,6 @@ public class AttendanceSetUpService {
       final JobUserMapper jobUserMapper,
       final CompanyRepository companyRepository,
       final CompensationFrequencyRepository compensationFrequencyRepository,
-      final CompensationOvertimeStatusRepository compensationOvertimeStatusRepository,
       final UserCompensationService userCompensationService,
       final UserService userService,
       final TimePeriodService timePeriodService,
@@ -162,14 +163,14 @@ public class AttendanceSetUpService {
       final EmployeesTaSettingsMapper employeesTaSettingsMapper,
       final CompanyTaSettingsMapper companyTaSettingsMapper,
       final EmailService emailService,
-      final PayrollDetailService payrollDetailService) {
+      final PayrollDetailService payrollDetailService,
+      final OvertimeService overtimeService) {
     this.attendanceSettingsService = attendanceSettingsService;
     this.userRepository = userRepository;
     this.jobUserRepository = jobUserRepository;
     this.jobUserMapper = jobUserMapper;
     this.companyRepository = companyRepository;
     this.compensationFrequencyRepository = compensationFrequencyRepository;
-    this.compensationOvertimeStatusRepository = compensationOvertimeStatusRepository;
     this.userCompensationService = userCompensationService;
     this.userService = userService;
     this.timePeriodService = timePeriodService;
@@ -187,6 +188,7 @@ public class AttendanceSetUpService {
     this.companyTaSettingsMapper = companyTaSettingsMapper;
     this.emailService = emailService;
     this.payrollDetailService = payrollDetailService;
+    this.overtimeService = overtimeService;
   }
 
   public Boolean findIsAttendanceSetUp(final String companyId) {
@@ -230,9 +232,23 @@ public class AttendanceSetUpService {
 
   @Transactional
   public void saveAttendanceDetails(
-      final TimeAndAttendanceDetailsDto timeAndAttendanceDetailsDto,
+      final AttendancePolicyAndDetailDto attendancePolicyAndDetailDto,
       final String companyId,
       final String employeeId) {
+    final TimeAndAttendanceDetailsDto timeAndAttendanceDetailsDto =
+        attendancePolicyAndDetailDto.getAttendanceDetails();
+    final List<NewOvertimePolicyDto> overtimePolicyDetails =
+        attendancePolicyAndDetailDto.getOvertimePolicyDetails();
+    final List<OvertimePolicy> savedPolicies =
+        overtimePolicyDetails.stream()
+            .map(
+                newOvertimePolicyDto -> {
+                  if (!DEFAULT_OVERTIME_POLICY_NAME.equals(newOvertimePolicyDto.getPolicyName())) {
+                    return overtimeService.saveNewOvertimePolicy(newOvertimePolicyDto, companyId);
+                  }
+                  return null;
+                })
+            .collect(Collectors.toList());
     final List<EmployeeOvertimeDetailsDto> overtimeDetailsDtoList =
         timeAndAttendanceDetailsDto.getOvertimeDetails();
 
@@ -255,7 +271,7 @@ public class AttendanceSetUpService {
     saveEmployeeTaSettings(timeAndAttendanceDetailsDto, allTimezones);
 
     final List<UserCompensation> userCompensationList =
-        saveUserCompensations(overtimeDetailsDtoList, periodStartDate);
+        saveUserCompensations(overtimeDetailsDtoList, savedPolicies, periodStartDate);
     saveJobUsers(overtimeDetailsDtoList);
 
     final Company company = companyService.findById(companyId);
@@ -526,7 +542,9 @@ public class AttendanceSetUpService {
   }
 
   private List<UserCompensation> saveUserCompensations(
-      final List<EmployeeOvertimeDetailsDto> overtimeDetailsDtoList, final Date startDate) {
+      final List<EmployeeOvertimeDetailsDto> overtimeDetailsDtoList,
+      final List<OvertimePolicy> savedPolicies,
+      final Date startDate) {
     final List<UserCompensation> userCompensations =
         overtimeDetailsDtoList.stream()
             .map(
@@ -539,16 +557,20 @@ public class AttendanceSetUpService {
                       compensationFrequencyRepository
                           .findById(employeeOvertimeDetailsDto.getCompensationUnit())
                           .get();
-                  final CompensationOvertimeStatus compensationOvertimeStatus =
-                      compensationOvertimeStatusRepository
-                          .findById(employeeOvertimeDetailsDto.getOvertimeLaw())
-                          .get();
+                  final Optional<OvertimePolicy> overtimePolicy =
+                      savedPolicies.stream()
+                          .filter(
+                              savedPolicy ->
+                                  employeeOvertimeDetailsDto
+                                      .getOvertimePolicy()
+                                      .equals(savedPolicy.getPolicyName()))
+                          .findFirst();
                   final Timestamp startDateTimeStamp = new Timestamp(startDate.getTime());
                   if (userCompensationService.existsByUserId(userId)) {
                     final UserCompensation userCompensation =
                         userCompensationService.findByUserId(userId);
                     userCompensation.setCompensationFrequency(compensationFrequency);
-                    userCompensation.setOvertimeStatus(compensationOvertimeStatus);
+                    overtimePolicy.ifPresent(userCompensation::setOvertimePolicy);
                     userCompensation.setWageCents(wageCents);
                     userCompensation.setStartDate(startDateTimeStamp);
                     return userCompensation;
@@ -556,7 +578,7 @@ public class AttendanceSetUpService {
                     return new UserCompensation(
                         userId,
                         wageCents,
-                        compensationOvertimeStatus,
+                        overtimePolicy,
                         compensationFrequency,
                         startDateTimeStamp);
                   }

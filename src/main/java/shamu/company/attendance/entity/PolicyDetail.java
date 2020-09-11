@@ -17,7 +17,7 @@ public class PolicyDetail extends BaseEntity {
 
   @ManyToOne private OvertimePolicy overtimePolicy;
 
-  private int start;
+  private Integer start;
 
   @JoinColumn(name = "overtime_type_id")
   @ManyToOne
