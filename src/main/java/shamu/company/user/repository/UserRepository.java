@@ -14,8 +14,6 @@ public interface UserRepository extends JpaRepository<User, String>, UserCustomR
           + "or (u.deactivated_at is not null "
           + "and u.deactivated_at > current_timestamp)) ";
 
-  String AND_ACTIVE_USER_QUERY = " and " + ACTIVE_USER_QUERY;
-
   String FIND_BY_PERIOD_AND_TIME_SHEET_STATUS =
       "select u.* from users u join timesheets t "
           + "on u.id = t.employee_id and t.time_period_id = unhex(?1) "
@@ -28,7 +26,7 @@ public interface UserRepository extends JpaRepository<User, String>, UserCustomR
   List<User> findByIdIn(List<String> idList);
 
   @Query(
-      value = "select * from users u where u.id = unhex(?1) " + AND_ACTIVE_USER_QUERY,
+      value = "select * from users u where u.id = unhex(?1) and " + ACTIVE_USER_QUERY,
       nativeQuery = true)
   User findActiveUserById(String userId);
 
@@ -46,13 +44,13 @@ public interface UserRepository extends JpaRepository<User, String>, UserCustomR
       value =
           "select u.* from users u "
               + "left join user_contact_information uc on u.user_contact_information_id = uc.id "
-              + "where uc.email_work = ?1 "
-              + AND_ACTIVE_USER_QUERY,
+              + "where uc.email_work = ?1 and "
+              + ACTIVE_USER_QUERY,
       nativeQuery = true)
   User findByEmailWork(String emailWork);
 
   @Query(
-      value = "SELECT * FROM users u " + "WHERE u.manager_user_id = unhex(?1) " + ACTIVE_USER_QUERY,
+      value = "SELECT * FROM users u " + "WHERE u.manager_user_id = unhex(?1) AND " + ACTIVE_USER_QUERY,
       nativeQuery = true)
   List<User> findAllByManagerUserId(String id);
 
@@ -78,23 +76,23 @@ public interface UserRepository extends JpaRepository<User, String>, UserCustomR
       value =
           "select * from users u"
               + " join jobs_users ju on u.id = ju.user_id"
-              + " where u.manager_user_id = unhex(?2) "
-              + AND_ACTIVE_USER_QUERY,
+              + " where u.manager_user_id = unhex(?2) and "
+              + ACTIVE_USER_QUERY,
       nativeQuery = true)
   List<User> findSubordinatesByManagerUserId(String userId);
 
   @Query(
       value =
           "select count(1) from users u "
-              + "where u.manager_user_id = unhex(?1) "
-              + AND_ACTIVE_USER_QUERY,
+              + "where u.manager_user_id = unhex(?1) and "
+              + ACTIVE_USER_QUERY,
       nativeQuery = true)
   Integer findDirectReportsCount(String orgUserId);
 
   @Query(
       value =
-          "select hex(u.manager_user_id) from users u where u.id = unhex(?1) "
-              + AND_ACTIVE_USER_QUERY,
+          "select hex(u.manager_user_id) from users u where u.id = unhex(?1) and "
+              + ACTIVE_USER_QUERY,
       nativeQuery = true)
   String getManagerUserIdById(String userId);
 
