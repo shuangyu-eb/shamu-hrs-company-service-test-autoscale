@@ -55,6 +55,18 @@ spring:
   http:
     encoding:
       enabled: true
+  application:
+    name: company-service
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+      config:
+        enabled: true
+        profileSeparator: ','
+      discovery:
+        instance-id: company
+        serviceName: company-service
   datasource:
     tenant-prefix: tenant_
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -64,12 +76,6 @@ cloud:
   aws:
     stack:
       auto: false
-
-aws:
-  secretsmanager:
-    prefix: /secret
-    enabled: true
-    fail-fast: false
 
 email:
   retryLimit: 5
