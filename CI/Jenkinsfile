@@ -46,6 +46,15 @@ pipeline {
                 }
             }
         }
+        stage('create ansible vault file') {
+            steps {
+                script {
+                    withCredentials([string(credentialsId: "simplyhired-hrs-eastbay-dev-ansible-vault", variable: 'ANSIBLE_VAULT')]){
+                        sh "echo $ANSIBLE_VAULT > ansible-vault-file"
+                    }
+                }
+            }
+        }
         stage('create artifact for dev environment') {
             steps {
                 echo '---------------------------------\n' +
