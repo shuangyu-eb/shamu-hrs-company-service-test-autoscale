@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import shamu.company.attendance.dto.CompanyTaSettingsDto;
+import shamu.company.attendance.dto.EmployeeOvertimeDetailsDto;
 import shamu.company.attendance.dto.EmployeesTaSettingDto;
 import shamu.company.attendance.dto.NewOvertimePolicyDto;
 import shamu.company.attendance.dto.OvertimePolicyDto;
@@ -128,5 +129,12 @@ public class AttendanceSettingsController extends BaseRestController {
   @GetMapping("time-and-attendance/all-active-policy-name")
   public List<String> findAllPolicyNames() {
     return overtimeService.findAllPolicyNames();
+  }
+
+  @PatchMapping("time-and-attendance/employee-overtime-policies")
+  public HttpEntity<String> editEmployeeOvertimePolicies(
+      @RequestBody final List<EmployeeOvertimeDetailsDto> employeeOvertimeDetailsDtoList) {
+    overtimeService.editEmployeeOvertimePolicies(employeeOvertimeDetailsDtoList);
+    return new ResponseEntity(HttpStatus.OK);
   }
 }

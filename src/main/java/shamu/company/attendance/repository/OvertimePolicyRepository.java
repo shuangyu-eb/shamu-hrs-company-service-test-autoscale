@@ -24,7 +24,7 @@ public interface OvertimePolicyRepository extends BaseRepository<OvertimePolicy,
               + "left join "
               + "user_compensations c "
               + "on op.id=c.overtime_policy_id "
-              + "op.active = 1 "
+              + "where op.active = 1 "
               + "GROUP BY id, policyName, defaultPolicy",
       nativeQuery = true)
   List<OvertimePolicyOverviewPojo> findOvertimeOverview();

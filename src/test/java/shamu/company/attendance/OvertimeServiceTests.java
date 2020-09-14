@@ -1,13 +1,5 @@
 package shamu.company.attendance;
 
-import static org.assertj.core.api.Assertions.assertThatCode;
-
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -15,6 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import shamu.company.attendance.dto.EmployeeOvertimeDetailsDto;
 import shamu.company.attendance.dto.NewOvertimePolicyDetailDto;
 import shamu.company.attendance.dto.NewOvertimePolicyDto;
 import shamu.company.attendance.dto.OvertimePolicyDetailDto;
@@ -37,8 +30,22 @@ import shamu.company.attendance.repository.StaticOvertimeTypeRepository;
 import shamu.company.attendance.service.OvertimeService;
 import shamu.company.company.entity.Company;
 import shamu.company.job.entity.CompensationFrequency;
+import shamu.company.job.entity.JobUser;
+import shamu.company.job.repository.JobUserRepository;
 import shamu.company.user.entity.CompensationOvertimeStatus;
 import shamu.company.user.entity.UserCompensation;
+import shamu.company.user.service.UserCompensationService;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 public class OvertimeServiceTests {
   @InjectMocks OvertimeService overtimeService;
@@ -52,6 +59,10 @@ public class OvertimeServiceTests {
   @Mock OvertimePolicyRepository overtimePolicyRepository;
 
   @Mock PolicyDetailRepository policyDetailRepository;
+
+  @Mock JobUserRepository jobUserRepository;
+
+  @Mock UserCompensationService userCompensationService;
 
   @BeforeEach
   void init() {
@@ -146,8 +157,7 @@ public class OvertimeServiceTests {
     overtimePolicyDto.setId("policyId");
     final List<OvertimePolicyDetailDto> policyDetailDtos = new ArrayList<>();
     overtimePolicyDto.setPolicyDetails(policyDetailDtos);
-    assertThatCode(
-            () -> overtimeService.updateOvertimePolicy(overtimePolicyDto))
+    assertThatCode(() -> overtimeService.updateOvertimePolicy(overtimePolicyDto))
         .doesNotThrowAnyException();
   }
 
@@ -222,5 +232,24 @@ public class OvertimeServiceTests {
   @Test
   void findAllPolicyNames() {
     assertThatCode(() -> overtimeService.findAllPolicyNames()).doesNotThrowAnyException();
+  }
+
+  @Nested
+  class SaveEmployeePolicies {
+    String userId = "user_id";
+
+    @Test
+    void whenDetailsValid_shouldSucceed() {
+      final EmployeeOvertimeDetailsDto employeeOvertimeDetailsDto =
+          new EmployeeOvertimeDetailsDto();
+      employeeOvertimeDetailsDto.setEmployeeId(userId);
+      employeeOvertimeDetailsDto.setHireDate(new Date());
+      Mockito.when(jobUserRepository.findByUserId(userId)).thenReturn(new JobUser());
+      assertThatCode(
+              () ->
+                  overtimeService.editEmployeeOvertimePolicies(
+                      Arrays.asList(employeeOvertimeDetailsDto)))
+          .doesNotThrowAnyException();
+    }
   }
 }

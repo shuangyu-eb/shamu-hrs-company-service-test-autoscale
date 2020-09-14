@@ -3,6 +3,7 @@ package shamu.company.attendance.service;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import shamu.company.attendance.dto.EmployeeOvertimeDetailsDto;
 import shamu.company.attendance.dto.LocalDateEntryDto;
 import shamu.company.attendance.dto.NewOvertimePolicyDetailDto;
 import shamu.company.attendance.dto.NewOvertimePolicyDto;
@@ -26,12 +27,17 @@ import shamu.company.attendance.repository.PolicyDetailRepository;
 import shamu.company.attendance.repository.StaticOvertimeTypeRepository;
 import shamu.company.attendance.utils.TimeEntryUtils;
 import shamu.company.attendance.utils.overtime.OvertimeCalculator;
+import shamu.company.job.entity.JobUser;
+import shamu.company.job.repository.JobUserRepository;
 import shamu.company.timeoff.exception.NotFoundException;
+import shamu.company.user.entity.UserCompensation;
+import shamu.company.user.service.UserCompensationService;
 import shamu.company.utils.DateUtil;
 
 import java.sql.Timestamp;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,6 +57,8 @@ public class OvertimeService {
   private final PolicyDetailMapper policyDetailMapper;
   private final PolicyDetailRepository policyDetailRepository;
   private final StaticOvertimeTypeRepository staticOvertimeTypeRepository;
+  private final UserCompensationService userCompensationService;
+  private final JobUserRepository jobUserRepository;
 
   public OvertimeService(
       final GenericHoursService genericHoursService,
@@ -58,13 +66,17 @@ public class OvertimeService {
       final OvertimePolicyMapper overtimePolicyMapper,
       final PolicyDetailMapper policyDetailMapper,
       final PolicyDetailRepository policyDetailRepository,
-      final StaticOvertimeTypeRepository staticOvertimeTypeRepository) {
+      final StaticOvertimeTypeRepository staticOvertimeTypeRepository,
+      final UserCompensationService userCompensationService,
+      final JobUserRepository jobUserRepository) {
     this.genericHoursService = genericHoursService;
     this.overtimePolicyRepository = overtimePolicyRepository;
     this.overtimePolicyMapper = overtimePolicyMapper;
     this.policyDetailMapper = policyDetailMapper;
     this.policyDetailRepository = policyDetailRepository;
     this.staticOvertimeTypeRepository = staticOvertimeTypeRepository;
+    this.userCompensationService = userCompensationService;
+    this.jobUserRepository = jobUserRepository;
   }
 
   public List<LocalDateEntryDto> getLocalDateEntries(
@@ -155,13 +167,11 @@ public class OvertimeService {
     return rateToMin;
   }
 
-  public OvertimePolicy saveNewOvertimePolicy(
-      final NewOvertimePolicyDto newOvertimePolicyDto) {
+  public OvertimePolicy saveNewOvertimePolicy(final NewOvertimePolicyDto newOvertimePolicyDto) {
     final List<NewOvertimePolicyDetailDto> policyDetailDtos =
         newOvertimePolicyDto.getPolicyDetails();
     final OvertimePolicy newOvertimePolicy =
-        overtimePolicyMapper.convertToOvertimePolicy(
-            new OvertimePolicy(), newOvertimePolicyDto);
+        overtimePolicyMapper.convertToOvertimePolicy(new OvertimePolicy(), newOvertimePolicyDto);
     final List<PolicyDetail> policyDetails =
         policyDetailDtos.stream()
             .map(
@@ -179,8 +189,7 @@ public class OvertimeService {
   }
 
   @Transactional
-  public void updateOvertimePolicy(
-      final OvertimePolicyDto overtimePolicyDto) {
+  public void updateOvertimePolicy(final OvertimePolicyDto overtimePolicyDto) {
     final OvertimePolicy newOverPolicy =
         overtimePolicyRepository.save(
             overtimePolicyMapper.convertDtoToOvertimePolicy(
@@ -267,5 +276,38 @@ public class OvertimeService {
 
   public List<String> findAllPolicyNames() {
     return overtimePolicyRepository.findAllPolicyNames();
+  }
+
+  public void editEmployeeOvertimePolicies(
+      final List<EmployeeOvertimeDetailsDto> employeeOvertimeDetailsDtoList) {
+    saveEmployeeOvertimePolicies(employeeOvertimeDetailsDtoList, new ArrayList<>(), new Date());
+  }
+
+  public List<UserCompensation> saveEmployeeOvertimePolicies(
+      final List<EmployeeOvertimeDetailsDto> overtimeDetailsDtoList,
+      final List<OvertimePolicy> savedPolicies,
+      final Date startDate) {
+    saveHireDates(overtimeDetailsDtoList);
+    return userCompensationService.saveAllByEmployeeOvertimePolicies(
+        overtimeDetailsDtoList, savedPolicies, startDate);
+  }
+
+  private void saveHireDates(final List<EmployeeOvertimeDetailsDto> overtimeDetailsDtoList) {
+    final List<JobUser> jobUsers =
+        overtimeDetailsDtoList.stream()
+            .map(
+                employeeOvertimeDetailsDto -> {
+                  JobUser jobUser =
+                      jobUserRepository.findByUserId(employeeOvertimeDetailsDto.getEmployeeId());
+                  final Timestamp hireDate =
+                      new Timestamp(employeeOvertimeDetailsDto.getHireDate().getTime());
+                  if (jobUser == null) {
+                    jobUser = new JobUser();
+                  }
+                  jobUser.setStartDate(hireDate);
+                  return jobUser;
+                })
+            .collect(Collectors.toList());
+    jobUserRepository.saveAll(jobUsers);
   }
 }

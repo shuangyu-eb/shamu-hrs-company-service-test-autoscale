@@ -1,7 +1,5 @@
 package shamu.company.employee.controller;
 
-import java.util.List;
-import javax.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
@@ -29,6 +27,9 @@ import shamu.company.job.dto.JobUserDto;
 import shamu.company.job.entity.JobUserListItem;
 import shamu.company.user.entity.User;
 import shamu.company.user.service.UserService;
+
+import javax.validation.Valid;
+import java.util.List;
 
 @RestApiController
 public class EmployeeRestController extends BaseRestController {

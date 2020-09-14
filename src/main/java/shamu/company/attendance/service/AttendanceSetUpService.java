@@ -1,24 +1,5 @@
 package shamu.company.attendance.service;
 
-import static java.time.DayOfWeek.SATURDAY;
-import static shamu.company.attendance.entity.StaticTimesheetStatus.TimeSheetStatus;
-
-import java.math.BigInteger;
-import java.sql.Timestamp;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.format.TextStyle;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TimeZone;
-import java.util.stream.Collectors;
 import org.apache.commons.lang.time.DateUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,7 +34,6 @@ import shamu.company.email.entity.Email;
 import shamu.company.email.service.EmailService;
 import shamu.company.email.service.EmailService.EmailNotification;
 import shamu.company.helpers.googlemaps.GoogleMapsHelper;
-import shamu.company.job.entity.CompensationFrequency;
 import shamu.company.job.entity.JobUser;
 import shamu.company.job.entity.mapper.JobUserMapper;
 import shamu.company.job.repository.JobUserRepository;
@@ -65,11 +45,27 @@ import shamu.company.timeoff.dto.PaidHolidayDto;
 import shamu.company.timeoff.service.PaidHolidayService;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserCompensation;
-import shamu.company.user.entity.mapper.UserCompensationMapper;
-import shamu.company.user.repository.CompensationFrequencyRepository;
 import shamu.company.user.repository.UserRepository;
-import shamu.company.user.service.UserCompensationService;
 import shamu.company.user.service.UserService;
+
+import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.format.TextStyle;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TimeZone;
+import java.util.stream.Collectors;
+
+import static java.time.DayOfWeek.SATURDAY;
+import static shamu.company.attendance.entity.StaticTimesheetStatus.TimeSheetStatus;
 
 @Service
 public class AttendanceSetUpService {
@@ -97,10 +93,6 @@ public class AttendanceSetUpService {
 
   private final JobUserMapper jobUserMapper;
 
-  private final CompensationFrequencyRepository compensationFrequencyRepository;
-
-  private final UserCompensationService userCompensationService;
-
   private final UserService userService;
 
   private final TimePeriodService timePeriodService;
@@ -116,8 +108,6 @@ public class AttendanceSetUpService {
   private final StaticTimeZoneRepository staticTimeZoneRepository;
 
   private final EmployeesTaSettingRepository employeesTaSettingRepository;
-
-  private final UserCompensationMapper userCompensationMapper;
 
   private final PayPeriodFrequencyService payPeriodFrequencyService;
 
@@ -138,8 +128,6 @@ public class AttendanceSetUpService {
       final UserRepository userRepository,
       final JobUserRepository jobUserRepository,
       final JobUserMapper jobUserMapper,
-      final CompensationFrequencyRepository compensationFrequencyRepository,
-      final UserCompensationService userCompensationService,
       final UserService userService,
       final TimePeriodService timePeriodService,
       final PaidHolidayService paidHolidayService,
@@ -148,7 +136,6 @@ public class AttendanceSetUpService {
       final StaticTimesheetStatusRepository staticTimesheetStatusRepository,
       final StaticTimeZoneRepository staticTimeZoneRepository,
       final EmployeesTaSettingRepository employeesTaSettingRepository,
-      final UserCompensationMapper userCompensationMapper,
       final PayPeriodFrequencyService payPeriodFrequencyService,
       final GoogleMapsHelper googleMapsHelper,
       final EmployeesTaSettingsMapper employeesTaSettingsMapper,
@@ -160,8 +147,6 @@ public class AttendanceSetUpService {
     this.userRepository = userRepository;
     this.jobUserRepository = jobUserRepository;
     this.jobUserMapper = jobUserMapper;
-    this.compensationFrequencyRepository = compensationFrequencyRepository;
-    this.userCompensationService = userCompensationService;
     this.userService = userService;
     this.timePeriodService = timePeriodService;
     this.paidHolidayService = paidHolidayService;
@@ -170,7 +155,6 @@ public class AttendanceSetUpService {
     this.staticTimesheetStatusRepository = staticTimesheetStatusRepository;
     this.staticTimeZoneRepository = staticTimeZoneRepository;
     this.employeesTaSettingRepository = employeesTaSettingRepository;
-    this.userCompensationMapper = userCompensationMapper;
     this.payPeriodFrequencyService = payPeriodFrequencyService;
     this.googleMapsHelper = googleMapsHelper;
     this.employeesTaSettingsMapper = employeesTaSettingsMapper;
@@ -262,8 +246,8 @@ public class AttendanceSetUpService {
     saveEmployeeTaSettings(timeAndAttendanceDetailsDto, allTimezones);
 
     final List<UserCompensation> userCompensationList =
-        saveUserCompensations(overtimeDetailsDtoList, savedPolicies, periodStartDate);
-    saveJobUsers(overtimeDetailsDtoList);
+        overtimeService.saveEmployeeOvertimePolicies(
+            overtimeDetailsDtoList, savedPolicies, periodStartDate);
 
     final TimePeriod firstTimePeriod =
         Boolean.FALSE.equals(isAddOrRemoveEmployee)
@@ -326,7 +310,7 @@ public class AttendanceSetUpService {
         executeDate);
   }
 
-  private void includeCompanyIdToParameter(Map<String, Object> params) {
+  private void includeCompanyIdToParameter(final Map<String, Object> params) {
     params.put("companyId", TenantContext.getCurrentTenant());
   }
 
@@ -523,71 +507,6 @@ public class AttendanceSetUpService {
               userRepository.save(user);
             });
     employeesTaSettingRepository.saveAll(employeesTaSettings);
-  }
-
-  private List<UserCompensation> saveUserCompensations(
-      final List<EmployeeOvertimeDetailsDto> overtimeDetailsDtoList,
-      final List<OvertimePolicy> savedPolicies,
-      final Date startDate) {
-    final List<UserCompensation> userCompensations =
-        overtimeDetailsDtoList.stream()
-            .map(
-                employeeOvertimeDetailsDto -> {
-                  final String userId = employeeOvertimeDetailsDto.getEmployeeId();
-                  final BigInteger wageCents =
-                      userCompensationMapper.updateCompensationCents(
-                          employeeOvertimeDetailsDto.getRegularPay());
-                  final CompensationFrequency compensationFrequency =
-                      compensationFrequencyRepository
-                          .findById(employeeOvertimeDetailsDto.getCompensationUnit())
-                          .get();
-                  final Optional<OvertimePolicy> overtimePolicy =
-                      savedPolicies.stream()
-                          .filter(
-                              savedPolicy ->
-                                  employeeOvertimeDetailsDto
-                                      .getOvertimePolicy()
-                                      .equals(savedPolicy.getPolicyName()))
-                          .findFirst();
-                  final Timestamp startDateTimeStamp = new Timestamp(startDate.getTime());
-                  if (userCompensationService.existsByUserId(userId)) {
-                    final UserCompensation userCompensation =
-                        userCompensationService.findByUserId(userId);
-                    userCompensation.setCompensationFrequency(compensationFrequency);
-                    overtimePolicy.ifPresent(userCompensation::setOvertimePolicy);
-                    userCompensation.setWageCents(wageCents);
-                    userCompensation.setStartDate(startDateTimeStamp);
-                    return userCompensation;
-                  } else {
-                    return new UserCompensation(
-                        userId,
-                        wageCents,
-                        overtimePolicy,
-                        compensationFrequency,
-                        startDateTimeStamp);
-                  }
-                })
-            .collect(Collectors.toList());
-    return userCompensationService.saveAll(userCompensations);
-  }
-
-  private void saveJobUsers(final List<EmployeeOvertimeDetailsDto> overtimeDetailsDtoList) {
-    final List<JobUser> jobUsers =
-        overtimeDetailsDtoList.stream()
-            .map(
-                employeeOvertimeDetailsDto -> {
-                  JobUser jobUser =
-                      jobUserRepository.findByUserId(employeeOvertimeDetailsDto.getEmployeeId());
-                  final Timestamp hireDate =
-                      new Timestamp(employeeOvertimeDetailsDto.getHireDate().getTime());
-                  if (jobUser == null) {
-                    jobUser = new JobUser();
-                  }
-                  jobUser.setStartDate(hireDate);
-                  return jobUser;
-                })
-            .collect(Collectors.toList());
-    jobUserRepository.saveAll(jobUsers);
   }
 
   public void createTimeSheets(
