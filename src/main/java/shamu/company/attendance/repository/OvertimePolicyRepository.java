@@ -29,9 +29,6 @@ public interface OvertimePolicyRepository extends BaseRepository<OvertimePolicy,
       nativeQuery = true)
   List<OvertimePolicyOverviewPojo> findOvertimeOverview();
 
-  @Query(
-      value =
-          "select policy_name from overtime_policies where and active = 1",
-      nativeQuery = true)
+  @Query(value = "select policy_name from overtime_policies where active = 1", nativeQuery = true)
   List<String> findAllPolicyNames();
 }
