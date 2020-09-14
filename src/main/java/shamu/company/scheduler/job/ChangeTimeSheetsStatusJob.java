@@ -4,6 +4,7 @@ import org.quartz.JobExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 import shamu.company.attendance.service.TimeSheetService;
+import shamu.company.common.multitenant.TenantContext;
 import shamu.company.scheduler.QuartzUtil;
 
 public class ChangeTimeSheetsStatusJob extends QuartzJobBean {
@@ -21,7 +22,9 @@ public class ChangeTimeSheetsStatusJob extends QuartzJobBean {
     final String toStatus = QuartzUtil.getParameter(jobExecutionContext, "toStatus", String.class);
     final String timePeriodId =
         QuartzUtil.getParameter(jobExecutionContext, "timePeriodId", String.class);
+    final String companyId =
+        QuartzUtil.getParameter(jobExecutionContext, "companyId", String.class);
 
-    timeSheetService.updateCompanyTimeSheetsStatus(fromStatus, toStatus, timePeriodId);
+    TenantContext.withInTenant(companyId, () -> timeSheetService.updateCompanyTimeSheetsStatus(fromStatus, toStatus, timePeriodId));
   }
 }

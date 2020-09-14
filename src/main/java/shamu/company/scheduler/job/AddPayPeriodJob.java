@@ -51,7 +51,7 @@ public class AddPayPeriodJob extends QuartzJobBean {
   @Override
   public void executeInternal(final JobExecutionContext jobExecutionContext) {
     final String companyId =
-        QuartzUtil.getParameter(jobExecutionContext, "companyId", String.class).replace("\"", "");
+        QuartzUtil.getParameter(jobExecutionContext, "companyId", String.class);
     TenantContext.withInTenant(
         companyId,
         () -> {

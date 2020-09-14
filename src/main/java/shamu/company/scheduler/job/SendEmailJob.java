@@ -25,8 +25,7 @@ public class SendEmailJob extends QuartzJobBean {
   @Override
   public void executeInternal(final JobExecutionContext jobExecutionContext) {
     final String emailId = QuartzUtil.getParameter(jobExecutionContext, "emailId", String.class);
-    String companyId = QuartzUtil.getParameter(jobExecutionContext, "companyId", String.class);
-    companyId = companyId.replace("\"", "");
+    final String companyId = QuartzUtil.getParameter(jobExecutionContext, "companyId", String.class);
     TenantContext.withInTenant(
         companyId,
         () -> {

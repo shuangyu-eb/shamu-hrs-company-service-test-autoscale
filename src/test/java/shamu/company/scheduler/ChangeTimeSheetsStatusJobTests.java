@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import shamu.company.utils.UuidUtil;
 
 public class ChangeTimeSheetsStatusJobTests {
   private static ChangeTimeSheetsStatusJob changeTimeSheetsStatusJob;
@@ -52,6 +53,7 @@ public class ChangeTimeSheetsStatusJobTests {
     void whenJobExecutionContextIsValid_thenShouldSuccess() {
       final Map<String, Object> jobParameter = new HashMap<>();
       jobParameter.put("timePeriodId", JsonUtil.formatToString(timePeriodId));
+      jobParameter.put("companyId", JsonUtil.formatToString(UuidUtil.getUuidString()));
       jobParameter.put(
           "fromStatus",
           JsonUtil.formatToString(StaticTimesheetStatus.TimeSheetStatus.NOT_YET_START.name()));

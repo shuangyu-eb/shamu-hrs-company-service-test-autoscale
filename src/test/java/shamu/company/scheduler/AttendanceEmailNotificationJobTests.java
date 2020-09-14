@@ -1,5 +1,8 @@
 package shamu.company.scheduler;
 
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -13,10 +16,7 @@ import shamu.company.attendance.service.AttendanceSetUpService;
 import shamu.company.email.service.EmailService;
 import shamu.company.scheduler.job.AttendanceEmailNotificationJob;
 import shamu.company.utils.JsonUtil;
-
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import shamu.company.utils.UuidUtil;
 
 public class AttendanceEmailNotificationJobTests {
   private static AttendanceEmailNotificationJob attendanceEmailNotificationJob;
@@ -38,6 +38,7 @@ public class AttendanceEmailNotificationJobTests {
     void whenJobExecutionContextIsValid_thenShouldSuccess() {
       final Map<String, Object> jobParameter = new HashMap<>();
       jobParameter.put("periodId", JsonUtil.formatToString(periodId));
+      jobParameter.put("companyId", JsonUtil.formatToString(UuidUtil.getUuidString()));
       jobParameter.put(
           "emailNotification",
           JsonUtil.formatToString(EmailService.EmailNotification.SUBMIT_TIME_SHEET));

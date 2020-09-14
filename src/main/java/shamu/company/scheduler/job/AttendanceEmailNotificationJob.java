@@ -4,6 +4,7 @@ import org.quartz.JobExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 import shamu.company.attendance.service.AttendanceSetUpService;
+import shamu.company.common.multitenant.TenantContext;
 import shamu.company.scheduler.QuartzUtil;
 
 import java.util.Date;
@@ -24,7 +25,9 @@ public class AttendanceEmailNotificationJob extends QuartzJobBean {
     final EmailNotification emailNotification =
         QuartzUtil.getParameter(jobExecutionContext, "emailNotification", EmailNotification.class);
     final Date sendDate = QuartzUtil.getParameter(jobExecutionContext, "sendDate", Date.class);
+    final String companyId =
+        QuartzUtil.getParameter(jobExecutionContext, "companyId", String.class);
 
-    attendanceSetUpService.sendEmailNotification(periodId, emailNotification, sendDate);
+    TenantContext.withInTenant(companyId, () -> attendanceSetUpService.sendEmailNotification(periodId, emailNotification, sendDate));
   }
 }

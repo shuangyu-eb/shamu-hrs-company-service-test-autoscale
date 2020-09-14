@@ -46,6 +46,7 @@ import shamu.company.attendance.repository.EmployeesTaSettingRepository;
 import shamu.company.attendance.repository.StaticTimeZoneRepository;
 import shamu.company.attendance.repository.StaticTimesheetStatusRepository;
 import shamu.company.common.entity.PayrollDetail;
+import shamu.company.common.multitenant.TenantContext;
 import shamu.company.common.service.PayrollDetailService;
 import shamu.company.company.entity.Office;
 import shamu.company.email.entity.Email;
@@ -315,6 +316,7 @@ public class AttendanceSetUpService {
     jobParameter.put("timePeriodId", timePeriodId);
     jobParameter.put("fromStatus", fromStatus.name());
     jobParameter.put("toStatus", toStatus.name());
+    includeCompanyIdToParameter(jobParameter);
 
     quartzJobScheduler.addOrUpdateJobSchedule(
         ChangeTimeSheetsStatusJob.class,
@@ -322,6 +324,10 @@ public class AttendanceSetUpService {
         String.format("change_timeSheets_status_from_%s_to_%s", fromStatus, toStatus),
         jobParameter,
         executeDate);
+  }
+
+  private void includeCompanyIdToParameter(Map<String, Object> params) {
+    params.put("companyId", TenantContext.getCurrentTenant());
   }
 
   public void scheduleTasks(
@@ -387,6 +393,7 @@ public class AttendanceSetUpService {
     jobParameter.put("periodId", periodId);
     jobParameter.put("emailNotification", emailNotification);
     jobParameter.put("sendDate", sendDate);
+    includeCompanyIdToParameter(jobParameter);
     return jobParameter;
   }
 
