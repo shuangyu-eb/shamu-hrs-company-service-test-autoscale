@@ -280,7 +280,8 @@ public class OvertimeService {
 
   public void editEmployeeOvertimePolicies(
       final List<EmployeeOvertimeDetailsDto> employeeOvertimeDetailsDtoList) {
-    saveEmployeeOvertimePolicies(employeeOvertimeDetailsDtoList, new ArrayList<>(), new Date());
+    saveEmployeeOvertimePolicies(
+        employeeOvertimeDetailsDtoList, overtimePolicyRepository.findAll(), new Date());
   }
 
   public List<UserCompensation> saveEmployeeOvertimePolicies(
