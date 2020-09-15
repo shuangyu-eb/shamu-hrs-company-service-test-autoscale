@@ -238,13 +238,7 @@ public class AttendanceSetUpService {
             parseDateWithZone(
                     timeAndAttendanceDetailsDto.getPeriodEndDate(), companyTimezone.getName())
                 .get());
-
-    saveCompanyTaSetting(
-        timeAndAttendanceDetailsDto.getPayPeriodFrequency(),
-        timeAndAttendanceDetailsDto.getPayDate(),
-        companyTimezone);
     saveEmployeeTaSettings(timeAndAttendanceDetailsDto, allTimezones);
-
     final List<UserCompensation> userCompensationList =
         overtimeService.saveEmployeeOvertimePolicies(
             overtimeDetailsDtoList, savedPolicies, periodStartDate);
