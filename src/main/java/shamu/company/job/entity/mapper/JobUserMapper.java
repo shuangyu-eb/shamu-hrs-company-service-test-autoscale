@@ -128,8 +128,8 @@ public interface JobUserMapper {
   @Mapping(target = "id", source = "user.id")
   @Mapping(target = "imageUrl", source = "user.imageUrl")
   @Mapping(
-      target = "compensation.overtimeStatus",
-      source = "jobUser.userCompensation.overtimeStatus")
+      target = "compensation.overtimePolicy",
+      source = "jobUser.userCompensation.overtimePolicy")
   @Mapping(target = "name", source = "name")
   TimeAndAttendanceRelatedUserDto convertToTimeAndAttendanceRelatedUserDto(
       User user, JobUser jobUser, String name);

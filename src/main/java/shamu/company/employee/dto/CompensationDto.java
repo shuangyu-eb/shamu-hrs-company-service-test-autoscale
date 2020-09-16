@@ -1,6 +1,7 @@
 package shamu.company.employee.dto;
 
 import lombok.Data;
+import shamu.company.attendance.dto.OvertimePolicyDto;
 
 @Data
 public class CompensationDto {
@@ -9,7 +10,7 @@ public class CompensationDto {
 
   private Double wage;
 
-  private CompensationOvertimeStatusDto overtimeStatus;
+  private OvertimePolicyDto overtimePolicy;
 
   private SelectFieldInformationDto compensationFrequency;
 }
