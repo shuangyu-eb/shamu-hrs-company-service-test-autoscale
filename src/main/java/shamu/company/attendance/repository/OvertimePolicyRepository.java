@@ -31,4 +31,21 @@ public interface OvertimePolicyRepository extends BaseRepository<OvertimePolicy,
 
   @Query(value = "select policy_name from overtime_policies where active = 1", nativeQuery = true)
   List<String> findAllPolicyNames();
+
+  @Modifying
+  @Query(
+          value =
+                  "update overtime_policies "
+                          + "set default_policy = 0 "
+                          + "where default_policy = 1 "
+                          + "AND  id != unhex(?1)",
+          nativeQuery = true)
+  void unsetOldDefaultOvertimePolices(String currentDefault);
+
+  @Query(
+          value=
+                  "select count(*) from overtime_policies "
+                          + "where active = 1 AND policy_name = ?1",
+          nativeQuery = true)
+  Integer countByPolicyName(String name);
 }

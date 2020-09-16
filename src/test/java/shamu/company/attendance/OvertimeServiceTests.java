@@ -23,6 +23,7 @@ import shamu.company.attendance.entity.TimePeriod;
 import shamu.company.attendance.entity.TimeSheet;
 import shamu.company.attendance.entity.mapper.OvertimePolicyMapper;
 import shamu.company.attendance.entity.mapper.PolicyDetailMapper;
+import shamu.company.attendance.exception.PolicyNameExistException;
 import shamu.company.attendance.pojo.OvertimePolicyOverviewPojo;
 import shamu.company.attendance.repository.OvertimePolicyRepository;
 import shamu.company.attendance.repository.PolicyDetailRepository;
@@ -46,6 +47,7 @@ import java.util.Date;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 public class OvertimeServiceTests {
   @InjectMocks OvertimeService overtimeService;
@@ -105,28 +107,6 @@ public class OvertimeServiceTests {
     assertThatCode(
             () ->
                 overtimeService.findAllOvertimeHours(employeeTimeLogs, timeSheet, companyTaSetting))
-        .doesNotThrowAnyException();
-  }
-
-  @Test
-  void saveNewOvertimePolicy() {
-    final StaticOvertimeType staticOvertimeType = new StaticOvertimeType();
-    staticOvertimeType.setName("DAILY");
-    final NewOvertimePolicyDto overtimePolicyDto = new NewOvertimePolicyDto();
-    final List<NewOvertimePolicyDetailDto> policyDetailDtos = new ArrayList<>();
-    final NewOvertimePolicyDetailDto overtimePolicyDetailDto = new NewOvertimePolicyDetailDto();
-    final PolicyDetail policyDetail = new PolicyDetail();
-    policyDetail.setStaticOvertimeType(staticOvertimeType);
-    overtimePolicyDetailDto.setStartMin(480);
-    overtimePolicyDetailDto.setOvertimeRate(1.5);
-    overtimePolicyDetailDto.setOvertimeType(StaticOvertimeType.OvertimeType.DAILY);
-    policyDetailDtos.add(overtimePolicyDetailDto);
-    overtimePolicyDto.setPolicyDetails(policyDetailDtos);
-    Mockito.when(staticOvertimeTypeRepository.findByName(Mockito.any()))
-        .thenReturn(staticOvertimeType);
-    Mockito.when(policyDetailMapper.convertToPolicyDetail(Mockito.any(), Mockito.any()))
-        .thenReturn(policyDetail);
-    assertThatCode(() -> overtimeService.saveNewOvertimePolicy(overtimePolicyDto))
         .doesNotThrowAnyException();
   }
 
@@ -249,6 +229,52 @@ public class OvertimeServiceTests {
               () ->
                   overtimeService.editEmployeeOvertimePolicies(
                       Arrays.asList(employeeOvertimeDetailsDto)))
+          .doesNotThrowAnyException();
+    }
+  }
+
+  @Nested
+  class saveNewOvertimePolicy {
+    StaticOvertimeType staticOvertimeType;
+    NewOvertimePolicyDto overtimePolicyDto;
+    List<NewOvertimePolicyDetailDto> policyDetailDtos;
+    NewOvertimePolicyDetailDto overtimePolicyDetailDto;
+    PolicyDetail policyDetail;
+    OvertimePolicy overtimePolicy;
+
+    @BeforeEach
+    void init() {
+      staticOvertimeType = new StaticOvertimeType();
+      staticOvertimeType.setName("DAILY");
+      overtimePolicyDto = new NewOvertimePolicyDto();
+      policyDetailDtos = new ArrayList<>();
+      overtimePolicyDetailDto = new NewOvertimePolicyDetailDto();
+      policyDetail = new PolicyDetail();
+      policyDetail.setStaticOvertimeType(staticOvertimeType);
+      overtimePolicyDetailDto.setStartMin(480);
+      overtimePolicyDetailDto.setOvertimeRate(1.5);
+      overtimePolicyDetailDto.setOvertimeType(StaticOvertimeType.OvertimeType.DAILY);
+      policyDetailDtos.add(overtimePolicyDetailDto);
+      overtimePolicyDto.setPolicyDetails(policyDetailDtos);
+      overtimePolicyDto.setPolicyName("1");
+      overtimePolicy = new OvertimePolicy();
+      overtimePolicy.setDefaultPolicy(true);
+    }
+
+    @Test
+    void whenNameExist() {
+      Mockito.when(overtimePolicyRepository.countByPolicyName(Mockito.anyString())).thenReturn(1);
+      assertThatExceptionOfType(PolicyNameExistException.class)
+          .isThrownBy(() -> overtimeService.saveNewOvertimePolicy(overtimePolicyDto));
+    }
+
+    @Test
+    void whenNameNotExist() {
+      Mockito.when(overtimePolicyRepository.countByPolicyName(Mockito.anyString())).thenReturn(0);
+      Mockito.when(policyDetailMapper.convertToPolicyDetail(Mockito.any(), Mockito.any()))
+          .thenReturn(policyDetail);
+      Mockito.when(overtimePolicyRepository.save(Mockito.any())).thenReturn(overtimePolicy);
+      assertThatCode(() -> overtimeService.saveNewOvertimePolicy(overtimePolicyDto))
           .doesNotThrowAnyException();
     }
   }

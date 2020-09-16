@@ -21,6 +21,7 @@ import shamu.company.attendance.entity.StaticTimezone;
 import shamu.company.attendance.entity.TimeSheet;
 import shamu.company.attendance.entity.mapper.OvertimePolicyMapper;
 import shamu.company.attendance.entity.mapper.PolicyDetailMapper;
+import shamu.company.attendance.exception.PolicyNameExistException;
 import shamu.company.attendance.pojo.OvertimePolicyOverviewPojo;
 import shamu.company.attendance.repository.OvertimePolicyRepository;
 import shamu.company.attendance.repository.PolicyDetailRepository;
@@ -167,25 +168,49 @@ public class OvertimeService {
     return rateToMin;
   }
 
-  public OvertimePolicy saveNewOvertimePolicy(final NewOvertimePolicyDto newOvertimePolicyDto) {
-    final List<NewOvertimePolicyDetailDto> policyDetailDtos =
-        newOvertimePolicyDto.getPolicyDetails();
+  private OvertimePolicy createNewOvetimePolicy(final NewOvertimePolicyDto newOvertimePolicyDto) {
     final OvertimePolicy newOvertimePolicy =
         overtimePolicyMapper.convertToOvertimePolicy(new OvertimePolicy(), newOvertimePolicyDto);
+    return overtimePolicyRepository.save(newOvertimePolicy);
+  }
+
+  private void saveNewOvertimeDetails(
+      final List<NewOvertimePolicyDetailDto> policyDetailDtos,
+      final OvertimePolicy newOvertimePolicy) {
     final List<PolicyDetail> policyDetails =
         policyDetailDtos.stream()
             .map(
                 (NewOvertimePolicyDetailDto overtimePolicyDto1) ->
                     policyDetailMapper.convertToPolicyDetail(overtimePolicyDto1, newOvertimePolicy))
             .collect(Collectors.toList());
-    policyDetails.stream()
-        .forEach(
-            policyDetail ->
-                policyDetail.setStaticOvertimeType(
-                    staticOvertimeTypeRepository.findByName(
-                        policyDetail.getStaticOvertimeType().getName())));
+    policyDetails.forEach(
+        policyDetail ->
+            policyDetail.setStaticOvertimeType(
+                staticOvertimeTypeRepository.findByName(
+                    policyDetail.getStaticOvertimeType().getName())));
     policyDetailRepository.saveAll(policyDetails);
-    return overtimePolicyRepository.save(newOvertimePolicy);
+  }
+
+  private void unsetOldDefaultPolicies(final String newDefaultPolicy) {
+    overtimePolicyRepository.unsetOldDefaultOvertimePolices(newDefaultPolicy);
+  }
+
+  private boolean overtimePolicyNameExists(final String name) {
+    return overtimePolicyRepository.countByPolicyName(name) > 0;
+  }
+
+  @Transactional
+  public OvertimePolicy saveNewOvertimePolicy(final NewOvertimePolicyDto newOvertimePolicyDto) {
+    if (overtimePolicyNameExists(newOvertimePolicyDto.getPolicyName())) {
+      throw new PolicyNameExistException(
+          "This Policy Already Exists", "POLICY NAME EXIST EXCEPTION");
+    }
+    final OvertimePolicy overtimePolicy = createNewOvetimePolicy(newOvertimePolicyDto);
+    saveNewOvertimeDetails(newOvertimePolicyDto.getPolicyDetails(), overtimePolicy);
+    if (Boolean.TRUE.equals(overtimePolicy.getDefaultPolicy())) {
+      unsetOldDefaultPolicies(overtimePolicy.getId());
+    }
+    return overtimePolicy;
   }
 
   @Transactional
