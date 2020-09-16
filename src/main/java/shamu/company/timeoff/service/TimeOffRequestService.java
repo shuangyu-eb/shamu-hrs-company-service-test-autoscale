@@ -518,7 +518,8 @@ public class TimeOffRequestService {
                 user, timeOffRequest.getTimeOffPolicy());
         final TimeOffBreakdownDto timeOffBreakdownDto =
             timeOffDetailService.getTimeOffBreakdown(timeOffPolicyUser.getId(), endDate);
-        if (timeOffBreakdownDto.getBalance() < 0) {
+
+        if (timeOffBreakdownDto.getBalance() != null && timeOffBreakdownDto.getBalance() < 0) {
           timeOffHours += timeOffBreakdownDto.getBalance();
         }
         timeOffPolicyId.add(timeOffRequest.getTimeOffPolicy().getId());
