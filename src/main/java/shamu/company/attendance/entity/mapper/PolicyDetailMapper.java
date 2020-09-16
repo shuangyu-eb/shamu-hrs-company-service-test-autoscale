@@ -11,12 +11,13 @@ import shamu.company.common.mapper.Config;
 
 @Mapper(config = Config.class)
 public interface PolicyDetailMapper {
+  @Mapping(target = "id", ignore = true)
   @Mapping(target = "start", source = "overtimePolicyDto.startMin")
   @Mapping(target = "staticOvertimeType", source = "overtimePolicyDto.overtimeType")
   @Mapping(target = "rate", source = "overtimePolicyDto.overtimeRate")
   @Mapping(target = "overtimePolicy", source = "overtimePolicy")
   PolicyDetail convertToPolicyDetail(
-          NewOvertimePolicyDetailDto overtimePolicyDto, OvertimePolicy overtimePolicy);
+      NewOvertimePolicyDetailDto overtimePolicyDto, OvertimePolicy overtimePolicy);
 
   @Mapping(target = "id", source = "overtimePolicyDto.id")
   @Mapping(target = "start", source = "overtimePolicyDto.startMin")
@@ -26,13 +27,13 @@ public interface PolicyDetailMapper {
   PolicyDetail convertDtoToPolicyDetail(
       OvertimePolicyDetailDto overtimePolicyDto, OvertimePolicy overtimePolicy);
 
-  @Mapping(target = "startMin", source="policyDetail.start")
-  @Mapping(target = "overtimeType", source="policyDetail.staticOvertimeType")
-  @Mapping(target = "overtimeRate", source="policyDetail.rate")
-  OvertimePolicyDetailDto convertToOvertimePolicyDetailDto(
-          PolicyDetail policyDetail);
+  @Mapping(target = "startMin", source = "policyDetail.start")
+  @Mapping(target = "overtimeType", source = "policyDetail.staticOvertimeType")
+  @Mapping(target = "overtimeRate", source = "policyDetail.rate")
+  OvertimePolicyDetailDto convertToOvertimePolicyDetailDto(PolicyDetail policyDetail);
 
-  default StaticOvertimeType.OvertimeType covertByStaticOvertimeType(final StaticOvertimeType staticOvertimeType){
+  default StaticOvertimeType.OvertimeType covertByStaticOvertimeType(
+      final StaticOvertimeType staticOvertimeType) {
     return StaticOvertimeType.OvertimeType.valueOf(staticOvertimeType.getName());
   }
 
