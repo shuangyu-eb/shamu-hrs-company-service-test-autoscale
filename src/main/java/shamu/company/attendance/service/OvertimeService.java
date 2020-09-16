@@ -241,7 +241,7 @@ public class OvertimeService {
 
   public List<OvertimePolicyOverviewDto> findAllOvertimePolicies() {
     final List<OvertimePolicyOverviewPojo> overtimePolicyOverviewPojoList =
-        overtimePolicyRepository.findOvertimeOverview();
+        sortOvertimePolicies(overtimePolicyRepository.findOvertimeOverview());
     final List<OvertimePolicyOverviewDto> overtimePolicyOverviewDtoList = new ArrayList<>();
     overtimePolicyOverviewPojoList.forEach(
         overtimePolicyOverviewPojo -> {
@@ -251,6 +251,21 @@ public class OvertimeService {
           overtimePolicyOverviewDtoList.add(overtimePolicyOverviewDto);
         });
     return overtimePolicyOverviewDtoList;
+  }
+
+  private List<OvertimePolicyOverviewPojo> sortOvertimePolicies(
+      final List<OvertimePolicyOverviewPojo> overtimePolicyOverviewPojoList) {
+    final List<OvertimePolicyOverviewPojo> sortedList = new ArrayList<>();
+    for (final OvertimePolicyOverviewPojo overtimePolicyOverviewPojo :
+        overtimePolicyOverviewPojoList) {
+      if (DEFAULT_OVERTIME_POLICY_NAME.equals(overtimePolicyOverviewPojo.getPolicyName())) {
+        sortedList.add(overtimePolicyOverviewPojo);
+        overtimePolicyOverviewPojoList.remove(overtimePolicyOverviewPojo);
+        break;
+      }
+    }
+    sortedList.addAll(overtimePolicyOverviewPojoList);
+    return sortedList;
   }
 
   public OvertimePolicy findDefaultPolicy() {
