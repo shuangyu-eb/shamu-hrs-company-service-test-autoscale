@@ -251,6 +251,7 @@ public class OvertimeServiceTests {
       overtimePolicyDetailDto = new NewOvertimePolicyDetailDto();
       policyDetail = new PolicyDetail();
       policyDetail.setStaticOvertimeType(staticOvertimeType);
+      policyDetail.setStart(1);
       overtimePolicyDetailDto.setStartMin(480);
       overtimePolicyDetailDto.setOvertimeRate(1.5);
       overtimePolicyDetailDto.setOvertimeType(StaticOvertimeType.OvertimeType.DAILY);

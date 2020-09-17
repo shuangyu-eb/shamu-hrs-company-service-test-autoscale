@@ -50,6 +50,7 @@ import java.util.stream.Collectors;
 public class OvertimeService {
 
   private static final int CONVERT_SECOND_TO_MS = 1000;
+  private static final int CONVERT_HOUR_TO_MIN = 60;
   private static final String DEFAULT_OVERTIME_POLICY_NAME = "NOT ELIGIBLE";
 
   private final GenericHoursService genericHoursService;
@@ -184,10 +185,12 @@ public class OvertimeService {
                     policyDetailMapper.convertToPolicyDetail(overtimePolicyDto1, newOvertimePolicy))
             .collect(Collectors.toList());
     policyDetails.forEach(
-        policyDetail ->
-            policyDetail.setStaticOvertimeType(
-                staticOvertimeTypeRepository.findByName(
-                    policyDetail.getStaticOvertimeType().getName())));
+        policyDetail -> {
+          policyDetail.setStaticOvertimeType(
+              staticOvertimeTypeRepository.findByName(
+                  policyDetail.getStaticOvertimeType().getName()));
+          policyDetail.setStart(policyDetail.getStart() * CONVERT_HOUR_TO_MIN);
+        });
     policyDetailRepository.saveAll(policyDetails);
   }
 
