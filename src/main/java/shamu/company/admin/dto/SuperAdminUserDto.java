@@ -1,5 +1,6 @@
 package shamu.company.admin.dto;
 
+import java.sql.Timestamp;
 import lombok.Data;
 import lombok.ToString;
 import shamu.company.user.entity.User;
@@ -23,6 +24,8 @@ public class SuperAdminUserDto {
 
   private Boolean verified;
 
+  private Timestamp joinDate;
+
   @ToString.Exclude private String auth0UserId;
 
   public SuperAdminUserDto(final User user) {
@@ -35,5 +38,6 @@ public class SuperAdminUserDto {
     auth0UserId = user.getId();
     role = user.getRole().getValue();
     verified = user.getVerifiedAt() != null;
+    joinDate = user.getCreatedAt();
   }
 }

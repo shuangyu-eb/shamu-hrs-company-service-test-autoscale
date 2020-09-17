@@ -38,7 +38,8 @@ public class PageRequestDto {
     NAME("userPersonalInformation.firstName"),
     COMPANY("company.name"),
     ROLE("userRole.name"),
-    EMAIL("userContactInformation.emailWork");
+    EMAIL("userContactInformation.emailWork"),
+    JOIN_DATE("createdAt");
     private final String value;
 
     Field(final String value) {
