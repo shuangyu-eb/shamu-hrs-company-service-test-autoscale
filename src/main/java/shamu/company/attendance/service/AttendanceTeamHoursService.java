@@ -1,14 +1,5 @@
 package shamu.company.attendance.service;
 
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -31,11 +22,20 @@ import shamu.company.common.service.PayrollDetailService;
 import shamu.company.timeoff.service.TimeOffRequestService;
 import shamu.company.user.entity.User;
 
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 @Transactional
 @Service
 public class AttendanceTeamHoursService {
   private static final int CONVERT_HOUR_TO_MIN = 60;
-  private static final String HOUR_TYPE = "Per Hour";
   private static final String TEAM_HOURS_TYPE = "team_hours";
   private static final String COMPANY_HOURS_TYPE = "company_hours";
   private static final double ONE_POINT_FIVE_RATE = 1.5;
@@ -240,11 +240,7 @@ public class AttendanceTeamHoursService {
         currentOvertimeMin += overtimeMinute.getValue();
       }
 
-      final String compensationFrequency =
-          timeSheet.getUserCompensation().getCompensationFrequency().getName();
-      if (compensationFrequency.equals(HOUR_TYPE)) {
-        totalRegularMin += workedMin - currentOvertimeMin;
-      }
+      totalRegularMin += workedMin - currentOvertimeMin;
       totalOvertimeMin += currentOvertimeMin;
     }
     return AttendanceSummaryDto.builder()
