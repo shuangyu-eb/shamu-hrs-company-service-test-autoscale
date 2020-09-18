@@ -22,7 +22,6 @@ import org.mockito.MockitoAnnotations;
 import org.powermock.reflect.Whitebox;
 import org.springframework.context.ApplicationEventPublisher;
 import org.thymeleaf.context.Context;
-import shamu.company.attendance.repository.StaticTimeZoneRepository;
 import shamu.company.common.entity.StateProvince;
 import shamu.company.common.exception.errormapping.AlreadyExistsException;
 import shamu.company.common.exception.errormapping.ForbiddenException;
@@ -53,7 +52,6 @@ import shamu.company.employee.event.Auth0UserCreatedEvent;
 import shamu.company.employee.service.EmployeeService;
 import shamu.company.employee.service.EmploymentTypeService;
 import shamu.company.helpers.auth0.Auth0Helper;
-import shamu.company.helpers.googlemaps.GoogleMapsHelper;
 import shamu.company.helpers.s3.AwsHelper;
 import shamu.company.info.dto.UserEmergencyContactDto;
 import shamu.company.info.entity.mapper.UserEmergencyContactMapper;
@@ -143,8 +141,6 @@ class EmployeeServiceTests {
   @Mock private CompensationOvertimeStatusService compensationOvertimeStatusService;
   @Mock private DepartmentService departmentService;
   @Mock private CompanyService companyService;
-  @Mock private GoogleMapsHelper googleMapsHelper;
-  @Mock private StaticTimeZoneRepository staticTimeZoneRepository;
 
   private EmployeeService employeeService;
 
@@ -184,9 +180,7 @@ class EmployeeServiceTests {
             employeeTypesService,
             compensationOvertimeStatusService,
             companyService,
-            departmentService,
-            googleMapsHelper,
-            staticTimeZoneRepository);
+            departmentService);
   }
 
   @Test
@@ -295,8 +289,6 @@ class EmployeeServiceTests {
       employeeDto.setUserContactInformationDto(userContactInformationDto);
 
       Mockito.when(officeService.findById("officeId")).thenReturn(office);
-      Mockito.when(googleMapsHelper.findTimezoneByPostalCode(Mockito.anyString()))
-          .thenReturn("timezone");
       Whitebox.invokeMethod(employeeService, "saveEmployeeBasicInformation", employeeDto);
       Mockito.verify(userService, Mockito.times(1)).createNewEmployee(Mockito.any());
     }
@@ -568,8 +560,6 @@ class EmployeeServiceTests {
       Mockito.when(userService.save(Mockito.any())).thenReturn(currentUser);
       Mockito.when(userService.createNewEmployee(Mockito.any())).thenReturn(currentUser);
       Mockito.when(officeService.findById(Mockito.any())).thenReturn(office);
-      Mockito.when(googleMapsHelper.findTimezoneByPostalCode(Mockito.anyString()))
-          .thenReturn("timezone");
       Mockito.when(
               emailService.getWelcomeEmailContextToEmail(
                   Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))

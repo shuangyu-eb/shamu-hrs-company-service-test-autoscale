@@ -19,6 +19,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import shamu.company.attendance.entity.OvertimePolicy;
 import shamu.company.attendance.entity.TimePeriod;
+import shamu.company.attendance.repository.StaticTimeZoneRepository;
 import shamu.company.attendance.service.OvertimeService;
 import shamu.company.attendance.service.TimePeriodService;
 import shamu.company.common.service.DepartmentService;
@@ -97,8 +98,9 @@ class JobUserServiceTests {
   private JobUserService jobUserService;
   @Mock private CompensationOvertimeStatusService compensationOvertimeStatusService;
   @Mock private UserCompensationService userCompensationService;
-  @Mock private GoogleMapsHelper googleMapsHelper;
   @Mock private OvertimeService overtimeService;
+  @Mock private GoogleMapsHelper googleMapsHelper;
+  @Mock private StaticTimeZoneRepository staticTimeZoneRepository;
 
   @BeforeEach
   void setUp() {
@@ -126,8 +128,9 @@ class JobUserServiceTests {
             compensationOvertimeStatusService,
             timePeriodService,
             userCompensationService,
+            overtimeService,
             googleMapsHelper,
-            overtimeService);
+            staticTimeZoneRepository);
   }
 
   @Test
@@ -528,10 +531,11 @@ class JobUserServiceTests {
       officeCreateDto.setStreet1("s1");
       officeCreateDto.setStreet2("s2");
       officeCreateDto.setPostalCode("postalCode");
+      officeCreateDto.setPlaceId("placeId");
       jobSelectOptionUpdateDto.setOfficeCreateDto(officeCreateDto);
 
       final OfficeAddress officeAddress =
-          officeAddressMapper.updateFromOfficeCreateDto(office.getOfficeAddress(), officeCreateDto);
+          officeAddressMapper.updateFromOfficeCreateDto(office.getOfficeAddress(), officeCreateDto, null);
 
       final Office newOffice = officeMapper.convertToOffice(office, officeCreateDto, officeAddress);
 
@@ -540,8 +544,6 @@ class JobUserServiceTests {
       Mockito.when(officeService.findByName(officeCreateDto.getOfficeName()))
           .thenReturn(Collections.emptyList());
       Mockito.when(officeService.save(newOffice)).thenReturn(newOffice);
-      Mockito.when(googleMapsHelper.findTimezoneByPostalCode(Mockito.anyString()))
-          .thenReturn("timezone");
       Assertions.assertDoesNotThrow(
           () -> jobUserService.updateJobSelectOption(jobSelectOptionUpdateDto));
       Mockito.verify(officeService, Mockito.times(1)).save(Mockito.any());
@@ -668,7 +670,6 @@ class JobUserServiceTests {
     private JobUserHireDateCheckDto jobUserHireDateCheckDto;
     private User user;
     private JobUser jobUser;
-    private TimeOffPolicyUser timeOffPolicyUser;
 
     @BeforeEach
     void init() {

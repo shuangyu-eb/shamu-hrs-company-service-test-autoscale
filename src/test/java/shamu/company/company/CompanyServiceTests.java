@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import shamu.company.attendance.repository.StaticTimeZoneRepository;
 import shamu.company.common.entity.StateProvince;
 import shamu.company.common.entity.Tenant;
 import shamu.company.common.exception.errormapping.AlreadyExistsException;
@@ -22,6 +23,7 @@ import shamu.company.common.service.OfficeService;
 import shamu.company.common.service.StateProvinceService;
 import shamu.company.common.service.TenantService;
 import shamu.company.company.dto.CompanyBenefitsSettingDto;
+import shamu.company.company.dto.OfficeCreateDto;
 import shamu.company.company.entity.Company;
 import shamu.company.company.entity.CompanyBenefitsSetting;
 import shamu.company.company.entity.Department;
@@ -42,6 +44,7 @@ public class CompanyServiceTests {
 
   private final Department department = new Department();
   private final Office office = new Office();
+  private final OfficeCreateDto officeCreateDto = new OfficeCreateDto();
   private final EmploymentType type = new EmploymentType();
   private final CompanyBenefitsSetting benefitsSetting = new CompanyBenefitsSetting();
   @Mock private CompanyRepository companyRepository;
@@ -56,6 +59,7 @@ public class CompanyServiceTests {
   @Mock private TenantService tenantService;
   @Mock private CompanyMapper companyMapper;
   @Mock private GoogleMapsHelper googleMapsHelper;
+  @Mock private StaticTimeZoneRepository staticTimeZoneRepository;
   private CompanyService companyService;
 
   @BeforeEach
@@ -74,11 +78,14 @@ public class CompanyServiceTests {
             companyBenefitsSettingService,
             companyMapper,
             tenantService,
-            googleMapsHelper);
+            googleMapsHelper,
+            staticTimeZoneRepository);
     department.setId("1");
     department.setName("name");
     office.setId("1");
     office.setName("name");
+    officeCreateDto.setPlaceId("placeId");
+    officeCreateDto.setOfficeName("officeName");
     type.setId("1");
     type.setName("name");
   }
@@ -146,11 +153,12 @@ public class CompanyServiceTests {
     stateProvince.setId("1");
     officeAddress.setStateProvince(stateProvince);
     officeAddress.setPostalCode("02114");
-    office.setOfficeAddress(officeAddress);
+    officeAddress.setCity("city");
     Mockito.when(stateProvinceService.findById(Mockito.anyString())).thenReturn(stateProvince);
+    Mockito.when(officeAddressMapper.updateFromOfficeCreateDto(
+        Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(new OfficeAddress());
     Mockito.when(officeService.findByName(Mockito.anyString())).thenReturn(Collections.EMPTY_LIST);
-    Mockito.when(googleMapsHelper.findTimezoneByPostalCode("02114")).thenReturn("timezone");
-    assertThatCode(() -> companyService.saveOffice(office)).doesNotThrowAnyException();
+    assertThatCode(() -> companyService.saveOffice(officeCreateDto)).doesNotThrowAnyException();
   }
 
   @Test

@@ -3,6 +3,7 @@ package shamu.company.company.entity.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import shamu.company.attendance.entity.StaticTimezone;
 import shamu.company.common.mapper.Config;
 import shamu.company.company.dto.OfficeAddressDto;
 import shamu.company.company.dto.OfficeCreateDto;
@@ -17,7 +18,11 @@ public interface OfficeAddressMapper {
   @Mapping(target = "countryName", source = "stateProvince.country.name")
   OfficeAddressDto convertToOfficeAddressDto(OfficeAddress officeAddress);
 
-  @Mapping(target = "stateProvince", source = "stateId")
+  @Mapping(target = "id", ignore = true)
+  @Mapping(target = "createdAt", ignore = true)
+  @Mapping(target = "updatedAt", ignore = true)
+  @Mapping(target = "stateProvince", source = "officeCreateDto.stateId")
+  @Mapping(target = "timeZone", source = "staticTimezone")
   OfficeAddress updateFromOfficeCreateDto(
-      @MappingTarget OfficeAddress officeAddress, OfficeCreateDto officeCreateDto);
+      @MappingTarget OfficeAddress officeAddress, OfficeCreateDto officeCreateDto, StaticTimezone staticTimezone);
 }

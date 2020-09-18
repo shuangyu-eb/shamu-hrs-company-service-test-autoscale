@@ -15,7 +15,8 @@ public class OfficeService {
   private final OfficeRepository officeRepository;
 
   @Autowired
-  public OfficeService(final OfficeRepository officeRepository) {
+  public OfficeService(
+      final OfficeRepository officeRepository) {
     this.officeRepository = officeRepository;
   }
 

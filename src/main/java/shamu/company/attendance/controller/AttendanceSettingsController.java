@@ -54,13 +54,13 @@ public class AttendanceSettingsController extends BaseRestController {
     this.overtimeService = overtimeService;
   }
 
-  @GetMapping("time-and-attendance/companySettings")
+  @GetMapping("time-and-attendance/company-settings")
   public CompanyTaSettingsDto findCompanySettings() {
     return companyTaSettingsMapper.convertToCompanyTaSettingsDto(
         attendanceSettingsService.findCompanySetting(), payrollDetailService.find());
   }
 
-  @GetMapping("time-and-attendance/employeeSettings/{employeeId}")
+  @GetMapping("time-and-attendance/employee-settings/{employeeId}")
   public EmployeesTaSettingDto findEmployeeSettings(@PathVariable final String employeeId) {
     return attendanceSettingsService.findEmployeesSettings(employeeId);
   }
@@ -71,14 +71,14 @@ public class AttendanceSettingsController extends BaseRestController {
     return ReflectionUtil.convertTo(staticTimezones, StaticTimezoneDto.class);
   }
 
-  @PatchMapping("time-and-attendance/companySettings")
+  @PatchMapping("time-and-attendance/company-settings")
   public HttpEntity<String> updateCompanySettings(
       @RequestBody final CompanyTaSettingsDto companyTaSettingsDto) {
     attendanceSettingsService.updateCompanySettings(companyTaSettingsDto);
     return new ResponseEntity<>(HttpStatus.OK);
   }
 
-  @PatchMapping("time-and-attendance/{employeeId}/employeeSettings")
+  @PatchMapping("time-and-attendance/{employeeId}/employee-settings")
   public HttpEntity<String> updateEmployeeSettings(
       @PathVariable final String employeeId,
       @RequestBody final EmployeesTaSettingDto employeesTaSettingDto) {
@@ -86,7 +86,7 @@ public class AttendanceSettingsController extends BaseRestController {
     return new ResponseEntity<>(HttpStatus.OK);
   }
 
-  @GetMapping("time-and-attendance/{employeeId}/IsInAttendance")
+  @GetMapping("time-and-attendance/{employeeId}/is-in-attendance")
   public boolean isInAttendance(@PathVariable final String employeeId) {
     return attendanceSettingsService.findEmployeeIsAttendanceSetUp(employeeId);
   }
@@ -118,12 +118,6 @@ public class AttendanceSettingsController extends BaseRestController {
   @DeleteMapping("time-and-attendance/delete-overtime-policy/{policyId}")
   public HttpEntity<String> deleteOvertimePolicy(@PathVariable final String policyId) {
     overtimeService.softDeleteOvertimePolicy(policyId);
-    return new ResponseEntity<>(HttpStatus.OK);
-  }
-
-  @GetMapping("time-and-attendance/initialize-default-timezone")
-  public HttpEntity<String> initializeTimezones() {
-    attendanceSettingsService.initialTimezoneForOldDatas();
     return new ResponseEntity<>(HttpStatus.OK);
   }
 

@@ -107,8 +107,6 @@ public class AttendanceSetUpServiceTests {
 
   @Mock private CompanyService companyService;
 
-  @Mock private GoogleMapsHelper googleMapsHelper;
-
   @Mock private CompanyTaSettingsMapper companyTaSettingsMapper;
 
   @Mock private EmployeesTaSettingsMapper employeesTaSettingsMapper;
@@ -210,6 +208,7 @@ public class AttendanceSetUpServiceTests {
       timeAndAttendanceDetailsDto.setPeriodStartDate("01/01/2020");
       timeAndAttendanceDetailsDto.setPeriodEndDate("01/03/2020");
       officeAddress.setPostalCode("postalCode");
+      officeAddress.setTimeZone(staticTimezone);
       office.setOfficeAddress(officeAddress);
       jobUser.setOffice(office);
       staticTimezone.setName("America/Chicago");
@@ -220,6 +219,7 @@ public class AttendanceSetUpServiceTests {
       set.add("postalCode");
       attendancePolicyAndDetailDto.setAttendanceDetails(timeAndAttendanceDetailsDto);
       attendancePolicyAndDetailDto.setOvertimePolicyDetails(newOvertimePolicyDtos);
+      Mockito.when(jobUserRepository.findByUserId(Mockito.anyString())).thenReturn(jobUser);
     }
 
     @Test
@@ -231,7 +231,6 @@ public class AttendanceSetUpServiceTests {
       Mockito.when(attendanceSettingsService.saveCompanyTaSetting(Mockito.any()))
           .thenReturn(companyTaSetting);
       Mockito.when(attendanceSettingsService.findCompanySetting()).thenReturn(companyTaSetting);
-      Mockito.when(googleMapsHelper.findTimezoneByPostalCode(set)).thenReturn(timezones);
       Mockito.when(timePeriodService.save(Mockito.any())).thenReturn(timePeriod);
       Mockito.when(staticTimeZoneRepository.findByName("timezone")).thenReturn(staticTimezone);
       assertThatCode(
@@ -263,12 +262,12 @@ public class AttendanceSetUpServiceTests {
       final Office office = new Office();
       final OfficeAddress officeAddress = new OfficeAddress();
       officeAddress.setPostalCode("postalCode");
+      officeAddress.setTimeZone(staticTimezone);
       office.setOfficeAddress(officeAddress);
       jobUser.setOffice(office);
 
       Mockito.when(jobUserRepository.findByUserId(Mockito.anyString())).thenReturn(jobUser);
       Mockito.when(timeSheetService.saveAll(Mockito.any())).thenReturn(Mockito.any());
-      Mockito.when(googleMapsHelper.findTimezoneByPostalCode(set)).thenReturn(timezones);
       Mockito.when(staticTimeZoneRepository.findByName("timezone")).thenReturn(staticTimezone);
       Mockito.when(timePeriodService.save(Mockito.any())).thenReturn(timePeriod);
       assertThatCode(
@@ -302,7 +301,6 @@ public class AttendanceSetUpServiceTests {
           .thenReturn(Optional.of(new CompensationOvertimeStatus()));
       Mockito.when(jobUserRepository.findByUserId(Mockito.any())).thenReturn(jobUser);
       Mockito.when(timeSheetService.saveAll(Mockito.any())).thenReturn(Mockito.any());
-      Mockito.when(googleMapsHelper.findTimezoneByPostalCode(set)).thenReturn(timezones);
       Mockito.when(staticTimeZoneRepository.findByName("timezone")).thenReturn(staticTimezone);
       assertThatCode(
               () ->

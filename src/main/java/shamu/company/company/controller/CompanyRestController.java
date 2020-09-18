@@ -22,7 +22,6 @@ import shamu.company.company.dto.OfficeCreateDto;
 import shamu.company.company.dto.OfficeDto;
 import shamu.company.company.dto.OfficeSizeDto;
 import shamu.company.company.entity.Department;
-import shamu.company.company.entity.Office;
 import shamu.company.company.entity.mapper.OfficeMapper;
 import shamu.company.company.service.CompanyService;
 import shamu.company.employee.dto.SelectFieldInformationDto;
@@ -83,8 +82,7 @@ public class CompanyRestController extends BaseRestController {
   @PostMapping("offices")
   @PreAuthorize("hasAuthority('CREATE_OFFICE')")
   public OfficeDto saveOffice(@RequestBody final OfficeCreateDto officeCreateDto) {
-    final Office office = officeCreateDto.getOffice();
-    return officeMapper.convertToOfficeDto(companyService.saveOffice(office));
+    return officeMapper.convertToOfficeDto(companyService.saveOffice(officeCreateDto));
   }
 
   @GetMapping("user-options")
@@ -113,9 +111,9 @@ public class CompanyRestController extends BaseRestController {
     return users.stream()
         .map(
             user -> {
-              UserPersonalInformation userInfo = user.getUserPersonalInformation();
+              final UserPersonalInformation userInfo = user.getUserPersonalInformation();
               if (userInfo != null) {
-                String returnName = userService.getUserNameInUsers(user, users);
+                final String returnName = userService.getUserNameInUsers(user, users);
                 return new SelectFieldInformationDto(user.getId(), returnName);
               }
               return null;

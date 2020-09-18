@@ -12,11 +12,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shamu.company.attendance.dto.EmployeeInfoDto;
 import shamu.company.attendance.entity.OvertimePolicy;
+import shamu.company.attendance.entity.StaticTimezone;
 import shamu.company.attendance.entity.TimePeriod;
+import shamu.company.attendance.repository.StaticTimeZoneRepository;
 import shamu.company.attendance.service.OvertimeService;
 import shamu.company.attendance.service.TimePeriodService;
 import shamu.company.common.exception.errormapping.AlreadyExistsException;
-import shamu.company.common.exception.errormapping.ZipCodeNotExistException;
 import shamu.company.common.service.DepartmentService;
 import shamu.company.common.service.OfficeAddressService;
 import shamu.company.common.service.OfficeService;
@@ -113,9 +114,11 @@ public class JobUserService {
 
   private final UserCompensationService userCompensationService;
 
+  private final OvertimeService overtimeService;
+
   private final GoogleMapsHelper googleMapsHelper;
 
-  private final OvertimeService overtimeService;
+  private final StaticTimeZoneRepository staticTimeZoneRepository;
 
   public JobUserService(
       final JobUserRepository jobUserRepository,
@@ -139,8 +142,9 @@ public class JobUserService {
       final CompensationOvertimeStatusService compensationOvertimeStatusService,
       final TimePeriodService timePeriodService,
       final UserCompensationService userCompensationService,
+      final OvertimeService overtimeService,
       final GoogleMapsHelper googleMapsHelper,
-      final OvertimeService overtimeService) {
+      final StaticTimeZoneRepository staticTimeZoneRepository) {
     this.jobUserRepository = jobUserRepository;
     this.userService = userService;
     this.userCompensationMapper = userCompensationMapper;
@@ -162,8 +166,9 @@ public class JobUserService {
     this.compensationOvertimeStatusService = compensationOvertimeStatusService;
     this.timePeriodService = timePeriodService;
     this.userCompensationService = userCompensationService;
-    this.googleMapsHelper = googleMapsHelper;
     this.overtimeService = overtimeService;
+    this.googleMapsHelper = googleMapsHelper;
+    this.staticTimeZoneRepository = staticTimeZoneRepository;
   }
 
   public JobUser save(final JobUser jobUser) {
@@ -355,15 +360,16 @@ public class JobUserService {
     if (!oldOffices.isEmpty()) {
       throw new AlreadyExistsException("Office already exists.", "office");
     }
-    final String timezone =
-        googleMapsHelper.findTimezoneByPostalCode(officeCreateDto.getPostalCode());
-    if (timezone.isEmpty()) {
-      throw new ZipCodeNotExistException("Office zipCode is error.");
-    }
+
+    StaticTimezone staticTimezone = null;
     office.setName(officeCreateDto.getOfficeName());
+    if (!officeCreateDto.getPlaceId().isEmpty()) {
+      final String timezoneName = googleMapsHelper.findTimezoneByPlaceId(officeCreateDto.getPlaceId());
+      staticTimezone = staticTimeZoneRepository.findByName(timezoneName);
+    }
 
     final OfficeAddress officeAddress =
-        officeAddressMapper.updateFromOfficeCreateDto(office.getOfficeAddress(), officeCreateDto);
+        officeAddressMapper.updateFromOfficeCreateDto(office.getOfficeAddress(), officeCreateDto, staticTimezone);
 
     final Office newOffice = officeMapper.convertToOffice(office, officeCreateDto, officeAddress);
     officeService.save(newOffice);

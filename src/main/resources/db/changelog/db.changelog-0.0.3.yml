@@ -266,3 +266,23 @@ databaseChangeLog:
             referencedColumnNames: id
             referencedTableName: overtime_policies
 
+  - changeSet:
+      id: 1600313556381
+      author: lei-eb
+      preConditions:
+        onFail: WARN
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: time_zone_id
+                  type: binary(16)
+            tableName: office_addresses
+        - addForeignKeyConstraint:
+            baseColumnNames: time_zone_id
+            baseTableName: office_addresses
+            constraintName: fk_office_addresses_static_timezones_time_zone_id
+            onDelete: SET NULL
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: static_timezones

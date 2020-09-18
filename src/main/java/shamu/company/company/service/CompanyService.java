@@ -4,15 +4,17 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import shamu.company.attendance.entity.StaticTimezone;
+import shamu.company.attendance.repository.StaticTimeZoneRepository;
 import shamu.company.common.entity.StateProvince;
 import shamu.company.common.entity.Tenant;
 import shamu.company.common.exception.errormapping.AlreadyExistsException;
-import shamu.company.common.exception.errormapping.ZipCodeNotExistException;
 import shamu.company.common.service.DepartmentService;
 import shamu.company.common.service.OfficeService;
 import shamu.company.common.service.StateProvinceService;
 import shamu.company.common.service.TenantService;
 import shamu.company.company.dto.CompanyBenefitsSettingDto;
+import shamu.company.company.dto.OfficeCreateDto;
 import shamu.company.company.dto.OfficeSizeDto;
 import shamu.company.company.entity.Company;
 import shamu.company.company.entity.CompanyBenefitsSetting;
@@ -58,6 +60,8 @@ public class CompanyService {
 
   private final GoogleMapsHelper googleMapsHelper;
 
+  private final StaticTimeZoneRepository staticTimeZoneRepository;
+
   @Autowired
   public CompanyService(
       final CompanyRepository companyRepository,
@@ -71,7 +75,8 @@ public class CompanyService {
       final CompanyBenefitsSettingService companyBenefitsSettingService,
       final CompanyMapper companyMapper,
       final TenantService tenantService,
-      final GoogleMapsHelper googleMapsHelper) {
+      final GoogleMapsHelper googleMapsHelper,
+      final StaticTimeZoneRepository staticTimeZoneRepository) {
     this.companyRepository = companyRepository;
     this.departmentService = departmentService;
     this.employmentTypeService = employmentTypeService;
@@ -84,6 +89,7 @@ public class CompanyService {
     this.companyMapper = companyMapper;
     this.tenantService = tenantService;
     this.googleMapsHelper = googleMapsHelper;
+    this.staticTimeZoneRepository = staticTimeZoneRepository;
   }
 
   public Boolean existsByName(final String companyName) {
@@ -160,27 +166,22 @@ public class CompanyService {
         .collect(Collectors.toList());
   }
 
-  public Office saveOffice(final Office office) {
-    final List<Office> oldOffices = officeService.findByName(office.getName());
+  public Office saveOffice(final OfficeCreateDto officeCreateDto) {
+    final List<Office> oldOffices = officeService.findByName(officeCreateDto.getOfficeName());
     if (!oldOffices.isEmpty()) {
       throw new AlreadyExistsException("Office already exists.", "office");
     }
-    final OfficeAddress officeAddress = office.getOfficeAddress();
-    final String timezone =
-        googleMapsHelper.findTimezoneByPostalCode(officeAddress.getPostalCode());
-    if (timezone.isEmpty()) {
-      throw new ZipCodeNotExistException("Office zipCode is error.");
-    }
-    final StateProvince stateProvince = officeAddress.getStateProvince();
-    if (stateProvince != null && stateProvince.getId() != null) {
-      final StateProvince stateProvinceReturned =
-          stateProvinceService.findById(stateProvince.getId());
-      officeAddress.setStateProvince(stateProvinceReturned);
-    }
+    final String timezoneName =
+        googleMapsHelper.findTimezoneByPlaceId(officeCreateDto.getPlaceId());
+    final StateProvince stateProvince =
+    stateProvinceService.findById(officeCreateDto.getStateId());
+    final StaticTimezone staticTimezone = staticTimeZoneRepository.findByName(timezoneName);
+    final OfficeAddress officeAddress =
+        officeAddressMapper.updateFromOfficeCreateDto(
+            new OfficeAddress(), officeCreateDto, staticTimezone);
+    officeAddress.setStateProvince(stateProvince);
 
-    office.setOfficeAddress(officeAddress);
-
-    return officeService.save(office);
+    return officeService.save(new Office(officeCreateDto.getOfficeName(), officeAddress));
   }
 
   public Company save(final Company company) {
@@ -231,7 +232,7 @@ public class CompanyService {
     return tenantService.findAllByCompanyId(ids).stream()
         .map(
             tenant -> {
-              Company company = companyMapper.convertToCompany(tenant);
+              final Company company = companyMapper.convertToCompany(tenant);
               company.setId(tenant.getCompanyId());
               return company;
             })

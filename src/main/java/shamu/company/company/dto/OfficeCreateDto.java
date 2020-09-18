@@ -25,6 +25,8 @@ public class OfficeCreateDto {
 
   private String countryId;
 
+  private String placeId;
+
   @JsonIgnore
   public Office getOffice() {
     StateProvince stateProvince = null;

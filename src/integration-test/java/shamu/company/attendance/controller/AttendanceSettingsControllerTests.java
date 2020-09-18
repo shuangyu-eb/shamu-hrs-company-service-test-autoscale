@@ -31,7 +31,7 @@ public class AttendanceSettingsControllerTests extends WebControllerBaseTests {
     final MvcResult response =
         mockMvc
             .perform(
-                MockMvcRequestBuilders.get("/company/time-and-attendance/companySettings")
+                MockMvcRequestBuilders.get("/company/time-and-attendance/company-settings")
                     .headers(httpHeaders))
             .andReturn();
 
@@ -46,7 +46,7 @@ public class AttendanceSettingsControllerTests extends WebControllerBaseTests {
     final MvcResult response =
         mockMvc
             .perform(
-                MockMvcRequestBuilders.get("/company/time-and-attendance/employeeSettings/1")
+                MockMvcRequestBuilders.get("/company/time-and-attendance/employee-settings/1")
                     .headers(httpHeaders))
             .andReturn();
 
@@ -76,7 +76,7 @@ public class AttendanceSettingsControllerTests extends WebControllerBaseTests {
     final MvcResult response =
         mockMvc
             .perform(
-                MockMvcRequestBuilders.patch("/company/time-and-attendance/companySettings")
+                MockMvcRequestBuilders.patch("/company/time-and-attendance/company-settings")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(JsonUtil.formatToString(new CompanyTaSettingsDto()))
                     .headers(httpHeaders))
@@ -93,7 +93,7 @@ public class AttendanceSettingsControllerTests extends WebControllerBaseTests {
     final MvcResult response =
         mockMvc
             .perform(
-                MockMvcRequestBuilders.patch("/company/time-and-attendance/1/employeeSettings")
+                MockMvcRequestBuilders.patch("/company/time-and-attendance/1/employee-settings")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(JsonUtil.formatToString(new EmployeesTaSettingDto()))
                     .headers(httpHeaders))
@@ -110,7 +110,7 @@ public class AttendanceSettingsControllerTests extends WebControllerBaseTests {
     final MvcResult response =
         mockMvc
             .perform(
-                MockMvcRequestBuilders.get("/company/time-and-attendance/1/IsInAttendance")
+                MockMvcRequestBuilders.get("/company/time-and-attendance/1/is-in-attendance")
                     .headers(httpHeaders))
             .andReturn();
 
@@ -161,22 +161,6 @@ public class AttendanceSettingsControllerTests extends WebControllerBaseTests {
                 MockMvcRequestBuilders.patch("/company/time-and-attendance/overtime-policy")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(JsonUtil.formatToString(new OvertimePolicyDto()))
-                    .headers(httpHeaders))
-            .andReturn();
-
-    assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
-  }
-
-  @Test
-  void initializeTimezones() throws Exception {
-    final HttpHeaders httpHeaders = new HttpHeaders();
-    httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
-
-    final MvcResult response =
-        mockMvc
-            .perform(
-                MockMvcRequestBuilders.get(
-                        "/company/time-and-attendance/initialize-default-timezone")
                     .headers(httpHeaders))
             .andReturn();
 

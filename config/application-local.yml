@@ -33,7 +33,6 @@ application:
   helpUrl: http://localhost:3000/
   systemEmailFirstName: SimplyHired
   systemEmailLastName: local
-  googleGeoCodingApiKey: #{The key for google geo coding api}
   googleMapApiKey: #{The key for google map api}
 
 cloud:
