@@ -10,9 +10,6 @@ void setBuildStatus(String message, String state) {
 
 pipeline {
     agent { label 'shamu-hrs' }
-    environment {
-        WORKSPACE = "/home/ubuntu/workspace/shamu-company-master-auto-build"
-    }
     stages {
         stage('pull shamu-hrs') {
             steps {
@@ -60,6 +57,9 @@ pipeline {
                 echo '---------------------------------\n' +
                         '      Create artifact         ' +
                         '\n---------------------------------'
+                script {
+                  WORKSPACE = sh(returnStdout: true, script: 'pwd')
+                }
                 sh "ansible-playbook shamu-hrs/auto-deploy/ansible/create-project-config-files.yml -e 'workspace=${WORKSPACE} stack_prefix=simplyhired-hrs-eastbay env=dev service_name=company' --vault-password-file ansible-vault-file"
                 sh "CI/build -e simplyhired-hrs-eastbay-dev -r master"
             }
