@@ -270,13 +270,15 @@ public class EmailService {
 
   public Context getWelcomeEmailContext(
       final String welcomeMessage, final String resetPasswordToken, final String invitationToken) {
-    return getWelcomeEmailContextToEmail(welcomeMessage, resetPasswordToken, invitationToken, "");
+    return getWelcomeEmailContextToEmail(
+        welcomeMessage, resetPasswordToken, invitationToken, "", "");
   }
 
   public Context getWelcomeEmailContextToEmail(
       String welcomeMessage,
       final String resetPasswordToken,
       final String invitationToken,
+      final String userId,
       final String toEmail) {
     final Context context = new Context();
     context.setVariable(FRONT_END_ADDRESS, frontEndAddress);
@@ -288,7 +290,11 @@ public class EmailService {
     }
 
     targetLink += "/" + getEncodedCompanyId();
-    context.setVariable("createPasswordAddress", targetLink);
+
+    if (StringUtils.isEmpty(invitationToken)) {
+      targetLink = frontEndAddress + "parse?employeeId=" + userId + "&email=" + emailAddress;
+    }
+    context.setVariable("targetLinkAddress", targetLink);
     welcomeMessage = getFilteredWelcomeMessage(welcomeMessage);
     context.setVariable("welcomeMessage", welcomeMessage);
     return context;
@@ -296,7 +302,7 @@ public class EmailService {
 
   public Context findWelcomeEmailPreviewContext(final String welcomeEmailPersonalMessage) {
     final Context context = getWelcomeEmailContext(welcomeEmailPersonalMessage, null, null);
-    context.setVariable("createPasswordAddress", "#");
+    context.setVariable("targetLinkAddress", "#");
     context.setVariable("companyName", companyService.getCompany().getName());
     return context;
   }
@@ -540,5 +546,22 @@ public class EmailService {
 
   public List<Email> listByMessageIds(final List<String> messageIds) {
     return emailRepository.findByMessageIdIn(messageIds);
+  }
+
+  public void sendVerificationEmail(final String email, final String userId) {
+    final Context context = new Context();
+    context.setVariable(FRONT_END_ADDRESS, frontEndAddress);
+    String verificationUrl = frontEndAddress + "parse?userId=" + userId + "&emailVerified=true";
+    context.setVariable("accountVerifyAddress", verificationUrl);
+    final String emailContent = templateEngine.process("account_verify_email.html", context);
+    final Timestamp sendDate = Timestamp.valueOf(LocalDateTime.now());
+    final Email verifyEmail =
+            new Email(
+                    systemEmailAddress,
+                    email,
+                    "Please Verify Your Email",
+                    emailContent,
+                    sendDate);
+    saveAndScheduleEmail(verifyEmail);
   }
 }

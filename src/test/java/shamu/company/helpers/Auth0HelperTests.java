@@ -171,7 +171,7 @@ class Auth0HelperTests {
     Mockito.when(manager.users()).thenReturn(usersEntity);
     Mockito.when(usersEntity.update(Mockito.anyString(), Mockito.any())).thenReturn(request);
 
-    assertThatCode(() -> auth0Helper.updateAuthUserAppMetaData("123", "example@email.com"))
+    assertThatCode(() -> auth0Helper.updateAuthUserAppMetaData("123"))
         .doesNotThrowAnyException();
   }
 

@@ -21,6 +21,7 @@ import shamu.company.email.service.EmailService;
 import shamu.company.helpers.s3.AwsHelper;
 import shamu.company.scheduler.QuartzJobScheduler;
 import shamu.company.user.dto.CurrentUserDto;
+import shamu.company.user.dto.IndeedUserDto;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
 import shamu.company.user.entity.UserContactInformation;
@@ -30,11 +31,13 @@ import shamu.company.utils.DateUtil;
 import shamu.company.utils.UuidUtil;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
+import java.util.HashMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -419,6 +422,24 @@ class EmailServiceTests {
                   emailService.getAttendanceNotificationEmails(
                       periodId, EmailService.EmailNotification.RUN_PAYROLL, sendDate))
           .doesNotThrowAnyException();
+    }
+  }
+
+  @Nested
+  class sendVerificationEmail {
+
+    @Test
+    void whenCalled_thenShouldSendEmail() {
+      Email savedEmail = new Email();
+      savedEmail.setId(UuidUtil.getUuidString());
+      savedEmail.setSendDate(Timestamp.valueOf(LocalDateTime.now()));
+      Mockito.when(emailService.save(Mockito.any())).thenReturn(savedEmail);
+
+      emailService.sendVerificationEmail(Mockito.anyString(), Mockito.anyString());
+      Mockito.verify(emailRepository, Mockito.times(1))
+              .save(Mockito.any(Email.class));
+      Mockito.verify(quartzJobScheduler, Mockito.times(1))
+              .addOrUpdateJobSchedule(Mockito.any(), Mockito.anyString(),Mockito.anyString(), Mockito.anyMap(), Mockito.any());
     }
   }
 }

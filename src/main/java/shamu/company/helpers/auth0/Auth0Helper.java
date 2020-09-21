@@ -31,6 +31,7 @@ import okhttp3.OkHttpClient.Builder;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Component;
@@ -65,6 +66,8 @@ public class Auth0Helper {
   private static final String USER_SECRET = "userSecret";
   public static final String COMPANY_ID = "companyId";
   public static final String USER_ID = "id";
+  @Value("${auth0.connection}")
+  private String connection;
 
   @Autowired
   public Auth0Helper(final Auth0Manager auth0Manager, final Auth0Config auth0Config) {
@@ -313,18 +316,23 @@ public class Auth0Helper {
     return (String) appMetadata.get(USER_ID);
   }
 
-  public User updateAuthUserAppMetaData(final String userId, final String email) {
-    final String newUserId = "auth0|" + userId;
+  public User updateAuthUserAppMetaData(final String userId) {
+    final boolean isIndeedConnection = Auth0ConnectionEnum.INDEED.getValue().equals(connection);
+    final String prefix = isIndeedConnection ? "" : "auth0|";
+    final String newUserId = prefix + userId;
     final User user = new User();
-    user.setEmail(email);
 
     final String userIdInDatabase = UuidUtil.getUuidString();
     final String userSecret = generateUserSecret(userIdInDatabase);
     final Map<String, Object> appMetaData = new HashMap<>();
     appMetaData.put(USER_ID, userIdInDatabase);
-    appMetaData.put("idVerified", true);
     appMetaData.put(USER_SECRET, userSecret);
     appMetaData.put(COMPANY_ID, UuidUtil.getUuidString().toUpperCase());
+    if(isIndeedConnection) {
+      appMetaData.put("verification_email_sent", true);
+    } else {
+      appMetaData.put("idVerified", true);
+    }
     user.setAppMetadata(appMetaData);
     final ManagementAPI manager = auth0Manager.getManagementApi();
     final Request<User> request = manager.users().update(newUserId, user);

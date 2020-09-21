@@ -62,12 +62,14 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
             "/company/account/password/**",
             "/company/users/password-reset/**",
             "/company/users",
+            "/company/indeed-users/{companyId}",
             "/company/account/change-work-email/{token}/{companyId}",
             "/company/account/*/verification-email",
             "/company/account/unlock",
             "/company/account/email/*",
             "/company/emails/status",
-            "/server/company/**")
+            "/server/company/**",
+            "/company/users/indeed-verification-email")
         .permitAll()
         .anyRequest()
         .authenticated()

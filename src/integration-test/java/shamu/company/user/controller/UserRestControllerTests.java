@@ -22,11 +22,13 @@ import shamu.company.WebControllerBaseTests;
 import shamu.company.authorization.Permission;
 import shamu.company.common.entity.Tenant;
 import shamu.company.company.entity.Company;
+import shamu.company.email.service.EmailService;
 import shamu.company.employee.dto.EmailUpdateDto;
 import shamu.company.server.dto.AuthUser;
 import shamu.company.tests.utils.JwtUtil;
 import shamu.company.user.dto.ChangePasswordDto;
 import shamu.company.user.dto.CurrentUserDto;
+import shamu.company.user.dto.IndeedUserDto;
 import shamu.company.user.dto.UpdatePasswordDto;
 import shamu.company.user.dto.UserRoleUpdateDto;
 import shamu.company.user.dto.UserSignUpDto;
@@ -41,7 +43,7 @@ import shamu.company.utils.UuidUtil;
 public class UserRestControllerTests extends WebControllerBaseTests {
 
   @MockBean private UserMapper userMapper;
-
+  @MockBean private EmailService emailService;
   @Autowired private MockMvc mockMvc;
 
   @Test
@@ -57,7 +59,7 @@ public class UserRestControllerTests extends WebControllerBaseTests {
 
     final com.auth0.json.mgmt.users.User auth0User = new com.auth0.json.mgmt.users.User();
     auth0User.setAppMetadata(new HashMap<>());
-    given(auth0Helper.updateAuthUserAppMetaData(Mockito.any(), Mockito.any()))
+    given(auth0Helper.updateAuthUserAppMetaData(Mockito.any()))
         .willReturn(auth0User);
 
     final MvcResult response =
@@ -68,6 +70,43 @@ public class UserRestControllerTests extends WebControllerBaseTests {
                     .headers(httpHeaders)
                     .content(JsonUtil.formatToString(userSignUpDto)))
             .andReturn();
+
+    assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+  }
+
+  @Test
+  void testIndeedVerifyEmailSend() throws Exception {
+    final HttpHeaders httpHeaders = new HttpHeaders();
+    httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+    final com.auth0.json.mgmt.users.User auth0User = new com.auth0.json.mgmt.users.User();
+    auth0User.setAppMetadata(new HashMap<>());
+    given(auth0Helper.updateAuthUserAppMetaData(Mockito.any()))
+            .willReturn(auth0User);
+    final MvcResult response =
+            mockMvc
+                    .perform(
+                            MockMvcRequestBuilders.post("/company/users/indeed-verification-email")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .headers(httpHeaders)
+                                    .content(JsonUtil.formatToString(new IndeedUserDto())))
+                    .andReturn();
+
+    assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+  }
+
+  @Test
+  void testIndeedUserSignUp() throws Exception {
+    final HttpHeaders httpHeaders = new HttpHeaders();
+    httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+    final String companyId = UuidUtil.getUuidString();
+    final MvcResult response =
+            mockMvc
+                    .perform(
+                            MockMvcRequestBuilders.post("/company/indeed-users/" + companyId)
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .headers(httpHeaders)
+                                    .content(JsonUtil.formatToString(new IndeedUserDto())))
+                    .andReturn();
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }

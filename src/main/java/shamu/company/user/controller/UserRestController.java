@@ -30,12 +30,14 @@ import shamu.company.common.multitenant.TenantContext;
 import shamu.company.common.service.TenantService;
 import shamu.company.common.validation.constraints.FileValidate;
 import shamu.company.company.service.CompanyService;
+import shamu.company.email.service.EmailService;
 import shamu.company.employee.dto.EmailUpdateDto;
 import shamu.company.helpers.auth0.Auth0Helper;
 import shamu.company.helpers.auth0.exception.SignUpFailedException;
 import shamu.company.user.dto.AccountInfoDto;
 import shamu.company.user.dto.ChangePasswordDto;
 import shamu.company.user.dto.CurrentUserDto;
+import shamu.company.user.dto.IndeedUserDto;
 import shamu.company.user.dto.UpdatePasswordDto;
 import shamu.company.user.dto.UserAvatarDto;
 import shamu.company.user.dto.UserDto;
@@ -55,6 +57,8 @@ public class UserRestController extends BaseRestController {
 
   private final UserService userService;
 
+  private final EmailService emailService;
+
   private final CompanyService companyService;
 
   private final TenantService tenantService;
@@ -69,12 +73,14 @@ public class UserRestController extends BaseRestController {
 
   public UserRestController(
       final UserService userService,
+      final EmailService emailService,
       final UserMapper userMapper,
       final CompanyService companyService,
       final TenantService tenantService,
       final Auth0Helper auth0Helper,
       final LiquibaseManager liquibaseManager) {
     this.userService = userService;
+    this.emailService = emailService;
     this.userMapper = userMapper;
     this.companyService = companyService;
     this.tenantService = tenantService;
@@ -90,7 +96,7 @@ public class UserRestController extends BaseRestController {
 
     final CreatedUser user = auth0Helper.signUp(signUpDto.getWorkEmail(), signUpDto.getPassword());
     final com.auth0.json.mgmt.users.User auth0User =
-        auth0Helper.updateAuthUserAppMetaData(user.getUserId(), signUpDto.getWorkEmail());
+        auth0Helper.updateAuthUserAppMetaData(user.getUserId());
     final Map<String, Object> appMetaData = auth0User.getAppMetadata();
     final String companyId = (String) appMetaData.get(Auth0Helper.COMPANY_ID);
     final String userId = (String) appMetaData.get(Auth0Helper.USER_ID);
@@ -102,6 +108,42 @@ public class UserRestController extends BaseRestController {
       auth0Helper.deleteUser(auth0User.getId());
       throw new SignUpFailedException("Sign up failed.", e);
     }
+    return new ResponseEntity(HttpStatus.OK);
+  }
+
+  @PostMapping("/users/indeed-verification-email")
+  public HttpStatus sendVerificationEmailForIndeedUser(
+          @RequestBody final IndeedUserDto indeedUserDto) {
+    final com.auth0.json.mgmt.users.User auth0User =
+            auth0Helper.updateAuthUserAppMetaData(indeedUserDto.getId());
+    final Map<String, Object> appMetaData = auth0User.getAppMetadata();
+    final String companyId = (String) appMetaData.get(Auth0Helper.COMPANY_ID);
+    final String userId = (String) appMetaData.get(Auth0Helper.USER_ID);
+    try {
+      liquibaseManager.addSchema(companyId, indeedUserDto.getCompanyName());
+      TenantContext.withInTenant(companyId, () -> emailService.sendVerificationEmail(indeedUserDto.getEmail(), userId));
+    } catch (final Exception e) {
+      tenantService.deleteTenant(companyId);
+      auth0Helper.deleteUser(auth0User.getId());
+      throw new SignUpFailedException("Sign up failed.", e);
+    }
+
+    return HttpStatus.OK;
+  }
+
+  @PostMapping(value = "indeed-users/{companyId}")
+  public HttpEntity indeedSignUp(
+          @RequestBody final IndeedUserDto indeedUserDto,
+          @PathVariable final String companyId) {
+
+    final String userId = indeedUserDto.getId();
+    final UserSignUpDto signUpDto =
+            UserSignUpDto.builder()
+                    .firstName(indeedUserDto.getFirstName())
+                    .lastName(indeedUserDto.getLastName())
+                    .workEmail(indeedUserDto.getEmail())
+                    .build();
+    TenantContext.withInTenant(companyId, () -> userService.signUp(signUpDto, userId));
     return new ResponseEntity(HttpStatus.OK);
   }
 

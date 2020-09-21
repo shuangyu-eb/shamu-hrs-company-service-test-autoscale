@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
+import com.auth0.json.mgmt.users.Identity;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -95,6 +96,7 @@ import shamu.company.user.service.UserRoleService;
 import shamu.company.user.service.UserService;
 import shamu.company.user.service.UserStatusService;
 import shamu.company.utils.FileValidateUtils.FileFormat;
+import shamu.company.utils.UuidUtil;
 
 class EmployeeServiceTests {
 
@@ -289,7 +291,7 @@ class EmployeeServiceTests {
       employeeDto.setUserContactInformationDto(userContactInformationDto);
 
       Mockito.when(officeService.findById("officeId")).thenReturn(office);
-      Whitebox.invokeMethod(employeeService, "saveEmployeeBasicInformation", employeeDto);
+      Whitebox.invokeMethod(employeeService, "saveEmployeeBasicInformation", currentUser, employeeDto);
       Mockito.verify(userService, Mockito.times(1)).createNewEmployee(Mockito.any());
     }
   }
@@ -531,6 +533,10 @@ class EmployeeServiceTests {
     Context emailContext;
     Office office;
     OfficeAddress officeAddress;
+    com.auth0.json.mgmt.users.User currentAuthUser;
+    UserContactInformation userContactInformation;
+    List<Identity> identities;
+    Identity identity;
 
     @BeforeEach
     void init() {
@@ -554,21 +560,46 @@ class EmployeeServiceTests {
       company.setName("a");
       employeeDto.setUserAddress(new UserAddressDto());
       employeeDto.setWelcomeEmail(welcomeEmail);
+      userContactInformation = new UserContactInformation();
+      userContactInformation.setEmailWork("test@aa.com");
+      currentUser.setId(UuidUtil.getUuidString());
+      currentUser.setUserContactInformation(userContactInformation);
       currentUser.setResetPasswordToken("a");
       currentUser.setInvitationEmailToken("b");
       currentUser.setInvitedAt(Timestamp.from(Instant.now()));
+      currentAuthUser = Mockito.mock(com.auth0.json.mgmt.users.User.class);
+      identities = Mockito.mock(ArrayList.class);
+      identity = Mockito.mock(Identity.class);
       Mockito.when(userService.save(Mockito.any())).thenReturn(currentUser);
       Mockito.when(userService.createNewEmployee(Mockito.any())).thenReturn(currentUser);
       Mockito.when(officeService.findById(Mockito.any())).thenReturn(office);
       Mockito.when(
               emailService.getWelcomeEmailContextToEmail(
-                  Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+                  Mockito.any(),
+                  Mockito.anyString(),
+                  Mockito.anyString(),
+                  Mockito.anyString(),
+                  Mockito.anyString()))
           .thenReturn(emailContext);
+      Mockito.when(
+              auth0Helper.getAuth0UserByIdWithByEmailFailover(
+                  currentUser.getId(), currentUser.getUserContactInformation().getEmailWork()))
+          .thenReturn(currentAuthUser);
+      Mockito.when(currentAuthUser.getIdentities()).thenReturn(identities);
+      Mockito.when(identities.get(0)).thenReturn(identity);
       Mockito.when(companyService.getCompany()).thenReturn(company);
     }
 
     @Test
     void whenJobInformationIsNull_thenShouldSuccess() {
+      Mockito.when(identity.getConnection()).thenReturn("hrs-data");
+      employeeService.addEmployee(employeeDto, currentUser);
+      Mockito.verify(jobUserService, Mockito.times(1)).save(Mockito.any());
+    }
+
+    @Test
+    void whenConnectionIsIndeed_thenShouldSuccess() {
+      Mockito.when(identity.getConnection()).thenReturn("Indeed");
       employeeService.addEmployee(employeeDto, currentUser);
       Mockito.verify(jobUserService, Mockito.times(1)).save(Mockito.any());
     }

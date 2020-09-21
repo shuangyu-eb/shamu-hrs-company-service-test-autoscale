@@ -37,14 +37,14 @@
                   </td>
                 </tr>
                 <tr>
-                  <td th:switch="${createPasswordAddress}"
+                  <td th:switch="${targetLinkAddress}"
                       style="padding-top: 33px; height: 40px; text-align: center; padding-bottom: 47px;">
                     <div th:case="'#'"
                          style="background-color: #0075DF; color: #ffffff; outline: none; box-shadow: none; border: 0; width: 153px; height: 40px; font-size: 14px; border-radius: 400px; display: inline-block; line-height: 42px; text-decoration: none">
                       Get
                       Started
                     </div>
-                    <a th:case="*" th:href="@{${createPasswordAddress}}"
+                    <a th:case="*" th:href="@{${targetLinkAddress}}"
                        style="background-color: #0075DF; color: #ffffff; outline: none; box-shadow: none; border: 0; width: 153px; height: 40px; font-size: 14px; border-radius: 400px; cursor: pointer; display: inline-block; line-height: 42px; text-decoration: none">Get
                       Started</a></td>
                 </tr>
