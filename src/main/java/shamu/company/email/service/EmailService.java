@@ -283,6 +283,7 @@ public class EmailService {
     final Context context = new Context();
     context.setVariable(FRONT_END_ADDRESS, frontEndAddress);
     final String emailAddress = getEncodedEmailAddress(toEmail);
+    final String companyId = TenantContext.getCurrentTenant();
     String targetLink =
         frontEndAddress + "account/password/" + resetPasswordToken + "/" + invitationToken;
     if (!"".equals(emailAddress)) {
@@ -292,7 +293,8 @@ public class EmailService {
     targetLink += "/" + getEncodedCompanyId();
 
     if (StringUtils.isEmpty(invitationToken)) {
-      targetLink = frontEndAddress + "parse?employeeId=" + userId + "&email=" + emailAddress;
+      targetLink = frontEndAddress + "parse?employeeId=" + userId
+          + "&companyId=" + companyId + "&email=" + emailAddress;
     }
     context.setVariable("targetLinkAddress", targetLink);
     welcomeMessage = getFilteredWelcomeMessage(welcomeMessage);

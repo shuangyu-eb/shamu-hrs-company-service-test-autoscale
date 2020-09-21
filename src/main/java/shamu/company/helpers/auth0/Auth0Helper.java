@@ -66,7 +66,7 @@ public class Auth0Helper {
   private static final String USER_SECRET = "userSecret";
   public static final String COMPANY_ID = "companyId";
   public static final String USER_ID = "id";
-  @Value("${auth0.connection}")
+  @Value("${auth0.database}")
   private String connection;
 
   @Autowired

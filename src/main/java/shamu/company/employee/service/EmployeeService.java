@@ -232,7 +232,7 @@ public class EmployeeService {
     final boolean isIndeedConnection = isIndeedConnection(currentUser);
 
     if (isIndeedConnection) {
-      updateIndeedEmployeeBasicInformation(employee);
+      updateIndeedEmployeeBasicInformation(employee, employeeDto);
     } else {
       updateSHEmployeeBasicInformation(employee, employeeDto);
     }
@@ -358,8 +358,6 @@ public class EmployeeService {
 
     employee.setInvitationEmailToken(UUID.randomUUID().toString());
 
-    employee.setInvitedAt(new Timestamp(new Date().getTime()));
-
     final Office office = officeService.findById(employeeDto.getJobInformation().getOfficeId());
 
     employee.setTimeZone(office.getOfficeAddress().getTimeZone());
@@ -373,14 +371,15 @@ public class EmployeeService {
   }
 
   private void updateIndeedEmployeeBasicInformation(
-      final User employee) {
+      final User employee, final EmployeeDto employeeDto) {
     final UserStatus userStatus = userStatusService.findByName(Status.ACTIVE.name());
     employee.setUserStatus(userStatus);
+    final Office office = officeService.findById(employeeDto.getJobInformation().getOfficeId());
+    employee.setTimeZone(office.getOfficeAddress().getTimeZone());
   }
 
   private User saveEmployeeBasicInformation(
-      final User employee,
-      final EmployeeDto employeeDto) {
+      final User employee, final EmployeeDto employeeDto) {
     final String base64EncodedPhoto = employeeDto.getPersonalPhoto();
     final String photoPath = saveEmployeePhoto(base64EncodedPhoto);
     employee.setImageUrl(photoPath);
