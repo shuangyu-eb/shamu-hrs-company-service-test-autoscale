@@ -5,20 +5,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class OvertimePolicyDto {
-    private String id;
-
-    private String policyName;
-
-    private Boolean defaultPolicy;
-
-    private List<OvertimePolicyDetailDto> policyDetails;
-
-    private Boolean active;
+public class OvertimePolicyDto extends NewOvertimePolicyDto {
+  private String id;
 }

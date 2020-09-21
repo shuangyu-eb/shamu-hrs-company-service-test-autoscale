@@ -11,11 +11,11 @@ import shamu.company.attendance.entity.StaticOvertimeType;
 @NoArgsConstructor
 @AllArgsConstructor
 public class OvertimePolicyDetailDto {
-    private String id;
+  private String id;
 
-    private Integer startMin;
+  private Integer startMin;
 
-    private StaticOvertimeType.OvertimeType overtimeType;
+  private StaticOvertimeType.OvertimeType overtimeType;
 
-    private Double overtimeRate;
+  private Double overtimeRate;
 }

@@ -10,7 +10,6 @@ import org.mockito.MockitoAnnotations;
 import shamu.company.attendance.dto.EmployeeOvertimeDetailsDto;
 import shamu.company.attendance.dto.NewOvertimePolicyDetailDto;
 import shamu.company.attendance.dto.NewOvertimePolicyDto;
-import shamu.company.attendance.dto.OvertimePolicyDetailDto;
 import shamu.company.attendance.dto.OvertimePolicyDto;
 import shamu.company.attendance.entity.CompanyTaSetting;
 import shamu.company.attendance.entity.EmployeeTimeLog;
@@ -135,8 +134,9 @@ public class OvertimeServiceTests {
   void updateOvertimePolicy() {
     final OvertimePolicyDto overtimePolicyDto = new OvertimePolicyDto();
     overtimePolicyDto.setId("policyId");
-    final List<OvertimePolicyDetailDto> policyDetailDtos = new ArrayList<>();
+    final List<NewOvertimePolicyDetailDto> policyDetailDtos = new ArrayList<>();
     overtimePolicyDto.setPolicyDetails(policyDetailDtos);
+    Mockito.when(overtimePolicyRepository.save(Mockito.any())).thenReturn(new OvertimePolicy());
     assertThatCode(() -> overtimeService.updateOvertimePolicy(overtimePolicyDto))
         .doesNotThrowAnyException();
   }
@@ -201,6 +201,7 @@ public class OvertimeServiceTests {
   void findOvertimePolicyDetails() {
     final OvertimePolicy overtimePolicy = new OvertimePolicy();
     final PolicyDetail policyDetail = new PolicyDetail();
+    policyDetail.setStart(10);
     final List<PolicyDetail> policyDetails = new ArrayList<>();
     policyDetails.add(policyDetail);
     Mockito.when(overtimePolicyRepository.findById("1"))

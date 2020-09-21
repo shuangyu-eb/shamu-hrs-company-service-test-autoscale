@@ -218,18 +218,16 @@ public class OvertimeService {
 
   @Transactional
   public void updateOvertimePolicy(final OvertimePolicyDto overtimePolicyDto) {
-    final OvertimePolicy newOverPolicy =
+    final OvertimePolicy editedOverPolicy =
         overtimePolicyRepository.save(
             overtimePolicyMapper.convertDtoToOvertimePolicy(
                 new OvertimePolicy(), overtimePolicyDto));
+    if (Boolean.TRUE.equals(editedOverPolicy.getDefaultPolicy())) {
+      unsetOldDefaultPolicies(editedOverPolicy.getId());
+    }
 
-    final List<PolicyDetail> policyDetailList =
-        overtimePolicyDto.getPolicyDetails().stream()
-            .map(
-                policyDetail ->
-                    policyDetailMapper.convertDtoToPolicyDetail(policyDetail, newOverPolicy))
-            .collect(Collectors.toList());
-    policyDetailRepository.saveAll(policyDetailList);
+    policyDetailRepository.deleteByOvertimePolicyId(overtimePolicyDto.getId());
+    saveNewOvertimeDetails(overtimePolicyDto.getPolicyDetails(), editedOverPolicy);
   }
 
   public void createDefaultPolicy() {
@@ -308,7 +306,11 @@ public class OvertimeService {
     if (overtimePolicy.isPresent()) {
       final List<OvertimePolicyDetailDto> policyDetailDtos =
           policyDetails.stream()
-              .map(policyDetailMapper::convertToOvertimePolicyDetailDto)
+              .map(
+                  policyDetail -> {
+                    policyDetail.setStart(policyDetail.getStart() / CONVERT_HOUR_TO_MIN);
+                    return policyDetailMapper.convertToOvertimePolicyDetailDto(policyDetail);
+                  })
               .collect(Collectors.toList());
       return overtimePolicyMapper.convertToOvertimePolicyDto(
           overtimePolicy.get(), policyDetailDtos);
