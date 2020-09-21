@@ -325,17 +325,14 @@ public class OvertimeService {
 
   public void editEmployeeOvertimePolicies(
       final List<EmployeeOvertimeDetailsDto> employeeOvertimeDetailsDtoList) {
-    saveEmployeeOvertimePolicies(
-        employeeOvertimeDetailsDtoList, overtimePolicyRepository.findAll(), new Date());
+    saveEmployeeOvertimePolicies(employeeOvertimeDetailsDtoList, new Date());
   }
 
   public List<UserCompensation> saveEmployeeOvertimePolicies(
-      final List<EmployeeOvertimeDetailsDto> overtimeDetailsDtoList,
-      final List<OvertimePolicy> savedPolicies,
-      final Date startDate) {
+      final List<EmployeeOvertimeDetailsDto> overtimeDetailsDtoList, final Date startDate) {
     saveHireDates(overtimeDetailsDtoList);
     return userCompensationService.saveAllByEmployeeOvertimePolicies(
-        overtimeDetailsDtoList, savedPolicies, startDate);
+        overtimeDetailsDtoList, overtimePolicyRepository.findAll(), startDate);
   }
 
   private void saveHireDates(final List<EmployeeOvertimeDetailsDto> overtimeDetailsDtoList) {

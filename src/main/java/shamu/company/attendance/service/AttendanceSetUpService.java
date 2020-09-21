@@ -13,7 +13,6 @@ import shamu.company.attendance.entity.CompanyTaSetting;
 import shamu.company.attendance.entity.CompanyTaSetting.MessagingON;
 import shamu.company.attendance.entity.EmailNotificationStatus;
 import shamu.company.attendance.entity.EmployeesTaSetting;
-import shamu.company.attendance.entity.OvertimePolicy;
 import shamu.company.attendance.entity.StaticCompanyPayFrequencyType;
 import shamu.company.attendance.entity.StaticCompanyPayFrequencyType.PayFrequencyType;
 import shamu.company.attendance.entity.StaticTimesheetStatus;
@@ -198,20 +197,14 @@ public class AttendanceSetUpService {
         attendancePolicyAndDetailDto.getAttendanceDetails();
     final List<NewOvertimePolicyDto> overtimePolicyDetails =
         attendancePolicyAndDetailDto.getOvertimePolicyDetails();
-    final List<OvertimePolicy> savedPolicies =
-        overtimePolicyDetails.stream()
-            .map(
-                newOvertimePolicyDto -> {
-                  if (!DEFAULT_OVERTIME_POLICY_NAME.equals(newOvertimePolicyDto.getPolicyName())) {
-                    return overtimeService.saveNewOvertimePolicy(newOvertimePolicyDto);
-                  }
-                  return null;
-                })
-            .collect(Collectors.toList());
+    overtimePolicyDetails.forEach(
+        newOvertimePolicyDto -> {
+          if (!DEFAULT_OVERTIME_POLICY_NAME.equals(newOvertimePolicyDto.getPolicyName())) {
+            overtimeService.saveNewOvertimePolicy(newOvertimePolicyDto);
+          }
+        });
     final List<EmployeeOvertimeDetailsDto> overtimeDetailsDtoList =
         timeAndAttendanceDetailsDto.getOvertimeDetails();
-
-    final Boolean isAddOrRemoveEmployee = timeAndAttendanceDetailsDto.getIsAddOrRemove();
 
     final StaticTimezone companyTimezone =
         jobUserRepository.findByUserId(employeeId).getOffice().getOfficeAddress().getTimeZone();
@@ -225,11 +218,12 @@ public class AttendanceSetUpService {
             parseDateWithZone(
                     timeAndAttendanceDetailsDto.getPeriodEndDate(), companyTimezone.getName())
                 .get());
-    saveEmployeeTaSettings(timeAndAttendanceDetailsDto, companyTimezone);
     final List<UserCompensation> userCompensationList =
-        overtimeService.saveEmployeeOvertimePolicies(
-            overtimeDetailsDtoList, savedPolicies, periodStartDate);
+        overtimeService.saveEmployeeOvertimePolicies(overtimeDetailsDtoList, periodStartDate);
 
+    saveEmployeeTaSettings(timeAndAttendanceDetailsDto, companyTimezone);
+
+    final Boolean isAddOrRemoveEmployee = timeAndAttendanceDetailsDto.getIsAddOrRemove();
     final TimePeriod firstTimePeriod =
         Boolean.FALSE.equals(isAddOrRemoveEmployee)
             ? timePeriodService.save(new TimePeriod(periodStartDate, periodEndDate))
