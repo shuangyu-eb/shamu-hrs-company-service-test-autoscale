@@ -19,12 +19,12 @@ public interface OvertimePolicyRepository extends BaseRepository<OvertimePolicy,
   @Query(
       value =
           "select hex(op.id) as id, op.policy_name as policyName, "
-              + "op.default_policy as defaultPolicy, count(c.id) as numberOfEmployees "
+              + "op.default_policy as defaultPolicy, count(distinct (c.user_id)) as numberOfEmployees "
               + "from overtime_policies op "
               + "left join "
               + "user_compensations c "
               + "on op.id=c.overtime_policy_id "
-              + "where op.active = 1 "
+              + "where op.active = 1 and (c.end_date is null or c.end_date > current_timestamp) "
               + "GROUP BY id, policyName, defaultPolicy "
               + "ORDER BY policyName ",
       nativeQuery = true)
