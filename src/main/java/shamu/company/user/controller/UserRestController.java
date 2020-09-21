@@ -95,8 +95,13 @@ public class UserRestController extends BaseRestController {
     }
 
     final CreatedUser user = auth0Helper.signUp(signUpDto.getWorkEmail(), signUpDto.getPassword());
-    final com.auth0.json.mgmt.users.User auth0User =
-        auth0Helper.updateAuthUserAppMetaData(user.getUserId());
+    final com.auth0.json.mgmt.users.User auth0User;
+    try {
+      auth0User = auth0Helper.updateAuthUserAppMetaData(user.getUserId());
+    } catch (final Exception e) {
+      auth0Helper.deleteUser(user.getUserId());
+      throw new SignUpFailedException("Auth0 account update failed.", e);
+    }
     final Map<String, Object> appMetaData = auth0User.getAppMetadata();
     final String companyId = (String) appMetaData.get(Auth0Helper.COMPANY_ID);
     final String userId = (String) appMetaData.get(Auth0Helper.USER_ID);
@@ -113,15 +118,20 @@ public class UserRestController extends BaseRestController {
 
   @PostMapping("/users/indeed-verification-email")
   public HttpStatus sendVerificationEmailForIndeedUser(
-          @RequestBody final IndeedUserDto indeedUserDto) {
-    final com.auth0.json.mgmt.users.User auth0User =
-            auth0Helper.updateAuthUserAppMetaData(indeedUserDto.getId());
+      @RequestBody final IndeedUserDto indeedUserDto) {
+    final com.auth0.json.mgmt.users.User auth0User;
+    try {
+      auth0User = auth0Helper.updateAuthUserAppMetaData(indeedUserDto.getId());
+    } catch (final Exception e) {
+      throw new SignUpFailedException("Auth0 account update failed.", e);
+    }
     final Map<String, Object> appMetaData = auth0User.getAppMetadata();
     final String companyId = (String) appMetaData.get(Auth0Helper.COMPANY_ID);
     final String userId = (String) appMetaData.get(Auth0Helper.USER_ID);
     try {
       liquibaseManager.addSchema(companyId, indeedUserDto.getCompanyName());
-      TenantContext.withInTenant(companyId, () -> emailService.sendVerificationEmail(indeedUserDto.getEmail(), userId));
+      TenantContext.withInTenant(
+          companyId, () -> emailService.sendVerificationEmail(indeedUserDto.getEmail(), userId));
     } catch (final Exception e) {
       tenantService.deleteTenant(companyId);
       auth0Helper.deleteUser(auth0User.getId());
@@ -133,16 +143,15 @@ public class UserRestController extends BaseRestController {
 
   @PostMapping(value = "indeed-users/{companyId}")
   public HttpEntity indeedSignUp(
-          @RequestBody final IndeedUserDto indeedUserDto,
-          @PathVariable final String companyId) {
+      @RequestBody final IndeedUserDto indeedUserDto, @PathVariable final String companyId) {
 
     final String userId = indeedUserDto.getId();
     final UserSignUpDto signUpDto =
-            UserSignUpDto.builder()
-                    .firstName(indeedUserDto.getFirstName())
-                    .lastName(indeedUserDto.getLastName())
-                    .workEmail(indeedUserDto.getEmail())
-                    .build();
+        UserSignUpDto.builder()
+            .firstName(indeedUserDto.getFirstName())
+            .lastName(indeedUserDto.getLastName())
+            .workEmail(indeedUserDto.getEmail())
+            .build();
     TenantContext.withInTenant(companyId, () -> userService.signUp(signUpDto, userId));
     return new ResponseEntity(HttpStatus.OK);
   }
