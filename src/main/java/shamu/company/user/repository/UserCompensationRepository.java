@@ -38,5 +38,10 @@ public interface UserCompensationRepository extends BaseRepository<UserCompensat
       nativeQuery = true)
   List<UserCompensation> listNewestEnrolledUserCompensationByCompanyId();
 
+  @Query(
+      value =
+          "SELECT * from user_compensations where hex(overtime_policy_id) = ?1 "
+              + "and end_date is null or end_date > current_timestamp ",
+      nativeQuery = true)
   List<UserCompensation> findByOvertimePolicyId(String policyId);
 }
