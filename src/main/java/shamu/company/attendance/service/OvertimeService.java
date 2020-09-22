@@ -218,15 +218,19 @@ public class OvertimeService {
 
   @Transactional
   public void updateOvertimePolicy(final OvertimePolicyDto overtimePolicyDto) {
+    final String oldPolicyId = overtimePolicyDto.getId();
+    softDeleteOvertimePolicy(oldPolicyId);
+
+    // this policy should be active
     final OvertimePolicy editedOverPolicy =
         overtimePolicyRepository.save(
-            overtimePolicyMapper.convertDtoToOvertimePolicy(
+            overtimePolicyMapper.convertDtoToNewOvertimePolicy(
                 new OvertimePolicy(), overtimePolicyDto));
     if (Boolean.TRUE.equals(editedOverPolicy.getDefaultPolicy())) {
       unsetOldDefaultPolicies(editedOverPolicy.getId());
     }
 
-    policyDetailRepository.deleteByOvertimePolicyId(overtimePolicyDto.getId());
+    userCompensationService.updateByEditOvertimePolicyDetails(oldPolicyId, editedOverPolicy);
     saveNewOvertimeDetails(overtimePolicyDto.getPolicyDetails(), editedOverPolicy);
   }
 
@@ -325,14 +329,15 @@ public class OvertimeService {
 
   public void editEmployeeOvertimePolicies(
       final List<EmployeeOvertimeDetailsDto> employeeOvertimeDetailsDtoList) {
-    saveEmployeeOvertimePolicies(employeeOvertimeDetailsDtoList, new Date());
+    saveHireDates(employeeOvertimeDetailsDtoList);
+    userCompensationService.updateByEditEmployeeOvertimePolicies(employeeOvertimeDetailsDtoList);
   }
 
-  public List<UserCompensation> saveEmployeeOvertimePolicies(
+  public List<UserCompensation> createEmployeeOvertimePolicies(
       final List<EmployeeOvertimeDetailsDto> overtimeDetailsDtoList, final Date startDate) {
     saveHireDates(overtimeDetailsDtoList);
-    return userCompensationService.saveAllByEmployeeOvertimePolicies(
-        overtimeDetailsDtoList, overtimePolicyRepository.findAll(), startDate);
+    return userCompensationService.updateByCreateEmployeeOvertimePolicies(
+        overtimeDetailsDtoList, startDate);
   }
 
   private void saveHireDates(final List<EmployeeOvertimeDetailsDto> overtimeDetailsDtoList) {

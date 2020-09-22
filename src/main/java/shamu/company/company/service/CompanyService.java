@@ -1,7 +1,5 @@
 package shamu.company.company.service;
 
-import java.util.List;
-import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import shamu.company.attendance.entity.StaticTimezone;
@@ -32,6 +30,9 @@ import shamu.company.helpers.googlemaps.GoogleMapsHelper;
 import shamu.company.job.entity.Job;
 import shamu.company.job.service.JobService;
 import shamu.company.server.dto.CompanyDtoProjection;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class CompanyService {
@@ -173,8 +174,7 @@ public class CompanyService {
     }
     final String timezoneName =
         googleMapsHelper.findTimezoneByPlaceId(officeCreateDto.getPlaceId());
-    final StateProvince stateProvince =
-    stateProvinceService.findById(officeCreateDto.getStateId());
+    final StateProvince stateProvince = stateProvinceService.findById(officeCreateDto.getStateId());
     final StaticTimezone staticTimezone = staticTimeZoneRepository.findByName(timezoneName);
     final OfficeAddress officeAddress =
         officeAddressMapper.updateFromOfficeCreateDto(

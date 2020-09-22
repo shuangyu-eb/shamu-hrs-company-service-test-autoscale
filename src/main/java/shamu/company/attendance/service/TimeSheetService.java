@@ -1,8 +1,5 @@
 package shamu.company.attendance.service;
 
-import java.sql.Timestamp;
-import java.util.List;
-import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -13,7 +10,12 @@ import shamu.company.attendance.entity.TimeSheet;
 import shamu.company.attendance.repository.StaticTimesheetStatusRepository;
 import shamu.company.attendance.repository.TimeSheetRepository;
 import shamu.company.common.exception.errormapping.ResourceNotFoundException;
+import shamu.company.user.entity.UserCompensation;
 import shamu.company.utils.DateUtil;
+
+import java.sql.Timestamp;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class TimeSheetService {
@@ -136,5 +138,9 @@ public class TimeSheetService {
   public int findCompanyHoursPendingCount(final String periodId) {
     return timeSheetRepository.findCompanyHoursPendingCount(
         periodId, TimeSheetStatus.SUBMITTED.name());
+  }
+
+  public TimeSheet findByUseCompensation(final UserCompensation userCompensation) {
+    return timeSheetRepository.findByUserCompensationId(userCompensation.getId());
   }
 }

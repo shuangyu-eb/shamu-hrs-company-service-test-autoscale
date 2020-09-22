@@ -7,6 +7,4 @@ import java.util.List;
 
 public interface PolicyDetailRepository extends BaseRepository<PolicyDetail, String> {
   List<PolicyDetail> findAllByOvertimePolicyId(String policyId);
-
-  void deleteByOvertimePolicyId(String policyId);
 }

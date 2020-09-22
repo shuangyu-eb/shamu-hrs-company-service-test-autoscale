@@ -219,7 +219,7 @@ public class AttendanceSetUpService {
                     timeAndAttendanceDetailsDto.getPeriodEndDate(), companyTimezone.getName())
                 .get());
     final List<UserCompensation> userCompensationList =
-        overtimeService.saveEmployeeOvertimePolicies(overtimeDetailsDtoList, periodStartDate);
+        overtimeService.createEmployeeOvertimePolicies(overtimeDetailsDtoList, periodStartDate);
 
     saveEmployeeTaSettings(timeAndAttendanceDetailsDto, companyTimezone);
 

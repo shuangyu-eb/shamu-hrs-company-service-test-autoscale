@@ -9,6 +9,9 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import shamu.company.attendance.dto.EmployeeOvertimeDetailsDto;
 import shamu.company.attendance.entity.OvertimePolicy;
+import shamu.company.attendance.entity.TimeSheet;
+import shamu.company.attendance.repository.OvertimePolicyRepository;
+import shamu.company.attendance.service.TimeSheetService;
 import shamu.company.common.exception.errormapping.ResourceNotFoundException;
 import shamu.company.job.entity.CompensationFrequency;
 import shamu.company.user.entity.UserCompensation;
@@ -17,6 +20,7 @@ import shamu.company.user.repository.UserCompensationRepository;
 import shamu.company.user.service.CompensationFrequencyService;
 import shamu.company.user.service.UserCompensationService;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -34,6 +38,10 @@ public class UserCompensationServiceTest {
   @Mock private CompensationFrequencyService compensationFrequencyService;
 
   @InjectMocks private UserCompensationService userCompensationService;
+
+  @Mock private OvertimePolicyRepository overtimePolicyRepository;
+
+  @Mock private TimeSheetService timeSheetService;
 
   @BeforeEach
   void init() {
@@ -99,27 +107,45 @@ public class UserCompensationServiceTest {
     Double regularPay = 1.0;
     String compensationUnit = "compensation_unit";
     String policyName = "policy_name";
+    final EmployeeOvertimeDetailsDto employeeOvertimeDetailsDto = new EmployeeOvertimeDetailsDto();
+    final UserCompensation userCompensation = new UserCompensation();
 
-    @Test
-    void whenPoliciesValid_thenShouldSucceed() {
-      final EmployeeOvertimeDetailsDto employeeOvertimeDetailsDto =
-          new EmployeeOvertimeDetailsDto();
+    @BeforeEach
+    void init() {
       employeeOvertimeDetailsDto.setEmployeeId(userId);
       employeeOvertimeDetailsDto.setRegularPay(regularPay);
       employeeOvertimeDetailsDto.setCompensationUnit(compensationUnit);
       employeeOvertimeDetailsDto.setOvertimePolicy(policyName);
+      userCompensation.setEndDate(new Timestamp(new Date().getTime()));
+    }
+
+    @Test
+    void whenPoliciesValid_thenShouldSucceed() {
       final OvertimePolicy overtimePolicy = new OvertimePolicy();
       overtimePolicy.setPolicyName(policyName);
       Mockito.when(userCompensationMapper.updateCompensationCents(regularPay))
           .thenReturn(Mockito.any());
       Mockito.when(compensationFrequencyService.findById(compensationUnit))
           .thenReturn(new CompensationFrequency());
+      Mockito.when(userCompensationRepository.findByUserId(userId)).thenReturn(userCompensation);
+      Mockito.when(overtimePolicyRepository.findAll()).thenReturn(Arrays.asList(overtimePolicy));
       assertThatCode(
-          () ->
-              userCompensationService.saveAllByEmployeeOvertimePolicies(
-                  Arrays.asList(employeeOvertimeDetailsDto),
-                  Arrays.asList(overtimePolicy),
-                  new Date()));
+              () ->
+                  userCompensationService.updateByCreateEmployeeOvertimePolicies(
+                      Arrays.asList(employeeOvertimeDetailsDto), new Date()))
+          .doesNotThrowAnyException();
+    }
+
+    @Test
+    void updateByEditEmployeeOvertimePolicies_shouldSucceed() {
+      Mockito.when(timeSheetService.findByUseCompensation(Mockito.any()))
+          .thenReturn(new TimeSheet());
+      Mockito.when(userCompensationRepository.findByUserId(userId)).thenReturn(userCompensation);
+      assertThatCode(
+              () ->
+                  userCompensationService.updateByEditEmployeeOvertimePolicies(
+                      Arrays.asList(employeeOvertimeDetailsDto)))
+          .doesNotThrowAnyException();
     }
   }
 }
