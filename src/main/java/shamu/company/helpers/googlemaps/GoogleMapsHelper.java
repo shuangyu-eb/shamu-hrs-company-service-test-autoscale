@@ -18,12 +18,12 @@ public class GoogleMapsHelper {
 
   private static final String ERROR_MESSAGE = "Error while getting time zone.";
 
-  @Value("${application.googleMapApiKey}")
-  private String googleMapApiKey;
+  @Value("${application.googleGeoCodingApiKey}")
+  private String googleGeoCodingApiKey;
 
   public String findTimezoneByLocation(final LatLng latLng)
       throws InterruptedException, ApiException, IOException {
-    final GeoApiContext mapApiContext = new GeoApiContext.Builder().apiKey(googleMapApiKey).build();
+    final GeoApiContext mapApiContext = new GeoApiContext.Builder().apiKey(googleGeoCodingApiKey).build();
     final TimeZone tz = TimeZoneApi.getTimeZone(mapApiContext, latLng).await();
     mapApiContext.shutdown();
     return tz.getID();
@@ -31,7 +31,7 @@ public class GoogleMapsHelper {
 
   public LatLng findLocationByPlaceId(final String placeId)
       throws InterruptedException, ApiException, IOException {
-    final GeoApiContext mapApiContext = new GeoApiContext.Builder().apiKey(googleMapApiKey).build();
+    final GeoApiContext mapApiContext = new GeoApiContext.Builder().apiKey(googleGeoCodingApiKey).build();
     final PlaceDetails placeDetails;
     placeDetails =
         PlacesApi.placeDetails(mapApiContext, placeId).fields(FieldMask.GEOMETRY_LOCATION).await();
