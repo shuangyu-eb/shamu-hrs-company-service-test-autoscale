@@ -471,7 +471,6 @@ public class AttendanceSetUpService {
     currentPayDate.add(Calendar.DAY_OF_YEAR, DAYS_PAY_DATE_AFTER_PERIOD);
     final Calendar nextPayDate = getNextPayDate(currentPayDate, payPeriodFrequency);
 
-    currentEndDayOfPeriod.add(Calendar.DAY_OF_YEAR, 1);
     final Timestamp periodStartDate = new Timestamp(currentEndDayOfPeriod.getTimeInMillis());
     nextPayDate.add(Calendar.DAY_OF_YEAR, -DAYS_PAY_DATE_AFTER_PERIOD);
     final Timestamp periodEndDate = new Timestamp(nextPayDate.getTimeInMillis());
