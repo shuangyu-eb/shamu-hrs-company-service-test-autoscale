@@ -24,7 +24,8 @@ public interface OvertimePolicyRepository extends BaseRepository<OvertimePolicy,
               + "left join "
               + "user_compensations c "
               + "on op.id=c.overtime_policy_id "
-              + "where op.active = 1 and (c.end_date is null or c.end_date > current_timestamp) "
+              + "and (c.end_date is null or c.end_date > current_timestamp) "
+              + "where op.active = 1 "
               + "GROUP BY id, policyName, defaultPolicy "
               + "ORDER BY policyName ",
       nativeQuery = true)
