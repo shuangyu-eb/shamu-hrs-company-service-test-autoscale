@@ -259,7 +259,7 @@ public class EmployeeService {
   }
 
   private boolean isIndeedConnection(final User currentUser) {
-    //get current auth0User connection
+    // get current auth0User connection
     final com.auth0.json.mgmt.users.User currentAuthUser =
         auth0Helper.getAuth0UserByIdWithByEmailFailover(
             currentUser.getId(), currentUser.getUserContactInformation().getEmailWork());
@@ -349,7 +349,8 @@ public class EmployeeService {
     }
   }
 
-  private void updateSHEmployeeBasicInformation(final User employee, final EmployeeDto employeeDto) {
+  private void updateSHEmployeeBasicInformation(
+      final User employee, final EmployeeDto employeeDto) {
 
     final UserStatus userStatus = userStatusService.findByName(Status.PENDING_VERIFICATION.name());
     employee.setUserStatus(userStatus);
@@ -378,8 +379,7 @@ public class EmployeeService {
     employee.setTimeZone(office.getOfficeAddress().getTimeZone());
   }
 
-  private User saveEmployeeBasicInformation(
-      final User employee, final EmployeeDto employeeDto) {
+  private User saveEmployeeBasicInformation(final User employee, final EmployeeDto employeeDto) {
     final String base64EncodedPhoto = employeeDto.getPersonalPhoto();
     final String photoPath = saveEmployeePhoto(base64EncodedPhoto);
     employee.setImageUrl(photoPath);
@@ -622,19 +622,17 @@ public class EmployeeService {
   }
 
   private void saveEmailTasks(
-      final WelcomeEmailDto welcomeEmailDto,
-      final User employee,
-      final User currentUser) {
+      final WelcomeEmailDto welcomeEmailDto, final User employee, final User currentUser) {
     final String toEmail = welcomeEmailDto.getSendTo();
     String content = welcomeEmailDto.getPersonalInformation();
 
     final Context emailContext =
-            emailService.getWelcomeEmailContextToEmail(
-                    content,
-                    employee.getResetPasswordToken(),
-                    employee.getInvitationEmailToken(),
-                    employee.getId(),
-                    toEmail);
+        emailService.getWelcomeEmailContextToEmail(
+            content,
+            employee.getResetPasswordToken(),
+            employee.getInvitationEmailToken(),
+            employee.getId(),
+            toEmail);
     final String companyName = companyService.getCompany().getName();
     emailContext.setVariable("companyName", companyName);
     content = emailService.getWelcomeEmail(emailContext);

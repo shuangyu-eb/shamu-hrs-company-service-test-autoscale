@@ -15,6 +15,7 @@ import shamu.company.job.entity.CompensationFrequency;
 import shamu.company.user.entity.UserCompensation;
 import shamu.company.user.entity.mapper.UserCompensationMapper;
 import shamu.company.user.repository.UserCompensationRepository;
+import shamu.company.utils.DateUtil;
 
 import java.math.BigInteger;
 import java.sql.Timestamp;
@@ -88,14 +89,26 @@ public class UserCompensationService {
     return userCompensationRepository.saveAll(userCompensationList);
   }
 
+  public void removeUsersFromAttendance(final List<String> userIds) {
+    final List<UserCompensation> userCompensationList =
+        userCompensationRepository.findByUserIdIn(userIds);
+    final Timestamp nowTime = DateUtil.getCurrentTime();
+    userCompensationList.forEach(userCompensation -> userCompensation.setEndDate(nowTime));
+    saveAll(userCompensationList);
+  }
+
   public List<UserCompensation> updateByCreateEmployeeOvertimePolicies(
-      final List<EmployeeOvertimeDetailsDto> overtimeDetailsDtoList, final Date startDate) {
+      final List<EmployeeOvertimeDetailsDto> overtimeDetailsDtoList,
+      final Date startDate,
+      final boolean isSetUp) {
     final List<UserCompensation> userCompensationList =
         overtimeDetailsDtoList.stream()
             .map(
                 employeeOvertimeDetailsDto -> {
                   UserCompensation userCompensation =
-                      findByUserId(employeeOvertimeDetailsDto.getEmployeeId());
+                      isSetUp
+                          ? findByUserId(employeeOvertimeDetailsDto.getEmployeeId())
+                          : new UserCompensation();
                   return assembleFromEmployeeOvertimeDetailsDto(
                       userCompensation, employeeOvertimeDetailsDto, startDate);
                 })

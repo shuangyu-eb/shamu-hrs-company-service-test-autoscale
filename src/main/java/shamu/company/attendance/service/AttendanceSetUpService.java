@@ -197,12 +197,17 @@ public class AttendanceSetUpService {
         attendancePolicyAndDetailDto.getAttendanceDetails();
     final List<NewOvertimePolicyDto> overtimePolicyDetails =
         attendancePolicyAndDetailDto.getOvertimePolicyDetails();
-    overtimePolicyDetails.forEach(
-        newOvertimePolicyDto -> {
-          if (!DEFAULT_OVERTIME_POLICY_NAME.equals(newOvertimePolicyDto.getPolicyName())) {
-            overtimeService.saveNewOvertimePolicy(newOvertimePolicyDto);
-          }
-        });
+    final Boolean isAddOrRemoveEmployee = timeAndAttendanceDetailsDto.getIsAddOrRemove();
+    final boolean isSetUp = Boolean.FALSE.equals(isAddOrRemoveEmployee);
+
+    if (isSetUp) {
+      overtimePolicyDetails.forEach(
+          newOvertimePolicyDto -> {
+            if (!DEFAULT_OVERTIME_POLICY_NAME.equals(newOvertimePolicyDto.getPolicyName())) {
+              overtimeService.saveNewOvertimePolicy(newOvertimePolicyDto);
+            }
+          });
+    }
     final List<EmployeeOvertimeDetailsDto> overtimeDetailsDtoList =
         timeAndAttendanceDetailsDto.getOvertimeDetails();
 
@@ -219,19 +224,19 @@ public class AttendanceSetUpService {
                     timeAndAttendanceDetailsDto.getPeriodEndDate(), companyTimezone.getName())
                 .get());
     final List<UserCompensation> userCompensationList =
-        overtimeService.createEmployeeOvertimePolicies(overtimeDetailsDtoList, periodStartDate);
+        overtimeService.createEmployeeOvertimePolicies(
+            overtimeDetailsDtoList, periodStartDate, isSetUp);
 
     saveEmployeeTaSettings(timeAndAttendanceDetailsDto, companyTimezone);
 
-    final Boolean isAddOrRemoveEmployee = timeAndAttendanceDetailsDto.getIsAddOrRemove();
     final TimePeriod firstTimePeriod =
-        Boolean.FALSE.equals(isAddOrRemoveEmployee)
+        isSetUp
             ? timePeriodService.save(new TimePeriod(periodStartDate, periodEndDate))
             : new TimePeriod();
     final TimeSheetStatus timeSheetStatus;
     if (periodStartDate.after(new Date())) {
       timeSheetStatus = TimeSheetStatus.NOT_YET_START;
-      if (Boolean.FALSE.equals(isAddOrRemoveEmployee)) {
+      if (isSetUp) {
         scheduleChangeTimeSheetsStatus(
             firstTimePeriod,
             TimeSheetStatus.NOT_YET_START,

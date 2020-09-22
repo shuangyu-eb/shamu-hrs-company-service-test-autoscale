@@ -132,7 +132,7 @@ public class UserCompensationServiceTest {
       assertThatCode(
               () ->
                   userCompensationService.updateByCreateEmployeeOvertimePolicies(
-                      Arrays.asList(employeeOvertimeDetailsDto), new Date()))
+                      Arrays.asList(employeeOvertimeDetailsDto), new Date(), true))
           .doesNotThrowAnyException();
     }
 
@@ -145,6 +145,15 @@ public class UserCompensationServiceTest {
               () ->
                   userCompensationService.updateByEditEmployeeOvertimePolicies(
                       Arrays.asList(employeeOvertimeDetailsDto)))
+          .doesNotThrowAnyException();
+    }
+
+    @Test
+    void removeEmployees() {
+      Mockito.when(userCompensationRepository.findByUserIdIn(Mockito.any()))
+          .thenReturn(Arrays.asList(userCompensation));
+      assertThatCode(
+              () -> userCompensationService.removeUsersFromAttendance((Arrays.asList(userId))))
           .doesNotThrowAnyException();
     }
   }

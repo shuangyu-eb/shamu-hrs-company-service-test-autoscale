@@ -18,6 +18,15 @@ public interface UserCompensationRepository extends BaseRepository<UserCompensat
 
   @Query(
       value =
+          "SELECT uc.* FROM user_compensations uc "
+              + "JOIN (SELECT max(created_at) as created_at, user_id as user_id "
+              + "FROM user_compensations GROUP BY user_id) as temp "
+              + "ON uc.user_id = temp.user_id AND uc.created_at = temp.created_at AND hex(uc.user_id) in ?1 ",
+      nativeQuery = true)
+  List<UserCompensation> findByUserIdIn(List<String> userIds);
+
+  @Query(
+      value =
           "SELECT ucb.* FROM (SELECT max(uca.created_at) as created_at, uca.user_id as user_id "
               + "FROM user_compensations uca JOIN users u ON "
               + "u.id = uca.user_id "

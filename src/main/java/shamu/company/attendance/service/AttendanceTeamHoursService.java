@@ -21,6 +21,7 @@ import shamu.company.common.entity.PayrollDetail;
 import shamu.company.common.service.PayrollDetailService;
 import shamu.company.timeoff.service.TimeOffRequestService;
 import shamu.company.user.entity.User;
+import shamu.company.user.service.UserCompensationService;
 
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
@@ -51,6 +52,7 @@ public class AttendanceTeamHoursService {
   private final TimePeriodService timePeriodService;
   private final EmployeesTaSettingService employeesTaSettingService;
   private final PayrollDetailService payrollDetailService;
+  private final UserCompensationService userCompensationService;
 
   public AttendanceTeamHoursService(
       final TimeSheetService timeSheetService,
@@ -61,7 +63,8 @@ public class AttendanceTeamHoursService {
       final StaticTimesheetStatusService statusService,
       final TimePeriodService timePeriodService,
       final EmployeesTaSettingService employeesTaSettingService,
-      final PayrollDetailService payrollDetailService) {
+      final PayrollDetailService payrollDetailService,
+      final UserCompensationService userCompensationService) {
     this.timeSheetService = timeSheetService;
     this.attendanceMyHoursService = attendanceMyHoursService;
     this.attendanceSettingsService = attendanceSettingsService;
@@ -71,6 +74,7 @@ public class AttendanceTeamHoursService {
     this.timePeriodService = timePeriodService;
     this.employeesTaSettingService = employeesTaSettingService;
     this.payrollDetailService = payrollDetailService;
+    this.userCompensationService = userCompensationService;
   }
 
   public List<EmployeeAttendanceSummaryDto> findEmployeeAttendanceSummary(
@@ -277,6 +281,7 @@ public class AttendanceTeamHoursService {
   public void removeAttendanceDetails(final List<String> userIds) {
     employeesTaSettingService.removeEmployees(userIds);
     timeSheetService.removeUserFromAttendance(userIds);
+    userCompensationService.removeUsersFromAttendance(userIds);
   }
 
   public PendingCountDto findAttendancePendingCount(final String userId) {

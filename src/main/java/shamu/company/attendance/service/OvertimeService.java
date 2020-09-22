@@ -334,10 +334,12 @@ public class OvertimeService {
   }
 
   public List<UserCompensation> createEmployeeOvertimePolicies(
-      final List<EmployeeOvertimeDetailsDto> overtimeDetailsDtoList, final Date startDate) {
+      final List<EmployeeOvertimeDetailsDto> overtimeDetailsDtoList,
+      final Date startDate,
+      final boolean isSetUp) {
     saveHireDates(overtimeDetailsDtoList);
     return userCompensationService.updateByCreateEmployeeOvertimePolicies(
-        overtimeDetailsDtoList, startDate);
+        overtimeDetailsDtoList, startDate, isSetUp);
   }
 
   private void saveHireDates(final List<EmployeeOvertimeDetailsDto> overtimeDetailsDtoList) {
