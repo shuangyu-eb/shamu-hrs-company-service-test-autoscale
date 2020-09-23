@@ -67,7 +67,7 @@ public class Auth0Helper {
   public static final String COMPANY_ID = "companyId";
   public static final String USER_ID = "id";
   @Value("${auth0.database}")
-  private String connection;
+  private static String connection;
 
   @Autowired
   public Auth0Helper(final Auth0Manager auth0Manager, final Auth0Config auth0Config) {
@@ -494,5 +494,9 @@ public class Auth0Helper {
   private String generateUserSecret(final String userId) {
     final String userSalt = BCrypt.gensalt();
     return BCrypt.hashpw(userId, userSalt);
+  }
+
+  public static boolean isIndeedEnvironment () {
+    return Auth0ConnectionEnum.INDEED.getValue().equals(connection);
   }
 }

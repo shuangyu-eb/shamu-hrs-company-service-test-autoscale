@@ -591,6 +591,7 @@ public class UserService {
             "YYYY");
     context.setVariable("currentYear", currentYear);
     context.setVariable("frontEndAddress", frontEndAddress);
+    context.setVariable("isIndeedENV", Auth0Helper.isIndeedEnvironment());
     final String emailContent = templateEngine.process("password_change_email.html", context);
     final Timestamp sendDate = Timestamp.valueOf(LocalDateTime.now());
     final Email notificationEmail =

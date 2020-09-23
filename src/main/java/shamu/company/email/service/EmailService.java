@@ -33,6 +33,7 @@ import shamu.company.email.entity.Email;
 import shamu.company.email.event.EmailEvent;
 import shamu.company.email.event.EmailStatus;
 import shamu.company.email.repository.EmailRepository;
+import shamu.company.helpers.auth0.Auth0Helper;
 import shamu.company.helpers.s3.AwsHelper;
 import shamu.company.scheduler.QuartzJobScheduler;
 import shamu.company.scheduler.job.SendEmailJob;
@@ -52,6 +53,7 @@ public class EmailService {
   private static final String SUBJECT_TEXT = "subjectText";
   private static final String CONTENT_TEXT = "contentText";
   private static final String BUTTON_TEXT = "buttonText";
+  private static final String IS_INDEED_ENV = "isIndeedENV";
 
   public enum EmailNotification {
     SUBMIT_TIME_SHEET(
@@ -265,6 +267,7 @@ public class EmailService {
   }
 
   public String getWelcomeEmail(final Context context) {
+    context.setVariable(IS_INDEED_ENV, Auth0Helper.isIndeedEnvironment());
     return templateEngine.process("employee_invitation_email.html", context);
   }
 
@@ -339,6 +342,7 @@ public class EmailService {
     context.setVariable("toEmailAddress", getEncodedEmailAddress(toEmail));
     context.setVariable(
         "passwordResetAddress", String.format("account/reset-password/%s", passwordRestToken));
+    context.setVariable(IS_INDEED_ENV, Auth0Helper.isIndeedEnvironment());
     context.setVariable(COMPANY_ID, getEncodedCompanyId());
     return templateEngine.process("password_reset_email.html", context);
   }
@@ -355,6 +359,7 @@ public class EmailService {
             "YYYY");
     context.setVariable(CURRENT_YEAR, currentYear);
     context.setVariable(COMPANY_ID, getEncodedCompanyId());
+    context.setVariable(IS_INDEED_ENV, Auth0Helper.isIndeedEnvironment());
     return templateEngine.process("verify_change_work_email.html", context);
   }
 
@@ -455,6 +460,7 @@ public class EmailService {
             zonedDateTime.withZoneSameInstant(ZoneId.of(AMERICA_MANAGUA)).toLocalDateTime(),
             "YYYY");
     context.setVariable(CURRENT_YEAR, currentYear);
+    context.setVariable(IS_INDEED_ENV, Auth0Helper.isIndeedEnvironment());
     final String emailContent = templateEngine.process("delivery_error_email.html", context);
 
     final String subject =
@@ -500,6 +506,7 @@ public class EmailService {
     context.setVariable(SUBJECT_TEXT, emailNotification.getSubjectContext());
     context.setVariable(CONTENT_TEXT, emailNotification.getContentContext());
     context.setVariable(BUTTON_TEXT, emailNotification.getButtonText());
+    context.setVariable(IS_INDEED_ENV, Auth0Helper.isIndeedEnvironment());
     return templateEngine.process("attendance_notification.html", context);
   }
 
@@ -520,6 +527,7 @@ public class EmailService {
             zonedDateTime.withZoneSameInstant(ZoneId.of(AMERICA_MANAGUA)).toLocalDateTime(),
             "YYYY");
     context.setVariable(CURRENT_YEAR, currentYear);
+    context.setVariable(IS_INDEED_ENV, Auth0Helper.isIndeedEnvironment());
     final String emailContent = templateEngine.process("add_new_admin_email.html", context);
     final List<User> admins = userService.findUsersByCompanyIdAndUserRole(Role.ADMIN.getValue());
     final List<User> superAdmins =
@@ -555,6 +563,7 @@ public class EmailService {
     context.setVariable(FRONT_END_ADDRESS, frontEndAddress);
     String verificationUrl = frontEndAddress + "parse?userId=" + userId + "&emailVerified=true";
     context.setVariable("accountVerifyAddress", verificationUrl);
+    context.setVariable(IS_INDEED_ENV, Auth0Helper.isIndeedEnvironment());
     final String emailContent = templateEngine.process("account_verify_email.html", context);
     final Timestamp sendDate = Timestamp.valueOf(LocalDateTime.now());
     final Email verifyEmail =

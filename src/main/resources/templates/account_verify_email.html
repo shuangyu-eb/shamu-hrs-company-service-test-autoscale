@@ -9,7 +9,7 @@
     <tr>
       <td style="width: 189px; height: 50px; display: block; margin: 10px auto 10px auto;">
         <img alt="logo" style="width: 202px; height: 37px;"
-             th:src="${frontEndAddress} + 'image/FullWidthSimplyHiredLogo.png'"
+             th:src="${frontEndAddress} +  'image/'+${isIndeedENV ? 'FullWidthWithIndeedLogo' : 'FullWidthSimplyHiredLogo'}+'.png'"
              title="logo">
       </td>
     </tr>
@@ -18,14 +18,14 @@
       style="background-color: #FFFFFF; padding: 20px;width: 600px; margin-left: auto; margin-right: auto;">
     <tr>
       <td style="font-size: 24px; line-height: 1.38; color: #2e3033; text-align: center; padding-top: 10px; padding-bottom: 20px;">
-        Welcome to the SimplyHired HRIS!
+        Welcome to the <span th:text="${isIndeedENV ? 'Indeed':'SimplyHired'}"></span> HRIS!
       </td>
     </tr>
     <tr>
       <td style="font-size: 16px; line-height: 1.38; color: #7b7e84; text-align: center;">
         <span>To get started, please confirm your email address.</span>
         <br>
-        <span>Thank you for using SimplyHired to manage the employees of your company.</span>
+        <span>Thank you for using <span th:text="${isIndeedENV ? 'Indeed HRIS':'SimplyHired'}"></span> to manage the employees of your company.</span>
       </td>
     </tr>
     <tr>

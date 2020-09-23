@@ -15,7 +15,7 @@
         <img
             style="width: 202px; height: 37px; margin-left: auto; margin-right: auto; display: block;"
             alt="logo" title="logo"
-            th:src="@{${frontEndAddress} + 'image/FullWidthSimplyHiredLogo.png'}">
+            th:src="@{${frontEndAddress} + 'image/'+${isIndeedENV ? 'FullWidthWithIndeedLogo' : 'FullWidthSimplyHiredLogo'}+'.png'}">
       </td>
     </tr>
     <tr style="width: 600px; height: 385px;">
@@ -32,7 +32,7 @@
                   </td>
                 </tr>
                 <tr>
-                  <td th:text="${companyName} + ' has invited you to create an account on the SimplyHired HRIS. Let\'s get it set up.'"
+                  <td th:text="${companyName} + ' has invited you to create an account on the'+${isIndeedENV ? 'Indeed':'SimplyHired'}+' HRIS. Let\'s get it set up.'"
                       style="padding-top: 17px; height: 21px; width: 230px; text-align: center; color: #7B7E84;">
                   </td>
                 </tr>

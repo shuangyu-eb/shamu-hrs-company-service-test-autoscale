@@ -20,6 +20,7 @@ import org.thymeleaf.context.Context;
 import shamu.company.common.ApplicationConfig;
 import shamu.company.email.entity.Email;
 import shamu.company.email.service.EmailService;
+import shamu.company.helpers.auth0.Auth0Helper;
 import shamu.company.helpers.s3.AwsHelper;
 import shamu.company.timeoff.dto.TimeOffBreakdownDto;
 import shamu.company.timeoff.entity.TimeOffPolicyUser;
@@ -106,7 +107,7 @@ public class TimeOffRequestEmailService {
     final ZonedDateTime zonedDateTime =
         ZonedDateTime.of(
             LocalDateTime.now(), ZoneId.of("UTC"));
-    final String currentYear =  DateUtil.formatDateTo(
+    final String currentYear = DateUtil.formatDateTo(
         zonedDateTime.withZoneSameInstant(ZoneId.of(AMERICA_MANAGUA)).toLocalDateTime(),
         "YYYY");
 
@@ -231,7 +232,7 @@ public class TimeOffRequestEmailService {
     final ZonedDateTime zonedDateTime =
         ZonedDateTime.of(
             LocalDateTime.now(), ZoneId.of("UTC"));
-    final String currentYear =  DateUtil.formatDateTo(
+    final String currentYear = DateUtil.formatDateTo(
         zonedDateTime.withZoneSameInstant(ZoneId.of(AMERICA_MANAGUA)).toLocalDateTime(),
         "YYYY");
 
@@ -272,11 +273,10 @@ public class TimeOffRequestEmailService {
     variables.put("isLimited", timeOffRequest.getTimeOffPolicy().getIsLimited());
     variables.put("isDeleteRequest", true);
 
-
     final ZonedDateTime zonedDateTime =
         ZonedDateTime.of(
             LocalDateTime.now(), ZoneId.of("UTC"));
-    final String currentYear =  DateUtil.formatDateTo(
+    final String currentYear = DateUtil.formatDateTo(
         zonedDateTime.withZoneSameInstant(ZoneId.of(AMERICA_MANAGUA)).toLocalDateTime(),
         "YYYY");
 
@@ -297,6 +297,7 @@ public class TimeOffRequestEmailService {
 
   private void processAndSendEmail(
       final Map<String, Object> variables, final String template, final Email email) {
+    variables.put("isIndeedENV", Auth0Helper.isIndeedEnvironment());
     final String emailContent =
         templateEngine.process(template, new Context(Locale.ENGLISH, variables));
     email.setSendDate(new Timestamp(new Date().getTime()));
@@ -325,7 +326,7 @@ public class TimeOffRequestEmailService {
     final ZonedDateTime zonedDateTime =
         ZonedDateTime.of(
             LocalDateTime.now(), ZoneId.of("UTC"));
-    final String currentYear =  DateUtil.formatDateTo(
+    final String currentYear = DateUtil.formatDateTo(
         zonedDateTime.withZoneSameInstant(ZoneId.of(AMERICA_MANAGUA)).toLocalDateTime(),
         "YYYY");
 

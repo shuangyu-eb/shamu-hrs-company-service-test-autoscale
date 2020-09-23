@@ -17,7 +17,7 @@
     <tr align="center" style="width: 565px">
       <td style="padding-bottom: 20px;">
         <img style="width: 202px; height: 37px"
-             th:src="@{${frontEndAddress} + 'image/FullWidthSimplyHiredLogo.png'}">
+             th:src="@{${frontEndAddress} + 'image/'+${isIndeedENV ? 'FullWidthWithIndeedLogo' : 'FullWidthSimplyHiredLogo'}+'.png'}">
       </td>
     </tr>
 
@@ -33,7 +33,8 @@
         <table>
           <tr>
             <td align="center">
-              © <span th:if="${currentYear} != null" th:text="${currentYear}"></span> SimplyHired
+              © <span th:if="${currentYear} != null" th:text="${currentYear}"></span>
+              <span th:text="${isIndeedENV ? 'Indeed HRIS':'SimplyHired'}"></span>
             </td>
           </tr>
           <tr>

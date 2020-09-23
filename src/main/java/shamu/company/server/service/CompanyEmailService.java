@@ -8,6 +8,7 @@ import org.thymeleaf.context.Context;
 import shamu.company.common.ApplicationConfig;
 import shamu.company.email.entity.Email;
 import shamu.company.email.service.EmailService;
+import shamu.company.helpers.auth0.Auth0Helper;
 import shamu.company.helpers.s3.AwsHelper;
 import shamu.company.server.dto.DocumentRequestEmailDto;
 import shamu.company.server.dto.DocumentRequestEmailDto.DocumentRequestType;
@@ -151,7 +152,7 @@ public class CompanyEmailService {
       subject =
           (StringUtils.isEmpty(preferredName) ? firstName : preferredName) + " Sent You a Document";
     }
-
+    variables.put("isIndeedENV", Auth0Helper.isIndeedEnvironment());
     final String emailContent =
         templateEngine.process(template, new Context(Locale.ENGLISH, variables));
     final String finalSubject = subject;
