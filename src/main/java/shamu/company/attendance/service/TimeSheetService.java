@@ -58,20 +58,17 @@ public class TimeSheetService {
 
   public Page<TimeSheet> findTeamTimeSheetsByIdAndCompanyIdAndStatus(
       final String timePeriodId,
-      final TimeSheetStatus timeSheetStatus,
+      final List<String> timeSheetStatus,
       final String userId,
       final Pageable pageable) {
     return timeSheetRepository.findTeamTimeSheetsByIdAndStatus(
-        timePeriodId, timeSheetStatus.getValue(), userId, pageable);
+        timePeriodId, timeSheetStatus, userId, pageable);
   }
 
   public Page<TimeSheet> findCompanyTimeSheetsByIdAndStatus(
-      final String timePeriodId,
-      final TimeSheetStatus timeSheetStatus,
-      final String userId,
-      final Pageable pageable) {
+      final String timePeriodId, final List<String> timeSheetStatus, final Pageable pageable) {
     return timeSheetRepository.findCompanyTimeSheetsByIdAndStatus(
-        timePeriodId, timeSheetStatus.getValue(), userId, pageable);
+        timePeriodId, timeSheetStatus, pageable);
   }
 
   public List<TimeSheet> findTeamTimeSheetsByIdAndCompanyIdAndStatus(
@@ -81,13 +78,17 @@ public class TimeSheetService {
   }
 
   public List<TimeSheet> findCompanyTimeSheetsByIdAndStatus(
-      final String userId, final String timePeriodId, final List<String> timeSheetStatus) {
-    return timeSheetRepository.findCompanyTimeSheetsByIdAndStatus(
-        timePeriodId, timeSheetStatus, userId);
+      final String timePeriodId, final List<String> timeSheetStatus) {
+    return timeSheetRepository.findCompanyTimeSheetsByIdAndStatus(timePeriodId, timeSheetStatus);
   }
 
   public void updateTimesheetStatus(final String statusId, final String timesheetId) {
     timeSheetRepository.updateTimesheetStatus(statusId, timesheetId);
+  }
+
+  public void updateTimesheetStatusByPeriodId(
+      final String fromStatus, final String toStatus, final String periodId) {
+    timeSheetRepository.updateTimesheetStatusByPeriodId(fromStatus, toStatus, periodId);
   }
 
   public List<TimeSheet> findAllByPeriodId(final String periodId) {

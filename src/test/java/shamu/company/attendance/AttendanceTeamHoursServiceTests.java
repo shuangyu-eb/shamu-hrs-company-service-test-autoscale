@@ -1,18 +1,5 @@
 package shamu.company.attendance;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
-
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -49,6 +36,21 @@ import shamu.company.user.entity.UserCompensation;
 import shamu.company.user.entity.UserPersonalInformation;
 import shamu.company.utils.UuidUtil;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+
 class AttendanceTeamHoursServiceTests {
 
   @InjectMocks private AttendanceTeamHoursService attendanceTeamHoursService;
@@ -80,6 +82,7 @@ class AttendanceTeamHoursServiceTests {
     List<AttendanceTeamHoursDto> attendanceTeamHoursDtos;
     List<TimeSheet> timeSheets;
     TimeSheet timeSheet;
+    StaticTimesheetStatus staticTimesheetStatus;
     String timesheetId;
     String companyId;
     TimeSheetStatus status;
@@ -94,9 +97,12 @@ class AttendanceTeamHoursServiceTests {
 
     @BeforeEach
     void init() {
+      staticTimesheetStatus = new StaticTimesheetStatus();
+      staticTimesheetStatus.setName("1");
       attendanceTeamHoursDtos = new ArrayList<>();
       timeSheets = new ArrayList<>();
       timeSheet = new TimeSheet();
+      timeSheet.setStatus(staticTimesheetStatus);
       timeSheets.add(timeSheet);
       timesheetId = UuidUtil.getUuidString();
       companyId = UuidUtil.getUuidString();
@@ -122,7 +128,7 @@ class AttendanceTeamHoursServiceTests {
 
       Mockito.when(
               timeSheetService.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
-                  timesheetId, status, "1", pageable))
+                  timesheetId, Collections.singletonList(status.getValue()), "1", pageable))
           .thenReturn(page);
       Mockito.when(attendanceSettingsService.findCompanySetting()).thenReturn(companyTaSetting);
       Mockito.when(attendanceMyHoursService.findAllRelevantTimelogs(timeSheet, companyTaSetting))
@@ -135,7 +141,11 @@ class AttendanceTeamHoursServiceTests {
       assertThat(
               attendanceTeamHoursService
                   .findTeamTimeSheetsByIdAndCompanyIdAndStatus(
-                      timesheetId, "team_hours", status, "1", pageable)
+                      timesheetId,
+                      "team_hours",
+                      Collections.singletonList(status.getValue()),
+                      "1",
+                      pageable)
                   .getContent()
                   .get(0)
                   .getWorkedMinutes())
@@ -143,7 +153,11 @@ class AttendanceTeamHoursServiceTests {
       assertThat(
               attendanceTeamHoursService
                   .findTeamTimeSheetsByIdAndCompanyIdAndStatus(
-                      timesheetId, "team_hours", status, "1", pageable)
+                      timesheetId,
+                      "team_hours",
+                      Collections.singletonList(status.getValue()),
+                      "1",
+                      pageable)
                   .getContent()
                   .get(0)
                   .getOverTimeMinutes())
@@ -151,7 +165,11 @@ class AttendanceTeamHoursServiceTests {
       assertThatCode(
               () ->
                   attendanceTeamHoursService.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
-                      timesheetId, "team_hours", status, "1", pageable))
+                      timesheetId,
+                      "team_hours",
+                      Collections.singletonList(status.getValue()),
+                      "1",
+                      pageable))
           .doesNotThrowAnyException();
     }
 
@@ -161,7 +179,7 @@ class AttendanceTeamHoursServiceTests {
 
       Mockito.when(
               timeSheetService.findCompanyTimeSheetsByIdAndStatus(
-                  timesheetId, status, "1", pageable))
+                  timesheetId, Collections.singletonList(status.getValue()), pageable))
           .thenReturn(page);
       Mockito.when(attendanceSettingsService.findCompanySetting()).thenReturn(companyTaSetting);
       Mockito.when(attendanceMyHoursService.findAllRelevantTimelogs(timeSheet, companyTaSetting))
@@ -174,7 +192,11 @@ class AttendanceTeamHoursServiceTests {
       assertThat(
               attendanceTeamHoursService
                   .findTeamTimeSheetsByIdAndCompanyIdAndStatus(
-                      timesheetId, "company_hours", status, "1", pageable)
+                      timesheetId,
+                      "company_hours",
+                      Collections.singletonList(status.getValue()),
+                      "1",
+                      pageable)
                   .getContent()
                   .get(0)
                   .getWorkedMinutes())
@@ -182,7 +204,11 @@ class AttendanceTeamHoursServiceTests {
       assertThat(
               attendanceTeamHoursService
                   .findTeamTimeSheetsByIdAndCompanyIdAndStatus(
-                      timesheetId, "company_hours", status, "1", pageable)
+                      timesheetId,
+                      "company_hours",
+                      Collections.singletonList(status.getValue()),
+                      "1",
+                      pageable)
                   .getContent()
                   .get(0)
                   .getOverTimeMinutes())
@@ -190,7 +216,11 @@ class AttendanceTeamHoursServiceTests {
       assertThatCode(
               () ->
                   attendanceTeamHoursService.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
-                      timesheetId, "company_hours", status, "1", pageable))
+                      timesheetId,
+                      "company_hours",
+                      Collections.singletonList(status.getValue()),
+                      "1",
+                      pageable))
           .doesNotThrowAnyException();
     }
   }
@@ -252,7 +282,8 @@ class AttendanceTeamHoursServiceTests {
                   Mockito.anyString(), Mockito.anyString(), Mockito.anyList()))
           .thenReturn(timeSheets);
       final AttendanceSummaryDto attendanceSummaryDto =
-          attendanceTeamHoursService.findTeamHoursSummary("1", "1", "team_hours");
+          attendanceTeamHoursService.findTeamHoursSummary(
+              "1", Collections.singletonList("1"), "1", "team_hours");
       assertThat(attendanceSummaryDto.getOverTimeMinutes()).isEqualTo(180);
       assertThat(attendanceSummaryDto.getWorkedMinutes()).isEqualTo(20);
       assertThat(attendanceSummaryDto.getTotalPtoMinutes()).isEqualTo(1200);
@@ -262,10 +293,11 @@ class AttendanceTeamHoursServiceTests {
     void whenIsCompanyHourType() {
       Mockito.when(
               timeSheetService.findCompanyTimeSheetsByIdAndStatus(
-                  Mockito.anyString(), Mockito.anyString(), Mockito.anyList()))
+                  Mockito.anyString(), Mockito.anyList()))
           .thenReturn(timeSheets);
       final AttendanceSummaryDto attendanceSummaryDto =
-          attendanceTeamHoursService.findTeamHoursSummary("1", "1", "company_hours");
+          attendanceTeamHoursService.findTeamHoursSummary(
+              "1", Collections.singletonList("1"), "1", "company_hours");
       assertThat(attendanceSummaryDto.getOverTimeMinutes()).isEqualTo(180);
       assertThat(attendanceSummaryDto.getWorkedMinutes()).isEqualTo(20);
       assertThat(attendanceSummaryDto.getTotalPtoMinutes()).isEqualTo(1200);
@@ -386,5 +418,18 @@ class AttendanceTeamHoursServiceTests {
     Mockito.when(timeSheetService.findCompanyHoursPendingCount(Mockito.any())).thenReturn(1);
     assertThatCode(() -> attendanceTeamHoursService.findAttendancePendingCount("1"))
         .doesNotThrowAnyException();
+  }
+
+  @Test
+  void completePeriod() {
+    final StaticTimesheetStatus completeStatus = new StaticTimesheetStatus();
+    completeStatus.setId("1");
+    final StaticTimesheetStatus approvedStatus = new StaticTimesheetStatus();
+    approvedStatus.setId("1");
+    Mockito.when(staticTimesheetStatusService.findByName(TimeSheetStatus.COMPLETE.name()))
+        .thenReturn(completeStatus);
+    Mockito.when(staticTimesheetStatusService.findByName(TimeSheetStatus.APPROVED.name()))
+        .thenReturn(approvedStatus);
+    assertThatCode(() -> attendanceTeamHoursService.completePeriod("1")).doesNotThrowAnyException();
   }
 }

@@ -1,8 +1,5 @@
 package shamu.company.attendance.controller;
 
-import java.util.List;
-import java.util.Set;
-import javax.validation.Valid;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpEntity;
@@ -32,8 +29,16 @@ import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.job.service.JobUserService;
 import shamu.company.utils.ReflectionUtil;
 
+import javax.validation.Valid;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+
 @RestApiController
 public class AttendanceTeamHoursController extends BaseRestController {
+
+  private static final String COMPANY_HOURS_TYPE = "company_hours";
 
   private final AttendanceTeamHoursService attendanceTeamHoursService;
 
@@ -67,7 +72,11 @@ public class AttendanceTeamHoursController extends BaseRestController {
     final Pageable pageable = PageRequest.of(page - 1, size);
 
     return attendanceTeamHoursService.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
-        timePeriodId, hourType, TimeSheetStatus.SUBMITTED, findUserId(), pageable);
+        timePeriodId,
+        hourType,
+        Collections.singletonList(TimeSheetStatus.SUBMITTED.getValue()),
+        findUserId(),
+        pageable);
   }
 
   @GetMapping("time-and-attendance/team-hours/{timePeriodId}/{hourType}")
@@ -86,13 +95,28 @@ public class AttendanceTeamHoursController extends BaseRestController {
     final Pageable pageable = PageRequest.of(page - 1, size);
 
     return attendanceTeamHoursService.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
-        timePeriodId, hourType, TimeSheetStatus.APPROVED, findUserId(), pageable);
+        timePeriodId,
+        hourType,
+        Arrays.asList(
+            TimeSheetStatus.APPROVED.getValue(),
+            TimeSheetStatus.COMPLETE.getValue(),
+            TimeSheetStatus.SEND_TO_PAYROLL.getValue()),
+        findUserId(),
+        pageable);
   }
 
   @GetMapping("time-and-attendance/team-hours-summary/{timePeriodId}/{hourType}")
   public AttendanceSummaryDto findTeamHoursSummary(
       @PathVariable final String timePeriodId, @PathVariable final String hourType) {
-    return attendanceTeamHoursService.findTeamHoursSummary(timePeriodId, findUserId(), hourType);
+    return attendanceTeamHoursService.findTeamHoursSummary(
+        timePeriodId,
+        Arrays.asList(
+            TimeSheetStatus.SUBMITTED.name(),
+            TimeSheetStatus.APPROVED.name(),
+            TimeSheetStatus.COMPLETE.name(),
+            TimeSheetStatus.SEND_TO_PAYROLL.name()),
+        findUserId(),
+        hourType);
   }
 
   @GetMapping("time-and-attendance/time-periods")
@@ -142,5 +166,20 @@ public class AttendanceTeamHoursController extends BaseRestController {
   @GetMapping("time-and-attendance/pending-count")
   public PendingCountDto findAttendancePendingCount() {
     return attendanceTeamHoursService.findAttendancePendingCount(findAuthUser().getId());
+  }
+
+  @GetMapping("time-and-attendance/approved-company-hours-summary/{timePeriodId}")
+  public AttendanceSummaryDto findApprovedAttendanceSummary(
+      @PathVariable final String timePeriodId) {
+    return attendanceTeamHoursService.findTeamHoursSummary(
+        timePeriodId,
+        Collections.singletonList(TimeSheetStatus.APPROVED.name()),
+        findUserId(),
+        COMPANY_HOURS_TYPE);
+  }
+
+  @PatchMapping("time-and-attendance/complete-period/{timePeriodId}")
+  public void completePeriod(@PathVariable final String timePeriodId) {
+    attendanceTeamHoursService.completePeriod(timePeriodId);
   }
 }

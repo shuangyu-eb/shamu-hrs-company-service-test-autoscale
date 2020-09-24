@@ -145,14 +145,13 @@ public class AttendanceTeamHoursService {
       return timeSheetService.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
           userId, timePeriodId, timeSheetStatus);
     }
-    return timeSheetService.findCompanyTimeSheetsByIdAndStatus(
-        userId, timePeriodId, timeSheetStatus);
+    return timeSheetService.findCompanyTimeSheetsByIdAndStatus(timePeriodId, timeSheetStatus);
   }
 
   public TeamHoursPageInfoDto findTeamTimeSheetsByIdAndCompanyIdAndStatus(
       final String timePeriodId,
       final String hourType,
-      final TimeSheetStatus timeSheetStatus,
+      final List<String> timeSheetStatus,
       final String userId,
       final Pageable pageable) {
     Page<TimeSheet> timeSheetPage = new PageImpl<>(Collections.emptyList());
@@ -164,7 +163,7 @@ public class AttendanceTeamHoursService {
     if (hourType.equals(COMPANY_HOURS_TYPE)) {
       timeSheetPage =
           timeSheetService.findCompanyTimeSheetsByIdAndStatus(
-              timePeriodId, timeSheetStatus, userId, pageable);
+              timePeriodId, timeSheetStatus, pageable);
     }
     final CompanyTaSetting companyTaSetting = attendanceSettingsService.findCompanySetting();
 
@@ -191,32 +190,27 @@ public class AttendanceTeamHoursService {
                       timeSheet.getEmployee().getId(),
                       timeSheet.getEmployee().getUserPersonalInformation().getName(),
                       workedMin,
-                      totalOvertimeMin);
+                      totalOvertimeMin,
+                      timeSheet.getStatus().getName());
                 })
             .collect(Collectors.toList());
     return new TeamHoursPageInfoDto(teamHoursDtos, timeSheetPage.getTotalPages());
   }
 
   public AttendanceSummaryDto findTeamHoursSummary(
-      final String timePeriodId, final String userId, final String hourType) {
+      final String timePeriodId,
+      final List<String> timesheetStatus,
+      final String userId,
+      final String hourType) {
     List<TimeSheet> timeSheets = new ArrayList<>();
     if (hourType.equals(TEAM_HOURS_TYPE)) {
       timeSheets =
           timeSheetService.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
-              userId,
-              timePeriodId,
-              Arrays.asList(
-                  StaticTimesheetStatus.TimeSheetStatus.SUBMITTED.name(),
-                  StaticTimesheetStatus.TimeSheetStatus.APPROVED.name()));
+              userId, timePeriodId, timesheetStatus);
     }
     if (hourType.equals(COMPANY_HOURS_TYPE)) {
       timeSheets =
-          timeSheetService.findCompanyTimeSheetsByIdAndStatus(
-              userId,
-              timePeriodId,
-              Arrays.asList(
-                  StaticTimesheetStatus.TimeSheetStatus.SUBMITTED.name(),
-                  StaticTimesheetStatus.TimeSheetStatus.APPROVED.name()));
+          timeSheetService.findCompanyTimeSheetsByIdAndStatus(timePeriodId, timesheetStatus);
     }
     final CompanyTaSetting companyTaSetting = attendanceSettingsService.findCompanySetting();
     int totalTimeOffHours = 0;
@@ -294,5 +288,14 @@ public class AttendanceTeamHoursService {
         .teamHoursPendingCount(teamHoursPendingCount)
         .companyHoursPendingCount(companyHoursPendingCount)
         .build();
+  }
+
+  public void completePeriod(final String timePeriodId) {
+    final StaticTimesheetStatus completeStatus =
+        staticTimesheetStatusService.findByName(TimeSheetStatus.COMPLETE.name());
+    final StaticTimesheetStatus approvedStatus =
+        staticTimesheetStatusService.findByName(TimeSheetStatus.APPROVED.name());
+    timeSheetService.updateTimesheetStatusByPeriodId(
+        approvedStatus.getId(), completeStatus.getId(), timePeriodId);
   }
 }

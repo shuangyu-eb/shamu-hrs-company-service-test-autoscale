@@ -17,7 +17,9 @@ public class StaticTimesheetStatus extends BaseEntity {
     ACTIVE("ACTIVE"),
     SUBMITTED("SUBMITTED"),
     APPROVED("APPROVED"),
-    NOT_YET_START("NOT YET START");
+    NOT_YET_START("NOT YET START"),
+    COMPLETE("COMPLETE"),
+    SEND_TO_PAYROLL("SEND TO PAYROLL");
     private final String value;
 
     TimeSheetStatus(final String value) {

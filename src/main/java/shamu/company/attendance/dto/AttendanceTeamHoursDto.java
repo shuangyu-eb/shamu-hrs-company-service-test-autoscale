@@ -15,8 +15,9 @@ public class AttendanceTeamHoursDto {
 
   private String userName;
 
-  private  Integer workedMinutes;
+  private Integer workedMinutes;
 
   private Integer overTimeMinutes;
 
+  private String overtimeStatus;
 }

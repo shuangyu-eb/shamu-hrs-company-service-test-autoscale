@@ -56,11 +56,7 @@ class AttendanceTeamHoursControllerTests extends WebControllerBaseTests {
       final TeamHoursPageInfoDto teamHoursPageInfoDto = new TeamHoursPageInfoDto();
       given(
               attendanceTeamHoursService.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
-                  Mockito.any(),
-                  Mockito.any(),
-                  Mockito.any(),
-                  Mockito.any(),
-                  Mockito.any()))
+                  Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
           .willReturn(teamHoursPageInfoDto);
 
       final MvcResult response =
@@ -91,11 +87,7 @@ class AttendanceTeamHoursControllerTests extends WebControllerBaseTests {
       final TeamHoursPageInfoDto teamHoursPageInfoDto = new TeamHoursPageInfoDto();
       given(
               attendanceTeamHoursService.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
-                  Mockito.any(),
-                  Mockito.any(),
-                  Mockito.any(),
-                  Mockito.any(),
-                  Mockito.any()))
+                  Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
           .willReturn(teamHoursPageInfoDto);
 
       final MvcResult response =
@@ -213,7 +205,8 @@ class AttendanceTeamHoursControllerTests extends WebControllerBaseTests {
   void updateAttendanceDetails() throws Exception {
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
-    final AttendancePolicyAndDetailDto attendancePolicyAndDetailDto = new AttendancePolicyAndDetailDto();
+    final AttendancePolicyAndDetailDto attendancePolicyAndDetailDto =
+        new AttendancePolicyAndDetailDto();
     final TimeAndAttendanceDetailsDto timeAndAttendanceDetailsDto =
         new TimeAndAttendanceDetailsDto();
     final List<EmployeeOvertimeDetailsDto> overtimeDetails = new ArrayList<>();
@@ -248,6 +241,33 @@ class AttendanceTeamHoursControllerTests extends WebControllerBaseTests {
                     .headers(httpHeaders))
             .andReturn();
 
+    assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+  }
+
+  @Test
+  void findApprovedAttendanceSummary() throws Exception {
+    final HttpHeaders httpHeaders = new HttpHeaders();
+    httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.get(
+                        "/company/time-and-attendance/approved" + "-company-hours-summary/1")
+                    .headers(httpHeaders))
+            .andReturn();
+    assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+  }
+
+  @Test
+  void completePeriod() throws Exception {
+    final HttpHeaders httpHeaders = new HttpHeaders();
+    httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.patch("/company/time-and-attendance/complete-period/1")
+                    .headers(httpHeaders))
+            .andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
 }

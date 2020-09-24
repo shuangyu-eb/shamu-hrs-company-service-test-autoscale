@@ -22,7 +22,6 @@ public interface TimeSheetRepository extends BaseRepository<TimeSheet, String> {
 
   String QUERY_COMPANY_TIMESHEETS_SQL =
       "select t.* from timesheets t "
-          + " join users u on u.id = t.employee_id"
           + " join static_timesheet_status sts on sts.id = t.status_id"
           + " where "
           + "t.time_period_id = unhex(?1) "
@@ -33,22 +32,21 @@ public interface TimeSheetRepository extends BaseRepository<TimeSheet, String> {
       countQuery = QUERY_TEAM_TIMESHEETS_SQL,
       nativeQuery = true)
   Page<TimeSheet> findTeamTimeSheetsByIdAndStatus(
-      String timePeriodId, String status, String userId, Pageable pageable);
+      String timePeriodId, List<String> status, String userId, Pageable pageable);
 
   @Query(
       value = QUERY_COMPANY_TIMESHEETS_SQL,
       countQuery = QUERY_COMPANY_TIMESHEETS_SQL,
       nativeQuery = true)
   Page<TimeSheet> findCompanyTimeSheetsByIdAndStatus(
-      String timePeriodId, String status, String userId, Pageable pageable);
+      String timePeriodId, List<String> status, Pageable pageable);
 
   @Query(value = QUERY_TEAM_TIMESHEETS_SQL, nativeQuery = true)
   List<TimeSheet> findTeamTimeSheetsByIdAndStatus(
       String timePeriodId, List<String> status, String userId);
 
   @Query(value = QUERY_COMPANY_TIMESHEETS_SQL, nativeQuery = true)
-  List<TimeSheet> findCompanyTimeSheetsByIdAndStatus(
-      String timePeriodId, List<String> status, String userId);
+  List<TimeSheet> findCompanyTimeSheetsByIdAndStatus(String timePeriodId, List<String> status);
 
   boolean existsByEmployeeId(String employeeId);
 
@@ -58,6 +56,15 @@ public interface TimeSheetRepository extends BaseRepository<TimeSheet, String> {
       value = "update timesheets set status_id = unhex(?1) where id = unhex(?2)",
       nativeQuery = true)
   void updateTimesheetStatus(String statusId, String timesheetId);
+
+  @Modifying
+  @Transactional
+  @Query(
+      value =
+          "update timesheets set status_id = unhex(?2) where status_id = unhex(?1) and "
+              + "time_period_id = unhex(?3)",
+      nativeQuery = true)
+  void updateTimesheetStatusByPeriodId(String fromStatus, String toStatus, String periodId);
 
   List<TimeSheet> findAllByTimePeriodId(String timePeriodId);
 
