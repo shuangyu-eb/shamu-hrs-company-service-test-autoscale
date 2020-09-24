@@ -8,7 +8,7 @@
 </head>
 <body>
 <section align="center"
-         style="background-color: #f0f2f5; padding-bottom: 119px; width: 100%;">
+         th:style="${isIndeedENV ? 'background-color: #f3f2f1;' : 'background-color: #f0f2f5;'} + 'padding-bottom: 119px; width: 100%;'">
   <table style="width: 100%; min-height: 465px; border-collapse: collapse;">
     <tbody>
     <tr>
@@ -22,7 +22,7 @@
             <td colspan="3">
               <div class="button-card"
                    style="padding-bottom: 30px; border-bottom: solid 1px #dfe2e9;">
-                <a style="margin-top: 30px; text-decoration: none; padding: 10px 20px; border-radius: 20px; background: #0075DF; border: 1px solid transparent;cursor: pointer; display: block; width: 151px; margin-left: auto; margin-right: auto;font-size: 14px; font-weight: 500; line-height: 1.17; letter-spacing: .2px; color: #ffffff; text-align: center;"
+                <a th:style="${isIndeedENV ? 'padding:unset;width:136px;height:52px;font-size:16px;font-weight:bold;line-height:3.27;background:#2557A7;border:unset;border-radius:8px;color:#ffffff;' : 'padding: 10px 20px; border-radius: 20px; background: #0075DF; border: 1px solid transparent;width: 151px;font-size: 14px; font-weight: 500; line-height: 1.17; color: #ffffff;'} +'margin-top: 30px; text-decoration: none;cursor: pointer; display: block;margin-left: auto; margin-right: auto;letter-spacing: .2px; text-align: center;'"
                    th:href="@{${frontEndAddress} + 'documents/my-documents/' + ${documentRequestId}}">View
                 </a>
               </div>

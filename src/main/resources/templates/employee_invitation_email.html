@@ -7,7 +7,7 @@
 </head>
 <body>
 <div align="center"
-     style="background-color: #f0f2f5; padding-bottom: 105px; padding-top: 105px; width: 100%;">
+     th:style="'background-color: ' + ${isIndeedENV ? '#f3f2f1' : '#f0f2f5'} + '; padding-bottom: 105px; padding-top: 105px; width: 100%;'">
   <table style="width: 600px; min-height: 459px; border-collapse: collapse;">
     <tbody>
     <tr>
@@ -27,12 +27,12 @@
               <table style="width: 100%;height: 100%; border-collapse: collapse;">
                 <tbody>
                 <tr>
-                  <td th:text="'Welcome to ' + ${companyName} + '!'"
-                      style="padding-top: 47px; font-size: 24px; width: 355px; height: 28px; text-align: center;">
+                  <td th:text="'Welcome to ' + ${isIndeedENV ? 'Indeed HR Tools' : companyName} + '!'"
+                      th:style="'font-weight: ' + ${isIndeedENV ? 'bold' : 'normal'} + ';padding-top: 47px; font-size: 24px; width: 355px; height: 28px; text-align: center;'">
                   </td>
                 </tr>
                 <tr>
-                  <td th:text="${companyName} + ' has invited you to create an account on the'+${isIndeedENV ? 'Indeed':'SimplyHired'}+' HRIS. Let\'s get it set up.'"
+                  <td th:text="${isIndeedENV ? 'To get started,please confirm your email address. Thank you for using Indeed to manage the employees of your company.' : companyName} + '' + ${isIndeedENV ? '' : 'has invited you to create an account on the SimplyHired HRIS. Lets get it set up.'}"
                       style="padding-top: 17px; height: 21px; width: 230px; text-align: center; color: #7B7E84;">
                   </td>
                 </tr>
@@ -40,13 +40,12 @@
                   <td th:switch="${targetLinkAddress}"
                       style="padding-top: 33px; height: 40px; text-align: center; padding-bottom: 47px;">
                     <div th:case="'#'"
-                         style="background-color: #0075DF; color: #ffffff; outline: none; box-shadow: none; border: 0; width: 153px; height: 40px; font-size: 14px; border-radius: 400px; display: inline-block; line-height: 42px; text-decoration: none">
-                      Get
-                      Started
+                         th:text="${isIndeedENV ? 'Confirm your email' : 'Get Started'}"
+                         th:style="${isIndeedENV ? 'width: auto;height:52px;background-color:#2557A7;border-radius:8px;font-size:16px;font-weight:bold;line-height:126.5%;padding: 16px 17px;' : 'background-color: #0075DF; width: 153px; height: 40px; font-size: 14px; border-radius: 400px; line-height: 42px;'} + 'color: #ffffff; outline: none; box-shadow: none; border: 0;display: inline-block; text-decoration: none'">
                     </div>
                     <a th:case="*" th:href="@{${targetLinkAddress}}"
-                       style="background-color: #0075DF; color: #ffffff; outline: none; box-shadow: none; border: 0; width: 153px; height: 40px; font-size: 14px; border-radius: 400px; cursor: pointer; display: inline-block; line-height: 42px; text-decoration: none">Get
-                      Started</a></td>
+                       th:style="${isIndeedENV ? 'width: auto;height:52px;background-color:#2557A7;border-radius:8px;font-size:16px;font-weight:bold;line-height:126.5%;padding: 16px 17px;' : 'background-color: #0075DF; width: 153px; height: 40px; font-size: 14px; border-radius: 400px; line-height: 42px;'} + 'color: #ffffff; outline: none; box-shadow: none; border: 0;display: inline-block; text-decoration: none;cursor: pointer;'"
+                       th:text="${isIndeedENV ? 'Confirm your email' : 'Get Started'}"></a></td>
                 </tr>
                 </tbody>
               </table>

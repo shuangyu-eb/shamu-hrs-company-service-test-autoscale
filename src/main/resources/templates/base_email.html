@@ -11,7 +11,7 @@
         type="text/css">
 </head>
 <body>
-<center style="margin: auto; background-color: #f0f2f5; width: 615px; padding: 32px 0px">
+<center th:style="'background-color: ' + ${isIndeedENV ? '#f3f2f1' : '#f0f2f5'} + ';width: 615px; padding: 32px 0px; margin: auto;'">
   <table align="center" style="padding: -1px 24px; border: 0; width: 600px">
     <tbody>
     <tr align="center" style="width: 565px">
@@ -38,13 +38,24 @@
             </td>
           </tr>
           <tr>
-            <td align="center">
-              2711 Centerville Road, Suite 400
+            <td align="center"
+            th:text="${isIndeedENV ? '6433 Champion Grandview Way, Building 1,' : '2711 Centerville Road, Suite 400'}">
             </td>
           </tr>
           <tr>
+            <td align="center"
+            th:text="${isIndeedENV ? 'Austin, TX 78750' : 'Wilmington, Delaware 19808'}"
+            >
+            </td>
+          </tr>
+          <tr th:if="${isIndeedENV}">
             <td align="center">
-              Wilmington, Delaware 19808
+              PRIVACY POLICY | TERMS | HELP CENTER |
+            </td>
+          </tr>
+          <tr th:if="${isIndeedENV}">
+            <td align="center">
+              UNSUBSCRIBE
             </td>
           </tr>
         </table>

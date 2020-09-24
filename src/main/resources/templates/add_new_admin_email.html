@@ -11,7 +11,7 @@
 <section align="center">
   <table style="margin: auto; text-align: center">
     <tr>
-      <td style="font-size: 24px; line-height: 32px; padding-top: 40px">New Admin Added to HRIS</td>
+      <td th:style="'font-weight: ' + ${isIndeedENV ? 'bold' : 'normal'} + ';font-size: 24px; line-height: 32px; padding-top: 40px'">New Admin Added to HRIS</td>
     </tr>
     <tr>
       <td style="font-size: 16px; line-height: 24px;">
@@ -24,15 +24,15 @@
     </tr>
     <tr>
       <td style="color: #7B7E84;">
-        <div style="width: 60%; margin: 10px auto 0 auto">You can see these changes (and revert them if you wish) in the "Settings" tab of this employee's profile. If there is a problem,</div>
+        <div style="width: 65%; margin: 10px auto 0 auto">You can see these changes (and revert them if you wish) in the "Settings" tab of this employee's profile. If there is a problem,</div>
         <div>please email us: <span style="color: #0075DF">hris-help@<span th:text="${isIndeedENV ? 'indeed':'simplyHired'}"></span>.com</span></div>
       </td>
     </tr>
     <tr>
       <td>
-        <a style="display: block;text-decoration: none; border-radius: 100px; background: #FFFFFF; border: 1px solid #C4C7CE; cursor: pointer; width: 170px; height: 35px; margin: 25px auto 20px auto; font-size: 12px; font-weight: 600; line-height: 35px; letter-spacing: .2px; color: #0075DF;"
+        <a th:style="${isIndeedENV ? 'width: 181px;height:52px;background-color:#2557A7;color:#ffffff;border-radius:8px;font-size:16px;font-weight:bold;line-height:322.5%;border:unset;' : 'border-radius: 100px; background: #FFFFFF;border: 1px solid #C4C7CE;width: 170px; height: 35px; font-size: 12px; font-weight: 600; line-height: 35px; letter-spacing: .2px; color: #0075DF;'} + 'display: block;text-decoration: none;cursor: pointer;margin: 25px auto 20px auto;'"
            th:href="@{${frontEndAddress} + 'employees/' + ${promotedEmployeeId} + '/setting'}">
-          <span>Manage Employees</span>
+          <span th:text="${isIndeedENV ? 'Manage employees' : 'Manage Employees'}"></span>
         </a>
       </td>
     </tr>
