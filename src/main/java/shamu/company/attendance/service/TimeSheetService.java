@@ -118,7 +118,7 @@ public class TimeSheetService {
   }
 
   public TimeSheet findTimeSheetByPeriodAndUser(final String periodId, final String userId) {
-    return timeSheetRepository.findByTimePeriodIdAndEmployeeId(periodId, userId);
+    return timeSheetRepository.findByTimePeriodIdAndEmployeeIdAndRemovedAtIsNull(periodId, userId);
   }
 
   public void removeUserFromAttendance(final List<String> userIds) {

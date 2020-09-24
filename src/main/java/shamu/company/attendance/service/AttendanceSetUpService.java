@@ -224,8 +224,10 @@ public class AttendanceSetUpService {
                     timeAndAttendanceDetailsDto.getPeriodEndDate(), companyTimezone.getName())
                 .get());
     final List<UserCompensation> userCompensationList =
-        overtimeService.createEmployeeOvertimePolicies(
-            overtimeDetailsDtoList, periodStartDate, isSetUp);
+        isSetUp
+            ? overtimeService.createEmployeeOvertimePolicies(
+                overtimeDetailsDtoList, periodStartDate)
+            : overtimeService.addEmployees(overtimeDetailsDtoList);
 
     saveEmployeeTaSettings(timeAndAttendanceDetailsDto, companyTimezone);
 

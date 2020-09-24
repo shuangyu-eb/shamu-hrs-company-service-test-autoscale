@@ -61,7 +61,7 @@ public interface TimeSheetRepository extends BaseRepository<TimeSheet, String> {
 
   List<TimeSheet> findAllByTimePeriodId(String timePeriodId);
 
-  TimeSheet findByTimePeriodIdAndEmployeeId(String periodId, String employeeId);
+  TimeSheet findByTimePeriodIdAndEmployeeIdAndRemovedAtIsNull(String periodId, String employeeId);
 
   @Query(
       value =

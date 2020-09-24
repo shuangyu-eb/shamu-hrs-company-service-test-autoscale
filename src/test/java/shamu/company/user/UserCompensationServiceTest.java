@@ -14,6 +14,8 @@ import shamu.company.attendance.repository.OvertimePolicyRepository;
 import shamu.company.attendance.service.TimeSheetService;
 import shamu.company.common.exception.errormapping.ResourceNotFoundException;
 import shamu.company.job.entity.CompensationFrequency;
+import shamu.company.job.entity.JobUser;
+import shamu.company.job.repository.JobUserRepository;
 import shamu.company.user.entity.UserCompensation;
 import shamu.company.user.entity.mapper.UserCompensationMapper;
 import shamu.company.user.repository.UserCompensationRepository;
@@ -42,6 +44,8 @@ public class UserCompensationServiceTest {
   @Mock private OvertimePolicyRepository overtimePolicyRepository;
 
   @Mock private TimeSheetService timeSheetService;
+
+  @Mock private JobUserRepository jobUserRepository;
 
   @BeforeEach
   void init() {
@@ -132,7 +136,7 @@ public class UserCompensationServiceTest {
       assertThatCode(
               () ->
                   userCompensationService.updateByCreateEmployeeOvertimePolicies(
-                      Arrays.asList(employeeOvertimeDetailsDto), new Date(), true))
+                      Arrays.asList(employeeOvertimeDetailsDto), new Date()))
           .doesNotThrowAnyException();
     }
 
@@ -141,10 +145,17 @@ public class UserCompensationServiceTest {
       Mockito.when(timeSheetService.findByUseCompensation(Mockito.any()))
           .thenReturn(new TimeSheet());
       Mockito.when(userCompensationRepository.findByUserId(userId)).thenReturn(userCompensation);
+      Mockito.when(jobUserRepository.findByUserCompensationId(Mockito.any()))
+          .thenReturn(new JobUser());
       assertThatCode(
               () ->
                   userCompensationService.updateByEditEmployeeOvertimePolicies(
-                      Arrays.asList(employeeOvertimeDetailsDto)))
+                      Arrays.asList(employeeOvertimeDetailsDto), true))
+          .doesNotThrowAnyException();
+      assertThatCode(
+              () ->
+                  userCompensationService.updateByEditEmployeeOvertimePolicies(
+                      Arrays.asList(employeeOvertimeDetailsDto), false))
           .doesNotThrowAnyException();
     }
 

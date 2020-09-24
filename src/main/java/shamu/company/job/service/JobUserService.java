@@ -1,10 +1,5 @@
 package shamu.company.job.service;
 
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.data.domain.PageRequest;
@@ -67,6 +62,12 @@ import shamu.company.user.service.UserCompensationService;
 import shamu.company.user.service.UserRoleService;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.DateUtil;
+
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -364,12 +365,14 @@ public class JobUserService {
     StaticTimezone staticTimezone = null;
     office.setName(officeCreateDto.getOfficeName());
     if (!officeCreateDto.getPlaceId().isEmpty()) {
-      final String timezoneName = googleMapsHelper.findTimezoneByPlaceId(officeCreateDto.getPlaceId());
+      final String timezoneName =
+          googleMapsHelper.findTimezoneByPlaceId(officeCreateDto.getPlaceId());
       staticTimezone = staticTimeZoneRepository.findByName(timezoneName);
     }
 
     final OfficeAddress officeAddress =
-        officeAddressMapper.updateFromOfficeCreateDto(office.getOfficeAddress(), officeCreateDto, staticTimezone);
+        officeAddressMapper.updateFromOfficeCreateDto(
+            office.getOfficeAddress(), officeCreateDto, staticTimezone);
 
     final Office newOffice = officeMapper.convertToOffice(office, officeCreateDto, officeAddress);
     officeService.save(newOffice);

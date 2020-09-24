@@ -226,6 +226,8 @@ public class OvertimeServiceTests {
       employeeOvertimeDetailsDto.setEmployeeId(userId);
       employeeOvertimeDetailsDto.setHireDate(new Date());
       Mockito.when(jobUserRepository.findByUserId(userId)).thenReturn(new JobUser());
+      assertThatCode(() -> overtimeService.addEmployees(Arrays.asList(employeeOvertimeDetailsDto)))
+          .doesNotThrowAnyException();
       assertThatCode(
               () ->
                   overtimeService.editEmployeeOvertimePolicies(

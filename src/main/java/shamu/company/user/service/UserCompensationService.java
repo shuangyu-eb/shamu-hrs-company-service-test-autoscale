@@ -12,6 +12,8 @@ import shamu.company.attendance.service.TimeSheetService;
 import shamu.company.common.exception.errormapping.ResourceNotFoundException;
 import shamu.company.employee.dto.CompensationDto;
 import shamu.company.job.entity.CompensationFrequency;
+import shamu.company.job.entity.JobUser;
+import shamu.company.job.repository.JobUserRepository;
 import shamu.company.user.entity.UserCompensation;
 import shamu.company.user.entity.mapper.UserCompensationMapper;
 import shamu.company.user.repository.UserCompensationRepository;
@@ -39,18 +41,22 @@ public class UserCompensationService {
 
   private final OvertimePolicyRepository overtimePolicyRepository;
 
+  private final JobUserRepository jobUserRepository;
+
   @Autowired
   public UserCompensationService(
       final UserCompensationRepository userCompensationRepository,
       final UserCompensationMapper userCompensationMapper,
       final CompensationFrequencyService compensationFrequencyService,
       final TimeSheetService timeSheetService,
-      final OvertimePolicyRepository overtimePolicyRepository) {
+      final OvertimePolicyRepository overtimePolicyRepository,
+      final JobUserRepository jobUserRepository) {
     this.userCompensationRepository = userCompensationRepository;
     this.userCompensationMapper = userCompensationMapper;
     this.compensationFrequencyService = compensationFrequencyService;
     this.timeSheetService = timeSheetService;
     this.overtimePolicyRepository = overtimePolicyRepository;
+    this.jobUserRepository = jobUserRepository;
   }
 
   public UserCompensation save(final UserCompensation userCompensation) {
@@ -98,17 +104,13 @@ public class UserCompensationService {
   }
 
   public List<UserCompensation> updateByCreateEmployeeOvertimePolicies(
-      final List<EmployeeOvertimeDetailsDto> overtimeDetailsDtoList,
-      final Date startDate,
-      final boolean isSetUp) {
+      final List<EmployeeOvertimeDetailsDto> overtimeDetailsDtoList, final Date startDate) {
     final List<UserCompensation> userCompensationList =
         overtimeDetailsDtoList.stream()
             .map(
                 employeeOvertimeDetailsDto -> {
                   UserCompensation userCompensation =
-                      isSetUp
-                          ? findByUserId(employeeOvertimeDetailsDto.getEmployeeId())
-                          : new UserCompensation();
+                      findByUserId(employeeOvertimeDetailsDto.getEmployeeId());
                   return assembleFromEmployeeOvertimeDetailsDto(
                       userCompensation, employeeOvertimeDetailsDto, startDate);
                 })
@@ -117,8 +119,9 @@ public class UserCompensationService {
     return saveAll(userCompensationList);
   }
 
-  public void updateByEditEmployeeOvertimePolicies(
-      final List<EmployeeOvertimeDetailsDto> overtimeDetailsDtoList) {
+  public List<UserCompensation> updateByEditEmployeeOvertimePolicies(
+      final List<EmployeeOvertimeDetailsDto> overtimeDetailsDtoList,
+      final boolean isAddAttendanceEmployees) {
     final List<OldAndNewCompensation> oldAndNewCompensations =
         overtimeDetailsDtoList.stream()
             .map(
@@ -131,7 +134,7 @@ public class UserCompensationService {
                   return new OldAndNewCompensation(oldCompensation, newCompensation);
                 })
             .collect(Collectors.toList());
-    updateCompensations(oldAndNewCompensations);
+    return updateCompensationsByAttendance(oldAndNewCompensations, isAddAttendanceEmployees);
   }
 
   private UserCompensation assembleFromEmployeeOvertimeDetailsDto(
@@ -178,12 +181,17 @@ public class UserCompensationService {
           oldAndNewCompensations.add(
               new OldAndNewCompensation(oldUserCompensation, newUserCompensation));
         });
-    updateCompensations(oldAndNewCompensations);
+    updateCompensationsByAttendance(oldAndNewCompensations, false);
   }
 
-  private void updateCompensations(final List<OldAndNewCompensation> oldAndNewCompensationList) {
+  private List<UserCompensation> updateCompensationsByAttendance(
+      final List<OldAndNewCompensation> oldAndNewCompensationList,
+      final boolean isAddAttendanceEmployees) {
     final List<TimeSheet> timeSheets = new ArrayList<>();
+    final List<JobUser> jobUsers = new ArrayList<>();
+
     final Timestamp nowTime = new Timestamp(new Date().getTime());
+
     final List<UserCompensation> newUserCompensationList = new ArrayList<>();
     final List<UserCompensation> oldUserCompensationList = new ArrayList<>();
 
@@ -191,25 +199,35 @@ public class UserCompensationService {
         oldAndNewCompensation -> {
           final UserCompensation newUserCompensation = oldAndNewCompensation.getNewCompensation();
           final UserCompensation oldUserCompensation = oldAndNewCompensation.getOldCompensation();
-          final TimeSheet timeSheet = timeSheetService.findByUseCompensation(oldUserCompensation);
 
           newUserCompensation.setId(null);
           newUserCompensation.setStartDate(nowTime);
-          newUserCompensation.setEndDate(oldUserCompensation.getEndDate());
-          newUserCompensationList.add(newUserCompensation);
+          newUserCompensation.setEndDate(
+              isAddAttendanceEmployees ? null : oldUserCompensation.getEndDate());
           final UserCompensation savedNewUserCompensation = save(newUserCompensation);
+          newUserCompensationList.add(savedNewUserCompensation);
 
           oldUserCompensation.setEndDate(nowTime);
           oldUserCompensationList.add(oldUserCompensation);
 
-          if (timeSheet != null) {
-            timeSheet.setUserCompensation(savedNewUserCompensation);
-            timeSheets.add(timeSheet);
+          if (!isAddAttendanceEmployees) {
+            final TimeSheet timeSheet = timeSheetService.findByUseCompensation(oldUserCompensation);
+
+            if (timeSheet != null) {
+              timeSheet.setUserCompensation(savedNewUserCompensation);
+              timeSheets.add(timeSheet);
+            }
           }
+
+          final JobUser jobUser =
+              jobUserRepository.findByUserCompensationId(oldUserCompensation.getId());
+          jobUser.setUserCompensation(newUserCompensation);
         });
 
+    jobUserRepository.saveAll(jobUsers);
     timeSheetService.saveAll(timeSheets);
     saveAll(oldUserCompensationList);
+    return newUserCompensationList;
   }
 
   private class OldAndNewCompensation {

@@ -327,19 +327,29 @@ public class OvertimeService {
     return overtimePolicyRepository.findAllPolicyNames();
   }
 
+  public List<UserCompensation> addEmployees(
+      final List<EmployeeOvertimeDetailsDto> employeeOvertimeDetailsDtoList) {
+    return updateEmployeeOvertimePolicies(employeeOvertimeDetailsDtoList, true);
+  }
+
   public void editEmployeeOvertimePolicies(
       final List<EmployeeOvertimeDetailsDto> employeeOvertimeDetailsDtoList) {
+    updateEmployeeOvertimePolicies(employeeOvertimeDetailsDtoList, false);
+  }
+
+  private List<UserCompensation> updateEmployeeOvertimePolicies(
+      final List<EmployeeOvertimeDetailsDto> employeeOvertimeDetailsDtoList,
+      final boolean isAddAttendanceEmployees) {
     saveHireDates(employeeOvertimeDetailsDtoList);
-    userCompensationService.updateByEditEmployeeOvertimePolicies(employeeOvertimeDetailsDtoList);
+    return userCompensationService.updateByEditEmployeeOvertimePolicies(
+        employeeOvertimeDetailsDtoList, isAddAttendanceEmployees);
   }
 
   public List<UserCompensation> createEmployeeOvertimePolicies(
-      final List<EmployeeOvertimeDetailsDto> overtimeDetailsDtoList,
-      final Date startDate,
-      final boolean isSetUp) {
+      final List<EmployeeOvertimeDetailsDto> overtimeDetailsDtoList, final Date startDate) {
     saveHireDates(overtimeDetailsDtoList);
     return userCompensationService.updateByCreateEmployeeOvertimePolicies(
-        overtimeDetailsDtoList, startDate, isSetUp);
+        overtimeDetailsDtoList, startDate);
   }
 
   private void saveHireDates(final List<EmployeeOvertimeDetailsDto> overtimeDetailsDtoList) {
