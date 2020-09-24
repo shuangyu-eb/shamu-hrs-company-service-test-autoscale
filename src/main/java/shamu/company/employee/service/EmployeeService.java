@@ -375,6 +375,9 @@ public class EmployeeService {
       final User employee, final EmployeeDto employeeDto) {
     final UserStatus userStatus = userStatusService.findByName(Status.ACTIVE.name());
     employee.setUserStatus(userStatus);
+    // generate userSecret
+    final String userSecret = auth0Helper.generateUserSecret(employee.getId());
+    employee.setHash(userSecret);
     final Office office = officeService.findById(employeeDto.getJobInformation().getOfficeId());
     employee.setTimeZone(office.getOfficeAddress().getTimeZone());
   }
@@ -632,7 +635,8 @@ public class EmployeeService {
             employee.getResetPasswordToken(),
             employee.getInvitationEmailToken(),
             employee.getId(),
-            toEmail);
+            toEmail,
+            employee.getHash());
     final String companyName = companyService.getCompany().getName();
     emailContext.setVariable("companyName", companyName);
     content = emailService.getWelcomeEmail(emailContext);
@@ -641,7 +645,12 @@ public class EmployeeService {
     final Email email =
         new Email(systemEmailAddress, toEmail, fullSubject, content, currentUser, sendDate);
     email.setFromName(systemEmailFirstName + "-" + systemEmailLastName);
-    emailService.saveAndScheduleEmail(email);
+    boolean sendDateIsRightNow = welcomeEmailDto.getRightNow();
+    if (sendDateIsRightNow) {
+      emailService.saveAndSendEmail(email);
+    } else {
+      emailService.saveAndScheduleEmail(email);
+    }
   }
 
   public EmployeeDetailDto getEmployeeInfoByUserId(final String id) {

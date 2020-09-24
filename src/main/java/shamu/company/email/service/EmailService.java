@@ -7,6 +7,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -33,6 +34,7 @@ import shamu.company.email.entity.Email;
 import shamu.company.email.event.EmailEvent;
 import shamu.company.email.event.EmailStatus;
 import shamu.company.email.repository.EmailRepository;
+import shamu.company.helpers.EmailHelper;
 import shamu.company.helpers.auth0.Auth0Helper;
 import shamu.company.helpers.s3.AwsHelper;
 import shamu.company.scheduler.QuartzJobScheduler;
@@ -129,6 +131,8 @@ public class EmailService {
 
   private final Auth0Helper auth0Helper;
 
+  private final EmailHelper emailHelper;
+
   @Autowired
   public EmailService(
       final EmailRepository emailRepository,
@@ -139,7 +143,8 @@ public class EmailService {
       final QuartzJobScheduler quartzJobScheduler,
       final CompanyService companyService,
       final TenantService tenantService,
-      final Auth0Helper auth0Helper) {
+      final Auth0Helper auth0Helper,
+      final EmailHelper emailHelper) {
     this.emailRepository = emailRepository;
     this.emailRetryLimit = emailRetryLimit;
     this.templateEngine = templateEngine;
@@ -149,6 +154,7 @@ public class EmailService {
     this.companyService = companyService;
     this.tenantService = tenantService;
     this.auth0Helper = auth0Helper;
+    this.emailHelper = emailHelper;
   }
 
   public Email save(final Email email) {
@@ -200,6 +206,15 @@ public class EmailService {
     emails = saveAll(emails);
     scheduleSendEmails(emails);
     return emails;
+  }
+
+  // right now send
+  public Email saveAndSendEmail(Email email) {
+    email.setMessageId(UuidUtil.getUuidString());
+    email.setSendDate(new Timestamp(new Date().getTime()));
+    email = save(email);
+    emailHelper.send(email);
+    return email;
   }
 
   private void scheduleSendEmails(final List<Email> emails) {
@@ -278,7 +293,7 @@ public class EmailService {
   public Context getWelcomeEmailContext(
       final String welcomeMessage, final String resetPasswordToken, final String invitationToken) {
     return getWelcomeEmailContextToEmail(
-        welcomeMessage, resetPasswordToken, invitationToken, "", "");
+        welcomeMessage, resetPasswordToken, invitationToken, "", "", "");
   }
 
   public Context getWelcomeEmailContextToEmail(
@@ -286,7 +301,8 @@ public class EmailService {
       final String resetPasswordToken,
       final String invitationToken,
       final String userId,
-      final String toEmail) {
+      final String toEmail,
+      final String userSecret) {
     final Context context = new Context();
     context.setVariable(FRONT_END_ADDRESS, frontEndAddress);
     final String emailAddress = getEncodedEmailAddress(toEmail);
@@ -299,9 +315,15 @@ public class EmailService {
 
     targetLink += "/" + getEncodedCompanyId();
 
-    if (StringUtils.isEmpty(invitationToken)) {
-      targetLink = frontEndAddress + "parse?employeeId=" + userId
-          + "&companyId=" + companyId + "&email=" + emailAddress;
+    if (auth0Helper.isIndeedEnvironment()) {
+      targetLink =
+          frontEndAddress
+              + "parse?employeeId="
+              + userId
+              + "&companyId="
+              + companyId
+              + "&userSecret="
+              + userSecret;
     }
     context.setVariable("targetLinkAddress", targetLink);
     welcomeMessage = getFilteredWelcomeMessage(welcomeMessage);

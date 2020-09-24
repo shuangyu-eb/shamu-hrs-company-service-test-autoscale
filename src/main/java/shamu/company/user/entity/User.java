@@ -12,6 +12,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -88,6 +89,10 @@ public class User implements Serializable {
   private Timestamp invitationCapabilityFrozenAt;
 
   private String salt;
+
+  // When invite indeed employee, create new userSecret and update auth0 AppMetadata
+  @Transient
+  private String hash;
 
   private static final long serialVersionUID = 111073632285737978L;
 

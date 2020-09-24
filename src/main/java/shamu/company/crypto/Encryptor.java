@@ -86,7 +86,13 @@ public class Encryptor {
 
   private int getHashCode(final User user) {
     final String companyHash = getCompanyHash();
-    final String userHash = getUserHash(user);
+
+    String userHash = "";
+    if(auth0Helper.isIndeedEnvironment()) {
+      userHash = user.getHash();
+    } else {
+      userHash = getUserHash(user);
+    }
 
     return Objects.hash(indeedHash, companyHash, userHash);
   }

@@ -491,7 +491,7 @@ public class Auth0Helper {
     }
   }
 
-  private String generateUserSecret(final String userId) {
+  public String generateUserSecret(final String userId) {
     final String userSalt = BCrypt.gensalt();
     return BCrypt.hashpw(userId, userSalt);
   }

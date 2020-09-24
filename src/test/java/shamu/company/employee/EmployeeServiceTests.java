@@ -546,6 +546,7 @@ class EmployeeServiceTests {
       emailContext = new Context();
       welcomeEmail.setPersonalInformation("a");
       welcomeEmail.setSendTo("a");
+      welcomeEmail.setRightNow(false);
       currentUser = new User();
       employeeDto = new EmployeeDto();
       office = new Office();
@@ -579,7 +580,8 @@ class EmployeeServiceTests {
                   Mockito.anyString(),
                   Mockito.anyString(),
                   Mockito.anyString(),
-                  Mockito.anyString()))
+                  Mockito.anyString(),
+                  Mockito.any()))
           .thenReturn(emailContext);
       Mockito.when(
               auth0Helper.getAuth0UserByIdWithByEmailFailover(

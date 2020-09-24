@@ -10,5 +10,7 @@ public class WelcomeEmailDto {
 
   private Timestamp sendDate;
 
+  private Boolean rightNow;
+
   private String personalInformation;
 }

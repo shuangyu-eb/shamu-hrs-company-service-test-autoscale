@@ -1,5 +1,15 @@
 package shamu.company.email;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+
+
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -18,11 +28,11 @@ import shamu.company.email.event.EmailEvent;
 import shamu.company.email.event.EmailStatus;
 import shamu.company.email.repository.EmailRepository;
 import shamu.company.email.service.EmailService;
+import shamu.company.helpers.EmailHelper;
 import shamu.company.helpers.auth0.Auth0Helper;
 import shamu.company.helpers.s3.AwsHelper;
 import shamu.company.scheduler.QuartzJobScheduler;
 import shamu.company.user.dto.CurrentUserDto;
-import shamu.company.user.dto.IndeedUserDto;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
 import shamu.company.user.entity.UserContactInformation;
@@ -30,18 +40,6 @@ import shamu.company.user.entity.UserPersonalInformation;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.DateUtil;
 import shamu.company.utils.UuidUtil;
-
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
 
 class EmailServiceTests {
 
@@ -67,6 +65,8 @@ class EmailServiceTests {
 
   @Mock private Auth0Helper auth0Helper;
 
+  @Mock private EmailHelper emailHelper;
+
   @BeforeEach
   void init() {
     MockitoAnnotations.initMocks(this);
@@ -81,7 +81,8 @@ class EmailServiceTests {
             quartzJobScheduler,
             companyService,
             tenantService,
-            auth0Helper);
+            auth0Helper,
+            emailHelper);
     email = new Email();
   }
 
