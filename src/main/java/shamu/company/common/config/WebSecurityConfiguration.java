@@ -70,7 +70,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
             "/company/emails/status",
             "/server/company/**",
             "/company/users/indeed-verification-email",
-            "/company/tenant")
+            "/company/tenant/{id}")
         .permitAll()
         .anyRequest()
         .authenticated()
