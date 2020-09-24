@@ -113,10 +113,21 @@
 <tr th:fragment="time">
   <td>
     <div style="margin: auto; padding-top: 10px; border: solid 1px #dfe2e9;
-  font-size: 16px; text-align: center; line-height: 1.56;  width: 277px;
-  border-radius: 5px;">
-      <img style="margin: 10px auto; height: 60px; width: 60px;"
-           th:src="@{${frontEndAddress}+'image/timeOff.png'}">
+      font-size: 16px; text-align: center; line-height: 1.56;  width: 277px;
+      border-radius: 5px;">
+      <div style="width: 42px;height: 42px;min-height:42px;margin-top: 28px;margin-bottom: 12px;
+    background-color: #F2F1FE; display: inline-flex;align-self: center;
+    justify-self: center;align-items: center; justify-content: center;
+    border-radius: 50%;">
+        <img
+            th:if="${isIndeedENV}"
+            style="margin:auto;"
+            th:src="@{${frontEndAddress}+'image/indeed.timeOff.png'}">
+      </div>
+      <img
+          th:if="${!isIndeedENV}"
+          style="margin: 10px auto; height: 60px; width: 60px;"
+          th:src="@{${frontEndAddress}+'image/timeOff.png'}">
 
       <div style="font-weight: 500" th:text="${type}">Vacation</div>
 
@@ -154,9 +165,10 @@
             <tbody>
             <tr>
               <td style="padding: 10px 0">
-                <a style="color: #0075DF;text-decoration: none;"
-                   th:href="@{${frontEndAddress}+'employees/'+${requesterId}}"
-                   th:text="${requesterName}">name</a>
+                <a
+                    th:style="'text-decoration: none;'+${isIndeedENV ? 'color: #2557a7;' : 'color: #0075DF'}"
+                    th:href="@{${frontEndAddress}+'employees/'+${requesterId}}"
+                    th:text="${requesterName}">name</a>
                 <span th:switch="${isDeleteRequest}">
                   <span th:case="true">Deleted a Time Off Request</span>
                   <span th:case="*">Requested Time Off</span>
@@ -174,12 +186,17 @@
 
 <tr th:fragment="viewDetail">
   <td align="center"
-      style=" margin-top: 30px; padding: 30px; font-weight: 500; background: #f7f8fa;">
+      th:style="'margin-top: 30px; padding: 30px;  background: #f7f8fa;'
+      +${isIndeedENV ? 'font-weight: bold;display:flex;align-items:center;justify-content:center;' : 'font-weight: 500;'}"
+      >
     <a style="text-decoration: none;cursor: pointer; padding-right: 10px"
        th:href="@{${frontEndAddress}+'time-off'}">
       <div
-          style="width: 170px; height: 40px; border-radius: 20px; border: solid 1px #d8dadf; background-color: white;">
-        <div style="text-align:center; line-height: 40px; color: #0075DF;">View Details</div>
+          th:style="'border: solid 1px #d8dadf; background-color: white;'+${isIndeedENV? 'border-color:#DFE2E9;width: fit-content; height: 50px; border-radius: 8px; padding:0 16px;':'width: 170px; height: 40px; border-radius: 20px; '}">
+        <div
+            th:style="'text-align:center; '+${isIndeedENV ? 'color: #2557a7;line-height: 50px;width: fit-content;font-weight: bold;' : 'color: #0075DF;line-height: 40px;'}">
+          View Details
+        </div>
       </div>
     </a>
   </td>

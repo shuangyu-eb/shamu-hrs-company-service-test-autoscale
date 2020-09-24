@@ -10,14 +10,17 @@
 <body>
 
 <table style="border-spacing: 0px;width: 100%;">
-  <tbody style="width: 552px;border-radius: 4px;
-  font-size: 14px;font-family: Roboto;background-color: #ffffff;">
+  <tbody
+      th:style="'width: 552px;border-radius: 4px;font-size: 14px;background-color: #ffffff;'
+      +${isIndeedENV ? 'font-family: Noto Sans;' : 'font-family: Roboto;'}">
 
   <tr>
     <td align="center"
-        style="width: 522px;padding: 15px;background-color: #EFFFF6; color: #2e3033;">
+        th:style="'width: 552px;padding: 15px;'+
+        ${isIndeedENV ? 'color: #2d2d2d;background-color: #E4F7E6;' : 'background-color: #EFFFF6; color: #2e3033;'}"
+       >
       <img style="width: 19px;height: 20px;vertical-align: -5px;"
-           th:src="@{${frontEndAddress}+'image/approve.png'}">
+           th:src="@{${frontEndAddress}+'image/'+${isIndeedENV ? 'indeed.approve' :'approve'}+'.png'}">
       <span>Approved by</span>
       <span th:text="${approverName}">approver name</span>
     </td>

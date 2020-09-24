@@ -9,13 +9,16 @@
 </head>
 <body>
 <table
-    style="width: 100%;border-radius: 4px; border-spacing: 0px; font-size: 14px;font-family: Roboto;background-color: #ffffff;">
+    th:style="'width: 100%;border-radius: 4px; border-spacing: 0px; font-size: 14px;background-color: #ffffff;'
++${isIndeedENV ? 'font-family: Noto Sans;' : 'font-family: Roboto;'}">
   <tbody>
   <tr>
     <td align="center"
-        style="width: 552px;padding: 15px;background-color: #FFF5EF; color: #2e3033;">
+        th:style="'width: 552px;padding: 15px;'+
+        ${isIndeedENV ? 'color: #2d2d2d;background-color: #FBE9DF;' : 'background-color: #FFF5EF; color: #2e3033;'}"
+    >
       <img style="width: 19px;height: 20px;vertical-align: -5px;"
-           th:src="@{${frontEndAddress}+'image/pending.png'}">
+           th:src="@{${frontEndAddress}+'image/'+${isIndeedENV ? 'indeed.pending' :'pending'}+'.png'}">
       Awaiting your approval
     </td>
   </tr>
@@ -25,10 +28,10 @@
       <table
           style="height: 352px; background-color: white; padding: 26px 25px 30px 25px; width: 100%;">
         <tbody>
-          <tr th:replace="components/request::requster" style="margin: 20px">
-          </tr>
+        <tr th:replace="components/request::requster" style="margin: 20px">
+        </tr>
 
-          <tr th:replace="components/request::time"></tr>
+        <tr th:replace="components/request::time"></tr>
         </tbody>
       </table>
     </td>
@@ -68,24 +71,33 @@
       <table align="center" style="background: #f7f8fa; width: 100%; border-spacing: 0px;">
         <tbody>
         <tr
-            style="padding-top:15px; font-weight: 500;">
-          <td style="padding-top: 15px;">
+            th:style="'padding-top:15px; '+${isIndeedENV ? 'font-weight: 600;' : 'font-weight: 500;'}">
+          <td th:style="${isIndeedENV ? 'padding-top: 30px;' : 'padding-top: 15px;'}">
             <table width="100%">
               <tbody>
               <tr>
-                <td align="right" style="padding-right: 10px;">
-                  <a style="text-decoration: none;padding:9px 41px;cursor: pointer; margin: auto; width: 120px; border-radius: 20px; border: solid 1px #d8dadf; background-color: white;"
+                <td align="right"
+                    th:style="'padding-right: 10px;'+${isIndeedENV ? 'width: 50%;' : ''}">
+                  <a
+                      th:style="'text-decoration: none;padding:9px 41px;cursor: pointer;margin: auto;border: solid 1px #d8dadf; background-color: white;'
+                      + ${isIndeedENV ? 'font-size:16px;border-color:#DFE2E9;padding: 13.5px 16px; dispaly:flex;algin-items:center;justify-content: center; width: unset;border-radius: 8px;border: solid 1px #d8dadf;'
+                      : 'width: 120px; border-radius: 20px;'} "
                      th:href="@{${frontEndAddress}+'time-off/requests'}">
-                    <span style="line-height: 40px; color: #0075DF;">Deny</span>
+                    <span
+                        th:style="'line-height: 40px;'+${isIndeedENV ? 'color: #2557a7;' : 'color: #0075DF;'}"
+                    >Deny</span>
 
                   </a>
                 </td>
 
                 <td align="left" style="padding-left: 10px">
-                  <a style="text-decoration: none;padding:9px 32px;cursor: pointer;margin: auto; width: 120px; border-radius: 20px; background-color: #0075DF;"
-                     th:href="@{${frontEndAddress}+'time-off/requests'}">
+                  <a
+                      th:style="'text-decoration: none;padding:9px 32px;cursor: pointer;margin: auto;color:white;'
+                      + ${isIndeedENV ? 'background-color: #2557a7; padding: 15.5px 16px; dispaly:flex;algin-items:center;justify-content: center; width: unset;border-radius: 8px;'
+                      : 'background-color: #0075DF;width: 120px; border-radius: 20px;'} "
+                      th:href="@{${frontEndAddress}+'time-off/requests'}">
 
-                    <span style="line-height: 40px;color: white">Approve</span>
+                    <span th:style="'color: white'+ ${isIndeedENV ? 'line-height:unset;':'line-height: 40px;'}">Approve</span>
                   </a>
                 </td>
               </tr>
@@ -97,8 +109,10 @@
         <tr style="background: #f7f8fa; width: 552px">
           <td align="center"
               style="width: 552px; margin: auto; font-size: 14px; width: fit-content; padding: 30px;">
-            <a style="color: #0075DF;cursor: pointer; text-decoration: none;"
-               th:href="@{${frontEndAddress}+'time-off/requests'}">View Full
+            <a
+                th:style="'cursor: pointer; text-decoration: none;'
+                 +${isIndeedENV ? 'color: #2557a7;' : 'color: #0075DF;'}"
+                th:href="@{${frontEndAddress}+'time-off/requests'}">View Full
               Details
             </a>
           </td>
