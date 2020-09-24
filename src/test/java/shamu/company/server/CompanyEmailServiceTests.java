@@ -18,6 +18,7 @@ import org.powermock.reflect.Whitebox;
 import org.thymeleaf.ITemplateEngine;
 import shamu.company.common.ApplicationConfig;
 import shamu.company.email.service.EmailService;
+import shamu.company.helpers.auth0.Auth0Helper;
 import shamu.company.helpers.s3.AwsHelper;
 import shamu.company.server.dto.DocumentRequestEmailDto;
 import shamu.company.server.service.CompanyEmailService;
@@ -39,6 +40,8 @@ public class CompanyEmailServiceTests {
   @Mock private ApplicationConfig applicationConfig;
 
   @InjectMocks private CompanyEmailService companyEmailService;
+
+  @Mock private Auth0Helper auth0Helper;
 
   @BeforeEach
   void init() {

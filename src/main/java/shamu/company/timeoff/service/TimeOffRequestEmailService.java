@@ -55,6 +55,8 @@ public class TimeOffRequestEmailService {
 
   private static final String AMERICA_MANAGUA = "America/Managua";
 
+  private final Auth0Helper auth0Helper;
+
   @Autowired
   public TimeOffRequestEmailService(
       final EmailService emailService,
@@ -63,7 +65,8 @@ public class TimeOffRequestEmailService {
       final ApplicationConfig applicationConfig,
       @Lazy final TimeOffRequestService timeOffRequestService,
       final TimeOffDetailService timeOffDetailService,
-      final TimeOffPolicyUserService timeOffPolicyUserService) {
+      final TimeOffPolicyUserService timeOffPolicyUserService,
+      final Auth0Helper auth0Helper) {
     this.emailService = emailService;
     this.awsHelper = awsHelper;
     this.templateEngine = templateEngine;
@@ -71,6 +74,7 @@ public class TimeOffRequestEmailService {
     this.timeOffRequestService = timeOffRequestService;
     this.timeOffDetailService = timeOffDetailService;
     this.timeOffPolicyUserService = timeOffPolicyUserService;
+    this.auth0Helper = auth0Helper;
   }
 
   public void sendEmail(TimeOffRequest timeOffRequest) {
@@ -297,7 +301,7 @@ public class TimeOffRequestEmailService {
 
   private void processAndSendEmail(
       final Map<String, Object> variables, final String template, final Email email) {
-    variables.put("isIndeedENV", Auth0Helper.isIndeedEnvironment());
+    variables.put("isIndeedENV", auth0Helper.isIndeedEnvironment());
     final String emailContent =
         templateEngine.process(template, new Context(Locale.ENGLISH, variables));
     email.setSendDate(new Timestamp(new Date().getTime()));

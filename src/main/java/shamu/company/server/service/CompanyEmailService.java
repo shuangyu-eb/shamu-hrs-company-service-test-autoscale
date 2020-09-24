@@ -46,18 +46,22 @@ public class CompanyEmailService {
 
   private final ApplicationConfig applicationConfig;
 
+  private final Auth0Helper auth0Helper;
+
   @Autowired
   public CompanyEmailService(
       final UserService userService,
       final EmailService emailService,
       final ITemplateEngine templateEngine,
       final AwsHelper awsHelper,
-      final ApplicationConfig applicationConfig) {
+      final ApplicationConfig applicationConfig,
+      final Auth0Helper auth0Helper) {
     this.userService = userService;
     this.emailService = emailService;
     this.templateEngine = templateEngine;
     this.awsHelper = awsHelper;
     this.applicationConfig = applicationConfig;
+    this.auth0Helper = auth0Helper;
   }
 
   public void sendDocumentRequestEmail(final DocumentRequestEmailDto documentRequestEmailDto) {
@@ -152,7 +156,7 @@ public class CompanyEmailService {
       subject =
           (StringUtils.isEmpty(preferredName) ? firstName : preferredName) + " Sent You a Document";
     }
-    variables.put("isIndeedENV", Auth0Helper.isIndeedEnvironment());
+    variables.put("isIndeedENV", auth0Helper.isIndeedEnvironment());
     final String emailContent =
         templateEngine.process(template, new Context(Locale.ENGLISH, variables));
     final String finalSubject = subject;

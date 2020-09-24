@@ -127,6 +127,8 @@ public class EmailService {
 
   private static final String COMPANY_ID = "companyId";
 
+  private final Auth0Helper auth0Helper;
+
   @Autowired
   public EmailService(
       final EmailRepository emailRepository,
@@ -136,7 +138,8 @@ public class EmailService {
       final AwsHelper awsHelper,
       final QuartzJobScheduler quartzJobScheduler,
       final CompanyService companyService,
-      final TenantService tenantService) {
+      final TenantService tenantService,
+      final Auth0Helper auth0Helper) {
     this.emailRepository = emailRepository;
     this.emailRetryLimit = emailRetryLimit;
     this.templateEngine = templateEngine;
@@ -145,6 +148,7 @@ public class EmailService {
     this.quartzJobScheduler = quartzJobScheduler;
     this.companyService = companyService;
     this.tenantService = tenantService;
+    this.auth0Helper = auth0Helper;
   }
 
   public Email save(final Email email) {
@@ -267,7 +271,7 @@ public class EmailService {
   }
 
   public String getWelcomeEmail(final Context context) {
-    context.setVariable(IS_INDEED_ENV, Auth0Helper.isIndeedEnvironment());
+    context.setVariable(IS_INDEED_ENV, auth0Helper.isIndeedEnvironment());
     return templateEngine.process("employee_invitation_email.html", context);
   }
 
@@ -342,7 +346,7 @@ public class EmailService {
     context.setVariable("toEmailAddress", getEncodedEmailAddress(toEmail));
     context.setVariable(
         "passwordResetAddress", String.format("account/reset-password/%s", passwordRestToken));
-    context.setVariable(IS_INDEED_ENV, Auth0Helper.isIndeedEnvironment());
+    context.setVariable(IS_INDEED_ENV, auth0Helper.isIndeedEnvironment());
     context.setVariable(COMPANY_ID, getEncodedCompanyId());
     return templateEngine.process("password_reset_email.html", context);
   }
@@ -359,7 +363,7 @@ public class EmailService {
             "YYYY");
     context.setVariable(CURRENT_YEAR, currentYear);
     context.setVariable(COMPANY_ID, getEncodedCompanyId());
-    context.setVariable(IS_INDEED_ENV, Auth0Helper.isIndeedEnvironment());
+    context.setVariable(IS_INDEED_ENV, auth0Helper.isIndeedEnvironment());
     return templateEngine.process("verify_change_work_email.html", context);
   }
 
@@ -460,7 +464,7 @@ public class EmailService {
             zonedDateTime.withZoneSameInstant(ZoneId.of(AMERICA_MANAGUA)).toLocalDateTime(),
             "YYYY");
     context.setVariable(CURRENT_YEAR, currentYear);
-    context.setVariable(IS_INDEED_ENV, Auth0Helper.isIndeedEnvironment());
+    context.setVariable(IS_INDEED_ENV, auth0Helper.isIndeedEnvironment());
     final String emailContent = templateEngine.process("delivery_error_email.html", context);
 
     final String subject =
@@ -506,7 +510,7 @@ public class EmailService {
     context.setVariable(SUBJECT_TEXT, emailNotification.getSubjectContext());
     context.setVariable(CONTENT_TEXT, emailNotification.getContentContext());
     context.setVariable(BUTTON_TEXT, emailNotification.getButtonText());
-    context.setVariable(IS_INDEED_ENV, Auth0Helper.isIndeedEnvironment());
+    context.setVariable(IS_INDEED_ENV, auth0Helper.isIndeedEnvironment());
     return templateEngine.process("attendance_notification.html", context);
   }
 
@@ -527,7 +531,7 @@ public class EmailService {
             zonedDateTime.withZoneSameInstant(ZoneId.of(AMERICA_MANAGUA)).toLocalDateTime(),
             "YYYY");
     context.setVariable(CURRENT_YEAR, currentYear);
-    context.setVariable(IS_INDEED_ENV, Auth0Helper.isIndeedEnvironment());
+    context.setVariable(IS_INDEED_ENV, auth0Helper.isIndeedEnvironment());
     final String emailContent = templateEngine.process("add_new_admin_email.html", context);
     final List<User> admins = userService.findUsersByCompanyIdAndUserRole(Role.ADMIN.getValue());
     final List<User> superAdmins =
@@ -561,9 +565,9 @@ public class EmailService {
   public void sendVerificationEmail(final String email, final String userId) {
     final Context context = new Context();
     context.setVariable(FRONT_END_ADDRESS, frontEndAddress);
+    context.setVariable(IS_INDEED_ENV, auth0Helper.isIndeedEnvironment());
     String verificationUrl = frontEndAddress + "parse?userId=" + userId + "&emailVerified=true";
     context.setVariable("accountVerifyAddress", verificationUrl);
-    context.setVariable(IS_INDEED_ENV, Auth0Helper.isIndeedEnvironment());
     final String emailContent = templateEngine.process("account_verify_email.html", context);
     final Timestamp sendDate = Timestamp.valueOf(LocalDateTime.now());
     final Email verifyEmail =

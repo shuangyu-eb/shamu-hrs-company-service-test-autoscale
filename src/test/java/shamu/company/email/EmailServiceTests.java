@@ -18,6 +18,7 @@ import shamu.company.email.event.EmailEvent;
 import shamu.company.email.event.EmailStatus;
 import shamu.company.email.repository.EmailRepository;
 import shamu.company.email.service.EmailService;
+import shamu.company.helpers.auth0.Auth0Helper;
 import shamu.company.helpers.s3.AwsHelper;
 import shamu.company.scheduler.QuartzJobScheduler;
 import shamu.company.user.dto.CurrentUserDto;
@@ -64,6 +65,8 @@ class EmailServiceTests {
 
   @Mock private TenantService tenantService;
 
+  @Mock private Auth0Helper auth0Helper;
+
   @BeforeEach
   void init() {
     MockitoAnnotations.initMocks(this);
@@ -77,7 +80,8 @@ class EmailServiceTests {
             awsHelper,
             quartzJobScheduler,
             companyService,
-            tenantService);
+            tenantService,
+            auth0Helper);
     email = new Email();
   }
 
@@ -434,8 +438,8 @@ class EmailServiceTests {
       savedEmail.setId(UuidUtil.getUuidString());
       savedEmail.setSendDate(Timestamp.valueOf(LocalDateTime.now()));
       Mockito.when(emailService.save(Mockito.any())).thenReturn(savedEmail);
-
-      emailService.sendVerificationEmail(Mockito.anyString(), Mockito.anyString());
+      Mockito.when(auth0Helper.isIndeedEnvironment()).thenReturn(false);
+      emailService.sendVerificationEmail("test", "1");
       Mockito.verify(emailRepository, Mockito.times(1))
               .save(Mockito.any(Email.class));
       Mockito.verify(quartzJobScheduler, Mockito.times(1))

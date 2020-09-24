@@ -21,6 +21,7 @@ import org.powermock.reflect.Whitebox;
 import org.thymeleaf.ITemplateEngine;
 import shamu.company.common.ApplicationConfig;
 import shamu.company.email.service.EmailService;
+import shamu.company.helpers.auth0.Auth0Helper;
 import shamu.company.helpers.s3.AwsHelper;
 import shamu.company.timeoff.dto.TimeOffBreakdownDto;
 import shamu.company.timeoff.entity.TimeOffPolicy;
@@ -52,6 +53,8 @@ public class TimeOffRequestEmailServiceTests {
   @Mock private TimeOffPolicyUserService timeOffPolicyUserService;
 
   @InjectMocks private TimeOffRequestEmailService timeOffRequestEmailService;
+
+  @Mock private Auth0Helper auth0Helper;
 
   @BeforeEach
   void setUp() {
@@ -142,6 +145,8 @@ public class TimeOffRequestEmailServiceTests {
       Mockito.when(timeOffDetailService.getTimeOffRequestDatesPreview(Mockito.any()))
           .thenReturn("123");
 
+      Mockito.when(auth0Helper.isIndeedEnvironment()).thenReturn(false);
+
       assertThatCode(() -> timeOffRequestEmailService.sendEmail(timeOffRequest))
           .doesNotThrowAnyException();
     }
@@ -159,6 +164,8 @@ public class TimeOffRequestEmailServiceTests {
       Mockito.when(timeOffDetailService.getTimeOffRequestDatesPreview(Mockito.any()))
           .thenReturn("123");
 
+      Mockito.when(auth0Helper.isIndeedEnvironment()).thenReturn(false);
+
       assertThatCode(() -> timeOffRequestEmailService.sendEmail(timeOffRequest))
           .doesNotThrowAnyException();
     }
@@ -175,6 +182,7 @@ public class TimeOffRequestEmailServiceTests {
           .thenReturn("");
       Mockito.when(timeOffDetailService.getTimeOffRequestDatesPreview(Mockito.any()))
           .thenReturn("123");
+      Mockito.when(auth0Helper.isIndeedEnvironment()).thenReturn(false);
 
       assertThatCode(() -> timeOffRequestEmailService.sendEmail(timeOffRequest))
           .doesNotThrowAnyException();
@@ -282,6 +290,8 @@ public class TimeOffRequestEmailServiceTests {
       Mockito.when(
               templateEngine.process(Mockito.eq("time_off_request_delete.html"), Mockito.any()))
           .thenReturn("");
+
+      Mockito.when(auth0Helper.isIndeedEnvironment()).thenReturn(false);
 
       assertThatCode(() -> timeOffRequestEmailService.sendDeleteRequestEmail(timeOffRequest))
           .doesNotThrowAnyException();
