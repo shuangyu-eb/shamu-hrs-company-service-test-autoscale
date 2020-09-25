@@ -114,8 +114,9 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
           authorities.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
 
       final String id = jwt.getClaimAsString(String.format("%sid", customNamespace));
+      final String email = jwt.getClaimAsString(String.format("%semail", customNamespace));
 
-      return new DefaultJwtAuthenticationToken(jwt, id, grantedAuthorities, authUser);
+      return new DefaultJwtAuthenticationToken(jwt, id, grantedAuthorities, authUser, email);
     }
   }
 }

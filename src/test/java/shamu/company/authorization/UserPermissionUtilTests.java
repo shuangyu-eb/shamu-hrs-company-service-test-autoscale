@@ -78,7 +78,7 @@ class UserPermissionUtilTests {
 
     final Authentication authentication =
         new DefaultJwtAuthenticationToken(
-            jwt, RandomStringUtils.randomAlphabetic(16), Collections.emptyList(), authUser);
+            jwt, RandomStringUtils.randomAlphabetic(16), Collections.emptyList(), authUser, "test@gmail.com");
     SecurityContextHolder.getContext().setAuthentication(authentication);
 
     Whitebox.setInternalState(userPermissionUtils, "authUserCacheManager", cacheManager);
@@ -90,7 +90,7 @@ class UserPermissionUtilTests {
         permissionNames.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
     final Authentication authentication =
         new DefaultJwtAuthenticationToken(
-            jwt, RandomStringUtils.randomAlphabetic(16), authorities, authUser);
+            jwt, RandomStringUtils.randomAlphabetic(16), authorities, authUser, "");
     SecurityContextHolder.getContext().setAuthentication(authentication);
     return SecurityContextHolder.getContext().getAuthentication();
   }

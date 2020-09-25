@@ -69,7 +69,7 @@ public class UserInformationGenerator implements CommandLineRunner {
     authUser.setPermissions(Collections.emptyList());
     final DefaultJwtAuthenticationToken defaultJwtAuthenticationToken =
         new DefaultJwtAuthenticationToken(
-            JwtUtil.getJwt(), authUser.getId(), Collections.emptyList(), authUser);
+            JwtUtil.getJwt(), authUser.getId(), Collections.emptyList(), authUser, "");
     SecurityContextHolder.getContext().setAuthentication(defaultJwtAuthenticationToken);
   }
 }

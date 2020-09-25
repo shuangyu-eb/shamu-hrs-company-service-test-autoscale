@@ -423,7 +423,7 @@ public class UserRestControllerTests extends WebControllerBaseTests {
 
     final CurrentUserDto userDto = new CurrentUserDto();
     userDto.setId(getAuthUser().getId());
-    given(userService.getCurrentUserInfo(Mockito.anyString())).willReturn(userDto);
+    given(userService.getCurrentUserInfo(Mockito.anyString(), Mockito.anyString())).willReturn(userDto);
 
     final MvcResult response =
         mockMvc
@@ -431,7 +431,7 @@ public class UserRestControllerTests extends WebControllerBaseTests {
             .andReturn();
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
-    Mockito.verify(userService, Mockito.times(1)).getCurrentUserInfo(Mockito.anyString());
+    Mockito.verify(userService, Mockito.times(1)).getCurrentUserInfo(Mockito.anyString(), Mockito.anyString());
   }
 
   @Test

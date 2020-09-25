@@ -660,6 +660,22 @@ public class UserService {
     return getCurrentUserDto(user);
   }
 
+  public CurrentUserDto getCurrentUserInfo(final String userId, final String userEmail) {
+    User user = findById(userId);
+    boolean isIndeedUserEmailUpdate =
+        auth0Helper.isIndeedEnvironment()
+            && !userEmail.equals(user.getUserContactInformation().getEmailWork());
+
+    if (isIndeedUserEmailUpdate) {
+      // update indeed user email
+      UserContactInformation userContactInformation = user.getUserContactInformation();
+      userContactInformation.setEmailWork(userEmail);
+      user.setUserContactInformation(userContactInformation);
+      user = save(user);
+    }
+    return getCurrentUserDto(user);
+  }
+
   private CurrentUserDto getCurrentUserDto(final User user) {
     final List<User> teamMembers = findByManagerUser(user);
     final List<String> teamMemberIds =

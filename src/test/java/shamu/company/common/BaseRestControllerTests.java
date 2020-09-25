@@ -35,7 +35,7 @@ class BaseRestControllerTests {
 
     final String userId = "1";
     final Authentication authentication =
-        new DefaultJwtAuthenticationToken(jwt, userId, Collections.emptyList(), authUser);
+        new DefaultJwtAuthenticationToken(jwt, userId, Collections.emptyList(), authUser, "test@gmail.com");
     SecurityContextHolder.getContext().setAuthentication(authentication);
   }
 

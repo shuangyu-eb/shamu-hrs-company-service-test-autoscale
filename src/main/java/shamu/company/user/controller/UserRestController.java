@@ -253,7 +253,8 @@ public class UserRestController extends BaseRestController {
     final String mockId = request.getHeader(MOCK_USER_HEADER);
     if (Strings.isBlank(mockId)) {
       final CurrentUserDto userDto =
-          userService.getCurrentUserInfo(findAuthentication().getUserId());
+          userService.getCurrentUserInfo(
+              findAuthentication().getUserId(), findAuthentication().getUserEmail());
       userService.cacheUser(findToken(), userDto.getId());
       return userDto;
     }

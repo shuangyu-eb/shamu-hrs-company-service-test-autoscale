@@ -66,11 +66,13 @@ public class JwtUtil {
     final DefaultJwtAuthenticationToken authenticationToken =
         (DefaultJwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
     final String userId = authenticationToken != null ? authenticationToken.getUserId() : "1";
+    final String userEmail = authenticationToken != null ? authenticationToken.getUserEmail() : "test@gmail.com";
     return JWT.create()
         .withIssuer(issuer)
         .withIssuedAt(new Date(issuedAt.toEpochSecond(ZoneOffset.UTC) * 1000))
         .withExpiresAt(new Date(expiredAt.toEpochSecond(ZoneOffset.UTC) * 1000))
         .withClaim(customNamespace + "id", userId)
+        .withClaim(customNamespace + "email", userEmail)
         .withClaim("scope", "openid profile email")
         .withKeyId(RandomStringUtils.randomAlphabetic(10))
         .sign(algorithm);

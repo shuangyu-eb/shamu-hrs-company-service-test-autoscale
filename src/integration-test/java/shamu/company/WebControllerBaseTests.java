@@ -1,5 +1,14 @@
 package shamu.company;
 
+import static org.mockito.BDDMockito.given;
+
+
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -27,8 +36,8 @@ import shamu.company.common.config.DefaultAuthenticationEntryPoint;
 import shamu.company.common.config.DefaultJwtAuthenticationToken;
 import shamu.company.common.database.LiquibaseManager;
 import shamu.company.common.entity.mapper.TenantMapper;
-import shamu.company.common.service.TenantService;
 import shamu.company.common.service.PayrollDetailService;
+import shamu.company.common.service.TenantService;
 import shamu.company.company.entity.Company;
 import shamu.company.company.service.CompanyService;
 import shamu.company.helpers.auth0.Auth0Helper;
@@ -50,15 +59,6 @@ import shamu.company.user.entity.User.Role;
 import shamu.company.user.service.UserAddressService;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.UuidUtil;
-
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static org.mockito.BDDMockito.given;
 
 @Import({
   DefaultAuthenticationEntryPoint.class,
@@ -217,7 +217,7 @@ public class WebControllerBaseTests {
     authUser.setPermissions(Collections.emptyList());
     final DefaultJwtAuthenticationToken defaultJwtAuthenticationToken =
         new DefaultJwtAuthenticationToken(
-            JwtUtil.getJwt(), authUser.getId(), Collections.emptyList(), authUser);
+            JwtUtil.getJwt(), authUser.getId(), Collections.emptyList(), authUser, "test@gmail.com");
     SecurityContextHolder.getContext().setAuthentication(defaultJwtAuthenticationToken);
 
     httpHeaders = new HttpHeaders();

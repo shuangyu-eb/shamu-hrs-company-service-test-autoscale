@@ -35,7 +35,11 @@ class BasePermissionUtilTests {
     final Jwt jwt = JwtUtil.getJwt();
     final Authentication authentication =
         new DefaultJwtAuthenticationToken(
-            jwt, RandomStringUtils.randomAlphabetic(16), Collections.emptyList(), new AuthUser());
+            jwt,
+            RandomStringUtils.randomAlphabetic(16),
+            Collections.emptyList(),
+            new AuthUser(),
+            "test@gmail.com");
     SecurityContextHolder.getContext().setAuthentication(authentication);
   }
 

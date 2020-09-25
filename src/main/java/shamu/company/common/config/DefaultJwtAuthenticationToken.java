@@ -14,14 +14,18 @@ public class DefaultJwtAuthenticationToken extends JwtAuthenticationToken {
 
   private final AuthUser authUser;
 
+  private final String userEmail;
+
   public DefaultJwtAuthenticationToken(
       final Jwt jwt,
       final String userId,
       final Collection<? extends GrantedAuthority> authorities,
-      final AuthUser authUser) {
+      final AuthUser authUser,
+      final String userEmail) {
     super(jwt, authorities);
     this.userId = userId.toUpperCase();
     this.authUser = authUser;
+    this.userEmail = userEmail;
   }
 
   @Override
@@ -46,6 +50,10 @@ public class DefaultJwtAuthenticationToken extends JwtAuthenticationToken {
 
   public String getUserId() {
     return userId;
+  }
+
+  public String getUserEmail() {
+    return userEmail;
   }
 
   public AuthUser getAuthUser() {
