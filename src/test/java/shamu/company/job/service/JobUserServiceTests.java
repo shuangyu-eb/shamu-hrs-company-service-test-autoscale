@@ -1,13 +1,5 @@
 package shamu.company.job.service;
 
-import static org.assertj.core.api.Assertions.assertThatCode;
-
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -54,7 +46,6 @@ import shamu.company.timeoff.repository.TimeOffPolicyAccrualScheduleRepository;
 import shamu.company.timeoff.repository.TimeOffPolicyUserRepository;
 import shamu.company.timeoff.service.TimeOffPolicyService;
 import shamu.company.timeoff.service.TimeOffRequestService;
-import shamu.company.user.entity.CompensationOvertimeStatus;
 import shamu.company.user.entity.EmployeeType;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
@@ -65,12 +56,20 @@ import shamu.company.user.entity.mapper.UserAddressMapper;
 import shamu.company.user.entity.mapper.UserCompensationMapper;
 import shamu.company.user.entity.mapper.UserMapper;
 import shamu.company.user.repository.UserAddressRepository;
-import shamu.company.user.service.CompensationOvertimeStatusService;
 import shamu.company.user.service.UserCompensationService;
 import shamu.company.user.service.UserRoleService;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.DateUtil;
 import shamu.company.utils.UuidUtil;
+
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 class JobUserServiceTests {
 
@@ -96,7 +95,6 @@ class JobUserServiceTests {
   private final JobUserMapper jobUserMapper =
       new JobUserMapperImpl(officeMapper, userCompensationMapper);
   private JobUserService jobUserService;
-  @Mock private CompensationOvertimeStatusService compensationOvertimeStatusService;
   @Mock private UserCompensationService userCompensationService;
   @Mock private OvertimeService overtimeService;
   @Mock private GoogleMapsHelper googleMapsHelper;
@@ -125,7 +123,6 @@ class JobUserServiceTests {
             userAddressRepository,
             userAddressMapper,
             timeOffPolicyService,
-            compensationOvertimeStatusService,
             timePeriodService,
             userCompensationService,
             overtimeService,
@@ -349,16 +346,11 @@ class JobUserServiceTests {
     @Test
     void whenJobUpdateDtoValid_shouldSucceed() {
       jobUpdateDto.setManagerId(null);
-      jobUpdateDto.setPayTypeName(CompensationOvertimeStatus.OvertimeStatus.FEDERAL.getValue());
       final String companyId = "test_company_id";
       jobUser.setUser(user);
       Mockito.when(userService.findById(user.getId())).thenReturn(user);
       Mockito.when(jobUserRepository.findJobUserByUser(jobUser.getUser())).thenReturn(jobUser);
       Mockito.when(jobUserRepository.save(jobUser)).thenReturn(jobUser);
-      Mockito.when(
-              compensationOvertimeStatusService.findByName(
-                  CompensationOvertimeStatus.OvertimeStatus.FEDERAL.getValue()))
-          .thenReturn(new CompensationOvertimeStatus());
       Mockito.when(overtimeService.findDefaultPolicy()).thenReturn(new OvertimePolicy());
       Assertions.assertDoesNotThrow(() -> jobUserService.updateJobInfo("1", jobUpdateDto));
     }
@@ -535,7 +527,8 @@ class JobUserServiceTests {
       jobSelectOptionUpdateDto.setOfficeCreateDto(officeCreateDto);
 
       final OfficeAddress officeAddress =
-          officeAddressMapper.updateFromOfficeCreateDto(office.getOfficeAddress(), officeCreateDto, null);
+          officeAddressMapper.updateFromOfficeCreateDto(
+              office.getOfficeAddress(), officeCreateDto, null);
 
       final Office newOffice = officeMapper.convertToOffice(office, officeCreateDto, officeAddress);
 

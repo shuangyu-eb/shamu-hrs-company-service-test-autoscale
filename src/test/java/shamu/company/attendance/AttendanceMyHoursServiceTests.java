@@ -1,18 +1,5 @@
 package shamu.company.attendance;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
-
-import java.math.BigInteger;
-import java.sql.Timestamp;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -52,12 +39,25 @@ import shamu.company.attendance.service.TimeSheetService;
 import shamu.company.company.entity.Company;
 import shamu.company.job.entity.CompensationFrequency;
 import shamu.company.timeoff.service.TimeOffRequestService;
-import shamu.company.user.entity.CompensationOvertimeStatus;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserCompensation;
 import shamu.company.user.service.UserCompensationService;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.DateUtil;
+
+import java.math.BigInteger;
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 public class AttendanceMyHoursServiceTests {
 
@@ -197,9 +197,6 @@ public class AttendanceMyHoursServiceTests {
     final UserCompensation userCompensation = new UserCompensation();
     final CompensationFrequency compensationFrequency = new CompensationFrequency();
     compensationFrequency.setName("Per Hour");
-    final CompensationOvertimeStatus compensationOvertimeStatus = new CompensationOvertimeStatus();
-    compensationOvertimeStatus.setName("California");
-    userCompensation.setOvertimeStatus(compensationOvertimeStatus);
     userCompensation.setCompensationFrequency(compensationFrequency);
     userCompensation.setWageCents(BigInteger.valueOf(10));
     timeSheet.setUserCompensation(userCompensation);

@@ -1,16 +1,6 @@
 package shamu.company.employee;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-
 import com.auth0.json.mgmt.users.Identity;
-import java.sql.Timestamp;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
-import java.util.UUID;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -84,7 +74,6 @@ import shamu.company.user.entity.mapper.UserContactInformationMapper;
 import shamu.company.user.entity.mapper.UserPersonalInformationMapper;
 import shamu.company.user.event.UserEmailUpdatedEvent;
 import shamu.company.user.service.CompensationFrequencyService;
-import shamu.company.user.service.CompensationOvertimeStatusService;
 import shamu.company.user.service.EmployeeTypesService;
 import shamu.company.user.service.GenderService;
 import shamu.company.user.service.MaritalStatusService;
@@ -97,6 +86,17 @@ import shamu.company.user.service.UserService;
 import shamu.company.user.service.UserStatusService;
 import shamu.company.utils.FileValidateUtils.FileFormat;
 import shamu.company.utils.UuidUtil;
+
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.List;
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 class EmployeeServiceTests {
 
@@ -140,7 +140,6 @@ class EmployeeServiceTests {
   @Mock private UserRoleService userRoleService;
   @Mock private EncryptorUtil encryptorUtil;
   @Mock private EmployeeTypesService employeeTypesService;
-  @Mock private CompensationOvertimeStatusService compensationOvertimeStatusService;
   @Mock private DepartmentService departmentService;
   @Mock private CompanyService companyService;
 
@@ -180,7 +179,6 @@ class EmployeeServiceTests {
             userRoleService,
             encryptorUtil,
             employeeTypesService,
-            compensationOvertimeStatusService,
             companyService,
             departmentService);
   }
@@ -291,7 +289,8 @@ class EmployeeServiceTests {
       employeeDto.setUserContactInformationDto(userContactInformationDto);
 
       Mockito.when(officeService.findById("officeId")).thenReturn(office);
-      Whitebox.invokeMethod(employeeService, "saveEmployeeBasicInformation", currentUser, employeeDto);
+      Whitebox.invokeMethod(
+          employeeService, "saveEmployeeBasicInformation", currentUser, employeeDto);
       Mockito.verify(userService, Mockito.times(1)).createNewEmployee(Mockito.any());
     }
   }

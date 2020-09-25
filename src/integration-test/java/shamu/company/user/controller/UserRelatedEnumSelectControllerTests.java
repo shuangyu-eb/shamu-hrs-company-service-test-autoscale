@@ -10,19 +10,17 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import shamu.company.WebControllerBaseTests;
-import shamu.company.employee.entity.EmploymentType;
 import shamu.company.employee.service.EmploymentTypeService;
 import shamu.company.tests.utils.JwtUtil;
 import shamu.company.user.service.CompensationFrequencyService;
-import shamu.company.user.service.CompensationOvertimeStatusService;
 import shamu.company.user.service.DeactivationReasonService;
+import shamu.company.user.service.EmployeeTypesService;
 import shamu.company.user.service.EthnicityService;
 import shamu.company.user.service.GenderService;
 import shamu.company.user.service.MaritalStatusService;
 import shamu.company.user.service.RetirementTypeService;
 import shamu.company.user.service.UserRoleService;
 import shamu.company.user.service.UserStatusService;
-import shamu.company.user.service.EmployeeTypesService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -30,8 +28,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class UserRelatedEnumSelectControllerTests extends WebControllerBaseTests {
 
   @MockBean private CompensationFrequencyService compensationFrequencyService;
-
-  @MockBean private CompensationOvertimeStatusService compensationOvertimeStatusService;
 
   @MockBean private DeactivationReasonService deactivationReasonService;
 
@@ -61,21 +57,6 @@ public class UserRelatedEnumSelectControllerTests extends WebControllerBaseTests
         mockMvc
             .perform(
                 MockMvcRequestBuilders.get("/company/compensation-frequencies")
-                    .headers(httpHeaders))
-            .andReturn();
-
-    assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
-  }
-
-  @Test
-  void testGetCompensationStatuses() throws Exception {
-    final HttpHeaders httpHeaders = new HttpHeaders();
-    httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
-
-    final MvcResult response =
-        mockMvc
-            .perform(
-                MockMvcRequestBuilders.get("/company/compensation-overtime-statuses")
                     .headers(httpHeaders))
             .andReturn();
 
@@ -193,7 +174,7 @@ public class UserRelatedEnumSelectControllerTests extends WebControllerBaseTests
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
 
     final MvcResult response =
-            mockMvc
+        mockMvc
             .perform(MockMvcRequestBuilders.get("/company/employment-types").headers(httpHeaders))
             .andReturn();
 

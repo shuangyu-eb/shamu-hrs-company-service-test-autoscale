@@ -48,7 +48,6 @@ import shamu.company.timeoff.service.TimeOffPolicyService;
 import shamu.company.timeoff.service.TimeOffRequestService;
 import shamu.company.user.dto.UserAddressDto;
 import shamu.company.user.dto.UserOfficeAndHomeAddressDto;
-import shamu.company.user.entity.CompensationOvertimeStatus;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
 import shamu.company.user.entity.UserCompensation;
@@ -57,7 +56,6 @@ import shamu.company.user.entity.mapper.UserAddressMapper;
 import shamu.company.user.entity.mapper.UserCompensationMapper;
 import shamu.company.user.entity.mapper.UserMapper;
 import shamu.company.user.repository.UserAddressRepository;
-import shamu.company.user.service.CompensationOvertimeStatusService;
 import shamu.company.user.service.UserCompensationService;
 import shamu.company.user.service.UserRoleService;
 import shamu.company.user.service.UserService;
@@ -72,6 +70,7 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 public class JobUserService {
+  private static final String NOT_ELIGIBLE = "Not Eligible";
 
   private final JobUserRepository jobUserRepository;
 
@@ -109,8 +108,6 @@ public class JobUserService {
 
   private final TimeOffPolicyService timeOffPolicyService;
 
-  private final CompensationOvertimeStatusService compensationOvertimeStatusService;
-
   private final TimePeriodService timePeriodService;
 
   private final UserCompensationService userCompensationService;
@@ -140,7 +137,6 @@ public class JobUserService {
       final UserAddressRepository userAddressRepository,
       final UserAddressMapper userAddressMapper,
       final TimeOffPolicyService timeOffPolicyService,
-      final CompensationOvertimeStatusService compensationOvertimeStatusService,
       final TimePeriodService timePeriodService,
       final UserCompensationService userCompensationService,
       final OvertimeService overtimeService,
@@ -164,7 +160,6 @@ public class JobUserService {
     this.timeOffPolicyService = timeOffPolicyService;
     this.userAddressRepository = userAddressRepository;
     this.userAddressMapper = userAddressMapper;
-    this.compensationOvertimeStatusService = compensationOvertimeStatusService;
     this.timePeriodService = timePeriodService;
     this.userCompensationService = userCompensationService;
     this.overtimeService = overtimeService;
@@ -250,15 +245,9 @@ public class JobUserService {
         userCompensationMapper.updateFromJobUpdateDto(userCompensation, jobUpdateDto);
       }
       final String payTypeName = jobUpdateDto.getPayTypeName();
-      if (payTypeName != null) {
-        final CompensationOvertimeStatus compensationOvertimeStatus =
-            compensationOvertimeStatusService.findByName(payTypeName);
-        userCompensation.setOvertimeStatus(compensationOvertimeStatus);
-        if (!payTypeName.equals(
-            CompensationOvertimeStatus.OvertimeStatus.NOT_ELIGIBLE.getValue())) {
-          final OvertimePolicy overtimePolicy = overtimeService.findDefaultPolicy();
-          userCompensation.setOvertimePolicy(overtimePolicy);
-        }
+      if (payTypeName != null && !payTypeName.equals(NOT_ELIGIBLE)) {
+        final OvertimePolicy overtimePolicy = overtimeService.findDefaultPolicy();
+        userCompensation.setOvertimePolicy(overtimePolicy);
       }
       userCompensation.setUserId(userId);
       jobUser.setUserCompensation(userCompensation);

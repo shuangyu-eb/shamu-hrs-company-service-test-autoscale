@@ -58,7 +58,6 @@ import shamu.company.user.dto.BasicUserPersonalInformationDto;
 import shamu.company.user.dto.UserAddressDto;
 import shamu.company.user.dto.UserContactInformationDto;
 import shamu.company.user.dto.UserPersonalInformationDto;
-import shamu.company.user.entity.CompensationOvertimeStatus;
 import shamu.company.user.entity.EmployeeType;
 import shamu.company.user.entity.Gender;
 import shamu.company.user.entity.MaritalStatus;
@@ -75,7 +74,6 @@ import shamu.company.user.entity.mapper.UserContactInformationMapper;
 import shamu.company.user.entity.mapper.UserPersonalInformationMapper;
 import shamu.company.user.event.UserEmailUpdatedEvent;
 import shamu.company.user.service.CompensationFrequencyService;
-import shamu.company.user.service.CompensationOvertimeStatusService;
 import shamu.company.user.service.EmployeeTypesService;
 import shamu.company.user.service.GenderService;
 import shamu.company.user.service.MaritalStatusService;
@@ -136,7 +134,6 @@ public class EmployeeService {
   private final TimeOffPolicyService timeOffPolicyService;
   private final EncryptorUtil encryptorUtil;
   private final EmployeeTypesService employeeTypesService;
-  private final CompensationOvertimeStatusService compensationOvertimeStatusService;
   private final DepartmentService departmentService;
   private final CompanyService companyService;
 
@@ -180,7 +177,6 @@ public class EmployeeService {
       final UserRoleService userRoleService,
       final EncryptorUtil encryptorUtil,
       final EmployeeTypesService employeeTypesService,
-      final CompensationOvertimeStatusService compensationOvertimeStatusService,
       final CompanyService companyService,
       final DepartmentService departmentService) {
     this.timeOffPolicyService = timeOffPolicyService;
@@ -212,7 +208,6 @@ public class EmployeeService {
     this.userRoleService = userRoleService;
     this.encryptorUtil = encryptorUtil;
     this.employeeTypesService = employeeTypesService;
-    this.compensationOvertimeStatusService = compensationOvertimeStatusService;
     this.departmentService = departmentService;
     this.companyService = companyService;
   }
@@ -576,11 +571,6 @@ public class EmployeeService {
         compensationFrequencyService.findById(compensationFrequencyId);
     userCompensation.setCompensationFrequency(compensationFrequency);
     userCompensation.setUserId(userId);
-    final CompensationOvertimeStatus compensationOvertimeStatus =
-        compensationOvertimeStatusService.findByName(jobInformation.getPayTypeName());
-    if (compensationOvertimeStatus != null) {
-      userCompensation.setOvertimeStatus(compensationOvertimeStatus);
-    }
 
     return userCompensationService.save(userCompensation);
   }

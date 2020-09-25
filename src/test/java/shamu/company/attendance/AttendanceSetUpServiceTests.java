@@ -36,21 +36,18 @@ import shamu.company.company.entity.OfficeAddress;
 import shamu.company.company.repository.CompanyRepository;
 import shamu.company.company.service.CompanyService;
 import shamu.company.email.service.EmailService;
-import shamu.company.helpers.googlemaps.GoogleMapsHelper;
 import shamu.company.job.entity.CompensationFrequency;
 import shamu.company.job.entity.JobUser;
 import shamu.company.job.entity.mapper.JobUserMapper;
 import shamu.company.job.repository.JobUserRepository;
 import shamu.company.scheduler.QuartzJobScheduler;
 import shamu.company.timeoff.service.PaidHolidayService;
-import shamu.company.user.entity.CompensationOvertimeStatus;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserCompensation;
 import shamu.company.user.entity.UserContactInformation;
 import shamu.company.user.entity.UserPersonalInformation;
 import shamu.company.user.entity.mapper.UserCompensationMapper;
 import shamu.company.user.repository.CompensationFrequencyRepository;
-import shamu.company.user.repository.CompensationOvertimeStatusRepository;
 import shamu.company.user.repository.UserRepository;
 import shamu.company.user.service.UserCompensationService;
 import shamu.company.user.service.UserService;
@@ -84,8 +81,6 @@ public class AttendanceSetUpServiceTests {
   @Mock private CompanyRepository companyRepository;
 
   @Mock private CompensationFrequencyRepository compensationFrequencyRepository;
-
-  @Mock private CompensationOvertimeStatusRepository compensationOvertimeStatusRepository;
 
   @Mock private UserCompensationService userCompensationService;
 
@@ -255,8 +250,6 @@ public class AttendanceSetUpServiceTests {
       Mockito.when(compensationFrequencyRepository.findById(Mockito.any()))
           .thenReturn(Optional.of(new CompensationFrequency()));
       Mockito.when(attendanceSettingsService.findCompanySetting()).thenReturn(companyTaSetting);
-      Mockito.when(compensationOvertimeStatusRepository.findById(Mockito.any()))
-          .thenReturn(Optional.of(new CompensationOvertimeStatus()));
 
       final JobUser jobUser = new JobUser();
       final Office office = new Office();
@@ -297,8 +290,6 @@ public class AttendanceSetUpServiceTests {
       Mockito.when(compensationFrequencyRepository.findById(Mockito.any()))
           .thenReturn(Optional.of(new CompensationFrequency()));
       Mockito.when(attendanceSettingsService.findCompanySetting()).thenReturn(companyTaSetting);
-      Mockito.when(compensationOvertimeStatusRepository.findById(Mockito.any()))
-          .thenReturn(Optional.of(new CompensationOvertimeStatus()));
       Mockito.when(jobUserRepository.findByUserId(Mockito.any())).thenReturn(jobUser);
       Mockito.when(timeSheetService.saveAll(Mockito.any())).thenReturn(Mockito.any());
       Mockito.when(staticTimeZoneRepository.findByName("timezone")).thenReturn(staticTimezone);

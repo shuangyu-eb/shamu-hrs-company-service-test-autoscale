@@ -286,3 +286,11 @@ databaseChangeLog:
             onUpdate: CASCADE
             referencedColumnNames: id
             referencedTableName: static_timezones
+
+  - changeSet:
+      id: 1600932654000-1
+      author: michael-eb
+      changes:
+        - dropColumn:
+            columnName: overtime_status_id
+            tableName: user_compensations

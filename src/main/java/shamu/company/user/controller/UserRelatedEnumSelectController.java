@@ -8,16 +8,14 @@ import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.employee.entity.EmploymentType;
 import shamu.company.employee.service.EmploymentTypeService;
 import shamu.company.job.entity.CompensationFrequency;
-import shamu.company.user.entity.CompensationOvertimeStatus;
-import shamu.company.user.entity.EmployeeType;
 import shamu.company.user.entity.DeactivationReasons;
+import shamu.company.user.entity.EmployeeType;
 import shamu.company.user.entity.Ethnicity;
 import shamu.company.user.entity.Gender;
 import shamu.company.user.entity.MaritalStatus;
 import shamu.company.user.entity.UserRole;
 import shamu.company.user.entity.UserStatus;
 import shamu.company.user.service.CompensationFrequencyService;
-import shamu.company.user.service.CompensationOvertimeStatusService;
 import shamu.company.user.service.DeactivationReasonService;
 import shamu.company.user.service.EmployeeTypesService;
 import shamu.company.user.service.EthnicityService;
@@ -34,8 +32,6 @@ import java.util.List;
 public class UserRelatedEnumSelectController extends BaseRestController {
 
   private final CompensationFrequencyService compensationFrequencyService;
-
-  private final CompensationOvertimeStatusService compensationOvertimeStatusService;
 
   private final DeactivationReasonService deactivationReasonService;
 
@@ -57,7 +53,6 @@ public class UserRelatedEnumSelectController extends BaseRestController {
 
   public UserRelatedEnumSelectController(
       final CompensationFrequencyService compensationFrequencyService,
-      final CompensationOvertimeStatusService compensationOvertimeStatusService,
       final DeactivationReasonService deactivationReasonService,
       final EthnicityService ethnicityService,
       final GenderService genderService,
@@ -68,7 +63,6 @@ public class UserRelatedEnumSelectController extends BaseRestController {
       final EmployeeTypesService employeeTypesService,
       final EmploymentTypeService employmentTypeService) {
     this.compensationFrequencyService = compensationFrequencyService;
-    this.compensationOvertimeStatusService = compensationOvertimeStatusService;
     this.deactivationReasonService = deactivationReasonService;
     this.ethnicityService = ethnicityService;
     this.genderService = genderService;
@@ -77,20 +71,13 @@ public class UserRelatedEnumSelectController extends BaseRestController {
     this.userRoleService = userRoleService;
     this.userStatusService = userStatusService;
     this.employeeTypesService = employeeTypesService;
-    this.employmentTypeService =employmentTypeService;
+    this.employmentTypeService = employmentTypeService;
   }
 
   @GetMapping("compensation-frequencies")
   public List<CommonDictionaryDto> getCompensationFrequencies() {
     final List<CompensationFrequency> frequencies = compensationFrequencyService.findAll();
     return ReflectionUtil.convertTo(frequencies, CommonDictionaryDto.class);
-  }
-
-  @GetMapping("compensation-overtime-statuses")
-  public List<CommonDictionaryDto> getCompensationStatuses() {
-    final List<CompensationOvertimeStatus> overtimeStatuses =
-        compensationOvertimeStatusService.findAll();
-    return ReflectionUtil.convertTo(overtimeStatuses, CommonDictionaryDto.class);
   }
 
   @GetMapping("deactivation-reasons")

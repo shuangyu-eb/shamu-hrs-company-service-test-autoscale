@@ -30,8 +30,6 @@ public class UserCompensation extends BaseEntity {
 
   private Timestamp endDate;
 
-  @ManyToOne private CompensationOvertimeStatus overtimeStatus;
-
   @ManyToOne private OvertimePolicy overtimePolicy;
 
   @Column(name = "user_id")

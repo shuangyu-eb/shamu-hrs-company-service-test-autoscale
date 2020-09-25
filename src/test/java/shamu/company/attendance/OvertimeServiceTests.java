@@ -32,7 +32,6 @@ import shamu.company.company.entity.Company;
 import shamu.company.job.entity.CompensationFrequency;
 import shamu.company.job.entity.JobUser;
 import shamu.company.job.repository.JobUserRepository;
-import shamu.company.user.entity.CompensationOvertimeStatus;
 import shamu.company.user.entity.UserCompensation;
 import shamu.company.user.service.UserCompensationService;
 
@@ -91,9 +90,6 @@ public class OvertimeServiceTests {
     final UserCompensation userCompensation = new UserCompensation();
     final CompensationFrequency compensationFrequency = new CompensationFrequency();
     compensationFrequency.setName("Per Hour");
-    final CompensationOvertimeStatus compensationOvertimeStatus = new CompensationOvertimeStatus();
-    compensationOvertimeStatus.setName("California");
-    userCompensation.setOvertimeStatus(compensationOvertimeStatus);
     userCompensation.setCompensationFrequency(compensationFrequency);
     userCompensation.setWageCents(BigInteger.valueOf(10));
     userCompensation.setOvertimePolicy(overtimePolicy);
