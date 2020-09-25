@@ -129,7 +129,7 @@ public class AttendanceSettingsController extends BaseRestController {
   @PatchMapping("time-and-attendance/employee-overtime-policies")
   public HttpEntity<String> editEmployeeOvertimePolicies(
       @RequestBody final List<EmployeeOvertimeDetailsDto> employeeOvertimeDetailsDtoList) {
-    overtimeService.editEmployeeOvertimePolicies(employeeOvertimeDetailsDtoList);
+    overtimeService.updateEmployeeOvertimePolicies(employeeOvertimeDetailsDtoList);
     return new ResponseEntity(HttpStatus.OK);
   }
 }

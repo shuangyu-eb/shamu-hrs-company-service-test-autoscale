@@ -145,17 +145,16 @@ public class UserCompensationServiceTest {
       Mockito.when(timeSheetService.findCurrentByUseCompensation(Mockito.any()))
           .thenReturn(new TimeSheet());
       Mockito.when(userCompensationRepository.findByUserId(userId)).thenReturn(userCompensation);
-      Mockito.when(jobUserRepository.findByUserCompensationId(Mockito.any()))
-          .thenReturn(new JobUser());
+      Mockito.when(jobUserRepository.findByUserId(Mockito.any())).thenReturn(new JobUser());
       assertThatCode(
               () ->
                   userCompensationService.updateByEditEmployeeOvertimePolicies(
-                      Arrays.asList(employeeOvertimeDetailsDto), true))
+                      Arrays.asList(employeeOvertimeDetailsDto)))
           .doesNotThrowAnyException();
       assertThatCode(
               () ->
                   userCompensationService.updateByEditEmployeeOvertimePolicies(
-                      Arrays.asList(employeeOvertimeDetailsDto), false))
+                      Arrays.asList(employeeOvertimeDetailsDto)))
           .doesNotThrowAnyException();
     }
 
@@ -163,6 +162,7 @@ public class UserCompensationServiceTest {
     void removeEmployees() {
       Mockito.when(userCompensationRepository.findByUserIdIn(Mockito.any()))
           .thenReturn(Arrays.asList(userCompensation));
+      Mockito.when(jobUserRepository.findByUserId(Mockito.any())).thenReturn(new JobUser());
       assertThatCode(
               () -> userCompensationService.removeUsersFromAttendance((Arrays.asList(userId))))
           .doesNotThrowAnyException();

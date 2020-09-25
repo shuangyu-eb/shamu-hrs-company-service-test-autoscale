@@ -51,7 +51,6 @@ public class OvertimeService {
 
   private static final int CONVERT_SECOND_TO_MS = 1000;
   private static final int CONVERT_HOUR_TO_MIN = 60;
-  private static final String DEFAULT_OVERTIME_POLICY_NAME = "NOT ELIGIBLE";
 
   private final GenericHoursService genericHoursService;
   private final OvertimePolicyRepository overtimePolicyRepository;
@@ -234,10 +233,10 @@ public class OvertimeService {
     saveNewOvertimeDetails(overtimePolicyDto.getPolicyDetails(), editedOverPolicy);
   }
 
-  public void createDefaultPolicy() {
+  public void createNotEligiblePolicy() {
     final OvertimePolicy overtimePolicy =
         OvertimePolicy.builder()
-            .policyName(DEFAULT_OVERTIME_POLICY_NAME)
+            .policyName(OvertimePolicy.NOT_ELIGIBLE_POLICY_NAME)
             .defaultPolicy(true)
             .active(true)
             .build();
@@ -263,7 +262,8 @@ public class OvertimeService {
     final List<OvertimePolicyOverviewPojo> sortedList = new ArrayList<>();
     for (final OvertimePolicyOverviewPojo overtimePolicyOverviewPojo :
         overtimePolicyOverviewPojoList) {
-      if (DEFAULT_OVERTIME_POLICY_NAME.equals(overtimePolicyOverviewPojo.getPolicyName())) {
+      if (OvertimePolicy.NOT_ELIGIBLE_POLICY_NAME.equals(
+          overtimePolicyOverviewPojo.getPolicyName())) {
         sortedList.add(overtimePolicyOverviewPojo);
         overtimePolicyOverviewPojoList.remove(overtimePolicyOverviewPojo);
         break;
@@ -275,6 +275,10 @@ public class OvertimeService {
 
   public OvertimePolicy findDefaultPolicy() {
     return overtimePolicyRepository.findByDefaultPolicyIsTrue();
+  }
+
+  public OvertimePolicy findPolicyByName(final String name) {
+    return overtimePolicyRepository.findByPolicyName(name);
   }
 
   @Transactional
@@ -327,22 +331,11 @@ public class OvertimeService {
     return overtimePolicyRepository.findAllPolicyNames();
   }
 
-  public List<UserCompensation> addEmployees(
+  public List<UserCompensation> updateEmployeeOvertimePolicies(
       final List<EmployeeOvertimeDetailsDto> employeeOvertimeDetailsDtoList) {
-    return updateEmployeeOvertimePolicies(employeeOvertimeDetailsDtoList, true);
-  }
-
-  public void editEmployeeOvertimePolicies(
-      final List<EmployeeOvertimeDetailsDto> employeeOvertimeDetailsDtoList) {
-    updateEmployeeOvertimePolicies(employeeOvertimeDetailsDtoList, false);
-  }
-
-  private List<UserCompensation> updateEmployeeOvertimePolicies(
-      final List<EmployeeOvertimeDetailsDto> employeeOvertimeDetailsDtoList,
-      final boolean isAddAttendanceEmployees) {
     saveHireDates(employeeOvertimeDetailsDtoList);
     return userCompensationService.updateByEditEmployeeOvertimePolicies(
-        employeeOvertimeDetailsDtoList, isAddAttendanceEmployees);
+        employeeOvertimeDetailsDtoList);
   }
 
   public List<UserCompensation> createEmployeeOvertimePolicies(

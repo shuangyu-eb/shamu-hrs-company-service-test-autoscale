@@ -96,11 +96,27 @@ public class UserCompensationService {
   }
 
   public void removeUsersFromAttendance(final List<String> userIds) {
-    final List<UserCompensation> userCompensationList =
+    final List<UserCompensation> oldUserCompensationList =
         userCompensationRepository.findByUserIdIn(userIds);
     final Timestamp nowTime = DateUtil.getCurrentTime();
-    userCompensationList.forEach(userCompensation -> userCompensation.setEndDate(nowTime));
-    saveAll(userCompensationList);
+    oldUserCompensationList.forEach(
+        oldUserCompensation -> {
+          oldUserCompensation.setEndDate(nowTime);
+          save(oldUserCompensation);
+
+          final UserCompensation newUserCompensation = new UserCompensation();
+          BeanUtils.copyProperties(oldUserCompensation, newUserCompensation);
+          newUserCompensation.setId(null);
+          newUserCompensation.setStartDate(null);
+          newUserCompensation.setEndDate(null);
+          newUserCompensation.setOvertimePolicy(
+              overtimePolicyRepository.findByPolicyName(OvertimePolicy.NOT_ELIGIBLE_POLICY_NAME));
+          final UserCompensation savedNewUserCompensation = save(newUserCompensation);
+
+          final JobUser jobUser = jobUserRepository.findByUserId(oldUserCompensation.getUserId());
+          jobUser.setUserCompensation(savedNewUserCompensation);
+          jobUserRepository.save(jobUser);
+        });
   }
 
   public List<UserCompensation> updateByCreateEmployeeOvertimePolicies(
@@ -120,8 +136,7 @@ public class UserCompensationService {
   }
 
   public List<UserCompensation> updateByEditEmployeeOvertimePolicies(
-      final List<EmployeeOvertimeDetailsDto> overtimeDetailsDtoList,
-      final boolean isAddAttendanceEmployees) {
+      final List<EmployeeOvertimeDetailsDto> overtimeDetailsDtoList) {
     final List<OldAndNewCompensation> oldAndNewCompensations =
         overtimeDetailsDtoList.stream()
             .map(
@@ -134,7 +149,7 @@ public class UserCompensationService {
                   return new OldAndNewCompensation(oldCompensation, newCompensation);
                 })
             .collect(Collectors.toList());
-    return updateCompensationsByAttendance(oldAndNewCompensations, isAddAttendanceEmployees);
+    return updateCompensationsByAttendance(oldAndNewCompensations);
   }
 
   private UserCompensation assembleFromEmployeeOvertimeDetailsDto(
@@ -181,12 +196,11 @@ public class UserCompensationService {
           oldAndNewCompensations.add(
               new OldAndNewCompensation(oldUserCompensation, newUserCompensation));
         });
-    updateCompensationsByAttendance(oldAndNewCompensations, false);
+    updateCompensationsByAttendance(oldAndNewCompensations);
   }
 
   private List<UserCompensation> updateCompensationsByAttendance(
-      final List<OldAndNewCompensation> oldAndNewCompensationList,
-      final boolean isAddAttendanceEmployees) {
+      final List<OldAndNewCompensation> oldAndNewCompensationList) {
     final List<TimeSheet> timeSheets = new ArrayList<>();
     final List<JobUser> jobUsers = new ArrayList<>();
 
@@ -202,25 +216,22 @@ public class UserCompensationService {
 
           newUserCompensation.setId(null);
           newUserCompensation.setStartDate(nowTime);
-          newUserCompensation.setEndDate(
-              isAddAttendanceEmployees ? null : oldUserCompensation.getEndDate());
+          newUserCompensation.setEndDate(oldUserCompensation.getEndDate());
           final UserCompensation savedNewUserCompensation = save(newUserCompensation);
           newUserCompensationList.add(savedNewUserCompensation);
 
           oldUserCompensation.setEndDate(nowTime);
           oldUserCompensationList.add(oldUserCompensation);
 
-          if (!isAddAttendanceEmployees) {
-            final TimeSheet timeSheet = timeSheetService.findCurrentByUseCompensation(oldUserCompensation);
+          final TimeSheet timeSheet =
+              timeSheetService.findCurrentByUseCompensation(oldUserCompensation);
 
-            if (timeSheet != null) {
-              timeSheet.setUserCompensation(savedNewUserCompensation);
-              timeSheets.add(timeSheet);
-            }
+          if (timeSheet != null) {
+            timeSheet.setUserCompensation(savedNewUserCompensation);
+            timeSheets.add(timeSheet);
           }
 
-          final JobUser jobUser =
-              jobUserRepository.findByUserCompensationId(oldUserCompensation.getId());
+          final JobUser jobUser = jobUserRepository.findByUserId(oldUserCompensation.getUserId());
           jobUser.setUserCompensation(newUserCompensation);
         });
 

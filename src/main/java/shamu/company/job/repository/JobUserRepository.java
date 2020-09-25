@@ -18,6 +18,4 @@ public interface JobUserRepository extends BaseRepository<JobUser, String> {
       value = "SELECT count(1) FROM jobs_users ju" + " WHERE ju.job_id = unhex(?1) ",
       nativeQuery = true)
   Integer getCountByJobId(String jobId);
-
-  JobUser findByUserCompensationId(String compensationId);
 }

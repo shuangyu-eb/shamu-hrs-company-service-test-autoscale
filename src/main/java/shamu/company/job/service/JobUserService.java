@@ -246,7 +246,8 @@ public class JobUserService {
       }
       final String payTypeName = jobUpdateDto.getPayTypeName();
       if (payTypeName != null && !payTypeName.equals(NOT_ELIGIBLE)) {
-        final OvertimePolicy overtimePolicy = overtimeService.findDefaultPolicy();
+        final OvertimePolicy overtimePolicy =
+            overtimeService.findPolicyByName(OvertimePolicy.NOT_ELIGIBLE_POLICY_NAME);
         userCompensation.setOvertimePolicy(overtimePolicy);
       }
       userCompensation.setUserId(userId);

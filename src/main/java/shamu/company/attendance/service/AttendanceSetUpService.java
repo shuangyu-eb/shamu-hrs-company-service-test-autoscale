@@ -13,6 +13,7 @@ import shamu.company.attendance.entity.CompanyTaSetting;
 import shamu.company.attendance.entity.CompanyTaSetting.MessagingON;
 import shamu.company.attendance.entity.EmailNotificationStatus;
 import shamu.company.attendance.entity.EmployeesTaSetting;
+import shamu.company.attendance.entity.OvertimePolicy;
 import shamu.company.attendance.entity.StaticCompanyPayFrequencyType;
 import shamu.company.attendance.entity.StaticCompanyPayFrequencyType.PayFrequencyType;
 import shamu.company.attendance.entity.StaticTimesheetStatus;
@@ -78,7 +79,6 @@ public class AttendanceSetUpService {
   private static final long MS_OF_ONE_HOUR = 60 * 60 * 1000L;
   private static final long MS_OF_ONE_DAY = 24 * MS_OF_ONE_HOUR;
   private static final String DATE_FORMAT = "MM/dd/yyyy";
-  private static final String DEFAULT_OVERTIME_POLICY_NAME = "NOT ELIGIBLE";
 
   private final AttendanceSettingsService attendanceSettingsService;
 
@@ -203,7 +203,8 @@ public class AttendanceSetUpService {
     if (isSetUp) {
       overtimePolicyDetails.forEach(
           newOvertimePolicyDto -> {
-            if (!DEFAULT_OVERTIME_POLICY_NAME.equals(newOvertimePolicyDto.getPolicyName())) {
+            if (!OvertimePolicy.NOT_ELIGIBLE_POLICY_NAME.equals(
+                newOvertimePolicyDto.getPolicyName())) {
               overtimeService.saveNewOvertimePolicy(newOvertimePolicyDto);
             }
           });
@@ -224,10 +225,8 @@ public class AttendanceSetUpService {
                     timeAndAttendanceDetailsDto.getPeriodEndDate(), companyTimezone.getName())
                 .get());
     final List<UserCompensation> userCompensationList =
-        isSetUp
-            ? overtimeService.createEmployeeOvertimePolicies(
-                overtimeDetailsDtoList, periodStartDate)
-            : overtimeService.addEmployees(overtimeDetailsDtoList);
+        overtimeService.createEmployeeOvertimePolicies(
+            overtimeDetailsDtoList, isSetUp ? periodStartDate : new Date());
 
     saveEmployeeTaSettings(timeAndAttendanceDetailsDto, companyTimezone);
 

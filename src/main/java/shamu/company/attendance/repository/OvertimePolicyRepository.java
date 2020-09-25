@@ -16,6 +16,8 @@ public interface OvertimePolicyRepository extends BaseRepository<OvertimePolicy,
 
   OvertimePolicy findByDefaultPolicyIsTrue();
 
+  OvertimePolicy findByPolicyName(String name);
+
   @Query(
       value =
           "select hex(op.id) as id, op.policy_name as policyName, "
@@ -24,7 +26,7 @@ public interface OvertimePolicyRepository extends BaseRepository<OvertimePolicy,
               + "left join "
               + "user_compensations c "
               + "on op.id=c.overtime_policy_id "
-              + "and (c.end_date is null or c.end_date > current_timestamp) "
+              + "and (c.end_date is null or c.end_date > current_timestamp) and c.start_date is not null "
               + "where op.active = 1 "
               + "GROUP BY id, policyName, defaultPolicy "
               + "ORDER BY policyName ",

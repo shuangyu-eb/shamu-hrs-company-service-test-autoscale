@@ -144,7 +144,7 @@ public class OvertimeServiceTests {
     @Test
     void whenCompanyValid_createDefaultPolicy_shouldSucceed() {
       Mockito.when(overtimePolicyRepository.save(Mockito.any())).thenReturn(new OvertimePolicy());
-      assertThatCode(() -> overtimeService.createDefaultPolicy()).doesNotThrowAnyException();
+      assertThatCode(() -> overtimeService.createNotEligiblePolicy()).doesNotThrowAnyException();
     }
 
     @Test
@@ -222,11 +222,9 @@ public class OvertimeServiceTests {
       employeeOvertimeDetailsDto.setEmployeeId(userId);
       employeeOvertimeDetailsDto.setHireDate(new Date());
       Mockito.when(jobUserRepository.findByUserId(userId)).thenReturn(new JobUser());
-      assertThatCode(() -> overtimeService.addEmployees(Arrays.asList(employeeOvertimeDetailsDto)))
-          .doesNotThrowAnyException();
       assertThatCode(
               () ->
-                  overtimeService.editEmployeeOvertimePolicies(
+                  overtimeService.updateEmployeeOvertimePolicies(
                       Arrays.asList(employeeOvertimeDetailsDto)))
           .doesNotThrowAnyException();
     }
