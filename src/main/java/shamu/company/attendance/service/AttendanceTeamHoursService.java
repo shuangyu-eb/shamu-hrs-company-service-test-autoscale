@@ -290,12 +290,18 @@ public class AttendanceTeamHoursService {
         .build();
   }
 
-  public void completePeriod(final String timePeriodId) {
+  public void completePeriod(
+      final String timePeriodId, final String hourType, final String managerId) {
     final StaticTimesheetStatus completeStatus =
         staticTimesheetStatusService.findByName(TimeSheetStatus.COMPLETE.name());
     final StaticTimesheetStatus approvedStatus =
         staticTimesheetStatusService.findByName(TimeSheetStatus.APPROVED.name());
-    timeSheetService.updateTimesheetStatusByPeriodId(
-        approvedStatus.getId(), completeStatus.getId(), timePeriodId);
+    if (COMPANY_HOURS_TYPE.equals(hourType)) {
+      timeSheetService.updateTimesheetStatusByPeriodId(
+          approvedStatus.getId(), completeStatus.getId(), timePeriodId);
+    } else {
+      timeSheetService.updateTimesheetStatusByPeriodIdAndManagerId(
+          approvedStatus.getId(), completeStatus.getId(), timePeriodId, managerId);
+    }
   }
 }

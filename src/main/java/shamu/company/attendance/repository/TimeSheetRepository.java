@@ -66,6 +66,17 @@ public interface TimeSheetRepository extends BaseRepository<TimeSheet, String> {
       nativeQuery = true)
   void updateTimesheetStatusByPeriodId(String fromStatus, String toStatus, String periodId);
 
+  @Modifying
+  @Transactional
+  @Query(
+      value =
+          "update timesheets ts set ts.status_id = unhex(?2) where ts.status_id = unhex(?1) and "
+              + "ts.time_period_id = unhex(?3) and ts.employee_id in "
+              + "(select u.id from users u where u.manager_user_id = unhex(?4))",
+      nativeQuery = true)
+  void updateTimesheetStatusByPeriodIdAndManagerId(
+      String fromStatus, String toStatus, String periodId, String managerId);
+
   List<TimeSheet> findAllByTimePeriodId(String timePeriodId);
 
   TimeSheet findByTimePeriodIdAndEmployeeIdAndRemovedAtIsNull(String periodId, String employeeId);
@@ -102,11 +113,11 @@ public interface TimeSheetRepository extends BaseRepository<TimeSheet, String> {
   int findCompanyHoursPendingCount(String timePeriodId, String status);
 
   @Query(
-          value =
-                  "select t.* from timesheets t "
-                          + "join time_period tp on tp.id = t.time_period_id "
-                          + "where tp.end_date > now() "
-                          + "AND t.user_compensation_id = UNHEX(?1)",
-          nativeQuery = true)
+      value =
+          "select t.* from timesheets t "
+              + "join time_period tp on tp.id = t.time_period_id "
+              + "where tp.end_date > now() "
+              + "AND t.user_compensation_id = UNHEX(?1)",
+      nativeQuery = true)
   TimeSheet findCurrentRecordByUserCompensationId(String compensationId);
 }

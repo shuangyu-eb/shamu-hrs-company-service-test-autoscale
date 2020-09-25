@@ -38,8 +38,6 @@ import java.util.Set;
 @RestApiController
 public class AttendanceTeamHoursController extends BaseRestController {
 
-  private static final String COMPANY_HOURS_TYPE = "company_hours";
-
   private final AttendanceTeamHoursService attendanceTeamHoursService;
 
   private final TimePeriodService timePeriodService;
@@ -168,18 +166,19 @@ public class AttendanceTeamHoursController extends BaseRestController {
     return attendanceTeamHoursService.findAttendancePendingCount(findAuthUser().getId());
   }
 
-  @GetMapping("time-and-attendance/approved-company-hours-summary/{timePeriodId}")
+  @GetMapping("time-and-attendance/approved-company-hours-summary/{timePeriodId}/{hourType}")
   public AttendanceSummaryDto findApprovedAttendanceSummary(
-      @PathVariable final String timePeriodId) {
+      @PathVariable final String timePeriodId, @PathVariable final String hourType) {
     return attendanceTeamHoursService.findTeamHoursSummary(
         timePeriodId,
         Collections.singletonList(TimeSheetStatus.APPROVED.name()),
         findUserId(),
-        COMPANY_HOURS_TYPE);
+        hourType);
   }
 
-  @PatchMapping("time-and-attendance/complete-period/{timePeriodId}")
-  public void completePeriod(@PathVariable final String timePeriodId) {
-    attendanceTeamHoursService.completePeriod(timePeriodId);
+  @PatchMapping("time-and-attendance/complete-period/{timePeriodId}/{hourType}")
+  public void completePeriod(
+      @PathVariable final String timePeriodId, @PathVariable final String hourType) {
+    attendanceTeamHoursService.completePeriod(timePeriodId, hourType, findAuthUser().getId());
   }
 }

@@ -91,6 +91,15 @@ public class TimeSheetService {
     timeSheetRepository.updateTimesheetStatusByPeriodId(fromStatus, toStatus, periodId);
   }
 
+  public void updateTimesheetStatusByPeriodIdAndManagerId(
+      final String fromStatus,
+      final String toStatus,
+      final String periodId,
+      final String managerId) {
+    timeSheetRepository.updateTimesheetStatusByPeriodIdAndManagerId(
+        fromStatus, toStatus, periodId, managerId);
+  }
+
   public List<TimeSheet> findAllByPeriodId(final String periodId) {
     return timeSheetRepository.findAllByTimePeriodId(periodId);
   }

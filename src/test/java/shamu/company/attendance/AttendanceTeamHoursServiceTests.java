@@ -420,16 +420,33 @@ class AttendanceTeamHoursServiceTests {
         .doesNotThrowAnyException();
   }
 
-  @Test
-  void completePeriod() {
-    final StaticTimesheetStatus completeStatus = new StaticTimesheetStatus();
-    completeStatus.setId("1");
-    final StaticTimesheetStatus approvedStatus = new StaticTimesheetStatus();
-    approvedStatus.setId("1");
-    Mockito.when(staticTimesheetStatusService.findByName(TimeSheetStatus.COMPLETE.name()))
-        .thenReturn(completeStatus);
-    Mockito.when(staticTimesheetStatusService.findByName(TimeSheetStatus.APPROVED.name()))
-        .thenReturn(approvedStatus);
-    assertThatCode(() -> attendanceTeamHoursService.completePeriod("1")).doesNotThrowAnyException();
+  @Nested
+  class completePeriod {
+    StaticTimesheetStatus completeStatus;
+    StaticTimesheetStatus approvedStatus;
+
+    @BeforeEach
+    void init() {
+      completeStatus = new StaticTimesheetStatus();
+      completeStatus.setId("1");
+      approvedStatus = new StaticTimesheetStatus();
+      approvedStatus.setId("1");
+      Mockito.when(staticTimesheetStatusService.findByName(TimeSheetStatus.COMPLETE.name()))
+          .thenReturn(completeStatus);
+      Mockito.when(staticTimesheetStatusService.findByName(TimeSheetStatus.APPROVED.name()))
+          .thenReturn(approvedStatus);
+    }
+
+    @Test
+    void whenTypeIsCompanyHour() {
+      assertThatCode(() -> attendanceTeamHoursService.completePeriod("1", "company_hours", "1"))
+          .doesNotThrowAnyException();
+    }
+
+    @Test
+    void whenTypeIsTeamHour() {
+      assertThatCode(() -> attendanceTeamHoursService.completePeriod("1", "team_hours", "1"))
+          .doesNotThrowAnyException();
+    }
   }
 }

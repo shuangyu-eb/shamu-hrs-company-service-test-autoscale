@@ -252,7 +252,7 @@ class AttendanceTeamHoursControllerTests extends WebControllerBaseTests {
         mockMvc
             .perform(
                 MockMvcRequestBuilders.get(
-                        "/company/time-and-attendance/approved" + "-company-hours-summary/1")
+                        "/company/time-and-attendance/approved" + "-company-hours-summary/1/1")
                     .headers(httpHeaders))
             .andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
@@ -265,7 +265,7 @@ class AttendanceTeamHoursControllerTests extends WebControllerBaseTests {
     final MvcResult response =
         mockMvc
             .perform(
-                MockMvcRequestBuilders.patch("/company/time-and-attendance/complete-period/1")
+                MockMvcRequestBuilders.patch("/company/time-and-attendance/complete-period/1/1")
                     .headers(httpHeaders))
             .andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
