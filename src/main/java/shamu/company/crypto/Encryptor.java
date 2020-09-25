@@ -4,6 +4,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Objects;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.encrypt.BytesEncryptor;
@@ -89,7 +90,11 @@ public class Encryptor {
 
     String userHash = "";
     if(auth0Helper.isIndeedEnvironment()) {
-      userHash = user.getHash();
+      if (StringUtils.isEmpty(user.getHash())) {
+        userHash = getUserHash(user);
+      } else {
+        userHash = user.getHash();
+      }
     } else {
       userHash = getUserHash(user);
     }
