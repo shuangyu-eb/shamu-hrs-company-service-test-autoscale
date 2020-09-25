@@ -142,7 +142,7 @@ public class UserCompensationServiceTest {
 
     @Test
     void updateByEditEmployeeOvertimePolicies_shouldSucceed() {
-      Mockito.when(timeSheetService.findByUseCompensation(Mockito.any()))
+      Mockito.when(timeSheetService.findCurrentByUseCompensation(Mockito.any()))
           .thenReturn(new TimeSheet());
       Mockito.when(userCompensationRepository.findByUserId(userId)).thenReturn(userCompensation);
       Mockito.when(jobUserRepository.findByUserCompensationId(Mockito.any()))

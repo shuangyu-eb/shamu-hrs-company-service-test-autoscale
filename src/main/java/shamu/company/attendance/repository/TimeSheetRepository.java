@@ -101,5 +101,12 @@ public interface TimeSheetRepository extends BaseRepository<TimeSheet, String> {
       nativeQuery = true)
   int findCompanyHoursPendingCount(String timePeriodId, String status);
 
-  TimeSheet findByUserCompensationId(String compensationId);
+  @Query(
+          value =
+                  "select t.* from timesheets t "
+                          + "join time_period tp on tp.id = t.time_period_id "
+                          + "where tp.end_date > now() "
+                          + "AND t.user_compensation_id = UNHEX(?1)",
+          nativeQuery = true)
+  TimeSheet findCurrentRecordByUserCompensationId(String compensationId);
 }

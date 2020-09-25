@@ -211,7 +211,7 @@ public class UserCompensationService {
           oldUserCompensationList.add(oldUserCompensation);
 
           if (!isAddAttendanceEmployees) {
-            final TimeSheet timeSheet = timeSheetService.findByUseCompensation(oldUserCompensation);
+            final TimeSheet timeSheet = timeSheetService.findCurrentByUseCompensation(oldUserCompensation);
 
             if (timeSheet != null) {
               timeSheet.setUserCompensation(savedNewUserCompensation);

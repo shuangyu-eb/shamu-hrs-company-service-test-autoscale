@@ -141,7 +141,7 @@ public class TimeSheetService {
         periodId, TimeSheetStatus.SUBMITTED.name());
   }
 
-  public TimeSheet findByUseCompensation(final UserCompensation userCompensation) {
-    return timeSheetRepository.findByUserCompensationId(userCompensation.getId());
+  public TimeSheet findCurrentByUseCompensation(final UserCompensation userCompensation) {
+    return timeSheetRepository.findCurrentRecordByUserCompensationId(userCompensation.getId());
   }
 }
