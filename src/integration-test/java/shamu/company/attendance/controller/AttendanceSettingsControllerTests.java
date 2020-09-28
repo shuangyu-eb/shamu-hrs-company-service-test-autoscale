@@ -13,6 +13,7 @@ import shamu.company.WebControllerBaseTests;
 import shamu.company.attendance.dto.CompanyTaSettingsDto;
 import shamu.company.attendance.dto.EmployeesTaSettingDto;
 import shamu.company.attendance.dto.OvertimePolicyDto;
+import shamu.company.authorization.Permission;
 import shamu.company.tests.utils.JwtUtil;
 import shamu.company.utils.JsonUtil;
 
@@ -27,6 +28,7 @@ public class AttendanceSettingsControllerTests extends WebControllerBaseTests {
   void testFindCompanySettings() throws Exception {
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+    setPermission(Permission.Name.MANAGE_COMPANY_USER.name());
 
     final MvcResult response =
         mockMvc
@@ -42,6 +44,7 @@ public class AttendanceSettingsControllerTests extends WebControllerBaseTests {
   void testFindEmployeeSettings() throws Exception {
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+    setPermission(Permission.Name.VIEW_SELF.name());
 
     final MvcResult response =
         mockMvc
@@ -72,6 +75,7 @@ public class AttendanceSettingsControllerTests extends WebControllerBaseTests {
   void testUpdateCompanySettings() throws Exception {
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+    setPermission(Permission.Name.MANAGE_COMPANY_USER.name());
 
     final MvcResult response =
         mockMvc
@@ -89,6 +93,7 @@ public class AttendanceSettingsControllerTests extends WebControllerBaseTests {
   void updateEmployeeSettings() throws Exception {
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+    setPermission(Permission.Name.EDIT_SELF.name());
 
     final MvcResult response =
         mockMvc
@@ -121,6 +126,7 @@ public class AttendanceSettingsControllerTests extends WebControllerBaseTests {
   void createOvertimePolicy() throws Exception {
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+    setPermission(Permission.Name.MANAGE_COMPANY_USER.name());
 
     final MvcResult response =
         mockMvc
@@ -138,6 +144,7 @@ public class AttendanceSettingsControllerTests extends WebControllerBaseTests {
   void deleteOvertimePolicy() throws Exception {
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+    setPermission(Permission.Name.MANAGE_COMPANY_USER.name());
 
     final MvcResult response =
         mockMvc
@@ -154,6 +161,7 @@ public class AttendanceSettingsControllerTests extends WebControllerBaseTests {
   void updateOvertimePolicy() throws Exception {
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+    setPermission(Permission.Name.MANAGE_COMPANY_USER.name());
 
     final MvcResult response =
         mockMvc
@@ -171,6 +179,7 @@ public class AttendanceSettingsControllerTests extends WebControllerBaseTests {
   void getOvertimePolicies() throws Exception {
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+    setPermission(Permission.Name.MANAGE_COMPANY_USER.name());
 
     final MvcResult response =
         mockMvc
@@ -186,6 +195,7 @@ public class AttendanceSettingsControllerTests extends WebControllerBaseTests {
   void getOvertimePolicyDetail() throws Exception {
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+    setPermission(Permission.Name.MANAGE_COMPANY_USER.name());
 
     final MvcResult response =
         mockMvc
@@ -201,6 +211,7 @@ public class AttendanceSettingsControllerTests extends WebControllerBaseTests {
   void findAllPolicyNames() throws Exception {
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+    setPermission(Permission.Name.MANAGE_COMPANY_USER.name());
 
     final MvcResult response =
         mockMvc

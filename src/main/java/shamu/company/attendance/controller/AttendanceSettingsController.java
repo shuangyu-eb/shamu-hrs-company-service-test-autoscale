@@ -3,6 +3,7 @@ package shamu.company.attendance.controller;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -55,12 +56,14 @@ public class AttendanceSettingsController extends BaseRestController {
   }
 
   @GetMapping("time-and-attendance/company-settings")
+  @PreAuthorize("hasAuthority('MANAGE_COMPANY_USER')")
   public CompanyTaSettingsDto findCompanySettings() {
     return companyTaSettingsMapper.convertToCompanyTaSettingsDto(
         attendanceSettingsService.findCompanySetting(), payrollDetailService.find());
   }
 
   @GetMapping("time-and-attendance/employee-settings/{employeeId}")
+  @PreAuthorize("hasPermission(#userId, 'USER', 'VIEW_SELF')")
   public EmployeesTaSettingDto findEmployeeSettings(@PathVariable final String employeeId) {
     return attendanceSettingsService.findEmployeesSettings(employeeId);
   }
@@ -72,6 +75,7 @@ public class AttendanceSettingsController extends BaseRestController {
   }
 
   @PatchMapping("time-and-attendance/company-settings")
+  @PreAuthorize("hasAuthority('MANAGE_COMPANY_USER')")
   public HttpEntity<String> updateCompanySettings(
       @RequestBody final CompanyTaSettingsDto companyTaSettingsDto) {
     attendanceSettingsService.updateCompanySettings(companyTaSettingsDto);
@@ -79,6 +83,7 @@ public class AttendanceSettingsController extends BaseRestController {
   }
 
   @PatchMapping("time-and-attendance/{employeeId}/employee-settings")
+  @PreAuthorize("hasPermission(#userId, 'USER', 'EDIT_SELF')")
   public HttpEntity<String> updateEmployeeSettings(
       @PathVariable final String employeeId,
       @RequestBody final EmployeesTaSettingDto employeesTaSettingDto) {
@@ -92,6 +97,7 @@ public class AttendanceSettingsController extends BaseRestController {
   }
 
   @PostMapping("time-and-attendance/create-overtime-policy")
+  @PreAuthorize("hasAuthority('MANAGE_COMPANY_USER')")
   public HttpEntity<String> createOvertimePolicy(
       @RequestBody final NewOvertimePolicyDto overtimePolicy) {
     overtimeService.saveNewOvertimePolicy(overtimePolicy);
@@ -99,6 +105,7 @@ public class AttendanceSettingsController extends BaseRestController {
   }
 
   @PatchMapping("time-and-attendance/overtime-policy")
+  @PreAuthorize("hasAuthority('MANAGE_COMPANY_USER')")
   public HttpEntity<String> updateOvertimePolicy(
       @RequestBody final OvertimePolicyDto overtimePolicy) {
     overtimeService.updateOvertimePolicy(overtimePolicy);
@@ -106,27 +113,32 @@ public class AttendanceSettingsController extends BaseRestController {
   }
 
   @GetMapping("time-and-attendance/overtime-policies")
+  @PreAuthorize("hasAuthority('MANAGE_COMPANY_USER')")
   public List<OvertimePolicyOverviewDto> getOvertimePolicies() {
     return overtimeService.findAllOvertimePolicies();
   }
 
   @GetMapping("time-and-attendance/overtime-policies/{policyId}")
+  @PreAuthorize("hasAuthority('MANAGE_COMPANY_USER')")
   public OvertimePolicyDto getOvertimePolicyDetail(@PathVariable final String policyId) {
     return overtimeService.findOvertimePolicyDetails(policyId);
   }
 
   @DeleteMapping("time-and-attendance/delete-overtime-policy/{policyId}")
+  @PreAuthorize("hasAuthority('MANAGE_COMPANY_USER')")
   public HttpEntity<String> deleteOvertimePolicy(@PathVariable final String policyId) {
     overtimeService.softDeleteOvertimePolicy(policyId);
     return new ResponseEntity<>(HttpStatus.OK);
   }
 
   @GetMapping("time-and-attendance/all-active-policy-name")
+  @PreAuthorize("hasAuthority('MANAGE_COMPANY_USER')")
   public List<String> findAllPolicyNames() {
     return overtimeService.findAllPolicyNames();
   }
 
   @PatchMapping("time-and-attendance/employee-overtime-policies")
+  @PreAuthorize("hasAuthority('MANAGE_COMPANY_USER')")
   public HttpEntity<String> editEmployeeOvertimePolicies(
       @RequestBody final List<EmployeeOvertimeDetailsDto> employeeOvertimeDetailsDtoList) {
     overtimeService.updateEmployeeOvertimePolicies(employeeOvertimeDetailsDtoList);

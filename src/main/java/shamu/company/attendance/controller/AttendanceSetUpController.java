@@ -43,6 +43,7 @@ public class AttendanceSetUpController extends BaseRestController {
   }
 
   @GetMapping("time-and-attendance/users")
+  @PreAuthorize("hasAuthority('MANAGE_COMPANY_USER')")
   public TimeAndAttendanceRelatedUserListDto getEmployees() {
     return attendanceSetUpService.getRelatedUsers();
   }
@@ -55,6 +56,7 @@ public class AttendanceSetUpController extends BaseRestController {
   }
 
   @PostMapping("time-and-attendance/details")
+  @PreAuthorize("hasAuthority('MANAGE_COMPANY_USER')")
   public HttpEntity createAttendanceDetails(
       @Valid @RequestBody final AttendancePolicyAndDetailDto attendancePolicyAndDetailDto) {
     final String companyId = findCompanyId();
