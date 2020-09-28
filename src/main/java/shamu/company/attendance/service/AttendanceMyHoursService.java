@@ -1,13 +1,5 @@
 package shamu.company.attendance.service;
 
-import java.math.BigInteger;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shamu.company.attendance.dto.AllTimeDto;
@@ -38,6 +30,15 @@ import shamu.company.user.entity.UserCompensation;
 import shamu.company.user.service.UserCompensationService;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.DateUtil;
+
+import java.math.BigInteger;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @Transactional
@@ -353,11 +354,6 @@ public class AttendanceMyHoursService {
   public String findUserTimeZone(final String userId) {
     final User user = userService.findById(userId);
     return user.getTimeZone().getName();
-  }
-
-  public String findCompensationFrequency(final String timesheetId) {
-    final TimeSheet timeSheet = timeSheetService.findTimeSheetById(timesheetId);
-    return timeSheet.getUserCompensation().getCompensationFrequency().getName();
   }
 
   public TimeEntryDto findMyHourEntry(final String entryId) {

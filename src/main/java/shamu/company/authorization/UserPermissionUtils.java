@@ -1,17 +1,15 @@
 package shamu.company.authorization;
 
-import static shamu.company.authorization.Permission.Name.SELECT_PAID_HOLIDAY;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+import shamu.company.attendance.entity.EmployeeTimeEntry;
+import shamu.company.attendance.entity.TimeSheet;
+import shamu.company.attendance.service.EmployeeTimeEntryService;
+import shamu.company.attendance.service.TimeSheetService;
 import shamu.company.authorization.Permission.Name;
 import shamu.company.authorization.Permission.PermissionType;
 import shamu.company.benefit.dto.BenefitPlanCoverageDto;
@@ -39,6 +37,13 @@ import shamu.company.user.entity.User.Role;
 import shamu.company.user.service.UserAddressService;
 import shamu.company.user.service.UserService;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static shamu.company.authorization.Permission.Name.SELECT_PAID_HOLIDAY;
+
 @Component
 public class UserPermissionUtils extends BasePermissionUtils {
 
@@ -64,6 +69,10 @@ public class UserPermissionUtils extends BasePermissionUtils {
 
   private final UserEmergencyContactService userEmergencyContactService;
 
+  private final TimeSheetService timeSheetService;
+
+  private final EmployeeTimeEntryService employeeTimeEntryService;
+
   @Autowired
   public UserPermissionUtils(
       final UserService userService,
@@ -76,7 +85,9 @@ public class UserPermissionUtils extends BasePermissionUtils {
       final TimeOffPolicyService timeOffPolicyService,
       final PaidHolidayService paidHolidayService,
       final UserEmergencyContactService userEmergencyContactService,
-      final BenefitCoveragesRepository benefitCoveragesRepository) {
+      final BenefitCoveragesRepository benefitCoveragesRepository,
+      final TimeSheetService timeSheetService,
+      final EmployeeTimeEntryService employeeTimeEntryService) {
     this.userService = userService;
     this.companyService = companyService;
     this.timeOffRequestService = timeOffRequestService;
@@ -87,6 +98,8 @@ public class UserPermissionUtils extends BasePermissionUtils {
     this.timeOffPolicyService = timeOffPolicyService;
     this.paidHolidayService = paidHolidayService;
     this.userEmergencyContactService = userEmergencyContactService;
+    this.timeSheetService = timeSheetService;
+    this.employeeTimeEntryService = employeeTimeEntryService;
   }
 
   boolean hasPermission(
@@ -127,6 +140,10 @@ public class UserPermissionUtils extends BasePermissionUtils {
         return hasPermissionOfPaidHoliday(auth, targetId, permission);
       case USER_EMERGENCY_CONTACT:
         return hasPermissionOfUserEmergencyContact(auth, targetId, permission);
+      case ATTENDANCE_TIMESHEET:
+        return hasPermissionOfAttendanceTimesheet(auth, targetId, permission);
+      case ATTENDANCE_ENTRY:
+        return hasPermissionOfAttendanceEntry(auth, targetId, permission);
       case USER:
       case TIME_OFF_USER:
       default:
@@ -361,6 +378,33 @@ public class UserPermissionUtils extends BasePermissionUtils {
     }
 
     return hasPermission(auth, permission);
+  }
+
+  private boolean hasPermissionOfAttendanceTimesheet(
+      final Authentication auth, final String timesheetId, final Permission.Name permission) {
+    final TimeSheet timeSheet = timeSheetService.findTimeSheetById(timesheetId);
+    final User targetUser = timeSheet.getEmployee();
+    return verifyEmployeePermission(targetUser, auth, permission);
+  }
+
+  private boolean hasPermissionOfAttendanceEntry(
+      final Authentication auth, final String entryId, final Permission.Name permission) {
+    final EmployeeTimeEntry employeeTimeEntry = employeeTimeEntryService.findById(entryId);
+    final User targetUser = employeeTimeEntry.getEmployee();
+    return verifyEmployeePermission(targetUser, auth, permission);
+  }
+
+  private boolean verifyEmployeePermission(
+      final User targetUser, final Authentication auth, final Permission.Name permission) {
+    final Optional<User> manager = Optional.ofNullable(targetUser.getManagerUser());
+    final String managerUserId = manager.orElse(new User()).getId();
+    if (getAuthUser().getId().equals(targetUser.getId())
+        || getAuthUser().getId().equals(managerUserId)
+        || User.Role.ADMIN.equals(getAuthUser().getRole())) {
+      return hasPermission(auth, permission);
+    } else {
+      return false;
+    }
   }
 
   @SuppressWarnings("unchecked")

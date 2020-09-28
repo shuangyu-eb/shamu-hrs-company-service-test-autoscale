@@ -13,8 +13,12 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import shamu.company.WebControllerBaseTests;
 import shamu.company.attendance.dto.TimeEntryDto;
+import shamu.company.attendance.entity.EmployeeTimeEntry;
+import shamu.company.attendance.entity.TimeSheet;
 import shamu.company.attendance.service.TimePeriodService;
+import shamu.company.authorization.Permission;
 import shamu.company.tests.utils.JwtUtil;
+import shamu.company.user.entity.User;
 import shamu.company.utils.JsonUtil;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -26,7 +30,14 @@ public class AttendanceMyHoursControllerTests extends WebControllerBaseTests {
   @Autowired private MockMvc mockMvc;
 
   @Test
-  void findIsAttendanceSetUp() throws Exception {
+  void saveTimeEntry() throws Exception {
+    setPermission(Permission.Name.EDIT_SELF.name());
+
+    final HttpHeaders httpHeaders = new HttpHeaders();
+    httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+    final User user = new User();
+    user.setId(getAuthUser().getId());
+    Mockito.when(userService.findById("1")).thenReturn(user);
     final MvcResult response =
         mockMvc
             .perform(
@@ -42,6 +53,15 @@ public class AttendanceMyHoursControllerTests extends WebControllerBaseTests {
 
   @Test
   void findMyHoursList() throws Exception {
+    setPermission(Permission.Name.VIEW_EMPLOYEES.name());
+    final TimeSheet timeSheet = new TimeSheet();
+    final User user = new User();
+    user.setId(getAuthUser().getId());
+    timeSheet.setEmployee(user);
+    Mockito.when(timeSheetService.findTimeSheetById("1")).thenReturn(timeSheet);
+    Mockito.when(userService.findById("1")).thenReturn(user);
+    final HttpHeaders httpHeaders = new HttpHeaders();
+    httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
     final MvcResult response =
         mockMvc
             .perform(
@@ -54,6 +74,13 @@ public class AttendanceMyHoursControllerTests extends WebControllerBaseTests {
 
   @Test
   void findUserTimeZone() throws Exception {
+    setPermission(Permission.Name.VIEW_SELF.name());
+
+    final HttpHeaders httpHeaders = new HttpHeaders();
+    httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+    final User user = new User();
+    user.setId(getAuthUser().getId());
+    Mockito.when(userService.findById("1")).thenReturn(user);
     final MvcResult response =
         mockMvc
             .perform(
@@ -67,6 +94,13 @@ public class AttendanceMyHoursControllerTests extends WebControllerBaseTests {
 
   @Test
   void findUserNextPeriod() throws Exception {
+    setPermission(Permission.Name.EDIT_SELF.name());
+
+    final HttpHeaders httpHeaders = new HttpHeaders();
+    httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+    final User user = new User();
+    user.setId(getAuthUser().getId());
+    Mockito.when(userService.findById("1")).thenReturn(user);
     final MvcResult response =
         mockMvc
             .perform(
@@ -80,8 +114,13 @@ public class AttendanceMyHoursControllerTests extends WebControllerBaseTests {
 
   @Test
   void testGetAllPayPeriodFrequency() throws Exception {
+    setPermission(Permission.Name.VIEW_SELF.name());
+
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+    final User user = new User();
+    user.setId(getAuthUser().getId());
+    Mockito.when(userService.findById("1")).thenReturn(user);
 
     final MvcResult response =
         mockMvc
@@ -95,6 +134,15 @@ public class AttendanceMyHoursControllerTests extends WebControllerBaseTests {
 
   @Test
   void testFindMyHourEntry() throws Exception {
+    setPermission(Permission.Name.VIEW_EMPLOYEES.name());
+    final EmployeeTimeEntry employeeTimeEntry = new EmployeeTimeEntry();
+    final User user = new User();
+    final User managerUser = new User();
+    managerUser.setId(getAuthUser().getId());
+    user.setManagerUser(managerUser);
+    employeeTimeEntry.setEmployee(user);
+    Mockito.when(employeeTimeEntryService.findById("1")).thenReturn(employeeTimeEntry);
+    Mockito.when(userService.findById("1")).thenReturn(user);
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
 
@@ -110,6 +158,15 @@ public class AttendanceMyHoursControllerTests extends WebControllerBaseTests {
 
   @Test
   void testSubmitHoursForApproval() throws Exception {
+    setPermission(Permission.Name.EDIT_SELF.name());
+    final TimeSheet timeSheet = new TimeSheet();
+    final User user = new User();
+    final User managerUser = new User();
+    managerUser.setId(getAuthUser().getId());
+    user.setManagerUser(managerUser);
+    timeSheet.setEmployee(user);
+    Mockito.when(timeSheetService.findTimeSheetById("1")).thenReturn(timeSheet);
+    Mockito.when(userService.findById("1")).thenReturn(user);
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
 
@@ -126,6 +183,14 @@ public class AttendanceMyHoursControllerTests extends WebControllerBaseTests {
 
   @Test
   void testFindTimesheetStatus() throws Exception {
+    buildAuthUserAsAdmin();
+    setPermission(Permission.Name.VIEW_EMPLOYEES.name());
+    final TimeSheet timeSheet = new TimeSheet();
+    final User user = new User();
+    user.setId("1");
+    timeSheet.setEmployee(user);
+    Mockito.when(timeSheetService.findTimeSheetById("1")).thenReturn(timeSheet);
+    Mockito.when(userService.findById("1")).thenReturn(user);
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
 
@@ -142,6 +207,13 @@ public class AttendanceMyHoursControllerTests extends WebControllerBaseTests {
 
   @Test
   void testDeleteMyHourEntry() throws Exception {
+    setPermission(Permission.Name.MANAGE_EMPLOYEES.name());
+    final EmployeeTimeEntry employeeTimeEntry = new EmployeeTimeEntry();
+    final User user = new User();
+    user.setId(getAuthUser().getId());
+    employeeTimeEntry.setEmployee(user);
+    Mockito.when(employeeTimeEntryService.findById("1")).thenReturn(employeeTimeEntry);
+    Mockito.when(userService.findById("1")).thenReturn(user);
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
 
@@ -157,6 +229,7 @@ public class AttendanceMyHoursControllerTests extends WebControllerBaseTests {
 
   @Test
   void findUserAttendanceEnrollInfo() throws Exception {
+    setPermission(Permission.Name.VIEW_MY_TEAM.name());
     final MvcResult response =
         mockMvc
             .perform(

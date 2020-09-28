@@ -1,14 +1,5 @@
 package shamu.company;
 
-import static org.mockito.BDDMockito.given;
-
-
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -21,7 +12,9 @@ import shamu.company.attendance.entity.mapper.EmployeesTaSettingsMapper;
 import shamu.company.attendance.service.AttendanceMyHoursService;
 import shamu.company.attendance.service.AttendanceSetUpService;
 import shamu.company.attendance.service.AttendanceSettingsService;
+import shamu.company.attendance.service.EmployeeTimeEntryService;
 import shamu.company.attendance.service.OvertimeService;
+import shamu.company.attendance.service.TimeSheetService;
 import shamu.company.authorization.MethodPermissionEvaluator;
 import shamu.company.authorization.Permission;
 import shamu.company.authorization.Permission.Name;
@@ -59,6 +52,15 @@ import shamu.company.user.entity.User.Role;
 import shamu.company.user.service.UserAddressService;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.UuidUtil;
+
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static org.mockito.BDDMockito.given;
 
 @Import({
   DefaultAuthenticationEntryPoint.class,
@@ -99,6 +101,8 @@ public class WebControllerBaseTests {
   @MockBean protected AccountService accountService;
   @MockBean protected PayrollDetailService payrollDetailService;
   @MockBean protected OvertimeService overtimeService;
+  @MockBean protected TimeSheetService timeSheetService;
+  @MockBean protected EmployeeTimeEntryService employeeTimeEntryService;
 
   protected HttpHeaders httpHeaders;
 
@@ -217,7 +221,11 @@ public class WebControllerBaseTests {
     authUser.setPermissions(Collections.emptyList());
     final DefaultJwtAuthenticationToken defaultJwtAuthenticationToken =
         new DefaultJwtAuthenticationToken(
-            JwtUtil.getJwt(), authUser.getId(), Collections.emptyList(), authUser, "test@gmail.com");
+            JwtUtil.getJwt(),
+            authUser.getId(),
+            Collections.emptyList(),
+            authUser,
+            "test@gmail.com");
     SecurityContextHolder.getContext().setAuthentication(defaultJwtAuthenticationToken);
 
     httpHeaders = new HttpHeaders();

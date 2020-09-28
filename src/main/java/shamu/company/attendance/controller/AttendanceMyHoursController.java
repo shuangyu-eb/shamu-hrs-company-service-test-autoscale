@@ -1,6 +1,6 @@
 package shamu.company.attendance.controller;
 
-import java.util.List;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -21,6 +21,8 @@ import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.employee.dto.CompensationDto;
 import shamu.company.utils.ReflectionUtil;
 
+import java.util.List;
+
 @RestApiController
 public class AttendanceMyHoursController extends BaseRestController {
 
@@ -38,67 +40,82 @@ public class AttendanceMyHoursController extends BaseRestController {
   }
 
   @PostMapping("time-and-attendance/{userId}/add-time-entries")
+  @PreAuthorize(
+      "hasPermission(#userId,'USER', 'EDIT_SELF')"
+          + " or hasPermission(#userId,'USER', 'MANAGE_TEAM_USER')")
   public void saveTimeEntry(
       @PathVariable final String userId, @RequestBody final TimeEntryDto timeEntryDto) {
     attendanceMyHoursService.saveTimeEntry(userId, timeEntryDto);
   }
 
   @GetMapping("time-and-attendance/all-paid-time/{timesheetId}")
+  @PreAuthorize("hasPermission(#timesheetId,'ATTENDANCE_TIMESHEET', 'VIEW_EMPLOYEES')")
   public List<AllTimeEntryDto> findAllHours(@PathVariable final String timesheetId) {
     return attendanceMyHoursService.findAllHours(timesheetId);
   }
 
   @GetMapping("time-and-attendance/user-compensation/{userId}")
+  @PreAuthorize(
+      "hasPermission(#userId, 'USER', 'VIEW_MY_TEAM')"
+          + " or hasPermission(#userId,'USER', 'VIEW_SELF')")
   public CompensationDto findUserCompensation(@PathVariable final String userId) {
     return attendanceMyHoursService.findUserCompensation(userId);
   }
 
   @GetMapping("time-and-attendance/attendance-summary/{timesheetId}")
+  @PreAuthorize("hasPermission(#timesheetId,'ATTENDANCE_TIMESHEET', 'VIEW_EMPLOYEES')")
   public AttendanceSummaryDto findAttendanceSummary(@PathVariable final String timesheetId) {
     return attendanceMyHoursService.findAttendanceSummary(timesheetId);
   }
 
   @GetMapping("time-and-attendance/user-timezone/{userId}")
+  @PreAuthorize("hasPermission(#userId, 'USER', 'VIEW_SELF')")
   public String findUserTimeZone(@PathVariable final String userId) {
     return attendanceMyHoursService.findUserTimeZone(userId);
   }
 
   @GetMapping("time-and-attendance/time-periods/{userId}")
+  @PreAuthorize("hasPermission(#userId, 'USER', 'VIEW_SELF')")
   public List<TimeSheetPeriodDto> findTimePeriodsByUser(@PathVariable final String userId) {
     return ReflectionUtil.convertTo(timePeriodService.listByUser(userId), TimeSheetPeriodDto.class);
   }
 
   @GetMapping("time-and-attendance/{userId}/next-time-period")
+  @PreAuthorize(
+      "hasPermission(#userId, 'USER', 'EDIT_SELF')"
+          + " or hasPermission(#userId,'USER', 'EDIT_USER')")
   public TimePeriod findNextTimePeriodByUser(@PathVariable final String userId) {
     return attendanceSetUpService.findNextPeriodByUser(userId);
   }
 
-  @GetMapping("time-and-attendance/compensation-frequency/{timesheetId}")
-  public String findCompensationFrequency(@PathVariable final String timesheetId) {
-    return attendanceMyHoursService.findCompensationFrequency(timesheetId);
-  }
-
   @GetMapping("time-and-attendance/entry/{entryId}")
+  @PreAuthorize("hasPermission(#entryId,'ATTENDANCE_ENTRY', 'VIEW_EMPLOYEES')")
   public TimeEntryDto findMyHourEntry(@PathVariable final String entryId) {
     return attendanceMyHoursService.findMyHourEntry(entryId);
   }
 
   @PatchMapping("time-and-attendance/my-hours/submit-for-approval/{timesheetId}")
+  @PreAuthorize("hasPermission(#timesheetId,'ATTENDANCE_TIMESHEET', 'EDIT_SELF')")
   public void submitHoursForApproval(@PathVariable final String timesheetId) {
     attendanceMyHoursService.submitHoursForApproval(timesheetId);
   }
 
   @GetMapping("time-and-attendance/my-hours/timesheet-status/{timesheetId}")
+  @PreAuthorize("hasPermission(#timesheetId,'ATTENDANCE_TIMESHEET', 'VIEW_EMPLOYEES')")
   public String findTimesheetStatus(@PathVariable final String timesheetId) {
     return attendanceMyHoursService.findTimesheetStatus(timesheetId);
   }
 
   @DeleteMapping("time-and-attendance/my-hours/time-entry/{entryId}")
+  @PreAuthorize("hasPermission(#entryId,'ATTENDANCE_ENTRY', 'MANAGE_EMPLOYEES')")
   public void deleteMyHourEntry(@PathVariable final String entryId) {
     attendanceMyHoursService.deleteMyHourEntry(entryId);
   }
 
   @GetMapping("time-and-attendance/user-in-attendance/{userId}")
+  @PreAuthorize(
+      "hasPermission(#userId, 'USER', 'VIEW_MY_TEAM')"
+          + " or hasPermission(#userId,'USER', 'VIEW_SELF')")
   public UserAttendanceEnrollInfoDto findUserAttendanceEnrollInfo(
       @PathVariable final String userId) {
     return attendanceMyHoursService.findUserAttendanceEnrollInfo(userId);

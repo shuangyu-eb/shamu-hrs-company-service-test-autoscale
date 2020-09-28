@@ -1,10 +1,11 @@
 package shamu.company.authorization;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import javax.persistence.Basic;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
@@ -38,6 +39,7 @@ public class Permission {
     VIEW_SETTING(PermissionType.ADMIN_PERMISSION),
     VIEW_TEAM_CALENDAR(PermissionType.EMPLOYEE_PERMISSION),
     VIEW_EMPLOYEES(PermissionType.EMPLOYEE_PERMISSION),
+    MANAGE_EMPLOYEES(PermissionType.EMPLOYEE_PERMISSION),
     MANAGE_COMPANY_USER(PermissionType.ADMIN_PERMISSION),
     MANAGE_TEAM_USER(PermissionType.MANAGER_PERMISSION),
     VIEW_JOB(PermissionType.EMPLOYEE_PERMISSION),
