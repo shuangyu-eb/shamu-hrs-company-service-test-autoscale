@@ -34,6 +34,7 @@ import shamu.company.timeoff.service.TimeOffRequestService;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserCompensation;
 import shamu.company.user.entity.UserPersonalInformation;
+import shamu.company.user.service.UserService;
 import shamu.company.utils.UuidUtil;
 
 import java.sql.Timestamp;
@@ -70,6 +71,8 @@ class AttendanceTeamHoursServiceTests {
   @Mock private TimePeriodService timePeriodService;
 
   @Mock private PayrollDetailService payrollDetailService;
+
+  @Mock private UserService userService;
 
   @BeforeEach
   void init() {
@@ -320,8 +323,8 @@ class AttendanceTeamHoursServiceTests {
         .thenReturn(staticTimesheetStatus);
     Mockito.when(timeSheetService.findTimeSheetById(Mockito.anyString())).thenReturn(timeSheet);
     Mockito.when(timeSheetService.findAllById(selectedTimesheetIds)).thenReturn(timeSheets);
-
-    assertThatCode(() -> attendanceTeamHoursService.approvePendingHours(selectedTimesheetIds))
+    Mockito.when(userService.findById("1")).thenReturn(new User());
+    assertThatCode(() -> attendanceTeamHoursService.approvePendingHours(selectedTimesheetIds, "1"))
         .doesNotThrowAnyException();
   }
 

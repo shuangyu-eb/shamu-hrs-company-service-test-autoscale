@@ -22,6 +22,8 @@ import shamu.company.common.service.PayrollDetailService;
 import shamu.company.timeoff.service.TimeOffRequestService;
 import shamu.company.user.entity.User;
 import shamu.company.user.service.UserCompensationService;
+import shamu.company.user.service.UserService;
+import shamu.company.utils.DateUtil;
 
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
@@ -53,6 +55,7 @@ public class AttendanceTeamHoursService {
   private final EmployeesTaSettingService employeesTaSettingService;
   private final PayrollDetailService payrollDetailService;
   private final UserCompensationService userCompensationService;
+  private final UserService userService;
 
   public AttendanceTeamHoursService(
       final TimeSheetService timeSheetService,
@@ -64,7 +67,8 @@ public class AttendanceTeamHoursService {
       final TimePeriodService timePeriodService,
       final EmployeesTaSettingService employeesTaSettingService,
       final PayrollDetailService payrollDetailService,
-      final UserCompensationService userCompensationService) {
+      final UserCompensationService userCompensationService,
+      final UserService userService) {
     this.timeSheetService = timeSheetService;
     this.attendanceMyHoursService = attendanceMyHoursService;
     this.attendanceSettingsService = attendanceSettingsService;
@@ -75,6 +79,7 @@ public class AttendanceTeamHoursService {
     this.employeesTaSettingService = employeesTaSettingService;
     this.payrollDetailService = payrollDetailService;
     this.userCompensationService = userCompensationService;
+    this.userService = userService;
   }
 
   public List<EmployeeAttendanceSummaryDto> findEmployeeAttendanceSummary(
@@ -248,11 +253,18 @@ public class AttendanceTeamHoursService {
         .build();
   }
 
-  public void approvePendingHours(final Set<String> selectedTimesheets) {
+  public void approvePendingHours(final Set<String> selectedTimesheets, final String approverId) {
+    final User approver = userService.findById(approverId);
+    final Timestamp approvedTime = DateUtil.getCurrentTime();
     final StaticTimesheetStatus timesheetApproveStatus =
         staticTimesheetStatusService.findByName(TimeSheetStatus.APPROVED.name());
     final List<TimeSheet> timeSheets = timeSheetService.findAllById(selectedTimesheets);
-    timeSheets.forEach(timeSheet -> timeSheet.setStatus(timesheetApproveStatus));
+    timeSheets.forEach(
+        timeSheet -> {
+          timeSheet.setStatus(timesheetApproveStatus);
+          timeSheet.setApproverEmployee(approver);
+          timeSheet.setApprovedTimestamp(approvedTime);
+        });
     timeSheetService.saveAll(timeSheets);
   }
 

@@ -131,7 +131,7 @@ public class AttendanceTeamHoursController extends BaseRestController {
   @PatchMapping("time-and-attendance/team-hours/pending-hours/approved")
   @PreAuthorize("hasAuthority('MANAGE_TEAM_USER')")
   public HttpEntity<String> approvePendingHours(@RequestBody final Set<String> selectedTimesheets) {
-    attendanceTeamHoursService.approvePendingHours(selectedTimesheets);
+    attendanceTeamHoursService.approvePendingHours(selectedTimesheets, findAuthUser().getId());
     return new ResponseEntity<>(HttpStatus.OK);
   }
 
