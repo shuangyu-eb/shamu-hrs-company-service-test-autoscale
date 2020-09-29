@@ -348,7 +348,7 @@ public class JobUserService {
   private void updateOfficeContent(final String id, final OfficeCreateDto officeCreateDto) {
     final Office office = officeService.findById(id);
     final List<Office> oldOffices = officeService.findByName(officeCreateDto.getOfficeName());
-    if (!oldOffices.isEmpty()) {
+    if (!oldOffices.isEmpty() && !id.equals(oldOffices.get(0).getId())) {
       throw new AlreadyExistsException("Office already exists.", "office");
     }
 
