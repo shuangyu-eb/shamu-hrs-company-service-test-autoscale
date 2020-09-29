@@ -56,7 +56,7 @@ public class AttendanceMyHoursController extends BaseRestController {
 
   @GetMapping("time-and-attendance/user-compensation/{userId}")
   @PreAuthorize(
-      "hasPermission(#userId, 'USER', 'VIEW_MY_TEAM')"
+      "hasPermission(#userId, 'USER', 'MANAGE_TEAM_USER')"
           + " or hasPermission(#userId,'USER', 'VIEW_SELF')")
   public CompensationDto findUserCompensation(@PathVariable final String userId) {
     return attendanceMyHoursService.findUserCompensation(userId);
@@ -114,7 +114,7 @@ public class AttendanceMyHoursController extends BaseRestController {
 
   @GetMapping("time-and-attendance/user-in-attendance/{userId}")
   @PreAuthorize(
-      "hasPermission(#userId, 'USER', 'VIEW_MY_TEAM')"
+      "hasPermission(#userId, 'USER', 'MANAGE_TEAM_USER')"
           + " or hasPermission(#userId,'USER', 'VIEW_SELF')")
   public UserAttendanceEnrollInfoDto findUserAttendanceEnrollInfo(
       @PathVariable final String userId) {

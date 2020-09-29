@@ -400,7 +400,8 @@ public class UserPermissionUtils extends BasePermissionUtils {
     final String managerUserId = manager.orElse(new User()).getId();
     if (getAuthUser().getId().equals(targetUser.getId())
         || getAuthUser().getId().equals(managerUserId)
-        || User.Role.ADMIN.equals(getAuthUser().getRole())) {
+        || User.Role.ADMIN.equals(getAuthUser().getRole())
+        || Role.SUPER_ADMIN.equals(getAuthUser().getRole())) {
       return hasPermission(auth, permission);
     } else {
       return false;

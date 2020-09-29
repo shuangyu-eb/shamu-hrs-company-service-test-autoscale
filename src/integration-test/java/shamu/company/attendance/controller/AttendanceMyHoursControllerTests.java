@@ -229,7 +229,15 @@ public class AttendanceMyHoursControllerTests extends WebControllerBaseTests {
 
   @Test
   void findUserAttendanceEnrollInfo() throws Exception {
-    setPermission(Permission.Name.VIEW_MY_TEAM.name());
+    setPermission(Permission.Name.MANAGE_TEAM_USER.name());
+
+    final HttpHeaders httpHeaders = new HttpHeaders();
+    httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+    final User user = new User();
+    final User managerUser = new User();
+    managerUser.setId(getAuthUser().getId());
+    user.setManagerUser(managerUser);
+    Mockito.when(userService.findById("1")).thenReturn(user);
     final MvcResult response =
         mockMvc
             .perform(

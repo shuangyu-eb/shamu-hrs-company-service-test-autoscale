@@ -20,7 +20,9 @@ import shamu.company.attendance.dto.TeamHoursPageInfoDto;
 import shamu.company.attendance.dto.TimeAndAttendanceDetailsDto;
 import shamu.company.attendance.service.AttendanceTeamHoursService;
 import shamu.company.attendance.service.TimePeriodService;
+import shamu.company.authorization.Permission;
 import shamu.company.tests.utils.JwtUtil;
+import shamu.company.user.entity.User;
 import shamu.company.utils.JsonUtil;
 import shamu.company.utils.UuidUtil;
 
@@ -46,6 +48,7 @@ class AttendanceTeamHoursControllerTests extends WebControllerBaseTests {
 
     @Test
     void testFindAttendanceTeamPendingHours() throws Exception {
+      setPermission(Permission.Name.MANAGE_TEAM_USER.name());
       final HttpHeaders httpHeaders = new HttpHeaders();
       httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
 
@@ -77,6 +80,7 @@ class AttendanceTeamHoursControllerTests extends WebControllerBaseTests {
 
     @Test
     void testFindAttendanceTeamApprovedHours() throws Exception {
+      setPermission(Permission.Name.MANAGE_TEAM_USER.name());
       final HttpHeaders httpHeaders = new HttpHeaders();
       httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
 
@@ -105,6 +109,7 @@ class AttendanceTeamHoursControllerTests extends WebControllerBaseTests {
 
   @Test
   void testFindTeamHoursSummary() throws Exception {
+    setPermission(Permission.Name.MANAGE_TEAM_USER.name());
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
 
@@ -121,6 +126,7 @@ class AttendanceTeamHoursControllerTests extends WebControllerBaseTests {
 
   @Test
   void testFindTimePeriodsByCompany() throws Exception {
+    setPermission(Permission.Name.MANAGE_TEAM_USER.name());
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
 
@@ -136,6 +142,7 @@ class AttendanceTeamHoursControllerTests extends WebControllerBaseTests {
 
   @Test
   void approvePendingHours() throws Exception {
+    setPermission(Permission.Name.MANAGE_TEAM_USER.name());
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
     final Set<String> selectedTimesheetIds = new HashSet<>();
@@ -156,8 +163,15 @@ class AttendanceTeamHoursControllerTests extends WebControllerBaseTests {
 
   @Test
   void findEmployeeInfo() throws Exception {
+    setPermission(Permission.Name.MANAGE_TEAM_USER.name());
+
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+    final User user = new User();
+    final User managerUser = new User();
+    managerUser.setId(getAuthUser().getId());
+    user.setManagerUser(managerUser);
+    Mockito.when(userService.findById("1")).thenReturn(user);
 
     final MvcResult response =
         mockMvc
@@ -172,6 +186,7 @@ class AttendanceTeamHoursControllerTests extends WebControllerBaseTests {
 
   @Test
   void findApprovalDaysBeforePayroll() throws Exception {
+    setPermission(Permission.Name.MANAGE_TEAM_USER.name());
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
 
@@ -188,6 +203,7 @@ class AttendanceTeamHoursControllerTests extends WebControllerBaseTests {
 
   @Test
   void findAttendanceDetails() throws Exception {
+    setPermission(Permission.Name.MANAGE_TEAM_USER.name());
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
 
@@ -203,6 +219,7 @@ class AttendanceTeamHoursControllerTests extends WebControllerBaseTests {
 
   @Test
   void updateAttendanceDetails() throws Exception {
+    setPermission(Permission.Name.MANAGE_COMPANY_USER.name());
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
     final AttendancePolicyAndDetailDto attendancePolicyAndDetailDto =
@@ -231,6 +248,7 @@ class AttendanceTeamHoursControllerTests extends WebControllerBaseTests {
 
   @Test
   void findAttendancePendingCount() throws Exception {
+    setPermission(Permission.Name.MANAGE_TEAM_USER.name());
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
 
@@ -246,13 +264,14 @@ class AttendanceTeamHoursControllerTests extends WebControllerBaseTests {
 
   @Test
   void findApprovedAttendanceSummary() throws Exception {
+    setPermission(Permission.Name.MANAGE_TEAM_USER.name());
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
     final MvcResult response =
         mockMvc
             .perform(
                 MockMvcRequestBuilders.get(
-                        "/company/time-and-attendance/approved" + "-company-hours-summary/1/1")
+                        "/company/time-and-attendance/approved-company-hours-summary/1/1")
                     .headers(httpHeaders))
             .andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
@@ -260,6 +279,7 @@ class AttendanceTeamHoursControllerTests extends WebControllerBaseTests {
 
   @Test
   void completePeriod() throws Exception {
+    setPermission(Permission.Name.MANAGE_TEAM_USER.name());
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
     final MvcResult response =

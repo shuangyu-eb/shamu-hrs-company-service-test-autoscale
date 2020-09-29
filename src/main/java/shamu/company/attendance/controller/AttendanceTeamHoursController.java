@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -62,6 +63,7 @@ public class AttendanceTeamHoursController extends BaseRestController {
   }
 
   @GetMapping("time-and-attendance/team-hours/pending-hours/{timePeriodId}/{hourType}")
+  @PreAuthorize("hasAuthority('MANAGE_TEAM_USER')")
   public TeamHoursPageInfoDto findAttendanceTeamPendingHours(
       @PathVariable final String timePeriodId,
       @PathVariable final String hourType,
@@ -78,6 +80,7 @@ public class AttendanceTeamHoursController extends BaseRestController {
   }
 
   @GetMapping("time-and-attendance/team-hours/{timePeriodId}/{hourType}")
+  @PreAuthorize("hasAuthority('MANAGE_TEAM_USER')")
   public List<EmployeeAttendanceSummaryDto> findTeamEmployeesHours(
       @PathVariable final String timePeriodId, @PathVariable final String hourType) {
     return attendanceTeamHoursService.findEmployeeAttendanceSummary(
@@ -85,6 +88,7 @@ public class AttendanceTeamHoursController extends BaseRestController {
   }
 
   @GetMapping("time-and-attendance/team-hours/approved-hours/{timePeriodId}/{hourType}")
+  @PreAuthorize("hasAuthority('MANAGE_TEAM_USER')")
   public TeamHoursPageInfoDto findAttendanceTeamApprovedHours(
       @PathVariable final String timePeriodId,
       @PathVariable final String hourType,
@@ -104,6 +108,7 @@ public class AttendanceTeamHoursController extends BaseRestController {
   }
 
   @GetMapping("time-and-attendance/team-hours-summary/{timePeriodId}/{hourType}")
+  @PreAuthorize("hasAuthority('MANAGE_TEAM_USER')")
   public AttendanceSummaryDto findTeamHoursSummary(
       @PathVariable final String timePeriodId, @PathVariable final String hourType) {
     return attendanceTeamHoursService.findTeamHoursSummary(
@@ -118,32 +123,38 @@ public class AttendanceTeamHoursController extends BaseRestController {
   }
 
   @GetMapping("time-and-attendance/time-periods")
+  @PreAuthorize("hasAuthority('MANAGE_TEAM_USER')")
   public List<TimeSheetPeriodDto> findTimePeriodsByCompany() {
     return ReflectionUtil.convertTo(timePeriodService.findAll(), TimeSheetPeriodDto.class);
   }
 
   @PatchMapping("time-and-attendance/team-hours/pending-hours/approved")
+  @PreAuthorize("hasAuthority('MANAGE_TEAM_USER')")
   public HttpEntity<String> approvePendingHours(@RequestBody final Set<String> selectedTimesheets) {
     attendanceTeamHoursService.approvePendingHours(selectedTimesheets);
     return new ResponseEntity<>(HttpStatus.OK);
   }
 
   @GetMapping("time-and-attendance/team-hours/employee-info/{userId}")
+  @PreAuthorize("hasPermission(#userId, 'USER', 'MANAGE_TEAM_USER')")
   public EmployeeInfoDto findEmployeeInfo(@PathVariable final String userId) {
     return jobUserService.findEmployeeInfo(userId);
   }
 
   @GetMapping("time-and-attendance/approval-days-before-payroll")
+  @PreAuthorize("hasAuthority('MANAGE_TEAM_USER')")
   public int findApprovalDaysBeforePayroll() {
     return attendanceSettingsService.findApprovalDaysBeforePayroll();
   }
 
   @GetMapping("time-and-attendance/attendance-details")
+  @PreAuthorize("hasAuthority('MANAGE_TEAM_USER')")
   public AttendanceDetailDto findAttendanceDetails() {
     return attendanceTeamHoursService.findAttendanceDetails();
   }
 
   @PatchMapping("time-and-attendance/details")
+  @PreAuthorize("hasAuthority('MANAGE_COMPANY_USER')")
   public HttpEntity updateAttendanceDetails(
       @Valid @RequestBody final AttendancePolicyAndDetailDto attendancePolicyAndDetailDto) {
     final TimeAndAttendanceDetailsDto timeAndAttendanceDetailsDto =
@@ -162,11 +173,13 @@ public class AttendanceTeamHoursController extends BaseRestController {
   }
 
   @GetMapping("time-and-attendance/pending-count")
+  @PreAuthorize("hasAuthority('MANAGE_TEAM_USER')")
   public PendingCountDto findAttendancePendingCount() {
     return attendanceTeamHoursService.findAttendancePendingCount(findAuthUser().getId());
   }
 
   @GetMapping("time-and-attendance/approved-company-hours-summary/{timePeriodId}/{hourType}")
+  @PreAuthorize("hasAuthority('MANAGE_TEAM_USER')")
   public AttendanceSummaryDto findApprovedAttendanceSummary(
       @PathVariable final String timePeriodId, @PathVariable final String hourType) {
     return attendanceTeamHoursService.findTeamHoursSummary(
@@ -177,6 +190,7 @@ public class AttendanceTeamHoursController extends BaseRestController {
   }
 
   @PatchMapping("time-and-attendance/complete-period/{timePeriodId}/{hourType}")
+  @PreAuthorize("hasAuthority('MANAGE_TEAM_USER')")
   public void completePeriod(
       @PathVariable final String timePeriodId, @PathVariable final String hourType) {
     attendanceTeamHoursService.completePeriod(timePeriodId, hourType, findAuthUser().getId());
