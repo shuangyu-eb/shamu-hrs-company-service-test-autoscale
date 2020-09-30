@@ -50,4 +50,9 @@ public interface OvertimePolicyRepository extends BaseRepository<OvertimePolicy,
       value = "select count(*) from overtime_policies " + "where active = 1 AND policy_name = ?1",
       nativeQuery = true)
   Integer countByPolicyName(String name);
+
+  @Query(
+          value = "select * from overtime_policies " + "where active = 1",
+          nativeQuery = true)
+  List<OvertimePolicy> findAllActive();
 }

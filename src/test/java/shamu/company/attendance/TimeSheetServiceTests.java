@@ -19,6 +19,7 @@ import shamu.company.attendance.repository.TimeSheetRepository;
 import shamu.company.attendance.service.TimePeriodService;
 import shamu.company.attendance.service.TimeSheetService;
 import shamu.company.common.exception.errormapping.ResourceNotFoundException;
+import shamu.company.user.entity.UserCompensation;
 import shamu.company.utils.UuidUtil;
 
 import java.util.ArrayList;
@@ -183,6 +184,16 @@ public class TimeSheetServiceTests {
             () ->
                 timeSheetRepository.updateTimesheetStatusByPeriodId(
                     Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+        .doesNotThrowAnyException();
+  }
+
+  @Test
+  void updateCurrentOvertimePolicyByUser() {
+    final TimeSheet timeSheet = new TimeSheet();
+    final UserCompensation userCompensation = new UserCompensation();
+    userCompensation.setUserId("1");
+    Mockito.when(timeSheetRepository.findCurrentTimesheetByUser("1")).thenReturn(timeSheet);
+    assertThatCode(() -> timeSheetService.updateCurrentOvertimePolicyByUser(userCompensation))
         .doesNotThrowAnyException();
   }
 }

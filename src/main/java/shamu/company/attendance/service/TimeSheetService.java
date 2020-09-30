@@ -3,6 +3,7 @@ package shamu.company.attendance.service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import shamu.company.attendance.entity.StaticTimesheetStatus;
 import shamu.company.attendance.entity.StaticTimesheetStatus.TimeSheetStatus;
 import shamu.company.attendance.entity.TimePeriod;
@@ -153,4 +154,15 @@ public class TimeSheetService {
   public TimeSheet findCurrentByUseCompensation(final UserCompensation userCompensation) {
     return timeSheetRepository.findCurrentRecordByUserCompensationId(userCompensation.getId());
   }
+
+  @Transactional
+  public void updateCurrentOvertimePolicyByUser(UserCompensation compensation) {
+    TimeSheet timesheet = getCurrentTimesheet(compensation.getUserId());
+    timesheet.setUserCompensation(compensation);
+  }
+
+  private TimeSheet getCurrentTimesheet(String userId){
+    return timeSheetRepository.findCurrentTimesheetByUser(userId);
+  }
+
 }

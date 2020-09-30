@@ -120,4 +120,16 @@ public interface TimeSheetRepository extends BaseRepository<TimeSheet, String> {
               + "AND t.user_compensation_id = UNHEX(?1)",
       nativeQuery = true)
   TimeSheet findCurrentRecordByUserCompensationId(String compensationId);
+
+  @Query(
+          value =
+                  "select timesheets.* FROM timesheets "
+                          + "join time_period "
+                          + "on timesheets.time_period_id = time_period.id "
+                          + "where employee_id = unhex(?1) "
+                          + "and time_period.start_date<current_timestamp "
+                          + "and time_period.end_date>current_timestamp",
+          nativeQuery = true)
+  TimeSheet findCurrentTimesheetByUser(String userId);
+
 }

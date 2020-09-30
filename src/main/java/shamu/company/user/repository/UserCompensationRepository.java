@@ -3,7 +3,6 @@ package shamu.company.user.repository;
 import org.springframework.data.jpa.repository.Query;
 import shamu.company.common.repository.BaseRepository;
 import shamu.company.user.entity.UserCompensation;
-
 import java.util.List;
 
 public interface UserCompensationRepository extends BaseRepository<UserCompensation, String> {
@@ -15,6 +14,26 @@ public interface UserCompensationRepository extends BaseRepository<UserCompensat
               + "where user_id = unhex(?1) order by created_at desc limit 1 ",
       nativeQuery = true)
   UserCompensation findByUserId(String userId);
+
+  @Query(
+          value =
+                  "select * from user_compensations "
+                          + "where user_id = unhex(?1) "
+                          + "and start_date < current_timestamp "
+                          + "and (end_date > current_timestamp  OR "
+                          + "end_date IS NULL) "
+                          + "order by created_at desc limit 1 ",
+          nativeQuery = true)
+  UserCompensation findCurrentByUserId(String userId);
+
+  @Query(
+          value =
+                  "SELECT  * from user_compensations "
+                          + "where user_id = unhex(?1) "
+                          + "and start_date > current_timestamp ",
+          nativeQuery = true)
+  List<UserCompensation> findAllFutureCompensations(String employeeId);
+
 
   @Query(
       value =
@@ -39,9 +58,18 @@ public interface UserCompensationRepository extends BaseRepository<UserCompensat
   List<UserCompensation> listNewestEnrolledUserCompensationByCompanyId();
 
   @Query(
-      value =
-          "SELECT * from user_compensations where hex(overtime_policy_id) = ?1 "
-              + "and end_date is null or end_date > current_timestamp ",
-      nativeQuery = true)
-  List<UserCompensation> findByOvertimePolicyId(String policyId);
+          value =
+                  "SELECT * from user_compensations where hex(overtime_policy_id) = ?1 "
+                          + "and start_date < UTC_TIMESTAMP()"
+                          + "and (end_date is null or end_date > current_timestamp)",
+          nativeQuery = true)
+  List<UserCompensation> findCurrentByOvertimePolicyId(String oldPolicyId);
+
+  @Query(
+          value =
+                  "SELECT * from user_compensations where hex(overtime_policy_id) = ?1 "
+                          + "and start_date > UTC_TIMESTAMP()"
+                          + "and (end_date is null or end_date > current_timestamp ) ",
+          nativeQuery = true)
+  List<UserCompensation> findFutureByOvertimePolicyId(String oldPolicyId);
 }
