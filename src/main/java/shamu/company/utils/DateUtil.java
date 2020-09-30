@@ -1,7 +1,6 @@
 package shamu.company.utils;
 
-import static java.time.temporal.TemporalAdjusters.firstDayOfYear;
-import static java.time.temporal.TemporalAdjusters.previousOrSame;
+import shamu.company.attendance.exception.ParseDateException;
 
 import java.sql.Timestamp;
 import java.text.ParseException;
@@ -13,18 +12,24 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
-import shamu.company.attendance.exception.ParseDateException;
+import java.util.TimeZone;
+
+import static java.time.temporal.TemporalAdjusters.firstDayOfYear;
+import static java.time.temporal.TemporalAdjusters.previousOrSame;
 
 public abstract class DateUtil {
 
   public static final String FULL_MONTH_DAY = "MMMM d";
   public static final String FULL_MONTH_DAY_YEAR = "MMMM d, YYYY";
+  public static final String DAY_OF_WEEK_SIMPLE_MONTH_DAY_YEAR = "EEE MMM dd, yyyy";
   public static final String SIMPLE_MONTH_DAY_YEAR = "MMM d, yyyy";
   public static final String SIMPLE_MONTH_DAY = "MMM d";
   public static final String DAY_YEAR = "d, yyyy";
   public static final String DAY = "d";
+  public static final String HOUR_MINUTE = "HH:mm";
 
   private DateUtil() {}
 
@@ -139,5 +144,21 @@ public abstract class DateUtil {
   public static LocalDateTime convertUnixToLocalDateTime(
       final Timestamp timestamp, final String timezone) {
     return timestamp.toInstant().atZone(ZoneId.of(timezone)).toLocalDateTime();
+  }
+
+  public static Calendar getCalendarInstance(final long unixTimeStamp, final String timeZoneName) {
+    final Calendar calendar = Calendar.getInstance();
+    calendar.setTimeInMillis(unixTimeStamp);
+    final TimeZone timeZone = TimeZone.getTimeZone(timeZoneName);
+    calendar.setTimeZone(timeZone);
+
+    return calendar;
+  }
+
+  public static String formatCalendar(final Calendar calendar, final String format) {
+    final SimpleDateFormat sdf = new SimpleDateFormat(format);
+    sdf.setTimeZone(calendar.getTimeZone());
+
+    return sdf.format(calendar.getTimeInMillis());
   }
 }

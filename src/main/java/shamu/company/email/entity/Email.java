@@ -1,12 +1,7 @@
 package shamu.company.email.entity;
 
-import java.sql.Timestamp;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.lang.Nullable;
@@ -14,9 +9,17 @@ import shamu.company.common.entity.BaseEntity;
 import shamu.company.email.event.EmailStatus;
 import shamu.company.user.entity.User;
 
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import java.sql.Timestamp;
+
 @Data
 @Table(name = "emails")
 @Entity
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Email extends BaseEntity {

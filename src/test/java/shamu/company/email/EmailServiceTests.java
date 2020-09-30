@@ -1,15 +1,5 @@
 package shamu.company.email;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
-
-
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -19,6 +9,7 @@ import org.mockito.MockitoAnnotations;
 import org.powermock.reflect.Whitebox;
 import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.Context;
+import shamu.company.attendance.entity.EmployeeTimeLog;
 import shamu.company.common.entity.Tenant;
 import shamu.company.common.service.TenantService;
 import shamu.company.company.entity.Company;
@@ -40,6 +31,18 @@ import shamu.company.user.entity.UserPersonalInformation;
 import shamu.company.user.service.UserService;
 import shamu.company.utils.DateUtil;
 import shamu.company.utils.UuidUtil;
+
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 class EmailServiceTests {
 
@@ -435,16 +438,67 @@ class EmailServiceTests {
 
     @Test
     void whenCalled_thenShouldSendEmail() {
-      Email savedEmail = new Email();
+      final Email savedEmail = new Email();
       savedEmail.setId(UuidUtil.getUuidString());
       savedEmail.setSendDate(Timestamp.valueOf(LocalDateTime.now()));
       Mockito.when(emailService.save(Mockito.any())).thenReturn(savedEmail);
       Mockito.when(auth0Helper.isIndeedEnvironment()).thenReturn(false);
       emailService.sendVerificationEmail("test", "1");
-      Mockito.verify(emailRepository, Mockito.times(1))
-              .save(Mockito.any(Email.class));
+      Mockito.verify(emailRepository, Mockito.times(1)).save(Mockito.any(Email.class));
       Mockito.verify(quartzJobScheduler, Mockito.times(1))
-              .addOrUpdateJobSchedule(Mockito.any(), Mockito.anyString(),Mockito.anyString(), Mockito.anyMap(), Mockito.any());
+          .addOrUpdateJobSchedule(
+              Mockito.any(),
+              Mockito.anyString(),
+              Mockito.anyString(),
+              Mockito.anyMap(),
+              Mockito.any());
+    }
+  }
+
+  @Nested
+  class sendEmail {
+    User user = new User();
+    Map<String, Object> variables = new HashMap<>();
+    Timestamp sendDate = DateUtil.getCurrentTime();
+    UserPersonalInformation userPersonalInformation = new UserPersonalInformation();
+    UserContactInformation userContactInformation = new UserContactInformation();
+    String emailWork = "a@b.c";
+    Email email = new Email();
+    EmployeeTimeLog employeeTimeLog = new EmployeeTimeLog();
+
+    @BeforeEach
+    void init() {
+      userContactInformation.setEmailWork(emailWork);
+      userPersonalInformation.setLastName("last");
+      userPersonalInformation.setFirstName("first");
+      user.setUserPersonalInformation(userPersonalInformation);
+      user.setUserContactInformation(userContactInformation);
+      email.setSendDate(sendDate);
+    }
+
+    @Test
+    void sendToEmail_shouldSucceed() {
+      Mockito.when(emailRepository.save(Mockito.any())).thenReturn(email);
+      assertThatCode(
+              () -> {
+                emailService.sendEmail(
+                    user, user, EmailService.EmailTemplate.MY_HOUR_EDITED, variables, sendDate);
+              })
+          .doesNotThrowAnyException();
+    }
+
+    @Test
+    void whenParametersValid_shouldSucceed() {
+      assertThatCode(
+              () -> {
+                emailService.getMyHourEditedEmailParameters(
+                    user,
+                    new Date(),
+                    "Hongkong",
+                    Arrays.asList(employeeTimeLog),
+                    Arrays.asList(employeeTimeLog));
+              })
+          .doesNotThrowAnyException();
     }
   }
 }

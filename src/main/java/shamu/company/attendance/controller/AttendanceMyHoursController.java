@@ -45,7 +45,7 @@ public class AttendanceMyHoursController extends BaseRestController {
           + " or hasPermission(#userId,'USER', 'MANAGE_TEAM_USER')")
   public void saveTimeEntry(
       @PathVariable final String userId, @RequestBody final TimeEntryDto timeEntryDto) {
-    attendanceMyHoursService.saveTimeEntry(userId, timeEntryDto);
+    attendanceMyHoursService.saveTimeEntry(userId, timeEntryDto, findUserId());
   }
 
   @GetMapping("time-and-attendance/all-paid-time/{timesheetId}")

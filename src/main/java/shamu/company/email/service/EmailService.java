@@ -1,20 +1,5 @@
 package shamu.company.email.service;
 
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.UUID;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.slf4j.Logger;
@@ -25,6 +10,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.Context;
+import shamu.company.attendance.entity.EmployeeTimeLog;
 import shamu.company.common.entity.Tenant;
 import shamu.company.common.exception.errormapping.ResourceNotFoundException;
 import shamu.company.common.multitenant.TenantContext;
@@ -48,6 +34,23 @@ import shamu.company.utils.AvatarUtil;
 import shamu.company.utils.DateUtil;
 import shamu.company.utils.HtmlUtils;
 import shamu.company.utils.UuidUtil;
+
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Service
 public class EmailService {
@@ -91,6 +94,25 @@ public class EmailService {
 
     public String getButtonText() {
       return buttonContext;
+    }
+  }
+
+  public enum EmailTemplate {
+    MY_HOUR_EDITED("Your Hours Have Been Edited", "my_hour_edited_email");
+    private final String subject;
+    private final String templateName;
+
+    EmailTemplate(final String subject, final String templateName) {
+      this.subject = subject;
+      this.templateName = templateName + ".html";
+    }
+
+    public String getSubject() {
+      return subject;
+    }
+
+    public String getTemplateName() {
+      return templateName;
     }
   }
 
@@ -190,6 +212,34 @@ public class EmailService {
         "sendEmail",
         jobParameter,
         sendDate == null ? Timestamp.valueOf(LocalDateTime.now()) : sendDate);
+  }
+
+  public Email sendEmail(
+      final User fromUser,
+      final User toUser,
+      final EmailTemplate emailTemplate,
+      final Map<String, Object> templateVariables,
+      final Timestamp sendDate) {
+    if (!templateVariables.containsKey(FRONT_END_ADDRESS)) {
+      templateVariables.put(FRONT_END_ADDRESS, frontEndAddress);
+    }
+    final String emailContent =
+        templateEngine.process(
+            emailTemplate.getTemplateName(), new Context(Locale.ENGLISH, templateVariables));
+
+    final Email email =
+        Email.builder()
+            .from(systemEmailAddress)
+            .fromName(fromUser.getUserPersonalInformation().getName())
+            .to(toUser.getUserContactInformation().getEmailWork())
+            .toName(toUser.getUserPersonalInformation().getName())
+            .subject(emailTemplate.getSubject())
+            .content(emailContent)
+            .sendDate(sendDate)
+            .build();
+    saveAndScheduleEmail(email);
+
+    return email;
   }
 
   public Email saveAndScheduleEmail(Email email) {
@@ -588,17 +638,40 @@ public class EmailService {
     final Context context = new Context();
     context.setVariable(FRONT_END_ADDRESS, frontEndAddress);
     context.setVariable(IS_INDEED_ENV, auth0Helper.isIndeedEnvironment());
-    String verificationUrl = frontEndAddress + "parse?userId=" + userId + "&emailVerified=true";
+    final String verificationUrl =
+        frontEndAddress + "parse?userId=" + userId + "&emailVerified=true";
     context.setVariable("accountVerifyAddress", verificationUrl);
     final String emailContent = templateEngine.process("account_verify_email.html", context);
     final Timestamp sendDate = Timestamp.valueOf(LocalDateTime.now());
     final Email verifyEmail =
-            new Email(
-                    systemEmailAddress,
-                    email,
-                    "Please Verify Your Email",
-                    emailContent,
-                    sendDate);
+        new Email(systemEmailAddress, email, "Please Verify Your Email", emailContent, sendDate);
     saveAndScheduleEmail(verifyEmail);
+  }
+
+  public Map<String, Object> getMyHourEditedEmailParameters(
+      final User manager,
+      final Date date,
+      final String timezone,
+      final List<EmployeeTimeLog> originalTimeLogs,
+      final List<EmployeeTimeLog> editedTimeLogs) {
+
+    final Map<String, Object> parameters = new HashMap<>();
+
+    final Calendar calendarDate = DateUtil.getCalendarInstance(date.getTime(), timezone);
+
+    String operationDesc = "hours have been edited.";
+    if (originalTimeLogs.size() == 0) {
+      operationDesc = "hours have been added.";
+    } else if (editedTimeLogs.size() == 0) {
+      operationDesc = "hours have been deleted.";
+    }
+
+    parameters.put("managerName", manager.getUserPersonalInformation().getName());
+    parameters.put(
+        "date",
+        DateUtil.formatCalendar(calendarDate, DateUtil.DAY_OF_WEEK_SIMPLE_MONTH_DAY_YEAR)
+            + " "
+            + operationDesc);
+    return parameters;
   }
 }

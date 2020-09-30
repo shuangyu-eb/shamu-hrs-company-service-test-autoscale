@@ -6,6 +6,7 @@ import shamu.company.attendance.dto.AllTimeDto;
 import shamu.company.attendance.dto.AllTimeEntryDto;
 import shamu.company.attendance.dto.AttendanceSummaryDto;
 import shamu.company.attendance.dto.BreakTimeLogDto;
+import shamu.company.attendance.dto.EmployeesTaSettingDto;
 import shamu.company.attendance.dto.LocalDateEntryDto;
 import shamu.company.attendance.dto.OvertimeDetailDto;
 import shamu.company.attendance.dto.TimeEntryDto;
@@ -23,6 +24,7 @@ import shamu.company.attendance.repository.EmployeeTimeLogRepository;
 import shamu.company.attendance.repository.StaticEmployeesTaTimeTypeRepository;
 import shamu.company.attendance.repository.StaticTimesheetStatusRepository;
 import shamu.company.attendance.utils.TimeEntryUtils;
+import shamu.company.email.service.EmailService;
 import shamu.company.employee.dto.CompensationDto;
 import shamu.company.timeoff.service.TimeOffRequestService;
 import shamu.company.user.entity.User;
@@ -35,6 +37,7 @@ import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -82,6 +85,8 @@ public class AttendanceMyHoursService {
 
   private final TimePeriodService timePeriodService;
 
+  private final EmailService emailService;
+
   public AttendanceMyHoursService(
       final EmployeeTimeEntryService employeeTimeEntryService,
       final EmployeeTimeLogRepository employeeTimeLogRepository,
@@ -96,7 +101,8 @@ public class AttendanceMyHoursService {
       final GenericHoursService genericHoursService,
       final StaticTimesheetStatusRepository staticTimesheetStatusRepository,
       final EmployeesTaSettingService employeesTaSettingService,
-      final TimePeriodService timePeriodService) {
+      final TimePeriodService timePeriodService,
+      final EmailService emailService) {
     this.employeeTimeEntryService = employeeTimeEntryService;
     this.employeeTimeLogRepository = employeeTimeLogRepository;
     this.timeSheetService = timeSheetService;
@@ -111,22 +117,54 @@ public class AttendanceMyHoursService {
     this.staticTimesheetStatusRepository = staticTimesheetStatusRepository;
     this.employeesTaSettingService = employeesTaSettingService;
     this.timePeriodService = timePeriodService;
+    this.emailService = emailService;
   }
 
-  public void saveTimeEntry(final String userId, final TimeEntryDto timeEntryDto) {
-    final User user = userService.findById(userId);
+  public void saveTimeEntry(
+      final String employeeId, final TimeEntryDto timeEntryDto, final String userId) {
+
+    final User employee = userService.findById(employeeId);
     final EmployeeTimeEntry employeeTimeEntry =
-        EmployeeTimeEntry.builder().employee(user).comment(timeEntryDto.getComment()).build();
+        EmployeeTimeEntry.builder().employee(employee).comment(timeEntryDto.getComment()).build();
+    List<EmployeeTimeLog> employeeTimeLogs = new ArrayList<>();
     if (timeEntryDto.getEntryId() != null) {
-      final List<EmployeeTimeLog> employeeTimeLogs =
-          employeeTimeLogRepository.findAllByEntryId(timeEntryDto.getEntryId());
+      employeeTimeLogs = employeeTimeLogRepository.findAllByEntryId(timeEntryDto.getEntryId());
       employeeTimeLogRepository.deleteInBatch(employeeTimeLogs);
     }
     final EmployeeTimeEntry savedEntry = employeeTimeEntryService.saveEntry(employeeTimeEntry);
-    saveTimeLogs(timeEntryDto, savedEntry);
+    final List<EmployeeTimeLog> editedTimeLogs = saveTimeLogs(timeEntryDto, savedEntry);
+
+    if (!userId.equals(employeeId)) {
+      final User user = userService.findById(userId);
+      sendHoursEditedByManagerEmail(
+          user, employee, timeEntryDto.getStartTime(), employeeTimeLogs, editedTimeLogs);
+    }
   }
 
-  private void saveTimeLogs(final TimeEntryDto timeEntryDto, final EmployeeTimeEntry savedEntry) {
+  private void sendHoursEditedByManagerEmail(
+      final User fromUser,
+      final User toUser,
+      final Timestamp date,
+      final List<EmployeeTimeLog> originalTimeLogs,
+      final List<EmployeeTimeLog> editedTimeLogs) {
+    final EmployeesTaSettingDto employeesSetting =
+        attendanceSettingsService.findEmployeesSettings(toUser.getId());
+
+    emailService.sendEmail(
+        fromUser,
+        toUser,
+        EmailService.EmailTemplate.MY_HOUR_EDITED,
+        emailService.getMyHourEditedEmailParameters(
+            fromUser,
+            date,
+            employeesSetting.getTimeZone().getName(),
+            originalTimeLogs,
+            editedTimeLogs),
+        new Timestamp(new Date().getTime()));
+  }
+
+  private List<EmployeeTimeLog> saveTimeLogs(
+      final TimeEntryDto timeEntryDto, final EmployeeTimeEntry savedEntry) {
 
     final List<BreakTimeLogDto> breakTimeLogDtos = timeEntryDto.getBreakTimeLogs();
 
@@ -194,7 +232,7 @@ public class AttendanceMyHoursService {
       employeeTimeLogs.add(timeLog);
     }
 
-    employeeTimeLogRepository.saveAll(employeeTimeLogs);
+    return employeeTimeLogRepository.saveAll(employeeTimeLogs);
   }
 
   public double getWagesPerMin(final String compensationFrequency, final BigInteger wageCents) {

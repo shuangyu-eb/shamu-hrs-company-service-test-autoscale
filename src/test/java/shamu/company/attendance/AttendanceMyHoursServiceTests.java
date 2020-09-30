@@ -10,6 +10,7 @@ import org.mockito.MockitoAnnotations;
 import shamu.company.attendance.dto.AllTimeEntryDto;
 import shamu.company.attendance.dto.AttendanceSummaryDto;
 import shamu.company.attendance.dto.BreakTimeLogDto;
+import shamu.company.attendance.dto.EmployeesTaSettingDto;
 import shamu.company.attendance.dto.LocalDateEntryDto;
 import shamu.company.attendance.dto.OverTimeMinutesDto;
 import shamu.company.attendance.dto.OvertimeDetailDto;
@@ -37,6 +38,7 @@ import shamu.company.attendance.service.OvertimeService;
 import shamu.company.attendance.service.TimePeriodService;
 import shamu.company.attendance.service.TimeSheetService;
 import shamu.company.company.entity.Company;
+import shamu.company.email.service.EmailService;
 import shamu.company.job.entity.CompensationFrequency;
 import shamu.company.timeoff.service.TimeOffRequestService;
 import shamu.company.user.entity.User;
@@ -93,6 +95,8 @@ public class AttendanceMyHoursServiceTests {
 
   @Mock private StaticTimesheetStatusRepository staticTimesheetStatusRepository;
 
+  @Mock private EmailService emailService;
+
   private AttendanceMyHoursService attendanceMyHoursService;
 
   @BeforeEach
@@ -113,7 +117,8 @@ public class AttendanceMyHoursServiceTests {
             genericHoursService,
             staticTimesheetStatusRepository,
             employeesTaSettingService,
-            timePeriodService);
+            timePeriodService,
+            emailService);
   }
 
   @Nested
@@ -125,6 +130,8 @@ public class AttendanceMyHoursServiceTests {
     EmployeeTimeEntry employeeTimeEntry;
     StaticEmployeesTaTimeType breakType;
     StaticEmployeesTaTimeType workType;
+    EmployeesTaSettingDto employeesTaSetting = new EmployeesTaSettingDto();
+    StaticTimezone staticTimezone = new StaticTimezone();
 
     @BeforeEach
     void init() {
@@ -143,6 +150,8 @@ public class AttendanceMyHoursServiceTests {
       timeEntryDto.setEndTime(new Timestamp(new Date().getTime() + 30 * 60 * 1000));
       timeEntryDto.setHoursWorked(1);
       timeEntryDto.setMinutesWorked(1);
+      staticTimezone.setName("Hongkong");
+      employeesTaSetting.setTimeZone(staticTimezone);
       Mockito.when(userService.findById("1")).thenReturn(user);
       Mockito.when(employeeTimeEntryRepository.save(Mockito.any())).thenReturn(employeeTimeEntry);
       Mockito.when(
@@ -160,7 +169,7 @@ public class AttendanceMyHoursServiceTests {
       timeEntryDto.setHoursWorked(1);
       timeEntryDto.setMinutesWorked(1);
       timeEntryDto.setBreakTimeLogs(breakTimeLogDtos);
-      assertThatCode(() -> attendanceMyHoursService.saveTimeEntry("1", timeEntryDto))
+      assertThatCode(() -> attendanceMyHoursService.saveTimeEntry("1", timeEntryDto, "1"))
           .doesNotThrowAnyException();
     }
 
@@ -171,7 +180,9 @@ public class AttendanceMyHoursServiceTests {
       breakTimeLogDto.setBreakMin(30);
       breakTimeLogDtos.add(breakTimeLogDto);
       timeEntryDto.setBreakTimeLogs(breakTimeLogDtos);
-      assertThatCode(() -> attendanceMyHoursService.saveTimeEntry("1", timeEntryDto))
+      Mockito.when(attendanceSettingsService.findEmployeesSettings(Mockito.any()))
+          .thenReturn(employeesTaSetting);
+      assertThatCode(() -> attendanceMyHoursService.saveTimeEntry("1", timeEntryDto, "2"))
           .doesNotThrowAnyException();
     }
 
@@ -182,7 +193,10 @@ public class AttendanceMyHoursServiceTests {
       breakTimeLogDto.setBreakMin(20);
       breakTimeLogDtos.add(breakTimeLogDto);
       timeEntryDto.setBreakTimeLogs(breakTimeLogDtos);
-      assertThatCode(() -> attendanceMyHoursService.saveTimeEntry("1", timeEntryDto))
+
+      Mockito.when(attendanceSettingsService.findEmployeesSettings(Mockito.any()))
+          .thenReturn(employeesTaSetting);
+      assertThatCode(() -> attendanceMyHoursService.saveTimeEntry("1", timeEntryDto, "2"))
           .doesNotThrowAnyException();
     }
   }

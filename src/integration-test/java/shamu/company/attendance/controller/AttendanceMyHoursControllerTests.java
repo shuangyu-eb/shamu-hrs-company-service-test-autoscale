@@ -48,7 +48,7 @@ public class AttendanceMyHoursControllerTests extends WebControllerBaseTests {
             .andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
     Mockito.verify(attendanceMyHoursService, Mockito.times(1))
-        .saveTimeEntry(Mockito.anyString(), Mockito.any());
+        .saveTimeEntry(Mockito.anyString(), Mockito.any(), Mockito.anyString());
   }
 
   @Test
