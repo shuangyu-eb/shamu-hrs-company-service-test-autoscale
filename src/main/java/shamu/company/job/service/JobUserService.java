@@ -6,12 +6,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import shamu.company.attendance.dto.EmployeeInfoDto;
-import shamu.company.attendance.entity.OvertimePolicy;
 import shamu.company.attendance.entity.StaticTimezone;
-import shamu.company.attendance.entity.TimePeriod;
 import shamu.company.attendance.repository.StaticTimeZoneRepository;
-import shamu.company.attendance.service.OvertimeService;
-import shamu.company.attendance.service.TimePeriodService;
 import shamu.company.common.exception.errormapping.AlreadyExistsException;
 import shamu.company.common.service.DepartmentService;
 import shamu.company.common.service.OfficeAddressService;
@@ -53,7 +49,6 @@ import shamu.company.user.entity.User.Role;
 import shamu.company.user.entity.UserCompensation;
 import shamu.company.user.entity.UserRole;
 import shamu.company.user.entity.mapper.UserAddressMapper;
-import shamu.company.user.entity.mapper.UserCompensationMapper;
 import shamu.company.user.entity.mapper.UserMapper;
 import shamu.company.user.repository.UserAddressRepository;
 import shamu.company.user.service.UserCompensationService;
@@ -64,21 +59,17 @@ import shamu.company.utils.DateUtil;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 @Transactional
 public class JobUserService {
-  private static final String NOT_ELIGIBLE = "Not Eligible";
 
   private final JobUserRepository jobUserRepository;
 
   private final UserService userService;
 
   private final JobUserMapper jobUserMapper;
-
-  private final UserCompensationMapper userCompensationMapper;
 
   private final UserRoleService userRoleService;
 
@@ -108,11 +99,7 @@ public class JobUserService {
 
   private final TimeOffPolicyService timeOffPolicyService;
 
-  private final TimePeriodService timePeriodService;
-
   private final UserCompensationService userCompensationService;
-
-  private final OvertimeService overtimeService;
 
   private final GoogleMapsHelper googleMapsHelper;
 
@@ -122,7 +109,6 @@ public class JobUserService {
       final JobUserRepository jobUserRepository,
       final UserService userService,
       final JobUserMapper jobUserMapper,
-      final UserCompensationMapper userCompensationMapper,
       final UserRoleService userRoleService,
       final TimeOffRequestService timeOffRequestService,
       final DepartmentService departmentService,
@@ -137,14 +123,11 @@ public class JobUserService {
       final UserAddressRepository userAddressRepository,
       final UserAddressMapper userAddressMapper,
       final TimeOffPolicyService timeOffPolicyService,
-      final TimePeriodService timePeriodService,
       final UserCompensationService userCompensationService,
-      final OvertimeService overtimeService,
       final GoogleMapsHelper googleMapsHelper,
       final StaticTimeZoneRepository staticTimeZoneRepository) {
     this.jobUserRepository = jobUserRepository;
     this.userService = userService;
-    this.userCompensationMapper = userCompensationMapper;
     this.jobUserMapper = jobUserMapper;
     this.userRoleService = userRoleService;
     this.timeOffRequestService = timeOffRequestService;
@@ -160,9 +143,7 @@ public class JobUserService {
     this.timeOffPolicyService = timeOffPolicyService;
     this.userAddressRepository = userAddressRepository;
     this.userAddressMapper = userAddressMapper;
-    this.timePeriodService = timePeriodService;
     this.userCompensationService = userCompensationService;
-    this.overtimeService = overtimeService;
     this.googleMapsHelper = googleMapsHelper;
     this.staticTimeZoneRepository = staticTimeZoneRepository;
   }
@@ -218,43 +199,6 @@ public class JobUserService {
     }
   }
 
-  private boolean jobUserCompensationUpdated(final JobUpdateDto jobUpdateDto) {
-    return jobUpdateDto.getCompensationWage() != null
-        && jobUpdateDto.getCompensationFrequencyId() != null;
-  }
-
-  private void addOrUpdateJobUserCompensation(
-      final String userId, final JobUpdateDto jobUpdateDto, final JobUser jobUser) {
-    if (jobUserCompensationUpdated(jobUpdateDto) || jobUpdateDto.getPayTypeName() != null) {
-      UserCompensation userCompensation = jobUser.getUserCompensation();
-      final Optional<TimePeriod> userCurrentPeriod =
-          timePeriodService.findUserCurrentPeriod(userId);
-      if (userCompensation == null) {
-        userCompensation = new UserCompensation();
-      } else if (userCurrentPeriod.isPresent()) {
-        final TimePeriod currentTimePeriod = userCurrentPeriod.get();
-        if (userCompensation.getStartDate() != currentTimePeriod.getEndDate()) {
-          userCompensation.setEndDate(currentTimePeriod.getEndDate());
-          userCompensationService.save(userCompensation);
-          userCompensation = new UserCompensation();
-          userCompensation.setStartDate(currentTimePeriod.getEndDate());
-        }
-      }
-
-      if (jobUserCompensationUpdated(jobUpdateDto)) {
-        userCompensationMapper.updateFromJobUpdateDto(userCompensation, jobUpdateDto);
-      }
-      final String payTypeName = jobUpdateDto.getPayTypeName();
-      if (payTypeName != null && !payTypeName.equals(NOT_ELIGIBLE)) {
-        final OvertimePolicy overtimePolicy =
-            overtimeService.findPolicyByName(OvertimePolicy.NOT_ELIGIBLE_POLICY_NAME);
-        userCompensation.setOvertimePolicy(overtimePolicy);
-      }
-      userCompensation.setUserId(userId);
-      jobUser.setUserCompensation(userCompensation);
-    }
-  }
-
   private void addOrUpdateJobUser(final User user, final JobUpdateDto jobUpdateDto) {
     JobUser jobUser = findJobUserByUser(user);
     if (null == jobUser) {
@@ -262,7 +206,9 @@ public class JobUserService {
       jobUser.setUser(user);
     }
     jobUserMapper.updateFromJobUpdateDto(jobUser, jobUpdateDto);
-    addOrUpdateJobUserCompensation(user.getId(), jobUpdateDto, jobUser);
+    final UserCompensation savedCompensation =
+        userCompensationService.updateCompensationPaymentFromJobUser(user.getId(), jobUpdateDto);
+    jobUser.setUserCompensation(savedCompensation);
     jobUserRepository.save(jobUser);
   }
 

@@ -108,7 +108,6 @@ class JobUserServiceTests {
             jobUserRepository,
             userService,
             jobUserMapper,
-            userCompensationMapper,
             userRoleService,
             timeOffRequestService,
             departmentService,
@@ -123,9 +122,7 @@ class JobUserServiceTests {
             userAddressRepository,
             userAddressMapper,
             timeOffPolicyService,
-            timePeriodService,
             userCompensationService,
-            overtimeService,
             googleMapsHelper,
             staticTimeZoneRepository);
   }

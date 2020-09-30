@@ -9,10 +9,13 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import shamu.company.attendance.dto.EmployeeOvertimeDetailsDto;
 import shamu.company.attendance.entity.OvertimePolicy;
+import shamu.company.attendance.entity.TimePeriod;
 import shamu.company.attendance.entity.TimeSheet;
 import shamu.company.attendance.repository.OvertimePolicyRepository;
+import shamu.company.attendance.service.TimePeriodService;
 import shamu.company.attendance.service.TimeSheetService;
 import shamu.company.common.exception.errormapping.ResourceNotFoundException;
+import shamu.company.job.dto.JobUpdateDto;
 import shamu.company.job.entity.CompensationFrequency;
 import shamu.company.job.entity.JobUser;
 import shamu.company.job.repository.JobUserRepository;
@@ -21,7 +24,9 @@ import shamu.company.user.entity.mapper.UserCompensationMapper;
 import shamu.company.user.repository.UserCompensationRepository;
 import shamu.company.user.service.CompensationFrequencyService;
 import shamu.company.user.service.UserCompensationService;
+import shamu.company.utils.DateUtil;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,6 +51,8 @@ public class UserCompensationServiceTest {
   @Mock private TimeSheetService timeSheetService;
 
   @Mock private JobUserRepository jobUserRepository;
+
+  @Mock private TimePeriodService timePeriodService;
 
   @BeforeEach
   void init() {
@@ -144,7 +151,8 @@ public class UserCompensationServiceTest {
     void updateByEditEmployeeOvertimePolicies_shouldSucceed() {
       Mockito.when(timeSheetService.findCurrentByUseCompensation(Mockito.any()))
           .thenReturn(new TimeSheet());
-      Mockito.when(userCompensationRepository.findByUserId(userId)).thenReturn(userCompensation);
+      Mockito.when(userCompensationRepository.findCurrentByUserId(userId))
+          .thenReturn(userCompensation);
       Mockito.when(jobUserRepository.findByUserId(Mockito.any())).thenReturn(new JobUser());
       assertThatCode(
               () ->
@@ -177,5 +185,92 @@ public class UserCompensationServiceTest {
     assertThatCode(
             () -> userCompensationService.updateByEditOvertimePolicyDetails("1", overtimePolicy))
         .doesNotThrowAnyException();
+  }
+
+  @Nested
+  class saveCompensationPayment {
+    String userId = "userId";
+    UserCompensation oldCompensation = new UserCompensation();
+    JobUpdateDto jobUpdateDto = new JobUpdateDto();
+    Double regularPay = 0.1;
+    String frequencyId = "frequencyId";
+    CompensationFrequency compensationFrequency = new CompensationFrequency();
+
+    @BeforeEach
+    void init() {
+      jobUpdateDto.setCompensationWage(regularPay);
+      jobUpdateDto.setCompensationFrequencyId(frequencyId);
+      compensationFrequency.setId(frequencyId);
+      oldCompensation.setCompensationFrequency(compensationFrequency);
+      oldCompensation.setWageCents(BigDecimal.valueOf(regularPay * 100).toBigIntegerExact());
+    }
+
+    @Test
+    void whenCompensationUnchanged_shouldReturn() {
+      Mockito.when(userCompensationRepository.findStartNumberNLatestByUserId(0, userId))
+          .thenReturn(oldCompensation);
+      Mockito.when(userCompensationMapper.updateCompensationCents(regularPay))
+          .thenReturn(oldCompensation.getWageCents());
+      assertThatCode(
+              () -> {
+                userCompensationService.updateCompensationPaymentFromJobUser(userId, jobUpdateDto);
+              })
+          .doesNotThrowAnyException();
+    }
+
+    @Test
+    void whenCompensationNull_shouldCreateNew() {
+      assertThatCode(
+              () -> {
+                userCompensationService.updateCompensationPaymentFromJobUser(userId, jobUpdateDto);
+              })
+          .doesNotThrowAnyException();
+    }
+
+    @Test
+    void whenUpdateRemoved() {
+      oldCompensation.setEndDate(new Timestamp(new Date().getTime() - 100000));
+      jobUpdateDto.setCompensationFrequencyId("123");
+      Mockito.when(userCompensationRepository.findStartNumberNLatestByUserId(0, userId))
+          .thenReturn(oldCompensation);
+      assertThatCode(
+              () -> {
+                userCompensationService.updateCompensationPaymentFromJobUser(userId, jobUpdateDto);
+              })
+          .doesNotThrowAnyException();
+    }
+
+    @Test
+    void whenUpdateNotEnrolled() {
+      jobUpdateDto.setCompensationFrequencyId("123");
+      Mockito.when(userCompensationRepository.findStartNumberNLatestByUserId(0, userId))
+          .thenReturn(oldCompensation);
+      assertThatCode(
+              () -> {
+                userCompensationService.updateCompensationPaymentFromJobUser(userId, jobUpdateDto);
+              })
+          .doesNotThrowAnyException();
+    }
+
+    @Test
+    void whenUpdateEnrolled() {
+      jobUpdateDto.setCompensationFrequencyId("123");
+      oldCompensation.setStartDate(new Timestamp(new Date().getTime() - 100000));
+      oldCompensation.setEndDate(new Timestamp(new Date().getTime() + 100000));
+      Mockito.when(userCompensationRepository.findStartNumberNLatestByUserId(0, userId))
+          .thenReturn(oldCompensation);
+
+      final TimePeriod timePeriod = new TimePeriod();
+      timePeriod.setStartDate(DateUtil.getCurrentTime());
+      timePeriod.setEndDate(DateUtil.getCurrentTime());
+      Mockito.when(timePeriodService.findUserCurrentPeriod(userId))
+          .thenReturn(Optional.of(timePeriod));
+
+      assertThatCode(
+              () -> {
+                userCompensationService.updateCompensationPaymentFromJobUser(userId, jobUpdateDto);
+              })
+          .doesNotThrowAnyException();
+    }
   }
 }
