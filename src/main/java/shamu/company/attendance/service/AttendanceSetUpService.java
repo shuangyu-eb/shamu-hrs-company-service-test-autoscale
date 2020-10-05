@@ -226,7 +226,7 @@ public class AttendanceSetUpService {
                 .get());
     final List<UserCompensation> userCompensationList =
         overtimeService.createEmployeeOvertimePolicies(
-            overtimeDetailsDtoList, isSetUp ? periodStartDate : new Date());
+            overtimeDetailsDtoList, new Date());
 
     saveEmployeeTaSettings(timeAndAttendanceDetailsDto, companyTimezone);
 

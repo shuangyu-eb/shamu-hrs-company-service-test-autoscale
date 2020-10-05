@@ -5,6 +5,7 @@ import shamu.company.common.repository.BaseRepository;
 import shamu.company.user.entity.UserCompensation;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface UserCompensationRepository extends BaseRepository<UserCompensation, String> {
   Boolean existsByUserId(String userId);
@@ -86,4 +87,22 @@ public interface UserCompensationRepository extends BaseRepository<UserCompensat
               + "and (end_date is null or end_date > current_timestamp ) ",
       nativeQuery = true)
   List<UserCompensation> findFutureByOvertimePolicyId(String oldPolicyId);
+
+  @Query(
+          value =
+                  "SELECT * FROM user_compensations "
+                          + "WHERE start_date < current_timestamp "
+                          + "and (end_date > current_timestamp or end_date is null) "
+                          + "and hex(user_compensations.user_id) in ?1",
+          nativeQuery = true)
+  List<UserCompensation> findActiveByUserIdIn(List<String> userIds);
+
+
+  @Query(
+      value =
+          "SELECT * from user_compensations "
+              + "where user_id = unhex(?1) "
+              + "and start_date > current_timestamp ",
+          nativeQuery = true)
+  Optional<UserCompensation> findFutureCompensationByUserId(String userId);
 }

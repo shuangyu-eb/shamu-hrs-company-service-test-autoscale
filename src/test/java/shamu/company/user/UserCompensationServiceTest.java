@@ -163,8 +163,8 @@ public class UserCompensationServiceTest {
 
     @Test
     void removeEmployees() {
-      Mockito.when(userCompensationRepository.findByUserIdIn(Mockito.any()))
-          .thenReturn(Arrays.asList(userCompensation));
+      Mockito.when(userCompensationRepository.findActiveByUserIdIn(Mockito.any()))
+              .thenReturn(Arrays.asList(userCompensation));
       Mockito.when(jobUserRepository.findByUserId(Mockito.any())).thenReturn(new JobUser());
       assertThatCode(
               () -> userCompensationService.removeUsersFromAttendance((Arrays.asList(userId))))

@@ -76,6 +76,10 @@ public class UserCompensationService {
     userCompensationRepository.deleteAll(userCompensations);
   }
 
+  public void delete(final UserCompensation userCompensation) {
+    userCompensationRepository.delete(userCompensation);
+  }
+
   public UserCompensation findCompensationById(final String compensationId) {
     return userCompensationRepository
         .findById(compensationId)
@@ -109,27 +113,40 @@ public class UserCompensationService {
   }
 
   public void removeUsersFromAttendance(final List<String> userIds) {
-    final List<UserCompensation> oldUserCompensationList =
-        userCompensationRepository.findByUserIdIn(userIds);
+    final List<UserCompensation> activeUserCompensationList =
+        userCompensationRepository.findActiveByUserIdIn(userIds);
     final Timestamp nowTime = DateUtil.getCurrentTime();
-    oldUserCompensationList.forEach(
-        oldUserCompensation -> {
-          oldUserCompensation.setEndDate(nowTime);
-          save(oldUserCompensation);
-
-          final UserCompensation newUserCompensation = new UserCompensation();
-          BeanUtils.copyProperties(oldUserCompensation, newUserCompensation);
-          newUserCompensation.setId(null);
-          newUserCompensation.setStartDate(null);
-          newUserCompensation.setEndDate(null);
-          newUserCompensation.setOvertimePolicy(
-              overtimePolicyRepository.findByPolicyName(OvertimePolicy.NOT_ELIGIBLE_POLICY_NAME));
-          final UserCompensation savedNewUserCompensation = save(newUserCompensation);
-
-          final JobUser jobUser = jobUserRepository.findByUserId(oldUserCompensation.getUserId());
-          jobUser.setUserCompensation(savedNewUserCompensation);
+    activeUserCompensationList.forEach(
+        activeUserCompensation -> {
+          activeUserCompensation.setEndDate(nowTime);
+          save(activeUserCompensation);
+          final Optional<UserCompensation> futureUserCompensation = findFutureUserCompensation(
+                  activeUserCompensation.getUserId());
+          final UserCompensation newUserCompensation = (
+                  futureUserCompensation.map(
+                          this::createNonTaCompensationFromTaCompensation
+                  ).orElseGet(
+                          () -> createNonTaCompensationFromTaCompensation(
+                                  activeUserCompensation)));
+          futureUserCompensation.ifPresent(this::delete);
+          final JobUser jobUser = jobUserRepository.findByUserId(activeUserCompensation.getUserId());
+          jobUser.setUserCompensation(newUserCompensation);
           jobUserRepository.save(jobUser);
         });
+  }
+
+  private Optional<UserCompensation> findFutureUserCompensation(String userId){
+    return userCompensationRepository.findFutureCompensationByUserId(userId);
+  }
+
+  private UserCompensation createNonTaCompensationFromTaCompensation(UserCompensation taComp){
+    final UserCompensation nonTaCompensation = new UserCompensation();
+    BeanUtils.copyProperties(taComp, nonTaCompensation);
+    nonTaCompensation.setId(null);
+    nonTaCompensation.setStartDate(null);
+    nonTaCompensation.setEndDate(null);
+    nonTaCompensation.setOvertimePolicy(null);
+    return save(nonTaCompensation);
   }
 
   @Transactional
