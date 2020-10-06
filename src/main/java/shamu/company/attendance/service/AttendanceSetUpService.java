@@ -279,8 +279,8 @@ public class AttendanceSetUpService {
     final Map<String, Object> jobParameter = new HashMap<>();
     final String timePeriodId = timePeriod.getId();
     jobParameter.put("timePeriodId", timePeriodId);
-    jobParameter.put("fromStatus", fromStatus.name());
-    jobParameter.put("toStatus", toStatus.name());
+    jobParameter.put("fromStatus", fromStatus.getValue());
+    jobParameter.put("toStatus", toStatus.getValue());
     includeCompanyIdToParameter(jobParameter);
 
     quartzJobScheduler.addOrUpdateJobSchedule(
