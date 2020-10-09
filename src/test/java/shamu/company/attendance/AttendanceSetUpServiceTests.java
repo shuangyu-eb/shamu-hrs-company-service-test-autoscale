@@ -16,8 +16,10 @@ import shamu.company.attendance.entity.CompanyTaSetting;
 import shamu.company.attendance.entity.EmployeesTaSetting;
 import shamu.company.attendance.entity.StaticCompanyPayFrequencyType;
 import shamu.company.attendance.entity.StaticCompanyPayFrequencyType.PayFrequencyType;
+import shamu.company.attendance.entity.StaticTimesheetStatus;
 import shamu.company.attendance.entity.StaticTimezone;
 import shamu.company.attendance.entity.TimePeriod;
+import shamu.company.attendance.entity.TimeSheet;
 import shamu.company.attendance.entity.mapper.CompanyTaSettingsMapper;
 import shamu.company.attendance.entity.mapper.EmployeesTaSettingsMapper;
 import shamu.company.attendance.repository.EmployeesTaSettingRepository;
@@ -54,6 +56,7 @@ import shamu.company.user.service.UserService;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -297,6 +300,24 @@ public class AttendanceSetUpServiceTests {
               () ->
                   attendanceSetUpService.saveAttendanceDetails(
                       attendancePolicyAndDetailDto, companyId, employeeId))
+          .doesNotThrowAnyException();
+    }
+
+    @Test
+    void whenValid_createTimeSheetsShouldSucceed() {
+      final UserCompensation userCompensation = new UserCompensation();
+      userCompensation.setUserId(userId);
+      final String periodId = "timePeriod_id";
+      timePeriod.setId(periodId);
+      Mockito.when(timeSheetService.findByPeriodAndUser(periodId, userId))
+          .thenReturn(Optional.of(new TimeSheet()));
+      assertThatCode(
+              () ->
+                  attendanceSetUpService.createTimeSheets(
+                      timePeriod,
+                      StaticTimesheetStatus.TimeSheetStatus.ACTIVE,
+                      Arrays.asList(userCompensation),
+                      true))
           .doesNotThrowAnyException();
     }
   }

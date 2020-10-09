@@ -197,8 +197,7 @@ public class AttendanceSetUpService {
         attendancePolicyAndDetailDto.getAttendanceDetails();
     final List<NewOvertimePolicyDto> overtimePolicyDetails =
         attendancePolicyAndDetailDto.getOvertimePolicyDetails();
-    final Boolean isAddOrRemoveEmployee = timeAndAttendanceDetailsDto.getIsAddOrRemove();
-    final boolean isSetUp = Boolean.FALSE.equals(isAddOrRemoveEmployee);
+    final boolean isSetUp = !Boolean.TRUE.equals(timeAndAttendanceDetailsDto.getIsAddOrRemove());
 
     if (isSetUp) {
       overtimePolicyDetails.forEach(
@@ -225,8 +224,7 @@ public class AttendanceSetUpService {
                     timeAndAttendanceDetailsDto.getPeriodEndDate(), companyTimezone.getName())
                 .get());
     final List<UserCompensation> userCompensationList =
-        overtimeService.createEmployeeOvertimePolicies(
-            overtimeDetailsDtoList, new Date());
+        overtimeService.createEmployeeOvertimePolicies(overtimeDetailsDtoList, new Date());
 
     saveEmployeeTaSettings(timeAndAttendanceDetailsDto, companyTimezone);
 
@@ -248,16 +246,16 @@ public class AttendanceSetUpService {
       timeSheetStatus = TimeSheetStatus.ACTIVE;
     }
 
-    if (Boolean.TRUE.equals(isAddOrRemoveEmployee)) {
-      final TimePeriod currentPeriod = timePeriodService.findCompanyCurrentPeriod();
-      createTimeSheets(currentPeriod, timeSheetStatus, userCompensationList);
-    } else {
-      createTimeSheets(firstTimePeriod, timeSheetStatus, userCompensationList);
+    if (isSetUp) {
+      createTimeSheets(firstTimePeriod, timeSheetStatus, userCompensationList, false);
       saveCompanyTaSetting(
           timeAndAttendanceDetailsDto.getPayPeriodFrequency(),
           timeAndAttendanceDetailsDto.getPayDate(),
           companyTimezone);
       scheduleTasks(companyId, firstTimePeriod, companyTimezone.getName());
+    } else {
+      final TimePeriod currentPeriod = timePeriodService.findCompanyCurrentPeriod();
+      createTimeSheets(currentPeriod, timeSheetStatus, userCompensationList, true);
     }
   }
 
@@ -448,17 +446,26 @@ public class AttendanceSetUpService {
   public void createTimeSheets(
       final TimePeriod newTimePeriod,
       final TimeSheetStatus timeSheetStatus,
-      final List<UserCompensation> userCompensationList) {
+      final List<UserCompensation> userCompensationList,
+      final boolean needUpdateExisted) {
     final List<TimeSheet> timeSheets = new ArrayList<>();
     final StaticTimesheetStatus timesheetStatus =
         staticTimesheetStatusRepository.findByName(timeSheetStatus.getValue());
-    final TimePeriod savedTimePeriod = timePeriodService.save(newTimePeriod);
     userCompensationList.forEach(
         userCompensation -> {
-          final TimeSheet timeSheet = new TimeSheet();
-          timeSheet.setTimePeriod(savedTimePeriod);
+          final String userId = userCompensation.getUserId();
+          TimeSheet timeSheet = new TimeSheet();
+          if (needUpdateExisted) {
+            timeSheet =
+                timeSheetService
+                    .findByPeriodAndUser(newTimePeriod.getId(), userId)
+                    .orElse(new TimeSheet());
+            timeSheet.setRemovedAt(null);
+          }
+
+          timeSheet.setTimePeriod(newTimePeriod);
           timeSheet.setUserCompensation(userCompensation);
-          timeSheet.setEmployee(new User(userCompensation.getUserId()));
+          timeSheet.setEmployee(new User(userId));
           timeSheet.setStatus(timesheetStatus);
           timeSheets.add(timeSheet);
         });

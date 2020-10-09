@@ -397,7 +397,7 @@ public class AttendanceMyHoursServiceTests {
     timeSheet.setRemovedAt(Timestamp.valueOf(LocalDateTime.parse("2020-07-03T09:00:00")));
     Mockito.when(employeesTaSettingService.findByUserId("1")).thenReturn(employeesTaSetting);
     Mockito.when(timePeriodService.findCompanyCurrentPeriod()).thenReturn(timePeriod);
-    Mockito.when(timeSheetService.findTimeSheetByPeriodAndUser("1", "1")).thenReturn(timeSheet);
+    Mockito.when(timeSheetService.findActiveByPeriodAndUser("1", "1")).thenReturn(timeSheet);
     assertThatCode(() -> attendanceMyHoursService.findUserAttendanceEnrollInfo("1"))
         .doesNotThrowAnyException();
   }

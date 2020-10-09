@@ -450,7 +450,7 @@ public class AttendanceMyHoursService {
     final EmployeesTaSetting employeesTaSetting = employeesTaSettingService.findByUserId(userId);
     final TimePeriod timePeriod = timePeriodService.findCompanyCurrentPeriod();
     final TimeSheet timeSheet =
-        timeSheetService.findTimeSheetByPeriodAndUser(timePeriod.getId(), userId);
+        timeSheetService.findActiveByPeriodAndUser(timePeriod.getId(), userId);
     return UserAttendanceEnrollInfoDto.builder()
         .isEnrolled(null != employeesTaSetting)
         .deactivatedAt(timeSheet == null ? null : timeSheet.getRemovedAt())

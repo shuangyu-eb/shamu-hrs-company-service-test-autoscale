@@ -1,9 +1,5 @@
 package shamu.company.scheduler.job;
 
-import static shamu.company.attendance.entity.StaticTimesheetStatus.TimeSheetStatus;
-
-import java.sql.Timestamp;
-import java.util.List;
 import org.quartz.JobExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.quartz.QuartzJobBean;
@@ -20,6 +16,11 @@ import shamu.company.common.service.PayrollDetailService;
 import shamu.company.scheduler.QuartzUtil;
 import shamu.company.user.entity.UserCompensation;
 import shamu.company.user.service.UserCompensationService;
+
+import java.sql.Timestamp;
+import java.util.List;
+
+import static shamu.company.attendance.entity.StaticTimesheetStatus.TimeSheetStatus;
 
 public class AddPayPeriodJob extends QuartzJobBean {
   private static final long MS_OF_ONE_DAY = 24 * 60 * 60 * 1000L;
@@ -77,7 +78,7 @@ public class AddPayPeriodJob extends QuartzJobBean {
           final List<UserCompensation> userCompensationList =
               userCompensationService.listNewestEnrolledCompensation();
           attendanceSetUpService.createTimeSheets(
-              nextTimePeriod, TimeSheetStatus.ACTIVE, userCompensationList);
+              nextTimePeriod, TimeSheetStatus.ACTIVE, userCompensationList, false);
           attendanceSetUpService.scheduleTasks(
               companyId, nextTimePeriod, companyTaSetting.getTimeZone().getName());
         });

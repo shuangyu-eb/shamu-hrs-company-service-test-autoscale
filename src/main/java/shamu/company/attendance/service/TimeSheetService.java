@@ -16,6 +16,7 @@ import shamu.company.utils.DateUtil;
 
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -128,8 +129,12 @@ public class TimeSheetService {
     return timeSheetRepository.findAllById(iterable);
   }
 
-  public TimeSheet findTimeSheetByPeriodAndUser(final String periodId, final String userId) {
+  public TimeSheet findActiveByPeriodAndUser(final String periodId, final String userId) {
     return timeSheetRepository.findByTimePeriodIdAndEmployeeIdAndRemovedAtIsNull(periodId, userId);
+  }
+
+  public Optional<TimeSheet> findByPeriodAndUser(final String periodId, final String userId) {
+    return timeSheetRepository.findByTimePeriodIdAndEmployeeId(periodId, userId);
   }
 
   public void removeUserFromAttendance(final List<String> userIds) {
@@ -156,13 +161,12 @@ public class TimeSheetService {
   }
 
   @Transactional
-  public void updateCurrentOvertimePolicyByUser(UserCompensation compensation) {
-    TimeSheet timesheet = getCurrentTimesheet(compensation.getUserId());
+  public void updateCurrentOvertimePolicyByUser(final UserCompensation compensation) {
+    final TimeSheet timesheet = getCurrentTimesheet(compensation.getUserId());
     timesheet.setUserCompensation(compensation);
   }
 
-  private TimeSheet getCurrentTimesheet(String userId){
+  private TimeSheet getCurrentTimesheet(final String userId) {
     return timeSheetRepository.findCurrentTimesheetByUser(userId);
   }
-
 }

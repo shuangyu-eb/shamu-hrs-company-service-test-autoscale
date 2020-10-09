@@ -9,6 +9,7 @@ import shamu.company.attendance.entity.TimeSheet;
 import shamu.company.common.repository.BaseRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface TimeSheetRepository extends BaseRepository<TimeSheet, String> {
   String QUERY_TEAM_TIMESHEETS_SQL =
@@ -81,6 +82,8 @@ public interface TimeSheetRepository extends BaseRepository<TimeSheet, String> {
 
   TimeSheet findByTimePeriodIdAndEmployeeIdAndRemovedAtIsNull(String periodId, String employeeId);
 
+  Optional<TimeSheet> findByTimePeriodIdAndEmployeeId(String periodId, String employeeId);
+
   @Query(
       value =
           "select t.* from timesheets t "
@@ -122,14 +125,13 @@ public interface TimeSheetRepository extends BaseRepository<TimeSheet, String> {
   TimeSheet findCurrentRecordByUserCompensationId(String compensationId);
 
   @Query(
-          value =
-                  "select timesheets.* FROM timesheets "
-                          + "join time_period "
-                          + "on timesheets.time_period_id = time_period.id "
-                          + "where employee_id = unhex(?1) "
-                          + "and time_period.start_date<current_timestamp "
-                          + "and time_period.end_date>current_timestamp",
-          nativeQuery = true)
+      value =
+          "select timesheets.* FROM timesheets "
+              + "join time_period "
+              + "on timesheets.time_period_id = time_period.id "
+              + "where employee_id = unhex(?1) "
+              + "and time_period.start_date<current_timestamp "
+              + "and time_period.end_date>current_timestamp",
+      nativeQuery = true)
   TimeSheet findCurrentTimesheetByUser(String userId);
-
 }
