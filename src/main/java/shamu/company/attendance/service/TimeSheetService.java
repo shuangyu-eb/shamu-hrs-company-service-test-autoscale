@@ -102,8 +102,8 @@ public class TimeSheetService {
         fromStatus, toStatus, periodId, managerId);
   }
 
-  public List<TimeSheet> findAllByPeriodId(final String periodId) {
-    return timeSheetRepository.findAllByTimePeriodId(periodId);
+  public List<TimeSheet> findActiveByPeriodId(final String periodId) {
+    return timeSheetRepository.findAllByTimePeriodIdAndRemovedAtIsNull(periodId);
   }
 
   private void updateAllTimesheetStatus(final List<TimeSheet> timeSheets, final String status) {
@@ -118,7 +118,7 @@ public class TimeSheetService {
       final String fromStatus, final String toStatus, final String timePeriodId) {
     final TimePeriod timePeriod = timePeriodService.findById(timePeriodId);
     final List<TimeSheet> timeSheets =
-        findAllByPeriodId(timePeriod.getId()).stream()
+        findActiveByPeriodId(timePeriod.getId()).stream()
             .filter(timeSheet -> (timeSheet.getStatus().getName().equals(fromStatus)))
             .collect(Collectors.toList());
 

@@ -78,7 +78,7 @@ public interface TimeSheetRepository extends BaseRepository<TimeSheet, String> {
   void updateTimesheetStatusByPeriodIdAndManagerId(
       String fromStatus, String toStatus, String periodId, String managerId);
 
-  List<TimeSheet> findAllByTimePeriodId(String timePeriodId);
+  List<TimeSheet> findAllByTimePeriodIdAndRemovedAtIsNull(String timePeriodId);
 
   TimeSheet findByTimePeriodIdAndEmployeeIdAndRemovedAtIsNull(String periodId, String employeeId);
 

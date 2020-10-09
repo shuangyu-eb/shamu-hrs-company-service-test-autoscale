@@ -16,12 +16,12 @@ import shamu.company.attendance.service.TimePeriodService;
 import shamu.company.attendance.service.TimeSheetService;
 import shamu.company.scheduler.job.ChangeTimeSheetsStatusJob;
 import shamu.company.utils.JsonUtil;
+import shamu.company.utils.UuidUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import shamu.company.utils.UuidUtil;
 
 public class ChangeTimeSheetsStatusJobTests {
   private static ChangeTimeSheetsStatusJob changeTimeSheetsStatusJob;
@@ -65,7 +65,7 @@ public class ChangeTimeSheetsStatusJobTests {
       Mockito.when(timePeriodService.findById(timePeriodId)).thenReturn(timePeriod);
       final List<TimeSheet> timeSheetList = new ArrayList<>();
       timeSheetList.add(timeSheet);
-      Mockito.when(timeSheetService.findAllByPeriodId(timePeriodId)).thenReturn(timeSheetList);
+      Mockito.when(timeSheetService.findActiveByPeriodId(timePeriodId)).thenReturn(timeSheetList);
       Assertions.assertDoesNotThrow(
           () -> changeTimeSheetsStatusJob.executeInternal(jobExecutionContext));
     }
