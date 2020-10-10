@@ -10,7 +10,7 @@
   <td style="text-align: center" colspan="3">
     <div class="rectangle-card"
          style="width: 277px; height: auto; min-height: 100px; border-radius: 5px; border: solid 1px #dfe2e9; background-color: #ffffff; padding: 21px 0 0 13px; margin: auto;">
-      <img alt="document" style="width: 40px; height: 45px;" th:src="@{${frontEndAddress}+ ${isIndeedENV ? 'image/documentIndeed.svg' : 'image/document.png'}}">
+      <img alt="document" style="width: 40px; height: 45px;" th:src="@{${frontEndAddress}+ ${isIndeedENV ? 'image/documentIndeed.png' : 'image/document.png'}}">
       <div th:text="${documentTitle}" style="word-break: break-word"></div>
     </div>
   </td>
@@ -48,7 +48,7 @@
             <tbody>
             <tr>
               <td style="padding: 10px 0">
-                <span th:text="${senderName}" style="color: #0075DF; width: fit-content"></span>
+                <span th:text="${senderName}" style="color: #0075DF; width: fit-content; line-height: 1.5"></span>
                 <span th:switch="${requestType}">
                   <span th:case="SIGN">Requested Your Signature</span>
                   <span th:case="ACKNOWLEDGE">Requested Your Acknowledgement</span>
