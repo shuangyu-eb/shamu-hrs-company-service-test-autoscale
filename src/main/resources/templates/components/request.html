@@ -189,7 +189,8 @@
       th:style="'margin-top: 30px; padding: 30px;  background: #f7f8fa;'
       +${isIndeedENV ? 'font-weight: bold;display:flex;align-items:center;justify-content:center;' : 'font-weight: 500;'}"
       >
-    <a style="text-decoration: none;cursor: pointer; padding-right: 10px"
+    <a th:style="'text-decoration: none; cursor: pointer; padding-right: 10px;'
+        +${isIndeedENV ? 'margin: 0 auto ': ''}"
        th:href="@{${frontEndAddress}+'time-off'}">
       <div
           th:style="'border: solid 1px #d8dadf; background-color: white;'+${isIndeedENV? 'border-color:#DFE2E9;width: fit-content; height: 50px; border-radius: 8px; padding:0 16px;':'width: 170px; height: 40px; border-radius: 20px; '}">
