@@ -52,7 +52,8 @@ public class TenantRepository {
 
   public List<Tenant> findAll() {
     try (final Session session = sessionHelper.getDefaultSession()) {
-      final Query<Tenant> query = session.createNativeQuery("SELECT * FROM tenants", Tenant.class);
+      final Query<Tenant> query =
+          session.createNativeQuery("SELECT * FROM tenants ORDER BY name ASC", Tenant.class);
       return query.getResultList();
     }
   }
@@ -136,7 +137,7 @@ public class TenantRepository {
         transaction.commit();
       } catch (final NoResultException e) {
         log.error(String.format("Tenant with id: %s is not exists.", companyId), e);
-      } finally{
+      } finally {
         deleteSchema(companyId);
       }
     }
