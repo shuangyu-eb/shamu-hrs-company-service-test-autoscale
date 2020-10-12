@@ -19,7 +19,7 @@ import shamu.company.attendance.entity.StaticEmployeesTaTimeType;
 import shamu.company.attendance.entity.StaticOvertimeType;
 import shamu.company.attendance.entity.StaticTimezone;
 import shamu.company.attendance.entity.TimePeriod;
-import shamu.company.attendance.entity.TimeSheet;
+import shamu.company.attendance.entity.Timesheet;
 import shamu.company.attendance.entity.mapper.OvertimePolicyMapper;
 import shamu.company.attendance.entity.mapper.PolicyDetailMapper;
 import shamu.company.attendance.exception.PolicyNameExistException;
@@ -82,18 +82,18 @@ public class OvertimeServiceTests {
     employeeTimeLog.setTimeType(staticEmployeesTaTimeType);
     final List<EmployeeTimeLog> employeeTimeLogs = new ArrayList<>();
     employeeTimeLogs.add(employeeTimeLog);
-    final TimeSheet timeSheet = new TimeSheet();
+    final Timesheet timesheet = new Timesheet();
     final TimePeriod timePeriod = new TimePeriod();
     timePeriod.setStartDate(Timestamp.valueOf(LocalDateTime.parse("2020-07-01T01:00:00")));
     timePeriod.setEndDate(Timestamp.valueOf(LocalDateTime.parse("2020-07-08T01:00:00")));
-    timeSheet.setTimePeriod(timePeriod);
+    timesheet.setTimePeriod(timePeriod);
     final UserCompensation userCompensation = new UserCompensation();
     final CompensationFrequency compensationFrequency = new CompensationFrequency();
     compensationFrequency.setName("Per Hour");
     userCompensation.setCompensationFrequency(compensationFrequency);
     userCompensation.setWageCents(BigInteger.valueOf(10));
     userCompensation.setOvertimePolicy(overtimePolicy);
-    timeSheet.setUserCompensation(userCompensation);
+    timesheet.setUserCompensation(userCompensation);
     final StaticTimezone staticTimezone = new StaticTimezone();
     staticTimezone.setName("Asia/Shanghai");
     final CompanyTaSetting companyTaSetting = new CompanyTaSetting();
@@ -101,7 +101,7 @@ public class OvertimeServiceTests {
 
     assertThatCode(
             () ->
-                overtimeService.findAllOvertimeHours(employeeTimeLogs, timeSheet, companyTaSetting))
+                overtimeService.findAllOvertimeHours(employeeTimeLogs, timesheet, companyTaSetting))
         .doesNotThrowAnyException();
   }
 
@@ -111,8 +111,8 @@ public class OvertimeServiceTests {
     overtimePolicy.setId("1");
     final UserCompensation userCompensation = new UserCompensation();
     userCompensation.setOvertimePolicy(overtimePolicy);
-    final TimeSheet timeSheet = new TimeSheet();
-    timeSheet.setUserCompensation(userCompensation);
+    final Timesheet timesheet = new Timesheet();
+    timesheet.setUserCompensation(userCompensation);
     final List<PolicyDetail> policyDetails = new ArrayList<>();
     final PolicyDetail policyDetail = new PolicyDetail();
     policyDetail.setStart(8);
@@ -123,7 +123,7 @@ public class OvertimeServiceTests {
     policyDetails.add(policyDetail);
     Mockito.when(policyDetailRepository.findAllByOvertimePolicyId(overtimePolicy.getId()))
         .thenReturn(policyDetails);
-    assertThatCode(() -> overtimeService.getOvertimeRules(timeSheet)).doesNotThrowAnyException();
+    assertThatCode(() -> overtimeService.getOvertimeRules(timesheet)).doesNotThrowAnyException();
   }
 
   @Test

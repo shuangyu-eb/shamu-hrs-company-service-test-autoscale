@@ -294,3 +294,10 @@ databaseChangeLog:
         - dropColumn:
             columnName: overtime_status_id
             tableName: user_compensations
+
+  - changeSet:
+      id: 1602467112000-1
+      author: michael-eb
+      changes:
+        - sql:
+            sql: rename table time_period to time_periods;

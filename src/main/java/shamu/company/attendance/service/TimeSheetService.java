@@ -7,9 +7,9 @@ import org.springframework.transaction.annotation.Transactional;
 import shamu.company.attendance.entity.StaticTimesheetStatus;
 import shamu.company.attendance.entity.StaticTimesheetStatus.TimeSheetStatus;
 import shamu.company.attendance.entity.TimePeriod;
-import shamu.company.attendance.entity.TimeSheet;
+import shamu.company.attendance.entity.Timesheet;
 import shamu.company.attendance.repository.StaticTimesheetStatusRepository;
-import shamu.company.attendance.repository.TimeSheetRepository;
+import shamu.company.attendance.repository.TimesheetRepository;
 import shamu.company.common.exception.errormapping.ResourceNotFoundException;
 import shamu.company.user.entity.UserCompensation;
 import shamu.company.utils.DateUtil;
@@ -22,25 +22,25 @@ import java.util.stream.Collectors;
 @Service
 public class TimeSheetService {
 
-  private final TimeSheetRepository timeSheetRepository;
+  private final TimesheetRepository timesheetRepository;
   private final StaticTimesheetStatusRepository staticTimesheetStatusRepository;
   private final TimePeriodService timePeriodService;
 
   public TimeSheetService(
-      final TimeSheetRepository timeSheetRepository,
+      final TimesheetRepository timesheetRepository,
       final StaticTimesheetStatusRepository staticTimesheetStatusRepository,
       final TimePeriodService timePeriodService) {
-    this.timeSheetRepository = timeSheetRepository;
+    this.timesheetRepository = timesheetRepository;
     this.staticTimesheetStatusRepository = staticTimesheetStatusRepository;
     this.timePeriodService = timePeriodService;
   }
 
   public boolean existByUser(final String userId) {
-    return timeSheetRepository.existsByEmployeeId(userId);
+    return timesheetRepository.existsByEmployeeId(userId);
   }
 
-  public TimeSheet findTimeSheetById(final String timeSheetId) {
-    return timeSheetRepository
+  public Timesheet findTimeSheetById(final String timeSheetId) {
+    return timesheetRepository
         .findById(timeSheetId)
         .orElseThrow(
             () ->
@@ -50,47 +50,47 @@ public class TimeSheetService {
                     "time sheet"));
   }
 
-  public List<TimeSheet> saveAll(final List<TimeSheet> timeSheets) {
-    return timeSheetRepository.saveAll(timeSheets);
+  public List<Timesheet> saveAll(final List<Timesheet> timesheets) {
+    return timesheetRepository.saveAll(timesheets);
   }
 
-  public List<TimeSheet> findAll() {
-    return timeSheetRepository.findAll();
+  public List<Timesheet> findAll() {
+    return timesheetRepository.findAll();
   }
 
-  public Page<TimeSheet> findTeamTimeSheetsByIdAndCompanyIdAndStatus(
+  public Page<Timesheet> findTeamTimeSheetsByIdAndCompanyIdAndStatus(
       final String timePeriodId,
       final List<String> timeSheetStatus,
       final String userId,
       final Pageable pageable) {
-    return timeSheetRepository.findTeamTimeSheetsByIdAndStatus(
+    return timesheetRepository.findTeamTimeSheetsByIdAndStatus(
         timePeriodId, timeSheetStatus, userId, pageable);
   }
 
-  public Page<TimeSheet> findCompanyTimeSheetsByIdAndStatus(
+  public Page<Timesheet> findCompanyTimeSheetsByIdAndStatus(
       final String timePeriodId, final List<String> timeSheetStatus, final Pageable pageable) {
-    return timeSheetRepository.findCompanyTimeSheetsByIdAndStatus(
+    return timesheetRepository.findCompanyTimeSheetsByIdAndStatus(
         timePeriodId, timeSheetStatus, pageable);
   }
 
-  public List<TimeSheet> findTeamTimeSheetsByIdAndCompanyIdAndStatus(
+  public List<Timesheet> findTeamTimeSheetsByIdAndCompanyIdAndStatus(
       final String userId, final String timePeriodId, final List<String> timeSheetStatus) {
-    return timeSheetRepository.findTeamTimeSheetsByIdAndStatus(
+    return timesheetRepository.findTeamTimeSheetsByIdAndStatus(
         timePeriodId, timeSheetStatus, userId);
   }
 
-  public List<TimeSheet> findCompanyTimeSheetsByIdAndStatus(
+  public List<Timesheet> findCompanyTimeSheetsByIdAndStatus(
       final String timePeriodId, final List<String> timeSheetStatus) {
-    return timeSheetRepository.findCompanyTimeSheetsByIdAndStatus(timePeriodId, timeSheetStatus);
+    return timesheetRepository.findCompanyTimeSheetsByIdAndStatus(timePeriodId, timeSheetStatus);
   }
 
   public void updateTimesheetStatus(final String statusId, final String timesheetId) {
-    timeSheetRepository.updateTimesheetStatus(statusId, timesheetId);
+    timesheetRepository.updateTimesheetStatus(statusId, timesheetId);
   }
 
   public void updateTimesheetStatusByPeriodId(
       final String fromStatus, final String toStatus, final String periodId) {
-    timeSheetRepository.updateTimesheetStatusByPeriodId(fromStatus, toStatus, periodId);
+    timesheetRepository.updateTimesheetStatusByPeriodId(fromStatus, toStatus, periodId);
   }
 
   public void updateTimesheetStatusByPeriodIdAndManagerId(
@@ -98,75 +98,75 @@ public class TimeSheetService {
       final String toStatus,
       final String periodId,
       final String managerId) {
-    timeSheetRepository.updateTimesheetStatusByPeriodIdAndManagerId(
+    timesheetRepository.updateTimesheetStatusByPeriodIdAndManagerId(
         fromStatus, toStatus, periodId, managerId);
   }
 
-  public List<TimeSheet> findActiveByPeriodId(final String periodId) {
-    return timeSheetRepository.findAllByTimePeriodIdAndRemovedAtIsNull(periodId);
+  public List<Timesheet> findActiveByPeriodId(final String periodId) {
+    return timesheetRepository.findAllByTimePeriodIdAndRemovedAtIsNull(periodId);
   }
 
-  private void updateAllTimesheetStatus(final List<TimeSheet> timeSheets, final String status) {
+  private void updateAllTimesheetStatus(final List<Timesheet> timesheets, final String status) {
     final StaticTimesheetStatus submitStatus = staticTimesheetStatusRepository.findByName(status);
-    for (final TimeSheet timeSheet : timeSheets) {
-      timeSheet.setStatus(submitStatus);
+    for (final Timesheet timesheet : timesheets) {
+      timesheet.setStatus(submitStatus);
     }
-    timeSheetRepository.saveAll(timeSheets);
+    timesheetRepository.saveAll(timesheets);
   }
 
   public void updateCompanyTimeSheetsStatus(
       final String fromStatus, final String toStatus, final String timePeriodId) {
     final TimePeriod timePeriod = timePeriodService.findById(timePeriodId);
-    final List<TimeSheet> timeSheets =
+    final List<Timesheet> timesheets =
         findActiveByPeriodId(timePeriod.getId()).stream()
-            .filter(timeSheet -> (timeSheet.getStatus().getName().equals(fromStatus)))
+            .filter(timesheet -> (timesheet.getStatus().getName().equals(fromStatus)))
             .collect(Collectors.toList());
 
-    updateAllTimesheetStatus(timeSheets, toStatus);
+    updateAllTimesheetStatus(timesheets, toStatus);
   }
 
-  public List<TimeSheet> findAllById(final Iterable<String> iterable) {
-    return timeSheetRepository.findAllById(iterable);
+  public List<Timesheet> findAllById(final Iterable<String> iterable) {
+    return timesheetRepository.findAllById(iterable);
   }
 
-  public TimeSheet findActiveByPeriodAndUser(final String periodId, final String userId) {
-    return timeSheetRepository.findByTimePeriodIdAndEmployeeIdAndRemovedAtIsNull(periodId, userId);
+  public Timesheet findActiveByPeriodAndUser(final String periodId, final String userId) {
+    return timesheetRepository.findByTimePeriodIdAndEmployeeIdAndRemovedAtIsNull(periodId, userId);
   }
 
-  public Optional<TimeSheet> findByPeriodAndUser(final String periodId, final String userId) {
-    return timeSheetRepository.findByTimePeriodIdAndEmployeeId(periodId, userId);
+  public Optional<Timesheet> findByPeriodAndUser(final String periodId, final String userId) {
+    return timesheetRepository.findByTimePeriodIdAndEmployeeId(periodId, userId);
   }
 
   public void removeUserFromAttendance(final List<String> userIds) {
     final TimePeriod timePeriod = timePeriodService.findCompanyCurrentPeriod();
     final Timestamp currentTime = DateUtil.getCurrentTime();
-    final List<TimeSheet> timeSheets =
-        timeSheetRepository.findAllByTimePeriodIdAndEmployeeId(timePeriod.getId(), userIds);
-    timeSheets.forEach(timeSheet -> timeSheet.setRemovedAt(currentTime));
-    timeSheetRepository.saveAll(timeSheets);
+    final List<Timesheet> timesheets =
+        timesheetRepository.findAllByTimePeriodIdAndEmployeeId(timePeriod.getId(), userIds);
+    timesheets.forEach(timesheet -> timesheet.setRemovedAt(currentTime));
+    timesheetRepository.saveAll(timesheets);
   }
 
   public int findTeamHoursPendingCount(final String userId, final String periodId) {
-    return timeSheetRepository.findTeamHoursPendingCount(
+    return timesheetRepository.findTeamHoursPendingCount(
         periodId, TimeSheetStatus.SUBMITTED.name(), userId);
   }
 
   public int findCompanyHoursPendingCount(final String periodId) {
-    return timeSheetRepository.findCompanyHoursPendingCount(
+    return timesheetRepository.findCompanyHoursPendingCount(
         periodId, TimeSheetStatus.SUBMITTED.name());
   }
 
-  public TimeSheet findCurrentByUseCompensation(final UserCompensation userCompensation) {
-    return timeSheetRepository.findCurrentRecordByUserCompensationId(userCompensation.getId());
+  public Timesheet findCurrentByUseCompensation(final UserCompensation userCompensation) {
+    return timesheetRepository.findCurrentRecordByUserCompensationId(userCompensation.getId());
   }
 
   @Transactional
   public void updateCurrentOvertimePolicyByUser(final UserCompensation compensation) {
-    final TimeSheet timesheet = getCurrentTimesheet(compensation.getUserId());
+    final Timesheet timesheet = getCurrentTimesheet(compensation.getUserId());
     timesheet.setUserCompensation(compensation);
   }
 
-  private TimeSheet getCurrentTimesheet(final String userId) {
-    return timeSheetRepository.findCurrentTimesheetByUser(userId);
+  private Timesheet getCurrentTimesheet(final String userId) {
+    return timesheetRepository.findCurrentTimesheetByUser(userId);
   }
 }

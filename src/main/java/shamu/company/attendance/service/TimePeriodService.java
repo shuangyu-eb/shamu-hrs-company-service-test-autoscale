@@ -1,12 +1,13 @@
 package shamu.company.attendance.service;
 
-import java.util.List;
-import java.util.Optional;
 import org.springframework.stereotype.Service;
 import shamu.company.attendance.entity.TimePeriod;
-import shamu.company.attendance.entity.TimeSheetPeriodPojo;
+import shamu.company.attendance.entity.TimesheetPeriodPojo;
 import shamu.company.attendance.repository.TimePeriodRepository;
 import shamu.company.common.exception.errormapping.ResourceNotFoundException;
+
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class TimePeriodService {
@@ -16,7 +17,7 @@ public class TimePeriodService {
     this.timePeriodRepository = timePeriodRepository;
   }
 
-  public List<TimeSheetPeriodPojo> listByUser(final String userId) {
+  public List<TimesheetPeriodPojo> listByUser(final String userId) {
     return timePeriodRepository.listTimeSheetPeriodsByUser(userId);
   }
 

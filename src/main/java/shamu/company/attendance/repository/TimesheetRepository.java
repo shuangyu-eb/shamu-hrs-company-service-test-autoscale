@@ -5,13 +5,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
-import shamu.company.attendance.entity.TimeSheet;
+import shamu.company.attendance.entity.Timesheet;
 import shamu.company.common.repository.BaseRepository;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface TimeSheetRepository extends BaseRepository<TimeSheet, String> {
+public interface TimesheetRepository extends BaseRepository<Timesheet, String> {
   String QUERY_TEAM_TIMESHEETS_SQL =
       "select t.* from timesheets t "
           + " join users u on u.id = t.employee_id"
@@ -32,22 +32,22 @@ public interface TimeSheetRepository extends BaseRepository<TimeSheet, String> {
       value = QUERY_TEAM_TIMESHEETS_SQL,
       countQuery = QUERY_TEAM_TIMESHEETS_SQL,
       nativeQuery = true)
-  Page<TimeSheet> findTeamTimeSheetsByIdAndStatus(
+  Page<Timesheet> findTeamTimeSheetsByIdAndStatus(
       String timePeriodId, List<String> status, String userId, Pageable pageable);
 
   @Query(
       value = QUERY_COMPANY_TIMESHEETS_SQL,
       countQuery = QUERY_COMPANY_TIMESHEETS_SQL,
       nativeQuery = true)
-  Page<TimeSheet> findCompanyTimeSheetsByIdAndStatus(
+  Page<Timesheet> findCompanyTimeSheetsByIdAndStatus(
       String timePeriodId, List<String> status, Pageable pageable);
 
   @Query(value = QUERY_TEAM_TIMESHEETS_SQL, nativeQuery = true)
-  List<TimeSheet> findTeamTimeSheetsByIdAndStatus(
+  List<Timesheet> findTeamTimeSheetsByIdAndStatus(
       String timePeriodId, List<String> status, String userId);
 
   @Query(value = QUERY_COMPANY_TIMESHEETS_SQL, nativeQuery = true)
-  List<TimeSheet> findCompanyTimeSheetsByIdAndStatus(String timePeriodId, List<String> status);
+  List<Timesheet> findCompanyTimeSheetsByIdAndStatus(String timePeriodId, List<String> status);
 
   boolean existsByEmployeeId(String employeeId);
 
@@ -78,11 +78,11 @@ public interface TimeSheetRepository extends BaseRepository<TimeSheet, String> {
   void updateTimesheetStatusByPeriodIdAndManagerId(
       String fromStatus, String toStatus, String periodId, String managerId);
 
-  List<TimeSheet> findAllByTimePeriodIdAndRemovedAtIsNull(String timePeriodId);
+  List<Timesheet> findAllByTimePeriodIdAndRemovedAtIsNull(String timePeriodId);
 
-  TimeSheet findByTimePeriodIdAndEmployeeIdAndRemovedAtIsNull(String periodId, String employeeId);
+  Timesheet findByTimePeriodIdAndEmployeeIdAndRemovedAtIsNull(String periodId, String employeeId);
 
-  Optional<TimeSheet> findByTimePeriodIdAndEmployeeId(String periodId, String employeeId);
+  Optional<Timesheet> findByTimePeriodIdAndEmployeeId(String periodId, String employeeId);
 
   @Query(
       value =
@@ -90,7 +90,7 @@ public interface TimeSheetRepository extends BaseRepository<TimeSheet, String> {
               + "join users u on u.id = t.employee_id "
               + "where t.time_period_id = unhex(?1) and hex(u.id) in (?2)",
       nativeQuery = true)
-  List<TimeSheet> findAllByTimePeriodIdAndEmployeeId(String periodId, List<String> employeeIds);
+  List<Timesheet> findAllByTimePeriodIdAndEmployeeId(String periodId, List<String> employeeIds);
 
   @Query(
       value =
@@ -118,20 +118,20 @@ public interface TimeSheetRepository extends BaseRepository<TimeSheet, String> {
   @Query(
       value =
           "select t.* from timesheets t "
-              + "join time_period tp on tp.id = t.time_period_id "
+              + "join time_periods tp on tp.id = t.time_period_id "
               + "where tp.end_date > now() "
               + "AND t.user_compensation_id = UNHEX(?1)",
       nativeQuery = true)
-  TimeSheet findCurrentRecordByUserCompensationId(String compensationId);
+  Timesheet findCurrentRecordByUserCompensationId(String compensationId);
 
   @Query(
       value =
           "select timesheets.* FROM timesheets "
-              + "join time_period "
-              + "on timesheets.time_period_id = time_period.id "
+              + "join time_periods "
+              + "on timesheets.time_period_id = time_periods.id "
               + "where employee_id = unhex(?1) "
-              + "and time_period.start_date<current_timestamp "
-              + "and time_period.end_date>current_timestamp",
+              + "and time_periods.start_date<current_timestamp "
+              + "and time_periods.end_date>current_timestamp",
       nativeQuery = true)
-  TimeSheet findCurrentTimesheetByUser(String userId);
+  Timesheet findCurrentTimesheetByUser(String userId);
 }

@@ -11,7 +11,7 @@ import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import shamu.company.attendance.entity.StaticTimesheetStatus;
 import shamu.company.attendance.entity.TimePeriod;
-import shamu.company.attendance.entity.TimeSheet;
+import shamu.company.attendance.entity.Timesheet;
 import shamu.company.attendance.service.TimePeriodService;
 import shamu.company.attendance.service.TimeSheetService;
 import shamu.company.scheduler.job.ChangeTimeSheetsStatusJob;
@@ -40,13 +40,13 @@ public class ChangeTimeSheetsStatusJobTests {
     TimePeriod timePeriod = new TimePeriod();
     String timePeriodId = "period_id";
     StaticTimesheetStatus timeSheetStatus = new StaticTimesheetStatus();
-    TimeSheet timeSheet = new TimeSheet();
+    Timesheet timesheet = new Timesheet();
 
     @BeforeEach
     void init() {
       timePeriod.setId(timePeriodId);
       timeSheetStatus.setName("status_name");
-      timeSheet.setStatus(timeSheetStatus);
+      timesheet.setStatus(timeSheetStatus);
     }
 
     @Test
@@ -63,8 +63,8 @@ public class ChangeTimeSheetsStatusJobTests {
           .thenReturn(new JobDataMap(jobParameter));
 
       Mockito.when(timePeriodService.findById(timePeriodId)).thenReturn(timePeriod);
-      final List<TimeSheet> timeSheetList = new ArrayList<>();
-      timeSheetList.add(timeSheet);
+      final List<Timesheet> timeSheetList = new ArrayList<>();
+      timeSheetList.add(timesheet);
       Mockito.when(timeSheetService.findActiveByPeriodId(timePeriodId)).thenReturn(timeSheetList);
       Assertions.assertDoesNotThrow(
           () -> changeTimeSheetsStatusJob.executeInternal(jobExecutionContext));

@@ -16,7 +16,7 @@ import shamu.company.attendance.entity.EmployeeTimeLog;
 import shamu.company.attendance.entity.StaticTimesheetStatus;
 import shamu.company.attendance.entity.StaticTimesheetStatus.TimeSheetStatus;
 import shamu.company.attendance.entity.TimePeriod;
-import shamu.company.attendance.entity.TimeSheet;
+import shamu.company.attendance.entity.Timesheet;
 import shamu.company.common.entity.PayrollDetail;
 import shamu.company.common.service.PayrollDetailService;
 import shamu.company.timeoff.service.TimeOffRequestService;
@@ -87,7 +87,7 @@ public class AttendanceTeamHoursService {
     final CompanyTaSetting companyTaSetting = attendanceSettingsService.findCompanySetting();
     final List<EmployeeAttendanceSummaryDto> employeeAttendanceSummaryDtoList = new ArrayList<>();
 
-    final List<TimeSheet> timeSheets =
+    final List<Timesheet> timesheets =
         findTimeSheetsByIdAndCompanyIdAndStatusAndType(
             userId,
             timePeriodId,
@@ -95,14 +95,14 @@ public class AttendanceTeamHoursService {
                 StaticTimesheetStatus.TimeSheetStatus.SUBMITTED.name(),
                 StaticTimesheetStatus.TimeSheetStatus.APPROVED.name()),
             hourType);
-    timeSheets.forEach(
-        timeSheet -> {
-          final User user = timeSheet.getEmployee();
+    timesheets.forEach(
+        timesheet -> {
+          final User user = timesheet.getEmployee();
 
           final List<EmployeeTimeLog> workedMinutes =
-              attendanceMyHoursService.findAllRelevantTimelogs(timeSheet, companyTaSetting);
+              attendanceMyHoursService.findAllRelevantTimelogs(timesheet, companyTaSetting);
           final Map<Double, Integer> overtimeMinutes =
-              overtimeService.findAllOvertimeHours(workedMinutes, timeSheet, companyTaSetting);
+              overtimeService.findAllOvertimeHours(workedMinutes, timesheet, companyTaSetting);
 
           int totalOvertimeMin = 0;
           int totalOvertime15Min = 0;
@@ -117,9 +117,9 @@ public class AttendanceTeamHoursService {
           }
 
           final int workedMin =
-              attendanceMyHoursService.getTotalNumberOfWorkedMinutes(workedMinutes, timeSheet);
+              attendanceMyHoursService.getTotalNumberOfWorkedMinutes(workedMinutes, timesheet);
 
-          final TimePeriod timePeriod = timeSheet.getTimePeriod();
+          final TimePeriod timePeriod = timesheet.getTimePeriod();
 
           employeeAttendanceSummaryDtoList.add(
               EmployeeAttendanceSummaryDto.builder()
@@ -132,7 +132,7 @@ public class AttendanceTeamHoursService {
                   .periodStartTime(timePeriod.getStartDate())
                   .periodEndTime(timePeriod.getEndDate())
                   .approved(
-                      timeSheet
+                      timesheet
                           .getStatus()
                           .getName()
                           .equals(StaticTimesheetStatus.TimeSheetStatus.APPROVED.name()))
@@ -141,7 +141,7 @@ public class AttendanceTeamHoursService {
     return employeeAttendanceSummaryDtoList;
   }
 
-  private List<TimeSheet> findTimeSheetsByIdAndCompanyIdAndStatusAndType(
+  private List<Timesheet> findTimeSheetsByIdAndCompanyIdAndStatusAndType(
       final String userId,
       final String timePeriodId,
       final List<String> timeSheetStatus,
@@ -159,7 +159,7 @@ public class AttendanceTeamHoursService {
       final List<String> timeSheetStatus,
       final String userId,
       final Pageable pageable) {
-    Page<TimeSheet> timeSheetPage = new PageImpl<>(Collections.emptyList());
+    Page<Timesheet> timeSheetPage = new PageImpl<>(Collections.emptyList());
     if (hourType.equals(TEAM_HOURS_TYPE)) {
       timeSheetPage =
           timeSheetService.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
@@ -175,28 +175,28 @@ public class AttendanceTeamHoursService {
     final List<AttendanceTeamHoursDto> teamHoursDtos =
         timeSheetPage.getContent().stream()
             .map(
-                timeSheet -> {
+                timesheet -> {
                   final List<EmployeeTimeLog> workedMinutes =
-                      attendanceMyHoursService.findAllRelevantTimelogs(timeSheet, companyTaSetting);
+                      attendanceMyHoursService.findAllRelevantTimelogs(timesheet, companyTaSetting);
 
                   final int workedMin =
                       attendanceMyHoursService.getTotalNumberOfWorkedMinutes(
-                          workedMinutes, timeSheet);
+                          workedMinutes, timesheet);
                   int totalOvertimeMin = 0;
                   final Map<Double, Integer> overtimeMinutes =
                       overtimeService.findAllOvertimeHours(
-                          workedMinutes, timeSheet, companyTaSetting);
+                          workedMinutes, timesheet, companyTaSetting);
                   for (final Map.Entry<Double, Integer> overtimeMinute :
                       overtimeMinutes.entrySet()) {
                     totalOvertimeMin += overtimeMinute.getValue();
                   }
                   return new AttendanceTeamHoursDto(
-                      timeSheet.getId(),
-                      timeSheet.getEmployee().getId(),
-                      timeSheet.getEmployee().getUserPersonalInformation().getName(),
+                      timesheet.getId(),
+                      timesheet.getEmployee().getId(),
+                      timesheet.getEmployee().getUserPersonalInformation().getName(),
                       workedMin,
                       totalOvertimeMin,
-                      timeSheet.getStatus().getName());
+                      timesheet.getStatus().getName());
                 })
             .collect(Collectors.toList());
     return new TeamHoursPageInfoDto(teamHoursDtos, timeSheetPage.getTotalPages());
@@ -207,37 +207,37 @@ public class AttendanceTeamHoursService {
       final List<String> timesheetStatus,
       final String userId,
       final String hourType) {
-    List<TimeSheet> timeSheets = new ArrayList<>();
+    List<Timesheet> timesheets = new ArrayList<>();
     if (hourType.equals(TEAM_HOURS_TYPE)) {
-      timeSheets =
+      timesheets =
           timeSheetService.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
               userId, timePeriodId, timesheetStatus);
     }
     if (hourType.equals(COMPANY_HOURS_TYPE)) {
-      timeSheets =
+      timesheets =
           timeSheetService.findCompanyTimeSheetsByIdAndStatus(timePeriodId, timesheetStatus);
     }
     final CompanyTaSetting companyTaSetting = attendanceSettingsService.findCompanySetting();
     int totalTimeOffHours = 0;
     int totalOvertimeMin = 0;
     int totalRegularMin = 0;
-    for (final TimeSheet timeSheet : timeSheets) {
-      final User user = timeSheet.getEmployee();
-      final Timestamp timeSheetStart = timeSheet.getTimePeriod().getStartDate();
-      final Timestamp timesheetEnd = timeSheet.getTimePeriod().getEndDate();
+    for (final Timesheet timesheet : timesheets) {
+      final User user = timesheet.getEmployee();
+      final Timestamp timeSheetStart = timesheet.getTimePeriod().getStartDate();
+      final Timestamp timesheetEnd = timesheet.getTimePeriod().getEndDate();
       final int timeOffHours =
           timeOffRequestService.findTimeOffHoursBetweenWorkPeriod(
               user, timeSheetStart.getTime(), timesheetEnd.getTime());
       totalTimeOffHours += timeOffHours;
 
       final List<EmployeeTimeLog> workedMinutes =
-          attendanceMyHoursService.findAllRelevantTimelogs(timeSheet, companyTaSetting);
+          attendanceMyHoursService.findAllRelevantTimelogs(timesheet, companyTaSetting);
 
       final int workedMin =
-          attendanceMyHoursService.getTotalNumberOfWorkedMinutes(workedMinutes, timeSheet);
+          attendanceMyHoursService.getTotalNumberOfWorkedMinutes(workedMinutes, timesheet);
 
       final Map<Double, Integer> overtimeMinutes =
-          overtimeService.findAllOvertimeHours(workedMinutes, timeSheet, companyTaSetting);
+          overtimeService.findAllOvertimeHours(workedMinutes, timesheet, companyTaSetting);
       int currentOvertimeMin = 0;
       for (final Map.Entry<Double, Integer> overtimeMinute : overtimeMinutes.entrySet()) {
         currentOvertimeMin += overtimeMinute.getValue();
@@ -258,14 +258,14 @@ public class AttendanceTeamHoursService {
     final Timestamp approvedTime = DateUtil.getCurrentTime();
     final StaticTimesheetStatus timesheetApproveStatus =
         staticTimesheetStatusService.findByName(TimeSheetStatus.APPROVED.name());
-    final List<TimeSheet> timeSheets = timeSheetService.findAllById(selectedTimesheets);
-    timeSheets.forEach(
-        timeSheet -> {
-          timeSheet.setStatus(timesheetApproveStatus);
-          timeSheet.setApproverEmployee(approver);
-          timeSheet.setApprovedTimestamp(approvedTime);
+    final List<Timesheet> timesheets = timeSheetService.findAllById(selectedTimesheets);
+    timesheets.forEach(
+        timesheet -> {
+          timesheet.setStatus(timesheetApproveStatus);
+          timesheet.setApproverEmployee(approver);
+          timesheet.setApprovedTimestamp(approvedTime);
         });
-    timeSheetService.saveAll(timeSheets);
+    timeSheetService.saveAll(timesheets);
   }
 
   public AttendanceDetailDto findAttendanceDetails() {

@@ -7,7 +7,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import shamu.company.attendance.entity.EmployeeTimeEntry;
-import shamu.company.attendance.entity.TimeSheet;
+import shamu.company.attendance.entity.Timesheet;
 import shamu.company.attendance.service.EmployeeTimeEntryService;
 import shamu.company.attendance.service.TimeSheetService;
 import shamu.company.authorization.Permission.Name;
@@ -382,8 +382,8 @@ public class UserPermissionUtils extends BasePermissionUtils {
 
   private boolean hasPermissionOfAttendanceTimesheet(
       final Authentication auth, final String timesheetId, final Permission.Name permission) {
-    final TimeSheet timeSheet = timeSheetService.findTimeSheetById(timesheetId);
-    final User targetUser = timeSheet.getEmployee();
+    final Timesheet timesheet = timeSheetService.findTimeSheetById(timesheetId);
+    final User targetUser = timesheet.getEmployee();
     return verifyEmployeePermission(targetUser, auth, permission);
   }
 

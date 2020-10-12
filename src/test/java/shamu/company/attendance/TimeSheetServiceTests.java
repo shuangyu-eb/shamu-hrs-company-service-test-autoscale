@@ -13,9 +13,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import shamu.company.attendance.entity.StaticTimesheetStatus.TimeSheetStatus;
 import shamu.company.attendance.entity.TimePeriod;
-import shamu.company.attendance.entity.TimeSheet;
+import shamu.company.attendance.entity.Timesheet;
 import shamu.company.attendance.repository.StaticTimesheetStatusRepository;
-import shamu.company.attendance.repository.TimeSheetRepository;
+import shamu.company.attendance.repository.TimesheetRepository;
 import shamu.company.attendance.service.TimePeriodService;
 import shamu.company.attendance.service.TimeSheetService;
 import shamu.company.common.exception.errormapping.ResourceNotFoundException;
@@ -34,7 +34,7 @@ public class TimeSheetServiceTests {
 
   @InjectMocks TimeSheetService timeSheetService;
 
-  @Mock private TimeSheetRepository timeSheetRepository;
+  @Mock private TimesheetRepository timesheetRepository;
 
   @Mock private StaticTimesheetStatusRepository staticTimesheetStatusRepository;
 
@@ -47,23 +47,23 @@ public class TimeSheetServiceTests {
 
   @Nested
   class findTimeSheetById {
-    TimeSheet timeSheet;
+    Timesheet timesheet;
 
     @BeforeEach
     void init() {
-      timeSheet = new TimeSheet();
+      timesheet = new Timesheet();
     }
 
     @Test
     void whenIdExists_thenShouldSuccess() {
-      Mockito.when(timeSheetRepository.findById(Mockito.anyString()))
-          .thenReturn(Optional.ofNullable(timeSheet));
+      Mockito.when(timesheetRepository.findById(Mockito.anyString()))
+          .thenReturn(Optional.ofNullable(timesheet));
       assertThatCode(() -> timeSheetService.findTimeSheetById("1")).doesNotThrowAnyException();
     }
 
     @Test
     void whenIdNotExists_thenShouldThrow() {
-      Mockito.when(timeSheetRepository.findById(Mockito.anyString())).thenReturn(Optional.empty());
+      Mockito.when(timesheetRepository.findById(Mockito.anyString())).thenReturn(Optional.empty());
       assertThatExceptionOfType(ResourceNotFoundException.class)
           .isThrownBy(() -> timeSheetService.findTimeSheetById("1"));
     }
@@ -71,7 +71,7 @@ public class TimeSheetServiceTests {
 
   @Nested
   class saveAll {
-    List<TimeSheet> timeSheetList;
+    List<Timesheet> timeSheetList;
 
     @BeforeEach
     void init() {
@@ -80,7 +80,7 @@ public class TimeSheetServiceTests {
 
     @Test
     void whenListValid_shouldSucceed() {
-      Mockito.when(timeSheetRepository.saveAll(timeSheetList)).thenReturn(Mockito.any());
+      Mockito.when(timesheetRepository.saveAll(timeSheetList)).thenReturn(Mockito.any());
       assertThatCode(() -> timeSheetService.saveAll(timeSheetList)).doesNotThrowAnyException();
     }
   }
@@ -90,9 +90,9 @@ public class TimeSheetServiceTests {
     String companyId;
     String timesheetId;
     TimeSheetStatus status;
-    List<TimeSheet> timeSheetList;
+    List<Timesheet> timeSheetList;
     Pageable pageable;
-    Page<TimeSheet> page;
+    Page<Timesheet> page;
 
     @BeforeEach
     void init() {
@@ -107,7 +107,7 @@ public class TimeSheetServiceTests {
     @Test
     void whenNormal_thenShouldSuccess() {
       Mockito.when(
-              timeSheetRepository.findTeamTimeSheetsByIdAndStatus(
+              timesheetRepository.findTeamTimeSheetsByIdAndStatus(
                   timesheetId, Collections.singletonList(status.getValue()), "1", pageable))
           .thenReturn(page);
       assertThatCode(
@@ -121,9 +121,9 @@ public class TimeSheetServiceTests {
     void findCompanyTimeSheetsByIdAndCompanyIdAndStatus() {
       final TimeSheetStatus timeSheetStatus = TimeSheetStatus.SUBMITTED;
       final Pageable pageable = PageRequest.of(0, 2);
-      final Page<TimeSheet> page = new PageImpl<>(Collections.emptyList());
+      final Page<Timesheet> page = new PageImpl<>(Collections.emptyList());
       Mockito.when(
-              timeSheetRepository.findCompanyTimeSheetsByIdAndStatus(
+              timesheetRepository.findCompanyTimeSheetsByIdAndStatus(
                   "1", Collections.singletonList(timeSheetStatus.getValue()), pageable))
           .thenReturn(page);
       assertThatCode(
@@ -135,11 +135,11 @@ public class TimeSheetServiceTests {
 
     @Test
     void findTeamTimeSheetsByIdAndCompanyIdAndStatus() {
-      final List<TimeSheet> timeSheets = new ArrayList<>();
+      final List<Timesheet> timesheets = new ArrayList<>();
       Mockito.when(
-              timeSheetRepository.findTeamTimeSheetsByIdAndStatus(
+              timesheetRepository.findTeamTimeSheetsByIdAndStatus(
                   Mockito.anyString(), Mockito.anyList(), Mockito.any()))
-          .thenReturn(timeSheets);
+          .thenReturn(timesheets);
       assertThatCode(
               () ->
                   timeSheetService.findTeamTimeSheetsByIdAndCompanyIdAndStatus(
@@ -149,11 +149,11 @@ public class TimeSheetServiceTests {
 
     @Test
     void findCompanyTimeSheetsByCompanyIdAndStatus() {
-      final List<TimeSheet> timeSheets = new ArrayList<>();
+      final List<Timesheet> timesheets = new ArrayList<>();
       Mockito.when(
-              timeSheetRepository.findCompanyTimeSheetsByIdAndStatus(
+              timesheetRepository.findCompanyTimeSheetsByIdAndStatus(
                   Mockito.anyString(), Mockito.anyList()))
-          .thenReturn(timeSheets);
+          .thenReturn(timesheets);
       assertThatCode(
               () ->
                   timeSheetService.findCompanyTimeSheetsByIdAndStatus(
@@ -167,12 +167,12 @@ public class TimeSheetServiceTests {
       userIds.add("1");
       final TimePeriod timePeriod = new TimePeriod();
       timePeriod.setId("1");
-      final List<TimeSheet> timeSheets = new ArrayList<>();
-      final TimeSheet timeSheet = new TimeSheet();
-      timeSheets.add(timeSheet);
+      final List<Timesheet> timesheets = new ArrayList<>();
+      final Timesheet timesheet = new Timesheet();
+      timesheets.add(timesheet);
       Mockito.when(timePeriodService.findCompanyCurrentPeriod()).thenReturn(timePeriod);
-      Mockito.when(timeSheetRepository.findAllByTimePeriodIdAndEmployeeId("1", userIds))
-          .thenReturn(timeSheets);
+      Mockito.when(timesheetRepository.findAllByTimePeriodIdAndEmployeeId("1", userIds))
+          .thenReturn(timesheets);
       assertThatCode(() -> timeSheetService.removeUserFromAttendance(userIds))
           .doesNotThrowAnyException();
     }
@@ -182,17 +182,17 @@ public class TimeSheetServiceTests {
   void updateTimesheetStatusByPeriodId() {
     assertThatCode(
             () ->
-                timeSheetRepository.updateTimesheetStatusByPeriodId(
+                timesheetRepository.updateTimesheetStatusByPeriodId(
                     Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
         .doesNotThrowAnyException();
   }
 
   @Test
   void updateCurrentOvertimePolicyByUser() {
-    final TimeSheet timeSheet = new TimeSheet();
+    final Timesheet timesheet = new Timesheet();
     final UserCompensation userCompensation = new UserCompensation();
     userCompensation.setUserId("1");
-    Mockito.when(timeSheetRepository.findCurrentTimesheetByUser("1")).thenReturn(timeSheet);
+    Mockito.when(timesheetRepository.findCurrentTimesheetByUser("1")).thenReturn(timesheet);
     assertThatCode(() -> timeSheetService.updateCurrentOvertimePolicyByUser(userCompensation))
         .doesNotThrowAnyException();
   }

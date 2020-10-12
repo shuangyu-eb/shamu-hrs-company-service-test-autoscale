@@ -7,7 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import shamu.company.attendance.dto.EmployeeOvertimeDetailsDto;
 import shamu.company.attendance.entity.OvertimePolicy;
 import shamu.company.attendance.entity.TimePeriod;
-import shamu.company.attendance.entity.TimeSheet;
+import shamu.company.attendance.entity.Timesheet;
 import shamu.company.attendance.repository.OvertimePolicyRepository;
 import shamu.company.attendance.service.TimePeriodService;
 import shamu.company.attendance.service.TimeSheetService;
@@ -120,26 +120,27 @@ public class UserCompensationService {
         activeUserCompensation -> {
           activeUserCompensation.setEndDate(nowTime);
           save(activeUserCompensation);
-          final Optional<UserCompensation> futureUserCompensation = findFutureUserCompensation(
-                  activeUserCompensation.getUserId());
-          final UserCompensation newUserCompensation = (
-                  futureUserCompensation.map(
-                          this::createNonTaCompensationFromTaCompensation
-                  ).orElseGet(
-                          () -> createNonTaCompensationFromTaCompensation(
-                                  activeUserCompensation)));
+          final Optional<UserCompensation> futureUserCompensation =
+              findFutureUserCompensation(activeUserCompensation.getUserId());
+          final UserCompensation newUserCompensation =
+              (futureUserCompensation
+                  .map(this::createNonTaCompensationFromTaCompensation)
+                  .orElseGet(
+                      () -> createNonTaCompensationFromTaCompensation(activeUserCompensation)));
           futureUserCompensation.ifPresent(this::delete);
-          final JobUser jobUser = jobUserRepository.findByUserId(activeUserCompensation.getUserId());
+          final JobUser jobUser =
+              jobUserRepository.findByUserId(activeUserCompensation.getUserId());
           jobUser.setUserCompensation(newUserCompensation);
           jobUserRepository.save(jobUser);
         });
   }
 
-  private Optional<UserCompensation> findFutureUserCompensation(String userId){
+  private Optional<UserCompensation> findFutureUserCompensation(final String userId) {
     return userCompensationRepository.findFutureCompensationByUserId(userId);
   }
 
-  private UserCompensation createNonTaCompensationFromTaCompensation(UserCompensation taComp){
+  private UserCompensation createNonTaCompensationFromTaCompensation(
+      final UserCompensation taComp) {
     final UserCompensation nonTaCompensation = new UserCompensation();
     BeanUtils.copyProperties(taComp, nonTaCompensation);
     nonTaCompensation.setId(null);
@@ -253,7 +254,7 @@ public class UserCompensationService {
 
   private List<UserCompensation> updateCompensationsByAttendance(
       final List<OldAndNewCompensation> oldAndNewCompensationList) {
-    final List<TimeSheet> timeSheets = new ArrayList<>();
+    final List<Timesheet> timesheets = new ArrayList<>();
     final List<JobUser> jobUsers = new ArrayList<>();
 
     final Timestamp nowTime = new Timestamp(new Date().getTime());
@@ -275,12 +276,12 @@ public class UserCompensationService {
           oldUserCompensation.setEndDate(nowTime);
           oldUserCompensationList.add(oldUserCompensation);
 
-          final TimeSheet timeSheet =
+          final Timesheet timesheet =
               timeSheetService.findCurrentByUseCompensation(oldUserCompensation);
 
-          if (timeSheet != null) {
-            timeSheet.setUserCompensation(savedNewUserCompensation);
-            timeSheets.add(timeSheet);
+          if (timesheet != null) {
+            timesheet.setUserCompensation(savedNewUserCompensation);
+            timesheets.add(timesheet);
           }
 
           final JobUser jobUser = jobUserRepository.findByUserId(oldUserCompensation.getUserId());
@@ -288,7 +289,7 @@ public class UserCompensationService {
         });
 
     jobUserRepository.saveAll(jobUsers);
-    timeSheetService.saveAll(timeSheets);
+    timeSheetService.saveAll(timesheets);
     saveAll(oldUserCompensationList);
     return newUserCompensationList;
   }
@@ -399,7 +400,7 @@ public class UserCompensationService {
       final JobUpdateDto jobUpdateDto, final String userId) {
     final UserCompensation compensation = new UserCompensation();
     final String payTypeName = jobUpdateDto.getPayTypeName();
-    if (payTypeName != null && !payTypeName.equals(NOT_ELIGIBLE)) {
+    if (payTypeName != null && !NOT_ELIGIBLE.equals(payTypeName)) {
       final OvertimePolicy overtimePolicy =
           overtimePolicyRepository.findByPolicyName(OvertimePolicy.NOT_ELIGIBLE_POLICY_NAME);
       compensation.setOvertimePolicy(overtimePolicy);

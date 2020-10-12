@@ -10,7 +10,7 @@ import org.mockito.MockitoAnnotations;
 import shamu.company.attendance.dto.EmployeeOvertimeDetailsDto;
 import shamu.company.attendance.entity.OvertimePolicy;
 import shamu.company.attendance.entity.TimePeriod;
-import shamu.company.attendance.entity.TimeSheet;
+import shamu.company.attendance.entity.Timesheet;
 import shamu.company.attendance.repository.OvertimePolicyRepository;
 import shamu.company.attendance.service.TimePeriodService;
 import shamu.company.attendance.service.TimeSheetService;
@@ -150,7 +150,7 @@ public class UserCompensationServiceTest {
     @Test
     void updateByEditEmployeeOvertimePolicies_shouldSucceed() {
       Mockito.when(timeSheetService.findCurrentByUseCompensation(Mockito.any()))
-          .thenReturn(new TimeSheet());
+          .thenReturn(new Timesheet());
       Mockito.when(userCompensationRepository.findCurrentByUserId(userId))
           .thenReturn(userCompensation);
       Mockito.when(jobUserRepository.findByUserId(Mockito.any())).thenReturn(new JobUser());
@@ -164,7 +164,7 @@ public class UserCompensationServiceTest {
     @Test
     void removeEmployees() {
       Mockito.when(userCompensationRepository.findActiveByUserIdIn(Mockito.any()))
-              .thenReturn(Arrays.asList(userCompensation));
+          .thenReturn(Arrays.asList(userCompensation));
       Mockito.when(jobUserRepository.findByUserId(Mockito.any())).thenReturn(new JobUser());
       assertThatCode(
               () -> userCompensationService.removeUsersFromAttendance((Arrays.asList(userId))))

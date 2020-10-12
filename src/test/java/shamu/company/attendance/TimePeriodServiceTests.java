@@ -8,7 +8,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import shamu.company.attendance.entity.TimePeriod;
-import shamu.company.attendance.entity.TimeSheetPeriodPojo;
+import shamu.company.attendance.entity.TimesheetPeriodPojo;
 import shamu.company.attendance.repository.TimePeriodRepository;
 import shamu.company.attendance.service.TimePeriodService;
 
@@ -34,20 +34,20 @@ public class TimePeriodServiceTests {
     String periodId = "test_period_id";
     String userId = "test_user_id";
     String companyId = "test_company_id";
-    List<TimeSheetPeriodPojo> timeSheetPeriodPojos;
+    List<TimesheetPeriodPojo> timesheetPeriodPojos;
     List<TimePeriod> timePeriodList;
     TimePeriod timePeriod;
 
     @BeforeEach
     void init() {
-      timeSheetPeriodPojos = new ArrayList<>();
+      timesheetPeriodPojos = new ArrayList<>();
       timePeriod = new TimePeriod();
     }
 
     @Test
     void whenUserIdValid_shouldSucceed() {
       Mockito.when(timePeriodRepository.listTimeSheetPeriodsByUser(userId))
-          .thenReturn(timeSheetPeriodPojos);
+          .thenReturn(timesheetPeriodPojos);
       assertThatCode(() -> timePeriodService.listByUser(userId)).doesNotThrowAnyException();
     }
 

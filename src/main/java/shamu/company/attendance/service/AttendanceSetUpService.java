@@ -19,7 +19,7 @@ import shamu.company.attendance.entity.StaticCompanyPayFrequencyType.PayFrequenc
 import shamu.company.attendance.entity.StaticTimesheetStatus;
 import shamu.company.attendance.entity.StaticTimezone;
 import shamu.company.attendance.entity.TimePeriod;
-import shamu.company.attendance.entity.TimeSheet;
+import shamu.company.attendance.entity.Timesheet;
 import shamu.company.attendance.entity.mapper.CompanyTaSettingsMapper;
 import shamu.company.attendance.entity.mapper.EmployeesTaSettingsMapper;
 import shamu.company.attendance.exception.ParseDateException;
@@ -448,29 +448,29 @@ public class AttendanceSetUpService {
       final TimeSheetStatus timeSheetStatus,
       final List<UserCompensation> userCompensationList,
       final boolean needUpdateExisted) {
-    final List<TimeSheet> timeSheets = new ArrayList<>();
+    final List<Timesheet> timesheets = new ArrayList<>();
     final StaticTimesheetStatus timesheetStatus =
         staticTimesheetStatusRepository.findByName(timeSheetStatus.getValue());
     userCompensationList.forEach(
         userCompensation -> {
           final String userId = userCompensation.getUserId();
-          TimeSheet timeSheet = new TimeSheet();
+          Timesheet timesheet = new Timesheet();
           if (needUpdateExisted) {
-            timeSheet =
+            timesheet =
                 timeSheetService
                     .findByPeriodAndUser(newTimePeriod.getId(), userId)
-                    .orElse(new TimeSheet());
-            timeSheet.setRemovedAt(null);
+                    .orElse(new Timesheet());
+            timesheet.setRemovedAt(null);
           }
 
-          timeSheet.setTimePeriod(newTimePeriod);
-          timeSheet.setUserCompensation(userCompensation);
-          timeSheet.setEmployee(new User(userId));
-          timeSheet.setStatus(timesheetStatus);
-          timeSheets.add(timeSheet);
+          timesheet.setTimePeriod(newTimePeriod);
+          timesheet.setUserCompensation(userCompensation);
+          timesheet.setEmployee(new User(userId));
+          timesheet.setStatus(timesheetStatus);
+          timesheets.add(timesheet);
         });
 
-    timeSheetService.saveAll(timeSheets);
+    timeSheetService.saveAll(timesheets);
   }
 
   public TimePeriod getNextPeriod(

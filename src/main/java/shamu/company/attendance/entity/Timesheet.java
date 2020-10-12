@@ -13,7 +13,7 @@ import java.sql.Timestamp;
 @Data
 @Entity
 @Table(name = "timesheets")
-public class TimeSheet extends BaseEntity {
+public class Timesheet extends BaseEntity {
   private static final long serialVersionUID = 8705148089462995423L;
 
   @ManyToOne private User employee;

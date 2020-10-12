@@ -2,7 +2,7 @@ package shamu.company.attendance.entity;
 
 import java.sql.Timestamp;
 
-public interface TimeSheetPeriodPojo {
+public interface TimesheetPeriodPojo {
   String getId();
 
   Timestamp getStartDate();

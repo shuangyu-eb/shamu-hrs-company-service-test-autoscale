@@ -23,7 +23,7 @@ import shamu.company.attendance.entity.StaticEmployeesTaTimeType;
 import shamu.company.attendance.entity.StaticTimesheetStatus;
 import shamu.company.attendance.entity.StaticTimezone;
 import shamu.company.attendance.entity.TimePeriod;
-import shamu.company.attendance.entity.TimeSheet;
+import shamu.company.attendance.entity.Timesheet;
 import shamu.company.attendance.entity.mapper.EmployeeTimeLogMapper;
 import shamu.company.attendance.repository.EmployeeTimeEntryRepository;
 import shamu.company.attendance.repository.EmployeeTimeLogRepository;
@@ -203,22 +203,22 @@ public class AttendanceMyHoursServiceTests {
 
   @Test
   void findAttendanceSummary() {
-    final TimeSheet timeSheet = new TimeSheet();
+    final Timesheet timesheet = new Timesheet();
     final TimePeriod timePeriod = new TimePeriod();
     timePeriod.setStartDate(Timestamp.valueOf(LocalDateTime.parse("2020-07-06T00:00:00")));
     timePeriod.setEndDate(Timestamp.valueOf(LocalDateTime.parse("2020-07-11T00:00:00")));
-    timeSheet.setTimePeriod(timePeriod);
+    timesheet.setTimePeriod(timePeriod);
     final UserCompensation userCompensation = new UserCompensation();
     final CompensationFrequency compensationFrequency = new CompensationFrequency();
     compensationFrequency.setName("Per Hour");
     userCompensation.setCompensationFrequency(compensationFrequency);
     userCompensation.setWageCents(BigInteger.valueOf(10));
-    timeSheet.setUserCompensation(userCompensation);
+    timesheet.setUserCompensation(userCompensation);
     final User user = new User();
     user.setId("1");
     final Company company = new Company();
     company.setId("1");
-    timeSheet.setEmployee(user);
+    timesheet.setEmployee(user);
     final CompanyTaSetting companyTaSetting = new CompanyTaSetting();
     final StaticTimezone staticTimezone = new StaticTimezone();
     staticTimezone.setName("Africa/Abidjan");
@@ -234,9 +234,9 @@ public class AttendanceMyHoursServiceTests {
     employeeTimeLogs.add(employeeTimeLog);
     final long startOfTimesheetWeek =
         DateUtil.getFirstHourOfWeek(
-            timeSheet.getTimePeriod().getStartDate(), companyTaSetting.getTimeZone().getName());
-    final Timestamp timesheetEnd = timeSheet.getTimePeriod().getEndDate();
-    Mockito.when(timeSheetService.findTimeSheetById("1")).thenReturn(timeSheet);
+            timesheet.getTimePeriod().getStartDate(), companyTaSetting.getTimeZone().getName());
+    final Timestamp timesheetEnd = timesheet.getTimePeriod().getEndDate();
+    Mockito.when(timeSheetService.findTimeSheetById("1")).thenReturn(timesheet);
     Mockito.when(attendanceSettingsService.findCompanySetting()).thenReturn(companyTaSetting);
     Mockito.when(
             timeOffRequestService.findTimeOffHoursBetweenWorkPeriod(
@@ -256,15 +256,15 @@ public class AttendanceMyHoursServiceTests {
 
   @Test
   void findUserTimeZone() {
-    final TimeSheet timeSheet = new TimeSheet();
+    final Timesheet timesheet = new Timesheet();
     final User user = new User();
     user.setId("1");
-    timeSheet.setEmployee(user);
+    timesheet.setEmployee(user);
     final EmployeesTaSetting employeesTaSetting = new EmployeesTaSetting();
     final StaticTimezone staticTimezone = new StaticTimezone();
     user.setTimeZone(staticTimezone);
     user.getTimeZone().setName("Africa/Abidjan");
-    Mockito.when(timeSheetService.findTimeSheetById("1")).thenReturn(timeSheet);
+    Mockito.when(timeSheetService.findTimeSheetById("1")).thenReturn(timesheet);
     Mockito.when(userService.findById("1")).thenReturn(user);
     final String timeZone = attendanceMyHoursService.findUserTimeZone("1");
     assertThat(timeZone).isEqualTo("Africa/Abidjan");
@@ -284,7 +284,7 @@ public class AttendanceMyHoursServiceTests {
     overTimeMinutesDtos.add(overTimeMinutesDto);
     overtimeDetailDto.setTotalMinutes(240);
     overtimeDetailDto.setOverTimeMinutesDtos(overTimeMinutesDtos);
-    final TimeSheet timeSheet = new TimeSheet();
+    final Timesheet timesheet = new Timesheet();
     final User user = new User();
     final Company company = new Company();
     company.setId("1");
@@ -292,8 +292,8 @@ public class AttendanceMyHoursServiceTests {
     final TimePeriod timePeriod = new TimePeriod();
     timePeriod.setStartDate(Timestamp.valueOf(LocalDateTime.parse("2020-07-01T01:00:00")));
     timePeriod.setEndDate(Timestamp.valueOf(LocalDateTime.parse("2020-07-08T01:00:00")));
-    timeSheet.setEmployee(user);
-    timeSheet.setTimePeriod(timePeriod);
+    timesheet.setEmployee(user);
+    timesheet.setTimePeriod(timePeriod);
     final StaticTimezone staticTimezone = new StaticTimezone();
     staticTimezone.setName("Asia/Shanghai");
     final CompanyTaSetting companyTaSetting = new CompanyTaSetting();
@@ -320,17 +320,17 @@ public class AttendanceMyHoursServiceTests {
             Timestamp.valueOf(LocalDateTime.parse("2020-07-01T01:00:00")), "Asia" + "/Shanghai");
     localDateEntryDto.setWeek(week);
 
-    Mockito.when(timeSheetService.findTimeSheetById("1")).thenReturn(timeSheet);
+    Mockito.when(timeSheetService.findTimeSheetById("1")).thenReturn(timesheet);
     Mockito.when(attendanceSettingsService.findCompanySetting()).thenReturn(companyTaSetting);
     Mockito.when(
             genericHoursService.findEntriesBetweenDates(
                 timePeriod.getStartDate().getTime(), timePeriod.getEndDate().getTime(), "1", false))
         .thenReturn(employeeTimeLogs);
-    Mockito.when(overtimeService.getLocalDateEntries(timeSheet, companyTaSetting))
+    Mockito.when(overtimeService.getLocalDateEntries(timesheet, companyTaSetting))
         .thenReturn(Collections.singletonList(localDateEntryDto));
     Mockito.when(
             overtimeService.getOvertimeEntries(
-                Collections.singletonList(localDateEntryDto), timeSheet, companyTaSetting))
+                Collections.singletonList(localDateEntryDto), timesheet, companyTaSetting))
         .thenReturn(Collections.singletonList(overtimeDetailDto));
     final List<AllTimeEntryDto> allTimeEntryDtos = attendanceMyHoursService.findAllHours("1");
     assertThat(allTimeEntryDtos.get(0).getComments()).isEqualTo("aaa");
@@ -373,11 +373,11 @@ public class AttendanceMyHoursServiceTests {
 
   @Test
   void findTimesheetStatus() {
-    final TimeSheet timeSheet = new TimeSheet();
+    final Timesheet timesheet = new Timesheet();
     final StaticTimesheetStatus staticTimesheetStatus = new StaticTimesheetStatus();
     staticTimesheetStatus.setName("ACTIVE");
-    timeSheet.setStatus(staticTimesheetStatus);
-    Mockito.when(timeSheetService.findTimeSheetById(Mockito.anyString())).thenReturn(timeSheet);
+    timesheet.setStatus(staticTimesheetStatus);
+    Mockito.when(timeSheetService.findTimeSheetById(Mockito.anyString())).thenReturn(timesheet);
     assertThatCode(() -> attendanceMyHoursService.findTimesheetStatus("1"))
         .doesNotThrowAnyException();
   }
@@ -393,11 +393,11 @@ public class AttendanceMyHoursServiceTests {
     final EmployeesTaSetting employeesTaSetting = new EmployeesTaSetting();
     final TimePeriod timePeriod = new TimePeriod();
     timePeriod.setId("1");
-    final TimeSheet timeSheet = new TimeSheet();
-    timeSheet.setRemovedAt(Timestamp.valueOf(LocalDateTime.parse("2020-07-03T09:00:00")));
+    final Timesheet timesheet = new Timesheet();
+    timesheet.setRemovedAt(Timestamp.valueOf(LocalDateTime.parse("2020-07-03T09:00:00")));
     Mockito.when(employeesTaSettingService.findByUserId("1")).thenReturn(employeesTaSetting);
     Mockito.when(timePeriodService.findCompanyCurrentPeriod()).thenReturn(timePeriod);
-    Mockito.when(timeSheetService.findActiveByPeriodAndUser("1", "1")).thenReturn(timeSheet);
+    Mockito.when(timeSheetService.findActiveByPeriodAndUser("1", "1")).thenReturn(timesheet);
     assertThatCode(() -> attendanceMyHoursService.findUserAttendanceEnrollInfo("1"))
         .doesNotThrowAnyException();
   }

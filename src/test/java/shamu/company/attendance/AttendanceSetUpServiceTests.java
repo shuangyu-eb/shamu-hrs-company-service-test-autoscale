@@ -19,7 +19,7 @@ import shamu.company.attendance.entity.StaticCompanyPayFrequencyType.PayFrequenc
 import shamu.company.attendance.entity.StaticTimesheetStatus;
 import shamu.company.attendance.entity.StaticTimezone;
 import shamu.company.attendance.entity.TimePeriod;
-import shamu.company.attendance.entity.TimeSheet;
+import shamu.company.attendance.entity.Timesheet;
 import shamu.company.attendance.entity.mapper.CompanyTaSettingsMapper;
 import shamu.company.attendance.entity.mapper.EmployeesTaSettingsMapper;
 import shamu.company.attendance.repository.EmployeesTaSettingRepository;
@@ -310,7 +310,7 @@ public class AttendanceSetUpServiceTests {
       final String periodId = "timePeriod_id";
       timePeriod.setId(periodId);
       Mockito.when(timeSheetService.findByPeriodAndUser(periodId, userId))
-          .thenReturn(Optional.of(new TimeSheet()));
+          .thenReturn(Optional.of(new Timesheet()));
       assertThatCode(
               () ->
                   attendanceSetUpService.createTimeSheets(

@@ -18,7 +18,7 @@ import shamu.company.attendance.entity.EmployeeTimeLog;
 import shamu.company.attendance.entity.OvertimePolicy;
 import shamu.company.attendance.entity.PolicyDetail;
 import shamu.company.attendance.entity.StaticTimezone;
-import shamu.company.attendance.entity.TimeSheet;
+import shamu.company.attendance.entity.Timesheet;
 import shamu.company.attendance.entity.mapper.OvertimePolicyMapper;
 import shamu.company.attendance.entity.mapper.PolicyDetailMapper;
 import shamu.company.attendance.exception.PolicyNameExistException;
@@ -81,13 +81,13 @@ public class OvertimeService {
   }
 
   public List<LocalDateEntryDto> getLocalDateEntries(
-      final TimeSheet timeSheet, final CompanyTaSetting companyTaSetting) {
-    final Timestamp timeSheetStart = timeSheet.getTimePeriod().getStartDate();
-    final Timestamp timesheetEnd = timeSheet.getTimePeriod().getEndDate();
+      final Timesheet timesheet, final CompanyTaSetting companyTaSetting) {
+    final Timestamp timeSheetStart = timesheet.getTimePeriod().getStartDate();
+    final Timestamp timesheetEnd = timesheet.getTimePeriod().getEndDate();
     // start of 7th consecutive day
     final long startOfTimesheetWeek =
         DateUtil.getFirstHourOfWeek(timeSheetStart, companyTaSetting.getTimeZone().getName());
-    final String userId = timeSheet.getEmployee().getId();
+    final String userId = timesheet.getEmployee().getId();
     // get hours from start of week through end of period
     final List<EmployeeTimeLog> allEmployeeEntries =
         genericHoursService.findEntriesBetweenDates(
@@ -99,11 +99,11 @@ public class OvertimeService {
 
   public List<OvertimeDetailDto> getOvertimeEntries(
       final List<LocalDateEntryDto> localDateEntries,
-      final TimeSheet timeSheet,
+      final Timesheet timesheet,
       final CompanyTaSetting companyTaSetting) {
-    final Timestamp timeSheetStart = timeSheet.getTimePeriod().getStartDate();
-    final Timestamp timesheetEnd = timeSheet.getTimePeriod().getEndDate();
-    final Map<String, List<OvertimeRuleDto>> overtimeRules = getOvertimeRules(timeSheet);
+    final Timestamp timeSheetStart = timesheet.getTimePeriod().getStartDate();
+    final Timestamp timesheetEnd = timesheet.getTimePeriod().getEndDate();
+    final Map<String, List<OvertimeRuleDto>> overtimeRules = getOvertimeRules(timesheet);
     final List<OvertimeDetailDto> overtimeDetailDtos =
         new OvertimeCalculator().getOvertimePay(localDateEntries, overtimeRules);
     return filterOvertimeEntries(
@@ -146,12 +146,12 @@ public class OvertimeService {
 
   public Map<Double, Integer> findAllOvertimeHours(
       final List<EmployeeTimeLog> workedHours,
-      final TimeSheet timeSheet,
+      final Timesheet timesheet,
       final CompanyTaSetting companyTaSetting) {
     final List<LocalDateEntryDto> localDateEntryDtos =
         TimeEntryUtils.transformTimeLogsToLocalDate(workedHours, companyTaSetting.getTimeZone());
     final List<OvertimeDetailDto> overtimeDetailDtos =
-        getOvertimeEntries(localDateEntryDtos, timeSheet, companyTaSetting);
+        getOvertimeEntries(localDateEntryDtos, timesheet, companyTaSetting);
     final Map<Double, Integer> rateToMin = new HashMap<>();
     overtimeDetailDtos.forEach(
         overtimeDetailDto -> {
@@ -286,8 +286,8 @@ public class OvertimeService {
     overtimePolicyRepository.softDeleteOvertimePolicy(policyId);
   }
 
-  public Map<String, List<OvertimeRuleDto>> getOvertimeRules(final TimeSheet timeSheet) {
-    final OvertimePolicy overtimePolicy = timeSheet.getUserCompensation().getOvertimePolicy();
+  public Map<String, List<OvertimeRuleDto>> getOvertimeRules(final Timesheet timesheet) {
+    final OvertimePolicy overtimePolicy = timesheet.getUserCompensation().getOvertimePolicy();
     final List<PolicyDetail> policyDetails =
         policyDetailRepository.findAllByOvertimePolicyId(overtimePolicy.getId());
     final Map<String, List<OvertimeRuleDto>> otRules = new HashMap<>();
@@ -341,7 +341,7 @@ public class OvertimeService {
   public List<UserCompensation> createEmployeeOvertimePolicies(
       final List<EmployeeOvertimeDetailsDto> overtimeDetailsDtoList, final Date startDate) {
     saveHireDates(overtimeDetailsDtoList);
-      return userCompensationService.updateByCreateEmployeeOvertimePolicies(
+    return userCompensationService.updateByCreateEmployeeOvertimePolicies(
         overtimeDetailsDtoList, startDate);
   }
 
