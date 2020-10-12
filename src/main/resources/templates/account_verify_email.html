@@ -4,7 +4,8 @@
   <meta content="text/html; charset=UTF-8" http-equiv="Content-Type"/>
 </head>
 <body>
-<div align="center" style="background-color: #f0f2f5; padding-bottom: 119px; padding-top: 58px; width: 100%;">
+<div align="center"
+     th:style="'background-color: ' + ${isIndeedENV ? '#f3f2f1' : '#f0f2f5'} + ';padding-bottom: 119px; padding-top: 58px; width: 100%;'">
   <table style="width: 600px; margin-left: auto; margin-right: auto;">
     <tr>
       <td style="width: 189px; height: 50px; display: block; margin: 10px auto 10px auto;">
@@ -17,7 +18,7 @@
   <table
       style="background-color: #FFFFFF; padding: 20px;width: 600px; margin-left: auto; margin-right: auto;">
     <tr>
-      <td style="font-size: 24px; line-height: 1.38; color: #2e3033; text-align: center; padding-top: 10px; padding-bottom: 20px;">
+      <td th:style="${isIndeedENV ? 'color: #2d2d2d;' : 'color: #2e3033; '} + 'font-size: 24px; line-height: 1.38;text-align: center; padding-top: 10px; padding-bottom: 20px;'">
         Welcome to the <span th:text="${isIndeedENV ? 'Indeed':'SimplyHired'}"></span> HRIS!
       </td>
     </tr>
@@ -30,7 +31,7 @@
     </tr>
     <tr>
       <td style="display: block; margin: 20px auto 10px auto; width: 100%;">
-        <a style="text-decoration: none; padding: 10px 20px; border-radius: 20px; background: #0075DF; border: 1px solid transparent;cursor: pointer; display: block; width: 150px; margin-left: auto; margin-right: auto;font-size: 14px; font-weight: 500; line-height: 1.17; letter-spacing: .2px; color: #ffffff; text-align: center;"
+        <a th:style="${isIndeedENV ? 'width: 174px;height:52px;background-color:#2557A7;border-radius:8px;font-size:16px;font-weight:bold;line-height:319.5%;padding: unset;' : 'border: 1px solid transparent;background-color: #0075DF; width: 150px; height: 40px; font-size: 14px; border-radius: 20px; line-height: 1.17;letter-spacing: .2px;margin-left: auto; margin-right: auto;font-weight:500;padding: 10px 20px;'} + 'color: #ffffff; outline: none; box-shadow: none; border: 0;display: inline-block; text-decoration: none;cursor: pointer;'"
            th:href="@{${accountVerifyAddress}}">
           Confirm your email
         </a>
