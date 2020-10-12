@@ -151,12 +151,17 @@ public class UserCompensationService {
   }
 
   @Transactional
-  public List<UserCompensation> updateByEditEmployeeOvertimePolicies(
+  public void updateByEditEmployeeOvertimePolicies(
       final List<EmployeeOvertimeDetailsDto> overtimeDetailsDtoList) {
     final ArrayList<UserCompensation> newCompensations = new ArrayList<>();
     for (final EmployeeOvertimeDetailsDto employeeOvertimeDetailsDto : overtimeDetailsDtoList) {
       final UserCompensation currentCompensation =
           findCurrentByUserId(employeeOvertimeDetailsDto.getEmployeeId());
+
+      if (!compensationOrPolicyChanged(employeeOvertimeDetailsDto)) {
+        return;
+      }
+
       final Date startDate = new Date();
       final UserCompensation newCompensation =
           assembleFromEmployeeOvertimeDetailsDto(
@@ -173,8 +178,21 @@ public class UserCompensationService {
       jobUser.setUserCompensation(newCompensation);
       deleteAll(futureCompensations);
     }
+  }
 
-    return newCompensations;
+  private boolean compensationOrPolicyChanged(
+      final EmployeeOvertimeDetailsDto employeeOvertimeDetailsDto) {
+    final UserCompensation userCompensation =
+        userCompensationRepository.findStartNumberNLatestByUserId(
+            0, employeeOvertimeDetailsDto.getEmployeeId());
+
+    return compensationPaymentChanged(
+            userCompensation,
+            employeeOvertimeDetailsDto.getRegularPay(),
+            employeeOvertimeDetailsDto.getCompensationUnit())
+        || !employeeOvertimeDetailsDto
+            .getOvertimePolicy()
+            .equals(userCompensation.getOvertimePolicy().getPolicyName());
   }
 
   private List<UserCompensation> findAllFutureCompensations(final String employeeId) {

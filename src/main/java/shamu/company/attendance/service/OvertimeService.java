@@ -331,11 +331,10 @@ public class OvertimeService {
     return overtimePolicyRepository.findAllPolicyNames();
   }
 
-  public List<UserCompensation> updateEmployeeOvertimePolicies(
+  public void updateEmployeeOvertimePolicies(
       final List<EmployeeOvertimeDetailsDto> employeeOvertimeDetailsDtoList) {
     saveHireDates(employeeOvertimeDetailsDtoList);
-    return userCompensationService.updateByEditEmployeeOvertimePolicies(
-        employeeOvertimeDetailsDtoList);
+    userCompensationService.updateByEditEmployeeOvertimePolicies(employeeOvertimeDetailsDtoList);
   }
 
   public List<UserCompensation> createEmployeeOvertimePolicies(
