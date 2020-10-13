@@ -17,4 +17,6 @@ public class TimeOffPolicyFrontendDto {
   private String timeOffAccrualFrequency;
 
   private Boolean isAutoEnrolled;
+
+  private Boolean isSickLeavePolicy;
 }

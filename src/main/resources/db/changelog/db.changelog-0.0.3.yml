@@ -301,3 +301,14 @@ databaseChangeLog:
       changes:
         - sql:
             sql: rename table time_period to time_periods;
+
+  - changeSet:
+      id: 1602493020363-0
+      author: xujiansheng-eb
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: is_sick_leave_policy
+                  type: BIT(1)
+            tableName: time_off_policies

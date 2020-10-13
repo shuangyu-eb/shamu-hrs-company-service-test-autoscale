@@ -24,6 +24,8 @@ public class TimeOffPolicy extends BaseEntity {
 
   private Boolean isAutoEnrollEnabled;
 
+  private Boolean isSickLeavePolicy;
+
   public TimeOffPolicy(final String id) {
     setId(id);
   }

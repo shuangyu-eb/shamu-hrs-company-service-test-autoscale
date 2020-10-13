@@ -36,6 +36,8 @@ public class TimeOffPolicyRelatedInfoDto {
 
   private Boolean isAutoEnrolled;
 
+  private Boolean isSickLeavePolicy;
+
   public TimeOffPolicyRelatedInfoDto(
       final TimeOffPolicy timeOffPolicy,
       final TimeOffPolicyAccrualSchedule timeOffPolicyAccrualSchedule,
@@ -44,6 +46,7 @@ public class TimeOffPolicyRelatedInfoDto {
     policyName = timeOffPolicy.getName();
     isLimited = timeOffPolicy.getIsLimited();
     isAutoEnrolled = timeOffPolicy.getIsAutoEnrollEnabled();
+    isSickLeavePolicy = timeOffPolicy.getIsSickLeavePolicy();
     if (timeOffPolicyAccrualSchedule != null) {
       startDate = timeOffPolicyAccrualSchedule.getDaysBeforeAccrualStarts();
       timeOffAccrualFrequency = timeOffPolicyAccrualSchedule.getTimeOffAccrualFrequency().getId();

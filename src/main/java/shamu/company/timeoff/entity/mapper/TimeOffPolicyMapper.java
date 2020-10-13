@@ -35,6 +35,7 @@ public interface TimeOffPolicyMapper {
   @Mapping(target = "policyName", source = "timeOffPolicy.name")
   @Mapping(target = "isLimited", source = "timeOffPolicy.isLimited")
   @Mapping(target = "isAutoEnrolled", source = "timeOffPolicy.isAutoEnrollEnabled")
+  @Mapping(target = "isSickLeavePolicy",source = "timeOffPolicy.isSickLeavePolicy")
   @Mapping(target = "startDate", source = "timeOffPolicyAccrualSchedule.daysBeforeAccrualStarts")
   @Mapping(
       target = "timeOffAccrualFrequency",
