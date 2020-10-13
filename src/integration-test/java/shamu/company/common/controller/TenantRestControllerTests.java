@@ -22,18 +22,18 @@ public class TenantRestControllerTests extends WebControllerBaseTests {
     final String id = UuidUtil.getUuidString().toUpperCase();
     final MvcResult response =
         mockMvc
-            .perform(MockMvcRequestBuilders.post("/company/tenant/" + id).headers(httpHeaders))
+            .perform(MockMvcRequestBuilders.post("/company/tenants/" + id).headers(httpHeaders))
             .andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
   }
 
   @Test
   void whenHoldLambdaToken_thenShouldForbidden() throws Exception {
-    httpHeaders.set("X-Tenant-Lambda-Token", "${lambda.token}");
+    httpHeaders.set("X-Tenant-Lambda-Token", "${aws.lambda.tenant-endpoint-token}");
     final String id = UuidUtil.getUuidString().toUpperCase();
     final MvcResult response =
         mockMvc
-            .perform(MockMvcRequestBuilders.post("/company/tenant/" + id).headers(httpHeaders))
+            .perform(MockMvcRequestBuilders.post("/company/tenants/" + id).headers(httpHeaders))
             .andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }

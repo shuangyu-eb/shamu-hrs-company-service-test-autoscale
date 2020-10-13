@@ -109,7 +109,6 @@ public class UserRestController extends BaseRestController {
       liquibaseManager.addSchema(companyId, signUpDto.getCompanyName());
       TenantContext.withInTenant(companyId, () -> userService.signUp(signUpDto, userId));
     } catch (final Exception e) {
-      tenantService.deleteTenant(companyId);
       auth0Helper.deleteUser(auth0User.getId());
       throw new SignUpFailedException("Sign up failed.", e);
     }
@@ -133,7 +132,6 @@ public class UserRestController extends BaseRestController {
       TenantContext.withInTenant(
           companyId, () -> emailService.sendVerificationEmail(indeedUserDto.getEmail(), userId));
     } catch (final Exception e) {
-      tenantService.deleteTenant(companyId);
       auth0Helper.deleteUser(auth0User.getId());
       throw new SignUpFailedException("Sign up failed.", e);
     }
