@@ -109,7 +109,7 @@ public class AttendanceMyHoursController extends BaseRestController {
   @DeleteMapping("time-and-attendance/my-hours/time-entry/{entryId}")
   @PreAuthorize("hasPermission(#entryId,'ATTENDANCE_ENTRY', 'MANAGE_EMPLOYEES')")
   public void deleteMyHourEntry(@PathVariable final String entryId) {
-    attendanceMyHoursService.deleteMyHourEntry(entryId);
+    attendanceMyHoursService.deleteMyHourEntry(entryId, findUserId());
   }
 
   @GetMapping("time-and-attendance/user-in-attendance/{userId}")

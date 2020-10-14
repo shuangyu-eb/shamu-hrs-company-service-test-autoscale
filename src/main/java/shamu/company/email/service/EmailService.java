@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.Context;
 import shamu.company.attendance.entity.EmployeeTimeLog;
+import shamu.company.attendance.entity.StaticEmployeesTaTimeType;
+import shamu.company.attendance.utils.TimeEntryUtils;
 import shamu.company.common.entity.Tenant;
 import shamu.company.common.exception.errormapping.ResourceNotFoundException;
 import shamu.company.common.multitenant.TenantContext;
@@ -59,6 +61,14 @@ public class EmailService {
   private static final String CONTENT_TEXT = "contentText";
   private static final String BUTTON_TEXT = "buttonText";
   private static final String IS_INDEED_ENV = "isIndeedENV";
+  private static final String COLOR = "color";
+  private static final String FONT_STYLE = "fontStyle";
+  private static final String DATE = "date";
+  private static final String ORIGINAL_TIME_LOGS = "originalTimeLogs";
+  private static final String EDITED_TIME_LOGS = "editedTimeLogs";
+  private static final String TEXT = "text";
+  private static final String MANAGER_NAME = "managerName";
+  private static final int MS_OF_ONE_MINUTE = 60 * 1000;
 
   public enum EmailNotification {
     SUBMIT_TIME_SHEET(
@@ -659,19 +669,52 @@ public class EmailService {
 
     final Calendar calendarDate = DateUtil.getCalendarInstance(date.getTime(), timezone);
 
-    String operationDesc = "hours have been edited.";
-    if (originalTimeLogs.size() == 0) {
-      operationDesc = "hours have been added.";
-    } else if (editedTimeLogs.size() == 0) {
-      operationDesc = "hours have been deleted.";
-    }
-
-    parameters.put("managerName", manager.getUserPersonalInformation().getName());
+    parameters.put(MANAGER_NAME, manager.getUserPersonalInformation().getName());
     parameters.put(
-        "date",
-        DateUtil.formatCalendar(calendarDate, DateUtil.DAY_OF_WEEK_SIMPLE_MONTH_DAY_YEAR)
-            + " "
-            + operationDesc);
+        DATE, DateUtil.formatCalendar(calendarDate, DateUtil.DAY_OF_WEEK_SIMPLE_MONTH_DAY_YEAR));
+    parameters.put(ORIGINAL_TIME_LOGS, assembleTimeLogString(originalTimeLogs, timezone));
+    parameters.put(EDITED_TIME_LOGS, assembleTimeLogString(editedTimeLogs, timezone));
     return parameters;
+  }
+
+  private List<Map<String, Object>> assembleTimeLogString(
+      final List<EmployeeTimeLog> employeeTimeLogs, final String timeZone) {
+
+    final List<Map<String, Object>> timeLogList = new ArrayList<>();
+    employeeTimeLogs.sort(TimeEntryUtils.compareByLogStartDate);
+    employeeTimeLogs.forEach(
+        employeeTimeLog -> {
+          final Map<String, Object> timeLog = new HashMap<>();
+          final long startTimeStamp = employeeTimeLog.getStart().getTime();
+          final long endTimeStamp =
+              startTimeStamp + employeeTimeLog.getDurationMin() * MS_OF_ONE_MINUTE;
+          final Calendar startCalendar = DateUtil.getCalendarInstance(startTimeStamp, timeZone);
+          final Calendar endCalendar = DateUtil.getCalendarInstance(endTimeStamp, timeZone);
+
+          final String timeLogString =
+              DateUtil.formatCalendar(startCalendar, DateUtil.HOUR_MINUTE)
+                  + " - "
+                  + DateUtil.formatCalendar(endCalendar, DateUtil.HOUR_MINUTE);
+          timeLog.put(TEXT, timeLogString);
+
+          final boolean isBreakLog =
+              StaticEmployeesTaTimeType.TimeType.BREAK
+                  .name()
+                  .equals(employeeTimeLog.getTimeType().getName());
+          final String greyColor = "#7b7e84";
+          final String blackColor = "black";
+          final String italicFontStyle = "italic";
+          final String normalFontStyle = "normal";
+          if (isBreakLog) {
+            timeLog.put(COLOR, greyColor);
+            timeLog.put(FONT_STYLE, italicFontStyle);
+          } else {
+            timeLog.put(COLOR, blackColor);
+            timeLog.put(FONT_STYLE, normalFontStyle);
+          }
+
+          timeLogList.add(timeLog);
+        });
+    return timeLogList;
   }
 }

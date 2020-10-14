@@ -134,11 +134,9 @@ public class AttendanceMyHoursService {
     final EmployeeTimeEntry savedEntry = employeeTimeEntryService.saveEntry(employeeTimeEntry);
     final List<EmployeeTimeLog> editedTimeLogs = saveTimeLogs(timeEntryDto, savedEntry);
 
-    if (!userId.equals(employeeId)) {
-      final User user = userService.findById(userId);
-      sendHoursEditedByManagerEmail(
-          user, employee, timeEntryDto.getStartTime(), employeeTimeLogs, editedTimeLogs);
-    }
+    final User user = userService.findById(userId);
+    sendHoursEditedByManagerEmail(
+        user, employee, timeEntryDto.getStartTime(), employeeTimeLogs, editedTimeLogs);
   }
 
   private void sendHoursEditedByManagerEmail(
@@ -147,6 +145,11 @@ public class AttendanceMyHoursService {
       final Timestamp date,
       final List<EmployeeTimeLog> originalTimeLogs,
       final List<EmployeeTimeLog> editedTimeLogs) {
+    final boolean editSelf = fromUser.getId().equals(toUser.getId());
+    if (editSelf || areSameLogs(originalTimeLogs, editedTimeLogs)) {
+      return;
+    }
+
     final EmployeesTaSettingDto employeesSetting =
         attendanceSettingsService.findEmployeesSettings(toUser.getId());
 
@@ -161,6 +164,15 @@ public class AttendanceMyHoursService {
             originalTimeLogs,
             editedTimeLogs),
         new Timestamp(new Date().getTime()));
+  }
+
+  private boolean areSameLogs(
+      final List<EmployeeTimeLog> listA, final List<EmployeeTimeLog> listB) {
+    if (listA.size() != listB.size()) {
+      return false;
+    }
+
+    return listA.stream().allMatch(listB::contains);
   }
 
   private List<EmployeeTimeLog> saveTimeLogs(
@@ -442,7 +454,18 @@ public class AttendanceMyHoursService {
     return timeSheetService.findTimeSheetById(timesheetId).getStatus().getName();
   }
 
-  public void deleteMyHourEntry(final String entryId) {
+  public void deleteMyHourEntry(final String entryId, final String userId) {
+    final EmployeeTimeEntry employeeTimeEntry = employeeTimeEntryService.findById(entryId);
+    final List<EmployeeTimeLog> employeeTimeLogs =
+        employeeTimeLogRepository.findAllByEntryId(entryId);
+    final User user = userService.findById(userId);
+
+    sendHoursEditedByManagerEmail(
+        user,
+        employeeTimeEntry.getEmployee(),
+        employeeTimeLogs.get(0).getStart(),
+        employeeTimeLogs,
+        new ArrayList<>());
     employeeTimeEntryService.deleteMyHourEntry(entryId);
   }
 

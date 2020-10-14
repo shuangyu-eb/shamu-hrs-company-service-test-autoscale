@@ -16,43 +16,47 @@
     </table>
     <table style="background-color: #FFFFFF; padding: 20px;width: 600px; margin-left: auto; margin-right: auto;">
         <tr style="display:flex;">
-            <td style="font-size: 24px; line-height: 1.38; color: #2e3033; text-align: center; padding-top: 10px; padding-bottom: 20px; width: 100%;">
+            <td style="font-size: 24px; line-height: 1.4; color: #2e3033; text-align: center; padding-top: 10px; padding-bottom: 20px; width: 100%;">
                 Your Hours Have Been Edited
             </td>
         </tr>
         <tr style="display:flex;">
-            <td style="font-size: 16px; line-height: 1.38; color: #7b7e84; text-align: center; width: 100%;">
+            <td style="font-size: 16px; line-height: 1.4; color: #7b7e84; text-align: center; width: 100%; margin-bottom: 10px;">
                 <span th:text="${managerName} + ' has edited your attendance hours, the changes are reflected below:'"></span>
             </td>
         </tr>
         <tr style="display:flex;">
-            <td style="font-size: 16px; line-height: 1.38; color: #7b7e84; text-align: center; width: 100%;">
+            <td style="font-size: 16px; text-align: center; width: 40%;">
                 <span th:text="${date}"></span>
             </td>
-            <!--            <td>-->
-            <!--                <table>-->
-            <!--                    <tr th:each="originalTimeLog: ${originalTimeLogs}">-->
-            <!--                        <td th:text="${originalTimeLog.text}"-->
-            <!--                            th:style="'font-size: 16px; line-height: 1.38; text-align: center; color: ' + ${originalTimeLog.color} + ';'"></td>-->
-            <!--                    </tr>-->
-            <!--                </table>-->
-            <!--            </td>-->
-            <!--            <td>-->
-            <!--                <table>-->
-            <!--                    <tr th:each="editedTimeLog: ${editedTimeLogs}">-->
-            <!--                        <td th:text="${editedTimeLog.text}"-->
-            <!--                            th:style="'font-size: 16px; line-height: 1.38; text-align: center; color: ' + ${editedTimeLog.color} + ';'"></td>-->
-            <!--                    </tr>-->
-            <!--                </table>-->
-            <!--            </td>-->
-            <!--            <td th:unless="${#lists.isEmpty(originalTimeLogs)}"-->
-            <!--                style="font-size: 16px; line-height: 1.38; color: #7b7e84; text-align: center; display: flex; align-items: center;">-->
-            <!--                <span>have been added</span>-->
-            <!--            </td>-->
-            <!--            <td th:unless="${#lists.isEmpty(editedTimeLogs)}"-->
-            <!--                style="font-size: 16px; line-height: 1.38; color: #7b7e84; text-align: center; display: flex; align-items: center;">-->
-            <!--                <span>have been removed</span>-->
-            <!--            </td>-->
+            <td>
+                <table>
+                    <tr th:each="originalTimeLog: ${originalTimeLogs}">
+                        <td th:text="${originalTimeLog.text}"
+                            th:style="'font-size: 16px; line-height: 1.38; text-align: center; color: ' + ${originalTimeLog.color} + '; font-style: ' + ${originalTimeLog.fontStyle} + ';'"></td>
+                    </tr>
+                </table>
+            </td>
+            <td th:unless="${#lists.isEmpty(originalTimeLogs) || #lists.isEmpty(editedTimeLogs)}"
+                style="font-size: 16px; line-height: 1.4; color: #7b7e84; text-align: center; display: flex; margin: 0 auto;">
+                <span>>>>></span>
+            </td>
+            <td>
+                <table>
+                    <tr th:each="editedTimeLog: ${editedTimeLogs}">
+                        <td th:text="${editedTimeLog.text}"
+                            th:style="'font-size: 16px; line-height: 1.38; text-align: center; color: ' + ${editedTimeLog.color} + '; font-style: ' + ${editedTimeLog.fontStyle} + ';'"></td>
+                    </tr>
+                </table>
+            </td>
+            <td th:if="${#lists.isEmpty(originalTimeLogs)}"
+                style="font-size: 16px; line-height: 1.4; color: #7b7e84; text-align: center; display: flex; align-items: center;">
+                <span>have been added</span>
+            </td>
+            <td th:if="${#lists.isEmpty(editedTimeLogs)}"
+                style="font-size: 16px; line-height: 1.38; color: #7b7e84; text-align: center; display: flex; align-items: center;">
+                <span>have been removed</span>
+            </td>
         </tr>
         <tr style="display:flex;">
             <td style="display: block; margin: 20px auto 10px auto; width: 100%;">

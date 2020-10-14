@@ -52,6 +52,7 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -152,6 +153,7 @@ public class AttendanceMyHoursServiceTests {
       timeEntryDto.setMinutesWorked(1);
       staticTimezone.setName("Hongkong");
       employeesTaSetting.setTimeZone(staticTimezone);
+      user.setId("1");
       Mockito.when(userService.findById("1")).thenReturn(user);
       Mockito.when(employeeTimeEntryRepository.save(Mockito.any())).thenReturn(employeeTimeEntry);
       Mockito.when(
@@ -169,6 +171,7 @@ public class AttendanceMyHoursServiceTests {
       timeEntryDto.setHoursWorked(1);
       timeEntryDto.setMinutesWorked(1);
       timeEntryDto.setBreakTimeLogs(breakTimeLogDtos);
+      Mockito.when(userService.findById("1")).thenReturn(user);
       assertThatCode(() -> attendanceMyHoursService.saveTimeEntry("1", timeEntryDto, "1"))
           .doesNotThrowAnyException();
     }
@@ -182,7 +185,8 @@ public class AttendanceMyHoursServiceTests {
       timeEntryDto.setBreakTimeLogs(breakTimeLogDtos);
       Mockito.when(attendanceSettingsService.findEmployeesSettings(Mockito.any()))
           .thenReturn(employeesTaSetting);
-      assertThatCode(() -> attendanceMyHoursService.saveTimeEntry("1", timeEntryDto, "2"))
+      Mockito.when(userService.findById("1")).thenReturn(user);
+      assertThatCode(() -> attendanceMyHoursService.saveTimeEntry("1", timeEntryDto, "1"))
           .doesNotThrowAnyException();
     }
 
@@ -194,9 +198,10 @@ public class AttendanceMyHoursServiceTests {
       breakTimeLogDtos.add(breakTimeLogDto);
       timeEntryDto.setBreakTimeLogs(breakTimeLogDtos);
 
+      Mockito.when(userService.findById("1")).thenReturn(user);
       Mockito.when(attendanceSettingsService.findEmployeesSettings(Mockito.any()))
           .thenReturn(employeesTaSetting);
-      assertThatCode(() -> attendanceMyHoursService.saveTimeEntry("1", timeEntryDto, "2"))
+      assertThatCode(() -> attendanceMyHoursService.saveTimeEntry("1", timeEntryDto, "1"))
           .doesNotThrowAnyException();
     }
   }
@@ -384,7 +389,19 @@ public class AttendanceMyHoursServiceTests {
 
   @Test
   void deleteMyHourEntry() {
-    assertThatCode(() -> attendanceMyHoursService.deleteMyHourEntry("1"))
+    final User user = new User();
+    user.setId("user_id");
+
+    final EmployeeTimeEntry employeeTimeEntry = new EmployeeTimeEntry();
+    employeeTimeEntry.setEmployee(user);
+
+    final EmployeeTimeLog employeeTimeLog = new EmployeeTimeLog();
+    employeeTimeLog.setStart(new Timestamp(new Date().getTime()));
+    Mockito.when(employeeTimeEntryService.findById("1")).thenReturn(employeeTimeEntry);
+    Mockito.when(employeeTimeLogRepository.findAllByEntryId("1"))
+        .thenReturn(Arrays.asList(employeeTimeLog));
+    Mockito.when(userService.findById("user_id")).thenReturn(user);
+    assertThatCode(() -> attendanceMyHoursService.deleteMyHourEntry("1", "user_id"))
         .doesNotThrowAnyException();
   }
 

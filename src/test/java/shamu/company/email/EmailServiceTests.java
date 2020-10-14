@@ -10,6 +10,7 @@ import org.powermock.reflect.Whitebox;
 import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.Context;
 import shamu.company.attendance.entity.EmployeeTimeLog;
+import shamu.company.attendance.entity.StaticEmployeesTaTimeType;
 import shamu.company.common.entity.Tenant;
 import shamu.company.common.service.TenantService;
 import shamu.company.company.entity.Company;
@@ -474,6 +475,11 @@ class EmailServiceTests {
       user.setUserPersonalInformation(userPersonalInformation);
       user.setUserContactInformation(userContactInformation);
       email.setSendDate(sendDate);
+      employeeTimeLog.setStart(new Timestamp(new Date().getTime()));
+      employeeTimeLog.setDurationMin(10);
+      final StaticEmployeesTaTimeType staticEmployeesTaTimeType = new StaticEmployeesTaTimeType();
+      staticEmployeesTaTimeType.setName("a");
+      employeeTimeLog.setTimeType(staticEmployeesTaTimeType);
     }
 
     @Test
