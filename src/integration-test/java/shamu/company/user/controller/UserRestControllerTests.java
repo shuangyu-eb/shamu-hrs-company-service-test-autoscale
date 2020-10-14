@@ -59,7 +59,8 @@ public class UserRestControllerTests extends WebControllerBaseTests {
 
     final com.auth0.json.mgmt.users.User auth0User = new com.auth0.json.mgmt.users.User();
     auth0User.setAppMetadata(new HashMap<>());
-    given(auth0Helper.updateAuthUserAppMetaData(Mockito.any()))
+    given(dynamoDBManager.getExistsCompanyId()).willReturn(UuidUtil.getUuidString().toUpperCase());
+    given(auth0Helper.updateAuthUserAppMetaData(Mockito.any(), Mockito.anyString()))
         .willReturn(auth0User);
 
     final MvcResult response =
@@ -80,16 +81,17 @@ public class UserRestControllerTests extends WebControllerBaseTests {
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
     final com.auth0.json.mgmt.users.User auth0User = new com.auth0.json.mgmt.users.User();
     auth0User.setAppMetadata(new HashMap<>());
-    given(auth0Helper.updateAuthUserAppMetaData(Mockito.any()))
-            .willReturn(auth0User);
+    given(dynamoDBManager.getExistsCompanyId()).willReturn(UuidUtil.getUuidString().toUpperCase());
+    given(auth0Helper.updateAuthUserAppMetaData(Mockito.any(), Mockito.anyString()))
+        .willReturn(auth0User);
     final MvcResult response =
-            mockMvc
-                    .perform(
-                            MockMvcRequestBuilders.post("/company/users/indeed-verification-email")
-                                    .contentType(MediaType.APPLICATION_JSON)
-                                    .headers(httpHeaders)
-                                    .content(JsonUtil.formatToString(new IndeedUserDto())))
-                    .andReturn();
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.post("/company/users/indeed-verification-email")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .headers(httpHeaders)
+                    .content(JsonUtil.formatToString(new IndeedUserDto())))
+            .andReturn();
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
@@ -100,13 +102,13 @@ public class UserRestControllerTests extends WebControllerBaseTests {
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
     final String companyId = UuidUtil.getUuidString();
     final MvcResult response =
-            mockMvc
-                    .perform(
-                            MockMvcRequestBuilders.post("/company/indeed-users/" + companyId)
-                                    .contentType(MediaType.APPLICATION_JSON)
-                                    .headers(httpHeaders)
-                                    .content(JsonUtil.formatToString(new IndeedUserDto())))
-                    .andReturn();
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.post("/company/indeed-users/" + companyId)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .headers(httpHeaders)
+                    .content(JsonUtil.formatToString(new IndeedUserDto())))
+            .andReturn();
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
@@ -423,7 +425,8 @@ public class UserRestControllerTests extends WebControllerBaseTests {
 
     final CurrentUserDto userDto = new CurrentUserDto();
     userDto.setId(getAuthUser().getId());
-    given(userService.getCurrentUserInfo(Mockito.anyString(), Mockito.anyString())).willReturn(userDto);
+    given(userService.getCurrentUserInfo(Mockito.anyString(), Mockito.anyString()))
+        .willReturn(userDto);
 
     final MvcResult response =
         mockMvc
@@ -431,7 +434,8 @@ public class UserRestControllerTests extends WebControllerBaseTests {
             .andReturn();
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
-    Mockito.verify(userService, Mockito.times(1)).getCurrentUserInfo(Mockito.anyString(), Mockito.anyString());
+    Mockito.verify(userService, Mockito.times(1))
+        .getCurrentUserInfo(Mockito.anyString(), Mockito.anyString());
   }
 
   @Test

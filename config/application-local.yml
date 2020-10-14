@@ -44,6 +44,11 @@ cloud:
 aws:
   bucketName: simplyhired-hrs-eastbay-dev-company
   folder: media-local
+  lambda:
+    tenant-endpoint-token: #{any string}
+  dynamodb:
+    # This value just used to help local env start up successfully, the dynamodb table is an empty table
+    table: local-unassigned-tenants
 
 
 crypto:

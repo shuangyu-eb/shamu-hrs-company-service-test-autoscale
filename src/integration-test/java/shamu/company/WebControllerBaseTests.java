@@ -41,8 +41,8 @@ import shamu.company.common.service.PayrollDetailService;
 import shamu.company.common.service.TenantService;
 import shamu.company.company.entity.Company;
 import shamu.company.company.service.CompanyService;
-import shamu.company.helpers.DynamoDBHelper;
 import shamu.company.helpers.auth0.Auth0Helper;
+import shamu.company.helpers.dynamodb.DynamoDBManager;
 import shamu.company.info.entity.mapper.UserEmergencyContactMapper;
 import shamu.company.info.service.UserEmergencyContactService;
 import shamu.company.job.service.JobService;
@@ -103,7 +103,7 @@ public class WebControllerBaseTests {
   @MockBean protected OvertimeService overtimeService;
   @MockBean protected TimeSheetService timeSheetService;
   @MockBean protected EmployeeTimeEntryService employeeTimeEntryService;
-  @MockBean protected DynamoDBHelper dynamoDBHelper;
+  @MockBean protected DynamoDBManager dynamoDBManager;
 
   protected HttpHeaders httpHeaders;
 

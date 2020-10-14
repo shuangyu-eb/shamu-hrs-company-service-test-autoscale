@@ -34,6 +34,7 @@ import shamu.company.email.service.EmailService;
 import shamu.company.employee.dto.EmailUpdateDto;
 import shamu.company.helpers.auth0.Auth0Helper;
 import shamu.company.helpers.auth0.exception.SignUpFailedException;
+import shamu.company.helpers.dynamodb.DynamoDBManager;
 import shamu.company.user.dto.AccountInfoDto;
 import shamu.company.user.dto.ChangePasswordDto;
 import shamu.company.user.dto.CurrentUserDto;
@@ -69,6 +70,8 @@ public class UserRestController extends BaseRestController {
 
   private final LiquibaseManager liquibaseManager;
 
+  private final DynamoDBManager dynamoDBManager;
+
   private static final String MOCK_USER_HEADER = "X-Mock-To";
 
   public UserRestController(
@@ -78,7 +81,8 @@ public class UserRestController extends BaseRestController {
       final CompanyService companyService,
       final TenantService tenantService,
       final Auth0Helper auth0Helper,
-      final LiquibaseManager liquibaseManager) {
+      final LiquibaseManager liquibaseManager,
+      final DynamoDBManager dynamoDBManager) {
     this.userService = userService;
     this.emailService = emailService;
     this.userMapper = userMapper;
@@ -86,6 +90,7 @@ public class UserRestController extends BaseRestController {
     this.tenantService = tenantService;
     this.auth0Helper = auth0Helper;
     this.liquibaseManager = liquibaseManager;
+    this.dynamoDBManager = dynamoDBManager;
   }
 
   @PostMapping(value = "users")
@@ -97,7 +102,9 @@ public class UserRestController extends BaseRestController {
     final CreatedUser user = auth0Helper.signUp(signUpDto.getWorkEmail(), signUpDto.getPassword());
     final com.auth0.json.mgmt.users.User auth0User;
     try {
-      auth0User = auth0Helper.updateAuthUserAppMetaData(user.getUserId());
+      auth0User =
+          auth0Helper.updateAuthUserAppMetaData(
+              user.getUserId(), dynamoDBManager.getExistsCompanyId());
     } catch (final Exception e) {
       auth0Helper.deleteUser(user.getUserId());
       throw new SignUpFailedException("Auth0 account update failed.", e);
@@ -120,7 +127,9 @@ public class UserRestController extends BaseRestController {
       @RequestBody final IndeedUserDto indeedUserDto) {
     final com.auth0.json.mgmt.users.User auth0User;
     try {
-      auth0User = auth0Helper.updateAuthUserAppMetaData(indeedUserDto.getId());
+      auth0User =
+          auth0Helper.updateAuthUserAppMetaData(
+              indeedUserDto.getId(), dynamoDBManager.getExistsCompanyId());
     } catch (final Exception e) {
       throw new SignUpFailedException("Auth0 account update failed.", e);
     }

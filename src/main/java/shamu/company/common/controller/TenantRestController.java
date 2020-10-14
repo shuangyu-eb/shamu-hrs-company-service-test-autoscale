@@ -14,7 +14,7 @@ import shamu.company.common.database.LiquibaseManager;
 import shamu.company.common.entity.Tenant;
 import shamu.company.common.exception.errormapping.ForbiddenException;
 import shamu.company.common.exception.errormapping.LiquibaseExecuteFailedException;
-import shamu.company.helpers.DynamoDBHelper;
+import shamu.company.helpers.dynamodb.DynamoDBManager;
 
 // TODO: change this value to "!local" after ansible script task is done. @haibo-eb
 // "default" is used to do integration tests.
@@ -26,17 +26,17 @@ public class TenantRestController {
 
   private final String lambdaToken;
 
-  private final DynamoDBHelper dynamoDBHelper;
+  private final DynamoDBManager dynamoDBManager;
 
   private static final String TENANT_LAMBDA_TOKEN_HEADER = "X-Tenant-Lambda-Token";
 
   public TenantRestController(
       final LiquibaseManager liquibaseManager,
-      final DynamoDBHelper dynamoDBHelper,
+      final DynamoDBManager dynamoDBManager,
       @Value("${aws.lambda.tenant-endpoint-token}") final String lambdaToken) {
     this.liquibaseManager = liquibaseManager;
     this.lambdaToken = lambdaToken;
-    this.dynamoDBHelper = dynamoDBHelper;
+    this.dynamoDBManager = dynamoDBManager;
   }
 
   @PostMapping("/tenants/{id}")
@@ -50,10 +50,10 @@ public class TenantRestController {
     try {
       liquibaseManager.initSchema(Tenant.builder().companyId(companyId).build());
     } catch (final LiquibaseExecuteFailedException e) {
-      dynamoDBHelper.deleteDynamoRecord(companyId);
+      dynamoDBManager.deleteDynamoRecord(companyId);
       throw e;
     }
-    dynamoDBHelper.updateDynamoRecord(companyId);
+    dynamoDBManager.updateDynamoRecord(companyId);
     return new ResponseEntity(HttpStatus.OK);
   }
 }

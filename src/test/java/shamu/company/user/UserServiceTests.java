@@ -3,7 +3,6 @@ package shamu.company.user;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.auth0.json.auth.CreatedUser;
 import java.sql.Date;
@@ -62,7 +61,12 @@ import shamu.company.scheduler.DynamicScheduler;
 import shamu.company.scheduler.QuartzJobScheduler;
 import shamu.company.server.dto.AuthUser;
 import shamu.company.timeoff.service.PaidHolidayService;
-import shamu.company.user.dto.*;
+import shamu.company.user.dto.ChangePasswordDto;
+import shamu.company.user.dto.CurrentUserDto;
+import shamu.company.user.dto.UpdatePasswordDto;
+import shamu.company.user.dto.UserRoleUpdateDto;
+import shamu.company.user.dto.UserSignUpDto;
+import shamu.company.user.dto.UserStatusUpdateDto;
 import shamu.company.user.entity.DismissedAt;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.User.Role;
@@ -695,7 +699,7 @@ class UserServiceTests {
       final com.auth0.json.mgmt.users.User user = new com.auth0.json.mgmt.users.User();
       final CreatedUser createdUser = new CreatedUser();
       Mockito.when(auth0Helper.signUp(Mockito.any(), Mockito.any())).thenReturn(createdUser);
-      Mockito.when(auth0Helper.updateAuthUserAppMetaData(Mockito.anyString()))
+      Mockito.when(auth0Helper.updateAuthUserAppMetaData(Mockito.anyString(), Mockito.anyString()))
           .thenReturn(user);
       userService.signUp(userSignUpDto, "123");
       Mockito.verify(userRepository, Mockito.times(1)).save(Mockito.any());

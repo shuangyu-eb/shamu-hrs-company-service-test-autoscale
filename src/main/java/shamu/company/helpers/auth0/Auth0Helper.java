@@ -37,8 +37,8 @@ import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Component;
 import shamu.company.common.exception.errormapping.AlreadyExistsException;
 import shamu.company.common.exception.errormapping.ResourceNotFoundException;
-import shamu.company.common.multitenant.TenantContext;
 import shamu.company.common.exception.errormapping.TooManyRequestException;
+import shamu.company.common.multitenant.TenantContext;
 import shamu.company.helpers.auth0.exception.EmailUpdateFailedException;
 import shamu.company.helpers.auth0.exception.GeneralAuth0Exception;
 import shamu.company.helpers.auth0.exception.LoginFailedException;
@@ -66,8 +66,9 @@ public class Auth0Helper {
   private static final String USER_SECRET = "userSecret";
   public static final String COMPANY_ID = "companyId";
   public static final String USER_ID = "id";
+
   @Value("${auth0.database}")
-  private  String connection;
+  private String connection;
 
   @Autowired
   public Auth0Helper(final Auth0Manager auth0Manager, final Auth0Config auth0Config) {
@@ -316,7 +317,7 @@ public class Auth0Helper {
     return (String) appMetadata.get(USER_ID);
   }
 
-  public User updateAuthUserAppMetaData(final String userId) {
+  public User updateAuthUserAppMetaData(final String userId, final String companyId) {
     final boolean isIndeedConnection = Auth0ConnectionEnum.INDEED.getValue().equals(connection);
     final String prefix = isIndeedConnection ? "" : "auth0|";
     final String newUserId = prefix + userId;
@@ -327,8 +328,8 @@ public class Auth0Helper {
     final Map<String, Object> appMetaData = new HashMap<>();
     appMetaData.put(USER_ID, userIdInDatabase);
     appMetaData.put(USER_SECRET, userSecret);
-    appMetaData.put(COMPANY_ID, UuidUtil.getUuidString().toUpperCase());
-    if(isIndeedConnection) {
+    appMetaData.put(COMPANY_ID, companyId.toUpperCase());
+    if (isIndeedConnection) {
       appMetaData.put("verification_email_sent", true);
     } else {
       appMetaData.put("idVerified", true);
