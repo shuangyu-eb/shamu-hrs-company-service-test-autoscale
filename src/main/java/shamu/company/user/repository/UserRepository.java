@@ -76,7 +76,7 @@ public interface UserRepository extends JpaRepository<User, String>, UserCustomR
       value =
           "select * from users u"
               + " join jobs_users ju on u.id = ju.user_id"
-              + " where u.manager_user_id = unhex(?2) and "
+              + " where u.manager_user_id = unhex(?1) and "
               + ACTIVE_USER_QUERY,
       nativeQuery = true)
   List<User> findSubordinatesByManagerUserId(String userId);
