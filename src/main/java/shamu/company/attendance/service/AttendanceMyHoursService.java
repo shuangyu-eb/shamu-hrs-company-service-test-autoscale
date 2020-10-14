@@ -432,6 +432,7 @@ public class AttendanceMyHoursService {
         totalWorkMin += employeeTimeLog.getDurationMin();
       }
     }
+
     return TimeEntryDto.builder()
         .entryId(entryId)
         .startTime(startTime)

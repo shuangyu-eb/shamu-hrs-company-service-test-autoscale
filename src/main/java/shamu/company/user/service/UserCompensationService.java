@@ -185,8 +185,8 @@ public class UserCompensationService {
     final UserCompensation userCompensation =
         userCompensationRepository.findStartNumberNLatestByUserId(
             0, employeeOvertimeDetailsDto.getEmployeeId());
-
-    return compensationPaymentChanged(
+    return userCompensation == null
+        || compensationPaymentChanged(
             userCompensation,
             employeeOvertimeDetailsDto.getRegularPay(),
             employeeOvertimeDetailsDto.getCompensationUnit())
@@ -212,11 +212,24 @@ public class UserCompensationService {
                   UserCompensation userCompensation =
                       findByUserId(employeeOvertimeDetailsDto.getEmployeeId());
                   return assembleFromEmployeeOvertimeDetailsDto(
-                      userCompensation, employeeOvertimeDetailsDto, startDate);
+                      userCompensation == null ? new UserCompensation() : userCompensation,
+                      employeeOvertimeDetailsDto,
+                      startDate);
                 })
             .collect(Collectors.toList());
+    final List<UserCompensation> savedCompensations = saveAll(userCompensationList);
+    updateUserCompensations(savedCompensations);
+    return savedCompensations;
+  }
 
-    return saveAll(userCompensationList);
+  private void updateUserCompensations(final List<UserCompensation> compensations) {
+    final ArrayList<JobUser> jobUsers = new ArrayList<>();
+    for (final UserCompensation compensation : compensations) {
+      final JobUser user = jobUserRepository.findByUserId(compensation.getUserId());
+      user.setUserCompensation(compensation);
+      jobUsers.add(user);
+    }
+    jobUserRepository.saveAll(jobUsers);
   }
 
   private UserCompensation assembleFromEmployeeOvertimeDetailsDto(
