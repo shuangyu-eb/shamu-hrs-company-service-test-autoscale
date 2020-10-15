@@ -414,8 +414,9 @@ public class UserService {
 
   public User updateUserRole(
       final String email, final UserRoleUpdateDto userRoleUpdateDto, final User user) {
-
-    auth0Helper.login(email, userRoleUpdateDto.getPassWord());
+    if (!auth0Helper.isIndeedEnvironment()) {
+      auth0Helper.login(email, userRoleUpdateDto.getPassWord());
+    }
 
     final UserRole targetRole;
     if (userRoleUpdateDto.getUserRole() == Role.ADMIN) {
@@ -449,8 +450,9 @@ public class UserService {
 
   public User deactivateUser(
       final String email, final UserStatusUpdateDto userStatusUpdateDto, final User user) {
-
-    auth0Helper.login(email, userStatusUpdateDto.getPassWord());
+    if (!auth0Helper.isIndeedEnvironment()) {
+      auth0Helper.login(email, userStatusUpdateDto.getPassWord());
+    }
 
     final Date deactivationDate = userStatusUpdateDto.getDeactivationDate();
 
