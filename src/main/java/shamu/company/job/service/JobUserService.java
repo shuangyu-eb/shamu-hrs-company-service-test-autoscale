@@ -263,7 +263,7 @@ public class JobUserService {
       case JOB_TITLE:
         updateJobTitleName(id, name);
         break;
-      case OFFICE_LOCATION:
+      case WORK_ADDRESS:
         updateOfficeContent(id, jobSelectOptionUpdateDto.getOfficeCreateDto());
         break;
       default:
@@ -324,7 +324,7 @@ public class JobUserService {
       case JOB_TITLE:
         deleteJobTitle(id);
         break;
-      case OFFICE_LOCATION:
+      case WORK_ADDRESS:
         deleteOffice(id);
         break;
       default:

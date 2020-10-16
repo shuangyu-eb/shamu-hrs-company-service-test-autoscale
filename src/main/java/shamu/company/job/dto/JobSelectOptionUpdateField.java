@@ -3,7 +3,7 @@ package shamu.company.job.dto;
 public enum JobSelectOptionUpdateField {
   DEPARTMENT("Department"),
   JOB_TITLE("Job Title"),
-  OFFICE_LOCATION("Office Location");
+  WORK_ADDRESS("Work Address");
 
   private final String value;
 

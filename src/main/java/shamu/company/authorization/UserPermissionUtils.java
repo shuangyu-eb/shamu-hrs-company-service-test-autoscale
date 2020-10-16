@@ -118,7 +118,7 @@ public class UserPermissionUtils extends BasePermissionUtils {
         return hasPermissionOfDepartment(auth, targetId, permission);
       case JOB_TITLE:
         return hasPermissionOfJobTitle(auth, targetId, permission);
-      case OFFICE_LOCATION:
+      case WORK_ADDRESS:
         return hasPermissionOfOfficeLocation(auth, targetId, permission);
       case BENEFIT_PLAN:
         return hasPermissionOfBenefitPlan(auth, targetId, permission);

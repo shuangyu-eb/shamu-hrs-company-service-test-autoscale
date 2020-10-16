@@ -508,7 +508,7 @@ class JobUserServiceTests {
 
     @Test
     void whenUpdatedFieldIsOfficeLocation_thenUpdateShouldSuccess() {
-      jobSelectOptionUpdateDto.setUpdateField(JobSelectOptionUpdateField.OFFICE_LOCATION);
+      jobSelectOptionUpdateDto.setUpdateField(JobSelectOptionUpdateField.WORK_ADDRESS);
       final Office office = new Office();
       office.setId("1");
       office.setOfficeAddress(new OfficeAddress());
@@ -629,7 +629,7 @@ class JobUserServiceTests {
 
     @Test
     void whenEmployeeBelongToThisOffice_thenDeleteOfficeShouldFail() {
-      jobSelectOptionUpdateDto.setUpdateField(JobSelectOptionUpdateField.OFFICE_LOCATION);
+      jobSelectOptionUpdateDto.setUpdateField(JobSelectOptionUpdateField.WORK_ADDRESS);
       Mockito.when(officeService.findCountByOffice(jobSelectOptionUpdateDto.getId()))
           .thenReturn(10);
       Assertions.assertThrows(
@@ -641,7 +641,7 @@ class JobUserServiceTests {
 
     @Test
     void whenNoEmployeeBelongsToThisOffice_thenDeleteOfficeShouldSuccess() {
-      jobSelectOptionUpdateDto.setUpdateField(JobSelectOptionUpdateField.OFFICE_LOCATION);
+      jobSelectOptionUpdateDto.setUpdateField(JobSelectOptionUpdateField.WORK_ADDRESS);
       final Office office = new Office();
       final OfficeAddress officeAddress = new OfficeAddress();
       office.setOfficeAddress(officeAddress);
