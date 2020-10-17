@@ -23,7 +23,7 @@ public interface BenefitPlanRepository extends BaseRepository<BenefitPlan, Strin
           + " from shamu.company.benefit.entity.BenefitPlanType bpt"
           + " left join BenefitPlan bp"
           + " on bp.benefitPlanType.id = bpt.id"
-          + " group by bpt.id"
+          + " group by bpt.id, bp.endDate"
           + " order by bpt.id")
   List<BenefitPlanTypeDto> findPlanTypeAndNumOrderByTypeId();
 

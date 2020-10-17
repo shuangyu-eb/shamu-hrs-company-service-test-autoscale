@@ -9,6 +9,7 @@ import lombok.Data;
 @Data
 public class BenefitPlanCreateDto implements Serializable {
 
+  private static final long serialVersionUID = -2640569462933796352L;
   private String planName;
 
   private String imageUrl;
@@ -30,4 +31,12 @@ public class BenefitPlanCreateDto implements Serializable {
   private Timestamp endDate;
 
   private List<String> remainingDocumentIds;
+
+  private Double annualMaximum;
+
+  private Double contributionValue;
+
+  private Double deductionValue;
+
+  private RetirementDto retirement;
 }

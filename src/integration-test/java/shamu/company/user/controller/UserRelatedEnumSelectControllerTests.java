@@ -18,6 +18,7 @@ import shamu.company.user.service.EmployeeTypesService;
 import shamu.company.user.service.EthnicityService;
 import shamu.company.user.service.GenderService;
 import shamu.company.user.service.MaritalStatusService;
+import shamu.company.user.service.RetirementPayTypeService;
 import shamu.company.user.service.RetirementTypeService;
 import shamu.company.user.service.UserRoleService;
 import shamu.company.user.service.UserStatusService;
@@ -46,6 +47,8 @@ public class UserRelatedEnumSelectControllerTests extends WebControllerBaseTests
   @MockBean private EmployeeTypesService employeeTypesService;
 
   @MockBean private EmploymentTypeService employmentTypeService;
+
+  @MockBean private RetirementPayTypeService retirementPayTypeService;
   @Autowired private MockMvc mockMvc;
 
   @Test
@@ -176,6 +179,19 @@ public class UserRelatedEnumSelectControllerTests extends WebControllerBaseTests
     final MvcResult response =
         mockMvc
             .perform(MockMvcRequestBuilders.get("/company/employment-types").headers(httpHeaders))
+            .andReturn();
+
+    assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+  }
+
+  @Test
+  void testGetRetirementPayTypes() throws Exception {
+    final HttpHeaders httpHeaders = new HttpHeaders();
+    httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+
+    final MvcResult response =
+        mockMvc
+            .perform(MockMvcRequestBuilders.get("/company/retirement-pay-types").headers(httpHeaders))
             .andReturn();
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());

@@ -14,6 +14,8 @@ import shamu.company.common.entity.BaseEntity;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RetirementPlanType extends BaseEntity {
+
+  private static final long serialVersionUID = -8898788718149959751L;
   @OneToOne private BenefitPlan benefitPlan;
 
   @OneToOne private RetirementType retirementType;

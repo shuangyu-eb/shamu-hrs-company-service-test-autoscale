@@ -12,4 +12,16 @@ public class BenefitPlanUserCreateDto {
   private String id;
 
   private String coverage;
+
+  private Double annualMaximum;
+
+  private String companyContribution;
+
+  private Double contributionValue;
+
+  private Double deductionValue;
+
+  private String employeeDeduction;
+
+  private Boolean isDeductionLimit;
 }

@@ -1,6 +1,7 @@
 package shamu.company.user.controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import shamu.company.benefit.entity.RetirementPayTypes;
 import shamu.company.benefit.entity.RetirementType;
 import shamu.company.common.BaseRestController;
 import shamu.company.common.CommonDictionaryDto;
@@ -21,6 +22,7 @@ import shamu.company.user.service.EmployeeTypesService;
 import shamu.company.user.service.EthnicityService;
 import shamu.company.user.service.GenderService;
 import shamu.company.user.service.MaritalStatusService;
+import shamu.company.user.service.RetirementPayTypeService;
 import shamu.company.user.service.RetirementTypeService;
 import shamu.company.user.service.UserRoleService;
 import shamu.company.user.service.UserStatusService;
@@ -43,6 +45,8 @@ public class UserRelatedEnumSelectController extends BaseRestController {
 
   private final RetirementTypeService retirementTypeService;
 
+  private final RetirementPayTypeService retirementPayTypeService;
+
   private final UserRoleService userRoleService;
 
   private final UserStatusService userStatusService;
@@ -58,6 +62,7 @@ public class UserRelatedEnumSelectController extends BaseRestController {
       final GenderService genderService,
       final MaritalStatusService maritalStatusService,
       final RetirementTypeService retirementTypeService,
+      final RetirementPayTypeService retirementPayTypeService,
       final UserRoleService userRoleService,
       final UserStatusService userStatusService,
       final EmployeeTypesService employeeTypesService,
@@ -68,6 +73,7 @@ public class UserRelatedEnumSelectController extends BaseRestController {
     this.genderService = genderService;
     this.maritalStatusService = maritalStatusService;
     this.retirementTypeService = retirementTypeService;
+    this.retirementPayTypeService = retirementPayTypeService;
     this.userRoleService = userRoleService;
     this.userStatusService = userStatusService;
     this.employeeTypesService = employeeTypesService;
@@ -132,5 +138,11 @@ public class UserRelatedEnumSelectController extends BaseRestController {
   public List<CommonDictionaryDto> getAllEmploymentTypes() {
     final List<EmploymentType> employmentTypes = employmentTypeService.findAll();
     return ReflectionUtil.convertTo(employmentTypes, CommonDictionaryDto.class);
+  }
+
+  @GetMapping("retirement-pay-types")
+  public List<CommonDictionaryDto> getRetirementPayTypes() {
+    final List<RetirementPayTypes> retirementPayTypes = retirementPayTypeService.findAll();
+    return ReflectionUtil.convertTo(retirementPayTypes, CommonDictionaryDto.class);
   }
 }

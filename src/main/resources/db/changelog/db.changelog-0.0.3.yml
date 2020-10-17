@@ -312,3 +312,123 @@ databaseChangeLog:
                   name: is_sick_leave_policy
                   type: BIT(1)
             tableName: time_off_policies
+
+  - changeSet:
+      id: 1602301630531-1
+      author: lei-eb
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  name: id
+                  type: binary(16)
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+              - column:
+                  name: ref_id
+                  type: INT
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: static_retirement_pay_types
+
+  - changeSet:
+      id: 1602301630531-2
+      author: lei-eb
+      changes:
+        - sql:
+            sql: create trigger ins_static_retirement_pay_types before insert on static_retirement_pay_types for each row set new.id = unhex(replace(uuid(), '-', ''));
+
+  - changeSet:
+      id: 1602301630531-3
+      author: lei-eb
+      runOnChange: true
+      changes:
+        - loadUpdateData:
+            columns:
+              - column:
+                  name: name
+                  type: STRING
+            file: db/changelog/data/static-retirement-pay-types.csv
+            primaryKey: id
+            tableName: static_retirement_pay_types
+
+  - changeSet:
+      id: 1602301630531-4
+      author: lei-eb
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  name: id
+                  type: binary(16)
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: benefit_plan_id
+                  type: binary(16)
+              - column:
+                  name: employee_deduction_id
+                  type: binary(16)
+              - column:
+                  name: employee_deduction_value
+                  type: BIGINT
+              - column:
+                  name: limit_standard
+                  type: TINYINT
+              - column:
+                  name: company_contribution_id
+                  type: binary(16)
+              - column:
+                  name: company_contribution_value
+                  type: BIGINT
+              - column:
+                  name: company_maximum_contribution
+                  type: BIGINT
+              - column:
+                  name: user_id
+                  type: binary(16)
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: retirement_payment
+
+  - changeSet:
+      id: 1602301630531-5
+      author: lei-eb
+      preConditions:
+        onFail: WARN
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: benefit_plan_id
+            baseTableName: retirement_payment
+            constraintName: fk_retirement_payment_benefit_plan_id
+            onDelete: CASCADE
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: benefit_plans
+        - addForeignKeyConstraint:
+            baseColumnNames: employee_deduction_id
+            baseTableName: retirement_payment
+            constraintName: fk_retirement_payment_employee_deduction_id
+            onDelete: SET NULL
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: static_retirement_pay_types
+        - addForeignKeyConstraint:
+            baseColumnNames: company_contribution_id
+            baseTableName: retirement_payment
+            constraintName: fk_retirement_payment_company_contribution_id
+            onDelete: SET NULL
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: static_retirement_pay_types
