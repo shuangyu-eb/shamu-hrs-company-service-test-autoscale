@@ -12,11 +12,13 @@ import com.amazonaws.services.dynamodbv2.document.Table;
 import com.amazonaws.services.dynamodbv2.document.internal.IteratorSupport;
 import com.amazonaws.services.dynamodbv2.document.spec.DeleteItemSpec;
 import com.amazonaws.services.dynamodbv2.document.spec.UpdateItemSpec;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import shamu.company.utils.UuidUtil;
 
 @Component
+@Slf4j
 public class DynamoDBManager {
 
   private final Table table;
@@ -50,14 +52,19 @@ public class DynamoDBManager {
 
   public String getExistsCompanyId() {
     synchronized (this) {
-      final ScanFilter scanFilter = new ScanFilter(STATUS).eq(STATUS_DONE);
-      final ItemCollection<ScanOutcome> items = table.scan(scanFilter);
-      final IteratorSupport iterator = items.iterator();
-      if (iterator.hasNext()) {
-        final Item item = (Item) iterator.next();
-        final String id = item.getString(PRIMARY_KEY);
-        deleteDynamoRecord(id);
-        return id;
+      try {
+        final ScanFilter scanFilter = new ScanFilter(STATUS).eq(STATUS_DONE);
+        final ItemCollection<ScanOutcome> items = table.scan(scanFilter);
+        final IteratorSupport iterator = items.iterator();
+        if (iterator.hasNext()) {
+          final Item item = (Item) iterator.next();
+          final String id = item.getString(PRIMARY_KEY);
+          deleteDynamoRecord(id);
+          return id;
+        }
+      } catch (final RuntimeException e) {
+        log.error("Getting pre-tenant id failed.", e);
+        return UuidUtil.getUuidString().toUpperCase();
       }
       // if the db doesn't hold any record here, just return a new uuid
       return UuidUtil.getUuidString().toUpperCase();
