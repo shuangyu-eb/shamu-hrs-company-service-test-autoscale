@@ -155,10 +155,16 @@ public abstract class DateUtil {
     return calendar;
   }
 
-  public static String formatCalendar(final Calendar calendar, final String format) {
+  public static String formatCalendarWithTimezone(final Calendar calendar, final String format) {
     final SimpleDateFormat sdf = new SimpleDateFormat(format);
     sdf.setTimeZone(calendar.getTimeZone());
 
     return sdf.format(calendar.getTimeInMillis());
+  }
+
+  public static String formatTimestampWithTimezone(
+          final Timestamp timestamp, final String format, final String timeZoneName) {
+    final Calendar calendar = getCalendarInstance(timestamp.getTime(), timeZoneName);
+    return formatCalendarWithTimezone(calendar, format);
   }
 }

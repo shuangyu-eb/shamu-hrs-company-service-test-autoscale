@@ -148,7 +148,8 @@ public class AttendanceTeamHoursController extends BaseRestController {
   }
 
   @GetMapping("time-and-attendance/attendance-details")
-  @PreAuthorize("hasAuthority('MANAGE_TEAM_USER')")
+  // TODO
+  //  @PreAuthorize("hasAuthority('MANAGE_TEAM_USER')")
   public AttendanceDetailDto findAttendanceDetails() {
     return attendanceTeamHoursService.findAttendanceDetails();
   }

@@ -18,6 +18,7 @@ import shamu.company.attendance.entity.EmployeeTimeLog;
 import shamu.company.attendance.entity.StaticCompanyPayFrequencyType;
 import shamu.company.attendance.entity.StaticTimesheetStatus;
 import shamu.company.attendance.entity.StaticTimesheetStatus.TimeSheetStatus;
+import shamu.company.attendance.entity.StaticTimezone;
 import shamu.company.attendance.entity.TimePeriod;
 import shamu.company.attendance.entity.Timesheet;
 import shamu.company.attendance.service.AttendanceMyHoursService;
@@ -403,6 +404,9 @@ class AttendanceTeamHoursServiceTests {
     final TimePeriod timePeriod = new TimePeriod();
     timePeriod.setStartDate(Timestamp.valueOf(LocalDateTime.parse("2020-07-01T00:00:00")));
     timePeriod.setEndDate(Timestamp.valueOf(LocalDateTime.parse("2020-07-07T00:00:00")));
+    final StaticTimezone timezone = new StaticTimezone();
+    timezone.setName("Hongkong");
+    companyTaSetting.setTimeZone(timezone);
 
     Mockito.when(attendanceSettingsService.findCompanySetting()).thenReturn(companyTaSetting);
     Mockito.when(payrollDetailService.find()).thenReturn(payrollDetail);

@@ -15,6 +15,7 @@ import shamu.company.attendance.entity.CompanyTaSetting;
 import shamu.company.attendance.entity.EmployeeTimeLog;
 import shamu.company.attendance.entity.StaticTimesheetStatus;
 import shamu.company.attendance.entity.StaticTimesheetStatus.TimeSheetStatus;
+import shamu.company.attendance.entity.StaticTimezone;
 import shamu.company.attendance.entity.TimePeriod;
 import shamu.company.attendance.entity.Timesheet;
 import shamu.company.common.entity.PayrollDetail;
@@ -272,7 +273,11 @@ public class AttendanceTeamHoursService {
     final PayrollDetail payrollDetail = payrollDetailService.find();
     final TimePeriod timePeriod = timePeriodService.findCompanyCurrentPeriod();
     final SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
-    final String payDate = sdf.format(payrollDetail.getLastPayrollPayday());
+    final StaticTimezone companyTimezone =
+        attendanceSettingsService.findCompanySetting().getTimeZone();
+    final String payDate =
+        DateUtil.formatTimestampWithTimezone(
+            payrollDetail.getLastPayrollPayday(), DATE_FORMAT, companyTimezone.getName());
     final String periodStartDate = sdf.format(timePeriod.getStartDate());
     final String periodEndDate = sdf.format(timePeriod.getEndDate());
     return AttendanceDetailDto.builder()

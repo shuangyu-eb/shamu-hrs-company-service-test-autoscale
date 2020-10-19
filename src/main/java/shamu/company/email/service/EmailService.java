@@ -671,7 +671,9 @@ public class EmailService {
 
     parameters.put(MANAGER_NAME, manager.getUserPersonalInformation().getName());
     parameters.put(
-        DATE, DateUtil.formatCalendar(calendarDate, DateUtil.DAY_OF_WEEK_SIMPLE_MONTH_DAY_YEAR));
+        DATE,
+        DateUtil.formatCalendarWithTimezone(
+            calendarDate, DateUtil.DAY_OF_WEEK_SIMPLE_MONTH_DAY_YEAR));
     parameters.put(ORIGINAL_TIME_LOGS, assembleTimeLogString(originalTimeLogs, timezone));
     parameters.put(EDITED_TIME_LOGS, assembleTimeLogString(editedTimeLogs, timezone));
     return parameters;
@@ -692,9 +694,9 @@ public class EmailService {
           final Calendar endCalendar = DateUtil.getCalendarInstance(endTimeStamp, timeZone);
 
           final String timeLogString =
-              DateUtil.formatCalendar(startCalendar, DateUtil.HOUR_MINUTE)
+              DateUtil.formatCalendarWithTimezone(startCalendar, DateUtil.HOUR_MINUTE)
                   + " - "
-                  + DateUtil.formatCalendar(endCalendar, DateUtil.HOUR_MINUTE);
+                  + DateUtil.formatCalendarWithTimezone(endCalendar, DateUtil.HOUR_MINUTE);
           timeLog.put(TEXT, timeLogString);
 
           final boolean isBreakLog =

@@ -215,13 +215,10 @@ public class AttendanceSetUpService {
         jobUserRepository.findByUserId(employeeId).getOffice().getOfficeAddress().getTimeZone();
 
     final Date periodStartDate =
-        parseDateWithZone(
-                timeAndAttendanceDetailsDto.getPeriodStartDate(), companyTimezone.getName())
-            .get();
+        parseDateWithZone(timeAndAttendanceDetailsDto.getPeriodStartDate(), companyTimezone).get();
     final Date periodEndDate =
         addOneDayTime(
-            parseDateWithZone(
-                    timeAndAttendanceDetailsDto.getPeriodEndDate(), companyTimezone.getName())
+            parseDateWithZone(timeAndAttendanceDetailsDto.getPeriodEndDate(), companyTimezone)
                 .get());
     final List<UserCompensation> userCompensationList =
         overtimeService.createEmployeeOvertimePolicies(overtimeDetailsDtoList, new Date());
@@ -250,7 +247,7 @@ public class AttendanceSetUpService {
       createTimeSheets(firstTimePeriod, timeSheetStatus, userCompensationList, false);
       saveCompanyTaSetting(
           timeAndAttendanceDetailsDto.getPayPeriodFrequency(),
-          timeAndAttendanceDetailsDto.getPayDate(),
+          parseDateWithZone(timeAndAttendanceDetailsDto.getPayDate(), companyTimezone).get(),
           companyTimezone);
       scheduleTasks(companyId, firstTimePeriod, companyTimezone.getName());
     } else {
@@ -259,9 +256,9 @@ public class AttendanceSetUpService {
     }
   }
 
-  private Optional<Date> parseDateWithZone(final String date, final String timezone) {
+  private Optional<Date> parseDateWithZone(final String date, final StaticTimezone timezone) {
     final SimpleDateFormat isoFormat = new SimpleDateFormat(DATE_FORMAT);
-    isoFormat.setTimeZone(TimeZone.getTimeZone(timezone));
+    isoFormat.setTimeZone(TimeZone.getTimeZone(timezone.getName()));
     try {
       return Optional.ofNullable(isoFormat.parse(date));
     } catch (final ParseException e) {

@@ -201,7 +201,7 @@ public class AttendanceSetUpServiceTests {
 
     @BeforeEach
     void init() {
-      timeAndAttendanceDetailsDto.setPayDate(new Date());
+      timeAndAttendanceDetailsDto.setPayDate("01/01/2020");
       timeAndAttendanceDetailsDto.setOvertimeDetails(details);
       timeAndAttendanceDetailsDto.setPeriodStartDate("01/01/2020");
       timeAndAttendanceDetailsDto.setPeriodEndDate("01/03/2020");
