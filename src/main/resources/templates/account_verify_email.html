@@ -8,7 +8,7 @@
      th:style="'background-color: ' + ${isIndeedENV ? '#f3f2f1' : '#f0f2f5'} + ';padding-bottom: 119px; padding-top: 58px; width: 100%;'">
   <table style="width: 600px; margin-left: auto; margin-right: auto;">
     <tr>
-      <td style="width: 189px; height: 50px; display: block; margin: 10px auto 10px auto;">
+      <td style="width: 189px; height: 50px; display: block; margin: 10px auto 10px auto;text-align: center;">
         <img alt="logo" style="height: 37px;"
              th:src="${frontEndAddress} +  'image/'+${isIndeedENV ? 'FullWidthWithIndeedLogo' : 'FullWidthSimplyHiredLogo'}+'.png'"
              title="logo">
@@ -30,8 +30,8 @@
       </td>
     </tr>
     <tr>
-      <td style="display: block; margin: 20px auto 10px auto; width: 100%;">
-        <a th:style="${isIndeedENV ? 'width: 174px;height:52px;background-color:#2557A7;border-radius:8px;font-size:16px;font-weight:bold;line-height:319.5%;padding: unset;' : 'border: 1px solid transparent;background-color: #0075DF; width: 150px; height: 40px; font-size: 14px; border-radius: 20px; line-height: 1.17;letter-spacing: .2px;margin-left: auto; margin-right: auto;font-weight:500;padding: 10px 20px;'} + 'color: #ffffff; outline: none; box-shadow: none; border: 0;display: inline-block; text-decoration: none;cursor: pointer;'"
+      <td style="display: block; margin: 20px auto 10px auto; width: 100%;text-align: center;">
+        <a th:style="${isIndeedENV ? 'width: 174px;height:52px;background-color:#2557A7;border-radius:8px;font-size:16px;font-weight:bold;line-height:319.5%;padding: unset;' : 'border: 1px solid transparent;background-color: #0075DF; width: 150px; height: 40px; font-size: 14px; border-radius: 20px; line-height: 1.17;letter-spacing: .2px;margin-left: auto; margin-right: auto;font-weight:500;padding: 10px 20px;'} + 'color: #ffffff; outline: none; box-shadow: none; border: 0;display: inline-block; text-decoration: none;cursor: pointer;text-align: center;'"
            th:href="@{${accountVerifyAddress}}">
           Confirm your email
         </a>
