@@ -1,22 +1,6 @@
 package shamu.company.user;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-
 import com.auth0.json.auth.CreatedUser;
-import java.sql.Date;
-import java.sql.Timestamp;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import javax.persistence.EntityManager;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,6 +15,7 @@ import org.thymeleaf.ITemplateEngine;
 import shamu.company.admin.entity.SystemAnnouncement;
 import shamu.company.admin.service.SystemAnnouncementsService;
 import shamu.company.attendance.entity.StaticTimesheetStatus;
+import shamu.company.attendance.service.AttendanceTeamHoursService;
 import shamu.company.attendance.service.OvertimeService;
 import shamu.company.authorization.PermissionUtils;
 import shamu.company.client.DocumentClient;
@@ -98,6 +83,23 @@ import shamu.company.user.service.UserService;
 import shamu.company.user.service.UserStatusService;
 import shamu.company.utils.UuidUtil;
 
+import javax.persistence.EntityManager;
+import java.sql.Date;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
 class UserServiceTests {
 
   @InjectMocks private UserService userService;
@@ -136,6 +138,7 @@ class UserServiceTests {
   @Mock private DismissedAtService dismissedAtService;
   @Mock private DocumentClient documentClient;
   @Mock private OvertimeService overtimeService;
+  @Mock private AttendanceTeamHoursService attendanceTeamHoursService;
 
   @BeforeEach
   void init() {

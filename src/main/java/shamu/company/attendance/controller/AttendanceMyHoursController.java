@@ -49,7 +49,9 @@ public class AttendanceMyHoursController extends BaseRestController {
   }
 
   @GetMapping("time-and-attendance/all-paid-time/{timesheetId}")
-  @PreAuthorize("hasPermission(#timesheetId,'ATTENDANCE_TIMESHEET', 'VIEW_EMPLOYEES')")
+  @PreAuthorize(
+      "hasPermission(#timesheetId,'ATTENDANCE_TIMESHEET', 'VIEW_EMPLOYEES')"
+          + " or hasAuthority('VIEW_SELF')")
   public List<AllTimeEntryDto> findAllHours(@PathVariable final String timesheetId) {
     return attendanceMyHoursService.findAllHours(timesheetId);
   }
@@ -63,7 +65,9 @@ public class AttendanceMyHoursController extends BaseRestController {
   }
 
   @GetMapping("time-and-attendance/attendance-summary/{timesheetId}")
-  @PreAuthorize("hasPermission(#timesheetId,'ATTENDANCE_TIMESHEET', 'VIEW_EMPLOYEES')")
+  @PreAuthorize(
+      "hasPermission(#timesheetId,'ATTENDANCE_TIMESHEET', 'VIEW_EMPLOYEES')"
+          + " or hasAuthority('VIEW_SELF')")
   public AttendanceSummaryDto findAttendanceSummary(@PathVariable final String timesheetId) {
     return attendanceMyHoursService.findAttendanceSummary(timesheetId);
   }
@@ -89,7 +93,9 @@ public class AttendanceMyHoursController extends BaseRestController {
   }
 
   @GetMapping("time-and-attendance/entry/{entryId}")
-  @PreAuthorize("hasPermission(#entryId,'ATTENDANCE_ENTRY', 'VIEW_EMPLOYEES')")
+  @PreAuthorize(
+      "hasPermission(#entryId,'ATTENDANCE_ENTRY', 'VIEW_EMPLOYEES')"
+          + " or hasAuthority('VIEW_SELF')")
   public TimeEntryDto findMyHourEntry(@PathVariable final String entryId) {
     return attendanceMyHoursService.findMyHourEntry(entryId);
   }
@@ -101,7 +107,9 @@ public class AttendanceMyHoursController extends BaseRestController {
   }
 
   @GetMapping("time-and-attendance/my-hours/timesheet-status/{timesheetId}")
-  @PreAuthorize("hasPermission(#timesheetId,'ATTENDANCE_TIMESHEET', 'VIEW_EMPLOYEES')")
+  @PreAuthorize(
+      "hasPermission(#timesheetId,'ATTENDANCE_TIMESHEET', 'VIEW_EMPLOYEES')"
+          + " or hasAuthority('VIEW_SELF')")
   public String findTimesheetStatus(@PathVariable final String timesheetId) {
     return attendanceMyHoursService.findTimesheetStatus(timesheetId);
   }

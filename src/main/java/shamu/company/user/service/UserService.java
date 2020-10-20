@@ -18,6 +18,7 @@ import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.Context;
 import shamu.company.attendance.entity.CompanyTaSetting.MessagingON;
 import shamu.company.attendance.entity.StaticTimesheetStatus.TimeSheetStatus;
+import shamu.company.attendance.service.AttendanceTeamHoursService;
 import shamu.company.attendance.service.OvertimeService;
 import shamu.company.authorization.Permission.Name;
 import shamu.company.authorization.PermissionUtils;
@@ -96,6 +97,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -138,6 +140,7 @@ public class UserService {
   private final CompanyBenefitsSettingService companyBenefitsSettingService;
   private final DismissedAtService dismissedAtService;
   private final OvertimeService overtimeService;
+  private final AttendanceTeamHoursService attendanceTeamHoursService;
 
   private final DocumentClient documentClient;
 
@@ -180,7 +183,8 @@ public class UserService {
       final EntityManager entityManager,
       final DismissedAtService dismissedAtService,
       final DocumentClient documentClient,
-      final OvertimeService overtimeService) {
+      final OvertimeService overtimeService,
+      @Lazy final AttendanceTeamHoursService attendanceTeamHoursService) {
     this.templateEngine = templateEngine;
     this.userRepository = userRepository;
     this.secretHashRepository = secretHashRepository;
@@ -207,6 +211,7 @@ public class UserService {
     this.dismissedAtService = dismissedAtService;
     this.documentClient = documentClient;
     this.overtimeService = overtimeService;
+    this.attendanceTeamHoursService = attendanceTeamHoursService;
   }
 
   public User findById(final String id) {
@@ -476,6 +481,7 @@ public class UserService {
         new DeactivationReasons(userStatusUpdateDto.getDeactivationReason().getId()));
     userRepository.save(user);
 
+    attendanceTeamHoursService.removeAttendanceDetails(Collections.singletonList(user.getId()));
     return findById(user.getId());
   }
 
@@ -665,13 +671,13 @@ public class UserService {
 
   public CurrentUserDto getCurrentUserInfo(final String userId, final String userEmail) {
     User user = findById(userId);
-    boolean isIndeedUserEmailUpdate =
+    final boolean isIndeedUserEmailUpdate =
         auth0Helper.isIndeedEnvironment()
             && !userEmail.equals(user.getUserContactInformation().getEmailWork());
 
     if (isIndeedUserEmailUpdate) {
       // update indeed user email
-      UserContactInformation userContactInformation = user.getUserContactInformation();
+      final UserContactInformation userContactInformation = user.getUserContactInformation();
       userContactInformation.setEmailWork(userEmail);
       user.setUserContactInformation(userContactInformation);
       user = save(user);
