@@ -499,7 +499,6 @@ class EmailServiceTests {
               () -> {
                 emailService.getMyHourEditedEmailParameters(
                     user,
-                    new Date(),
                     "Hongkong",
                     Arrays.asList(employeeTimeLog),
                     Arrays.asList(employeeTimeLog));

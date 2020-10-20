@@ -135,14 +135,12 @@ public class AttendanceMyHoursService {
     final List<EmployeeTimeLog> editedTimeLogs = saveTimeLogs(timeEntryDto, savedEntry);
 
     final User user = userService.findById(userId);
-    sendHoursEditedByManagerEmail(
-        user, employee, timeEntryDto.getStartTime(), employeeTimeLogs, editedTimeLogs);
+    sendHoursEditedByManagerEmail(user, employee, employeeTimeLogs, editedTimeLogs);
   }
 
   private void sendHoursEditedByManagerEmail(
       final User fromUser,
       final User toUser,
-      final Timestamp date,
       final List<EmployeeTimeLog> originalTimeLogs,
       final List<EmployeeTimeLog> editedTimeLogs) {
     final boolean editSelf = fromUser.getId().equals(toUser.getId());
@@ -158,11 +156,7 @@ public class AttendanceMyHoursService {
         toUser,
         EmailService.EmailTemplate.MY_HOUR_EDITED,
         emailService.getMyHourEditedEmailParameters(
-            fromUser,
-            date,
-            employeesSetting.getTimeZone().getName(),
-            originalTimeLogs,
-            editedTimeLogs),
+            fromUser, employeesSetting.getTimeZone().getName(), originalTimeLogs, editedTimeLogs),
         new Timestamp(new Date().getTime()));
   }
 
@@ -462,11 +456,7 @@ public class AttendanceMyHoursService {
     final User user = userService.findById(userId);
 
     sendHoursEditedByManagerEmail(
-        user,
-        employeeTimeEntry.getEmployee(),
-        employeeTimeLogs.get(0).getStart(),
-        employeeTimeLogs,
-        new ArrayList<>());
+        user, employeeTimeEntry.getEmployee(), employeeTimeLogs, new ArrayList<>());
     employeeTimeEntryService.deleteMyHourEntry(entryId);
   }
 

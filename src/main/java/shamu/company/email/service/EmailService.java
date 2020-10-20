@@ -64,6 +64,7 @@ public class EmailService {
   private static final String COLOR = "color";
   private static final String FONT_STYLE = "fontStyle";
   private static final String DATE = "date";
+  private static final String EDITED_DATE = "editedDate";
   private static final String ORIGINAL_TIME_LOGS = "originalTimeLogs";
   private static final String EDITED_TIME_LOGS = "editedTimeLogs";
   private static final String TEXT = "text";
@@ -660,23 +661,36 @@ public class EmailService {
 
   public Map<String, Object> getMyHourEditedEmailParameters(
       final User manager,
-      final Date date,
       final String timezone,
       final List<EmployeeTimeLog> originalTimeLogs,
       final List<EmployeeTimeLog> editedTimeLogs) {
 
     final Map<String, Object> parameters = new HashMap<>();
 
-    final Calendar calendarDate = DateUtil.getCalendarInstance(date.getTime(), timezone);
+    final String originalDateString = getTimeLogDateString(originalTimeLogs, timezone);
+    final String editedDateString = getTimeLogDateString(editedTimeLogs, timezone);
 
     parameters.put(MANAGER_NAME, manager.getUserPersonalInformation().getName());
+    parameters.put(DATE, originalDateString);
     parameters.put(
-        DATE,
-        DateUtil.formatCalendarWithTimezone(
-            calendarDate, DateUtil.DAY_OF_WEEK_SIMPLE_MONTH_DAY_YEAR));
+        EDITED_DATE,
+        (originalDateString != null && originalDateString.equals(editedDateString))
+            ? null
+            : editedDateString);
     parameters.put(ORIGINAL_TIME_LOGS, assembleTimeLogString(originalTimeLogs, timezone));
     parameters.put(EDITED_TIME_LOGS, assembleTimeLogString(editedTimeLogs, timezone));
     return parameters;
+  }
+
+  private String getTimeLogDateString(
+      final List<EmployeeTimeLog> employeeTimeLogs, final String timezone) {
+    if (employeeTimeLogs.isEmpty()) {
+      return null;
+    }
+    final Calendar calendarDate =
+        DateUtil.getCalendarInstance(employeeTimeLogs.get(0).getStart().getTime(), timezone);
+    return DateUtil.formatCalendarWithTimezone(
+        calendarDate, DateUtil.DAY_OF_WEEK_SIMPLE_MONTH_DAY_YEAR);
   }
 
   private List<Map<String, Object>> assembleTimeLogString(

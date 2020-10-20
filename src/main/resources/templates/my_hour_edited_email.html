@@ -26,22 +26,29 @@
             </td>
         </tr>
         <tr style="display:flex;">
-            <td style="font-size: 16px; text-align: center; width: 40%;">
-                <span th:text="${date}"></span>
+            <td th:if="${date}"
+                th:text="${date}"
+                style="font-size: 16px; margin: 0 auto; padding-top: 1.5px;">
             </td>
-            <td>
+            <td th:unless="${#lists.isEmpty(originalTimeLogs)}"
+                style="margin: 0 auto;">
                 <table>
                     <tr th:each="originalTimeLog: ${originalTimeLogs}">
                         <td th:text="${originalTimeLog.text}"
-                            th:style="'font-size: 16px; line-height: 1.38; text-align: center; color: ' + ${originalTimeLog.color} + '; font-style: ' + ${originalTimeLog.fontStyle} + ';'"></td>
+                            th:style="'font-size: 16px; line-height: 1.38; text-align: center; margin: 0 auto; color: ' + ${originalTimeLog.color} + '; font-style: ' + ${originalTimeLog.fontStyle} + ';'"></td>
                     </tr>
                 </table>
             </td>
             <td th:unless="${#lists.isEmpty(originalTimeLogs) || #lists.isEmpty(editedTimeLogs)}"
-                style="font-size: 16px; line-height: 1.4; color: #7b7e84; text-align: center; display: flex; margin: 0 auto;">
+                style="font-size: 16px; color: #7b7e84; text-align: center; display: flex; margin: 0 auto; padding-top: 1.5px;">
                 <span>>>>></span>
             </td>
-            <td>
+            <td th:if="${editedDate}"
+                th:text="${editedDate}"
+                style="font-size: 16px; margin: 0 auto; padding-top: 1.5px;">
+            </td>
+            <td th:unless="${#lists.isEmpty(editedTimeLogs)}"
+                style="margin: 0 auto;">
                 <table>
                     <tr th:each="editedTimeLog: ${editedTimeLogs}">
                         <td th:text="${editedTimeLog.text}"
@@ -50,11 +57,11 @@
                 </table>
             </td>
             <td th:if="${#lists.isEmpty(originalTimeLogs)}"
-                style="font-size: 16px; line-height: 1.4; color: #7b7e84; text-align: center; display: flex; align-items: center;">
+                style="font-size: 16px; color: #7b7e84; text-align: center; display: flex; margin: 0 auto; padding-top: 1.5px;">
                 <span>have been added</span>
             </td>
             <td th:if="${#lists.isEmpty(editedTimeLogs)}"
-                style="font-size: 16px; line-height: 1.38; color: #7b7e84; text-align: center; display: flex; align-items: center;">
+                style="font-size: 16px; color: #7b7e84; text-align: center; display: flex; margin: 0 auto; padding-top: 1.5px;">
                 <span>have been removed</span>
             </td>
         </tr>
