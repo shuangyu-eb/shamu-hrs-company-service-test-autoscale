@@ -6,6 +6,8 @@ import lombok.Data;
 @Data
 public class TimeOffRequestDateDto {
 
+  private String id;
+
   private Timestamp date;
 
   private Integer hours;

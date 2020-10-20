@@ -1,5 +1,6 @@
 package shamu.company.timeoff.service;
 
+import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
@@ -16,6 +17,7 @@ import shamu.company.timeoff.dto.BasicTimeOffRequestDto;
 import shamu.company.timeoff.dto.MyTimeOffDto;
 import shamu.company.timeoff.dto.TimeOffBreakdownDto;
 import shamu.company.timeoff.dto.TimeOffRequestCreateDto;
+import shamu.company.timeoff.dto.TimeOffRequestDateDto;
 import shamu.company.timeoff.dto.TimeOffRequestDetailDto;
 import shamu.company.timeoff.dto.TimeOffRequestDto;
 import shamu.company.timeoff.dto.TimeOffRequestUpdateDto;
@@ -207,7 +209,7 @@ public class TimeOffRequestService {
         PageRequest.of(page, size, Sort.by(SortFields.APPROVED_DATE.getValue()).descending());
     final MyTimeOffDto myTimeOffDto;
     final Timestamp startDayTimestamp;
-    final String[] timeOffRequestStatuses = new String[] {APPROVED.name(), DENIED.name()};
+    final String[] timeOffRequestStatuses = new String[]{APPROVED.name(), DENIED.name()};
 
     if (startDay == null) {
       // use the '1970-01-01 08:00:00' to set the minimum start time if null
@@ -286,6 +288,28 @@ public class TimeOffRequestService {
     return timeOffRequests;
   }
 
+  public TimeOffRequest updateTimeOffRequestDates(String requestId,
+      Set<TimeOffRequestDateDto> timeOffRequestDateDtos) {
+    TimeOffRequest original = getById(requestId);
+    Set<TimeOffRequestDate> timeOffRequestDates = original.getTimeOffRequestDates();
+    timeOffRequestDates
+        .forEach(timeOffRequestDate -> timeOffRequestDateDtos.stream().filter(
+            timeOffRequestDateDto -> timeOffRequestDateDto.getId()
+                .equals(timeOffRequestDate.getId()))
+            .findFirst()
+            .ifPresent(requestDto -> timeOffRequestDate.setHours(requestDto.getHours())));
+    return original;
+  }
+
+  public TimeOffRequestDto updateRequestPolicyTypeAndDates(final String id,
+      final TimeOffRequestUpdateDto updateDto) {
+    TimeOffRequest timeOffRequest = updateTimeOffRequestDates(id, updateDto.getDates());
+    timeOffRequest
+        .setTimeOffPolicy(timeOffPolicyService.getTimeOffPolicyById(updateDto.getPolicyId()));
+    TimeOffRequest newTimeOffRequest = timeOffRequestRepository.save(timeOffRequest);
+    return timeOffRequestMapper.convertToTimeOffRequestDto(newTimeOffRequest);
+  }
+
   public TimeOffRequestDto updateTimeOffRequestStatus(
       final String id, final TimeOffRequestUpdateDto updateDto, final AuthUser user) {
     TimeOffRequest timeOffRequest =
@@ -333,6 +357,14 @@ public class TimeOffRequestService {
     }
 
     return original;
+  }
+
+  public TimeOffRequestDto updateTimeOffRequest(final String id,
+      final TimeOffRequestUpdateDto updateDto, final AuthUser user) {
+    if (updateDto.getStatus() != null) {
+      return updateTimeOffRequestStatus(id, updateDto, user);
+    }
+    return updateRequestPolicyTypeAndDates(id, updateDto);
   }
 
   @Transactional
@@ -399,7 +431,7 @@ public class TimeOffRequestService {
     if (currentUser.getRole() == Role.ADMIN
         || currentUser.getRole() == Role.SUPER_ADMIN
         || (requester.getManagerUser() != null
-            && requester.getManagerUser().getId().equals(currentUser.getId()))) {
+        && requester.getManagerUser().getId().equals(currentUser.getId()))) {
       timeOffRequestDetailDto.setIsCurrentUserPrivileged(true);
     }
   }

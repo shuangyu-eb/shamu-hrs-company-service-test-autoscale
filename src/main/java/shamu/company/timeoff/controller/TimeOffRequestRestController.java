@@ -117,7 +117,7 @@ public class TimeOffRequestRestController extends BaseRestController {
   @PreAuthorize("hasPermission(#id,'TIME_OFF_REQUEST','MANAGE_TIME_OFF_REQUEST')")
   public TimeOffRequestDto updateTimeOffRequestStatus(
       @PathVariable final String id, @RequestBody final TimeOffRequestUpdateDto updateDto) {
-    return timeOffRequestService.updateTimeOffRequestStatus(id, updateDto, findAuthUser());
+    return timeOffRequestService.updateTimeOffRequest(id, updateDto, findAuthUser());
   }
 
   @GetMapping("time-off-pending-requests/approver")

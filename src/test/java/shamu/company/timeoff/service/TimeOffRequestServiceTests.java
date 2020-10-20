@@ -213,6 +213,60 @@ public class TimeOffRequestServiceTests {
     Assertions.assertEquals(
         timeOffRequestService.updateTimeOffRequestStatus("1", updateDto, authUser).getStatus(),
         updateDto.getStatus().name());
+    Assertions.assertDoesNotThrow(()->timeOffRequestService.updateTimeOffRequest("1",updateDto,authUser));
+  }
+
+  @Test
+  void testUpdateTimeOffRequestDates() {
+    final TimeOffRequest timeOffRequest = new TimeOffRequest();
+    TimeOffRequestDate timeOffRequestDate = new TimeOffRequestDate();
+    timeOffRequestDate.setId("1");
+    timeOffRequestDate.setHours(8);
+    Set<TimeOffRequestDate> timeOffRequestDates = new HashSet<>();
+    timeOffRequestDates.add(timeOffRequestDate);
+    timeOffRequest.setTimeOffRequestDates(timeOffRequestDates);
+    Set<TimeOffRequestDateDto> timeOffRequestDateDtos = new HashSet<>();
+    TimeOffRequestDateDto timeOffRequestDateDto = new TimeOffRequestDateDto();
+    timeOffRequestDateDto.setId("1");
+    timeOffRequestDateDto.setHours(8);
+    timeOffRequestDateDtos.add(timeOffRequestDateDto);
+    Mockito.when(timeOffRequestRepository.findById(Mockito.any())).thenReturn(
+        Optional.of(timeOffRequest));
+    Assertions.assertEquals(timeOffRequestService.updateTimeOffRequestDates("1",timeOffRequestDateDtos).getTimeOffRequestDates().iterator().next().getHours(),
+        timeOffRequestDateDto.getHours());
+  }
+
+  @Test
+  void testUpdateRequestPolicyTypeAndDates() {
+    final TimeOffRequest timeOffRequest = new TimeOffRequest();
+    TimeOffPolicy timeOffPolicy = new TimeOffPolicy();
+    timeOffPolicy.setId("1");
+    timeOffPolicy.setName("policy1");
+    timeOffRequest.setTimeOffPolicy(timeOffPolicy);
+    TimeOffRequestDate timeOffRequestDate = new TimeOffRequestDate();
+    timeOffRequestDate.setId("1");
+    timeOffRequestDate.setHours(8);
+    Set<TimeOffRequestDate> timeOffRequestDates = new HashSet<>();
+    timeOffRequestDates.add(timeOffRequestDate);
+    timeOffRequest.setTimeOffRequestDates(timeOffRequestDates);
+    TimeOffRequestUpdateDto updateDto = new TimeOffRequestUpdateDto();
+    updateDto.setPolicyId("1");
+    Set<TimeOffRequestDateDto> timeOffRequestDateDtos = new HashSet<>();
+    TimeOffRequestDateDto timeOffRequestDateDto = new TimeOffRequestDateDto();
+    timeOffRequestDateDto.setId("1");
+    timeOffRequestDateDto.setHours(8);
+    timeOffRequestDateDtos.add(timeOffRequestDateDto);
+    updateDto.setDates(timeOffRequestDateDtos);
+    TimeOffRequestDto timeOffRequestDto = new TimeOffRequestDto();
+    timeOffRequestDto.setPolicyName("policy1");
+    Mockito.when(timeOffRequestRepository.findById(Mockito.any())).thenReturn(
+        Optional.of(timeOffRequest));
+    Mockito.when(timeOffRequestRepository.save(Mockito.any())).thenReturn(
+        timeOffRequest);
+    Mockito.when(timeOffRequestMapper.convertToTimeOffRequestDto(Mockito.any())).thenReturn(timeOffRequestDto);
+    Assertions.assertEquals(timeOffRequestService.updateRequestPolicyTypeAndDates("1",updateDto).getPolicyName(),
+        timeOffPolicy.getName());
+    Assertions.assertDoesNotThrow(()->timeOffRequestService.updateTimeOffRequest("1",updateDto,null));
   }
 
   @Nested
