@@ -29,14 +29,14 @@
         <tr style="display:flex; text-align: center;">
             <td th:if="${date}"
                 th:text="${date}"
-                style="font-size: 16px; margin: 0 auto; display: table; min-width: 135px; line-height: 1.4;">
+                style="font-size: 16px; margin: 0 auto; display: table; min-width: 150px; line-height: 1.4;">
             </td>
             <td th:unless="${#lists.isEmpty(originalTimeLogs)}"
                 style="margin: 0 auto; padding: 0;">
                 <table>
                     <tr th:each="originalTimeLog: ${originalTimeLogs}">
                         <td th:text="${originalTimeLog.text}"
-                            th:style="'font-size: 16px; line-height: 1.38; min-width: 100px; color: ' + ${originalTimeLog.color} + '; font-style: ' + ${originalTimeLog.fontStyle} + ';'"></td>
+                            th:style="'font-size: 16px; line-height: 1.4; min-width: 115px; color: ' + ${originalTimeLog.color} + '; font-style: ' + ${originalTimeLog.fontStyle} + ';'"></td>
                     </tr>
                 </table>
             </td>
@@ -46,14 +46,14 @@
             </td>
             <td th:if="${editedDate}"
                 th:text="${editedDate}"
-                style="font-size: 16px; margin: 0 auto; display: table; min-width: 135px; line-height: 1.4;">
+                style="font-size: 16px; margin: 0 auto; display: table; min-width: 150px; line-height: 1.4;">
             </td>
             <td th:unless="${#lists.isEmpty(editedTimeLogs)}"
                 style="margin: 0 auto; padding: 0;">
                 <table>
                     <tr th:each="editedTimeLog: ${editedTimeLogs}">
                         <td th:text="${editedTimeLog.text}"
-                            th:style="'font-size: 16px; line-height: 1.38; min-width: 100px; color: ' + ${editedTimeLog.color} + '; font-style: ' + ${editedTimeLog.fontStyle} + ';'"></td>
+                            th:style="'font-size: 16px; line-height: 1.4; min-width: 115px; color: ' + ${editedTimeLog.color} + '; font-style: ' + ${editedTimeLog.fontStyle} + ';'"></td>
                     </tr>
                 </table>
             </td>
