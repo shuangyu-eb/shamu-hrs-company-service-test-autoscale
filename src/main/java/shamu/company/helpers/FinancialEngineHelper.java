@@ -7,7 +7,6 @@ import reactor.core.publisher.Mono;
 import shamu.company.financialengine.FinancialEngineResponse;
 import shamu.company.utils.WebClientUtil;
 
-// TODO add tests
 @Component
 public class FinancialEngineHelper {
   private final WebClient webClient;

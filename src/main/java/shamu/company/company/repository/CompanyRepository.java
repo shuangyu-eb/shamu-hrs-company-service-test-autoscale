@@ -1,8 +1,8 @@
 package shamu.company.company.repository;
 
-import org.jetbrains.annotations.NotNull;
 import shamu.company.common.repository.BaseRepository;
 import shamu.company.company.entity.Company;
+import javax.validation.constraints.NotNull;
 
 public interface CompanyRepository
     extends BaseRepository<Company, String>, CompanyCustomRepository {

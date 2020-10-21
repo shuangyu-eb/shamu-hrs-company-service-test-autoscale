@@ -69,6 +69,27 @@
             <artifactId>spring-webflux</artifactId>
             <version>5.2.9.RELEASE</version>
         </dependency>
+        <!-- mock and test webclient -->
+        <!-- https://mvnrepository.com/artifact/com.squareup.okhttp3/mockwebserver -->
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>mockwebserver</artifactId>
+            <version>4.9.0</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-stdlib -->
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-stdlib</artifactId>
+            <version>1.3.70</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.projectreactor</groupId>
+            <artifactId>reactor-test</artifactId>
+            <version>3.3.7.RELEASE</version>
+            <scope>test</scope>
+        </dependency>
         <!-- disruptor library for async logging in log4j -->
         <dependency>
             <groupId>com.lmax</groupId>
@@ -181,9 +202,9 @@
         </dependency>
 
         <dependency>
-          <groupId>com.amazonaws</groupId>
-          <artifactId>aws-java-sdk-dynamodb</artifactId>
-          <version>1.11.415</version>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk-dynamodb</artifactId>
+            <version>1.11.415</version>
         </dependency>
 
         <dependency>
@@ -266,7 +287,7 @@
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp</artifactId>
-            <version>4.2.2</version>
+            <version>4.8.1</version>
         </dependency>
 
         <!--jackson-->

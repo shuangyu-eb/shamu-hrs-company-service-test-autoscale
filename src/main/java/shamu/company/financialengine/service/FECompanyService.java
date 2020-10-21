@@ -20,6 +20,7 @@ public class FECompanyService {
     final Mono<FinancialEngineResponse<List<IndustryDto>>> industriesMono =
         financialEngineHelper.get("/company/available/industries");
     final FinancialEngineResponse<List<IndustryDto>> response = industriesMono.block();
+
     if (response == null) {
       return new ArrayList<>();
     }
