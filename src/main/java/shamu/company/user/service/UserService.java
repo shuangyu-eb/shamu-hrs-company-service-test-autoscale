@@ -766,7 +766,7 @@ public class UserService {
     final UserStatus pendingStatus =
         userStatusService.findByName(Status.PENDING_VERIFICATION.name());
 
-    if (user.getUserStatus() == pendingStatus) {
+    if (user.getUserStatus().equals(pendingStatus)) {
       final UserStatus userStatus = userStatusService.findByName(Status.ACTIVE.name());
       user.setUserStatus(userStatus);
     }

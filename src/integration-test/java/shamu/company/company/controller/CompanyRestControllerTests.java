@@ -28,6 +28,8 @@ import shamu.company.job.entity.Job;
 import shamu.company.tests.utils.JwtUtil;
 import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserPersonalInformation;
+import shamu.company.user.entity.UserStatus;
+import shamu.company.user.entity.UserStatus.Status;
 import shamu.company.utils.JsonUtil;
 
 @WebMvcTest(controllers = CompanyRestController.class)
@@ -149,6 +151,7 @@ public class CompanyRestControllerTests extends WebControllerBaseTests {
     userInfo.setLastName("last");
     userInfo.setId("1");
     user.setUserPersonalInformation(userInfo);
+    user.setUserStatus(new UserStatus(Status.ACTIVE.name()));
     final List<User> list = new ArrayList<>();
     list.add(user);
 

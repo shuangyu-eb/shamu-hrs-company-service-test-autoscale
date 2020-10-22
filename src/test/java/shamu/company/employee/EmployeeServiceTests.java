@@ -229,7 +229,9 @@ class EmployeeServiceTests {
     employee.setUserPersonalInformation(information);
     employee.setId("id");
     employee.setUserContactInformation(userContactInformation);
+    employee.setUserStatus(new UserStatus(Status.PENDING_VERIFICATION.name()));
 
+    Mockito.when(auth0Helper.isIndeedEnvironment()).thenReturn(true);
     Whitebox.invokeMethod(employeeService, "updateEmployeeBasicInformation", employee, employeeDto);
     Mockito.verify(userService, Mockito.times(1)).save(Mockito.any());
   }
@@ -377,6 +379,22 @@ class EmployeeServiceTests {
           .thenReturn("email@example.com");
       employeeService.resendEmail(emailResendDto);
       Mockito.verify(emailService, Mockito.times(2)).getEncodedEmailAddress(Mockito.any());
+    }
+
+    @Test
+    void whenConnectionIsIndeed_thenShouldNotUpdateEmail() {
+      final String newEmail = "email@example.com";
+      emailResendDto.setEmail(newEmail);
+      Mockito.when(auth0Helper.isIndeedEnvironment()).thenReturn(true);
+      final Company company = new Company();
+      company.setName(RandomStringUtils.randomAlphabetic(4));
+      Mockito.when(companyService.getCompany()).thenReturn(company);
+      Mockito.when(
+          emailService.findFirstByToAndSubjectOrderBySendDateDesc(
+              Mockito.anyString(), Mockito.anyString()))
+          .thenReturn(new Email());
+      employeeService.resendEmail(emailResendDto);
+      Mockito.verify(auth0Helper, Mockito.times(0)).updateEmail(user, newEmail);
     }
   }
 
@@ -600,7 +618,7 @@ class EmployeeServiceTests {
 
     @Test
     void whenConnectionIsIndeed_thenShouldSuccess() {
-      Mockito.when(identity.getConnection()).thenReturn("Indeed");
+      Mockito.when(auth0Helper.isIndeedEnvironment()).thenReturn(true);
       employeeService.addEmployee(employeeDto, currentUser);
       Mockito.verify(jobUserService, Mockito.times(1)).save(Mockito.any());
     }

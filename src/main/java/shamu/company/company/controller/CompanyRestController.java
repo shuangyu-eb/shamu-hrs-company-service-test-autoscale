@@ -26,6 +26,7 @@ import shamu.company.company.entity.mapper.OfficeMapper;
 import shamu.company.company.service.CompanyService;
 import shamu.company.employee.dto.SelectFieldInformationDto;
 import shamu.company.employee.dto.SelectFieldSizeDto;
+import shamu.company.employee.dto.SelectFieldUserDto;
 import shamu.company.employee.service.EmployeeService;
 import shamu.company.job.entity.Job;
 import shamu.company.user.entity.User;
@@ -114,7 +115,8 @@ public class CompanyRestController extends BaseRestController {
               final UserPersonalInformation userInfo = user.getUserPersonalInformation();
               if (userInfo != null) {
                 final String returnName = userService.getUserNameInUsers(user, users);
-                return new SelectFieldInformationDto(user.getId(), returnName);
+                final String userStatus = user.getUserStatus().getName();
+                return new SelectFieldUserDto(user.getId(), returnName, userStatus);
               }
               return null;
             })

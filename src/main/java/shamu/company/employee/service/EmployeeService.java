@@ -36,7 +36,6 @@ import shamu.company.employee.dto.NewEmployeeJobInformationDto;
 import shamu.company.employee.dto.WelcomeEmailDto;
 import shamu.company.employee.entity.EmploymentType;
 import shamu.company.employee.event.Auth0UserCreatedEvent;
-import shamu.company.helpers.auth0.Auth0ConnectionEnum;
 import shamu.company.helpers.auth0.Auth0Helper;
 import shamu.company.helpers.exception.errormapping.FileUploadFailedException;
 import shamu.company.helpers.s3.AwsHelper;
@@ -224,9 +223,7 @@ public class EmployeeService {
     User employee = new User();
     employee.setId(UuidUtil.getUuidString());
 
-    final boolean isIndeedConnection = isIndeedConnection(currentUser);
-
-    if (isIndeedConnection) {
+    if (auth0Helper.isIndeedEnvironment()) {
       updateIndeedEmployeeBasicInformation(employee, employeeDto);
     } else {
       updateSHEmployeeBasicInformation(employee, employeeDto);
@@ -251,18 +248,6 @@ public class EmployeeService {
     if (Boolean.TRUE.equals(isEmployeePersonalInfoComplete)) {
       timeOffPolicyService.addUserToAutoEnrolledPolicy(employee.getId());
     }
-  }
-
-  private boolean isIndeedConnection(final User currentUser) {
-    // get current auth0User connection
-    final com.auth0.json.mgmt.users.User currentAuthUser =
-        auth0Helper.getAuth0UserByIdWithByEmailFailover(
-            currentUser.getId(), currentUser.getUserContactInformation().getEmailWork());
-    String auth0Connection = "";
-    if (!CollectionUtils.isEmpty(currentAuthUser.getIdentities())) {
-      auth0Connection = currentAuthUser.getIdentities().get(0).getConnection();
-    }
-    return auth0Connection.equals(Auth0ConnectionEnum.INDEED.getValue());
   }
 
   public void updateEmployee(final EmployeeDto employeeDto, final User employee) {
@@ -292,10 +277,11 @@ public class EmployeeService {
       if (userService.findByEmailWork(email) != null) {
         throw new AlreadyExistsException("Email already exists.", "email");
       }
-
-      auth0Helper.updateEmail(user, emailResendDto.getEmail());
-      applicationEventPublisher.publishEvent(
-          new UserEmailUpdatedEvent(user.getId(), originalEmail));
+      if (!auth0Helper.isIndeedEnvironment()) {
+        auth0Helper.updateEmail(user, emailResendDto.getEmail());
+        applicationEventPublisher.publishEvent(
+            new UserEmailUpdatedEvent(user.getId(), originalEmail));
+      }
       user.getUserContactInformation().setEmailWork(email);
       userService.save(user);
     }
@@ -368,7 +354,7 @@ public class EmployeeService {
 
   private void updateIndeedEmployeeBasicInformation(
       final User employee, final EmployeeDto employeeDto) {
-    final UserStatus userStatus = userStatusService.findByName(Status.ACTIVE.name());
+    final UserStatus userStatus = userStatusService.findByName(Status.PENDING_VERIFICATION.name());
     employee.setUserStatus(userStatus);
     // generate userSecret
     final String userSecret = auth0Helper.generateUserSecret(employee.getId());
@@ -460,6 +446,14 @@ public class EmployeeService {
     employee.setUserContactInformation(savedUserContactInformation);
 
     employee.setVerifiedAt(Timestamp.valueOf(DateUtil.getLocalUtcTime()));
+    if (auth0Helper.isIndeedEnvironment()) {
+      final UserStatus pendingStatus =
+          userStatusService.findByName(Status.PENDING_VERIFICATION.name());
+      if (employee.getUserStatus().equals(pendingStatus)) {
+        final UserStatus userStatus = userStatusService.findByName(Status.ACTIVE.name());
+        employee.setUserStatus(userStatus);
+      }
+    }
     return userService.save(employee);
   }
 

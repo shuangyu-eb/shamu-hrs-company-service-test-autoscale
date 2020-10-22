@@ -301,6 +301,19 @@ class UserServiceTests {
 
       Assertions.assertDoesNotThrow(() -> userService.resetPassword(updatePasswordDto));
     }
+
+    @Test
+    void whenUserIsPending_thenShouldUpdateToActive() {
+      final User user = new User(UuidUtil.getUuidString());
+      user.setUserContactInformation(new UserContactInformation());
+      user.setUserStatus(new UserStatus(Status.PENDING_VERIFICATION.name()));
+      Mockito.when(userRepository.findByResetPasswordToken(updatePasswordDto.getResetPasswordToken())).thenReturn(user);
+      Mockito.when(auth0Helper.getUserByUserIdFromAuth0(Mockito.any())).thenReturn(new com.auth0.json.mgmt.users.User());
+      Mockito.when(userStatusService.findByName(Status.PENDING_VERIFICATION.name())).thenReturn(new UserStatus(Status.PENDING_VERIFICATION.name()));
+      Mockito.when(userStatusService.findByName(Status.ACTIVE.name())).thenReturn(new UserStatus(Status.ACTIVE.name()));
+      userService.resetPassword(updatePasswordDto);
+      assertThat(user.getUserStatus()).isEqualTo(new UserStatus(Status.ACTIVE.name()));
+    }
   }
 
   @Test
