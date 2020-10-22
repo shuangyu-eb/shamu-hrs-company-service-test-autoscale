@@ -562,10 +562,12 @@ public class BenefitPlanService {
       String benefitPlanTypeId = null;
       for (final BenefitPlanTypeDto benefitPlanTypeDto : categoryMap.get(key)) {
         benefitPlanTypeId = benefitPlanTypeDto.getBenefitPlanTypeId();
-        if (benefitPlanTypeDto.getBenefitPlanEndDate() == null
-            || DateUtil.toLocalDateTime(benefitPlanTypeDto.getBenefitPlanEndDate())
-                    .compareTo(DateUtil.getLocalUtcTime().minusDays(1))
-                <= 0) {
+        // the plans of retirement type has null endDate and always be active
+        if (benefitPlanTypeDto.getBenefitPlanId() == null
+            || (!benefitPlanTypeDto.getBenefitPlanType().equals(PlanType.RETIREMENT.getValue() )
+                && DateUtil.toLocalDateTime(benefitPlanTypeDto.getBenefitPlanEndDate())
+                        .compareTo(DateUtil.getLocalUtcTime().minusDays(1))
+                    <= 0)) {
           excludedNumber++;
         }
       }

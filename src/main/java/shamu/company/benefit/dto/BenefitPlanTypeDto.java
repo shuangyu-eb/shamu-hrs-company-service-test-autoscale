@@ -14,4 +14,6 @@ public class BenefitPlanTypeDto {
   private String benefitPlanType;
 
   private Date benefitPlanEndDate;
+
+  private String benefitPlanId;
 }
