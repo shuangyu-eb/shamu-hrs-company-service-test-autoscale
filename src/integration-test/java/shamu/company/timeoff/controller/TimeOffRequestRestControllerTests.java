@@ -562,7 +562,7 @@ class TimeOffRequestRestControllerTests extends WebControllerBaseTests {
     final MvcResult response =
         mockMvc
             .perform(
-                MockMvcRequestBuilders.delete("/company/time-off-requests/1/unimplemented-requests")
+                MockMvcRequestBuilders.delete("/company/time-off-requests/1/1/unimplemented-requests")
                     .contentType(MediaType.APPLICATION_JSON)
                     .headers(httpHeaders))
             .andReturn();
@@ -629,18 +629,19 @@ class TimeOffRequestRestControllerTests extends WebControllerBaseTests {
       }
 
       @Test
-      void asAdmin_thenShouldFailed() throws Exception {
+      void asAdmin_thenShouldSuccess() throws Exception {
         buildAuthUserAsAdmin();
         final MvcResult response = getResponse();
-        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
       }
 
       @Test
-      void asManager_thenShouldFailed() throws Exception {
+      void asManager_thenShouldSuccess() throws Exception {
         buildAuthUserAsManager();
         targetUser.setManagerUser(new User(currentUser.getId()));
+        given(userService.findById(Mockito.any())).willReturn(targetUser);
         final MvcResult response = getResponse();
-        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
       }
 
       @Test
@@ -667,8 +668,8 @@ class TimeOffRequestRestControllerTests extends WebControllerBaseTests {
           .perform(
               MockMvcRequestBuilders.delete(
                       String.format(
-                          "/company/time-off-requests/%s/unimplemented-requests",
-                          timeOffRequest.getId()))
+                          "/company/time-off-requests/%s/%s/unimplemented-requests",
+                          timeOffRequest.getId(),currentUser.getId()))
                   .contentType(MediaType.APPLICATION_JSON)
                   .headers(httpHeaders))
           .andReturn();

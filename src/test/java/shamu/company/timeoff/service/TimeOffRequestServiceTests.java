@@ -276,8 +276,19 @@ public class TimeOffRequestServiceTests {
     @BeforeEach
     void init() {
       timeOffRequest = new TimeOffRequest();
+      User requester = new User();
+      User manager = new User();
+      manager.setId("2");
+      requester.setManagerUser(manager);
+      User deleter = new User();
+      UserRole userRole = new UserRole();
+      userRole.setName(Role.EMPLOYEE.getValue());
+      deleter.setUserRole(userRole);
+      timeOffRequest.setRequesterUser(requester);
       Mockito.when(timeOffRequestService.findByRequestId(Mockito.anyString()))
           .thenReturn(timeOffRequest);
+      Mockito.when(userService.findById(Mockito.anyString()))
+          .thenReturn(deleter);
     }
 
     @Test
@@ -297,7 +308,7 @@ public class TimeOffRequestServiceTests {
           .thenReturn(timeOffRequest);
 
       assertThatThrownBy(
-              () -> timeOffRequestService.deleteUnimplementedRequest(Mockito.anyString()))
+              () -> timeOffRequestService.deleteUnimplementedRequest(Mockito.anyString(),"1"))
           .isInstanceOf(ForbiddenException.class);
     }
 
@@ -317,7 +328,7 @@ public class TimeOffRequestServiceTests {
       Mockito.when(timeOffRequestService.findByRequestId(Mockito.anyString()))
           .thenReturn(timeOffRequest);
 
-      assertThatCode(() -> timeOffRequestService.deleteUnimplementedRequest(Mockito.anyString()))
+      assertThatCode(() -> timeOffRequestService.deleteUnimplementedRequest(Mockito.anyString(),"1"))
           .doesNotThrowAnyException();
     }
 
@@ -329,7 +340,7 @@ public class TimeOffRequestServiceTests {
       Mockito.when(timeOffRequestService.findByRequestId(Mockito.anyString()))
           .thenReturn(timeOffRequest);
 
-      assertThatCode(() -> timeOffRequestService.deleteUnimplementedRequest(Mockito.anyString()))
+      assertThatCode(() -> timeOffRequestService.deleteUnimplementedRequest(Mockito.anyString(),"1"))
           .doesNotThrowAnyException();
     }
 
@@ -341,7 +352,7 @@ public class TimeOffRequestServiceTests {
       Mockito.when(timeOffRequestService.findByRequestId(Mockito.anyString()))
           .thenReturn(timeOffRequest);
 
-      assertThatCode(() -> timeOffRequestService.deleteUnimplementedRequest(Mockito.anyString()))
+      assertThatCode(() -> timeOffRequestService.deleteUnimplementedRequest(Mockito.anyString(),"1"))
           .doesNotThrowAnyException();
     }
 
@@ -354,7 +365,7 @@ public class TimeOffRequestServiceTests {
           .thenReturn(timeOffRequest);
 
       assertThatThrownBy(
-              () -> timeOffRequestService.deleteUnimplementedRequest(Mockito.anyString()))
+              () -> timeOffRequestService.deleteUnimplementedRequest(Mockito.anyString(),"1"))
           .isInstanceOf(ForbiddenException.class);
     }
 
@@ -367,7 +378,7 @@ public class TimeOffRequestServiceTests {
           .thenReturn(timeOffRequest);
 
       assertThatThrownBy(
-              () -> timeOffRequestService.deleteUnimplementedRequest(Mockito.anyString()))
+              () -> timeOffRequestService.deleteUnimplementedRequest(Mockito.anyString(),"1"))
           .isInstanceOf(ForbiddenException.class);
     }
   }

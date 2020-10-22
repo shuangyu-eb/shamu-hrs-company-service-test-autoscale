@@ -368,9 +368,10 @@ public class TimeOffRequestService {
   }
 
   @Transactional
-  public void deleteUnimplementedRequest(final String requestId) {
+  public void deleteUnimplementedRequest(final String requestId, final String deleterId) {
     final TimeOffRequest timeOffRequest = findByRequestId(requestId);
-    if (isRequestCanbeDeleted(timeOffRequest)) {
+    if (isRequestCanbeDeleted(timeOffRequest) ||
+        isManagerDeleteRequest(timeOffRequest.getRequesterUser().getManagerUser(), deleterId)) {
       timeOffRequestRepository.delete(timeOffRequest);
       timeOffRequestEmailService.sendDeleteRequestEmail(timeOffRequest);
     } else {
@@ -386,6 +387,14 @@ public class TimeOffRequestService {
     return AWAITING_REVIEW.name().equals(status)
         || DENIED.name().equals(status)
         || (APPROVED.name().equals(status) && now.getTime() <= startDate.getTime());
+  }
+
+  private boolean isManagerDeleteRequest(final User requesterManager, final String deleterId) {
+    final User deleter = userService.findById(deleterId);
+    return requesterManager != null
+        && deleterId.equals(requesterManager.getId())
+        || deleter.getRole()==Role.ADMIN
+        || deleter.getRole() == Role.SUPER_ADMIN;
   }
 
   public TimeOffRequestDetailDto findTimeOffRequestDetail(
