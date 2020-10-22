@@ -919,23 +919,39 @@ class UserServiceTests {
     assertThat(resultUser).isEqualTo(user);
   }
 
-  @Test
-  void testDeleteUser() {
-    final com.auth0.json.mgmt.users.User auth0User = new com.auth0.json.mgmt.users.User();
+  @Nested
+  class DeleteUser {
     final User employee = new User();
-    final User deletedUser = new User();
-    final UserContactInformation userContactInformation = new UserContactInformation();
-    employee.setId("1");
-    userContactInformation.setEmailWork("@indeed.com");
-    employee.setUserContactInformation(userContactInformation);
-    Mockito.when(userRepository.findAllByManagerUserId(Mockito.anyString()))
-        .thenReturn(Collections.emptyList());
-    Mockito.when(entityManager.find(Mockito.any(), Mockito.any())).thenReturn(deletedUser);
-    Mockito.when(
-            auth0Helper.getAuth0UserByIdWithByEmailFailover(
-                Mockito.anyString(), Mockito.anyString()))
-        .thenReturn(auth0User);
-    assertThatCode(() -> userService.deleteUser(employee)).doesNotThrowAnyException();
+
+    @BeforeEach
+    void init() {
+      final User deletedUser = new User();
+      final UserContactInformation userContactInformation = new UserContactInformation();
+      employee.setId("1");
+      userContactInformation.setEmailWork("@indeed.com");
+      employee.setUserContactInformation(userContactInformation);
+      employee.setUserStatus(new UserStatus(Status.PENDING_VERIFICATION.name()));
+      Mockito.when(userRepository.findAllByManagerUserId(Mockito.anyString()))
+          .thenReturn(Collections.emptyList());
+      Mockito.when(entityManager.find(Mockito.any(), Mockito.any())).thenReturn(deletedUser);
+    }
+
+    @Test
+    void whenProcessIsOk_thenShouldNotThrow() {
+      final com.auth0.json.mgmt.users.User auth0User = new com.auth0.json.mgmt.users.User();
+      Mockito.when(
+          auth0Helper.getAuth0UserByIdWithByEmailFailover(
+              Mockito.anyString(), Mockito.anyString()))
+          .thenReturn(auth0User);
+      assertThatCode(() -> userService.deleteUser(employee)).doesNotThrowAnyException();
+    }
+
+    @Test
+    void whenIsIndeedEnvAndPendingStatus_thenShouldNotCall() {
+      Mockito.when(auth0Helper.isIndeedEnvironment()).thenReturn(true);
+      Mockito.verify(auth0Helper, Mockito.times(0)).deleteUser(Mockito.anyString());
+    }
+
   }
 
   @Test

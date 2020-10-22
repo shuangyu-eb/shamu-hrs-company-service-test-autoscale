@@ -502,11 +502,13 @@ public class UserService {
     }
 
     final String employeeWorkEmail = employee.getUserContactInformation().getEmailWork();
-
-    auth0Helper.deleteUser(
-        auth0Helper
-            .getAuth0UserByIdWithByEmailFailover(employee.getId(), employeeWorkEmail)
-            .getId());
+    if (!(auth0Helper.isIndeedEnvironment()
+        && employee.getUserStatus().getName().equals(Status.PENDING_VERIFICATION.name()))) {
+      auth0Helper.deleteUser(
+          auth0Helper
+              .getAuth0UserByIdWithByEmailFailover(employee.getId(), employeeWorkEmail)
+              .getId());
+    }
   }
 
   private void adjustUserManagerRelationshipBeforeDeleteOrDeactivate(final User user) {
