@@ -144,4 +144,10 @@ public class AttendanceSettingsController extends BaseRestController {
     overtimeService.updateEmployeeOvertimePolicies(employeeOvertimeDetailsDtoList);
     return new ResponseEntity(HttpStatus.OK);
   }
+
+  @GetMapping("time-and-attendance/overtime-alert-minutes")
+  @PreAuthorize("hasAuthority('MANAGE_TEAM_USER')")
+  public Integer findOvertimeAlertMinutes() {
+    return attendanceSettingsService.findOvertimeAlertMinutes();
+  }
 }

@@ -222,4 +222,18 @@ public class AttendanceSettingsControllerTests extends WebControllerBaseTests {
 
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
   }
+
+  @Test
+  void testFindTeamHoursSummary() throws Exception {
+    setPermission(Permission.Name.MANAGE_TEAM_USER.name());
+
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.get("/company/time-and-attendance/overtime-alert-minutes")
+                    .headers(httpHeaders))
+            .andReturn();
+
+    assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+  }
 }

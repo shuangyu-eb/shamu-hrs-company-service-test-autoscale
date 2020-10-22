@@ -1,7 +1,5 @@
 package shamu.company.attendance.service;
 
-import java.util.List;
-import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import shamu.company.attendance.dto.CompanyTaSettingsDto;
@@ -20,6 +18,9 @@ import shamu.company.common.entity.mapper.PayrollDetailMapper;
 import shamu.company.common.service.PayrollDetailService;
 import shamu.company.user.entity.User;
 import shamu.company.user.repository.UserRepository;
+
+import java.util.List;
+import java.util.Optional;
 
 /** @author mshumaker */
 @Service
@@ -138,5 +139,13 @@ public class AttendanceSettingsService {
 
   public int findApprovalDaysBeforePayroll() {
     return companyTaSettingRepository.findApprovalDaysBeforePayroll();
+  }
+
+  public Integer findOvertimeAlertMinutes() {
+    final CompanyTaSetting companyTaSetting = findCompanySetting();
+    if (companyTaSetting != null) {
+      return findCompanySetting().getOvertimeAlert();
+    }
+    return null;
   }
 }

@@ -1,9 +1,5 @@
 package shamu.company.attendance;
 
-import static org.assertj.core.api.Assertions.assertThatCode;
-
-import java.util.Collections;
-import java.util.List;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -28,6 +24,11 @@ import shamu.company.common.entity.mapper.PayrollDetailMapper;
 import shamu.company.common.service.PayrollDetailService;
 import shamu.company.job.repository.JobUserRepository;
 import shamu.company.user.repository.UserRepository;
+
+import java.util.Collections;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 public class AttendanceSettingsServiceTests {
 
@@ -116,5 +117,15 @@ public class AttendanceSettingsServiceTests {
       Assertions.assertThat(attendanceSettingsService.findCompanySetting())
           .isEqualTo(companyTaSettings.get(0));
     }
+  }
+
+  @Test
+  void findOvertimeAlertMinutes() {
+    final CompanyTaSetting companyTaSetting = new CompanyTaSetting();
+    companyTaSetting.setOvertimeAlert(30);
+    Mockito.when(companyTaSettingRepository.findAll())
+        .thenReturn(Collections.singletonList(companyTaSetting));
+    assertThatCode(() -> attendanceSettingsService.findOvertimeAlertMinutes())
+        .doesNotThrowAnyException();
   }
 }
