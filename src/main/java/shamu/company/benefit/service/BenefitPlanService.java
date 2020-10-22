@@ -50,6 +50,7 @@ import shamu.company.benefit.dto.EnrollmentBreakdownDto;
 import shamu.company.benefit.dto.EnrollmentBreakdownSearchCondition;
 import shamu.company.benefit.dto.NewBenefitPlanWrapperDto;
 import shamu.company.benefit.dto.RetirementDto;
+import shamu.company.benefit.dto.RetirementUserDto;
 import shamu.company.benefit.dto.SelectedEnrollmentInfoDto;
 import shamu.company.benefit.dto.UserBenefitPlanDto;
 import shamu.company.benefit.entity.BenefitCoverages;
@@ -65,6 +66,7 @@ import shamu.company.benefit.entity.BenefitPlanUser;
 import shamu.company.benefit.entity.BenefitReportPlansPojo;
 import shamu.company.benefit.entity.EnrollmentBreakdownPojo;
 import shamu.company.benefit.entity.RetirementPayTypes;
+import shamu.company.benefit.entity.RetirementPayTypes.PayTypes;
 import shamu.company.benefit.entity.RetirementPayment;
 import shamu.company.benefit.entity.RetirementPlanType;
 import shamu.company.benefit.entity.RetirementType;
@@ -108,9 +110,7 @@ public class BenefitPlanService {
 
   private static final String DEFAULT_ID = "default";
 
-  private static final String PERCENTAGE_OF_PAY = "Percentage of Gross Pay";
-
-  private static final String AMOUNT = "Amount";
+  private static final String RETIREMENT_TYPE_NAME = "Retirement";
 
   private final BenefitPlanRepository benefitPlanRepository;
 
@@ -241,6 +241,14 @@ public class BenefitPlanService {
 
     if (isRetirement) {
       saveRetirementPayment(benefitPlanCreateDto, benefitPlan);
+
+      final RetirementType retirementType =
+          retirementTypeRepository.findByName(
+              benefitPlanCreateDto.getRetirement().getRetirementTypeName());
+
+      final RetirementPlanType retirementPlanType =
+          new RetirementPlanType(createdBenefitPlan, retirementType);
+      retirementPlanTypeRepository.save(retirementPlanType);
     } else if (!benefitPlanCoverageDtoList.isEmpty()) {
       saveBenefitCoverages(benefitPlanCoverageDtoList, createdBenefitPlan, benefitUsers);
     }
@@ -283,30 +291,20 @@ public class BenefitPlanService {
     final RetirementPayment retirementPayment =
         retirementPaymentMapper.convertToRetirementPayment(benefitPlanCreateDto);
     final RetirementDto retirementDto = benefitPlanCreateDto.getRetirement();
-    final RetirementPayTypes percentageRetirementType = retirementPayTypesRepository.findByName(PERCENTAGE_OF_PAY);
-    final RetirementPayTypes amountRetirementType = retirementPayTypesRepository.findByName(AMOUNT);
+    final RetirementPayTypes percentageRetirementType =
+        retirementPayTypesRepository.findByName(PayTypes.PERCENTAGE_OF_GROSS_PAY.getValue());
+    final RetirementPayTypes amountRetirementType =
+        retirementPayTypesRepository.findByName(PayTypes.AMOUNT.getValue());
 
     retirementPayment.setEmployeeDeduction(
-        retirementDto.getIsEmployeePercentage()
-            ? percentageRetirementType
-            : amountRetirementType);
+        retirementDto.getIsEmployeePercentage() ? percentageRetirementType : amountRetirementType);
 
     retirementPayment.setCompanyContribution(
-        retirementDto.getIsCompanyPercentage()
-            ? percentageRetirementType
-            : amountRetirementType);
+        retirementDto.getIsCompanyPercentage() ? percentageRetirementType : amountRetirementType);
 
     retirementPayment.setLimitStandard(retirementDto.getIsDeductionLimit());
     retirementPayment.setBenefitPlan(createdBenefitPlan);
     retirementPaymentRepository.save(retirementPayment);
-
-    final RetirementType retirementType =
-        retirementTypeRepository.findByName(
-            benefitPlanCreateDto.getRetirement().getRetirementTypeName());
-
-    final RetirementPlanType retirementPlanType =
-        new RetirementPlanType(createdBenefitPlan, retirementType);
-    retirementPlanTypeRepository.save(retirementPlanType);
   }
 
   private void saveBenefitPlanUsers(
@@ -361,7 +359,13 @@ public class BenefitPlanService {
     updateBenefitDocuments(benefitPlan, data.getBenefitPlan().getRemainingDocumentIds());
     final BenefitPlan updatedBenefitPlan = benefitPlanRepository.save(benefitPlan);
 
-    updateRetirementPlanType(benefitPlanCreateDto, planId, updatedBenefitPlan);
+    // update retirement benefit plan
+    if (CollectionUtils.isEmpty(data.getCoverages())) {
+      retirementPaymentRepository.delete(
+          retirementPaymentRepository.findByBenefitPlanAndUserIsNull(updatedBenefitPlan).getId());
+      saveRetirementPayment(benefitPlanCreateDto, updatedBenefitPlan);
+      updateRetirementPlanType(benefitPlanCreateDto, planId, updatedBenefitPlan);
+    }
 
     List<BenefitPlanCoverage> benefitPlanCoverageList = new ArrayList<>();
 
@@ -430,12 +434,13 @@ public class BenefitPlanService {
       final BenefitPlan updatedBenefitPlan) {
     final RetirementPlanType retirementPlanType =
         retirementPlanTypeRepository.findByBenefitPlan(new BenefitPlan(planId));
+    final String currentPlanTypeName = benefitPlanCreateDto.getRetirement().getRetirementTypeName();
 
-    if (benefitPlanCreateDto.getRetirementTypeId() != null) {
+    if (!currentPlanTypeName.equals(retirementPlanType.getRetirementType().getName())) {
+      final RetirementType retirementType =
+          retirementTypeRepository.findByName(currentPlanTypeName);
       final RetirementPlanType newRetirementPlanType =
-          new RetirementPlanType(
-              updatedBenefitPlan,
-              new RetirementType(benefitPlanCreateDto.getRetirementTypeId()));
+          new RetirementPlanType(updatedBenefitPlan, retirementType);
       retirementPlanTypeMapper.updateFromNewRetirementPlanType(
           retirementPlanType, newRetirementPlanType);
       retirementPlanTypeRepository.save(retirementPlanType);
@@ -512,8 +517,8 @@ public class BenefitPlanService {
     final List<BenefitPlanUser> benefitPlanUsers =
         benefitPlanUserRepository.findAllByBenefitPlan(new BenefitPlan(planId));
     if (!data.getSelectedEmployees().isEmpty()) {
-      final List<BenefitPlanUserCreateDto> benefitPlanUserCreateDtoList;
-      benefitPlanUserCreateDtoList = data.getSelectedEmployees();
+      final List<BenefitPlanUserCreateDto> benefitPlanUserCreateDtoList =
+          data.getSelectedEmployees();
       updateBenefitPlanUsers(planId, benefitPlanUserCreateDtoList, benefitPlanCoverageList);
     }
     benefitPlanUserRepository.delete(benefitPlanUsers);
@@ -614,12 +619,22 @@ public class BenefitPlanService {
 
     // Retirement type
     if (CollectionUtils.isEmpty(benefitPlanCoverageList)) {
-      benefitPlanUserRepository.saveAll(
+      final List<RetirementPayment> existRetirementPayments =
+          retirementPaymentRepository.findAllByBenefitPlanAndUserIsNotNull(
+              new BenefitPlan(benefitPlanId));
+      retirementPaymentRepository.delete(existRetirementPayments);
+      retirementPaymentRepository.saveAll(
           benefitPlanUsers.stream()
               .map(
                   saveBenefitPlanUserCreateDto ->
-                      benefitPlanUserMapper.createFromBenefitPlanUserCreateDtoAndBenefitPlanId(
-                          saveBenefitPlanUserCreateDto, benefitPlanId, null, true, true))
+                      retirementPaymentMapper.convertToRetirementPayment(
+                          saveBenefitPlanUserCreateDto,
+                          new RetirementPayTypes(
+                              saveBenefitPlanUserCreateDto.getEmployeeDeduction()),
+                          new RetirementPayTypes(
+                              saveBenefitPlanUserCreateDto.getCompanyContribution()),
+                          new User(saveBenefitPlanUserCreateDto.getId()),
+                          new BenefitPlan(benefitPlanId)))
               .collect(Collectors.toList()));
     } else {
       benefitPlanUsers.forEach(
@@ -844,22 +859,58 @@ public class BenefitPlanService {
 
   public BenefitPlanUpdateDto getBenefitPlanByPlanId(final String planId) {
     final BenefitPlan benefitPlan = benefitPlanRepository.findBenefitPlanById(planId);
-    final List<BenefitPlanCoverage> benefitPlanCoverage =
-        benefitPlanCoverageRepository.findAllByBenefitPlanId(planId);
-    final List<BenefitPlanUser> benefitPlanUsers =
-        benefitPlanUserRepository.findAllByBenefitPlan(new BenefitPlan(planId));
-    final RetirementPlanType retirementPlanType =
-        retirementPlanTypeRepository.findByBenefitPlan(new BenefitPlan(planId));
-    final BenefitPlanUpdateDto benefitPlanUpdateDto =
-        benefitPlanMapper.convertToOldBenefitPlanDto(
-            benefitPlan, benefitPlanCoverage, benefitPlanUsers, retirementPlanType);
-    benefitPlanUpdateDto
-        .getBenefitPlanCoverages()
-        .forEach(
-            benefitPlanCoverageDto ->
-                benefitPlanCoverageDto.setCoverageName(
-                    getBenefitCoveragesById(benefitPlanCoverageDto.getCoverageId()).getName()));
-    return benefitPlanUpdateDto;
+
+    if (RETIREMENT_TYPE_NAME.equals(benefitPlan.getBenefitPlanType().getName())) {
+      final String percentageName = PayTypes.PERCENTAGE_OF_GROSS_PAY.getValue();
+      final String retirementTypeName =
+          retirementPlanTypeRepository.findByBenefitPlan(benefitPlan).getRetirementType().getName();
+      final List<RetirementPayment> retirementUserPayments =
+          retirementPaymentRepository.findAllByBenefitPlanAndUserIsNotNull(benefitPlan);
+
+      final RetirementPayment planRetirementPayment =
+          retirementPaymentRepository.findByBenefitPlanAndUserIsNull(benefitPlan);
+      final RetirementDto retirementDto =
+          RetirementDto.builder()
+              .isEmployeePercentage(
+                  planRetirementPayment.getEmployeeDeduction().getName().equals(percentageName))
+              .isCompanyPercentage(
+                  planRetirementPayment.getCompanyContribution().getName().equals(percentageName))
+              .isDeductionLimit(planRetirementPayment.getLimitStandard())
+              .retirementTypeName(retirementTypeName)
+              .build();
+      final BenefitPlanDto benefitPlanDto =
+          retirementPaymentMapper.convertToBenefitPlanByRetirement(
+              benefitPlan, planRetirementPayment, retirementDto);
+
+      final List<BenefitPlanUserDto> benefitPlanUserDtos =
+          retirementUserPayments.stream()
+              .map(
+                  retirementPayment ->
+                      retirementPaymentMapper.convertToBenefitPlanUserDto(
+                          retirementPayment.getUser(),
+                          retirementPaymentMapper.convertToRetirementPayment(retirementPayment)))
+              .collect(Collectors.toList());
+
+      return benefitPlanMapper.convertToRBenefitRetirementDto(benefitPlanDto, benefitPlanUserDtos);
+
+    } else {
+      final List<BenefitPlanCoverage> benefitPlanCoverage =
+          benefitPlanCoverageRepository.findAllByBenefitPlanId(planId);
+      final List<BenefitPlanUser> benefitPlanUsers =
+          benefitPlanUserRepository.findAllByBenefitPlan(new BenefitPlan(planId));
+      final RetirementPlanType retirementPlanType =
+          retirementPlanTypeRepository.findByBenefitPlan(new BenefitPlan(planId));
+      final BenefitPlanUpdateDto benefitPlanUpdateDto =
+          benefitPlanMapper.convertToOldBenefitPlanDto(
+              benefitPlan, benefitPlanCoverage, benefitPlanUsers, retirementPlanType);
+      benefitPlanUpdateDto
+          .getBenefitPlanCoverages()
+          .forEach(
+              benefitPlanCoverageDto ->
+                  benefitPlanCoverageDto.setCoverageName(
+                      getBenefitCoveragesById(benefitPlanCoverageDto.getCoverageId()).getName()));
+      return benefitPlanUpdateDto;
+    }
   }
 
   public void saveBenefitPlanDocuments(
@@ -900,27 +951,61 @@ public class BenefitPlanService {
 
   public void updateBenefitPlanEmployees(
       final List<BenefitPlanUserCreateDto> employees, final String benefitPlanId) {
-    final List<String> existIds =
-        benefitPlanUserRepository.findAllByBenefitPlanId(benefitPlanId).stream()
-            .map(BenefitPlanUser::getId)
-            .collect(Collectors.toList());
-    if (!CollectionUtils.isEmpty(existIds)) {
-      benefitPlanUserRepository.deleteInBatch(existIds);
+    final boolean isRetirement =
+        RETIREMENT_TYPE_NAME.equals(
+            benefitPlanRepository
+                .findBenefitPlanById(benefitPlanId)
+                .getBenefitPlanType()
+                .getName());
+
+    if (isRetirement) {
+      final BenefitPlan benefitPlan = new BenefitPlan(benefitPlanId);
+      final List<RetirementPayment> existPayments =
+          retirementPaymentRepository.findAllByBenefitPlanAndUserIsNotNull(benefitPlan);
+      retirementPaymentRepository.delete(existPayments);
+
+      retirementPaymentRepository.saveAll(
+          employees.stream()
+              .map(
+                  benefitPlanUserCreateDto ->
+                      retirementPaymentMapper.convertToRetirementPayment(
+                          benefitPlanUserCreateDto,
+                          new RetirementPayTypes(benefitPlanUserCreateDto.getEmployeeDeduction()),
+                          new RetirementPayTypes(benefitPlanUserCreateDto.getCompanyContribution()),
+                          new User(benefitPlanUserCreateDto.getId()),
+                          benefitPlan))
+              .collect(Collectors.toList()));
+
+    } else {
+      final List<String> existIds =
+          benefitPlanUserRepository.findAllByBenefitPlanId(benefitPlanId).stream()
+              .map(BenefitPlanUser::getId)
+              .collect(Collectors.toList());
+      if (!CollectionUtils.isEmpty(existIds)) {
+        benefitPlanUserRepository.deleteInBatch(existIds);
+      }
+      benefitPlanUserRepository.saveAll(
+          employees.stream()
+              .map(
+                  benefitPlanUserCreateDto -> {
+                    final BenefitPlanCoverage benefitPlanCoverage = new BenefitPlanCoverage();
+                    benefitPlanCoverage.setId(benefitPlanUserCreateDto.getCoverage());
+                    return benefitPlanUserMapper.createFromBenefitPlanUserCreateDtoAndBenefitPlanId(
+                        benefitPlanUserCreateDto, benefitPlanId, benefitPlanCoverage, true, true);
+                  })
+              .collect(Collectors.toList()));
     }
-    benefitPlanUserRepository.saveAll(
-        employees.stream()
-            .map(
-                benefitPlanUserCreateDto -> {
-                  final BenefitPlanCoverage benefitPlanCoverage = new BenefitPlanCoverage();
-                  benefitPlanCoverage.setId(benefitPlanUserCreateDto.getCoverage());
-                  return benefitPlanUserMapper.createFromBenefitPlanUserCreateDtoAndBenefitPlanId(
-                      benefitPlanUserCreateDto, benefitPlanId, benefitPlanCoverage, true, true);
-                })
-            .collect(Collectors.toList()));
   }
 
-  public BenefitPlanRelatedUserListDto findAllEmployeesForBenefitPlan(final String benefitPlanId) {
+  public List<BenefitPlanUserDto> findAllEmployeesForBenefitPlan(final String benefitPlanId) {
     final List<User> policyEmployees = userRepository.findAllActiveUsers();
+
+    final boolean isRetirement =
+        RETIREMENT_TYPE_NAME.equals(
+            benefitPlanRepository
+                .findBenefitPlanById(benefitPlanId)
+                .getBenefitPlanType()
+                .getName());
 
     final List<JobUserDto> allJobUsers =
         policyEmployees.stream()
@@ -931,23 +1016,58 @@ public class BenefitPlanService {
                   return new JobUserDto(user, employeeWithJob, name);
                 })
             .collect(Collectors.toList());
+
     final List<BenefitPlanUserDto> allUsers =
         allJobUsers.stream()
             .map(jobUserMapper::covertToBenefitPlanUserDto)
             .collect(Collectors.toList());
-    final List<BenefitPlanUserDto> selectUsers =
-        benefitPlanUserRepository.findAllByBenefitPlanId(benefitPlanId).stream()
-            .map(benefitPlanUserMapper::convertToBenefitPlanUserDto)
-            .collect(Collectors.toList());
-    selectUsers.forEach(
-        s ->
-            allUsers.forEach(
-                user -> {
-                  if (user.getId().equals(s.getId())) {
-                    user.setCoverageId(s.getCoverageId());
-                  }
-                }));
-    return new BenefitPlanRelatedUserListDto(null, allUsers);
+
+    if (isRetirement) {
+      final BenefitPlan benefitPlan = new BenefitPlan(benefitPlanId);
+      final RetirementPayment planRetirementPayment =
+          retirementPaymentRepository.findByBenefitPlanAndUserIsNull(benefitPlan);
+      final RetirementUserDto planRetirementUserDto =
+          retirementPaymentMapper.convertToRetirementPayment(planRetirementPayment);
+
+      final List<BenefitPlanUserDto> selectUsers =
+          retirementPaymentRepository.findAllByBenefitPlanAndUserIsNotNull(benefitPlan).stream()
+              .map(
+                  retirementPayment -> {
+                    final RetirementUserDto retirementUserDto =
+                        retirementPaymentMapper.convertToRetirementPayment(retirementPayment);
+                    return retirementPaymentMapper.convertToBenefitPlanUserDto(
+                        retirementPayment.getUser(), retirementUserDto);
+                  })
+              .collect(Collectors.toList());
+
+      allUsers.forEach(
+          user -> {
+            final List<BenefitPlanUserDto> benefitPlanUserDtos =
+                selectUsers.stream()
+                    .filter(selectUser -> selectUser.getId().equals(user.getId()))
+                    .collect(Collectors.toList());
+            if (CollectionUtils.isEmpty(benefitPlanUserDtos)) {
+              user.setRetirementUserDto(planRetirementUserDto);
+            } else {
+              user.setCoverageId(RETIREMENT_TYPE_NAME);
+              user.setRetirementUserDto(benefitPlanUserDtos.get(0).getRetirementUserDto());
+            }
+          });
+    } else {
+      final List<BenefitPlanUserDto> selectUsers =
+          benefitPlanUserRepository.findAllByBenefitPlanId(benefitPlanId).stream()
+              .map(benefitPlanUserMapper::convertToBenefitPlanUserDto)
+              .collect(Collectors.toList());
+      selectUsers.forEach(
+          s ->
+              allUsers.forEach(
+                  user -> {
+                    if (user.getId().equals(s.getId())) {
+                      user.setCoverageId(s.getCoverageId());
+                    }
+                  }));
+    }
+    return allUsers;
   }
 
   public List<BenefitCoveragesDto> findAllCoveragesByBenefitPlan(final String benefitPlanId) {

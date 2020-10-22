@@ -5,13 +5,16 @@ import java.math.BigInteger;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import shamu.company.benefit.dto.BenefitPlanCreateDto;
+import shamu.company.benefit.dto.BenefitPlanDto;
 import shamu.company.benefit.dto.BenefitPlanUserCreateDto;
+import shamu.company.benefit.dto.BenefitPlanUserDto;
+import shamu.company.benefit.dto.RetirementDto;
+import shamu.company.benefit.dto.RetirementUserDto;
 import shamu.company.benefit.entity.BenefitPlan;
 import shamu.company.benefit.entity.RetirementPayTypes;
 import shamu.company.benefit.entity.RetirementPayment;
 import shamu.company.common.mapper.Config;
 import shamu.company.user.entity.User;
-import shamu.company.user.entity.UserCompensation;
 
 @Mapper(config = Config.class)
 public interface RetirementPaymentMapper {
@@ -35,6 +38,26 @@ public interface RetirementPaymentMapper {
   RetirementPayment convertToRetirementPayment(BenefitPlanUserCreateDto benefitPlanUserCreateDto,
       RetirementPayTypes employeeDeduction, RetirementPayTypes companyContribution, User user, BenefitPlan benefitPlan);
 
+  @Mapping(target = "id", source = "user.id")
+  @Mapping(target = "retirementUserDto", source = "retirementUserDto")
+  BenefitPlanUserDto convertToBenefitPlanUserDto(User user, RetirementUserDto retirementUserDto);
+
+  @Mapping(target = "companyContribution", source = "companyContribution.id")
+  @Mapping(target = "employeeDeduction", source = "employeeDeduction.id")
+  @Mapping(target = "annualMaximum", expression = "java(updateCompensationDollar(retirementPayment.getCompanyMaximumContribution()))")
+  @Mapping(target = "contributionValue", expression = "java(updateCompensationDollar(retirementPayment.getCompanyContributionValue()))")
+  @Mapping(target = "deductionValue", expression = "java(updateCompensationDollar(retirementPayment.getEmployeeDeductionValue()))")
+  @Mapping(target = "isDeductionLimit", source = "limitStandard")
+  RetirementUserDto convertToRetirementPayment(RetirementPayment retirementPayment);
+
+  @Mapping(target = "retirement", source = "retirement")
+  @Mapping(target = "id", source = "benefitPlan.id")
+  @Mapping(target = "annualMaximum", expression = "java(updateCompensationDollar(retirementPayment.getCompanyMaximumContribution()))")
+  @Mapping(target = "contributionValue", expression = "java(updateCompensationDollar(retirementPayment.getCompanyContributionValue()))")
+  @Mapping(target = "deductionValue", expression = "java(updateCompensationDollar(retirementPayment.getEmployeeDeductionValue()))")
+  BenefitPlanDto convertToBenefitPlanByRetirement(
+      BenefitPlan benefitPlan, RetirementPayment retirementPayment, RetirementDto retirement);
+
   default BigInteger updateCompensationCents(final Double compensationWage) {
     if (compensationWage != null) {
       final BigDecimal bd = BigDecimal.valueOf(compensationWage * 100);
@@ -43,7 +66,10 @@ public interface RetirementPaymentMapper {
     return null;
   }
 
-  default Double updateCompensationDollar(final UserCompensation userCompensation) {
-    return userCompensation.getWageCents().doubleValue() / 100;
+  default Double updateCompensationDollar(final BigInteger compensationDollar) {
+    if (compensationDollar != null) {
+      return compensationDollar.doubleValue() / 100;
+    }
+    return null;
   }
 }

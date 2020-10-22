@@ -857,6 +857,9 @@ class BenefitPlanServiceTests {
     BenefitPlanUpdateDto benefitPlanUpdateDto;
     BenefitCoverages benefitCoverages;
     String userId = "userId";
+    String planId = "planId";
+    BenefitPlan benefitPlan;
+    BenefitPlanType benefitPlanType;
 
     @BeforeEach
     void init() {
@@ -869,6 +872,10 @@ class BenefitPlanServiceTests {
 
       benefitCoverages = new BenefitCoverages();
       benefitCoverages.setName("name");
+      benefitPlan = new BenefitPlan();
+      benefitPlanType = new BenefitPlanType();
+      benefitPlanType.setName("Medical");
+      benefitPlan.setBenefitPlanType(benefitPlanType);
     }
 
     @Test
@@ -879,7 +886,8 @@ class BenefitPlanServiceTests {
           .thenReturn(benefitPlanUpdateDto);
       Mockito.when(benefitCoveragesRepository.findById("coverageId"))
           .thenReturn(Optional.of(benefitCoverages));
-      benefitPlanService.getBenefitPlanByPlanId(userId);
+      Mockito.when(benefitPlanRepository.findBenefitPlanById(planId)).thenReturn(benefitPlan);
+      benefitPlanService.getBenefitPlanByPlanId(planId);
       Mockito.verify(benefitCoveragesRepository, Mockito.times(1)).findById("coverageId");
     }
   }
@@ -889,11 +897,17 @@ class BenefitPlanServiceTests {
     List<BenefitPlanUserCreateDto> employees;
     String benefitPlanId;
     String companyId;
+    BenefitPlan benefitPlan;
+    BenefitPlanType benefitPlanType;
 
     @BeforeEach
     void init() {
       employees = new ArrayList<>();
       benefitPlanId = "benefitId";
+      benefitPlan = new BenefitPlan();
+      benefitPlanType = new BenefitPlanType();
+      benefitPlanType.setName("Medical");
+      benefitPlan.setBenefitPlanType(benefitPlanType);
     }
 
     @Test
@@ -902,7 +916,7 @@ class BenefitPlanServiceTests {
       employee.setId("employeeId");
       employee.setCoverage("coverageId");
       employees.add(employee);
-
+      Mockito.when(benefitPlanRepository.findBenefitPlanById(benefitPlanId)).thenReturn(benefitPlan);
       benefitPlanService.updateBenefitPlanEmployees(employees, benefitPlanId);
       Mockito.verify(userMapper, Mockito.times(0)).covertToBenefitPlanUserDto(Mockito.any());
     }
@@ -1373,6 +1387,8 @@ class BenefitPlanServiceTests {
     JobUser jobUser;
     JobUserDto jobUserDto;
     Job job;
+    BenefitPlan benefitPlan;
+    BenefitPlanType benefitPlanType;
 
     @BeforeEach
     void init() {
@@ -1380,6 +1396,10 @@ class BenefitPlanServiceTests {
       benefitPlanUserDto.setId("userId");
       benefitPlanId = "benefitPlanId";
       companyId = "companyId";
+      benefitPlan = new BenefitPlan();
+      benefitPlanType = new BenefitPlanType();
+      benefitPlanType.setName("Medical");
+      benefitPlan.setBenefitPlanType(benefitPlanType);
       allUsers = new ArrayList<>();
       users = new ArrayList<>();
       user = new User();
@@ -1417,6 +1437,7 @@ class BenefitPlanServiceTests {
       Mockito.when(jobUserService.findJobUserByUser(user)).thenReturn(jobUser);
       Mockito.when(jobUserMapper.covertToBenefitPlanUserDto(jobUserDto))
           .thenReturn(benefitPlanUserDto);
+      Mockito.when( benefitPlanRepository.findBenefitPlanById(benefitPlanId)).thenReturn(benefitPlan);
       benefitPlanService.findAllEmployeesForBenefitPlan(benefitPlanId);
       Mockito.verify(benefitPlanUserRepository, Mockito.times(1))
           .findAllByBenefitPlanId(benefitPlanId);

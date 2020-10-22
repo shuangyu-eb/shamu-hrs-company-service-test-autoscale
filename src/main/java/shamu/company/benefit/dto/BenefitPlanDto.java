@@ -29,6 +29,14 @@ public class BenefitPlanDto {
 
   private Company company;
 
+  private Double annualMaximum;
+
+  private Double contributionValue;
+
+  private Double deductionValue;
+
+  private RetirementDto retirement;
+
   private BenefitPlanType benefitPlanType;
 
   private List<BenefitPlanDocumentDto> benefitPlanDocuments;

@@ -9,6 +9,7 @@ import shamu.company.benefit.dto.BenefitPlanCreateDto;
 import shamu.company.benefit.dto.BenefitPlanDetailDto;
 import shamu.company.benefit.dto.BenefitPlanDto;
 import shamu.company.benefit.dto.BenefitPlanUpdateDto;
+import shamu.company.benefit.dto.BenefitPlanUserDto;
 import shamu.company.benefit.entity.BenefitPlan;
 import shamu.company.benefit.entity.BenefitPlanCoverage;
 import shamu.company.benefit.entity.BenefitPlanType;
@@ -52,4 +53,8 @@ public interface BenefitPlanMapper {
       List<BenefitPlanCoverage> benefitPlanCoverages,
       List<BenefitPlanUser> benefitPlanUsers,
       RetirementPlanType retirementPlanType);
+
+  @Mapping(target = "benefitPlan", source = "benefitPlanDto")
+  @Mapping(target = "benefitPlanUsers", source = "benefitPlanUsers")
+  BenefitPlanUpdateDto convertToRBenefitRetirementDto(BenefitPlanDto benefitPlanDto, List<BenefitPlanUserDto> benefitPlanUsers);
 }

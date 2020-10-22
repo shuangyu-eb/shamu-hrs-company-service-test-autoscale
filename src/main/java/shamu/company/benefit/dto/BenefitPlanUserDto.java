@@ -20,4 +20,6 @@ public class BenefitPlanUserDto {
   private String employmentType;
 
   private String coverageId;
+
+  private RetirementUserDto retirementUserDto;
 }

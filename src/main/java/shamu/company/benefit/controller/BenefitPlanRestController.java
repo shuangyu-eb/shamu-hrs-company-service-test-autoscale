@@ -26,6 +26,7 @@ import shamu.company.benefit.dto.BenefitPlanSearchCondition;
 import shamu.company.benefit.dto.BenefitPlanTypeWithoutExpiredDto;
 import shamu.company.benefit.dto.BenefitPlanUpdateDto;
 import shamu.company.benefit.dto.BenefitPlanUserCreateDto;
+import shamu.company.benefit.dto.BenefitPlanUserDto;
 import shamu.company.benefit.dto.BenefitReportParamDto;
 import shamu.company.benefit.dto.BenefitSummaryDto;
 import shamu.company.benefit.dto.EnrollmentBreakdownDto;
@@ -216,7 +217,7 @@ public class BenefitPlanRestController extends BaseRestController {
 
   @GetMapping("benefit-plan/{benefitPlanId}/selectedUsers")
   @PreAuthorize("hasPermission(#benefitPlanId, 'BENEFIT_PLAN', 'MANAGE_BENEFIT_PLAN')")
-  public BenefitPlanRelatedUserListDto getAllUsersByBenefitPlanId(
+  public List<BenefitPlanUserDto> getAllUsersByBenefitPlanId(
       @PathVariable final String benefitPlanId) {
     return benefitPlanService.findAllEmployeesForBenefitPlan(benefitPlanId);
   }

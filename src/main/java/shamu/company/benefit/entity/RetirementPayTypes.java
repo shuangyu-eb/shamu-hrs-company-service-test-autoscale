@@ -20,4 +20,20 @@ public class RetirementPayTypes extends BaseEntity {
     setId(id);
   }
 
+  @NoArgsConstructor
+  public enum PayTypes {
+    PERCENTAGE_OF_GROSS_PAY("Percentage of Gross Pay"),
+    AMOUNT("Amount");
+
+    private String value;
+
+    PayTypes(final String value) {
+      this.value = value;
+    }
+
+    public String getValue() {
+      return value;
+    }
+  }
+
 }
