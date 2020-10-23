@@ -19,7 +19,7 @@ public interface BenefitPlanRepository extends BaseRepository<BenefitPlan, Strin
 
   @Query(
       "select new shamu.company.benefit.dto.BenefitPlanTypeDto("
-          + "bpt.id, bpt.name, bp.endDate, bp.id )"
+          + "bpt.id, bpt.name, bp.endDate)"
           + " from shamu.company.benefit.entity.BenefitPlanType bpt"
           + " left join BenefitPlan bp"
           + " on bp.benefitPlanType.id = bpt.id")

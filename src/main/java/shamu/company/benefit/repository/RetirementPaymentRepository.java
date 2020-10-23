@@ -14,4 +14,6 @@ public interface RetirementPaymentRepository extends BaseRepository<RetirementPa
 
   RetirementPayment findByBenefitPlanAndUserIsNull(BenefitPlan benefitPlan);
 
+  Long countByBenefitPlanIdAndUserIsNotNull(String benefitPlanId);
+
 }

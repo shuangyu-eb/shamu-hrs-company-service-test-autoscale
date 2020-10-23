@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
@@ -562,12 +563,10 @@ public class BenefitPlanService {
       String benefitPlanTypeId = null;
       for (final BenefitPlanTypeDto benefitPlanTypeDto : categoryMap.get(key)) {
         benefitPlanTypeId = benefitPlanTypeDto.getBenefitPlanTypeId();
-        // the plans of retirement type has null endDate and always be active
-        if (benefitPlanTypeDto.getBenefitPlanId() == null
-            || (!benefitPlanTypeDto.getBenefitPlanType().equals(PlanType.RETIREMENT.getValue() )
-                && DateUtil.toLocalDateTime(benefitPlanTypeDto.getBenefitPlanEndDate())
-                        .compareTo(DateUtil.getLocalUtcTime().minusDays(1))
-                    <= 0)) {
+        if (benefitPlanTypeDto.getBenefitPlanEndDate() == null
+            || DateUtil.toLocalDateTime(benefitPlanTypeDto.getBenefitPlanEndDate())
+                    .compareTo(DateUtil.getLocalUtcTime().minusDays(1))
+                <= 0) {
           excludedNumber++;
         }
       }
@@ -1452,6 +1451,12 @@ public class BenefitPlanService {
       final BenefitPlanSearchCondition benefitPlanSearchCondition) {
     final Pageable paramPageable = getBenefitPlanPageable(benefitPlanSearchCondition);
     final Page<BenefitPlanPreviewPojo> benefitPlanPreviewDtoPage;
+    final Optional<BenefitPlanType> benefitPlanTypeOptional =
+        benefitPlanTypeRepository.findById(planTypeId);
+    final String planTypeName =
+        benefitPlanTypeOptional.isPresent() ? benefitPlanTypeOptional.get().getName() : "";
+    final boolean isRetirement = planTypeName.equals(RETIREMENT_TYPE_NAME);
+
     if (expired) {
       benefitPlanPreviewDtoPage =
           benefitPlanRepository.getBenefitPlanList(planTypeId, paramPageable);
@@ -1460,7 +1465,7 @@ public class BenefitPlanService {
           benefitPlanRepository.getBenefitPlanListWithOutExpired(planTypeId, paramPageable);
     }
     final List<BenefitPlanPreviewDto> benefitPlanPreviewDtos =
-        findBenefitPlanContent(benefitPlanPreviewDtoPage.getContent());
+        findBenefitPlanContent(benefitPlanPreviewDtoPage.getContent(), isRetirement);
     return new PageImpl<>(
         benefitPlanPreviewDtos,
         benefitPlanPreviewDtoPage.getPageable(),
@@ -1468,14 +1473,17 @@ public class BenefitPlanService {
   }
 
   private List<BenefitPlanPreviewDto> findBenefitPlanContent(
-      final List<BenefitPlanPreviewPojo> benefitPlanPreviewPojos) {
+      final List<BenefitPlanPreviewPojo> benefitPlanPreviewPojos, final boolean isRetirement) {
     final List<BenefitPlanPreviewDto> benefitPlanPreviewDtos = new ArrayList<>();
     for (final BenefitPlanPreviewPojo benefitPlanPreviewPojo : benefitPlanPreviewPojos) {
       final BenefitPlanPreviewDto benefitPlanPreviewDto = new BenefitPlanPreviewDto();
       BeanUtils.copyProperties(benefitPlanPreviewPojo, benefitPlanPreviewDto);
       benefitPlanPreviewDto.setEnrolledNumber(
-          benefitPlanUserRepository.countByBenefitPlanIdAndEnrolledIsTrue(
-              benefitPlanPreviewPojo.getBenefitPlanId()));
+          isRetirement
+              ? retirementPaymentRepository.countByBenefitPlanIdAndUserIsNotNull(
+                  benefitPlanPreviewPojo.getBenefitPlanId())
+              : benefitPlanUserRepository.countByBenefitPlanIdAndEnrolledIsTrue(
+                  benefitPlanPreviewPojo.getBenefitPlanId()));
       benefitPlanPreviewDtos.add(benefitPlanPreviewDto);
     }
     return benefitPlanPreviewDtos;

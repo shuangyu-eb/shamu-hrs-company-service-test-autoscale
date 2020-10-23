@@ -288,15 +288,15 @@ class BenefitPlanServiceTests {
       final String companyId = "123";
       final List<BenefitPlanTypeDto> benefitPlanTypeDto = new ArrayList<>();
       final BenefitPlanTypeDto benefitPlanTypeDto1 =
-          new BenefitPlanTypeDto("Medical", "Medical", new Date(), "id");
+          new BenefitPlanTypeDto("Medical", "Medical", new Date());
       final BenefitPlanTypeDto benefitPlanTypeDto2 =
-          new BenefitPlanTypeDto("Vision", "Vision", new Date(), "id");
+          new BenefitPlanTypeDto("Vision", "Vision", new Date());
       final BenefitPlanTypeDto benefitPlanTypeDto3 =
-          new BenefitPlanTypeDto("Dental", "Dental", new Date(), "id");
+          new BenefitPlanTypeDto("Dental", "Dental", new Date());
       final BenefitPlanTypeDto benefitPlanTypeDto4 =
-          new BenefitPlanTypeDto("Retirement", "Retirement", new Date(), "id");
+          new BenefitPlanTypeDto("Retirement", "Retirement", new Date());
       final BenefitPlanTypeDto benefitPlanTypeDto5 =
-          new BenefitPlanTypeDto("Other", "Other", new Date(), "id");
+          new BenefitPlanTypeDto("Other", "Other", new Date());
       benefitPlanTypeDto.add(benefitPlanTypeDto1);
       benefitPlanTypeDto.add(benefitPlanTypeDto2);
       benefitPlanTypeDto.add(benefitPlanTypeDto3);
