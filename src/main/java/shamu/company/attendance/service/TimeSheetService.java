@@ -163,7 +163,10 @@ public class TimeSheetService {
   @Transactional
   public void updateCurrentOvertimePolicyByUser(final UserCompensation compensation) {
     final Timesheet timesheet = getCurrentTimesheet(compensation.getUserId());
-    timesheet.setUserCompensation(compensation);
+    if (timesheet != null) {
+      timesheet.setUserCompensation(compensation);
+      timesheetRepository.save(timesheet);
+    }
   }
 
   private Timesheet getCurrentTimesheet(final String userId) {
