@@ -159,7 +159,7 @@ public class UserCompensationService {
           findCurrentByUserId(employeeOvertimeDetailsDto.getEmployeeId());
 
       if (!compensationOrPolicyChanged(employeeOvertimeDetailsDto)) {
-        return;
+        continue;
       }
 
       final Date startDate = new Date();
