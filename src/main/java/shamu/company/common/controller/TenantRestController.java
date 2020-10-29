@@ -16,9 +16,8 @@ import shamu.company.common.exception.errormapping.ForbiddenException;
 import shamu.company.common.exception.errormapping.LiquibaseExecuteFailedException;
 import shamu.company.helpers.dynamodb.DynamoDBManager;
 
-// TODO: change this value to "!local" after ansible script task is done. @haibo-eb
-// "default" is used to do integration tests.
-@Profile({"dev", "default"})
+
+@Profile("!local")
 @RestApiController
 public class TenantRestController {
 
