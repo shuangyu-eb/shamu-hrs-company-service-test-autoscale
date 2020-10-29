@@ -30,6 +30,8 @@ public abstract class DateUtil {
   public static final String DAY_YEAR = "d, yyyy";
   public static final String DAY = "d";
   public static final String HOUR_MINUTE = "HH:mm";
+  public static final long MS_OF_ONE_HOUR = 60 * 60 * 1000L;
+  public static final long MS_OF_ONE_DAY = 24 * MS_OF_ONE_HOUR;
 
   private DateUtil() {}
 
@@ -109,6 +111,10 @@ public abstract class DateUtil {
     return new Timestamp(date);
   }
 
+  public static Timestamp toTimestamp(final Date date) {
+    return new Timestamp(date.getTime());
+  }
+
   // Get current UTC time
   public static LocalDateTime getLocalUtcTime() {
     return LocalDateTime.now(ZoneOffset.UTC);
@@ -163,7 +169,7 @@ public abstract class DateUtil {
   }
 
   public static String formatTimestampWithTimezone(
-          final Timestamp timestamp, final String format, final String timeZoneName) {
+      final Timestamp timestamp, final String format, final String timeZoneName) {
     final Calendar calendar = getCalendarInstance(timestamp.getTime(), timeZoneName);
     return formatCalendarWithTimezone(calendar, format);
   }

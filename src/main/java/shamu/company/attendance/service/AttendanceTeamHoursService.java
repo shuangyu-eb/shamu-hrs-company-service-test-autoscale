@@ -27,14 +27,17 @@ import shamu.company.user.service.UserService;
 import shamu.company.utils.DateUtil;
 
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static shamu.company.utils.DateUtil.MS_OF_ONE_DAY;
+import static shamu.company.utils.DateUtil.toTimestamp;
 
 @Transactional
 @Service
@@ -49,6 +52,7 @@ public class AttendanceTeamHoursService {
   private final TimeSheetService timeSheetService;
   private final AttendanceMyHoursService attendanceMyHoursService;
   private final AttendanceSettingsService attendanceSettingsService;
+  private final AttendanceSetUpService attendanceSetUpService;
   private final OvertimeService overtimeService;
   private final TimeOffRequestService timeOffRequestService;
   private final StaticTimesheetStatusService staticTimesheetStatusService;
@@ -62,6 +66,7 @@ public class AttendanceTeamHoursService {
       final TimeSheetService timeSheetService,
       final AttendanceMyHoursService attendanceMyHoursService,
       final AttendanceSettingsService attendanceSettingsService,
+      final AttendanceSetUpService attendanceSetUpService,
       final OvertimeService overtimeService,
       final TimeOffRequestService timeOffRequestService,
       final StaticTimesheetStatusService statusService,
@@ -73,6 +78,7 @@ public class AttendanceTeamHoursService {
     this.timeSheetService = timeSheetService;
     this.attendanceMyHoursService = attendanceMyHoursService;
     this.attendanceSettingsService = attendanceSettingsService;
+    this.attendanceSetUpService = attendanceSetUpService;
     this.overtimeService = overtimeService;
     this.timeOffRequestService = timeOffRequestService;
     staticTimesheetStatusService = statusService;
@@ -272,20 +278,35 @@ public class AttendanceTeamHoursService {
   public AttendanceDetailDto findAttendanceDetails() {
     final PayrollDetail payrollDetail = payrollDetailService.find();
     final TimePeriod timePeriod = timePeriodService.findCompanyCurrentPeriod();
-    final SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
     final StaticTimezone companyTimezone =
         attendanceSettingsService.findCompanySetting().getTimeZone();
+
     final String payDate =
-        DateUtil.formatTimestampWithTimezone(
-            payrollDetail.getLastPayrollPayday(), DATE_FORMAT, companyTimezone.getName());
-    final String periodStartDate = sdf.format(timePeriod.getStartDate());
-    final String periodEndDate = sdf.format(timePeriod.getEndDate());
+        formatTimestampWithTimezone(payrollDetail.getLastPayrollPayday(), companyTimezone);
+    final String periodStartDate =
+        formatTimestampWithTimezone(timePeriod.getStartDate(), companyTimezone);
+
+    final long periodEndDateUnixTimestamp = timePeriod.getEndDate().getTime() - MS_OF_ONE_DAY;
+    final String periodEndDate =
+        formatTimestampWithTimezone(new Timestamp(periodEndDateUnixTimestamp), companyTimezone);
+    final Date runPayrollDdlDate =
+        attendanceSetUpService.getRunPayrollDdl(
+            new Date(periodEndDateUnixTimestamp), companyTimezone.getName());
+    final String runPayrollDdl =
+        formatTimestampWithTimezone(toTimestamp(runPayrollDdlDate), companyTimezone);
+
     return AttendanceDetailDto.builder()
         .payDate(payDate)
         .payPeriodFrequency(payrollDetail.getPayFrequencyType().getName())
         .periodStartDate(periodStartDate)
         .periodEndDate(periodEndDate)
+        .runPayrollDeadline(runPayrollDdl)
         .build();
+  }
+
+  private String formatTimestampWithTimezone(
+      final Timestamp timestamp, final StaticTimezone timezone) {
+    return DateUtil.formatTimestampWithTimezone(timestamp, DATE_FORMAT, timezone.getName());
   }
 
   @Transactional

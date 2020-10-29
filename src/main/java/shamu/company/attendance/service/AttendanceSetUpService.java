@@ -63,6 +63,8 @@ import java.util.stream.Collectors;
 
 import static java.time.DayOfWeek.SATURDAY;
 import static shamu.company.attendance.entity.StaticTimesheetStatus.TimeSheetStatus;
+import static shamu.company.utils.DateUtil.MS_OF_ONE_DAY;
+import static shamu.company.utils.DateUtil.MS_OF_ONE_HOUR;
 
 @Service
 public class AttendanceSetUpService {
@@ -76,8 +78,6 @@ public class AttendanceSetUpService {
   private static final int DAYS_PAY_DATE_AFTER_PERIOD = 6;
   private static final int HOURS_EMAIL_NOTIFICATION_BEFORE_SUBMIT = 8;
   private static final int DEFAULT_APPROVAL_DAYS_BEFORE_PAYROLL = 2;
-  private static final long MS_OF_ONE_HOUR = 60 * 60 * 1000L;
-  private static final long MS_OF_ONE_DAY = 24 * MS_OF_ONE_HOUR;
   private static final String DATE_FORMAT = "MM/dd/yyyy";
 
   private final AttendanceSettingsService attendanceSettingsService;

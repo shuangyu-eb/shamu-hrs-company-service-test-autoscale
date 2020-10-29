@@ -22,6 +22,7 @@ import shamu.company.attendance.entity.StaticTimezone;
 import shamu.company.attendance.entity.TimePeriod;
 import shamu.company.attendance.entity.Timesheet;
 import shamu.company.attendance.service.AttendanceMyHoursService;
+import shamu.company.attendance.service.AttendanceSetUpService;
 import shamu.company.attendance.service.AttendanceSettingsService;
 import shamu.company.attendance.service.AttendanceTeamHoursService;
 import shamu.company.attendance.service.OvertimeService;
@@ -74,6 +75,8 @@ class AttendanceTeamHoursServiceTests {
   @Mock private PayrollDetailService payrollDetailService;
 
   @Mock private UserService userService;
+
+  @Mock private AttendanceSetUpService attendanceSetUpService;
 
   @BeforeEach
   void init() {
@@ -411,6 +414,8 @@ class AttendanceTeamHoursServiceTests {
     Mockito.when(attendanceSettingsService.findCompanySetting()).thenReturn(companyTaSetting);
     Mockito.when(payrollDetailService.find()).thenReturn(payrollDetail);
     Mockito.when(timePeriodService.findCompanyCurrentPeriod()).thenReturn(timePeriod);
+    Mockito.when(attendanceSetUpService.getRunPayrollDdl(Mockito.any(), Mockito.any()))
+        .thenReturn(new Date());
     assertThatCode(() -> attendanceTeamHoursService.findAttendanceDetails())
         .doesNotThrowAnyException();
   }
