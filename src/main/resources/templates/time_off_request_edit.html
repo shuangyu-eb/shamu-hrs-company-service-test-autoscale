@@ -10,34 +10,16 @@
 <body>
 <table
     th:style="'width: 100%;border-radius: 4px; border-spacing: 0px; font-size: 14px;background-color: #ffffff;'
-      +${isIndeedENV ? 'font-family: Noto Sans;' : 'font-family: Roboto;'}"
->
++${isIndeedENV ? 'font-family: Noto Sans;' : 'font-family: Roboto;'}">
   <tbody>
-
-  <tr th:if="${isManagerDelete && isLimited}">
-
-    <td>
-      <table align="center"
-             style="margin-top: 20px; line-height: 1.36; border-radius: 4px; width: 488px; padding: 20px 22px; font-size: 14px; text-align: center; background: #f7f8fa; color: gray;">
-        <tbody>
-        <tr>
-          <td>
-            *<span th:text="${hours}">16</span> hours have been added back to your <span  th:text="${type}"></span> time off
-            balance
-          </td>
-        </tr>
-        </tbody>
-      </table>
-    </td>
-  </tr>
   <tr>
     <td style="display: block">
       <table
           style="height: 352px; background-color: white; padding: 26px 25px 30px 25px; width: 100%;">
         <tbody>
-        <tr th:replace="components/request::${isManagerDelete ? 'approver' :'requester'} "></tr>
-        <tr th:replace="components/request::time" style="margin: 20px">
+        <tr th:replace="components/request::approver" style="margin: 20px">
         </tr>
+        <tr th:replace="components/request::time"></tr>
         </tbody>
       </table>
     </td>
@@ -48,17 +30,34 @@
       <table width="552px" style="padding: 0 30px">
         <tbody>
         <tr th:if="${isLimited}">
-          <td style="border-top: solid 1px #dfe2e9;padding: 20px 0; margin: 0 30px; font-weight: 500; align-items: center;">
+          <td
+              style="border-top: solid 1px #dfe2e9;padding: 20px 0; margin: 0 30px; font-weight: 500; align-items: center;">
             Remaining Balance:
             <span th:text="${remain} + (${remain} == 1 ? ' Hour': ' Hours')"></span>
+          </td>
+        </tr>
+        <tr>
+          <td
+              style="font-weight: 500;border-top: solid 1px #dfe2e9; border-bottom: solid 1px #dfe2e9; padding: 20px 0; align-items: center;">
+            Time Off Conflicts: <span th:text="${conflict}"></span>
+          </td>
+
+        </tr>
+        <tr>
+          <td th:insert="components/request::comment" style="padding: 15px 0;">
+
           </td>
         </tr>
         </tbody>
       </table>
     </td>
-    <td th:if="${!isLimited}" style="padding-top: 35px;"></td>
   </tr>
+
+  <tr th:replace="components/request::viewDetail"></tr>
+
   </tbody>
 </table>
+
+
 </body>
 </html>

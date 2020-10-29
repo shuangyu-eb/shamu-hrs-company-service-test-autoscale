@@ -307,6 +307,7 @@ public class TimeOffRequestService {
     timeOffRequest
         .setTimeOffPolicy(timeOffPolicyService.getTimeOffPolicyById(updateDto.getPolicyId()));
     TimeOffRequest newTimeOffRequest = timeOffRequestRepository.save(timeOffRequest);
+    timeOffRequestEmailService.sendManagerEditedRequestEmail(timeOffRequest);
     return timeOffRequestMapper.convertToTimeOffRequestDto(newTimeOffRequest);
   }
 
@@ -370,8 +371,10 @@ public class TimeOffRequestService {
   @Transactional
   public void deleteUnimplementedRequest(final String requestId, final String deleterId) {
     final TimeOffRequest timeOffRequest = findByRequestId(requestId);
-    if (isRequestCanbeDeleted(timeOffRequest) ||
-        isManagerDeleteRequest(timeOffRequest.getRequesterUser().getManagerUser(), deleterId)) {
+    if (isManagerDeleteRequest(timeOffRequest.getRequesterUser().getManagerUser(), deleterId)) {
+      timeOffRequestRepository.delete(timeOffRequest);
+      timeOffRequestEmailService.sendManagerDeleteRequestEmail(timeOffRequest);
+    } else if (isRequestCanbeDeleted(timeOffRequest)) {
       timeOffRequestRepository.delete(timeOffRequest);
       timeOffRequestEmailService.sendDeleteRequestEmail(timeOffRequest);
     } else {
@@ -393,7 +396,7 @@ public class TimeOffRequestService {
     final User deleter = userService.findById(deleterId);
     return requesterManager != null
         && deleterId.equals(requesterManager.getId())
-        || deleter.getRole()==Role.ADMIN
+        || deleter.getRole() == Role.ADMIN
         || deleter.getRole() == Role.SUPER_ADMIN;
   }
 

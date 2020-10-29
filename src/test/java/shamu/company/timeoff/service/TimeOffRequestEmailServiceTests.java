@@ -188,6 +188,17 @@ public class TimeOffRequestEmailServiceTests {
           .doesNotThrowAnyException();
     }
 
+    @Test
+    void whenManagerEditRequest_thenShouldSuccess() {
+      final TimeOffRequestApprovalStatus timeOffRequestApprovalStatus =
+          new TimeOffRequestApprovalStatus();
+      timeOffRequestApprovalStatus.setName(TimeOffApprovalStatus.APPROVED.name());
+      timeOffRequest.setTimeOffRequestApprovalStatus(timeOffRequestApprovalStatus);
+
+      assertThatCode(() -> timeOffRequestEmailService.sendManagerEditedRequestEmail(timeOffRequest))
+          .doesNotThrowAnyException();
+    }
+
     @AfterEach
     void testDefaultAvatarName() throws Exception {
       final Map<String, Object> variables =
@@ -294,6 +305,31 @@ public class TimeOffRequestEmailServiceTests {
       Mockito.when(auth0Helper.isIndeedEnvironment()).thenReturn(false);
 
       assertThatCode(() -> timeOffRequestEmailService.sendDeleteRequestEmail(timeOffRequest))
+          .doesNotThrowAnyException();
+    }
+
+    @Test
+    void whenManagerDeleteRequest_thenShouldSuccess() {
+      final TimeOffRequestApprovalStatus timeOffRequestApprovalStatus =
+          new TimeOffRequestApprovalStatus();
+      timeOffRequestApprovalStatus.setName(TimeOffApprovalStatus.APPROVED.name());
+      timeOffRequest.setTimeOffRequestApprovalStatus(timeOffRequestApprovalStatus);
+
+      UserContactInformation requesterConcatInfo = new UserContactInformation();
+      requesterConcatInfo.setId(UuidUtil.getUuidString());
+      requesterConcatInfo.setEmailWork("qwe@qq.com");
+      requester.setUserContactInformation(requesterConcatInfo);
+
+      Mockito.when(timeOffRequestService.findByRequestId(timeOffRequest.getId()))
+          .thenReturn(timeOffRequest);
+      Mockito.when(
+          templateEngine.process(Mockito.eq("time_off_request_delete.html"), Mockito.any()))
+          .thenReturn("");
+      Mockito.when(timeOffPolicyUserService.findByUserAndTimeOffPolicy(requester, timeOffPolicy))
+          .thenReturn(timeOffPolicyUser);
+      Mockito.when(timeOffDetailService.getTimeOffBreakdown(Mockito.anyString(), Mockito.anyLong()))
+          .thenReturn(timeOffBreakdownDto);
+      assertThatCode(() -> timeOffRequestEmailService.sendManagerDeleteRequestEmail(timeOffRequest))
           .doesNotThrowAnyException();
     }
   }

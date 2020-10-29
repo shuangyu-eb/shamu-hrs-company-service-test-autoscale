@@ -55,6 +55,8 @@ public class TimeOffRequestEmailService {
 
   private static final String AMERICA_MANAGUA = "America/Managua";
 
+  private static final String CONFLICT = "conflict";
+
   private final Auth0Helper auth0Helper;
 
   @Autowired
@@ -101,7 +103,7 @@ public class TimeOffRequestEmailService {
     setAproverMessage(timeOffRequest, variables, approver);
 
     final long conflict = getConflictOfTimeOffRequest(timeOffRequest);
-    variables.put("conflict", conflict);
+    variables.put(CONFLICT, conflict);
 
     if (timeOffRequest.getTimeOffPolicy().getIsLimited()) {
       final Integer balance = timeOffRequest.getBalance() - timeOffRequest.getHours();
@@ -240,7 +242,7 @@ public class TimeOffRequestEmailService {
         zonedDateTime.withZoneSameInstant(ZoneId.of(AMERICA_MANAGUA)).toLocalDateTime(),
         "YYYY");
 
-    variables.put("conflict", conflict);
+    variables.put(CONFLICT, conflict);
 
     variables.put(CURRENT_YEAR, currentYear);
 
@@ -261,7 +263,7 @@ public class TimeOffRequestEmailService {
       return;
     }
 
-    final Map<String, Object> variables = getVariablesOfTimeOffRequestEmail(timeOffRequest);
+    final Map<String, Object> variables = getVariablesOfDeleteRequestEmail(timeOffRequest);
     final User requester = timeOffRequest.getRequesterUser();
     final User approver = timeOffRequest.getApproverUser();
 
@@ -273,6 +275,12 @@ public class TimeOffRequestEmailService {
             approver.getUserPersonalInformation().getName(),
             "Time Off Request Deleted");
 
+    processAndSendEmail(variables, "time_off_request_delete.html", email);
+  }
+
+  private Map<String, Object> getVariablesOfDeleteRequestEmail(
+      final TimeOffRequest timeOffRequest) {
+    final Map<String, Object> variables = getVariablesOfTimeOffRequestEmail(timeOffRequest);
     variables.put(FIELD_REMAIN, getRemainingBalanceForNow(timeOffRequest));
     variables.put("isLimited", timeOffRequest.getTimeOffPolicy().getIsLimited());
     variables.put("isDeleteRequest", true);
@@ -285,9 +293,63 @@ public class TimeOffRequestEmailService {
         "YYYY");
 
     variables.put(CURRENT_YEAR, currentYear);
+    return variables;
+  }
+
+  public void sendManagerDeleteRequestEmail(final TimeOffRequest timeOffRequest) {
+    final User requester = timeOffRequest.getRequesterUser();
+    final User approver = timeOffRequest.getApproverUser();
+    UserPersonalInformation approverUserPersonalInformation = approver.getUserPersonalInformation();
+    final Map<String, Object> variables = getVariablesOfDeleteRequestEmail(timeOffRequest);
+    variables.putAll(getVariablesOfApprover(approver));
+    final Email email =
+        new Email(
+            applicationConfig.getSystemEmailAddress(),
+            approverUserPersonalInformation.getName(),
+            requester.getUserContactInformation().getEmailWork(),
+            requester.getUserPersonalInformation().getName(),
+            "Time Off Request Deleted");
 
     processAndSendEmail(variables, "time_off_request_delete.html", email);
   }
+
+  private Map<String, Object> getVariablesOfApprover(final User approver) {
+    final Map<String, Object> variables = new HashMap<>();
+    UserPersonalInformation approverUserPersonalInformation = approver.getUserPersonalInformation();
+    String shortName = AvatarUtil
+        .getAvatarShortName(approverUserPersonalInformation.getFirstName(),
+            approverUserPersonalInformation.getLastName());
+    variables.put("approverAvatarText", shortName);
+    variables.put("approverImageUrl", approver.getImageUrl());
+    variables.put("isManagerDelete", true);
+    variables.put("approverId", approver.getId());
+    variables.put("approverName", approverUserPersonalInformation.getName());
+    return variables;
+  }
+
+  public void sendManagerEditedRequestEmail(final TimeOffRequest timeOffRequest) {
+    final User requester = timeOffRequest.getRequesterUser();
+    final User approver = timeOffRequest.getApproverUser();
+    UserPersonalInformation approverUserPersonalInformation = approver.getUserPersonalInformation();
+    final Map<String, Object> variables = getVariablesOfTimeOffRequestEmail(timeOffRequest);
+    variables.putAll(getVariablesOfApprover(approver));
+    final long conflict = getConflictOfTimeOffRequest(timeOffRequest);
+    variables.put(CONFLICT, conflict);
+    if (timeOffRequest.getTimeOffPolicy().getIsLimited()) {
+      final Integer balance = timeOffRequest.getBalance() - timeOffRequest.getHours();
+      variables.put(FIELD_REMAIN, balance);
+    }
+    final Email email =
+        new Email(
+            applicationConfig.getSystemEmailAddress(),
+            approverUserPersonalInformation.getName(),
+            requester.getUserContactInformation().getEmailWork(),
+            requester.getUserPersonalInformation().getName(),
+            "Time Off Request Edited");
+
+    processAndSendEmail(variables, "time_off_request_edit.html", email);
+  }
+
 
   private Integer getRemainingBalanceForNow(final TimeOffRequest request) {
     final User requester = request.getRequesterUser();

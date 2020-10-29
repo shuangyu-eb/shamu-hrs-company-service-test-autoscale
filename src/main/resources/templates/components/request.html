@@ -115,12 +115,13 @@
     <div style="margin: auto; padding-top: 10px; border: solid 1px #dfe2e9;
       font-size: 16px; text-align: center; line-height: 1.56;  width: 277px;
       border-radius: 5px;">
-      <div style="width: 42px;height: 42px;min-height:42px;margin-top: 28px;margin-bottom: 12px;
+      <div
+          th:if="${isIndeedENV}"
+          style="width: 42px;height: 42px;min-height:42px;margin-top: 28px;margin-bottom: 12px;
     background-color: #F2F1FE; display: inline-flex;align-self: center;
     justify-self: center;align-items: center; justify-content: center;
     border-radius: 50%;">
         <img
-            th:if="${isIndeedENV}"
             style="margin:auto;"
             th:src="@{${frontEndAddress}+'image/indeed.timeOff.png'}">
       </div>
@@ -184,11 +185,56 @@
   </td>
 </tr>
 
+<tr
+    th:fragment="approver"
+    th:style="'font-size:' + @{(${#strings.length(approverName)} > 34 ? '14px' : '18px')} + '; line-height: ' + @{(${#strings.length(requesterName)} > 34 ? '1.36' : '0.78')} + ';height: 46px;color: #2e3033; letter-spacing: 0.4px;'">
+  <td align="center" style="padding: 15px">
+    <table>
+      <tbody>
+      <tr>
+        <td style="line-height: 0px;">
+          <img
+              th:if="${approverImageUrl } != null"
+              style="float:left; width: 45px; height: 45px; border: 1px solid gray; border-radius: 50%; overflow: hidden"
+              th:src="${pathPrefix + approverImageUrl}"
+          />
+          &nbsp;
+          <div
+              th:if="${approverImageUrl} == null"
+              th:style="|background: ${backgroundColor}| + ';width: 45px;height: 45px; border-radius: 50%; color: white; text-align: center;vertical-align: middle;line-height: 45px;'"
+              th:text="${approverAvatarText}">
+          </div>&nbsp;
+        </td>
+
+        <td>
+          <table>
+            <tbody>
+            <tr>
+              <td style="padding: 10px 0">
+                <a
+                    th:style="'text-decoration: none;'+${isIndeedENV ? 'color: #2557a7;' : 'color: #0075DF'}"
+                    th:href="@{${frontEndAddress}+'employees/'+${approverId}}"
+                    th:text="${approverName}">name</a>
+                <span th:switch="${isDeleteRequest}">
+                  <span th:case="true">Deleted Your Time Off Request</span>
+                  <span th:case="*">Edited Your Time Off</span>
+                </span>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </td>
+</tr>
+
 <tr th:fragment="viewDetail">
   <td align="center"
       th:style="'margin-top: 30px; padding: 30px;  background: #f7f8fa;'
       +${isIndeedENV ? 'font-weight: bold;display:flex;align-items:center;justify-content:center;' : 'font-weight: 500;'}"
-      >
+  >
     <a th:style="'text-decoration: none; cursor: pointer; padding-right: 10px;'
         +${isIndeedENV ? 'margin: 0 auto ': ''}"
        th:href="@{${frontEndAddress}+'time-off'}">
