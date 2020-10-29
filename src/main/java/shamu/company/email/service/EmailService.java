@@ -288,9 +288,10 @@ public class EmailService {
     final Map<String, Object> jobParameter = new HashMap<>();
     jobParameter.put("messageIdList", messageIdList);
     jobParameter.put(COMPANY_ID, TenantContext.getCurrentTenant());
+
     quartzJobScheduler.addOrUpdateJobSchedule(
         SendEmailsJob.class,
-        "",
+        emails.get(0).getId(),
         "sendEmails",
         jobParameter,
         sendDate == null ? Timestamp.valueOf(LocalDateTime.now()) : sendDate);
