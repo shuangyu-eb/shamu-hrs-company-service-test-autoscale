@@ -12,7 +12,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.reactive.function.client.WebClient;
 import shamu.company.financialengine.FinancialEngineResponse;
 import shamu.company.financialengine.dto.IndustryDto;
+import shamu.company.financialengine.dto.LegalEntityTypeDto;
 import shamu.company.helpers.FinancialEngineHelper;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -57,6 +59,25 @@ class FECompanyServiceTest {
     final RecordedRequest recordedRequest = mockBackEnd.takeRequest();
     assertEquals(RequestMethod.GET.name(), recordedRequest.getMethod());
     assertEquals("/company/available/industries", recordedRequest.getPath());
+    assertEquals(results.size(), financialEngineResponse.getBody().size());
+  }
+
+  @Test
+  void testGetLegalEntityTypes() throws Exception {
+    final List<IndustryDto> industries = new ArrayList<>();
+    industries.add(new IndustryDto());
+    final FinancialEngineResponse<List<IndustryDto>> financialEngineResponse =
+        new FinancialEngineResponse<>();
+    financialEngineResponse.setBody(industries);
+
+    mockBackEnd.enqueue(
+        new MockResponse()
+            .setBody(MAPPER.writeValueAsString(financialEngineResponse))
+            .addHeader("Content-Type", "application/json"));
+    final List<LegalEntityTypeDto> results = feCompanyService.getLegalEntityTypes();
+    final RecordedRequest recordedRequest = mockBackEnd.takeRequest();
+    assertEquals(RequestMethod.GET.name(), recordedRequest.getMethod());
+    assertEquals("/company/available/legal-entity-types", recordedRequest.getPath());
     assertEquals(results.size(), financialEngineResponse.getBody().size());
   }
 }

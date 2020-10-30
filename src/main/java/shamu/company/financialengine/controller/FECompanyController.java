@@ -4,7 +4,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import shamu.company.financialengine.dto.IndustryDto;
+import shamu.company.financialengine.dto.LegalEntityTypeDto;
 import shamu.company.financialengine.service.FECompanyService;
+
 import java.util.List;
 
 @RestController
@@ -21,5 +23,10 @@ public class FECompanyController {
   @GetMapping("/available-industries")
   public List<IndustryDto> getAvailableIndustries() {
     return feCompanyService.getAvailableIndustries();
+  }
+
+  @GetMapping("/legal-entity-types")
+  public List<LegalEntityTypeDto> getLegalEntityTypes() {
+    return feCompanyService.getLegalEntityTypes();
   }
 }

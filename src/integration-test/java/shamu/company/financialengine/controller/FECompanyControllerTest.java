@@ -12,8 +12,10 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import shamu.company.WebControllerBaseTests;
 import shamu.company.financialengine.dto.IndustryDto;
+import shamu.company.financialengine.dto.LegalEntityTypeDto;
 import shamu.company.financialengine.service.FECompanyService;
 import shamu.company.tests.utils.JwtUtil;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,6 +38,22 @@ class FECompanyControllerTest extends WebControllerBaseTests {
         mockMvc
             .perform(
                 MockMvcRequestBuilders.get("/company/financial-engine/available-industries")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .headers(httpHeaders))
+            .andReturn();
+    assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+  }
+
+  @Test
+  void testGetLegalEntityType() throws Exception {
+    final List<LegalEntityTypeDto> legalEntityTypes = new ArrayList<>();
+    given(feCompanyService.getLegalEntityTypes()).willReturn(legalEntityTypes);
+    final HttpHeaders httpHeaders = new HttpHeaders();
+    httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.get("/company/financial-engine/legal-entity-types")
                     .contentType(MediaType.APPLICATION_JSON)
                     .headers(httpHeaders))
             .andReturn();
