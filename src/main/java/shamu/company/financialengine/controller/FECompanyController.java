@@ -1,13 +1,19 @@
 package shamu.company.financialengine.controller;
 
+import java.util.List;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import shamu.company.financialengine.dto.NewFECompanyInfomation;
+import shamu.company.financialengine.dto.CompanyInformationDto;
 import shamu.company.financialengine.dto.IndustryDto;
 import shamu.company.financialengine.dto.LegalEntityTypeDto;
 import shamu.company.financialengine.service.FECompanyService;
-
-import java.util.List;
 
 @RestController
 // TODO Consider adding an annotation like '@FinancialEngineRestApiController'
@@ -23,6 +29,17 @@ public class FECompanyController {
   @GetMapping("/available-industries")
   public List<IndustryDto> getAvailableIndustries() {
     return feCompanyService.getAvailableIndustries();
+  }
+
+  @GetMapping("/info")
+  public CompanyInformationDto getCompanyInformation() {
+    return feCompanyService.getCompanyInformation();
+  }
+
+  @PostMapping("/new")
+  public HttpEntity newFinancialEngine(@RequestBody final NewFECompanyInfomation feCompanyInfomation) {
+    feCompanyService.newFinancialEngine(feCompanyInfomation);
+    return new ResponseEntity(HttpStatus.OK);
   }
 
   @GetMapping("/legal-entity-types")

@@ -432,3 +432,79 @@ databaseChangeLog:
             onUpdate: CASCADE
             referencedColumnNames: id
             referencedTableName: static_retirement_pay_types
+
+  - changeSet:
+      id: 1603781128738-1
+      author: bin-eb
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  name: id
+                  type: binary(16)
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: hris_company_id
+                  type: binary(16)
+              - column:
+                  name: fe_company_id
+                  type: VARCHAR(255)
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: financial_engine_company
+
+  - changeSet:
+      id: 1603781128738-2
+      author: bin-eb
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  name: id
+                  type: binary(16)
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: hris_address_id
+                  type: binary(16)
+              - column:
+                  name: fe_address_id
+                  type: VARCHAR(255)
+              - column:
+                  name: fe_address_type
+                  type: VARCHAR(255)
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: updated_at
+                  type: datetime
+            tableName: financial_engine_addresses
+
+  - changeSet:
+      id: 1603781128738-3
+      author: bin-eb
+      preConditions:
+        onFail: WARN
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: hris_company_id
+            baseTableName: financial_engine_company
+            constraintName: fk_financial_engine_company_hris_company_id
+            onDelete: SET NULL
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: company
+        - addForeignKeyConstraint:
+            baseColumnNames: hris_address_id
+            baseTableName: financial_engine_addresses
+            constraintName: fk_financial_engine_addresses_hris_address_id
+            onDelete: SET NULL
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: office_addresses

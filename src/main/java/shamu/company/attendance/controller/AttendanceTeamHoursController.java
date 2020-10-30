@@ -1,5 +1,10 @@
 package shamu.company.attendance.controller;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import javax.validation.Valid;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpEntity;
@@ -29,12 +34,6 @@ import shamu.company.common.BaseRestController;
 import shamu.company.common.config.annotations.RestApiController;
 import shamu.company.job.service.JobUserService;
 import shamu.company.utils.ReflectionUtil;
-
-import javax.validation.Valid;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
 
 @RestApiController
 public class AttendanceTeamHoursController extends BaseRestController {
@@ -148,8 +147,7 @@ public class AttendanceTeamHoursController extends BaseRestController {
   }
 
   @GetMapping("time-and-attendance/attendance-details")
-  // TODO
-  //  @PreAuthorize("hasAuthority('MANAGE_TEAM_USER')")
+  @PreAuthorize("hasAuthority('MANAGE_TEAM_USER')")
   public AttendanceDetailDto findAttendanceDetails() {
     return attendanceTeamHoursService.findAttendanceDetails();
   }

@@ -1,5 +1,11 @@
 package shamu.company.financialengine.controller;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doNothing;
+
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -11,16 +17,13 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import shamu.company.WebControllerBaseTests;
+import shamu.company.financialengine.dto.NewFECompanyInfomation;
+import shamu.company.financialengine.dto.CompanyInformationDto;
 import shamu.company.financialengine.dto.IndustryDto;
 import shamu.company.financialengine.dto.LegalEntityTypeDto;
 import shamu.company.financialengine.service.FECompanyService;
 import shamu.company.tests.utils.JwtUtil;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.BDDMockito.given;
+import shamu.company.utils.JsonUtil;
 
 @WebMvcTest(controllers = FECompanyController.class)
 class FECompanyControllerTest extends WebControllerBaseTests {
@@ -39,6 +42,39 @@ class FECompanyControllerTest extends WebControllerBaseTests {
             .perform(
                 MockMvcRequestBuilders.get("/company/financial-engine/available-industries")
                     .contentType(MediaType.APPLICATION_JSON)
+                    .headers(httpHeaders))
+            .andReturn();
+    assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+  }
+
+  @Test
+  void testGetCompanyInformation() throws Exception {
+    final CompanyInformationDto companyInformationDto = new CompanyInformationDto();
+    given(feCompanyService.getCompanyInformation()).willReturn(companyInformationDto);
+    final HttpHeaders httpHeaders = new HttpHeaders();
+    httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.get("/company/financial-engine/info")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .headers(httpHeaders))
+            .andReturn();
+    assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
+  }
+
+  @Test
+  void testAddNew() throws Exception {
+    final NewFECompanyInfomation companyDetailsDto = new NewFECompanyInfomation();
+    doNothing().when(feCompanyService).newFinancialEngine(companyDetailsDto);
+    final HttpHeaders httpHeaders = new HttpHeaders();
+    httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
+    final MvcResult response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.post("/company/financial-engine/new")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(JsonUtil.formatToString(companyDetailsDto))
                     .headers(httpHeaders))
             .andReturn();
     assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());

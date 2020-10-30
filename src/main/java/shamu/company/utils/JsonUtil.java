@@ -42,4 +42,12 @@ public abstract class JsonUtil {
       throw new DeserializeFailedException("Error while parsing JSON string in deserializeType.");
     }
   }
+
+  public static <T> T formatToObject(final Object object, final Class<T> tClass) {
+    try {
+      return objectMapper.convertValue(object, tClass);
+    } catch (final Exception e) {
+      throw new DeserializeFailedException("Error while parsing JSON string in deserialize.");
+    }
+  }
 }
