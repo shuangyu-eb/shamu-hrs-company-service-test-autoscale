@@ -36,6 +36,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static shamu.company.attendance.entity.OvertimePolicy.NOT_ELIGIBLE_POLICY_NAME;
 
 public class UserCompensationServiceTest {
   @Mock private UserCompensationRepository userCompensationRepository;
@@ -200,7 +201,9 @@ public class UserCompensationServiceTest {
     void init() {
       jobUpdateDto.setCompensationWage(regularPay);
       jobUpdateDto.setCompensationFrequencyId(frequencyId);
+      jobUpdateDto.setPayTypeName("Hourly");
       compensationFrequency.setId(frequencyId);
+      compensationFrequency.setName("Per Hour");
       oldCompensation.setCompensationFrequency(compensationFrequency);
       oldCompensation.setWageCents(BigDecimal.valueOf(regularPay * 100).toBigIntegerExact());
     }
@@ -254,6 +257,52 @@ public class UserCompensationServiceTest {
 
     @Test
     void whenUpdateEnrolled() {
+      jobUpdateDto.setCompensationFrequencyId("123");
+      oldCompensation.setStartDate(new Timestamp(new Date().getTime() - 100000));
+      oldCompensation.setEndDate(new Timestamp(new Date().getTime() + 100000));
+      Mockito.when(userCompensationRepository.findStartNumberNLatestByUserId(0, userId))
+          .thenReturn(oldCompensation);
+
+      final TimePeriod timePeriod = new TimePeriod();
+      timePeriod.setStartDate(DateUtil.getCurrentTime());
+      timePeriod.setEndDate(DateUtil.getCurrentTime());
+      Mockito.when(timePeriodService.findUserCurrentPeriod(userId))
+          .thenReturn(Optional.of(timePeriod));
+
+      assertThatCode(
+              () -> {
+                userCompensationService.updateCompensationPaymentFromJobUser(userId, jobUpdateDto);
+              })
+          .doesNotThrowAnyException();
+    }
+
+    @Test
+    void whenPayTypeIsNotEligible() {
+      jobUpdateDto.setPayTypeName(NOT_ELIGIBLE_POLICY_NAME);
+      jobUpdateDto.setCompensationFrequencyId("123");
+      oldCompensation.setStartDate(new Timestamp(new Date().getTime() - 100000));
+      oldCompensation.setEndDate(new Timestamp(new Date().getTime() + 100000));
+      Mockito.when(userCompensationRepository.findStartNumberNLatestByUserId(0, userId))
+          .thenReturn(oldCompensation);
+
+      final TimePeriod timePeriod = new TimePeriod();
+      timePeriod.setStartDate(DateUtil.getCurrentTime());
+      timePeriod.setEndDate(DateUtil.getCurrentTime());
+      Mockito.when(timePeriodService.findUserCurrentPeriod(userId))
+          .thenReturn(Optional.of(timePeriod));
+
+      assertThatCode(
+              () -> {
+                userCompensationService.updateCompensationPaymentFromJobUser(userId, jobUpdateDto);
+              })
+          .doesNotThrowAnyException();
+    }
+
+    @Test
+    void whenOldPayTypeIsNotEligible() {
+      final OvertimePolicy overtimePolicy = new OvertimePolicy();
+      overtimePolicy.setPolicyName(NOT_ELIGIBLE_POLICY_NAME);
+      oldCompensation.setOvertimePolicy(overtimePolicy);
       jobUpdateDto.setCompensationFrequencyId("123");
       oldCompensation.setStartDate(new Timestamp(new Date().getTime() - 100000));
       oldCompensation.setEndDate(new Timestamp(new Date().getTime() + 100000));

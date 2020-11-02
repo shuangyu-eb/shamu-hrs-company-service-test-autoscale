@@ -31,7 +31,8 @@ public interface OvertimePolicyRepository extends BaseRepository<OvertimePolicy,
               + "on employees_ta_settings.employee_id = user_compensations.user_id "
               + ") c "
               + "on op.id = c.overtime_policy_id "
-              + "and (c.end_date is null or c.end_date > current_timestamp) and c.start_date is not null "
+              + "and (c.end_date is null or c.end_date > current_timestamp) and c.start_date is "
+              + "not null and c.start_date < current_timestamp "
               + "where op.active = 1 "
               + "GROUP BY id, policyName, defaultPolicy "
               + "ORDER BY policyName ",
@@ -56,8 +57,6 @@ public interface OvertimePolicyRepository extends BaseRepository<OvertimePolicy,
       nativeQuery = true)
   Integer countByPolicyName(String name);
 
-  @Query(
-          value = "select * from overtime_policies " + "where active = 1",
-          nativeQuery = true)
+  @Query(value = "select * from overtime_policies " + "where active = 1", nativeQuery = true)
   List<OvertimePolicy> findAllActive();
 }

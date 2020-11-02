@@ -19,6 +19,7 @@ public class OvertimePolicy extends BaseEntity {
   private static final long serialVersionUID = 5425452431570902911L;
 
   public static final String NOT_ELIGIBLE_POLICY_NAME = "NOT_ELIGIBLE";
+  public static final String ELIGIBLE_POLICY_NAME = "ELIGIBLE_FOR_OVERTIME";
 
   private String policyName;
 

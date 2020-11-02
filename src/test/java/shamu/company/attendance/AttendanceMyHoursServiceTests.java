@@ -407,12 +407,11 @@ public class AttendanceMyHoursServiceTests {
 
   @Test
   void findUserAttendanceEnrollInfo() {
-    final EmployeesTaSetting employeesTaSetting = new EmployeesTaSetting();
     final TimePeriod timePeriod = new TimePeriod();
     timePeriod.setId("1");
     final Timesheet timesheet = new Timesheet();
     timesheet.setRemovedAt(Timestamp.valueOf(LocalDateTime.parse("2020-07-03T09:00:00")));
-    Mockito.when(employeesTaSettingService.findByUserId("1")).thenReturn(employeesTaSetting);
+    Mockito.when(employeesTaSettingService.isEnrolledInTA("1")).thenReturn(true);
     Mockito.when(timePeriodService.findCompanyCurrentPeriod()).thenReturn(timePeriod);
     Mockito.when(timeSheetService.findActiveByPeriodAndUser("1", "1")).thenReturn(timesheet);
     assertThatCode(() -> attendanceMyHoursService.findUserAttendanceEnrollInfo("1"))

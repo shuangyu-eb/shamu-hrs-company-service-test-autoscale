@@ -13,7 +13,6 @@ import shamu.company.attendance.entity.CompanyTaSetting;
 import shamu.company.attendance.entity.CompanyTaSetting.MessagingON;
 import shamu.company.attendance.entity.EmailNotificationStatus;
 import shamu.company.attendance.entity.EmployeesTaSetting;
-import shamu.company.attendance.entity.OvertimePolicy;
 import shamu.company.attendance.entity.StaticCompanyPayFrequencyType;
 import shamu.company.attendance.entity.StaticCompanyPayFrequencyType.PayFrequencyType;
 import shamu.company.attendance.entity.StaticTimesheetStatus;
@@ -62,6 +61,7 @@ import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 import static java.time.DayOfWeek.SATURDAY;
+import static shamu.company.attendance.entity.OvertimePolicy.NOT_ELIGIBLE_POLICY_NAME;
 import static shamu.company.attendance.entity.StaticTimesheetStatus.TimeSheetStatus;
 import static shamu.company.utils.DateUtil.MS_OF_ONE_DAY;
 import static shamu.company.utils.DateUtil.MS_OF_ONE_HOUR;
@@ -202,8 +202,7 @@ public class AttendanceSetUpService {
     if (isSetUp) {
       overtimePolicyDetails.forEach(
           newOvertimePolicyDto -> {
-            if (!OvertimePolicy.NOT_ELIGIBLE_POLICY_NAME.equals(
-                newOvertimePolicyDto.getPolicyName())) {
+            if (!NOT_ELIGIBLE_POLICY_NAME.equals(newOvertimePolicyDto.getPolicyName())) {
               overtimeService.saveNewOvertimePolicy(newOvertimePolicyDto);
             }
           });

@@ -19,6 +19,11 @@ public class EmployeesTaSettingService {
     return employeesTaSettingRepository.findByEmployeeId(userId);
   }
 
+  public boolean isEnrolledInTA(final String userId) {
+    final EmployeesTaSetting employeesTaSetting = findByUserId(userId);
+    return null != employeesTaSetting;
+  }
+
   public void removeEmployees(final List<String> userIds) {
     employeesTaSettingRepository.deleteAllByUserId(userIds);
   }

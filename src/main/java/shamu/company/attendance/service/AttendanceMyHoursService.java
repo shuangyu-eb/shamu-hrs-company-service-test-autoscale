@@ -14,7 +14,6 @@ import shamu.company.attendance.dto.UserAttendanceEnrollInfoDto;
 import shamu.company.attendance.entity.CompanyTaSetting;
 import shamu.company.attendance.entity.EmployeeTimeEntry;
 import shamu.company.attendance.entity.EmployeeTimeLog;
-import shamu.company.attendance.entity.EmployeesTaSetting;
 import shamu.company.attendance.entity.StaticEmployeesTaTimeType;
 import shamu.company.attendance.entity.StaticTimesheetStatus;
 import shamu.company.attendance.entity.TimePeriod;
@@ -461,12 +460,11 @@ public class AttendanceMyHoursService {
   }
 
   public UserAttendanceEnrollInfoDto findUserAttendanceEnrollInfo(final String userId) {
-    final EmployeesTaSetting employeesTaSetting = employeesTaSettingService.findByUserId(userId);
     final TimePeriod timePeriod = timePeriodService.findCompanyCurrentPeriod();
     final Timesheet timesheet =
         timeSheetService.findActiveByPeriodAndUser(timePeriod.getId(), userId);
     return UserAttendanceEnrollInfoDto.builder()
-        .isEnrolled(null != employeesTaSetting)
+        .isEnrolled(employeesTaSettingService.isEnrolledInTA(userId))
         .deactivatedAt(timesheet == null ? null : timesheet.getRemovedAt())
         .build();
   }
