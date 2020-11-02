@@ -161,9 +161,7 @@ public class AttendanceMyHoursControllerTests extends WebControllerBaseTests {
     setPermission(Permission.Name.EDIT_SELF.name());
     final Timesheet timesheet = new Timesheet();
     final User user = new User();
-    final User managerUser = new User();
-    managerUser.setId(getAuthUser().getId());
-    user.setManagerUser(managerUser);
+    user.setId(getAuthUser().getId());
     timesheet.setEmployee(user);
     Mockito.when(timeSheetService.findTimeSheetById("1")).thenReturn(timesheet);
     Mockito.when(userService.findById("1")).thenReturn(user);

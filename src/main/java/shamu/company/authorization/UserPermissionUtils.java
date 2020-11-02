@@ -384,6 +384,13 @@ public class UserPermissionUtils extends BasePermissionUtils {
       final Authentication auth, final String timesheetId, final Permission.Name permission) {
     final Timesheet timesheet = timeSheetService.findTimeSheetById(timesheetId);
     final User targetUser = timesheet.getEmployee();
+    if (permission == Name.EDIT_SELF) {
+      if (getAuthUser().getId().equals(targetUser.getId())) {
+        return hasPermission(auth, permission);
+      } else {
+        return false;
+      }
+    }
     return verifyEmployeePermission(targetUser, auth, permission);
   }
 
