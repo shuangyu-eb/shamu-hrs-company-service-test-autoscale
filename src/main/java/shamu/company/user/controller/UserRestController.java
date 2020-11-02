@@ -1,12 +1,15 @@
 package shamu.company.user.controller;
 
 import com.auth0.json.auth.CreatedUser;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.util.Strings;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -74,6 +77,9 @@ public class UserRestController extends BaseRestController {
 
   private static final String MOCK_USER_HEADER = "X-Mock-To";
 
+  @Autowired
+  private Environment env;
+
   public UserRestController(
       final UserService userService,
       final EmailService emailService,
@@ -97,6 +103,11 @@ public class UserRestController extends BaseRestController {
   public HttpEntity signUp(@RequestBody final UserSignUpDto signUpDto) {
     if (tenantService.isCompanyExists(signUpDto.getCompanyName())) {
       throw new AlreadyExistsException("Company name already exists.", "company name");
+    }
+
+    final String workEmail = signUpDto.getWorkEmail();
+    if (workEmail.endsWith("bugcrowdninja.com") && env != null && Arrays.asList(env.getActiveProfiles()).contains("prod")) {
+      throw new ForbiddenException("Please use our staging environment for Bugcrowd research: hr.simplyhired-staging.com");
     }
 
     final CreatedUser user = auth0Helper.signUp(signUpDto.getWorkEmail(), signUpDto.getPassword());
