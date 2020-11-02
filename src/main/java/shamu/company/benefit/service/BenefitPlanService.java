@@ -16,6 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
@@ -682,9 +683,18 @@ public class BenefitPlanService {
   public List<UserBenefitPlanDto> getUserBenefitPlans(final String userId) {
     final List<BenefitPlanUser> benefitPlanUsers =
         benefitPlanUserRepository.findByUserIdAndEnrolledIsTrue(userId);
-    return benefitPlanUsers.stream()
-        .map(benefitPlanUserMapper::convertFrom)
-        .collect(Collectors.toList());
+    final List<RetirementPayment> retirementPayments =
+    retirementPaymentRepository.findAllByUserId(userId);
+
+    final List<UserBenefitPlanDto> retirementUserDtos =
+    retirementPayments.stream()
+            .map(retirementPaymentMapper::convertForm).collect(Collectors.toList());
+
+    final List<UserBenefitPlanDto> commonUserDtos =
+    benefitPlanUsers.stream()
+        .map(benefitPlanUserMapper::convertFrom).collect(Collectors.toList());
+
+    return Stream.concat(retirementUserDtos.stream(), commonUserDtos.stream()).collect(Collectors.toList());
   }
 
   public List<UserBenefitPlanDto> getUserAvailableBenefitPlans(final String userId) {

@@ -10,6 +10,7 @@ import shamu.company.benefit.dto.BenefitPlanUserCreateDto;
 import shamu.company.benefit.dto.BenefitPlanUserDto;
 import shamu.company.benefit.dto.RetirementDto;
 import shamu.company.benefit.dto.RetirementUserDto;
+import shamu.company.benefit.dto.UserBenefitPlanDto;
 import shamu.company.benefit.entity.BenefitPlan;
 import shamu.company.benefit.entity.RetirementPayTypes;
 import shamu.company.benefit.entity.RetirementPayment;
@@ -57,6 +58,13 @@ public interface RetirementPaymentMapper {
   @Mapping(target = "deductionValue", expression = "java(updateCompensationDollar(retirementPayment.getEmployeeDeductionValue()))")
   BenefitPlanDto convertToBenefitPlanByRetirement(
       BenefitPlan benefitPlan, RetirementPayment retirementPayment, RetirementDto retirement);
+
+  @Mapping(target = "title", source = "benefitPlan.name")
+  @Mapping(target = "benefitPlanId", source = "benefitPlan.id")
+  @Mapping(target = "benefitPlanStartDate", source = "benefitPlan.startDate")
+  @Mapping(target = "benefitPlanEndDate", source = "benefitPlan.endDate")
+  @Mapping(target = "type", source = "benefitPlan.benefitPlanType.name")
+  UserBenefitPlanDto convertForm(RetirementPayment retirementPayment);
 
   default BigInteger updateCompensationCents(final Double compensationWage) {
     if (compensationWage != null) {

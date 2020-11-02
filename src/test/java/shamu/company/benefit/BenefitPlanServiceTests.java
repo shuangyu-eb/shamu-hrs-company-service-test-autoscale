@@ -52,6 +52,7 @@ import shamu.company.benefit.entity.BenefitPlanType;
 import shamu.company.benefit.entity.BenefitPlanUser;
 import shamu.company.benefit.entity.BenefitReportPlansPojo;
 import shamu.company.benefit.entity.EnrollmentBreakdownPojo;
+import shamu.company.benefit.entity.RetirementPayment;
 import shamu.company.benefit.entity.mapper.BenefitCoveragesMapper;
 import shamu.company.benefit.entity.mapper.BenefitPlanCoverageMapper;
 import shamu.company.benefit.entity.mapper.BenefitPlanDependentMapper;
@@ -59,12 +60,14 @@ import shamu.company.benefit.entity.mapper.BenefitPlanMapper;
 import shamu.company.benefit.entity.mapper.BenefitPlanReportMapper;
 import shamu.company.benefit.entity.mapper.BenefitPlanUserMapper;
 import shamu.company.benefit.entity.mapper.MyBenefitsMapper;
+import shamu.company.benefit.entity.mapper.RetirementPaymentMapper;
 import shamu.company.benefit.repository.BenefitCoveragesRepository;
 import shamu.company.benefit.repository.BenefitPlanCoverageRepository;
 import shamu.company.benefit.repository.BenefitPlanDependentRepository;
 import shamu.company.benefit.repository.BenefitPlanRepository;
 import shamu.company.benefit.repository.BenefitPlanTypeRepository;
 import shamu.company.benefit.repository.BenefitPlanUserRepository;
+import shamu.company.benefit.repository.RetirementPaymentRepository;
 import shamu.company.benefit.repository.RetirementPlanTypeRepository;
 import shamu.company.benefit.service.BenefitPlanService;
 import shamu.company.common.exception.errormapping.ResourceNotFoundException;
@@ -105,6 +108,10 @@ class BenefitPlanServiceTests {
   @Mock private RetirementPlanTypeRepository retirementPlanTypeRepository;
 
   @Mock private BenefitCoveragesRepository benefitCoveragesRepository;
+
+  @Mock private RetirementPaymentRepository retirementPaymentRepository;
+
+  @Mock private RetirementPaymentMapper retirementPaymentMapper;
 
   @Mock private BenefitPlanMapper benefitPlanMapper;
 
@@ -835,18 +842,22 @@ class BenefitPlanServiceTests {
     String userId = "userId";
     List<BenefitPlanUser> benefitPlanUserList;
     BenefitPlanUser benefitPlanUser;
+    List<RetirementPayment> retirementPaymentList;
 
     @BeforeEach
     void init() {
       benefitPlanUserList = new ArrayList<>();
       benefitPlanUser = new BenefitPlanUser();
       benefitPlanUser.setId("benefitPlanUserId");
+      retirementPaymentList = new ArrayList<>();
     }
 
     @Test
     void whenGetUserBenefitPlans_thenShouldSuccess() {
       Mockito.when(benefitPlanUserRepository.findByUserIdAndEnrolledIsTrue(userId))
           .thenReturn(benefitPlanUserList);
+      Mockito.when(retirementPaymentRepository.findAllByUserId(userId))
+              .thenReturn(retirementPaymentList);
       benefitPlanService.getUserBenefitPlans(userId);
       Mockito.verify(benefitPlanUserMapper, Mockito.times(0)).convertFrom(Mockito.any());
     }
