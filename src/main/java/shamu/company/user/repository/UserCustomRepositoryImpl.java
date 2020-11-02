@@ -269,7 +269,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
     if (existingUser != null && existingUser.getRole() != user.getRole()) {
       auth0Helper.updateRole(existingUser, user.getUserRole().getName());
       applicationEventPublisher.publishEvent(
-          new UserRoleUpdatedEvent(existingUser.getId(), existingUser.getUserRole()));
+          new UserRoleUpdatedEvent(existingUser, existingUser.getUserRole()));
     }
 
     final User returnUser;
@@ -331,7 +331,7 @@ public class UserCustomRepositoryImpl implements UserCustomRepository {
   @SuppressWarnings("unused")
   @TransactionalEventListener(phase = TransactionPhase.AFTER_ROLLBACK)
   public void restoreUserRole(final UserRoleUpdatedEvent userRoleUpdatedEvent) {
-    auth0Helper.updateAuthRole(
-        userRoleUpdatedEvent.getUserId(), userRoleUpdatedEvent.getUserRole().getName());
+    auth0Helper.updateRole(
+        userRoleUpdatedEvent.getUser(), userRoleUpdatedEvent.getUserRole().getName());
   }
 }

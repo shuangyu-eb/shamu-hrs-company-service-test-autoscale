@@ -1,17 +1,18 @@
 package shamu.company.user.event;
 
 import lombok.Data;
+import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserRole;
 
 @Data
 public class UserRoleUpdatedEvent {
 
-  private String userId;
+  private User user;
 
   private UserRole userRole;
 
-  public UserRoleUpdatedEvent(final String userId, final UserRole userRole) {
-    this.userId = userId;
+  public UserRoleUpdatedEvent(final User user, final UserRole userRole) {
+    this.user = user;
     this.userRole = userRole;
   }
 }

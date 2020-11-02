@@ -139,11 +139,13 @@ public class TimeSheetService {
 
   public void removeUserFromAttendance(final List<String> userIds) {
     final TimePeriod timePeriod = timePeriodService.findCompanyCurrentPeriod();
-    final Timestamp currentTime = DateUtil.getCurrentTime();
-    final List<Timesheet> timesheets =
-        timesheetRepository.findAllByTimePeriodIdAndEmployeeId(timePeriod.getId(), userIds);
-    timesheets.forEach(timesheet -> timesheet.setRemovedAt(currentTime));
-    timesheetRepository.saveAll(timesheets);
+    if(timePeriod != null) {
+      final Timestamp currentTime = DateUtil.getCurrentTime();
+      final List<Timesheet> timesheets =
+          timesheetRepository.findAllByTimePeriodIdAndEmployeeId(timePeriod.getId(), userIds);
+      timesheets.forEach(timesheet -> timesheet.setRemovedAt(currentTime));
+      timesheetRepository.saveAll(timesheets);
+    }
   }
 
   public int findTeamHoursPendingCount(final String userId, final String periodId) {

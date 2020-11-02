@@ -56,14 +56,14 @@ public class SentryLoggerTests {
     final CommonDictionaryDto commonDictionaryDto = new CommonDictionaryDto();
     final ApplicationConfig config = new ApplicationConfig();
     final UserRoleUpdatedEvent userRoleUpdatedEvent =
-        new UserRoleUpdatedEvent("userId", new UserRole());
+        new UserRoleUpdatedEvent(new shamu.company.user.entity.User(), new UserRole());
     final Auth0UserCreatedEvent auth0UserCreatedEvent = new Auth0UserCreatedEvent(new User());
     commonDictionaryDto.setId("1");
     commonDictionaryDto.setName("name");
     config.setFrontEndAddress("front");
     config.setHelpUrl("helpUrl");
     config.setSystemEmailAddress("address");
-    userRoleUpdatedEvent.getUserId();
+    userRoleUpdatedEvent.getUser();
     userRoleUpdatedEvent.getUserRole();
     auth0UserCreatedEvent.setUser(new User());
     Assertions.assertNotNull(config.toString());
