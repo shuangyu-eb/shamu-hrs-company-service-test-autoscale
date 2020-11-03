@@ -4,7 +4,7 @@ import lombok.Data;
 
 // Receive front end data
 @Data
-public class NewFECompanyInfomation {
+public class NewFECompanyInformationDto {
 
   private String mailingAddress;
 

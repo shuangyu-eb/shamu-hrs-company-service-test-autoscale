@@ -1,9 +1,11 @@
 package shamu.company.financialengine.service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
+import shamu.company.common.exception.errormapping.ResourceNotFoundException;
 import shamu.company.common.service.OfficeService;
 import shamu.company.company.entity.Company;
 import shamu.company.company.entity.Office;
@@ -13,11 +15,12 @@ import shamu.company.crypto.SecretHashRepository;
 import shamu.company.financialengine.FinancialEngineResponse;
 import shamu.company.financialengine.dto.AddNewFEAddressResponseDto;
 import shamu.company.financialengine.dto.AddNewFECompanyResponseDto;
-import shamu.company.financialengine.dto.NewFECompanyInfomation;
 import shamu.company.financialengine.dto.CompanyInformationDto;
+import shamu.company.financialengine.dto.CompanyTaxIdDto;
 import shamu.company.financialengine.dto.IndustryDto;
 import shamu.company.financialengine.dto.LegalEntityTypeDto;
 import shamu.company.financialengine.dto.NewCompanyDto;
+import shamu.company.financialengine.dto.NewFECompanyInformationDto;
 import shamu.company.financialengine.dto.NewFinancialEngineAddressDto;
 import shamu.company.financialengine.entity.FEAddresses;
 import shamu.company.financialengine.entity.FEAddresses.FeAddressType;
@@ -92,14 +95,14 @@ public class FECompanyService {
     }
   }
 
-  public void newFinancialEngine(final NewFECompanyInfomation companyDetailsDto) {
+  public void newFinancialEngine(final NewFECompanyInformationDto companyDetailsDto) {
     String feCompanyId = addNewCompany(companyDetailsDto);
     log.info(feCompanyId);
     // TODO after /company/address/new normal, open it
     // addNewAddress(companyDetailsDto, feCompanyId);
   }
 
-  private String addNewCompany(final NewFECompanyInfomation companyDetailsDto) {
+  private String addNewCompany(final NewFECompanyInformationDto companyDetailsDto) {
     final Company company = companyService.getCompany();
     final NewCompanyDto newCompanyDto = feCompanyMapper.convertNewCompanyDto(companyDetailsDto);
     final Mono<FinancialEngineResponse<AddNewFECompanyResponseDto>> industriesMono =
@@ -120,7 +123,8 @@ public class FECompanyService {
     return null;
   }
 
-  private void addNewAddress(final NewFECompanyInfomation companyDetailsDto, final String feCompanyId) {
+  private void addNewAddress(
+      final NewFECompanyInformationDto companyDetailsDto, final String feCompanyId) {
     final Office mailOffice = officeService.findById(companyDetailsDto.getMailingAddress());
     final Office filingOffice = officeService.findById(companyDetailsDto.getFilingAddress());
     createNewFeAddress(feCompanyId, mailOffice.getOfficeAddress(), FeAddressType.MAILING);
@@ -145,5 +149,29 @@ public class FECompanyService {
       feAddresses.setType(addressType);
       feAddressRepository.save(feAddresses);
     }
+  }
+
+  // TODO FE api function error
+  public List<CompanyTaxIdDto> getAvailableTaxList() {
+    FECompany feCompany = findFeCompany();
+    final Mono<FinancialEngineResponse<List<CompanyTaxIdDto>>> industriesMono =
+        financialEngineHelper.get("/company/" + feCompany.getFeCompanyId() + "/available/tax-list");
+    final FinancialEngineResponse<List<CompanyTaxIdDto>> response = industriesMono.block();
+    if (response != null && response.getSuccess()) {
+      return response.getBody();
+    }
+    return Collections.emptyList();
+  }
+
+  public FECompany findFeCompany() {
+    final Company company = companyService.getCompany();
+    FECompany feCompany = feCompanyRepository.findByCompanyId(company.getId());
+    if (null == feCompany) {
+      throw new ResourceNotFoundException(
+          String.format("FE company with HRISCompanyId %s not found!", company.getId()),
+          company.getId(),
+          "fe company");
+    }
+    return feCompany;
   }
 }

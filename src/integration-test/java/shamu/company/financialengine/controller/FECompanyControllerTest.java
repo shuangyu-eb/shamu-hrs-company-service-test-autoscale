@@ -17,7 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import shamu.company.WebControllerBaseTests;
-import shamu.company.financialengine.dto.NewFECompanyInfomation;
+import shamu.company.financialengine.dto.NewFECompanyInformationDto;
 import shamu.company.financialengine.dto.CompanyInformationDto;
 import shamu.company.financialengine.dto.IndustryDto;
 import shamu.company.financialengine.dto.LegalEntityTypeDto;
@@ -65,7 +65,7 @@ class FECompanyControllerTest extends WebControllerBaseTests {
 
   @Test
   void testAddNew() throws Exception {
-    final NewFECompanyInfomation companyDetailsDto = new NewFECompanyInfomation();
+    final NewFECompanyInformationDto companyDetailsDto = new NewFECompanyInformationDto();
     doNothing().when(feCompanyService).newFinancialEngine(companyDetailsDto);
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());

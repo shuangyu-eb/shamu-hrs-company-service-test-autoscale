@@ -17,6 +17,8 @@ import shamu.company.attendance.dto.AttendanceDetailDto;
 import shamu.company.attendance.service.AttendanceSetUpService;
 import shamu.company.attendance.service.AttendanceTeamHoursService;
 import shamu.company.employee.dto.CompensationDto;
+import shamu.company.financialengine.dto.CompanyTaxIdDto;
+import shamu.company.financialengine.service.FECompanyService;
 import shamu.company.job.entity.JobUser;
 import shamu.company.job.service.JobUserService;
 import shamu.company.payroll.service.PayrollSetUpService;
@@ -43,6 +45,8 @@ public class PayrollSetupServiceTests {
   @Mock private UserCompensationMapper userCompensationMapper;
 
   @Mock private UserCompensationService userCompensationService;
+
+  @Mock private FECompanyService feCompanyService;
 
   @BeforeEach
   void init() {
@@ -91,5 +95,13 @@ public class PayrollSetupServiceTests {
 
     assertEquals(
         payrollSetupService.getPayrollSetUpEmployees().get(0).getEmployeeId(), user.getId());
+  }
+
+  @Test
+  void testGetTaxList() {
+    List<CompanyTaxIdDto> companyTaxIdDtos = new ArrayList<>();
+    Mockito.when(feCompanyService.getAvailableTaxList()).thenReturn(companyTaxIdDtos);
+
+    assertThatCode(() -> payrollSetupService.getTaxList()).doesNotThrowAnyException();
   }
 }

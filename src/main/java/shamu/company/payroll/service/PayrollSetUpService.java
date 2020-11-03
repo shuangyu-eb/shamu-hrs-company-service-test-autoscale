@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 import shamu.company.attendance.service.AttendanceSetUpService;
 import shamu.company.attendance.service.AttendanceTeamHoursService;
 import shamu.company.employee.dto.CompensationDto;
+import shamu.company.financialengine.dto.CompanyTaxIdDto;
+import shamu.company.financialengine.service.FECompanyService;
 import shamu.company.job.entity.JobUser;
 import shamu.company.job.service.JobUserService;
 import shamu.company.payroll.dto.PayrollDetailDto;
@@ -25,6 +27,7 @@ public class PayrollSetUpService {
   private final UserCompensationService userCompensationService;
   private final UserCompensationMapper userCompensationMapper;
   private final JobUserService jobUserService;
+  private final FECompanyService feCompanyService;
 
   public PayrollSetUpService(
       final AttendanceSetUpService attendanceSetUpService,
@@ -32,13 +35,15 @@ public class PayrollSetUpService {
       final UserService userService,
       final UserCompensationService userCompensationService,
       final UserCompensationMapper userCompensationMapper,
-      final JobUserService jobUserService) {
+      final JobUserService jobUserService,
+      final FECompanyService feCompanyService) {
     this.attendanceSetUpService = attendanceSetUpService;
     this.attendanceTeamHoursService = attendanceTeamHoursService;
     this.userService = userService;
     this.userCompensationService = userCompensationService;
     this.userCompensationMapper = userCompensationMapper;
     this.jobUserService = jobUserService;
+    this.feCompanyService = feCompanyService;
   }
 
   public PayrollDetailDto getPayrollDetails() {
@@ -76,5 +81,9 @@ public class PayrollSetUpService {
                   compensationDto);
             }))
         .collect(Collectors.toList());
+  }
+
+  public List<CompanyTaxIdDto> getTaxList() {
+    return feCompanyService.getAvailableTaxList();
   }
 }

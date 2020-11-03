@@ -24,11 +24,12 @@ import shamu.company.company.entity.Company;
 import shamu.company.company.service.CompanyService;
 import shamu.company.financialengine.FinancialEngineResponse;
 import shamu.company.financialengine.dto.AddNewFECompanyResponseDto;
-import shamu.company.financialengine.dto.NewFECompanyInfomation;
 import shamu.company.financialengine.dto.CompanyInformationDto;
+import shamu.company.financialengine.dto.CompanyTaxIdDto;
 import shamu.company.financialengine.dto.IndustryDto;
 import shamu.company.financialengine.dto.LegalEntityTypeDto;
 import shamu.company.financialengine.dto.NewCompanyDto;
+import shamu.company.financialengine.dto.NewFECompanyInformationDto;
 import shamu.company.financialengine.entity.FECompany;
 import shamu.company.financialengine.entity.FECompanyMapper;
 import shamu.company.financialengine.repository.FEAddressRepository;
@@ -133,7 +134,7 @@ class FECompanyServiceTest {
     company.setId(UuidUtil.getUuidString());
     Mockito.when(companyService.getCompany()).thenReturn(company);
 
-    final NewFECompanyInfomation companyDetailsDto = new NewFECompanyInfomation();
+    final NewFECompanyInformationDto companyDetailsDto = new NewFECompanyInformationDto();
     companyDetailsDto.setMailingAddress(UuidUtil.getUuidString());
     NewCompanyDto newCompanyDto = new NewCompanyDto();
     Mockito.when(feCompanyMapper.convertNewCompanyDto(companyDetailsDto)).thenReturn(newCompanyDto);
@@ -174,6 +175,38 @@ class FECompanyServiceTest {
     final RecordedRequest recordedRequest = mockBackEnd.takeRequest();
     assertEquals(RequestMethod.GET.name(), recordedRequest.getMethod());
     assertEquals("/company/available/legal-entity-types", recordedRequest.getPath());
+    assertEquals(results.size(), financialEngineResponse.getBody().size());
+  }
+
+  @Test
+  void testGetAvailableTaxList() throws Exception {
+    final FECompany feCompany = new FECompany();
+    feCompany.setFeCompanyId("test");
+    final Company company = new Company();
+    company.setId(UuidUtil.getUuidString());
+    feCompany.setCompany(company);
+    Mockito.when(companyService.getCompany()).thenReturn(company);
+    Mockito.when(feCompanyRepository.findByCompanyId(company.getId())).thenReturn(feCompany);
+
+    final List<CompanyTaxIdDto> companyTaxIdDtos = new ArrayList<>();
+    CompanyTaxIdDto companyTaxIdDto = new CompanyTaxIdDto();
+    companyTaxIdDtos.add(companyTaxIdDto);
+    companyTaxIdDtos.add(new CompanyTaxIdDto());
+    final FinancialEngineResponse<List<CompanyTaxIdDto>> financialEngineResponse =
+        new FinancialEngineResponse<>();
+    financialEngineResponse.setBody(companyTaxIdDtos);
+    financialEngineResponse.setSuccess(true);
+
+    mockBackEnd.enqueue(
+        new MockResponse()
+            .setBody(MAPPER.writeValueAsString(financialEngineResponse))
+            .addHeader("Content-Type", "application/json"));
+    final List<CompanyTaxIdDto> results = feCompanyService.getAvailableTaxList();
+    final RecordedRequest recordedRequest = mockBackEnd.takeRequest();
+    assertEquals(RequestMethod.GET.name(), recordedRequest.getMethod());
+    assertEquals(
+        "/company/" + feCompany.getFeCompanyId() + "/available/tax-list",
+        recordedRequest.getPath());
     assertEquals(results.size(), financialEngineResponse.getBody().size());
   }
 }
