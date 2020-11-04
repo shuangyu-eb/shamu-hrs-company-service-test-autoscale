@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import shamu.company.financialengine.dto.BankConnectionWidgetDto;
 import shamu.company.financialengine.dto.NewFECompanyInformationDto;
 import shamu.company.financialengine.dto.CompanyInformationDto;
 import shamu.company.financialengine.dto.IndustryDto;
@@ -45,5 +46,10 @@ public class FECompanyController {
   @GetMapping("/legal-entity-types")
   public List<LegalEntityTypeDto> getLegalEntityTypes() {
     return feCompanyService.getLegalEntityTypes();
+  }
+
+  @GetMapping("/bank/connection-widget")
+  public BankConnectionWidgetDto getBankConnect() {
+    return feCompanyService.getBankConnection();
   }
 }

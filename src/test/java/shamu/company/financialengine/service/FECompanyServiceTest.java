@@ -3,9 +3,11 @@ package shamu.company.financialengine.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -24,8 +26,10 @@ import shamu.company.company.entity.Company;
 import shamu.company.company.service.CompanyService;
 import shamu.company.financialengine.FinancialEngineResponse;
 import shamu.company.financialengine.dto.AddNewFECompanyResponseDto;
+import shamu.company.financialengine.dto.BankConnectionWidgetDto;
 import shamu.company.financialengine.dto.CompanyInformationDto;
 import shamu.company.financialengine.dto.CompanyTaxIdDto;
+import shamu.company.financialengine.dto.GetBankConnectResponseDto;
 import shamu.company.financialengine.dto.IndustryDto;
 import shamu.company.financialengine.dto.LegalEntityTypeDto;
 import shamu.company.financialengine.dto.NewCompanyDto;
@@ -208,5 +212,39 @@ class FECompanyServiceTest {
         "/company/" + feCompany.getFeCompanyId() + "/available/tax-list",
         recordedRequest.getPath());
     assertEquals(results.size(), financialEngineResponse.getBody().size());
+  }
+
+  @Test
+
+  public void testGetBankConnection() throws Exception {
+    final FECompany feCompany = new FECompany();
+    feCompany.setFeCompanyId("test");
+    final Company company = new Company();
+    company.setId(UuidUtil.getUuidString());
+    feCompany.setCompany(company);
+    Mockito.when(companyService.getCompany()).thenReturn(company);
+    Mockito.when(feCompanyRepository.findByCompanyId(company.getId())).thenReturn(feCompany);
+    final FinancialEngineResponse<GetBankConnectResponseDto> financialEngineResponse =
+        new FinancialEngineResponse<>();
+    GetBankConnectResponseDto getBankConnectResponseDto = new GetBankConnectResponseDto();
+    getBankConnectResponseDto.setWidgetHtml(Base64.getEncoder().encodeToString("src=\"test1\" \n url: \"test2\"".getBytes()));
+    financialEngineResponse.setBody(getBankConnectResponseDto);
+    financialEngineResponse.setSuccess(true);
+    mockBackEnd.enqueue(
+        new MockResponse()
+            .setBody(MAPPER.writeValueAsString(financialEngineResponse))
+            .addHeader("Content-Type", "application/json"));
+    BankConnectionWidgetDto result = feCompanyService.getBankConnection();
+    final RecordedRequest recordedRequest = mockBackEnd.takeRequest();
+    assertEquals(RequestMethod.GET.name(), recordedRequest.getMethod());
+    assertEquals(
+       "/company/"+feCompany.getFeCompanyId()+"/bank/connect",
+        recordedRequest.getPath());
+    assertEquals(
+        result.getOriginUrl(),
+        "test1");
+    assertEquals(
+        result.getCompanyBankConnectUrl(),
+        "test2");
   }
 }

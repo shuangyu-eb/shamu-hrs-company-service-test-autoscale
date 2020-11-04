@@ -3,6 +3,8 @@ package shamu.company.financialengine.service;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import shamu.company.common.exception.errormapping.ResourceNotFoundException;
@@ -15,6 +17,8 @@ import shamu.company.crypto.SecretHashRepository;
 import shamu.company.financialengine.FinancialEngineResponse;
 import shamu.company.financialengine.dto.AddNewFEAddressResponseDto;
 import shamu.company.financialengine.dto.AddNewFECompanyResponseDto;
+import shamu.company.financialengine.dto.BankConnectionWidgetDto;
+import shamu.company.financialengine.dto.GetBankConnectResponseDto;
 import shamu.company.financialengine.dto.CompanyInformationDto;
 import shamu.company.financialengine.dto.CompanyTaxIdDto;
 import shamu.company.financialengine.dto.IndustryDto;
@@ -30,9 +34,11 @@ import shamu.company.financialengine.repository.FEAddressRepository;
 import shamu.company.financialengine.repository.FECompanyRepository;
 import shamu.company.helpers.FinancialEngineHelper;
 import shamu.company.sentry.SentryLogger;
+import shamu.company.utils.Base64Utils;
 
 @Service
 public class FECompanyService {
+
   private final FinancialEngineHelper financialEngineHelper;
   private final FECompanyMapper feCompanyMapper;
   private final CompanyService companyService;
@@ -173,5 +179,38 @@ public class FECompanyService {
           "fe company");
     }
     return feCompany;
+  }
+
+  public BankConnectionWidgetDto getBankConnection() {
+    final Company company = companyService.getCompany();
+    FECompany feCompany = feCompanyRepository.findByCompanyId(company.getId());
+    final Mono<FinancialEngineResponse<GetBankConnectResponseDto>> bankConnectionMono =
+        financialEngineHelper
+            .get(String.format("/company/%s/bank/connect", feCompany.getFeCompanyId()));
+    final FinancialEngineResponse<GetBankConnectResponseDto> response = bankConnectionMono.block();
+    if (response != null) {
+      GetBankConnectResponseDto bankConnectResponseDto = response
+          .getBody(GetBankConnectResponseDto.class);
+      String responseScript = Base64Utils.decode(bankConnectResponseDto.getWidgetHtml());
+      return getUrlOfResponseScript(responseScript);
+    }
+    return null;
+  }
+
+  private BankConnectionWidgetDto getUrlOfResponseScript(String script) {
+    String scrRegexp = "src=\"(.*)\"";
+    BankConnectionWidgetDto bankConnectionWidgetDto = new BankConnectionWidgetDto();
+    Pattern pattern = Pattern.compile(scrRegexp);
+    Matcher matcher = pattern.matcher(script);
+    if (matcher.find()) {
+      bankConnectionWidgetDto.setOriginUrl(matcher.group(1));
+    }
+    String urlRegexp = "url: \"(.*)\"";
+     pattern = Pattern.compile(urlRegexp);
+     matcher = pattern.matcher(script);
+     if (matcher.find()) {
+       bankConnectionWidgetDto.setCompanyBankConnectUrl(matcher.group(1));
+     }
+     return bankConnectionWidgetDto;
   }
 }
