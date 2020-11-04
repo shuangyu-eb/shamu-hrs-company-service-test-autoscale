@@ -17,10 +17,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import shamu.company.WebControllerBaseTests;
-import shamu.company.financialengine.dto.NewFECompanyInformationDto;
 import shamu.company.financialengine.dto.CompanyInformationDto;
 import shamu.company.financialengine.dto.IndustryDto;
 import shamu.company.financialengine.dto.LegalEntityTypeDto;
+import shamu.company.financialengine.dto.NewFECompanyInformationDto;
 import shamu.company.financialengine.service.FECompanyService;
 import shamu.company.tests.utils.JwtUtil;
 import shamu.company.utils.JsonUtil;
@@ -64,15 +64,15 @@ class FECompanyControllerTest extends WebControllerBaseTests {
   }
 
   @Test
-  void testAddNew() throws Exception {
+  void testSaveFinancialEngine() throws Exception {
     final NewFECompanyInformationDto companyDetailsDto = new NewFECompanyInformationDto();
-    doNothing().when(feCompanyService).newFinancialEngine(companyDetailsDto);
+    doNothing().when(feCompanyService).saveFinancialEngine(companyDetailsDto);
     final HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Authorization", "Bearer " + JwtUtil.generateRsaToken());
     final MvcResult response =
         mockMvc
             .perform(
-                MockMvcRequestBuilders.post("/company/financial-engine/new")
+                MockMvcRequestBuilders.post("/company/financial-engine/save")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(JsonUtil.formatToString(companyDetailsDto))
                     .headers(httpHeaders))

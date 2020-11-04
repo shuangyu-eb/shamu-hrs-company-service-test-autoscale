@@ -21,9 +21,9 @@ import shamu.company.financialengine.dto.BankConnectionWidgetDto;
 import shamu.company.financialengine.dto.GetBankConnectResponseDto;
 import shamu.company.financialengine.dto.CompanyInformationDto;
 import shamu.company.financialengine.dto.CompanyTaxIdDto;
+import shamu.company.financialengine.dto.FECompanyDto;
 import shamu.company.financialengine.dto.IndustryDto;
 import shamu.company.financialengine.dto.LegalEntityTypeDto;
-import shamu.company.financialengine.dto.NewCompanyDto;
 import shamu.company.financialengine.dto.NewFECompanyInformationDto;
 import shamu.company.financialengine.dto.NewFinancialEngineAddressDto;
 import shamu.company.financialengine.entity.FEAddresses;
@@ -101,23 +101,29 @@ public class FECompanyService {
     }
   }
 
-  public void newFinancialEngine(final NewFECompanyInformationDto companyDetailsDto) {
-    String feCompanyId = addNewCompany(companyDetailsDto);
+  public void saveFinancialEngine(final NewFECompanyInformationDto companyDetailsDto)
+      throws Exception {
+    String feCompanyId = saveFECompany(companyDetailsDto);
     log.info(feCompanyId);
     // TODO after /company/address/new normal, open it
-    // addNewAddress(companyDetailsDto, feCompanyId);
+    // saveFEAddress(companyDetailsDto, feCompanyId);
   }
 
-  private String addNewCompany(final NewFECompanyInformationDto companyDetailsDto) {
+  private String saveFECompany(final NewFECompanyInformationDto companyDetailsDto)
+      throws Exception {
     final Company company = companyService.getCompany();
-    final NewCompanyDto newCompanyDto = feCompanyMapper.convertNewCompanyDto(companyDetailsDto);
-    final Mono<FinancialEngineResponse<AddNewFECompanyResponseDto>> industriesMono =
-        financialEngineHelper.post("/company/new", newCompanyDto);
-    final FinancialEngineResponse<AddNewFECompanyResponseDto> response = industriesMono.block();
-    if (response != null) {
-      FECompany feCompany = feCompanyRepository.findByCompanyId(company.getId());
-      if (feCompany == null) {
-        feCompany = new FECompany();
+    FECompany feCompany = feCompanyRepository.findByCompanyId(company.getId());
+    final FECompanyDto feCompanyDto = feCompanyMapper.convertFECompanyDto(companyDetailsDto);
+
+    // Add new fe company
+    if (null == feCompany) {
+      feCompany = new FECompany();
+      final Mono<FinancialEngineResponse<AddNewFECompanyResponseDto>> industriesMono =
+          financialEngineHelper.post("/company/new", feCompanyDto);
+      final FinancialEngineResponse<AddNewFECompanyResponseDto> response = industriesMono.block();
+      if (response != null && !response.getSuccess()) {
+        // TODO handle specific exception
+        throw new Exception(response.getError());
       }
       final String feCompanyId =
           response.getBody(AddNewFECompanyResponseDto.class).getCompanyUuid();
@@ -126,30 +132,44 @@ public class FECompanyService {
       feCompanyRepository.save(feCompany);
       return feCompanyId;
     }
+    // Update fe company
+    final Mono<FinancialEngineResponse<String>> industriesMono =
+        financialEngineHelper.put(
+            "/company/" + feCompany.getFeCompanyId() + "/update", feCompanyDto);
+    final FinancialEngineResponse<String> response = industriesMono.block();
+    if (response != null && !response.getSuccess()) {
+      // TODO handle specific exception
+      throw new Exception(response.getError());
+    }
     return null;
   }
 
-  private void addNewAddress(
-      final NewFECompanyInformationDto companyDetailsDto, final String feCompanyId) {
+  private void saveFEAddress(
+      final NewFECompanyInformationDto companyDetailsDto, final String feCompanyId)
+      throws Exception {
     final Office mailOffice = officeService.findById(companyDetailsDto.getMailingAddress());
     final Office filingOffice = officeService.findById(companyDetailsDto.getFilingAddress());
-    createNewFeAddress(feCompanyId, mailOffice.getOfficeAddress(), FeAddressType.MAILING);
-    createNewFeAddress(feCompanyId, filingOffice.getOfficeAddress(), FeAddressType.FILING);
+    addNewOrUpdateFeAddress(feCompanyId, mailOffice.getOfficeAddress(), FeAddressType.MAILING);
+    addNewOrUpdateFeAddress(feCompanyId, filingOffice.getOfficeAddress(), FeAddressType.FILING);
   }
 
-  private void createNewFeAddress(
-      final String feCompanyId,
-      final OfficeAddress officeAddress,
-      final FeAddressType addressType) {
-    final NewFinancialEngineAddressDto financialEngineAddressDto =
-        feCompanyMapper.convertFinancialEngineAddressDto(feCompanyId, officeAddress, addressType);
-    final Mono<FinancialEngineResponse<AddNewFEAddressResponseDto>> industriesMono =
-        financialEngineHelper.post("/company/address/new", financialEngineAddressDto);
-    final FinancialEngineResponse<AddNewFEAddressResponseDto> response = industriesMono.block();
-    if (response != null) {
+  private void addNewOrUpdateFeAddress(
+      final String feCompanyId, final OfficeAddress officeAddress, final FeAddressType addressType)
+      throws Exception {
+    FEAddresses feAddresses =
+        feAddressRepository.findByOfficeAddressAndType(officeAddress, addressType);
+    if (null == feAddresses) {
+      feAddresses = new FEAddresses();
+      final NewFinancialEngineAddressDto financialEngineAddressDto =
+          feCompanyMapper.convertFinancialEngineAddressDto(feCompanyId, officeAddress, addressType);
+      final Mono<FinancialEngineResponse<AddNewFEAddressResponseDto>> industriesMono =
+          financialEngineHelper.post("/company/address/new", financialEngineAddressDto);
+      final FinancialEngineResponse<AddNewFEAddressResponseDto> response = industriesMono.block();
+      if (response != null && !response.getSuccess()) {
+        throw new Exception(response.getError());
+      }
       final String addressUuid =
           response.getBody(AddNewFEAddressResponseDto.class).getAddressUuid();
-      final FEAddresses feAddresses = new FEAddresses();
       feAddresses.setOfficeAddress(officeAddress);
       feAddresses.setFeAddressId(addressUuid);
       feAddresses.setType(addressType);

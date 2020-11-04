@@ -5,14 +5,14 @@ import org.mapstruct.Mapping;
 import shamu.company.common.mapper.Config;
 import shamu.company.company.entity.OfficeAddress;
 import shamu.company.financialengine.dto.NewFECompanyInformationDto;
-import shamu.company.financialengine.dto.NewCompanyDto;
+import shamu.company.financialengine.dto.FECompanyDto;
 import shamu.company.financialengine.dto.NewFinancialEngineAddressDto;
 import shamu.company.financialengine.entity.FEAddresses.FeAddressType;
 
 @Mapper(config = Config.class)
 public interface FECompanyMapper {
 
-  NewCompanyDto convertNewCompanyDto(NewFECompanyInformationDto companyDetailsDto);
+  FECompanyDto convertFECompanyDto(NewFECompanyInformationDto companyDetailsDto);
 
   @Mapping(target = "companyId", source = "feCompanyId")
   @Mapping(target = "street1", source = "officeAddress.street1")

@@ -3,7 +3,7 @@ package shamu.company.financialengine.dto;
 import lombok.Data;
 
 @Data
-public class NewCompanyDto {
+public class FECompanyDto {
 
   private String legalName;
 

@@ -10,10 +10,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import shamu.company.financialengine.dto.BankConnectionWidgetDto;
-import shamu.company.financialengine.dto.NewFECompanyInformationDto;
 import shamu.company.financialengine.dto.CompanyInformationDto;
 import shamu.company.financialengine.dto.IndustryDto;
 import shamu.company.financialengine.dto.LegalEntityTypeDto;
+import shamu.company.financialengine.dto.NewFECompanyInformationDto;
 import shamu.company.financialengine.service.FECompanyService;
 
 @RestController
@@ -37,9 +37,10 @@ public class FECompanyController {
     return feCompanyService.getCompanyInformation();
   }
 
-  @PostMapping("/new")
-  public HttpEntity newFinancialEngine(@RequestBody final NewFECompanyInformationDto feCompanyInfomation) {
-    feCompanyService.newFinancialEngine(feCompanyInfomation);
+  @PostMapping("/save")
+  public HttpEntity saveFinancialEngine(
+      @RequestBody final NewFECompanyInformationDto feCompanyInformationDto) throws Exception {
+    feCompanyService.saveFinancialEngine(feCompanyInformationDto);
     return new ResponseEntity(HttpStatus.OK);
   }
 
