@@ -1,15 +1,22 @@
 package shamu.company.payroll.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.springframework.beans.BeanUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
 import shamu.company.attendance.service.AttendanceSetUpService;
 import shamu.company.attendance.service.AttendanceTeamHoursService;
 import shamu.company.employee.dto.CompensationDto;
+import shamu.company.employee.dto.EmployeeListSearchCondition;
 import shamu.company.financialengine.dto.CompanyTaxIdDto;
 import shamu.company.financialengine.service.FECompanyService;
 import shamu.company.job.entity.JobUser;
+import shamu.company.job.entity.JobUserListItem;
 import shamu.company.job.service.JobUserService;
+import shamu.company.payroll.dto.PayrollAuthorizedEmployeeDto;
 import shamu.company.payroll.dto.PayrollDetailDto;
 import shamu.company.payroll.dto.PayrollSetupEmployeeDto;
 import shamu.company.user.entity.User;
@@ -85,5 +92,31 @@ public class PayrollSetUpService {
 
   public List<CompanyTaxIdDto> getTaxList() {
     return feCompanyService.getAvailableTaxList();
+  }
+
+  public Page<PayrollAuthorizedEmployeeDto> getPayrollAuthorizedEmployees(
+      final EmployeeListSearchCondition employeeListSearchCondition) {
+    final Page<JobUserListItem> jobUserListItems =
+        userService.findAllEmployees(employeeListSearchCondition);
+    final List<PayrollAuthorizedEmployeeDto> content = new ArrayList<>();
+    jobUserListItems.forEach(
+        jobUserListItem -> content.add(assembleAuthorizedEmployeeDto(jobUserListItem)));
+    return new PageImpl<>(
+        content, jobUserListItems.getPageable(), jobUserListItems.getTotalElements());
+  }
+
+  private PayrollAuthorizedEmployeeDto assembleAuthorizedEmployeeDto(
+      final JobUserListItem jobUserListItem) {
+    final PayrollAuthorizedEmployeeDto payrollAuthorizedEmployeeDto =
+        new PayrollAuthorizedEmployeeDto();
+
+    BeanUtils.copyProperties(jobUserListItem, payrollAuthorizedEmployeeDto);
+    final String managerId = userService.getManagerUserIdById(jobUserListItem.getId());
+    if (managerId != null) {
+      final User manager = userService.findById(managerId);
+      payrollAuthorizedEmployeeDto.setReportsToName(manager.getUserPersonalInformation().getName());
+    }
+
+    return payrollAuthorizedEmployeeDto;
   }
 }

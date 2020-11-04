@@ -1,9 +1,12 @@
 package shamu.company.payroll.controller;
 
 import java.util.List;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.GetMapping;
 import shamu.company.common.config.annotations.RestApiController;
+import shamu.company.employee.dto.EmployeeListSearchCondition;
 import shamu.company.financialengine.dto.CompanyTaxIdDto;
+import shamu.company.payroll.dto.PayrollAuthorizedEmployeeDto;
 import shamu.company.payroll.dto.PayrollDetailDto;
 import shamu.company.payroll.dto.PayrollSetupEmployeeDto;
 import shamu.company.payroll.service.PayrollSetUpService;
@@ -30,5 +33,11 @@ public class PayrollSetUpRestController {
   @GetMapping("payroll/required-tax-fields")
   public List<CompanyTaxIdDto> getTaxList() {
     return payrollSetUpService.getTaxList();
+  }
+
+  @GetMapping("payroll/setup/authorized-signers/employees")
+  public Page<PayrollAuthorizedEmployeeDto> getPayrollAuthorizedSignerEmployees(
+      final EmployeeListSearchCondition employeeListSearchCondition) {
+    return payrollSetUpService.getPayrollAuthorizedEmployees(employeeListSearchCondition);
   }
 }
