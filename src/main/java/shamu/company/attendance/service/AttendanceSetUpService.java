@@ -1,5 +1,25 @@
 package shamu.company.attendance.service;
 
+import static java.time.DayOfWeek.SATURDAY;
+import static shamu.company.attendance.entity.OvertimePolicy.NOT_ELIGIBLE_POLICY_NAME;
+import static shamu.company.attendance.entity.StaticTimesheetStatus.TimeSheetStatus;
+import static shamu.company.utils.DateUtil.MS_OF_ONE_DAY;
+import static shamu.company.utils.DateUtil.MS_OF_ONE_HOUR;
+
+import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.format.TextStyle;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import java.util.TimeZone;
+import java.util.stream.Collectors;
 import org.apache.commons.lang.time.DateUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,7 +47,6 @@ import shamu.company.attendance.repository.StaticTimesheetStatusRepository;
 import shamu.company.common.entity.PayrollDetail;
 import shamu.company.common.multitenant.TenantContext;
 import shamu.company.common.service.PayrollDetailService;
-import shamu.company.company.entity.Office;
 import shamu.company.email.entity.Email;
 import shamu.company.email.service.EmailService;
 import shamu.company.email.service.EmailService.EmailNotification;
@@ -44,27 +63,6 @@ import shamu.company.user.entity.User;
 import shamu.company.user.entity.UserCompensation;
 import shamu.company.user.repository.UserRepository;
 import shamu.company.user.service.UserService;
-
-import java.sql.Timestamp;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.format.TextStyle;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
-import java.util.TimeZone;
-import java.util.stream.Collectors;
-
-import static java.time.DayOfWeek.SATURDAY;
-import static shamu.company.attendance.entity.OvertimePolicy.NOT_ELIGIBLE_POLICY_NAME;
-import static shamu.company.attendance.entity.StaticTimesheetStatus.TimeSheetStatus;
-import static shamu.company.utils.DateUtil.MS_OF_ONE_DAY;
-import static shamu.company.utils.DateUtil.MS_OF_ONE_HOUR;
 
 @Service
 public class AttendanceSetUpService {
@@ -222,7 +220,9 @@ public class AttendanceSetUpService {
     final List<UserCompensation> userCompensationList =
         overtimeService.createEmployeeOvertimePolicies(overtimeDetailsDtoList, new Date());
 
-    saveEmployeeTaSettings(timeAndAttendanceDetailsDto, companyTimezone);
+    saveEmployeeTaSettings(timeAndAttendanceDetailsDto);
+
+    setTimeZoneToAdmin(companyTimezone);
 
     final TimePeriod firstTimePeriod =
         isSetUp
@@ -252,6 +252,21 @@ public class AttendanceSetUpService {
     } else {
       final TimePeriod currentPeriod = timePeriodService.findCompanyCurrentPeriod();
       createTimeSheets(currentPeriod, timeSheetStatus, userCompensationList, true);
+    }
+  }
+
+  private void setTimeZoneToAdmin(final StaticTimezone companyTimezone) {
+    final List<User> users = userService.findUsersWithoutTimezone();
+    for (final User user : users) {
+      final JobUser jobUser = jobUserRepository.findByUserId(user.getId());
+      if (jobUser != null
+          && jobUser.getOffice() != null
+          && jobUser.getOffice().getOfficeAddress() != null) {
+        user.setTimeZone(jobUser.getOffice().getOfficeAddress().getTimeZone());
+      } else {
+        user.setTimeZone(companyTimezone);
+      }
+      userRepository.save(user);
     }
   }
 
@@ -404,8 +419,7 @@ public class AttendanceSetUpService {
   }
 
   private void saveEmployeeTaSettings(
-      final TimeAndAttendanceDetailsDto timeAndAttendanceDetailsDto,
-      final StaticTimezone companyTimezone) {
+      final TimeAndAttendanceDetailsDto timeAndAttendanceDetailsDto) {
     final List<EmployeesTaSetting> employeesTaSettings = new ArrayList<>();
     timeAndAttendanceDetailsDto
         .getOvertimeDetails()
@@ -417,24 +431,10 @@ public class AttendanceSetUpService {
               if (employeesTaSetting != null) {
                 return;
               }
-              final User user = userService.findById(employeeId);
               final int defaultMessagingOn = EmailNotificationStatus.ON.getValue();
-              final Office office =
-                  jobUserRepository
-                      .findByUserId(employeeOvertimeDetailsDto.getEmployeeId())
-                      .getOffice();
               employeesTaSettings.add(
                   employeesTaSettingsMapper.convertToEmployeeTaSettings(
                       employeeId, defaultMessagingOn));
-              if (user.getTimeZone() != null) {
-                return;
-              }
-              if (office != null && office.getOfficeAddress() != null) {
-                user.setTimeZone(office.getOfficeAddress().getTimeZone());
-              } else {
-                user.setTimeZone(companyTimezone);
-              }
-              userRepository.save(user);
             });
     employeesTaSettingRepository.saveAll(employeesTaSettings);
   }

@@ -1,6 +1,24 @@
 package shamu.company.user.service;
 
 import io.micrometer.core.instrument.util.StringUtils;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceException;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,25 +104,6 @@ import shamu.company.user.exception.errormapping.WorkEmailDuplicatedException;
 import shamu.company.user.repository.UserRepository;
 import shamu.company.utils.DateUtil;
 import shamu.company.utils.UuidUtil;
-
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceException;
-import java.sql.Timestamp;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -973,5 +972,9 @@ public class UserService {
     final User user = findActiveUserById(userId);
     user.setInvitationCapabilityFrozenAt(null);
     userRepository.save(user);
+  }
+
+  public List<User> findUsersWithoutTimezone() {
+    return userRepository.findUsersWithoutTimezone();
   }
 }

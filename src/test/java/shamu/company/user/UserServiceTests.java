@@ -1,6 +1,22 @@
 package shamu.company.user;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
 import com.auth0.json.auth.CreatedUser;
+import java.sql.Date;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import javax.persistence.EntityManager;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -82,23 +98,6 @@ import shamu.company.user.service.UserRoleService;
 import shamu.company.user.service.UserService;
 import shamu.company.user.service.UserStatusService;
 import shamu.company.utils.UuidUtil;
-
-import javax.persistence.EntityManager;
-import java.sql.Date;
-import java.sql.Timestamp;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 class UserServiceTests {
 
@@ -307,10 +306,15 @@ class UserServiceTests {
       final User user = new User(UuidUtil.getUuidString());
       user.setUserContactInformation(new UserContactInformation());
       user.setUserStatus(new UserStatus(Status.PENDING_VERIFICATION.name()));
-      Mockito.when(userRepository.findByResetPasswordToken(updatePasswordDto.getResetPasswordToken())).thenReturn(user);
-      Mockito.when(auth0Helper.getUserByUserIdFromAuth0(Mockito.any())).thenReturn(new com.auth0.json.mgmt.users.User());
-      Mockito.when(userStatusService.findByName(Status.PENDING_VERIFICATION.name())).thenReturn(new UserStatus(Status.PENDING_VERIFICATION.name()));
-      Mockito.when(userStatusService.findByName(Status.ACTIVE.name())).thenReturn(new UserStatus(Status.ACTIVE.name()));
+      Mockito.when(
+              userRepository.findByResetPasswordToken(updatePasswordDto.getResetPasswordToken()))
+          .thenReturn(user);
+      Mockito.when(auth0Helper.getUserByUserIdFromAuth0(Mockito.any()))
+          .thenReturn(new com.auth0.json.mgmt.users.User());
+      Mockito.when(userStatusService.findByName(Status.PENDING_VERIFICATION.name()))
+          .thenReturn(new UserStatus(Status.PENDING_VERIFICATION.name()));
+      Mockito.when(userStatusService.findByName(Status.ACTIVE.name()))
+          .thenReturn(new UserStatus(Status.ACTIVE.name()));
       userService.resetPassword(updatePasswordDto);
       assertThat(user.getUserStatus()).isEqualTo(new UserStatus(Status.ACTIVE.name()));
     }
@@ -940,8 +944,8 @@ class UserServiceTests {
     void whenProcessIsOk_thenShouldNotThrow() {
       final com.auth0.json.mgmt.users.User auth0User = new com.auth0.json.mgmt.users.User();
       Mockito.when(
-          auth0Helper.getAuth0UserByIdWithByEmailFailover(
-              Mockito.anyString(), Mockito.anyString()))
+              auth0Helper.getAuth0UserByIdWithByEmailFailover(
+                  Mockito.anyString(), Mockito.anyString()))
           .thenReturn(auth0User);
       assertThatCode(() -> userService.deleteUser(employee)).doesNotThrowAnyException();
     }
@@ -951,7 +955,6 @@ class UserServiceTests {
       Mockito.when(auth0Helper.isIndeedEnvironment()).thenReturn(true);
       Mockito.verify(auth0Helper, Mockito.times(0)).deleteUser(Mockito.anyString());
     }
-
   }
 
   @Test
@@ -1068,5 +1071,12 @@ class UserServiceTests {
       assertThatCode(() -> userService.listHasPendingTimeSheetsManagerAndAdmin(periodId))
           .doesNotThrowAnyException();
     }
+  }
+
+  @Test
+  void findUsersWithoutTimezone() {
+    final List<User> users = new ArrayList<>();
+    Mockito.when(userRepository.findUsersWithoutTimezone()).thenReturn(users);
+    assertThatCode(() -> userService.findUsersWithoutTimezone()).doesNotThrowAnyException();
   }
 }

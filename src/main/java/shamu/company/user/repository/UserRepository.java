@@ -1,11 +1,10 @@
 package shamu.company.user.repository;
 
+import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import shamu.company.user.entity.User;
-
-import java.util.List;
-import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, String>, UserCustomRepository {
 
@@ -50,7 +49,8 @@ public interface UserRepository extends JpaRepository<User, String>, UserCustomR
   User findByEmailWork(String emailWork);
 
   @Query(
-      value = "SELECT * FROM users u " + "WHERE u.manager_user_id = unhex(?1) AND " + ACTIVE_USER_QUERY,
+      value =
+          "SELECT * FROM users u " + "WHERE u.manager_user_id = unhex(?1) AND " + ACTIVE_USER_QUERY,
       nativeQuery = true)
   List<User> findAllByManagerUserId(String id);
 
@@ -152,4 +152,7 @@ public interface UserRepository extends JpaRepository<User, String>, UserCustomR
   List<User> findManagersByPeriodIdAndTimeSheetStatus(String periodId, String timeSheetStatus);
 
   List<User> findAllByTimeZoneIsNull();
+
+  @Query(value = "select u from User u where u.timeZone is null")
+  List<User> findUsersWithoutTimezone();
 }

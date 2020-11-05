@@ -1,5 +1,18 @@
 package shamu.company.attendance;
 
+import static org.assertj.core.api.Assertions.assertThatCode;
+
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -53,19 +66,6 @@ import shamu.company.user.repository.CompensationFrequencyRepository;
 import shamu.company.user.repository.UserRepository;
 import shamu.company.user.service.UserCompensationService;
 import shamu.company.user.service.UserService;
-
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-
-import static org.assertj.core.api.Assertions.assertThatCode;
 
 public class AttendanceSetUpServiceTests {
 
@@ -188,7 +188,7 @@ public class AttendanceSetUpServiceTests {
     String companyId = "testCompanyId";
     String userId = "testUserId";
     String employeeId = "employeeId";
-    JobUser jobUser = new JobUser();
+    JobUser jobUser;
     Office office = new Office();
     OfficeAddress officeAddress = new OfficeAddress();
     StaticCompanyPayFrequencyType staticCompanyPayFrequencyType =
@@ -198,18 +198,22 @@ public class AttendanceSetUpServiceTests {
     CompanyTaSetting companyTaSetting = new CompanyTaSetting();
     Map<String, String> timezones = new HashMap();
     Set<String> set = new HashSet();
+    User user;
 
     @BeforeEach
     void init() {
+      user = new User();
+      user.setId("1");
+      jobUser = new JobUser();
       timeAndAttendanceDetailsDto.setPayDate("01/01/2020");
       timeAndAttendanceDetailsDto.setOvertimeDetails(details);
       timeAndAttendanceDetailsDto.setPeriodStartDate("01/01/2020");
       timeAndAttendanceDetailsDto.setPeriodEndDate("01/03/2020");
+      staticTimezone.setName("America/Chicago");
       officeAddress.setPostalCode("postalCode");
       officeAddress.setTimeZone(staticTimezone);
       office.setOfficeAddress(officeAddress);
       jobUser.setOffice(office);
-      staticTimezone.setName("America/Chicago");
       companyTaSetting.setTimeZone(staticTimezone);
       timePeriod.setStartDate(new Timestamp(new Date().getTime() + 3000));
       timePeriod.setEndDate(new Timestamp(new Date().getTime()));
@@ -247,20 +251,14 @@ public class AttendanceSetUpServiceTests {
       detailsDto.setHireDate(new Date());
       details.add(detailsDto);
       Mockito.when(userService.findById(Mockito.anyString())).thenReturn(new User());
+      Mockito.when(userService.findUsersWithoutTimezone())
+          .thenReturn(Collections.singletonList(user));
       Mockito.when(userCompensationService.existsByUserId(Mockito.any())).thenReturn(true);
       Mockito.when(userCompensationService.findByUserId(Mockito.any()))
           .thenReturn(new UserCompensation());
       Mockito.when(compensationFrequencyRepository.findById(Mockito.any()))
           .thenReturn(Optional.of(new CompensationFrequency()));
       Mockito.when(attendanceSettingsService.findCompanySetting()).thenReturn(companyTaSetting);
-
-      final JobUser jobUser = new JobUser();
-      final Office office = new Office();
-      final OfficeAddress officeAddress = new OfficeAddress();
-      officeAddress.setPostalCode("postalCode");
-      officeAddress.setTimeZone(staticTimezone);
-      office.setOfficeAddress(officeAddress);
-      jobUser.setOffice(office);
 
       Mockito.when(jobUserRepository.findByUserId(Mockito.anyString())).thenReturn(jobUser);
       Mockito.when(timeSheetService.saveAll(Mockito.any())).thenReturn(Mockito.any());
