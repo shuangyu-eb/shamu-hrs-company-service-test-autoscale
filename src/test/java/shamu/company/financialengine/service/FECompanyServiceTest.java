@@ -26,6 +26,9 @@ import shamu.company.company.entity.Company;
 import shamu.company.company.service.CompanyService;
 import shamu.company.financialengine.FinancialEngineResponse;
 import shamu.company.financialengine.dto.AddNewFECompanyResponseDto;
+import shamu.company.financialengine.dto.BankAccountDto;
+import shamu.company.financialengine.dto.BankAccountInfoDto;
+import shamu.company.financialengine.dto.BankConnectionDto;
 import shamu.company.financialengine.dto.BankConnectionWidgetDto;
 import shamu.company.financialengine.dto.CompanyInformationDto;
 import shamu.company.financialengine.dto.CompanyTaxIdDto;
@@ -276,5 +279,37 @@ class FECompanyServiceTest {
         "/company/" + feCompany.getFeCompanyId() + "/bank/connect", recordedRequest.getPath());
     assertEquals(result.getOriginUrl(), "test1");
     assertEquals(result.getCompanyBankConnectUrl(), "test2");
+  }
+
+  @Test
+  public void testGetBankAccountInfo() throws Exception {
+    final FECompany feCompany = new FECompany();
+    feCompany.setFeCompanyId("test");
+    final Company company = new Company();
+    company.setId(UuidUtil.getUuidString());
+    feCompany.setCompany(company);
+    Mockito.when(companyService.getCompany()).thenReturn(company);
+    Mockito.when(feCompanyRepository.findByCompanyId(company.getId())).thenReturn(feCompany);
+
+    final FinancialEngineResponse<BankAccountInfoDto> financialEngineResponse =
+        new FinancialEngineResponse<>();
+    BankAccountInfoDto bankAccountInfoDto = new BankAccountInfoDto();
+    List<BankConnectionDto> bankConnections = new ArrayList<>();
+    bankConnections.add(new BankConnectionDto());
+    bankAccountInfoDto.setBankConnections(bankConnections);
+    financialEngineResponse.setBody(bankAccountInfoDto);
+    financialEngineResponse.setSuccess(true);
+
+    mockBackEnd.enqueue(
+        new MockResponse()
+            .setBody(MAPPER.writeValueAsString(financialEngineResponse))
+            .addHeader("Content-Type", "application/json"));
+    BankAccountInfoDto result = feCompanyService.getBankAccountInfo();
+    final RecordedRequest recordedRequest = mockBackEnd.takeRequest();
+
+    assertEquals(
+        "/company/" + feCompany.getFeCompanyId() + "/bank/sync", recordedRequest.getPath());
+
+    assertEquals(result.getBankConnections().size(),bankConnections.size());
   }
 }

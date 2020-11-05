@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import shamu.company.financialengine.dto.BankAccountInfoDto;
 import shamu.company.financialengine.dto.BankConnectionWidgetDto;
 import shamu.company.financialengine.dto.CompanyInformationDto;
 import shamu.company.financialengine.dto.IndustryDto;
@@ -52,5 +53,10 @@ public class FECompanyController {
   @GetMapping("/bank/connection-widget")
   public BankConnectionWidgetDto getBankConnect() {
     return feCompanyService.getBankConnection();
+  }
+
+  @GetMapping("/bank/account-info")
+  public BankAccountInfoDto getBankAccountInfo() {
+    return feCompanyService.getBankAccountInfo();
   }
 }

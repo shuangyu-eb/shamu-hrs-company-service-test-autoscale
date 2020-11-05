@@ -17,6 +17,7 @@ import shamu.company.crypto.SecretHashRepository;
 import shamu.company.financialengine.FinancialEngineResponse;
 import shamu.company.financialengine.dto.AddNewFEAddressResponseDto;
 import shamu.company.financialengine.dto.AddNewFECompanyResponseDto;
+import shamu.company.financialengine.dto.BankAccountInfoDto;
 import shamu.company.financialengine.dto.BankConnectionWidgetDto;
 import shamu.company.financialengine.dto.GetBankConnectResponseDto;
 import shamu.company.financialengine.dto.CompanyInformationDto;
@@ -226,11 +227,26 @@ public class FECompanyService {
       bankConnectionWidgetDto.setOriginUrl(matcher.group(1));
     }
     String urlRegexp = "url: \"(.*)\"";
-     pattern = Pattern.compile(urlRegexp);
-     matcher = pattern.matcher(script);
-     if (matcher.find()) {
-       bankConnectionWidgetDto.setCompanyBankConnectUrl(matcher.group(1));
-     }
-     return bankConnectionWidgetDto;
+    pattern = Pattern.compile(urlRegexp);
+    matcher = pattern.matcher(script);
+    if (matcher.find()) {
+      bankConnectionWidgetDto.setCompanyBankConnectUrl(matcher.group(1));
+    }
+    return bankConnectionWidgetDto;
+  }
+
+  public BankAccountInfoDto getBankAccountInfo() {
+    final Company company = companyService.getCompany();
+    FECompany feCompany = feCompanyRepository.findByCompanyId(company.getId());
+    final Mono<FinancialEngineResponse<BankAccountInfoDto>> bankAccountMono =
+        financialEngineHelper
+            .get(String.format("/company/%s/bank/sync", feCompany.getFeCompanyId()));
+    FinancialEngineResponse<BankAccountInfoDto> response = bankAccountMono.block();
+
+    BankAccountInfoDto bankAccountInfoDto = new BankAccountInfoDto();
+    if (response != null) {
+      bankAccountInfoDto = response.getBody(BankAccountInfoDto.class);
+    }
+    return bankAccountInfoDto;
   }
 }
