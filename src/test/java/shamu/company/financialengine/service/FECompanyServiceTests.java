@@ -1,18 +1,13 @@
 package shamu.company.financialengine.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -21,19 +16,16 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.reactive.function.client.WebClient;
+import shamu.company.common.exception.errormapping.ResourceNotFoundException;
 import shamu.company.common.service.OfficeService;
 import shamu.company.company.entity.Company;
 import shamu.company.company.service.CompanyService;
 import shamu.company.financialengine.FinancialEngineResponse;
+import shamu.company.financialengine.WebFluxWebServer;
 import shamu.company.financialengine.dto.AddNewFECompanyResponseDto;
-import shamu.company.financialengine.dto.BankAccountDto;
-import shamu.company.financialengine.dto.BankAccountInfoDto;
-import shamu.company.financialengine.dto.BankConnectionDto;
-import shamu.company.financialengine.dto.BankConnectionWidgetDto;
 import shamu.company.financialengine.dto.CompanyInformationDto;
 import shamu.company.financialengine.dto.CompanyTaxIdDto;
 import shamu.company.financialengine.dto.FECompanyDto;
-import shamu.company.financialengine.dto.GetBankConnectResponseDto;
 import shamu.company.financialengine.dto.IndustryDto;
 import shamu.company.financialengine.dto.LegalEntityTypeDto;
 import shamu.company.financialengine.dto.NewFECompanyInformationDto;
@@ -44,26 +36,13 @@ import shamu.company.financialengine.repository.FECompanyRepository;
 import shamu.company.helpers.FinancialEngineHelper;
 import shamu.company.utils.UuidUtil;
 
-class FECompanyServiceTest {
-  public static MockWebServer mockBackEnd;
-  private final ObjectMapper MAPPER = new ObjectMapper();
+class FECompanyServiceTests extends WebFluxWebServer {
   private FECompanyService feCompanyService;
   @Mock private FECompanyMapper feCompanyMapper;
   @Mock private CompanyService companyService;
   @Mock private FECompanyRepository feCompanyRepository;
   @Mock private FEAddressRepository feAddressRepository;
   @Mock private OfficeService officeService;
-
-  @BeforeAll
-  static void setUp() throws IOException {
-    mockBackEnd = new MockWebServer();
-    mockBackEnd.start();
-  }
-
-  @AfterAll
-  static void tearDown() throws IOException {
-    mockBackEnd.shutdown();
-  }
 
   @BeforeEach
   void initialize() {
@@ -100,9 +79,9 @@ class FECompanyServiceTest {
 
   @Test
   void testGetCompanyInformation() throws Exception {
-    Company company = new Company();
+    final Company company = new Company();
     company.setId(UuidUtil.getUuidString());
-    FECompany feCompany = new FECompany();
+    final FECompany feCompany = new FECompany();
     feCompany.setCompany(company);
     feCompany.setFeCompanyId(UuidUtil.getUuidString());
 
@@ -126,7 +105,7 @@ class FECompanyServiceTest {
 
   @Test
   void testGetCompanyInformation_when_FeCompanyIsNull_thenReturnDto() {
-    Company company = new Company();
+    final Company company = new Company();
     company.setId(UuidUtil.getUuidString());
 
     Mockito.when(companyService.getCompany()).thenReturn(company);
@@ -139,8 +118,7 @@ class FECompanyServiceTest {
   class saveFinancialEngine {
     private Company company;
     private NewFECompanyInformationDto companyInformationDto;
-    private FECompanyDto newCompanyDto;
-    private String companyUuid = UuidUtil.getUuidString();
+    private final String companyUuid = UuidUtil.getUuidString();
 
     @BeforeEach
     void init() {
@@ -150,7 +128,7 @@ class FECompanyServiceTest {
       companyInformationDto = new NewFECompanyInformationDto();
       companyInformationDto.setMailingAddress(UuidUtil.getUuidString());
 
-      newCompanyDto = new FECompanyDto();
+      final FECompanyDto newCompanyDto = new FECompanyDto();
 
       Mockito.when(companyService.getCompany()).thenReturn(company);
       Mockito.when(feCompanyMapper.convertFECompanyDto(companyInformationDto))
@@ -158,8 +136,12 @@ class FECompanyServiceTest {
     }
 
     @Test
+    void whenResponseIsNull_orResponseHasError_thenThrowException() {}
+
+    @Test
     void when_not_exist_feCompany_then_addNew() throws Exception {
-      AddNewFECompanyResponseDto addNewFECompanyResponseDto = new AddNewFECompanyResponseDto();
+      final AddNewFECompanyResponseDto addNewFECompanyResponseDto =
+          new AddNewFECompanyResponseDto();
       addNewFECompanyResponseDto.setCompanyUuid(companyUuid);
 
       final FinancialEngineResponse<AddNewFECompanyResponseDto> financialEngineResponse =
@@ -181,23 +163,26 @@ class FECompanyServiceTest {
 
     @Test
     void when_existFeCompany_then_shouldUpdate() throws Exception {
-      FECompany feCompany = new FECompany();
+      final FECompany feCompany = new FECompany();
       feCompany.setCompany(company);
 
       Mockito.when(feCompanyRepository.findByCompanyId(company.getId())).thenReturn(feCompany);
+      Mockito.when(companyService.getCompany()).thenReturn(company);
 
       final FinancialEngineResponse<String> financialEngineResponse =
           new FinancialEngineResponse<>();
       financialEngineResponse.setSuccess(true);
+
       mockBackEnd.enqueue(
           new MockResponse()
               .setBody(MAPPER.writeValueAsString(financialEngineResponse))
-              .addHeader("Content-Type", "application/json"));
+              .setHeader("Content-Type", "application/json"));
+
       feCompanyService.saveFinancialEngine(companyInformationDto);
+
       final RecordedRequest recordedRequest = mockBackEnd.takeRequest();
 
-      assertEquals(RequestMethod.PUT.name(), recordedRequest.getMethod());
-      assertEquals(null, financialEngineResponse.getBody());
+      Mockito.verify(feCompanyRepository, Mockito.times(1)).findByCompanyId(Mockito.any());
     }
   }
 
@@ -231,7 +216,7 @@ class FECompanyServiceTest {
     Mockito.when(feCompanyRepository.findByCompanyId(company.getId())).thenReturn(feCompany);
 
     final List<CompanyTaxIdDto> companyTaxIdDtos = new ArrayList<>();
-    CompanyTaxIdDto companyTaxIdDto = new CompanyTaxIdDto();
+    final CompanyTaxIdDto companyTaxIdDto = new CompanyTaxIdDto();
     companyTaxIdDtos.add(companyTaxIdDto);
     companyTaxIdDtos.add(new CompanyTaxIdDto());
     final FinancialEngineResponse<List<CompanyTaxIdDto>> financialEngineResponse =
@@ -253,63 +238,11 @@ class FECompanyServiceTest {
   }
 
   @Test
-  public void testGetBankConnection() throws Exception {
-    final FECompany feCompany = new FECompany();
-    feCompany.setFeCompanyId("test");
+  void testGetAvailableTaxList_whenFECompanyIsNull_thenThrowResourceNotFoundException() {
     final Company company = new Company();
-    company.setId(UuidUtil.getUuidString());
-    feCompany.setCompany(company);
     Mockito.when(companyService.getCompany()).thenReturn(company);
-    Mockito.when(feCompanyRepository.findByCompanyId(company.getId())).thenReturn(feCompany);
-    final FinancialEngineResponse<GetBankConnectResponseDto> financialEngineResponse =
-        new FinancialEngineResponse<>();
-    GetBankConnectResponseDto getBankConnectResponseDto = new GetBankConnectResponseDto();
-    getBankConnectResponseDto.setWidgetHtml(
-        Base64.getEncoder().encodeToString("src=\"test1\" \n url: \"test2\"".getBytes()));
-    financialEngineResponse.setBody(getBankConnectResponseDto);
-    financialEngineResponse.setSuccess(true);
-    mockBackEnd.enqueue(
-        new MockResponse()
-            .setBody(MAPPER.writeValueAsString(financialEngineResponse))
-            .addHeader("Content-Type", "application/json"));
-    BankConnectionWidgetDto result = feCompanyService.getBankConnection();
-    final RecordedRequest recordedRequest = mockBackEnd.takeRequest();
-    assertEquals(RequestMethod.GET.name(), recordedRequest.getMethod());
-    assertEquals(
-        "/company/" + feCompany.getFeCompanyId() + "/bank/connect", recordedRequest.getPath());
-    assertEquals(result.getOriginUrl(), "test1");
-    assertEquals(result.getCompanyBankConnectUrl(), "test2");
-  }
-
-  @Test
-  public void testGetBankAccountInfo() throws Exception {
-    final FECompany feCompany = new FECompany();
-    feCompany.setFeCompanyId("test");
-    final Company company = new Company();
-    company.setId(UuidUtil.getUuidString());
-    feCompany.setCompany(company);
-    Mockito.when(companyService.getCompany()).thenReturn(company);
-    Mockito.when(feCompanyRepository.findByCompanyId(company.getId())).thenReturn(feCompany);
-
-    final FinancialEngineResponse<BankAccountInfoDto> financialEngineResponse =
-        new FinancialEngineResponse<>();
-    BankAccountInfoDto bankAccountInfoDto = new BankAccountInfoDto();
-    List<BankConnectionDto> bankConnections = new ArrayList<>();
-    bankConnections.add(new BankConnectionDto());
-    bankAccountInfoDto.setBankConnections(bankConnections);
-    financialEngineResponse.setBody(bankAccountInfoDto);
-    financialEngineResponse.setSuccess(true);
-
-    mockBackEnd.enqueue(
-        new MockResponse()
-            .setBody(MAPPER.writeValueAsString(financialEngineResponse))
-            .addHeader("Content-Type", "application/json"));
-    BankAccountInfoDto result = feCompanyService.getBankAccountInfo();
-    final RecordedRequest recordedRequest = mockBackEnd.takeRequest();
-
-    assertEquals(
-        "/company/" + feCompany.getFeCompanyId() + "/bank/sync", recordedRequest.getPath());
-
-    assertEquals(result.getBankConnections().size(),bankConnections.size());
+    Mockito.when(feCompanyRepository.findByCompanyId(company.getId())).thenReturn(null);
+    assertThatExceptionOfType(ResourceNotFoundException.class)
+        .isThrownBy(() -> feCompanyService.getAvailableTaxList());
   }
 }

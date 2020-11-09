@@ -7,56 +7,42 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import shamu.company.financialengine.dto.BankAccountInfoDto;
-import shamu.company.financialengine.dto.BankConnectionWidgetDto;
+import shamu.company.financialengine.annotation.FinancialEngineRestController;
 import shamu.company.financialengine.dto.CompanyInformationDto;
 import shamu.company.financialengine.dto.IndustryDto;
 import shamu.company.financialengine.dto.LegalEntityTypeDto;
 import shamu.company.financialengine.dto.NewFECompanyInformationDto;
+import shamu.company.financialengine.exception.FinancialEngineGenericException;
 import shamu.company.financialengine.service.FECompanyService;
 
-@RestController
-// TODO Consider adding an annotation like '@FinancialEngineRestApiController'
-// TODO Haven't decided to extend from 'BaseController'
-@RequestMapping("/company/financial-engine")
-public class FECompanyController {
+@FinancialEngineRestController
+public class FECompanyRestController {
   private final FECompanyService feCompanyService;
 
-  public FECompanyController(final FECompanyService feCompanyService) {
+  public FECompanyRestController(final FECompanyService feCompanyService) {
     this.feCompanyService = feCompanyService;
   }
 
-  @GetMapping("/available-industries")
+  @GetMapping("available-industries")
   public List<IndustryDto> getAvailableIndustries() {
     return feCompanyService.getAvailableIndustries();
   }
 
-  @GetMapping("/info")
+  @GetMapping("company-info")
   public CompanyInformationDto getCompanyInformation() {
     return feCompanyService.getCompanyInformation();
   }
 
-  @PostMapping("/save")
+  @PostMapping("company")
   public HttpEntity saveFinancialEngine(
-      @RequestBody final NewFECompanyInformationDto feCompanyInformationDto) throws Exception {
+      @RequestBody final NewFECompanyInformationDto feCompanyInformationDto)
+      throws FinancialEngineGenericException {
     feCompanyService.saveFinancialEngine(feCompanyInformationDto);
     return new ResponseEntity(HttpStatus.OK);
   }
 
-  @GetMapping("/legal-entity-types")
+  @GetMapping("available-legal-entity-types")
   public List<LegalEntityTypeDto> getLegalEntityTypes() {
     return feCompanyService.getLegalEntityTypes();
-  }
-
-  @GetMapping("/bank/connection-widget")
-  public BankConnectionWidgetDto getBankConnect() {
-    return feCompanyService.getBankConnection();
-  }
-
-  @GetMapping("/bank/account-info")
-  public BankAccountInfoDto getBankAccountInfo() {
-    return feCompanyService.getBankAccountInfo();
   }
 }

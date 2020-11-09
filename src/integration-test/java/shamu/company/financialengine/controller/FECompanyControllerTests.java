@@ -25,8 +25,8 @@ import shamu.company.financialengine.service.FECompanyService;
 import shamu.company.tests.utils.JwtUtil;
 import shamu.company.utils.JsonUtil;
 
-@WebMvcTest(controllers = FECompanyController.class)
-class FECompanyControllerTest extends WebControllerBaseTests {
+@WebMvcTest(controllers = FECompanyRestController.class)
+class FECompanyControllerTests extends WebControllerBaseTests {
   @Autowired private MockMvc mockMvc;
 
   @MockBean FECompanyService feCompanyService;
@@ -48,7 +48,7 @@ class FECompanyControllerTest extends WebControllerBaseTests {
   }
 
   @Test
-  void testGetCompanyInformation() throws Exception {
+  void testGetCompany() throws Exception {
     final CompanyInformationDto companyInformationDto = new CompanyInformationDto();
     given(feCompanyService.getCompanyInformation()).willReturn(companyInformationDto);
     final HttpHeaders httpHeaders = new HttpHeaders();
@@ -56,7 +56,7 @@ class FECompanyControllerTest extends WebControllerBaseTests {
     final MvcResult response =
         mockMvc
             .perform(
-                MockMvcRequestBuilders.get("/company/financial-engine/info")
+                MockMvcRequestBuilders.get("/company/financial-engine/company-info")
                     .contentType(MediaType.APPLICATION_JSON)
                     .headers(httpHeaders))
             .andReturn();
@@ -64,7 +64,7 @@ class FECompanyControllerTest extends WebControllerBaseTests {
   }
 
   @Test
-  void testSaveFinancialEngine() throws Exception {
+  void testSaveCompany() throws Exception {
     final NewFECompanyInformationDto companyDetailsDto = new NewFECompanyInformationDto();
     doNothing().when(feCompanyService).saveFinancialEngine(companyDetailsDto);
     final HttpHeaders httpHeaders = new HttpHeaders();
@@ -72,7 +72,7 @@ class FECompanyControllerTest extends WebControllerBaseTests {
     final MvcResult response =
         mockMvc
             .perform(
-                MockMvcRequestBuilders.post("/company/financial-engine/save")
+                MockMvcRequestBuilders.post("/company/financial-engine/company")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(JsonUtil.formatToString(companyDetailsDto))
                     .headers(httpHeaders))
@@ -89,7 +89,7 @@ class FECompanyControllerTest extends WebControllerBaseTests {
     final MvcResult response =
         mockMvc
             .perform(
-                MockMvcRequestBuilders.get("/company/financial-engine/legal-entity-types")
+                MockMvcRequestBuilders.get("/company/financial-engine/available-legal-entity-types")
                     .contentType(MediaType.APPLICATION_JSON)
                     .headers(httpHeaders))
             .andReturn();
