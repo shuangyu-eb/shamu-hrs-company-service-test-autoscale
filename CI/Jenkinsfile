@@ -17,7 +17,7 @@ pipeline {
                 dir('shamu-hrs') {
                     git branch: "master",
                     credentialsId: "${credentialsId}",
-                    url: 'https://github.com/tardisone/shamu-hrs.git'
+                    url: 'https://github.com/tardisone/shamu-hrs-autoscale-test.git'
                 }
             }
         }
