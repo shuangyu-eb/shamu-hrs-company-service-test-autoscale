@@ -39,7 +39,7 @@ public class StaticTableDeleteTaskChange implements CustomTaskChange {
 
   @Override
   public String getConfirmationMessage() {
-    return "Static Table " + tableName + " updates!";
+    return "Static Tablexxxxxxx " + tableName + " updates!";
   }
 
   @Override
